@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans text-text-primary antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .login-bg-animate {
+    animation: loginBgFloat 18s ease-in-out infinite;
+    transform-origin: center;
+    will-change: transform;
+  }
+}
+
+@keyframes loginBgFloat {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.06) translate3d(-2%, -1%, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-bg-animate {
+    animation: none;
+    transform: none;
+  }
+}
+
+/* Copilot orb animation */
+.copilot-orb {
+  animation: orb-float 4s ease-in-out infinite;
+}
+
+.copilot-orb .orb-inner {
+  box-shadow: 0 10px 30px rgba(31, 182, 255, 0.25);
+  animation: orb-pulse 2.5s ease-in-out infinite;
+}
+
+.copilot-orb .orb-shine {
+  animation: orb-shine 3s ease-in-out infinite;
+}
+
+@keyframes orb-float {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+@keyframes orb-pulse {
+  0%, 100% {
+    box-shadow: 0 10px 30px rgba(31, 182, 255, 0.25);
+    opacity: 1;
+  }
+  50% {
+    box-shadow: 0 12px 36px rgba(31, 182, 255, 0.4);
+    opacity: 0.98;
+  }
+}
+
+@keyframes orb-shine {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .copilot-orb,
+  .copilot-orb .orb-inner,
+  .copilot-orb .orb-shine {
+    animation: none;
+  }
+}
+
+/* Agent Studio entrance – dot tunnel */
+.agent-studio-tunnel-wrap {
+  animation: agentStudioTunnelZoom 8s ease-in-out infinite;
+}
+
+.agent-studio-tunnel-dot {
+  animation: agentStudioDotPulse 3s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes agentStudioTunnelZoom {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.95;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes agentStudioDotPulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-studio-tunnel-wrap,
+  .agent-studio-tunnel-dot {
+    animation: none;
+  }
+}
+
+/* Integration icon – feixe em gradiente PERCORRENDO a borda (como sangue nas veias), sem rotação */
+@property --integration-beam-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes integration-beam-travel {
+  to {
+    --integration-beam-angle: 360deg;
+  }
+}
+
+.integration-icon-gradient-border {
+  background: conic-gradient(
+    from var(--integration-beam-angle),
+    transparent 0deg,
+    transparent 10deg,
+    #5616f9 250deg,
+    #ec4899 270deg,
+    #8b5cf6 290deg,
+    #06b6d4 310deg,
+    transparent 330deg,
+    transparent 360deg
+  );
+  animation: integration-beam-travel 5.5s linear infinite;
+  box-shadow: 0 0 30px rgba(236, 72, 153, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .integration-icon-gradient-border {
+    animation: none;
+  }
+}
+
+/* Memory Base Onboarding Animations */
+
+/* Pulse animation for the Memory Base icon container */
+@keyframes onboarding-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(13, 13, 13, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(13, 13, 13, 0.05);
+  }
+}
+
+.animate-onboarding-pulse {
+  animation: onboarding-pulse 2s ease-in-out infinite;
+}
+
+/* Draw animation for branching lines */
+@keyframes onboarding-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Fade in from right */
+@keyframes onboarding-fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Fade in from bottom */
+@keyframes onboarding-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Simple fade in */
+@keyframes onboarding-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Center drop animation for step 3 */
+@keyframes onboarding-centerDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.9);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Ray pulse animation for step 4 background (legacy) */
+@keyframes onboarding-rayPulse {
+  0%, 100% {
+    opacity: 0.15;
+    stroke-width: 1;
+  }
+  50% {
+    opacity: 0.4;
+    stroke-width: 2.5;
+  }
+}
+
+/* Linhas onduladas – step 4: fluxo roxo→azul emanando do círculo de pontos */
+.onboarding-waveLine {
+  animation: onboarding-waveFlow 3.5s ease-in-out infinite;
+}
+
+@keyframes onboarding-waveFlow {
+  0%, 100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-onboarding-pulse,
+  .onboarding-waveLine {
+    animation: none;
+  }
+  
+  [style*="onboarding-"] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

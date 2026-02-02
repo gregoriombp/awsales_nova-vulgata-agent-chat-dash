@@ -1,0 +1,218 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { usePathname, useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+
+const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
+const MEMORY_BASE_SOURCES_KEY_PREFIX = "memory-base-sources-";
+const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
+
+interface MemoryBaseItem {
+  id: string;
+  name: string;
+  documentCount?: number;
+}
+
+function loadBasesFromStorage(): MemoryBaseItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw) as { id?: string; name?: string; documentCount?: number }[];
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((b): b is { id: string; name: string; documentCount?: number } => typeof b?.id === "string" && typeof b?.name === "string")
+      .map((b) => ({ id: b.id, name: b.name, documentCount: b?.documentCount ?? 0 }));
+  } catch {
+    return [];
+  }
+}
+
+function getSourceCount(baseId: string): number {
+  if (typeof window === "undefined" || !baseId) return 0;
+  try {
+    const raw = window.localStorage.getItem(MEMORY_BASE_SOURCES_KEY_PREFIX + baseId);
+    if (!raw) return 0;
+    const arr = JSON.parse(raw);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function getBaseName(baseId: string): string {
+  if (typeof window === "undefined" || !baseId) return "Base de conhecimento";
+  try {
+    const saved = window.localStorage.getItem(MEMORY_BASE_NAME_KEY_PREFIX + baseId);
+    if (saved) return saved;
+    const bases = loadBasesFromStorage();
+    const base = bases.find((b) => b.id === baseId);
+    return base?.name ?? "Base de conhecimento";
+  } catch {
+    return "Base de conhecimento";
+  }
+}
+
+function FolderIcon({ className }: { className?: string }) {
+  return (
+    <img
+      src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"
+      alt=""
+      width={24}
+      height={24}
+      className={className}
+    />
+  );
+}
+
+function DocumentIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-8-6Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M14 3v6h8" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+      <path d="M20 20L16.5 16.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function SettingsIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41M19.07 4.93l-1.41 1.41M6.34 17.66l-1.41 1.41" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+export default function MemoryBaseSidebar() {
+  const pathname = usePathname();
+  const params = useParams<{ id: string }>();
+  const router = useRouter();
+  const [bases, setBases] = useState<MemoryBaseItem[]>([]);
+
+  const isFolderView = pathname === "/memory-base";
+  const baseId = typeof params?.id === "string" ? params.id : null;
+  const isDocumentsActive = baseId && pathname === `/memory-base/${baseId}` && !pathname.includes("/semantic-search") && !pathname.includes("/settings");
+  const isSemanticSearchActive = baseId && pathname?.includes("/semantic-search");
+  const isSettingsActive = baseId && pathname?.includes("/settings");
+
+  useEffect(() => {
+    setBases(loadBasesFromStorage());
+  }, [pathname]);
+
+  const currentBaseName = baseId ? getBaseName(baseId) : "";
+  const currentBaseDocCount = baseId ? getSourceCount(baseId) : 0;
+
+  return (
+    <aside
+      className="w-[280px] h-full bg-white border-r border-[#f2f2f2] flex flex-col flex-shrink-0 overflow-hidden"
+      data-tour="kb-sidebar"
+    >
+      <div className="flex-1 min-h-0 overflow-y-auto py-4">
+        {isFolderView ? (
+          /* Navegação em árvore: pastas = Bases de Conhecimento */
+          <div className="px-3">
+            <div className="border-b border-[#f2f2f2] px-4 pb-4 mb-2 flex items-center gap-2">
+              <FolderIcon className="flex-shrink-0 text-[#1a1a1a]" />
+              <span className="text-[16px] font-semibold text-[#1a1a1a]">Bases de Conhecimento</span>
+            </div>
+            {bases.map((base) => {
+              const count = getSourceCount(base.id) || (base.documentCount ?? 0);
+              return (
+                <button
+                  key={base.id}
+                  type="button"
+                  onClick={() => router.push(`/memory-base/${base.id}`)}
+                  className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
+                >
+                  <FolderIcon className="text-[#5e5e5e] flex-shrink-0" />
+                  <span className="flex-1 text-[14px] font-medium truncate">{base.name}</span>
+                  <span className="text-[11px] text-[#737373] flex-shrink-0">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : baseId ? (
+          /* Menu contextual da Base de Conhecimento */
+          <div className="px-3 space-y-4">
+            {/* Card da base selecionada */}
+            <div className="rounded-xl border border-[#f2f2f2] bg-[#fbfcfd] p-4">
+              <div className="flex items-start gap-3">
+                <div className="text-[#2f2f2f] flex-shrink-0">
+                  <FolderIcon className="w-10 h-10" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-medium text-[#1a1a1a] truncate">{currentBaseName}</p>
+                  <div className="mt-2 flex items-center gap-1.5">
+                    <span className="inline-flex gap-1 items-center">
+                      <span className="w-5 h-5 rounded bg-[#e5e5e5]" title="Notion" />
+                      <span className="w-5 h-5 rounded overflow-hidden flex items-center justify-center" title="Google Drive">
+                        <img src="/assets/integrations/Logotipo/Tool/Tamanho=104px.png" alt="" className="w-full h-full object-contain" />
+                      </span>
+                      <span className="w-5 h-5 rounded overflow-hidden flex items-center justify-center" title="Slack">
+                        <img src="/assets/integrations/Tipo=Canais, Tamanho=Slack.png" alt="" className="w-full h-full object-contain" />
+                      </span>
+                    </span>
+                    <span className="text-[12px] text-[#5e5e5e]">{currentBaseDocCount} {currentBaseDocCount === 1 ? "fonte" : "fontes"}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="p-1 rounded-lg text-[#5e5e5e] hover:bg-[#f2f2f2] hover:text-[#1a1a1a]"
+                  aria-label="Opções da base"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                    <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-8-6Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Menu: Documents, Semantic Search, Settings */}
+            <nav className="space-y-0.5">
+              <Link
+                href={`/memory-base/${baseId}`}
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                  isDocumentsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                }`}
+              >
+                <DocumentIcon />
+                <span className="flex-1">Documentos</span>
+                <span className="text-[12px] text-[#737373] font-normal">{currentBaseDocCount}</span>
+              </Link>
+              <Link
+                href={`/memory-base/${baseId}/semantic-search`}
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                  isSemanticSearchActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                }`}
+              >
+                <SearchIcon />
+                <span>Busca semântica</span>
+              </Link>
+              <Link
+                href={`/memory-base/${baseId}/settings`}
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                  isSettingsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                }`}
+              >
+                <SettingsIcon />
+                <span>Configurações</span>
+              </Link>
+            </nav>
+
+          
+          </div>
+        ) : null}
+      </div>
+    </aside>
+  );
+}
