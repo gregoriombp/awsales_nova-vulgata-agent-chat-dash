@@ -497,9 +497,7 @@ function getFallbackNameFromId(id: string): string {
   return normalized.split(" ").map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w)).join(" ");
 }
 
-type BreadcrumbItem = { label: string; href: string; icon: React.ReactNode };
-
-export default function MemoryBaseDirectoryPage() {
+export default function KnowledgeOSDirectoryPage() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -750,16 +748,16 @@ export default function MemoryBaseDirectoryPage() {
     setHasCompletedTour(true);
   };
 
-  const breadcrumbs = useMemo((): BreadcrumbItem[] => {
-    const base: BreadcrumbItem[] = [
+  const breadcrumbs = useMemo(() => {
+    const base = [
       {
-        label: "Memory Base",
-        href: "/memory-base",
+        label: "Knowledge OS",
+        href: "/knowledge-os",
         icon: <KnowledgeOSIcon />,
       },
       {
         label: directoryName,
-        href: `/memory-base/${params?.id}`,
+        href: `/knowledge-os/${params?.id}`,
         icon: (
           <img
             src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"
@@ -771,8 +769,9 @@ export default function MemoryBaseDirectoryPage() {
         ),
       },
     ];
-
+    
     if (currentFolderId) {
+      // Adicionar pastas no caminho
       currentFolderPath.forEach((folder) => {
         base.push({
           label: folder.name,
@@ -781,9 +780,9 @@ export default function MemoryBaseDirectoryPage() {
         });
       });
     } else {
-      base.push({ label: "Documentos", href: "#", icon: <TbFolder className="w-4 h-4" /> });
+      base.push({ label: "Documentos", href: "#", icon: <TbFolder className="w-4 h-4" /> } as any);
     }
-
+    
     return base;
   }, [directoryName, params?.id, currentFolderId, currentFolderPath]);
 
@@ -1106,32 +1105,39 @@ export default function MemoryBaseDirectoryPage() {
                   <span>{totalKnowledgeLayers} Knowledge Layers</span>
                 </button>
                 {isLayersPopoverOpen && (
-                  <div className="absolute left-0 top-full mt-2 z-30 w-[280px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-2">Knowledge Layers</div>
-                    <p className="text-[12px] text-[#5e5e5e] mb-3">
+                  <div
+                    className="absolute left-0 top-full mt-2 z-30 w-[300px] rounded-xl border border-[#e5e5e5] bg-white p-4 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
+                    role="dialog"
+                    aria-labelledby="knowledge-layers-popover-title"
+                    aria-describedby="knowledge-layers-popover-desc"
+                  >
+                    <h3 id="knowledge-layers-popover-title" className="text-[11px] font-semibold text-[#737373] uppercase tracking-wide mb-2">
+                      Knowledge Layers
+                    </h3>
+                    <p id="knowledge-layers-popover-desc" className="text-[12px] text-[#525252] leading-relaxed mb-4">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
-                    <div className="space-y-1.5 text-[13px] text-[#2f2f2f]">
+                    <div className="space-y-2 text-[13px] text-[#262626]">
                       <div className="flex items-center justify-between">
                         <span>Entidades extraídas</span>
-                        <span className="font-medium">{Math.floor(totalKnowledgeLayers * 0.4)}</span>
+                        <span className="font-medium tabular-nums">{Math.floor(totalKnowledgeLayers * 0.4)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Relações mapeadas</span>
-                        <span className="font-medium">{Math.floor(totalKnowledgeLayers * 0.25)}</span>
+                        <span className="font-medium tabular-nums">{Math.floor(totalKnowledgeLayers * 0.25)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Embeddings gerados</span>
-                        <span className="font-medium">{Math.floor(totalKnowledgeLayers * 0.35)}</span>
+                        <span className="font-medium tabular-nums">{Math.floor(totalKnowledgeLayers * 0.35)}</span>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => {
                         setIsLayersPopoverOpen(false);
-                        router.push(`/memory-base/${params?.id}/semantic-search`);
+                        router.push(`/knowledge-os/${params?.id}/semantic-search`);
                       }}
-                      className="mt-3 w-full text-[12px] text-[#0066cc] hover:underline text-left"
+                      className="mt-4 w-full text-left text-[12px] font-medium text-[#0066cc] hover:underline focus:outline-none focus:ring-2 focus:ring-[#0066cc] focus:ring-offset-1 rounded cursor-pointer"
                     >
                       Explorar via Semantic Search →
                     </button>
@@ -1368,8 +1374,172 @@ export default function MemoryBaseDirectoryPage() {
                 <div className="w-8 flex-shrink-0" aria-hidden />
               </div>
 
-              {/* body rows */}
+              {/* body rows: folders + files */}
               <div>
+                {/* Estado vazio */}
+                {filteredFolders.length === 0 && filteredRows.length === 0 && (
+                  <div className="px-8 py-16 text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f2f2f2] mb-4">
+                      <TbFolder className="w-8 h-8 text-[#999]" />
+                    </div>
+                    <h3 className="text-[16px] font-medium text-[#1a1a1a] mb-2">
+                      {currentFolderId ? "Pasta vazia" : "Nenhum arquivo ainda"}
+                    </h3>
+                    <p className="text-[14px] text-[#5e5e5e] mb-6 max-w-md mx-auto">
+                      {currentFolderId
+                        ? "Esta pasta ainda não possui arquivos ou subpastas. Adicione fontes usando os botões acima."
+                        : "Comece adicionando arquivos, URLs, snippets ou criando pastas para organizar sua base de conhecimento."}
+                    </p>
+                    <div className="flex items-center justify-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setIsCreateFolderOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
+                      >
+                        <TbFolderPlus className="w-4 h-4" />
+                        Nova pasta
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsSendFileOpen(true)}
+                        className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-white bg-[#0d0d0d] rounded-lg hover:bg-[#262626] transition-colors"
+                      >
+                        <TbFile className="w-4 h-4" />
+                        Adicionar arquivo
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Pastas */}
+                {filteredFolders.map((folder) => (
+                  <div
+                    key={folder.id}
+                    className="border-b border-[#f2f2f2] px-8 py-3 flex items-center gap-x-12 transition-colors cursor-pointer hover:bg-[#fbfcfd]"
+                    onClick={() => navigateToFolder(folder.id)}
+                  >
+                    <div className="flex flex-1 min-w-0 items-center gap-3 py-1">
+                      <div className="flex-shrink-0 w-4" />
+                      <div className="h-8 w-8 rounded-[8px] border border-[#f2f2f2] bg-amber-50 flex items-center justify-center text-amber-600">
+                        <TbFolder className="w-4 h-4" strokeWidth={1.5} />
+                      </div>
+                      <div className="flex min-w-0 flex-1 flex-col leading-normal">
+                        <div className="text-[12px] font-medium text-[#0d0d0d] truncate flex items-center gap-2">
+                          {folder.name}
+                        </div>
+                        <div className="text-[10px] text-[#38404a]">Pasta</div>
+                      </div>
+                    </div>
+
+                    <div className="min-w-[88px] py-1 flex items-center">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#5e5e5e]">
+                        —
+                      </span>
+                    </div>
+
+                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-[#5e5e5e]">
+                      {/* Soma de Knowledge Layers dos itens na pasta */}
+                      {(() => {
+                        // Função recursiva para obter todos os IDs de pastas filhas
+                        const getAllChildFolderIds = (parentId: string): string[] => {
+                          const children = folders.filter((f) => f.parentId === parentId);
+                          return children.reduce<string[]>(
+                            (acc, child) => [...acc, child.id, ...getAllChildFolderIds(child.id)],
+                            []
+                          );
+                        };
+                        const allFolderIds = [folder.id, ...getAllChildFolderIds(folder.id)];
+                        
+                        // Somar knowledge layers de todos os arquivos nas pastas
+                        const totalLayers = rows
+                          .filter((r) => r.folderId && allFolderIds.includes(r.folderId))
+                          .reduce((acc, r) => {
+                            const match = r.layersLabel.match(/(\d+)/);
+                            return acc + (match ? parseInt(match[1], 10) : 0);
+                          }, 0);
+                        
+                        if (totalLayers === 0) {
+                          return "—";
+                        }
+                        return (
+                          <>
+                            <Layers16 />
+                            {totalLayers} itens
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    <div className="min-w-[140px] py-1 text-[12px] text-[#5e5e5e]">
+                      {new Date(folder.createdAt).toLocaleString("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short",
+                      })}
+                    </div>
+
+                    <div className="w-8 flex-shrink-0 flex justify-end relative">
+                      <button
+                        type="button"
+                        className="text-[#5e5e5e] hover:text-[#0d0d0d]"
+                        aria-label="Ações da pasta"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setFolderMenuOpenId((prev) => (prev === folder.id ? null : folder.id));
+                        }}
+                      >
+                        <Ellipsis16 />
+                      </button>
+                      {folderMenuOpenId === folder.id && (
+                        <div
+                          ref={folderMenuRef}
+                          className="absolute z-30 mt-2 right-0 top-full w-[190px] rounded-[12px] border border-[#f2f2f2] bg-white p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
+                        >
+                          <button
+                            type="button"
+                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFolderMenuOpenId(null);
+                              navigateToFolder(folder.id);
+                            }}
+                          >
+                            <TbFolderOpen className="w-4 h-4" />
+                            Abrir
+                          </button>
+                          <button
+                            type="button"
+                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFolderMenuOpenId(null);
+                              setFolderToRename(folder);
+                              setIsRenameFolderOpen(true);
+                            }}
+                          >
+                            <TbPencil className="w-4 h-4" />
+                            Renomear
+                          </button>
+                          <button
+                            type="button"
+                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2] flex items-center gap-2"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setFolderMenuOpenId(null);
+                              setFolderToDelete(folder);
+                              setIsDeleteFolderOpen(true);
+                            }}
+                          >
+                            <TbTrash className="w-4 h-4" />
+                            Excluir
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                {/* Arquivos */}
                 {filteredRows.map((r) => (
                   <div
                     key={r.id}
@@ -1901,7 +2071,7 @@ export default function MemoryBaseDirectoryPage() {
         onClose={() => setIsDeleteDirectoryOpen(false)}
         onConfirm={() => {
           setIsDeleteDirectoryOpen(false);
-          router.push("/memory-base");
+          router.push("/knowledge-os");
         }}
         title="Excluir diretório?"
         message={`Tem certeza que deseja excluir a base de conhecimento "${directoryName}"?`}
@@ -1916,7 +2086,7 @@ export default function MemoryBaseDirectoryPage() {
           setIsAddUrlOpen(false);
           // Navegar para a página de resultado da URL
           const urlSlug = encodeURIComponent(url.replace(/^https?:\/\//, "").replace(/\/$/, ""));
-          router.push(`/memory-base/${params.id}/url/${urlSlug}?title=${encodeURIComponent(title)}`);
+          router.push(`/knowledge-os/${params.id}/url/${urlSlug}?title=${encodeURIComponent(title)}`);
         }}
       />
 
@@ -1964,6 +2134,7 @@ export default function MemoryBaseDirectoryPage() {
             status: "Ativo",
             layersLabel: "—",
             createdAt: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
+            folderId: currentFolderId,
           };
           setRows((prev) => [newRow, ...prev]);
         }}
@@ -1981,9 +2152,47 @@ export default function MemoryBaseDirectoryPage() {
             status: "Ativo",
             layersLabel: "—",
             createdAt: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
+            folderId: currentFolderId,
           }));
           setRows((prev) => [...newRows, ...prev]);
         }}
+      />
+
+      {/* Modal criar pasta */}
+      <CreateFolderModal
+        isOpen={isCreateFolderOpen}
+        onClose={() => setIsCreateFolderOpen(false)}
+        onComplete={handleCreateFolder}
+        parentFolderName={currentFolder?.name}
+      />
+
+      {/* Modal renomear pasta */}
+      <RenameFolderModal
+        isOpen={isRenameFolderOpen}
+        onClose={() => {
+          setIsRenameFolderOpen(false);
+          setFolderToRename(null);
+        }}
+        onComplete={handleRenameFolder}
+        currentName={folderToRename?.name || ""}
+      />
+
+      {/* Modal confirmar exclusão de pasta */}
+      <ConfirmationModal
+        isOpen={isDeleteFolderOpen}
+        onClose={() => {
+          setIsDeleteFolderOpen(false);
+          setFolderToDelete(null);
+        }}
+        onConfirm={handleDeleteFolder}
+        title="Excluir pasta?"
+        message={
+          folderToDelete
+            ? `Tem certeza que deseja excluir a pasta "${folderToDelete.name}"? Os arquivos dentro dela serão movidos para a raiz.`
+            : ""
+        }
+        confirmText="Excluir"
+        confirmVariant="danger"
       />
     </DashboardLayout>
   );

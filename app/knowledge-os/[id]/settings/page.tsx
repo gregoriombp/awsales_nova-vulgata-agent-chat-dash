@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
-import MemoryBaseIcon from "@/components/MemoryBaseIcon";
+import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 
 const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
@@ -24,16 +24,16 @@ function getBaseName(baseId: string): string {
   }
 }
 
-export default function MemoryBaseSettingsPage() {
+export default function KnowledgeOSSettingsPage() {
   const params = useParams<{ id: string }>();
   const baseId = typeof params?.id === "string" ? params.id : "";
   const baseName = useMemo(() => getBaseName(baseId), [baseId]);
 
   const breadcrumbs = [
-    { label: "Memory Base", href: "/memory-base", icon: <MemoryBaseIcon /> },
+    { label: "Knowledge OS", href: "/knowledge-os", icon: <KnowledgeOSIcon /> },
     {
       label: baseName,
-      href: `/memory-base/${baseId}`,
+      href: `/knowledge-os/${baseId}`,
       icon: (
         <img
           src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"

@@ -28,10 +28,10 @@
         <div style={{width: 2.34, height: 2.34, transform: 'rotate(-90deg)', transformOrigin: 'top left', background: 'var(--text-default-headings, #1A1A1A)'}} />
         <div style={{width: 0.93, height: 0.93, transform: 'rotate(-90deg)', transformOrigin: 'top left', background: 'var(--text-default-headings, #1A1A1A)'}} />
         <div style={{flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'inline-flex'}}>
-            <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column', color: 'var(--text-default-headings, #1A1A1A)', fontSize: 40, fontFamily: 'Instrument Sans', fontWeight: '500', lineHeight: 40, wordWrap: 'break-word'}}>Memory Base</div>
+            <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column', color: 'var(--text-default-headings, #1A1A1A)', fontSize: 40, fontFamily: 'Instrument Sans', fontWeight: '500', lineHeight: 40, wordWrap: 'break-word'}}>Knowledge OS</div>
         </div>
     </div>
     <div style={{width: 638, maxWidth: 638, flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'flex-start', display: 'flex'}}>
-        <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column', color: 'var(--text-primary-default, #38404A)', fontSize: 16, fontFamily: 'Instrument Sans', fontWeight: '400', wordWrap: 'break-word'}}>MemoryBase é a Base de Conhecimento do seus Agentes. Todos os seus<br/>documentos, URLs e snippets ficam organizados aqui.</div>
+        <div style={{justifyContent: 'center', display: 'flex', flexDirection: 'column', color: 'var(--text-primary-default, #38404A)', fontSize: 16, fontFamily: 'Instrument Sans', fontWeight: '400', wordWrap: 'break-word'}}>Knowledge OS é a Base de Conhecimento do seus Agentes. Todos os seus<br/>documentos, URLs e snippets ficam organizados aqui.</div>
     </div>
 </div>

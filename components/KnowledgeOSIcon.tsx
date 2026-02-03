@@ -1,10 +1,10 @@
-interface MemoryBaseIconProps {
+interface KnowledgeOSIconProps {
   className?: string;
   width?: number;
   height?: number;
 }
 
-export default function MemoryBaseIcon({ className, width = 20, height = 20 }: MemoryBaseIconProps) {
+export default function KnowledgeOSIcon({ className, width = 20, height = 20 }: KnowledgeOSIconProps) {
   return (
     <svg
       width={width}

@@ -1,0 +1,57 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="circle-gradient">
+      <stop offset="0%" stop-color="#4a5568" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#2d3748" stop-opacity="0.1"/>
+    </radialGradient>
+  </defs>
+  
+  <!-- Pattern of circles with increasing size and opacity -->
+  <g opacity="0.15">
+    <circle cx="650" cy="150" r="15" fill="url(#circle-gradient)"/>
+    <circle cx="750" cy="150" r="18" fill="url(#circle-gradient)"/>
+    <circle cx="850" cy="150" r="20" fill="url(#circle-gradient)"/>
+    <circle cx="950" cy="150" r="23" fill="url(#circle-gradient)"/>
+    <circle cx="1050" cy="150" r="25" fill="url(#circle-gradient)"/>
+  </g>
+  
+  <g opacity="0.2">
+    <circle cx="600" cy="250" r="18" fill="url(#circle-gradient)"/>
+    <circle cx="700" cy="250" r="20" fill="url(#circle-gradient)"/>
+    <circle cx="800" cy="250" r="23" fill="url(#circle-gradient)"/>
+    <circle cx="900" cy="250" r="26" fill="url(#circle-gradient)"/>
+    <circle cx="1000" cy="250" r="29" fill="url(#circle-gradient)"/>
+    <circle cx="1100" cy="250" r="32" fill="url(#circle-gradient)"/>
+  </g>
+  
+  <g opacity="0.25">
+    <circle cx="550" cy="350" r="20" fill="url(#circle-gradient)"/>
+    <circle cx="650" cy="350" r="23" fill="url(#circle-gradient)"/>
+    <circle cx="750" cy="350" r="26" fill="url(#circle-gradient)"/>
+    <circle cx="850" cy="350" r="29" fill="url(#circle-gradient)"/>
+    <circle cx="950" cy="350" r="32" fill="url(#circle-gradient)"/>
+    <circle cx="1050" cy="350" r="35" fill="url(#circle-gradient)"/>
+    <circle cx="1150" cy="350" r="38" fill="url(#circle-gradient)"/>
+  </g>
+  
+  <g opacity="0.3">
+    <circle cx="500" cy="450" r="23" fill="url(#circle-gradient)"/>
+    <circle cx="600" cy="450" r="26" fill="url(#circle-gradient)"/>
+    <circle cx="700" cy="450" r="29" fill="url(#circle-gradient)"/>
+    <circle cx="800" cy="450" r="32" fill="url(#circle-gradient)"/>
+    <circle cx="900" cy="450" r="35" fill="url(#circle-gradient)"/>
+    <circle cx="1000" cy="450" r="38" fill="url(#circle-gradient)"/>
+    <circle cx="1100" cy="450" r="41" fill="url(#circle-gradient)"/>
+  </g>
+  
+  <g opacity="0.35">
+    <circle cx="450" cy="550" r="26" fill="url(#circle-gradient)"/>
+    <circle cx="550" cy="550" r="29" fill="url(#circle-gradient)"/>
+    <circle cx="650" cy="550" r="32" fill="url(#circle-gradient)"/>
+    <circle cx="750" cy="550" r="35" fill="url(#circle-gradient)"/>
+    <circle cx="850" cy="550" r="38" fill="url(#circle-gradient)"/>
+    <circle cx="950" cy="550" r="41" fill="url(#circle-gradient)"/>
+    <circle cx="1050" cy="550" r="44" fill="url(#circle-gradient)"/>
+    <circle cx="1150" cy="550" r="47" fill="url(#circle-gradient)"/>
+  </g>
+</svg>

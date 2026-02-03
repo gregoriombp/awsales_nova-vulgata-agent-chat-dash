@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
-import MemoryBaseSidebar from "./MemoryBaseSidebar";
+import KnowledgeOSSidebar from "./KnowledgeOSSidebar";
 import Header from "./Header";
 import CopilotDrawer from "./CopilotDrawer";
 
@@ -28,11 +28,11 @@ export default function DashboardLayout({
 }) {
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const pathname = usePathname();
-  const isInMemoryBase = pathname?.startsWith("/memory-base") ?? false;
+  const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar forcedCollapsed={isInMemoryBase} />
+      <Sidebar forcedCollapsed={isInKnowledgeOS} />
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         {/* Ícones ficam abaixo do Copilot quando ele está aberto */}
         <div
@@ -47,7 +47,7 @@ export default function DashboardLayout({
           />
         </div>
         <div className="flex flex-1 min-w-0 overflow-hidden">
-          {isInMemoryBase && <MemoryBaseSidebar />}
+          {isInKnowledgeOS && <KnowledgeOSSidebar />}
           <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
             <main className={`flex-1 overflow-y-auto p-8 ${mainClassName ?? ""}`}>
               {title && (

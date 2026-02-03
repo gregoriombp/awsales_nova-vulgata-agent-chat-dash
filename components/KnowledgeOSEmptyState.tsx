@@ -3,19 +3,19 @@
 import React from "react";
 import Image from "next/image";
 
-interface MemoryBaseEmptyStateProps {
+interface KnowledgeOSEmptyStateProps {
   onCreateBase: () => void;
 }
 
-export default function MemoryBaseEmptyState({
+export default function KnowledgeOSEmptyState({
   onCreateBase,
-}: MemoryBaseEmptyStateProps) {
+}: KnowledgeOSEmptyStateProps) {
   return (
     <div className="relative w-full rounded-2xl bg-[#0c1421] overflow-hidden" style={{ minHeight: "427px" }}>
       {/* Pattern Background */}
       <div className="absolute right-0 top-0 bottom-0 w-[60%] opacity-80">
         <Image
-          src="/assets/memory-base-pattern.svg"
+          src="/assets/knowledge-os-pattern.svg"
           alt=""
           fill
           className="object-cover object-left"

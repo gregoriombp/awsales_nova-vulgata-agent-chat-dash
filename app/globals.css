@@ -171,9 +171,45 @@
   }
 }
 
-/* Memory Base Onboarding Animations */
+/* Knowledge OS Onboarding Animations */
 
-/* Pulse animation for the Memory Base icon container */
+/* Welcome icon: fade-in de entrada */
+@keyframes knowledge-os-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Cada dot: pulsação suave (opacidade + escala) – efeito partículas */
+@keyframes knowledge-os-dot-pulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.knowledge-os-welcome-icon {
+  opacity: 0;
+  animation: knowledge-os-fade-in 0.7s ease-out forwards;
+}
+
+.knowledge-os-welcome-icon path {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: knowledge-os-dot-pulse 2.6s ease-in-out infinite;
+}
+
+/* Stagger nos dots para efeito de onda/partículas (4 grupos de fase) */
+.knowledge-os-welcome-icon path:nth-child(4n + 1) { animation-delay: 0s; }
+.knowledge-os-welcome-icon path:nth-child(4n + 2) { animation-delay: 0.32s; }
+.knowledge-os-welcome-icon path:nth-child(4n + 3) { animation-delay: 0.65s; }
+.knowledge-os-welcome-icon path:nth-child(4n + 4) { animation-delay: 0.98s; }
+
+/* Pulse animation for the Knowledge OS icon container */
 @keyframes onboarding-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(13, 13, 13, 0.1);
@@ -256,7 +292,7 @@
   }
 }
 
-/* Linhas onduladas – step 4: fluxo roxo→azul emanando do círculo de pontos */
+/* Linhas onduladas – step 4 (legacy, mantido para fallback) */
 .onboarding-waveLine {
   animation: onboarding-waveFlow 3.5s ease-in-out infinite;
 }
@@ -270,14 +306,127 @@
   }
 }
 
+/* Step 4 – Timeline com ramificações (eixo principal + ramos + nós) */
+.step4-timeline-spine {
+  stroke-dasharray: 420;
+  stroke-dashoffset: 420;
+  animation: step4-draw-path 0.9s ease-out 0.2s forwards;
+}
+.step4-timeline-branch {
+  stroke-dasharray: 220;
+  stroke-dashoffset: 220;
+  animation: step4-draw-path 0.6s ease-out 0.7s forwards;
+}
+.step4-timeline-ramif {
+  stroke-dasharray: 150;
+  stroke-dashoffset: 150;
+  animation: step4-draw-path 0.4s ease-out forwards;
+}
+.step4-ramif-1 { animation-delay: 0.5s; }
+.step4-ramif-2 { animation-delay: 0.6s; }
+.step4-ramif-3 { animation-delay: 0.85s; }
+@keyframes step4-draw-path {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.step4-node-dot {
+  opacity: 0;
+  animation: step4-node-in 0.35s ease-out forwards;
+}
+.step4-node-dot:nth-child(1) { animation-delay: 0.45s; }
+.step4-node-dot:nth-child(2) { animation-delay: 0.6s; }
+.step4-node-dot:nth-child(3) { animation-delay: 0.75s; }
+.step4-node-junction {
+  opacity: 0;
+  transform: scale(0.5);
+  animation: step4-junction-in 0.4s ease-out 0.75s forwards;
+}
+.step4-node-end {
+  opacity: 0;
+  animation: step4-node-in 0.4s ease-out 1s forwards;
+}
+@keyframes step4-node-in {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes step4-junction-in {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.step4-dotted-node {
+  animation: step4-dotted-pulse 3s ease-in-out infinite;
+}
+.step4-cube-dot {
+  animation: step4-cube-pulse 2.5s ease-in-out infinite;
+}
+.step4-cube-dot:nth-child(odd) {
+  animation-delay: 0.3s;
+}
+@keyframes step4-dotted-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 1; }
+}
+@keyframes step4-cube-pulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes step4-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
+  .knowledge-os-welcome-icon,
   .animate-onboarding-pulse,
-  .onboarding-waveLine {
+  .onboarding-waveLine,
+  .step4-timeline-spine,
+  .step4-timeline-branch,
+  .step4-timeline-ramif,
+  .step4-node-dot,
+  .step4-node-junction,
+  .step4-node-end,
+  .step4-dotted-node,
+  .step4-cube-dot {
     animation: none;
   }
-  
-  [style*="onboarding-"] {
+  .knowledge-os-welcome-icon {
+    opacity: 1;
+  }
+  .knowledge-os-welcome-icon path {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .step4-timeline-spine,
+  .step4-timeline-branch,
+  .step4-timeline-ramif {
+    stroke-dashoffset: 0;
+  }
+  .step4-node-dot,
+  .step4-node-junction,
+  .step4-node-end,
+  .step4-cube-dot {
+    opacity: 1;
+  }
+  .step4-node-junction {
+    transform: scale(1);
+  }
+  [style*="onboarding-"],
+  [style*="step4-content-in"] {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

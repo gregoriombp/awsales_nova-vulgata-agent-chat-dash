@@ -15,7 +15,7 @@ A modern, beautiful dashboard application with pixel-perfect Figma implementatio
 - 🎭 **Custom components** - Reusable Input, Button, Logo, and layout components
 - 🌑 **Dark Sidebar** - Modern dark theme with `#0d0d0d` background
 - 📊 **Dashboard** - Complete dashboard with KPIs and charts
-- 💾 **Memory Base** - Full memory base management system
+- 💾 **Knowledge OS** - Full knowledge OS management system
 
 ## Getting Started
 
@@ -60,7 +60,7 @@ Beta_01/
 │   ├── insights/                # Insights pages (Coming Soon)
 │   ├── integrations/            # Integrations pages (Coming Soon)
 │   ├── library/                 # Library pages (Coming Soon)
-│   ├── memory-base/             # Memory Base pages (Active)
+│   ├── knowledge-os/            # Knowledge OS pages (Active)
 │   ├── playground/              # Playground pages (Coming Soon)
 │   ├── settings/                # Settings pages (Coming Soon)
 │   ├── tools/                   # Tools pages (Coming Soon)
@@ -132,12 +132,12 @@ The login form includes:
 
 - Home (`/`) - Login page (no sidebar)
 - Dashboard (`/dashboard`) - Dashboard with KPIs and charts (Active)
-- Memory Base (`/memory-base`) - Memory base management (Active)
+- Knowledge OS (`/knowledge-os`) - Knowledge OS management (Active)
 - Other pages - Coming soon with animated placeholder
 
 ### Active Pages
 
-Only **Dashboard** and **Memory Base** have full functionality. All other pages display a "Coming Soon" animated placeholder with geometric shapes in grayscale tones.
+Only **Dashboard** and **Knowledge OS** have full functionality. All other pages display a "Coming Soon" animated placeholder with geometric shapes in grayscale tones.
 
 ### Loading States
 

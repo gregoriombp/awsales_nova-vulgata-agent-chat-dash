@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import EmptyState from "@/components/EmptyState";
-import MemoryBaseOnboarding from "@/components/MemoryBaseOnboarding";
-import MemoryBaseIcon from "@/components/MemoryBaseIcon";
+import KnowledgeOSOnboarding from "@/components/KnowledgeOSOnboarding";
+import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 import FormModal from "@/components/modals/FormModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import BaseModal from "@/components/modals/BaseModal";
@@ -25,7 +25,7 @@ const createBaseSchema = z.object({
 
 type CreateBaseFormData = z.infer<typeof createBaseSchema>;
 
-interface MemoryBase {
+interface KnowledgeOSBase {
   id: string;
   name: string;
   description: string;
@@ -56,7 +56,7 @@ function getBaseNameFromStorage(baseId: string): string {
   }
 }
 
-function loadBasesFromStorage(): MemoryBase[] {
+function loadBasesFromStorage(): KnowledgeOSBase[] {
   if (typeof window === "undefined") return [];
   try {
     const s = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
@@ -79,7 +79,7 @@ interface RecentFile {
   name: string;
   size: string;
   baseId?: string;
-  memoryBase: string;
+  knowledgeOs: string;
   status: "Ativo" | "Inativo";
   date: string;
   user: {
@@ -88,7 +88,7 @@ interface RecentFile {
   };
 }
 
-export default function MemoryBasePage() {
+export default function KnowledgeOSPage() {
   const router = useRouter();
   const { success, error: showError } = useToastContext();
   
@@ -100,12 +100,12 @@ export default function MemoryBasePage() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
-  const [selectedBase, setSelectedBase] = useState<MemoryBase | null>(null);
+  const [selectedBase, setSelectedBase] = useState<KnowledgeOSBase | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [newBaseId, setNewBaseId] = useState<string | null>(null);
   const [selectedBaseForFiles, setSelectedBaseForFiles] = useState<string[]>([]);
 
-  const [bases, setBases] = useState<MemoryBase[]>([]);
+  const [bases, setBases] = useState<KnowledgeOSBase[]>([]);
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement | null>(null);
@@ -141,18 +141,18 @@ export default function MemoryBasePage() {
   // When user has no knowledge bases, always show the 4-step onboarding (empty state is not used).
   const shouldShowOnboarding = !isLoading && bases.length === 0;
 
-  const persistBases = (nextBases: MemoryBase[]) => {
+  const persistBases = (nextBases: KnowledgeOSBase[]) => {
     try {
       window.localStorage.setItem(MEMORY_BASES_STORAGE_KEY, JSON.stringify(nextBases));
     } catch (_) {}
   };
 
   const [recentFiles] = useState<RecentFile[]>([
-    { id: "1", name: "Training_Manual.pdf", size: "10 KB", baseId: "1", memoryBase: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Raimundo Farias", avatar: "/assets/ui-faces/male-1.jpg" } },
-    { id: "2", name: "Design-Guidelines.docx", size: "10 KB", baseId: "2", memoryBase: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Andrea Farias", avatar: "/assets/ui-faces/female-1.jpg" } },
-    { id: "3", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "1", memoryBase: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Greg Pinheiro", avatar: "/assets/ui-faces/male-2.jpg" } },
-    { id: "4", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "2", memoryBase: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Ana Luzia", avatar: "/assets/ui-faces/female-2.jpg" } },
-    { id: "5", name: "Design-Guidelines.docx", size: "10 KB", baseId: "1", memoryBase: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Henrique Caetano", avatar: "/assets/ui-faces/male-3.jpg" } },
+    { id: "1", name: "Training_Manual.pdf", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Raimundo Farias", avatar: "/assets/ui-faces/male-1.jpg" } },
+    { id: "2", name: "Design-Guidelines.docx", size: "10 KB", baseId: "2", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Andrea Farias", avatar: "/assets/ui-faces/female-1.jpg" } },
+    { id: "3", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Greg Pinheiro", avatar: "/assets/ui-faces/male-2.jpg" } },
+    { id: "4", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "2", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Ana Luzia", avatar: "/assets/ui-faces/female-2.jpg" } },
+    { id: "5", name: "Design-Guidelines.docx", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Henrique Caetano", avatar: "/assets/ui-faces/male-3.jpg" } },
   ]);
 
   const {
@@ -174,7 +174,7 @@ export default function MemoryBasePage() {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const newBase: MemoryBase = {
+      const newBase: KnowledgeOSBase = {
         id: Math.random().toString(36).substring(7),
         name: data.name,
         description: data.description || "",
@@ -191,7 +191,7 @@ export default function MemoryBasePage() {
       setIsCreateModalOpen(false);
       reset();
       success("Base de conhecimento criada com sucesso!");
-      router.push(`/memory-base/${newBase.id}?name=${encodeURIComponent(newBase.name)}&new=1`);
+      router.push(`/knowledge-os/${newBase.id}?name=${encodeURIComponent(newBase.name)}&new=1`);
     } catch (err) {
       showError("Erro ao criar base de conhecimento");
     }
@@ -261,7 +261,7 @@ export default function MemoryBasePage() {
       
       // Redirect directly to the detail page
       if (newBaseId) {
-        router.push(`/memory-base/${newBaseId}`);
+        router.push(`/knowledge-os/${newBaseId}`);
         setNewBaseId(null);
       }
     } catch (err) {
@@ -272,7 +272,7 @@ export default function MemoryBasePage() {
   // Step 8: View base after success
   const handleViewBase = () => {
     if (newBaseId) {
-      router.push(`/memory-base/${newBaseId}`);
+      router.push(`/knowledge-os/${newBaseId}`);
     }
     setIsSuccessModalOpen(false);
     setNewBaseId(null);
@@ -295,8 +295,8 @@ export default function MemoryBasePage() {
 
   const breadcrumbs = [
     {
-      label: "Memory Base",
-      icon: <MemoryBaseIcon />,
+label: "Knowledge OS",
+    icon: <KnowledgeOSIcon />,
     },
   ];
 
@@ -311,9 +311,9 @@ export default function MemoryBasePage() {
     );
   }
 
-  // Onboarding flow (first use) - renders its own layout without MemoryBaseSidebar
+  // Onboarding flow (first use) - renders its own layout without KnowledgeOSSidebar
   if (shouldShowOnboarding) {
-    return <MemoryBaseOnboarding onComplete={handleOnboardingComplete} />;
+    return <KnowledgeOSOnboarding onComplete={handleOnboardingComplete} />;
   }
 
   return (
@@ -327,14 +327,14 @@ export default function MemoryBasePage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="text-[#1a1a1a] flex-shrink-0">
-                      <img src="/assets/Memory-base-icon.svg" alt="" width={76} height={80} />
+                      <img src="/assets/knowledge-os-icon.svg" alt="" width={76} height={80} />
                     </div>
                     <div>
                       <h1 className="text-[40px] font-medium text-[#1a1a1a] leading-none">
-                        Memory Base
+                        Knowledge OS
                       </h1>
                       <p className="mt-2 text-[14px] text-[#5e5e5e]">
-                        Memory Base é a base de conhecimento dos seus agentes. Documentos, URLs e trechos ficam organizados aqui.
+                        Knowledge OS é a base de conhecimento dos seus agentes. Documentos, URLs e trechos ficam organizados aqui.
                       </p>
                     </div>
                   </div>
@@ -408,7 +408,7 @@ export default function MemoryBasePage() {
                       return (
                         <div
                           key={base.id}
-                          onClick={() => router.push(`/memory-base/${base.id}`)}
+                          onClick={() => router.push(`/knowledge-os/${base.id}`)}
                           className="group relative bg-[#fbfcfd] border border-[#f9f9f9] rounded-[20px] p-[21px] min-h-[128px] flex flex-col justify-between cursor-pointer transition-colors hover:bg-[#0d0d0d] hover:border-[#0d0d0d] text-left"
                         >
                           <div className="flex items-start justify-between gap-2">
@@ -520,7 +520,7 @@ export default function MemoryBasePage() {
                                 </div>
                               </td>
                               <td className="px-4 py-3 text-[12px] text-[#0d0d0d]">
-                                {file.baseId ? (getBaseNameFromStorage(file.baseId) || "—") : file.memoryBase}
+                                {file.baseId ? (getBaseNameFromStorage(file.baseId) || "—") : file.knowledgeOs}
                               </td>
                               <td className="px-4 py-3">
                                 <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#1a1a1a]">
@@ -713,7 +713,7 @@ export default function MemoryBasePage() {
                 onClick={() => {
                   setIsUploadModalOpen(false);
                   if (newBaseId) {
-                    router.push(`/memory-base/${newBaseId}`);
+                    router.push(`/knowledge-os/${newBaseId}`);
                     setNewBaseId(null);
                   }
                 }}

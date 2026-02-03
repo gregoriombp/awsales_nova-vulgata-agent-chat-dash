@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
-import MemoryBaseIcon from "@/components/MemoryBaseIcon";
+import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 import { TbRefresh, TbFile, TbCircleCheck, TbCircleX, TbCloudDataConnection } from "react-icons/tb";
 
 type UrlPageRow = {
@@ -217,13 +217,13 @@ export default function UrlResultsPage() {
     const id = typeof params?.id === "string" ? params.id : "";
     return [
       {
-        label: "Memory Base",
-        href: "/memory-base",
-        icon: <MemoryBaseIcon />,
+        label: "Knowledge OS",
+        href: "/knowledge-os",
+        icon: <KnowledgeOSIcon />,
       },
       {
         label: directoryName,
-        href: id ? `/memory-base/${id}` : undefined,
+        href: id ? `/knowledge-os/${id}` : undefined,
         icon: (
           <img
             src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"

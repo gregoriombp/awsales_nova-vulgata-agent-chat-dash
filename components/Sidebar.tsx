@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import MemoryBaseIcon from "@/components/MemoryBaseIcon";
+import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 
 interface NavItem {
   label: string;
@@ -45,10 +45,10 @@ const USERS: UserOption[] = [
 
 export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean }) {
   const pathname = usePathname();
-  const [isCollapsed, setIsCollapsed] = useState(() => pathname?.startsWith("/memory-base") ?? false);
-  // Em todas as páginas (incluindo Memory Base): o usuário pode expandir/recolher a sidebar.
+  const [isCollapsed, setIsCollapsed] = useState(() => pathname?.startsWith("/knowledge-os") ?? false);
+  // Em todas as páginas (incluindo Knowledge OS): o usuário pode expandir/recolher a sidebar.
   const effectiveCollapsed = isCollapsed;
-  // Botão de expandir/recolher visível em todas as páginas, inclusive dentro do Memory Base.
+  // Botão de expandir/recolher visível em todas as páginas, inclusive dentro do Knowledge OS.
   const showExpandButton = true;
 
   const [isOrganizationMenuOpen, setIsOrganizationMenuOpen] = useState(false);
@@ -92,7 +92,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
   }, [isOrganizationMenuOpen, isUserMenuOpen]);
 
   useEffect(() => {
-    if (pathname?.startsWith("/memory-base")) setIsCollapsed(true);
+    if (pathname?.startsWith("/knowledge-os")) setIsCollapsed(true);
   }, [pathname]);
 
   const navSections: NavSection[] = [
@@ -169,9 +169,9 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
       title: "Fontes",
       items: [
         {
-          label: "Memory Base",
-          href: "/memory-base",
-          icon: <MemoryBaseIcon className="flex-shrink-0" />,
+          label: "Knowledge OS",
+          href: "/knowledge-os",
+          icon: <KnowledgeOSIcon className="flex-shrink-0" />,
         },
         {
           label: "AOPs",
@@ -380,13 +380,13 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             )}
             <div className="space-y-[2px]">
               {section.items.map((item) => {
-                const isMemoryBaseItem = section.title === "Fontes" && item.label === "Memory Base";
+                const isKnowledgeOSItem = section.title === "Fontes" && item.label === "Knowledge OS";
                 const active = isActive(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={isMemoryBaseItem ? () => setIsCollapsed(true) : undefined}
+                    onClick={isKnowledgeOSItem ? () => setIsCollapsed(true) : undefined}
                     className={`flex items-center h-10 rounded-[8px] transition-all ${
                       effectiveCollapsed ? 'justify-center px-2' : 'gap-3 px-3'
                     } ${
