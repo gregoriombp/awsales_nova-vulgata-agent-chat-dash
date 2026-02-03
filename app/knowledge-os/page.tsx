@@ -37,24 +37,7 @@ interface KnowledgeOSBase {
 }
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
-const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
 const ONBOARDING_COMPLETED_KEY = "memory-base-onboarding-completed";
-
-function getBaseNameFromStorage(baseId: string): string {
-  if (typeof window === "undefined" || !baseId) return "";
-  try {
-    const saved = window.localStorage.getItem(MEMORY_BASE_NAME_KEY_PREFIX + baseId);
-    if (saved) return saved;
-    const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
-    if (!raw) return "";
-    const arr = JSON.parse(raw) as { id?: string; name?: string }[];
-    if (!Array.isArray(arr)) return "";
-    const base = arr.find((b) => b?.id === baseId);
-    return base?.name ?? "";
-  } catch {
-    return "";
-  }
-}
 
 function loadBasesFromStorage(): KnowledgeOSBase[] {
   if (typeof window === "undefined") return [];
@@ -72,20 +55,6 @@ interface UploadedFile {
   type: string;
   size: number;
   file: File;
-}
-
-interface RecentFile {
-  id: string;
-  name: string;
-  size: string;
-  baseId?: string;
-  knowledgeOs: string;
-  status: "Ativo" | "Inativo";
-  date: string;
-  user: {
-    name: string;
-    avatar?: string;
-  };
 }
 
 export default function KnowledgeOSPage() {
@@ -146,14 +115,6 @@ export default function KnowledgeOSPage() {
       window.localStorage.setItem(MEMORY_BASES_STORAGE_KEY, JSON.stringify(nextBases));
     } catch (_) {}
   };
-
-  const [recentFiles] = useState<RecentFile[]>([
-    { id: "1", name: "Training_Manual.pdf", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Raimundo Farias", avatar: "/assets/ui-faces/male-1.jpg" } },
-    { id: "2", name: "Design-Guidelines.docx", size: "10 KB", baseId: "2", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Andrea Farias", avatar: "/assets/ui-faces/female-1.jpg" } },
-    { id: "3", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Greg Pinheiro", avatar: "/assets/ui-faces/male-2.jpg" } },
-    { id: "4", name: "UserResearch-Results.xlsx", size: "10 KB", baseId: "2", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Ana Luzia", avatar: "/assets/ui-faces/female-2.jpg" } },
-    { id: "5", name: "Design-Guidelines.docx", size: "10 KB", baseId: "1", knowledgeOs: "", status: "Ativo", date: "21 de Jan. 2026 às 14:04", user: { name: "Henrique Caetano", avatar: "/assets/ui-faces/male-3.jpg" } },
-  ]);
 
   const {
     register,
@@ -469,98 +430,6 @@ label: "Knowledge OS",
                         </div>
                       );
                     })}
-                  </div>
-                </div>
-
-                {/* Seção Files – tabela de arquivos */}
-                <div className="space-y-4">
-                  <h2 className="text-[18px] font-bold text-[#1a1a1a]">
-                    Arquivos
-                  </h2>
-                  <div className="border border-[#f2f2f2] rounded-xl overflow-hidden">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b border-[#f2f2f2]">
-                            <th className="pl-6 pr-8 py-3 text-left text-[12px] font-medium text-[#999999]">
-                              Nome do arquivo
-                            </th>
-                            <th className="px-4 py-3 text-left text-[12px] font-medium text-[#999999]">
-                              Base de memória
-                            </th>
-                            <th className="px-4 py-3 text-left text-[12px] font-medium text-[#999999]">
-                              Status
-                            </th>
-                            <th className="px-4 py-3 text-left text-[12px] font-medium text-[#999999]">
-                              Data de adição
-                            </th>
-                            <th className="px-4 py-3 text-left text-[12px] font-medium text-[#999999]">
-                              Enviado por
-                            </th>
-                            <th className="px-6 py-3 text-right text-[12px] font-medium text-[#999999]">
-                              Ações
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-[#f2f2f2]">
-                          {recentFiles.map((file) => (
-                            <tr key={file.id} className="hover:bg-[#fbfcfd] transition-colors">
-                              <td className="pl-6 pr-8 py-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="w-8 h-8 rounded-[8px] border border-[#f2f2f2] bg-white flex items-center justify-center text-[#1a1a1a] flex-shrink-0">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                      <path d="M9 2H4C3.44772 2 3 2.44772 3 3V13C3 13.5523 3.44772 14 4 14H12C12.5523 14 13 13.5523 13 13V6L9 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                      <path d="M9 2V6H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  </div>
-                                  <div>
-                                    <p className="text-[12px] font-medium text-[#0d0d0d]">{file.name}</p>
-                                    <p className="text-[10px] text-[#5e5e5e]">{file.size}</p>
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-3 text-[12px] text-[#0d0d0d]">
-                                {file.baseId ? (getBaseNameFromStorage(file.baseId) || "—") : file.knowledgeOs}
-                              </td>
-                              <td className="px-4 py-3">
-                                <span className="inline-flex items-center gap-1.5 text-[12px] font-medium text-[#1a1a1a]">
-                                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${file.status === "Ativo" ? "bg-emerald-500" : "bg-[#a3a3a3]"}`} />
-                                  {file.status}
-                                </span>
-                              </td>
-                              <td className="px-4 py-3 text-[12px] text-[#5e5e5e]">
-                                {file.date}
-                              </td>
-                              <td className="px-4 py-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 bg-[#e5e5e5] flex items-center justify-center text-[12px] font-medium text-[#525252]">
-                                    {file.user.avatar ? (
-                                      <img src={file.user.avatar} alt="" className="w-full h-full object-cover" />
-                                    ) : (
-                                      file.user.name.split(" ").map((n) => n[0]).join("")
-                                    )}
-                                  </div>
-                                  <span className="text-[12px] text-[#0d0d0d]">{file.user.name}</span>
-                                </div>
-                              </td>
-                              <td className="pr-6 py-3 text-right">
-                                <button
-                                  type="button"
-                                  className="p-1 text-[#5e5e5e] hover:text-[#0d0d0d] rounded-lg hover:bg-[#f2f2f2] transition-colors"
-                                  aria-label="Ações"
-                                >
-                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                    <circle cx="12" cy="5" r="1.5" fill="currentColor"/>
-                                    <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                                    <circle cx="12" cy="19" r="1.5" fill="currentColor"/>
-                                  </svg>
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
                   </div>
                 </div>
               </div>
