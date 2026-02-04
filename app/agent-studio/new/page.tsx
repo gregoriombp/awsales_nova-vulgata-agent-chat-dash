@@ -1,8 +1,211 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
+
+// Parse text into segments: plain text, @logic (chip), {{interpolation}} (chip)
+type Segment = { type: "text"; content: string } | { type: "at"; content: string } | { type: "mustache"; content: string };
+
+function parseVariableSegments(text: string): Segment[] {
+  const segments: Segment[] = [];
+  const re = /(@[\w.]+)|(\{\{[^}]+\}\})/g;
+  let lastIndex = 0;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > lastIndex) {
+      segments.push({ type: "text", content: text.slice(lastIndex, m.index) });
+    }
+    if (m[1]) segments.push({ type: "at", content: m[1] });
+    else if (m[2]) segments.push({ type: "mustache", content: m[2] });
+    lastIndex = re.lastIndex;
+  }
+  if (lastIndex < text.length) {
+    segments.push({ type: "text", content: text.slice(lastIndex) });
+  }
+  return segments;
+}
+
+// Render value as HTML with chip spans (for contentEditable); data-type + title for tooltip
+function renderValueWithChips(value: string): string {
+  const segments = parseVariableSegments(value);
+  const esc = (x: string) => x.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return segments
+    .map((s) => {
+      if (s.type === "text") return s.content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      const meta = VARIABLE_META[s.content];
+      const title = meta ? `${meta.description} (ID: ${meta.id})` : s.content;
+      if (s.type === "at") return `<span class="variable-chip variable-chip-at inline-flex items-center px-1.5 py-0.5 rounded text-sm font-mono align-baseline cursor-pointer" contenteditable="false" data-variable="${esc(s.content)}" data-type="at" title="${esc(title)}">${esc(s.content)}</span>`;
+      return `<span class="variable-chip variable-chip-mustache inline-flex items-center px-1.5 py-0.5 rounded text-sm font-mono align-baseline cursor-pointer" contenteditable="false" data-variable="${esc(s.content)}" data-type="mustache" title="${esc(title)}">${esc(s.content)}</span>`;
+    })
+    .join("");
+}
+
+function serializeDomToValue(root: Node): string {
+  let out = "";
+  root.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) out += node.textContent || "";
+    else if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as HTMLElement;
+      if (el.dataset.variable) out += el.dataset.variable;
+      else out += serializeDomToValue(node);
+    }
+  });
+  return out;
+}
+
+// Variable metadata for tooltip and modal (id + description) - built from suggestion lists
+const AT_SUGGESTIONS_LIST = [
+  { id: "ask_to_agent", label: "@ask_to_agent", description: "Perguntar a outro agente" },
+  { id: "conversation_step", label: "@conversation_step", description: "Referenciar etapa da conversa" },
+  { id: "search_knowledge", label: "@search_knowledge", description: "Buscar na base de conhecimento" },
+  { id: "create_deal", label: "@create_deal", description: "Criar negócio no CRM" },
+  { id: "schedule_meeting", label: "@schedule_meeting", description: "Agendar reunião" },
+  { id: "send_email", label: "@send_email", description: "Enviar e-mail" },
+  { id: "transfer_to_human", label: "@transfer_to_human", description: "Transferir para humano" },
+  { id: "if_condition", label: "@if", description: "Condição condicional" },
+  { id: "foreach", label: "@foreach", description: "Loop de iteração" },
+  { id: "wait", label: "@wait", description: "Aguardar tempo" },
+];
+const VAR_SUGGESTIONS_LIST = [
+  { id: "agent_name", label: "{{agent.name}}", description: "Nome do agente" },
+  { id: "user_name", label: "{{user.name}}", description: "Nome do usuário" },
+  { id: "user_email", label: "{{user.email}}", description: "E-mail do usuário" },
+  { id: "system_time", label: "{{system_time_utc}}", description: "Hora atual UTC" },
+  { id: "conversation_id", label: "{{conversation.id}}", description: "ID da conversa" },
+  { id: "lead_first_name", label: "{{lead.first_name}}", description: "Primeiro nome do lead" },
+  { id: "lead_phone", label: "{{lead.phone}}", description: "Telefone do lead" },
+  { id: "company_name", label: "{{company.name}}", description: "Nome da empresa" },
+];
+const VARIABLE_META: Record<string, { id: string; description: string }> = {};
+[...AT_SUGGESTIONS_LIST, ...VAR_SUGGESTIONS_LIST].forEach((s) => {
+  VARIABLE_META[s.label] = { id: s.id, description: s.description };
+});
+
+// Editable field with chips; when read-only just show chip display
+function VariableChipEditor({
+  value,
+  onChange,
+  readOnly,
+  placeholder,
+  className,
+  minHeight,
+  onTriggerAt,
+  onVariableClick,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  readOnly: boolean;
+  placeholder?: string;
+  className?: string;
+  minHeight?: string;
+  onTriggerAt?: () => void;
+  onVariableClick?: (variable: string, type: "at" | "mustache") => void;
+}) {
+  const divRef = useRef<HTMLDivElement>(null);
+  const isInternalChange = useRef(false);
+
+  useEffect(() => {
+    if (!divRef.current) return;
+    if (readOnly) return;
+    const current = serializeDomToValue(divRef.current);
+    if (current === value && divRef.current.innerHTML) return;
+    const html = value ? renderValueWithChips(value) : "";
+    divRef.current.innerHTML = html || "";
+    if (!html) divRef.current.setAttribute("data-placeholder", placeholder || "");
+  }, [value, readOnly, placeholder]);
+
+  const handleInput = useCallback(() => {
+    if (readOnly || !divRef.current) return;
+    isInternalChange.current = true;
+    const newValue = serializeDomToValue(divRef.current);
+    onChange(newValue);
+  }, [onChange, readOnly]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (readOnly) return;
+      if (e.key === "@") {
+        onTriggerAt?.();
+      }
+      // {{ is detected in handleEditorChange when value ends with {{
+    },
+    [readOnly, onTriggerAt]
+  );
+
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      const target = (e.target as HTMLElement).closest?.(".variable-chip");
+      if (target && onVariableClick) {
+        const variable = (target as HTMLElement).dataset.variable;
+        const type = (target as HTMLElement).dataset.type as "at" | "mustache" | undefined;
+        if (variable && type) {
+          e.preventDefault();
+          onVariableClick(variable, type);
+        }
+      }
+    },
+    [onVariableClick]
+  );
+
+  if (readOnly) {
+    if (!value) return <div className={`${className} text-[#9d9d9d]`} style={{ minHeight }}>{placeholder}</div>;
+    const segments = parseVariableSegments(value);
+    return (
+      <div className={`${className} whitespace-pre-wrap break-words`} style={{ minHeight }}>
+        {segments.map((seg, i) =>
+          seg.type === "text" ? (
+            <span key={i}>{seg.content}</span>
+          ) : seg.type === "at" ? (
+            <VariableChip key={i} content={seg.content} type="at" onClick={onVariableClick} />
+          ) : (
+            <VariableChip key={i} content={seg.content} type="mustache" onClick={onVariableClick} />
+          )
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      ref={divRef}
+      contentEditable
+      suppressContentEditableWarning
+      data-placeholder={placeholder}
+      className={`${className} whitespace-pre-wrap break-words outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[#9d9d9d]`}
+      style={{ minHeight }}
+      onInput={handleInput}
+      onKeyDown={handleKeyDown}
+      onClick={handleClick}
+    />
+  );
+}
+
+// Chip with tooltip and click (for read-only React-rendered chips)
+function VariableChip({
+  content,
+  type,
+  onClick,
+}: {
+  content: string;
+  type: "at" | "mustache";
+  onClick?: (variable: string, type: "at" | "mustache") => void;
+}) {
+  const meta = VARIABLE_META[content];
+  const tooltip = meta ? `${meta.description} (ID: ${meta.id})` : content;
+  return (
+    <span
+      role="button"
+      tabIndex={0}
+      className={`variable-chip variable-chip-${type} inline-flex items-center px-1.5 py-0.5 rounded text-sm font-mono align-baseline cursor-pointer`}
+      title={tooltip}
+      onClick={(e) => { e.preventDefault(); onClick?.(content, type); }}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onClick?.(content, type); } }}
+    >
+      {content}
+    </span>
+  );
+}
 
 // Icon components for each goal
 const SalesIcon = ({ color = "#0d1013" }: { color?: string }) => (
@@ -263,8 +466,41 @@ export default function AgentStudioNewPage() {
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
   // Step 5 (Editor) state
-  const [editorViewMode, setEditorViewMode] = useState<"modular" | "editor">("editor");
   const [generatedPrompt, setGeneratedPrompt] = useState<PromptModule[]>([]);
+  const [checkpointEditorExpanded, setCheckpointEditorExpanded] = useState(false);
+  const [promptEditorExpanded, setPromptEditorExpanded] = useState(false);
+  
+  // Separated fields: Agent Prompt (personality) and Checkpoint (execution guide)
+  const [agentPrompt, setAgentPrompt] = useState("");
+  const [checkpointContent, setCheckpointContent] = useState("");
+  const [firstMessage, setFirstMessage] = useState("");
+  const [interruptible, setInterruptible] = useState(true);
+  const [isPromptEditing, setIsPromptEditing] = useState(false);
+  const [isCheckpointEditing, setIsCheckpointEditing] = useState(false);
+  const [isFirstMessageEditing, setIsFirstMessageEditing] = useState(false);
+  
+  // Refs for latest values (so insertSuggestion always has current text)
+  const agentPromptRef = useRef("");
+  const checkpointContentRef = useRef("");
+  const firstMessageRef = useRef("");
+  useEffect(() => { agentPromptRef.current = agentPrompt; }, [agentPrompt]);
+  useEffect(() => { checkpointContentRef.current = checkpointContent; }, [checkpointContent]);
+  useEffect(() => { firstMessageRef.current = firstMessage; }, [firstMessage]);
+
+  // Autocomplete state
+  const [showAtSuggestions, setShowAtSuggestions] = useState(false);
+  const [showVarSuggestions, setShowVarSuggestions] = useState(false);
+  const [suggestionFilter, setSuggestionFilter] = useState("");
+  const [activeEditor, setActiveEditor] = useState<"prompt" | "checkpoint" | "firstMessage" | null>(null);
+  const [cursorPosition, setCursorPosition] = useState({ top: 0, left: 0 });
+
+  // Variable config modal (click on chip)
+  const [variableModalOpen, setVariableModalOpen] = useState(false);
+  const [selectedVariable, setSelectedVariable] = useState<{ variable: string; type: "at" | "mustache" } | null>(null);
+
+  // @ Resources suggestions
+  const atSuggestions = AT_SUGGESTIONS_LIST;
+  const varSuggestions = VAR_SUGGESTIONS_LIST;
 
   // Load knowledge bases on mount
   useEffect(() => {
@@ -337,7 +573,193 @@ export default function AgentStudioNewPage() {
     modules.push({ id: "23", type: "action", content: "@schedule.meeting", reference: "Agendar reunião" });
 
     setGeneratedPrompt(modules);
+
+    // Set initial content for Agent Prompt (personality/identity)
+    const initialAgentPrompt = `Você é "${agentName}", um assistente de ${goalTitle} amigável e eficiente.
+
+Você é especialista em ajudar clientes a descobrir e adquirir produtos de uma loja.
+Você é conhecedor sobre diferentes gêneros, produtos e condições.
+Você é entusiasmado em ajudar e ansioso para auxiliar os clientes a encontrar os itens perfeitos para suas necessidades.
+
+Você está interagindo com clientes através de um sistema de IA conversacional baseado em voz.
+O cliente provavelmente está navegando ou perguntando sobre produtos disponíveis.
+Você tem acesso ao inventário da loja, preços e detalhes dos produtos.
+
+Seu tom é acolhedor, profissional e consultivo. Evite ser robótico ou repetitivo.`;
+
+    // Set initial content for Checkpoint (execution guide/flow)
+    const initialCheckpoint = `# Etapa 1: Saudação e Conexão
+Objetivo: Estabelecer conexão calorosa e contextualizar o motivo do contato.
+
+Exemplo de abordagem:
+- "Olá {{lead.first_name}}, tudo bem? Vi que você demonstrou interesse em..."
+- Seja pessoal e acolhedor
+
+Critério de avanço: Cliente respondeu positivamente
+
+# Etapa 2: Qualificação
+Objetivo: Entender as necessidades do cliente e qualificar a oportunidade.
+
+Perguntas sugeridas:
+- "Qual é o principal desafio que você enfrenta hoje?"
+- "Qual é o tamanho da sua equipe?"
+- "Você já utiliza alguma solução similar?"
+
+Utilize: @search_knowledge para buscar informações relevantes
+
+Critério de avanço: Necessidades identificadas
+
+# Etapa 3: Apresentação e Fechamento
+Objetivo: Apresentar solução e converter a oportunidade.
+
+Ações disponíveis:
+- @create_deal - quando cliente demonstrar interesse
+- @schedule_meeting - para agendar demonstração
+- @transfer_to_human - se necessário suporte especializado
+
+Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize naturalidade.`;
+
+    setAgentPrompt(initialAgentPrompt);
+    setCheckpointContent(initialCheckpoint);
+    setFirstMessage("Olá! Tudo bem? Estou aqui para te ajudar a encontrar aquele produto perfeito para sua necessidade.");
   };
+
+  // Handle change from VariableChipEditor or textarea; detect @ and {{ for suggestions
+  const handleEditorChange = (
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string>>,
+    editor: "prompt" | "checkpoint" | "firstMessage",
+    event?: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    setter(value);
+    setActiveEditor(editor);
+
+    // Cursor position for suggestion box (from textarea if available)
+    if (event?.target) {
+      const textarea = event.target as HTMLTextAreaElement;
+      const cursorPos = textarea.selectionStart;
+      const textBeforeCursor = value.substring(0, cursorPos);
+      const atMatch = textBeforeCursor.match(/@([\w.]*)$/);
+      if (atMatch) {
+        setSuggestionFilter(atMatch[1] || "");
+        setShowAtSuggestions(true);
+        setShowVarSuggestions(false);
+        const rect = textarea.getBoundingClientRect();
+        const lineHeight = 20;
+        const lines = textBeforeCursor.split("\n");
+        const currentLineIndex = lines.length - 1;
+        setCursorPosition({
+          top: rect.top + (currentLineIndex * lineHeight) + 24,
+          left: rect.left + (lines[currentLineIndex].length * 7),
+        });
+        return;
+      }
+      const varMatch = textBeforeCursor.match(/\{\{([^}]*)$/);
+      if (varMatch) {
+        setSuggestionFilter(varMatch[1] || "");
+        setShowVarSuggestions(true);
+        setShowAtSuggestions(false);
+        return;
+      }
+    } else {
+      // From contentEditable: detect trigger from end of value
+      const atMatch = value.match(/@([\w.]*)$/);
+      if (atMatch) {
+        setSuggestionFilter(atMatch[1] || "");
+        setShowAtSuggestions(true);
+        setShowVarSuggestions(false);
+        setCursorPosition({ top: 200, left: 200 });
+        return;
+      }
+      const varMatch = value.match(/\{\{([^}]*)$/);
+      if (varMatch) {
+        setSuggestionFilter(varMatch[1] || "");
+        setShowVarSuggestions(true);
+        setShowAtSuggestions(false);
+        setCursorPosition({ top: 200, left: 200 });
+        return;
+      }
+    }
+    setShowAtSuggestions(false);
+    setShowVarSuggestions(false);
+  };
+
+  // Insert suggestion into text (use refs for latest value; fix regex for @ and {{ }})
+  const insertSuggestion = (suggestion: string) => {
+    let setter: React.Dispatch<React.SetStateAction<string>>;
+    let value: string;
+    switch (activeEditor) {
+      case "prompt":
+        setter = setAgentPrompt;
+        value = agentPromptRef.current;
+        break;
+      case "checkpoint":
+        setter = setCheckpointContent;
+        value = checkpointContentRef.current;
+        break;
+      case "firstMessage":
+        setter = setFirstMessage;
+        value = firstMessageRef.current;
+        break;
+      default:
+        setShowAtSuggestions(false);
+        setShowVarSuggestions(false);
+        return;
+    }
+
+    // Replace from last trigger to end: @logic allows dots; {{ }} allows anything until }}
+    let newValue: string;
+    if (showAtSuggestions) {
+      newValue = value.replace(/@[\w.]*$/, suggestion + " ");
+    } else if (showVarSuggestions) {
+      newValue = value.replace(/\{\{[^}]*\}\}?$/, suggestion + " ");
+    } else {
+      setShowAtSuggestions(false);
+      setShowVarSuggestions(false);
+      return;
+    }
+
+    setter(newValue);
+    setShowAtSuggestions(false);
+    setShowVarSuggestions(false);
+    setSuggestionFilter("");
+  };
+
+  // Filter suggestions based on input
+  const filteredAtSuggestions = atSuggestions.filter(s => 
+    s.label.toLowerCase().includes(suggestionFilter.toLowerCase()) ||
+    s.description.toLowerCase().includes(suggestionFilter.toLowerCase())
+  );
+
+  const filteredVarSuggestions = varSuggestions.filter(s => 
+    s.label.toLowerCase().includes(suggestionFilter.toLowerCase()) ||
+    s.description.toLowerCase().includes(suggestionFilter.toLowerCase())
+  );
+
+  // Position suggestion box under caret when contentEditable is focused
+  useEffect(() => {
+    if (!showAtSuggestions && !showVarSuggestions) return;
+    const raf = requestAnimationFrame(() => {
+      const sel = document.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const rect = sel.getRangeAt(0).getBoundingClientRect();
+        setCursorPosition({ top: rect.bottom, left: rect.left });
+      }
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [showAtSuggestions, showVarSuggestions]);
+
+  const handleTriggerAt = useCallback((editor: "prompt" | "checkpoint" | "firstMessage") => {
+    setActiveEditor(editor);
+    setSuggestionFilter("");
+    setShowAtSuggestions(true);
+    setShowVarSuggestions(false);
+  }, []);
+
+  const handleVariableClick = useCallback((variable: string, type: "at" | "mustache") => {
+    setSelectedVariable({ variable, type });
+    setVariableModalOpen(true);
+  }, []);
 
   const breadcrumbs = currentStep === 5 ? [
     {
@@ -470,79 +892,96 @@ export default function AgentStudioNewPage() {
     const goalTitle = GOAL_OPTIONS.find(g => g.id === selectedGoal)?.title || customGoal;
 
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
-        <div className="flex flex-col min-h-full w-full bg-[#f8f9fa]">
-          {/* Header */}
-          <div className="bg-white border-b border-[#e5e5e5] px-8 py-6">
-            <div className="max-w-[1400px] mx-auto">
-              <h1 className="font-heading text-3xl font-medium text-[#0d1013] tracking-[-0.5px] mb-2">
-                {agentName}
-              </h1>
-              <p className="text-base text-[#9d9d9d] font-sans">
-                Seu agente está pronto. Valide as configurações
-              </p>
-            </div>
-          </div>
-
-          {/* View Toggle */}
-          <div className="bg-[#f8f9fa] border-b border-[#e5e5e5] px-8 py-4">
-            <div className="max-w-[1400px] mx-auto flex items-center gap-6">
-              <span className="text-sm font-medium text-[#0d1013]">Visualização</span>
-              <div className="flex items-center bg-[#f1f5f9] rounded-xl p-1">
-                <button
-                  onClick={() => setEditorViewMode("modular")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                    editorViewMode === "modular" 
-                      ? "bg-white text-[#0d1013] shadow-sm" 
-                      : "text-[#9d9d9d] hover:text-[#0d1013]"
-                  }`}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                    <rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                    <rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                    <rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+      <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+        <div className="min-h-full w-full bg-white overflow-y-auto">
+          {/* Page Header */}
+          <div className="border-b border-[#e5e5e5] px-4 py-6">
+            <div className="max-w-[1280px] mx-auto">
+              <div className="flex items-center gap-3 mb-1">
+                <h1 className="font-heading text-2xl font-medium text-[#0d1013] tracking-[-0.5px]">
+                  Agente
+                </h1>
+                <span className="px-2 py-0.5 bg-[#18181b] text-white text-xs font-medium rounded">Novo</span>
+                <button className="flex items-center gap-1 text-sm text-[#0d1013] hover:underline">
+                  Ver novas funcionalidades
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
-                  Modular
-                </button>
-                <button
-                  onClick={() => setEditorViewMode("editor")}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                    editorViewMode === "editor" 
-                      ? "bg-white text-[#0d1013] shadow-sm" 
-                      : "text-[#9d9d9d] hover:text-[#0d1013]"
-                  }`}
-                >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 5C5.636 5 2 12 2 12s3.636 7 10 7 10-7 10-7-3.636-7-10-7z" stroke="currentColor" strokeWidth="1.5"/>
-                    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.5"/>
-                  </svg>
-                  Editor
                 </button>
               </div>
             </div>
           </div>
 
+          {/* Autocomplete Suggestion Box - positioned under caret */}
+          {(showAtSuggestions || showVarSuggestions) && (
+            <div 
+              className="fixed z-50 bg-white rounded-lg border border-[#e5e5e5] shadow-lg py-2 min-w-[280px] max-h-[300px] overflow-y-auto"
+              style={{ 
+                top: cursorPosition.top + 4, 
+                left: Math.min(cursorPosition.left, typeof window !== "undefined" ? window.innerWidth - 300 : 980) 
+              }}
+            >
+              <div className="px-3 py-1.5 text-xs font-medium text-[#9d9d9d] uppercase tracking-wider border-b border-[#e5e5e5] mb-1">
+                {showAtSuggestions ? "Recursos e Ações" : "Variáveis"}
+              </div>
+              {(showAtSuggestions ? filteredAtSuggestions : filteredVarSuggestions).map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  type="button"
+                  onClick={() => insertSuggestion(suggestion.label)}
+                  className="w-full px-3 py-2 text-left hover:bg-[#f5f5f5] transition-colors flex items-center gap-3"
+                >
+                  <span className="font-mono text-sm text-[#0d1013] bg-[#f0f0f0] px-1.5 py-0.5 rounded">
+                    {suggestion.label}
+                  </span>
+                  <span className="text-xs text-[#9d9d9d]">{suggestion.description}</span>
+                </button>
+              ))}
+              {(showAtSuggestions ? filteredAtSuggestions : filteredVarSuggestions).length === 0 && (
+                <div className="px-3 py-2 text-sm text-[#9d9d9d]">Nenhum resultado encontrado</div>
+              )}
+            </div>
+          )}
+
           {/* Main Content */}
-          <div className="flex-1 overflow-auto px-8 py-6">
-            <div className="max-w-[1400px] mx-auto flex gap-6">
-              {/* Left Panel - Editor */}
-              <div className="flex-1">
-                <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-                  {/* Editor Header */}
-                  <div className="flex items-center justify-between px-6 py-4 border-b border-[#e5e5e5]">
-                    <h2 className="font-heading font-medium text-base text-[#0d1013]">
-                      Editor de Checkpoint
-                    </h2>
+          <div className="px-4 py-8">
+            <div className="max-w-[1280px] mx-auto flex gap-8">
+              {/* Left Panel - Editors */}
+              <div className="flex-1 space-y-6">
+                
+                {/* 1️⃣ Prompt do Agente - Personalidade fixa */}
+                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
                     <div className="flex items-center gap-2">
-                      <button className="px-3 py-1.5 text-sm font-medium text-[#9d9d9d] hover:text-[#0d1013] border border-[#e5e5e5] rounded-lg flex items-center gap-2 hover:bg-[#f5f5f5] transition-colors">
+                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
+                        Prompt do Agente
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </a>
+                      <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Personalidade</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsPromptEditing(!isPromptEditing)}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+                          isPromptEditing
+                            ? "bg-[#0d1013] text-white border-[#0d1013]"
+                            : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
+                        }`}
+                      >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        Editar
+                        {isPromptEditing ? "Editando" : "Editar"}
                       </button>
-                      <button className="px-3 py-1.5 text-sm font-medium text-[#9d9d9d] hover:text-[#0d1013] border border-[#e5e5e5] rounded-lg flex items-center gap-2 hover:bg-[#f5f5f5] transition-colors">
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#6b7280] rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013] transition-colors"
+                      >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
@@ -551,160 +990,352 @@ export default function AgentStudioNewPage() {
                     </div>
                   </div>
 
-                  {/* Editor Content */}
-                  <div className="p-6">
-                    <div className="prose prose-sm max-w-none font-sans text-[#0d1013] leading-relaxed">
-                      {editorViewMode === "editor" ? (
-                        <div className="space-y-1">
-                          {generatedPrompt.map((module) => {
-                            if (module.type === "text") {
-                              return (
-                                <span key={module.id} className="whitespace-pre-wrap">
-                                  {module.content}
-                                </span>
-                              );
-                            }
-                            return (
-                              <ModuleTag key={module.id} module={module} />
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {/* Modular view - group by sections */}
-                          <div className="p-4 bg-[#f8f9fa] rounded-lg border border-[#e5e5e5]">
-                            <h3 className="font-medium text-sm text-[#0d1013] mb-2">Identidade</h3>
-                            <p className="text-sm text-[#9d9d9d]">
-                              Agente de {goalTitle} chamado <ModuleTag module={{ id: "v1", type: "variable", content: "{agent.name}", reference: agentName }} />
-                            </p>
-                          </div>
-                          <div className="p-4 bg-[#f8f9fa] rounded-lg border border-[#e5e5e5]">
-                            <h3 className="font-medium text-sm text-[#0d1013] mb-2">Regras</h3>
-                            <p className="text-sm text-[#9d9d9d]">Use julgamento para avaliar e filtrar. Seja proativo e atencioso, não robótico.</p>
-                          </div>
-                          <div className="p-4 bg-[#f8f9fa] rounded-lg border border-[#e5e5e5]">
-                            <h3 className="font-medium text-sm text-[#0d1013] mb-2">Etapas do Fluxo</h3>
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-[#0d1013] text-white text-xs flex items-center justify-center">1</span>
-                                <span className="text-sm">Saudação inicial</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-[#0d1013] text-white text-xs flex items-center justify-center">2</span>
-                                <span className="text-sm">Qualificação</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <span className="w-6 h-6 rounded-full bg-[#0d1013] text-white text-xs flex items-center justify-center">3</span>
-                                <span className="text-sm">Fechamento</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="p-4 bg-[#f8f9fa] rounded-lg border border-[#e5e5e5]">
-                            <h3 className="font-medium text-sm text-[#0d1013] mb-2">Ações Disponíveis</h3>
-                            <div className="flex flex-wrap gap-2">
-                              <ModuleTag module={{ id: "a1", type: "action", content: "@create.deal", reference: "Criar negócio" }} />
-                              <ModuleTag module={{ id: "a2", type: "action", content: "@schedule.meeting", reference: "Agendar reunião" }} />
-                              <ModuleTag module={{ id: "a3", type: "action", content: "@search.knowledge.base", reference: selectedBase?.name }} />
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                  {/* Editor area */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setPromptEditorExpanded(!promptEditorExpanded)}
+                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
+                      title={promptEditorExpanded ? "Reduzir" : "Expandir"}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <VariableChipEditor
+                      value={agentPrompt}
+                      onChange={(v) => handleEditorChange(v, setAgentPrompt, "prompt")}
+                      readOnly={!isPromptEditing}
+                      placeholder="Defina a personalidade do agente: quem ele é, como fala, tom de voz..."
+                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none transition-colors ${
+                        promptEditorExpanded ? "min-h-[300px]" : "min-h-[160px]"
+                      } ${
+                        isPromptEditing
+                          ? "bg-white text-[#0d1013] cursor-text"
+                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
+                      }`}
+                      minHeight={promptEditorExpanded ? "300px" : "160px"}
+                      onTriggerAt={() => handleTriggerAt("prompt")}
+                      onVariableClick={handleVariableClick}
+                    />
+                  </div>
+
+                  {/* Bottom bar */}
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
+                    <span className="text-xs text-[#9d9d9d]">
+                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                    </span>
+                    <div className="flex-1" />
+                    <span className="text-xs text-[#9d9d9d]">Define: identidade, tom, postura</span>
+                  </div>
+                </div>
+
+                {/* 2️⃣ Checkpoint do Agente - Guia de execução */}
+                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
+                    <div className="flex items-center gap-2">
+                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
+                        Checkpoint do Agente
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </a>
+                      <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Fluxo</span>
                     </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsCheckpointEditing(!isCheckpointEditing)}
+                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+                          isCheckpointEditing
+                            ? "bg-[#0d1013] text-white border-[#0d1013]"
+                            : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
+                        }`}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        {isCheckpointEditing ? "Editando" : "Editar"}
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#6b7280] rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013] transition-colors"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        Otimizar com IA
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Editor area */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setCheckpointEditorExpanded(!checkpointEditorExpanded)}
+                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
+                      title={checkpointEditorExpanded ? "Reduzir" : "Expandir"}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <VariableChipEditor
+                      value={checkpointContent}
+                      onChange={(v) => handleEditorChange(v, setCheckpointContent, "checkpoint")}
+                      readOnly={!isCheckpointEditing}
+                      placeholder="Defina as etapas de execução: # Etapa 1, objetivos, critérios de avanço, @ações..."
+                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none transition-colors ${
+                        checkpointEditorExpanded ? "min-h-[500px]" : "min-h-[280px]"
+                      } ${
+                        isCheckpointEditing
+                          ? "bg-white text-[#0d1013] cursor-text"
+                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
+                      }`}
+                      minHeight={checkpointEditorExpanded ? "500px" : "280px"}
+                      onTriggerAt={() => handleTriggerAt("checkpoint")}
+                      onVariableClick={handleVariableClick}
+                    />
+                  </div>
+
+                  {/* Bottom bar */}
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
+                    <span className="text-xs text-[#9d9d9d]">
+                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> para ações ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                    </span>
+                    <div className="flex-1" />
+                    <span className="text-xs text-[#9d9d9d]">Define: etapas, objetivos, ações</span>
+                  </div>
+                </div>
+
+                {/* 3️⃣ Primeira mensagem */}
+                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
+                    <div>
+                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline mb-0.5">
+                        Primeira mensagem
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </a>
+                      <p className="text-xs text-[#9d9d9d]">
+                        A primeira mensagem que o agente dirá. Se estiver vazia, aguardará o usuário iniciar.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsFirstMessageEditing(!isFirstMessageEditing)}
+                      className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
+                        isFirstMessageEditing
+                          ? "bg-[#0d1013] text-white border-[#0d1013]"
+                          : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
+                      }`}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      {isFirstMessageEditing ? "Editando" : "Editar"}
+                    </button>
+                  </div>
+
+                  {/* Editor area */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
+                      title="Expandir"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </button>
+                    <VariableChipEditor
+                      value={firstMessage}
+                      onChange={(v) => handleEditorChange(v, setFirstMessage, "firstMessage")}
+                      readOnly={!isFirstMessageEditing}
+                      placeholder="Digite a primeira mensagem do agente..."
+                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none min-h-[80px] transition-colors ${
+                        isFirstMessageEditing
+                          ? "bg-white text-[#0d1013] cursor-text"
+                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
+                      }`}
+                      minHeight="80px"
+                      onTriggerAt={() => handleTriggerAt("firstMessage")}
+                      onVariableClick={handleVariableClick}
+                    />
+                  </div>
+
+                  {/* Bottom bar */}
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
+                    <span className="text-xs text-[#9d9d9d]">
+                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                    </span>
+                    <div className="flex-1" />
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={interruptible}
+                        onClick={() => setInterruptible(!interruptible)}
+                        className={`relative w-9 h-5 rounded-full transition-colors ${interruptible ? "bg-[#0d1013]" : "bg-[#e5e5e5]"}`}
+                      >
+                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${interruptible ? "left-[18px]" : "left-0.5"}`} />
+                      </button>
+                      <span className="text-xs text-[#0d1013]">Interrompível</span>
+                    </label>
                   </div>
                 </div>
               </div>
 
-              {/* Right Sidebar */}
-              <div className="w-[320px] space-y-4">
-                {/* Variables */}
-                <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-                  <div className="px-4 py-3 border-b border-[#e5e5e5]">
-                    <h3 className="font-heading font-medium text-sm text-[#0d1013]">Variáveis</h3>
+              {/* Right Sidebar (estilo referência: Vozes, Idioma, LLM) */}
+              <div className="w-[280px] flex-shrink-0 space-y-6">
+                {/* Vozes */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-sm font-semibold text-[#0d1013]">Vozes</h3>
+                    <button className="p-1 rounded text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="1.5"/>
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" strokeWidth="1.5"/>
+                      </svg>
+                    </button>
                   </div>
-                  <div className="p-4 space-y-3">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-[#9d9d9d]">Data</span>
-                      <span className="font-mono text-xs bg-[#f3f3f3] px-2 py-1 rounded">{new Date().toLocaleDateString("pt-BR")}</span>
+                  <p className="text-xs text-[#9d9d9d] mb-3">Selecione as vozes da ElevenLabs que você deseja usar para o agente.</p>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
+                    <div className="flex items-center gap-3">
+                      <span className="w-6 h-6 rounded-full bg-[#10b981] flex items-center justify-center">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                          <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </span>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-[#0d1013]">Eric - Smooth, Trustworthy</p>
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-[#9d9d9d]">Nome da base</span>
-                      <span className="font-mono text-xs bg-[#f3f3f3] px-2 py-1 rounded truncate max-w-[140px]">{selectedBase?.name}</span>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-[#9d9d9d]">Objetivo</span>
-                      <span className="font-mono text-xs bg-[#f3f3f3] px-2 py-1 rounded truncate max-w-[140px]">{goalTitle}</span>
-                    </div>
-                  </div>
+                    <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Primário</span>
+                  </button>
+                  <button className="mt-2 flex items-center gap-2 text-sm text-[#9d9d9d] hover:text-[#0d1013] transition-colors">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    Adicionar voz adicional
+                  </button>
                 </div>
 
-                {/* Integrations */}
-                <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-                  <div className="px-4 py-3 border-b border-[#e5e5e5]">
-                    <h3 className="font-heading font-medium text-sm text-[#0d1013]">Dados e Integrações</h3>
-                  </div>
-                  <div className="p-4 space-y-2">
-                    {enabledIntegrations.map((integration) => (
-                      <div key={integration.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#f5f5f5] transition-colors">
-                        <div className="w-8 h-8 rounded-lg bg-[#f5f5f5] flex items-center justify-center">
-                          <IntegrationIcon type={integration.icon} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0d1013]">{integration.name}</p>
-                        </div>
-                        <div className="w-2 h-2 rounded-full bg-green-500" />
-                      </div>
-                    ))}
-                    {enabledIntegrations.length === 0 && (
-                      <p className="text-sm text-[#9d9d9d] text-center py-4">Nenhuma integração ativa</p>
-                    )}
-                  </div>
+                {/* Idioma */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[#0d1013] mb-2">Idioma</h3>
+                  <p className="text-xs text-[#9d9d9d] mb-3">Escolha os idiomas padrão e adicionais em que o agente se comunicará.</p>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
+                    <div className="flex items-center gap-3">
+                      <span className="text-lg">🇧🇷</span>
+                      <p className="text-sm font-medium text-[#0d1013]">Português</p>
+                    </div>
+                    <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Padrão</span>
+                  </button>
+                  <button className="mt-2 flex items-center gap-2 text-sm text-[#9d9d9d] hover:text-[#0d1013] transition-colors">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
+                      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    Adicionar idiomas adicionais
+                  </button>
                 </div>
 
-                {/* Knowledge Base */}
-                <div className="bg-white rounded-xl border border-[#e5e5e5] overflow-hidden">
-                  <div className="px-4 py-3 border-b border-[#e5e5e5]">
-                    <h3 className="font-heading font-medium text-sm text-[#0d1013]">Base de Conhecimento</h3>
-                  </div>
-                  <div className="p-4">
-                    {selectedBase && (
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[#f5f5f5] flex items-center justify-center">
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M3 7C3 5.89543 3.89543 5 5 5H9L11 7H19C20.1046 7 21 7.89543 21 9V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" stroke="#9d9d9d" strokeWidth="1.5" fill="none"/>
-                          </svg>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-[#0d1013] truncate">{selectedBase.name}</p>
-                          <p className="text-xs text-[#9d9d9d]">
-                            {selectedBase.knowledgeLayersCount ?? 0} layers • {selectedBase.documentCount ?? 0} fontes
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                {/* LLM */}
+                <div>
+                  <h3 className="text-sm font-semibold text-[#0d1013] mb-2">LLM</h3>
+                  <p className="text-xs text-[#9d9d9d] mb-3">Selecione qual provedor e modelo usar para o LLM.</p>
+                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
+                    <p className="text-sm font-medium text-[#0d1013]">Gemini 2.5 Flash</p>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#9d9d9d]">
+                      <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Footer */}
-          <div className="bg-white border-t border-[#e5e5e5] px-8 py-4">
-            <div className="max-w-[1400px] mx-auto flex items-center justify-end gap-3">
-              <button
-                onClick={handleBack}
-                className="h-10 px-6 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCreateAgent}
-                className="h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
-              >
-                Continuar
-              </button>
             </div>
           </div>
         </div>
+
+        {/* Variable config modal (full screen, card) */}
+        {variableModalOpen && selectedVariable && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
+            <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[#e5e5e5]">
+                <h3 className="font-heading text-lg font-medium text-[#0d1013]">
+                  Configurar variável
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => { setVariableModalOpen(false); setSelectedVariable(null); }}
+                  className="p-2 rounded-lg text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                  aria-label="Fechar"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto flex-1">
+                <div className="space-y-4">
+                  <div>
+                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Variável</p>
+                    <p className="font-mono text-sm text-[#0d1013] bg-[#f5f5f5] px-3 py-2 rounded-lg">
+                      {selectedVariable.variable}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Tipo</p>
+                    <p className="text-sm text-[#0d1013]">
+                      {selectedVariable.type === "at" ? "Lógica / Ação" : "Interpolação (mensagem)"}
+                    </p>
+                  </div>
+                  {VARIABLE_META[selectedVariable.variable] && (
+                    <div>
+                      <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Descrição</p>
+                      <p className="text-sm text-[#0d1013]">
+                        {VARIABLE_META[selectedVariable.variable].description}
+                      </p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">ID</p>
+                    <p className="font-mono text-xs text-[#0d1013] bg-[#f5f5f5] px-3 py-2 rounded-lg">
+                      {VARIABLE_META[selectedVariable.variable]?.id ?? selectedVariable.variable}
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t border-[#e5e5e5]">
+                    <p className="text-xs text-[#9d9d9d] mb-2">
+                      Opções de configuração e ajustes desta variável serão definidas aqui.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="px-6 py-4 border-t border-[#e5e5e5] flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => { setVariableModalOpen(false); setSelectedVariable(null); }}
+                  className="px-4 py-2 text-sm font-medium text-[#0d1013] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f5] transition-colors"
+                >
+                  Fechar
+                </button>
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium text-white bg-[#0d1013] rounded-lg hover:bg-[#1a1a1a] transition-colors"
+                >
+                  Salvar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </DashboardLayout>
     );
   }

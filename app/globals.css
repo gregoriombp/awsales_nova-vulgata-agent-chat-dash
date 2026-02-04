@@ -432,3 +432,14 @@
     transform: none !important;
   }
 }
+
+/* Agent Studio: variable chips - dark bg, light text, no border, rounded */
+.variable-chip-at {
+  background-color: #1e3a5f;
+  color: #e0f2fe;
+}
+
+.variable-chip-mustache {
+  background-color: #14532d;
+  color: #dcfce7;
+}
