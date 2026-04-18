@@ -279,7 +279,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
   };
 
   return (
-    <aside className={`${effectiveCollapsed ? 'w-[80px]' : 'w-[280px]'} bg-[#0d0d0d] border-r border-[#161a20] h-screen flex flex-col transition-all duration-300 flex-shrink-0`}>
+    <aside className={`${effectiveCollapsed ? 'w-[80px]' : 'w-[280px]'} bg-[#0d0d0d] border-r border-[#1a1a1a] h-screen flex flex-col transition-all duration-300 flex-shrink-0`}>
       {/* Header - Logo and Toggle */}
       <div className={`border-b border-[#1a1a1a] flex items-center ${effectiveCollapsed ? 'justify-center px-3' : 'justify-between px-6'} h-[56px]`}>
         {!effectiveCollapsed && (
@@ -323,10 +323,10 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             {!effectiveCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="text-[#f9f9f9] text-[12px] font-medium leading-tight font-['Inter']">
+                  <div className="text-[#f9f9f9] text-[12px] font-medium leading-tight">
                     {selectedOrganization?.name ?? "Organização"}
                   </div>
-                  <div className="text-[#b8b8b8] text-[10px] font-normal leading-tight font-['Inter']">
+                  <div className="text-[#b8b8b8] text-[10px] font-normal leading-tight">
                     {selectedOrganization?.subtitle ?? "Organização"}
                   </div>
                 </div>
@@ -344,7 +344,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                 effectiveCollapsed
                   ? "left-full top-0 ml-2 w-64"
                   : "left-0 right-0 top-full mt-2"
-              } rounded-[10px] border border-[#161a20] bg-[#1f1f1f] shadow-xl overflow-hidden`}
+              } rounded-[10px] border border-[#1a1a1a] bg-[#1f1f1f] shadow-xl overflow-hidden`}
             >
               <div className="p-1">
                 {ORGANIZATIONS.map((org) => {
@@ -362,20 +362,20 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                         active ? "bg-white text-[#0c1421]" : "text-[#f0f3f7] hover:bg-[#1a1a1a]"
                       }`}
                     >
-                      <div className="text-[13px] font-medium leading-tight font-['Instrument_Sans']">{org.name}</div>
-                      <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight font-['Instrument_Sans']`}>
+                      <div className="text-[13px] font-medium leading-tight">{org.name}</div>
+                      <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight`}>
                         {org.subtitle}
                       </div>
                     </button>
                   );
                 })}
               </div>
-              <div className="border-t border-[#161a20] p-1">
+              <div className="border-t border-[#1a1a1a] p-1">
                 <Link
                   href="/settings"
                   role="menuitem"
                   onClick={() => setIsOrganizationMenuOpen(false)}
-                  className="block rounded-[8px] px-3 py-2 text-[#999] hover:bg-[#1a1a1a] hover:text-white transition-colors text-[13px] font-medium font-['Instrument_Sans']"
+                  className="block rounded-[8px] px-3 py-2 text-[#999] hover:bg-[#1a1a1a] hover:text-white transition-colors text-[13px] font-medium"
                 >
                   Gerenciar organizações
                 </Link>
@@ -391,7 +391,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           <div key={sectionIdx} className={sectionIdx > 0 ? 'mt-[37px]' : ''}>
             {section.title && !effectiveCollapsed && (
               <div className="px-3 mb-[3px] h-[21px] flex items-center">
-                <span className="text-[#5e5e5e] text-[12px] font-normal font-['Inter']">
+                <span className="text-[#5e5e5e] text-[12px] font-normal">
                   {section.title}
                 </span>
               </div>
@@ -417,9 +417,9 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                     <span className={`flex-shrink-0 ${active ? "text-[#0c1421]" : ""}`}>{item.icon}</span>
                     {!effectiveCollapsed && (
                       <>
-                        <span className={`flex-1 text-[16px] font-['Inter'] ${active ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>{item.label}</span>
+                        <span className={`flex-1 text-[16px] ${active ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>{item.label}</span>
                         {item.badge && (
-                          <span className="flex items-center gap-1 bg-[#1a1a1a] text-[#f9f9f9] text-[10px] font-normal px-1 py-0.5 rounded-[4px] leading-[1.3] font-['Inter']">
+                          <span className="flex items-center gap-1 bg-[#1a1a1a] text-[#f9f9f9] text-[10px] font-normal px-1 py-0.5 rounded-[4px] leading-[1.3]">
                             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
                               <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                             </svg>
@@ -437,7 +437,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
       </div>
 
       {/* Bottom Section */}
-      <div className="border-t border-[#161a20] px-3 py-3 space-y-3">
+      <div className="border-t border-[#1a1a1a] px-3 py-3 space-y-3">
         {/* Configurações */}
         <Link
           href="/settings"
@@ -456,7 +456,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             <circle cx="12.083" cy="10" r="1.458" fill="currentColor"/>
             <circle cx="5.625" cy="15" r="1.458" fill="currentColor"/>
           </svg>
-          {!effectiveCollapsed && <span className={`text-[16px] font-['Inter'] ${pathname === '/settings' ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>Configurações</span>}
+          {!effectiveCollapsed && <span className={`text-[16px] ${pathname === '/settings' ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>Configurações</span>}
         </Link>
 
         {/* User Profile */}
@@ -466,7 +466,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
               setIsUserMenuOpen((v) => !v);
               setIsOrganizationMenuOpen(false);
             }}
-            className={`w-full bg-[#0d0d0d] border border-[#161a20] rounded-[10px] flex items-center transition-colors hover:bg-[#1a1a1a] ${effectiveCollapsed ? 'justify-center p-2' : 'gap-4 px-2 py-2'}`}
+            className={`w-full bg-[#0d0d0d] border border-[#1a1a1a] rounded-[10px] flex items-center transition-colors hover:bg-[#1a1a1a] ${effectiveCollapsed ? 'justify-center p-2' : 'gap-4 px-2 py-2'}`}
             aria-haspopup="menu"
             aria-expanded={isUserMenuOpen}
           >
@@ -480,10 +480,10 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             {!effectiveCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="text-[#f0f3f7] text-[14px] font-medium leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#f0f3f7] text-[14px] font-medium leading-tight">
                     {selectedUser?.name ?? "Usuário"}
                   </div>
-                  <div className="text-[#b8b8b8] text-[12px] font-normal leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#b8b8b8] text-[12px] font-normal leading-tight">
                     {selectedUser?.title ?? "Conta"}
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                 effectiveCollapsed
                   ? "left-full bottom-0 ml-2 w-64"
                   : "left-0 right-0 bottom-full mb-2"
-              } rounded-[10px] border border-[#161a20] bg-[#1f1f1f] shadow-xl overflow-hidden`}
+              } rounded-[10px] border border-[#1a1a1a] bg-[#1f1f1f] shadow-xl overflow-hidden`}
             >
               <div className="p-1">
                 {USERS.map((u) => {
@@ -530,8 +530,8 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="text-[13px] font-medium leading-tight font-['Instrument_Sans']">{u.name}</div>
-                          <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight font-['Instrument_Sans']`}>
+                          <div className="text-[13px] font-medium leading-tight">{u.name}</div>
+                          <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight`}>
                             {u.title}
                           </div>
                         </div>
@@ -540,12 +540,12 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                   );
                 })}
               </div>
-              <div className="border-t border-[#161a20] p-1">
+              <div className="border-t border-[#1a1a1a] p-1">
                 <Link
                   href="/"
                   role="menuitem"
                   onClick={() => setIsUserMenuOpen(false)}
-                  className="block rounded-[8px] px-3 py-2 text-[#ffb4b4] hover:bg-[#1a1a1a] transition-colors text-[13px] font-medium font-['Instrument_Sans']"
+                  className="block rounded-[8px] px-3 py-2 text-[#ffb4b4] hover:bg-[#1a1a1a] transition-colors text-[13px] font-medium"
                 >
                   Sair / trocar conta
                 </Link>
