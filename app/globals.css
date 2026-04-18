@@ -1,17 +1,342 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;700&display=swap');
+/* AwSales Design System — one typographic voice: Mona Sans.
+ * JetBrains Mono reserved strictly for code, tokens, IDs.
+ * Material Symbols Rounded is the AwSales icon system (12/16/20/24/28/32 px). */
+@import url('https://fonts.googleapis.com/css2?family=Mona+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,-25..200&display=block');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+ * AwSales Design System tokens
+ * Geometric minimalism: grayscale primitives + blue-origin AI gradient.
+ * ============================================================ */
+:root {
+  /* Neutral anchors */
+  --aw-black: #000000;
+  --aw-white: #FFFFFF;
+
+  /* Gray scale — the "structure" / hardware of the system */
+  --aw-gray-150: #F9F9F9;
+  --aw-gray-200: #F2F2F2;
+  --aw-gray-300: #E5E5E5;
+  --aw-gray-400: #D1D1D1;
+  --aw-gray-500: #B8B8B8;
+  --aw-gray-600: #999999;
+  --aw-gray-700: #7A7A7A;
+  --aw-gray-800: #5E5E5E;
+  --aw-gray-900: #454545;
+  --aw-gray-1000: #2F2F2F;
+  --aw-gray-1100: #1A1A1A;
+  --aw-gray-1200: #0D0D0D;
+
+  /* Blue — origin point of the AI gradient spectrum */
+  --aw-blue-100: #F2F7FF;
+  --aw-blue-150: #E8F0FF;
+  --aw-blue-200: #DDEBFF;
+  --aw-blue-300: #B8D4FF;
+  --aw-blue-400: #8FB8FF;
+  --aw-blue-500: #478AFF;
+  --aw-blue-600: #2F76E6;
+  --aw-blue-700: #1A5EC8;
+  --aw-blue-800: #1346A2;
+  --aw-blue-900: #0D317A;
+  --aw-blue-1000: #09225A;
+  --aw-blue-1100: #06163D;
+  --aw-blue-1200: #030D25;
+
+  /* Emerald — success semantic scale */
+  --aw-emerald-100: #F2FBF5;
+  --aw-emerald-150: #E8F9ED;
+  --aw-emerald-200: #DDF7E5;
+  --aw-emerald-300: #BFF2D0;
+  --aw-emerald-400: #99EBB8;
+  --aw-emerald-500: #5BDF9E;
+  --aw-emerald-600: #40C987;
+  --aw-emerald-700: #22A871;
+  --aw-emerald-800: #17825A;
+  --aw-emerald-900: #105E45;
+  --aw-emerald-1000: #0A4230;
+  --aw-emerald-1100: #062B1F;
+  --aw-emerald-1200: #041912;
+
+  /* Red — destructive / error */
+  --aw-red-100: #FFF2F2;
+  --aw-red-150: #FDE6E6;
+  --aw-red-200: #FDDDDD;
+  --aw-red-300: #FBBFBF;
+  --aw-red-400: #F29999;
+  --aw-red-500: #DF5B5B;
+  --aw-red-600: #C94040;
+  --aw-red-700: #A82222;
+  --aw-red-800: #821718;
+  --aw-red-900: #5E1010;
+  --aw-red-1000: #420A0A;
+  --aw-red-1100: #2B0606;
+  --aw-red-1200: #190404;
+
+  /* Purple — decorative / "thinking" accent */
+  --aw-purple-100: #F7F2FC;
+  --aw-purple-150: #F0E7FA;
+  --aw-purple-200: #EADDF8;
+  --aw-purple-300: #DBBFF2;
+  --aw-purple-400: #C499EB;
+  --aw-purple-500: #9E5BDF;
+  --aw-purple-600: #8740C9;
+  --aw-purple-700: #7122A8;
+  --aw-purple-800: #5A1782;
+  --aw-purple-900: #45105E;
+  --aw-purple-1000: #300A42;
+
+  /* Teal — informational / data-viz */
+  --aw-teal-100: #DFF7F6;
+  --aw-teal-200: #A1E6E6;
+  --aw-teal-400: #64D4D7;
+  --aw-teal-500: #45CCCF;
+  --aw-teal-600: #26C3C7;
+  --aw-teal-700: #20B2B4;
+  --aw-teal-900: #16908F;
+
+  /* Amber — alert / pending review */
+  --aw-amber-100: #FFF7ED;
+  --aw-amber-150: #FDEFD9;
+  --aw-amber-200: #FDE6CC;
+  --aw-amber-300: #FCD4A3;
+  --aw-amber-400: #F2A95B;
+  --aw-amber-500: #E6762F;
+  --aw-amber-600: #CC5F1E;
+  --aw-amber-700: #B05315;
+  --aw-amber-800: #8C4112;
+  --aw-amber-900: #7A3A10;
+  --aw-amber-1000: #54270A;
+  --aw-amber-1100: #331806;
+  --aw-amber-1200: #1F0E03;
+
+  /* Pink — highlight / marketing accent (used sparingly) */
+  --aw-pink-100: #FDF2F8;
+  --aw-pink-200: #FCE3EE;
+  --aw-pink-300: #F9C4DB;
+  --aw-pink-400: #F490B5;
+  --aw-pink-500: #E85C91;
+  --aw-pink-600: #D13F76;
+  --aw-pink-700: #A82A5C;
+  --aw-pink-800: #801F46;
+  --aw-pink-900: #5A1530;
+  --aw-pink-1000: #3B0D20;
+  --aw-pink-1200: #1A0610;
+
+  /* Lime — growth / positive delta accent */
+  --aw-lime-100: #F4FBE5;
+  --aw-lime-200: #E4F5BE;
+  --aw-lime-400: #BDE862;
+  --aw-lime-500: #A1D136;
+  --aw-lime-600: #7FAB25;
+  --aw-lime-700: #5F8018;
+  --aw-lime-900: #354811;
+  --aw-lime-1200: #111706;
+
+  /* Slate — cool neutral alt (data-viz, subdued chrome) */
+  --aw-slate-100: #F4F6F8;
+  --aw-slate-200: #E4E8EE;
+  --aw-slate-300: #C9D0DA;
+  --aw-slate-400: #9FA9BA;
+  --aw-slate-500: #7886A0;
+  --aw-slate-600: #5D6A82;
+  --aw-slate-700: #465267;
+  --aw-slate-800: #333D4D;
+  --aw-slate-900: #222A36;
+  --aw-slate-1000: #141922;
+  --aw-slate-1200: #080A0E;
+
+  /* Semantic tokens — light mode */
+  --bg-canvas: var(--aw-white);
+  --bg-surface: var(--aw-gray-150);
+  --bg-raised: var(--aw-white);
+  --bg-muted: var(--aw-gray-200);
+  --bg-inverse: var(--aw-gray-1200);
+
+  --fg-primary: var(--aw-gray-1200);
+  --fg-secondary: var(--aw-gray-800);
+  --fg-tertiary: var(--aw-gray-600);
+  --fg-muted: var(--aw-gray-500);
+  --fg-on-inverse: var(--aw-white);
+
+  --border-subtle: var(--aw-gray-200);
+  --border-default: var(--aw-gray-300);
+  --border-strong: var(--aw-gray-500);
+  --border-inverse: var(--aw-gray-1000);
+
+  --accent-brand: var(--aw-blue-600);
+  --accent-brand-hover: var(--aw-blue-700);
+  --accent-success: var(--aw-emerald-700);
+  --accent-danger: var(--aw-red-700);
+  --accent-warning: var(--aw-amber-500);
+  --accent-alert: var(--aw-amber-500);
+
+  /* Dark chrome surfaces (product sidebar + shell) */
+  --dark-bg: var(--aw-gray-1200);
+  --dark-bg-raised: var(--aw-gray-1100);
+  --dark-bg-hover: var(--aw-gray-1000);
+  --dark-fg-primary: var(--aw-white);
+  --dark-fg-secondary: var(--aw-gray-500);
+  --dark-fg-tertiary: var(--aw-gray-700);
+  --dark-border: var(--aw-gray-1000);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing — 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-18: 72px;
+
+  /* Shadows — restrained */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 24px 64px rgba(0, 0, 0, 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+
+  /* Type families — single voice */
+  --font-sans: 'Mona Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Type scale */
+  --display-xl-size: 96px;
+  --display-lg-size: 80px;
+  --display-md-size: 64px;
+  --display-sm-size: 48px;
+  --h1-size: 40px;
+  --h2-size: 32px;
+  --h3-size: 28px;
+  --h4-size: 24px;
+  --h5-size: 20px;
+  --h6-size: 18px;
+  --body-xl-size: 20px;
+  --body-lg-size: 18px;
+  --body-md-size: 16px;
+  --body-sm-size: 14px;
+  --body-xs-size: 12px;
+  --mono-md-size: 14px;
+  --mono-sm-size: 12px;
+}
+
+/* ============================================================
+ * Dark mode — inverts the semantic layer.
+ * Primitives never change; only the semantic tokens reassign.
+ * Activate with `<html class="dark">` or on any subtree.
+ * ============================================================ */
+.dark {
+  --bg-canvas: var(--aw-gray-1200);
+  --bg-surface: var(--aw-gray-1100);
+  --bg-raised: var(--aw-gray-1100);
+  --bg-muted: var(--aw-gray-1000);
+  --bg-inverse: var(--aw-white);
+
+  --fg-primary: var(--aw-white);
+  --fg-secondary: var(--aw-gray-500);
+  --fg-tertiary: var(--aw-gray-700);
+  --fg-muted: var(--aw-gray-800);
+  --fg-on-inverse: var(--aw-gray-1200);
+
+  --border-subtle: var(--aw-gray-1100);
+  --border-default: var(--aw-gray-1000);
+  --border-strong: var(--aw-gray-900);
+  --border-inverse: var(--aw-gray-300);
+
+  --accent-brand: var(--aw-blue-500);
+  --accent-brand-hover: var(--aw-blue-400);
+  --accent-success: var(--aw-emerald-500);
+  --accent-danger: var(--aw-red-500);
+  --accent-warning: var(--aw-amber-400);
+  --accent-alert: var(--aw-amber-400);
+}
+
 @layer base {
   body {
     @apply font-sans text-text-primary antialiased;
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--fg-primary);
+  }
+
+  h1 { font-size: var(--h1-size); letter-spacing: -0.02em; }
+  h2 { font-size: var(--h2-size); letter-spacing: -0.015em; }
+  h3 { font-size: var(--h3-size); }
+  h4 { font-size: var(--h4-size); line-height: 1.25; }
+  h5 { font-size: var(--h5-size); line-height: 1.3; }
+  h6 { font-size: var(--h6-size); line-height: 1.35; }
+
+  code, pre, kbd, samp, .mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "liga" 0, "calt" 0;
+  }
+
+  ::selection {
+    background: var(--aw-blue-200);
+    color: var(--aw-gray-1200);
+  }
+}
+
+@layer components {
+  .display-xl, .display-lg, .display-md, .display-sm {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--fg-primary);
+  }
+  .display-xl { font-size: var(--display-xl-size); }
+  .display-lg { font-size: var(--display-lg-size); }
+  .display-md { font-size: var(--display-md-size); }
+  .display-sm { font-size: var(--display-sm-size); }
+
+  .overline {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-tertiary);
+  }
+  .caption {
+    font-family: var(--font-body);
+    font-size: var(--body-xs-size);
+    color: var(--fg-tertiary);
+    line-height: 1.4;
   }
 }
 
@@ -442,4 +767,148 @@
 .variable-chip-mustache {
   background-color: #14532d;
   color: #dcfce7;
+}
+
+/* Material Symbols Rounded — AwSales icon system.
+ * Locks defaults so glyphs never render as ligature text while loading. */
+.material-symbols-rounded.aw-icon {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+  vertical-align: -0.15em;
+}
+
+/* ============================================================
+ * AwButton — mirrors AwSales Design System (zip) spec exactly.
+ * 5 variants · 3 sizes · iconLeft/iconRight · loading.
+ * ============================================================ */
+.aw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    filter var(--dur-base) var(--ease-out);
+  user-select: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.aw-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.aw-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.aw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
+/* Sizes — heights 30 / 38 / 46 */
+.aw-btn--sm { height: 30px; padding: 0 12px; font-size: 13px; }
+.aw-btn--md { height: 38px; padding: 0 16px; font-size: 14px; }
+.aw-btn--lg { height: 46px; padding: 0 22px; font-size: 15px; }
+
+/* Full-width variant */
+.aw-btn--block { width: 100%; justify-content: center; }
+
+/* Icon-only — square, symmetrical padding */
+.aw-btn--icon.aw-btn--sm { width: 30px; padding: 0; justify-content: center; }
+.aw-btn--icon.aw-btn--md { width: 38px; padding: 0; justify-content: center; }
+.aw-btn--icon.aw-btn--lg { width: 46px; padding: 0; justify-content: center; }
+
+/* Primary — high-contrast (near-black on light, inverts on dark) */
+.aw-btn--primary {
+  background: var(--fg-primary);
+  color: var(--bg-canvas);
+  border-color: var(--fg-primary);
+}
+.aw-btn--primary:hover:not(:disabled) {
+  background: var(--aw-gray-1000);
+  border-color: var(--aw-gray-1000);
+}
+.aw-btn--primary:active:not(:disabled) {
+  background: var(--aw-black);
+  border-color: var(--aw-black);
+}
+
+/* Secondary — outline, neutral */
+.aw-btn--secondary {
+  background: transparent;
+  color: var(--fg-primary);
+  border-color: var(--border-default);
+}
+.aw-btn--secondary:hover:not(:disabled) {
+  border-color: var(--fg-primary);
+  background: var(--bg-surface);
+}
+
+/* Ghost — transparent, becomes a soft fill on hover */
+.aw-btn--ghost {
+  background: transparent;
+  color: var(--fg-primary);
+  border-color: transparent;
+}
+.aw-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-surface);
+}
+
+/* Danger — destructive actions */
+.aw-btn--danger {
+  background: var(--aw-red-700);
+  color: #fff;
+  border-color: var(--aw-red-700);
+}
+.aw-btn--danger:hover:not(:disabled) {
+  background: var(--aw-red-800);
+  border-color: var(--aw-red-800);
+}
+
+/* AI — reserved for actions that invoke the agent. Blue → Purple gradient. */
+.aw-btn--ai {
+  background: linear-gradient(90deg, var(--aw-blue-600) 0%, var(--aw-purple-500) 100%);
+  color: #fff;
+  border-color: transparent;
+}
+.aw-btn--ai:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* Loading */
+.aw-btn--loading .aw-btn__label { opacity: 0.6; }
+.aw-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: aw-spin 600ms linear infinite;
+}
+@keyframes aw-spin {
+  to { transform: rotate(360deg); }
 }
