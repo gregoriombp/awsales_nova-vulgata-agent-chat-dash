@@ -82,6 +82,72 @@ const VARIABLE_META: Record<string, { id: string; description: string }> = {};
   VARIABLE_META[s.label] = { id: s.id, description: s.description };
 });
 
+// Sidebar (Figma wireframe): Variáveis + Tools
+const SIDEBAR_VARIABLES = [
+  { id: "agent_name", name: "{{agent_name}}" },
+  { id: "user_email", name: "{{user_email}}" },
+  { id: "company_city", name: "{{company_city}}" },
+  { id: "company_name", name: "{{company_name}}" },
+  { id: "user_name", name: "{{user_name}}" },
+] as const;
+
+const SIDEBAR_TOOLS = [
+  {
+    id: "system",
+    title: "System",
+    description: "Ferramentas internas do sistema que adicionam capacidades especiais ao agente de IA, como pensar em voz alta para melhorar o raciocínio, adicionar contatos à lista negra para proteção.",
+    activeCount: 3,
+    availableCount: 9,
+    icon: "system",
+  },
+  {
+    id: "pipedrive",
+    title: "PipeDrive",
+    description: "Integração com o CRM PipeDrive para gerenciar leads, negócios, pipelines e atividades comerciais.",
+    activeCount: 0,
+    availableCount: 19,
+    icon: "pipedrive",
+  },
+  {
+    id: "google-calendar",
+    title: "Google Calendar",
+    description: "Integração com Google Calendar para gerenciar agendas, criar e atualizar eventos, verificar disponibilidade de horários e agendar reuniões automaticamente.",
+    activeCount: 2,
+    availableCount: 16,
+    icon: "calendar",
+  },
+  {
+    id: "google-sheets",
+    title: "Google Sheets",
+    description: "Integração com o Google Sheets para registrar, consultar e atualizar dados em planilhas.",
+    activeCount: 0,
+    availableCount: 12,
+    icon: "sheets",
+  },
+] as const;
+
+// Left sidebar tabs (only on agent editor page)
+type AgentStudioTabId =
+  | "agente"
+  | "visualizacao-modular"
+  | "bases-conhecimento"
+  | "aop"
+  | "analise"
+  | "playground"
+  | "historico"
+  | "configuracoes";
+
+const AGENT_STUDIO_SIDEBAR_ITEMS: { id: AgentStudioTabId; label: string; description: string }[] = [
+  { id: "agente", label: "Agente", description: "Configure personalidade, checkpoint e primeira mensagem do agente." },
+  { id: "visualizacao-modular", label: "Visualização Modular", description: "Veja o checkpoint do agente em formato de workflow modular." },
+  { id: "bases-conhecimento", label: "Bases de Conhecimento", description: "Gerencie fontes e knowledge layers usados pelo agente." },
+  { id: "aop", label: "AOP", description: "Protocolos específicos que o agente pode utilizar." },
+  { id: "analise", label: "Análise", description: "Informações e métricas relevantes do agente." },
+  { id: "playground", label: "Playground", description: "Converse e teste o agente em tempo real." },
+  { id: "historico", label: "Histórico de alterações", description: "Registro de todas as alterações feitas no agente." },
+  { id: "configuracoes", label: "Configurações", description: "Ajustes gerais e preferências do agente." },
+];
+
 // Editable field with chips; when read-only just show chip display
 function VariableChipEditor({
   value,
@@ -125,12 +191,30 @@ function VariableChipEditor({
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (readOnly) return;
-      if (e.key === "@") {
-        onTriggerAt?.();
+      if (e.key === "@" && onTriggerAt) {
+        e.preventDefault();
+        const sel = document.getSelection();
+        if (sel && divRef.current?.contains(sel.anchorNode)) {
+          const range = sel.getRangeAt(0);
+          const textNode = document.createTextNode("@");
+          range.insertNode(textNode);
+          range.setStartAfter(textNode);
+          range.setEndAfter(textNode);
+          sel.removeAllRanges();
+          sel.addRange(range);
+          // Sync value and show suggestions after DOM update
+          if (divRef.current) {
+            const newValue = serializeDomToValue(divRef.current);
+            onChange(newValue);
+          }
+          onTriggerAt();
+        } else {
+          setTimeout(() => onTriggerAt(), 0);
+        }
       }
       // {{ is detected in handleEditorChange when value ends with {{
     },
-    [readOnly, onTriggerAt]
+    [readOnly, onTriggerAt, onChange]
   );
 
   const handleClick = useCallback(
@@ -443,6 +527,1082 @@ const ModuleTag = ({ module }: { module: PromptModule }) => {
   );
 };
 
+// ========================================
+// Modular Flow Visualization Component
+// ========================================
+
+type FlowNodeType = "trigger" | "greeting" | "action" | "condition" | "message" | "decision" | "loop" | "end";
+
+interface FlowNode {
+  id: string;
+  type: FlowNodeType;
+  label: string;
+  description?: string;
+  config?: Record<string, any>;
+  position: { x: number; y: number };
+}
+
+interface FlowConnection {
+  from: string;
+  to: string;
+  label?: string;
+}
+
+const SAMPLE_FLOW_NODES: FlowNode[] = [
+  {
+    id: "1",
+    type: "trigger",
+    label: "Início da Conversa",
+    description: "Quando o usuário inicia contato",
+    position: { x: 400, y: 80 },
+  },
+  {
+    id: "2",
+    type: "greeting",
+    label: "Saudação Inicial",
+    description: "Apresentar o agente e dar boas-vindas",
+    config: {
+      message: "Olá! Sou o assistente de vendas da {{company.name}}. Como posso ajudar?",
+    },
+    position: { x: 400, y: 200 },
+  },
+  {
+    id: "3",
+    type: "action",
+    label: "Qualificar Lead",
+    description: "Coletar informações básicas do lead",
+    config: {
+      action: "@ask_to_agent",
+      fields: ["nome", "empresa", "interesse"],
+    },
+    position: { x: 400, y: 340 },
+  },
+  {
+    id: "4",
+    type: "condition",
+    label: "Lead Qualificado?",
+    description: "Verificar se o lead atende aos critérios",
+    config: {
+      condition: "{{lead.score}} > 7",
+    },
+    position: { x: 400, y: 480 },
+  },
+  {
+    id: "5",
+    type: "action",
+    label: "Criar Oportunidade",
+    description: "Criar deal no CRM",
+    config: {
+      action: "@create_deal",
+      pipeline: "vendas",
+    },
+    position: { x: 280, y: 620 },
+  },
+  {
+    id: "6",
+    type: "message",
+    label: "Mensagem de Follow-up",
+    description: "Enviar próximos passos",
+    config: {
+      message: "Ótimo! Vou encaminhar sua solicitação para nosso time comercial.",
+    },
+    position: { x: 520, y: 620 },
+  },
+];
+
+const SAMPLE_CONNECTIONS: FlowConnection[] = [
+  { from: "1", to: "2" },
+  { from: "2", to: "3" },
+  { from: "3", to: "4" },
+  { from: "4", to: "5", label: "Sim" },
+  { from: "4", to: "6", label: "Não" },
+];
+
+const FlowNodeComponent = ({
+  node,
+  isSelected,
+  onClick
+}: {
+  node: FlowNode;
+  isSelected: boolean;
+  onClick: () => void;
+}) => {
+  const getNodeStyle = (type: FlowNodeType) => {
+    switch (type) {
+      case "trigger":
+        return {
+          bg: "bg-black",
+          border: "border-black",
+          text: "text-white",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="10"/>
+            </svg>
+          ),
+        };
+      case "greeting":
+      case "message":
+        return {
+          bg: "bg-white",
+          border: "border-[#e5e5e5]",
+          text: "text-[#0d1013]",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+          ),
+        };
+      case "action":
+        return {
+          bg: "bg-white",
+          border: "border-[#e5e5e5]",
+          text: "text-[#0d1013]",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+          ),
+        };
+      case "condition":
+      case "decision":
+        return {
+          bg: "bg-amber-50",
+          border: "border-amber-200",
+          text: "text-amber-900",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 2L2 12l10 10 10-10L12 2z"/>
+            </svg>
+          ),
+        };
+      case "loop":
+        return {
+          bg: "bg-blue-50",
+          border: "border-blue-200",
+          text: "text-blue-900",
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+          ),
+        };
+      default:
+        return {
+          bg: "bg-white",
+          border: "border-[#e5e5e5]",
+          text: "text-[#0d1013]",
+          icon: null,
+        };
+    }
+  };
+
+  const style = getNodeStyle(node.type);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: node.position.x,
+        top: node.position.y,
+        transform: "translate(-50%, -50%)",
+      }}
+      onClick={onClick}
+      className={`
+        cursor-pointer transition-all duration-200
+        ${isSelected ? "scale-105" : "hover:scale-102"}
+      `}
+    >
+      <div
+        className={`
+          ${style.bg} ${style.text}
+          border-2 ${isSelected ? "border-[#0d1013] shadow-lg" : style.border}
+          rounded-xl px-4 py-3
+          min-w-[200px] max-w-[240px]
+          transition-all duration-200
+        `}
+      >
+        <div className="flex items-start gap-2">
+          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-white" : "text-[#9d9d9d]"}`}>
+            {style.icon}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-sm leading-tight mb-0.5">
+              {node.label}
+            </div>
+            {node.description && (
+              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-gray-300" : "text-[#9d9d9d]"}`}>
+                {node.description}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Connection point (bottom) */}
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-[#e5e5e5] rounded-full border-2 border-white" />
+    </div>
+  );
+};
+
+const FlowConnectionComponent = ({
+  from,
+  to,
+  label,
+  nodes
+}: {
+  from: string;
+  to: string;
+  label?: string;
+  nodes: FlowNode[];
+}) => {
+  const fromNode = nodes.find(n => n.id === from);
+  const toNode = nodes.find(n => n.id === to);
+
+  if (!fromNode || !toNode) return null;
+
+  const x1 = fromNode.position.x;
+  const y1 = fromNode.position.y + 40;
+  const x2 = toNode.position.x;
+  const y2 = toNode.position.y - 40;
+
+  const midY = (y1 + y2) / 2;
+
+  return (
+    <g>
+      <path
+        d={`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`}
+        stroke="#e5e5e5"
+        strokeWidth="2"
+        fill="none"
+      />
+      {label && (
+        <g>
+          <rect
+            x={x2 + 8}
+            y={midY - 10}
+            width={label.length * 6 + 12}
+            height="20"
+            fill="white"
+            stroke="#e5e5e5"
+            strokeWidth="1"
+            rx="4"
+          />
+          <text
+            x={x2 + 14}
+            y={midY + 4}
+            fontSize="11"
+            fill="#9d9d9d"
+            fontWeight="500"
+          >
+            {label}
+          </text>
+        </g>
+      )}
+      {/* Arrow */}
+      <path
+        d={`M ${x2} ${y2} l -4 -8 l 4 2 l 4 -2 Z`}
+        fill="#e5e5e5"
+      />
+    </g>
+  );
+};
+
+// ========================================
+// Knowledge Base Management Types & Data
+// ========================================
+
+type SourceType = "file" | "url" | "snippet" | "integration";
+
+interface KnowledgeLayer {
+  id: string;
+  question: string;
+  answer: string;
+  enabled: boolean;
+}
+
+interface KnowledgeSource {
+  id: string;
+  name: string;
+  type: SourceType;
+  enabled: boolean;
+  layersCount: number;
+  layers: KnowledgeLayer[];
+  createdAt: string;
+  status: "active" | "processing" | "error";
+}
+
+interface AgentKnowledgeBase {
+  id: string;
+  name: string;
+  description: string;
+  sourcesCount: number;
+  layersCount: number;
+  sources: KnowledgeSource[];
+  enabled: boolean;
+}
+
+const MOCK_AGENT_KNOWLEDGE_BASES: AgentKnowledgeBase[] = [
+  {
+    id: "kb-1",
+    name: "Base Produtos e Serviços",
+    description: "Informações sobre produtos, preços e especificações",
+    sourcesCount: 4,
+    layersCount: 156,
+    enabled: true,
+    sources: [
+      {
+        id: "src-1",
+        name: "catalogo-produtos-2024.pdf",
+        type: "file",
+        enabled: true,
+        layersCount: 5,
+        status: "active",
+        createdAt: "2024-01-15",
+        layers: [
+          {
+            id: "l1",
+            question: "Quais são os produtos disponíveis no catálogo 2024?",
+            answer: "O catálogo 2024 inclui três linhas principais: Solução Enterprise, Solução Pro e Solução Starter, cada uma com diferentes níveis de recursos e suporte.",
+            enabled: true
+          },
+          {
+            id: "l2",
+            question: "Qual é a política de preços para clientes corporativos?",
+            answer: "Clientes corporativos com mais de 50 usuários têm direito a descontos progressivos de 15% a 30%, além de suporte prioritário e onboarding dedicado.",
+            enabled: true
+          },
+          {
+            id: "l3",
+            question: "Quais integrações estão incluídas no plano Enterprise?",
+            answer: "O plano Enterprise inclui integrações com HubSpot, Salesforce, Pipedrive, Slack, Microsoft Teams e API customizada para integrações proprietárias.",
+            enabled: false
+          },
+          {
+            id: "l4",
+            question: "Como funciona o período de trial?",
+            answer: "Oferecemos 14 dias de trial gratuito com acesso completo a todos os recursos do plano escolhido, sem necessidade de cartão de crédito.",
+            enabled: true
+          },
+          {
+            id: "l5",
+            question: "Qual é o SLA garantido para o plano Enterprise?",
+            answer: "O plano Enterprise garante 99.9% de uptime, com compensação de créditos caso o SLA não seja atingido, e suporte 24/7 com resposta em até 1 hora.",
+            enabled: true
+          },
+        ],
+      },
+      {
+        id: "src-2",
+        name: "https://empresa.com/produtos",
+        type: "url",
+        enabled: true,
+        layersCount: 3,
+        status: "active",
+        createdAt: "2024-01-20",
+        layers: [
+          {
+            id: "l6",
+            question: "Como funciona a automação de vendas?",
+            answer: "A automação de vendas utiliza IA para qualificar leads, agendar follow-ups e priorizar oportunidades com maior probabilidade de conversão.",
+            enabled: true
+          },
+          {
+            id: "l7",
+            question: "Quais métricas podem ser acompanhadas no dashboard?",
+            answer: "O dashboard permite acompanhar taxa de conversão, tempo médio de ciclo de vendas, pipeline value, forecast de receita e performance individual dos vendedores.",
+            enabled: true
+          },
+          {
+            id: "l8",
+            question: "É possível personalizar os workflows?",
+            answer: "Sim, todos os workflows podem ser personalizados através de um editor visual drag-and-drop, sem necessidade de código.",
+            enabled: true
+          },
+        ],
+      },
+      {
+        id: "src-3",
+        name: "Política de Descontos 2024",
+        type: "snippet",
+        enabled: false,
+        layersCount: 2,
+        status: "active",
+        createdAt: "2024-02-01",
+        layers: [
+          {
+            id: "l9",
+            question: "Como solicitar desconto para contratos anuais?",
+            answer: "Contratos anuais pagos antecipadamente têm desconto de 20%. Entre em contato com o time comercial através do e-mail vendas@empresa.com.",
+            enabled: true
+          },
+          {
+            id: "l10",
+            question: "Existe desconto para ONGs e instituições educacionais?",
+            answer: "Sim, oferecemos 40% de desconto para organizações sem fins lucrativos e 50% para instituições educacionais reconhecidas pelo MEC.",
+            enabled: true
+          },
+        ],
+      },
+      {
+        id: "src-4",
+        name: "HubSpot CRM",
+        type: "integration",
+        enabled: true,
+        layersCount: 3,
+        status: "active",
+        createdAt: "2024-01-10",
+        layers: [
+          {
+            id: "l11",
+            question: "Como sincronizar contatos do HubSpot?",
+            answer: "A sincronização é automática e bidirecional. Após conectar sua conta HubSpot, todos os contatos, deals e atividades são sincronizados em tempo real.",
+            enabled: true
+          },
+          {
+            id: "l12",
+            question: "Quais campos do HubSpot são suportados?",
+            answer: "Suportamos todos os campos padrão do HubSpot e até 50 campos customizados por objeto (contatos, empresas e deals).",
+            enabled: true
+          },
+          {
+            id: "l13",
+            question: "É possível criar automações que atualizem o HubSpot?",
+            answer: "Sim, você pode configurar automações para criar, atualizar e deletar registros no HubSpot baseado em triggers e condições específicas.",
+            enabled: false
+          },
+        ],
+      },
+    ],
+  },
+  {
+    id: "kb-2",
+    name: "Base FAQ e Suporte",
+    description: "Perguntas frequentes e procedimentos de atendimento",
+    sourcesCount: 2,
+    layersCount: 64,
+    enabled: true,
+    sources: [
+      {
+        id: "src-5",
+        name: "faq-completo.md",
+        type: "file",
+        enabled: true,
+        layersCount: 4,
+        status: "active",
+        createdAt: "2024-01-25",
+        layers: [
+          {
+            id: "l14",
+            question: "Como redefinir minha senha?",
+            answer: "Clique em 'Esqueci minha senha' na tela de login, digite seu e-mail e siga as instruções enviadas para sua caixa de entrada.",
+            enabled: true
+          },
+          {
+            id: "l15",
+            question: "Posso ter múltiplos usuários na mesma conta?",
+            answer: "Sim, você pode adicionar usuários ilimitados em todos os planos. Cada usuário terá seu próprio login e permissões configuráveis.",
+            enabled: true
+          },
+          {
+            id: "l16",
+            question: "Como cancelar minha assinatura?",
+            answer: "Acesse Configurações > Assinatura > Cancelar. Você terá acesso até o fim do período pago e seus dados ficarão disponíveis por 90 dias.",
+            enabled: true
+          },
+          {
+            id: "l17",
+            question: "Existe limite de armazenamento?",
+            answer: "O plano Starter tem 10GB, Pro tem 100GB e Enterprise tem armazenamento ilimitado. É possível adicionar armazenamento extra por R$ 20/mês por 10GB.",
+            enabled: true
+          },
+        ],
+      },
+      {
+        id: "src-6",
+        name: "https://help.empresa.com",
+        type: "url",
+        enabled: true,
+        layersCount: 2,
+        status: "processing",
+        createdAt: "2024-02-02",
+        layers: [
+          {
+            id: "l18",
+            question: "Como importar dados de outras plataformas?",
+            answer: "Use a ferramenta de importação em Configurações > Importar Dados. Aceitamos arquivos CSV, Excel e conexões diretas com Salesforce, Pipedrive e HubSpot.",
+            enabled: true
+          },
+          {
+            id: "l19",
+            question: "Existe aplicativo mobile?",
+            answer: "Sim, temos aplicativos nativos para iOS e Android com sincronização em tempo real e acesso offline aos dados mais recentes.",
+            enabled: true
+          },
+        ],
+      },
+    ],
+  },
+];
+
+const KnowledgeBaseManagement = () => {
+  const [knowledgeBases, setKnowledgeBases] = useState<AgentKnowledgeBase[]>(MOCK_AGENT_KNOWLEDGE_BASES);
+  const [expandedBases, setExpandedBases] = useState<Set<string>>(new Set(["kb-1"]));
+  const [expandedSources, setExpandedSources] = useState<Set<string>>(new Set());
+
+  const toggleBase = (baseId: string) => {
+    setExpandedBases(prev => {
+      const next = new Set(prev);
+      if (next.has(baseId)) {
+        next.delete(baseId);
+      } else {
+        next.add(baseId);
+      }
+      return next;
+    });
+  };
+
+  const toggleSource = (sourceId: string) => {
+    setExpandedSources(prev => {
+      const next = new Set(prev);
+      if (next.has(sourceId)) {
+        next.delete(sourceId);
+      } else {
+        next.add(sourceId);
+      }
+      return next;
+    });
+  };
+
+  const toggleBaseEnabled = (baseId: string) => {
+    setKnowledgeBases(prev =>
+      prev.map(base =>
+        base.id === baseId ? { ...base, enabled: !base.enabled } : base
+      )
+    );
+  };
+
+  const toggleSourceEnabled = (baseId: string, sourceId: string) => {
+    setKnowledgeBases(prev =>
+      prev.map(base =>
+        base.id === baseId
+          ? {
+              ...base,
+              sources: base.sources.map(src =>
+                src.id === sourceId ? { ...src, enabled: !src.enabled } : src
+              ),
+            }
+          : base
+      )
+    );
+  };
+
+  const toggleLayerEnabled = (baseId: string, sourceId: string, layerId: string) => {
+    setKnowledgeBases(prev =>
+      prev.map(base =>
+        base.id === baseId
+          ? {
+              ...base,
+              sources: base.sources.map(src =>
+                src.id === sourceId
+                  ? {
+                      ...src,
+                      layers: src.layers.map(layer =>
+                        layer.id === layerId ? { ...layer, enabled: !layer.enabled } : layer
+                      ),
+                    }
+                  : src
+              ),
+            }
+          : base
+      )
+    );
+  };
+
+  const getSourceIcon = (type: SourceType) => {
+    switch (type) {
+      case "file":
+        return (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+            <path d="M13 2v7h7" />
+          </svg>
+        );
+      case "url":
+        return (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            <path d="M2 12h20" />
+          </svg>
+        );
+      case "snippet":
+        return (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </svg>
+        );
+      case "integration":
+        return (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M12 2v6M12 18v4M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M18 12h4M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24" />
+          </svg>
+        );
+    }
+  };
+
+  const KnowledgeLayerIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M1.3335 8.00089C1.33318 8.1284 1.36944 8.25333 1.43798 8.36086C1.50651 8.46838 1.60444 8.554 1.72016 8.60756L7.4535 11.2142C7.6263 11.2925 7.81381 11.3329 8.0035 11.3329C8.19319 11.3329 8.3807 11.2925 8.5535 11.2142L14.2735 8.61422C14.3915 8.56118 14.4915 8.47495 14.5614 8.36604C14.6312 8.25714 14.6679 8.13026 14.6668 8.00089M1.3335 11.3342C1.33318 11.4617 1.36944 11.5867 1.43798 11.6942C1.50651 11.8017 1.60444 11.8873 1.72016 11.9409L7.4535 14.5476C7.6263 14.6258 7.81381 14.6663 8.0035 14.6663C8.19319 14.6663 8.3807 14.6258 8.5535 14.5476L14.2735 11.9476C14.3915 11.8945 14.4915 11.8083 14.5614 11.6994C14.6312 11.5905 14.6679 11.4636 14.6668 11.3342M8.5535 1.45422C8.37979 1.37499 8.19109 1.33398 8.00016 1.33398C7.80924 1.33398 7.62054 1.37499 7.44683 1.45422L1.7335 4.05422C1.6152 4.10639 1.51462 4.19182 1.44401 4.30013C1.3734 4.40843 1.3358 4.53493 1.3358 4.66422C1.3358 4.79351 1.3734 4.92001 1.44401 5.02832C1.51462 5.13662 1.6152 5.22206 1.7335 5.27422L7.4535 7.88089C7.62721 7.96012 7.81591 8.00113 8.00683 8.00113C8.19776 8.00113 8.38646 7.96012 8.56016 7.88089L14.2802 5.28089C14.3985 5.22873 14.499 5.14329 14.5697 5.03499C14.6403 4.92668 14.6779 4.80018 14.6779 4.67089C14.6779 4.5416 14.6403 4.4151 14.5697 4.30679C14.499 4.19849 14.3985 4.11305 14.2802 4.06089L8.5535 1.45422Z" stroke="#5E5E5E" strokeWidth="0.666667" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+
+  return (
+    <div className="flex-1 flex flex-col bg-[#fafafa] overflow-hidden">
+      {/* Header */}
+      <div className="px-6 py-4 bg-white border-b border-[#e5e5e5]">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-heading text-lg font-medium text-[#0d1013]">
+              Bases de Conhecimento
+            </h2>
+            <p className="text-sm text-[#9d9d9d] mt-0.5">
+              Gerencie as fontes e knowledge layers usadas pelo agente
+            </p>
+          </div>
+          <button
+            type="button"
+            className="px-4 py-2 bg-[#0d1013] text-white rounded-lg text-sm font-medium hover:bg-[#1a1d21] transition-colors flex items-center gap-2"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Adicionar Base
+          </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <div className="max-w-5xl space-y-4">
+          {knowledgeBases.map(base => {
+            const isExpanded = expandedBases.has(base.id);
+            const enabledSourcesCount = base.sources.filter(s => s.enabled).length;
+            const totalLayersEnabled = base.sources.reduce(
+              (sum, src) => sum + src.layers.filter(l => l.enabled).length,
+              0
+            );
+
+            return (
+              <div
+                key={base.id}
+                className="bg-white border border-[#e5e5e5] rounded-xl overflow-hidden"
+              >
+                {/* Base header */}
+                <div className="px-5 py-4 flex items-start gap-4">
+                  <button
+                    type="button"
+                    onClick={() => toggleBase(base.id)}
+                    className="shrink-0 mt-1 p-1 rounded hover:bg-[#f5f5f5] transition-colors text-[#9d9d9d]"
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className={`transition-transform ${isExpanded ? "rotate-90" : ""}`}
+                    >
+                      <path d="M9 18l6-6-6-6" />
+                    </svg>
+                  </button>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-heading text-base font-medium text-[#0d1013] mb-1">
+                          {base.name}
+                        </h3>
+                        <p className="text-sm text-[#9d9d9d] mb-3">
+                          {base.description}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-[#9d9d9d]">
+                          <span>
+                            {enabledSourcesCount} de {base.sourcesCount} fontes ativas
+                          </span>
+                          <span>•</span>
+                          <span>
+                            {totalLayersEnabled} de {base.layersCount} layers ativos
+                          </span>
+                        </div>
+                      </div>
+
+                      <label className="flex items-center gap-2 shrink-0 cursor-pointer group">
+                        <span className="text-sm text-[#9d9d9d] group-hover:text-[#0d1013] transition-colors">
+                          {base.enabled ? "Ativa" : "Inativa"}
+                        </span>
+                        <div className="relative">
+                          <input
+                            type="checkbox"
+                            checked={base.enabled}
+                            onChange={() => toggleBaseEnabled(base.id)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                          <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sources list */}
+                {isExpanded && (
+                  <div className="border-t border-[#e5e5e5] bg-[#fafafa]">
+                    {base.sources.map(source => {
+                      const isSourceExpanded = expandedSources.has(source.id);
+                      const enabledLayersCount = source.layers.filter(l => l.enabled).length;
+
+                      return (
+                        <div
+                          key={source.id}
+                          className="border-b border-[#e5e5e5] last:border-b-0"
+                        >
+                          {/* Source header */}
+                          <div className="px-5 py-3 flex items-center gap-3 hover:bg-white/50 transition-colors">
+                            <button
+                              type="button"
+                              onClick={() => toggleSource(source.id)}
+                              className="shrink-0 p-1 rounded hover:bg-white transition-colors text-[#9d9d9d]"
+                            >
+                              <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                className={`transition-transform ${isSourceExpanded ? "rotate-90" : ""}`}
+                              >
+                                <path d="M9 18l6-6-6-6" />
+                              </svg>
+                            </button>
+
+                            <div className="shrink-0 text-[#9d9d9d]">
+                              {getSourceIcon(source.type)}
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-sm font-medium text-[#0d1013] truncate">
+                                  {source.name}
+                                </span>
+                                {source.status === "processing" && (
+                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                    Processando
+                                  </span>
+                                )}
+                                {source.status === "error" && (
+                                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                    Erro
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-xs text-[#9d9d9d]">
+                                {enabledLayersCount} de {source.layersCount} layers ativos
+                              </div>
+                            </div>
+
+                            <label className="flex items-center shrink-0 cursor-pointer">
+                              <div className="relative">
+                                <input
+                                  type="checkbox"
+                                  checked={source.enabled}
+                                  onChange={() => toggleSourceEnabled(base.id, source.id)}
+                                  className="sr-only peer"
+                                />
+                                <div className="w-9 h-5 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                                <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
+                              </div>
+                            </label>
+                          </div>
+
+                          {/* Layers list */}
+                          {isSourceExpanded && (
+                            <div className="px-5 pl-12 pb-3 space-y-2">
+                              {source.layers.map(layer => (
+                                <div
+                                  key={layer.id}
+                                  className="flex items-start gap-3 py-3 px-4 bg-white rounded-lg border border-[#e5e5e5] hover:border-[#d0d0d0] transition-colors"
+                                >
+                                  <div className="shrink-0 mt-0.5">
+                                    <KnowledgeLayerIcon />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm font-medium text-[#0d1013] mb-1 leading-tight">
+                                      {layer.question}
+                                    </div>
+                                    <div className="text-xs text-[#9d9d9d] leading-relaxed">
+                                      {layer.answer}
+                                    </div>
+                                  </div>
+                                  <label className="flex items-center shrink-0 cursor-pointer ml-2">
+                                    <div className="relative">
+                                      <input
+                                        type="checkbox"
+                                        checked={layer.enabled}
+                                        onChange={() =>
+                                          toggleLayerEnabled(base.id, source.id, layer.id)
+                                        }
+                                        className="sr-only peer"
+                                      />
+                                      <div className="w-9 h-5 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                                      <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
+                                    </div>
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ModularFlowVisualization = () => {
+  const [nodes] = useState<FlowNode[]>(SAMPLE_FLOW_NODES);
+  const [connections] = useState<FlowConnection[]>(SAMPLE_CONNECTIONS);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>("2");
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+
+  const selectedNode = nodes.find(n => n.id === selectedNodeId);
+
+  return (
+    <div className="flex-1 flex relative bg-[#fafafa]">
+      {/* Canvas */}
+      <div className="flex-1 relative overflow-hidden">
+        {/* Toolbar */}
+        <div className="absolute top-6 left-6 z-10 flex items-center gap-2">
+          <div className="bg-white border border-[#e5e5e5] rounded-lg px-3 py-1.5 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setZoom(z => Math.min(z + 0.1, 2))}
+              className="p-1 hover:bg-[#f5f5f5] rounded transition-colors text-[#9d9d9d] hover:text-[#0d1013]"
+              title="Zoom in"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
+              </svg>
+            </button>
+            <span className="text-xs font-medium text-[#9d9d9d] tabular-nums">
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
+              className="p-1 hover:bg-[#f5f5f5] rounded transition-colors text-[#9d9d9d] hover:text-[#0d1013]"
+              title="Zoom out"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="M21 21l-4.35-4.35M8 11h6"/>
+              </svg>
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
+            className="bg-white border border-[#e5e5e5] rounded-lg px-3 py-1.5 text-xs font-medium text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+          >
+            Reset
+          </button>
+        </div>
+
+        {/* Flow canvas */}
+        <div
+          className="absolute inset-0 overflow-auto"
+          style={{
+            backgroundImage: "radial-gradient(circle, #e5e5e5 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
+        >
+          <div
+            style={{
+              transform: `scale(${zoom}) translate(${pan.x}px, ${pan.y}px)`,
+              transformOrigin: "center center",
+              minWidth: "100%",
+              minHeight: "100%",
+              position: "relative",
+            }}
+          >
+            {/* SVG for connections */}
+            <svg
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none",
+              }}
+            >
+              {connections.map((conn, idx) => (
+                <FlowConnectionComponent
+                  key={idx}
+                  from={conn.from}
+                  to={conn.to}
+                  label={conn.label}
+                  nodes={nodes}
+                />
+              ))}
+            </svg>
+
+            {/* Nodes */}
+            {nodes.map(node => (
+              <FlowNodeComponent
+                key={node.id}
+                node={node}
+                isSelected={selectedNodeId === node.id}
+                onClick={() => setSelectedNodeId(node.id)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Inspector Panel */}
+      {selectedNode && (
+        <div className="w-[360px] bg-white border-l border-[#e5e5e5] flex flex-col">
+          {/* Header */}
+          <div className="px-6 py-4 border-b border-[#e5e5e5]">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <h3 className="font-heading text-base font-medium text-[#0d1013] mb-1">
+                  {selectedNode.label}
+                </h3>
+                <p className="text-xs text-[#9d9d9d]">
+                  {selectedNode.description}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedNodeId(null)}
+                className="p-1.5 rounded-lg text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors -mr-1.5"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 6L6 18M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            <div className="space-y-6">
+              {/* Type */}
+              <div>
+                <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                  Tipo de Módulo
+                </label>
+                <div className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm text-[#0d1013] font-medium">
+                  {selectedNode.type === "trigger" && "Gatilho"}
+                  {selectedNode.type === "greeting" && "Saudação"}
+                  {selectedNode.type === "message" && "Mensagem"}
+                  {selectedNode.type === "action" && "Ação"}
+                  {selectedNode.type === "condition" && "Condição"}
+                  {selectedNode.type === "decision" && "Decisão"}
+                  {selectedNode.type === "loop" && "Loop"}
+                </div>
+              </div>
+
+              {/* Configuration fields based on type */}
+              {selectedNode.config?.message && (
+                <div>
+                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                    Mensagem
+                  </label>
+                  <textarea
+                    value={selectedNode.config.message}
+                    readOnly
+                    className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm text-[#0d1013] focus:outline-none focus:border-[#0d1013] resize-none"
+                    rows={3}
+                  />
+                  <p className="mt-2 text-xs text-[#9d9d9d]">
+                    Use {"{"}{"{"} variáveis {"}"}{"}"}  e @ações para tornar a mensagem dinâmica.
+                  </p>
+                </div>
+              )}
+
+              {selectedNode.config?.action && (
+                <div>
+                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                    Ação
+                  </label>
+                  <div className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm font-mono text-[#0d1013]">
+                    {selectedNode.config.action}
+                  </div>
+                </div>
+              )}
+
+              {selectedNode.config?.condition && (
+                <div>
+                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                    Condição
+                  </label>
+                  <input
+                    type="text"
+                    value={selectedNode.config.condition}
+                    readOnly
+                    className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm font-mono text-[#0d1013] focus:outline-none focus:border-[#0d1013]"
+                  />
+                  <p className="mt-2 text-xs text-[#9d9d9d]">
+                    Condição avaliada para decidir o próximo passo.
+                  </p>
+                </div>
+              )}
+
+              {selectedNode.config?.fields && (
+                <div>
+                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                    Campos a coletar
+                  </label>
+                  <div className="space-y-2">
+                    {selectedNode.config.fields.map((field: string, idx: number) => (
+                      <div key={idx} className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm text-[#0d1013]">
+                        {field}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add button */}
+              <div className="pt-4 border-t border-[#e5e5e5]">
+                <button
+                  type="button"
+                  className="w-full px-4 py-2 bg-[#0d1013] text-white rounded-lg text-sm font-medium hover:bg-[#1a1d21] transition-colors"
+                >
+                  Editar Módulo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default function AgentStudioNewPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
@@ -497,6 +1657,34 @@ export default function AgentStudioNewPage() {
   // Variable config modal (click on chip)
   const [variableModalOpen, setVariableModalOpen] = useState(false);
   const [selectedVariable, setSelectedVariable] = useState<{ variable: string; type: "at" | "mustache" } | null>(null);
+
+  // Sidebar (Figma wireframe: Variáveis + Tools)
+  const [variáveisVerMaisExpanded, setVariáveisVerMaisExpanded] = useState(false);
+  const [variáveisSectionExpanded, setVariáveisSectionExpanded] = useState(true);
+  const [toolsSectionExpanded, setToolsSectionExpanded] = useState(true);
+  const [sidebarVariableValues, setSidebarVariableValues] = useState<Record<string, string>>({
+    agent_name: "Andrea Faccio",
+    user_email: "joao@gmail.com",
+    company_city: "Belo Horizonte",
+    company_name: "Artificial Concord",
+    user_name: "João",
+  });
+  const [editingSidebarVariableId, setEditingSidebarVariableId] = useState<string | null>(null);
+  const [selectedSidebarToolId, setSelectedSidebarToolId] = useState<string | null>(null);
+  const [headerMenuOpen, setHeaderMenuOpen] = useState(false);
+  const [agentStudioTab, setAgentStudioTab] = useState<AgentStudioTabId>("agente");
+
+  // Publish modals state
+  const [showPublishOptionsModal, setShowPublishOptionsModal] = useState(false);
+  const [showPublishConfirmModal, setShowPublishConfirmModal] = useState(false);
+  const headerMenuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const close = (e: MouseEvent) => {
+      if (headerMenuRef.current && !headerMenuRef.current.contains(e.target as Node)) setHeaderMenuOpen(false);
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, []);
 
   // @ Resources suggestions
   const atSuggestions = AT_SUGGESTIONS_LIST;
@@ -857,6 +2045,28 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     router.push("/knowledge-os");
   };
 
+  // Publish handlers
+  const handlePublishClick = () => {
+    setShowPublishOptionsModal(true);
+  };
+
+  const handleTestAgent = () => {
+    setShowPublishOptionsModal(false);
+    // TODO: Navigate to test/chat screen (will be implemented later)
+    console.log("Test agent clicked");
+  };
+
+  const handlePublishAgent = () => {
+    setShowPublishOptionsModal(false);
+    setShowPublishConfirmModal(true);
+  };
+
+  const handleConfirmPublish = () => {
+    setShowPublishConfirmModal(false);
+    // TODO: Save agent data
+    router.push("/agent-studio");
+  };
+
   const isOtherSelected = selectedGoal === "outro";
 
   // Step 4: Loading Screen
@@ -893,21 +2103,138 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
     return (
       <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
-        <div className="min-h-full w-full bg-white overflow-y-auto">
-          {/* Page Header */}
-          <div className="border-b border-[#e5e5e5] px-4 py-6">
-            <div className="max-w-[1280px] mx-auto">
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="font-heading text-2xl font-medium text-[#0d1013] tracking-[-0.5px]">
-                  Agente
-                </h1>
-                <span className="px-2 py-0.5 bg-[#18181b] text-white text-xs font-medium rounded">Novo</span>
-                <button className="flex items-center gap-1 text-sm text-[#0d1013] hover:underline">
-                  Ver novas funcionalidades
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+        <div className="min-h-full w-full flex">
+          {/* Left sidebar - light card style (Insert a Simple Poll style) */}
+          <aside className="w-[260px] flex-shrink-0 bg-[#f9f9f9] rounded-l-2xl flex flex-col min-h-0">
+            {/* Header: title + description */}
+            <div className="p-4 pb-3 border-b border-[#eee]">
+              <div className="flex items-start gap-2">
+                <h2 className="text-sm font-semibold text-[#333] leading-tight">
+                  {AGENT_STUDIO_SIDEBAR_ITEMS.find((i) => i.id === agentStudioTab)?.label ?? "Agente"}
+                </h2>
+                <button type="button" className="shrink-0 p-0.5 rounded text-[#9d9d9d] hover:text-[#333] hover:bg-[#eee] transition-colors" aria-label="Informação">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 </button>
+              </div>
+              <p className="mt-1.5 text-xs text-[#6b7280] leading-snug">
+                {AGENT_STUDIO_SIDEBAR_ITEMS.find((i) => i.id === agentStudioTab)?.description ?? "Configure personalidade, checkpoint e primeira mensagem do agente."}
+              </p>
+            </div>
+            {/* Navigation list */}
+            <nav className="flex-1 overflow-y-auto p-3 space-y-0.5" aria-label="Navegação do agente">
+              {AGENT_STUDIO_SIDEBAR_ITEMS.map((item) => {
+                const isActive = agentStudioTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setAgentStudioTab(item.id)}
+                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition-colors ${
+                      isActive
+                        ? "bg-[#f0f2f5] text-[#333] font-medium"
+                        : "text-[#555] hover:bg-[#eee] hover:text-[#333]"
+                    }`}
+                  >
+                    <span className={`shrink-0 w-5 h-5 flex items-center justify-center ${isActive ? "text-[#333]" : "text-[#6b7280]"}`}>
+                      {item.id === "agente" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>}
+                      {item.id === "visualizacao-modular" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>}
+                      {item.id === "bases-conhecimento" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>}
+                      {item.id === "aop" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>}
+                      {item.id === "analise" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
+                      {item.id === "playground" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>}
+                      {item.id === "historico" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>}
+                      {item.id === "configuracoes" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>}
+                    </span>
+                    <span className="min-w-0 truncate">{item.label}</span>
+                  </button>
+                );
+              })}
+            </nav>
+            {/* Footer: step indicator */}
+            <div className="p-3 pt-2 border-t border-[#eee]">
+              <p className="text-xs text-[#9d9d9d]">
+                Etapa {AGENT_STUDIO_SIDEBAR_ITEMS.findIndex((i) => i.id === agentStudioTab) + 1} de {AGENT_STUDIO_SIDEBAR_ITEMS.length}
+              </p>
+              <div className="mt-1.5 h-1 bg-[#e5e5e5] rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-[#d1d5db] rounded-full transition-all duration-300"
+                  style={{ width: `${((AGENT_STUDIO_SIDEBAR_ITEMS.findIndex((i) => i.id === agentStudioTab) + 1) / AGENT_STUDIO_SIDEBAR_ITEMS.length) * 100}%` }}
+                />
+              </div>
+            </div>
+          </aside>
+          <div className="flex-1 min-h-full bg-white overflow-y-auto flex flex-col">
+            {agentStudioTab === "agente" ? (
+              <div className="flex flex-col min-h-full">
+          {/* Page Header */}
+          <div className="border-b border-[#e5e5e5] px-4 py-[38px]">
+            <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-[#0d1013]/20 blur-xl scale-150 border" aria-hidden />
+                  <img
+                    src="/assets/agent_imgs/Agent_img_01-3.png"
+                    alt=""
+                    className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-none"
+                  />
+                </div>
+                <h1 className="font-heading text-[32px] font-medium text-[#0d1013] tracking-[-0.5px]">
+                  {agentName || "Agente"}
+                </h1>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 text-sm font-medium text-[#0d1013] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f5] transition-colors"
+                >
+                  Pré-visualizar
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePublishClick}
+                  className="px-4 py-2 text-sm font-medium text-white bg-[#0d1013] rounded-lg hover:bg-[#1a1a1a] transition-colors"
+                >
+                  Publicar
+                </button>
+                <div className="relative" ref={headerMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setHeaderMenuOpen(!headerMenuOpen)}
+                    className="p-2 rounded-lg text-[#6b7280] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                    aria-label="Mais opções"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+                      <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
+                    </svg>
+                  </button>
+                  {headerMenuOpen && (
+                    <div className="absolute right-0 top-full mt-1 py-1 min-w-[180px] bg-white rounded-lg border border-[#e5e5e5] shadow-lg z-50">
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                        onClick={() => { setHeaderMenuOpen(false); /* Arquivar */ }}
+                      >
+                        Arquivar agente
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                        onClick={() => { setHeaderMenuOpen(false); /* Duplicar */ }}
+                      >
+                        Duplicar agente
+                      </button>
+                      <button
+                        type="button"
+                        className="w-full px-4 py-2 text-left text-sm text-[#dc2626] hover:bg-[#fef2f2] transition-colors"
+                        onClick={() => { setHeaderMenuOpen(false); /* Excluir */ }}
+                      >
+                        Excluir agente
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -945,14 +2272,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
           {/* Main Content */}
           <div className="px-4 py-8">
-            <div className="max-w-[1280px] mx-auto flex gap-8">
+            <div className="max-w-[1280px] mx-auto flex gap-5">
               {/* Left Panel - Editors */}
-              <div className="flex-1 space-y-6">
-                
+              <div className="flex-1 min-w-0 max-w-[900px] space-y-6 pr-2">
                 {/* 1️⃣ Prompt do Agente - Personalidade fixa */}
-                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
                         Prompt do Agente
@@ -976,7 +2301,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        {isPromptEditing ? "Editando" : "Editar"}
+                        {isPromptEditing ? "Salvar" : "Editar"}
                       </button>
                       <button
                         type="button"
@@ -989,7 +2314,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       </button>
                     </div>
                   </div>
-
+                  <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
                   {/* Editor area */}
                   <div className="relative">
                     <button
@@ -1023,17 +2348,15 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   {/* Bottom bar */}
                   <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
                     <span className="text-xs text-[#9d9d9d]">
-                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
                     </span>
-                    <div className="flex-1" />
-                    <span className="text-xs text-[#9d9d9d]">Define: identidade, tom, postura</span>
+                  </div>
                   </div>
                 </div>
 
                 {/* 2️⃣ Checkpoint do Agente - Guia de execução */}
-                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
                         Checkpoint do Agente
@@ -1057,7 +2380,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                           <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                        {isCheckpointEditing ? "Editando" : "Editar"}
+                        {isCheckpointEditing ? "Salvar" : "Editar"}
                       </button>
                       <button
                         type="button"
@@ -1070,7 +2393,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       </button>
                     </div>
                   </div>
-
+                  <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
                   {/* Editor area */}
                   <div className="relative">
                     <button
@@ -1104,167 +2427,202 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   {/* Bottom bar */}
                   <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
                     <span className="text-xs text-[#9d9d9d]">
-                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> para ações ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
                     </span>
-                    <div className="flex-1" />
-                    <span className="text-xs text-[#9d9d9d]">Define: etapas, objetivos, ações</span>
+                  </div>
                   </div>
                 </div>
 
-                {/* 3️⃣ Primeira mensagem */}
-                <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
-                  {/* Header */}
-                  <div className="flex items-center justify-between px-5 py-4 border-b border-[#e5e5e5]">
-                    <div>
-                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline mb-0.5">
-                        Primeira mensagem
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                          <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </a>
-                      <p className="text-xs text-[#9d9d9d]">
-                        A primeira mensagem que o agente dirá. Se estiver vazia, aguardará o usuário iniciar.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsFirstMessageEditing(!isFirstMessageEditing)}
-                      className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
-                        isFirstMessageEditing
-                          ? "bg-[#0d1013] text-white border-[#0d1013]"
-                          : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
-                      }`}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                      {isFirstMessageEditing ? "Editando" : "Editar"}
-                    </button>
-                  </div>
-
-                  {/* Editor area */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
-                      title="Expandir"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
-                    <VariableChipEditor
-                      value={firstMessage}
-                      onChange={(v) => handleEditorChange(v, setFirstMessage, "firstMessage")}
-                      readOnly={!isFirstMessageEditing}
-                      placeholder="Digite a primeira mensagem do agente..."
-                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none min-h-[80px] transition-colors ${
-                        isFirstMessageEditing
-                          ? "bg-white text-[#0d1013] cursor-text"
-                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
-                      }`}
-                      minHeight="80px"
-                      onTriggerAt={() => handleTriggerAt("firstMessage")}
-                      onVariableClick={handleVariableClick}
-                    />
-                  </div>
-
-                  {/* Bottom bar */}
-                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
-                    <span className="text-xs text-[#9d9d9d]">
-                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
-                    </span>
-                    <div className="flex-1" />
-                    <label className="flex items-center gap-2 cursor-pointer select-none">
-                      <button
-                        type="button"
-                        role="switch"
-                        aria-checked={interruptible}
-                        onClick={() => setInterruptible(!interruptible)}
-                        className={`relative w-9 h-5 rounded-full transition-colors ${interruptible ? "bg-[#0d1013]" : "bg-[#e5e5e5]"}`}
-                      >
-                        <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${interruptible ? "left-[18px]" : "left-0.5"}`} />
-                      </button>
-                      <span className="text-xs text-[#0d1013]">Interrompível</span>
-                    </label>
-                  </div>
-                </div>
+           
               </div>
 
-              {/* Right Sidebar (estilo referência: Vozes, Idioma, LLM) */}
-              <div className="w-[280px] flex-shrink-0 space-y-6">
-                {/* Vozes */}
+              {/* Right Sidebar (Figma wireframe: Variáveis + Tools) */}
+              <div className="w-[360px] flex-shrink-0 space-y-6">
+                {/* Variáveis */}
                 <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-semibold text-[#0d1013]">Vozes</h3>
-                    <button className="p-1 rounded text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" strokeWidth="1.5"/>
-                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" stroke="currentColor" strokeWidth="1.5"/>
-                      </svg>
-                    </button>
-                  </div>
-                  <p className="text-xs text-[#9d9d9d] mb-3">Selecione as vozes da ElevenLabs que você deseja usar para o agente.</p>
-                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-[#10b981] flex items-center justify-center">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                          <path d="M5 12l5 5L20 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <button
+                    type="button"
+                    onClick={() => setVariáveisSectionExpanded(!variáveisSectionExpanded)}
+                    className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
+                  >
+                    <h3 className="text-sm font-semibold text-[#0d1013]">Variáveis</h3>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className={`text-[#6b7280] transition-transform ${variáveisSectionExpanded ? "rotate-180" : ""}`}
+                    >
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {variáveisSectionExpanded && (
+                    <div className="pt-2">
+                      <p className="text-xs text-[#9d9d9d] mb-3">
+                        Selecione variáveis disponíveis das integrações selecionadas.
+                      </p>
+                      <ul className="space-y-2">
+                        {(variáveisVerMaisExpanded ? SIDEBAR_VARIABLES : SIDEBAR_VARIABLES.slice(0, 3)).map((v) => (
+                          <li key={v.id} className="flex items-center gap-2 text-sm">
+                            <span className="shrink-0 rounded bg-[#f5f5f5] px-1.5 py-0.5 font-mono text-[#6b7280] text-xs">
+                              {v.name}
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-[#0d1013]">
+                              {editingSidebarVariableId === v.id ? (
+                                <input
+                                  type="text"
+                                  value={sidebarVariableValues[v.id] ?? ""}
+                                  onChange={(e) => setSidebarVariableValues((prev) => ({ ...prev, [v.id]: e.target.value }))}
+                                  onBlur={() => setEditingSidebarVariableId(null)}
+                                  onKeyDown={(e) => { if (e.key === "Enter") setEditingSidebarVariableId(null); }}
+                                  className="w-full rounded border border-[#e5e5e5] px-2 py-0.5 text-sm outline-none focus:border-[#0d1013]"
+                                  autoFocus
+                                />
+                              ) : (
+                                sidebarVariableValues[v.id] ?? "—"
+                              )}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setEditingSidebarVariableId(editingSidebarVariableId === v.id ? null : v.id)}
+                              className="shrink-0 p-1 rounded text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                              aria-label="Editar valor"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      <button
+                        type="button"
+                        onClick={() => setVariáveisVerMaisExpanded(!variáveisVerMaisExpanded)}
+                        className="mt-2 flex items-center gap-1.5 text-xs text-[#6b7280] hover:text-[#0d1013] transition-colors"
+                      >
+                        {variáveisVerMaisExpanded ? "Ver menos" : "Ver mais"}
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          className={variáveisVerMaisExpanded ? "rotate-180" : ""}
+                        >
+                          <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
-                      </span>
-                      <div className="text-left">
-                        <p className="text-sm font-medium text-[#0d1013]">Eric - Smooth, Trustworthy</p>
-                      </div>
+                      </button>
                     </div>
-                    <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Primário</span>
-                  </button>
-                  <button className="mt-2 flex items-center gap-2 text-sm text-[#9d9d9d] hover:text-[#0d1013] transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-                      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                    Adicionar voz adicional
-                  </button>
+                  )}
                 </div>
 
-                {/* Idioma */}
+                {/* Tools */}
                 <div>
-                  <h3 className="text-sm font-semibold text-[#0d1013] mb-2">Idioma</h3>
-                  <p className="text-xs text-[#9d9d9d] mb-3">Escolha os idiomas padrão e adicionais em que o agente se comunicará.</p>
-                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg">🇧🇷</span>
-                      <p className="text-sm font-medium text-[#0d1013]">Português</p>
+                  <button
+                    type="button"
+                    onClick={() => setToolsSectionExpanded(!toolsSectionExpanded)}
+                    className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
+                  >
+                    <h3 className="text-sm font-semibold text-[#0d1013]">Tools</h3>
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      className={`text-[#6b7280] transition-transform ${toolsSectionExpanded ? "rotate-180" : ""}`}
+                    >
+                      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </button>
+                  {toolsSectionExpanded && (
+                    <div className="pt-2">
+                      <p className="text-xs text-[#9d9d9d] mb-3">
+                        Selecione variáveis disponíveis das integrações selecionadas.
+                      </p>
+                      <ul className="space-y-3">
+                        {SIDEBAR_TOOLS.map((tool) => (
+                          <li key={tool.id}>
+                            <button
+                              type="button"
+                              onClick={() => setSelectedSidebarToolId(tool.id)}
+                              className="w-full text-left p-3 rounded-[14px] border border-[#e5e5e5] hover:border-[#d1d5db] hover:bg-[#fafafa] transition-colors"
+                            >
+                              <div className="flex items-start gap-3">
+                                <span className="shrink-0 w-9 h-9 rounded-lg bg-[#f5f5f5] flex items-center justify-center">
+                                  {tool.icon === "system" && (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#6b7280]">
+                                      <rect x="4" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                                      <rect x="14" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                                      <rect x="4" y="14" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                                      <rect x="14" y="14" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                                    </svg>
+                                  )}
+                                  {tool.icon === "pipedrive" && (
+                                    <span className="text-sm font-bold text-[#00a86b]">P</span>
+                                  )}
+                                  {tool.icon === "calendar" && (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#4285F4]">
+                                      <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" strokeWidth="1.5"/>
+                                      <path d="M3 10h18M8 2v4M16 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                    </svg>
+                                  )}
+                                  {tool.icon === "sheets" && (
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#0F9D58]">
+                                      <path d="M4 4h16v16H4z" stroke="currentColor" strokeWidth="1.5"/>
+                                      <path d="M4 8h16M4 12h16M4 16h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                                    </svg>
+                                  )}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-semibold text-[#0d1013]">{tool.title}</p>
+                                  <p className="text-xs text-[#9d9d9d] mt-0.5 line-clamp-2">{tool.description}</p>
+                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {tool.activeCount > 0 && (
+                                      <span className="inline-flex items-center gap-1 text-xs text-[#0d1013] bg-[#f0fdf4] text-[#166534] px-1.5 py-0.5 rounded">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                                        {tool.activeCount} Ativas
+                                      </span>
+                                    )}
+                                    <span className="text-xs text-[#6b7280] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
+                                      {tool.availableCount} Disponíveis
+                                    </span>
+                                  </div>
+                                </div>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#9d9d9d] mt-1">
+                                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </div>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Padrão</span>
-                  </button>
-                  <button className="mt-2 flex items-center gap-2 text-sm text-[#9d9d9d] hover:text-[#0d1013] transition-colors">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-                      <path d="M12 8v8M8 12h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                    Adicionar idiomas adicionais
-                  </button>
-                </div>
-
-                {/* LLM */}
-                <div>
-                  <h3 className="text-sm font-semibold text-[#0d1013] mb-2">LLM</h3>
-                  <p className="text-xs text-[#9d9d9d] mb-3">Selecione qual provedor e modelo usar para o LLM.</p>
-                  <button className="w-full flex items-center justify-between p-3 rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] transition-colors bg-white">
-                    <p className="text-sm font-medium text-[#0d1013]">Gemini 2.5 Flash</p>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-[#9d9d9d]">
-                      <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  </button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </div>
+            ) : null}
+            {agentStudioTab === "visualizacao-modular" && <ModularFlowVisualization />}
+            {agentStudioTab === "bases-conhecimento" && <KnowledgeBaseManagement />}
+            {agentStudioTab !== "agente" && agentStudioTab !== "visualizacao-modular" && agentStudioTab !== "bases-conhecimento" && (
+              <div className="flex-1 px-4 py-8 flex items-center justify-center min-h-[200px]">
+                <div className="text-center max-w-md">
+                  <p className="text-sm text-[#9d9d9d] mb-2">
+                    {agentStudioTab === "aop" && "Protocolos específicos (AOP) do agente em breve."}
+                    {agentStudioTab === "analise" && "Análises e informações relevantes do agente em breve."}
+                    {agentStudioTab === "playground" && "Playground para conversar e testar o agente em breve."}
+                    {agentStudioTab === "historico" && "Histórico de alterações em breve."}
+                    {agentStudioTab === "configuracoes" && "Configurações do agente em breve."}
+                  </p>
+                  <p className="text-xs text-[#c4c4c4]">Esta seção será implementada em breve.</p>
+                </div>
+              </div>
+            )}
+          </div>
 
-        {/* Variable config modal (full screen, card) */}
+          {/* Variable config modal (full screen, card) */}
         {variableModalOpen && selectedVariable && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
             <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
@@ -1336,6 +2694,82 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </div>
           </div>
         )}
+
+        {/* Publish Options Modal */}
+        {showPublishOptionsModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowPublishOptionsModal(false)}
+            />
+            <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <h2 className="font-heading text-xl font-medium text-[#0d1013] mb-2">
+                Próximos passos
+              </h2>
+              <p className="text-sm text-[#9d9d9d] mb-6">
+                Escolha como deseja prosseguir com seu agente
+              </p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handlePublishAgent}
+                  className="w-full h-12 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
+                >
+                  Publicar agente
+                </button>
+                <button
+                  onClick={handleTestAgent}
+                  className="w-full h-12 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                >
+                  Testar agente
+                </button>
+                <button
+                  onClick={() => setShowPublishOptionsModal(false)}
+                  className="w-full h-12 flex items-center justify-center rounded-xl font-heading font-medium text-sm text-[#9d9d9d] hover:bg-[#f5f5f5] transition-colors"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Publish Confirmation Modal */}
+        {showPublishConfirmModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              onClick={() => setShowPublishConfirmModal(false)}
+            />
+            <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-green-600">
+                  <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <h2 className="font-heading text-xl font-medium text-[#0d1013] mb-2">
+                Publicar agente?
+              </h2>
+              <p className="text-sm text-[#9d9d9d] mb-6">
+                Seu agente <span className="font-medium text-[#0d1013]">{agentName || "Agente"}</span> será publicado e ficará disponível para uso. Você poderá editá-lo a qualquer momento.
+              </p>
+              <div className="flex items-center justify-end gap-3">
+                <button
+                  onClick={() => setShowPublishConfirmModal(false)}
+                  className="h-10 px-4 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleConfirmPublish}
+                  className="h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
+                >
+                  Confirmar publicação
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        </div>
       </DashboardLayout>
     );
   }
@@ -1602,47 +3036,67 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 </p>
               </div>
 
-              {/* Configured Integrations */}
+              {/* Configured Integrations – mesma largura dos cards de "Adicionar nova integração", seleção por clique (sem toggle) */}
               {configuredIntegrations.length > 0 && (
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-[#0d1013]">
                     Integrações configuradas
                   </label>
-                  <div className="space-y-2">
-                    {configuredIntegrations.map((integration) => (
-                      <div
-                        key={integration.id}
-                        className="flex items-center justify-between p-4 bg-white border border-[#e5e5e5] rounded-xl"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-lg bg-[#f5f5f5] flex items-center justify-center">
-                            <IntegrationIcon type={integration.icon} />
-                          </div>
-                          <div>
-                            <h4 className="font-heading font-medium text-sm text-[#0d1013]">
-                              {integration.name}
-                            </h4>
-                            <p className="text-xs text-[#9d9d9d]">
-                              {integration.description}
-                            </p>
-                          </div>
-                        </div>
-                        
-                        {/* Toggle */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {configuredIntegrations.map((integration) => {
+                      const selected = integration.enabled;
+                      return (
                         <button
+                          key={integration.id}
+                          type="button"
                           onClick={() => handleToggleIntegration(integration.id)}
-                          className={`relative w-12 h-6 rounded-full transition-colors ${
-                            integration.enabled ? "bg-[#0d1013]" : "bg-[#e5e5e5]"
+                          className={`flex items-center justify-between gap-3 p-4 rounded-xl border text-left transition-colors ${
+                            selected
+                              ? "bg-[#0d0d0d] border-[#0d0d0d]"
+                              : "bg-white border-[#e5e5e5] hover:border-[#d4d4d4] hover:bg-[#fbfcfd]"
                           }`}
                         >
-                          <span
-                            className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
-                              integration.enabled ? "left-7" : "left-1"
-                            }`}
-                          />
+                          <div className="flex items-center gap-3 min-w-0 flex-1">
+                            <div
+                              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                                selected ? "bg-white/20" : "bg-[#f5f5f5]"
+                              }`}
+                            >
+                              <IntegrationIcon type={integration.icon} />
+                            </div>
+                            <div className="min-w-0">
+                              <h4
+                                className={`font-heading font-medium text-sm truncate ${
+                                  selected ? "text-white" : "text-[#0d1013]"
+                                }`}
+                              >
+                                {integration.name}
+                              </h4>
+                              <p
+                                className={`text-xs truncate ${
+                                  selected ? "text-white/80" : "text-[#9d9d9d]"
+                                }`}
+                              >
+                                {integration.description}
+                              </p>
+                            </div>
+                          </div>
+                          {selected && (
+                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white flex items-center justify-center" aria-hidden>
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[#0d0d0d]">
+                                <path
+                                  d="M20 6 9 17l-5-5"
+                                  stroke="currentColor"
+                                  strokeWidth="2.5"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </span>
+                          )}
                         </button>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
