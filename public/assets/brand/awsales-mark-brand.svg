@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 269.26 143.78" aria-label="Aw">
+  <defs>
+    <linearGradient id="mk-a-grad" x1="67.53" y1="0" x2="67.53" y2="143.66" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b76f2"></stop>
+      <stop offset="1" stop-color="#0071c2"></stop>
+    </linearGradient>
+    <linearGradient id="mk-w-grad" x1="194.53" y1="41.42" x2="194.53" y2="143.78" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1b76f2"></stop>
+      <stop offset="1" stop-color="#0071c2"></stop>
+    </linearGradient>
+  </defs>
+  <path fill="url(#mk-a-grad)" d="M29.1,143.66H0L57.51,0h20.03l57.51,143.66h-29.1l-12.53-30.72h-52.7l-11.63,30.72ZM68.33,41.38l-19,47.25h37.1l-18.1-47.25Z"></path>
+  <path fill="url(#mk-w-grad)" d="M151.69,143.78l-31.88-102.36h28.81l17.03,60.58,18.24-60.58h22.21l18.24,60.58,17.03-60.58h27.9l-30.98,102.36h-23.77l-19.53-60.04-19.53,60.04h-23.77Z"></path>
+</svg>
