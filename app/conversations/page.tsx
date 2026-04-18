@@ -128,7 +128,7 @@ export default function ConversationsPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="flex h-[calc(100vh-var(--header-height,80px)-2rem)] min-h-[520px] -m-8 bg-white border-t border-[#f2f2f2]">
+      <div className="flex h-screen min-h-[520px] -m-8 bg-white border-t border-[#f2f2f2]">
         {/* Coluna 1: Inbox */}
         <aside className="w-[300px] flex-shrink-0 border-r border-[#f2f2f2] flex flex-col bg-white">
           <div className="p-4 border-b border-[#f2f2f2]">
