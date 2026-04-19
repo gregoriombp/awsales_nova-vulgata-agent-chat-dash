@@ -1650,6 +1650,23 @@
  * Styleguide chrome — theme toggle, hero, code block.
  * ============================================================ */
 
+/* Styleguide sidebar — slightly darker than the canvas in light mode so
+ * it reads as "chrome" without needing a heavy border. In dark mode stays
+ * flat with the canvas (canvas is already dark). */
+.aw-sg-sidebar {
+  background: var(--aw-gray-150);
+}
+.dark .aw-sg-sidebar {
+  background: var(--bg-raised);
+}
+.aw-sg-sidebar__subtitle {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--fg-tertiary);
+  letter-spacing: 0.02em;
+  margin-top: 4px;
+}
+
 .aw-theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -1675,36 +1692,18 @@
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
 
-/* Hero — page header with tinted background + neural pattern suggestion */
+/* Hero — full-bleed page header. Sits above the content max-width so it
+ * spans the whole main area. Tinted background, no gradient. */
 .aw-hero {
-  position: relative;
-  padding: 56px 56px 48px;
-  margin: 0 0 64px 0;
-  border-radius: var(--radius-2xl);
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
-  isolation: isolate;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 64px 56px 56px;
+  margin: 0 0 56px 0;
 }
-.aw-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 100% 0%,
-      rgba(71, 138, 255, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 50% 60% at 0% 100%,
-      rgba(158, 91, 223, 0.06),
-      transparent 65%
-    );
-  pointer-events: none;
+.aw-hero__inner {
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.aw-hero > * { position: relative; }
 .aw-hero__title {
   margin: 0;
   letter-spacing: -0.02em;
@@ -1715,20 +1714,7 @@
   font-size: var(--body-lg-size);
   color: var(--fg-secondary);
   line-height: 1.55;
-  max-width: 560px;
-}
-.dark .aw-hero::before {
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 100% 0%,
-      rgba(71, 138, 255, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 50% 60% at 0% 100%,
-      rgba(158, 91, 223, 0.14),
-      transparent 65%
-    );
+  max-width: 640px;
 }
 
 /* ============================================================

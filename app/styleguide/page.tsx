@@ -421,15 +421,15 @@ function SemanticCard({
 
 export default function StyleguidePage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Design tokens">
         Geometric minimalism grounded in grayscale, punctuated by a single
           blue-origin “thinking” accent. Gray is structure; the AI gradient is
           subjectivity. Every token below lives in{" "}
           <code className="mono">app/globals.css</code>.
       </PageHero>
-
-      <div className="flex flex-col gap-20">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-20">
         <Section
           id="palette"
           title="Color palette"
@@ -883,5 +883,6 @@ export default function StyleguidePage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

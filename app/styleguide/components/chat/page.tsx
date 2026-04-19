@@ -12,15 +12,15 @@ import {
 
 export default function ChatPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Chat bubbles">
         Bolhas de conversa do agente e do usuário. A bolha do usuário é
           preta cheia (<code className="mono">--fg-primary</code>), a do
           agente usa a superfície sutil. Streaming exibe três pontos pulsando
           a 1.2s.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="variants"
           title="Variantes"
@@ -203,5 +203,6 @@ export default function ChatPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

@@ -203,15 +203,15 @@ const checklist = [
 
 export default function ContentPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Escrita">
         Uma frase da AwSales termina antes do esperado. Não explica demais,
         não decora, não bajula. O produto conversa com quem sabe o que está
         fazendo — e com quem acabou de chegar. Para ambos, vale a mesma
         regra: <strong>diga o que é, diga o que muda, pare.</strong>
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="axes"
           title="Quatro eixos da voz"
@@ -470,5 +470,6 @@ export default function ContentPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

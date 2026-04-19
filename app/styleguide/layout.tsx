@@ -21,14 +21,15 @@ export default function StyleguideLayout({
   return (
     <AwToastProvider>
     <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
-      <aside className="w-64 border-r border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
+      <aside className="aw-sg-sidebar w-64 border-r border-[var(--border-subtle)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
         <Link
           href="/styleguide"
           aria-label="AwSales Design System — voltar ao índice"
-          className="inline-flex"
+          className="inline-flex flex-col items-start no-underline"
           style={{ color: "var(--fg-primary)" }}
         >
           <AwLogo variant="wordmark" height={22} />
+          <span className="aw-sg-sidebar__subtitle">Design System | 2026</span>
         </Link>
 
         <nav className="flex flex-col gap-6">

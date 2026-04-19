@@ -11,15 +11,15 @@ import { ToastDemo } from "./ToastDemo"
 
 export default function ToastPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Toast">
         Feedback pós-ação no canto inferior direito. Ficam 4 s por padrão —
         8 s quando há ação de <em>desfazer</em>. <strong>Nunca</strong>{" "}
         usamos toast para erro que exige decisão — nesse caso, alert inline
         ou modal.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="demo"
           title="Demo"
@@ -219,5 +219,6 @@ export default function RootLayout({ children }) {
         </Section>
       </div>
     </div>
+    </>
   )
 }

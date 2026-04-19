@@ -12,14 +12,14 @@ import {
 
 export default function NavListPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Nav list">
         Lista vertical de itens de navegação — usada na sidebar e em painéis
           de sub-navegação. Cada item comporta ícone, label e um{" "}
           <em>badge</em> de contagem opcional.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="default"
           title="Lista padrão"
@@ -163,5 +163,6 @@ export default function NavListPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

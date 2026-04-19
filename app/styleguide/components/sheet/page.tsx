@@ -11,15 +11,15 @@ import { SheetDemo } from "./SheetDemo"
 
 export default function SheetPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Sheet">
         Alternativa preferida ao modal quando a tela de trás ajuda a dar
         contexto — ex.: lista de conversas. Desliza da direita em 220 ms,
         suporta navegação <code className="mono">↑/↓</code> entre itens e
         mantém scrim a 40% (vs. 55% do modal) para preservar orientação.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="demo"
           title="Demo"
@@ -245,5 +245,6 @@ const [tab, setTab] = useState("resumo")
         </Section>
       </div>
     </div>
+    </>
   )
 }

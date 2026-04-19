@@ -80,15 +80,15 @@ function Pattern({
 
 export default function PatternsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Padrões de UI">
         Compor componentes em situações recorrentes. Cada padrão aqui tem uma{" "}
         <em>razão de existir</em> e regras sobre <em>quando não usar</em>.
         Quando em dúvida entre dois padrões, escolha o que{" "}
         <strong>expõe mais o raciocínio do agente</strong>.
       </PageHero>
-
-      <div className="flex flex-col gap-10">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-10">
         {/* ───────── 1 · Shell de produto ───────── */}
         <Pattern
           number="1"
@@ -508,5 +508,6 @@ export default function PatternsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

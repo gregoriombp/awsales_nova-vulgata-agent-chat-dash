@@ -17,20 +17,20 @@ import {
 
 export default function ControlsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Controles">
         Controles compactos para configurações dentro de painéis:
           <strong> Toggle</strong> (boolean), <strong>Slider</strong>{" "}
           (numérico) e <strong>Tabs</strong> (agrupamento de conteúdo).
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="toggle"
           title="Toggle"
-          lead="Switch on/off. A variante AI fica azul quando ligada — use em settings que governam comportamento do agente."
+          lead="Switch on/off. Controle binário, imediato, reversível. Track preto quando ligado; cinza claro quando desligado."
         >
-          <Stage label="toggle inline — off · on · ai">
+          <Stage label="toggle inline — off · on">
             <ToggleInline />
           </Stage>
 
@@ -233,5 +233,6 @@ const [temp, setTemp] = useState(70)
         </Section>
       </div>
     </div>
+    </>
   )
 }

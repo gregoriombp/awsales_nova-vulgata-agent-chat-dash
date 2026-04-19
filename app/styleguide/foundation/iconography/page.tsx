@@ -72,14 +72,14 @@ const weights: Array<300 | 400 | 500 | 600 | 700> = [300, 400, 500, 600, 700]
 
 export default function IconographyPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Iconografia">
         <strong>Material Symbols Rounded</strong> é o sistema de ícones da
           AwSales. Fonte variável com 4 eixos — tamanho, peso, preenchimento e
           grade — tudo herdando <code className="mono">currentColor</code>.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="anatomy"
           title="Anatomia"
@@ -275,5 +275,6 @@ export default function IconographyPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

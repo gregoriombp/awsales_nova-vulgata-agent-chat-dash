@@ -12,15 +12,15 @@ import {
 
 export default function InputsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Inputs">
         Altura 42 px no padrão, 34 px em densidade compacta (inline,
           toolbars). Foco com ring azul a 18%; erro vira vermelho com
           mensagem inline. O componente <strong>Field</strong> empacota
           label + input + helper/erro.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="basic"
           title="Básico"
@@ -248,5 +248,6 @@ export default function InputsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

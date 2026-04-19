@@ -12,14 +12,14 @@ import {
 
 export default function AlertsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Alertas">
         Mensagens contextuais <strong>inline</strong>. Sempre próximas do
           conteúdo a que se referem. Nunca como toast — para toast, use o
           componente próprio.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="variants"
           title="Variantes"
@@ -186,5 +186,6 @@ export default function AlertsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

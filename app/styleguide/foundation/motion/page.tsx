@@ -14,15 +14,15 @@ import {
 
 export default function MotionPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Animação">
         Rápida e utilitária. 90% das transições usam{" "}
           <code className="mono">ease-out</code> entre{" "}
           <strong>120 e 280 ms</strong>. Sem bounce, sem overshoot, sem
           confete. A única animação expressiva é o pulse do agente.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="durations"
           title="Escala de duração"
@@ -196,5 +196,6 @@ export default function MotionPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

@@ -14,33 +14,86 @@ import {
 
 export default function ChromePage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Chrome">
         Pequenos componentes que aparecem em quase toda tela —{" "}
           <strong>Avatar</strong>, <strong>Breadcrumb</strong>,{" "}
           <strong>Select</strong> e <strong>Progress</strong>. Individualmente
           modestos, coletivamente definem a textura do produto.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         {/* ───────── Avatar ───────── */}
         <Section
           id="avatar"
           title="Avatar"
-          lead="36 px circular. Iniciais em font-heading, ou imagem. A variante ai indica um participante automatizado."
+          lead="36 px circular. Imagem quando disponível, iniciais como fallback em font-heading. A variante ai indica um participante automatizado."
         >
-          <Stage label="sm · md · lg · ai · group">
-            <AwAvatar size="sm" initials="GR" />
-            <AwAvatar initials="GR" />
-            <AwAvatar size="lg" initials="GR" />
-            <AwAvatar ai initials="AI" />
-            <AwAvatarGroup>
-              <AwAvatar initials="AS" />
-              <AwAvatar initials="ML" />
-              <AwAvatar initials="JC" />
-              <AwAvatar ai initials="AI" />
-            </AwAvatarGroup>
+          <Stage
+            label="com imagem — sm · md · lg"
+            gridClassName="flex flex-wrap items-center gap-4"
+          >
+            <AwAvatar
+              size="sm"
+              src="/assets/users/greg.jpg"
+              alt="Gregório"
+            />
+            <AwAvatar
+              src="/assets/users/greg.jpg"
+              alt="Gregório"
+            />
+            <AwAvatar
+              size="lg"
+              src="/assets/users/greg.jpg"
+              alt="Gregório"
+            />
+            <AwAvatar
+              src="/assets/users/gabriel_lima.jpg"
+              alt="Gabriel Lima"
+            />
+            <AwAvatar src="/assets/users/jose.jpg" alt="José" />
+            <AwAvatar
+              src="/assets/ui-faces/female-3.jpg"
+              alt="Marina S."
+            />
+            <AwAvatar
+              size="lg"
+              src="/assets/ui-faces/female-7.jpg"
+              alt="Camila F."
+            />
           </Stage>
+
+          <div className="mt-4">
+            <Stage
+              label="fallback iniciais + ai"
+              gridClassName="flex flex-wrap items-center gap-4"
+            >
+              <AwAvatar size="sm" initials="GR" />
+              <AwAvatar initials="GR" />
+              <AwAvatar size="lg" initials="GR" />
+              <AwAvatar ai initials="AI" />
+            </Stage>
+          </div>
+
+          <div className="mt-4">
+            <Stage label="avatar group — time + agente">
+              <AwAvatarGroup>
+                <AwAvatar
+                  src="/assets/users/greg.jpg"
+                  alt="Gregório"
+                />
+                <AwAvatar
+                  src="/assets/users/gabriel_lima.jpg"
+                  alt="Gabriel Lima"
+                />
+                <AwAvatar
+                  src="/assets/ui-faces/female-11.jpg"
+                  alt="Marina"
+                />
+                <AwAvatar ai initials="AI" />
+              </AwAvatarGroup>
+            </Stage>
+          </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
@@ -49,14 +102,29 @@ export default function ChromePage() {
               d="md é o padrão."
             />
             <Spec
+              k="imagem"
+              v="object-fit: cover · 100%"
+              d="Cobre o círculo sem distorcer."
+            />
+            <Spec
+              k="fallback"
+              v="iniciais 2 chars"
+              d="Quando a imagem falhar ou não existir."
+            />
+            <Spec
               k="ai"
               v="border --aw-blue-400"
-              d="Texto em azul; fundo --bg-raised."
+              d="Texto em azul; fundo --bg-raised. Nunca aplique em pessoa real."
             />
             <Spec
               k="group overlap"
               v="−10 px margin-left"
               d="Primeiro avatar sem margin; empilhados."
+            />
+            <Spec
+              k="alt"
+              v="obrigatório com src"
+              d="Descreve a pessoa para leitores de tela."
             />
           </div>
         </Section>
@@ -276,5 +344,6 @@ import { AwProgress } from "@/components/ui/AwProgress"
         </Section>
       </div>
     </div>
+    </>
   )
 }

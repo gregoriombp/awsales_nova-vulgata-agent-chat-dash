@@ -12,14 +12,14 @@ import {
 
 export default function PillsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Pills">
         Marcador inline de status ou categoria. Altura 22 px, radius total,
           1px de borda. Um ponto opcional comunica estado — a variante{" "}
           <strong>ai</strong> pulsa.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="variants"
           title="Variantes"
@@ -203,5 +203,6 @@ export default function PillsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

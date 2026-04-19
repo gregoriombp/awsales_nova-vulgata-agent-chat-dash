@@ -112,7 +112,7 @@ function Spec({ k, v, d }: { k: string; v: string; d?: string }) {
 
 export default function ButtonsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Botões">
         Cinco variantes. <strong>Primary</strong> é alto contraste — a ação
           principal da tela. <strong>AI</strong> é reservado para ações que
@@ -120,8 +120,8 @@ export default function ButtonsPage() {
           <code className="mono">md</code>; <code className="mono">lg</code> só
           em CTA de hero.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         {/* ───────── Variants ───────── */}
         <Section
           id="variants"
@@ -551,5 +551,6 @@ export default function ButtonsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

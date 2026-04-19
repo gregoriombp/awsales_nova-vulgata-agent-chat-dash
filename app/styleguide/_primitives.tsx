@@ -10,8 +10,10 @@ export function PageHero({
 }) {
   return (
     <header className="aw-hero">
-      <h1 className="aw-hero__title">{title}</h1>
-      {children && <p className="aw-hero__lead">{children}</p>}
+      <div className="aw-hero__inner">
+        <h1 className="aw-hero__title">{title}</h1>
+        {children && <p className="aw-hero__lead">{children}</p>}
+      </div>
     </header>
   )
 }

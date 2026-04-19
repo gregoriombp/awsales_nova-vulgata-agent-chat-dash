@@ -12,15 +12,15 @@ import {
 
 export default function SkeletonPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Skeleton">
         Placeholder de carregamento que imita a estrutura final — assim a
         tela não “salta” quando os dados chegam. Shimmer sutil, 1.6 s,
         sempre da esquerda pra direita. Spinner é reservado pra esperas{" "}
         {"<"} 1 s em estados de botão.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="shapes"
           title="Formas"
@@ -213,5 +213,6 @@ export default function SkeletonPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

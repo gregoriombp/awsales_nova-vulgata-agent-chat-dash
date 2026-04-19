@@ -14,15 +14,15 @@ import {
 
 export default function CardsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Cards">
         Superfície primária para agrupar conteúdo. 1px de borda, radius{" "}
           <code className="mono">--radius-lg</code>, sem drop shadow por
           padrão. A variante <strong>ai</strong> insere uma gradient-mesh
           sutil sinalizando superfície ligada ao agente.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="variants"
           title="Variantes"
@@ -262,5 +262,6 @@ export default function CardsPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

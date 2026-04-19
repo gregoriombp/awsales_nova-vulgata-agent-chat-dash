@@ -12,14 +12,14 @@ import {
 
 export default function TablePage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Tabela">
         Lista densa de entidades. Bordas sutis, hover discreto,{" "}
           <strong>zero zebra</strong>. Dados numéricos e técnicos em mono,
           alinhados à direita.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="default"
           title="Exemplo"
@@ -233,5 +233,6 @@ import { AwPill } from "@/components/ui/AwPill"
         </Section>
       </div>
     </div>
+    </>
   )
 }

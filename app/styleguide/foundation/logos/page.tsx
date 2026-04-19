@@ -54,15 +54,15 @@ export default function LogosPage() {
   const wordmarks = files.filter((f) => f.kind === "wordmark")
 
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Logos">
         A identidade é reduzida a uma forma primitiva: um{" "}
           <strong>A triangular</strong>, sólido, sem floreio. O{" "}
           <strong>mark</strong> é a forma autônoma; o <strong>wordmark</strong>{" "}
           acompanha em cabeçalhos, documentos e assinatura.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="anatomy"
           title="Anatomia"
@@ -345,5 +345,6 @@ export default function LogosPage() {
         </Section>
       </div>
     </div>
+    </>
   )
 }

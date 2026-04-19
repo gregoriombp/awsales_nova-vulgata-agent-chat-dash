@@ -11,15 +11,15 @@ import { ModalDemo } from "./ModalDemo"
 
 export default function ModalsPage() {
   return (
-    <div className="max-w-[1200px] mx-auto px-10 py-14">
+    <>
       <PageHero title="Modais">
         Interrupção centrada sobre scrim com blur. Animação discreta de
           entrada (8px bottom → 0), fecha no Esc e no clique do scrim — a
           menos que <code className="mono">dismissible={"{false}"}</code>.
           Largura máxima 520 px.
       </PageHero>
-
-      <div className="flex flex-col gap-16">
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+<div className="flex flex-col gap-16">
         <Section
           id="demo"
           title="Demo"
@@ -223,5 +223,6 @@ const [open, setOpen] = useState(false)
         </Section>
       </div>
     </div>
+    </>
   )
 }
