@@ -23,7 +23,7 @@ export default function StyleguideLayout({
     <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
       <aside className="aw-sg-sidebar w-64 border-r border-[var(--border-subtle)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
         <Link
-          href="/styleguide"
+          href="/bombardier/styleguide"
           aria-label="AwSales Design System — voltar ao índice"
           className="inline-flex flex-col items-start no-underline"
           style={{ color: "var(--fg-primary)" }}

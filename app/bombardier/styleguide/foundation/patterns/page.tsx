@@ -321,7 +321,7 @@ export default function PatternsPage() {
               Ficam 4 s. Ações reversíveis (&ldquo;Desfazer&rdquo;) ficam 8 s.
               Toast não é pra erro bloqueante — veja{" "}
               <Link
-                href="/styleguide/components/toast"
+                href="/bombardier/styleguide/components/toast"
                 className="underline decoration-dotted underline-offset-2"
               >
                 página do componente
@@ -415,7 +415,7 @@ export default function PatternsPage() {
               quando os dados chegam. Shimmer sutil, 1.6 s, da esquerda pra
               direita. Ver{" "}
               <Link
-                href="/styleguide/components/skeleton"
+                href="/bombardier/styleguide/components/skeleton"
                 className="underline decoration-dotted underline-offset-2"
               >
                 componente AwSkeleton
@@ -466,12 +466,12 @@ export default function PatternsPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
-              { label: "Botões", href: "/styleguide/components/buttons" },
-              { label: "Cards", href: "/styleguide/components/cards" },
-              { label: "Modais", href: "/styleguide/components/modals" },
-              { label: "Toast", href: "/styleguide/components/toast" },
-              { label: "Skeleton", href: "/styleguide/components/skeleton" },
-              { label: "Alertas", href: "/styleguide/components/alerts" },
+              { label: "Botões", href: "/bombardier/styleguide/components/buttons" },
+              { label: "Cards", href: "/bombardier/styleguide/components/cards" },
+              { label: "Modais", href: "/bombardier/styleguide/components/modals" },
+              { label: "Toast", href: "/bombardier/styleguide/components/toast" },
+              { label: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
+              { label: "Alertas", href: "/bombardier/styleguide/components/alerts" },
             ].map((p) => (
               <Link
                 key={p.href}

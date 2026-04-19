@@ -18,6 +18,12 @@ const nextConfig: NextConfig = {
       { source: '/design', destination: '/design.html' },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/styleguide', destination: '/bombardier/styleguide', permanent: false },
+      { source: '/styleguide/:path*', destination: '/bombardier/styleguide/:path*', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
