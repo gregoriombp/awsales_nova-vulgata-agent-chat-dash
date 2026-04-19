@@ -32,7 +32,10 @@ export const navigation: NavSection[] = [
       { name: "Modais", href: "/styleguide/components/modals" },
       { name: "Nav list", href: "/styleguide/components/nav-list" },
       { name: "Pills", href: "/styleguide/components/pills" },
+      { name: "Sheet", href: "/styleguide/components/sheet" },
+      { name: "Skeleton", href: "/styleguide/components/skeleton" },
       { name: "Tabela", href: "/styleguide/components/table" },
+      { name: "Toast", href: "/styleguide/components/toast" },
     ],
   },
 ]

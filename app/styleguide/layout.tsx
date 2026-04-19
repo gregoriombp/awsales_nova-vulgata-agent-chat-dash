@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { navigation } from "./navigation"
 import ThemeToggle from "./ThemeToggle"
 import { AwLogo } from "@/components/ui/AwLogo"
+import { AwToastProvider } from "@/components/ui/AwToast"
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ")
@@ -18,6 +19,7 @@ export default function StyleguideLayout({
   const pathname = usePathname()
 
   return (
+    <AwToastProvider>
     <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
       <aside className="w-64 border-r border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
         <Link
@@ -76,5 +78,6 @@ export default function StyleguideLayout({
         {children}
       </main>
     </div>
+    </AwToastProvider>
   )
 }
