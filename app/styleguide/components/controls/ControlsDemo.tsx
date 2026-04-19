@@ -22,7 +22,6 @@ export function ToggleDemo() {
         description="Quando confiança < 60%."
         checked={escalate}
         onChange={setEscalate}
-        ai
       />
       <AwToggleRow
         title="Pause global (kill switch)"
@@ -37,12 +36,10 @@ export function ToggleDemo() {
 export function ToggleInline() {
   const [a, setA] = React.useState(false)
   const [b, setB] = React.useState(true)
-  const [c, setC] = React.useState(true)
   return (
     <div className="flex items-center gap-4">
       <AwToggle checked={a} onChange={setA} label="toggle off" />
       <AwToggle checked={b} onChange={setB} label="toggle on" />
-      <AwToggle checked={c} onChange={setC} ai label="toggle ai" />
     </div>
   )
 }

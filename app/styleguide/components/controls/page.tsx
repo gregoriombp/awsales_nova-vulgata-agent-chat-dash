@@ -50,14 +50,14 @@ export default function ControlsPage() {
               d="Thumb 16 px circular."
             />
             <Spec
-              k="on"
-              v="track --fg-primary"
-              d="Thumb fica branco."
+              k="off"
+              v="track --aw-gray-300"
+              d="Thumb em --bg-raised, centrado à esquerda."
             />
             <Spec
-              k="ai on"
-              v="track --aw-blue-500"
-              d="Reservado para switches que afetam o agente."
+              k="on"
+              v="track --fg-primary"
+              d="Thumb migra para a direita em 180 ms ease-out."
             />
           </div>
         </Section>
@@ -135,12 +135,6 @@ export default function ControlsPage() {
               prop="onChange"
               type="(next: boolean) => void"
               doc="Recebe o próximo estado, não o evento."
-            />
-            <PropRow
-              prop="ai"
-              type="boolean"
-              def="false"
-              doc="Track azul no estado on."
             />
             <PropRow
               prop="label"
@@ -226,7 +220,7 @@ const [temp, setTemp] = useState(70)
         <Section id="do-dont" title="Do / Don't">
           <DoDont
             dos={[
-              <>Toggle AI apenas em switches que afetam decisão do agente.</>,
+              <>Toggle para estado binário, imediato e reversível.</>,
               <>Slider sempre com valor numérico visível.</>,
               <>Tabs para alternar painéis dentro da mesma tela.</>,
             ]}
