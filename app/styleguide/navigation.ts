@@ -33,6 +33,7 @@ export const navigation: NavSection[] = [
       { name: "Inputs", href: "/styleguide/components/inputs" },
       { name: "Modais", href: "/styleguide/components/modals" },
       { name: "Nav list", href: "/styleguide/components/nav-list" },
+      { name: "Nav rail", href: "/styleguide/components/nav-rail" },
       { name: "Pills", href: "/styleguide/components/pills" },
       { name: "Sheet", href: "/styleguide/components/sheet" },
       { name: "Skeleton", href: "/styleguide/components/skeleton" },
