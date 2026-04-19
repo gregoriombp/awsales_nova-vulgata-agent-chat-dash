@@ -17,6 +17,8 @@ export const navigation: NavSection[] = [
       { name: "Logos", href: "/styleguide/foundation/logos" },
       { name: "Animação", href: "/styleguide/foundation/motion" },
       { name: "Acessibilidade", href: "/styleguide/foundation/accessibility" },
+      { name: "Escrita", href: "/styleguide/foundation/content" },
+      { name: "Padrões de UI", href: "/styleguide/foundation/patterns" },
     ],
   },
   {
