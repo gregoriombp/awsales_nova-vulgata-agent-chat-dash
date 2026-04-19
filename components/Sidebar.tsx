@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 
 interface NavItem {
   label: string;
@@ -112,10 +111,9 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/dashboard",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3.125" y="3.125" width="5.625" height="5.625" fill="currentColor"/>
-              <rect x="11.25" y="3.125" width="5.625" height="5.625" fill="currentColor"/>
-              <rect x="3.125" y="11.25" width="5.625" height="5.625" fill="currentColor"/>
-              <rect x="11.25" y="11.25" width="5.625" height="5.625" fill="currentColor"/>
+              <rect x="3" y="3" width="6" height="14" rx="1" fill="currentColor"/>
+              <rect x="11" y="3" width="6" height="6" rx="1" fill="currentColor"/>
+              <rect x="11" y="11" width="6" height="6" rx="1" fill="currentColor"/>
             </svg>
           ),
         },
@@ -124,7 +122,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/insights",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1.875 3.125L18.75 1.875L16.875 18.75L14.375 16.25L11.875 18.75L10 13.75L5 11.875L7.5 9.375L5 6.875L1.875 3.125Z" fill="currentColor"/>
+              <path d="M11.25 2.5L5.417 11.25h4.166L8.75 17.5l5.833-8.75h-4.166L11.25 2.5Z" fill="currentColor"/>
             </svg>
           ),
         },
@@ -134,13 +132,24 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
       title: "Agentes",
       items: [
         {
-          label: "Agent Studio",
+          label: "Agent studio",
           href: "/agent-studio",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.75 15.625C3.75 16.3125 4.0625 16.5625 4.6875 16.875L10 18.75L15.3125 16.875C15.9375 16.5625 16.25 16.3125 16.25 15.625V7.1875C16.25 6.5 15.9375 6.25 15.3125 5.9375L10 4.0625L4.6875 5.9375C4.0625 6.25 3.75 6.5 3.75 7.1875V15.625Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M10 4.0625V18.75" stroke="currentColor" strokeWidth="1.5"/>
-              <path d="M16.25 7.1875L10 10L3.75 7.1875" stroke="currentColor" strokeWidth="1.5"/>
+              <g stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+                <line x1="10" y1="1" x2="10" y2="6"/>
+                <line x1="14.5" y1="2.2" x2="12" y2="6.5"/>
+                <line x1="17.8" y1="5.5" x2="13.5" y2="8"/>
+                <line x1="19" y1="10" x2="14" y2="10"/>
+                <line x1="17.8" y1="14.5" x2="13.5" y2="12"/>
+                <line x1="14.5" y1="17.8" x2="12" y2="13.5"/>
+                <line x1="10" y1="19" x2="10" y2="14"/>
+                <line x1="5.5" y1="17.8" x2="8" y2="13.5"/>
+                <line x1="2.2" y1="14.5" x2="6.5" y2="12"/>
+                <line x1="1" y1="10" x2="6" y2="10"/>
+                <line x1="2.2" y1="5.5" x2="6.5" y2="8"/>
+                <line x1="5.5" y1="2.2" x2="8" y2="6.5"/>
+              </g>
             </svg>
           ),
         },
@@ -149,8 +158,8 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/approvals",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.75 10L7.5 13.75L16.25 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M3.75 12.5L7.5 16.25L16.25 7.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.4"/>
+              <path d="M1.667 10.833L5.417 14.583L12.083 7.917" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M7.917 10.833L10 12.917L18.333 4.583" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
         },
@@ -159,7 +168,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/triggers",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M1.875 1.875L17.5 10L1.875 18.125L3.125 10L1.875 1.875Z" fill="currentColor"/>
+              <path d="M3.333 16.667V11.667L10 10 3.333 8.333V3.333L17.5 10 3.333 16.667Z" fill="currentColor"/>
             </svg>
           ),
         },
@@ -169,17 +178,29 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
       title: "Fontes",
       items: [
         {
-          label: "Knowledge OS",
+          label: "Memory base",
           href: "/knowledge-os",
-          icon: <KnowledgeOSIcon className="flex-shrink-0" />,
+          icon: (
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="10" cy="10" r="2.5" fill="currentColor"/>
+              <circle cx="5" cy="7.5" r="1.75" fill="currentColor"/>
+              <circle cx="15" cy="7.5" r="1.75" fill="currentColor"/>
+              <circle cx="5" cy="13" r="1.5" fill="currentColor"/>
+              <circle cx="15" cy="13" r="1.5" fill="currentColor"/>
+              <circle cx="10" cy="4" r="1.25" fill="currentColor"/>
+              <circle cx="10" cy="16" r="1.25" fill="currentColor"/>
+              <circle cx="3" cy="10" r="1" fill="currentColor"/>
+              <circle cx="17" cy="10" r="1" fill="currentColor"/>
+            </svg>
+          ),
         },
         {
           label: "AOPs",
           href: "/aops",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M3.125 1.875H16.875V15.625H3.125V1.875Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M6.25 5H13.75M6.25 8.125H13.75M6.25 11.25H13.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <rect x="3.333" y="3.333" width="13.333" height="13.333" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M6.667 7.5H13.333M6.667 10H13.333M6.667 12.5H10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           ),
         },
@@ -188,7 +209,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/library",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M4.375 2.5L10 5L15.625 2.5V16.25L10 18.75L4.375 16.25V2.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M5.833 16.667V4.167c0-.459.163-.851.488-1.179.326-.325.721-.488 1.179-.488h5c.459 0 .854.163 1.179.488.325.328.488.72.488 1.179v12.5L10 14.167l-4.167 2.5Z" fill="currentColor"/>
             </svg>
           ),
         },
@@ -197,7 +218,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/tools",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M15.625 1.875L11.875 5.625L8.125 1.875M8.125 1.875L4.375 5.625L1.875 3.125V18.125H18.125V3.125L15.625 5.625" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M5.208 16.042a.75.75 0 01-.55-.225.75.75 0 01-.225-.55c0-.209.075-.392.225-.542l5.209-5.208A3.627 3.627 0 019.167 7.5c0-1.042.368-1.932 1.104-2.667.736-.736 1.625-1.104 2.667-1.104.354 0 .694.049 1.02.146.327.097.633.229.917.396l-2.458 2.458 1.854 1.854 2.458-2.458c.167.284.299.59.396.917.098.326.146.666.146 1.02 0 1.042-.368 1.932-1.104 2.667-.736.736-1.625 1.104-2.667 1.104-.625 0-1.198-.139-1.72-.417l-5.222 5.209a.738.738 0 01-.55.217Z" fill="currentColor"/>
             </svg>
           ),
         },
@@ -206,9 +227,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/integrations",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M7.5 5C7.5 4.375 7.8125 3.75 8.4375 3.4375L9.375 3.125C9.75 2.96875 10.25 2.96875 10.625 3.125L11.5625 3.4375C12.1875 3.75 12.5 4.375 12.5 5V6.5625C12.5 7.1875 12.1875 7.8125 11.5625 8.125L10.625 8.4375C10.25 8.59375 9.75 8.59375 9.375 8.4375L8.4375 8.125C7.8125 7.8125 7.5 7.1875 7.5 6.5625V5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M3.75 12.5C3.75 11.875 4.0625 11.25 4.6875 10.9375L5.625 10.625C6 10.4688 6.5 10.4688 6.875 10.625L7.8125 10.9375C8.4375 11.25 8.75 11.875 8.75 12.5V14.0625C8.75 14.6875 8.4375 15.3125 7.8125 15.625L6.875 15.9375C6.5 16.0938 6 16.0938 5.625 15.9375L4.6875 15.625C4.0625 15.3125 3.75 14.6875 3.75 14.0625V12.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M11.25 12.5C11.25 11.875 11.5625 11.25 12.1875 10.9375L13.125 10.625C13.5 10.4688 14 10.4688 14.375 10.625L15.3125 10.9375C15.9375 11.25 16.25 11.875 16.25 12.5V14.0625C16.25 14.6875 15.9375 15.3125 15.3125 15.625L14.375 15.9375C14 16.0938 13.5 16.0938 13.125 15.9375L12.1875 15.625C11.5625 15.3125 11.25 14.6875 11.25 14.0625V12.5Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M15.208 9.375L9.792 14.792a2.946 2.946 0 01-2.084.875c-.805 0-1.493-.292-2.062-.875a2.823 2.823 0 01-.854-2.084c0-.805.285-1.493.854-2.062l5.416-5.417c.39-.39.854-.583 1.396-.583.542 0 1.007.194 1.396.583.39.39.584.854.584 1.396s-.195 1.007-.584 1.396l-5.416 5.417a.643.643 0 01-.48.194.643.643 0 01-.479-.194.643.643 0 01-.193-.48c0-.194.064-.354.193-.479l5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             </svg>
           ),
         },
@@ -222,19 +241,18 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/conversations",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M16.25 3.75C17.1875 3.75 17.9375 4.5 17.9375 5.4375V11.5625C17.9375 12.5 17.1875 13.25 16.25 13.25H11.875L8.125 16.25V13.25H3.75C2.8125 13.25 2.0625 12.5 2.0625 11.5625V5.4375C2.0625 4.5 2.8125 3.75 3.75 3.75H16.25Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <path d="M3.333 16.667V4.167c0-.459.163-.851.488-1.179.325-.325.721-.488 1.179-.488h10c.459 0 .854.163 1.179.488.325.328.488.72.488 1.179v8.333c0 .459-.163.854-.488 1.179-.325.325-.72.488-1.179.488H6.667l-3.334 2.5Z" fill="currentColor"/>
             </svg>
           ),
-          badge: "99+",
+          badge: "99",
         },
         {
           label: "Playground",
           href: "/playground",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="10" cy="10" r="8.125" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-              <path d="M5.625 7.5C5.625 7.5 7.5 9.375 10 9.375C12.5 9.375 14.375 7.5 14.375 7.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M5.625 12.5C5.625 12.5 7.5 10.625 10 10.625C12.5 10.625 14.375 12.5 14.375 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M2.5 13.333V4.167C2.5 3.25 3.25 2.5 4.167 2.5h8.333c.917 0 1.667.75 1.667 1.667v5c0 .917-.75 1.667-1.667 1.667H5.833L2.5 13.333Z" fill="currentColor"/>
+              <path d="M6.667 12.5v1.667c0 .916.75 1.666 1.666 1.666h5.834L17.5 18.333V9.167c0-.917-.75-1.667-1.667-1.667h-1.666" stroke="currentColor" strokeWidth="1.5"/>
             </svg>
           ),
         },
@@ -243,9 +261,9 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           href: "/history",
           icon: (
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M10 18.125C14.1421 18.125 17.5 14.7671 17.5 10.625C17.5 6.48286 14.1421 3.125 10 3.125C5.85786 3.125 2.5 6.48286 2.5 10.625" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M10 6.25V10.625L13.125 13.125" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M1.875 8.125L2.5 10.625L5 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="8.75" cy="8.75" r="5.417" stroke="currentColor" strokeWidth="1.5"/>
+              <path d="M14.167 14.167l3.333 3.333" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M5.833 8.75h1.25l1.25-2.5 1.667 5 1.25-2.5H12.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           ),
         },
@@ -261,7 +279,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
   };
 
   return (
-    <aside className={`${effectiveCollapsed ? 'w-[80px]' : 'w-[280px]'} bg-[#0d0d0d] border-r border-[#161a20] h-screen flex flex-col transition-all duration-300 flex-shrink-0`}>
+    <aside className={`${effectiveCollapsed ? 'w-[80px]' : 'w-[280px]'} bg-[#0d0d0d] border-r border-[#1a1a1a] h-screen flex flex-col transition-all duration-300 flex-shrink-0`}>
       {/* Header - Logo and Toggle */}
       <div className={`border-b border-[#1a1a1a] flex items-center ${effectiveCollapsed ? 'justify-center px-3' : 'justify-between px-6'} h-[56px]`}>
         {!effectiveCollapsed && (
@@ -291,7 +309,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
               setIsOrganizationMenuOpen((v) => !v);
               setIsUserMenuOpen(false);
             }}
-            className={`w-full bg-[#2f2f2f] border border-[#2f2f2f] rounded-[10px] flex items-center gap-4 h-[50px] transition-colors hover:bg-[#383838] ${effectiveCollapsed ? 'justify-center px-2' : 'px-[9px]'}`}
+            className={`w-full bg-[#1a1a1a] border border-[#1a1a1a] rounded-[12px] flex items-center gap-4 h-[50px] transition-colors hover:bg-[#252525] ${effectiveCollapsed ? 'justify-center px-2' : 'px-[9px]'}`}
             aria-haspopup="menu"
             aria-expanded={isOrganizationMenuOpen}
           >
@@ -305,10 +323,10 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             {!effectiveCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="text-[#f9f9f9] text-[12px] font-medium leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#f9f9f9] text-[12px] font-medium leading-tight">
                     {selectedOrganization?.name ?? "Organização"}
                   </div>
-                  <div className="text-[#b8b8b8] text-[10px] font-normal leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#b8b8b8] text-[10px] font-normal leading-tight">
                     {selectedOrganization?.subtitle ?? "Organização"}
                   </div>
                 </div>
@@ -326,7 +344,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                 effectiveCollapsed
                   ? "left-full top-0 ml-2 w-64"
                   : "left-0 right-0 top-full mt-2"
-              } rounded-[10px] border border-[#161a20] bg-[#1f1f1f] shadow-xl overflow-hidden`}
+              } rounded-[10px] border border-[#1a1a1a] bg-[#1f1f1f] shadow-xl overflow-hidden`}
             >
               <div className="p-1">
                 {ORGANIZATIONS.map((org) => {
@@ -344,20 +362,20 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                         active ? "bg-white text-[#0c1421]" : "text-[#f0f3f7] hover:bg-[#1a1a1a]"
                       }`}
                     >
-                      <div className="text-[13px] font-medium leading-tight font-['Instrument_Sans']">{org.name}</div>
-                      <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight font-['Instrument_Sans']`}>
+                      <div className="text-[13px] font-medium leading-tight">{org.name}</div>
+                      <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight`}>
                         {org.subtitle}
                       </div>
                     </button>
                   );
                 })}
               </div>
-              <div className="border-t border-[#161a20] p-1">
+              <div className="border-t border-[#1a1a1a] p-1">
                 <Link
                   href="/settings"
                   role="menuitem"
                   onClick={() => setIsOrganizationMenuOpen(false)}
-                  className="block rounded-[8px] px-3 py-2 text-[#999] hover:bg-[#1a1a1a] hover:text-white transition-colors text-[13px] font-medium font-['Instrument_Sans']"
+                  className="block rounded-[8px] px-3 py-2 text-[#999] hover:bg-[#1a1a1a] hover:text-white transition-colors text-[13px] font-medium"
                 >
                   Gerenciar organizações
                 </Link>
@@ -373,21 +391,21 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           <div key={sectionIdx} className={sectionIdx > 0 ? 'mt-[37px]' : ''}>
             {section.title && !effectiveCollapsed && (
               <div className="px-3 mb-[3px] h-[21px] flex items-center">
-                <span className="text-[#5e5e5e] text-[12px] font-semibold uppercase tracking-wider font-['Inter']">
+                <span className="text-[#5e5e5e] text-[12px] font-normal">
                   {section.title}
                 </span>
               </div>
             )}
             <div className="space-y-[2px]">
               {section.items.map((item) => {
-                const isKnowledgeOSItem = section.title === "Fontes" && item.label === "Knowledge OS";
+                const isKnowledgeOSItem = item.href === "/knowledge-os";
                 const active = isActive(item.href);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={isKnowledgeOSItem ? () => setIsCollapsed(true) : undefined}
-                    className={`flex items-center h-10 rounded-[8px] transition-all ${
+                    className={`flex items-center h-10 rounded-[12px] transition-all ${
                       effectiveCollapsed ? 'justify-center px-2' : 'gap-3 px-3'
                     } ${
                       active
@@ -399,9 +417,12 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                     <span className={`flex-shrink-0 ${active ? "text-[#0c1421]" : ""}`}>{item.icon}</span>
                     {!effectiveCollapsed && (
                       <>
-                        <span className="flex-1 text-[16px] font-medium leading-normal font-['Instrument_Sans']">{item.label}</span>
+                        <span className={`flex-1 text-[16px] ${active ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>{item.label}</span>
                         {item.badge && (
-                          <span className="bg-[#1a1a1a] text-[#f9f9f9] text-[10px] font-normal px-1 py-0.5 rounded-[4px] leading-normal font-['Instrument_Sans']">
+                          <span className="flex items-center gap-1 bg-[#1a1a1a] text-[#f9f9f9] text-[10px] font-normal px-1 py-0.5 rounded-[4px] leading-[1.3]">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M6 2v8M2 6h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                            </svg>
                             {item.badge}
                           </span>
                         )}
@@ -416,11 +437,11 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
       </div>
 
       {/* Bottom Section */}
-      <div className="border-t border-[#161a20] px-3 py-3 space-y-3">
+      <div className="border-t border-[#1a1a1a] px-3 py-3 space-y-3">
         {/* Configurações */}
         <Link
           href="/settings"
-          className={`flex items-center h-10 rounded-[8px] transition-all ${
+          className={`flex items-center h-10 rounded-[12px] transition-all ${
             effectiveCollapsed ? 'justify-center px-2' : 'gap-3 px-3'
           } ${
             pathname === '/settings'
@@ -430,10 +451,12 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
           title={effectiveCollapsed ? "Configurações" : undefined}
         >
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M10 3.125C10.6875 3.125 11.375 3.4375 11.875 3.9375L12.5 4.5625C12.8125 4.875 13.1875 5 13.625 5H14.0625C15.3125 5 16.25 5.9375 16.25 7.1875V7.625C16.25 8.0625 16.375 8.4375 16.6875 8.75L17.3125 9.375C18.3125 10.375 18.3125 11.9375 17.3125 12.9375L16.6875 13.5625C16.375 13.875 16.25 14.25 16.25 14.6875V15.125C16.25 16.375 15.3125 17.3125 14.0625 17.3125H13.625C13.1875 17.3125 12.8125 17.4375 12.5 17.75L11.875 18.375C10.875 19.375 9.3125 19.375 8.3125 18.375L7.6875 17.75C7.375 17.4375 7 17.3125 6.5625 17.3125H6.125C4.875 17.3125 3.9375 16.375 3.9375 15.125V14.6875C3.9375 14.25 3.8125 13.875 3.5 13.5625L2.875 12.9375C1.875 11.9375 1.875 10.375 2.875 9.375L3.5 8.75C3.8125 8.4375 3.9375 8.0625 3.9375 7.625V7.1875C3.9375 5.9375 4.875 5 6.125 5H6.5625C7 5 7.375 4.875 7.6875 4.5625L8.3125 3.9375C8.8125 3.4375 9.5 3.125 10 3.125Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-            <circle cx="10" cy="11.25" r="2.5" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            <path d="M2.5 5h4.375M9.375 5H17.5M2.5 10h8.125M13.125 10H17.5M2.5 15h2.083M7.083 15H17.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="7.917" cy="5" r="1.458" fill="currentColor"/>
+            <circle cx="12.083" cy="10" r="1.458" fill="currentColor"/>
+            <circle cx="5.625" cy="15" r="1.458" fill="currentColor"/>
           </svg>
-          {!effectiveCollapsed && <span className="text-[16px] font-medium leading-normal font-['Instrument_Sans']">Configurações</span>}
+          {!effectiveCollapsed && <span className={`text-[16px] ${pathname === '/settings' ? 'font-medium leading-[1.2]' : 'font-normal leading-[1.6] tracking-[-0.32px]'}`}>Configurações</span>}
         </Link>
 
         {/* User Profile */}
@@ -443,7 +466,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
               setIsUserMenuOpen((v) => !v);
               setIsOrganizationMenuOpen(false);
             }}
-            className={`w-full bg-[#0d0d0d] border border-[#161a20] rounded-[10px] flex items-center transition-colors hover:bg-[#1a1a1a] ${effectiveCollapsed ? 'justify-center p-2' : 'gap-4 px-2 py-2'}`}
+            className={`w-full bg-[#0d0d0d] border border-[#1a1a1a] rounded-[10px] flex items-center transition-colors hover:bg-[#1a1a1a] ${effectiveCollapsed ? 'justify-center p-2' : 'gap-4 px-2 py-2'}`}
             aria-haspopup="menu"
             aria-expanded={isUserMenuOpen}
           >
@@ -457,10 +480,10 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
             {!effectiveCollapsed && (
               <>
                 <div className="flex-1 text-left">
-                  <div className="text-[#f0f3f7] text-[14px] font-medium leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#f0f3f7] text-[14px] font-medium leading-tight">
                     {selectedUser?.name ?? "Usuário"}
                   </div>
-                  <div className="text-[#b8b8b8] text-[12px] font-normal leading-tight font-['Instrument_Sans']">
+                  <div className="text-[#b8b8b8] text-[12px] font-normal leading-tight">
                     {selectedUser?.title ?? "Conta"}
                   </div>
                 </div>
@@ -478,7 +501,7 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                 effectiveCollapsed
                   ? "left-full bottom-0 ml-2 w-64"
                   : "left-0 right-0 bottom-full mb-2"
-              } rounded-[10px] border border-[#161a20] bg-[#1f1f1f] shadow-xl overflow-hidden`}
+              } rounded-[10px] border border-[#1a1a1a] bg-[#1f1f1f] shadow-xl overflow-hidden`}
             >
               <div className="p-1">
                 {USERS.map((u) => {
@@ -507,8 +530,8 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                           )}
                         </div>
                         <div className="flex-1">
-                          <div className="text-[13px] font-medium leading-tight font-['Instrument_Sans']">{u.name}</div>
-                          <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight font-['Instrument_Sans']`}>
+                          <div className="text-[13px] font-medium leading-tight">{u.name}</div>
+                          <div className={`${active ? "text-[#0c1421]/70" : "text-[#b8b8b8]"} text-[11px] leading-tight`}>
                             {u.title}
                           </div>
                         </div>
@@ -517,12 +540,12 @@ export default function Sidebar({ forcedCollapsed }: { forcedCollapsed?: boolean
                   );
                 })}
               </div>
-              <div className="border-t border-[#161a20] p-1">
+              <div className="border-t border-[#1a1a1a] p-1">
                 <Link
                   href="/"
                   role="menuitem"
                   onClick={() => setIsUserMenuOpen(false)}
-                  className="block rounded-[8px] px-3 py-2 text-[#ffb4b4] hover:bg-[#1a1a1a] transition-colors text-[13px] font-medium font-['Instrument_Sans']"
+                  className="block rounded-[8px] px-3 py-2 text-[#ffb4b4] hover:bg-[#1a1a1a] transition-colors text-[13px] font-medium"
                 >
                   Sair / trocar conta
                 </Link>

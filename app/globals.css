@@ -1,17 +1,347 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;700&display=swap');
+/* AwSales Design System — one typographic voice: Mona Sans.
+ * JetBrains Mono reserved strictly for code, tokens, IDs.
+ * Material Symbols Rounded is the AwSales icon system (12/16/20/24/28/32 px).
+ * Font loading happens via <link> tags in app/layout.tsx — Next.js/Turbopack
+ * strips CSS @import statements, so keeping them here silently breaks fonts. */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+ * AwSales Design System tokens
+ * Geometric minimalism: grayscale primitives + blue-origin AI gradient.
+ * ============================================================ */
+:root {
+  /* Neutral anchors */
+  --aw-black: #000000;
+  --aw-white: #FFFFFF;
+
+  /* Gray scale — the "structure" / hardware of the system */
+  --aw-gray-150: #F9F9F9;
+  --aw-gray-200: #F2F2F2;
+  --aw-gray-300: #E5E5E5;
+  --aw-gray-400: #D1D1D1;
+  --aw-gray-500: #B8B8B8;
+  --aw-gray-600: #999999;
+  --aw-gray-700: #7A7A7A;
+  --aw-gray-800: #5E5E5E;
+  --aw-gray-900: #454545;
+  --aw-gray-1000: #2F2F2F;
+  --aw-gray-1100: #1A1A1A;
+  --aw-gray-1200: #0D0D0D;
+
+  /* Blue — origin point of the AI gradient spectrum */
+  --aw-blue-100: #F2F7FF;
+  --aw-blue-150: #E8F0FF;
+  --aw-blue-200: #DDEBFF;
+  --aw-blue-300: #B8D4FF;
+  --aw-blue-400: #8FB8FF;
+  --aw-blue-500: #478AFF;
+  --aw-blue-600: #2F76E6;
+  --aw-blue-700: #1A5EC8;
+  --aw-blue-800: #1346A2;
+  --aw-blue-900: #0D317A;
+  --aw-blue-1000: #09225A;
+  --aw-blue-1100: #06163D;
+  --aw-blue-1200: #030D25;
+
+  /* Emerald — success semantic scale */
+  --aw-emerald-100: #F2FBF5;
+  --aw-emerald-150: #E8F9ED;
+  --aw-emerald-200: #DDF7E5;
+  --aw-emerald-300: #BFF2D0;
+  --aw-emerald-400: #99EBB8;
+  --aw-emerald-500: #5BDF9E;
+  --aw-emerald-600: #40C987;
+  --aw-emerald-700: #22A871;
+  --aw-emerald-800: #17825A;
+  --aw-emerald-900: #105E45;
+  --aw-emerald-1000: #0A4230;
+  --aw-emerald-1100: #062B1F;
+  --aw-emerald-1200: #041912;
+
+  /* Red — destructive / error */
+  --aw-red-100: #FFF2F2;
+  --aw-red-150: #FDE6E6;
+  --aw-red-200: #FDDDDD;
+  --aw-red-300: #FBBFBF;
+  --aw-red-400: #F29999;
+  --aw-red-500: #DF5B5B;
+  --aw-red-600: #C94040;
+  --aw-red-700: #A82222;
+  --aw-red-800: #821718;
+  --aw-red-900: #5E1010;
+  --aw-red-1000: #420A0A;
+  --aw-red-1100: #2B0606;
+  --aw-red-1200: #190404;
+
+  /* Purple — decorative / "thinking" accent */
+  --aw-purple-100: #F7F2FC;
+  --aw-purple-150: #F0E7FA;
+  --aw-purple-200: #EADDF8;
+  --aw-purple-300: #DBBFF2;
+  --aw-purple-400: #C499EB;
+  --aw-purple-500: #9E5BDF;
+  --aw-purple-600: #8740C9;
+  --aw-purple-700: #7122A8;
+  --aw-purple-800: #5A1782;
+  --aw-purple-900: #45105E;
+  --aw-purple-1000: #300A42;
+
+  /* Teal — informational / data-viz */
+  --aw-teal-100: #DFF7F6;
+  --aw-teal-200: #A1E6E6;
+  --aw-teal-400: #64D4D7;
+  --aw-teal-500: #45CCCF;
+  --aw-teal-600: #26C3C7;
+  --aw-teal-700: #20B2B4;
+  --aw-teal-900: #16908F;
+
+  /* Amber — alert / pending review */
+  --aw-amber-100: #FFF7ED;
+  --aw-amber-150: #FDEFD9;
+  --aw-amber-200: #FDE6CC;
+  --aw-amber-300: #FCD4A3;
+  --aw-amber-400: #F2A95B;
+  --aw-amber-500: #E6762F;
+  --aw-amber-600: #CC5F1E;
+  --aw-amber-700: #B05315;
+  --aw-amber-800: #8C4112;
+  --aw-amber-900: #7A3A10;
+  --aw-amber-1000: #54270A;
+  --aw-amber-1100: #331806;
+  --aw-amber-1200: #1F0E03;
+
+  /* Pink — highlight / marketing accent (used sparingly) */
+  --aw-pink-100: #FDF2F8;
+  --aw-pink-200: #FCE3EE;
+  --aw-pink-300: #F9C4DB;
+  --aw-pink-400: #F490B5;
+  --aw-pink-500: #E85C91;
+  --aw-pink-600: #D13F76;
+  --aw-pink-700: #A82A5C;
+  --aw-pink-800: #801F46;
+  --aw-pink-900: #5A1530;
+  --aw-pink-1000: #3B0D20;
+  --aw-pink-1200: #1A0610;
+
+  /* Lime — growth / positive delta accent */
+  --aw-lime-100: #F4FBE5;
+  --aw-lime-200: #E4F5BE;
+  --aw-lime-400: #BDE862;
+  --aw-lime-500: #A1D136;
+  --aw-lime-600: #7FAB25;
+  --aw-lime-700: #5F8018;
+  --aw-lime-900: #354811;
+  --aw-lime-1200: #111706;
+
+  /* Slate — cool neutral alt (data-viz, subdued chrome) */
+  --aw-slate-100: #F4F6F8;
+  --aw-slate-200: #E4E8EE;
+  --aw-slate-300: #C9D0DA;
+  --aw-slate-400: #9FA9BA;
+  --aw-slate-500: #7886A0;
+  --aw-slate-600: #5D6A82;
+  --aw-slate-700: #465267;
+  --aw-slate-800: #333D4D;
+  --aw-slate-900: #222A36;
+  --aw-slate-1000: #141922;
+  --aw-slate-1200: #080A0E;
+
+  /* Semantic tokens — light mode */
+  --bg-canvas: var(--aw-white);
+  --bg-surface: var(--aw-gray-150);
+  --bg-raised: var(--aw-white);
+  --bg-muted: var(--aw-gray-200);
+  --bg-inverse: var(--aw-gray-1200);
+
+  --fg-primary: var(--aw-gray-1200);
+  --fg-secondary: var(--aw-gray-800);
+  --fg-tertiary: var(--aw-gray-600);
+  --fg-muted: var(--aw-gray-500);
+  --fg-on-inverse: var(--aw-white);
+
+  --border-subtle: var(--aw-gray-200);
+  --border-default: var(--aw-gray-300);
+  --border-strong: var(--aw-gray-500);
+  --border-inverse: var(--aw-gray-1000);
+
+  --accent-brand: var(--aw-blue-600);
+  --accent-brand-hover: var(--aw-blue-700);
+  --accent-success: var(--aw-emerald-700);
+  --accent-danger: var(--aw-red-700);
+  --accent-warning: var(--aw-amber-500);
+  --accent-alert: var(--aw-amber-500);
+
+  /* Dark chrome surfaces (product sidebar + shell) */
+  --dark-bg: var(--aw-gray-1200);
+  --dark-bg-raised: var(--aw-gray-1100);
+  --dark-bg-hover: var(--aw-gray-1000);
+  --dark-fg-primary: var(--aw-white);
+  --dark-fg-secondary: var(--aw-gray-500);
+  --dark-fg-tertiary: var(--aw-gray-700);
+  --dark-border: var(--aw-gray-1000);
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing — 4px base */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-18: 72px;
+
+  /* Shadows — restrained */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 8px rgba(0, 0, 0, 0.04);
+  --shadow-overlay: 0 24px 64px rgba(0, 0, 0, 0.18);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 280ms;
+
+  /* Type families — single voice */
+  --font-sans: 'Mona Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* Type scale */
+  --display-xl-size: 96px;
+  --display-lg-size: 80px;
+  --display-md-size: 64px;
+  --display-sm-size: 48px;
+  --h1-size: 40px;
+  --h2-size: 32px;
+  --h3-size: 28px;
+  --h4-size: 24px;
+  --h5-size: 20px;
+  --h6-size: 18px;
+  --body-xl-size: 20px;
+  --body-lg-size: 18px;
+  --body-md-size: 16px;
+  --body-sm-size: 14px;
+  --body-xs-size: 12px;
+  --mono-md-size: 14px;
+  --mono-sm-size: 12px;
+}
+
+/* ============================================================
+ * Dark mode — inverts the semantic layer.
+ * Primitives never change; only the semantic tokens reassign.
+ * Activate with `<html class="dark">` or on any subtree.
+ * ============================================================ */
+.dark {
+  --bg-canvas: var(--aw-gray-1200);
+  --bg-surface: var(--aw-gray-1100);
+  --bg-raised: var(--aw-gray-1100);
+  --bg-muted: var(--aw-gray-1000);
+  --bg-inverse: var(--aw-white);
+
+  --fg-primary: var(--aw-white);
+  --fg-secondary: var(--aw-gray-500);
+  --fg-tertiary: var(--aw-gray-700);
+  --fg-muted: var(--aw-gray-800);
+  --fg-on-inverse: var(--aw-gray-1200);
+
+  --border-subtle: var(--aw-gray-1100);
+  --border-default: var(--aw-gray-1000);
+  --border-strong: var(--aw-gray-900);
+  --border-inverse: var(--aw-gray-300);
+
+  --accent-brand: var(--aw-blue-500);
+  --accent-brand-hover: var(--aw-blue-400);
+  --accent-success: var(--aw-emerald-500);
+  --accent-danger: var(--aw-red-500);
+  --accent-warning: var(--aw-amber-400);
+  --accent-alert: var(--aw-amber-400);
+}
+
 @layer base {
   body {
     @apply font-sans text-text-primary antialiased;
+    font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+    font-family: var(--font-heading);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--fg-primary);
+  }
+
+  h1 { font-size: var(--h1-size); letter-spacing: -0.02em; }
+  h2 { font-size: var(--h2-size); letter-spacing: -0.015em; }
+  h3 { font-size: var(--h3-size); }
+  h4 { font-size: var(--h4-size); line-height: 1.25; }
+  h5 { font-size: var(--h5-size); line-height: 1.3; }
+  h6 { font-size: var(--h6-size); line-height: 1.35; }
+
+  code, pre, kbd, samp, .mono {
+    font-family: var(--font-mono);
+    font-feature-settings: "liga" 0, "calt" 0;
+  }
+
+  ::selection {
+    background: var(--aw-blue-200);
+    color: var(--aw-gray-1200);
+  }
+}
+
+@layer components {
+  .display-xl, .display-lg, .display-md, .display-sm {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--fg-primary);
+  }
+  .display-xl { font-size: var(--display-xl-size); }
+  .display-lg { font-size: var(--display-lg-size); }
+  .display-md { font-size: var(--display-md-size); }
+  .display-sm { font-size: var(--display-sm-size); }
+
+  /* Eyebrow — the small uppercase tracked label used above titles, inside
+   * card metadata, on spec rows, etc. Named `.aw-eyebrow` on purpose:
+   * Tailwind ships a `.overline` utility (text-decoration: overline) that
+   * would otherwise add a stroke above the text. */
+  .aw-eyebrow {
+    font-family: var(--font-body);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg-tertiary);
+    text-decoration: none;
+  }
+  .caption {
+    font-family: var(--font-body);
+    font-size: var(--body-xs-size);
+    color: var(--fg-tertiary);
+    line-height: 1.4;
   }
 }
 
@@ -431,4 +761,1297 @@
     opacity: 1 !important;
     transform: none !important;
   }
+}
+
+/* Agent Studio: variable chips - dark bg, light text, no border, rounded */
+.variable-chip-at {
+  background-color: #1e3a5f;
+  color: #e0f2fe;
+}
+
+.variable-chip-mustache {
+  background-color: #14532d;
+  color: #dcfce7;
+}
+
+/* Material Symbols Rounded — AwSales icon system.
+ * Locks defaults so glyphs never render as ligature text while loading. */
+.material-symbols-rounded.aw-icon {
+  font-family: 'Material Symbols Rounded';
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'liga';
+  vertical-align: -0.15em;
+}
+
+/* ============================================================
+ * AwButton — mirrors AwSales Design System (zip) spec exactly.
+ * 5 variants · 3 sizes · iconLeft/iconRight · loading.
+ * ============================================================ */
+.aw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    filter var(--dur-base) var(--ease-out);
+  user-select: none;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.aw-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+.aw-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+.aw-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
+}
+
+/* Sizes — heights 30 / 38 / 46 */
+.aw-btn--sm { height: 30px; padding: 0 12px; font-size: 13px; }
+.aw-btn--md { height: 38px; padding: 0 16px; font-size: 14px; }
+.aw-btn--lg { height: 46px; padding: 0 22px; font-size: 15px; }
+
+/* Full-width variant */
+.aw-btn--block { width: 100%; justify-content: center; }
+
+/* Icon-only — square, symmetrical padding */
+.aw-btn--icon.aw-btn--sm { width: 30px; padding: 0; justify-content: center; }
+.aw-btn--icon.aw-btn--md { width: 38px; padding: 0; justify-content: center; }
+.aw-btn--icon.aw-btn--lg { width: 46px; padding: 0; justify-content: center; }
+
+/* Primary — high-contrast (near-black on light, inverts on dark) */
+.aw-btn--primary {
+  background: var(--fg-primary);
+  color: var(--bg-canvas);
+  border-color: var(--fg-primary);
+}
+.aw-btn--primary:hover:not(:disabled) {
+  background: var(--aw-gray-1000);
+  border-color: var(--aw-gray-1000);
+}
+.aw-btn--primary:active:not(:disabled) {
+  background: var(--aw-black);
+  border-color: var(--aw-black);
+}
+
+/* Secondary — outline, neutral */
+.aw-btn--secondary {
+  background: transparent;
+  color: var(--fg-primary);
+  border-color: var(--border-default);
+}
+.aw-btn--secondary:hover:not(:disabled) {
+  border-color: var(--fg-primary);
+  background: var(--bg-surface);
+}
+
+/* Ghost — transparent, becomes a soft fill on hover */
+.aw-btn--ghost {
+  background: transparent;
+  color: var(--fg-primary);
+  border-color: transparent;
+}
+.aw-btn--ghost:hover:not(:disabled) {
+  background: var(--bg-surface);
+}
+
+/* Danger — destructive actions */
+.aw-btn--danger {
+  background: var(--aw-red-700);
+  color: #fff;
+  border-color: var(--aw-red-700);
+}
+.aw-btn--danger:hover:not(:disabled) {
+  background: var(--aw-red-800);
+  border-color: var(--aw-red-800);
+}
+
+/* AI — reserved for actions that invoke the agent. Blue → Purple gradient. */
+.aw-btn--ai {
+  background: linear-gradient(90deg, var(--aw-blue-600) 0%, var(--aw-purple-500) 100%);
+  color: #fff;
+  border-color: transparent;
+}
+.aw-btn--ai:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* Loading */
+.aw-btn--loading .aw-btn__label { opacity: 0.6; }
+.aw-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: aw-spin 600ms linear infinite;
+}
+@keyframes aw-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+ * AwCard — card surface with optional AI gradient mesh.
+ * ============================================================ */
+.aw-card {
+  position: relative;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  color: var(--fg-primary);
+}
+.aw-card--interactive {
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    background var(--dur-base) var(--ease-out);
+  cursor: pointer;
+}
+.aw-card--interactive:hover {
+  border-color: var(--fg-primary);
+  transform: translateY(-2px);
+  background: var(--bg-surface);
+}
+.aw-card--ai {
+  background:
+    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(71, 138, 255, 0.10), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 90%, rgba(158, 91, 223, 0.08), transparent 60%),
+    var(--bg-raised);
+}
+
+/* ============================================================
+ * AwInput + AwField — inputs with focus ring + error state.
+ * ============================================================ */
+.aw-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aw-field__label {
+  font: 500 12px/1 var(--font-sans);
+  color: var(--fg-secondary);
+}
+.aw-field__error {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--aw-red-700);
+}
+.aw-field__helper {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+}
+.aw-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 12px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.aw-input--dense { height: 34px; padding: 0 10px; }
+.aw-input input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  font: 400 14px/1.4 var(--font-sans);
+  color: var(--fg-primary);
+  min-width: 0;
+}
+.aw-input input::placeholder { color: var(--fg-tertiary); }
+.aw-input:focus-within {
+  border-color: var(--aw-blue-500);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.18);
+}
+.aw-input--invalid { border-color: var(--aw-red-700); }
+.aw-input--invalid:focus-within {
+  box-shadow: 0 0 0 3px rgba(168, 34, 34, 0.18);
+}
+.aw-input--disabled,
+.aw-input:has(input:disabled) {
+  background: var(--bg-surface);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.aw-input--disabled input,
+.aw-input input:disabled {
+  cursor: not-allowed;
+}
+
+/* ============================================================
+ * AwPill — inline status marker with optional pulse dot.
+ * ============================================================ */
+.aw-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  font: 500 11px/1 var(--font-sans);
+  border: 1px solid var(--border-default);
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.aw-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--fg-tertiary);
+  flex-shrink: 0;
+}
+.aw-pill--live {
+  background: var(--aw-emerald-100);
+  border-color: var(--aw-emerald-300);
+  color: var(--aw-emerald-700);
+}
+.aw-pill--live .aw-pill__dot { background: var(--aw-emerald-500); }
+.aw-pill--draft {
+  background: var(--aw-gray-150);
+  border-color: var(--aw-gray-300);
+  color: var(--aw-gray-800);
+}
+.aw-pill--draft .aw-pill__dot { background: var(--aw-gray-600); }
+.aw-pill--beta {
+  background: var(--aw-amber-100);
+  border-color: var(--aw-amber-300);
+  color: var(--aw-amber-700);
+}
+.aw-pill--beta .aw-pill__dot { background: var(--aw-amber-500); }
+.aw-pill--error {
+  background: var(--aw-red-100);
+  border-color: var(--aw-red-300);
+  color: var(--aw-red-700);
+}
+.aw-pill--error .aw-pill__dot { background: var(--aw-red-500); }
+.aw-pill--neutral {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--fg-primary);
+}
+.aw-pill--ai {
+  background: var(--aw-blue-100);
+  border-color: var(--aw-blue-300);
+  color: var(--aw-blue-700);
+}
+.aw-pill--ai .aw-pill__dot {
+  background: var(--aw-blue-500);
+  box-shadow: 0 0 8px var(--aw-blue-500);
+  animation: aw-pill-pulse 2.2s ease-in-out infinite;
+}
+@keyframes aw-pill-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ============================================================
+ * AwChatBubble — user/agent conversation bubbles.
+ * ============================================================ */
+.aw-chat {
+  display: flex;
+  gap: 10px;
+  max-width: 680px;
+}
+.aw-chat--user {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+.aw-chat--agent { justify-content: flex-start; }
+.aw-chat__avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--fg-secondary);
+}
+.aw-chat__bubble {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font: 400 14px/1.5 var(--font-sans);
+  max-width: 520px;
+  position: relative;
+}
+.aw-chat--user .aw-chat__bubble {
+  background: var(--fg-primary);
+  color: var(--bg-canvas);
+  border-bottom-right-radius: 4px;
+}
+.aw-chat--agent .aw-chat__bubble {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  border: 1px solid var(--border-subtle);
+  border-bottom-left-radius: 4px;
+}
+.aw-chat__time {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--fg-tertiary);
+}
+.aw-chat--user .aw-chat__time { color: var(--aw-gray-500); }
+.aw-chat__dots {
+  display: inline-flex;
+  gap: 4px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.aw-chat__dots i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.4;
+  animation: aw-chat-dot 1.2s ease-in-out infinite;
+}
+.aw-chat__dots i:nth-child(2) { animation-delay: 0.15s; }
+.aw-chat__dots i:nth-child(3) { animation-delay: 0.30s; }
+@keyframes aw-chat-dot {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
+ * AwModal — scrim + centered dialog, focus-trapped by React.
+ * ============================================================ */
+.aw-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: aw-scrim-in 180ms var(--ease-out);
+}
+@keyframes aw-scrim-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.aw-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-raised);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-overlay);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  animation: aw-modal-in 180ms var(--ease-out);
+}
+@keyframes aw-modal-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.aw-modal__head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.aw-modal__title {
+  margin: 0;
+  font: 500 20px/1.25 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg-primary);
+}
+.aw-modal__close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.aw-modal__close:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-modal__body {
+  font-size: 14px;
+  color: var(--fg-secondary);
+  line-height: 1.5;
+}
+.aw-modal__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+/* ============================================================
+ * AwAlert — inline contextual message. NEVER used as toast.
+ * ============================================================ */
+.aw-alert {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  color: var(--fg-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.aw-alert__icon { flex: 0 0 auto; line-height: 0; }
+.aw-alert__body { flex: 1; min-width: 0; }
+.aw-alert__title {
+  color: var(--fg-primary);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  display: block;
+  margin: 0 0 2px 0;
+}
+.aw-alert--info    { border-color: var(--aw-blue-300); background: var(--aw-blue-100); }
+.aw-alert--info    .aw-alert__icon { color: var(--aw-blue-600); }
+.aw-alert--success { border-color: var(--aw-emerald-300); background: var(--aw-emerald-100); }
+.aw-alert--success .aw-alert__icon { color: var(--aw-emerald-600); }
+.aw-alert--warning { border-color: var(--aw-amber-300); background: var(--aw-amber-100); }
+.aw-alert--warning .aw-alert__icon { color: var(--aw-amber-600); }
+.aw-alert--danger  { border-color: var(--aw-red-300); background: var(--aw-red-100); }
+.aw-alert--danger  .aw-alert__icon { color: var(--aw-red-600); }
+
+/* ============================================================
+ * AwAvatar — 36 px circle with initials or glyph.
+ * ============================================================ */
+.aw-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 13px;
+  border: 1px solid var(--border-default);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.aw-avatar--sm { width: 24px; height: 24px; font-size: 11px; }
+.aw-avatar--lg { width: 48px; height: 48px; font-size: 16px; }
+.aw-avatar--ai {
+  background: var(--bg-raised);
+  border-color: var(--aw-blue-400);
+  color: var(--aw-blue-600);
+}
+.aw-avatar-group { display: inline-flex; }
+.aw-avatar-group .aw-avatar + .aw-avatar { margin-left: -10px; }
+
+/* ============================================================
+ * AwBreadcrumb — inline navigation path.
+ * ============================================================ */
+.aw-crumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  color: var(--fg-tertiary);
+  flex-wrap: wrap;
+}
+.aw-crumbs a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-base) var(--ease-out);
+}
+.aw-crumbs a:hover { color: var(--fg-primary); }
+.aw-crumbs__current { color: var(--fg-primary); }
+.aw-crumbs__sep { color: var(--fg-tertiary); opacity: 0.5; }
+
+/* ============================================================
+ * AwSelect — button-style dropdown trigger.
+ * ============================================================ */
+.aw-select {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 38px;
+  padding: 0 12px 0 14px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--fg-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    background var(--dur-base) var(--ease-out);
+  white-space: nowrap;
+}
+.aw-select:hover:not(:disabled) { border-color: var(--fg-primary); }
+.aw-select:focus-visible {
+  outline: 0;
+  border-color: var(--aw-blue-500);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.18);
+}
+.aw-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.aw-select__caret {
+  width: 16px;
+  height: 16px;
+  color: var(--fg-tertiary);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * AwProgress — horizontal bar, 0–100.
+ * ============================================================ */
+.aw-progress-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+.aw-progress-row__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fg-secondary);
+}
+.aw-progress-row__top b {
+  color: var(--fg-primary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+.aw-progress {
+  height: 6px;
+  width: 100%;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+.aw-progress__fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--aw-blue-500);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.aw-progress--success .aw-progress__fill { background: var(--aw-emerald-600); }
+.aw-progress--warning .aw-progress__fill { background: var(--aw-amber-500); }
+.aw-progress--danger  .aw-progress__fill { background: var(--aw-red-600); }
+
+/* ============================================================
+ * AwNavList — stacked navigation (section rail).
+ * ============================================================ */
+.aw-nav-list {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 6px;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+}
+.aw-nav-list__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--fg-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.aw-nav-list__item:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-nav-list__item--active {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-nav-list__count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--fg-tertiary);
+}
+
+/* ============================================================
+ * AwTable — dense entity list. Mono + right-align for numbers.
+ * ============================================================ */
+.aw-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: 13px;
+}
+.aw-table th,
+.aw-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+.aw-table th {
+  background: var(--bg-surface);
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
+}
+.aw-table td.aw-table__mono,
+.aw-table th.aw-table__mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--fg-secondary);
+}
+.aw-table td.aw-table__num,
+.aw-table th.aw-table__num {
+  text-align: right;
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.aw-table td.aw-table__name {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  color: var(--fg-primary);
+}
+.aw-table tr:last-child td { border-bottom: 0; }
+.aw-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.aw-table tbody tr:hover td { background: var(--bg-surface); }
+
+/* ============================================================
+ * AwToggle — on/off switch, optional AI variant.
+ * ============================================================ */
+.aw-toggle {
+  width: 38px;
+  height: 22px;
+  background: var(--aw-gray-300);
+  border-radius: var(--radius-full);
+  position: relative;
+  cursor: pointer;
+  transition: background var(--dur-base) var(--ease-out);
+  border: 0;
+  flex-shrink: 0;
+  padding: 0;
+}
+.aw-toggle::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  transition: all var(--dur-base) var(--ease-out);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+.aw-toggle--on { background: var(--fg-primary); }
+.aw-toggle--on::after { left: 19px; }
+.aw-toggle--ai.aw-toggle--on { background: var(--aw-blue-500); }
+.aw-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-toggle:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.aw-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  min-width: 260px;
+}
+.aw-toggle-row__copy { flex: 1; min-width: 0; }
+.aw-toggle-row__copy-title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  color: var(--fg-primary);
+}
+.aw-toggle-row__copy-desc {
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+  margin-top: 2px;
+}
+
+/* ============================================================
+ * AwSlider — styled range input.
+ * ============================================================ */
+.aw-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 280px;
+}
+.aw-slider__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--fg-secondary);
+}
+.aw-slider__top b {
+  color: var(--fg-primary);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+}
+.aw-slider__help {
+  font-size: 11px;
+  color: var(--fg-tertiary);
+}
+.aw-slider__rng {
+  width: 100%;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-muted);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  outline: none;
+}
+.aw-slider__rng::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fg-primary);
+  border: 2px solid var(--bg-raised);
+  box-shadow: 0 0 0 1px var(--border-default);
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.aw-slider__rng::-webkit-slider-thumb:hover { transform: scale(1.1); }
+.aw-slider__rng::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--fg-primary);
+  border: 2px solid var(--bg-raised);
+  box-shadow: 0 0 0 1px var(--border-default);
+  cursor: pointer;
+}
+.aw-slider__rng:focus-visible {
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* ============================================================
+ * AwTabs — inline tab group, segmented pill style.
+ * ============================================================ */
+.aw-tabs {
+  display: inline-flex;
+  gap: 2px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 3px;
+}
+.aw-tabs__tab {
+  padding: 7px 14px;
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.aw-tabs__tab:hover { color: var(--fg-primary); }
+.aw-tabs__tab--active {
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+  box-shadow: var(--shadow-xs);
+}
+.aw-tabs__tab:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* ============================================================
+ * Styleguide chrome — theme toggle, hero, code block.
+ * ============================================================ */
+
+.aw-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.aw-theme-toggle:hover {
+  background: var(--bg-surface);
+  border-color: var(--fg-primary);
+}
+.aw-theme-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* Hero — page header with tinted background + neural pattern suggestion */
+.aw-hero {
+  position: relative;
+  padding: 56px 56px 48px;
+  margin: 0 0 64px 0;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  isolation: isolate;
+}
+.aw-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 100% 0%,
+      rgba(71, 138, 255, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 0% 100%,
+      rgba(158, 91, 223, 0.06),
+      transparent 65%
+    );
+  pointer-events: none;
+}
+.aw-hero > * { position: relative; }
+.aw-hero__title {
+  margin: 0;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+.aw-hero__lead {
+  margin: 16px 0 0 0;
+  font-size: var(--body-lg-size);
+  color: var(--fg-secondary);
+  line-height: 1.55;
+  max-width: 560px;
+}
+.dark .aw-hero::before {
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 100% 0%,
+      rgba(71, 138, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 0% 100%,
+      rgba(158, 91, 223, 0.14),
+      transparent 65%
+    );
+}
+
+/* ============================================================
+ * AwCode — code block with IDE-like syntax colors.
+ * Background is fixed (dark IDE vibe) in both light and dark mode.
+ * Tokens ride on GitHub "dark dimmed" palette — tested for legibility.
+ * ============================================================ */
+.aw-code {
+  display: block;
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  background: #0D1117;
+  color: #E6EDF3;
+  font-family: var(--font-mono);
+  font-size: var(--mono-md-size);
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+  border: 1px solid #1F252D;
+  tab-size: 2;
+}
+.aw-code code { font-family: inherit; color: inherit; background: none; padding: 0; }
+
+/* Syntax token colors — GitHub dark-dimmed aligned */
+.aw-code .tok-keyword    { color: #FF7B72; }          /* import, const, function */
+.aw-code .tok-string     { color: #A5D6FF; }          /* "..." / '...' / `...` */
+.aw-code .tok-comment    { color: #8B949E; font-style: italic; }
+.aw-code .tok-number     { color: #79C0FF; }
+.aw-code .tok-fn         { color: #D2A8FF; }          /* called functions */
+.aw-code .tok-type       { color: #FFA657; }          /* types / JSX components */
+.aw-code .tok-attr       { color: #FFA657; }          /* JSX attribute names */
+.aw-code .tok-tag        { color: #7EE787; }          /* <div>, <button> */
+.aw-code .tok-prop       { color: #79C0FF; }          /* object / css property */
+.aw-code .tok-bool       { color: #79C0FF; }          /* true, false, null */
+.aw-code .tok-punct      { color: #C9D1D9; }          /* default text */
+
+/* Inline code inside text — subtle surface, keeps reading flow */
+.aw-code-inline {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--fg-primary);
+}
+
+/* ============================================================
+ * AwModal size variants — cockpit extends width for configuration
+ * screens (settings inspector, multi-panel dialogs).
+ * ============================================================ */
+.aw-modal--md     { max-width: 520px; }
+.aw-modal--cockpit {
+  max-width: 760px;
+  border-radius: 18px;
+  padding: 0;
+  overflow: hidden;
+}
+.aw-modal--cockpit .aw-modal__head {
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-modal--cockpit .aw-modal__body {
+  padding: 20px 28px;
+}
+.aw-modal--cockpit .aw-modal__foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+/* ============================================================
+ * AwToast — transient feedback, bottom-right stack.
+ * ============================================================ */
+.aw-toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  pointer-events: none;
+}
+.aw-toast-stack > * { pointer-events: auto; }
+
+.aw-toast {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  box-shadow: var(--shadow-lg);
+  animation: aw-toast-in 220ms var(--ease-out);
+  color: var(--fg-primary);
+}
+@keyframes aw-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.aw-toast--leaving { animation: aw-toast-out 160ms var(--ease-in-out) forwards; }
+@keyframes aw-toast-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+.aw-toast__icon { line-height: 0; flex: 0 0 auto; color: var(--aw-emerald-600); }
+.aw-toast__body { flex: 1; min-width: 0; }
+.aw-toast__title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  margin: 0 0 2px 0;
+}
+.aw-toast__desc {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+  line-height: 1.45;
+  margin: 0;
+}
+.aw-toast__desc a,
+.aw-toast__action {
+  color: var(--aw-blue-600);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  cursor: pointer;
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  padding: 0;
+  font: inherit;
+}
+.aw-toast__close {
+  color: var(--fg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: var(--radius-xs);
+}
+.aw-toast__close:hover { color: var(--fg-primary); background: var(--bg-surface); }
+
+.aw-toast--ai    .aw-toast__icon { color: var(--aw-blue-600); }
+.aw-toast--ai    .aw-toast__desc a { color: var(--aw-blue-600); }
+.aw-toast--error .aw-toast__icon { color: var(--aw-red-600); }
+.aw-toast--error .aw-toast__desc a { color: var(--aw-red-600); }
+.aw-toast--warning .aw-toast__icon { color: var(--aw-amber-500); }
+.aw-toast--warning .aw-toast__desc a { color: var(--aw-amber-600); }
+
+/* ============================================================
+ * AwSheet — right-side drawer. Scrim reuses .aw-modal-scrim.
+ * ============================================================ */
+.aw-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.40);
+  display: flex;
+  justify-content: flex-end;
+  animation: aw-scrim-in 180ms var(--ease-out);
+}
+.aw-sheet {
+  width: 520px;
+  max-width: 100%;
+  height: 100%;
+  background: var(--bg-raised);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+  animation: aw-sheet-in 220ms var(--ease-out);
+  overflow: hidden;
+}
+@keyframes aw-sheet-in {
+  from { transform: translateX(100%); }
+  to   { transform: none; }
+}
+.aw-sheet__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-sheet__title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  margin: 0;
+}
+.aw-sheet__meta {
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.aw-sheet__close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.aw-sheet__close:hover { background: var(--bg-surface); color: var(--fg-primary); }
+
+.aw-sheet__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-sheet__tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 10px 14px;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  font: 500 12px var(--font-body);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.aw-sheet__tab:hover { color: var(--fg-primary); }
+.aw-sheet__tab--active {
+  color: var(--fg-primary);
+  border-bottom-color: var(--fg-primary);
+}
+
+.aw-sheet__body {
+  padding: 22px 20px;
+  flex: 1;
+  overflow: auto;
+}
+.aw-sheet__row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+  font-size: 12.5px;
+}
+.aw-sheet__row:last-child { border-bottom: 0; }
+.aw-sheet__row-k { color: var(--fg-tertiary); }
+.aw-sheet__row-v { color: var(--fg-primary); }
+.aw-sheet__row-v.mono { font-family: var(--font-mono); font-size: 12px; }
+
+.aw-sheet__foot {
+  border-top: 1px solid var(--border-subtle);
+  padding: 14px 20px;
+  background: var(--bg-surface);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ============================================================
+ * AwSkeleton — shape-mimicking loading placeholder, 1.6s shimmer.
+ * ============================================================ */
+.aw-skel {
+  position: relative;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: block;
+  height: 52px;
+  width: 100%;
+}
+.aw-skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+  animation: aw-skel-shimmer 1.6s linear infinite;
+}
+.dark .aw-skel::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+}
+@keyframes aw-skel-shimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.aw-skel--line   { height: 12px; border-radius: var(--radius-xs); border: 0; }
+.aw-skel--title  { height: 22px; border-radius: var(--radius-xs); border: 0; }
+.aw-skel--avatar { height: 36px; width: 36px; border-radius: 50%; border: 0; }
+.aw-skel--card   { height: 140px; border-radius: var(--radius-lg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-skel::after { animation: none; }
+  .aw-toast { animation: none; }
+  .aw-sheet { animation: none; }
 }

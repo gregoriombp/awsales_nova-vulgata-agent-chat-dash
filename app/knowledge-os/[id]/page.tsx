@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
 import Button from "@/components/Button";
@@ -527,7 +528,7 @@ export default function KnowledgeOSDirectoryPage() {
 
   const [viewRow, setViewRow] = useState<SourceRow | null>(null);
   const [drawerRow, setDrawerRow] = useState<SourceRow | null>(null);
-  const [drawerTab, setDrawerTab] = useState<"conteudo" | "layers">("conteudo");
+  const [drawerTab, setDrawerTab] = useState<"conteudo" | "layers" | "visualizar">("conteudo");
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [pendingDeleteIds, setPendingDeleteIds] = useState<string[]>([]);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
@@ -902,6 +903,13 @@ export default function KnowledgeOSDirectoryPage() {
         {/* Header area */}
         <div className="bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
           <div className="mx-auto max-w-[1544px] px-12 py-8">
+            <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4" aria-label="Breadcrumb">
+              <Link href="/knowledge-os" className="hover:text-white transition-colors">
+                Knowledge OS
+              </Link>
+              <span aria-hidden="true">|</span>
+              <span className="text-white">{directoryName}</span>
+            </nav>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="text-white">
@@ -1778,6 +1786,17 @@ export default function KnowledgeOSDirectoryPage() {
                   >
                     Knowledge Layers
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setDrawerTab("visualizar")}
+                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                      drawerTab === "visualizar"
+                        ? "border-[#1a1a1a] text-[#1a1a1a]"
+                        : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
+                    }`}
+                  >
+                    Visualizar arquivo
+                  </button>
                 </div>
                 <div className="flex-1 overflow-y-auto p-6">
                   {drawerTab === "conteudo" && (
@@ -1927,6 +1946,82 @@ export default function KnowledgeOSDirectoryPage() {
                       </p>
                     </div>
                   )}
+                  {drawerTab === "visualizar" && (() => {
+                    const ext = getFileExtension(drawerRow.name);
+                    const isPdf = ext === "pdf";
+                    const isImage = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext);
+                    const isUrl = drawerRow.typeLabel === "URL";
+                    const previewUrl = isUrl
+                      ? drawerRow.name
+                      : `/api/knowledge-os/bases/${params?.id ?? ""}/files/${drawerRow.id}/preview`;
+                    if (isUrl) {
+                      return (
+                        <div className="flex flex-col h-full min-h-[400px]">
+                          <p className="text-[13px] text-[#5e5e5e] mb-3">
+                            Visualização da página em nova aba:{" "}
+                            <a
+                              href={drawerRow.name}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#1a1a1a] underline hover:no-underline"
+                            >
+                              {drawerRow.name}
+                            </a>
+                          </p>
+                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-white">
+                            <iframe
+                              title={`Visualização: ${drawerRow.name}`}
+                              src={drawerRow.name}
+                              className="w-full h-full min-h-[400px]"
+                              sandbox="allow-same-origin allow-scripts allow-popups"
+                            />
+                          </div>
+                        </div>
+                      );
+                    }
+                    if (isPdf) {
+                      return (
+                        <div className="flex flex-col h-full min-h-[400px]">
+                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-[#525659]">
+                            <iframe
+                              title={`Visualização: ${drawerRow.name}`}
+                              src={previewUrl}
+                              className="w-full h-full min-h-[400px]"
+                            />
+                          </div>
+                          <p className="text-[12px] text-[#999] mt-2">
+                            Se o PDF não carregar, use o botão &quot;Download arquivos&quot; abaixo.
+                          </p>
+                        </div>
+                      );
+                    }
+                    if (isImage) {
+                      return (
+                        <div className="flex flex-col h-full min-h-[200px]">
+                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-[#f9f9f9] flex items-center justify-center">
+                            <img
+                              src={previewUrl}
+                              alt={drawerRow.name}
+                              className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
+                            />
+                          </div>
+                          <p className="text-[12px] text-[#999] mt-2">
+                            Se a imagem não carregar, use o botão &quot;Download arquivos&quot; abaixo.
+                          </p>
+                        </div>
+                      );
+                    }
+                    return (
+                      <div className="text-[14px] text-[#2f2f2f] leading-relaxed">
+                        <p>
+                          Este tipo de arquivo (<strong>{drawerRow.typeLabel}</strong>) não pode ser visualizado no navegador.
+                        </p>
+                        <p className="mt-2 text-[#5e5e5e]">
+                          Use o botão &quot;Download arquivos&quot; abaixo para abrir o arquivo no seu computador.
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div className="p-6 border-t border-[#f2f2f2] flex justify-end flex-shrink-0">
                   <Button
@@ -2093,11 +2188,11 @@ export default function KnowledgeOSDirectoryPage() {
       <SendFileModal
         isOpen={isSendFileOpen}
         onClose={() => setIsSendFileOpen(false)}
+        baseId={params?.id}
         onComplete={(files) => {
           if (files.length === 0) return;
-          const baseId = Date.now();
-          const newRows: SourceRow[] = files.map((f, i) => ({
-            id: `new-${baseId}-${i}`,
+          const newRows: SourceRow[] = files.map((f) => ({
+            id: f.serverId ?? f.id,
             name: f.name,
             typeLabel: "Arquivo",
             status: "Analisando",
@@ -2106,7 +2201,6 @@ export default function KnowledgeOSDirectoryPage() {
             folderId: currentFolderId,
           }));
           setRows((prev) => [...newRows, ...prev]);
-          // Simula conclusão da extração após alguns segundos (substituir por API real)
           const ids = newRows.map((r) => r.id);
           if (extractionTimeoutRef.current) clearTimeout(extractionTimeoutRef.current);
           extractionTimeoutRef.current = setTimeout(() => {
