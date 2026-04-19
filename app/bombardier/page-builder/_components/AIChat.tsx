@@ -1,55 +1,551 @@
 "use client"
 
 import * as React from "react"
+import { AwChatBubble } from "@/components/ui/AwChatBubble"
 import { AwPill } from "@/components/ui/AwPill"
 import { Icon } from "@/components/ui/Icon"
+import { useBuilder } from "@/lib/bombardier/store"
+
+const BRIDGE_URL =
+  process.env.NEXT_PUBLIC_BOMBARDIER_BRIDGE_URL ?? "http://localhost:9876"
+
+type BridgeHealth = {
+  ok: boolean
+  version: string
+  phase: string
+  claude: {
+    ready: boolean
+    reason?: string
+    version?: string
+    executable?: string
+  }
+  skill?: { path: string; exists: boolean }
+  timestamp: string
+  port: number
+}
+
+type BridgeState =
+  | { kind: "checking" }
+  | { kind: "offline" }
+  | { kind: "half"; info: BridgeHealth }
+  | { kind: "ready"; info: BridgeHealth }
+
+function useBridgeStatus() {
+  const [state, setState] = React.useState<BridgeState>({ kind: "checking" })
+  const [tick, setTick] = React.useState(0)
+  const retry = React.useCallback(() => setTick((n) => n + 1), [])
+
+  React.useEffect(() => {
+    let cancelled = false
+    const check = async () => {
+      try {
+        const controller = new AbortController()
+        const timer = setTimeout(() => controller.abort(), 2500)
+        const res = await fetch(`${BRIDGE_URL}/health`, {
+          signal: controller.signal,
+        })
+        clearTimeout(timer)
+        if (cancelled) return
+        const data: BridgeHealth = await res.json()
+        if (data.claude?.ready) setState({ kind: "ready", info: data })
+        else setState({ kind: "half", info: data })
+      } catch {
+        if (cancelled) return
+        setState({ kind: "offline" })
+      }
+    }
+    check()
+    const id = setInterval(check, 7000)
+    return () => {
+      cancelled = true
+      clearInterval(id)
+    }
+  }, [tick])
+
+  return { state, retry }
+}
+
+type ChatMessage = {
+  id: string
+  role: "user" | "agent"
+  text: string
+  status: "streaming" | "done" | "error"
+  nodes?: unknown[]
+  error?: string
+  applied?: boolean
+  costUsd?: number
+  durationMs?: number
+}
+
+function StatusPill({ state }: { state: BridgeState }) {
+  if (state.kind === "checking")
+    return <AwPill variant="neutral">Verificando…</AwPill>
+  if (state.kind === "offline")
+    return <AwPill variant="error">Ponte offline</AwPill>
+  if (state.kind === "half")
+    return <AwPill variant="draft">Sem Claude</AwPill>
+  return <AwPill variant="live">Claude pronto</AwPill>
+}
+
+function CommandBlock({ cmd }: { cmd: string }) {
+  const [copied, setCopied] = React.useState(false)
+  return (
+    <div className="relative">
+      <pre className="m-0 px-3 py-2 pr-9 rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] border border-[var(--border-subtle)] text-[11px] font-mono text-[var(--fg-primary)] overflow-x-auto whitespace-pre">
+        {cmd}
+      </pre>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(cmd)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 1500)
+          } catch {
+            /* noop */
+          }
+        }}
+        aria-label={copied ? "Copiado" : "Copiar"}
+        title={copied ? "Copiado" : "Copiar"}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 inline-flex items-center justify-center rounded-[var(--radius-xs)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-raised)]"
+      >
+        <Icon name={copied ? "check" : "content_copy"} size={12} />
+      </button>
+    </div>
+  )
+}
+
+function OfflineBody({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="p-4 flex flex-col gap-4">
+      <div>
+        <h4 className="text-sm font-semibold mb-1">Inicie a ponte local</h4>
+        <p className="text-xs text-[var(--fg-secondary)] leading-relaxed">
+          Roda na sua máquina, usa a sua conta Claude. Nada passa pelo servidor
+          do produto.
+        </p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-[var(--fg-tertiary)]">
+          Primeira vez
+        </span>
+        <CommandBlock cmd="npm run bridge:install" />
+      </div>
+      <div className="flex flex-col gap-2">
+        <span className="text-[11px] uppercase tracking-wider text-[var(--fg-tertiary)]">
+          Rodar
+        </span>
+        <CommandBlock cmd="npm run bridge" />
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex items-center justify-center gap-1.5 h-9 rounded-[var(--radius-md)] border border-[var(--border-subtle)] text-sm text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-raised)]"
+      >
+        <Icon name="refresh" size={14} />
+        Tentar de novo
+      </button>
+    </div>
+  )
+}
+
+function HalfReadyBody({ info }: { info: BridgeHealth }) {
+  return (
+    <div className="p-4 flex flex-col gap-3">
+      <div className="flex items-start gap-2 p-3 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-200)] text-[var(--aw-amber-800)]">
+        <Icon name="warning" size={14} />
+        <div className="text-xs leading-relaxed">
+          Ponte ok, mas Claude indisponível.
+          <br />
+          <span className="opacity-80">{info.claude.reason}</span>
+        </div>
+      </div>
+      {info.claude.reason?.includes("PATH") && (
+        <>
+          <CommandBlock cmd="npm install -g @anthropic-ai/claude-code" />
+          <CommandBlock cmd="claude login" />
+        </>
+      )}
+    </div>
+  )
+}
+
+function parseSseStream(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  onEvent: (event: string, data: unknown) => void
+): Promise<void> {
+  const decoder = new TextDecoder()
+  let buffer = ""
+  return (async () => {
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+      let idx: number
+      while ((idx = buffer.indexOf("\n\n")) !== -1) {
+        const raw = buffer.slice(0, idx)
+        buffer = buffer.slice(idx + 2)
+        let ev = "message"
+        const lines = raw.split("\n")
+        const dataLines: string[] = []
+        for (const line of lines) {
+          if (line.startsWith("event:")) ev = line.slice(6).trim()
+          else if (line.startsWith("data:")) dataLines.push(line.slice(5).trim())
+        }
+        if (dataLines.length === 0) continue
+        let parsed: unknown = dataLines.join("\n")
+        try {
+          parsed = JSON.parse(dataLines.join("\n"))
+        } catch {
+          /* keep as string */
+        }
+        onEvent(ev, parsed)
+      }
+    }
+  })()
+}
+
+type ManifestResp = {
+  builder: { palette: unknown[] }
+  designSystem: {
+    tokens: unknown
+    componentsOutsidePalette: string[]
+  }
+}
+
+function ReadyBody({ info }: { info: BridgeHealth }) {
+  const project = useBuilder((s) => s.project)
+  const selectedFrameId = useBuilder((s) => s.selectedFrameId)
+  const applyGeneratedNodes = useBuilder((s) => s.applyGeneratedNodes)
+
+  const [messages, setMessages] = React.useState<ChatMessage[]>([])
+  const [input, setInput] = React.useState("")
+  const [sending, setSending] = React.useState(false)
+  const [manifest, setManifest] = React.useState<ManifestResp | null>(null)
+  const scrollRef = React.useRef<HTMLDivElement>(null)
+
+  React.useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const res = await fetch("/api/bombardier/components/manifest")
+        const data = (await res.json()) as ManifestResp
+        if (!cancelled) setManifest(data)
+      } catch {
+        /* manifest will be retried on send */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const el = scrollRef.current
+    if (el) el.scrollTop = el.scrollHeight
+  }, [messages])
+
+  const activeFrameId = selectedFrameId ?? project.pages[0]?.id ?? null
+  const activeFrame = project.pages.find((f) => f.id === activeFrameId)
+
+  const send = async () => {
+    const prompt = input.trim()
+    if (!prompt || sending) return
+
+    let currentManifest = manifest
+    if (!currentManifest) {
+      try {
+        const res = await fetch("/api/bombardier/components/manifest")
+        currentManifest = (await res.json()) as ManifestResp
+        setManifest(currentManifest)
+      } catch {
+        /* continue */
+      }
+    }
+
+    setSending(true)
+    setInput("")
+    const userId = `u_${Date.now()}`
+    const agentId = `a_${Date.now()}`
+    setMessages((m) => [
+      ...m,
+      { id: userId, role: "user", text: prompt, status: "done" },
+      { id: agentId, role: "agent", text: "", status: "streaming" },
+    ])
+
+    try {
+      const res = await fetch(`${BRIDGE_URL}/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt,
+          manifest: {
+            palette: currentManifest?.builder?.palette ?? [],
+            tokens: currentManifest?.designSystem?.tokens ?? {},
+            awOutsidePalette:
+              currentManifest?.designSystem?.componentsOutsidePalette ?? [],
+          },
+          currentTree: activeFrame?.rootNodes ?? [],
+        }),
+      })
+      if (!res.ok || !res.body) {
+        const errText = await res.text().catch(() => "erro desconhecido")
+        setMessages((m) =>
+          m.map((msg) =>
+            msg.id === agentId
+              ? { ...msg, status: "error", error: errText }
+              : msg
+          )
+        )
+        return
+      }
+      const reader = res.body.getReader()
+      await parseSseStream(reader, (event, data) => {
+        setMessages((m) =>
+          m.map((msg) => {
+            if (msg.id !== agentId) return msg
+            if (event === "chunk") {
+              const t =
+                data && typeof data === "object" && "text" in data
+                  ? String((data as { text: string }).text)
+                  : ""
+              return { ...msg, text: msg.text + t }
+            }
+            if (event === "assistant") {
+              const t =
+                data && typeof data === "object" && "text" in data
+                  ? String((data as { text: string }).text)
+                  : ""
+              return { ...msg, text: t }
+            }
+            if (event === "result") {
+              const d = data as {
+                text?: string
+                nodes?: unknown[] | null
+                durationMs?: number
+                costUsd?: number
+              }
+              return {
+                ...msg,
+                text: d.text ?? msg.text,
+                nodes: d.nodes ?? undefined,
+                status: "done",
+                durationMs: d.durationMs,
+                costUsd: d.costUsd,
+              }
+            }
+            if (event === "error") {
+              const message =
+                data && typeof data === "object" && "message" in data
+                  ? String((data as { message: string }).message)
+                  : "erro"
+              return { ...msg, status: "error", error: message }
+            }
+            if (event === "done") {
+              return msg.status === "streaming"
+                ? { ...msg, status: "done" }
+                : msg
+            }
+            return msg
+          })
+        )
+      })
+    } catch (err) {
+      const errText = err instanceof Error ? err.message : String(err)
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === agentId ? { ...msg, status: "error", error: errText } : msg
+        )
+      )
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const apply = (messageId: string) => {
+    const msg = messages.find((m) => m.id === messageId)
+    if (!msg?.nodes || !activeFrameId) return
+    const count = applyGeneratedNodes(activeFrameId, msg.nodes)
+    setMessages((ms) =>
+      ms.map((m) => (m.id === messageId ? { ...m, applied: true } : m))
+    )
+    if (count === 0) {
+      window.alert("Nenhum node válido pra aplicar.")
+    }
+  }
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0">
+      <div className="px-4 py-2.5 border-b border-[var(--border-subtle)] text-[11px] text-[var(--fg-tertiary)] flex items-center justify-between">
+        <span>
+          Claude{" "}
+          <span className="font-mono">{info.claude.version ?? "?"}</span>
+        </span>
+        <span>
+          Frame:{" "}
+          <strong className="text-[var(--fg-secondary)]">
+            {activeFrame?.name ?? "—"}
+          </strong>
+        </span>
+      </div>
+
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto p-4 flex flex-col gap-3"
+      >
+        {messages.length === 0 && (
+          <div className="flex-1 flex items-center justify-center text-xs text-[var(--fg-tertiary)] text-center max-w-[240px] mx-auto leading-relaxed">
+            Descreva o que você quer construir. A IA vai usar os componentes do
+            design system e aplicar no frame ativo.
+          </div>
+        )}
+        {messages.map((m) => (
+          <ChatItem key={m.id} msg={m} onApply={() => apply(m.id)} />
+        ))}
+      </div>
+
+      <form
+        className="p-3 border-t border-[var(--border-subtle)] flex items-end gap-2"
+        onSubmit={(e) => {
+          e.preventDefault()
+          send()
+        }}
+      >
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault()
+              send()
+            }
+          }}
+          placeholder={
+            activeFrame
+              ? "Descreva a página… (Enter envia, Shift+Enter quebra linha)"
+              : "Crie uma página antes para usar a IA."
+          }
+          rows={2}
+          disabled={sending || !activeFrame}
+          className="flex-1 min-h-[40px] max-h-[140px] px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-sm text-[var(--fg-primary)] resize-none focus:outline-none focus:border-[var(--accent-brand)] disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={sending || !input.trim() || !activeFrame}
+          aria-label="Enviar"
+          className="inline-flex items-center justify-center h-9 w-9 rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] disabled:opacity-40 hover:opacity-90"
+        >
+          <Icon name={sending ? "hourglass_empty" : "send"} size={16} />
+        </button>
+      </form>
+    </div>
+  )
+}
+
+function ChatItem({
+  msg,
+  onApply,
+}: {
+  msg: ChatMessage
+  onApply: () => void
+}) {
+  if (msg.role === "user") {
+    return (
+      <AwChatBubble variant="user">
+        <span className="whitespace-pre-wrap">{msg.text}</span>
+      </AwChatBubble>
+    )
+  }
+  const summary = msg.text
+    ? msg.text.replace(/```json[\s\S]*?```/g, "").trim()
+    : ""
+  return (
+    <div className="flex flex-col gap-1.5">
+      <AwChatBubble variant="agent" streaming={msg.status === "streaming"}>
+        {msg.status === "error" ? (
+          <span className="text-[var(--aw-red-600)] text-xs">
+            {msg.error || "Erro desconhecido"}
+          </span>
+        ) : (
+          <span className="whitespace-pre-wrap text-sm">
+            {summary || (msg.status === "streaming" ? "…" : "(vazio)")}
+          </span>
+        )}
+      </AwChatBubble>
+      {msg.status === "done" && Array.isArray(msg.nodes) && msg.nodes.length > 0 && (
+        <button
+          type="button"
+          onClick={onApply}
+          disabled={msg.applied}
+          className={[
+            "self-start inline-flex items-center gap-1.5 px-3 h-8 rounded-[var(--radius-sm)] text-xs font-medium transition-colors",
+            msg.applied
+              ? "bg-[var(--bg-muted)] text-[var(--fg-tertiary)] cursor-default"
+              : "bg-[var(--accent-brand)] text-[var(--fg-on-inverse)] hover:bg-[var(--accent-brand-hover)]",
+          ].join(" ")}
+        >
+          <Icon
+            name={msg.applied ? "check" : "auto_awesome"}
+            size={12}
+          />
+          {msg.applied
+            ? "Aplicado"
+            : `Aplicar ${msg.nodes.length} no canvas`}
+        </button>
+      )}
+      {msg.status === "done" &&
+        Array.isArray(msg.nodes) === false &&
+        msg.text && (
+          <span className="text-[11px] text-[var(--fg-tertiary)] px-1">
+            (sem JSON válido na resposta)
+          </span>
+        )}
+      {msg.status === "done" && (msg.costUsd !== undefined || msg.durationMs !== undefined) && (
+        <span className="text-[11px] text-[var(--fg-tertiary)] px-1 font-mono">
+          {msg.durationMs !== undefined && `${(msg.durationMs / 1000).toFixed(1)}s`}
+          {msg.durationMs !== undefined && msg.costUsd !== undefined && " · "}
+          {msg.costUsd !== undefined && `$${msg.costUsd.toFixed(4)}`}
+        </span>
+      )}
+    </div>
+  )
+}
 
 export default function AIChat() {
+  const { state, retry } = useBridgeStatus()
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-2">
           <h3 className="aw-eyebrow">AI Copilot</h3>
-          <AwPill variant="ai">Claude · em breve</AwPill>
+          <StatusPill state={state} />
         </div>
         <p className="text-xs text-[var(--fg-tertiary)] leading-relaxed">
-          Descreva uma página ou cole uma imagem — a IA vai gerar usando os
-          componentes do design system.
+          Descreva o que quer construir. A IA usa os componentes do DS via ponte
+          local — sua conta Claude, seu consumo.
         </p>
       </div>
 
-      <div className="flex-1 p-6 flex items-center justify-center">
-        <div className="text-center text-xs text-[var(--fg-tertiary)] max-w-[220px] flex flex-col items-center gap-3">
-          <span
-            className="inline-flex items-center justify-center rounded-[var(--radius-lg)] bg-[var(--bg-canvas)] border border-[var(--border-subtle)]"
-            style={{ width: 48, height: 48 }}
-          >
-            <Icon name="auto_awesome" size={22} />
+      {state.kind === "checking" && (
+        <div className="flex-1 flex items-center justify-center text-xs text-[var(--fg-tertiary)]">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-[var(--fg-tertiary)] animate-pulse" />
+            Procurando ponte em localhost:9876…
           </span>
-          <p className="leading-relaxed">
-            Integração com Claude chega na <strong>Fase 4</strong>. Por
-            enquanto, use a paleta à direita.
-          </p>
         </div>
-      </div>
-
-      <form
-        className="p-3 border-t border-[var(--border-subtle)] flex gap-2"
-        onSubmit={(e) => e.preventDefault()}
-      >
-        <div className="flex-1 flex items-center gap-2 px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-sm text-[var(--fg-tertiary)]">
-          <Icon name="auto_awesome" size={14} />
-          <span className="opacity-60">Prompt…</span>
+      )}
+      {state.kind === "offline" && (
+        <div className="flex-1 overflow-y-auto">
+          <OfflineBody onRetry={retry} />
         </div>
-        <button
-          type="submit"
-          disabled
-          aria-label="Enviar"
-          className="inline-flex items-center justify-center h-9 w-9 rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] opacity-40 cursor-not-allowed"
-        >
-          <Icon name="send" size={16} />
-        </button>
-      </form>
+      )}
+      {state.kind === "half" && (
+        <div className="flex-1 overflow-y-auto">
+          <HalfReadyBody info={state.info} />
+        </div>
+      )}
+      {state.kind === "ready" && <ReadyBody info={state.info} />}
     </div>
   )
 }

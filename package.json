@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "bridge": "npm --prefix bridge start",
+    "bridge:dev": "npm --prefix bridge run dev",
+    "bridge:install": "npm --prefix bridge install"
   },
   "keywords": [],
   "author": "",

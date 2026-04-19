@@ -169,6 +169,7 @@ export type BuilderState = {
     targetFrameId: string,
     targetParentId: string | "root"
   ) => void
+  applyGeneratedNodes: (frameId: string, generated: unknown[]) => number
   // frame ops
   addFrame: (preset?: FramePreset) => void
   updateFrame: (
@@ -275,6 +276,50 @@ export const useBuilder = create<BuilderState>()(
             selectedNodeId: nodeId,
           }
         }),
+      applyGeneratedNodes: (frameId, generated) => {
+        let count = 0
+        const assignIds = (nodes: unknown[]): BuilderNode[] => {
+          const out: BuilderNode[] = []
+          for (const raw of nodes) {
+            if (!raw || typeof raw !== "object") continue
+            const r = raw as {
+              type?: unknown
+              props?: unknown
+              children?: unknown
+            }
+            if (typeof r.type !== "string") continue
+            const props =
+              r.props && typeof r.props === "object"
+                ? { ...(r.props as Record<string, unknown>) }
+                : {}
+            const children = Array.isArray(r.children)
+              ? assignIds(r.children)
+              : undefined
+            out.push({
+              id: nid("n"),
+              type: r.type,
+              props,
+              children,
+            })
+            count++
+          }
+          return out
+        }
+        const newNodes = assignIds(generated)
+        if (newNodes.length === 0) return 0
+        set((state) => ({
+          project: {
+            ...state.project,
+            pages: mapFrame(state.project.pages, frameId, (f) => ({
+              ...f,
+              rootNodes: [...f.rootNodes, ...newNodes],
+              updatedAt: new Date().toISOString(),
+            })),
+          },
+          selectedFrameId: frameId,
+        }))
+        return count
+      },
       addFrame: (preset = "desktop") =>
         set((state) => {
           const dims = FRAME_PRESETS[preset]
