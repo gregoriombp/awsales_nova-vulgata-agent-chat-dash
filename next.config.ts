@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
   },
+  async rewrites() {
+    return [
+      { source: '/design', destination: '/design.html' },
+    ];
+  },
 };
 
 export default nextConfig;
