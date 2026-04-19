@@ -10,6 +10,9 @@
 /coverage
 /.playwright-cli
 
+# local claude code settings
+.claude/settings.local.json
+
 # next.js
 /.next/
 /out/
