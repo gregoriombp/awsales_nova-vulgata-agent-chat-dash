@@ -219,12 +219,17 @@
   --dur-base: 180ms;
   --dur-slow: 280ms;
 
-  /* Type families — single voice */
-  --font-sans: 'Mona Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: var(--font-sans);
-  --font-heading: var(--font-sans);
+  /* Type families — split voice.
+   *  · Haas Neue Grotesk (commercial, self-hosted) → display + headings.
+   *    Falls back to Inter if the woff2 files aren't present.
+   *  · Inter → body + UI text.
+   *  · Geist Mono → code only. Never used for timestamps, IDs, metadata
+   *    or any product data that's not literal source code. */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: var(--font-sans);
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-heading: 'Neue Haas Grotesk Display Pro', 'Neue Haas Grotesk', 'Haas Grot Disp', var(--font-sans);
+  --font-display: var(--font-heading);
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Type scale */
   --display-xl-size: 96px;
@@ -1374,7 +1379,7 @@
 }
 .aw-progress-row__top b {
   color: var(--fg-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
 }
@@ -1432,8 +1437,8 @@
 }
 .aw-nav-list__count {
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
   color: var(--fg-tertiary);
 }
 
@@ -1468,15 +1473,17 @@
 }
 .aw-table td.aw-table__mono,
 .aw-table th.aw-table__mono {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
   color: var(--fg-secondary);
 }
 .aw-table td.aw-table__num,
 .aw-table th.aw-table__num {
   text-align: right;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
 }
 .aw-table td.aw-table__name {
   font-family: var(--font-heading);
@@ -1566,7 +1573,8 @@
 }
 .aw-slider__top b {
   color: var(--fg-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   font-size: 13px;
   font-weight: 500;
 }
@@ -1660,11 +1668,12 @@
   background: var(--bg-raised);
 }
 .aw-sg-sidebar__subtitle {
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 11px;
+  font-weight: 500;
   color: var(--fg-tertiary);
   letter-spacing: 0.02em;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .aw-theme-toggle {
@@ -1854,8 +1863,9 @@
 }
 .aw-toast__close {
   color: var(--fg-tertiary);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
   background: none;
   border: 0;
@@ -1915,9 +1925,9 @@
   margin: 0;
 }
 .aw-sheet__meta {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg-tertiary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   margin-top: 2px;
 }
 .aw-sheet__close {
