@@ -1415,9 +1415,15 @@
   border-radius: var(--radius-xl);
   padding: 10px 8px;
   box-sizing: border-box;
+  transition:
+    width var(--dur-slow) var(--ease-out),
+    padding var(--dur-slow) var(--ease-out);
 }
 .aw-nav-rail--collapsed { width: 64px; }
 .aw-nav-rail--expanded  { width: 260px; padding: 12px; }
+@media (prefers-reduced-motion: reduce) {
+  .aw-nav-rail { transition: none; }
+}
 .aw-nav-rail--dark {
   background: var(--dark-bg);
   border-color: var(--dark-border);
