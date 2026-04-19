@@ -332,7 +332,6 @@ function Section({
   return (
     <section id={id} className="scroll-mt-16">
       <div className="mb-6">
-        <div className="overline mb-2">{id}</div>
         <h2 className="text-[var(--h2-size)] font-medium tracking-[-0.015em]">
           {title}
         </h2>
@@ -423,7 +422,6 @@ export default function StyleguidePage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
       <header className="mb-14">
-        <div className="overline mb-3">foundation</div>
         <h1 className="display-md font-medium tracking-[-0.02em]">
           Design tokens
         </h1>
@@ -480,7 +478,7 @@ export default function StyleguidePage() {
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-10">
             <div>
-              <div className="overline mb-4">display · Mona Sans Medium</div>
+              <div className="aw-eyebrow mb-4">display · Mona Sans Medium</div>
               <div className="flex flex-col gap-4">
                 {displayScale.map((d) => (
                   <div
@@ -499,7 +497,7 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="overline mb-4">headings · Mona Sans Medium</div>
+              <div className="aw-eyebrow mb-4">headings · Mona Sans Medium</div>
               <div className="flex flex-col gap-3">
                 {headingScale.map(({ Tag, label, size }) => (
                   <div
@@ -520,7 +518,7 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="overline mb-4">body · Mona Sans Regular</div>
+              <div className="aw-eyebrow mb-4">body · Mona Sans Regular</div>
               <div className="flex flex-col gap-3">
                 {bodyScale.map((b) => (
                   <div
@@ -545,7 +543,7 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="overline mb-4">
+              <div className="aw-eyebrow mb-4">
                 mono · JetBrains Mono — code, tokens, IDs
               </div>
               <div className="flex flex-col gap-2">
@@ -559,10 +557,10 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="overline mb-4">utility classes</div>
+              <div className="aw-eyebrow mb-4">utility classes</div>
               <div className="flex flex-col gap-3">
                 <div className="caption">caption — 12px · fg-tertiary</div>
-                <div className="overline">overline — uppercase, tracked</div>
+                <div className="aw-eyebrow">overline — uppercase, tracked</div>
               </div>
             </div>
           </div>
@@ -709,7 +707,7 @@ export default function StyleguidePage() {
               border: "1px solid var(--dark-border)",
             }}
           >
-            <div className="overline" style={{ color: "var(--dark-fg-tertiary)" }}>
+            <div className="aw-eyebrow" style={{ color: "var(--dark-fg-tertiary)" }}>
               dark shell · --dark-*
             </div>
             <div className="flex flex-col gap-2 text-sm">
@@ -753,7 +751,7 @@ export default function StyleguidePage() {
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">button</div>
+              <div className="aw-eyebrow mb-4">button</div>
               <div className="flex flex-col gap-3">
                 <div className="flex gap-2">
                   <Button variant="primary" className="w-auto">
@@ -784,7 +782,7 @@ export default function StyleguidePage() {
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">card</div>
+              <div className="aw-eyebrow mb-4">card</div>
               <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5">
                 <h4 className="m-0 mb-2">Agentes ativos</h4>
                 <p className="body-sm m-0">
@@ -805,7 +803,7 @@ export default function StyleguidePage() {
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">pills · tags</div>
+              <div className="aw-eyebrow mb-4">pills · tags</div>
               <div className="flex flex-wrap gap-2">
                 <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--bg-surface)] text-[var(--fg-secondary)] border border-[var(--border-subtle)]">
                   neutral
@@ -826,7 +824,7 @@ export default function StyleguidePage() {
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">input</div>
+              <div className="aw-eyebrow mb-4">input</div>
               <div className="flex flex-col gap-3">
                 <input
                   type="text"
@@ -843,7 +841,7 @@ export default function StyleguidePage() {
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">alert</div>
+              <div className="aw-eyebrow mb-4">alert</div>
               <div className="flex flex-col gap-2">
                 <div className="rounded-[var(--radius-md)] border border-[var(--aw-emerald-200)] bg-[var(--aw-emerald-100)] px-4 py-3 text-sm text-[var(--aw-emerald-900)]">
                   Agente aprovado. Pronto para deploy.
@@ -861,7 +859,7 @@ export default function StyleguidePage() {
             </div>
 
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-              <div className="overline mb-4">radio group</div>
+              <div className="aw-eyebrow mb-4">radio group</div>
               <div className="flex flex-col gap-2">
                 {[
                   { id: "r1", label: "Atendimento", checked: true },

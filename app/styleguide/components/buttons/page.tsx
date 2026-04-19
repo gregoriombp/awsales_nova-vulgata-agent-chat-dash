@@ -22,7 +22,6 @@ function Section({
   return (
     <section id={id} className="scroll-mt-16">
       <div className="mb-6">
-        <div className="overline mb-2">{id}</div>
         <h2 className="m-0">{title}</h2>
         {lead && (
           <p className="text-[var(--body-md-size)] text-[var(--fg-secondary)] mt-2 max-w-2xl">
@@ -103,7 +102,7 @@ function PropRow({
 function Spec({ k, v, d }: { k: string; v: string; d?: string }) {
   return (
     <div>
-      <div className="overline mb-1">{k}</div>
+      <div className="aw-eyebrow mb-1">{k}</div>
       <div className="mono text-sm text-[var(--fg-primary)]">{v}</div>
       {d && <div className="caption mt-1">{d}</div>}
     </div>
@@ -114,7 +113,6 @@ export default function ButtonsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
       <header className="mb-14">
-        <div className="overline mb-3">components</div>
         <h1 className="m-0">Botões</h1>
         <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
           Cinco variantes. <strong>Primary</strong> é alto contraste — a ação
@@ -155,7 +153,6 @@ export default function ButtonsPage() {
                 <AwButton variant="primary" size="sm" iconLeft="add">
                   Criar
                 </AwButton>
-                <span className="overline">primary</span>
               </div>
               <p className="body-sm m-0">
                 Ação principal da tela. Use uma única primária por superfície.
@@ -168,7 +165,6 @@ export default function ButtonsPage() {
                 <AwButton variant="secondary" size="sm">
                   Duplicar
                 </AwButton>
-                <span className="overline">secondary</span>
               </div>
               <p className="body-sm m-0">
                 Ações complementares. Contorno 1px{" "}
@@ -181,7 +177,6 @@ export default function ButtonsPage() {
                 <AwButton variant="ghost" size="sm">
                   Cancelar
                 </AwButton>
-                <span className="overline">ghost</span>
               </div>
               <p className="body-sm m-0">
                 Ação de baixa ênfase (cancelar, voltar). Sem borda. Hover
@@ -193,7 +188,6 @@ export default function ButtonsPage() {
                 <AwButton variant="danger" size="sm" iconLeft="error">
                   Arquivar
                 </AwButton>
-                <span className="overline">danger</span>
               </div>
               <p className="body-sm m-0">
                 Ações destrutivas (excluir, arquivar, revogar). Vermelho{" "}
@@ -206,7 +200,6 @@ export default function ButtonsPage() {
                 <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
                   Gerar sugestão
                 </AwButton>
-                <span className="overline">ai</span>
               </div>
               <p className="body-sm m-0">
                 Reservada para ações que invocam o agente (gerar, sugerir,
@@ -304,14 +297,14 @@ export default function ButtonsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="overline mb-2">hover</div>
+              <div className="aw-eyebrow mb-2">hover</div>
               <p className="body-sm m-0">
                 <code className="mono">transform: translateY(-1px)</code> +
                 escurece um passo na escala da variante. Sem scale, sem bounce.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="overline mb-2">focus-visible</div>
+              <div className="aw-eyebrow mb-2">focus-visible</div>
               <p className="body-sm m-0">
                 <code className="mono">
                   box-shadow: 0 0 0 3px rgba(71,138,255,0.30)
@@ -320,14 +313,14 @@ export default function ButtonsPage() {
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="overline mb-2">loading</div>
+              <div className="aw-eyebrow mb-2">loading</div>
               <p className="body-sm m-0">
                 Spinner 14px circular à direita do label. O label fica em 60%
                 opacity. Botão fica não-interativo (aria-busy).
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="overline mb-2">disabled</div>
+              <div className="aw-eyebrow mb-2">disabled</div>
               <p className="body-sm m-0">
                 <code className="mono">opacity: 0.5</code>,{" "}
                 <code className="mono">pointer-events: none</code>. Nenhum
@@ -444,10 +437,10 @@ export default function ButtonsPage() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-[var(--border-subtle)]">
-                  <th className="pb-2 overline">prop</th>
-                  <th className="pb-2 overline">type</th>
-                  <th className="pb-2 overline">default</th>
-                  <th className="pb-2 overline">doc</th>
+                  <th className="pb-2 aw-eyebrow">prop</th>
+                  <th className="pb-2 aw-eyebrow">type</th>
+                  <th className="pb-2 aw-eyebrow">default</th>
+                  <th className="pb-2 aw-eyebrow">doc</th>
                 </tr>
               </thead>
               <tbody>
@@ -506,7 +499,7 @@ export default function ButtonsPage() {
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 mt-4">
-            <div className="overline mb-2">exemplo</div>
+            <div className="aw-eyebrow mb-2">exemplo</div>
             <pre className="mono text-sm text-[var(--fg-primary)] m-0 whitespace-pre-wrap">{`import { AwButton } from "@/components/ui/AwButton"
 
 <AwButton variant="primary" iconLeft="add">
@@ -529,7 +522,7 @@ export default function ButtonsPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--aw-emerald-300)] bg-[var(--aw-emerald-100)] p-5">
-              <div className="overline mb-2 text-[var(--aw-emerald-800)]">
+              <div className="aw-eyebrow mb-2 text-[var(--aw-emerald-800)]">
                 do
               </div>
               <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-emerald-900)]">
@@ -545,7 +538,7 @@ export default function ButtonsPage() {
               </ul>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--aw-red-300)] bg-[var(--aw-red-100)] p-5">
-              <div className="overline mb-2 text-[var(--aw-red-800)]">
+              <div className="aw-eyebrow mb-2 text-[var(--aw-red-800)]">
                 don&apos;t
               </div>
               <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-red-900)]">

@@ -35,7 +35,7 @@ export default function StyleguideLayout({
         <nav className="flex flex-col gap-6">
           {navigation.map((section) => (
             <div key={section.title}>
-              <h3 className="overline mb-3">{section.title}</h3>
+              <h3 className="aw-eyebrow mb-3">{section.title}</h3>
               <ul className="flex flex-col gap-1">
                 {section.items.length === 0 && (
                   <li className="text-xs text-[var(--fg-tertiary)] italic px-3 py-2">

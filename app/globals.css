@@ -324,13 +324,18 @@
   .display-md { font-size: var(--display-md-size); }
   .display-sm { font-size: var(--display-sm-size); }
 
-  .overline {
+  /* Eyebrow — the small uppercase tracked label used above titles, inside
+   * card metadata, on spec rows, etc. Named `.aw-eyebrow` on purpose:
+   * Tailwind ships a `.overline` utility (text-decoration: overline) that
+   * would otherwise add a stroke above the text. */
+  .aw-eyebrow {
     font-family: var(--font-body);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--fg-tertiary);
+    text-decoration: none;
   }
   .caption {
     font-family: var(--font-body);
