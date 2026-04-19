@@ -35,7 +35,7 @@ const sections: HubSection[] = [
       "Editor drag-and-drop com chat de IA lateral para gerar layouts.",
     icon: "draw",
     href: "/bombardier/page-builder",
-    status: "soon",
+    status: "ready",
   },
   {
     title: "UX Flow",
