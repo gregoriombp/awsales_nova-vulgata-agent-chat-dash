@@ -1777,3 +1777,281 @@
   border: 1px solid var(--border-subtle);
   color: var(--fg-primary);
 }
+
+/* ============================================================
+ * AwModal size variants — cockpit extends width for configuration
+ * screens (settings inspector, multi-panel dialogs).
+ * ============================================================ */
+.aw-modal--md     { max-width: 520px; }
+.aw-modal--cockpit {
+  max-width: 760px;
+  border-radius: 18px;
+  padding: 0;
+  overflow: hidden;
+}
+.aw-modal--cockpit .aw-modal__head {
+  padding: 22px 28px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-modal--cockpit .aw-modal__body {
+  padding: 20px 28px;
+}
+.aw-modal--cockpit .aw-modal__foot {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+/* ============================================================
+ * AwToast — transient feedback, bottom-right stack.
+ * ============================================================ */
+.aw-toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+  pointer-events: none;
+}
+.aw-toast-stack > * { pointer-events: auto; }
+
+.aw-toast {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  box-shadow: var(--shadow-lg);
+  animation: aw-toast-in 220ms var(--ease-out);
+  color: var(--fg-primary);
+}
+@keyframes aw-toast-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+.aw-toast--leaving { animation: aw-toast-out 160ms var(--ease-in-out) forwards; }
+@keyframes aw-toast-out {
+  to { opacity: 0; transform: translateY(8px); }
+}
+.aw-toast__icon { line-height: 0; flex: 0 0 auto; color: var(--aw-emerald-600); }
+.aw-toast__body { flex: 1; min-width: 0; }
+.aw-toast__title {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  margin: 0 0 2px 0;
+}
+.aw-toast__desc {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+  line-height: 1.45;
+  margin: 0;
+}
+.aw-toast__desc a,
+.aw-toast__action {
+  color: var(--aw-blue-600);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  cursor: pointer;
+  background: none;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  padding: 0;
+  font: inherit;
+}
+.aw-toast__close {
+  color: var(--fg-tertiary);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 2px 4px;
+  line-height: 1;
+  border-radius: var(--radius-xs);
+}
+.aw-toast__close:hover { color: var(--fg-primary); background: var(--bg-surface); }
+
+.aw-toast--ai    .aw-toast__icon { color: var(--aw-blue-600); }
+.aw-toast--ai    .aw-toast__desc a { color: var(--aw-blue-600); }
+.aw-toast--error .aw-toast__icon { color: var(--aw-red-600); }
+.aw-toast--error .aw-toast__desc a { color: var(--aw-red-600); }
+.aw-toast--warning .aw-toast__icon { color: var(--aw-amber-500); }
+.aw-toast--warning .aw-toast__desc a { color: var(--aw-amber-600); }
+
+/* ============================================================
+ * AwSheet — right-side drawer. Scrim reuses .aw-modal-scrim.
+ * ============================================================ */
+.aw-sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.40);
+  display: flex;
+  justify-content: flex-end;
+  animation: aw-scrim-in 180ms var(--ease-out);
+}
+.aw-sheet {
+  width: 520px;
+  max-width: 100%;
+  height: 100%;
+  background: var(--bg-raised);
+  border-left: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-overlay);
+  display: flex;
+  flex-direction: column;
+  animation: aw-sheet-in 220ms var(--ease-out);
+  overflow: hidden;
+}
+@keyframes aw-sheet-in {
+  from { transform: translateX(100%); }
+  to   { transform: none; }
+}
+.aw-sheet__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-sheet__title {
+  font-family: var(--font-heading);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  margin: 0;
+}
+.aw-sheet__meta {
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+.aw-sheet__close {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+}
+.aw-sheet__close:hover { background: var(--bg-surface); color: var(--fg-primary); }
+
+.aw-sheet__tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-sheet__tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 10px 14px;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  font: 500 12px var(--font-body);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.aw-sheet__tab:hover { color: var(--fg-primary); }
+.aw-sheet__tab--active {
+  color: var(--fg-primary);
+  border-bottom-color: var(--fg-primary);
+}
+
+.aw-sheet__body {
+  padding: 22px 20px;
+  flex: 1;
+  overflow: auto;
+}
+.aw-sheet__row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border-subtle);
+  font-size: 12.5px;
+}
+.aw-sheet__row:last-child { border-bottom: 0; }
+.aw-sheet__row-k { color: var(--fg-tertiary); }
+.aw-sheet__row-v { color: var(--fg-primary); }
+.aw-sheet__row-v.mono { font-family: var(--font-mono); font-size: 12px; }
+
+.aw-sheet__foot {
+  border-top: 1px solid var(--border-subtle);
+  padding: 14px 20px;
+  background: var(--bg-surface);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ============================================================
+ * AwSkeleton — shape-mimicking loading placeholder, 1.6s shimmer.
+ * ============================================================ */
+.aw-skel {
+  position: relative;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: block;
+  height: 52px;
+  width: 100%;
+}
+.aw-skel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+  animation: aw-skel-shimmer 1.6s linear infinite;
+}
+.dark .aw-skel::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+}
+@keyframes aw-skel-shimmer {
+  0%   { background-position: -100% 0; }
+  100% { background-position: 200% 0; }
+}
+.aw-skel--line   { height: 12px; border-radius: var(--radius-xs); border: 0; }
+.aw-skel--title  { height: 22px; border-radius: var(--radius-xs); border: 0; }
+.aw-skel--avatar { height: 36px; width: 36px; border-radius: 50%; border: 0; }
+.aw-skel--card   { height: 140px; border-radius: var(--radius-lg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-skel::after { animation: none; }
+  .aw-toast { animation: none; }
+  .aw-sheet { animation: none; }
+}
