@@ -33,29 +33,55 @@ export default function ModalsPage() {
         <Section
           id="patterns"
           title="Padrões"
-          lead="Três tipos que cobrem 95% dos usos no produto."
+          lead="Quatro tipos cobrem 99% dos usos no produto."
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <h5 className="m-0 mb-1">Confirmação de ação</h5>
+              <h5 className="m-0 mb-1">Confirmação</h5>
               <p className="body-sm m-0">
                 Copy curto, footer com <em>Cancelar</em> (ghost) e ação
                 principal (primary).
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <h5 className="m-0 mb-1">Formulário inline</h5>
+              <h5 className="m-0 mb-1">Formulário</h5>
               <p className="body-sm m-0">
-                2–4 campos no máximo. Mais que isso vira página — não modal.
+                2–4 campos no máximo. Mais que isso vira página ou cockpit.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <h5 className="m-0 mb-1">Ação destrutiva</h5>
+              <h5 className="m-0 mb-1">Destrutivo</h5>
               <p className="body-sm m-0">
                 Ação principal vira <em>danger</em>. Nunca auto-fechar no
                 sucesso — user precisa ver o efeito.
               </p>
             </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <h5 className="m-0 mb-1">Cockpit (760 px)</h5>
+              <p className="body-sm m-0">
+                Configurações complexas com sidebar interna. Reservado a
+                telas densas que não cabem em página.
+              </p>
+            </div>
+          </div>
+        </Section>
+
+        <Section
+          id="sizes"
+          title="Tamanhos"
+          lead="Duas larguras. md é o default; cockpit é a extensão para painéis com sub-navegação interna."
+        >
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Spec
+              k='size="md"'
+              v="520 px · radius-xl"
+              d="Default. Confirmação, formulário curto, ação destrutiva."
+            />
+            <Spec
+              k='size="cockpit"'
+              v="760 px · radius 18 px"
+              d="Header + body + footer em bandas. Sidebar interna opcional."
+            />
           </div>
         </Section>
 

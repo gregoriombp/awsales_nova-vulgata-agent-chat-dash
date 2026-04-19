@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Icon } from "./Icon"
 
+export type AwModalSize = "md" | "cockpit"
+
 export type AwModalProps = {
   open: boolean
   onClose: () => void
@@ -10,6 +12,7 @@ export type AwModalProps = {
   children: React.ReactNode
   footer?: React.ReactNode
   dismissible?: boolean
+  size?: AwModalSize
 }
 
 export function AwModal({
@@ -19,6 +22,7 @@ export function AwModal({
   children,
   footer,
   dismissible = true,
+  size = "md",
 }: AwModalProps) {
   React.useEffect(() => {
     if (!open) return
@@ -43,7 +47,10 @@ export function AwModal({
       role="dialog"
       aria-modal="true"
     >
-      <div className="aw-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className={`aw-modal aw-modal--${size}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {title && (
           <header className="aw-modal__head">
             <h2 className="aw-modal__title">{title}</h2>

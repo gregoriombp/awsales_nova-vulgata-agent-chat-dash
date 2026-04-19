@@ -5,7 +5,7 @@ import { AwModal } from "@/components/ui/AwModal"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwField, AwInput } from "@/components/ui/AwInput"
 
-type DemoKey = "simple" | "form" | "danger" | "dismissible"
+type DemoKey = "simple" | "form" | "danger" | "dismissible" | "cockpit"
 
 export function ModalDemo() {
   const [openKey, setOpenKey] = React.useState<DemoKey | null>(null)
@@ -32,6 +32,13 @@ export function ModalDemo() {
       </AwButton>
       <AwButton variant="ghost" onClick={() => setOpenKey("dismissible")}>
         Não-dismissible
+      </AwButton>
+      <AwButton
+        variant="secondary"
+        iconLeft="settings"
+        onClick={() => setOpenKey("cockpit")}
+      >
+        Cockpit (760px)
       </AwButton>
 
       <AwModal
@@ -119,6 +126,61 @@ export function ModalDemo() {
       >
         Esse modal só fecha pelo botão (ou Esc). Use para decisões críticas
         onde o clique acidental no backdrop causaria perda de contexto.
+      </AwModal>
+
+      <AwModal
+        open={openKey === "cockpit"}
+        onClose={close}
+        size="cockpit"
+        title="Configurações · atendimento-faq"
+        footer={
+          <>
+            <AwButton variant="ghost" onClick={close}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="primary" onClick={close}>
+              Salvar e publicar
+            </AwButton>
+          </>
+        }
+      >
+        <div className="grid grid-cols-[200px_1fr] gap-6">
+          <nav className="flex flex-col gap-1 text-sm">
+            {["Geral", "Fontes", "Tools", "Webhooks", "Rastro", "Segurança"].map(
+              (item, i) => (
+                <button
+                  key={item}
+                  type="button"
+                  className={`text-left px-3 py-2 rounded-[var(--radius-sm)] ${
+                    i === 0
+                      ? "bg-[var(--bg-surface)] text-[var(--fg-primary)] font-medium"
+                      : "text-[var(--fg-secondary)] hover:bg-[var(--bg-surface)]"
+                  }`}
+                >
+                  {item}
+                </button>
+              )
+            )}
+          </nav>
+          <div className="flex flex-col gap-4">
+            <AwField label="Nome do agente" htmlFor="c-name">
+              <AwInput id="c-name" defaultValue="atendimento-faq" />
+            </AwField>
+            <AwField
+              label="Descrição"
+              htmlFor="c-desc"
+              helper="Exibida na listagem e no handoff."
+            >
+              <AwInput
+                id="c-desc"
+                defaultValue="Suporte N1 para dúvidas recorrentes."
+              />
+            </AwField>
+            <AwField label="Modelo" htmlFor="c-model">
+              <AwInput id="c-model" defaultValue="gpt-4.1-mini" />
+            </AwField>
+          </div>
+        </div>
       </AwModal>
     </div>
   )
