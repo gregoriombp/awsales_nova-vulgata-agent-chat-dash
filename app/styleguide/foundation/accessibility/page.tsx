@@ -1,4 +1,5 @@
 import {
+  PageHero,
   Section,
   Spec,
   CodeExample,
@@ -51,15 +52,12 @@ function Contrast({
 export default function AccessibilityPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Acessibilidade</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Alvos objetivos. Toda interface nova tem que{" "}
+      <PageHero title="Acessibilidade">
+        Alvos objetivos. Toda interface nova tem que{" "}
           <strong>passar no WCAG 2.2 AA</strong> no mínimo — contraste, hit
           target, foco visível e navegação por teclado. Acessibilidade não é
           camada extra, é default.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section
@@ -185,7 +183,7 @@ export default function AccessibilityPage() {
             </div>
           </div>
 
-          <CodeExample label="padrão de focus ring">{`/* Mesmo padrão em todos os controles */
+          <CodeExample label="padrão de focus ring" lang="css">{`/* Mesmo padrão em todos os controles */
 :focus-visible {
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
@@ -260,7 +258,7 @@ export default function AccessibilityPage() {
                 loop (shimmer, thinking pulse, gradient mesh) deve zerar
                 animation dentro do media query.
               </p>
-              <CodeExample label="media query">{`@media (prefers-reduced-motion: reduce) {
+              <CodeExample label="media query" lang="css">{`@media (prefers-reduced-motion: reduce) {
   .aw-pill--ai .aw-pill__dot,
   .aw-chat__dots i,
   .login-bg-animate {

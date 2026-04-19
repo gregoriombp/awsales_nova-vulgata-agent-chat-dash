@@ -3,6 +3,7 @@ import { AwBreadcrumb } from "@/components/ui/AwBreadcrumb"
 import { AwSelect } from "@/components/ui/AwSelect"
 import { AwProgress } from "@/components/ui/AwProgress"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -14,15 +15,12 @@ import {
 export default function ChromePage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Chrome</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Pequenos componentes que aparecem em quase toda tela —{" "}
+      <PageHero title="Chrome">
+        Pequenos componentes que aparecem em quase toda tela —{" "}
           <strong>Avatar</strong>, <strong>Breadcrumb</strong>,{" "}
           <strong>Select</strong> e <strong>Progress</strong>. Individualmente
           modestos, coletivamente definem a textura do produto.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         {/* ───────── Avatar ───────── */}

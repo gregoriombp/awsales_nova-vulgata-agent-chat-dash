@@ -1,6 +1,7 @@
 import { AwTable } from "@/components/ui/AwTable"
 import { AwPill } from "@/components/ui/AwPill"
 import {
+  PageHero,
   Section,
   Spec,
   PropRow,
@@ -12,14 +13,11 @@ import {
 export default function TablePage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Tabela</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Lista densa de entidades. Bordas sutis, hover discreto,{" "}
+      <PageHero title="Tabela">
+        Lista densa de entidades. Bordas sutis, hover discreto,{" "}
           <strong>zero zebra</strong>. Dados numéricos e técnicos em mono,
           alinhados à direita.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

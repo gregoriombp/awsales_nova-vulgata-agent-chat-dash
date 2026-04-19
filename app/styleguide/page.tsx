@@ -1,4 +1,5 @@
 import Button from "@/components/Button"
+import { PageHero } from "./_primitives"
 
 type Swatch = {
   name: string
@@ -421,17 +422,12 @@ function SemanticCard({
 export default function StyleguidePage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="display-md font-medium tracking-[-0.02em]">
-          Design tokens
-        </h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Geometric minimalism grounded in grayscale, punctuated by a single
+      <PageHero title="Design tokens">
+        Geometric minimalism grounded in grayscale, punctuated by a single
           blue-origin “thinking” accent. Gray is structure; the AI gradient is
           subjectivity. Every token below lives in{" "}
           <code className="mono">app/globals.css</code>.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-20">
         <Section

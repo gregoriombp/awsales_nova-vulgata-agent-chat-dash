@@ -1,5 +1,6 @@
 import { AwChatBubble } from "@/components/ui/AwChatBubble"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -12,15 +13,12 @@ import {
 export default function ChatPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Chat bubbles</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Bolhas de conversa do agente e do usuário. A bolha do usuário é
+      <PageHero title="Chat bubbles">
+        Bolhas de conversa do agente e do usuário. A bolha do usuário é
           preta cheia (<code className="mono">--fg-primary</code>), a do
           agente usa a superfície sutil. Streaming exibe três pontos pulsando
           a 1.2s.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

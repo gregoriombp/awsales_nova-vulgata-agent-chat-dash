@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import {
+  PageHero,
   Section,
   Spec,
   CodeExample,
@@ -54,15 +55,12 @@ export default function LogosPage() {
 
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Logos</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          A identidade é reduzida a uma forma primitiva: um{" "}
+      <PageHero title="Logos">
+        A identidade é reduzida a uma forma primitiva: um{" "}
           <strong>A triangular</strong>, sólido, sem floreio. O{" "}
           <strong>mark</strong> é a forma autônoma; o <strong>wordmark</strong>{" "}
           acompanha em cabeçalhos, documentos e assinatura.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

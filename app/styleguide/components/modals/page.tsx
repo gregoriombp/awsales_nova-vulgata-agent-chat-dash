@@ -1,4 +1,5 @@
 import {
+  PageHero,
   Section,
   Spec,
   PropRow,
@@ -11,15 +12,12 @@ import { ModalDemo } from "./ModalDemo"
 export default function ModalsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Modais</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Interrupção centrada sobre scrim com blur. Animação discreta de
+      <PageHero title="Modais">
+        Interrupção centrada sobre scrim com blur. Animação discreta de
           entrada (8px bottom → 0), fecha no Esc e no clique do scrim — a
           menos que <code className="mono">dismissible={"{false}"}</code>.
           Largura máxima 520 px.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

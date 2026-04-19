@@ -1,21 +1,27 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Icon } from "@/components/ui/Icon"
 
 type Theme = "light" | "dark"
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>("light")
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const stored = (typeof window !== "undefined"
-      ? (window.localStorage.getItem("aw-theme") as Theme | null)
-      : null)
+    const stored =
+      typeof window !== "undefined"
+        ? (window.localStorage.getItem("aw-theme") as Theme | null)
+        : null
     const initial: Theme =
       stored ??
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light")
     setTheme(initial)
     document.documentElement.classList.toggle("dark", initial === "dark")
+    setMounted(true)
   }, [])
 
   const toggle = () => {
@@ -30,16 +36,14 @@ export default function ThemeToggle() {
       type="button"
       onClick={toggle}
       aria-label={`Ativar modo ${theme === "dark" ? "claro" : "escuro"}`}
-      className="inline-flex items-center gap-2 h-8 px-3 rounded-md border border-[var(--border-default)] bg-[var(--bg-raised)] text-[var(--fg-primary)] text-sm font-medium hover:bg-[var(--bg-surface)] transition-colors duration-150"
+      title={theme === "dark" ? "Modo claro" : "Modo escuro"}
+      className="aw-theme-toggle"
+      suppressHydrationWarning
     >
-      <span
-        className="inline-block w-2 h-2 rounded-full"
-        style={{
-          background:
-            theme === "dark" ? "var(--aw-blue-400)" : "var(--aw-gray-1200)",
-        }}
+      <Icon
+        name={mounted && theme === "dark" ? "light_mode" : "dark_mode"}
+        size={18}
       />
-      {theme === "dark" ? "Dark" : "Light"}
     </button>
   )
 }

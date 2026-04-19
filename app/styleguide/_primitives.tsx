@@ -1,4 +1,20 @@
 import * as React from "react"
+import { CodeHighlight } from "./_highlight"
+
+export function PageHero({
+  title,
+  children,
+}: {
+  title: React.ReactNode
+  children?: React.ReactNode
+}) {
+  return (
+    <header className="aw-hero">
+      <h1 className="aw-hero__title">{title}</h1>
+      {children && <p className="aw-hero__lead">{children}</p>}
+    </header>
+  )
+}
 
 export function Section({
   id,
@@ -134,17 +150,17 @@ export function ApiTable({ children }: { children: React.ReactNode }) {
 
 export function CodeExample({
   label = "exemplo",
+  lang = "tsx",
   children,
 }: {
   label?: string
-  children: React.ReactNode
+  lang?: "tsx" | "ts" | "css" | "text"
+  children: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 mt-4">
+    <div className="mt-4">
       <div className="aw-eyebrow mb-2">{label}</div>
-      <pre className="mono text-sm text-[var(--fg-primary)] m-0 whitespace-pre-wrap">
-        {children}
-      </pre>
+      <CodeHighlight lang={lang}>{children}</CodeHighlight>
     </div>
   )
 }

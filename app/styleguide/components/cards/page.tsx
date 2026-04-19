@@ -2,6 +2,7 @@ import { AwCard } from "@/components/ui/AwCard"
 import { AwPill } from "@/components/ui/AwPill"
 import { AwButton } from "@/components/ui/AwButton"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -14,15 +15,12 @@ import {
 export default function CardsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Cards</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Superfície primária para agrupar conteúdo. 1px de borda, radius{" "}
+      <PageHero title="Cards">
+        Superfície primária para agrupar conteúdo. 1px de borda, radius{" "}
           <code className="mono">--radius-lg</code>, sem drop shadow por
           padrão. A variante <strong>ai</strong> insere uma gradient-mesh
           sutil sinalizando superfície ligada ao agente.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

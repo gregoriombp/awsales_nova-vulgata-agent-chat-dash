@@ -1,5 +1,6 @@
 import { AwNavList, AwNavItem } from "@/components/ui/AwNavList"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -12,14 +13,11 @@ import {
 export default function NavListPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Nav list</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Lista vertical de itens de navegação — usada na sidebar e em painéis
+      <PageHero title="Nav list">
+        Lista vertical de itens de navegação — usada na sidebar e em painéis
           de sub-navegação. Cada item comporta ícone, label e um{" "}
           <em>badge</em> de contagem opcional.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

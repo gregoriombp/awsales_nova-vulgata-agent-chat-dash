@@ -1,5 +1,6 @@
 import { AwPill } from "@/components/ui/AwPill"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -12,14 +13,11 @@ import {
 export default function PillsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Pills</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Marcador inline de status ou categoria. Altura 22 px, radius total,
+      <PageHero title="Pills">
+        Marcador inline de status ou categoria. Altura 22 px, radius total,
           1px de borda. Um ponto opcional comunica estado — a variante{" "}
           <strong>ai</strong> pulsa.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

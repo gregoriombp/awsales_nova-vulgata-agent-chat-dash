@@ -1,4 +1,5 @@
 import { AwButton } from "@/components/ui/AwButton"
+import { PageHero } from "../../_primitives"
 
 /* ============================================================
  * Botões — AwSales Design System
@@ -112,16 +113,13 @@ function Spec({ k, v, d }: { k: string; v: string; d?: string }) {
 export default function ButtonsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Botões</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Cinco variantes. <strong>Primary</strong> é alto contraste — a ação
+      <PageHero title="Botões">
+        Cinco variantes. <strong>Primary</strong> é alto contraste — a ação
           principal da tela. <strong>AI</strong> é reservado para ações que
           disparam o agente. Três tamanhos: 30 · 38 · 46 px. O padrão é{" "}
           <code className="mono">md</code>; <code className="mono">lg</code> só
           em CTA de hero.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         {/* ───────── Variants ───────── */}

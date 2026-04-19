@@ -1,4 +1,5 @@
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -17,14 +18,11 @@ import {
 export default function ControlsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Controles</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Controles compactos para configurações dentro de painéis:
+      <PageHero title="Controles">
+        Controles compactos para configurações dentro de painéis:
           <strong> Toggle</strong> (boolean), <strong>Slider</strong>{" "}
           (numérico) e <strong>Tabs</strong> (agrupamento de conteúdo).
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

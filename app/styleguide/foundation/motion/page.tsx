@@ -1,4 +1,5 @@
 import {
+  PageHero,
   Section,
   Spec,
   CodeExample,
@@ -14,15 +15,12 @@ import {
 export default function MotionPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Animação</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Rápida e utilitária. 90% das transições usam{" "}
+      <PageHero title="Animação">
+        Rápida e utilitária. 90% das transições usam{" "}
           <code className="mono">ease-out</code> entre{" "}
           <strong>120 e 280 ms</strong>. Sem bounce, sem overshoot, sem
           confete. A única animação expressiva é o pulse do agente.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section
@@ -165,7 +163,7 @@ export default function MotionPage() {
           title="Tokens"
           lead="Consumir via CSS variable. Não hardcodar valores."
         >
-          <CodeExample>{`/* CSS */
+          <CodeExample lang="css">{`/* CSS */
 .my-button {
   transition:
     background var(--dur-base) var(--ease-out),

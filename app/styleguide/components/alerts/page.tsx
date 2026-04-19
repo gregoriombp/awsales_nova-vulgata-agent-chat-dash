@@ -1,5 +1,6 @@
 import { AwAlert } from "@/components/ui/AwAlert"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -12,14 +13,11 @@ import {
 export default function AlertsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Alertas</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Mensagens contextuais <strong>inline</strong>. Sempre próximas do
+      <PageHero title="Alertas">
+        Mensagens contextuais <strong>inline</strong>. Sempre próximas do
           conteúdo a que se referem. Nunca como toast — para toast, use o
           componente próprio.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

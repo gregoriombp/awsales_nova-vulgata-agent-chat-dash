@@ -1646,3 +1646,134 @@
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
+
+/* ============================================================
+ * Styleguide chrome — theme toggle, hero, code block.
+ * ============================================================ */
+
+.aw-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+  cursor: pointer;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.aw-theme-toggle:hover {
+  background: var(--bg-surface);
+  border-color: var(--fg-primary);
+}
+.aw-theme-toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* Hero — page header with tinted background + neural pattern suggestion */
+.aw-hero {
+  position: relative;
+  padding: 56px 56px 48px;
+  margin: 0 0 64px 0;
+  border-radius: var(--radius-2xl);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  overflow: hidden;
+  isolation: isolate;
+}
+.aw-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 100% 0%,
+      rgba(71, 138, 255, 0.08),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 0% 100%,
+      rgba(158, 91, 223, 0.06),
+      transparent 65%
+    );
+  pointer-events: none;
+}
+.aw-hero > * { position: relative; }
+.aw-hero__title {
+  margin: 0;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+}
+.aw-hero__lead {
+  margin: 16px 0 0 0;
+  font-size: var(--body-lg-size);
+  color: var(--fg-secondary);
+  line-height: 1.55;
+  max-width: 560px;
+}
+.dark .aw-hero::before {
+  background:
+    radial-gradient(
+      ellipse 70% 60% at 100% 0%,
+      rgba(71, 138, 255, 0.18),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 0% 100%,
+      rgba(158, 91, 223, 0.14),
+      transparent 65%
+    );
+}
+
+/* ============================================================
+ * AwCode — code block with IDE-like syntax colors.
+ * Background is fixed (dark IDE vibe) in both light and dark mode.
+ * Tokens ride on GitHub "dark dimmed" palette — tested for legibility.
+ * ============================================================ */
+.aw-code {
+  display: block;
+  margin: 0;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
+  background: #0D1117;
+  color: #E6EDF3;
+  font-family: var(--font-mono);
+  font-size: var(--mono-md-size);
+  line-height: 1.55;
+  overflow-x: auto;
+  white-space: pre;
+  border: 1px solid #1F252D;
+  tab-size: 2;
+}
+.aw-code code { font-family: inherit; color: inherit; background: none; padding: 0; }
+
+/* Syntax token colors — GitHub dark-dimmed aligned */
+.aw-code .tok-keyword    { color: #FF7B72; }          /* import, const, function */
+.aw-code .tok-string     { color: #A5D6FF; }          /* "..." / '...' / `...` */
+.aw-code .tok-comment    { color: #8B949E; font-style: italic; }
+.aw-code .tok-number     { color: #79C0FF; }
+.aw-code .tok-fn         { color: #D2A8FF; }          /* called functions */
+.aw-code .tok-type       { color: #FFA657; }          /* types / JSX components */
+.aw-code .tok-attr       { color: #FFA657; }          /* JSX attribute names */
+.aw-code .tok-tag        { color: #7EE787; }          /* <div>, <button> */
+.aw-code .tok-prop       { color: #79C0FF; }          /* object / css property */
+.aw-code .tok-bool       { color: #79C0FF; }          /* true, false, null */
+.aw-code .tok-punct      { color: #C9D1D9; }          /* default text */
+
+/* Inline code inside text — subtle surface, keeps reading flow */
+.aw-code-inline {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--fg-primary);
+}

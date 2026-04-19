@@ -1,5 +1,6 @@
 import { Icon } from "@/components/ui/Icon"
 import {
+  PageHero,
   Section,
   Spec,
   CodeExample,
@@ -72,14 +73,11 @@ const weights: Array<300 | 400 | 500 | 600 | 700> = [300, 400, 500, 600, 700]
 export default function IconographyPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Iconografia</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          <strong>Material Symbols Rounded</strong> é o sistema de ícones da
+      <PageHero title="Iconografia">
+        <strong>Material Symbols Rounded</strong> é o sistema de ícones da
           AwSales. Fonte variável com 4 eixos — tamanho, peso, preenchimento e
           grade — tudo herdando <code className="mono">currentColor</code>.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

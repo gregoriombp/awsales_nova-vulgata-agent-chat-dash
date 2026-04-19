@@ -1,5 +1,6 @@
 import { AwInput, AwField } from "@/components/ui/AwInput"
 import {
+  PageHero,
   Section,
   Stage,
   Spec,
@@ -12,15 +13,12 @@ import {
 export default function InputsPage() {
   return (
     <div className="max-w-[1200px] mx-auto px-10 py-14">
-      <header className="mb-14">
-        <h1 className="m-0">Inputs</h1>
-        <p className="text-[var(--body-lg-size)] text-[var(--fg-secondary)] mt-4 max-w-2xl leading-relaxed">
-          Altura 42 px no padrão, 34 px em densidade compacta (inline,
+      <PageHero title="Inputs">
+        Altura 42 px no padrão, 34 px em densidade compacta (inline,
           toolbars). Foco com ring azul a 18%; erro vira vermelho com
           mensagem inline. O componente <strong>Field</strong> empacota
           label + input + helper/erro.
-        </p>
-      </header>
+      </PageHero>
 
       <div className="flex flex-col gap-16">
         <Section

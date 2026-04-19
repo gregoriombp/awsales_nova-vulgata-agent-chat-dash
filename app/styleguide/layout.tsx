@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { navigation } from "./navigation"
 import ThemeToggle from "./ThemeToggle"
+import { AwLogo } from "@/components/ui/AwLogo"
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ")
@@ -19,18 +20,14 @@ export default function StyleguideLayout({
   return (
     <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
       <aside className="w-64 border-r border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
-        <div className="flex items-center justify-between">
-          <Link
-            href="/styleguide"
-            className="no-underline text-[var(--fg-primary)] font-display text-lg font-medium tracking-[-0.02em]"
-          >
-            .aw — design system
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <ThemeToggle />
-        </div>
+        <Link
+          href="/styleguide"
+          aria-label="AwSales Design System — voltar ao índice"
+          className="inline-flex"
+          style={{ color: "var(--fg-primary)" }}
+        >
+          <AwLogo variant="wordmark" height={22} />
+        </Link>
 
         <nav className="flex flex-col gap-6">
           {navigation.map((section) => (
@@ -72,7 +69,12 @@ export default function StyleguideLayout({
         </div>
       </aside>
 
-      <main className="flex-1 ml-64 overflow-auto">{children}</main>
+      <main className="flex-1 ml-64 overflow-auto relative">
+        <div className="fixed top-5 right-6 z-50">
+          <ThemeToggle />
+        </div>
+        {children}
+      </main>
     </div>
   )
 }
