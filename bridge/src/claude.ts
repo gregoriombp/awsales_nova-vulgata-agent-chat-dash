@@ -1,7 +1,9 @@
 import { exec } from "node:child_process"
 import { promisify } from "node:util"
 import { query, type SDKMessage } from "@anthropic-ai/claude-agent-sdk"
+import { setManifest } from "./manifest-cache.js"
 import { buildSystemPrompt, type SkillContext } from "./skill.js"
+import { allowedTools, createToolServer, SERVER_NAME } from "./tools/index.js"
 
 const pexec = promisify(exec)
 
@@ -56,6 +58,18 @@ export type StreamEvent =
   | { kind: "status"; text: string }
   | { kind: "chunk"; text: string }
   | { kind: "assistant"; text: string }
+  | {
+      kind: "tool_use"
+      name: string
+      input: unknown
+      id: string
+    }
+  | {
+      kind: "tool_result"
+      tool_use_id: string
+      content: string
+      isError?: boolean
+    }
   | { kind: "result"; text: string; durationMs?: number; costUsd?: number }
   | { kind: "error"; message: string }
 
@@ -70,10 +84,24 @@ export async function* runGenerate(
   }
   const systemPrompt = buildSystemPrompt(ctx)
 
+  if (req.manifest && typeof req.manifest === "object") {
+    setManifest({
+      builder: { palette: (req.manifest.palette ?? []) as never },
+      designSystem: {
+        componentsInPalette: [],
+        componentsOutsidePalette:
+          (req.manifest.awOutsidePalette as string[] | undefined) ?? [],
+        tokens: req.manifest.tokens ?? {},
+      },
+    })
+  }
+
   yield { kind: "status", text: "Iniciando Claude Code…" }
 
   const abortController = new AbortController()
   const model = process.env.BOMBARDIER_CLAUDE_MODEL ?? "claude-sonnet-4-6"
+
+  const toolServer = createToolServer()
 
   let resultText = ""
   try {
@@ -82,8 +110,9 @@ export async function* runGenerate(
       options: {
         systemPrompt,
         model,
-        tools: [],
-        maxTurns: 1,
+        mcpServers: { [SERVER_NAME]: toolServer },
+        tools: allowedTools,
+        maxTurns: 6,
         includePartialMessages: true,
         permissionMode: "bypassPermissions",
         abortController,
@@ -110,15 +139,67 @@ export async function* runGenerate(
           const content = msg.message?.content
           if (Array.isArray(content)) {
             for (const block of content) {
+              if (!block || typeof block !== "object" || !("type" in block))
+                continue
               if (
-                block &&
-                typeof block === "object" &&
-                "type" in block &&
                 block.type === "text" &&
                 "text" in block &&
                 typeof block.text === "string"
               ) {
                 yield { kind: "assistant", text: block.text }
+              } else if (
+                block.type === "tool_use" &&
+                "name" in block &&
+                "input" in block &&
+                "id" in block
+              ) {
+                yield {
+                  kind: "tool_use",
+                  name: String(block.name),
+                  input: block.input,
+                  id: String(block.id),
+                }
+              }
+            }
+          }
+          break
+        }
+        case "user": {
+          const content = msg.message?.content
+          if (Array.isArray(content)) {
+            for (const block of content) {
+              if (!block || typeof block !== "object" || !("type" in block))
+                continue
+              if (
+                block.type === "tool_result" &&
+                "tool_use_id" in block &&
+                "content" in block
+              ) {
+                const raw = block.content
+                let text = ""
+                if (typeof raw === "string") text = raw
+                else if (Array.isArray(raw)) {
+                  for (const c of raw) {
+                    if (
+                      c &&
+                      typeof c === "object" &&
+                      "type" in c &&
+                      c.type === "text" &&
+                      "text" in c
+                    ) {
+                      text += String(c.text)
+                    }
+                  }
+                }
+                yield {
+                  kind: "tool_result",
+                  tool_use_id: String(block.tool_use_id),
+                  content: text,
+                  isError:
+                    "is_error" in block
+                      ? Boolean(block.is_error)
+                      : undefined,
+                }
               }
             }
           }

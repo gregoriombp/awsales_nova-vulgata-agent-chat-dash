@@ -8,9 +8,10 @@ import {
   type StreamEvent,
 } from "./claude.js"
 import { skillAvailable, skillPath } from "./skill.js"
+import { allowedTools } from "./tools/index.js"
 
 const PORT = Number(process.env.BOMBARDIER_BRIDGE_PORT ?? 9876)
-const VERSION = "0.2.0"
+const VERSION = "0.3.0"
 
 const allowedOrigins = [
   "http://localhost:3000",
@@ -40,7 +41,7 @@ app.get("/health", async (_req, res) => {
   res.json({
     ok: true,
     version: VERSION,
-    phase: "phase-2",
+    phase: "phase-3",
     claude: {
       ready,
       version: claude.version,
@@ -52,6 +53,7 @@ app.get("/health", async (_req, res) => {
         : undefined,
     },
     skill: { path: skillPath(), exists: skill },
+    tools: allowedTools.map((t) => t.replace(/^mcp__[^_]+__/, "")),
     timestamp: new Date().toISOString(),
     port: PORT,
   })
@@ -114,6 +116,20 @@ app.post("/generate", async (req, res) => {
         case "assistant":
           lastAssistant = ev.text
           writeSse(res, "assistant", { text: ev.text })
+          break
+        case "tool_use":
+          writeSse(res, "tool_use", {
+            id: ev.id,
+            name: ev.name,
+            input: ev.input,
+          })
+          break
+        case "tool_result":
+          writeSse(res, "tool_result", {
+            tool_use_id: ev.tool_use_id,
+            content: ev.content,
+            isError: ev.isError,
+          })
           break
         case "result": {
           const source = ev.text || lastAssistant || fullText

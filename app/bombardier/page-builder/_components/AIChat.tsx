@@ -65,6 +65,14 @@ function useBridgeStatus() {
   return { state, retry }
 }
 
+type ToolCall = {
+  id: string
+  name: string
+  input: unknown
+  result?: string
+  isError?: boolean
+}
+
 type ChatMessage = {
   id: string
   role: "user" | "agent"
@@ -75,6 +83,7 @@ type ChatMessage = {
   applied?: boolean
   costUsd?: number
   durationMs?: number
+  tools?: ToolCall[]
 }
 
 function StatusPill({ state }: { state: BridgeState }) {
@@ -334,6 +343,27 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
                 costUsd: d.costUsd,
               }
             }
+            if (event === "tool_use") {
+              const d = data as { id: string; name: string; input: unknown }
+              const tools = [
+                ...(msg.tools ?? []),
+                { id: d.id, name: d.name, input: d.input },
+              ]
+              return { ...msg, tools }
+            }
+            if (event === "tool_result") {
+              const d = data as {
+                tool_use_id: string
+                content: string
+                isError?: boolean
+              }
+              const tools = (msg.tools ?? []).map((t) =>
+                t.id === d.tool_use_id
+                  ? { ...t, result: d.content, isError: d.isError }
+                  : t
+              )
+              return { ...msg, tools }
+            }
             if (event === "error") {
               const message =
                 data && typeof data === "object" && "message" in data
@@ -459,8 +489,61 @@ function ChatItem({
   const summary = msg.text
     ? msg.text.replace(/```json[\s\S]*?```/g, "").trim()
     : ""
+  const toolShortName = (n: string) =>
+    n.replace(/^mcp__[^_]+__/, "").replace(/_/g, " ")
   return (
     <div className="flex flex-col gap-1.5">
+      {msg.tools && msg.tools.length > 0 && (
+        <div className="flex flex-col gap-1 mb-0.5 pl-3 border-l-2 border-[var(--border-subtle)]">
+          {msg.tools.map((t) => (
+            <div
+              key={t.id}
+              className="flex items-start gap-1.5 text-[11px] text-[var(--fg-tertiary)]"
+            >
+              <Icon
+                name={
+                  t.isError
+                    ? "error"
+                    : t.result
+                    ? "check_circle"
+                    : "sync"
+                }
+                size={11}
+                className={
+                  !t.result && !t.isError ? "animate-spin" : undefined
+                }
+              />
+              <div className="flex-1 min-w-0">
+                <span className="font-mono">{toolShortName(t.name)}</span>
+                {typeof t.input === "object" &&
+                  t.input !== null &&
+                  "description" in t.input && (
+                    <span className="text-[var(--fg-tertiary)] opacity-70">
+                      {" "}
+                      · {String((t.input as Record<string, unknown>).description).slice(0, 60)}
+                    </span>
+                  )}
+                {typeof t.input === "object" &&
+                  t.input !== null &&
+                  "query" in t.input && (
+                    <span className="text-[var(--fg-tertiary)] opacity-70">
+                      {" "}
+                      · &quot;{String((t.input as Record<string, unknown>).query).slice(0, 40)}&quot;
+                    </span>
+                  )}
+                {typeof t.input === "object" &&
+                  t.input !== null &&
+                  "name" in t.input && (
+                    <span className="text-[var(--fg-tertiary)] opacity-70">
+                      {" "}
+                      · {String((t.input as Record<string, unknown>).name)}
+                    </span>
+                  )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <AwChatBubble variant="agent" streaming={msg.status === "streaming"}>
         {msg.status === "error" ? (
           <span className="text-[var(--aw-red-600)] text-xs">

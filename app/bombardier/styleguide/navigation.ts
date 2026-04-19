@@ -41,4 +41,10 @@ export const navigation: NavSection[] = [
       { name: "Toast", href: "/bombardier/styleguide/components/toast" },
     ],
   },
+  {
+    title: "Playground",
+    items: [
+      { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
+    ],
+  },
 ]
