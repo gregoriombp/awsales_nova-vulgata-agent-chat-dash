@@ -219,12 +219,17 @@
   --dur-base: 180ms;
   --dur-slow: 280ms;
 
-  /* Type families — single voice */
-  --font-sans: 'Mona Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-display: var(--font-sans);
-  --font-heading: var(--font-sans);
+  /* Type families — split voice.
+   *  · Haas Neue Grotesk (commercial, self-hosted) → display + headings.
+   *    Falls back to Inter if the woff2 files aren't present.
+   *  · Inter → body + UI text.
+   *  · Geist Mono → code only. Never used for timestamps, IDs, metadata
+   *    or any product data that's not literal source code. */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: var(--font-sans);
-  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-heading: 'Neue Haas Grotesk Display Pro', 'Neue Haas Grotesk', 'Haas Grot Disp', var(--font-sans);
+  --font-display: var(--font-heading);
+  --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Type scale */
   --display-xl-size: 96px;
@@ -803,7 +808,7 @@
   align-items: center;
   gap: 8px;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   font-family: var(--font-sans);
   font-weight: 500;
   cursor: pointer;
@@ -1374,7 +1379,7 @@
 }
 .aw-progress-row__top b {
   color: var(--fg-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
 }
@@ -1394,6 +1399,529 @@
 .aw-progress--success .aw-progress__fill { background: var(--aw-emerald-600); }
 .aw-progress--warning .aw-progress__fill { background: var(--aw-amber-500); }
 .aw-progress--danger  .aw-progress__fill { background: var(--aw-red-600); }
+
+/* ============================================================
+ * AwNavRail — vertical primary navigation (app chrome).
+ * Two widths: collapsed (icon-only) and expanded (header + groups
+ * + labels + inline counts). Each pairs with a light/dark theme.
+ * Whole rail is a rounded container; active state is a rounded-square
+ * behind the item row, not a full pill.
+ * ============================================================ */
+.aw-nav-rail {
+  display: inline-flex;
+  flex-direction: column;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 10px 8px;
+  box-sizing: border-box;
+}
+.aw-nav-rail--collapsed { width: 64px; }
+.aw-nav-rail--expanded  { width: 260px; padding: 12px; }
+.aw-nav-rail--dark {
+  background: var(--dark-bg);
+  border-color: var(--dark-border);
+  color: var(--dark-fg-secondary);
+}
+
+/* Liquid-glass variant — translucent shell with backdrop blur.
+ * Use on top of a rich canvas (photo, gradient, dense art) for
+ * the Apple-style floating rail. Light tint by default; pair with
+ * --dark for dark canvases. */
+.aw-nav-rail--translucent {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 10px 30px rgba(15, 15, 15, 0.12),
+    0 2px 6px rgba(15, 15, 15, 0.08);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark {
+  background: rgba(13, 13, 13, 0.42);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 14px 40px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.30);
+}
+/* Inner chrome: use low-opacity fills so the blurred canvas still
+ * reads through, but keep text legible. */
+.aw-nav-rail--translucent .aw-nav-rail__switcher-btn {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.40);
+}
+.aw-nav-rail--translucent .aw-nav-rail__switcher-btn:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__switcher-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__switcher-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.aw-nav-rail--translucent .aw-nav-rail__item:hover,
+.aw-nav-rail--translucent .aw-nav-rail__item--active {
+  background: rgba(255, 255, 255, 0.50);
+  color: var(--fg-primary);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item {
+  color: rgba(255, 255, 255, 0.72);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item:hover,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item--active {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+.aw-nav-rail--translucent .aw-nav-rail__top,
+.aw-nav-rail--translucent .aw-nav-rail__bottom,
+.aw-nav-rail--translucent .aw-nav-rail__group {
+  border-color: rgba(15, 15, 15, 0.08);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__top,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__bottom,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__group {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.aw-nav-rail--translucent .aw-nav-rail__toggle {
+  color: var(--fg-secondary);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__toggle {
+  color: rgba(255, 255, 255, 0.72);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__toggle:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
+/* Brand / workspace header */
+.aw-nav-rail__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 6px 10px;
+}
+.aw-nav-rail--expanded .aw-nav-rail__header {
+  padding: 2px 6px 12px;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__header {
+  justify-content: center;
+  padding: 2px 0 10px;
+}
+.aw-nav-rail__brand {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--fg-primary);
+}
+.aw-nav-rail--dark .aw-nav-rail__brand {
+  background: var(--dark-bg-hover);
+  color: var(--dark-fg-primary);
+}
+.aw-nav-rail__workspace {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 14px;
+  color: var(--fg-primary);
+  letter-spacing: -0.01em;
+}
+.aw-nav-rail--dark .aw-nav-rail__workspace { color: var(--dark-fg-primary); }
+.aw-nav-rail--collapsed .aw-nav-rail__workspace { display: none; }
+
+/* Groups — visually separated by hairline dividers */
+.aw-nav-rail__group {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.aw-nav-rail--dark .aw-nav-rail__group { border-top-color: var(--dark-border); }
+.aw-nav-rail__group--first { border-top: 0; padding-top: 0; }
+
+.aw-nav-rail__group-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
+  padding: 6px 12px 8px;
+}
+.aw-nav-rail--dark .aw-nav-rail__group-label { color: var(--dark-fg-tertiary); }
+.aw-nav-rail--collapsed .aw-nav-rail__group-label { display: none; }
+
+.aw-nav-rail__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__items { gap: 4px; align-items: center; }
+
+/* Item */
+.aw-nav-rail__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  color: var(--fg-secondary);
+  cursor: pointer;
+  text-decoration: none;
+  border: 0;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.2;
+  transition:
+    background var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out);
+}
+.aw-nav-rail__item:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-nav-rail__item--active {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  font-weight: 500;
+}
+.aw-nav-rail__item:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-nav-rail--dark .aw-nav-rail__item { color: var(--dark-fg-secondary); }
+.aw-nav-rail--dark .aw-nav-rail__item:hover,
+.aw-nav-rail--dark .aw-nav-rail__item--active {
+  background: var(--dark-bg-hover);
+  color: var(--dark-fg-primary);
+}
+
+.aw-nav-rail__item-label {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__item {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  justify-content: center;
+  gap: 0;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__item-label { display: none; }
+
+/* Count — muted number on the right */
+.aw-nav-rail__count {
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  color: var(--fg-tertiary);
+}
+.aw-nav-rail--dark .aw-nav-rail__count { color: var(--dark-fg-tertiary); }
+.aw-nav-rail--collapsed .aw-nav-rail__count { display: none; }
+
+/* Collapse / expand toggle — lives in the header strip.
+ * In expanded state: icon button at the top-right.
+ * In collapsed state: same icon button centered above the items. */
+.aw-nav-rail__toggle {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.aw-nav-rail__toggle:hover { background: var(--bg-surface); color: var(--fg-primary); }
+.aw-nav-rail__toggle:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-nav-rail--dark .aw-nav-rail__toggle { color: var(--dark-fg-tertiary); }
+.aw-nav-rail--dark .aw-nav-rail__toggle:hover {
+  background: var(--dark-bg-hover);
+  color: var(--dark-fg-primary);
+}
+
+/* ============================================================
+ * AwNavRailOrgSwitcher + AwNavRailUserSwitcher — shared styling.
+ * Both are large buttons at top/bottom of the rail with a dropdown.
+ * ============================================================ */
+.aw-nav-rail__switcher {
+  position: relative;
+  padding: 0 4px;
+}
+.aw-nav-rail--expanded .aw-nav-rail__switcher { padding: 0; }
+
+.aw-nav-rail__switcher-btn {
+  appearance: none;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 6px 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--fg-primary);
+  font-family: var(--font-body);
+  transition:
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+}
+.aw-nav-rail__switcher-btn:hover {
+  background: var(--bg-raised);
+  border-color: var(--border-default);
+}
+.aw-nav-rail__switcher-btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-nav-rail--dark .aw-nav-rail__switcher-btn {
+  background: var(--dark-bg-hover);
+  border-color: var(--dark-border);
+  color: var(--dark-fg-primary);
+}
+.aw-nav-rail--dark .aw-nav-rail__switcher-btn:hover {
+  background: var(--aw-gray-900);
+}
+
+.aw-nav-rail--collapsed .aw-nav-rail__switcher-btn {
+  justify-content: center;
+  padding: 6px;
+  gap: 0;
+}
+
+.aw-nav-rail__switcher-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 12px;
+}
+.aw-nav-rail__switcher-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.aw-nav-rail__switcher-avatar--round { border-radius: 50%; }
+.aw-nav-rail--dark .aw-nav-rail__switcher-avatar { background: var(--dark-bg); }
+
+.aw-nav-rail__switcher-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aw-nav-rail__switcher-title {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--fg-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-nav-rail--dark .aw-nav-rail__switcher-title { color: var(--dark-fg-primary); }
+.aw-nav-rail__switcher-sub {
+  font-size: 11px;
+  color: var(--fg-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-nav-rail--dark .aw-nav-rail__switcher-sub { color: var(--dark-fg-tertiary); }
+.aw-nav-rail--collapsed .aw-nav-rail__switcher-text,
+.aw-nav-rail--collapsed .aw-nav-rail__switcher-caret {
+  display: none;
+}
+
+.aw-nav-rail__switcher-caret {
+  width: 14px;
+  height: 14px;
+  color: var(--fg-tertiary);
+  flex-shrink: 0;
+}
+.aw-nav-rail--dark .aw-nav-rail__switcher-caret { color: var(--dark-fg-tertiary); }
+
+/* Dropdown menu — popover style, opens to the right when collapsed. */
+.aw-nav-rail__menu {
+  position: absolute;
+  z-index: 20;
+  min-width: 240px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  animation: aw-nav-rail-menu-in 140ms var(--ease-out);
+}
+@keyframes aw-nav-rail-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+.aw-nav-rail--dark .aw-nav-rail__menu {
+  background: var(--aw-gray-1100);
+  border-color: var(--dark-border);
+}
+.aw-nav-rail__menu--top {
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+}
+.aw-nav-rail__menu--bottom {
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__menu--top {
+  bottom: 0;
+  left: calc(100% + 8px);
+  right: auto;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__menu--bottom {
+  top: 0;
+  left: calc(100% + 8px);
+  right: auto;
+}
+
+.aw-nav-rail__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--fg-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.aw-nav-rail__menu-item:hover { background: var(--bg-surface); }
+.aw-nav-rail__menu-item--active {
+  background: var(--bg-inverse);
+  color: var(--fg-on-inverse);
+}
+.aw-nav-rail__menu-item--active:hover {
+  background: var(--bg-inverse);
+  color: var(--fg-on-inverse);
+}
+.aw-nav-rail--dark .aw-nav-rail__menu-item { color: var(--dark-fg-primary); }
+.aw-nav-rail--dark .aw-nav-rail__menu-item:hover { background: var(--dark-bg-hover); }
+.aw-nav-rail--dark .aw-nav-rail__menu-item--active {
+  background: var(--aw-white);
+  color: var(--aw-gray-1200);
+}
+.aw-nav-rail--dark .aw-nav-rail__menu-item--active:hover {
+  background: var(--aw-white);
+  color: var(--aw-gray-1200);
+}
+.aw-nav-rail__menu-item-body {
+  flex: 1;
+  min-width: 0;
+}
+.aw-nav-rail__menu-item-title {
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.aw-nav-rail__menu-item-sub {
+  font-size: 11px;
+  color: var(--fg-tertiary);
+  line-height: 1.2;
+  margin-top: 2px;
+}
+.aw-nav-rail__menu-item--active .aw-nav-rail__menu-item-sub {
+  color: inherit;
+  opacity: 0.7;
+}
+.aw-nav-rail--dark .aw-nav-rail__menu-item-sub { color: var(--dark-fg-tertiary); }
+
+.aw-nav-rail__menu-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 4px;
+  margin: 4px -4px -4px;
+}
+.aw-nav-rail--dark .aw-nav-rail__menu-footer { border-color: var(--dark-border); }
+.aw-nav-rail__menu-footer .aw-nav-rail__menu-item { color: var(--fg-tertiary); }
+.aw-nav-rail__menu-footer .aw-nav-rail__menu-item:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-nav-rail__menu-footer .aw-nav-rail__menu-item--danger { color: var(--aw-red-600); }
+.aw-nav-rail--dark .aw-nav-rail__menu-footer .aw-nav-rail__menu-item:hover {
+  background: var(--dark-bg-hover);
+  color: var(--dark-fg-primary);
+}
+
+/* Layout slots inside the rail */
+.aw-nav-rail__top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 8px;
+}
+.aw-nav-rail--dark .aw-nav-rail__top { border-color: var(--dark-border); }
+.aw-nav-rail--collapsed .aw-nav-rail__top { align-items: center; gap: 6px; }
+
+.aw-nav-rail__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 4px;
+}
+.aw-nav-rail--collapsed .aw-nav-rail__toolbar { justify-content: center; padding: 0; }
+
+.aw-nav-rail__bottom {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+.aw-nav-rail--dark .aw-nav-rail__bottom { border-color: var(--dark-border); }
+
+.aw-nav-rail__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
 
 /* ============================================================
  * AwNavList — stacked navigation (section rail).
@@ -1432,8 +1960,8 @@
 }
 .aw-nav-list__count {
   margin-left: auto;
-  font-family: var(--font-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 11px;
   color: var(--fg-tertiary);
 }
 
@@ -1468,15 +1996,17 @@
 }
 .aw-table td.aw-table__mono,
 .aw-table th.aw-table__mono {
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
   color: var(--fg-secondary);
 }
 .aw-table td.aw-table__num,
 .aw-table th.aw-table__num {
   text-align: right;
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
 }
 .aw-table td.aw-table__name {
   font-family: var(--font-heading);
@@ -1516,7 +2046,6 @@
 }
 .aw-toggle--on { background: var(--fg-primary); }
 .aw-toggle--on::after { left: 19px; }
-.aw-toggle--ai.aw-toggle--on { background: var(--aw-blue-500); }
 .aw-toggle:focus-visible {
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
@@ -1567,7 +2096,8 @@
 }
 .aw-slider__top b {
   color: var(--fg-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
   font-size: 13px;
   font-weight: 500;
 }
@@ -1651,6 +2181,24 @@
  * Styleguide chrome — theme toggle, hero, code block.
  * ============================================================ */
 
+/* Styleguide sidebar — slightly darker than the canvas in light mode so
+ * it reads as "chrome" without needing a heavy border. In dark mode stays
+ * flat with the canvas (canvas is already dark). */
+.aw-sg-sidebar {
+  background: var(--aw-gray-150);
+}
+.dark .aw-sg-sidebar {
+  background: var(--bg-raised);
+}
+.aw-sg-sidebar__subtitle {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fg-tertiary);
+  letter-spacing: 0.02em;
+  margin-top: 6px;
+}
+
 .aw-theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -1676,36 +2224,18 @@
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
 
-/* Hero — page header with tinted background + neural pattern suggestion */
+/* Hero — full-bleed page header. Sits above the content max-width so it
+ * spans the whole main area. Tinted background, no gradient. */
 .aw-hero {
-  position: relative;
-  padding: 56px 56px 48px;
-  margin: 0 0 64px 0;
-  border-radius: var(--radius-2xl);
   background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
-  isolation: isolate;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 64px 56px 56px;
+  margin: 0 0 56px 0;
 }
-.aw-hero::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 100% 0%,
-      rgba(71, 138, 255, 0.08),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 50% 60% at 0% 100%,
-      rgba(158, 91, 223, 0.06),
-      transparent 65%
-    );
-  pointer-events: none;
+.aw-hero__inner {
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.aw-hero > * { position: relative; }
 .aw-hero__title {
   margin: 0;
   letter-spacing: -0.02em;
@@ -1716,20 +2246,7 @@
   font-size: var(--body-lg-size);
   color: var(--fg-secondary);
   line-height: 1.55;
-  max-width: 560px;
-}
-.dark .aw-hero::before {
-  background:
-    radial-gradient(
-      ellipse 70% 60% at 100% 0%,
-      rgba(71, 138, 255, 0.18),
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 50% 60% at 0% 100%,
-      rgba(158, 91, 223, 0.14),
-      transparent 65%
-    );
+  max-width: 640px;
 }
 
 /* ============================================================
@@ -1869,8 +2386,9 @@
 }
 .aw-toast__close {
   color: var(--fg-tertiary);
-  font-family: var(--font-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1;
   cursor: pointer;
   background: none;
   border: 0;
@@ -1930,9 +2448,9 @@
   margin: 0;
 }
 .aw-sheet__meta {
-  font-size: 11.5px;
+  font-size: 12px;
   color: var(--fg-tertiary);
-  font-family: var(--font-mono);
+  font-family: var(--font-body);
   margin-top: 2px;
 }
 .aw-sheet__close {

@@ -8,6 +8,10 @@
 
 # testing
 /coverage
+/.playwright-cli
+
+# local claude code settings
+.claude/settings.local.json
 
 # next.js
 /.next/
@@ -34,6 +38,10 @@ yarn-error.log*
 
 # local uploads (max 1GB for preview testing)
 /storage
+
+# bombardier project storage (filesystem-saved projects are user data)
+/bombardier/projects/*
+!/bombardier/projects/.gitkeep
 
 # typescript
 *.tsbuildinfo

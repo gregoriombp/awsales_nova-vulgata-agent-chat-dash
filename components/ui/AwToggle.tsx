@@ -8,19 +8,17 @@ export type AwToggleProps = Omit<
 > & {
   checked: boolean
   onChange?: (next: boolean) => void
-  ai?: boolean
   label?: string
 }
 
 export const AwToggle = React.forwardRef<HTMLButtonElement, AwToggleProps>(
   function AwToggle(
-    { checked, onChange, ai, label, className, disabled, ...rest },
+    { checked, onChange, label, className, disabled, ...rest },
     ref
   ) {
     const classes = [
       "aw-toggle",
       checked && "aw-toggle--on",
-      ai && "aw-toggle--ai",
       className,
     ]
       .filter(Boolean)
@@ -46,7 +44,6 @@ export type AwToggleRowProps = {
   description?: React.ReactNode
   checked: boolean
   onChange?: (next: boolean) => void
-  ai?: boolean
   disabled?: boolean
   className?: string
 }
@@ -56,7 +53,6 @@ export function AwToggleRow({
   description,
   checked,
   onChange,
-  ai,
   disabled,
   className,
 }: AwToggleRowProps) {
@@ -73,7 +69,6 @@ export function AwToggleRow({
       <AwToggle
         checked={checked}
         onChange={onChange}
-        ai={ai}
         disabled={disabled}
         label={typeof title === "string" ? title : undefined}
       />

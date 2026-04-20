@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     formats: ['image/webp'],
   },
+  async rewrites() {
+    return [
+      { source: '/design', destination: '/design.html' },
+    ];
+  },
+  async redirects() {
+    return [
+      { source: '/styleguide', destination: '/bombardier/styleguide', permanent: false },
+      { source: '/styleguide/:path*', destination: '/bombardier/styleguide/:path*', permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;

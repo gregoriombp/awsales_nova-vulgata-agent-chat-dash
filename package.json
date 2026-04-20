@@ -6,14 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "bridge": "npm --prefix bridge start",
+    "bridge:dev": "npm --prefix bridge run dev",
+    "bridge:install": "npm --prefix bridge install"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.90.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
     "@google/genai": "^1.38.0",
     "@hookform/resolvers": "^5.2.2",
+    "@xyflow/react": "^12.10.2",
+    "html-to-image": "^1.11.13",
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
@@ -21,7 +30,8 @@
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "recharts": "^3.7.0",
-    "zod": "^4.3.6"
+    "zod": "^4.3.6",
+    "zustand": "^5.0.12"
   },
   "devDependencies": {
     "@types/node": "^25.0.10",

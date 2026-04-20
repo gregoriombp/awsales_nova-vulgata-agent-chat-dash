@@ -48,7 +48,11 @@ export default function AgentStudioEntrancePage() {
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
+    <DashboardLayout
+      breadcrumbs={breadcrumbs}
+      mainClassName="!p-0 !overflow-hidden"
+      floatingSidebar
+    >
       <div className="flex min-h-full w-full flex-col items-center justify-center bg-[#000000]">
       {/* Central column: animation + content */}
       <div className="flex flex-col items-center justify-center gap-10 max-w-lg w-full">
