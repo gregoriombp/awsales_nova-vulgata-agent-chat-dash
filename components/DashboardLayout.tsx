@@ -19,20 +19,29 @@ export default function DashboardLayout({
   breadcrumbs,
   showDateSelector,
   mainClassName,
+  floatingSidebar,
 }: {
   children: React.ReactNode;
   title?: string;
   breadcrumbs?: (string | BreadcrumbItem)[];
   showDateSelector?: boolean;
   mainClassName?: string;
+  /** Sidebar floats over full-width content as a liquid-glass rail. */
+  floatingSidebar?: boolean;
 }) {
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const pathname = usePathname();
   const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar forcedCollapsed={isInKnowledgeOS} />
+    <div className="flex h-screen overflow-hidden bg-gray-50 relative">
+      {floatingSidebar ? (
+        <div className="absolute inset-y-0 left-0 z-30">
+          <Sidebar floating />
+        </div>
+      ) : (
+        <Sidebar forcedCollapsed={isInKnowledgeOS} />
+      )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         {/* Ícones ficam abaixo do Copilot quando ele está aberto */}
         <div
