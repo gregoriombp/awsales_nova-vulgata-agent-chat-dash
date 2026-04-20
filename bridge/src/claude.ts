@@ -1,6 +1,10 @@
 import { exec } from "node:child_process"
 import { promisify } from "node:util"
-import { query, type SDKMessage } from "@anthropic-ai/claude-agent-sdk"
+import {
+  query,
+  type SDKMessage,
+  type SDKUserMessage,
+} from "@anthropic-ai/claude-agent-sdk"
 import { setManifest } from "./manifest-cache.js"
 import { buildSystemPrompt, type SkillContext } from "./skill.js"
 import { allowedTools, createToolServer, SERVER_NAME } from "./tools/index.js"
@@ -44,14 +48,49 @@ export async function getClaudeStatus(force = false): Promise<ClaudeStatus> {
   return cachedStatus
 }
 
+export type GenerateImage = {
+  mediaType: string
+  base64: string
+}
+
 export type GenerateRequest = {
   prompt: string
+  images?: GenerateImage[]
   manifest: {
     palette: unknown
     tokens: unknown
     awOutsidePalette: unknown
   }
   currentTree?: unknown
+}
+
+async function* multimodalPromptStream(
+  text: string,
+  images: GenerateImage[]
+): AsyncGenerator<SDKUserMessage> {
+  const msg: SDKUserMessage = {
+    type: "user",
+    parent_tool_use_id: null,
+    message: {
+      role: "user",
+      content: [
+        { type: "text", text },
+        ...images.map((img) => ({
+          type: "image" as const,
+          source: {
+            type: "base64" as const,
+            media_type: img.mediaType as
+              | "image/jpeg"
+              | "image/png"
+              | "image/gif"
+              | "image/webp",
+            data: img.base64,
+          },
+        })),
+      ],
+    },
+  }
+  yield msg
 }
 
 export type StreamEvent =
@@ -103,10 +142,15 @@ export async function* runGenerate(
 
   const toolServer = createToolServer()
 
+  const hasImages = Array.isArray(req.images) && req.images.length > 0
+  const promptArg: string | AsyncIterable<SDKUserMessage> = hasImages
+    ? multimodalPromptStream(req.prompt, req.images!)
+    : req.prompt
+
   let resultText = ""
   try {
     const q = query({
-      prompt: req.prompt,
+      prompt: promptArg,
       options: {
         systemPrompt,
         model,

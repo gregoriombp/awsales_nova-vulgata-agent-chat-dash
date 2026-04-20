@@ -32,7 +32,7 @@ app.use(
     credentials: true,
   })
 )
-app.use(express.json({ limit: "12mb" }))
+app.use(express.json({ limit: "40mb" }))
 
 app.get("/health", async (_req, res) => {
   const claude = await getClaudeStatus()
@@ -86,6 +86,38 @@ app.post("/generate", async (req, res) => {
   if (!body.manifest || typeof body.manifest !== "object") {
     res.status(400).json({ error: "missing_manifest" })
     return
+  }
+  if (body.images) {
+    if (!Array.isArray(body.images)) {
+      res.status(400).json({ error: "images_must_be_array" })
+      return
+    }
+    if (body.images.length > 4) {
+      res.status(413).json({ error: "too_many_images", max: 4 })
+      return
+    }
+    for (const img of body.images) {
+      if (
+        !img ||
+        typeof img !== "object" ||
+        typeof img.mediaType !== "string" ||
+        typeof img.base64 !== "string"
+      ) {
+        res.status(400).json({ error: "invalid_image_shape" })
+        return
+      }
+      if (!/^image\/(jpeg|png|gif|webp)$/.test(img.mediaType)) {
+        res.status(415).json({
+          error: "unsupported_media_type",
+          mediaType: img.mediaType,
+        })
+        return
+      }
+      if (img.base64.length > 8_000_000) {
+        res.status(413).json({ error: "image_too_large", maxBase64Bytes: 8_000_000 })
+        return
+      }
+    }
   }
 
   res.setHeader("Content-Type", "text/event-stream; charset=utf-8")

@@ -73,6 +73,14 @@ type ToolCall = {
   isError?: boolean
 }
 
+type Attachment = {
+  id: string
+  dataUrl: string
+  mediaType: string
+  base64: string
+  sizeKB: number
+}
+
 type ChatMessage = {
   id: string
   role: "user" | "agent"
@@ -84,7 +92,17 @@ type ChatMessage = {
   costUsd?: number
   durationMs?: number
   tools?: ToolCall[]
+  attachments?: Attachment[]
 }
+
+const MAX_ATTACHMENTS = 4
+const MAX_RAW_BYTES = 5 * 1024 * 1024
+const SUPPORTED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/gif",
+  "image/webp",
+])
 
 function StatusPill({ state }: { state: BridgeState }) {
   if (state.kind === "checking")
@@ -231,7 +249,88 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
   const [input, setInput] = React.useState("")
   const [sending, setSending] = React.useState(false)
   const [manifest, setManifest] = React.useState<ManifestResp | null>(null)
+  const [attachments, setAttachments] = React.useState<Attachment[]>([])
+  const [attachError, setAttachError] = React.useState<string | null>(null)
   const scrollRef = React.useRef<HTMLDivElement>(null)
+  const fileInputRef = React.useRef<HTMLInputElement>(null)
+
+  const readFileAsAttachment = (file: File): Promise<Attachment> =>
+    new Promise((resolve, reject) => {
+      if (!SUPPORTED_TYPES.has(file.type)) {
+        reject(
+          new Error(
+            `Tipo "${file.type}" não suportado. Use PNG, JPG, GIF ou WEBP.`
+          )
+        )
+        return
+      }
+      if (file.size > MAX_RAW_BYTES) {
+        reject(new Error("Imagem acima de 5MB."))
+        return
+      }
+      const reader = new FileReader()
+      reader.onerror = () => reject(new Error("Falha ao ler arquivo."))
+      reader.onload = () => {
+        const dataUrl = String(reader.result || "")
+        const base64 = dataUrl.split(",")[1] ?? ""
+        resolve({
+          id: `at_${Math.random().toString(36).slice(2, 10)}`,
+          dataUrl,
+          mediaType: file.type,
+          base64,
+          sizeKB: Math.round(file.size / 1024),
+        })
+      }
+      reader.readAsDataURL(file)
+    })
+
+  const ingestFiles = async (files: FileList | File[]) => {
+    setAttachError(null)
+    const arr = Array.from(files)
+    for (const f of arr) {
+      if (attachments.length >= MAX_ATTACHMENTS) {
+        setAttachError(`Máximo ${MAX_ATTACHMENTS} imagens por mensagem.`)
+        break
+      }
+      try {
+        const att = await readFileAsAttachment(f)
+        setAttachments((prev) =>
+          prev.length >= MAX_ATTACHMENTS ? prev : [...prev, att]
+        )
+      } catch (err) {
+        setAttachError(err instanceof Error ? err.message : String(err))
+        break
+      }
+    }
+  }
+
+  const onPickFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      void ingestFiles(e.target.files)
+    }
+    e.target.value = ""
+  }
+
+  const onPaste = (e: React.ClipboardEvent) => {
+    const items = e.clipboardData?.items
+    if (!items) return
+    const files: File[] = []
+    for (const item of items) {
+      if (item.kind === "file" && item.type.startsWith("image/")) {
+        const f = item.getAsFile()
+        if (f) files.push(f)
+      }
+    }
+    if (files.length > 0) {
+      e.preventDefault()
+      void ingestFiles(files)
+    }
+  }
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id))
+    setAttachError(null)
+  }
 
   React.useEffect(() => {
     let cancelled = false
@@ -259,7 +358,7 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
 
   const send = async () => {
     const prompt = input.trim()
-    if (!prompt || sending) return
+    if ((!prompt && attachments.length === 0) || sending) return
 
     let currentManifest = manifest
     if (!currentManifest) {
@@ -272,13 +371,22 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
       }
     }
 
+    const sentAttachments = attachments
     setSending(true)
     setInput("")
+    setAttachments([])
+    setAttachError(null)
     const userId = `u_${Date.now()}`
     const agentId = `a_${Date.now()}`
     setMessages((m) => [
       ...m,
-      { id: userId, role: "user", text: prompt, status: "done" },
+      {
+        id: userId,
+        role: "user",
+        text: prompt || "(somente imagem)",
+        status: "done",
+        attachments: sentAttachments,
+      },
       { id: agentId, role: "agent", text: "", status: "streaming" },
     ])
 
@@ -287,7 +395,14 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          prompt,
+          prompt: prompt || "Use a(s) imagem(ns) anexada(s) como referência.",
+          images:
+            sentAttachments.length > 0
+              ? sentAttachments.map((a) => ({
+                  mediaType: a.mediaType,
+                  base64: a.base64,
+                }))
+              : undefined,
           manifest: {
             palette: currentManifest?.builder?.palette ?? [],
             tokens: currentManifest?.designSystem?.tokens ?? {},
@@ -321,11 +436,7 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
               return { ...msg, text: msg.text + t }
             }
             if (event === "assistant") {
-              const t =
-                data && typeof data === "object" && "text" in data
-                  ? String((data as { text: string }).text)
-                  : ""
-              return { ...msg, text: t }
+              return msg
             }
             if (event === "result") {
               const d = data as {
@@ -435,38 +546,107 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
       </div>
 
       <form
-        className="p-3 border-t border-[var(--border-subtle)] flex items-end gap-2"
+        className="border-t border-[var(--border-subtle)] flex flex-col"
         onSubmit={(e) => {
           e.preventDefault()
           send()
         }}
+        onPaste={onPaste}
       >
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault()
-              send()
+        {attachments.length > 0 && (
+          <div className="px-3 pt-3 flex gap-2 flex-wrap">
+            {attachments.map((a) => (
+              <div
+                key={a.id}
+                className="relative group w-16 h-16 rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border-subtle)]"
+                title={`${a.mediaType} · ${a.sizeKB}KB`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={a.dataUrl}
+                  alt=""
+                  className="w-full h-full object-cover"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeAttachment(a.id)}
+                  aria-label="Remover"
+                  className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] inline-flex items-center justify-center text-[10px] opacity-80 hover:opacity-100"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {attachError && (
+          <div className="px-3 pt-2 text-[11px] text-[var(--aw-red-600)] flex items-center gap-1">
+            <Icon name="error" size={11} />
+            {attachError}
+          </div>
+        )}
+        <div className="p-3 flex items-end gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            multiple
+            hidden
+            onChange={onPickFile}
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={
+              sending ||
+              !activeFrame ||
+              attachments.length >= MAX_ATTACHMENTS
             }
-          }}
-          placeholder={
-            activeFrame
-              ? "Descreva a página… (Enter envia, Shift+Enter quebra linha)"
-              : "Crie uma página antes para usar a IA."
-          }
-          rows={2}
-          disabled={sending || !activeFrame}
-          className="flex-1 min-h-[40px] max-h-[140px] px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-sm text-[var(--fg-primary)] resize-none focus:outline-none focus:border-[var(--accent-brand)] disabled:opacity-50"
-        />
-        <button
-          type="submit"
-          disabled={sending || !input.trim() || !activeFrame}
-          aria-label="Enviar"
-          className="inline-flex items-center justify-center h-9 w-9 rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] disabled:opacity-40 hover:opacity-90"
-        >
-          <Icon name={sending ? "hourglass_empty" : "send"} size={16} />
-        </button>
+            aria-label="Anexar imagem"
+            title={
+              attachments.length >= MAX_ATTACHMENTS
+                ? `Máximo ${MAX_ATTACHMENTS} imagens`
+                : "Anexar imagem (ou cole com Ctrl+V)"
+            }
+            className="inline-flex items-center justify-center h-9 w-9 rounded-[var(--radius-md)] border border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-raised)] disabled:opacity-40"
+          >
+            <Icon name="image" size={16} />
+          </button>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                send()
+              }
+            }}
+            placeholder={
+              activeFrame
+                ? "Descreva a página… (cole uma imagem com Ctrl+V)"
+                : "Crie uma página antes para usar a IA."
+            }
+            rows={2}
+            disabled={sending || !activeFrame}
+            className="flex-1 min-h-[40px] max-h-[140px] px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-sm text-[var(--fg-primary)] resize-none focus:outline-none focus:border-[var(--accent-brand)] disabled:opacity-50"
+          />
+          <button
+            type="submit"
+            disabled={
+              sending ||
+              (!input.trim() && attachments.length === 0) ||
+              !activeFrame
+            }
+            aria-label="Enviar"
+            className="inline-flex items-center justify-center h-9 w-9 rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] disabled:opacity-40 hover:opacity-90"
+          >
+            <Icon
+              name={sending ? "hourglass_empty" : "send"}
+              size={16}
+              className={sending ? "animate-spin" : undefined}
+            />
+          </button>
+        </div>
       </form>
     </div>
   )
