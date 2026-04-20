@@ -1424,6 +1424,78 @@
   color: var(--dark-fg-secondary);
 }
 
+/* Liquid-glass variant — translucent shell with backdrop blur.
+ * Use on top of a rich canvas (photo, gradient, dense art) for
+ * the Apple-style floating rail. Light tint by default; pair with
+ * --dark for dark canvases. */
+.aw-nav-rail--translucent {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 10px 30px rgba(15, 15, 15, 0.12),
+    0 2px 6px rgba(15, 15, 15, 0.08);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark {
+  background: rgba(13, 13, 13, 0.42);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 14px 40px rgba(0, 0, 0, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.30);
+}
+/* Inner chrome: use low-opacity fills so the blurred canvas still
+ * reads through, but keep text legible. */
+.aw-nav-rail--translucent .aw-nav-rail__switcher-btn {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.40);
+}
+.aw-nav-rail--translucent .aw-nav-rail__switcher-btn:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__switcher-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.10);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__switcher-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+}
+.aw-nav-rail--translucent .aw-nav-rail__item:hover,
+.aw-nav-rail--translucent .aw-nav-rail__item--active {
+  background: rgba(255, 255, 255, 0.50);
+  color: var(--fg-primary);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item {
+  color: rgba(255, 255, 255, 0.72);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item:hover,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__item--active {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+.aw-nav-rail--translucent .aw-nav-rail__top,
+.aw-nav-rail--translucent .aw-nav-rail__bottom,
+.aw-nav-rail--translucent .aw-nav-rail__group {
+  border-color: rgba(15, 15, 15, 0.08);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__top,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__bottom,
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__group {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.aw-nav-rail--translucent .aw-nav-rail__toggle {
+  color: var(--fg-secondary);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__toggle {
+  color: rgba(255, 255, 255, 0.72);
+}
+.aw-nav-rail--translucent.aw-nav-rail--dark .aw-nav-rail__toggle:hover {
+  background: rgba(255, 255, 255, 0.10);
+  color: #ffffff;
+}
+
 /* Brand / workspace header */
 .aw-nav-rail__header {
   display: flex;

@@ -175,9 +175,11 @@ export function LiveDemo() {
 export function StaticRail({
   collapsed,
   theme,
+  translucent,
 }: {
   collapsed: boolean
   theme: AwNavRailTheme
+  translucent?: boolean
 }) {
   const org = ORGS[0]
   const user = USERS[0]
@@ -185,6 +187,7 @@ export function StaticRail({
     <AwNavRail
       collapsed={collapsed}
       theme={theme}
+      translucent={translucent}
       onToggleCollapsed={() => {}}
       top={
         <AwNavRailOrgSwitcher organization={org} organizations={ORGS} />

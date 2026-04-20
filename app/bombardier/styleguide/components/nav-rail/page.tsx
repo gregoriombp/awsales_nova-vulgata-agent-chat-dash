@@ -45,6 +45,59 @@ function Panel({
   )
 }
 
+/** Panel com canvas "rico" (gradiente + arte) para exibir
+ * a variante translúcida — a blur do backdrop precisa de algo
+ * visualmente denso por trás para aparecer. */
+function GlassPanel({
+  label,
+  tint,
+  children,
+}: {
+  label: string
+  tint: "light" | "dark"
+  children: React.ReactNode
+}) {
+  const lightCanvas: React.CSSProperties = {
+    background:
+      "radial-gradient(1200px 600px at 0% 0%, #ffd4c2 0%, transparent 60%)," +
+      "radial-gradient(800px 600px at 100% 100%, #c7d9ff 0%, transparent 55%)," +
+      "linear-gradient(135deg, #f6f3ee 0%, #e8e5df 100%)",
+  }
+  const darkCanvas: React.CSSProperties = {
+    background:
+      "radial-gradient(900px 500px at 15% 15%, rgba(167,139,250,0.55) 0%, transparent 55%)," +
+      "radial-gradient(700px 500px at 85% 85%, rgba(6,182,212,0.50) 0%, transparent 55%)," +
+      "radial-gradient(500px 400px at 50% 50%, rgba(236,72,153,0.28) 0%, transparent 60%)," +
+      "#0a0e17",
+  }
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden relative min-h-[560px] p-8 flex items-start justify-center">
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={tint === "dark" ? darkCanvas : lightCanvas}
+        aria-hidden
+      />
+      <div
+        className={`absolute top-3 right-5 aw-eyebrow ${
+          tint === "dark" ? "text-white/80" : ""
+        }`}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          position: "relative",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 export default function NavRailPage() {
   return (
     <>
@@ -83,6 +136,60 @@ export default function NavRailPage() {
               <Panel label="expanded · light" tint="light">
                 <StaticRail collapsed={false} theme="light" />
               </Panel>
+            </div>
+          </Section>
+
+          <Section
+            id="translucent"
+            title="Translucent — liquid glass"
+            lead="Acabamento em vidro líquido: fundo translúcido + backdrop blur + saturação. Use quando o rail flutua sobre um canvas rico (arte, gradiente, mídia). Duas versões — claro e escuro — tingem o vidro para canvases de cada cor."
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <GlassPanel label="translucent · light" tint="light">
+                <StaticRail collapsed translucent theme="light" />
+              </GlassPanel>
+              <GlassPanel label="translucent · dark" tint="dark">
+                <StaticRail collapsed translucent theme="dark" />
+              </GlassPanel>
+              <GlassPanel label="translucent · light · expanded" tint="light">
+                <StaticRail collapsed={false} translucent theme="light" />
+              </GlassPanel>
+              <GlassPanel label="translucent · dark · expanded" tint="dark">
+                <StaticRail collapsed={false} translucent theme="dark" />
+              </GlassPanel>
+            </div>
+
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+              <Spec
+                k="prop"
+                v="translucent={true}"
+                d="Combina com theme='light' ou 'dark' — pinta o vidro para o canvas."
+              />
+              <Spec
+                k="blur"
+                v="backdrop-filter: blur(24px)"
+                d="Saturação 180% para cores vivas do fundo aparecerem atrás."
+              />
+              <Spec
+                k="fill"
+                v="rgba branco 55% / preto 42%"
+                d="Legibilidade garantida para texto do rail."
+              />
+              <Spec
+                k="specular"
+                v="inset 0 1px 0 rgba(255,255,255,…)"
+                d="Borda superior realçada simula o highlight do vidro."
+              />
+              <Spec
+                k="quando usar"
+                v="canvas rico"
+                d="Hero, empty state, landing — qualquer cena onde o chrome deve recuar."
+              />
+              <Spec
+                k="quando não usar"
+                v="canvas chapado / denso de texto"
+                d="Sobre superfície uniforme o blur some; use a variante sólida."
+              />
             </div>
           </Section>
 
@@ -199,6 +306,12 @@ export default function NavRailPage() {
                 type='"light" | "dark"'
                 def='"light"'
                 doc="Explícito. Use dark em shell escuro."
+              />
+              <PropRow
+                prop="translucent"
+                type="boolean"
+                def="false"
+                doc="Liquid-glass — backdrop-blur + fundo translúcido. Combine com theme para tingir o vidro."
               />
               <PropRow
                 prop="onToggleCollapsed"

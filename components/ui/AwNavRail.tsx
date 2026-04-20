@@ -12,6 +12,11 @@ export type AwNavRailTheme = "light" | "dark"
 export type AwNavRailProps = React.HTMLAttributes<HTMLElement> & {
   collapsed?: boolean
   theme?: AwNavRailTheme
+  /**
+   * Liquid-glass finish — translucent background + backdrop blur.
+   * Pair with `theme` to tint for light or dark canvases.
+   */
+  translucent?: boolean
   onToggleCollapsed?: () => void
   top?: React.ReactNode
   bottom?: React.ReactNode
@@ -21,6 +26,7 @@ export type AwNavRailProps = React.HTMLAttributes<HTMLElement> & {
 export function AwNavRail({
   collapsed,
   theme = "light",
+  translucent,
   onToggleCollapsed,
   top,
   bottom,
@@ -32,6 +38,7 @@ export function AwNavRail({
     "aw-nav-rail",
     collapsed ? "aw-nav-rail--collapsed" : "aw-nav-rail--expanded",
     theme === "dark" && "aw-nav-rail--dark",
+    translucent && "aw-nav-rail--translucent",
     className,
   ]
     .filter(Boolean)
