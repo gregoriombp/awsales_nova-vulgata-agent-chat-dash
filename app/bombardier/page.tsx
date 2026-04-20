@@ -14,27 +14,27 @@ type HubSection = {
 
 const sections: HubSection[] = [
   {
+    title: "Projetos",
+    description:
+      "Lista dos seus projetos salvos em disco. Crie novos, abra, duplique ou delete.",
+    icon: "folder_open",
+    href: "/bombardier/projects",
+    status: "ready",
+  },
+  {
+    title: "Page Builder",
+    description:
+      "Abre o rascunho atual (guardado no navegador). Ideal para experimentar sem criar projeto.",
+    icon: "draw",
+    href: "/bombardier/page-builder",
+    status: "ready",
+  },
+  {
     title: "Styleguide",
     description:
       "Tokens, foundations e componentes Aw* — a fonte da verdade do design system.",
     icon: "palette",
     href: "/bombardier/styleguide",
-    status: "ready",
-  },
-  {
-    title: "Canvas",
-    description:
-      "Lista de páginas do projeto ativo. Crie, duplique e abra o Page Builder.",
-    icon: "dashboard",
-    href: "/bombardier/canvas",
-    status: "soon",
-  },
-  {
-    title: "Page Builder",
-    description:
-      "Editor drag-and-drop com chat de IA lateral para gerar layouts.",
-    icon: "draw",
-    href: "/bombardier/page-builder",
     status: "ready",
   },
   {

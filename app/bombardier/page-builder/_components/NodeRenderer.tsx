@@ -13,6 +13,7 @@ import { AwProgress, type AwProgressVariant } from "@/components/ui/AwProgress"
 import { AwSkeleton, type AwSkeletonShape } from "@/components/ui/AwSkeleton"
 import { AwToggle } from "@/components/ui/AwToggle"
 import { Icon } from "@/components/ui/Icon"
+import { useBuilder } from "@/lib/bombardier/store"
 import type { BuilderNode } from "@/lib/bombardier/types"
 
 const spaceMap: Record<string, string> = {
@@ -114,20 +115,27 @@ function NodeWrapper({
   children: React.ReactNode
 }) {
   const selected = ctx.selectedId === node.id
+  const editingNodeId = useBuilder((s) => s.editingNodeId)
+  const isEditing = editingNodeId === node.id
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `node-${node.id}`,
     data: { source: "node", nodeId: node.id },
+    disabled: isEditing,
   })
   return (
     <div
       ref={setNodeRef}
       data-node-id={node.id}
-      {...listeners}
-      {...attributes}
-      onClick={(e) => {
-        e.stopPropagation()
-        ctx.onSelectNode(node.id)
-      }}
+      {...(isEditing ? {} : listeners)}
+      {...(isEditing ? {} : attributes)}
+      onClick={
+        isEditing
+          ? undefined
+          : (e) => {
+              e.stopPropagation()
+              ctx.onSelectNode(node.id)
+            }
+      }
       className={[
         "relative rounded-[var(--radius-sm)] transition-[outline]",
         selected
@@ -140,6 +148,96 @@ function NodeWrapper({
       {children}
     </div>
   )
+}
+
+function EditableText({
+  nodeId,
+  value,
+  onCommit,
+  tag: Tag,
+  className,
+  style,
+  multiline = false,
+}: {
+  nodeId: string
+  value: string
+  onCommit: (next: string) => void
+  tag: "h1" | "h2" | "h3" | "h4" | "p"
+  className?: string
+  style?: React.CSSProperties
+  multiline?: boolean
+}) {
+  const editingNodeId = useBuilder((s) => s.editingNodeId)
+  const setEditingNode = useBuilder((s) => s.setEditingNode)
+  const isEditing = editingNodeId === nodeId
+  const ref = React.useRef<HTMLElement | null>(null)
+  const initialRef = React.useRef<string>(value)
+
+  React.useEffect(() => {
+    if (isEditing && ref.current) {
+      initialRef.current = value
+      ref.current.focus()
+      const sel = window.getSelection()
+      const range = document.createRange()
+      range.selectNodeContents(ref.current)
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isEditing])
+
+  const commonProps = {
+    className: [
+      className,
+      "m-0",
+      isEditing
+        ? "outline outline-2 outline-[var(--accent-brand)] outline-offset-2 rounded-[var(--radius-xs)] cursor-text"
+        : "cursor-text",
+    ]
+      .filter(Boolean)
+      .join(" "),
+    style,
+    onDoubleClick: (e: React.MouseEvent) => {
+      e.stopPropagation()
+      setEditingNode(nodeId)
+    },
+    onPointerDown: isEditing
+      ? (e: React.PointerEvent) => e.stopPropagation()
+      : undefined,
+  }
+
+  if (isEditing) {
+    return React.createElement(Tag, {
+      ...commonProps,
+      ref: ref as React.RefObject<never>,
+      contentEditable: true,
+      suppressContentEditableWarning: true,
+      spellCheck: false,
+      onBlur: (e: React.FocusEvent<HTMLElement>) => {
+        const next = (e.currentTarget.innerText ?? "").replace(/\r/g, "")
+        setEditingNode(null)
+        if (next !== initialRef.current) onCommit(next)
+      },
+      onKeyDown: (e: React.KeyboardEvent<HTMLElement>) => {
+        if (e.key === "Escape") {
+          e.preventDefault()
+          if (ref.current) ref.current.innerText = initialRef.current
+          setEditingNode(null)
+          ;(e.currentTarget as HTMLElement).blur()
+        }
+        if (e.key === "Enter" && !e.shiftKey && !multiline) {
+          e.preventDefault()
+          ;(e.currentTarget as HTMLElement).blur()
+        }
+      },
+      children: value,
+    })
+  }
+
+  return React.createElement(Tag, {
+    ...commonProps,
+    children: value,
+  })
 }
 
 export function FrameRootDropZone({
@@ -292,6 +390,8 @@ function GridDropZone({
 }
 
 function Leaf({ node }: { node: BuilderNode }) {
+  const updateProps = useBuilder((s) => s.updateProps)
+
   switch (node.type) {
     case "heading": {
       const level = Number(node.props.level ?? 1)
@@ -307,30 +407,25 @@ function Leaf({ node }: { node: BuilderNode }) {
       const color = (node.props.color as string) || undefined
       const extra = (node.props.className as string) || ""
       const content = String(node.props.content ?? "")
-      const className = `${sizeCls} ${align} font-semibold tracking-tight m-0 font-heading ${extra}`.trim()
+      const className = `${sizeCls} ${align} font-semibold tracking-tight font-heading ${extra}`.trim()
       const style = color ? { color } : undefined
-      if (level === 1)
-        return (
-          <h1 style={style} className={className}>
-            {content}
-          </h1>
-        )
-      if (level === 2)
-        return (
-          <h2 style={style} className={className}>
-            {content}
-          </h2>
-        )
-      if (level === 3)
-        return (
-          <h3 style={style} className={className}>
-            {content}
-          </h3>
-        )
+      const tag: "h1" | "h2" | "h3" | "h4" =
+        level === 1
+          ? "h1"
+          : level === 2
+          ? "h2"
+          : level === 3
+          ? "h3"
+          : "h4"
       return (
-        <h4 style={style} className={className}>
-          {content}
-        </h4>
+        <EditableText
+          nodeId={node.id}
+          value={content}
+          tag={tag}
+          className={className}
+          style={style}
+          onCommit={(next) => updateProps(node.id, { content: next })}
+        />
       )
     }
     case "text": {
@@ -344,15 +439,21 @@ function Leaf({ node }: { node: BuilderNode }) {
         textToneMap[tone] ?? textToneMap.primary,
         textWeightMap[weight] ?? textWeightMap.normal,
         textAlignMap[align] ?? textAlignMap.left,
-        "m-0 leading-relaxed",
+        "leading-relaxed",
         extra,
       ]
         .filter(Boolean)
         .join(" ")
       return (
-        <p className={cls} style={{ whiteSpace: "pre-wrap" }}>
-          {String(node.props.content ?? "")}
-        </p>
+        <EditableText
+          nodeId={node.id}
+          value={String(node.props.content ?? "")}
+          tag="p"
+          className={cls}
+          style={{ whiteSpace: "pre-wrap" }}
+          multiline
+          onCommit={(next) => updateProps(node.id, { content: next })}
+        />
       )
     }
     case "link": {

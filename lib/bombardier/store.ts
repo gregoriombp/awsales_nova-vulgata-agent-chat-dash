@@ -129,6 +129,50 @@ export function findFrameOfNode(
   return null
 }
 
+function findParentInChildren(
+  nodes: BuilderNode[],
+  targetId: string
+): BuilderNode | null {
+  for (const n of nodes) {
+    if (!n.children) continue
+    for (const c of n.children) {
+      if (c.id === targetId) return n
+    }
+    const deeper = findParentInChildren(n.children, targetId)
+    if (deeper) return deeper
+  }
+  return null
+}
+
+export function findNodeContext(
+  project: BuilderProject,
+  nodeId: string
+): {
+  frame: PageFrame
+  parent: BuilderNode | null
+  node: BuilderNode
+} | null {
+  for (const frame of project.pages) {
+    const rootMatch = frame.rootNodes.find((n) => n.id === nodeId)
+    if (rootMatch) return { frame, parent: null, node: rootMatch }
+    const deeper = findNode(frame.rootNodes, nodeId)
+    if (deeper) {
+      const parent = findParentInChildren(frame.rootNodes, nodeId)
+      return { frame, parent, node: deeper }
+    }
+  }
+  return null
+}
+
+function cloneNodeWithNewIds(n: BuilderNode): BuilderNode {
+  return {
+    id: nid("n"),
+    type: n.type,
+    props: { ...n.props },
+    children: n.children ? n.children.map(cloneNodeWithNewIds) : n.children,
+  }
+}
+
 function isDescendantOrSelf(node: BuilderNode, targetId: string): boolean {
   if (node.id === targetId) return true
   if (!node.children) return false
@@ -156,10 +200,29 @@ function nextFramePosition(
   }
 }
 
+export type ProjectListItem = {
+  slug: string
+  name: string
+  updatedAt: string
+  pageCount: number
+}
+
+export type SaveResult =
+  | { ok: true; slug: string; path: string }
+  | { ok: false; error: string }
+
 export type BuilderState = {
   project: BuilderProject
   selectedFrameId: string | null
   selectedNodeId: string | null
+  editingNodeId: string | null
+  projectSlug: string | null
+  lastSavedAt: number | null
+  isSaving: boolean
+  setEditingNode: (id: string | null) => void
+  setProjectName: (name: string) => void
+  saveProject: (explicitSlug?: string) => Promise<SaveResult>
+  loadProject: (slug: string) => Promise<{ ok: boolean; error?: string }>
   // node ops
   addNodeAt: (type: string, frameId: string, parentId: string | "root") => void
   updateProps: (nodeId: string, patch: Record<string, unknown>) => void
@@ -169,7 +232,12 @@ export type BuilderState = {
     targetFrameId: string,
     targetParentId: string | "root"
   ) => void
-  applyGeneratedNodes: (frameId: string, generated: unknown[]) => number
+  applyGeneratedNodes: (
+    frameId: string,
+    generated: unknown[],
+    parentId?: string | "root"
+  ) => number
+  duplicateNode: (nodeId: string) => void
   // frame ops
   addFrame: (preset?: FramePreset) => void
   updateFrame: (
@@ -191,12 +259,103 @@ export type BuilderState = {
   reset: () => void
 }
 
+function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60)
+}
+
 export const useBuilder = create<BuilderState>()(
   persist(
     (set, get) => ({
       project: createEmptyProject(),
       selectedFrameId: null,
       selectedNodeId: null,
+      editingNodeId: null,
+      projectSlug: null,
+      lastSavedAt: null,
+      isSaving: false,
+      setEditingNode: (id) => set({ editingNodeId: id }),
+      setProjectName: (name) =>
+        set((state) => ({
+          project: { ...state.project, name },
+        })),
+      saveProject: async (explicitSlug) => {
+        const state = get()
+        const rawName = state.project.name.trim() || "untitled"
+        const slug = explicitSlug || state.projectSlug || slugify(rawName) || "untitled"
+        set({ isSaving: true })
+        try {
+          const res = await fetch(
+            `/api/bombardier/projects/${encodeURIComponent(slug)}`,
+            {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ project: state.project }),
+            }
+          )
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            return {
+              ok: false,
+              error:
+                typeof data.error === "string"
+                  ? data.error
+                  : `HTTP ${res.status}`,
+            }
+          }
+          set({
+            projectSlug: data.slug ?? slug,
+            lastSavedAt: Date.now(),
+          })
+          return { ok: true, slug: data.slug ?? slug, path: data.path ?? "" }
+        } catch (err) {
+          return {
+            ok: false,
+            error: err instanceof Error ? err.message : String(err),
+          }
+        } finally {
+          set({ isSaving: false })
+        }
+      },
+      loadProject: async (slug) => {
+        try {
+          const res = await fetch(
+            `/api/bombardier/projects/${encodeURIComponent(slug)}`
+          )
+          const data = await res.json().catch(() => ({}))
+          if (!res.ok) {
+            return {
+              ok: false,
+              error:
+                typeof data.error === "string"
+                  ? data.error
+                  : `HTTP ${res.status}`,
+            }
+          }
+          if (!data.project) {
+            return { ok: false, error: "missing_project_field" }
+          }
+          set({
+            project: data.project as BuilderProject,
+            projectSlug: slug,
+            lastSavedAt: Date.now(),
+            selectedFrameId: null,
+            selectedNodeId: null,
+            editingNodeId: null,
+          })
+          return { ok: true }
+        } catch (err) {
+          return {
+            ok: false,
+            error: err instanceof Error ? err.message : String(err),
+          }
+        }
+      },
       addNodeAt: (type, frameId, parentId) =>
         set((state) => {
           const node = createNode(type)
@@ -276,7 +435,7 @@ export const useBuilder = create<BuilderState>()(
             selectedNodeId: nodeId,
           }
         }),
-      applyGeneratedNodes: (frameId, generated) => {
+      applyGeneratedNodes: (frameId, generated, parentId = "root") => {
         let count = 0
         const assignIds = (nodes: unknown[]): BuilderNode[] => {
           const out: BuilderNode[] = []
@@ -307,19 +466,59 @@ export const useBuilder = create<BuilderState>()(
         }
         const newNodes = assignIds(generated)
         if (newNodes.length === 0) return 0
-        set((state) => ({
-          project: {
-            ...state.project,
-            pages: mapFrame(state.project.pages, frameId, (f) => ({
-              ...f,
-              rootNodes: [...f.rootNodes, ...newNodes],
-              updatedAt: new Date().toISOString(),
-            })),
-          },
-          selectedFrameId: frameId,
-        }))
+        set((state) => {
+          const updatedAt = new Date().toISOString()
+          const pages = mapFrame(state.project.pages, frameId, (f) => {
+            if (parentId === "root") {
+              return {
+                ...f,
+                rootNodes: [...f.rootNodes, ...newNodes],
+                updatedAt,
+              }
+            }
+            let rootNodes = f.rootNodes
+            for (const node of newNodes) {
+              rootNodes = addChildTo(rootNodes, parentId, node)
+            }
+            return { ...f, rootNodes, updatedAt }
+          })
+          return {
+            project: { ...state.project, pages },
+            selectedFrameId: frameId,
+            selectedNodeId: newNodes[0]?.id ?? null,
+          }
+        })
         return count
       },
+      duplicateNode: (nodeId) =>
+        set((state) => {
+          const ctx = findNodeContext(state.project, nodeId)
+          if (!ctx) return {}
+          const clone = cloneNodeWithNewIds(ctx.node)
+          const updatedAt = new Date().toISOString()
+          const pages = mapFrame(state.project.pages, ctx.frame.id, (f) => {
+            if (ctx.parent === null) {
+              const idx = f.rootNodes.findIndex((n) => n.id === nodeId)
+              if (idx === -1) return f
+              const next = [
+                ...f.rootNodes.slice(0, idx + 1),
+                clone,
+                ...f.rootNodes.slice(idx + 1),
+              ]
+              return { ...f, rootNodes: next, updatedAt }
+            }
+            return {
+              ...f,
+              rootNodes: addChildTo(f.rootNodes, ctx.parent.id, clone),
+              updatedAt,
+            }
+          })
+          return {
+            project: { ...state.project, pages },
+            selectedFrameId: ctx.frame.id,
+            selectedNodeId: clone.id,
+          }
+        }),
       addFrame: (preset = "desktop") =>
         set((state) => {
           const dims = FRAME_PRESETS[preset]
@@ -453,7 +652,11 @@ export const useBuilder = create<BuilderState>()(
     {
       name: "bombardier-page-builder-draft",
       storage: createJSONStorage(() => localStorage),
-      partialize: (s) => ({ project: s.project }),
+      partialize: (s) => ({
+        project: s.project,
+        projectSlug: s.projectSlug,
+        lastSavedAt: s.lastSavedAt,
+      }),
       version: 2,
       migrate: (persisted: unknown, version: number) => {
         if (version < 2 || !persisted || typeof persisted !== "object") {
