@@ -108,10 +108,12 @@ export function AwIntegrationCard({
           <AwButton
             variant="secondary"
             size="sm"
-            iconOnly="link_off"
+            iconLeft="link_off"
             aria-label={`Desativar ${name}`}
             onClick={stop(onDisconnect ?? onClick)}
-          />
+          >
+            Desativar
+          </AwButton>
         </span>
       )
     }
