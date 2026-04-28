@@ -16,6 +16,7 @@ import {
   AwIntegrationCard,
   type AwIntegrationCardState,
 } from "@/components/ui/AwIntegrationCard";
+import { AwConnectModal } from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
@@ -31,6 +32,8 @@ type IntegrationCategory =
 
 type CategoryFilter = "all" | "connected" | IntegrationCategory;
 
+type AuthMethod = "oauth" | "api";
+
 interface Integration {
   id: string;
   cat: IntegrationCategory;
@@ -38,7 +41,9 @@ interface Integration {
   domain: string;
   desc: string;
   state: AwIntegrationCardState;
+  auth: AuthMethod;
   instances?: number;
+  permissions?: string[];
 }
 
 const CATS: { id: CategoryFilter; label: string }[] = [
@@ -55,35 +60,35 @@ const CATS: { id: CategoryFilter; label: string }[] = [
 
 const ITEMS: Integration[] = [
   // CHANNELS
-  { id: "whatsapp", cat: "channels", name: "WhatsApp", domain: "whatsapp.com", desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.", state: "connected", instances: 2 },
-  { id: "instagram", cat: "channels", name: "Instagram", domain: "instagram.com", desc: "Responda DMs do Instagram automaticamente com agentes.", state: "connected" },
-  { id: "messenger", cat: "channels", name: "Messenger", domain: "messenger.com", desc: "Atendimento automatizado pelo Messenger do Facebook.", state: "available" },
-  // CHECKOUTS
-  { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", state: "connected" },
-  { id: "stripe", cat: "checkouts", name: "Stripe", domain: "stripe.com", desc: "Pagamentos globais — cartão, PIX, assinaturas.", state: "attention" },
-  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available" },
-  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available" },
-  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available" },
-  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available" },
-  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available" },
+  { id: "whatsapp", cat: "channels", name: "WhatsApp", domain: "whatsapp.com", desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.", state: "connected", instances: 2, auth: "oauth", permissions: ["Enviar e receber mensagens em seu nome", "Acessar contatos e conversas ativas", "Ler mídias enviadas pelos clientes"] },
+  { id: "instagram", cat: "channels", name: "Instagram", domain: "instagram.com", desc: "Responda DMs do Instagram automaticamente com agentes.", state: "connected", auth: "oauth", permissions: ["Ler e responder mensagens diretas", "Acessar comentários em posts e reels", "Ver informações básicas da conta"] },
+  { id: "messenger", cat: "channels", name: "Messenger", domain: "messenger.com", desc: "Atendimento automatizado pelo Messenger do Facebook.", state: "available", auth: "oauth", permissions: ["Ler e responder mensagens da página", "Acessar perfis públicos dos clientes", "Receber webhooks de novas conversas"] },
+  // CHECKOUTS — quase todos via API/webhook
+  { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", state: "connected", auth: "api" },
+  { id: "stripe", cat: "checkouts", name: "Stripe", domain: "stripe.com", desc: "Pagamentos globais — cartão, PIX, assinaturas.", state: "attention", auth: "api" },
+  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "api" },
+  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "api" },
+  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "api" },
+  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "api" },
+  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "api" },
   // MEMBERS
-  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available" },
-  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available" },
+  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "api" },
+  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "api" },
   // FORMS
-  { id: "googleforms", cat: "forms", name: "Google Forms", domain: "forms.google.com", desc: "Receba submissões do Google Forms em tempo real.", state: "available" },
-  { id: "typeform", cat: "forms", name: "Typeform", domain: "typeform.com", desc: "Capture leads dos seus formulários conversacionais.", state: "available" },
-  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available" },
+  { id: "googleforms", cat: "forms", name: "Google Forms", domain: "forms.google.com", desc: "Receba submissões do Google Forms em tempo real.", state: "available", auth: "oauth", permissions: ["Acessar a lista de formulários da conta", "Receber respostas em tempo real", "Ler metadados das perguntas"] },
+  { id: "typeform", cat: "forms", name: "Typeform", domain: "typeform.com", desc: "Capture leads dos seus formulários conversacionais.", state: "available", auth: "oauth", permissions: ["Acessar formulários da workspace", "Receber novas respostas via webhook", "Ler informações do respondente"] },
+  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "api" },
   // MEETINGS
-  { id: "calendly", cat: "meetings", name: "Calendly", domain: "calendly.com", desc: "Agendamentos automáticos sincronizados com agentes.", state: "available" },
-  { id: "googlecal", cat: "meetings", name: "Google Calendar", domain: "calendar.google.com", desc: "Reuniões e disponibilidade direto do Google Agenda.", state: "available" },
+  { id: "calendly", cat: "meetings", name: "Calendly", domain: "calendly.com", desc: "Agendamentos automáticos sincronizados com agentes.", state: "available", auth: "oauth", permissions: ["Acessar tipos de evento e disponibilidade", "Criar e cancelar agendamentos", "Receber notificações de novos eventos"] },
+  { id: "googlecal", cat: "meetings", name: "Google Calendar", domain: "calendar.google.com", desc: "Reuniões e disponibilidade direto do Google Agenda.", state: "available", auth: "oauth", permissions: ["Ler eventos e disponibilidade da agenda", "Criar e atualizar eventos em seu nome", "Acessar agendas compartilhadas"] },
   // CRMs
-  { id: "pipedrive", cat: "crms", name: "Pipedrive", domain: "pipedrive.com", desc: "Sincronize contatos, deals e atividades do Pipedrive.", state: "available" },
-  { id: "kommo", cat: "crms", name: "Kommo", domain: "kommo.com", desc: "Conecte funis, leads e tarefas do Kommo CRM.", state: "available" },
-  { id: "rdstation", cat: "crms", name: "RD Station", domain: "rdstation.com", desc: "Sincronize leads, oportunidades e tags do RD Station.", state: "available" },
-  { id: "hubspot", cat: "crms", name: "HubSpot", domain: "hubspot.com", desc: "Conecte contatos, empresas e pipelines do HubSpot.", state: "available" },
+  { id: "pipedrive", cat: "crms", name: "Pipedrive", domain: "pipedrive.com", desc: "Sincronize contatos, deals e atividades do Pipedrive.", state: "available", auth: "oauth", permissions: ["Acessar contatos, organizações e deals", "Criar e atualizar atividades", "Mover deals entre etapas do pipeline"] },
+  { id: "kommo", cat: "crms", name: "Kommo", domain: "kommo.com", desc: "Conecte funis, leads e tarefas do Kommo CRM.", state: "available", auth: "oauth", permissions: ["Acessar leads, contatos e empresas", "Criar e atualizar tarefas", "Mover leads entre etapas do funil"] },
+  { id: "rdstation", cat: "crms", name: "RD Station", domain: "rdstation.com", desc: "Sincronize leads, oportunidades e tags do RD Station.", state: "available", auth: "oauth", permissions: ["Acessar leads e oportunidades", "Criar e atualizar tags", "Disparar eventos de conversão"] },
+  { id: "hubspot", cat: "crms", name: "HubSpot", domain: "hubspot.com", desc: "Conecte contatos, empresas e pipelines do HubSpot.", state: "available", auth: "oauth", permissions: ["Acessar contatos e empresas", "Criar e atualizar deals do pipeline", "Disparar workflows quando uma oportunidade fechar"] },
   // MARKETPLACES
-  { id: "shopify", cat: "marketplaces", name: "Shopify", domain: "shopify.com", desc: "Gerencie produtos, pedidos e clientes pela IA.", state: "connected" },
-  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available" },
+  { id: "shopify", cat: "marketplaces", name: "Shopify", domain: "shopify.com", desc: "Gerencie produtos, pedidos e clientes pela IA.", state: "connected", auth: "oauth", permissions: ["Acessar catálogo de produtos e estoque", "Ler pedidos e clientes", "Criar rascunhos de pedido e cupons"] },
+  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "api" },
 ];
 
 export default function IntegrationsPage() {
@@ -120,6 +125,8 @@ export default function IntegrationsPage() {
   const opened = openId ? ITEMS.find((i) => i.id === openId) ?? null : null;
   const isConnected =
     opened?.state === "connected" || opened?.state === "attention";
+  const showOAuthModal = !!opened && !isConnected && opened.auth === "oauth";
+  const showFormModal = !!opened && (isConnected || opened.auth === "api");
 
   const breadcrumbs = [
     { label: "Integrações", icon: <Icon name="extension" size={20} /> },
@@ -217,9 +224,27 @@ export default function IntegrationsPage() {
         </div>
       </div>
 
-      {/* Connect / Manage modal */}
+      {/* OAuth permission dialog — para integrações via OAuth ainda não conectadas */}
+      <AwConnectModal
+        open={showOAuthModal}
+        onClose={() => setOpenId(null)}
+        targetBrand={opened?.id ?? ""}
+        targetName={opened?.name ?? ""}
+        productName="AwSales"
+        description={opened?.desc}
+        permissionsTitle={opened ? `O AwSales precisa` : undefined}
+        permissions={opened?.permissions ?? []}
+        redirectUrl={
+          opened
+            ? `https://app.awsales.io/integrations/${opened.id}/callback`
+            : undefined
+        }
+        onAllow={() => setOpenId(null)}
+      />
+
+      {/* Manage / API key modal — para integrações conectadas ou via chave de API */}
       <AwModal
-        open={!!opened}
+        open={showFormModal}
         onClose={() => setOpenId(null)}
         title={
           opened
