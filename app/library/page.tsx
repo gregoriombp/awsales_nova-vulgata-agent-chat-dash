@@ -1,7 +1,7 @@
 "use client";
 
 import DashboardLayout from "@/components/DashboardLayout";
-import ComingSoon from "@/components/ComingSoon";
+import ComponentLibrary from "@/components/ComponentLibrary";
 
 export default function LibraryPage() {
   const breadcrumbs = [
@@ -17,7 +17,7 @@ export default function LibraryPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <ComingSoon />
+      <ComponentLibrary />
     </DashboardLayout>
   );
 }
