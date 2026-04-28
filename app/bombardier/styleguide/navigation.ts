@@ -30,6 +30,7 @@ export const navigation: NavSection[] = [
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
+      { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
