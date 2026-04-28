@@ -74,31 +74,64 @@ export function SliderDemo() {
 export function TabsDemo() {
   const [tab, setTab] = React.useState("geral")
   const [size, setSize] = React.useState("md")
+  const [cat, setCat] = React.useState("all")
   return (
     <div className="flex flex-col gap-6">
-      <AwTabs
-        value={tab}
-        onChange={setTab}
-        items={[
-          { value: "geral", label: "Geral" },
-          { value: "fontes", label: "Fontes" },
-          { value: "rastro", label: "Rastro" },
-          { value: "webhooks", label: "Webhooks" },
-        ]}
-      />
-      <div className="text-sm text-[var(--fg-secondary)]">
-        Tab ativa: <code className="mono">{tab}</code>
+      <div className="flex flex-col gap-2">
+        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+          variant=&quot;segmented&quot; (default)
+        </div>
+        <AwTabs
+          value={tab}
+          onChange={setTab}
+          items={[
+            { value: "geral", label: "Geral" },
+            { value: "fontes", label: "Fontes" },
+            { value: "rastro", label: "Rastro" },
+            { value: "webhooks", label: "Webhooks" },
+          ]}
+        />
       </div>
-      <AwTabs
-        value={size}
-        onChange={setSize}
-        items={[
-          { value: "sm", label: "Small" },
-          { value: "md", label: "Medium" },
-          { value: "lg", label: "Large" },
-          { value: "xl", label: "X-Large", disabled: true },
-        ]}
-      />
+
+      <div className="flex flex-col gap-2">
+        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+          tamanhos + estado disabled
+        </div>
+        <AwTabs
+          value={size}
+          onChange={setSize}
+          items={[
+            { value: "sm", label: "Small" },
+            { value: "md", label: "Medium" },
+            { value: "lg", label: "Large" },
+            { value: "xl", label: "X-Large", disabled: true },
+          ]}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+          variant=&quot;standalone&quot; com contadores — para nav de categorias
+        </div>
+        <AwTabs
+          variant="standalone"
+          value={cat}
+          onChange={setCat}
+          items={[
+            { value: "all", label: "Todas", count: 23 },
+            { value: "connected", label: "Conectadas", count: 5 },
+            { value: "channels", label: "Canais", count: 3 },
+            { value: "checkouts", label: "Checkouts", count: 7 },
+            { value: "crms", label: "CRMs", count: 4 },
+            { value: "marketplaces", label: "Marketplaces", count: 2 },
+          ]}
+        />
+      </div>
+
+      <div className="text-sm text-[var(--fg-secondary)]">
+        Tab ativa (segmented): <code className="mono">{tab}</code> · Categoria
+        ativa (standalone): <code className="mono">{cat}</code>
+      </div>
     </div>
   )
 }
