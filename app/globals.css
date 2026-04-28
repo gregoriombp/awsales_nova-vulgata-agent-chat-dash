@@ -1534,6 +1534,12 @@
   border-radius: var(--radius-xl);
   padding: 10px 8px;
   box-sizing: border-box;
+  transition:
+    width var(--dur-slow) var(--ease-out),
+    padding var(--dur-slow) var(--ease-out),
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
+  overflow: hidden;
 }
 .aw-nav-rail--collapsed { width: 64px; }
 .aw-nav-rail--expanded  { width: 260px; padding: 12px; }
@@ -2022,10 +2028,23 @@
 .aw-nav-rail__toolbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 0 4px;
 }
 .aw-nav-rail--collapsed .aw-nav-rail__toolbar { justify-content: center; padding: 0; }
+
+/* AwSales mark — top-right of the toolbar, expanded state only */
+.aw-nav-rail__logo {
+  color: var(--fg-primary);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  animation: aw-nav-rail-logo-in var(--dur-slow) var(--ease-out) forwards;
+}
+.aw-nav-rail--dark .aw-nav-rail__logo { color: var(--dark-fg-primary); }
+@keyframes aw-nav-rail-logo-in {
+  to { opacity: 1; transform: translateX(0); }
+}
 
 .aw-nav-rail__bottom {
   margin-top: 8px;

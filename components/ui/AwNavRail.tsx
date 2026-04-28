@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Icon } from "./Icon"
+import { AwLogo } from "./AwLogo"
 
 export type AwNavRailTheme = "light" | "dark"
 
@@ -53,6 +54,14 @@ export function AwNavRail({
         <div className="aw-nav-rail__top">
           {hasToggle && (
             <div className="aw-nav-rail__toolbar">
+              {!collapsed && (
+                <AwLogo
+                  variant="wordmark"
+                  height={16}
+                  className="aw-nav-rail__logo"
+                  aria-label="AwSales"
+                />
+              )}
               <button
                 type="button"
                 className="aw-nav-rail__toggle"
