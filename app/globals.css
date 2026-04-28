@@ -1240,6 +1240,125 @@
 }
 
 /* ============================================================
+ * AwConnectModal — OAuth-style permission/connect dialog.
+ * Centered hero (dual brand logos + connector), permissions list,
+ * optional redirect URL with copy, three-slot footer.
+ * Reuses .aw-modal-scrim + .aw-modal shells; layout overrides only.
+ * ============================================================ */
+.aw-connect-modal {
+  position: relative;
+  max-width: 480px;
+  padding: 28px 28px 22px;
+  gap: 20px;
+}
+.aw-connect-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+.aw-connect-modal__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+}
+.aw-connect-modal__logos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.aw-connect-modal__connector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  color: var(--fg-tertiary);
+}
+.aw-connect-modal__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--fg-primary);
+  color: var(--bg-raised);
+  flex-shrink: 0;
+}
+.aw-connect-modal__title {
+  margin: 0;
+  font: 600 19px/1.3 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg-primary);
+}
+.aw-connect-modal__desc {
+  margin: 0;
+  max-width: 380px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__perms {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 18px;
+}
+.aw-connect-modal__perms-title {
+  margin: 0 0 10px;
+  font: 600 13.5px/1.25 var(--font-sans);
+  color: var(--fg-primary);
+}
+.aw-connect-modal__perms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aw-connect-modal__perm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__perm-icon {
+  color: var(--aw-blue-700);
+  flex-shrink: 0;
+}
+.aw-connect-modal__url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aw-connect-modal__url-input {
+  flex: 1;
+  min-width: 0;
+}
+.aw-connect-modal__url-input input {
+  font-size: 12.5px;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+}
+.aw-connect-modal__foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================
  * AwAlert — inline contextual message. NEVER used as toast.
  * ============================================================ */
 .aw-alert {
