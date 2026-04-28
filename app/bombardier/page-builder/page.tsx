@@ -143,7 +143,7 @@ function SaveIndicator({
   )
 }
 
-export default function PageBuilderRoute() {
+function PageBuilderContent() {
   const [mounted, setMounted] = React.useState(false)
   React.useEffect(() => setMounted(true), [])
 
@@ -469,5 +469,13 @@ export default function PageBuilderRoute() {
         )}
       </div>
     </DndContext>
+  )
+}
+
+export default function PageBuilderRoute() {
+  return (
+    <React.Suspense fallback={null}>
+      <PageBuilderContent />
+    </React.Suspense>
   )
 }
