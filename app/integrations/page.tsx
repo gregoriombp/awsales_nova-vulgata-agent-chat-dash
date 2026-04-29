@@ -184,7 +184,7 @@ const ITEMS: Integration[] = [
     name: "Instagram",
     domain: "instagram.com",
     desc: "Responda DMs do Instagram automaticamente com agentes.",
-    state: "connected",
+    state: "attention",
     auth: "oauth",
     permissions: [
       "Ler e responder mensagens diretas",
@@ -767,6 +767,11 @@ function IntegrationSettings({
  * Active integration list row — horizontal selectable item.
  * ---------------------------------------------------------------- */
 
+type ActiveRowStatus = {
+  label: string;
+  variant: "live" | "beta" | "neutral" | "error";
+};
+
 function ActiveRow({
   brand,
   name,
@@ -774,6 +779,7 @@ function ActiveRow({
   state,
   selected,
   onClick,
+  status,
 }: {
   brand: string;
   name: string;
@@ -781,6 +787,7 @@ function ActiveRow({
   state: AwIntegrationCardState;
   selected: boolean;
   onClick: () => void;
+  status?: ActiveRowStatus;
 }) {
   return (
     <button
@@ -800,7 +807,7 @@ function ActiveRow({
           <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
             {name}
           </span>
-          {state === "attention" && (
+          {state === "attention" && !status && (
             <Icon
               name="error"
               size={14}
@@ -812,12 +819,93 @@ function ActiveRow({
           {description}
         </div>
       </div>
+      {status && (
+        <AwPill variant={status.variant}>{status.label}</AwPill>
+      )}
       <Icon
         name="chevron_right"
         size={18}
         className="text-[var(--fg-tertiary)]"
       />
     </button>
+  );
+}
+
+const CHANNEL_IDS = ["whatsapp", "instagram", "messenger"] as const;
+type ChannelId = (typeof CHANNEL_IDS)[number];
+const isChannelId = (id: string): id is ChannelId =>
+  (CHANNEL_IDS as readonly string[]).includes(id);
+
+function statusForState(state: AwIntegrationCardState): ActiveRowStatus {
+  switch (state) {
+    case "connected":
+      return { label: "Ativo", variant: "live" };
+    case "attention":
+      return { label: "Requer atenção", variant: "beta" };
+    case "disabled":
+      return { label: "Desabilitado", variant: "error" };
+    case "available":
+    default:
+      return { label: "Não configurado", variant: "neutral" };
+  }
+}
+
+function SuggestionsCard({
+  suggestions,
+  onPick,
+  onSeeAll,
+}: {
+  suggestions: { id: string; name: string; desc: string }[];
+  onPick: (id: string) => void;
+  onSeeAll: () => void;
+}) {
+  return (
+    <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5">
+      <div className="mb-1 flex items-center gap-2">
+        <Icon
+          name="add_circle"
+          size={18}
+          className="text-[var(--fg-secondary)]"
+        />
+        <h3 className="m-0 text-[14px] font-semibold text-[var(--fg-primary)]">
+          Adicione mais integrações
+        </h3>
+      </div>
+      <p className="m-0 mb-3 text-[12.5px] leading-[1.45] text-[var(--fg-secondary)]">
+        Capture eventos e amplie o que seus agentes podem fazer.
+      </p>
+      {suggestions.length > 0 && (
+        <ul className="m-0 mb-2 flex list-none flex-col gap-0.5 p-0">
+          {suggestions.map((s) => (
+            <li key={s.id}>
+              <button
+                type="button"
+                onClick={() => onPick(s.id)}
+                className="flex w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
+              >
+                <AwBrandLogo brand={s.id} size="sm" />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                    {s.name}
+                  </div>
+                  <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                    {s.desc}
+                  </div>
+                </div>
+                <Icon
+                  name="add"
+                  size={16}
+                  className="text-[var(--fg-tertiary)]"
+                />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <AwButton variant="ghost" size="sm" block onClick={onSeeAll}>
+        Ver todas as integrações
+      </AwButton>
+    </div>
   );
 }
 
@@ -940,41 +1028,111 @@ export default function IntegrationsPage() {
                   : "w-full max-w-[640px]")
               }
             >
-              <h2 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                Integrações ativas
-              </h2>
-              {instances.length === 0 ? (
-                <AwEmpty>
-                  <AwEmptyHeader>
-                    <AwEmptyMedia variant="icon">
-                      <Icon name="extension_off" size={20} />
-                    </AwEmptyMedia>
-                    <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
-                    <AwEmptyDescription>
-                      Conecte uma plataforma para começar.
-                    </AwEmptyDescription>
-                  </AwEmptyHeader>
-                </AwEmpty>
-              ) : (
-                <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
-                  {instances.map((inst) => {
-                    const it = ITEMS.find((i) => i.id === inst.integrationId);
-                    if (!it) return null;
-                    return (
-                      <li key={inst.instanceId}>
-                        <ActiveRow
-                          brand={it.id}
-                          name={inst.name}
-                          description={it.desc}
-                          state={it.state}
-                          selected={selectedInstanceId === inst.instanceId}
-                          onClick={() => setSelectedInstanceId(inst.instanceId)}
-                        />
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+              {/* Channels — always shows the 3 first-class channels */}
+              <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                Canais
+              </h3>
+              <ul className="m-0 mb-6 flex list-none flex-col gap-0.5 p-0">
+                {CHANNEL_IDS.map((id) => {
+                  const it = ITEMS.find((i) => i.id === id);
+                  if (!it) return null;
+                  const inst = instances.find((i) => i.integrationId === id);
+                  const effectiveState: AwIntegrationCardState = inst
+                    ? it.state
+                    : "available";
+                  return (
+                    <li key={id}>
+                      <ActiveRow
+                        brand={it.id}
+                        name={it.name}
+                        description={it.desc}
+                        state={effectiveState}
+                        selected={
+                          !!inst && selectedInstanceId === inst.instanceId
+                        }
+                        onClick={() => {
+                          if (inst) setSelectedInstanceId(inst.instanceId);
+                          else setConnectId(id);
+                        }}
+                        status={statusForState(effectiveState)}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+
+              {/* Active integrations — non-channel */}
+              {(() => {
+                const activeNonChannels = instances.filter(
+                  (i) => !isChannelId(i.integrationId),
+                );
+                return (
+                  <>
+                    <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                      Integrações ativas
+                    </h3>
+                    {activeNonChannels.length === 0 ? (
+                      <AwEmpty>
+                        <AwEmptyHeader>
+                          <AwEmptyMedia variant="icon">
+                            <Icon name="extension_off" size={20} />
+                          </AwEmptyMedia>
+                          <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
+                          <AwEmptyDescription>
+                            Conecte uma plataforma para começar.
+                          </AwEmptyDescription>
+                        </AwEmptyHeader>
+                      </AwEmpty>
+                    ) : (
+                      <ul className="m-0 mb-6 flex list-none flex-col gap-0.5 p-0">
+                        {activeNonChannels.map((inst) => {
+                          const it = ITEMS.find(
+                            (i) => i.id === inst.integrationId,
+                          );
+                          if (!it) return null;
+                          return (
+                            <li key={inst.instanceId}>
+                              <ActiveRow
+                                brand={it.id}
+                                name={inst.name}
+                                description={it.desc}
+                                state={it.state}
+                                selected={
+                                  selectedInstanceId === inst.instanceId
+                                }
+                                onClick={() =>
+                                  setSelectedInstanceId(inst.instanceId)
+                                }
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </>
+                );
+              })()}
+
+              {/* Suggestions card */}
+              {(() => {
+                const suggestions = ITEMS.filter(
+                  (i) =>
+                    i.state === "available" &&
+                    !isChannelId(i.id) &&
+                    !instances.some((inst) => inst.integrationId === i.id),
+                ).slice(0, 3);
+                return (
+                  <SuggestionsCard
+                    suggestions={suggestions.map((s) => ({
+                      id: s.id,
+                      name: s.name,
+                      desc: s.desc,
+                    }))}
+                    onPick={(id) => setConnectId(id)}
+                    onSeeAll={() => setAddOpen(true)}
+                  />
+                );
+              })()}
             </aside>
 
             {/* Settings panel — outer animates width, inner fades content in/out */}
