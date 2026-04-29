@@ -18,6 +18,7 @@ import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwStatusDot, type AwStatusDotVariant } from "@/components/ui/AwStatusDot";
+import { AwSheet, AwSheetRow, AwSheetTab } from "@/components/ui/AwSheet";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
@@ -191,21 +192,114 @@ const QUALITY_PILL: Record<PhoneQuality, AwPillVariant> = {
 };
 
 /* ================================================================
- * Header
+ * Left rail — list of WABAs (account switcher)
  * ================================================================ */
 
-function PanelHeader({
-  waba,
+function WabaRail({
   wabas,
-  onSelectWaba,
+  selectedId,
+  onSelect,
   onAddWaba,
 }: {
-  waba: Waba;
   wabas: Waba[];
-  onSelectWaba: (id: string) => void;
+  selectedId: string;
+  onSelect: (id: string) => void;
   onAddWaba: () => void;
 }) {
-  const [open, setOpen] = useState(false);
+  return (
+    <aside
+      aria-label="Contas WABA conectadas"
+      className="hidden w-[280px] flex-shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-canvas)] md:flex"
+    >
+      <header className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-4">
+        <div className="flex items-center gap-2">
+          <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Contas WABA
+          </h3>
+          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 text-[11px] font-semibold text-[var(--bg-raised)]">
+            {wabas.length}
+          </span>
+        </div>
+        <AwButton
+          variant="ghost"
+          size="sm"
+          iconOnly="add"
+          aria-label="Conectar nova WABA"
+          onClick={onAddWaba}
+        />
+      </header>
+
+      <ul
+        role="listbox"
+        aria-label="WABAs conectadas"
+        className="m-0 flex-1 list-none overflow-y-auto p-2"
+      >
+        {wabas.map((w) => {
+          const meta = STATUS_PILL[w.status];
+          const active = w.id === selectedId;
+          return (
+            <li key={w.id} className="mb-1 last:mb-0">
+              <button
+                type="button"
+                role="option"
+                aria-selected={active}
+                onClick={() => onSelect(w.id)}
+                className={
+                  "flex w-full items-start gap-3 rounded-[var(--radius-md)] border px-2.5 py-2.5 text-left transition-colors " +
+                  (active
+                    ? "border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-xs)]"
+                    : "border-transparent hover:bg-[var(--bg-surface)]")
+                }
+              >
+                <span className="relative flex-shrink-0">
+                  <AwBrandLogo brand="whatsapp" size="sm" />
+                  <AwStatusDot
+                    variant={meta.dot}
+                    size="sm"
+                    ring
+                    absolute
+                  />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                    {w.name}
+                  </span>
+                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                    {w.bmName} · {w.phones.length}{" "}
+                    {w.phones.length === 1 ? "número" : "números"}
+                  </span>
+                  {w.status !== "active" && (
+                    <span className="mt-1.5 inline-flex">
+                      <AwPill variant={meta.variant}>{w.statusLabel}</AwPill>
+                    </span>
+                  )}
+                </span>
+              </button>
+            </li>
+          );
+        })}
+      </ul>
+
+      <footer className="border-t border-[var(--border-subtle)] p-3">
+        <AwButton
+          variant="secondary"
+          size="md"
+          iconLeft="add"
+          onClick={onAddWaba}
+          block
+        >
+          Conectar nova WABA
+        </AwButton>
+      </footer>
+    </aside>
+  );
+}
+
+/* ================================================================
+ * Header — selected WABA title + actions
+ * ================================================================ */
+
+function PanelHeader({ waba }: { waba: Waba }) {
   const meta = STATUS_PILL[waba.status];
 
   return (
@@ -215,7 +309,7 @@ function PanelHeader({
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-              WhatsApp Business
+              {waba.name}
             </h2>
             <AwPill variant={meta.variant}>{waba.statusLabel}</AwPill>
           </div>
@@ -240,68 +334,8 @@ function PanelHeader({
       </div>
 
       <div className="flex flex-shrink-0 items-center gap-2">
-        {wabas.length > 1 && (
-          <div className="relative">
-            <button
-              type="button"
-              aria-haspopup="listbox"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-              className="inline-flex h-8 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-2.5 text-[12.5px] font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-surface)]"
-            >
-              <AwStatusDot variant={meta.dot} size="xs" />
-              <span className="max-w-[140px] truncate">{waba.name}</span>
-              <Icon name="expand_more" size={16} />
-            </button>
-            {open && (
-              <ul
-                role="listbox"
-                className="absolute right-0 top-[calc(100%+4px)] z-20 m-0 w-[260px] list-none rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-1 shadow-[var(--shadow-popover,_0_12px_32px_rgba(0,0,0,0.12))]"
-              >
-                {wabas.map((w) => (
-                  <li key={w.id}>
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={w.id === waba.id}
-                      onClick={() => {
-                        onSelectWaba(w.id);
-                        setOpen(false);
-                      }}
-                      className={
-                        "flex w-full items-center gap-2 rounded-[var(--radius-sm)] px-2 py-2 text-left text-[12.5px] transition-colors hover:bg-[var(--bg-surface)] " +
-                        (w.id === waba.id
-                          ? "bg-[var(--bg-surface)] text-[var(--fg-primary)]"
-                          : "text-[var(--fg-secondary)]")
-                      }
-                    >
-                      <AwStatusDot variant={STATUS_PILL[w.status].dot} size="xs" />
-                      <span className="flex-1 truncate font-medium">{w.name}</span>
-                      <span className="text-[11px] text-[var(--fg-tertiary)]">
-                        {w.phones.length} {w.phones.length === 1 ? "número" : "números"}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-                <li className="mt-1 border-t border-[var(--border-subtle)] pt-1">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(false);
-                      onAddWaba();
-                    }}
-                    className="flex w-full items-center gap-2 rounded-[var(--radius-sm)] px-2 py-2 text-left text-[12.5px] font-medium text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-surface)]"
-                  >
-                    <Icon name="add" size={14} />
-                    Conectar nova WABA
-                  </button>
-                </li>
-              </ul>
-            )}
-          </div>
-        )}
         <AwButton variant="secondary" size="sm" iconLeft="open_in_new">
-          Abrir no Meta
+          Abrir no Meta Business
         </AwButton>
         <AwButton variant="secondary" size="sm" iconOnly="more_horiz" aria-label="Mais ações" />
       </div>
@@ -684,7 +718,13 @@ function ActivityCard() {
  * Phones tab
  * ================================================================ */
 
-function PhonesTab({ waba }: { waba: Waba }) {
+function PhonesTab({
+  waba,
+  onOpenPhone,
+}: {
+  waba: Waba;
+  onOpenPhone: (phoneNum: string) => void;
+}) {
   if (waba.phones.length === 0) {
     return (
       <AwEmpty>
@@ -723,7 +763,12 @@ function PhonesTab({ waba }: { waba: Waba }) {
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {waba.phones.map((p) => (
-          <AwCard key={p.num} interactive className="flex flex-col gap-3 p-4 text-left">
+          <AwCard
+            key={p.num}
+            interactive
+            onClick={() => onOpenPhone(p.num)}
+            className="flex flex-col gap-3 p-4 text-left"
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="grid h-9 w-9 place-items-center rounded-full bg-[var(--bg-surface)] text-[13px] font-semibold text-[var(--fg-secondary)]">
                 {p.name.charAt(0)}
@@ -783,7 +828,13 @@ function PhoneStat({
  * Templates tab
  * ================================================================ */
 
-function TemplatesTab({ waba }: { waba: Waba }) {
+function TemplatesTab({
+  waba,
+  onOpenTemplate,
+}: {
+  waba: Waba;
+  onOpenTemplate: (name: string, mode: "view" | "edit") => void;
+}) {
   const [query, setQuery] = useState("");
   const filtered = waba.templates.filter((t) =>
     t.name.toLowerCase().includes(query.toLowerCase()),
@@ -855,7 +906,11 @@ function TemplatesTab({ waba }: { waba: Waba }) {
               return (
                 <tr key={t.name}>
                   <td className="aw-table__name">
-                    <span className="inline-flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onOpenTemplate(t.name, "view")}
+                      className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] px-1 py-0.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
+                    >
                       <Icon
                         name="layers"
                         size={13}
@@ -864,7 +919,7 @@ function TemplatesTab({ waba }: { waba: Waba }) {
                       <code className="font-mono text-[12px] text-[var(--fg-primary)]">
                         {t.name}
                       </code>
-                    </span>
+                    </button>
                   </td>
                   <td>{t.category}</td>
                   <td className="text-[var(--fg-tertiary)]">{t.language}</td>
@@ -879,12 +934,14 @@ function TemplatesTab({ waba }: { waba: Waba }) {
                         size="sm"
                         iconOnly="visibility"
                         aria-label="Visualizar"
+                        onClick={() => onOpenTemplate(t.name, "view")}
                       />
                       <AwButton
                         variant="ghost"
                         size="sm"
                         iconOnly="edit"
                         aria-label="Editar"
+                        onClick={() => onOpenTemplate(t.name, "edit")}
                       />
                       <AwButton
                         variant="ghost"
@@ -919,7 +976,15 @@ function TemplatesTab({ waba }: { waba: Waba }) {
  * Variables tab
  * ================================================================ */
 
-function VariablesTab({ waba }: { waba: Waba }) {
+function VariablesTab({
+  waba,
+  onOpenVariable,
+  onNewVariable,
+}: {
+  waba: Waba;
+  onOpenVariable: (name: string) => void;
+  onNewVariable: () => void;
+}) {
   return (
     <div className="flex flex-col gap-4">
       <AwAlert variant="info">
@@ -933,7 +998,7 @@ function VariablesTab({ waba }: { waba: Waba }) {
         <div className="min-w-[240px] flex-1">
           <AwInput placeholder="Buscar variável…" iconLeft="search" dense />
         </div>
-        <AwButton variant="primary" size="sm" iconLeft="add">
+        <AwButton variant="primary" size="sm" iconLeft="add" onClick={onNewVariable}>
           Nova variável
         </AwButton>
       </div>
@@ -967,7 +1032,13 @@ function VariablesTab({ waba }: { waba: Waba }) {
               {waba.variables.map((v) => (
                 <tr key={v.name}>
                   <td>
-                    <code className="font-mono text-[12px] text-[var(--fg-primary)]">{`{{${v.name}}}`}</code>
+                    <button
+                      type="button"
+                      onClick={() => onOpenVariable(v.name)}
+                      className="rounded-[var(--radius-sm)] px-1 py-0.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
+                    >
+                      <code className="font-mono text-[12px] text-[var(--fg-primary)]">{`{{${v.name}}}`}</code>
+                    </button>
                   </td>
                   <td>{v.label}</td>
                   <td className="aw-table__mono text-[var(--fg-tertiary)]">{v.value}</td>
@@ -984,6 +1055,7 @@ function VariablesTab({ waba }: { waba: Waba }) {
                         size="sm"
                         iconOnly="edit"
                         aria-label="Editar"
+                        onClick={() => onOpenVariable(v.name)}
                       />
                       <AwButton
                         variant="ghost"
@@ -1312,6 +1384,362 @@ function WebhookCard({ wabaId }: { wabaId: string }) {
 }
 
 /* ================================================================
+ * Drawers — phone, template, variable
+ * ================================================================ */
+
+function PhoneSheet({
+  open,
+  phone,
+  waba,
+  onClose,
+  onPrev,
+  onNext,
+}: {
+  open: boolean;
+  phone: Phone | null;
+  waba: Waba;
+  onClose: () => void;
+  onPrev?: () => void;
+  onNext?: () => void;
+}) {
+  const [tab, setTab] = useState<"resumo" | "perfil" | "atividade">("resumo");
+
+  React.useEffect(() => {
+    if (open) setTab("resumo");
+  }, [open, phone?.num]);
+
+  if (!phone) return null;
+
+  return (
+    <AwSheet
+      open={open}
+      onClose={onClose}
+      onPrev={onPrev}
+      onNext={onNext}
+      title={
+        <span className="inline-flex items-center gap-2">
+          {phone.name}
+          {phone.official && (
+            <AwPill variant="ai" dot={false}>
+              <Icon name="verified" size={11} /> Oficial
+            </AwPill>
+          )}
+        </span>
+      }
+      meta={
+        <span className="font-mono text-[12px] text-[var(--fg-tertiary)]">
+          {phone.num}
+        </span>
+      }
+      tabs={
+        <>
+          <AwSheetTab active={tab === "resumo"} onClick={() => setTab("resumo")}>
+            Resumo
+          </AwSheetTab>
+          <AwSheetTab active={tab === "perfil"} onClick={() => setTab("perfil")}>
+            Perfil de negócio
+          </AwSheetTab>
+          <AwSheetTab
+            active={tab === "atividade"}
+            onClick={() => setTab("atividade")}
+          >
+            Atividade
+          </AwSheetTab>
+        </>
+      }
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          <AwButton variant="ghost" size="sm" iconLeft="logout">
+            Desconectar número
+          </AwButton>
+          <div className="flex items-center gap-2">
+            <AwButton variant="secondary" size="sm" onClick={onClose}>
+              Fechar
+            </AwButton>
+            <AwButton variant="primary" size="sm">
+              Salvar
+            </AwButton>
+          </div>
+        </div>
+      }
+    >
+      {tab === "resumo" && (
+        <div className="flex flex-col gap-3">
+          <AwSheetRow label="Status">
+            <AwPill variant="live">{phone.status}</AwPill>
+          </AwSheetRow>
+          <AwSheetRow label="Qualidade">
+            <AwPill variant={QUALITY_PILL[phone.quality]}>{phone.quality}</AwPill>
+          </AwSheetRow>
+          <AwSheetRow label="Limite 24h">{phone.limit}</AwSheetRow>
+          <AwSheetRow label="WABA">{waba.name}</AwSheetRow>
+          <AwSheetRow label="Fuso">{waba.timezone}</AwSheetRow>
+          <AwSheetRow label="ID interno" mono>
+            phone_{phone.num.replace(/\D/g, "")}
+          </AwSheetRow>
+        </div>
+      )}
+
+      {tab === "perfil" && (
+        <div className="flex flex-col gap-4">
+          <AwField label="Nome do display" htmlFor="phone-display-name">
+            <AwInput id="phone-display-name" defaultValue={phone.name} />
+          </AwField>
+          <AwField label="Descrição" htmlFor="phone-about">
+            <AwInput
+              id="phone-about"
+              defaultValue="Atendimento de seg a sáb, das 8h às 22h."
+            />
+          </AwField>
+          <AwField label="E-mail de contato" htmlFor="phone-email">
+            <AwInput
+              id="phone-email"
+              defaultValue="contato@marina.com"
+              iconLeft="mail"
+            />
+          </AwField>
+          <AwField label="Site" htmlFor="phone-site">
+            <AwInput
+              id="phone-site"
+              defaultValue="https://marina.com"
+              iconLeft="link"
+            />
+          </AwField>
+        </div>
+      )}
+
+      {tab === "atividade" && (
+        <ul className="m-0 list-none p-0">
+          {[
+            { ts: "Hoje, 14:02", text: "Qualidade subiu para Alta" },
+            { ts: "Ontem, 09:18", text: "Limite ajustado para 1.000/24h" },
+            { ts: "12 abr", text: "Número conectado por Greg" },
+          ].map((e, i) => (
+            <li
+              key={i}
+              className={
+                "flex items-start gap-3 py-2.5 " +
+                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+              }
+            >
+              <span className="mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--fg-tertiary)]" />
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] text-[var(--fg-primary)]">
+                  {e.text}
+                </div>
+                <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+                  {e.ts}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </AwSheet>
+  );
+}
+
+function TemplateSheet({
+  open,
+  template,
+  mode,
+  onClose,
+  onChangeMode,
+}: {
+  open: boolean;
+  template: Template | null;
+  mode: "view" | "edit";
+  onClose: () => void;
+  onChangeMode: (mode: "view" | "edit") => void;
+}) {
+  if (!template) return null;
+  const pill = TEMPLATE_PILL[template.status];
+  const isEditing = mode === "edit";
+
+  return (
+    <AwSheet
+      open={open}
+      onClose={onClose}
+      title={
+        <span className="inline-flex items-center gap-2">
+          <code className="font-mono text-[14px] text-[var(--fg-primary)]">
+            {template.name}
+          </code>
+          <AwPill variant={pill.variant}>{pill.label}</AwPill>
+        </span>
+      }
+      meta={
+        <span>
+          {template.category} · {template.language} · atualizado {template.updated}
+        </span>
+      }
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          <AwButton variant="ghost" size="sm" iconLeft="content_copy">
+            Duplicar
+          </AwButton>
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <AwButton
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => onChangeMode("view")}
+                >
+                  Cancelar
+                </AwButton>
+                <AwButton variant="primary" size="sm">
+                  Enviar para análise
+                </AwButton>
+              </>
+            ) : (
+              <>
+                <AwButton variant="secondary" size="sm" onClick={onClose}>
+                  Fechar
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="sm"
+                  iconLeft="edit"
+                  onClick={() => onChangeMode("edit")}
+                >
+                  Editar
+                </AwButton>
+              </>
+            )}
+          </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <AwField label="Nome" htmlFor="tpl-name">
+          <AwInput
+            id="tpl-name"
+            defaultValue={template.name}
+            readOnly={!isEditing}
+          />
+        </AwField>
+
+        <AwField label="Corpo da mensagem" htmlFor="tpl-body">
+          <textarea
+            id="tpl-body"
+            readOnly={!isEditing}
+            defaultValue={`Olá {{1}}, tudo bem?\n\nVi que você deixou o produto {{2}} no carrinho. Está disponível por {{3}} até hoje à noite — quer que eu separe?`}
+            rows={6}
+            className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 font-mono text-[12.5px] leading-[1.55] text-[var(--fg-primary)] outline-none transition-colors focus:border-[var(--fg-primary)]"
+          />
+        </AwField>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <AwField label="Categoria" htmlFor="tpl-cat">
+            <AwInput
+              id="tpl-cat"
+              defaultValue={template.category}
+              readOnly={!isEditing}
+            />
+          </AwField>
+          <AwField label="Idioma" htmlFor="tpl-lang">
+            <AwInput
+              id="tpl-lang"
+              defaultValue={template.language}
+              readOnly={!isEditing}
+            />
+          </AwField>
+        </div>
+
+        <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
+          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Variáveis usadas
+          </div>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{1}}`}</code>
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{2}}`}</code>
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{3}}`}</code>
+          </div>
+        </div>
+      </div>
+    </AwSheet>
+  );
+}
+
+function VariableSheet({
+  open,
+  variable,
+  isNew,
+  onClose,
+}: {
+  open: boolean;
+  variable: Variable | null;
+  isNew: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <AwSheet
+      open={open}
+      onClose={onClose}
+      title={isNew ? "Nova variável fixa" : variable?.label ?? "Variável"}
+      meta={
+        variable && !isNew ? (
+          <code className="font-mono text-[12px] text-[var(--fg-tertiary)]">
+            {`{{${variable.name}}}`}
+          </code>
+        ) : (
+          "Disponível em todos os templates desta WABA."
+        )
+      }
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          {!isNew && (
+            <AwButton variant="ghost" size="sm" iconLeft="delete">
+              Remover
+            </AwButton>
+          )}
+          <div className="ml-auto flex items-center gap-2">
+            <AwButton variant="secondary" size="sm" onClick={onClose}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="primary" size="sm">
+              {isNew ? "Criar variável" : "Salvar"}
+            </AwButton>
+          </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <AwField label="Nome (placeholder)" htmlFor="var-name">
+          <AwInput
+            id="var-name"
+            defaultValue={variable?.name ?? ""}
+            placeholder="ex: nome_empresa"
+          />
+        </AwField>
+        <AwField label="Label legível" htmlFor="var-label">
+          <AwInput
+            id="var-label"
+            defaultValue={variable?.label ?? ""}
+            placeholder="ex: Nome da empresa"
+          />
+        </AwField>
+        <AwField label="Valor atual" htmlFor="var-value">
+          <AwInput
+            id="var-value"
+            defaultValue={variable?.value ?? ""}
+            placeholder="ex: Marina Cosméticos"
+          />
+        </AwField>
+        <AwField label="Escopo" htmlFor="var-scope">
+          <AwInput
+            id="var-scope"
+            defaultValue={variable?.scope ?? "Esta WABA"}
+            readOnly
+          />
+        </AwField>
+      </div>
+    </AwSheet>
+  );
+}
+
+/* ================================================================
  * Public component
  * ================================================================ */
 
@@ -1322,6 +1750,12 @@ export type AwWhatsAppPanelProps = {
   onCancel?: () => void;
 };
 
+type SheetState =
+  | { kind: "phone"; phoneNum: string }
+  | { kind: "template"; name: string; mode: "view" | "edit" }
+  | { kind: "variable"; name: string | null }
+  | { kind: null };
+
 export function AwWhatsAppPanel({
   wabas = SAMPLE_WABAS,
   onAddWaba,
@@ -1331,6 +1765,7 @@ export function AwWhatsAppPanel({
   const [selectedId, setSelectedId] = useState(wabas[0]?.id ?? "");
   const [tab, setTab] = useState("overview");
   const [enabled, setEnabled] = useState(true);
+  const [sheet, setSheet] = useState<SheetState>({ kind: null });
 
   const selected = wabas.find((w) => w.id === selectedId) ?? wabas[0];
   if (!selected) {
@@ -1355,55 +1790,140 @@ export function AwWhatsAppPanel({
     );
   }
 
+  const closeSheet = () => setSheet({ kind: null });
+  const handleAddWaba = onAddWaba ?? (() => {});
+
+  const sheetPhone =
+    sheet.kind === "phone"
+      ? selected.phones.find((p) => p.num === sheet.phoneNum) ?? null
+      : null;
+  const sheetPhoneIndex =
+    sheetPhone ? selected.phones.findIndex((p) => p.num === sheetPhone.num) : -1;
+  const sheetTemplate =
+    sheet.kind === "template"
+      ? selected.templates.find((t) => t.name === sheet.name) ?? null
+      : null;
+  const sheetVariable =
+    sheet.kind === "variable" && sheet.name
+      ? selected.variables.find((v) => v.name === sheet.name) ?? null
+      : null;
+
   return (
-    <div className="flex h-full flex-col">
-      <PanelHeader
-        waba={selected}
-        wabas={wabas}
-        onSelectWaba={setSelectedId}
-        onAddWaba={onAddWaba ?? (() => {})}
-      />
+    <div className="flex h-full">
+      {wabas.length > 1 && (
+        <WabaRail
+          wabas={wabas}
+          selectedId={selected.id}
+          onSelect={setSelectedId}
+          onAddWaba={handleAddWaba}
+        />
+      )}
 
-      <div className="flex-1 overflow-y-auto px-7 py-6">
-        <div className="mb-6">
-          <ActiveToggle enabled={enabled} onChange={setEnabled} />
+      <div className="flex min-w-0 flex-1 flex-col">
+        <PanelHeader waba={selected} />
+
+        <div className="flex-1 overflow-y-auto px-7 py-6">
+          <div className="mb-6">
+            <ActiveToggle enabled={enabled} onChange={setEnabled} />
+          </div>
+
+          <div className="mb-5">
+            <AwTabs
+              aria-label="Configurações da WABA"
+              variant="underline"
+              value={tab}
+              onChange={setTab}
+              items={[
+                { value: "overview", label: "Visão geral" },
+                { value: "phones", label: "Números", count: selected.phones.length },
+                { value: "templates", label: "Templates", count: selected.templates.length },
+                { value: "variables", label: "Variáveis fixas", count: selected.variables.length },
+                { value: "account", label: "Conta & permissões" },
+                { value: "developer", label: "API & webhooks" },
+              ]}
+            />
+          </div>
+
+          <div>
+            {tab === "overview" && <OverviewTab waba={selected} onTab={setTab} />}
+            {tab === "phones" && (
+              <PhonesTab
+                waba={selected}
+                onOpenPhone={(phoneNum) => setSheet({ kind: "phone", phoneNum })}
+              />
+            )}
+            {tab === "templates" && (
+              <TemplatesTab
+                waba={selected}
+                onOpenTemplate={(name, mode) =>
+                  setSheet({ kind: "template", name, mode })
+                }
+              />
+            )}
+            {tab === "variables" && (
+              <VariablesTab
+                waba={selected}
+                onOpenVariable={(name) => setSheet({ kind: "variable", name })}
+                onNewVariable={() => setSheet({ kind: "variable", name: null })}
+              />
+            )}
+            {tab === "account" && <AccountTab waba={selected} />}
+            {tab === "developer" && <WebhookCard wabaId={selected.id} />}
+          </div>
         </div>
 
-        <div className="mb-5">
-          <AwTabs
-            aria-label="Configurações da WABA"
-            variant="standalone"
-            value={tab}
-            onChange={setTab}
-            items={[
-              { value: "overview", label: "Visão geral" },
-              { value: "phones", label: "Números", count: selected.phones.length },
-              { value: "templates", label: "Templates", count: selected.templates.length },
-              { value: "variables", label: "Variáveis fixas", count: selected.variables.length },
-              { value: "account", label: "Conta & permissões" },
-              { value: "developer", label: "API & webhooks" },
-            ]}
-          />
-        </div>
-
-        <div>
-          {tab === "overview" && <OverviewTab waba={selected} onTab={setTab} />}
-          {tab === "phones" && <PhonesTab waba={selected} />}
-          {tab === "templates" && <TemplatesTab waba={selected} />}
-          {tab === "variables" && <VariablesTab waba={selected} />}
-          {tab === "account" && <AccountTab waba={selected} />}
-          {tab === "developer" && <WebhookCard wabaId={selected.id} />}
-        </div>
+        <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
+          <AwButton variant="secondary" size="md" onClick={onCancel}>
+            Cancelar
+          </AwButton>
+          <AwButton variant="primary" size="md" onClick={onSave}>
+            Salvar alterações
+          </AwButton>
+        </footer>
       </div>
 
-      <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
-        <AwButton variant="secondary" size="md" onClick={onCancel}>
-          Cancelar
-        </AwButton>
-        <AwButton variant="primary" size="md" onClick={onSave}>
-          Salvar alterações
-        </AwButton>
-      </footer>
+      <PhoneSheet
+        open={sheet.kind === "phone" && !!sheetPhone}
+        phone={sheetPhone}
+        waba={selected}
+        onClose={closeSheet}
+        onPrev={
+          sheetPhoneIndex > 0
+            ? () =>
+                setSheet({
+                  kind: "phone",
+                  phoneNum: selected.phones[sheetPhoneIndex - 1].num,
+                })
+            : undefined
+        }
+        onNext={
+          sheetPhoneIndex >= 0 && sheetPhoneIndex < selected.phones.length - 1
+            ? () =>
+                setSheet({
+                  kind: "phone",
+                  phoneNum: selected.phones[sheetPhoneIndex + 1].num,
+                })
+            : undefined
+        }
+      />
+
+      <TemplateSheet
+        open={sheet.kind === "template" && !!sheetTemplate}
+        template={sheetTemplate}
+        mode={sheet.kind === "template" ? sheet.mode : "view"}
+        onClose={closeSheet}
+        onChangeMode={(mode) =>
+          sheet.kind === "template" &&
+          setSheet({ kind: "template", name: sheet.name, mode })
+        }
+      />
+
+      <VariableSheet
+        open={sheet.kind === "variable"}
+        variable={sheetVariable}
+        isNew={sheet.kind === "variable" && sheet.name === null}
+        onClose={closeSheet}
+      />
     </div>
   );
 }

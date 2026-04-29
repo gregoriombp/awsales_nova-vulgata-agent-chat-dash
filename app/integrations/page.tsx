@@ -936,7 +936,7 @@ export default function IntegrationsPage() {
               className={
                 "transition-all duration-300 ease-out " +
                 (isPanelOpen
-                  ? "w-[520px] flex-shrink-0"
+                  ? "w-[400px] flex-shrink-0"
                   : "w-full max-w-[640px]")
               }
             >
