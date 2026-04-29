@@ -1017,6 +1017,37 @@
   cursor: not-allowed;
 }
 
+/* Search variant — pill shape with liquid-glass surface. Used as the
+ * canonical search bar across the product. The translucent fill +
+ * backdrop blur let the surface beneath read through, so place it on
+ * a content canvas, not on a flat panel. */
+.aw-input--search {
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.60),
+    0 6px 20px rgba(15, 15, 15, 0.08),
+    0 1px 3px rgba(15, 15, 15, 0.06);
+}
+.aw-input--search:focus-within {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: var(--aw-blue-500);
+}
+[data-theme="dark"] .aw-input--search {
+  background: rgba(13, 13, 13, 0.42);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    0 1px 3px rgba(0, 0, 0, 0.30);
+}
+[data-theme="dark"] .aw-input--search:focus-within {
+  background: rgba(13, 13, 13, 0.58);
+}
+
 /* ============================================================
  * AwPill — inline status marker with optional pulse dot.
  * ============================================================ */
