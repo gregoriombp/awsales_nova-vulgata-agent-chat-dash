@@ -2674,6 +2674,202 @@
 }
 
 /* ============================================================
+ * AwAddIntegrationModal — wide catalog dialog with category rail.
+ * Reuses .aw-modal-scrim shell; overrides modal layout for sidebar
+ * + main content layout.
+ * ============================================================ */
+.aw-add-int-modal {
+  max-width: 1080px;
+  width: 100%;
+  height: min(720px, calc(100vh - 64px));
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.aw-add-int-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-add-int-modal__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aw-add-int-modal__title {
+  margin: 0;
+  font: 600 19px/1.2 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg-primary);
+}
+.aw-add-int-modal__body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+.aw-add-int-modal__nav {
+  border-right: 1px solid var(--border-subtle);
+  padding: 18px 12px;
+  overflow-y: auto;
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aw-add-int-modal__nav-item {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--fg-secondary);
+  font: 500 13px/1.35 var(--font-sans);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.aw-add-int-modal__nav-item:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-add-int-modal__nav-item--active,
+.aw-add-int-modal__nav-item--active:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  font-weight: 600;
+}
+.aw-add-int-modal__main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 22px 24px 24px;
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__main-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.aw-add-int-modal__main-title {
+  margin: 0;
+  font: 600 15px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-add-int-modal__search {
+  width: 280px;
+  flex-shrink: 0;
+}
+.aw-add-int-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 4px;
+}
+@media (max-width: 900px) {
+  .aw-add-int-modal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .aw-add-int-modal__body { grid-template-columns: 200px 1fr; }
+}
+.aw-add-int-modal__card {
+  position: relative;
+  appearance: none;
+  text-align: left;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 132px;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.aw-add-int-modal__card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+}
+.aw-add-int-modal__card:focus-visible {
+  outline: 0;
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-add-int-modal__card-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 2px;
+}
+.aw-add-int-modal__card-name {
+  font: 600 14px/1.25 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-add-int-modal__card-desc {
+  font: 400 12.5px/1.45 var(--font-sans);
+  color: var(--fg-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.aw-add-int-modal__card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 10.5px/1 var(--font-sans);
+  color: var(--aw-emerald-700, var(--fg-secondary));
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 4px 8px 4px 6px;
+}
+.aw-add-int-modal__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 64px 24px;
+  color: var(--fg-tertiary);
+}
+.aw-add-int-modal__empty-title {
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  margin-top: 6px;
+}
+.aw-add-int-modal__empty-desc {
+  font: 400 12.5px/1.5 var(--font-sans);
+  color: var(--fg-tertiary);
+  max-width: 320px;
+}
+
+/* ============================================================
  * AwToast — transient feedback, bottom-right stack.
  * ============================================================ */
 .aw-toast-stack {
