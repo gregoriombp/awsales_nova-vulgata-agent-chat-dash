@@ -215,7 +215,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: [
-          "Inter",
+          "Geist",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -223,20 +223,14 @@ const config: Config = {
           "sans-serif",
         ],
         heading: [
-          "Neue Haas Grotesk Display Pro",
-          "Neue Haas Grotesk",
-          "Haas Grot Disp",
-          "Inter",
+          "Geist",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
           "sans-serif",
         ],
         display: [
-          "Neue Haas Grotesk Display Pro",
-          "Neue Haas Grotesk",
-          "Haas Grot Disp",
-          "Inter",
+          "Geist",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",

@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Input from "./Input";
-import Button from "./Button";
+import { AwButton } from "./ui/AwButton";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
 
 export default function LoginForm() {
@@ -57,9 +57,9 @@ export default function LoginForm() {
           error={errors.email?.message}
         />
         
-        <Button type="submit" isLoading={isSubmitting}>
+        <AwButton variant="primary" type="submit" loading={isSubmitting} block>
           Avançar
-        </Button>
+        </AwButton>
       </form>
     </div>
   );

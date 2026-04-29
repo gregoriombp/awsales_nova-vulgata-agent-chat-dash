@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Button from "./Button";
+import { AwButton } from "./ui/AwButton";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -30,9 +30,9 @@ export default function EmptyState({
         </p>
       )}
       {actionLabel && onAction && (
-        <Button onClick={onAction} className="w-auto px-6">
+        <AwButton variant="primary" onClick={onAction}>
           {actionLabel}
-        </Button>
+        </AwButton>
       )}
     </div>
   );

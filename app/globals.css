@@ -219,16 +219,14 @@
   --dur-base: 180ms;
   --dur-slow: 280ms;
 
-  /* Type families — split voice.
-   *  · Haas Neue Grotesk (commercial, self-hosted) → display + headings.
-   *    Falls back to Inter if the woff2 files aren't present.
-   *  · Inter → body + UI text.
+  /* Type families — single voice.
+   *  · Geist → body, UI text, headings and display.
    *  · Geist Mono → code only. Never used for timestamps, IDs, metadata
    *    or any product data that's not literal source code. */
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-body: var(--font-sans);
-  --font-heading: 'Neue Haas Grotesk Display Pro', 'Neue Haas Grotesk', 'Haas Grot Disp', var(--font-sans);
-  --font-display: var(--font-heading);
+  --font-heading: var(--font-sans);
+  --font-display: var(--font-sans);
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Type scale */
@@ -1240,6 +1238,125 @@
 }
 
 /* ============================================================
+ * AwConnectModal — OAuth-style permission/connect dialog.
+ * Centered hero (dual brand logos + connector), permissions list,
+ * optional redirect URL with copy, three-slot footer.
+ * Reuses .aw-modal-scrim + .aw-modal shells; layout overrides only.
+ * ============================================================ */
+.aw-connect-modal {
+  position: relative;
+  max-width: 480px;
+  padding: 28px 28px 22px;
+  gap: 20px;
+}
+.aw-connect-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+.aw-connect-modal__hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 8px 0 4px;
+}
+.aw-connect-modal__logos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.aw-connect-modal__connector {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-full);
+  color: var(--fg-tertiary);
+}
+.aw-connect-modal__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--fg-primary);
+  color: var(--bg-raised);
+  flex-shrink: 0;
+}
+.aw-connect-modal__title {
+  margin: 0;
+  font: 600 19px/1.3 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg-primary);
+}
+.aw-connect-modal__desc {
+  margin: 0;
+  max-width: 380px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__perms {
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 18px;
+}
+.aw-connect-modal__perms-title {
+  margin: 0 0 10px;
+  font: 600 13.5px/1.25 var(--font-sans);
+  color: var(--fg-primary);
+}
+.aw-connect-modal__perms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aw-connect-modal__perm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__perm-icon {
+  color: var(--aw-blue-700);
+  flex-shrink: 0;
+}
+.aw-connect-modal__url {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aw-connect-modal__url-input {
+  flex: 1;
+  min-width: 0;
+}
+.aw-connect-modal__url-input input {
+  font-size: 12.5px;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 8px;
+}
+.aw-connect-modal__foot-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ============================================================
  * AwAlert — inline contextual message. NEVER used as toast.
  * ============================================================ */
 .aw-alert {
@@ -1415,6 +1532,11 @@
   border-radius: var(--radius-xl);
   padding: 10px 8px;
   box-sizing: border-box;
+  transition:
+    width var(--dur-slow) var(--ease-out),
+    padding var(--dur-slow) var(--ease-out),
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
 }
 .aw-nav-rail--collapsed { width: 64px; }
 .aw-nav-rail--expanded  { width: 260px; padding: 12px; }
@@ -1582,7 +1704,11 @@
   line-height: 1.2;
   transition:
     background var(--dur-base) var(--ease-out),
-    color var(--dur-base) var(--ease-out);
+    color var(--dur-base) var(--ease-out),
+    padding var(--dur-slow) var(--ease-out),
+    gap var(--dur-slow) var(--ease-out),
+    width var(--dur-slow) var(--ease-out),
+    height var(--dur-slow) var(--ease-out);
 }
 .aw-nav-rail__item:hover {
   background: var(--bg-surface);
@@ -1687,7 +1813,9 @@
   font-family: var(--font-body);
   transition:
     background var(--dur-base) var(--ease-out),
-    border-color var(--dur-base) var(--ease-out);
+    border-color var(--dur-base) var(--ease-out),
+    padding var(--dur-slow) var(--ease-out),
+    gap var(--dur-slow) var(--ease-out);
 }
 .aw-nav-rail__switcher-btn:hover {
   background: var(--bg-raised);
@@ -1903,10 +2031,23 @@
 .aw-nav-rail__toolbar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 0 4px;
 }
 .aw-nav-rail--collapsed .aw-nav-rail__toolbar { justify-content: center; padding: 0; }
+
+/* AwSales mark — top-right of the toolbar, expanded state only */
+.aw-nav-rail__logo {
+  color: var(--fg-primary);
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  animation: aw-nav-rail-logo-in var(--dur-slow) var(--ease-out) forwards;
+}
+.aw-nav-rail--dark .aw-nav-rail__logo { color: var(--dark-fg-primary); }
+@keyframes aw-nav-rail-logo-in {
+  to { opacity: 1; transform: translateX(0); }
+}
 
 .aw-nav-rail__bottom {
   margin-top: 8px;
@@ -2533,6 +2674,202 @@
 }
 
 /* ============================================================
+ * AwAddIntegrationModal — wide catalog dialog with category rail.
+ * Reuses .aw-modal-scrim shell; overrides modal layout for sidebar
+ * + main content layout.
+ * ============================================================ */
+.aw-add-int-modal {
+  max-width: 1080px;
+  width: 100%;
+  height: min(720px, calc(100vh - 64px));
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  border-radius: 18px;
+}
+.aw-add-int-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-add-int-modal__title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aw-add-int-modal__title {
+  margin: 0;
+  font: 600 19px/1.2 var(--font-sans);
+  letter-spacing: -0.01em;
+  color: var(--fg-primary);
+}
+.aw-add-int-modal__body {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  flex: 1;
+  min-height: 0;
+}
+.aw-add-int-modal__nav {
+  border-right: 1px solid var(--border-subtle);
+  padding: 18px 12px;
+  overflow-y: auto;
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aw-add-int-modal__nav-item {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--fg-secondary);
+  font: 500 13px/1.35 var(--font-sans);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+.aw-add-int-modal__nav-item:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+}
+.aw-add-int-modal__nav-item--active,
+.aw-add-int-modal__nav-item--active:hover {
+  background: var(--bg-surface);
+  color: var(--fg-primary);
+  font-weight: 600;
+}
+.aw-add-int-modal__main {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 22px 24px 24px;
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__main-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.aw-add-int-modal__main-title {
+  margin: 0;
+  font: 600 15px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-add-int-modal__search {
+  width: 280px;
+  flex-shrink: 0;
+}
+.aw-add-int-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
+  padding-bottom: 4px;
+}
+@media (max-width: 900px) {
+  .aw-add-int-modal__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .aw-add-int-modal__body { grid-template-columns: 200px 1fr; }
+}
+.aw-add-int-modal__card {
+  position: relative;
+  appearance: none;
+  text-align: left;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 18px 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  min-height: 132px;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.aw-add-int-modal__card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+}
+.aw-add-int-modal__card:focus-visible {
+  outline: 0;
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+.aw-add-int-modal__card-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 2px;
+}
+.aw-add-int-modal__card-name {
+  font: 600 14px/1.25 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-add-int-modal__card-desc {
+  font: 400 12.5px/1.45 var(--font-sans);
+  color: var(--fg-tertiary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.aw-add-int-modal__card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 10.5px/1 var(--font-sans);
+  color: var(--aw-emerald-700, var(--fg-secondary));
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 4px 8px 4px 6px;
+}
+.aw-add-int-modal__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+  padding: 64px 24px;
+  color: var(--fg-tertiary);
+}
+.aw-add-int-modal__empty-title {
+  font: 600 14px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  margin-top: 6px;
+}
+.aw-add-int-modal__empty-desc {
+  font: 400 12.5px/1.5 var(--font-sans);
+  color: var(--fg-tertiary);
+  max-width: 320px;
+}
+
+/* ============================================================
  * AwToast — transient feedback, bottom-right stack.
  * ============================================================ */
 .aw-toast-stack {
@@ -2785,4 +3122,194 @@
   .aw-skel::after { animation: none; }
   .aw-toast { animation: none; }
   .aw-sheet { animation: none; }
+}
+
+/* ============================================================
+ * Integrations page — split layout (sidebar + main store).
+ * Sidebar lists active integrations; main is the catalog grid.
+ * ============================================================ */
+.aw-int-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .aw-int-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.aw-int-aside {
+  position: sticky;
+  top: 24px;
+  padding-right: 8px;
+  border-right: 1px solid var(--border-subtle);
+}
+@media (max-width: 900px) {
+  .aw-int-aside {
+    position: static;
+    padding-right: 0;
+    padding-bottom: 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+}
+.aw-int-aside__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.aw-int-aside__row {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  color: var(--fg-primary);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.aw-int-aside__row:hover {
+  background: var(--bg-raised);
+}
+.aw-int-aside__row:focus-visible {
+  outline: 2px solid var(--ring-focus);
+  outline-offset: 2px;
+}
+.aw-int-aside__name {
+  flex: 1;
+  min-width: 0;
+  font: 500 13px/1.25 var(--font-sans);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-int-main {
+  min-width: 0;
+}
+
+/* ============================================================
+ * Permission segmented control — always / approval / never.
+ * Three-way radio of icon-only buttons.
+ * ============================================================ */
+.aw-perm-seg {
+  display: inline-flex;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.aw-perm-seg__btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 6px 9px;
+  cursor: pointer;
+  color: var(--fg-tertiary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.aw-perm-seg__btn + .aw-perm-seg__btn {
+  border-left: 1px solid var(--border-subtle);
+}
+.aw-perm-seg__btn:hover { color: var(--fg-primary); }
+.aw-perm-seg__btn--active {
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+}
+.aw-perm-seg__btn--always.aw-perm-seg__btn--active   { color: var(--aw-emerald-700); }
+.aw-perm-seg__btn--approval.aw-perm-seg__btn--active { color: var(--aw-amber-700); }
+.aw-perm-seg__btn--never.aw-perm-seg__btn--active    { color: var(--aw-red-600, var(--fg-primary)); }
+
+/* ============================================================
+ * Permission group — collapsible bucket of tools.
+ * ============================================================ */
+.aw-perm-group {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.aw-perm-group__head {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: var(--fg-primary);
+  text-align: left;
+}
+.aw-perm-group__head:hover { background: var(--bg-surface); }
+.aw-perm-group__title {
+  font: 600 13px var(--font-sans);
+  letter-spacing: -0.005em;
+}
+.aw-perm-group__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--fg-tertiary);
+  font: 500 11px/1 var(--font-sans);
+  border: 1px solid var(--border-subtle);
+}
+.aw-perm-group__summary {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+}
+.aw-perm-group__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-subtle);
+}
+.aw-perm-group__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-perm-group__row:last-child { border-bottom: 0; }
+.aw-perm-group__row-copy { flex: 1; min-width: 0; }
+.aw-perm-group__row-name {
+  font: 500 13px/1.35 var(--font-sans);
+  color: var(--fg-primary);
+}
+.aw-perm-group__row-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+}
+.aw-perm-group__hint {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
 }

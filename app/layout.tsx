@@ -24,13 +24,11 @@ export default function RootLayout({
           href="https://fonts.gstatic.com"
           crossOrigin="anonymous"
         />
-        {/* Inter — body font. Geist Mono — code only.
-         * Haas Neue Grotesk (display/heading) is commercial and must be
-         * self-hosted. Drop the .woff2 files in /public/fonts/ and add
-         * @font-face in globals.css. Fallback: Inter. */}
+        {/* Geist — single typographic voice for body, headings and display.
+         * Geist Mono — code only. */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;700&display=swap"
         />
         <link
           rel="stylesheet"
