@@ -12,16 +12,11 @@ import {
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
 import { AwField, AwInput } from "@/components/ui/AwInput";
-import {
-  AwIntegrationCard,
-  type AwIntegrationCardState,
-} from "@/components/ui/AwIntegrationCard";
+import { type AwIntegrationCardState } from "@/components/ui/AwIntegrationCard";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwConnectModal } from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwStatusDot } from "@/components/ui/AwStatusDot";
-import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
 
 type IntegrationCategory =
@@ -32,8 +27,6 @@ type IntegrationCategory =
   | "meetings"
   | "crms"
   | "marketplaces";
-
-type CategoryFilter = "all" | "active" | IntegrationCategory;
 
 type AuthMethod = "oauth" | "api";
 
@@ -65,18 +58,6 @@ interface Integration {
   /** Granular per-tool permissions, surfaced in the detail sheet. */
   tools?: IntegrationTools;
 }
-
-const CATS: { id: CategoryFilter; label: string }[] = [
-  { id: "all", label: "Todas" },
-  { id: "active", label: "Ativas" },
-  { id: "channels", label: "Canais" },
-  { id: "checkouts", label: "Checkouts" },
-  { id: "members", label: "Área de membros" },
-  { id: "forms", label: "Formulários" },
-  { id: "meetings", label: "Reuniões" },
-  { id: "crms", label: "CRMs" },
-  { id: "marketplaces", label: "Marketplaces" },
-];
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
@@ -361,58 +342,392 @@ function PermissionGroup({
  * Page
  * ================================================================ */
 
+/* ----------------------------------------------------------------
+ * Integration settings — inline panel for the selected integration.
+ * ---------------------------------------------------------------- */
+
+function IntegrationSettings({
+  integration,
+  permModes,
+  onPermissionChange,
+}: {
+  integration: Integration;
+  permModes: Record<string, PermissionMode>;
+  onPermissionChange: (toolId: string, next: PermissionMode) => void;
+}) {
+  const [enabled, setEnabled] = useState(true);
+  const isOAuth = integration.auth === "oauth";
+  const lastSync =
+    integration.state === "attention"
+      ? "Token expira em 3 dias — renove para continuar"
+      : "Sincronizado há 2 min";
+
+  return (
+    <div className="flex h-full flex-col">
+      {/* Hero strip */}
+      <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-6">
+        <div className="flex items-center gap-3.5">
+          <AwBrandLogo brand={integration.id} size="lg" />
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="m-0 text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                {integration.name}
+              </h2>
+              {integration.state === "attention" ? (
+                <AwPill variant="beta">Atenção</AwPill>
+              ) : (
+                <AwPill variant="live">Ativa</AwPill>
+              )}
+            </div>
+            <p className="m-0 mt-0.5 text-[12.5px] text-[var(--fg-tertiary)]">
+              {integration.domain} · {lastSync}
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-shrink-0 items-center gap-2">
+          <AwButton variant="secondary" size="sm" iconLeft="refresh">
+            Reconectar
+          </AwButton>
+          <AwButton variant="secondary" size="sm" iconLeft="link_off">
+            Desconectar
+          </AwButton>
+        </div>
+      </header>
+
+      <div className="flex-1 overflow-y-auto px-7 py-6">
+        <p className="m-0 mb-6 max-w-[640px] text-[13.5px] leading-[1.55] text-[var(--fg-secondary)]">
+          {integration.desc}
+        </p>
+
+        {/* Connection summary cards */}
+        <div className="mb-7 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
+            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+              Conexões
+            </div>
+            <div className="mt-1 text-[18px] font-semibold text-[var(--fg-primary)]">
+              {integration.instances ?? 1}
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              {(integration.instances ?? 1) === 1
+                ? "Uma conta conectada"
+                : "Contas conectadas"}
+            </div>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
+            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+              Eventos (24h)
+            </div>
+            <div className="mt-1 text-[18px] font-semibold text-[var(--fg-primary)]">
+              1.284
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              98% sincronizados
+            </div>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
+            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+              Autenticação
+            </div>
+            <div className="mt-1 text-[14px] font-semibold text-[var(--fg-primary)]">
+              {isOAuth ? "OAuth 2.0" : "Chave de API"}
+            </div>
+            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              {isOAuth ? "Renovação automática" : "Renovação manual"}
+            </div>
+          </div>
+        </div>
+
+        {/* Active toggle */}
+        <div className="mb-7 flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3.5">
+          <div>
+            <div className="text-[13.5px] font-medium text-[var(--fg-primary)]">
+              Integração ativa
+            </div>
+            <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
+              Quando desativada, agentes ignoram esta integração e nenhum
+              evento é processado.
+            </div>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={enabled}
+            aria-label="Integração ativa"
+            onClick={() => setEnabled((v) => !v)}
+            className={
+              "relative h-[22px] w-[38px] flex-shrink-0 rounded-full transition-colors " +
+              (enabled
+                ? "bg-[var(--fg-primary)]"
+                : "bg-[var(--border-strong)]")
+            }
+          >
+            <span
+              className={
+                "absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all " +
+                (enabled ? "left-[18px]" : "left-[2px]")
+              }
+            />
+          </button>
+        </div>
+
+        {/* Credentials — API auth shows masked key + webhook secret */}
+        {!isOAuth && (
+          <section className="mb-7">
+            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+              Credenciais
+            </h3>
+            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+              Atualize a chave usada por seus agentes para falar com{" "}
+              {integration.name}.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <AwField label="API Key" htmlFor={`live-key-${integration.id}`}>
+                <AwInput
+                  id={`live-key-${integration.id}`}
+                  defaultValue="sk_live_5ZkP9aW8rQv2XnT3eM1bC7yH"
+                  iconLeft="key"
+                />
+              </AwField>
+              <AwField
+                label="Webhook secret"
+                htmlFor={`live-secret-${integration.id}`}
+              >
+                <AwInput
+                  id={`live-secret-${integration.id}`}
+                  defaultValue="whsec_a8f72c4b9d6e1f0a3b5c"
+                  iconLeft="lock"
+                />
+              </AwField>
+            </div>
+          </section>
+        )}
+
+        {/* OAuth scopes for OAuth integrations */}
+        {isOAuth && integration.permissions && integration.permissions.length > 0 && (
+          <section className="mb-7">
+            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+              Permissões concedidas
+            </h3>
+            <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+              Escopos autorizados quando você conectou {integration.name}.
+            </p>
+            <ul className="m-0 list-none rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0">
+              {integration.permissions.map((p, i) => (
+                <li
+                  key={p}
+                  className={
+                    "flex items-center gap-2.5 px-3.5 py-2.5 text-[12.5px] text-[var(--fg-secondary)]" +
+                    (i > 0
+                      ? " border-t border-[var(--border-subtle)]"
+                      : "")
+                  }
+                >
+                  <Icon
+                    name="check_circle"
+                    size={16}
+                    className="text-[var(--aw-emerald-700)]"
+                    fill={1}
+                  />
+                  {p}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Per-tool permissions */}
+        <section className="mb-7">
+          <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+            Permissões por ferramenta
+          </h3>
+          <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+            Decida quando seus agentes podem usar cada ação.
+          </p>
+
+          {integration.tools?.readOnly && integration.tools.readOnly.length > 0 && (
+            <PermissionGroup
+              title="Ferramentas de leitura"
+              hint="Ler dados não muda nada do lado da plataforma — o padrão é permitir."
+              tools={integration.tools.readOnly}
+              modes={permModes}
+              onChange={onPermissionChange}
+              defaultOpen
+            />
+          )}
+          {integration.tools?.writeDelete &&
+            integration.tools.writeDelete.length > 0 && (
+              <PermissionGroup
+                title="Ferramentas de escrita / exclusão"
+                hint="Ações que alteram dados externos. Padrão é pedir aprovação antes."
+                tools={integration.tools.writeDelete}
+                modes={permModes}
+                onChange={onPermissionChange}
+                defaultOpen
+              />
+            )}
+
+          {!integration.tools && (
+            <AwEmpty>
+              <AwEmptyHeader>
+                <AwEmptyMedia variant="icon">
+                  <Icon name="info" size={20} />
+                </AwEmptyMedia>
+                <AwEmptyTitle>Sem permissões configuráveis</AwEmptyTitle>
+                <AwEmptyDescription>
+                  Esta integração roda em modo somente-leitura — não há ações
+                  individuais para liberar.
+                </AwEmptyDescription>
+              </AwEmptyHeader>
+            </AwEmpty>
+          )}
+        </section>
+
+        {/* Recent activity */}
+        <section>
+          <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+            Atividade recente
+          </h3>
+          <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+            Últimos eventos recebidos desta integração.
+          </p>
+          <ul className="m-0 list-none rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0">
+            {[
+              { icon: "download", label: "Webhook recebido", meta: "há 2 min" },
+              { icon: "sync", label: "Sincronização completa", meta: "há 14 min" },
+              { icon: "key", label: "Token renovado", meta: "há 3 h" },
+              { icon: "check", label: "Conexão validada", meta: "ontem, 18:42" },
+            ].map((row, i) => (
+              <li
+                key={row.label + i}
+                className={
+                  "flex items-center gap-3 px-3.5 py-2.5 text-[12.5px]" +
+                  (i > 0 ? " border-t border-[var(--border-subtle)]" : "")
+                }
+              >
+                <Icon
+                  name={row.icon}
+                  size={16}
+                  className="text-[var(--fg-tertiary)]"
+                />
+                <span className="flex-1 text-[var(--fg-secondary)]">
+                  {row.label}
+                </span>
+                <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+                  {row.meta}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+
+      {/* Footer actions */}
+      <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
+        <AwButton variant="secondary" size="md">
+          Cancelar
+        </AwButton>
+        <AwButton variant="primary" size="md">
+          Salvar alterações
+        </AwButton>
+      </footer>
+    </div>
+  );
+}
+
+/* ----------------------------------------------------------------
+ * Active integration list row — horizontal selectable item.
+ * ---------------------------------------------------------------- */
+
+function ActiveRow({
+  brand,
+  name,
+  description,
+  state,
+  selected,
+  onClick,
+}: {
+  brand: string;
+  name: string;
+  description: string;
+  state: AwIntegrationCardState;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={selected}
+      className={
+        "group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-2 py-2.5 text-left transition-colors " +
+        (selected
+          ? "bg-[var(--bg-raised)]"
+          : "hover:bg-[var(--bg-raised)]")
+      }
+    >
+      <AwBrandLogo brand={brand} size="md" />
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
+            {name}
+          </span>
+          {state === "attention" && (
+            <Icon
+              name="error"
+              size={14}
+              className="text-[var(--aw-amber-700)]"
+            />
+          )}
+        </div>
+        <div className="truncate text-[12.5px] text-[var(--fg-tertiary)]">
+          {description}
+        </div>
+      </div>
+      <Icon
+        name="chevron_right"
+        size={18}
+        className="text-[var(--fg-tertiary)]"
+      />
+    </button>
+  );
+}
+
+/* ================================================================
+ * Page
+ * ================================================================ */
+
 export default function IntegrationsPage() {
-  /** detail sheet — opened from the connected sidebar */
-  const [detailId, setDetailId] = useState<string | null>(null);
-  /** add-instance modal — opened from any catalog card */
+  /** add-instance modal — opened from the catalog modal */
   const [connectId, setConnectId] = useState<string | null>(null);
   /** add-integration catalog modal — opened from the page header CTA */
   const [addOpen, setAddOpen] = useState(false);
-  const [activeCat, setActiveCat] = useState<CategoryFilter>("all");
-  const [q, setQ] = useState("");
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
   const connected = ITEMS.filter((i) => isActive(i.state));
-  const detail = detailId ? ITEMS.find((i) => i.id === detailId) ?? null : null;
+  /** selected integration in the inline settings panel */
+  const [selectedId, setSelectedId] = useState<string | null>(
+    connected[0]?.id ?? null,
+  );
+  const selected = selectedId
+    ? ITEMS.find((i) => i.id === selectedId) ?? null
+    : null;
+
   const connectTarget = connectId
     ? ITEMS.find((i) => i.id === connectId) ?? null
     : null;
 
-  const showDetailSheet = !!detail;
   const showOAuthModal = !!connectTarget && connectTarget.auth === "oauth";
   const showFormModal = !!connectTarget && connectTarget.auth === "api";
 
-  const countFor = (id: CategoryFilter) => {
-    if (id === "all") return ITEMS.length;
-    if (id === "active") return ITEMS.filter((i) => isActive(i.state)).length;
-    return ITEMS.filter((i) => i.cat === id).length;
-  };
-
-  const catalogFiltered = ITEMS.filter((i) => {
-    if (activeCat === "active") {
-      if (!isActive(i.state)) return false;
-    } else if (activeCat !== "all") {
-      if (i.cat !== activeCat) return false;
-    }
-    if (q) {
-      const t = q.toLowerCase();
-      return (
-        i.name.toLowerCase().includes(t) ||
-        i.desc.toLowerCase().includes(t) ||
-        i.domain.toLowerCase().includes(t)
-      );
-    }
-    return true;
-  });
-
   const breadcrumbs = [
     { label: "Integrações", icon: <Icon name="extension" size={20} /> },
+    { label: "Ativas" },
   ];
 
   const setMode = (toolId: string, next: PermissionMode) =>
     setPermModes((m) => ({ ...m, [toolId]: next }));
 
-  const closeDetail = () => setDetailId(null);
   const closeConnect = () => setConnectId(null);
 
   return (
@@ -430,6 +745,9 @@ export default function IntegrationsPage() {
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-2">
+              <AwButton variant="secondary" size="md" iconLeft="link">
+                Solicitar
+              </AwButton>
               <AwButton
                 variant="primary"
                 size="md"
@@ -438,79 +756,76 @@ export default function IntegrationsPage() {
               >
                 Nova integração
               </AwButton>
-              <AwButton variant="secondary" size="md" iconLeft="link">
-                Solicitar
-              </AwButton>
             </div>
           </header>
 
-          <div>
-              <div className="mb-4 flex items-baseline justify-between">
-                <h2 className="m-0 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                  Loja de integrações
-                </h2>
-                <span className="text-[12px] text-[var(--fg-tertiary)]">
-                  Cada integração pode ser conectada várias vezes
-                </span>
-              </div>
-
-              <AwTabs
-                variant="standalone"
-                value={activeCat}
-                onChange={(v) => setActiveCat(v as CategoryFilter)}
-                className="mb-3"
-                aria-label="Categorias de integração"
-                items={CATS.map((c) => ({
-                  value: c.id,
-                  label: c.label,
-                  count: countFor(c.id),
-                }))}
-              />
-
-              <AwInput
-                dense
-                iconLeft="search"
-                placeholder="Buscar integração…"
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                className="mb-4 w-full"
-                aria-label="Buscar integração"
-              />
-
-              {catalogFiltered.length === 0 ? (
+          {/* Two-column: active list + settings panel */}
+          <div className="grid gap-6 lg:grid-cols-[minmax(320px,400px)_1fr]">
+            {/* Left: active integrations */}
+            <aside>
+              <h2 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                Integrações ativas
+              </h2>
+              {connected.length === 0 ? (
                 <AwEmpty>
                   <AwEmptyHeader>
                     <AwEmptyMedia variant="icon">
-                      <Icon name="search_off" size={24} />
+                      <Icon name="extension_off" size={20} />
                     </AwEmptyMedia>
-                    <AwEmptyTitle>Nenhuma integração encontrada</AwEmptyTitle>
+                    <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
                     <AwEmptyDescription>
-                      Tente outro termo ou troque a categoria.
+                      Conecte uma plataforma para começar.
                     </AwEmptyDescription>
                   </AwEmptyHeader>
                 </AwEmpty>
               ) : (
-                <div
-                  className="grid gap-3"
-                  style={{
-                    gridTemplateColumns:
-                      "repeat(auto-fill, minmax(260px, 1fr))",
-                  }}
-                >
-                  {catalogFiltered.map((it) => (
-                    <AwIntegrationCard
-                      key={it.id}
-                      brand={it.id}
-                      name={it.name}
-                      domain={it.domain}
-                      description={it.desc}
-                      state={it.state}
-                      instances={it.instances}
-                      onClick={() => setConnectId(it.id)}
-                    />
+                <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+                  {connected.map((it) => (
+                    <li key={it.id}>
+                      <ActiveRow
+                        brand={it.id}
+                        name={it.name}
+                        description={it.desc}
+                        state={it.state}
+                        selected={selectedId === it.id}
+                        onClick={() => setSelectedId(it.id)}
+                      />
+                    </li>
                   ))}
+                </ul>
+              )}
+            </aside>
+
+            {/* Right: settings panel */}
+            <section
+              aria-label="Configurações da integração"
+              className="min-h-[640px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]"
+            >
+              {selected ? (
+                <IntegrationSettings
+                  integration={selected}
+                  permModes={permModes}
+                  onPermissionChange={setMode}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center p-8">
+                  <AwEmpty>
+                    <AwEmptyHeader>
+                      <AwEmptyMedia variant="icon">
+                        <Icon name="tune" size={22} />
+                      </AwEmptyMedia>
+                      <AwEmptyTitle>
+                        Selecione uma integração
+                      </AwEmptyTitle>
+                      <AwEmptyDescription>
+                        Escolha uma integração ativa à esquerda para ver e
+                        ajustar suas configurações.
+                      </AwEmptyDescription>
+                    </AwEmptyHeader>
+                  </AwEmpty>
                 </div>
               )}
+            </section>
           </div>
         </div>
       </div>
@@ -534,95 +849,6 @@ export default function IntegrationsPage() {
           setConnectId(id);
         }}
       />
-
-      {/* Detail modal — connected integration: info + per-tool permissions */}
-      <AwModal
-        open={showDetailSheet}
-        onClose={closeDetail}
-        title={detail ? `${detail.name} — ${detail.domain}` : undefined}
-        footer={
-          <div className="flex w-full items-center justify-between gap-2">
-            <AwButton variant="secondary" iconLeft="link_off">
-              Desconectar
-            </AwButton>
-            <AwButton variant="primary" onClick={closeDetail}>
-              Salvar permissões
-            </AwButton>
-          </div>
-        }
-      >
-        {detail && (
-          <>
-            <div className="mb-4 flex items-center gap-3">
-              <AwBrandLogo brand={detail.id} size="md" bare />
-              <p className="m-0 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
-                {detail.desc}
-              </p>
-            </div>
-
-            <div className="mb-5 flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3.5 py-3">
-              <div>
-                <div className="text-[12.5px] font-medium text-[var(--fg-primary)]">
-                  Status da conexão
-                </div>
-                <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
-                  {detail.state === "attention"
-                    ? "Token expira em 3 dias — renove para continuar"
-                    : "Sincronizado há 2 min"}
-                </div>
-              </div>
-              {detail.state === "attention" ? (
-                <AwPill variant="beta">Atenção</AwPill>
-              ) : (
-                <AwPill variant="live">Ativa</AwPill>
-              )}
-            </div>
-
-            <h3 className="m-0 mb-1 text-[13px] font-semibold text-[var(--fg-primary)]">
-              Permissões por ferramenta
-            </h3>
-            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-              Decida quando seus agentes podem usar cada ação.
-            </p>
-
-            {detail.tools?.readOnly && detail.tools.readOnly.length > 0 && (
-              <PermissionGroup
-                title="Ferramentas de leitura"
-                hint="Ler dados não muda nada do lado da plataforma — o padrão é permitir."
-                tools={detail.tools.readOnly}
-                modes={permModes}
-                onChange={setMode}
-                defaultOpen
-              />
-            )}
-            {detail.tools?.writeDelete && detail.tools.writeDelete.length > 0 && (
-              <PermissionGroup
-                title="Ferramentas de escrita / exclusão"
-                hint="Ações que alteram dados externos. Padrão é pedir aprovação antes."
-                tools={detail.tools.writeDelete}
-                modes={permModes}
-                onChange={setMode}
-                defaultOpen
-              />
-            )}
-
-            {!detail.tools && (
-              <AwEmpty>
-                <AwEmptyHeader>
-                  <AwEmptyMedia variant="icon">
-                    <Icon name="info" size={20} />
-                  </AwEmptyMedia>
-                  <AwEmptyTitle>Sem permissões configuráveis</AwEmptyTitle>
-                  <AwEmptyDescription>
-                    Esta integração roda em modo somente-leitura — não há ações
-                    individuais para liberar.
-                  </AwEmptyDescription>
-                </AwEmptyHeader>
-              </AwEmpty>
-            )}
-          </>
-        )}
-      </AwModal>
 
       {/* OAuth permission dialog — adds new instance for an OAuth integration */}
       <AwConnectModal
