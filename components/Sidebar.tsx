@@ -152,14 +152,11 @@ export default function Sidebar({
 
   return (
     <aside
-      className={`h-screen flex-shrink-0 p-3 flex ${
-        floating ? "bg-transparent" : "bg-[var(--bg-canvas)]"
-      }`}
+      className="h-screen flex-shrink-0 p-3 flex bg-transparent"
       style={{ width: isCollapsed ? 88 : 284 }}
     >
       <AwNavRail
-        theme="dark"
-        translucent={floating}
+        translucent
         collapsed={isCollapsed}
         onToggleCollapsed={() => setIsCollapsed((v) => !v)}
         style={{ height: "100%", width: "100%" }}
