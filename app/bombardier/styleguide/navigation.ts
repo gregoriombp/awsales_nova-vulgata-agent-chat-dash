@@ -45,6 +45,7 @@ export const navigation: NavSection[] = [
       { name: "Status dot", href: "/bombardier/styleguide/components/status-dot" },
       { name: "Tabela", href: "/bombardier/styleguide/components/table" },
       { name: "Toast", href: "/bombardier/styleguide/components/toast" },
+      { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
     ],
   },
   {

@@ -21,6 +21,7 @@ import {
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 
 const HUBLA_WEBHOOK_TEMPLATE = (id: string) =>
   `https://app.awsales.io/api/webhooks/checkouts/${id}`;
@@ -994,15 +995,21 @@ export default function IntegrationsPage() {
                     (contentReady ? "opacity-100" : "opacity-0")
                   }
                 >
-                  <IntegrationSettings
-                    integration={selected}
-                    displayName={selectedInstance?.name}
-                    permModes={permModes}
-                    onPermissionChange={setMode}
-                    onDisconnect={() => setDisconnectPending(true)}
-                    onReconnect={() => setConnectId(selected.id)}
-                    onClose={closeSettings}
-                  />
+                  {selected.id === "whatsapp" ? (
+                    <AwWhatsAppPanel
+                      onAddWaba={() => setConnectId("whatsapp")}
+                    />
+                  ) : (
+                    <IntegrationSettings
+                      integration={selected}
+                      displayName={selectedInstance?.name}
+                      permModes={permModes}
+                      onPermissionChange={setMode}
+                      onDisconnect={() => setDisconnectPending(true)}
+                      onReconnect={() => setConnectId(selected.id)}
+                      onClose={closeSettings}
+                    />
+                  )}
                 </div>
               )}
             </section>
