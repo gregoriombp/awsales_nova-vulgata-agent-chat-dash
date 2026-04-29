@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
@@ -18,11 +18,16 @@ import {
   AwConnectModal,
   type AwWebhookStep,
 } from "@/components/ui/AwConnectModal";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 
 const HUBLA_WEBHOOK_TEMPLATE = (id: string) =>
   `https://app.awsales.io/api/webhooks/checkouts/${id}`;
+
+/** Mirrors the default organization shown in the nav rail switcher. */
+const ORG_LOGO_SRC = "/assets/icon_artificial_concord_organization.png";
+const ORG_NAME = "Nome da organização";
 
 type IntegrationCategory =
   | "channels"
@@ -425,11 +430,17 @@ function IntegrationSettings({
   displayName,
   permModes,
   onPermissionChange,
+  onDisconnect,
+  onReconnect,
+  onClose,
 }: {
   integration: Integration;
   displayName?: string;
   permModes: Record<string, PermissionMode>;
   onPermissionChange: (toolId: string, next: PermissionMode) => void;
+  onDisconnect?: () => void;
+  onReconnect?: () => void;
+  onClose?: () => void;
 }) {
   const [enabled, setEnabled] = useState(true);
   const isOAuth = integration.auth === "oauth";
@@ -468,12 +479,19 @@ function IntegrationSettings({
           </div>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
-          <AwButton variant="secondary" size="sm" iconLeft="refresh">
+          <AwButton variant="secondary" size="sm" iconLeft="refresh" onClick={onReconnect}>
             Reconectar
           </AwButton>
-          <AwButton variant="secondary" size="sm" iconLeft="link_off">
+          <AwButton variant="secondary" size="sm" iconLeft="link_off" onClick={onDisconnect}>
             Desconectar
           </AwButton>
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly="close"
+            aria-label="Fechar configurações"
+            onClick={onClose}
+          />
         </div>
       </header>
 
@@ -733,10 +751,10 @@ function IntegrationSettings({
 
       {/* Footer actions */}
       <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
-        <AwButton variant="secondary" size="md">
+        <AwButton variant="secondary" size="md" onClick={onClose}>
           Cancelar
         </AwButton>
-        <AwButton variant="primary" size="md">
+        <AwButton variant="primary" size="md" onClick={onClose}>
           Salvar alterações
         </AwButton>
       </footer>
@@ -771,8 +789,8 @@ function ActiveRow({
       className={
         "group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-2 py-2.5 text-left transition-colors " +
         (selected
-          ? "bg-[var(--bg-raised)]"
-          : "hover:bg-[var(--bg-raised)]")
+          ? "bg-[var(--bg-surface)]"
+          : "hover:bg-[var(--bg-surface)]")
       }
     >
       <AwBrandLogo brand={brand} size="md" />
@@ -813,6 +831,8 @@ export default function IntegrationsPage() {
   const [addOpen, setAddOpen] = useState(false);
   /** custom-integration placeholder modal */
   const [customOpen, setCustomOpen] = useState(false);
+  /** disconnect confirmation modal */
+  const [disconnectPending, setDisconnectPending] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
   /** Connected accounts shown in the left list — one row per instance. */
@@ -823,10 +843,8 @@ export default function IntegrationsPage() {
       name: i.name,
     })),
   );
-  /** selected instance in the inline settings panel */
-  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(
-    instances[0]?.instanceId ?? null,
-  );
+  /** selected instance in the inline settings panel — null = panel hidden */
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
   const selectedInstance =
     instances.find((i) => i.instanceId === selectedInstanceId) ?? null;
   const selected = selectedInstance
@@ -847,15 +865,51 @@ export default function IntegrationsPage() {
     setPermModes((m) => ({ ...m, [toolId]: next }));
 
   const closeConnect = () => setConnectId(null);
+  const closeSettings = () => setSelectedInstanceId(null);
+
+  const isPanelOpen = !!selected;
+  const anyModalOpen =
+    !!connectId || addOpen || customOpen || disconnectPending;
+
+  useEffect(() => {
+    if (!isPanelOpen || anyModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedInstanceId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isPanelOpen, anyModalOpen]);
+
+  /** Settings content stays at opacity 0 until the list-slide finishes. */
+  const [contentReady, setContentReady] = useState(false);
+  useEffect(() => {
+    if (!isPanelOpen) {
+      setContentReady(false);
+      return;
+    }
+    const t = setTimeout(() => setContentReady(true), 420);
+    return () => clearTimeout(t);
+  }, [isPanelOpen]);
+
+  const handleDisconnectConfirm = () => {
+    if (!selectedInstanceId) return;
+    setInstances((list) => {
+      const next = list.filter((i) => i.instanceId !== selectedInstanceId);
+      setSelectedInstanceId(next[0]?.instanceId ?? null);
+      return next;
+    });
+    setDisconnectPending(false);
+  };
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-surface)]">
+      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="w-full px-10 pt-12 pb-24">
           {/* Header */}
           <header className="mb-7 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
-              <h1 className="m-0 mb-1.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+              <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+                <Icon name="event_list" size={28} />
                 Integrações
               </h1>
               <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
@@ -863,9 +917,6 @@ export default function IntegrationsPage() {
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-2">
-              <AwButton variant="secondary" size="md" iconLeft="link">
-                Solicitar
-              </AwButton>
               <AwButton
                 variant="primary"
                 size="md"
@@ -877,10 +928,17 @@ export default function IntegrationsPage() {
             </div>
           </header>
 
-          {/* Two-column: active list + settings panel */}
-          <div className="grid gap-6 lg:grid-cols-[minmax(380px,480px)_1fr]">
-            {/* Left: active integrations */}
-            <aside>
+          {/* List + sliding settings panel */}
+          <div className="flex w-full justify-center gap-6">
+            {/* Active list — centered when collapsed, slides left when panel opens */}
+            <aside
+              className={
+                "transition-all duration-300 ease-out " +
+                (isPanelOpen
+                  ? "w-[520px] flex-shrink-0"
+                  : "w-full max-w-[640px]")
+              }
+            >
               <h2 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
                 Integrações ativas
               </h2>
@@ -918,40 +976,64 @@ export default function IntegrationsPage() {
               )}
             </aside>
 
-            {/* Right: settings panel */}
+            {/* Settings panel — outer animates width, inner fades content in/out */}
             <section
               aria-label="Configurações da integração"
-              className="min-h-[640px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]"
+              aria-hidden={!isPanelOpen}
+              className={
+                "overflow-hidden rounded-[var(--radius-xl)] bg-[var(--bg-canvas)] transition-[flex,width,border-color,border-width,min-height] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] " +
+                (isPanelOpen
+                  ? "min-h-[640px] flex-1 border border-[var(--border-subtle)]"
+                  : "w-0 flex-[0_0_0px] border-0")
+              }
             >
-              {selected ? (
-                <IntegrationSettings
-                  integration={selected}
-                  displayName={selectedInstance?.name}
-                  permModes={permModes}
-                  onPermissionChange={setMode}
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center p-8">
-                  <AwEmpty>
-                    <AwEmptyHeader>
-                      <AwEmptyMedia variant="icon">
-                        <Icon name="tune" size={22} />
-                      </AwEmptyMedia>
-                      <AwEmptyTitle>
-                        Selecione uma integração
-                      </AwEmptyTitle>
-                      <AwEmptyDescription>
-                        Escolha uma integração ativa à esquerda para ver e
-                        ajustar suas configurações.
-                      </AwEmptyDescription>
-                    </AwEmptyHeader>
-                  </AwEmpty>
+              {selected && (
+                <div
+                  className={
+                    "h-full transition-opacity duration-[280ms] ease-out " +
+                    (contentReady ? "opacity-100" : "opacity-0")
+                  }
+                >
+                  <IntegrationSettings
+                    integration={selected}
+                    displayName={selectedInstance?.name}
+                    permModes={permModes}
+                    onPermissionChange={setMode}
+                    onDisconnect={() => setDisconnectPending(true)}
+                    onReconnect={() => setConnectId(selected.id)}
+                    onClose={closeSettings}
+                  />
                 </div>
               )}
             </section>
           </div>
         </div>
       </div>
+
+      {/* Disconnect confirmation modal */}
+      <AwModal
+        open={disconnectPending}
+        onClose={() => setDisconnectPending(false)}
+        title="Desconectar integração"
+        footer={
+          <div className="flex justify-end gap-2">
+            <AwButton variant="secondary" size="md" onClick={() => setDisconnectPending(false)}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="danger" size="md" iconLeft="link_off" onClick={handleDisconnectConfirm}>
+              Desconectar
+            </AwButton>
+          </div>
+        }
+      >
+        <p className="m-0 text-[13.5px] leading-[1.6] text-[var(--fg-secondary)]">
+          Tem certeza que deseja desconectar{" "}
+          <strong className="text-[var(--fg-primary)]">
+            {selectedInstance?.name ?? selected?.name}
+          </strong>
+          ? Os agentes perderão acesso a esta integração imediatamente.
+        </p>
+      </AwModal>
 
       {/* Catalog modal — pick an integration to add */}
       <AwAddIntegrationModal
@@ -982,6 +1064,8 @@ export default function IntegrationsPage() {
         open={customOpen}
         onClose={() => setCustomOpen(false)}
         kind="apiKey"
+        productLogoSrc={ORG_LOGO_SRC}
+        productName={ORG_NAME}
         targetBrand="custom"
         targetName="Integração personalizada"
         description="Conecte qualquer API. Os campos finais serão definidos para essa integração."
@@ -1030,6 +1114,8 @@ export default function IntegrationsPage() {
         open={!!connectTarget}
         onClose={closeConnect}
         kind={connectTarget?.auth ?? "oauth"}
+        productLogoSrc={ORG_LOGO_SRC}
+        productName={ORG_NAME}
         targetBrand={connectTarget?.id ?? ""}
         targetName={
           connectTarget
@@ -1038,7 +1124,6 @@ export default function IntegrationsPage() {
               : connectTarget.name
             : ""
         }
-        productName="AwSales"
         description={connectTarget?.desc}
         /* OAuth */
         permissionsTitle={

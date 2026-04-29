@@ -36,7 +36,7 @@ export default function DashboardLayout({
   return (
     <div className="flex h-screen overflow-hidden bg-white relative">
       {floatingSidebar ? (
-        <div className="absolute inset-y-0 left-0 z-30">
+        <div className="absolute inset-y-0 left-0 z-[32]">
           <Sidebar floating />
         </div>
       ) : (
