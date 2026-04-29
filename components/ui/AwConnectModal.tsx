@@ -44,6 +44,8 @@ export type AwConnectModalProps = {
   kind?: AwConnectModalKind
   /** Brand id (registered in AwBrandLogo) for the source product. */
   productBrand?: string
+  /** Image URL for the source mark — overrides the AwSales default mark. */
+  productLogoSrc?: string
   productName?: string
   /** Brand id (registered in AwBrandLogo) for the target integration. */
   targetBrand: string
@@ -121,10 +123,21 @@ const DEFAULT_LABELS = {
   kindApiKey: "API",
 }
 
-function ProductMark() {
+function ProductMark({ src, name }: { src?: string; name?: string }) {
   return (
-    <span className="aw-connect-modal__mark aw-connect-modal__mark--product">
-      <AwLogo variant="mark" height={22} aria-label="AwSales" />
+    <span
+      className="aw-connect-modal__mark aw-connect-modal__mark--product"
+      style={src ? { overflow: "hidden", background: "var(--bg-surface)" } : undefined}
+    >
+      {src ? (
+        <img
+          src={src}
+          alt={name ?? "Organização"}
+          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+      ) : (
+        <AwLogo variant="mark" height={22} aria-label="AwSales" />
+      )}
     </span>
   )
 }
@@ -242,6 +255,7 @@ export function AwConnectModal({
   onClose,
   kind = "oauth",
   productBrand,
+  productLogoSrc,
   productName = "AwSales",
   targetBrand,
   targetName,
@@ -351,7 +365,7 @@ export function AwConnectModal({
             {productBrand ? (
               <AwBrandLogo brand={productBrand} size="lg" />
             ) : (
-              <ProductMark />
+              <ProductMark src={productLogoSrc} name={productName} />
             )}
             <span aria-hidden="true" className="aw-connect-modal__connector">
               <Icon name="sync_alt" size={16} />
