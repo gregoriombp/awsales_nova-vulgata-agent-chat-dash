@@ -34,7 +34,7 @@ export default function DashboardLayout({
   const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 relative">
+    <div className="flex h-screen overflow-hidden bg-white relative">
       {floatingSidebar ? (
         <div className="absolute inset-y-0 left-0 z-30">
           <Sidebar floating />

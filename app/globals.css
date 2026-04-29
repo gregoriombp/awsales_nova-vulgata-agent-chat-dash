@@ -1802,7 +1802,7 @@
     border-color var(--dur-base) var(--ease-out);
 }
 .aw-nav-rail--collapsed { width: 64px; }
-.aw-nav-rail--expanded  { width: 260px; padding: 12px; }
+.aw-nav-rail--expanded  { width: 296px; padding: 12px; }
 .aw-nav-rail--dark {
   background: var(--dark-bg);
   border-color: var(--dark-border);
@@ -1929,6 +1929,7 @@
 }
 .aw-nav-rail--dark .aw-nav-rail__group { border-top-color: var(--dark-border); }
 .aw-nav-rail__group--first { border-top: 0; padding-top: 0; }
+.aw-nav-rail__body > .aw-nav-rail__group:first-child { border-top: 0; padding-top: 0; }
 
 .aw-nav-rail__group-label {
   font-family: var(--font-body);
