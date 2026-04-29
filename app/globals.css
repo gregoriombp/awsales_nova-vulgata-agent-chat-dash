@@ -2927,3 +2927,164 @@
   .aw-toast { animation: none; }
   .aw-sheet { animation: none; }
 }
+
+/* ============================================================
+ * Integrations page — connected list row.
+ * Built on AwCard --interactive, single-row anatomy:
+ * logo + name/domain + right-side status + chevron.
+ * ============================================================ */
+.aw-conn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+}
+.aw-conn-row.aw-card--interactive:hover {
+  background: var(--bg-raised);
+  border-color: var(--border-default);
+  transform: none;
+}
+.aw-conn-row__heading {
+  flex: 1;
+  min-width: 0;
+}
+.aw-conn-row__name {
+  margin: 0;
+  font: 600 14px/1.25 var(--font-sans);
+  letter-spacing: -0.005em;
+  color: var(--fg-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aw-conn-row__domain {
+  margin: 2px 0 0;
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+}
+.aw-conn-row__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--fg-tertiary);
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * Permission segmented control — always / approval / never.
+ * Three-way radio of icon-only buttons.
+ * ============================================================ */
+.aw-perm-seg {
+  display: inline-flex;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.aw-perm-seg__btn {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  padding: 6px 9px;
+  cursor: pointer;
+  color: var(--fg-tertiary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.aw-perm-seg__btn + .aw-perm-seg__btn {
+  border-left: 1px solid var(--border-subtle);
+}
+.aw-perm-seg__btn:hover { color: var(--fg-primary); }
+.aw-perm-seg__btn--active {
+  background: var(--bg-raised);
+  color: var(--fg-primary);
+}
+.aw-perm-seg__btn--always.aw-perm-seg__btn--active   { color: var(--aw-emerald-700); }
+.aw-perm-seg__btn--approval.aw-perm-seg__btn--active { color: var(--aw-amber-700); }
+.aw-perm-seg__btn--never.aw-perm-seg__btn--active    { color: var(--aw-red-600, var(--fg-primary)); }
+
+/* ============================================================
+ * Permission group — collapsible bucket of tools.
+ * ============================================================ */
+.aw-perm-group {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--bg-raised);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.aw-perm-group__head {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: var(--fg-primary);
+  text-align: left;
+}
+.aw-perm-group__head:hover { background: var(--bg-surface); }
+.aw-perm-group__title {
+  font: 600 13px var(--font-sans);
+  letter-spacing: -0.005em;
+}
+.aw-perm-group__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--fg-tertiary);
+  font: 500 11px/1 var(--font-sans);
+  border: 1px solid var(--border-subtle);
+}
+.aw-perm-group__summary {
+  margin-left: auto;
+  font-size: 11.5px;
+  color: var(--fg-tertiary);
+}
+.aw-perm-group__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-subtle);
+}
+.aw-perm-group__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-perm-group__row:last-child { border-bottom: 0; }
+.aw-perm-group__row-copy { flex: 1; min-width: 0; }
+.aw-perm-group__row-name {
+  font: 500 13px/1.35 var(--font-sans);
+  color: var(--fg-primary);
+}
+.aw-perm-group__row-desc {
+  margin-top: 2px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+}
+.aw-perm-group__hint {
+  margin: 0;
+  padding: 10px 14px;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--fg-tertiary);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
