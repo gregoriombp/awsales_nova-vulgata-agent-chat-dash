@@ -13,20 +13,26 @@ import {
   Stage,
 } from "../../_primitives"
 
+const HUBLA_WEBHOOK =
+  "https://app.awsales.io/api/webhooks/checkouts/d12fa78b-3e4c-4a1f-91e2"
+
 export default function ConnectModalPage() {
   const [openLinear, setOpenLinear] = useState(false)
   const [openHubspot, setOpenHubspot] = useState(false)
   const [openMin, setOpenMin] = useState(false)
+  const [openWebhook, setOpenWebhook] = useState(false)
+  const [openApiKey, setOpenApiKey] = useState(false)
 
   return (
     <>
       <PageHero title="Connect modal">
-        Modal de autorização OAuth — conecta o produto a uma integração de
-        terceiro. Layout centrado: par de logos + conector, título “Conectar X
-        para Y”, lista de permissões com check, URL de redirecionamento e
-        rodapé com ação primária <code className="mono">ai</code>. Reusa o
-        scrim e shell de <code className="mono">AwModal</code>; só a anatomia
-        é própria.
+        Modal de conexão para integrações de terceiros. Suporta três fluxos via{" "}
+        <code className="mono">kind</code>:{" "}
+        <code className="mono">oauth</code> (autorização por escopos),{" "}
+        <code className="mono">webhook</code> (passo-a-passo guiado em slider) e{" "}
+        <code className="mono">apiKey</code> (formulário de credenciais).
+        Sempre o mesmo hero — par de logos + título — variando apenas o miolo
+        e o rótulo do botão primário.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -35,9 +41,10 @@ export default function ConnectModalPage() {
           <Section
             id="demo"
             title="Demo"
-            lead="Clique para abrir cada exemplo. Esc fecha. Clique fora descarta."
+            lead="Três fluxos, mesmo shell. Esc fecha. Clique fora descarta."
           >
-            <Stage label="Variantes de conteúdo">
+            <div className="flex flex-col gap-4">
+            <Stage label="OAuth — autorização por escopos">
               <AwButton
                 variant="primary"
                 iconLeft="link"
@@ -60,43 +67,107 @@ export default function ConnectModalPage() {
                 Mínimo (sem permissões)
               </AwButton>
             </Stage>
+
+            <Stage label="Webhook — passo-a-passo em slider">
+              <AwButton
+                variant="primary"
+                iconLeft="bolt"
+                onClick={() => setOpenWebhook(true)}
+              >
+                Integrar Hubla
+              </AwButton>
+            </Stage>
+
+            <Stage label="API key — credenciais diretas">
+              <AwButton
+                variant="primary"
+                iconLeft="key"
+                onClick={() => setOpenApiKey(true)}
+              >
+                Conectar Stripe
+              </AwButton>
+            </Stage>
+            </div>
+          </Section>
+
+          {/* ───────── Kinds ───────── */}
+          <Section
+            id="kinds"
+            title="Os três fluxos"
+            lead="Cada integração de terceiro cai em um destes — escolha o que combina com o método de autenticação."
+          >
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-[var(--fg-secondary)]">
+              <div className="flex flex-col gap-2">
+                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                  OAuth
+                </div>
+                <p className="m-0 text-[13px] leading-[1.5]">
+                  Lista de escopos com check + URL de redirecionamento. Botão{" "}
+                  <em>Permitir acesso</em>. Padrão para HubSpot, Linear,
+                  Calendly, Pipedrive.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                  Webhook
+                </div>
+                <p className="m-0 text-[13px] leading-[1.5]">
+                  Stepper horizontal + slider que avança por instruções
+                  (copiar URL, configurar no painel do parceiro, salvar,
+                  testar). Padrão para Hubla, Ticto, LastLink.
+                </p>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                  API key
+                </div>
+                <p className="m-0 text-[13px] leading-[1.5]">
+                  Formulário com credenciais (key + secret) e link para a
+                  documentação. Padrão para Stripe, Kiwify, Tally, Magalu.
+                </p>
+              </div>
+            </div>
           </Section>
 
           {/* ───────── Anatomy ───────── */}
           <Section
             id="anatomy"
             title="Anatomia"
-            lead="Cinco regiões empilhadas: hero (logos + título + descrição), permissões, URL de redirecionamento, rodapé."
+            lead="O hero é constante. O miolo varia por kind."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[var(--fg-secondary)]">
               <ul className="m-0 pl-4 list-disc flex flex-col gap-1.5">
                 <li>
-                  <strong>Hero.</strong> Logo do produto · conector · logo do
-                  alvo. Sempre 56px no light/dark.
+                  <strong>Hero (sempre).</strong> Logo do produto · conector ·
+                  logo do alvo (56px) + título adaptado ao kind + descrição
+                  curta.
                 </li>
                 <li>
-                  <strong>Título.</strong> “Conectar [produto] para [alvo]”.
-                  Infinitivo, 19px, semibold.
+                  <strong>OAuth.</strong> Lista de permissões com check azul
+                  e, opcional, URL de redirect com botão copiar.
                 </li>
                 <li>
-                  <strong>Descrição.</strong> Uma frase curta — porquê da
-                  conexão, não como.
+                  <strong>Webhook.</strong> Stepper numerado (etapa atual em
+                  preto) + slide horizontal animado por etapa. Cada etapa pode
+                  embutir um copy-URL.
                 </li>
               </ul>
               <ul className="m-0 pl-4 list-disc flex flex-col gap-1.5">
                 <li>
-                  <strong>Permissões.</strong> Lista de scopes com check azul.
-                  Concretas — “Acessar X” não “Permitir leitura”.
+                  <strong>API key.</strong> Texto de introdução + grade de
+                  campos (chave, secret, etc.) + link para docs.
                 </li>
                 <li>
-                  <strong>URL.</strong> Read-only + botão <em>Copiar</em>.
-                  Aparece só se <code className="mono">redirectUrl</code>{" "}
-                  for passado.
+                  <strong>Rodapé (sempre).</strong> Esquerda: <em>Como funciona</em>{" "}
+                  ou <em>Voltar</em> (no webhook a partir da etapa 2). Direita:{" "}
+                  <em>Cancelar</em> + ação primária.
                 </li>
                 <li>
-                  <strong>Rodapé.</strong> Esquerda: ação opcional <em>Como funciona</em>.
-                  Direita: <em>Cancelar</em> + <em>Permitir acesso</em>{" "}
-                  (variant <code className="mono">ai</code>).
+                  <strong>Botão primário.</strong> OAuth ={" "}
+                  <em>Permitir acesso</em>. Webhook ={" "}
+                  <em>Continuar</em> (intermediárias) /{" "}
+                  <em>Concluir configuração</em> (última). API key ={" "}
+                  <em>Conectar</em>.
                 </li>
               </ul>
             </div>
@@ -120,6 +191,12 @@ export default function ConnectModalPage() {
                 doc="Fecha (ESC, scrim, botão ✕). Obrigatório."
               />
               <PropRow
+                prop="kind"
+                type={`"oauth" | "webhook" | "apiKey"`}
+                def={`"oauth"`}
+                doc="Define o miolo, o título e o rótulo da ação primária."
+              />
+              <PropRow
                 prop="productBrand"
                 type="string"
                 doc="Brand id do AwBrandLogo. Default: mark do AwSales sobre tile preto."
@@ -128,7 +205,7 @@ export default function ConnectModalPage() {
                 prop="productName"
                 type="string"
                 def={`"AwSales"`}
-                doc="Nome usado no título."
+                doc="Nome usado no título OAuth."
               />
               <PropRow
                 prop="targetBrand"
@@ -145,26 +222,66 @@ export default function ConnectModalPage() {
                 type="ReactNode"
                 doc="Subtítulo — uma frase curta sobre o porquê."
               />
-              <PropRow
-                prop="permissionsTitle"
-                type="string"
-                doc="Heading da lista de permissões. Ex: “AwSales precisa”."
-              />
+
+              {/* OAuth */}
               <PropRow
                 prop="permissions"
                 type="ReactNode[]"
                 def="[]"
-                doc="Lista de scopes. Cada item recebe o check azul automaticamente."
+                doc="(OAuth) Lista de scopes. Cada item recebe o check azul."
+              />
+              <PropRow
+                prop="permissionsTitle"
+                type="string"
+                doc="(OAuth) Heading da lista. Ex: “AwSales precisa”."
               />
               <PropRow
                 prop="redirectUrl"
                 type="string"
-                doc="Mostra input read-only + botão Copiar. Omitido = sem URL."
+                doc="(OAuth) URL read-only com botão copiar. Omitido = sem URL."
               />
+
+              {/* Webhook */}
+              <PropRow
+                prop="steps"
+                type="AwWebhookStep[]"
+                doc="(Webhook) Etapas do passo-a-passo. Cada etapa = um slide."
+              />
+              <PropRow
+                prop="initialStep"
+                type="number"
+                def="0"
+                doc="(Webhook) Etapa inicial."
+              />
+
+              {/* API key */}
+              <PropRow
+                prop="apiKeyFields"
+                type="AwApiKeyField[]"
+                doc="(API key) Campos do formulário (id, label, placeholder, iconLeft, helper, defaultValue)."
+              />
+              <PropRow
+                prop="apiKeyIntro"
+                type="ReactNode"
+                doc="(API key) Texto curto antes do formulário."
+              />
+              <PropRow
+                prop="docsUrl"
+                type="string"
+                doc="(API key) Link para documentação do parceiro."
+              />
+              <PropRow
+                prop="docsLabel"
+                type="string"
+                def={`"Ver documentação"`}
+                doc="(API key) Rótulo do link de docs."
+              />
+
+              {/* Footer */}
               <PropRow
                 prop="onAllow"
                 type="() => void"
-                doc="Ação primária — botão variant=ai."
+                doc="Ação primária. No webhook, só dispara na última etapa — antes disso o botão avança o slide."
               />
               <PropRow
                 prop="onCancel"
@@ -174,39 +291,80 @@ export default function ConnectModalPage() {
               <PropRow
                 prop="onHowItWorks"
                 type="() => void"
-                doc="Se omitido, slot esquerdo do rodapé fica vazio."
+                doc="Slot esquerdo do rodapé (escondido no webhook a partir da etapa 2 — vira Voltar)."
               />
               <PropRow
                 prop="loading"
                 type="boolean"
                 def="false"
-                doc="Spinner no botão Permitir acesso. Bloqueia interação."
+                doc="Spinner no botão primário. Bloqueia interação."
               />
               <PropRow
                 prop="labels"
                 type="Partial<Labels>"
-                doc="Override de strings: cancel, allow, howItWorks, copy, copied, titleConnector."
+                doc="Override de strings: cancel, allow, allowWebhook, allowApiKey, howItWorks, copy, copied, titleConnector, next, back, finish, stepOf."
               />
             </ApiTable>
 
             <CodeExample>{`import { AwConnectModal } from "@/components/ui/AwConnectModal"
 
+// Webhook flow (Hubla, Ticto, LastLink…)
 <AwConnectModal
   open={open}
   onClose={() => setOpen(false)}
-  targetBrand="hubspot"
-  targetName="HubSpot"
-  productName="AwSales"
-  description="Sincronize contatos, empresas e pipelines com seus agentes."
-  permissionsTitle="O AwSales precisa"
-  permissions={[
-    "Acessar contatos e empresas",
-    "Criar e atualizar deals do pipeline",
-    "Disparar workflows quando uma oportunidade fechar",
+  kind="webhook"
+  targetBrand="hubla"
+  targetName="Hubla"
+  description="Receba eventos de venda da Hubla em tempo real."
+  steps={[
+    {
+      label: "Copiar webhook",
+      title: "Copie o webhook",
+      body: <p>Use o link abaixo na configuração da Hubla:</p>,
+      copy: { label: "Webhook URL", value: webhookUrl },
+    },
+    {
+      label: "Configurar",
+      title: "Acesse a Hubla",
+      body: (
+        <>
+          <p>Em <strong>Painel → Webhooks → Novo</strong>, preencha:</p>
+          <ul>
+            <li><strong>Nome:</strong> Integração AwSales</li>
+            <li><strong>URL:</strong> cole o webhook acima</li>
+            <li><strong>Eventos:</strong> Fatura criada, Fatura paga, Carrinho abandonado</li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      label: "Salvar",
+      title: "Salve no painel da Hubla",
+      body: <p>Confirme que o webhook aparece como <strong>Ativo</strong>.</p>,
+    },
+    {
+      label: "Testar",
+      title: "Faça um teste",
+      body: <p>Use <em>Testar configuração</em> na Hubla — checamos a entrega aqui.</p>,
+    },
   ]}
-  redirectUrl="https://app.awsales.io/integrations/hubspot/callback"
-  onHowItWorks={() => window.open("/docs/integrations/hubspot")}
-  onAllow={() => connectHubspot()}
+  onAllow={() => connectHubla()}
+/>
+
+// API key flow (Stripe, Kiwify, Tally…)
+<AwConnectModal
+  open={open}
+  onClose={() => setOpen(false)}
+  kind="apiKey"
+  targetBrand="stripe"
+  targetName="Stripe"
+  apiKeyIntro="Cole sua chave secreta para começar a sincronizar pagamentos."
+  apiKeyFields={[
+    { id: "key", label: "Secret key", iconLeft: "key", placeholder: "sk_live_••••••••" },
+    { id: "wh", label: "Webhook secret", iconLeft: "lock", placeholder: "whsec_••••••••" },
+  ]}
+  docsUrl="https://stripe.com/docs/api"
+  onAllow={() => connectStripe()}
 />`}</CodeExample>
           </Section>
 
@@ -214,27 +372,27 @@ export default function ConnectModalPage() {
           <Section
             id="do-dont"
             title="Do / Don't"
-            lead="As permissões são o ponto de confiança do modal — escreva-as como o usuário leria."
+            lead="O kind certo importa: webhooks pedem mãos do usuário, OAuth só pede consentimento."
           >
             <DoDont
               dos={[
-                "3–6 permissões. Concretas, em infinitivo.",
-                <>Descrição responde <em>por que conectar</em>, não <em>o que será feito</em>.</>,
-                <>Use <code className="mono">variant=ai</code> no botão de autorizar — é decisão do usuário sobre o agente.</>,
-                <><em>Como funciona</em> abre doc em nova aba; nunca navega fora do fluxo.</>,
+                "OAuth: 3–6 permissões concretas, em infinitivo.",
+                "Webhook: 3–5 etapas curtas. Uma ação por etapa.",
+                "Webhook: embuta o copy-URL na etapa que precisa dele — não force o usuário a procurar.",
+                "API key: link para a página exata de geração de chave do parceiro, em nova aba.",
               ]}
               donts={[
-                "“Permitir leitura/escrita” genérico. Seja específico.",
-                "Mais de 6 permissões — colapse em categorias ou delegue para uma página de configuração.",
-                "Tom de venda na descrição. Esse momento é jurídico.",
-                "Botão primário em primary preto — é decisão de IA.",
+                "Misturar OAuth e API key na mesma integração — escolha um.",
+                "Webhook com 8+ passos. Se for grande, abra um doc dedicado e linke pelo onHowItWorks.",
+                "Botão primário em variant=ai — esta confirmação é técnica, não decisão de IA.",
+                "Trocar Cancelar por “Fechar”. Cancelar deixa claro que nada foi gravado.",
               ]}
             />
           </Section>
         </div>
       </div>
 
-      {/* Modais de demo */}
+      {/* ───── OAuth demos ───── */}
       <AwConnectModal
         open={openLinear}
         onClose={() => setOpenLinear(false)}
@@ -280,6 +438,127 @@ export default function ConnectModalPage() {
         productName="AwSales"
         description="Agendamentos automáticos sincronizados com agentes."
         onAllow={() => setOpenMin(false)}
+      />
+
+      {/* ───── Webhook demo (Hubla) ───── */}
+      <AwConnectModal
+        open={openWebhook}
+        onClose={() => setOpenWebhook(false)}
+        kind="webhook"
+        targetBrand="hubla"
+        targetName="Hubla"
+        description="Receba eventos de venda, abandono e reembolso da Hubla em tempo real."
+        steps={[
+          {
+            label: "Copiar",
+            title: "Copie o webhook",
+            body: (
+              <p>
+                Copie o link fornecido abaixo. Ele será utilizado na
+                configuração dentro da Hubla.
+              </p>
+            ),
+            copy: { label: "Webhook URL", value: HUBLA_WEBHOOK },
+          },
+          {
+            label: "Configurar",
+            title: "Acesse a Hubla",
+            body: (
+              <>
+                <p>
+                  Caso tenha dúvidas sobre como iniciar a configuração,
+                  siga este{" "}
+                  <a href="#" onClick={(e) => e.preventDefault()}>
+                    passo-a-passo
+                  </a>
+                  . Para preencher as informações necessárias, use:
+                </p>
+                <ul>
+                  <li>
+                    <strong>Nome:</strong> Integração AwSales
+                  </li>
+                  <li>
+                    <strong>URL:</strong> cole o webhook copiado na etapa
+                    anterior
+                  </li>
+                  <li>
+                    <strong>Produtos:</strong> selecione os produtos
+                    desejados
+                  </li>
+                  <li>
+                    <strong>Ofertas:</strong> selecione as ofertas
+                    desejadas
+                  </li>
+                  <li>
+                    <strong>Eventos:</strong> Fatura Criada (V2), Fatura
+                    Expirada (V2), Pagamento Realizado (V2), Carrinho
+                    Abandonado (V2), Pagamento Falhou (V2) e Fatura
+                    Reembolsada (V2)
+                  </li>
+                </ul>
+              </>
+            ),
+          },
+          {
+            label: "Salvar",
+            title: "Salve a configuração",
+            body: (
+              <p>
+                Após ajustar todas as configurações, garanta que o webhook
+                foi salvo e aparece como <strong>Ativo</strong> no painel
+                da Hubla.
+              </p>
+            ),
+          },
+          {
+            label: "Testar",
+            title: "Faça um teste",
+            body: (
+              <p>
+                A Hubla oferece a opção <em>Testar configuração</em> na
+                tela de edição do webhook. Use essa opção para enviar um
+                evento de teste — nosso sistema verifica se a integração
+                foi realizada com sucesso.
+              </p>
+            ),
+          },
+        ]}
+        onAllow={() => setOpenWebhook(false)}
+      />
+
+      {/* ───── API key demo (Stripe) ───── */}
+      <AwConnectModal
+        open={openApiKey}
+        onClose={() => setOpenApiKey(false)}
+        kind="apiKey"
+        targetBrand="stripe"
+        targetName="Stripe"
+        description="Sincronize cobranças, clientes e reembolsos via API do Stripe."
+        apiKeyIntro={
+          <>
+            Cole sua <strong>chave secreta</strong> e o{" "}
+            <strong>webhook signing secret</strong>. As credenciais ficam
+            criptografadas e podem ser rotacionadas a qualquer momento.
+          </>
+        }
+        apiKeyFields={[
+          {
+            id: "stripe-key",
+            label: "Secret key",
+            iconLeft: "key",
+            placeholder: "sk_live_••••••••",
+            helper: "Encontre em Developers → API keys.",
+          },
+          {
+            id: "stripe-webhook",
+            label: "Webhook secret",
+            iconLeft: "lock",
+            placeholder: "whsec_••••••••",
+            helper: "Em Developers → Webhooks, selecione o endpoint.",
+          },
+        ]}
+        docsUrl="https://stripe.com/docs/api"
+        onAllow={() => setOpenApiKey(false)}
       />
     </>
   )

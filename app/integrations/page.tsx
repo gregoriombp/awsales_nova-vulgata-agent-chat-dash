@@ -14,10 +14,15 @@ import {
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { type AwIntegrationCardState } from "@/components/ui/AwIntegrationCard";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
-import { AwConnectModal } from "@/components/ui/AwConnectModal";
-import { AwModal } from "@/components/ui/AwModal";
+import {
+  AwConnectModal,
+  type AwWebhookStep,
+} from "@/components/ui/AwConnectModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+
+const HUBLA_WEBHOOK_TEMPLATE = (id: string) =>
+  `https://app.awsales.io/api/webhooks/checkouts/${id}`;
 
 type IntegrationCategory =
   | "channels"
@@ -28,7 +33,7 @@ type IntegrationCategory =
   | "crms"
   | "marketplaces";
 
-type AuthMethod = "oauth" | "api";
+type AuthMethod = "oauth" | "webhook" | "apiKey";
 
 type PermissionMode = "always" | "approval" | "never";
 
@@ -68,6 +73,69 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "crms", label: "CRMs" },
   { id: "marketplaces", label: "Marketplaces" },
 ];
+
+function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
+  const url = HUBLA_WEBHOOK_TEMPLATE(`${integration.id}-d12fa78b3e4c4a1f`);
+  return [
+    {
+      label: "Copiar",
+      title: "Copie o webhook",
+      body: (
+        <p>
+          Copie o link abaixo. Ele será utilizado na configuração do{" "}
+          {integration.name}.
+        </p>
+      ),
+      copy: { label: "Webhook URL", value: url },
+    },
+    {
+      label: "Configurar",
+      title: `Acesse o ${integration.name}`,
+      body: (
+        <>
+          <p>
+            No painel do {integration.name}, abra{" "}
+            <strong>Webhooks → Novo webhook</strong> e preencha:
+          </p>
+          <ul>
+            <li>
+              <strong>Nome:</strong> Integração AwSales
+            </li>
+            <li>
+              <strong>URL:</strong> cole o webhook copiado na etapa anterior
+            </li>
+            <li>
+              <strong>Eventos:</strong> Fatura Criada, Fatura Paga, Fatura
+              Reembolsada, Carrinho Abandonado e Pagamento Falhou
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      label: "Salvar",
+      title: "Salve a configuração",
+      body: (
+        <p>
+          Após ajustar todas as configurações, garanta que o webhook foi
+          salvo e aparece como <strong>Ativo</strong> no painel do{" "}
+          {integration.name}.
+        </p>
+      ),
+    },
+    {
+      label: "Testar",
+      title: "Faça um teste",
+      body: (
+        <p>
+          O {integration.name} oferece a opção <em>Testar configuração</em>{" "}
+          na tela de edição do webhook. Use essa opção — nosso sistema
+          verifica se a integração foi realizada com sucesso.
+        </p>
+      ),
+    },
+  ];
+}
 
 const ITEMS: Integration[] = [
   // CHANNELS
@@ -131,7 +199,7 @@ const ITEMS: Integration[] = [
     domain: "hotmart.com",
     desc: "Capture transações e eventos do checkout Hotmart.",
     state: "connected",
-    auth: "api",
+    auth: "apiKey",
     tools: {
       readOnly: [
         { id: "list-sales", name: "Listar vendas", defaultMode: "always" },
@@ -150,7 +218,7 @@ const ITEMS: Integration[] = [
     domain: "stripe.com",
     desc: "Pagamentos globais — cartão, PIX, assinaturas.",
     state: "attention",
-    auth: "api",
+    auth: "apiKey",
     tools: {
       readOnly: [
         { id: "list-charges", name: "Listar cobranças", defaultMode: "always" },
@@ -162,18 +230,18 @@ const ITEMS: Integration[] = [
       ],
     },
   },
-  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "api" },
-  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "api" },
-  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "api" },
-  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "api" },
-  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "api" },
+  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "webhook" },
+  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "webhook" },
+  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "webhook" },
+  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "webhook" },
+  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "webhook" },
   // MEMBERS
-  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "api" },
-  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "api" },
+  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "apiKey" },
+  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "apiKey" },
   // FORMS
   { id: "googleforms", cat: "forms", name: "Google Forms", domain: "forms.google.com", desc: "Receba submissões do Google Forms em tempo real.", state: "available", auth: "oauth", permissions: ["Acessar a lista de formulários da conta", "Receber respostas em tempo real", "Ler metadados das perguntas"] },
   { id: "typeform", cat: "forms", name: "Typeform", domain: "typeform.com", desc: "Capture leads dos seus formulários conversacionais.", state: "available", auth: "oauth", permissions: ["Acessar formulários da workspace", "Receber novas respostas via webhook", "Ler informações do respondente"] },
-  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "api" },
+  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "apiKey" },
   // MEETINGS
   { id: "calendly", cat: "meetings", name: "Calendly", domain: "calendly.com", desc: "Agendamentos automáticos sincronizados com agentes.", state: "available", auth: "oauth", permissions: ["Acessar tipos de evento e disponibilidade", "Criar e cancelar agendamentos", "Receber notificações de novos eventos"] },
   { id: "googlecal", cat: "meetings", name: "Google Calendar", domain: "calendar.google.com", desc: "Reuniões e disponibilidade direto do Google Agenda.", state: "available", auth: "oauth", permissions: ["Ler eventos e disponibilidade da agenda", "Criar e atualizar eventos em seu nome", "Acessar agendas compartilhadas"] },
@@ -209,7 +277,7 @@ const ITEMS: Integration[] = [
       ],
     },
   },
-  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "api" },
+  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "apiKey" },
 ];
 
 const PERM_MODE_META: Record<PermissionMode, { icon: string; label: string }> = {
@@ -357,6 +425,13 @@ function IntegrationSettings({
 }) {
   const [enabled, setEnabled] = useState(true);
   const isOAuth = integration.auth === "oauth";
+  const isWebhook = integration.auth === "webhook";
+  const isApiKey = integration.auth === "apiKey";
+  const authMeta = isOAuth
+    ? { label: "OAuth 2.0", hint: "Renovação automática" }
+    : isWebhook
+      ? { label: "Webhook", hint: "Eventos em tempo real" }
+      : { label: "Chave de API", hint: "Renovação manual" };
   const lastSync =
     integration.state === "attention"
       ? "Token expira em 3 dias — renove para continuar"
@@ -430,10 +505,10 @@ function IntegrationSettings({
               Autenticação
             </div>
             <div className="mt-1 text-[14px] font-semibold text-[var(--fg-primary)]">
-              {isOAuth ? "OAuth 2.0" : "Chave de API"}
+              {authMeta.label}
             </div>
             <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
-              {isOAuth ? "Renovação automática" : "Renovação manual"}
+              {authMeta.hint}
             </div>
           </div>
         </div>
@@ -471,8 +546,8 @@ function IntegrationSettings({
           </button>
         </div>
 
-        {/* Credentials — API auth shows masked key + webhook secret */}
-        {!isOAuth && (
+        {/* API key credentials */}
+        {isApiKey && (
           <section className="mb-7">
             <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
               Credenciais
@@ -500,6 +575,32 @@ function IntegrationSettings({
                 />
               </AwField>
             </div>
+          </section>
+        )}
+
+        {/* Webhook URL — for webhook-based integrations */}
+        {isWebhook && (
+          <section className="mb-7">
+            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+              Webhook
+            </h3>
+            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+              Endpoint que o {integration.name} usa para enviar eventos.
+              Reconfigure no painel do parceiro se rotacionar a URL.
+            </p>
+            <AwField
+              label="Webhook URL"
+              htmlFor={`live-webhook-${integration.id}`}
+            >
+              <AwInput
+                id={`live-webhook-${integration.id}`}
+                readOnly
+                defaultValue={HUBLA_WEBHOOK_TEMPLATE(
+                  `${integration.id}-d12fa78b3e4c4a1f`,
+                )}
+                iconLeft="bolt"
+              />
+            </AwField>
           </section>
         )}
 
@@ -717,8 +818,6 @@ export default function IntegrationsPage() {
     ? ITEMS.find((i) => i.id === connectId) ?? null
     : null;
 
-  const showOAuthModal = !!connectTarget && connectTarget.auth === "oauth";
-  const showFormModal = !!connectTarget && connectTarget.auth === "api";
 
   const breadcrumbs = [
     { label: "Integrações", icon: <Icon name="extension" size={20} /> },
@@ -850,10 +949,11 @@ export default function IntegrationsPage() {
         }}
       />
 
-      {/* OAuth permission dialog — adds new instance for an OAuth integration */}
+      {/* Connect dialog — kind derived from the integration auth method */}
       <AwConnectModal
-        open={showOAuthModal}
+        open={!!connectTarget}
         onClose={closeConnect}
+        kind={connectTarget?.auth ?? "oauth"}
         targetBrand={connectTarget?.id ?? ""}
         targetName={
           connectTarget
@@ -864,68 +964,61 @@ export default function IntegrationsPage() {
         }
         productName="AwSales"
         description={connectTarget?.desc}
-        permissionsTitle={connectTarget ? `O AwSales precisa` : undefined}
-        permissions={connectTarget?.permissions ?? []}
+        /* OAuth */
+        permissionsTitle={
+          connectTarget?.auth === "oauth" ? `O AwSales precisa` : undefined
+        }
+        permissions={
+          connectTarget?.auth === "oauth"
+            ? connectTarget?.permissions ?? []
+            : undefined
+        }
         redirectUrl={
-          connectTarget
+          connectTarget?.auth === "oauth"
             ? `https://app.awsales.io/integrations/${connectTarget.id}/callback`
+            : undefined
+        }
+        /* Webhook */
+        steps={
+          connectTarget?.auth === "webhook"
+            ? buildWebhookSteps(connectTarget)
+            : undefined
+        }
+        /* API key */
+        apiKeyIntro={
+          connectTarget?.auth === "apiKey" ? (
+            <>
+              Cole sua chave de API do{" "}
+              <strong>{connectTarget.name}</strong> para começar a
+              sincronizar transações e eventos.
+            </>
+          ) : undefined
+        }
+        apiKeyFields={
+          connectTarget?.auth === "apiKey"
+            ? [
+                {
+                  id: `key-${connectTarget.id}`,
+                  label: "API Key",
+                  iconLeft: "key",
+                  placeholder: "sk_live_••••••••••••",
+                },
+                {
+                  id: `secret-${connectTarget.id}`,
+                  label: "Webhook secret",
+                  iconLeft: "lock",
+                  placeholder: "whsec_••••••••",
+                },
+              ]
+            : undefined
+        }
+        docsUrl={
+          connectTarget?.auth === "apiKey"
+            ? `https://${connectTarget.domain}`
             : undefined
         }
         onAllow={closeConnect}
       />
-
-      {/* API key form modal — adds new instance for an API integration */}
-      <AwModal
-        open={showFormModal}
-        onClose={closeConnect}
-        title={
-          connectTarget
-            ? isActive(connectTarget.state)
-              ? `Adicionar nova conexão de ${connectTarget.name}`
-              : `Conectar ${connectTarget.name}`
-            : undefined
-        }
-        footer={
-          <>
-            <AwButton variant="secondary" onClick={closeConnect}>
-              Cancelar
-            </AwButton>
-            <AwButton variant="primary" onClick={closeConnect}>
-              Conectar
-            </AwButton>
-          </>
-        }
-      >
-        {connectTarget && (
-          <>
-            <div className="mb-4 flex items-center gap-3">
-              <AwBrandLogo brand={connectTarget.id} size="md" />
-              <p className="m-0 text-xs text-[var(--fg-tertiary)]">
-                {connectTarget.domain}
-              </p>
-            </div>
-            <p className="mb-3.5 text-[13.5px] leading-[1.5] text-[var(--fg-secondary)]">
-              Cole sua chave de API do <strong>{connectTarget.name}</strong>{" "}
-              para começar a sincronizar transações e eventos.
-            </p>
-            <AwField label="API Key" htmlFor={`key-${connectTarget.id}`}>
-              <AwInput
-                id={`key-${connectTarget.id}`}
-                placeholder="sk_live_••••••••••••"
-              />
-            </AwField>
-            <AwField
-              label="Webhook secret"
-              htmlFor={`secret-${connectTarget.id}`}
-            >
-              <AwInput
-                id={`secret-${connectTarget.id}`}
-                placeholder="whsec_••••••••"
-              />
-            </AwField>
-          </>
-        )}
-      </AwModal>
     </DashboardLayout>
   );
 }
