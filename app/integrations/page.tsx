@@ -441,7 +441,7 @@ export default function IntegrationsPage() {
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-surface)]">
-        <div className="mx-auto w-full max-w-[760px] px-8 pt-12 pb-24">
+        <div className="mx-auto w-full max-w-[1120px] px-10 pt-12 pb-24">
           {/* Header */}
           <header className="mb-7 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
