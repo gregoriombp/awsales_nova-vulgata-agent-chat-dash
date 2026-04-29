@@ -75,6 +75,7 @@ export function TabsDemo() {
   const [tab, setTab] = React.useState("geral")
   const [size, setSize] = React.useState("md")
   const [cat, setCat] = React.useState("all")
+  const [page, setPage] = React.useState("phones")
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -128,9 +129,28 @@ export function TabsDemo() {
         />
       </div>
 
+      <div className="flex flex-col gap-2">
+        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+          variant=&quot;underline&quot; — nav de página, hairline + indicador
+        </div>
+        <AwTabs
+          variant="underline"
+          value={page}
+          onChange={setPage}
+          items={[
+            { value: "overview", label: "Visão geral" },
+            { value: "phones", label: "Números", count: 2 },
+            { value: "templates", label: "Templates", count: 12 },
+            { value: "variables", label: "Variáveis fixas", count: 3 },
+            { value: "account", label: "Conta & permissões" },
+          ]}
+        />
+      </div>
+
       <div className="text-sm text-[var(--fg-secondary)]">
         Tab ativa (segmented): <code className="mono">{tab}</code> · Categoria
-        ativa (standalone): <code className="mono">{cat}</code>
+        ativa (standalone): <code className="mono">{cat}</code> · Seção ativa
+        (underline): <code className="mono">{page}</code>
       </div>
     </div>
   )

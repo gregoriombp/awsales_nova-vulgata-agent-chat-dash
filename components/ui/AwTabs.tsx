@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-export type AwTabsVariant = "segmented" | "standalone"
+export type AwTabsVariant = "segmented" | "standalone" | "underline"
 
 export type AwTabsItem = {
   value: string
