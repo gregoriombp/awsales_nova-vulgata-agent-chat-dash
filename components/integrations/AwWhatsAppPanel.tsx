@@ -191,6 +191,9 @@ const QUALITY_PILL: Record<PhoneQuality, AwPillVariant> = {
   Baixa: "error",
 };
 
+/** Sentinel value used to represent the "all WABAs" aggregated view in the rail. */
+const ALL_KEY = "__all__";
+
 /* ================================================================
  * Left rail — list of WABAs (account switcher)
  * ================================================================ */
@@ -234,6 +237,43 @@ function WabaRail({
         aria-label="WABAs conectadas"
         className="m-0 flex-1 list-none overflow-y-auto p-2"
       >
+        {(() => {
+          const allActive = selectedId === ALL_KEY;
+          const totalPhones = wabas.reduce((acc, w) => acc + w.phones.length, 0);
+          return (
+            <li className="mb-1">
+              <button
+                type="button"
+                role="option"
+                aria-selected={allActive}
+                onClick={() => onSelect(ALL_KEY)}
+                className={
+                  "flex w-full items-start gap-3 rounded-[var(--radius-md)] border px-2.5 py-2.5 text-left transition-colors " +
+                  (allActive
+                    ? "border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-xs)]"
+                    : "border-transparent hover:bg-[var(--bg-surface)]")
+                }
+              >
+                <span className="grid h-[32px] w-[32px] flex-shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-[var(--bg-raised)]">
+                  <Icon name="dashboard" size={18} fill={1} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                    Todas as WABAs
+                  </span>
+                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                    {wabas.length} {wabas.length === 1 ? "conta" : "contas"} ·{" "}
+                    {totalPhones} {totalPhones === 1 ? "número" : "números"}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })()}
+        <li
+          aria-hidden="true"
+          className="my-1.5 border-t border-[var(--border-subtle)]"
+        />
         {wabas.map((w) => {
           const meta = STATUS_PILL[w.status];
           const active = w.id === selectedId;
@@ -719,13 +759,18 @@ function ActivityCard() {
  * ================================================================ */
 
 function PhonesTab({
-  waba,
+  wabas,
   onOpenPhone,
 }: {
-  waba: Waba;
-  onOpenPhone: (phoneNum: string) => void;
+  wabas: Waba[];
+  onOpenPhone: (wabaId: string, phoneNum: string) => void;
 }) {
-  if (waba.phones.length === 0) {
+  const items = wabas.flatMap((w) =>
+    w.phones.map((p) => ({ phone: p, wabaId: w.id, wabaName: w.name })),
+  );
+  const showWabaTag = wabas.length > 1;
+
+  if (items.length === 0) {
     return (
       <AwEmpty>
         <AwEmptyHeader>
@@ -737,9 +782,11 @@ function PhonesTab({
             Conecte um número para começar a receber e enviar mensagens.
           </AwEmptyDescription>
         </AwEmptyHeader>
-        <AwButton variant="primary" size="md" iconLeft="add">
-          Adicionar número
-        </AwButton>
+        {!showWabaTag && (
+          <AwButton variant="primary" size="md" iconLeft="add">
+            Adicionar número
+          </AwButton>
+        )}
       </AwEmpty>
     );
   }
@@ -748,25 +795,28 @@ function PhonesTab({
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <span className="text-[12.5px] text-[var(--fg-tertiary)]">
-          {waba.phones.length}{" "}
-          {waba.phones.length === 1 ? "número conectado" : "números conectados"}
+          {items.length}{" "}
+          {items.length === 1 ? "número conectado" : "números conectados"}
+          {showWabaTag && ` · ${wabas.length} contas`}
         </span>
         <div className="flex items-center gap-2">
           <AwButton variant="secondary" size="sm" iconLeft="refresh">
             Sincronizar
           </AwButton>
-          <AwButton variant="primary" size="sm" iconLeft="add">
-            Adicionar número
-          </AwButton>
+          {!showWabaTag && (
+            <AwButton variant="primary" size="sm" iconLeft="add">
+              Adicionar número
+            </AwButton>
+          )}
         </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {waba.phones.map((p) => (
+        {items.map(({ phone: p, wabaId, wabaName }) => (
           <AwCard
-            key={p.num}
+            key={`${wabaId}-${p.num}`}
             interactive
-            onClick={() => onOpenPhone(p.num)}
+            onClick={() => onOpenPhone(wabaId, p.num)}
             className="flex flex-col gap-3 p-4 text-left"
           >
             <div className="flex items-start justify-between gap-2">
@@ -786,6 +836,12 @@ function PhonesTab({
               <div className="mt-0.5 font-mono text-[12px] text-[var(--fg-tertiary)]">
                 {p.num}
               </div>
+              {showWabaTag && (
+                <div className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-[var(--fg-tertiary)]">
+                  <Icon name="dashboard" size={11} />
+                  {wabaName}
+                </div>
+              )}
             </div>
             <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
               <PhoneStat label="Status">
@@ -829,18 +885,22 @@ function PhoneStat({
  * ================================================================ */
 
 function TemplatesTab({
-  waba,
+  wabas,
   onOpenTemplate,
 }: {
-  waba: Waba;
-  onOpenTemplate: (name: string, mode: "view" | "edit") => void;
+  wabas: Waba[];
+  onOpenTemplate: (wabaId: string, name: string, mode: "view" | "edit") => void;
 }) {
   const [query, setQuery] = useState("");
-  const filtered = waba.templates.filter((t) =>
-    t.name.toLowerCase().includes(query.toLowerCase()),
+  const showWabaCol = wabas.length > 1;
+  const items = wabas.flatMap((w) =>
+    w.templates.map((t) => ({ tpl: t, wabaId: w.id, wabaName: w.name })),
+  );
+  const filtered = items.filter(({ tpl }) =>
+    tpl.name.toLowerCase().includes(query.toLowerCase()),
   );
 
-  if (waba.templates.length === 0) {
+  if (items.length === 0) {
     return (
       <AwEmpty>
         <AwEmptyHeader>
@@ -853,9 +913,11 @@ function TemplatesTab({
             iniciar conversas com seus leads.
           </AwEmptyDescription>
         </AwEmptyHeader>
-        <AwButton variant="primary" size="md" iconLeft="add">
-          Criar template
-        </AwButton>
+        {!showWabaCol && (
+          <AwButton variant="primary" size="md" iconLeft="add">
+            Criar template
+          </AwButton>
+        )}
       </AwEmpty>
     );
   }
@@ -882,9 +944,11 @@ function TemplatesTab({
           <AwButton variant="secondary" size="sm" iconLeft="layers">
             Aplicar a múltiplas WABAs
           </AwButton>
-          <AwButton variant="primary" size="sm" iconLeft="add">
-            Criar template
-          </AwButton>
+          {!showWabaCol && (
+            <AwButton variant="primary" size="sm" iconLeft="add">
+              Criar template
+            </AwButton>
+          )}
         </div>
       </div>
 
@@ -893,6 +957,7 @@ function TemplatesTab({
           <thead>
             <tr>
               <th>Nome</th>
+              {showWabaCol && <th>WABA</th>}
               <th>Categoria</th>
               <th>Idioma</th>
               <th>Status</th>
@@ -901,14 +966,14 @@ function TemplatesTab({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((t) => {
+            {filtered.map(({ tpl: t, wabaId, wabaName }) => {
               const pill = TEMPLATE_PILL[t.status];
               return (
-                <tr key={t.name}>
+                <tr key={`${wabaId}-${t.name}`}>
                   <td className="aw-table__name">
                     <button
                       type="button"
-                      onClick={() => onOpenTemplate(t.name, "view")}
+                      onClick={() => onOpenTemplate(wabaId, t.name, "view")}
                       className="inline-flex items-center gap-2 rounded-[var(--radius-sm)] px-1 py-0.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
                     >
                       <Icon
@@ -921,6 +986,14 @@ function TemplatesTab({
                       </code>
                     </button>
                   </td>
+                  {showWabaCol && (
+                    <td className="text-[var(--fg-tertiary)]">
+                      <span className="inline-flex items-center gap-1">
+                        <Icon name="dashboard" size={11} />
+                        {wabaName}
+                      </span>
+                    </td>
+                  )}
                   <td>{t.category}</td>
                   <td className="text-[var(--fg-tertiary)]">{t.language}</td>
                   <td>
@@ -934,14 +1007,14 @@ function TemplatesTab({
                         size="sm"
                         iconOnly="visibility"
                         aria-label="Visualizar"
-                        onClick={() => onOpenTemplate(t.name, "view")}
+                        onClick={() => onOpenTemplate(wabaId, t.name, "view")}
                       />
                       <AwButton
                         variant="ghost"
                         size="sm"
                         iconOnly="edit"
                         aria-label="Editar"
-                        onClick={() => onOpenTemplate(t.name, "edit")}
+                        onClick={() => onOpenTemplate(wabaId, t.name, "edit")}
                       />
                       <AwButton
                         variant="ghost"
@@ -957,7 +1030,7 @@ function TemplatesTab({
             {filtered.length === 0 && (
               <tr>
                 <td
-                  colSpan={6}
+                  colSpan={showWabaCol ? 7 : 6}
                   className="text-center text-[var(--fg-tertiary)]"
                   style={{ padding: "32px 14px" }}
                 >
@@ -977,14 +1050,19 @@ function TemplatesTab({
  * ================================================================ */
 
 function VariablesTab({
-  waba,
+  wabas,
   onOpenVariable,
   onNewVariable,
 }: {
-  waba: Waba;
-  onOpenVariable: (name: string) => void;
+  wabas: Waba[];
+  onOpenVariable: (wabaId: string, name: string) => void;
   onNewVariable: () => void;
 }) {
+  const showWabaCol = wabas.length > 1;
+  const items = wabas.flatMap((w) =>
+    w.variables.map((v) => ({ variable: v, wabaId: w.id, wabaName: w.name })),
+  );
+
   return (
     <div className="flex flex-col gap-4">
       <AwAlert variant="info">
@@ -998,12 +1076,14 @@ function VariablesTab({
         <div className="min-w-[240px] flex-1">
           <AwInput placeholder="Buscar variável…" iconLeft="search" dense />
         </div>
-        <AwButton variant="primary" size="sm" iconLeft="add" onClick={onNewVariable}>
-          Nova variável
-        </AwButton>
+        {!showWabaCol && (
+          <AwButton variant="primary" size="sm" iconLeft="add" onClick={onNewVariable}>
+            Nova variável
+          </AwButton>
+        )}
       </div>
 
-      {waba.variables.length === 0 ? (
+      {items.length === 0 ? (
         <AwEmpty>
           <AwEmptyHeader>
             <AwEmptyMedia variant="icon">
@@ -1021,6 +1101,7 @@ function VariablesTab({
             <thead>
               <tr>
                 <th>Nome</th>
+                {showWabaCol && <th>WABA</th>}
                 <th>Label</th>
                 <th>Valor atual</th>
                 <th>Escopo</th>
@@ -1029,17 +1110,25 @@ function VariablesTab({
               </tr>
             </thead>
             <tbody>
-              {waba.variables.map((v) => (
-                <tr key={v.name}>
+              {items.map(({ variable: v, wabaId, wabaName }) => (
+                <tr key={`${wabaId}-${v.name}`}>
                   <td>
                     <button
                       type="button"
-                      onClick={() => onOpenVariable(v.name)}
+                      onClick={() => onOpenVariable(wabaId, v.name)}
                       className="rounded-[var(--radius-sm)] px-1 py-0.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
                     >
                       <code className="font-mono text-[12px] text-[var(--fg-primary)]">{`{{${v.name}}}`}</code>
                     </button>
                   </td>
+                  {showWabaCol && (
+                    <td className="text-[var(--fg-tertiary)]">
+                      <span className="inline-flex items-center gap-1">
+                        <Icon name="dashboard" size={11} />
+                        {wabaName}
+                      </span>
+                    </td>
+                  )}
                   <td>{v.label}</td>
                   <td className="aw-table__mono text-[var(--fg-tertiary)]">{v.value}</td>
                   <td>
@@ -1055,7 +1144,7 @@ function VariablesTab({
                         size="sm"
                         iconOnly="edit"
                         aria-label="Editar"
-                        onClick={() => onOpenVariable(v.name)}
+                        onClick={() => onOpenVariable(wabaId, v.name)}
                       />
                       <AwButton
                         variant="ghost"
@@ -1380,6 +1469,198 @@ function WebhookCard({ wabaId }: { wabaId: string }) {
         </AwField>
       </div>
     </AwCard>
+  );
+}
+
+/* ================================================================
+ * Aggregated header + overview ("Todas as WABAs")
+ * ================================================================ */
+
+function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
+  const totalPhones = wabas.reduce((a, w) => a + w.phones.length, 0);
+  const totalTemplates = wabas.reduce((a, w) => a + w.templates.length, 0);
+  const issuesCount = wabas.filter(
+    (w) => w.status !== "active" || !w.bmVerified || !w.paymentOk,
+  ).length;
+
+  return (
+    <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-6">
+      <div className="flex min-w-0 items-center gap-3.5">
+        <div className="grid h-[56px] w-[56px] place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-[var(--bg-raised)]">
+          <Icon name="dashboard" size={28} fill={1} />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+              Todas as WABAs
+            </h2>
+            {issuesCount > 0 && (
+              <AwPill variant="beta">
+                {issuesCount}{" "}
+                {issuesCount === 1 ? "conta com pendência" : "contas com pendências"}
+              </AwPill>
+            )}
+          </div>
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+            <span>{wabas.length} contas conectadas</span>
+            <span aria-hidden>·</span>
+            <span>
+              {totalPhones} {totalPhones === 1 ? "número" : "números"}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{totalTemplates} templates</span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function AggregatedOverviewTab({
+  wabas,
+  onSelectWaba,
+}: {
+  wabas: Waba[];
+  onSelectWaba: (id: string) => void;
+}) {
+  const totalConversations = wabas.reduce(
+    (a, w) => a + w.conversations,
+    0,
+  );
+  const totalPhones = wabas.reduce((a, w) => a + w.phones.length, 0);
+  const totalTemplates = wabas.reduce((a, w) => a + w.templates.length, 0);
+  const avgHealth = Math.round(
+    wabas.reduce((a, w) => a + w.health, 0) / Math.max(wabas.length, 1),
+  );
+  const healthVariant =
+    avgHealth > 70 ? "success" : avgHealth > 40 ? "warning" : "danger";
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <AwCard className="flex flex-col gap-2 p-4">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Saúde média
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span
+              className="text-[24px] font-semibold leading-none"
+              style={{
+                color:
+                  healthVariant === "success"
+                    ? "var(--aw-emerald-700)"
+                    : healthVariant === "warning"
+                      ? "var(--aw-amber-700)"
+                      : "var(--aw-red-700, #B42318)",
+              }}
+            >
+              {avgHealth}
+            </span>
+            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+          </div>
+          <AwProgress value={avgHealth} variant={healthVariant} />
+          <div className="text-[12px] text-[var(--fg-tertiary)]">
+            Média ponderada das {wabas.length} contas conectadas.
+          </div>
+        </AwCard>
+
+        <AwCard className="flex flex-col gap-2 p-4">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Conversas (mês)
+          </div>
+          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            {totalConversations.toLocaleString("pt-BR")}
+          </div>
+          <div className="text-[12px] text-[var(--fg-tertiary)]">
+            Soma de todas as contas no mês corrente.
+          </div>
+        </AwCard>
+
+        <AwCard className="flex flex-col gap-2 p-4">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Números conectados
+          </div>
+          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            {totalPhones}
+          </div>
+          <div className="text-[12px] text-[var(--fg-tertiary)]">
+            Distribuídos entre {wabas.length}{" "}
+            {wabas.length === 1 ? "conta" : "contas"}.
+          </div>
+        </AwCard>
+
+        <AwCard className="flex flex-col gap-2 p-4">
+          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Templates
+          </div>
+          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            {totalTemplates}
+          </div>
+          <div className="text-[12px] text-[var(--fg-tertiary)]">
+            Aprovados, em análise e pausados — somando todas as contas.
+          </div>
+        </AwCard>
+      </div>
+
+      <section>
+        <div className="mb-2 flex items-baseline justify-between">
+          <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+            Detalhe por WABA
+          </h3>
+          <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+            Clique para abrir uma conta específica.
+          </span>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {wabas.map((w) => {
+            const meta = STATUS_PILL[w.status];
+            return (
+              <AwCard
+                key={w.id}
+                interactive
+                onClick={() => onSelectWaba(w.id)}
+                className="flex flex-col gap-3 p-4 text-left"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="relative flex-shrink-0">
+                      <AwBrandLogo brand="whatsapp" size="sm" />
+                      <AwStatusDot variant={meta.dot} size="sm" ring absolute />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+                        {w.name}
+                      </div>
+                      <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                        {w.bmName}
+                      </div>
+                    </div>
+                  </div>
+                  <AwPill variant={meta.variant}>{w.statusLabel}</AwPill>
+                </div>
+                <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
+                  <PhoneStat label="Saúde">
+                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                      {w.health}/100
+                    </span>
+                  </PhoneStat>
+                  <PhoneStat label="Números">
+                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                      {w.phones.length}
+                    </span>
+                  </PhoneStat>
+                  <PhoneStat label="Templates">
+                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                      {w.templates.length}
+                    </span>
+                  </PhoneStat>
+                </div>
+              </AwCard>
+            );
+          })}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -1751,9 +2032,9 @@ export type AwWhatsAppPanelProps = {
 };
 
 type SheetState =
-  | { kind: "phone"; phoneNum: string }
-  | { kind: "template"; name: string; mode: "view" | "edit" }
-  | { kind: "variable"; name: string | null }
+  | { kind: "phone"; wabaId: string; phoneNum: string }
+  | { kind: "template"; wabaId: string; name: string; mode: "view" | "edit" }
+  | { kind: "variable"; wabaId: string; name: string | null }
   | { kind: null };
 
 export function AwWhatsAppPanel({
@@ -1762,13 +2043,20 @@ export function AwWhatsAppPanel({
   onSave,
   onCancel,
 }: AwWhatsAppPanelProps) {
-  const [selectedId, setSelectedId] = useState(wabas[0]?.id ?? "");
+  const [selectedId, setSelectedId] = useState<string>(wabas[0]?.id ?? "");
   const [tab, setTab] = useState("overview");
   const [enabled, setEnabled] = useState(true);
   const [sheet, setSheet] = useState<SheetState>({ kind: null });
 
-  const selected = wabas.find((w) => w.id === selectedId) ?? wabas[0];
-  if (!selected) {
+  const isAll = selectedId === ALL_KEY;
+
+  React.useEffect(() => {
+    if (isAll && (tab === "account" || tab === "developer")) {
+      setTab("overview");
+    }
+  }, [isAll, tab]);
+
+  if (wabas.length === 0) {
     return (
       <div className="flex h-full items-center justify-center p-8">
         <AwEmpty>
@@ -1790,118 +2078,188 @@ export function AwWhatsAppPanel({
     );
   }
 
+  const selected = !isAll
+    ? wabas.find((w) => w.id === selectedId) ?? wabas[0]
+    : null;
+  const viewWabas = isAll ? wabas : selected ? [selected] : wabas;
+
   const closeSheet = () => setSheet({ kind: null });
   const handleAddWaba = onAddWaba ?? (() => {});
 
+  const sheetWabaId =
+    sheet.kind === "phone" ||
+    sheet.kind === "template" ||
+    sheet.kind === "variable"
+      ? sheet.wabaId
+      : null;
+  const sheetWaba = sheetWabaId
+    ? wabas.find((w) => w.id === sheetWabaId) ?? null
+    : null;
   const sheetPhone =
-    sheet.kind === "phone"
-      ? selected.phones.find((p) => p.num === sheet.phoneNum) ?? null
+    sheet.kind === "phone" && sheetWaba
+      ? sheetWaba.phones.find((p) => p.num === sheet.phoneNum) ?? null
       : null;
   const sheetPhoneIndex =
-    sheetPhone ? selected.phones.findIndex((p) => p.num === sheetPhone.num) : -1;
+    sheet.kind === "phone" && sheetWaba && sheetPhone
+      ? sheetWaba.phones.findIndex((p) => p.num === sheetPhone.num)
+      : -1;
   const sheetTemplate =
-    sheet.kind === "template"
-      ? selected.templates.find((t) => t.name === sheet.name) ?? null
+    sheet.kind === "template" && sheetWaba
+      ? sheetWaba.templates.find((t) => t.name === sheet.name) ?? null
       : null;
   const sheetVariable =
-    sheet.kind === "variable" && sheet.name
-      ? selected.variables.find((v) => v.name === sheet.name) ?? null
+    sheet.kind === "variable" && sheetWaba && sheet.name
+      ? sheetWaba.variables.find((v) => v.name === sheet.name) ?? null
       : null;
+
+  const tabItems = [
+    { value: "overview", label: "Visão geral" },
+    {
+      value: "phones",
+      label: "Números",
+      count: viewWabas.reduce((a, w) => a + w.phones.length, 0),
+    },
+    {
+      value: "templates",
+      label: "Templates",
+      count: viewWabas.reduce((a, w) => a + w.templates.length, 0),
+    },
+    {
+      value: "variables",
+      label: "Variáveis fixas",
+      count: viewWabas.reduce((a, w) => a + w.variables.length, 0),
+    },
+    ...(isAll
+      ? []
+      : [
+          { value: "account", label: "Conta & permissões" },
+          { value: "developer", label: "API & webhooks" },
+        ]),
+  ];
 
   return (
     <div className="flex h-full">
       {wabas.length > 1 && (
         <WabaRail
           wabas={wabas}
-          selectedId={selected.id}
+          selectedId={selectedId}
           onSelect={setSelectedId}
           onAddWaba={handleAddWaba}
         />
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <PanelHeader waba={selected} />
+        {isAll ? (
+          <AggregatedHeader wabas={wabas} />
+        ) : (
+          selected && <PanelHeader waba={selected} />
+        )}
 
         <div className="flex-1 overflow-y-auto px-7 py-6">
-          <div className="mb-6">
-            <ActiveToggle enabled={enabled} onChange={setEnabled} />
-          </div>
+          {!isAll && selected && (
+            <div className="mb-6">
+              <ActiveToggle enabled={enabled} onChange={setEnabled} />
+            </div>
+          )}
 
           <div className="mb-5">
             <AwTabs
-              aria-label="Configurações da WABA"
+              aria-label={isAll ? "Visão consolidada" : "Configurações da WABA"}
               variant="underline"
               value={tab}
               onChange={setTab}
-              items={[
-                { value: "overview", label: "Visão geral" },
-                { value: "phones", label: "Números", count: selected.phones.length },
-                { value: "templates", label: "Templates", count: selected.templates.length },
-                { value: "variables", label: "Variáveis fixas", count: selected.variables.length },
-                { value: "account", label: "Conta & permissões" },
-                { value: "developer", label: "API & webhooks" },
-              ]}
+              items={tabItems}
             />
           </div>
 
           <div>
-            {tab === "overview" && <OverviewTab waba={selected} onTab={setTab} />}
+            {tab === "overview" &&
+              (isAll ? (
+                <AggregatedOverviewTab
+                  wabas={wabas}
+                  onSelectWaba={setSelectedId}
+                />
+              ) : (
+                selected && <OverviewTab waba={selected} onTab={setTab} />
+              ))}
             {tab === "phones" && (
               <PhonesTab
-                waba={selected}
-                onOpenPhone={(phoneNum) => setSheet({ kind: "phone", phoneNum })}
+                wabas={viewWabas}
+                onOpenPhone={(wabaId, phoneNum) =>
+                  setSheet({ kind: "phone", wabaId, phoneNum })
+                }
               />
             )}
             {tab === "templates" && (
               <TemplatesTab
-                waba={selected}
-                onOpenTemplate={(name, mode) =>
-                  setSheet({ kind: "template", name, mode })
+                wabas={viewWabas}
+                onOpenTemplate={(wabaId, name, mode) =>
+                  setSheet({ kind: "template", wabaId, name, mode })
                 }
               />
             )}
             {tab === "variables" && (
               <VariablesTab
-                waba={selected}
-                onOpenVariable={(name) => setSheet({ kind: "variable", name })}
-                onNewVariable={() => setSheet({ kind: "variable", name: null })}
+                wabas={viewWabas}
+                onOpenVariable={(wabaId, name) =>
+                  setSheet({ kind: "variable", wabaId, name })
+                }
+                onNewVariable={() => {
+                  if (selected) {
+                    setSheet({
+                      kind: "variable",
+                      wabaId: selected.id,
+                      name: null,
+                    });
+                  }
+                }}
               />
             )}
-            {tab === "account" && <AccountTab waba={selected} />}
-            {tab === "developer" && <WebhookCard wabaId={selected.id} />}
+            {!isAll && tab === "account" && selected && (
+              <AccountTab waba={selected} />
+            )}
+            {!isAll && tab === "developer" && selected && (
+              <WebhookCard wabaId={selected.id} />
+            )}
           </div>
         </div>
 
-        <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
-          <AwButton variant="secondary" size="md" onClick={onCancel}>
-            Cancelar
-          </AwButton>
-          <AwButton variant="primary" size="md" onClick={onSave}>
-            Salvar alterações
-          </AwButton>
-        </footer>
+        {!isAll && (
+          <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
+            <AwButton variant="secondary" size="md" onClick={onCancel}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="primary" size="md" onClick={onSave}>
+              Salvar alterações
+            </AwButton>
+          </footer>
+        )}
       </div>
 
       <PhoneSheet
-        open={sheet.kind === "phone" && !!sheetPhone}
+        open={sheet.kind === "phone" && !!sheetPhone && !!sheetWaba}
         phone={sheetPhone}
-        waba={selected}
+        waba={sheetWaba ?? wabas[0]}
         onClose={closeSheet}
         onPrev={
-          sheetPhoneIndex > 0
+          sheetWaba && sheetPhoneIndex > 0
             ? () =>
                 setSheet({
                   kind: "phone",
-                  phoneNum: selected.phones[sheetPhoneIndex - 1].num,
+                  wabaId: sheetWaba.id,
+                  phoneNum: sheetWaba.phones[sheetPhoneIndex - 1].num,
                 })
             : undefined
         }
         onNext={
-          sheetPhoneIndex >= 0 && sheetPhoneIndex < selected.phones.length - 1
+          sheetWaba &&
+          sheetPhoneIndex >= 0 &&
+          sheetPhoneIndex < sheetWaba.phones.length - 1
             ? () =>
                 setSheet({
                   kind: "phone",
-                  phoneNum: selected.phones[sheetPhoneIndex + 1].num,
+                  wabaId: sheetWaba.id,
+                  phoneNum: sheetWaba.phones[sheetPhoneIndex + 1].num,
                 })
             : undefined
         }
@@ -1912,10 +2270,16 @@ export function AwWhatsAppPanel({
         template={sheetTemplate}
         mode={sheet.kind === "template" ? sheet.mode : "view"}
         onClose={closeSheet}
-        onChangeMode={(mode) =>
-          sheet.kind === "template" &&
-          setSheet({ kind: "template", name: sheet.name, mode })
-        }
+        onChangeMode={(mode) => {
+          if (sheet.kind === "template") {
+            setSheet({
+              kind: "template",
+              wabaId: sheet.wabaId,
+              name: sheet.name,
+              mode,
+            });
+          }
+        }}
       />
 
       <VariableSheet
