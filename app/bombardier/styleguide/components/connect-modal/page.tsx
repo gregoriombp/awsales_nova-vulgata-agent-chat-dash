@@ -84,7 +84,7 @@ export default function ConnectModalPage() {
                 iconLeft="key"
                 onClick={() => setOpenApiKey(true)}
               >
-                Conectar Stripe
+                Conectar Hotmart
               </AwButton>
             </Stage>
             </div>
@@ -122,8 +122,10 @@ export default function ConnectModalPage() {
                   API key
                 </div>
                 <p className="m-0 text-[13px] leading-[1.5]">
-                  Formulário com credenciais (key + secret) e link para a
-                  documentação. Padrão para Stripe, Kiwify, Tally, Magalu.
+                  Campos numerados em coluna única (clientId, secret,
+                  token…). Asterisco em obrigatórios e link inline pro
+                  passo a passo do parceiro. Padrão para Hotmart, Stripe,
+                  Kiwify, Tally, Magalu.
                 </p>
               </div>
             </div>
@@ -141,6 +143,11 @@ export default function ConnectModalPage() {
                   <strong>Hero (sempre).</strong> Logo do produto · conector ·
                   logo do alvo (56px) + título adaptado ao kind + descrição
                   curta.
+                </li>
+                <li>
+                  <strong>Nome (sempre).</strong> Campo opcional de nome da
+                  conexão — útil quando há múltiplas instâncias (“Hubla — Loja
+                  BR”, “Hubla — Loja PT”). Esconda com <code className="mono">showName=false</code>.
                 </li>
                 <li>
                   <strong>OAuth.</strong> Lista de permissões com check azul
@@ -223,6 +230,24 @@ export default function ConnectModalPage() {
                 doc="Subtítulo — uma frase curta sobre o porquê."
               />
 
+              {/* Naming — applies to all kinds */}
+              <PropRow
+                prop="showName"
+                type="boolean"
+                def="true"
+                doc="Exibe o campo Nome acima do miolo. Permite ao usuário nomear a conexão (útil quando há múltiplas)."
+              />
+              <PropRow
+                prop="defaultConnectionName"
+                type="string"
+                doc="Valor inicial do campo Nome."
+              />
+              <PropRow
+                prop="namePlaceholder"
+                type="string"
+                doc={`Placeholder do Nome. Default: "{targetName} – {kind}".`}
+              />
+
               {/* OAuth */}
               <PropRow
                 prop="permissions"
@@ -258,7 +283,7 @@ export default function ConnectModalPage() {
               <PropRow
                 prop="apiKeyFields"
                 type="AwApiKeyField[]"
-                doc="(API key) Campos do formulário (id, label, placeholder, iconLeft, helper, defaultValue)."
+                doc="(API key) Campos numerados em coluna única. Cada um aceita { id, label, placeholder, iconLeft, helper, defaultValue, required }. required adiciona asterisco."
               />
               <PropRow
                 prop="apiKeyIntro"
@@ -351,20 +376,28 @@ export default function ConnectModalPage() {
   onAllow={() => connectHubla()}
 />
 
-// API key flow (Stripe, Kiwify, Tally…)
+// API key flow (Hotmart, Stripe, Kiwify…)
 <AwConnectModal
   open={open}
   onClose={() => setOpen(false)}
   kind="apiKey"
-  targetBrand="stripe"
-  targetName="Stripe"
-  apiKeyIntro="Cole sua chave secreta para começar a sincronizar pagamentos."
+  targetBrand="hotmart"
+  targetName="Hotmart"
+  apiKeyIntro={
+    <>
+      Adicione abaixo as credenciais da sua conta Hotmart. Para ver o
+      passo a passo,{" "}
+      <a href="https://developers.hotmart.com" target="_blank" rel="noreferrer">
+        clique aqui
+      </a>.
+    </>
+  }
   apiKeyFields={[
-    { id: "key", label: "Secret key", iconLeft: "key", placeholder: "sk_live_••••••••" },
-    { id: "wh", label: "Webhook secret", iconLeft: "lock", placeholder: "whsec_••••••••" },
+    { id: "client-id",     label: "Insira o clientId",      placeholder: "Insira aqui seu ClientId",      required: true },
+    { id: "client-secret", label: "Insira o Client Secret", placeholder: "Insira aqui seu Client Secret", required: true },
+    { id: "basic-token",   label: "Insira o basic token",   placeholder: "Insira aqui seu basic token",   required: true },
   ]}
-  docsUrl="https://stripe.com/docs/api"
-  onAllow={() => connectStripe()}
+  onAllow={() => connectHotmart()}
 />`}</CodeExample>
           </Section>
 
@@ -526,38 +559,48 @@ export default function ConnectModalPage() {
         onAllow={() => setOpenWebhook(false)}
       />
 
-      {/* ───── API key demo (Stripe) ───── */}
+      {/* ───── API key demo (Hotmart) ───── */}
       <AwConnectModal
         open={openApiKey}
         onClose={() => setOpenApiKey(false)}
         kind="apiKey"
-        targetBrand="stripe"
-        targetName="Stripe"
-        description="Sincronize cobranças, clientes e reembolsos via API do Stripe."
+        targetBrand="hotmart"
+        targetName="Hotmart"
+        description="Sincronize transações, assinantes e reembolsos da Hotmart via API."
         apiKeyIntro={
           <>
-            Cole sua <strong>chave secreta</strong> e o{" "}
-            <strong>webhook signing secret</strong>. As credenciais ficam
-            criptografadas e podem ser rotacionadas a qualquer momento.
+            Adicione abaixo as credenciais da sua conta Hotmart. Para ver
+            o passo a passo de como encontrar as informações,{" "}
+            <a
+              href="https://developers.hotmart.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              clique aqui
+            </a>
+            .
           </>
         }
         apiKeyFields={[
           {
-            id: "stripe-key",
-            label: "Secret key",
-            iconLeft: "key",
-            placeholder: "sk_live_••••••••",
-            helper: "Encontre em Developers → API keys.",
+            id: "hotmart-client-id",
+            label: "Insira o clientId",
+            placeholder: "Insira aqui seu ClientId",
+            required: true,
           },
           {
-            id: "stripe-webhook",
-            label: "Webhook secret",
-            iconLeft: "lock",
-            placeholder: "whsec_••••••••",
-            helper: "Em Developers → Webhooks, selecione o endpoint.",
+            id: "hotmart-client-secret",
+            label: "Insira o Client Secret",
+            placeholder: "Insira aqui seu Client Secret",
+            required: true,
+          },
+          {
+            id: "hotmart-basic-token",
+            label: "Insira o basic token",
+            placeholder: "Insira aqui seu basic token",
+            required: true,
           },
         ]}
-        docsUrl="https://stripe.com/docs/api"
         onAllow={() => setOpenApiKey(false)}
       />
     </>

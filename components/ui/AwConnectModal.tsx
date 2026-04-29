@@ -33,6 +33,8 @@ export type AwApiKeyField = {
   /** Helper text below the input. */
   helper?: string
   defaultValue?: string
+  /** Marks the field as required (renders an asterisk in the label). */
+  required?: boolean
 }
 
 export type AwConnectModalProps = {
@@ -66,6 +68,13 @@ export type AwConnectModalProps = {
   docsLabel?: string
   apiKeyIntro?: React.ReactNode
 
+  /* Naming — applies to all kinds. Set showName={false} to hide. */
+  showName?: boolean
+  /** Default value for the name field. Falls back to `${targetName} – ${kindLabel}`. */
+  defaultConnectionName?: string
+  /** Custom placeholder for the name field. */
+  namePlaceholder?: string
+
   /* Footer */
   onHowItWorks?: () => void
   onCancel?: () => void
@@ -86,6 +95,10 @@ export type AwConnectModalProps = {
     back: string
     finish: string
     stepOf: string
+    nameLabel: string
+    kindOAuth: string
+    kindWebhook: string
+    kindApiKey: string
   }>
 }
 
@@ -102,6 +115,10 @@ const DEFAULT_LABELS = {
   back: "Voltar",
   finish: "Concluir",
   stepOf: "de",
+  nameLabel: "Nome",
+  kindOAuth: "OAuth",
+  kindWebhook: "Webhook",
+  kindApiKey: "API",
 }
 
 function ProductMark() {
@@ -238,6 +255,9 @@ export function AwConnectModal({
   docsUrl,
   docsLabel = "Ver documentação",
   apiKeyIntro,
+  showName = true,
+  defaultConnectionName,
+  namePlaceholder,
   onHowItWorks,
   onCancel,
   onAllow,
@@ -247,6 +267,8 @@ export function AwConnectModal({
   const L = { ...DEFAULT_LABELS, ...labels }
   const stepCount = steps?.length ?? 0
   const [step, setStep] = React.useState(initialStep)
+  const reactId = React.useId()
+  const nameInputId = `aw-connect-modal-name-${reactId}`
 
   React.useEffect(() => {
     if (open) setStep(initialStep)
@@ -271,6 +293,13 @@ export function AwConnectModal({
   const isOAuth = kind === "oauth"
   const isWebhook = kind === "webhook"
   const isApiKey = kind === "apiKey"
+
+  const kindLabel = isWebhook
+    ? L.kindWebhook
+    : isApiKey
+      ? L.kindApiKey
+      : L.kindOAuth
+  const fallbackNamePlaceholder = `${targetName} – ${kindLabel}`
 
   const primaryLabel = isWebhook
     ? L.allowWebhook
@@ -340,6 +369,24 @@ export function AwConnectModal({
             <p className="aw-connect-modal__desc">{description}</p>
           )}
         </div>
+
+        {/* ───── Name field — applies to all kinds ───── */}
+        {showName && (
+          <div className="aw-connect-modal__name">
+            <label
+              htmlFor={nameInputId}
+              className="aw-connect-modal__name-label"
+            >
+              {L.nameLabel}
+            </label>
+            <AwInput
+              id={nameInputId}
+              defaultValue={defaultConnectionName}
+              placeholder={namePlaceholder ?? fallbackNamePlaceholder}
+              aria-label={L.nameLabel}
+            />
+          </div>
+        )}
 
         {/* ───── OAuth body ───── */}
         {isOAuth && permissions.length > 0 && (
@@ -431,25 +478,43 @@ export function AwConnectModal({
               </p>
             )}
             {apiKeyFields && apiKeyFields.length > 0 && (
-              <div className="aw-connect-modal__apikey-fields">
-                {apiKeyFields.map((f) => (
-                  <AwField
-                    key={f.id}
-                    label={f.label}
-                    htmlFor={f.id}
-                    helper={f.helper}
-                  >
+              <ol className="aw-connect-modal__apikey-fields">
+                {apiKeyFields.map((f, i) => (
+                  <li key={f.id} className="aw-connect-modal__apikey-field">
+                    <label
+                      htmlFor={f.id}
+                      className="aw-connect-modal__apikey-field-label"
+                    >
+                      <span className="aw-connect-modal__apikey-field-num">
+                        {i + 1}.
+                      </span>
+                      {f.label}
+                      {f.required && (
+                        <span
+                          aria-hidden="true"
+                          className="aw-connect-modal__apikey-field-req"
+                        >
+                          *
+                        </span>
+                      )}
+                    </label>
                     <AwInput
                       id={f.id}
                       placeholder={f.placeholder}
                       iconLeft={f.iconLeft}
                       defaultValue={f.defaultValue}
+                      required={f.required}
                     />
-                  </AwField>
+                    {f.helper && (
+                      <span className="aw-connect-modal__apikey-field-helper">
+                        {f.helper}
+                      </span>
+                    )}
+                  </li>
                 ))}
-              </div>
+              </ol>
             )}
-            {docsUrl && (
+            {docsUrl && !apiKeyIntro && (
               <a
                 href={docsUrl}
                 target="_blank"

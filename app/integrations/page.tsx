@@ -988,9 +988,17 @@ export default function IntegrationsPage() {
         apiKeyIntro={
           connectTarget?.auth === "apiKey" ? (
             <>
-              Cole sua chave de API do{" "}
-              <strong>{connectTarget.name}</strong> para começar a
-              sincronizar transações e eventos.
+              Adicione abaixo as credenciais da sua conta{" "}
+              {connectTarget.name}. Para ver o passo a passo de como
+              encontrar as informações,{" "}
+              <a
+                href={`https://${connectTarget.domain}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                clique aqui
+              </a>
+              .
             </>
           ) : undefined
         }
@@ -998,23 +1006,24 @@ export default function IntegrationsPage() {
           connectTarget?.auth === "apiKey"
             ? [
                 {
-                  id: `key-${connectTarget.id}`,
-                  label: "API Key",
-                  iconLeft: "key",
-                  placeholder: "sk_live_••••••••••••",
+                  id: `client-id-${connectTarget.id}`,
+                  label: "Insira o clientId",
+                  placeholder: "Insira aqui seu ClientId",
+                  required: true,
                 },
                 {
-                  id: `secret-${connectTarget.id}`,
-                  label: "Webhook secret",
-                  iconLeft: "lock",
-                  placeholder: "whsec_••••••••",
+                  id: `client-secret-${connectTarget.id}`,
+                  label: "Insira o Client Secret",
+                  placeholder: "Insira aqui seu Client Secret",
+                  required: true,
+                },
+                {
+                  id: `basic-token-${connectTarget.id}`,
+                  label: "Insira o basic token",
+                  placeholder: "Insira aqui seu basic token",
+                  required: true,
                 },
               ]
-            : undefined
-        }
-        docsUrl={
-          connectTarget?.auth === "apiKey"
-            ? `https://${connectTarget.domain}`
             : undefined
         }
         onAllow={closeConnect}

@@ -1362,6 +1362,18 @@
   max-width: 540px;
 }
 
+/* ─── Name field (shared by all kinds) ─── */
+.aw-connect-modal__name {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aw-connect-modal__name-label {
+  font: 600 12.5px/1.2 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+
 /* ─── Webhook flow ─── */
 .aw-connect-modal__webhook {
   display: flex;
@@ -1560,13 +1572,38 @@
   color: var(--fg-secondary);
 }
 .aw-connect-modal__apikey-fields {
-  display: grid;
-  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
-@media (min-width: 520px) {
-  .aw-connect-modal__apikey-fields {
-    grid-template-columns: 1fr 1fr;
-  }
+.aw-connect-modal__apikey-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aw-connect-modal__apikey-field-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font: 500 13.5px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-connect-modal__apikey-field-num {
+  font-weight: 700;
+  color: var(--fg-primary);
+}
+.aw-connect-modal__apikey-field-req {
+  color: var(--aw-red-700, var(--fg-secondary));
+  margin-left: 2px;
+}
+.aw-connect-modal__apikey-field-helper {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--fg-tertiary);
 }
 .aw-connect-modal__apikey-docs {
   display: inline-flex;
