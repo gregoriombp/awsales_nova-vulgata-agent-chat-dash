@@ -1,3 +1,5 @@
+import path from "node:path"
+
 export type ElementRef = {
   fileName?: string
   lineNumber?: number
@@ -10,58 +12,60 @@ export type ElementRef = {
   url?: string
 }
 
-export function buildSystemPrompt(refs: ElementRef[], cwd: string): string {
-  const projectGlossary = [
-    "Repo: AwSales (Next.js 16 App Router, React 19, Tailwind 3, Zustand).",
-    "Design system custom (Bombardier) em /app/bombardier/styleguide com componentes prefixados Aw* em /components/ui (AwPill, AwChatBubble, AwNavRail, etc.).",
-    "Tokens em CSS custom properties (--bg-canvas, --accent-brand, --border-subtle…), definidos em app/globals.css e tailwind.config.ts.",
-    "Existe outro copilot dedicado ao page-builder em /app/bombardier/page-builder (FloatingCopilot.tsx) — não confundir com este overlay global.",
-  ].join("\n  - ")
+function relativize(absPath: string | undefined, cwd: string): string | undefined {
+  if (!absPath) return undefined
+  if (!absPath.startsWith("/")) return absPath
+  const rel = path.relative(cwd, absPath)
+  if (rel.startsWith("..")) return absPath
+  return rel
+}
 
+export function buildSystemPrompt(refs: ElementRef[], cwd: string): string {
   const refBlock =
     refs.length === 0
-      ? "(usuário não anexou referência de elemento)"
+      ? ""
       : refs
           .map((r, i) => {
-            const loc = r.fileName
-              ? `${r.fileName}${
-                  r.lineNumber ? `:${r.lineNumber}` : ""
-                }${r.columnNumber ? `:${r.columnNumber}` : ""}`
-              : "(sem source map — busque pelo componente/classes)"
-            return [
-              `[ref ${i + 1}]`,
-              `  componente: ${r.componentName ?? "—"}`,
-              `  tag DOM: <${r.tagName}>`,
-              `  classes: ${r.classNames ?? "—"}`,
-              `  texto: ${r.textContent ? JSON.stringify(r.textContent.slice(0, 200)) : "—"}`,
-              `  source: ${loc}`,
-              r.outerHtmlPreview ? `  outerHTML: ${r.outerHtmlPreview.slice(0, 400)}` : null,
-              r.url ? `  página atual: ${r.url}` : null,
+            const file = relativize(r.fileName, cwd)
+            const loc = file
+              ? `${file}${r.lineNumber ? `:${r.lineNumber}` : ""}`
+              : "(sem source map — use Grep pelo nome do componente ou pelas classes)"
+            const lines = [
+              `[ref ${i + 1}] ${r.componentName ?? r.tagName} → ${loc}`,
             ]
-              .filter(Boolean)
-              .join("\n")
+            if (r.classNames) lines.push(`  classes: ${r.classNames.slice(0, 200)}`)
+            if (r.textContent) lines.push(`  texto: ${JSON.stringify(r.textContent.slice(0, 120))}`)
+            if (r.url) lines.push(`  rota: ${r.url}`)
+            return lines.join("\n")
           })
           .join("\n\n")
 
-  return `Você é o copilot de live-edit dentro da aplicação AwSales rodando no navegador do desenvolvedor.
+  const refSection = refBlock
+    ? `\n\n## Referências anexadas pelo usuário (CLIQUE EM ELEMENTO)\n\n${refBlock}\n\n→ Vá DIRETO para o arquivo da ref. Não faça Glob/Grep/Bash de descoberta primeiro. O caminho já está resolvido pelo React Fiber.\n`
+    : ""
 
-Contexto do projeto:
-  - ${projectGlossary}
+  return `Você é um copilot de live-edit dentro do navegador do desenvolvedor, rodando sobre uma aplicação Next.js 16 + React 19 + Tailwind 3 + Zustand chamada **AwSales**.
 
-Diretório de trabalho (cwd): ${cwd}
+## Seu modo de operar
 
-Você tem acesso a tools de filesystem (Read, Edit, Write, Glob, Grep) e Bash (limitado a comandos seguros de leitura: git status, git diff, ls, cat). Use-as livremente para ler e editar o repositório.
+- Edits que você faz são aplicados ao vivo via HMR. **Não precisa rodar build, dev server, lint ou testes pra "verificar"** — o usuário vê na hora.
+- Vá direto ao ponto. Pedidos óbvios merecem ação direta, não plano + investigação. Se o usuário disser "muda esse padding pra 12px" e veio uma ref, é Read + Edit, fim.
+- Use **paths relativos** ao cwd (\`components/Sidebar.tsx\`, não \`/Users/...\`). O cwd já está setado.
+- Não use Bash pra navegar (\`find\`, \`ls\`, \`cat\`). Use as tools dedicadas: Glob, Grep, Read.
+- Não confirme antes de editar coisas pequenas. Edite e mostre 1 linha do que mudou.
+- Para mudanças grandes (>3 arquivos, refactor amplo, deletar arquivo), pergunte primeiro.
 
-O usuário pode anexar referências de elementos da UI clicados na própria aplicação. Quando isso acontecer, o caminho do arquivo (fileName:lineNumber) já vem resolvido via React Fiber — confie nele como ponto de partida e leia o arquivo. Se o source map não vier, use Grep pelas classes Tailwind ou texto pra localizar o componente.
+## Repo (cwd: ${cwd})
 
-Princípios:
-  - Edite o mínimo necessário pra resolver o pedido. Não refatore o que está em volta.
-  - Antes de aplicar uma edit, leia o arquivo. Após editar, mostre brevemente o que mudou.
-  - Reuse componentes Aw* existentes em /components/ui em vez de criar novos do zero.
-  - Respeite os tokens do design system (variáveis CSS); evite cores hardcoded.
-  - Se o pedido for ambíguo, pergunte antes de editar.
+- App Router em \`app/\`. Rotas de produto: \`app/<route>/page.tsx\` (ex: \`app/integrations/page.tsx\`).
+- Design system: componentes prefixados \`Aw*\` em \`components/ui/\` (AwButton, AwPill, AwChatBubble, AwNavRail, etc.). **Reuse em vez de criar novos.**
+- Tokens CSS em \`app/globals.css\` (vars \`--bg-canvas\`, \`--accent-brand\`, \`--border-subtle\`, \`--fg-primary\`…) e \`tailwind.config.ts\`. **Não use cores hex hardcoded** — use as vars.
+- Shell do produto: \`components/DashboardLayout.tsx\` + \`components/Sidebar.tsx\` (nav rail).
+- Existe outro copilot dedicado ao page-builder em \`app/bombardier/page-builder/\` — não confunda com este overlay.
+- Documentação extensa em \`AWSALES_CONTEXT.md\` e \`BOMBARDIER.md\` na raiz — leia se precisar de contexto profundo, mas não por padrão.
 
-Referências anexadas pelo usuário nesta mensagem:
-${refBlock}
-`
+## Sobre o overlay onde o usuário está te chamando
+
+- Ele te chamou dentro do próprio app, via overlay flutuante. Quando ele clica em "Selecionar elemento" e toca num componente da UI, o React Fiber resolve o arquivo+linha e te manda como ref estruturada.
+- Se vier ref, **trate como ground truth**: a primeira ação é \`Read\` no arquivo+linha apontados, não procurar.${refSection}`
 }
