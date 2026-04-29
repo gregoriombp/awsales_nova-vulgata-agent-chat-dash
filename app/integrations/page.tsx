@@ -64,6 +64,12 @@ interface Integration {
   tools?: IntegrationTools;
 }
 
+interface IntegrationInstance {
+  instanceId: string;
+  integrationId: string;
+  name: string;
+}
+
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
   { id: "checkouts", label: "Checkouts" },
@@ -416,10 +422,12 @@ function PermissionGroup({
 
 function IntegrationSettings({
   integration,
+  displayName,
   permModes,
   onPermissionChange,
 }: {
   integration: Integration;
+  displayName?: string;
   permModes: Record<string, PermissionMode>;
   onPermissionChange: (toolId: string, next: PermissionMode) => void;
 }) {
@@ -446,7 +454,7 @@ function IntegrationSettings({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="m-0 text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                {integration.name}
+                {displayName ?? integration.name}
               </h2>
               {integration.state === "attention" ? (
                 <AwPill variant="beta">Atenção</AwPill>
@@ -807,13 +815,22 @@ export default function IntegrationsPage() {
   const [customOpen, setCustomOpen] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
-  const connected = ITEMS.filter((i) => isActive(i.state));
-  /** selected integration in the inline settings panel */
-  const [selectedId, setSelectedId] = useState<string | null>(
-    connected[0]?.id ?? null,
+  /** Connected accounts shown in the left list — one row per instance. */
+  const [instances, setInstances] = useState<IntegrationInstance[]>(() =>
+    ITEMS.filter((i) => isActive(i.state)).map((i) => ({
+      instanceId: `${i.id}-default`,
+      integrationId: i.id,
+      name: i.name,
+    })),
   );
-  const selected = selectedId
-    ? ITEMS.find((i) => i.id === selectedId) ?? null
+  /** selected instance in the inline settings panel */
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(
+    instances[0]?.instanceId ?? null,
+  );
+  const selectedInstance =
+    instances.find((i) => i.instanceId === selectedInstanceId) ?? null;
+  const selected = selectedInstance
+    ? ITEMS.find((i) => i.id === selectedInstance.integrationId) ?? null
     : null;
 
   const connectTarget = connectId
@@ -861,13 +878,13 @@ export default function IntegrationsPage() {
           </header>
 
           {/* Two-column: active list + settings panel */}
-          <div className="grid gap-6 lg:grid-cols-[minmax(320px,400px)_1fr]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(380px,480px)_1fr]">
             {/* Left: active integrations */}
             <aside>
               <h2 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
                 Integrações ativas
               </h2>
-              {connected.length === 0 ? (
+              {instances.length === 0 ? (
                 <AwEmpty>
                   <AwEmptyHeader>
                     <AwEmptyMedia variant="icon">
@@ -881,18 +898,22 @@ export default function IntegrationsPage() {
                 </AwEmpty>
               ) : (
                 <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
-                  {connected.map((it) => (
-                    <li key={it.id}>
-                      <ActiveRow
-                        brand={it.id}
-                        name={it.name}
-                        description={it.desc}
-                        state={it.state}
-                        selected={selectedId === it.id}
-                        onClick={() => setSelectedId(it.id)}
-                      />
-                    </li>
-                  ))}
+                  {instances.map((inst) => {
+                    const it = ITEMS.find((i) => i.id === inst.integrationId);
+                    if (!it) return null;
+                    return (
+                      <li key={inst.instanceId}>
+                        <ActiveRow
+                          brand={it.id}
+                          name={inst.name}
+                          description={it.desc}
+                          state={it.state}
+                          selected={selectedInstanceId === inst.instanceId}
+                          onClick={() => setSelectedInstanceId(inst.instanceId)}
+                        />
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </aside>
@@ -905,6 +926,7 @@ export default function IntegrationsPage() {
               {selected ? (
                 <IntegrationSettings
                   integration={selected}
+                  displayName={selectedInstance?.name}
                   permModes={permModes}
                   onPermissionChange={setMode}
                 />
@@ -1080,7 +1102,24 @@ export default function IntegrationsPage() {
               ]
             : undefined
         }
-        onAllow={closeConnect}
+        onAllow={(name) => {
+          if (connectTarget) {
+            const instanceId = `${connectTarget.id}-${Date.now()}`;
+            const finalName =
+              name?.trim() ||
+              `${connectTarget.name} ${instances.filter((i) => i.integrationId === connectTarget.id).length + 1}`;
+            setInstances((list) => [
+              ...list,
+              {
+                instanceId,
+                integrationId: connectTarget.id,
+                name: finalName,
+              },
+            ]);
+            setSelectedInstanceId(instanceId);
+          }
+          closeConnect();
+        }}
       />
     </DashboardLayout>
   );

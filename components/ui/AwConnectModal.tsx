@@ -78,8 +78,8 @@ export type AwConnectModalProps = {
   /* Footer */
   onHowItWorks?: () => void
   onCancel?: () => void
-  /** Primary action — Permitir acesso (OAuth) / Salvar webhook (webhook) / Conectar (apiKey). */
-  onAllow?: () => void
+  /** Primary action — Permitir acesso (OAuth) / Salvar webhook (webhook) / Conectar (apiKey). Receives the current name field value. */
+  onAllow?: (name?: string) => void
   loading?: boolean
 
   labels?: Partial<{
@@ -267,12 +267,16 @@ export function AwConnectModal({
   const L = { ...DEFAULT_LABELS, ...labels }
   const stepCount = steps?.length ?? 0
   const [step, setStep] = React.useState(initialStep)
+  const [name, setName] = React.useState(defaultConnectionName ?? "")
   const reactId = React.useId()
   const nameInputId = `aw-connect-modal-name-${reactId}`
 
   React.useEffect(() => {
-    if (open) setStep(initialStep)
-  }, [open, initialStep])
+    if (open) {
+      setStep(initialStep)
+      setName(defaultConnectionName ?? "")
+    }
+  }, [open, initialStep, defaultConnectionName])
 
   React.useEffect(() => {
     if (!open) return
@@ -312,7 +316,7 @@ export function AwConnectModal({
       setStep((s) => Math.min(stepCount - 1, s + 1))
       return
     }
-    onAllow?.()
+    onAllow?.(name.trim() || defaultConnectionName || undefined)
   }
 
   const isLastStep = !isWebhook || step >= stepCount - 1
@@ -381,7 +385,8 @@ export function AwConnectModal({
             </label>
             <AwInput
               id={nameInputId}
-              defaultValue={defaultConnectionName}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               placeholder={namePlaceholder ?? fallbackNamePlaceholder}
               aria-label={L.nameLabel}
             />
