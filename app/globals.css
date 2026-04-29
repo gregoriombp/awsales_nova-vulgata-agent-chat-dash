@@ -2761,11 +2761,6 @@
 .aw-integration-card__logo {
   width: 44px !important;
   height: 44px !important;
-}
-.aw-integration-card__logo svg {
-  width: 100%;
-  height: 100%;
-  display: block;
   border-radius: 10px;
 }
 .aw-integration-card__actions {
