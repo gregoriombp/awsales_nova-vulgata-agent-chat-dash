@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -17,9 +16,11 @@ import {
   AwIntegrationCard,
   type AwIntegrationCardState,
 } from "@/components/ui/AwIntegrationCard";
+import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwConnectModal } from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
+import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
 
@@ -32,7 +33,7 @@ type IntegrationCategory =
   | "crms"
   | "marketplaces";
 
-type CategoryFilter = "all" | IntegrationCategory;
+type CategoryFilter = "all" | "active" | IntegrationCategory;
 
 type AuthMethod = "oauth" | "api";
 
@@ -67,6 +68,17 @@ interface Integration {
 
 const CATS: { id: CategoryFilter; label: string }[] = [
   { id: "all", label: "Todas" },
+  { id: "active", label: "Ativas" },
+  { id: "channels", label: "Canais" },
+  { id: "checkouts", label: "Checkouts" },
+  { id: "members", label: "Área de membros" },
+  { id: "forms", label: "Formulários" },
+  { id: "meetings", label: "Reuniões" },
+  { id: "crms", label: "CRMs" },
+  { id: "marketplaces", label: "Marketplaces" },
+];
+
+const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
   { id: "checkouts", label: "Checkouts" },
   { id: "members", label: "Área de membros" },
@@ -230,50 +242,6 @@ function isActive(state: AwIntegrationCardState) {
 }
 
 /* ----------------------------------------------------------------
- * Connected row — list-style card for activated integrations.
- * ---------------------------------------------------------------- */
-
-function ConnectedRow({
-  item,
-  onClick,
-}: {
-  item: Integration;
-  onClick: () => void;
-}) {
-  const isAttention = item.state === "attention";
-  return (
-    <AwCard
-      interactive
-      role="button"
-      tabIndex={0}
-      aria-label={`${item.name} — ${item.domain}`}
-      onClick={onClick}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onClick();
-        }
-      }}
-      className="aw-conn-row"
-    >
-      <AwBrandLogo brand={item.id} size="md" bare />
-      <div className="aw-conn-row__heading">
-        <h3 className="aw-conn-row__name">{item.name}</h3>
-        <p className="aw-conn-row__domain">{item.domain}</p>
-      </div>
-      <div className="aw-conn-row__right">
-        {isAttention ? (
-          <AwPill variant="beta">Atenção</AwPill>
-        ) : (
-          <AwPill variant="live">Conectada</AwPill>
-        )}
-        <Icon name="chevron_right" size={18} />
-      </div>
-    </AwCard>
-  );
-}
-
-/* ----------------------------------------------------------------
  * Permission segmented control — always / approval / never.
  * ---------------------------------------------------------------- */
 
@@ -394,28 +362,38 @@ function PermissionGroup({
  * ================================================================ */
 
 export default function IntegrationsPage() {
-  const [openId, setOpenId] = useState<string | null>(null);
-  const [catalogOpen, setCatalogOpen] = useState(false);
+  /** detail sheet — opened from the connected sidebar */
+  const [detailId, setDetailId] = useState<string | null>(null);
+  /** add-instance modal — opened from any catalog card */
+  const [connectId, setConnectId] = useState<string | null>(null);
+  /** add-integration catalog modal — opened from the page header CTA */
+  const [addOpen, setAddOpen] = useState(false);
   const [activeCat, setActiveCat] = useState<CategoryFilter>("all");
   const [q, setQ] = useState("");
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
   const connected = ITEMS.filter((i) => isActive(i.state));
-  const opened = openId ? ITEMS.find((i) => i.id === openId) ?? null : null;
-  const openedIsActive = opened ? isActive(opened.state) : false;
+  const detail = detailId ? ITEMS.find((i) => i.id === detailId) ?? null : null;
+  const connectTarget = connectId
+    ? ITEMS.find((i) => i.id === connectId) ?? null
+    : null;
 
-  // Catalog modal triggers same flows as before for non-connected items.
-  const showOAuthModal =
-    !!opened && !openedIsActive && opened.auth === "oauth";
-  const showFormModal = !!opened && !openedIsActive && opened.auth === "api";
-  // Detail sheet only for already-active integrations.
-  const showDetailSheet = !!opened && openedIsActive;
+  const showDetailSheet = !!detail;
+  const showOAuthModal = !!connectTarget && connectTarget.auth === "oauth";
+  const showFormModal = !!connectTarget && connectTarget.auth === "api";
 
-  const countFor = (id: CategoryFilter) =>
-    id === "all" ? ITEMS.length : ITEMS.filter((i) => i.cat === id).length;
+  const countFor = (id: CategoryFilter) => {
+    if (id === "all") return ITEMS.length;
+    if (id === "active") return ITEMS.filter((i) => isActive(i.state)).length;
+    return ITEMS.filter((i) => i.cat === id).length;
+  };
 
   const catalogFiltered = ITEMS.filter((i) => {
-    if (activeCat !== "all" && i.cat !== activeCat) return false;
+    if (activeCat === "active") {
+      if (!isActive(i.state)) return false;
+    } else if (activeCat !== "all") {
+      if (i.cat !== activeCat) return false;
+    }
     if (q) {
       const t = q.toLowerCase();
       return (
@@ -434,14 +412,13 @@ export default function IntegrationsPage() {
   const setMode = (toolId: string, next: PermissionMode) =>
     setPermModes((m) => ({ ...m, [toolId]: next }));
 
-  const closeAll = () => {
-    setOpenId(null);
-  };
+  const closeDetail = () => setDetailId(null);
+  const closeConnect = () => setConnectId(null);
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-surface)]">
-        <div className="mx-auto w-full max-w-[1120px] px-10 pt-12 pb-24">
+        <div className="w-full px-10 pt-12 pb-24">
           {/* Header */}
           <header className="mb-7 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
@@ -453,89 +430,133 @@ export default function IntegrationsPage() {
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-2">
-              <AwButton variant="secondary" size="md" iconLeft="link">
-                Solicitar
-              </AwButton>
               <AwButton
                 variant="primary"
                 size="md"
                 iconLeft="add"
-                onClick={() => setCatalogOpen(true)}
+                onClick={() => setAddOpen(true)}
               >
                 Nova integração
+              </AwButton>
+              <AwButton variant="secondary" size="md" iconLeft="link">
+                Solicitar
               </AwButton>
             </div>
           </header>
 
-          {/* Body */}
-          {connected.length === 0 ? (
-            <AwEmpty>
-              <AwEmptyHeader>
-                <AwEmptyMedia variant="icon">
-                  <Icon name="extension" size={28} />
-                </AwEmptyMedia>
-                <AwEmptyTitle>Nenhuma integração ativada</AwEmptyTitle>
-                <AwEmptyDescription>
-                  Conecte uma ferramenta para que seus agentes possam coletar contexto e agir em seu nome.
-                </AwEmptyDescription>
-              </AwEmptyHeader>
-              <div className="mt-4 flex justify-center">
-                <AwButton
-                  variant="primary"
-                  iconLeft="add"
-                  onClick={() => setCatalogOpen(true)}
-                >
-                  Adicionar integração
-                </AwButton>
-              </div>
-            </AwEmpty>
-          ) : (
-            <>
-              <div className="mb-3 flex items-baseline justify-between">
-                <h2 className="m-0 text-[13px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                  Suas integrações
+          <div>
+              <div className="mb-4 flex items-baseline justify-between">
+                <h2 className="m-0 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  Loja de integrações
                 </h2>
-                <span className="text-[12.5px] tabular-nums text-[var(--fg-tertiary)]">
-                  {connected.length}{" "}
-                  {connected.length === 1 ? "ativa" : "ativas"}
+                <span className="text-[12px] text-[var(--fg-tertiary)]">
+                  Cada integração pode ser conectada várias vezes
                 </span>
               </div>
-              <div className="flex flex-col gap-2">
-                {connected.map((it) => (
-                  <ConnectedRow
-                    key={it.id}
-                    item={it}
-                    onClick={() => setOpenId(it.id)}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+
+              <AwTabs
+                variant="standalone"
+                value={activeCat}
+                onChange={(v) => setActiveCat(v as CategoryFilter)}
+                className="mb-3"
+                aria-label="Categorias de integração"
+                items={CATS.map((c) => ({
+                  value: c.id,
+                  label: c.label,
+                  count: countFor(c.id),
+                }))}
+              />
+
+              <AwInput
+                dense
+                iconLeft="search"
+                placeholder="Buscar integração…"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                className="mb-4 w-full"
+                aria-label="Buscar integração"
+              />
+
+              {catalogFiltered.length === 0 ? (
+                <AwEmpty>
+                  <AwEmptyHeader>
+                    <AwEmptyMedia variant="icon">
+                      <Icon name="search_off" size={24} />
+                    </AwEmptyMedia>
+                    <AwEmptyTitle>Nenhuma integração encontrada</AwEmptyTitle>
+                    <AwEmptyDescription>
+                      Tente outro termo ou troque a categoria.
+                    </AwEmptyDescription>
+                  </AwEmptyHeader>
+                </AwEmpty>
+              ) : (
+                <div
+                  className="grid gap-3"
+                  style={{
+                    gridTemplateColumns:
+                      "repeat(auto-fill, minmax(260px, 1fr))",
+                  }}
+                >
+                  {catalogFiltered.map((it) => (
+                    <AwIntegrationCard
+                      key={it.id}
+                      brand={it.id}
+                      name={it.name}
+                      domain={it.domain}
+                      description={it.desc}
+                      state={it.state}
+                      instances={it.instances}
+                      onClick={() => setConnectId(it.id)}
+                    />
+                  ))}
+                </div>
+              )}
+          </div>
         </div>
       </div>
+
+      {/* Catalog modal — pick an integration to add */}
+      <AwAddIntegrationModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        alpha
+        categories={ADD_MODAL_CATS}
+        items={ITEMS.map((it) => ({
+          id: it.id,
+          brand: it.id,
+          name: it.name,
+          description: it.desc,
+          category: it.cat,
+          connected: isActive(it.state),
+        }))}
+        onSelect={(id) => {
+          setAddOpen(false);
+          setConnectId(id);
+        }}
+      />
 
       {/* Detail modal — connected integration: info + per-tool permissions */}
       <AwModal
         open={showDetailSheet}
-        onClose={closeAll}
-        title={opened ? `${opened.name} — ${opened.domain}` : undefined}
+        onClose={closeDetail}
+        title={detail ? `${detail.name} — ${detail.domain}` : undefined}
         footer={
           <div className="flex w-full items-center justify-between gap-2">
             <AwButton variant="secondary" iconLeft="link_off">
               Desconectar
             </AwButton>
-            <AwButton variant="primary" onClick={closeAll}>
+            <AwButton variant="primary" onClick={closeDetail}>
               Salvar permissões
             </AwButton>
           </div>
         }
       >
-        {opened && (
+        {detail && (
           <>
             <div className="mb-4 flex items-center gap-3">
-              <AwBrandLogo brand={opened.id} size="md" bare />
+              <AwBrandLogo brand={detail.id} size="md" bare />
               <p className="m-0 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
-                {opened.desc}
+                {detail.desc}
               </p>
             </div>
 
@@ -545,12 +566,12 @@ export default function IntegrationsPage() {
                   Status da conexão
                 </div>
                 <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
-                  {opened.state === "attention"
+                  {detail.state === "attention"
                     ? "Token expira em 3 dias — renove para continuar"
                     : "Sincronizado há 2 min"}
                 </div>
               </div>
-              {opened.state === "attention" ? (
+              {detail.state === "attention" ? (
                 <AwPill variant="beta">Atenção</AwPill>
               ) : (
                 <AwPill variant="live">Ativa</AwPill>
@@ -564,28 +585,28 @@ export default function IntegrationsPage() {
               Decida quando seus agentes podem usar cada ação.
             </p>
 
-            {opened.tools?.readOnly && opened.tools.readOnly.length > 0 && (
+            {detail.tools?.readOnly && detail.tools.readOnly.length > 0 && (
               <PermissionGroup
                 title="Ferramentas de leitura"
                 hint="Ler dados não muda nada do lado da plataforma — o padrão é permitir."
-                tools={opened.tools.readOnly}
+                tools={detail.tools.readOnly}
                 modes={permModes}
                 onChange={setMode}
                 defaultOpen
               />
             )}
-            {opened.tools?.writeDelete && opened.tools.writeDelete.length > 0 && (
+            {detail.tools?.writeDelete && detail.tools.writeDelete.length > 0 && (
               <PermissionGroup
                 title="Ferramentas de escrita / exclusão"
                 hint="Ações que alteram dados externos. Padrão é pedir aprovação antes."
-                tools={opened.tools.writeDelete}
+                tools={detail.tools.writeDelete}
                 modes={permModes}
                 onChange={setMode}
                 defaultOpen
               />
             )}
 
-            {!opened.tools && (
+            {!detail.tools && (
               <AwEmpty>
                 <AwEmptyHeader>
                   <AwEmptyMedia variant="icon">
@@ -603,141 +624,76 @@ export default function IntegrationsPage() {
         )}
       </AwModal>
 
-      {/* Catalog modal — discovery + Connect entry point */}
-      <AwModal
-        open={catalogOpen && !opened}
-        onClose={() => setCatalogOpen(false)}
-        title="Adicionar integração"
-        size="cockpit"
-      >
-        <div className="mb-4">
-          <p className="m-0 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
-            Conecte uma plataforma para que seus agentes coletem contexto e
-            executem ações em seu nome.
-          </p>
-        </div>
-
-        <AwTabs
-          variant="standalone"
-          value={activeCat}
-          onChange={(v) => setActiveCat(v as CategoryFilter)}
-          className="mb-4"
-          aria-label="Categorias de integração"
-          items={CATS.map((c) => ({
-            value: c.id,
-            label: c.label,
-            count: countFor(c.id),
-          }))}
-        />
-
-        <AwInput
-          dense
-          iconLeft="search"
-          placeholder="Buscar integração…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="mb-4 w-full"
-          aria-label="Buscar integração"
-        />
-
-        {catalogFiltered.length === 0 ? (
-          <AwEmpty>
-            <AwEmptyHeader>
-              <AwEmptyMedia variant="icon">
-                <Icon name="search_off" size={24} />
-              </AwEmptyMedia>
-              <AwEmptyTitle>Nenhuma integração encontrada</AwEmptyTitle>
-              <AwEmptyDescription>
-                Tente outro termo ou troque a categoria.
-              </AwEmptyDescription>
-            </AwEmptyHeader>
-          </AwEmpty>
-        ) : (
-          <div
-            className="grid gap-3"
-            style={{
-              gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-              maxHeight: "min(60vh, 520px)",
-              overflowY: "auto",
-            }}
-          >
-            {catalogFiltered.map((it) => (
-              <AwIntegrationCard
-                key={it.id}
-                brand={it.id}
-                name={it.name}
-                domain={it.domain}
-                description={it.desc}
-                state={it.state}
-                instances={it.instances}
-                onClick={() => {
-                  setCatalogOpen(false);
-                  setOpenId(it.id);
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </AwModal>
-
-      {/* OAuth permission dialog — para integrações via OAuth ainda não conectadas */}
+      {/* OAuth permission dialog — adds new instance for an OAuth integration */}
       <AwConnectModal
         open={showOAuthModal}
-        onClose={closeAll}
-        targetBrand={opened?.id ?? ""}
-        targetName={opened?.name ?? ""}
+        onClose={closeConnect}
+        targetBrand={connectTarget?.id ?? ""}
+        targetName={
+          connectTarget
+            ? isActive(connectTarget.state)
+              ? `${connectTarget.name} (nova conexão)`
+              : connectTarget.name
+            : ""
+        }
         productName="AwSales"
-        description={opened?.desc}
-        permissionsTitle={opened ? `O AwSales precisa` : undefined}
-        permissions={opened?.permissions ?? []}
+        description={connectTarget?.desc}
+        permissionsTitle={connectTarget ? `O AwSales precisa` : undefined}
+        permissions={connectTarget?.permissions ?? []}
         redirectUrl={
-          opened
-            ? `https://app.awsales.io/integrations/${opened.id}/callback`
+          connectTarget
+            ? `https://app.awsales.io/integrations/${connectTarget.id}/callback`
             : undefined
         }
-        onAllow={closeAll}
+        onAllow={closeConnect}
       />
 
-      {/* API key form modal — para integrações via chave de API ainda não conectadas */}
+      {/* API key form modal — adds new instance for an API integration */}
       <AwModal
         open={showFormModal}
-        onClose={closeAll}
-        title={opened ? `Conectar ${opened.name}` : undefined}
+        onClose={closeConnect}
+        title={
+          connectTarget
+            ? isActive(connectTarget.state)
+              ? `Adicionar nova conexão de ${connectTarget.name}`
+              : `Conectar ${connectTarget.name}`
+            : undefined
+        }
         footer={
           <>
-            <AwButton variant="secondary" onClick={closeAll}>
+            <AwButton variant="secondary" onClick={closeConnect}>
               Cancelar
             </AwButton>
-            <AwButton variant="primary" onClick={closeAll}>
+            <AwButton variant="primary" onClick={closeConnect}>
               Conectar
             </AwButton>
           </>
         }
       >
-        {opened && (
+        {connectTarget && (
           <>
             <div className="mb-4 flex items-center gap-3">
-              <AwBrandLogo brand={opened.id} size="md" />
+              <AwBrandLogo brand={connectTarget.id} size="md" />
               <p className="m-0 text-xs text-[var(--fg-tertiary)]">
-                {opened.domain}
+                {connectTarget.domain}
               </p>
             </div>
             <p className="mb-3.5 text-[13.5px] leading-[1.5] text-[var(--fg-secondary)]">
-              Cole sua chave de API do <strong>{opened.name}</strong> para
-              começar a sincronizar transações e eventos.
+              Cole sua chave de API do <strong>{connectTarget.name}</strong>{" "}
+              para começar a sincronizar transações e eventos.
             </p>
-            <AwField label="API Key" htmlFor={`key-${opened.id}`}>
+            <AwField label="API Key" htmlFor={`key-${connectTarget.id}`}>
               <AwInput
-                id={`key-${opened.id}`}
+                id={`key-${connectTarget.id}`}
                 placeholder="sk_live_••••••••••••"
               />
             </AwField>
             <AwField
               label="Webhook secret"
-              htmlFor={`secret-${opened.id}`}
+              htmlFor={`secret-${connectTarget.id}`}
             >
               <AwInput
-                id={`secret-${opened.id}`}
+                id={`secret-${connectTarget.id}`}
                 placeholder="whsec_••••••••"
               />
             </AwField>

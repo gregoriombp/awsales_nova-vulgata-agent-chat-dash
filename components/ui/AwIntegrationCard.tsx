@@ -2,10 +2,8 @@
 
 import * as React from "react"
 import { AwBrandLogo } from "./AwBrandLogo"
-import { AwButton } from "./AwButton"
 import { AwCard } from "./AwCard"
 import { AwStatusDot } from "./AwStatusDot"
-import { Icon } from "./Icon"
 
 export type AwIntegrationCardState =
   | "connected"
@@ -14,46 +12,14 @@ export type AwIntegrationCardState =
   | "disabled"
 
 export type AwIntegrationCardProps = {
-  /** Brand id from AwBrandLogo registry — fallback monogram if unknown. */
   brand: string
-  /** Display name (e.g. "WhatsApp"). */
   name: string
-  /** Domain shown under the name (e.g. "whatsapp.com"). */
   domain: string
-  /** Two-line description. Clamped at 2 lines. */
   description: string
-  /** Connection state. Drives footer + dot rendering. */
   state: AwIntegrationCardState
-  /** Number of connected accounts when state="connected". (Currently unused — kept for API compat.) */
   instances?: number
-  /** Footer-left meta override. Defaults to a state-based label. */
-  meta?: React.ReactNode
-  /** Footer-right CTA override. Defaults to state-based buttons. */
-  cta?: React.ReactNode
-  /** Default click handler — fires on card click and on the primary CTA. */
   onClick?: () => void
-  /** Connected-state action: open settings. Defaults to onClick. */
-  onSettings?: () => void
-  /** Connected-state action: disconnect. Defaults to onClick. */
-  onDisconnect?: () => void
   className?: string
-}
-
-const DEFAULT_META: Record<AwIntegrationCardState, React.ReactNode> = {
-  connected: (
-    <>
-      <Icon name="sync" size={12} />
-      Sincronizado há 2 min
-    </>
-  ),
-  attention: (
-    <>
-      <Icon name="warning" size={12} />
-      Token expira em 3 dias
-    </>
-  ),
-  available: "Disponível",
-  disabled: "Indisponível",
 }
 
 export function AwIntegrationCard({
@@ -62,11 +28,7 @@ export function AwIntegrationCard({
   domain,
   description,
   state,
-  meta,
-  cta,
   onClick,
-  onSettings,
-  onDisconnect,
   className,
 }: AwIntegrationCardProps) {
   const interactive = state !== "disabled" && !!onClick
@@ -76,52 +38,6 @@ export function AwIntegrationCard({
       e.preventDefault()
       onClick?.()
     }
-  }
-
-  const metaIsWarn = state === "attention"
-  const isActive = state === "connected" || state === "attention"
-
-  const stop = (cb?: () => void) => (e: React.MouseEvent) => {
-    e.stopPropagation()
-    cb?.()
-  }
-
-  const renderActions = () => {
-    if (cta) return cta
-    if (state === "disabled") {
-      return (
-        <AwButton variant="secondary" size="sm" disabled>
-          Em breve
-        </AwButton>
-      )
-    }
-    if (isActive) {
-      return (
-        <span className="aw-integration-card__actions">
-          <AwButton
-            variant="secondary"
-            size="sm"
-            iconOnly="settings"
-            aria-label={`Configurar ${name}`}
-            onClick={stop(onSettings ?? onClick)}
-          />
-          <AwButton
-            variant="secondary"
-            size="sm"
-            iconLeft="link_off"
-            aria-label={`Desativar ${name}`}
-            onClick={stop(onDisconnect ?? onClick)}
-          >
-            Desativar
-          </AwButton>
-        </span>
-      )
-    }
-    return (
-      <AwButton variant="primary" size="sm" onClick={stop(onClick)}>
-        Conectar
-      </AwButton>
-    )
   }
 
   return (
@@ -155,18 +71,6 @@ export function AwIntegrationCard({
       </div>
 
       <p className="aw-integration-card__desc">{description}</p>
-
-      <div className="aw-integration-card__foot">
-        <span
-          className={
-            "aw-integration-card__meta" +
-            (metaIsWarn ? " aw-integration-card__meta--warn" : "")
-          }
-        >
-          {meta ?? DEFAULT_META[state]}
-        </span>
-        {renderActions()}
-      </div>
     </AwCard>
   )
 }
