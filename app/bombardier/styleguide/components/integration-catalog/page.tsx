@@ -140,6 +140,7 @@ export default function IntegrationCatalogPage() {
                 categories={CATEGORIES}
                 items={ITEMS}
                 onSelect={() => setOpen(false)}
+                onCustomIntegration={() => setOpen(false)}
               />
             </div>
           </Section>
@@ -256,6 +257,22 @@ export default function IntegrationCatalogPage() {
                 type="string"
                 def='"all"'
                 doc="Sentinela para “mostrar tudo”. Use se algum id de categoria conflitar."
+              />
+              <PropRow
+                prop="onCustomIntegration"
+                type="() => void"
+                doc="Quando definido, fixa um card pontilhado “Integração personalizada” no início do grid. Aparece só quando a busca está vazia."
+              />
+              <PropRow
+                prop="customIntegrationLabel"
+                type="string"
+                def={`"Integração personalizada"`}
+                doc="Sobrescreve o título do card custom."
+              />
+              <PropRow
+                prop="customIntegrationDescription"
+                type="string"
+                doc="Sobrescreve o subtítulo do card custom."
               />
             </ApiTable>
 

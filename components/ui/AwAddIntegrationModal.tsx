@@ -32,6 +32,12 @@ export type AwAddIntegrationModalProps = {
   items: AwAddIntegrationItem[]
   /** Click on a catalog card. */
   onSelect: (id: string) => void
+  /** When provided, renders a pinned "Integração personalizada" card. */
+  onCustomIntegration?: () => void
+  /** Override the custom-card title. */
+  customIntegrationLabel?: string
+  /** Override the custom-card description. */
+  customIntegrationDescription?: string
   title?: string
   /** Shows an "Alpha" pill next to the title. */
   alpha?: boolean
@@ -49,6 +55,9 @@ export function AwAddIntegrationModal({
   categories,
   items,
   onSelect,
+  onCustomIntegration,
+  customIntegrationLabel = "Integração personalizada",
+  customIntegrationDescription = "Conecte qualquer API: defina endpoint, autenticação e mapeamento.",
   title = "Adicionar integração",
   alpha,
   allCategoryLabel = "Todas as integrações",
@@ -169,7 +178,7 @@ export function AwAddIntegrationModal({
               />
             </div>
 
-            {filtered.length === 0 ? (
+            {filtered.length === 0 && !(onCustomIntegration && !q) ? (
               <div className="aw-add-int-modal__empty">
                 <Icon name="search_off" size={24} />
                 <div className="aw-add-int-modal__empty-title">{emptyTitle}</div>
@@ -179,6 +188,23 @@ export function AwAddIntegrationModal({
               </div>
             ) : (
               <div className="aw-add-int-modal__grid">
+                {onCustomIntegration && !q && (
+                  <button
+                    type="button"
+                    className="aw-add-int-modal__card aw-add-int-modal__card--custom"
+                    onClick={onCustomIntegration}
+                  >
+                    <span className="aw-add-int-modal__card-logo aw-add-int-modal__card-logo--custom">
+                      <Icon name="dashboard_customize" size={20} />
+                    </span>
+                    <span className="aw-add-int-modal__card-name">
+                      {customIntegrationLabel}
+                    </span>
+                    <span className="aw-add-int-modal__card-desc">
+                      {customIntegrationDescription}
+                    </span>
+                  </button>
+                )}
                 {filtered.map((it) => (
                   <button
                     key={it.id}

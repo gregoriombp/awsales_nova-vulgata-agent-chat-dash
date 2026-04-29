@@ -3076,6 +3076,26 @@
   border-color: var(--fg-primary);
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
+.aw-add-int-modal__card--custom {
+  border: 1px dashed var(--border-default);
+  background: transparent;
+}
+.aw-add-int-modal__card--custom:hover {
+  border-color: var(--fg-primary);
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__card-logo--custom {
+  background: var(--bg-raised);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--fg-secondary);
+  width: 36px;
+  height: 36px;
+}
+.aw-add-int-modal__card--custom:hover .aw-add-int-modal__card-logo--custom {
+  border-color: var(--fg-primary);
+  color: var(--fg-primary);
+}
 .aw-add-int-modal__card-logo {
   display: inline-flex;
   align-items: center;

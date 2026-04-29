@@ -803,6 +803,8 @@ export default function IntegrationsPage() {
   const [connectId, setConnectId] = useState<string | null>(null);
   /** add-integration catalog modal — opened from the page header CTA */
   const [addOpen, setAddOpen] = useState(false);
+  /** custom-integration placeholder modal */
+  const [customOpen, setCustomOpen] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
   const connected = ITEMS.filter((i) => isActive(i.state));
@@ -947,6 +949,58 @@ export default function IntegrationsPage() {
           setAddOpen(false);
           setConnectId(id);
         }}
+        onCustomIntegration={() => {
+          setAddOpen(false);
+          setCustomOpen(true);
+        }}
+      />
+
+      {/* Custom integration placeholder — final fields TBD */}
+      <AwConnectModal
+        open={customOpen}
+        onClose={() => setCustomOpen(false)}
+        kind="apiKey"
+        targetBrand="custom"
+        targetName="Integração personalizada"
+        description="Conecte qualquer API. Os campos finais serão definidos para essa integração."
+        defaultConnectionName="Minha integração"
+        apiKeyIntro={
+          <>
+            Preencha os campos abaixo para configurar uma conexão
+            personalizada. <em>Os campos definitivos serão ajustados
+            depois.</em>
+          </>
+        }
+        apiKeyFields={[
+          {
+            id: "custom-base-url",
+            label: "URL base da API",
+            placeholder: "https://api.exemplo.com",
+            iconLeft: "link",
+            required: true,
+          },
+          {
+            id: "custom-auth-method",
+            label: "Método de autenticação",
+            placeholder: "Bearer / API key / Basic",
+            iconLeft: "lock",
+            required: true,
+          },
+          {
+            id: "custom-credential",
+            label: "Credencial",
+            placeholder: "Cole sua credencial aqui",
+            iconLeft: "key",
+            required: true,
+          },
+          {
+            id: "custom-notes",
+            label: "Observações",
+            placeholder: "Cabeçalhos extras, escopos, etc.",
+            iconLeft: "notes",
+          },
+        ]}
+        onAllow={() => setCustomOpen(false)}
       />
 
       {/* Connect dialog — kind derived from the integration auth method */}
