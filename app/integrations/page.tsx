@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
+import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 
@@ -75,6 +76,8 @@ interface IntegrationInstance {
   integrationId: string;
   name: string;
 }
+
+const SIDEBAR_STORAGE_KEY = "awsales:integrations-sidebar:collapsed";
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
@@ -780,6 +783,7 @@ function ActiveRow({
   selected,
   onClick,
   status,
+  collapsed,
 }: {
   brand: string;
   name: string;
@@ -788,7 +792,49 @@ function ActiveRow({
   selected: boolean;
   onClick: () => void;
   status?: ActiveRowStatus;
+  collapsed?: boolean;
 }) {
+  if (collapsed) {
+    const dotVariant =
+      state === "attention"
+        ? "attention"
+        : state === "connected"
+          ? "live"
+          : null;
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={selected}
+        title={`${name} — ${status?.label ?? description}`}
+        className={
+          "group flex w-full items-center justify-center rounded-[var(--radius-md)] p-1 transition-colors " +
+          (selected
+            ? "bg-[var(--bg-surface)]"
+            : "hover:bg-[var(--bg-surface)]")
+        }
+      >
+        <span className="relative">
+          <AwBrandLogo brand={brand} size="md" />
+          {dotVariant && (
+            <AwStatusDot variant={dotVariant} size="sm" ring absolute />
+          )}
+          {state === "available" && (
+            <span
+              aria-hidden="true"
+              className="absolute -right-1 -top-1 grid h-[14px] w-[14px] place-items-center rounded-full border border-dashed border-[var(--border-default)] bg-[var(--bg-raised)]"
+            >
+              <Icon
+                name="add"
+                size={10}
+                className="text-[var(--fg-tertiary)]"
+              />
+            </span>
+          )}
+        </span>
+      </button>
+    );
+  }
   return (
     <button
       type="button"
@@ -854,11 +900,26 @@ function SuggestionsCard({
   suggestions,
   onPick,
   onSeeAll,
+  collapsed,
 }: {
   suggestions: { id: string; name: string; desc: string }[];
   onPick: (id: string) => void;
   onSeeAll: () => void;
+  collapsed?: boolean;
 }) {
+  if (collapsed) {
+    return (
+      <button
+        type="button"
+        onClick={onSeeAll}
+        title="Adicionar integrações"
+        aria-label="Adicionar integrações"
+        className="flex w-full items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] p-2 text-[var(--fg-secondary)] transition-colors hover:border-[var(--fg-primary)] hover:text-[var(--fg-primary)]"
+      >
+        <Icon name="add" size={20} />
+      </button>
+    );
+  }
   return (
     <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5">
       <div className="mb-1 flex items-center gap-2">
@@ -923,6 +984,23 @@ export default function IntegrationsPage() {
   /** disconnect confirmation modal */
   const [disconnectPending, setDisconnectPending] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
+
+  /** Collapse state for the integrations sidebar — persisted to localStorage. */
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    if (saved === "1") setSidebarCollapsed(true);
+  }, []);
+  const toggleSidebar = () => {
+    setSidebarCollapsed((v) => {
+      const next = !v;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? "1" : "0");
+      }
+      return next;
+    });
+  };
 
   /** Connected accounts shown in the left list — one row per instance. */
   const [instances, setInstances] = useState<IntegrationInstance[]>(() =>
@@ -1021,18 +1099,56 @@ export default function IntegrationsPage() {
           <div className="flex w-full justify-center gap-6">
             {/* Active list — centered when collapsed, slides left when panel opens */}
             <aside
+              aria-label="Lista de integrações"
               className={
                 "transition-all duration-300 ease-out " +
-                (isPanelOpen
-                  ? "w-[400px] flex-shrink-0"
-                  : "w-full max-w-[640px]")
+                (sidebarCollapsed
+                  ? "w-[64px] flex-shrink-0"
+                  : isPanelOpen
+                    ? "w-[400px] flex-shrink-0"
+                    : "w-full max-w-[640px]")
               }
             >
+              {/* Collapse toggle */}
+              <div
+                className={
+                  "mb-2 flex items-center " +
+                  (sidebarCollapsed ? "justify-center" : "justify-end")
+                }
+              >
+                <button
+                  type="button"
+                  onClick={toggleSidebar}
+                  title={sidebarCollapsed ? "Expandir lista" : "Recolher lista"}
+                  aria-label={
+                    sidebarCollapsed ? "Expandir lista" : "Recolher lista"
+                  }
+                  aria-expanded={!sidebarCollapsed}
+                  className="grid h-7 w-7 place-items-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
+                >
+                  <Icon
+                    name={
+                      sidebarCollapsed
+                        ? "keyboard_double_arrow_right"
+                        : "keyboard_double_arrow_left"
+                    }
+                    size={18}
+                  />
+                </button>
+              </div>
+
               {/* Channels — always shows the 3 first-class channels */}
-              <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                Canais
-              </h3>
-              <ul className="m-0 mb-6 flex list-none flex-col gap-0.5 p-0">
+              {!sidebarCollapsed && (
+                <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                  Canais
+                </h3>
+              )}
+              <ul
+                className={
+                  "m-0 flex list-none flex-col p-0 " +
+                  (sidebarCollapsed ? "mb-3 gap-1" : "mb-6 gap-0.5")
+                }
+              >
                 {CHANNEL_IDS.map((id) => {
                   const it = ITEMS.find((i) => i.id === id);
                   if (!it) return null;
@@ -1055,11 +1171,19 @@ export default function IntegrationsPage() {
                           else setConnectId(id);
                         }}
                         status={statusForState(effectiveState)}
+                        collapsed={sidebarCollapsed}
                       />
                     </li>
                   );
                 })}
               </ul>
+
+              {sidebarCollapsed && (
+                <div
+                  aria-hidden="true"
+                  className="mx-2 mb-3 border-t border-[var(--border-subtle)]"
+                />
+              )}
 
               {/* Active integrations — non-channel */}
               {(() => {
@@ -1068,23 +1192,32 @@ export default function IntegrationsPage() {
                 );
                 return (
                   <>
-                    <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                      Integrações ativas
-                    </h3>
+                    {!sidebarCollapsed && (
+                      <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                        Integrações ativas
+                      </h3>
+                    )}
                     {activeNonChannels.length === 0 ? (
-                      <AwEmpty>
-                        <AwEmptyHeader>
-                          <AwEmptyMedia variant="icon">
-                            <Icon name="extension_off" size={20} />
-                          </AwEmptyMedia>
-                          <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
-                          <AwEmptyDescription>
-                            Conecte uma plataforma para começar.
-                          </AwEmptyDescription>
-                        </AwEmptyHeader>
-                      </AwEmpty>
+                      !sidebarCollapsed && (
+                        <AwEmpty>
+                          <AwEmptyHeader>
+                            <AwEmptyMedia variant="icon">
+                              <Icon name="extension_off" size={20} />
+                            </AwEmptyMedia>
+                            <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
+                            <AwEmptyDescription>
+                              Conecte uma plataforma para começar.
+                            </AwEmptyDescription>
+                          </AwEmptyHeader>
+                        </AwEmpty>
+                      )
                     ) : (
-                      <ul className="m-0 mb-6 flex list-none flex-col gap-0.5 p-0">
+                      <ul
+                        className={
+                          "m-0 flex list-none flex-col p-0 " +
+                          (sidebarCollapsed ? "mb-3 gap-1" : "mb-6 gap-0.5")
+                        }
+                      >
                         {activeNonChannels.map((inst) => {
                           const it = ITEMS.find(
                             (i) => i.id === inst.integrationId,
@@ -1103,6 +1236,7 @@ export default function IntegrationsPage() {
                                 onClick={() =>
                                   setSelectedInstanceId(inst.instanceId)
                                 }
+                                collapsed={sidebarCollapsed}
                               />
                             </li>
                           );
@@ -1130,6 +1264,7 @@ export default function IntegrationsPage() {
                     }))}
                     onPick={(id) => setConnectId(id)}
                     onSeeAll={() => setAddOpen(true)}
+                    collapsed={sidebarCollapsed}
                   />
                 );
               })()}
