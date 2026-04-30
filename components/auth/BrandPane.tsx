@@ -14,12 +14,12 @@ const PANE_COPY: Record<AuthScreen, Record<Locale, { kicker: string; title: stri
     pt: {
       kicker: "// acesso",
       title: "Uma voz única, uma plataforma.",
-      sub: "Nova Vulgata unifica seus agentes, fluxos e integrações em uma única linguagem de operação.",
+      sub: "AwSales unifica seus agentes, fluxos e integrações em uma única linguagem de operação.",
     },
     en: {
       kicker: "// access",
       title: "One voice. One platform.",
-      sub: "Nova Vulgata unifies your agents, flows and integrations into a single operational language.",
+      sub: "AwSales unifies your agents, flows and integrations into a single operational language.",
     },
   },
   forgot: {
@@ -86,7 +86,6 @@ const PANE_COPY: Record<AuthScreen, Record<Locale, { kicker: string; title: stri
 
 export default function BrandPane({ screen, locale }: BrandPaneProps) {
   const copy = PANE_COPY[screen][locale];
-  const isLogin = screen === "login";
 
   return (
     <section className="relative hidden lg:flex flex-col min-h-screen overflow-hidden bg-aw-gray-1200 text-white p-8 xl:p-10">
@@ -102,62 +101,16 @@ export default function BrandPane({ screen, locale }: BrandPaneProps) {
         }}
       />
 
-      {/* Decorative blob */}
-      {isLogin ? (
-        <div
-          className="pointer-events-none absolute z-[1]"
-          style={{
-            width: 720,
-            height: 720,
-            top: -180,
-            right: -260,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle at 30% 30%, rgba(80,160,255,0.95) 0%, rgba(27,118,242,0.85) 30%, rgba(0,113,194,0.4) 55%, transparent 72%)",
-            filter: "blur(1px)",
-          }}
-        />
-      ) : (
-        <div
-          className="pointer-events-none absolute z-[1]"
-          style={{
-            width: 420,
-            height: 420,
-            bottom: -140,
-            right: -120,
-            borderRadius: "50%",
-            background:
-              "radial-gradient(circle at 30% 30%, rgba(80,160,255,0.95) 0%, rgba(27,118,242,0.85) 30%, rgba(0,113,194,0.4) 55%, transparent 72%)",
-            filter: "blur(1px)",
-            opacity: 0.55,
-          }}
-        />
-      )}
 
-      {/* Status bar */}
-      <div className="relative z-[2] flex items-center gap-2.5 text-[11px] uppercase tracking-[0.12em] font-medium text-aw-gray-500">
-        <span className="w-1.5 h-1.5 rounded-full bg-aw-emerald-500" style={{ boxShadow: "0 0 0 3px rgba(104,215,128,0.12)" }} />
-        <span>{locale === "pt" ? "status \u00b7 tudo operando" : "status \u00b7 all systems nominal"}</span>
-      </div>
 
       {/* Body copy */}
       <div className="relative z-[2] flex-1 flex flex-col justify-end max-w-[460px]">
-        <span className="font-mono text-[11px] text-aw-gray-500 tracking-[0.04em] mb-2.5">
-          {copy.kicker}
-        </span>
         <h1 className="font-heading font-medium text-[44px] leading-[1.05] tracking-tight text-white mb-4">
           {copy.title}
         </h1>
-        <p className="text-[15px] leading-relaxed text-aw-gray-500 max-w-[420px] mb-7">
+        <p className="text-[15px] leading-relaxed text-aw-gray-500 max-w-[420px]">
           {copy.sub}
         </p>
-      </div>
-
-      {/* Footer */}
-      <div className="relative z-[2] flex items-center gap-3.5 text-xs text-aw-gray-600">
-        <span>v4.2 \u00b7 Nova Vulgata</span>
-        <span className="w-px h-2.5 bg-aw-gray-900" />
-        <span>{locale === "pt" ? "plataforma" : "platform"}</span>
       </div>
     </section>
   );

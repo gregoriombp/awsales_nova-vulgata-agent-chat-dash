@@ -13,6 +13,8 @@ import {
   type ResetPasswordFormData,
 } from "@/lib/validations";
 import BrandPane from "./BrandPane";
+import { AwLogo } from "@/components/ui/AwLogo";
+import { AwButton } from "@/components/ui/AwButton";
 
 export type AuthScreen =
   | "login"
@@ -166,14 +168,6 @@ const COPY = {
   },
 };
 
-const STEPS: Record<AuthScreen, number> = {
-  login: 1,
-  forgot: 2,
-  reset: 3,
-  verify: 4,
-  workspace: 5,
-  success: 5,
-};
 
 const WORKSPACES_PT = [
   { ini: "A", name: "Aurora Infoprodutos", meta: "12 membros \u00b7 admin", tone: "blue" as const },
@@ -190,29 +184,6 @@ const WORKSPACES_EN = [
    Shared UI atoms
    ═══════════════════════════════════════════ */
 
-function StepDots({ active, total = 5 }: { active: number; total?: number }) {
-  return (
-    <span className="inline-flex gap-[3px]">
-      {Array.from({ length: total }).map((_, i) => (
-        <i
-          key={i}
-          className={`block w-3.5 h-0.5 rounded-full ${
-            i < active ? "bg-aw-gray-1200" : "bg-aw-gray-300"
-          }`}
-        />
-      ))}
-    </span>
-  );
-}
-
-function StepIndicator({ kicker, active }: { kicker: string; active: number }) {
-  return (
-    <div className="flex items-center gap-2 font-mono text-[11px] tracking-[0.08em] uppercase text-aw-gray-600 mb-4">
-      <span>{kicker}</span>
-      <StepDots active={active} />
-    </div>
-  );
-}
 
 function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
   return (
@@ -299,51 +270,6 @@ function Checkbox({ label, defaultChecked = false }: { label: string; defaultChe
   );
 }
 
-function PrimaryButton({
-  children,
-  onClick,
-  loading,
-  disabled,
-  type = "button",
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-  loading?: boolean;
-  disabled?: boolean;
-  type?: "button" | "submit";
-}) {
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled || loading}
-      className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 text-sm font-medium tracking-[-0.1px] rounded-lg border border-transparent cursor-pointer bg-black text-white hover:bg-aw-gray-1000 hover:shadow-md active:translate-y-px disabled:bg-aw-gray-300 disabled:text-aw-gray-600 disabled:cursor-not-allowed disabled:shadow-none transition-all duration-150"
-    >
-      {loading && (
-        <span className="w-3.5 h-3.5 border-2 border-white/35 border-t-white rounded-full animate-spin" />
-      )}
-      {children}
-    </button>
-  );
-}
-
-function SecondaryButton({
-  children,
-  onClick,
-}: {
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex items-center justify-center gap-2 w-full h-11 px-4 text-sm font-medium rounded-lg border border-aw-gray-300 bg-transparent text-aw-gray-1200 hover:bg-aw-gray-200 cursor-pointer transition-all duration-150"
-    >
-      {children}
-    </button>
-  );
-}
 
 function PasswordInput({
   id,
@@ -418,7 +344,6 @@ function LoginScreen({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
-      <StepIndicator kicker={c.kicker} active={STEPS.login} />
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
         {c.title}
       </h2>
@@ -480,9 +405,9 @@ function LoginScreen({
         </button>
       </div>
 
-      <PrimaryButton type="submit" loading={isLoading}>
+      <AwButton variant="primary" size="md" block type="submit" loading={isLoading}>
         {isLoading ? c.loadingCta : c.cta}
-      </PrimaryButton>
+      </AwButton>
 
       <div className="h-px bg-aw-gray-200 my-6" />
       <p className="text-[13px] text-aw-gray-800 text-center">
@@ -514,7 +439,6 @@ function ForgotScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) 
         <ChevLeftIcon /> {c.back}
       </button>
 
-      <StepIndicator kicker={c.kicker} active={STEPS.forgot} />
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
         {c.title}
       </h2>
@@ -539,7 +463,7 @@ function ForgotScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) 
         )}
       </div>
 
-      <PrimaryButton type="submit">{c.cta}</PrimaryButton>
+      <AwButton variant="primary" size="md" block type="submit">{c.cta}</AwButton>
     </form>
   );
 }
@@ -566,7 +490,6 @@ function ResetScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) =
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
-      <StepIndicator kicker={c.kicker} active={STEPS.reset} />
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
         {c.title}
       </h2>
@@ -614,7 +537,7 @@ function ResetScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) =
       </div>
 
       <div className="h-4" />
-      <PrimaryButton type="submit">{c.cta}</PrimaryButton>
+      <AwButton variant="primary" size="md" block type="submit">{c.cta}</AwButton>
     </form>
   );
 }
@@ -664,7 +587,6 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
         <ChevLeftIcon /> {c.back}
       </button>
 
-      <StepIndicator kicker={c.kicker} active={STEPS.verify} />
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
         {c.title}
       </h2>
@@ -695,9 +617,9 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
         </div>
       </div>
 
-      <PrimaryButton onClick={() => goTo("workspace")} disabled={!isComplete}>
+      <AwButton variant="primary" size="md" block onClick={() => goTo("workspace")} disabled={!isComplete}>
         {c.cta}
-      </PrimaryButton>
+      </AwButton>
 
       <div className="flex items-center justify-between mt-4">
         <span className="text-xs text-aw-gray-700">
@@ -728,7 +650,6 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <StepIndicator kicker={c.kicker} active={STEPS.workspace} />
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
         {c.title}
       </h2>
@@ -770,7 +691,7 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
       </button>
 
       <div className="h-4" />
-      <PrimaryButton onClick={() => goTo("success")}>{c.cta}</PrimaryButton>
+      <AwButton variant="primary" size="md" block onClick={() => goTo("success")}>{c.cta}</AwButton>
 
       <div className="h-px bg-aw-gray-200 my-6" />
       <p className="text-[13px] text-center">
@@ -800,9 +721,9 @@ function SuccessScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen)
         {c.title}
       </h2>
       <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">{c.sub}</p>
-      <PrimaryButton onClick={() => router.push("/dashboard")}>
+      <AwButton variant="primary" size="md" block onClick={() => router.push("/dashboard")}>
         {c.cta} <ArrowOutIcon />
-      </PrimaryButton>
+      </AwButton>
     </div>
   );
 }
@@ -836,34 +757,12 @@ export default function AuthFlow() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[440px_1fr] xl:grid-cols-[520px_1fr]">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[480px_1fr] xl:grid-cols-[560px_1fr]">
       {/* Left rail */}
       <aside className="flex flex-col bg-white border-r border-aw-gray-300 px-8 py-8 xl:px-12 min-h-screen">
-        {/* Brand + locale toggle */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center">
-            <span className="w-7 h-7 rounded-[7px] flex items-center justify-center text-white font-heading font-medium text-[15px] tracking-tight" style={{ background: "linear-gradient(180deg, #1B76F2 0%, #0071C2 100%)" }}>
-              A
-            </span>
-            <span className="font-heading font-medium text-sm text-aw-gray-1200 ml-2.5 tracking-[-0.01em]">
-              AW sales
-            </span>
-          </div>
-          <div className="flex items-center border border-aw-gray-300 rounded-[7px] overflow-hidden h-7">
-            {(["pt", "en"] as Locale[]).map((l) => (
-              <button
-                key={l}
-                onClick={() => setLocale(l)}
-                className={`px-2.5 h-full text-xs font-medium tracking-[0.02em] transition-colors cursor-pointer ${
-                  locale === l
-                    ? "bg-aw-gray-1200 text-white"
-                    : "bg-transparent text-aw-gray-800 hover:text-aw-gray-1200"
-                }`}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
+        {/* Brand */}
+        <div className="mb-3">
+          <AwLogo variant="wordmark" height={20} className="text-aw-gray-1200" />
         </div>
 
         {/* Form host */}
@@ -872,16 +771,12 @@ export default function AuthFlow() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-4 text-xs text-aw-gray-700">
-          <span>
-            {locale === "pt" ? "tela" : "screen"}{" "}
-            {STEPS[screen]}
-          </span>
+        <div className="flex items-center justify-end pt-4 text-xs text-aw-gray-700">
           <div className="flex gap-1">
             <a href="#" className="text-aw-gray-800 hover:text-aw-gray-1200 hover:underline">
               {locale === "pt" ? "Termos" : "Terms"}
             </a>
-            <span>\u00b7</span>
+            <span>·</span>
             <a href="#" className="text-aw-gray-800 hover:text-aw-gray-1200 hover:underline">
               {locale === "pt" ? "Privacidade" : "Privacy"}
             </a>
