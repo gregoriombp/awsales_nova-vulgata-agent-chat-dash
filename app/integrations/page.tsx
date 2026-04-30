@@ -1,32 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
-import {
-  AwEmpty,
-  AwEmptyDescription,
-  AwEmptyHeader,
-  AwEmptyMedia,
-  AwEmptyTitle,
-} from "@/components/ui/AwEmpty";
-import { AwField, AwInput } from "@/components/ui/AwInput";
-import { type AwIntegrationCardState } from "@/components/ui/AwIntegrationCard";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import {
   AwConnectModal,
   type AwWebhookStep,
 } from "@/components/ui/AwConnectModal";
-import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
+import {
+  AwIntegrationCard,
+  type AwIntegrationCardState,
+} from "@/components/ui/AwIntegrationCard";
 import { Icon } from "@/components/ui/Icon";
-import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 
-const HUBLA_WEBHOOK_TEMPLATE = (id: string) =>
+/* ----------------------------------------------------------------
+ * Constants — minimal subset preserved from the previous page so the
+ * Add catalog and Connect modals keep working in the empty state.
+ * The full list/settings UI was removed for this v2 zero-state.
+ * ---------------------------------------------------------------- */
+
+const WEBHOOK_TEMPLATE = (id: string) =>
   `https://app.awsales.io/api/webhooks/checkouts/${id}`;
 
-/** Mirrors the default organization shown in the nav rail switcher. */
 const ORG_LOGO_SRC = "/assets/icon_artificial_concord_organization.png";
 const ORG_NAME = "Nome da organização";
 
@@ -43,40 +41,39 @@ type IntegrationCategory =
 
 type AuthMethod = "oauth" | "webhook" | "apiKey";
 
-type PermissionMode = "always" | "approval" | "never";
-
-interface ToolPermission {
-  id: string;
-  name: string;
-  description?: string;
-  defaultMode: PermissionMode;
-}
-
-interface IntegrationTools {
-  readOnly?: ToolPermission[];
-  writeDelete?: ToolPermission[];
-}
-
 interface Integration {
   id: string;
   cat: IntegrationCategory;
   name: string;
   domain: string;
   desc: string;
-  state: AwIntegrationCardState;
   auth: AuthMethod;
-  instances?: number;
-  /** OAuth consent copy — used by AwConnectModal. */
   permissions?: string[];
-  /** Granular per-tool permissions, surfaced in the detail sheet. */
-  tools?: IntegrationTools;
 }
 
 interface IntegrationInstance {
   instanceId: string;
   integrationId: string;
   name: string;
+  active: boolean;
 }
+
+const CHANNEL_IDS = ["whatsapp", "messenger", "instagram"] as const;
+type ChannelId = (typeof CHANNEL_IDS)[number];
+const isChannelId = (id: string): id is ChannelId =>
+  (CHANNEL_IDS as readonly string[]).includes(id);
+
+/** Seed instances so the populated state renders by default while we
+ *  iterate the new UX flow. Disconnect everything to fall back to the
+ *  empty state hero below. */
+const SEED_INSTANCES: IntegrationInstance[] = [
+  { instanceId: "whatsapp-default", integrationId: "whatsapp", name: "WhatsApp", active: true },
+  { instanceId: "instagram-default", integrationId: "instagram", name: "Instagram", active: true },
+  { instanceId: "hotmart-default", integrationId: "hotmart", name: "Hotmart", active: true },
+  { instanceId: "stripe-default", integrationId: "stripe", name: "Stripe", active: true },
+  { instanceId: "shopify-default", integrationId: "shopify", name: "Shopify", active: true },
+  { instanceId: "calendly-default", integrationId: "calendly", name: "Calendly", active: true },
+];
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
@@ -90,8 +87,200 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "signatures", label: "Assinaturas" },
 ];
 
+const ITEMS: Integration[] = [
+  // Channels
+  {
+    id: "whatsapp",
+    cat: "channels",
+    name: "WhatsApp",
+    domain: "whatsapp.com",
+    desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
+    auth: "oauth",
+    permissions: [
+      "Enviar e receber mensagens em seu nome",
+      "Acessar contatos e conversas ativas",
+      "Ler mídias enviadas pelos clientes",
+    ],
+  },
+  {
+    id: "instagram",
+    cat: "channels",
+    name: "Instagram",
+    domain: "instagram.com",
+    desc: "Responda DMs do Instagram automaticamente com agentes.",
+    auth: "oauth",
+    permissions: [
+      "Ler e responder mensagens diretas",
+      "Acessar comentários em posts e reels",
+      "Ver informações básicas da conta",
+    ],
+  },
+  {
+    id: "messenger",
+    cat: "channels",
+    name: "Messenger",
+    domain: "messenger.com",
+    desc: "Atendimento automatizado pelo Messenger do Facebook.",
+    auth: "oauth",
+    permissions: [
+      "Ler e responder mensagens da página",
+      "Acessar perfis públicos dos clientes",
+      "Receber webhooks de novas conversas",
+    ],
+  },
+  // Checkouts
+  { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", auth: "apiKey" },
+  { id: "stripe", cat: "checkouts", name: "Stripe", domain: "stripe.com", desc: "Pagamentos globais — cartão, PIX, assinaturas.", auth: "apiKey" },
+  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", auth: "webhook" },
+  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", auth: "webhook" },
+  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", auth: "webhook" },
+  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", auth: "webhook" },
+  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", auth: "webhook" },
+  { id: "braip", cat: "checkouts", name: "Braip", domain: "braip.com", desc: "Sincronize vendas e indicações do checkout Braip.", auth: "webhook" },
+  { id: "zouti", cat: "checkouts", name: "Zouti", domain: "zouti.com.br", desc: "Capture transações e abandonos do checkout Zouti.", auth: "webhook" },
+  { id: "blitzpay", cat: "checkouts", name: "BlitzPay", domain: "blitzpay.com.br", desc: "Receba eventos do checkout BlitzPay em tempo real.", auth: "webhook" },
+  { id: "onprofit", cat: "checkouts", name: "OnProfit", domain: "onprofit.com.br", desc: "Sincronize vendas e assinaturas do OnProfit.", auth: "webhook" },
+  { id: "greenn", cat: "checkouts", name: "Greenn", domain: "greenn.com.br", desc: "Conecte vendas e clientes do checkout Greenn.", auth: "webhook" },
+  { id: "payt", cat: "checkouts", name: "Payt", domain: "payt.com.br", desc: "Receba eventos de venda do checkout Payt.", auth: "webhook" },
+  { id: "pagtrust", cat: "checkouts", name: "PagTrust", domain: "pagtrust.com.br", desc: "Sincronize transações do checkout PagTrust.", auth: "webhook" },
+  { id: "tmb", cat: "checkouts", name: "TMB", domain: "tmb.education", desc: "Capture eventos de venda do checkout TMB.", auth: "webhook" },
+  { id: "dmg", cat: "checkouts", name: "Digital Manager Guru", domain: "digitalmanager.guru", desc: "Sincronize vendas e assinaturas do DMG.", auth: "webhook" },
+  // Members
+  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", auth: "apiKey" },
+  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", auth: "apiKey" },
+  // Forms
+  {
+    id: "googleforms",
+    cat: "forms",
+    name: "Google Forms",
+    domain: "forms.google.com",
+    desc: "Receba submissões do Google Forms em tempo real.",
+    auth: "oauth",
+    permissions: [
+      "Acessar a lista de formulários da conta",
+      "Receber respostas em tempo real",
+      "Ler metadados das perguntas",
+    ],
+  },
+  {
+    id: "typeform",
+    cat: "forms",
+    name: "Typeform",
+    domain: "typeform.com",
+    desc: "Capture leads dos seus formulários conversacionais.",
+    auth: "oauth",
+    permissions: [
+      "Acessar formulários da workspace",
+      "Receber novas respostas via webhook",
+      "Ler informações do respondente",
+    ],
+  },
+  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", auth: "apiKey" },
+  // Meetings
+  {
+    id: "calendly",
+    cat: "meetings",
+    name: "Calendly",
+    domain: "calendly.com",
+    desc: "Agendamentos automáticos sincronizados com agentes.",
+    auth: "oauth",
+    permissions: [
+      "Acessar tipos de evento e disponibilidade",
+      "Criar e cancelar agendamentos",
+      "Receber notificações de novos eventos",
+    ],
+  },
+  {
+    id: "googlecal",
+    cat: "meetings",
+    name: "Google Calendar",
+    domain: "calendar.google.com",
+    desc: "Reuniões e disponibilidade direto do Google Agenda.",
+    auth: "oauth",
+    permissions: [
+      "Ler eventos e disponibilidade da agenda",
+      "Criar e atualizar eventos em seu nome",
+      "Acessar agendas compartilhadas",
+    ],
+  },
+  // CRMs
+  {
+    id: "pipedrive",
+    cat: "crms",
+    name: "Pipedrive",
+    domain: "pipedrive.com",
+    desc: "Sincronize contatos, deals e atividades do Pipedrive.",
+    auth: "oauth",
+    permissions: [
+      "Acessar contatos, organizações e deals",
+      "Criar e atualizar atividades",
+      "Mover deals entre etapas do pipeline",
+    ],
+  },
+  {
+    id: "kommo",
+    cat: "crms",
+    name: "Kommo",
+    domain: "kommo.com",
+    desc: "Conecte funis, leads e tarefas do Kommo CRM.",
+    auth: "oauth",
+    permissions: [
+      "Acessar leads, contatos e empresas",
+      "Criar e atualizar tarefas",
+      "Mover leads entre etapas do funil",
+    ],
+  },
+  {
+    id: "rdstation",
+    cat: "crms",
+    name: "RD Station",
+    domain: "rdstation.com",
+    desc: "Sincronize leads, oportunidades e tags do RD Station.",
+    auth: "oauth",
+    permissions: [
+      "Acessar leads e oportunidades",
+      "Criar e atualizar tags",
+      "Disparar eventos de conversão",
+    ],
+  },
+  {
+    id: "hubspot",
+    cat: "crms",
+    name: "HubSpot",
+    domain: "hubspot.com",
+    desc: "Conecte contatos, empresas e pipelines do HubSpot.",
+    auth: "oauth",
+    permissions: [
+      "Acessar contatos e empresas",
+      "Criar e atualizar deals do pipeline",
+      "Disparar workflows quando uma oportunidade fechar",
+    ],
+  },
+  // AI Providers
+  { id: "claude", cat: "ai", name: "Claude", domain: "anthropic.com", desc: "Conecte sua chave da Anthropic e use Claude como cérebro dos agentes.", auth: "apiKey" },
+  { id: "chatgpt", cat: "ai", name: "ChatGPT", domain: "openai.com", desc: "Use os modelos GPT da OpenAI nas execuções dos seus agentes.", auth: "apiKey" },
+  { id: "deepseek", cat: "ai", name: "DeepSeek", domain: "deepseek.com", desc: "Conecte sua chave DeepSeek e habilite os modelos R1 e V3.", auth: "apiKey" },
+  // Signatures
+  { id: "assiny", cat: "signatures", name: "Assiny", domain: "assiny.com.br", desc: "Envie e acompanhe contratos com assinatura eletrônica.", auth: "apiKey" },
+  // Marketplaces
+  {
+    id: "shopify",
+    cat: "marketplaces",
+    name: "Shopify",
+    domain: "shopify.com",
+    desc: "Gerencie produtos, pedidos e clientes pela IA.",
+    auth: "oauth",
+    permissions: [
+      "Acessar catálogo de produtos e estoque",
+      "Ler pedidos e clientes",
+      "Criar rascunhos de pedido e cupons",
+    ],
+  },
+  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", auth: "apiKey" },
+];
+
 function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
-  const url = HUBLA_WEBHOOK_TEMPLATE(`${integration.id}-d12fa78b3e4c4a1f`);
+  const url = WEBHOOK_TEMPLATE(`${integration.id}-d12fa78b3e4c4a1f`);
   return [
     {
       label: "Copiar",
@@ -153,720 +342,124 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
   ];
 }
 
-const ITEMS: Integration[] = [
-  // CHANNELS
-  {
-    id: "whatsapp",
-    cat: "channels",
-    name: "WhatsApp",
-    domain: "whatsapp.com",
-    desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
-    state: "connected",
-    instances: 2,
-    auth: "oauth",
-    permissions: [
-      "Enviar e receber mensagens em seu nome",
-      "Acessar contatos e conversas ativas",
-      "Ler mídias enviadas pelos clientes",
-    ],
-    tools: {
-      readOnly: [
-        { id: "list-conversations", name: "Listar conversas ativas", description: "Acessa conversas em andamento dos últimos 30 dias.", defaultMode: "always" },
-        { id: "read-messages", name: "Ler mensagens recebidas", description: "Lê texto, mídias e metadados das mensagens.", defaultMode: "always" },
-        { id: "get-contact", name: "Obter informações do contato", description: "Lê nome e foto pública do remetente.", defaultMode: "always" },
-      ],
-      writeDelete: [
-        { id: "send-message", name: "Enviar mensagem", description: "Responde clientes em seu nome.", defaultMode: "approval" },
-        { id: "send-template", name: "Disparar template", description: "Envia template aprovado para campanhas.", defaultMode: "approval" },
-        { id: "delete-message", name: "Apagar mensagem enviada", description: "Remove uma mensagem após o envio.", defaultMode: "never" },
-      ],
-    },
-  },
-  {
-    id: "instagram",
-    cat: "channels",
-    name: "Instagram",
-    domain: "instagram.com",
-    desc: "Responda DMs do Instagram automaticamente com agentes.",
-    state: "attention",
-    auth: "oauth",
-    permissions: [
-      "Ler e responder mensagens diretas",
-      "Acessar comentários em posts e reels",
-      "Ver informações básicas da conta",
-    ],
-    tools: {
-      readOnly: [
-        { id: "list-dms", name: "Listar mensagens diretas", defaultMode: "always" },
-        { id: "read-comments", name: "Ler comentários em posts", defaultMode: "always" },
-      ],
-      writeDelete: [
-        { id: "reply-dm", name: "Responder DM", defaultMode: "approval" },
-        { id: "reply-comment", name: "Responder comentário", defaultMode: "approval" },
-      ],
-    },
-  },
-  { id: "messenger", cat: "channels", name: "Messenger", domain: "messenger.com", desc: "Atendimento automatizado pelo Messenger do Facebook.", state: "available", auth: "oauth", permissions: ["Ler e responder mensagens da página", "Acessar perfis públicos dos clientes", "Receber webhooks de novas conversas"] },
-  // CHECKOUTS — quase todos via API/webhook
-  {
-    id: "hotmart",
-    cat: "checkouts",
-    name: "Hotmart",
-    domain: "hotmart.com",
-    desc: "Capture transações e eventos do checkout Hotmart.",
-    state: "connected",
-    auth: "apiKey",
-    tools: {
-      readOnly: [
-        { id: "list-sales", name: "Listar vendas", defaultMode: "always" },
-        { id: "list-subscribers", name: "Listar assinantes", defaultMode: "always" },
-      ],
-      writeDelete: [
-        { id: "refund", name: "Iniciar reembolso", description: "Solicita reembolso de uma transação.", defaultMode: "approval" },
-        { id: "cancel-sub", name: "Cancelar assinatura", defaultMode: "approval" },
-      ],
-    },
-  },
-  {
-    id: "stripe",
-    cat: "checkouts",
-    name: "Stripe",
-    domain: "stripe.com",
-    desc: "Pagamentos globais — cartão, PIX, assinaturas.",
-    state: "attention",
-    auth: "apiKey",
-    tools: {
-      readOnly: [
-        { id: "list-charges", name: "Listar cobranças", defaultMode: "always" },
-        { id: "list-customers", name: "Listar clientes", defaultMode: "always" },
-      ],
-      writeDelete: [
-        { id: "create-charge", name: "Criar cobrança", defaultMode: "approval" },
-        { id: "refund-charge", name: "Reembolsar cobrança", defaultMode: "approval" },
-      ],
-    },
-  },
-  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "webhook" },
-  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "webhook" },
-  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "webhook" },
-  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "webhook" },
-  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "webhook" },
-  { id: "braip", cat: "checkouts", name: "Braip", domain: "braip.com", desc: "Sincronize vendas e indicações do checkout Braip.", state: "available", auth: "webhook" },
-  { id: "zouti", cat: "checkouts", name: "Zouti", domain: "zouti.com.br", desc: "Capture transações e abandonos do checkout Zouti.", state: "available", auth: "webhook" },
-  { id: "blitzpay", cat: "checkouts", name: "BlitzPay", domain: "blitzpay.com.br", desc: "Receba eventos do checkout BlitzPay em tempo real.", state: "available", auth: "webhook" },
-  { id: "onprofit", cat: "checkouts", name: "OnProfit", domain: "onprofit.com.br", desc: "Sincronize vendas e assinaturas do OnProfit.", state: "available", auth: "webhook" },
-  { id: "greenn", cat: "checkouts", name: "Greenn", domain: "greenn.com.br", desc: "Conecte vendas e clientes do checkout Greenn.", state: "available", auth: "webhook" },
-  { id: "payt", cat: "checkouts", name: "Payt", domain: "payt.com.br", desc: "Receba eventos de venda do checkout Payt.", state: "available", auth: "webhook" },
-  { id: "pagtrust", cat: "checkouts", name: "PagTrust", domain: "pagtrust.com.br", desc: "Sincronize transações do checkout PagTrust.", state: "available", auth: "webhook" },
-  { id: "tmb", cat: "checkouts", name: "TMB", domain: "tmb.education", desc: "Capture eventos de venda do checkout TMB.", state: "available", auth: "webhook" },
-  { id: "dmg", cat: "checkouts", name: "Digital Manager Guru", domain: "digitalmanager.guru", desc: "Sincronize vendas e assinaturas do DMG.", state: "available", auth: "webhook" },
-  // MEMBERS
-  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "apiKey" },
-  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "apiKey" },
-  // FORMS
-  { id: "googleforms", cat: "forms", name: "Google Forms", domain: "forms.google.com", desc: "Receba submissões do Google Forms em tempo real.", state: "available", auth: "oauth", permissions: ["Acessar a lista de formulários da conta", "Receber respostas em tempo real", "Ler metadados das perguntas"] },
-  { id: "typeform", cat: "forms", name: "Typeform", domain: "typeform.com", desc: "Capture leads dos seus formulários conversacionais.", state: "available", auth: "oauth", permissions: ["Acessar formulários da workspace", "Receber novas respostas via webhook", "Ler informações do respondente"] },
-  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "apiKey" },
-  // MEETINGS
-  { id: "calendly", cat: "meetings", name: "Calendly", domain: "calendly.com", desc: "Agendamentos automáticos sincronizados com agentes.", state: "available", auth: "oauth", permissions: ["Acessar tipos de evento e disponibilidade", "Criar e cancelar agendamentos", "Receber notificações de novos eventos"] },
-  { id: "googlecal", cat: "meetings", name: "Google Calendar", domain: "calendar.google.com", desc: "Reuniões e disponibilidade direto do Google Agenda.", state: "available", auth: "oauth", permissions: ["Ler eventos e disponibilidade da agenda", "Criar e atualizar eventos em seu nome", "Acessar agendas compartilhadas"] },
-  // CRMs
-  { id: "pipedrive", cat: "crms", name: "Pipedrive", domain: "pipedrive.com", desc: "Sincronize contatos, deals e atividades do Pipedrive.", state: "available", auth: "oauth", permissions: ["Acessar contatos, organizações e deals", "Criar e atualizar atividades", "Mover deals entre etapas do pipeline"] },
-  { id: "kommo", cat: "crms", name: "Kommo", domain: "kommo.com", desc: "Conecte funis, leads e tarefas do Kommo CRM.", state: "available", auth: "oauth", permissions: ["Acessar leads, contatos e empresas", "Criar e atualizar tarefas", "Mover leads entre etapas do funil"] },
-  { id: "rdstation", cat: "crms", name: "RD Station", domain: "rdstation.com", desc: "Sincronize leads, oportunidades e tags do RD Station.", state: "available", auth: "oauth", permissions: ["Acessar leads e oportunidades", "Criar e atualizar tags", "Disparar eventos de conversão"] },
-  { id: "hubspot", cat: "crms", name: "HubSpot", domain: "hubspot.com", desc: "Conecte contatos, empresas e pipelines do HubSpot.", state: "available", auth: "oauth", permissions: ["Acessar contatos e empresas", "Criar e atualizar deals do pipeline", "Disparar workflows quando uma oportunidade fechar"] },
-  // AI PROVIDERS
-  { id: "claude", cat: "ai", name: "Claude", domain: "anthropic.com", desc: "Conecte sua chave da Anthropic e use Claude como cérebro dos agentes.", state: "available", auth: "apiKey" },
-  { id: "chatgpt", cat: "ai", name: "ChatGPT", domain: "openai.com", desc: "Use os modelos GPT da OpenAI nas execuções dos seus agentes.", state: "available", auth: "apiKey" },
-  { id: "deepseek", cat: "ai", name: "DeepSeek", domain: "deepseek.com", desc: "Conecte sua chave DeepSeek e habilite os modelos R1 e V3.", state: "available", auth: "apiKey" },
-  // SIGNATURES
-  { id: "assiny", cat: "signatures", name: "Assiny", domain: "assiny.com.br", desc: "Envie e acompanhe contratos com assinatura eletrônica.", state: "available", auth: "apiKey" },
-  // MARKETPLACES
-  {
-    id: "shopify",
-    cat: "marketplaces",
-    name: "Shopify",
-    domain: "shopify.com",
-    desc: "Gerencie produtos, pedidos e clientes pela IA.",
-    state: "connected",
-    auth: "oauth",
-    permissions: [
-      "Acessar catálogo de produtos e estoque",
-      "Ler pedidos e clientes",
-      "Criar rascunhos de pedido e cupons",
-    ],
-    tools: {
-      readOnly: [
-        { id: "list-products", name: "Listar produtos e estoque", defaultMode: "always" },
-        { id: "list-orders", name: "Listar pedidos", defaultMode: "always" },
-        { id: "list-customers", name: "Listar clientes", defaultMode: "always" },
-      ],
-      writeDelete: [
-        { id: "create-draft-order", name: "Criar rascunho de pedido", defaultMode: "approval" },
-        { id: "issue-coupon", name: "Emitir cupom", defaultMode: "approval" },
-        { id: "refund-order", name: "Reembolsar pedido", defaultMode: "approval" },
-      ],
-    },
-  },
-  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "apiKey" },
+/* ----------------------------------------------------------------
+ * Visual building blocks for the empty state.
+ * ---------------------------------------------------------------- */
+
+const HERO_BRANDS_TOP = ["hotmart", "eduzz", "kiwify"] as const;
+const HERO_BRANDS_BOTTOM = [
+  "whatsapp",
+  "rdstation",
+  "instagram",
+  "calendly",
+] as const;
+
+const QUICK_PICKS: { id: string; name: string }[] = [
+  { id: "whatsapp", name: "WhatsApp" },
+  { id: "hotmart", name: "Hotmart" },
+  { id: "stripe", name: "Stripe" },
+  { id: "calendly", name: "Calendly" },
+  { id: "rdstation", name: "RD Station" },
 ];
 
-const PERM_MODE_META: Record<PermissionMode, { icon: string; label: string }> = {
-  always: { icon: "check_circle", label: "Sempre permitir" },
-  approval: { icon: "front_hand", label: "Pedir aprovação" },
-  never: { icon: "block", label: "Nunca permitir" },
-};
-
-function isActive(state: AwIntegrationCardState) {
-  return state === "connected" || state === "attention";
-}
-
 /* ----------------------------------------------------------------
- * Permission segmented control — always / approval / never.
+ * Card with quick actions — wraps AwIntegrationCard with three
+ * top-right ghost icon buttons: toggle (active/paused), configure,
+ * disconnect. Buttons are only rendered when an instance exists;
+ * "available" channels stay clickable as a single connect target.
  * ---------------------------------------------------------------- */
 
-function PermissionSegment({
-  value,
-  onChange,
-  ariaLabel,
-}: {
-  value: PermissionMode;
-  onChange: (next: PermissionMode) => void;
-  ariaLabel: string;
-}) {
-  const order: PermissionMode[] = ["always", "approval", "never"];
-  return (
-    <div
-      className="aw-perm-seg"
-      role="radiogroup"
-      aria-label={ariaLabel}
-    >
-      {order.map((mode) => {
-        const meta = PERM_MODE_META[mode];
-        const active = value === mode;
-        return (
-          <button
-            key={mode}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={meta.label}
-            title={meta.label}
-            className={
-              "aw-perm-seg__btn" +
-              (active ? ` aw-perm-seg__btn--active aw-perm-seg__btn--${mode}` : "")
-            }
-            onClick={() => onChange(mode)}
-          >
-            <Icon name={meta.icon} size={16} fill={active ? 1 : 0} />
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------
- * Permission group — collapsible bucket of tools.
- * ---------------------------------------------------------------- */
-
-function PermissionGroup({
-  title,
-  hint,
-  tools,
-  modes,
-  onChange,
-  defaultOpen,
-}: {
-  title: string;
-  hint: string;
-  tools: ToolPermission[];
-  modes: Record<string, PermissionMode>;
-  onChange: (toolId: string, next: PermissionMode) => void;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen ?? true);
-  const summary = useMemo(() => {
-    const counts: Record<PermissionMode, number> = { always: 0, approval: 0, never: 0 };
-    for (const t of tools) counts[modes[t.id] ?? t.defaultMode]++;
-    if (counts.always === tools.length) return PERM_MODE_META.always.label;
-    if (counts.approval === tools.length) return PERM_MODE_META.approval.label;
-    if (counts.never === tools.length) return PERM_MODE_META.never.label;
-    return "Misto";
-  }, [tools, modes]);
-
-  return (
-    <section className="aw-perm-group">
-      <button
-        type="button"
-        className="aw-perm-group__head"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-      >
-        <Icon name={open ? "expand_more" : "chevron_right"} size={18} />
-        <span className="aw-perm-group__title">{title}</span>
-        <span className="aw-perm-group__count">{tools.length}</span>
-        <span className="aw-perm-group__summary">{summary}</span>
-      </button>
-      {open && (
-        <ul className="aw-perm-group__list">
-          {tools.map((tool) => {
-            const mode = modes[tool.id] ?? tool.defaultMode;
-            return (
-              <li key={tool.id} className="aw-perm-group__row">
-                <div className="aw-perm-group__row-copy">
-                  <div className="aw-perm-group__row-name">{tool.name}</div>
-                  {tool.description && (
-                    <div className="aw-perm-group__row-desc">
-                      {tool.description}
-                    </div>
-                  )}
-                </div>
-                <PermissionSegment
-                  value={mode}
-                  onChange={(next) => onChange(tool.id, next)}
-                  ariaLabel={`Permissão para ${tool.name}`}
-                />
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      <p className="aw-perm-group__hint">{hint}</p>
-    </section>
-  );
-}
-
-/* ================================================================
- * Page
- * ================================================================ */
-
-/* ----------------------------------------------------------------
- * Integration settings — inline panel for the selected integration.
- * ---------------------------------------------------------------- */
-
-function IntegrationSettings({
-  integration,
-  displayName,
-  permModes,
-  onPermissionChange,
-  onDisconnect,
-  onReconnect,
-  onClose,
-}: {
-  integration: Integration;
-  displayName?: string;
-  permModes: Record<string, PermissionMode>;
-  onPermissionChange: (toolId: string, next: PermissionMode) => void;
-  onDisconnect?: () => void;
-  onReconnect?: () => void;
-  onClose?: () => void;
-}) {
-  const [enabled, setEnabled] = useState(true);
-  const isOAuth = integration.auth === "oauth";
-  const isWebhook = integration.auth === "webhook";
-  const isApiKey = integration.auth === "apiKey";
-  const authMeta = isOAuth
-    ? { label: "OAuth 2.0", hint: "Renovação automática" }
-    : isWebhook
-      ? { label: "Webhook", hint: "Eventos em tempo real" }
-      : { label: "Chave de API", hint: "Renovação manual" };
-  const lastSync =
-    integration.state === "attention"
-      ? "Token expira em 3 dias — renove para continuar"
-      : "Sincronizado há 2 min";
-
-  return (
-    <div className="flex h-full flex-col">
-      {/* Hero strip */}
-      <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-6">
-        <div className="flex items-center gap-3.5">
-          <AwBrandLogo brand={integration.id} size="lg" />
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="m-0 text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                {displayName ?? integration.name}
-              </h2>
-              {integration.state === "attention" ? (
-                <AwPill variant="beta">Atenção</AwPill>
-              ) : (
-                <AwPill variant="live">Ativa</AwPill>
-              )}
-            </div>
-            <p className="m-0 mt-0.5 text-[12.5px] text-[var(--fg-tertiary)]">
-              {integration.domain} · {lastSync}
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-shrink-0 items-center gap-2">
-          <AwButton variant="secondary" size="sm" iconLeft="refresh" onClick={onReconnect}>
-            Reconectar
-          </AwButton>
-          <AwButton variant="secondary" size="sm" iconLeft="link_off" onClick={onDisconnect}>
-            Desconectar
-          </AwButton>
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly="close"
-            aria-label="Fechar configurações"
-            onClick={onClose}
-          />
-        </div>
-      </header>
-
-      <div className="flex-1 overflow-y-auto px-7 py-6">
-        <p className="m-0 mb-6 max-w-[640px] text-[13.5px] leading-[1.55] text-[var(--fg-secondary)]">
-          {integration.desc}
-        </p>
-
-        {/* Connection summary cards */}
-        <div className="mb-7 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
-            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
-              Conexões
-            </div>
-            <div className="mt-1 text-[18px] font-semibold text-[var(--fg-primary)]">
-              {integration.instances ?? 1}
-            </div>
-            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
-              {(integration.instances ?? 1) === 1
-                ? "Uma conta conectada"
-                : "Contas conectadas"}
-            </div>
-          </div>
-          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
-            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
-              Eventos (24h)
-            </div>
-            <div className="mt-1 text-[18px] font-semibold text-[var(--fg-primary)]">
-              1.284
-            </div>
-            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
-              98% sincronizados
-            </div>
-          </div>
-          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3.5">
-            <div className="text-[11px] uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
-              Autenticação
-            </div>
-            <div className="mt-1 text-[14px] font-semibold text-[var(--fg-primary)]">
-              {authMeta.label}
-            </div>
-            <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
-              {authMeta.hint}
-            </div>
-          </div>
-        </div>
-
-        {/* Active toggle */}
-        <div className="mb-7 flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3.5">
-          <div>
-            <div className="text-[13.5px] font-medium text-[var(--fg-primary)]">
-              Integração ativa
-            </div>
-            <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
-              Quando desativada, agentes ignoram esta integração e nenhum
-              evento é processado.
-            </div>
-          </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={enabled}
-            aria-label="Integração ativa"
-            onClick={() => setEnabled((v) => !v)}
-            className={
-              "relative h-[22px] w-[38px] flex-shrink-0 rounded-full transition-colors " +
-              (enabled
-                ? "bg-[var(--fg-primary)]"
-                : "bg-[var(--border-strong)]")
-            }
-          >
-            <span
-              className={
-                "absolute top-[2px] h-[18px] w-[18px] rounded-full bg-white transition-all " +
-                (enabled ? "left-[18px]" : "left-[2px]")
-              }
-            />
-          </button>
-        </div>
-
-        {/* API key credentials */}
-        {isApiKey && (
-          <section className="mb-7">
-            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
-              Credenciais
-            </h3>
-            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-              Atualize a chave usada por seus agentes para falar com{" "}
-              {integration.name}.
-            </p>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <AwField label="API Key" htmlFor={`live-key-${integration.id}`}>
-                <AwInput
-                  id={`live-key-${integration.id}`}
-                  defaultValue="sk_live_5ZkP9aW8rQv2XnT3eM1bC7yH"
-                  iconLeft="key"
-                />
-              </AwField>
-              <AwField
-                label="Webhook secret"
-                htmlFor={`live-secret-${integration.id}`}
-              >
-                <AwInput
-                  id={`live-secret-${integration.id}`}
-                  defaultValue="whsec_a8f72c4b9d6e1f0a3b5c"
-                  iconLeft="lock"
-                />
-              </AwField>
-            </div>
-          </section>
-        )}
-
-        {/* Webhook URL — for webhook-based integrations */}
-        {isWebhook && (
-          <section className="mb-7">
-            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
-              Webhook
-            </h3>
-            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-              Endpoint que o {integration.name} usa para enviar eventos.
-              Reconfigure no painel do parceiro se rotacionar a URL.
-            </p>
-            <AwField
-              label="Webhook URL"
-              htmlFor={`live-webhook-${integration.id}`}
-            >
-              <AwInput
-                id={`live-webhook-${integration.id}`}
-                readOnly
-                defaultValue={HUBLA_WEBHOOK_TEMPLATE(
-                  `${integration.id}-d12fa78b3e4c4a1f`,
-                )}
-                iconLeft="bolt"
-              />
-            </AwField>
-          </section>
-        )}
-
-        {/* OAuth scopes for OAuth integrations */}
-        {isOAuth && integration.permissions && integration.permissions.length > 0 && (
-          <section className="mb-7">
-            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
-              Permissões concedidas
-            </h3>
-            <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-              Escopos autorizados quando você conectou {integration.name}.
-            </p>
-            <ul className="m-0 list-none rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0">
-              {integration.permissions.map((p, i) => (
-                <li
-                  key={p}
-                  className={
-                    "flex items-center gap-2.5 px-3.5 py-2.5 text-[12.5px] text-[var(--fg-secondary)]" +
-                    (i > 0
-                      ? " border-t border-[var(--border-subtle)]"
-                      : "")
-                  }
-                >
-                  <Icon
-                    name="check_circle"
-                    size={16}
-                    className="text-[var(--aw-emerald-700)]"
-                    fill={1}
-                  />
-                  {p}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Per-tool permissions */}
-        <section className="mb-7">
-          <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
-            Permissões por ferramenta
-          </h3>
-          <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-            Decida quando seus agentes podem usar cada ação.
-          </p>
-
-          {integration.tools?.readOnly && integration.tools.readOnly.length > 0 && (
-            <PermissionGroup
-              title="Ferramentas de leitura"
-              hint="Ler dados não muda nada do lado da plataforma — o padrão é permitir."
-              tools={integration.tools.readOnly}
-              modes={permModes}
-              onChange={onPermissionChange}
-              defaultOpen
-            />
-          )}
-          {integration.tools?.writeDelete &&
-            integration.tools.writeDelete.length > 0 && (
-              <PermissionGroup
-                title="Ferramentas de escrita / exclusão"
-                hint="Ações que alteram dados externos. Padrão é pedir aprovação antes."
-                tools={integration.tools.writeDelete}
-                modes={permModes}
-                onChange={onPermissionChange}
-                defaultOpen
-              />
-            )}
-
-          {!integration.tools && (
-            <AwEmpty>
-              <AwEmptyHeader>
-                <AwEmptyMedia variant="icon">
-                  <Icon name="info" size={20} />
-                </AwEmptyMedia>
-                <AwEmptyTitle>Sem permissões configuráveis</AwEmptyTitle>
-                <AwEmptyDescription>
-                  Esta integração roda em modo somente-leitura — não há ações
-                  individuais para liberar.
-                </AwEmptyDescription>
-              </AwEmptyHeader>
-            </AwEmpty>
-          )}
-        </section>
-
-        {/* Recent activity */}
-        <section>
-          <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
-            Atividade recente
-          </h3>
-          <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
-            Últimos eventos recebidos desta integração.
-          </p>
-          <ul className="m-0 list-none rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0">
-            {[
-              { icon: "download", label: "Webhook recebido", meta: "há 2 min" },
-              { icon: "sync", label: "Sincronização completa", meta: "há 14 min" },
-              { icon: "key", label: "Token renovado", meta: "há 3 h" },
-              { icon: "check", label: "Conexão validada", meta: "ontem, 18:42" },
-            ].map((row, i) => (
-              <li
-                key={row.label + i}
-                className={
-                  "flex items-center gap-3 px-3.5 py-2.5 text-[12.5px]" +
-                  (i > 0 ? " border-t border-[var(--border-subtle)]" : "")
-                }
-              >
-                <Icon
-                  name={row.icon}
-                  size={16}
-                  className="text-[var(--fg-tertiary)]"
-                />
-                <span className="flex-1 text-[var(--fg-secondary)]">
-                  {row.label}
-                </span>
-                <span className="text-[11.5px] text-[var(--fg-tertiary)]">
-                  {row.meta}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      {/* Footer actions */}
-      <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
-        <AwButton variant="secondary" size="md" onClick={onClose}>
-          Cancelar
-        </AwButton>
-        <AwButton variant="primary" size="md" onClick={onClose}>
-          Salvar alterações
-        </AwButton>
-      </footer>
-    </div>
-  );
-}
-
-/* ----------------------------------------------------------------
- * Active integration list row — horizontal selectable item.
- * ---------------------------------------------------------------- */
-
-type ActiveRowStatus = {
-  label: string;
-  variant: "live" | "beta" | "neutral" | "error";
-};
-
-function ActiveRow({
+function CardWithActions({
   brand,
   name,
+  domain,
   description,
   state,
-  selected,
-  onClick,
-  status,
+  onCardClick,
+  hasInstance,
+  active,
+  onToggle,
+  onConfigure,
+  onDisconnect,
 }: {
   brand: string;
   name: string;
+  domain: string;
   description: string;
   state: AwIntegrationCardState;
-  selected: boolean;
+  /** Card body click — used for "available" channels to open Connect. */
+  onCardClick?: () => void;
+  hasInstance: boolean;
+  active?: boolean;
+  onToggle?: () => void;
+  onConfigure?: () => void;
+  onDisconnect?: () => void;
+}) {
+  const stop = (cb?: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    cb?.();
+  };
+  return (
+    <div className="relative">
+      <AwIntegrationCard
+        brand={brand}
+        name={name}
+        domain={domain}
+        description={description}
+        state={state}
+        onClick={hasInstance ? undefined : onCardClick}
+      />
+      {hasInstance && (
+        <div className="absolute right-2 top-2 flex items-center gap-0.5">
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly={active ? "toggle_on" : "toggle_off"}
+            aria-label={active ? "Pausar integração" : "Ativar integração"}
+            title={active ? "Pausar integração" : "Ativar integração"}
+            onClick={stop(onToggle)}
+          />
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly="tune"
+            aria-label="Configurar integração"
+            title="Configurar integração"
+            onClick={stop(onConfigure)}
+          />
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly="link_off"
+            aria-label="Desconectar integração"
+            title="Desconectar integração"
+            onClick={stop(onDisconnect)}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function QuickPickPill({
+  brand,
+  name,
+  onClick,
+}: {
+  brand: string;
+  name: string;
   onClick: () => void;
-  status?: ActiveRowStatus;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={selected}
-      className={
-        "group flex w-full items-center gap-3 px-2 py-2.5 text-left transition-colors " +
-        (selected
-          ? "bg-[var(--bg-surface)]"
-          : "hover:bg-[var(--bg-surface)]")
-      }
+      className="group inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-2 pr-5 text-[13px] font-medium text-[var(--fg-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-canvas)]"
     >
-      <AwBrandLogo brand={brand} size="md" />
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
-            {name}
-          </span>
-          {state === "attention" && !status && (
-            <Icon
-              name="error"
-              size={14}
-              className="text-[var(--aw-amber-700)]"
-            />
-          )}
-        </div>
-        <div className="truncate text-[12.5px] text-[var(--fg-tertiary)]">
-          {description}
-        </div>
-      </div>
-      {status && (
-        <AwPill variant={status.variant}>{status.label}</AwPill>
-      )}
-      <Icon
-        name="chevron_right"
-        size={18}
-        className="text-[var(--fg-tertiary)]"
-      />
+      <AwBrandLogo brand={brand} size="sm" bare />
+      <span>{name}</span>
     </button>
   );
-}
-
-const CHANNEL_IDS = ["whatsapp", "instagram", "messenger"] as const;
-type ChannelId = (typeof CHANNEL_IDS)[number];
-const isChannelId = (id: string): id is ChannelId =>
-  (CHANNEL_IDS as readonly string[]).includes(id);
-
-function statusForState(state: AwIntegrationCardState): ActiveRowStatus {
-  switch (state) {
-    case "connected":
-      return { label: "Ativo", variant: "live" };
-    case "attention":
-      return { label: "Requer atenção", variant: "beta" };
-    case "disabled":
-      return { label: "Desabilitado", variant: "error" };
-    case "available":
-    default:
-      return { label: "Não configurado", variant: "neutral" };
-  }
 }
 
 /* ================================================================
@@ -874,101 +467,195 @@ function statusForState(state: AwIntegrationCardState): ActiveRowStatus {
  * ================================================================ */
 
 export default function IntegrationsPage() {
-  /** add-instance modal — opened from the catalog modal */
-  const [connectId, setConnectId] = useState<string | null>(null);
-  /** add-integration catalog modal — opened from the page header CTA */
+  const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
-  /** custom-integration placeholder modal */
   const [customOpen, setCustomOpen] = useState(false);
-  /** disconnect confirmation modal */
-  const [disconnectPending, setDisconnectPending] = useState(false);
-  const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
-
-  /** Search query for filtering the active integrations list. */
-  const [searchQuery, setSearchQuery] = useState("");
-
-  /** Connected accounts shown in the left list — one row per instance. */
-  const [instances, setInstances] = useState<IntegrationInstance[]>(() =>
-    ITEMS.filter((i) => isActive(i.state)).map((i) => ({
-      instanceId: `${i.id}-default`,
-      integrationId: i.id,
-      name: i.name,
-    })),
-  );
-  /** selected instance in the inline settings panel — null = panel hidden */
-  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
-  const selectedInstance =
-    instances.find((i) => i.instanceId === selectedInstanceId) ?? null;
-  const selected = selectedInstance
-    ? ITEMS.find((i) => i.id === selectedInstance.integrationId) ?? null
-    : null;
+  const [connectId, setConnectId] = useState<string | null>(null);
+  const [instances, setInstances] = useState<IntegrationInstance[]>(SEED_INSTANCES);
 
   const connectTarget = connectId
     ? ITEMS.find((i) => i.id === connectId) ?? null
     : null;
 
-
   const breadcrumbs = [
     { label: "Integrações", icon: <Icon name="extension" size={20} /> },
-    { label: "Ativas" },
   ];
 
-  const setMode = (toolId: string, next: PermissionMode) =>
-    setPermModes((m) => ({ ...m, [toolId]: next }));
-
   const closeConnect = () => setConnectId(null);
-  const closeSettings = () => setSelectedInstanceId(null);
 
-  const isPanelOpen = !!selected;
-  const anyModalOpen =
-    !!connectId || addOpen || customOpen || disconnectPending;
+  const isPopulated = instances.length > 0;
+  const nonChannelInstances = instances.filter(
+    (i) => !isChannelId(i.integrationId),
+  );
 
-  useEffect(() => {
-    if (!isPanelOpen || anyModalOpen) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setSelectedInstanceId(null);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [isPanelOpen, anyModalOpen]);
+  const findInstance = (integrationId: string) =>
+    instances.find((i) => i.integrationId === integrationId);
 
-  /** Settings content stays at opacity 0 until the list-slide finishes. */
-  const [contentReady, setContentReady] = useState(false);
-  useEffect(() => {
-    if (!isPanelOpen) {
-      setContentReady(false);
+  const stateFor = (instance?: IntegrationInstance): AwIntegrationCardState => {
+    if (!instance) return "available";
+    return instance.active ? "connected" : "disabled";
+  };
+
+  const handleToggleInstance = (instanceId: string) => {
+    setInstances((list) =>
+      list.map((i) =>
+        i.instanceId === instanceId ? { ...i, active: !i.active } : i,
+      ),
+    );
+  };
+
+  const handleDisconnectInstance = (instanceId: string) => {
+    setInstances((list) => list.filter((i) => i.instanceId !== instanceId));
+  };
+
+  const handleConfigureInstance = (instanceId: string) => {
+    const inst = instances.find((i) => i.instanceId === instanceId);
+    if (inst?.integrationId === "whatsapp") {
+      router.push("/setup/whatsapp/1");
       return;
     }
-    const t = setTimeout(() => setContentReady(true), 420);
-    return () => clearTimeout(t);
-  }, [isPanelOpen]);
-
-  const handleDisconnectConfirm = () => {
-    if (!selectedInstanceId) return;
-    setInstances((list) => {
-      const next = list.filter((i) => i.instanceId !== selectedInstanceId);
-      setSelectedInstanceId(next[0]?.instanceId ?? null);
-      return next;
-    });
-    setDisconnectPending(false);
+    // Settings flow not built yet for other integrations — placeholder.
   };
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
-        <div className="w-full px-10 pt-12 pb-24">
-          {/* Header */}
-          <header className="mb-7 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
-            <div>
-              <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-                <Icon name="event_list" size={28} />
-                Integrações
-              </h1>
-              <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
-                Conecte canais, plataformas e ferramentas para que seus agentes coletem contexto, executem ações e mantenham seus sistemas sincronizados.
+      {isPopulated ? (
+        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+          <div className="w-full px-10 pt-12 pb-24">
+            {/* Header */}
+            <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
+              <div>
+                <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+                  <Icon name="event_list" size={28} />
+                  Integrações
+                </h1>
+                <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
+                  Conecte canais, plataformas e ferramentas para que seus
+                  agentes coletem contexto, executem ações e mantenham seus
+                  sistemas sincronizados.
+                </p>
+              </div>
+              <div className="flex flex-shrink-0 gap-2">
+                <AwButton
+                  variant="primary"
+                  size="md"
+                  iconLeft="add"
+                  onClick={() => setAddOpen(true)}
+                >
+                  Nova integração
+                </AwButton>
+              </div>
+            </header>
+
+            {/* Canais — always shown, 3 fixed channels */}
+            <section aria-label="Canais" className="mb-10">
+              <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                Canais
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {CHANNEL_IDS.map((id) => {
+                  const it = ITEMS.find((i) => i.id === id);
+                  if (!it) return null;
+                  const inst = findInstance(id);
+                  return (
+                    <CardWithActions
+                      key={id}
+                      brand={it.id}
+                      name={inst?.name ?? it.name}
+                      domain={it.domain}
+                      description={it.desc}
+                      state={stateFor(inst)}
+                      onCardClick={() => setConnectId(id)}
+                      hasInstance={!!inst}
+                      active={inst?.active}
+                      onToggle={
+                        inst ? () => handleToggleInstance(inst.instanceId) : undefined
+                      }
+                      onConfigure={
+                        inst
+                          ? () => handleConfigureInstance(inst.instanceId)
+                          : undefined
+                      }
+                      onDisconnect={
+                        inst
+                          ? () => handleDisconnectInstance(inst.instanceId)
+                          : undefined
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Integrações Ativas — non-channel connected instances */}
+            {nonChannelInstances.length > 0 && (
+              <section aria-label="Integrações ativas">
+                <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  Integrações ativas
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {nonChannelInstances.map((inst) => {
+                    const it = ITEMS.find((i) => i.id === inst.integrationId);
+                    if (!it) return null;
+                    return (
+                      <CardWithActions
+                        key={inst.instanceId}
+                        brand={it.id}
+                        name={inst.name}
+                        domain={it.domain}
+                        description={it.desc}
+                        state={stateFor(inst)}
+                        hasInstance
+                        active={inst.active}
+                        onToggle={() => handleToggleInstance(inst.instanceId)}
+                        onConfigure={() =>
+                          handleConfigureInstance(inst.instanceId)
+                        }
+                        onDisconnect={() =>
+                          handleDisconnectInstance(inst.instanceId)
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="-m-8 flex min-h-full items-center justify-center bg-[var(--bg-canvas)] px-10 py-16">
+          {/* Empty-state hero — owns the page, no competing header */}
+          <section
+            aria-label="Comece conectando sua primeira ferramenta"
+            className="w-full max-w-[760px]"
+          >
+            {/* Brand bubble cluster */}
+            <div className="flex flex-col items-center gap-4">
+              <div className="flex items-center justify-center gap-5">
+                {HERO_BRANDS_TOP.map((b) => (
+                  <AwBrandLogo key={b} brand={b} size="lg" />
+                ))}
+              </div>
+              <div className="flex items-center justify-center gap-5">
+                {HERO_BRANDS_BOTTOM.map((b) => (
+                  <AwBrandLogo key={b} brand={b} size="lg" />
+                ))}
+              </div>
+            </div>
+
+            {/* Headline + subtitle */}
+            <div className="mt-10 flex flex-col items-center text-center">
+              <h2 className="m-0 max-w-[520px] text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[var(--fg-primary)]">
+                Comece conectando sua primeira ferramenta
+              </h2>
+              <p className="m-0 mt-3 max-w-[480px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+                Hotmart, Stripe, WhatsApp, Calendly, RD Station… escolha
+                por onde começar e o agente assume daí.
               </p>
             </div>
-            <div className="flex flex-shrink-0 gap-2">
+
+            {/* CTAs */}
+            <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
               <AwButton
                 variant="primary"
                 size="md"
@@ -977,168 +664,44 @@ export default function IntegrationsPage() {
               >
                 Nova integração
               </AwButton>
+              <AwButton
+                variant="secondary"
+                size="md"
+                onClick={() => setAddOpen(true)}
+              >
+                Ver catálogo completo
+              </AwButton>
             </div>
-          </header>
 
-          {/* List + sliding settings panel */}
-          <div className="flex w-full justify-center gap-6">
-            {/* Active list — slides left when settings panel opens */}
-            <aside
-              aria-label="Lista de integrações"
-              className={
-                "transition-all duration-300 ease-out " +
-                (isPanelOpen
-                  ? "w-[400px] flex-shrink-0"
-                  : "w-full max-w-[640px]")
-              }
-            >
-              {/* List header: title + search */}
-              <div className="mb-3 flex items-center justify-between gap-3">
-                <h2 className="m-0 text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                  Integrações ativas
-                </h2>
-                <AwInput
-                  type="search"
-                  dense
-                  iconLeft="search"
-                  placeholder="Buscar integração"
-                  aria-label="Buscar integração"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-[220px]"
+            {/* Divider */}
+            <div className="mt-10 mb-5 flex items-center gap-3 text-[12px] text-[var(--fg-tertiary)]">
+              <span
+                aria-hidden="true"
+                className="h-px flex-1 bg-[var(--border-subtle)]"
+              />
+              <span>ou comece pelas mais usadas</span>
+              <span
+                aria-hidden="true"
+                className="h-px flex-1 bg-[var(--border-subtle)]"
+              />
+            </div>
+
+            {/* Quick picks */}
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {QUICK_PICKS.map((q) => (
+                <QuickPickPill
+                  key={q.id}
+                  brand={q.id}
+                  name={q.name}
+                  onClick={() => setConnectId(q.id)}
                 />
-              </div>
-
-              {/* All integrations — flat list */}
-              <ul className="m-0 flex list-none flex-col divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)] p-0">
-                {CHANNEL_IDS.map((id) => {
-                  const it = ITEMS.find((i) => i.id === id);
-                  if (!it) return null;
-                  const inst = instances.find((i) => i.integrationId === id);
-                  const effectiveState: AwIntegrationCardState = inst
-                    ? it.state
-                    : "available";
-                  if (
-                    searchQuery &&
-                    !it.name
-                      .toLowerCase()
-                      .includes(searchQuery.trim().toLowerCase())
-                  ) {
-                    return null;
-                  }
-                  return (
-                    <li key={id}>
-                      <ActiveRow
-                        brand={it.id}
-                        name={it.name}
-                        description={it.desc}
-                        state={effectiveState}
-                        selected={
-                          !!inst && selectedInstanceId === inst.instanceId
-                        }
-                        onClick={() => {
-                          if (inst) setSelectedInstanceId(inst.instanceId);
-                          else setConnectId(id);
-                        }}
-                        status={statusForState(effectiveState)}
-                      />
-                    </li>
-                  );
-                })}
-                {instances
-                  .filter((i) => !isChannelId(i.integrationId))
-                  .filter((inst) => {
-                    if (!searchQuery) return true;
-                    const q = searchQuery.trim().toLowerCase();
-                    return inst.name.toLowerCase().includes(q);
-                  })
-                  .map((inst) => {
-                    const it = ITEMS.find((i) => i.id === inst.integrationId);
-                    if (!it) return null;
-                    return (
-                      <li key={inst.instanceId}>
-                        <ActiveRow
-                          brand={it.id}
-                          name={inst.name}
-                          description={it.desc}
-                          state={it.state}
-                          selected={selectedInstanceId === inst.instanceId}
-                          onClick={() =>
-                            setSelectedInstanceId(inst.instanceId)
-                          }
-                        />
-                      </li>
-                    );
-                  })}
-              </ul>
-            </aside>
-
-            {/* Settings panel — outer animates width, inner fades content in/out */}
-            <section
-              aria-label="Configurações da integração"
-              aria-hidden={!isPanelOpen}
-              className={
-                "overflow-hidden rounded-[var(--radius-xl)] bg-[var(--bg-canvas)] transition-[flex,width,border-color,border-width,min-height] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] " +
-                (isPanelOpen
-                  ? "min-h-[640px] flex-1 border border-[var(--border-subtle)]"
-                  : "w-0 flex-[0_0_0px] border-0")
-              }
-            >
-              {selected && (
-                <div
-                  className={
-                    "h-full transition-opacity duration-[280ms] ease-out " +
-                    (contentReady ? "opacity-100" : "opacity-0")
-                  }
-                >
-                  {selected.id === "whatsapp" ? (
-                    <AwWhatsAppPanel
-                      onAddWaba={() => setConnectId("whatsapp")}
-                    />
-                  ) : (
-                    <IntegrationSettings
-                      integration={selected}
-                      displayName={selectedInstance?.name}
-                      permModes={permModes}
-                      onPermissionChange={setMode}
-                      onDisconnect={() => setDisconnectPending(true)}
-                      onReconnect={() => setConnectId(selected.id)}
-                      onClose={closeSettings}
-                    />
-                  )}
-                </div>
-              )}
-            </section>
-          </div>
+              ))}
+            </div>
+          </section>
         </div>
-      </div>
+      )}
 
-      {/* Disconnect confirmation modal */}
-      <AwModal
-        open={disconnectPending}
-        onClose={() => setDisconnectPending(false)}
-        title="Desconectar integração"
-        footer={
-          <div className="flex justify-end gap-2">
-            <AwButton variant="secondary" size="md" onClick={() => setDisconnectPending(false)}>
-              Cancelar
-            </AwButton>
-            <AwButton variant="danger" size="md" iconLeft="link_off" onClick={handleDisconnectConfirm}>
-              Desconectar
-            </AwButton>
-          </div>
-        }
-      >
-        <p className="m-0 text-[13.5px] leading-[1.6] text-[var(--fg-secondary)]">
-          Tem certeza que deseja desconectar{" "}
-          <strong className="text-[var(--fg-primary)]">
-            {selectedInstance?.name ?? selected?.name}
-          </strong>
-          ? Os agentes perderão acesso a esta integração imediatamente.
-        </p>
-      </AwModal>
-
-      {/* Catalog modal — pick an integration to add */}
+      {/* Catalog modal */}
       <AwAddIntegrationModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
@@ -1160,7 +723,7 @@ export default function IntegrationsPage() {
         }}
       />
 
-      {/* Custom integration placeholder — final fields TBD */}
+      {/* Custom integration placeholder */}
       <AwConnectModal
         open={customOpen}
         onClose={() => setCustomOpen(false)}
@@ -1210,7 +773,7 @@ export default function IntegrationsPage() {
         onAllow={() => setCustomOpen(false)}
       />
 
-      {/* Connect dialog — kind derived from the integration auth method */}
+      {/* Connect dialog */}
       <AwConnectModal
         open={!!connectTarget}
         onClose={closeConnect}
@@ -1218,15 +781,8 @@ export default function IntegrationsPage() {
         productLogoSrc={ORG_LOGO_SRC}
         productName={ORG_NAME}
         targetBrand={connectTarget?.id ?? ""}
-        targetName={
-          connectTarget
-            ? isActive(connectTarget.state)
-              ? `${connectTarget.name} (nova conexão)`
-              : connectTarget.name
-            : ""
-        }
+        targetName={connectTarget?.name ?? ""}
         description={connectTarget?.desc}
-        /* OAuth */
         permissionsTitle={
           connectTarget?.auth === "oauth" ? `O AwSales precisa` : undefined
         }
@@ -1240,13 +796,11 @@ export default function IntegrationsPage() {
             ? `https://app.awsales.io/integrations/${connectTarget.id}/callback`
             : undefined
         }
-        /* Webhook */
         steps={
           connectTarget?.auth === "webhook"
             ? buildWebhookSteps(connectTarget)
             : undefined
         }
-        /* API key */
         apiKeyIntro={
           connectTarget?.auth === "apiKey" ? (
             <>
@@ -1293,16 +847,20 @@ export default function IntegrationsPage() {
             const instanceId = `${connectTarget.id}-${Date.now()}`;
             const finalName =
               name?.trim() ||
-              `${connectTarget.name} ${instances.filter((i) => i.integrationId === connectTarget.id).length + 1}`;
+              `${connectTarget.name} ${
+                instances.filter(
+                  (i) => i.integrationId === connectTarget.id,
+                ).length + 1
+              }`;
             setInstances((list) => [
               ...list,
               {
                 instanceId,
                 integrationId: connectTarget.id,
                 name: finalName,
+                active: true,
               },
             ]);
-            setSelectedInstanceId(instanceId);
           }
           closeConnect();
         }}
