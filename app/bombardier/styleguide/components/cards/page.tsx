@@ -1,267 +1,629 @@
-import { AwCard } from "@/components/ui/AwCard"
-import { AwPill } from "@/components/ui/AwPill"
-import { AwButton } from "@/components/ui/AwButton"
 import {
-  PageHero,
-  Section,
-  Stage,
-  Spec,
-  PropRow,
+  AwCard,
+  AwCardAction,
+  AwCardContent,
+  AwCardDescription,
+  AwCardFooter,
+  AwCardHeader,
+  AwCardTitle,
+} from "@/components/ui/AwCard"
+import { AwButton } from "@/components/ui/AwButton"
+import { AwPill } from "@/components/ui/AwPill"
+import { Icon } from "@/components/ui/Icon"
+import {
   ApiTable,
   CodeExample,
   DoDont,
+  PageHero,
+  PropRow,
+  Section,
+  Spec,
+  Stage,
 } from "../../_primitives"
 
 export default function CardsPage() {
   return (
     <>
       <PageHero title="Cards">
-        Superfície primária para agrupar conteúdo. 1px de borda, radius{" "}
-          <code className="mono">--radius-lg</code>, sem drop shadow por
-          padrão. A variante <strong>ai</strong> insere uma gradient-mesh
-          sutil sinalizando superfície ligada ao agente.
+        Superfície primária para agrupar conteúdo. Anatomia espelha{" "}
+        <strong>shadcn/ui Card</strong> — <code className="mono">Card</code>
+        {" / "}
+        <code className="mono">CardHeader</code>
+        {" / "}
+        <code className="mono">CardTitle</code>
+        {" / "}
+        <code className="mono">CardDescription</code>
+        {" / "}
+        <code className="mono">CardAction</code>
+        {" / "}
+        <code className="mono">CardContent</code>
+        {" / "}
+        <code className="mono">CardFooter</code>
+        {" "}— sob tokens AwSales. Borda 1 px, radius{" "}
+        <code className="mono">--radius-lg</code>, sem drop shadow por padrão.
+        A variante <strong>ai</strong> aplica gradient-mesh sutil em superfícies
+        ligadas ao agente.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
-<div className="flex flex-col gap-16">
-        <Section
-          id="variants"
-          title="Variantes"
-          lead="Duas variantes. Default é o padrão. AI é reservado a áreas vinculadas ao agente — nunca ambiente."
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <AwCard>
-              <h4 className="m-0 mb-2">Agentes ativos</h4>
-              <p className="body-sm m-0">
-                12 agentes em produção. Última revisão há 3 dias.
-              </p>
-              <div className="flex gap-2 mt-4">
-                <AwPill variant="live">ativo</AwPill>
-                <AwPill variant="beta">beta</AwPill>
-              </div>
-            </AwCard>
+        <div className="flex flex-col gap-16">
+          {/* ───────── Anatomia / shadcn alignment ───────── */}
+          <Section
+            id="anatomy-slots"
+            title="Anatomia"
+            lead="Sete slots, todos opcionais. Stacking idêntico ao shadcn Card — header com title/description, action no canto, content e footer."
+          >
+            <Stage
+              label="AwCard · Header (Title + Description + Action) · Content · Footer"
+              gridClassName="block"
+            >
+              <AwCard className="max-w-[480px]">
+                <AwCardHeader>
+                  <AwCardTitle>Suporte N1</AwCardTitle>
+                  <AwCardDescription>
+                    WhatsApp · 4 fontes · atualizado há 2 h
+                  </AwCardDescription>
+                  <AwCardAction>
+                    <AwButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly="more_horiz"
+                      aria-label="Mais ações"
+                    />
+                  </AwCardAction>
+                </AwCardHeader>
+                <AwCardContent>
+                  74% das conversas resolvidas pelo agente sem escalar para humano.
+                  SLA médio em 4 min.
+                </AwCardContent>
+                <AwCardFooter>
+                  <AwButton variant="secondary" size="sm">
+                    Abrir agente
+                  </AwButton>
+                  <AwButton variant="ghost" size="sm">
+                    Ver métricas
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
+            </Stage>
 
-            <AwCard variant="ai">
-              <h4 className="m-0 mb-2">Sugestão do agente</h4>
-              <p className="body-sm m-0">
-                Detectei 4 conversas sem resposta em SLA. Crie um trigger de
-                fallback para o time comercial.
-              </p>
-              <div className="flex gap-2 mt-4">
-                <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
-                  Aplicar sugestão
-                </AwButton>
-                <AwButton variant="ghost" size="sm">
-                  Descartar
-                </AwButton>
-              </div>
-            </AwCard>
-          </div>
-        </Section>
-
-        <Section
-          id="interactive"
-          title="Interativo"
-          lead="Com interactive={true}, o card vira um alvo clicável — hover eleva 2px e borda escurece para --fg-primary."
-        >
-          <Stage label="interactive · hover para ver o lift">
-            <AwCard interactive style={{ maxWidth: 280 }}>
-              <h5 className="m-0 mb-1">Suporte N1</h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                WhatsApp · 4 fontes · atualizado há 2h
-              </p>
-            </AwCard>
-            <AwCard interactive style={{ maxWidth: 280 }}>
-              <h5 className="m-0 mb-1">Pré-venda SDR</h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                Instagram · 12 fontes · atualizado ontem
-              </p>
-            </AwCard>
-            <AwCard interactive style={{ maxWidth: 280 }}>
-              <h5 className="m-0 mb-1">Qualificação</h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                Site · 2 fontes · rascunho
-              </p>
-            </AwCard>
-          </Stage>
-        </Section>
-
-        <Section
-          id="compositions"
-          title="Composições"
-          lead="Cards aceitam qualquer conteúdo. Padrões que aparecem no produto: KPI, lista, ação primária, empty-state."
-        >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <AwCard>
-              <div className="display-sm m-0">12</div>
-              <p className="body-sm m-0 mt-1">Agentes em produção</p>
-              <p className="caption mt-2 text-[var(--aw-emerald-700)]">
-                +2 esta semana
-              </p>
-            </AwCard>
-            <AwCard>
-              <div className="display-sm m-0">74%</div>
-              <p className="body-sm m-0 mt-1">Taxa de deflecção</p>
-              <p className="caption mt-2 text-[var(--aw-red-700)]">
-                −1.2 pts vs. 7d
-              </p>
-            </AwCard>
-            <AwCard>
-              <div className="display-sm m-0">1.4k</div>
-              <p className="body-sm m-0 mt-1">Conversas resolvidas</p>
-              <p className="caption mt-2 text-[var(--fg-tertiary)]">
-                últimas 24h
-              </p>
-            </AwCard>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <AwCard>
-              <div className="flex items-start justify-between gap-4 mb-4">
-                <div>
-                  <h5 className="m-0">Fontes conectadas</h5>
-                  <p className="caption mt-1">
-                    4 bases · última sync há 3 min
-                  </p>
-                </div>
-                <AwButton variant="ghost" size="sm" iconLeft="refresh">
-                  Sync
-                </AwButton>
-              </div>
-              <ul className="flex flex-col gap-2 list-none m-0 p-0">
-                <li className="flex items-center justify-between text-sm">
-                  <span>Notion · Playbook</span>
-                  <AwPill variant="live" dot={false}>
-                    sync
-                  </AwPill>
-                </li>
-                <li className="flex items-center justify-between text-sm">
-                  <span>Drive · FAQ</span>
-                  <AwPill variant="live" dot={false}>
-                    sync
-                  </AwPill>
-                </li>
-                <li className="flex items-center justify-between text-sm">
-                  <span>Intercom · Help Center</span>
-                  <AwPill variant="error" dot={false}>
-                    auth
-                  </AwPill>
-                </li>
-              </ul>
-            </AwCard>
-
-            <AwCard>
-              <div className="flex flex-col items-center text-center py-4">
-                <div
-                  className="w-12 h-12 rounded-full mb-4"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 30% 30%, var(--aw-blue-400), var(--aw-purple-500))",
-                  }}
-                />
-                <h5 className="m-0 mb-1">Nenhuma conversa ainda</h5>
-                <p className="body-sm m-0 text-[var(--fg-secondary)] max-w-[28ch]">
-                  Conecte seu primeiro canal para receber mensagens em tempo
-                  real.
-                </p>
-                <AwButton variant="primary" size="sm" className="mt-4">
-                  Conectar canal
-                </AwButton>
-              </div>
-            </AwCard>
-          </div>
-        </Section>
-
-        <Section
-          id="anatomy"
-          title="Anatomia"
-          lead="Valores vêm de tokens — mudar o token, não o componente."
-        >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Spec k="padding" v="20px 24px" d="Interno consistente." />
-            <Spec
-              k="radius"
-              v="--radius-lg · 12px"
-              d="Fixo para todas as variantes."
-            />
-            <Spec
-              k="border"
-              v="1px · --border-default"
-              d="Hairline padrão do sistema."
-            />
-            <Spec
-              k="background"
-              v="--bg-raised"
-              d="Acompanha light/dark automaticamente."
-            />
-            <Spec
-              k="interactive hover"
-              v="translateY(-2px)"
-              d="+ borda --fg-primary e fundo --bg-surface."
-            />
-            <Spec
-              k="ai mesh"
-              v="blue-500 · purple-500"
-              d="Radial gradient a 10% de opacidade no canto superior direito."
-            />
-          </div>
-        </Section>
-
-        <Section
-          id="api"
-          title="API"
-          lead={`Import: import { AwCard } from "@/components/ui/AwCard".`}
-        >
-          <ApiTable>
-            <PropRow
-              prop="variant"
-              type='"default" | "ai"'
-              def='"default"'
-              doc="AI adiciona gradient-mesh sutil. Use só em áreas do agente."
-            />
-            <PropRow
-              prop="interactive"
-              type="boolean"
-              def="false"
-              doc="Torna o card clicável. Hover eleva 2px e escurece borda."
-            />
-            <PropRow
-              prop="...rest"
-              type="HTMLAttributes<HTMLDivElement>"
-              doc="Qualquer atributo nativo de <div>."
-            />
-          </ApiTable>
-          <CodeExample>{`import { AwCard } from "@/components/ui/AwCard"
+            <CodeExample>{`import {
+  AwCard,
+  AwCardHeader,
+  AwCardTitle,
+  AwCardDescription,
+  AwCardAction,
+  AwCardContent,
+  AwCardFooter,
+} from "@/components/ui/AwCard"
 
 <AwCard>
-  <h4>Agentes ativos</h4>
-  <p>12 agentes em produção.</p>
-</AwCard>
+  <AwCardHeader>
+    <AwCardTitle>Suporte N1</AwCardTitle>
+    <AwCardDescription>WhatsApp · 4 fontes</AwCardDescription>
+    <AwCardAction>
+      <AwButton variant="ghost" size="sm" iconOnly="more_horiz" />
+    </AwCardAction>
+  </AwCardHeader>
+  <AwCardContent>74% resolvidas pelo agente.</AwCardContent>
+  <AwCardFooter>
+    <AwButton variant="secondary" size="sm">Abrir agente</AwButton>
+  </AwCardFooter>
+</AwCard>`}</CodeExample>
+          </Section>
 
-<AwCard variant="ai">
-  <p>Sugestão gerada pelo agente.</p>
-</AwCard>
+          {/* ───────── Variants ───────── */}
+          <Section
+            id="variants"
+            title="Variantes"
+            lead="Duas variantes. Default é o padrão. AI é reservado a áreas ligadas ao agente — nunca em ambiente."
+          >
+            <Stage
+              label="default · ai"
+              gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardTitle>Agentes ativos</AwCardTitle>
+                  <AwCardDescription>
+                    12 agentes em produção. Última revisão há 3 dias.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardFooter>
+                  <AwPill variant="live">ativo</AwPill>
+                  <AwPill variant="beta">beta</AwPill>
+                </AwCardFooter>
+              </AwCard>
+
+              <AwCard variant="ai">
+                <AwCardHeader>
+                  <AwCardTitle>Sugestão do agente</AwCardTitle>
+                  <AwCardDescription>
+                    Detectei 4 conversas sem resposta em SLA. Crie um trigger de
+                    fallback para o time comercial.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardFooter>
+                  <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                    Aplicar sugestão
+                  </AwButton>
+                  <AwButton variant="ghost" size="sm">
+                    Descartar
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
+            </Stage>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+                <div className="aw-eyebrow mb-2">default</div>
+                <p className="body-sm m-0">
+                  Fundo <code className="mono">--bg-raised</code>, borda{" "}
+                  <code className="mono">--border-default</code>. Padrão para
+                  qualquer agrupamento — KPIs, listas, formulários, conteúdo.
+                </p>
+              </div>
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+                <div className="aw-eyebrow mb-2">ai</div>
+                <p className="body-sm m-0">
+                  Gradient-mesh radial blue → purple a 8–10% de opacidade.
+                  Sinaliza superfície gerada pelo agente — sugestões, resumos,
+                  insights. Nunca em KPI estático.
+                </p>
+              </div>
+            </div>
+          </Section>
+
+          {/* ───────── Interactive ───────── */}
+          <Section
+            id="interactive"
+            title="Interativo"
+            lead="Com interactive={true}, o card vira alvo clicável: hover eleva 2 px, borda escurece para --fg-primary, focus-visible ganha ring azul."
+          >
+            <Stage
+              label="interactive · hover para ver o lift · Tab para focus ring"
+              gridClassName="grid grid-cols-1 md:grid-cols-3 gap-3"
+            >
+              <AwCard interactive role="button" tabIndex={0}>
+                <AwCardHeader>
+                  <AwCardTitle>Suporte N1</AwCardTitle>
+                  <AwCardDescription>
+                    WhatsApp · 4 fontes · atualizado há 2h
+                  </AwCardDescription>
+                </AwCardHeader>
+              </AwCard>
+              <AwCard interactive role="button" tabIndex={0}>
+                <AwCardHeader>
+                  <AwCardTitle>Pré-venda SDR</AwCardTitle>
+                  <AwCardDescription>
+                    Instagram · 12 fontes · atualizado ontem
+                  </AwCardDescription>
+                </AwCardHeader>
+              </AwCard>
+              <AwCard interactive role="button" tabIndex={0}>
+                <AwCardHeader>
+                  <AwCardTitle>Qualificação</AwCardTitle>
+                  <AwCardDescription>
+                    Site · 2 fontes · rascunho
+                  </AwCardDescription>
+                </AwCardHeader>
+              </AwCard>
+            </Stage>
+          </Section>
+
+          {/* ───────── Compositions ───────── */}
+          <Section
+            id="compositions"
+            title="Composições"
+            lead="Padrões recorrentes no produto. Sempre montados com os slots do componente — nunca improvise estrutura."
+          >
+            <div className="aw-eyebrow mb-2">KPI</div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardDescription>Agentes em produção</AwCardDescription>
+                  <AwCardTitle className="display-sm">12</AwCardTitle>
+                </AwCardHeader>
+                <AwCardContent className="caption text-[var(--aw-emerald-700)]">
+                  +2 esta semana
+                </AwCardContent>
+              </AwCard>
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardDescription>Taxa de deflecção</AwCardDescription>
+                  <AwCardTitle className="display-sm">74%</AwCardTitle>
+                </AwCardHeader>
+                <AwCardContent className="caption text-[var(--aw-red-700)]">
+                  −1.2 pts vs. 7d
+                </AwCardContent>
+              </AwCard>
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardDescription>Conversas resolvidas</AwCardDescription>
+                  <AwCardTitle className="display-sm">1.4k</AwCardTitle>
+                </AwCardHeader>
+                <AwCardContent className="caption text-[var(--fg-tertiary)]">
+                  últimas 24h
+                </AwCardContent>
+              </AwCard>
+            </div>
+
+            <div className="aw-eyebrow mb-2">Lista com header + ação</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardTitle>Fontes conectadas</AwCardTitle>
+                  <AwCardDescription>
+                    4 bases · última sync há 3 min
+                  </AwCardDescription>
+                  <AwCardAction>
+                    <AwButton variant="ghost" size="sm" iconLeft="refresh">
+                      Sync
+                    </AwButton>
+                  </AwCardAction>
+                </AwCardHeader>
+                <AwCardContent>
+                  <ul className="flex flex-col gap-2 list-none m-0 p-0">
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Notion · Playbook</span>
+                      <AwPill variant="live" dot={false}>
+                        sync
+                      </AwPill>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Drive · FAQ</span>
+                      <AwPill variant="live" dot={false}>
+                        sync
+                      </AwPill>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Intercom · Help Center</span>
+                      <AwPill variant="error" dot={false}>
+                        auth
+                      </AwPill>
+                    </li>
+                  </ul>
+                </AwCardContent>
+              </AwCard>
+
+              <AwCard>
+                <AwCardHeader>
+                  <AwCardTitle>Próximas execuções</AwCardTitle>
+                  <AwCardDescription>
+                    Disparos automáticos das próximas 24 h.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardContent>
+                  <ul className="flex flex-col gap-2 list-none m-0 p-0">
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Recuperar carrinho · Hotmart</span>
+                      <span className="caption">em 14 min</span>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Re-engajar lead · WhatsApp</span>
+                      <span className="caption">em 2 h</span>
+                    </li>
+                    <li className="flex items-center justify-between text-sm">
+                      <span>Resumo diário · Slack</span>
+                      <span className="caption">amanhã, 09:00</span>
+                    </li>
+                  </ul>
+                </AwCardContent>
+                <AwCardFooter>
+                  <AwButton variant="secondary" size="sm">
+                    Ver todas
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
+            </div>
+
+            <div className="aw-eyebrow mb-2">Empty-state</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AwCard>
+                <AwCardContent className="flex flex-col items-center text-center py-4">
+                  <div
+                    className="w-12 h-12 rounded-full mb-4"
+                    style={{
+                      background:
+                        "radial-gradient(circle at 30% 30%, var(--aw-blue-400), var(--aw-purple-500))",
+                    }}
+                  />
+                  <AwCardTitle>Nenhuma conversa ainda</AwCardTitle>
+                  <AwCardDescription className="mt-1 max-w-[28ch]">
+                    Conecte seu primeiro canal para receber mensagens em tempo
+                    real.
+                  </AwCardDescription>
+                  <AwButton variant="primary" size="sm" className="mt-4">
+                    Conectar canal
+                  </AwButton>
+                </AwCardContent>
+              </AwCard>
+
+              <AwCard variant="ai">
+                <AwCardHeader>
+                  <AwCardTitle>
+                    <span className="inline-flex items-center gap-1.5">
+                      <Icon name="auto_awesome" size={16} />
+                      Resumo do dia
+                    </span>
+                  </AwCardTitle>
+                  <AwCardDescription>
+                    13 conversas em SLA, 2 escaladas. WhatsApp lidera o volume.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardFooter>
+                  <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                    Detalhar
+                  </AwButton>
+                  <AwButton variant="ghost" size="sm">
+                    Ignorar
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
+            </div>
+          </Section>
+
+          {/* ───────── On dark shell ───────── */}
+          <Section
+            id="on-dark"
+            title="Sobre shell escuro"
+            lead="Tokens semânticos invertem em .dark — borda, fundo e texto acompanham. AI mesh continua em blue/purple."
+          >
+            <div className="dark">
+              <Stage
+                label="Dark shell · sidebar / top-bar"
+                dark
+                gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
+              >
+                <AwCard>
+                  <AwCardHeader>
+                    <AwCardTitle>Suporte N1</AwCardTitle>
+                    <AwCardDescription>
+                      WhatsApp · 4 fontes · atualizado há 2 h
+                    </AwCardDescription>
+                  </AwCardHeader>
+                  <AwCardFooter>
+                    <AwPill variant="live">ativo</AwPill>
+                  </AwCardFooter>
+                </AwCard>
+                <AwCard variant="ai">
+                  <AwCardHeader>
+                    <AwCardTitle>Sugestão do agente</AwCardTitle>
+                    <AwCardDescription>
+                      Crie um trigger de fallback para o time comercial.
+                    </AwCardDescription>
+                  </AwCardHeader>
+                  <AwCardFooter>
+                    <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                      Aplicar
+                    </AwButton>
+                  </AwCardFooter>
+                </AwCard>
+              </Stage>
+            </div>
+          </Section>
+
+          {/* ───────── Anatomy / Tokens ───────── */}
+          <Section
+            id="anatomy"
+            title="Tokens"
+            lead="Todos os valores saem de tokens em globals.css. Nunca hardcodar — ajuste o token, nunca o componente."
+          >
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Spec
+                k="padding"
+                v="20 px · 24 px"
+                d="Y · X. Constante para todas as variantes."
+              />
+              <Spec
+                k="radius"
+                v="--radius-lg · 12 px"
+                d="Fixo. Não trocar por md ou xl."
+              />
+              <Spec
+                k="border"
+                v="1 px · --border-default"
+                d="Hairline padrão. Nunca 2 px."
+              />
+              <Spec
+                k="background"
+                v="--bg-raised"
+                d="Acompanha light / dark automaticamente."
+              />
+              <Spec
+                k="interactive hover"
+                v="translateY(-2 px)"
+                d="+ borda --fg-primary, fundo --bg-surface."
+              />
+              <Spec
+                k="interactive focus"
+                v="ring 3 px · blue 30%"
+                d="focus-visible apenas. Mesmo token do button."
+              />
+              <Spec
+                k="ai mesh"
+                v="blue-500 · purple-500"
+                d="Radial gradient a 8–10%. Sem cor quente."
+              />
+              <Spec
+                k="title"
+                v="15 / 600 / -0.005em"
+                d="Mesma escala de heading que modais e sheets."
+              />
+              <Spec
+                k="description"
+                v="13 / 400 · --fg-secondary"
+                d="Sub-copy abaixo do title."
+              />
+              <Spec
+                k="slot gap"
+                v="14 px"
+                d="Entre header → content → footer."
+              />
+              <Spec
+                k="footer"
+                v="flex · gap 8 px"
+                d="Botões e pills se alinham horizontalmente."
+              />
+              <Spec
+                k="motion"
+                v="--dur-base · --ease-out"
+                d="180 ms · cubic-bezier(0.22, 0.61, 0.36, 1)."
+              />
+            </div>
+          </Section>
+
+          {/* ───────── API ───────── */}
+          <Section
+            id="api"
+            title="API"
+            lead={`Import: import { AwCard, AwCardHeader, AwCardTitle, AwCardDescription, AwCardAction, AwCardContent, AwCardFooter } from "@/components/ui/AwCard".`}
+          >
+            <ApiTable>
+              <PropRow
+                prop="variant"
+                type='"default" | "ai"'
+                def='"default"'
+                doc="AI adiciona gradient-mesh sutil. Use só em áreas do agente."
+              />
+              <PropRow
+                prop="interactive"
+                type="boolean"
+                def="false"
+                doc="Torna o card clicável. Hover eleva 2 px, focus-visible ganha ring."
+              />
+              <PropRow
+                prop="...rest"
+                type="HTMLAttributes<HTMLDivElement>"
+                doc="Qualquer atributo nativo de <div> é repassado (className, onClick, role, tabIndex…)."
+              />
+            </ApiTable>
+
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4 body-sm">
+              <div className="aw-eyebrow mb-2">Subcomponentes</div>
+              <ul className="m-0 pl-4 list-disc flex flex-col gap-1">
+                <li>
+                  <code className="mono">AwCardHeader</code> — grid de duas
+                  colunas (título / descrição à esquerda, action à direita
+                  quando presente). Slot equivalente ao{" "}
+                  <code className="mono">CardHeader</code> do shadcn.
+                </li>
+                <li>
+                  <code className="mono">AwCardTitle</code> — heading 15 / 600.
+                  Equivale a <code className="mono">CardTitle</code>.
+                </li>
+                <li>
+                  <code className="mono">AwCardDescription</code> — sub-copy 13
+                  / 400 em <code className="mono">--fg-secondary</code>.
+                  Equivale a <code className="mono">CardDescription</code>.
+                </li>
+                <li>
+                  <code className="mono">AwCardAction</code> — slot
+                  posicionado no canto direito do header (col 2, row span 2).
+                  Equivale a <code className="mono">CardAction</code>.
+                </li>
+                <li>
+                  <code className="mono">AwCardContent</code> — corpo. Texto em{" "}
+                  <code className="mono">--fg-secondary</code> 14 / 1.55.
+                  Equivale a <code className="mono">CardContent</code>.
+                </li>
+                <li>
+                  <code className="mono">AwCardFooter</code> — flex horizontal,
+                  gap 8 px. Para botões, pills ou meta inferior. Equivale a{" "}
+                  <code className="mono">CardFooter</code>.
+                </li>
+              </ul>
+            </div>
+
+            <CodeExample>{`import {
+  AwCard,
+  AwCardHeader,
+  AwCardTitle,
+  AwCardDescription,
+  AwCardAction,
+  AwCardContent,
+  AwCardFooter,
+} from "@/components/ui/AwCard"
 
 <AwCard interactive onClick={() => router.push("/agent/01HX")}>
-  <h5>Suporte N1</h5>
-</AwCard>`}</CodeExample>
-        </Section>
+  <AwCardHeader>
+    <AwCardTitle>Suporte N1</AwCardTitle>
+    <AwCardDescription>WhatsApp · 4 fontes</AwCardDescription>
+    <AwCardAction>
+      <AwButton variant="ghost" size="sm" iconOnly="more_horiz" />
+    </AwCardAction>
+  </AwCardHeader>
+  <AwCardContent>74% resolvidas pelo agente.</AwCardContent>
+  <AwCardFooter>
+    <AwButton variant="secondary" size="sm">Abrir</AwButton>
+  </AwCardFooter>
+</AwCard>
 
-        <Section id="do-dont" title="Do / Don't">
-          <DoDont
-            dos={[
-              <>Use AI apenas em cards que expõem conteúdo gerado pelo agente.</>,
-              <>Interactive só quando o card inteiro é clicável.</>,
-              <>Um nível de elevação — não empilhar shadow-lg sobre shadow-md.</>,
-            ]}
-            donts={[
-              <>AI em cards de KPI genéricos — polui o espectro “thinking”.</>,
-              <>Nested cards com borda sobre borda.</>,
-              <>Trocar o padding para “ganhar densidade” — use tokens.</>,
-            ]}
-          />
-        </Section>
+{/* Variante AI — sugestão do agente */}
+<AwCard variant="ai">
+  <AwCardHeader>
+    <AwCardTitle>Sugestão</AwCardTitle>
+    <AwCardDescription>Crie um trigger de fallback.</AwCardDescription>
+  </AwCardHeader>
+  <AwCardFooter>
+    <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+      Aplicar
+    </AwButton>
+  </AwCardFooter>
+</AwCard>`}</CodeExample>
+          </Section>
+
+          {/* ───────── Do / Don't ───────── */}
+          <Section
+            id="do-dont"
+            title="Do / Don't"
+            lead="Regras herdadas do Bombardier — desvios são correção, não criatividade."
+          >
+            <DoDont
+              dos={[
+                <>
+                  Componha sempre via slots (Header / Content / Footer) —
+                  espelha shadcn e mantém o ritmo vertical previsível.
+                </>,
+                <>
+                  Use <strong>variant=&quot;ai&quot;</strong> apenas em
+                  superfícies geradas pelo agente (sugestões, resumos,
+                  insights).
+                </>,
+                <>
+                  <strong>interactive</strong> só quando o card inteiro é
+                  clicável — combine com{" "}
+                  <code className="mono">role=&quot;button&quot;</code> e{" "}
+                  <code className="mono">tabIndex={0}</code>.
+                </>,
+                <>
+                  Mantenha um único nível de elevação. Para hierarquia, use
+                  borda + tipografia, não shadow.
+                </>,
+              ]}
+              donts={[
+                <>
+                  Variante AI em KPI genérico — polui o espectro
+                  &quot;thinking&quot; reservado ao agente.
+                </>,
+                <>
+                  Cards aninhados com borda sobre borda. Use separator interno
+                  ou agrupe em sections.
+                </>,
+                <>
+                  Trocar o padding por valores arbitrários para
+                  &quot;ganhar densidade&quot;. Use os tokens.
+                </>,
+                <>
+                  Estilizar <code className="mono">AwCardTitle</code> como{" "}
+                  <code className="mono">h1</code>. O slot é semanticamente um{" "}
+                  <code className="mono">div</code> — escolha o nível na sua
+                  hierarquia de página.
+                </>,
+              ]}
+            />
+          </Section>
+        </div>
       </div>
-    </div>
     </>
   )
 }
