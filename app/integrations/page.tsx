@@ -38,7 +38,9 @@ type IntegrationCategory =
   | "forms"
   | "meetings"
   | "crms"
-  | "marketplaces";
+  | "marketplaces"
+  | "ai"
+  | "signatures";
 
 type AuthMethod = "oauth" | "webhook" | "apiKey";
 
@@ -81,12 +83,14 @@ const SIDEBAR_STORAGE_KEY = "awsales:integrations-sidebar:collapsed";
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
+  { id: "ai", label: "Modelos de IA" },
   { id: "checkouts", label: "Checkouts" },
   { id: "members", label: "Área de membros" },
   { id: "forms", label: "Formulários" },
   { id: "meetings", label: "Reuniões" },
   { id: "crms", label: "CRMs" },
   { id: "marketplaces", label: "Marketplaces" },
+  { id: "signatures", label: "Assinaturas" },
 ];
 
 function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
@@ -250,6 +254,15 @@ const ITEMS: Integration[] = [
   { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "webhook" },
   { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "webhook" },
   { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "webhook" },
+  { id: "braip", cat: "checkouts", name: "Braip", domain: "braip.com", desc: "Sincronize vendas e indicações do checkout Braip.", state: "available", auth: "webhook" },
+  { id: "zouti", cat: "checkouts", name: "Zouti", domain: "zouti.com.br", desc: "Capture transações e abandonos do checkout Zouti.", state: "available", auth: "webhook" },
+  { id: "blitzpay", cat: "checkouts", name: "BlitzPay", domain: "blitzpay.com.br", desc: "Receba eventos do checkout BlitzPay em tempo real.", state: "available", auth: "webhook" },
+  { id: "onprofit", cat: "checkouts", name: "OnProfit", domain: "onprofit.com.br", desc: "Sincronize vendas e assinaturas do OnProfit.", state: "available", auth: "webhook" },
+  { id: "greenn", cat: "checkouts", name: "Greenn", domain: "greenn.com.br", desc: "Conecte vendas e clientes do checkout Greenn.", state: "available", auth: "webhook" },
+  { id: "payt", cat: "checkouts", name: "Payt", domain: "payt.com.br", desc: "Receba eventos de venda do checkout Payt.", state: "available", auth: "webhook" },
+  { id: "pagtrust", cat: "checkouts", name: "PagTrust", domain: "pagtrust.com.br", desc: "Sincronize transações do checkout PagTrust.", state: "available", auth: "webhook" },
+  { id: "tmb", cat: "checkouts", name: "TMB", domain: "tmb.education", desc: "Capture eventos de venda do checkout TMB.", state: "available", auth: "webhook" },
+  { id: "dmg", cat: "checkouts", name: "Digital Manager Guru", domain: "digitalmanager.guru", desc: "Sincronize vendas e assinaturas do DMG.", state: "available", auth: "webhook" },
   // MEMBERS
   { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "apiKey" },
   { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "apiKey" },
@@ -265,6 +278,12 @@ const ITEMS: Integration[] = [
   { id: "kommo", cat: "crms", name: "Kommo", domain: "kommo.com", desc: "Conecte funis, leads e tarefas do Kommo CRM.", state: "available", auth: "oauth", permissions: ["Acessar leads, contatos e empresas", "Criar e atualizar tarefas", "Mover leads entre etapas do funil"] },
   { id: "rdstation", cat: "crms", name: "RD Station", domain: "rdstation.com", desc: "Sincronize leads, oportunidades e tags do RD Station.", state: "available", auth: "oauth", permissions: ["Acessar leads e oportunidades", "Criar e atualizar tags", "Disparar eventos de conversão"] },
   { id: "hubspot", cat: "crms", name: "HubSpot", domain: "hubspot.com", desc: "Conecte contatos, empresas e pipelines do HubSpot.", state: "available", auth: "oauth", permissions: ["Acessar contatos e empresas", "Criar e atualizar deals do pipeline", "Disparar workflows quando uma oportunidade fechar"] },
+  // AI PROVIDERS
+  { id: "claude", cat: "ai", name: "Claude", domain: "anthropic.com", desc: "Conecte sua chave da Anthropic e use Claude como cérebro dos agentes.", state: "available", auth: "apiKey" },
+  { id: "chatgpt", cat: "ai", name: "ChatGPT", domain: "openai.com", desc: "Use os modelos GPT da OpenAI nas execuções dos seus agentes.", state: "available", auth: "apiKey" },
+  { id: "deepseek", cat: "ai", name: "DeepSeek", domain: "deepseek.com", desc: "Conecte sua chave DeepSeek e habilite os modelos R1 e V3.", state: "available", auth: "apiKey" },
+  // SIGNATURES
+  { id: "assiny", cat: "signatures", name: "Assiny", domain: "assiny.com.br", desc: "Envie e acompanhe contratos com assinatura eletrônica.", state: "available", auth: "apiKey" },
   // MARKETPLACES
   {
     id: "shopify",
