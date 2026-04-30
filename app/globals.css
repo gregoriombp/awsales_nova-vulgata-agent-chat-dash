@@ -942,6 +942,58 @@
     radial-gradient(ellipse 60% 80% at 10% 90%, rgba(158, 91, 223, 0.08), transparent 60%),
     var(--bg-raised);
 }
+.aw-card--interactive:focus-visible {
+  outline: 0;
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* ---------------- Slots — anatomy mirrors shadcn/ui Card. ---------------- */
+.aw-card__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 4px;
+}
+.aw-card__header:has(> .aw-card__action) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.aw-card__title {
+  font: 600 15px/1.3 var(--font-sans);
+  letter-spacing: -0.005em;
+  color: var(--fg-primary);
+}
+.aw-card__description {
+  font: 400 13px/1.5 var(--font-sans);
+  color: var(--fg-secondary);
+}
+.aw-card__action {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.aw-card__content {
+  color: var(--fg-secondary);
+  font-size: var(--body-md-size, 14px);
+  line-height: 1.55;
+}
+.aw-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Stack subcomponents with consistent vertical rhythm without forcing the
+ * root to a flex container — keeps direct-children call sites untouched. */
+.aw-card > .aw-card__header + .aw-card__content,
+.aw-card > .aw-card__header + .aw-card__footer,
+.aw-card > .aw-card__content + .aw-card__footer,
+.aw-card > .aw-card__content + .aw-card__content {
+  margin-top: 14px;
+}
 
 /* ============================================================
  * AwInput + AwField — inputs with focus ring + error state.
