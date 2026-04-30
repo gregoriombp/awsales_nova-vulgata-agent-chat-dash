@@ -3324,6 +3324,7 @@
   animation: aw-sheet-in 220ms var(--ease-out);
   overflow: hidden;
 }
+.aw-sheet--wide { width: 1080px; }
 @keyframes aw-sheet-in {
   from { transform: translateX(100%); }
   to   { transform: none; }

@@ -20,6 +20,7 @@ import { AwProgress } from "@/components/ui/AwProgress";
 import { AwStatusDot, type AwStatusDotVariant } from "@/components/ui/AwStatusDot";
 import { AwSheet, AwSheetRow, AwSheetTab } from "@/components/ui/AwSheet";
 import { AwTabs } from "@/components/ui/AwTabs";
+import { AwTemplateBuilderSheet } from "@/components/integrations/AwTemplateBuilderSheet";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 
@@ -887,9 +888,11 @@ function PhoneStat({
 function TemplatesTab({
   wabas,
   onOpenTemplate,
+  onCreateTemplate,
 }: {
   wabas: Waba[];
   onOpenTemplate: (wabaId: string, name: string, mode: "view" | "edit") => void;
+  onCreateTemplate: () => void;
 }) {
   const [query, setQuery] = useState("");
   const showWabaCol = wabas.length > 1;
@@ -914,7 +917,12 @@ function TemplatesTab({
           </AwEmptyDescription>
         </AwEmptyHeader>
         {!showWabaCol && (
-          <AwButton variant="primary" size="md" iconLeft="add">
+          <AwButton
+            variant="primary"
+            size="md"
+            iconLeft="add"
+            onClick={onCreateTemplate}
+          >
             Criar template
           </AwButton>
         )}
@@ -945,7 +953,12 @@ function TemplatesTab({
             Aplicar a múltiplas WABAs
           </AwButton>
           {!showWabaCol && (
-            <AwButton variant="primary" size="sm" iconLeft="add">
+            <AwButton
+              variant="primary"
+              size="sm"
+              iconLeft="add"
+              onClick={onCreateTemplate}
+            >
               Criar template
             </AwButton>
           )}
@@ -2047,6 +2060,7 @@ export function AwWhatsAppPanel({
   const [tab, setTab] = useState("overview");
   const [enabled, setEnabled] = useState(true);
   const [sheet, setSheet] = useState<SheetState>({ kind: null });
+  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(false);
 
   const isAll = selectedId === ALL_KEY;
 
@@ -2196,6 +2210,7 @@ export function AwWhatsAppPanel({
                 onOpenTemplate={(wabaId, name, mode) =>
                   setSheet({ kind: "template", wabaId, name, mode })
                 }
+                onCreateTemplate={() => setTemplateBuilderOpen(true)}
               />
             )}
             {tab === "variables" && (
@@ -2287,6 +2302,14 @@ export function AwWhatsAppPanel({
         variable={sheetVariable}
         isNew={sheet.kind === "variable" && sheet.name === null}
         onClose={closeSheet}
+      />
+
+      <AwTemplateBuilderSheet
+        open={templateBuilderOpen}
+        onClose={() => setTemplateBuilderOpen(false)}
+        accountName={selected?.name ?? "Marina Cosméticos"}
+        onSaveDraft={() => setTemplateBuilderOpen(false)}
+        onSubmit={() => setTemplateBuilderOpen(false)}
       />
     </div>
   );

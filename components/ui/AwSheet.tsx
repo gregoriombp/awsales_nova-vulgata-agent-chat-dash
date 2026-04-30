@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Icon } from "./Icon"
 
+export type AwSheetSize = "default" | "wide"
+
 export type AwSheetProps = {
   open: boolean
   onClose: () => void
@@ -12,6 +14,8 @@ export type AwSheetProps = {
   footer?: React.ReactNode
   children: React.ReactNode
   dismissible?: boolean
+  /** "default" (520px) for detail views, "wide" (1080px) for two-pane editors. */
+  size?: AwSheetSize
   /** Hotkeys to navigate between items in the parent list (↑/↓). */
   onPrev?: () => void
   onNext?: () => void
@@ -26,6 +30,7 @@ export function AwSheet({
   footer,
   children,
   dismissible = true,
+  size = "default",
   onPrev,
   onNext,
 }: AwSheetProps) {
@@ -63,7 +68,10 @@ export function AwSheet({
       aria-modal="true"
       aria-label={typeof title === "string" ? title : "Painel lateral"}
     >
-      <aside className="aw-sheet" onClick={(e) => e.stopPropagation()}>
+      <aside
+        className={`aw-sheet aw-sheet--${size}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {(title || meta) && (
           <header className="aw-sheet__top">
             <div>
