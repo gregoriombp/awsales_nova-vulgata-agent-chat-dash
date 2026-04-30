@@ -3,7 +3,6 @@
 import * as React from "react"
 import { AwBrandLogo } from "./AwBrandLogo"
 import { AwInput } from "./AwInput"
-import { AwPill } from "./AwPill"
 import { Icon } from "./Icon"
 
 export type AwAddIntegrationCategory = {
@@ -17,8 +16,6 @@ export type AwAddIntegrationItem = {
   name: string
   description: string
   category: string
-  /** When true, surfaces the existing-connection hint on the card. */
-  connected?: boolean
 }
 
 export type AwAddIntegrationModalProps = {
@@ -39,8 +36,6 @@ export type AwAddIntegrationModalProps = {
   /** Override the custom-card description. */
   customIntegrationDescription?: string
   title?: string
-  /** Shows an "Alpha" pill next to the title. */
-  alpha?: boolean
   /** Sidebar header copy + main heading (defaults to active category label). */
   allCategoryLabel?: string
   searchPlaceholder?: string
@@ -59,7 +54,6 @@ export function AwAddIntegrationModal({
   customIntegrationLabel = "Integração personalizada",
   customIntegrationDescription = "Conecte qualquer API: defina endpoint, autenticação e mapeamento.",
   title = "Adicionar integração",
-  alpha,
   allCategoryLabel = "Todas as integrações",
   searchPlaceholder = "Buscar integrações…",
   emptyTitle = "Nenhuma integração encontrada",
@@ -125,8 +119,10 @@ export function AwAddIntegrationModal({
       >
         <header className="aw-add-int-modal__head">
           <div className="aw-add-int-modal__title-row">
+            <span className="aw-add-int-modal__title-icon" aria-hidden="true">
+              <Icon name="extension" size={20} />
+            </span>
             <h2 className="aw-add-int-modal__title">{title}</h2>
-            {alpha && <AwPill variant="beta">Alpha</AwPill>}
           </div>
           <button
             type="button"
@@ -195,7 +191,7 @@ export function AwAddIntegrationModal({
                     onClick={onCustomIntegration}
                   >
                     <span className="aw-add-int-modal__card-logo aw-add-int-modal__card-logo--custom">
-                      <Icon name="dashboard_customize" size={20} />
+                      <Icon name="dashboard_customize" size={22} />
                     </span>
                     <span className="aw-add-int-modal__card-name">
                       {customIntegrationLabel}
@@ -213,7 +209,7 @@ export function AwAddIntegrationModal({
                     onClick={() => onSelect(it.id)}
                   >
                     <span className="aw-add-int-modal__card-logo">
-                      <AwBrandLogo brand={it.brand} size="sm" bare />
+                      <AwBrandLogo brand={it.brand} size="md" />
                     </span>
                     <span className="aw-add-int-modal__card-name">
                       {it.name}
@@ -221,12 +217,6 @@ export function AwAddIntegrationModal({
                     <span className="aw-add-int-modal__card-desc">
                       {it.description}
                     </span>
-                    {it.connected && (
-                      <span className="aw-add-int-modal__card-badge">
-                        <Icon name="check_circle" size={12} fill={1} />
-                        Conectada
-                      </span>
-                    )}
                   </button>
                 ))}
               </div>
