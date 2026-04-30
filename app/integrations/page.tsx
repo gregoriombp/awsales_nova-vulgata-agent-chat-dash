@@ -511,7 +511,7 @@ export default function IntegrationsPage() {
   const handleConfigureInstance = (instanceId: string) => {
     const inst = instances.find((i) => i.instanceId === instanceId);
     if (inst?.integrationId === "whatsapp") {
-      router.push("/setup/whatsapp/1");
+      router.push("/integrations/whatsapp");
       return;
     }
     // Settings flow not built yet for other integrations — placeholder.
