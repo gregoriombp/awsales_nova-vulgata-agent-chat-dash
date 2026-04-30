@@ -1,0 +1,6 @@
+{
+  "description": "Four-blob animated gradient mesh used as backdrop behind AI generation and hero states. Absolute-positioned, pointer-events disabled, blur-driven.",
+  "sourcePrompt": "Extract the wizard/generation gradient-mesh backdrop from Agent Studio V2 as a reusable decorative component.",
+  "createdAt": "2026-04-20T00:00:00.000Z",
+  "approval": "pending"
+}

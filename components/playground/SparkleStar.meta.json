@@ -1,0 +1,6 @@
+{
+  "description": "Four-pointed sparkle glyph used as AI/thinking marker. Supports optional pulse animation for loading states. Self-contained SVG, color inherits from currentColor.",
+  "sourcePrompt": "Expose the Agent Studio V2 sparkle icon as a reusable component for AI-adjacent surfaces.",
+  "createdAt": "2026-04-20T00:00:00.000Z",
+  "approval": "pending"
+}
