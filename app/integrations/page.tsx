@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 
@@ -78,8 +77,6 @@ interface IntegrationInstance {
   integrationId: string;
   name: string;
 }
-
-const SIDEBAR_STORAGE_KEY = "awsales:integrations-sidebar:collapsed";
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
@@ -802,7 +799,6 @@ function ActiveRow({
   selected,
   onClick,
   status,
-  collapsed,
 }: {
   brand: string;
   name: string;
@@ -811,56 +807,14 @@ function ActiveRow({
   selected: boolean;
   onClick: () => void;
   status?: ActiveRowStatus;
-  collapsed?: boolean;
 }) {
-  if (collapsed) {
-    const dotVariant =
-      state === "attention"
-        ? "attention"
-        : state === "connected"
-          ? "live"
-          : null;
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        aria-pressed={selected}
-        title={`${name} — ${status?.label ?? description}`}
-        className={
-          "group flex w-full items-center justify-center rounded-[var(--radius-md)] p-1 transition-colors " +
-          (selected
-            ? "bg-[var(--bg-surface)]"
-            : "hover:bg-[var(--bg-surface)]")
-        }
-      >
-        <span className="relative">
-          <AwBrandLogo brand={brand} size="md" />
-          {dotVariant && (
-            <AwStatusDot variant={dotVariant} size="sm" ring absolute />
-          )}
-          {state === "available" && (
-            <span
-              aria-hidden="true"
-              className="absolute -right-1 -top-1 grid h-[14px] w-[14px] place-items-center rounded-full border border-dashed border-[var(--border-default)] bg-[var(--bg-raised)]"
-            >
-              <Icon
-                name="add"
-                size={10}
-                className="text-[var(--fg-tertiary)]"
-              />
-            </span>
-          )}
-        </span>
-      </button>
-    );
-  }
   return (
     <button
       type="button"
       onClick={onClick}
       aria-pressed={selected}
       className={
-        "group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-2 py-2.5 text-left transition-colors " +
+        "group flex w-full items-center gap-3 px-2 py-2.5 text-left transition-colors " +
         (selected
           ? "bg-[var(--bg-surface)]"
           : "hover:bg-[var(--bg-surface)]")
@@ -930,22 +884,8 @@ export default function IntegrationsPage() {
   const [disconnectPending, setDisconnectPending] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
-  /** Collapse state for the integrations sidebar — persisted to localStorage. */
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = window.localStorage.getItem(SIDEBAR_STORAGE_KEY);
-    if (saved === "1") setSidebarCollapsed(true);
-  }, []);
-  const toggleSidebar = () => {
-    setSidebarCollapsed((v) => {
-      const next = !v;
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(SIDEBAR_STORAGE_KEY, next ? "1" : "0");
-      }
-      return next;
-    });
-  };
+  /** Search query for filtering the active integrations list. */
+  const [searchQuery, setSearchQuery] = useState("");
 
   /** Connected accounts shown in the left list — one row per instance. */
   const [instances, setInstances] = useState<IntegrationInstance[]>(() =>
@@ -1042,53 +982,35 @@ export default function IntegrationsPage() {
 
           {/* List + sliding settings panel */}
           <div className="flex w-full justify-center gap-6">
-            {/* Active list — centered when collapsed, slides left when panel opens */}
+            {/* Active list — slides left when settings panel opens */}
             <aside
               aria-label="Lista de integrações"
               className={
                 "transition-all duration-300 ease-out " +
-                (sidebarCollapsed
-                  ? "w-[64px] flex-shrink-0"
-                  : isPanelOpen
-                    ? "w-[400px] flex-shrink-0"
-                    : "w-full max-w-[640px]")
+                (isPanelOpen
+                  ? "w-[400px] flex-shrink-0"
+                  : "w-full max-w-[640px]")
               }
             >
-              {/* Collapse toggle */}
-              <div
-                className={
-                  "mb-2 flex items-center " +
-                  (sidebarCollapsed ? "justify-center" : "justify-end")
-                }
-              >
-                <button
-                  type="button"
-                  onClick={toggleSidebar}
-                  title={sidebarCollapsed ? "Expandir lista" : "Recolher lista"}
-                  aria-label={
-                    sidebarCollapsed ? "Expandir lista" : "Recolher lista"
-                  }
-                  aria-expanded={!sidebarCollapsed}
-                  className="grid h-7 w-7 place-items-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
-                >
-                  <Icon
-                    name={
-                      sidebarCollapsed
-                        ? "keyboard_double_arrow_right"
-                        : "keyboard_double_arrow_left"
-                    }
-                    size={18}
-                  />
-                </button>
+              {/* List header: title + search */}
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h2 className="m-0 text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  Integrações ativas
+                </h2>
+                <AwInput
+                  type="search"
+                  dense
+                  iconLeft="search"
+                  placeholder="Buscar integração"
+                  aria-label="Buscar integração"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-[220px]"
+                />
               </div>
 
               {/* All integrations — flat list */}
-              <ul
-                className={
-                  "m-0 flex list-none flex-col p-0 " +
-                  (sidebarCollapsed ? "gap-1" : "gap-0.5")
-                }
-              >
+              <ul className="m-0 flex list-none flex-col divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)] p-0">
                 {CHANNEL_IDS.map((id) => {
                   const it = ITEMS.find((i) => i.id === id);
                   if (!it) return null;
@@ -1096,6 +1018,14 @@ export default function IntegrationsPage() {
                   const effectiveState: AwIntegrationCardState = inst
                     ? it.state
                     : "available";
+                  if (
+                    searchQuery &&
+                    !it.name
+                      .toLowerCase()
+                      .includes(searchQuery.trim().toLowerCase())
+                  ) {
+                    return null;
+                  }
                   return (
                     <li key={id}>
                       <ActiveRow
@@ -1111,13 +1041,17 @@ export default function IntegrationsPage() {
                           else setConnectId(id);
                         }}
                         status={statusForState(effectiveState)}
-                        collapsed={sidebarCollapsed}
                       />
                     </li>
                   );
                 })}
                 {instances
                   .filter((i) => !isChannelId(i.integrationId))
+                  .filter((inst) => {
+                    if (!searchQuery) return true;
+                    const q = searchQuery.trim().toLowerCase();
+                    return inst.name.toLowerCase().includes(q);
+                  })
                   .map((inst) => {
                     const it = ITEMS.find((i) => i.id === inst.integrationId);
                     if (!it) return null;
@@ -1132,7 +1066,6 @@ export default function IntegrationsPage() {
                           onClick={() =>
                             setSelectedInstanceId(inst.instanceId)
                           }
-                          collapsed={sidebarCollapsed}
                         />
                       </li>
                     );
@@ -1209,7 +1142,6 @@ export default function IntegrationsPage() {
       <AwAddIntegrationModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        alpha
         categories={ADD_MODAL_CATS}
         items={ITEMS.map((it) => ({
           id: it.id,
@@ -1217,7 +1149,6 @@ export default function IntegrationsPage() {
           name: it.name,
           description: it.desc,
           category: it.cat,
-          connected: isActive(it.state),
         }))}
         onSelect={(id) => {
           setAddOpen(false);
