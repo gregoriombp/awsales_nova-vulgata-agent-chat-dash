@@ -9,7 +9,10 @@
     "lint": "next lint",
     "bridge": "npm --prefix bridge start",
     "bridge:dev": "npm --prefix bridge run dev",
-    "bridge:install": "npm --prefix bridge install"
+    "bridge:install": "npm --prefix bridge install",
+    "edit-bridge": "npm --prefix bridge-edit start",
+    "edit-bridge:dev": "npm --prefix bridge-edit run dev",
+    "edit-bridge:install": "npm --prefix bridge-edit install"
   },
   "keywords": [],
   "author": "",

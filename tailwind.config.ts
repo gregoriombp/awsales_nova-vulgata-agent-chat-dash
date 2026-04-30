@@ -270,6 +270,13 @@ const config: Config = {
       },
       animation: {
         "spin-slow": "spin 8s linear infinite",
+        fadeInUp: "fadeInUp .35s cubic-bezier(.22,.8,.3,1)",
+      },
+      keyframes: {
+        fadeInUp: {
+          from: { opacity: "0", transform: "translateY(8px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
     },
   },

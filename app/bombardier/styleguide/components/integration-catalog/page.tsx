@@ -30,7 +30,6 @@ const ITEMS = [
     name: "WhatsApp",
     description: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
     category: "channels",
-    connected: true,
   },
   {
     id: "instagram",
@@ -38,7 +37,6 @@ const ITEMS = [
     name: "Instagram",
     description: "Responda DMs do Instagram automaticamente com agentes.",
     category: "channels",
-    connected: true,
   },
   {
     id: "messenger",
@@ -53,7 +51,6 @@ const ITEMS = [
     name: "Hotmart",
     description: "Capture transações e eventos do checkout Hotmart.",
     category: "checkouts",
-    connected: true,
   },
   {
     id: "stripe",
@@ -96,7 +93,6 @@ const ITEMS = [
     name: "Shopify",
     description: "Gerencie produtos, pedidos e clientes pela IA.",
     category: "marketplaces",
-    connected: true,
   },
   {
     id: "typeform",
@@ -136,10 +132,10 @@ export default function IntegrationCatalogPage() {
               <AwAddIntegrationModal
                 open={open}
                 onClose={() => setOpen(false)}
-                alpha
                 categories={CATEGORIES}
                 items={ITEMS}
                 onSelect={() => setOpen(false)}
+                onCustomIntegration={() => setOpen(false)}
               />
             </div>
           </Section>
@@ -198,13 +194,8 @@ export default function IntegrationCatalogPage() {
               />
               <Spec
                 k="cards"
-                v="logo bare 28 px · nome 14/600 · descrição 12.5/400 (2 linhas)"
+                v="logo md 40 px · nome 14/600 · descrição 12.5/400 (2 linhas)"
                 d="Sem domain, sem pill — pertence ao catálogo, não ao painel."
-              />
-              <Spec
-                k="connected badge"
-                v="check_circle · canto sup. dir."
-                d="Sinaliza que já existe ao menos uma instância conectada."
               />
             </div>
           </Section>
@@ -232,18 +223,13 @@ export default function IntegrationCatalogPage() {
               />
               <PropRow
                 prop="items"
-                type="{ id, brand, name, description, category, connected? }[]"
+                type="{ id, brand, name, description, category }[]"
                 doc="Catálogo. Filtrado contra categoria ativa + busca textual."
               />
               <PropRow
                 prop="onSelect"
                 type="(id: string) => void"
                 doc="Click em qualquer card. Geralmente fecha o modal e abre fluxo de conexão."
-              />
-              <PropRow
-                prop="alpha"
-                type="boolean"
-                doc='Mostra um pill "Alpha" ao lado do título.'
               />
               <PropRow
                 prop="title"
@@ -256,6 +242,22 @@ export default function IntegrationCatalogPage() {
                 type="string"
                 def='"all"'
                 doc="Sentinela para “mostrar tudo”. Use se algum id de categoria conflitar."
+              />
+              <PropRow
+                prop="onCustomIntegration"
+                type="() => void"
+                doc="Quando definido, fixa um card pontilhado “Integração personalizada” no início do grid. Aparece só quando a busca está vazia."
+              />
+              <PropRow
+                prop="customIntegrationLabel"
+                type="string"
+                def={`"Integração personalizada"`}
+                doc="Sobrescreve o título do card custom."
+              />
+              <PropRow
+                prop="customIntegrationDescription"
+                type="string"
+                doc="Sobrescreve o subtítulo do card custom."
               />
             </ApiTable>
 
@@ -273,7 +275,6 @@ const [open, setOpen] = useState(false)
 <AwAddIntegrationModal
   open={open}
   onClose={() => setOpen(false)}
-  alpha
   categories={CATEGORIES}
   items={ITEMS}
   onSelect={(id) => {
@@ -287,7 +288,6 @@ const [open, setOpen] = useState(false)
             <DoDont
               dos={[
                 <>Onclick do card encadeia o próximo passo (consent OAuth, formulário de API key).</>,
-                <>Use o badge <em>connected</em> quando já existir instância — evita confusão.</>,
                 <>Mantenha descrições com no máximo 2 linhas — clamp já está aplicado.</>,
               ]}
               donts={[

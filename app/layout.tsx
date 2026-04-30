@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/lib/contexts/ToastContext";
+import { ClaudeEditOverlayProvider } from "@/components/claude-edit/ClaudeEditOverlayProvider";
+
+const claudeEditEnabled =
+  process.env.NEXT_PUBLIC_CLAUDE_EDIT_ENABLED === "true";
 
 export const metadata: Metadata = {
   title: "AwSales 2.0 - Login",
@@ -36,7 +40,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ToastProvider>{children}</ToastProvider>
+        <ToastProvider>
+          {children}
+          {claudeEditEnabled && <ClaudeEditOverlayProvider />}
+        </ToastProvider>
       </body>
     </html>
   );

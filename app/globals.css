@@ -814,7 +814,6 @@
     background var(--dur-base) var(--ease-out),
     color var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out),
     filter var(--dur-base) var(--ease-out);
   user-select: none;
   white-space: nowrap;
@@ -824,16 +823,9 @@
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
-.aw-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-.aw-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
 .aw-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
   pointer-events: none;
 }
 
@@ -950,6 +942,58 @@
     radial-gradient(ellipse 60% 80% at 10% 90%, rgba(158, 91, 223, 0.08), transparent 60%),
     var(--bg-raised);
 }
+.aw-card--interactive:focus-visible {
+  outline: 0;
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+
+/* ---------------- Slots — anatomy mirrors shadcn/ui Card. ---------------- */
+.aw-card__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 4px;
+}
+.aw-card__header:has(> .aw-card__action) {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+.aw-card__title {
+  font: 600 15px/1.3 var(--font-sans);
+  letter-spacing: -0.005em;
+  color: var(--fg-primary);
+}
+.aw-card__description {
+  font: 400 13px/1.5 var(--font-sans);
+  color: var(--fg-secondary);
+}
+.aw-card__action {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  justify-self: end;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.aw-card__content {
+  color: var(--fg-secondary);
+  font-size: var(--body-md-size, 14px);
+  line-height: 1.55;
+}
+.aw-card__footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+/* Stack subcomponents with consistent vertical rhythm without forcing the
+ * root to a flex container — keeps direct-children call sites untouched. */
+.aw-card > .aw-card__header + .aw-card__content,
+.aw-card > .aw-card__header + .aw-card__footer,
+.aw-card > .aw-card__content + .aw-card__footer,
+.aw-card > .aw-card__content + .aw-card__content {
+  margin-top: 14px;
+}
 
 /* ============================================================
  * AwInput + AwField — inputs with focus ring + error state.
@@ -1015,6 +1059,31 @@
 .aw-input--disabled input,
 .aw-input input:disabled {
   cursor: not-allowed;
+}
+
+/* Search variant — pill shape with liquid-glass surface. Used as the
+ * canonical search bar across the product. The translucent fill +
+ * backdrop blur let the surface beneath read through, so place it on
+ * a content canvas, not on a flat panel. */
+.aw-input--search {
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.60);
+}
+.aw-input--search:focus-within {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: var(--aw-blue-500);
+}
+[data-theme="dark"] .aw-input--search {
+  background: rgba(13, 13, 13, 0.42);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .aw-input--search:focus-within {
+  background: rgba(13, 13, 13, 0.58);
 }
 
 /* ============================================================
@@ -1356,6 +1425,269 @@
   gap: 8px;
 }
 
+/* ─── Kind-specific width tweaks ─── */
+.aw-connect-modal--webhook,
+.aw-connect-modal--apiKey {
+  max-width: 540px;
+}
+
+/* ─── Name field (shared by all kinds) ─── */
+.aw-connect-modal__name {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.aw-connect-modal__name-label {
+  font: 600 12.5px/1.2 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+
+/* ─── Webhook flow ─── */
+.aw-connect-modal__webhook {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 18px;
+}
+.aw-connect-modal__step-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font: 500 11.5px/1.2 var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
+}
+.aw-connect-modal__step-meta > span:last-child {
+  color: var(--fg-secondary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  font-size: 12.5px;
+}
+
+.aw-connect-modal__steps {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0 6px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.aw-connect-modal__steps-track,
+.aw-connect-modal__steps-progress {
+  position: absolute;
+  top: 13px;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  border-radius: 2px;
+  pointer-events: none;
+}
+.aw-connect-modal__steps-track {
+  background: var(--border-subtle);
+}
+.aw-connect-modal__steps-progress {
+  width: 0;
+  background: var(--fg-primary);
+  transition: width 320ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.aw-connect-modal__step {
+  position: relative;
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.aw-connect-modal__step-node {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--border-subtle);
+  background: var(--bg-canvas);
+  color: var(--fg-tertiary);
+  font: 600 12px/1 var(--font-sans);
+  cursor: pointer;
+  transition: background 180ms, border-color 180ms, color 180ms,
+    transform 180ms;
+}
+.aw-connect-modal__step-node:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__step-node:disabled {
+  cursor: not-allowed;
+}
+.aw-connect-modal__step--active .aw-connect-modal__step-node {
+  background: var(--fg-primary);
+  border-color: var(--fg-primary);
+  color: var(--bg-canvas);
+  transform: scale(1.04);
+}
+.aw-connect-modal__step--done .aw-connect-modal__step-node {
+  background: var(--fg-primary);
+  border-color: var(--fg-primary);
+  color: var(--bg-canvas);
+}
+.aw-connect-modal__step-label {
+  font: 500 11.5px/1.3 var(--font-sans);
+  color: var(--fg-tertiary);
+  text-align: center;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.aw-connect-modal__step--active .aw-connect-modal__step-label,
+.aw-connect-modal__step--done .aw-connect-modal__step-label {
+  color: var(--fg-primary);
+}
+
+.aw-connect-modal__slides {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+.aw-connect-modal__slides-track {
+  display: flex;
+  width: 100%;
+  transition: transform 360ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: transform;
+}
+.aw-connect-modal__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.aw-connect-modal__slide-title {
+  margin: 0;
+  font: 600 14.5px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-connect-modal__slide-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__slide-body p {
+  margin: 0;
+}
+.aw-connect-modal__slide-body ul,
+.aw-connect-modal__slide-body ol {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.aw-connect-modal__slide-body li {
+  font-size: 13px;
+}
+.aw-connect-modal__slide-body strong {
+  color: var(--fg-primary);
+  font-weight: 600;
+}
+.aw-connect-modal__slide-body a {
+  color: var(--aw-blue-700);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.aw-connect-modal__slide-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.aw-connect-modal__slide-copy-label {
+  font: 500 11.5px/1.2 var(--font-sans);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-tertiary);
+}
+
+/* ─── API key flow ─── */
+.aw-connect-modal__apikey {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 18px;
+}
+.aw-connect-modal__apikey-intro {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--fg-secondary);
+}
+.aw-connect-modal__apikey-fields {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.aw-connect-modal__apikey-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aw-connect-modal__apikey-field-label {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  font: 500 13.5px/1.3 var(--font-sans);
+  color: var(--fg-primary);
+  letter-spacing: -0.005em;
+}
+.aw-connect-modal__apikey-field-num {
+  font-weight: 700;
+  color: var(--fg-primary);
+}
+.aw-connect-modal__apikey-field-req {
+  color: var(--aw-red-700, var(--fg-secondary));
+  margin-left: 2px;
+}
+.aw-connect-modal__apikey-field-helper {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--fg-tertiary);
+}
+.aw-connect-modal__apikey-docs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font: 500 12.5px/1.3 var(--font-sans);
+  color: var(--aw-blue-700);
+  text-decoration: none;
+}
+.aw-connect-modal__apikey-docs:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 /* ============================================================
  * AwAlert — inline contextual message. NEVER used as toast.
  * ============================================================ */
@@ -1539,7 +1871,7 @@
     border-color var(--dur-base) var(--ease-out);
 }
 .aw-nav-rail--collapsed { width: 64px; }
-.aw-nav-rail--expanded  { width: 260px; padding: 12px; }
+.aw-nav-rail--expanded  { width: 296px; padding: 12px; }
 .aw-nav-rail--dark {
   background: var(--dark-bg);
   border-color: var(--dark-border);
@@ -1666,6 +1998,7 @@
 }
 .aw-nav-rail--dark .aw-nav-rail__group { border-top-color: var(--dark-border); }
 .aw-nav-rail__group--first { border-top: 0; padding-top: 0; }
+.aw-nav-rail__body > .aw-nav-rail__group:first-child { border-top: 0; padding-top: 0; }
 
 .aw-nav-rail__group-label {
   font-family: var(--font-body);
@@ -2363,6 +2696,47 @@
   color: var(--bg-raised);
 }
 
+/* Variant: underline — text-style nav with hairline divider + underline indicator. */
+.aw-tabs--underline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.aw-tabs--underline .aw-tabs__tab {
+  height: 40px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.aw-tabs--underline .aw-tabs__tab--active {
+  color: var(--fg-primary);
+  border-bottom-color: var(--fg-primary);
+}
+.aw-tabs--underline .aw-tabs__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  background: var(--fg-primary);
+  color: var(--bg-raised);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 1;
+}
+
 /* ============================================================
  * AwEmpty — zero-state composition (port of shadcn `Empty`).
  * ============================================================ */
@@ -2466,11 +2840,6 @@
 .aw-integration-card__logo {
   width: 44px !important;
   height: 44px !important;
-}
-.aw-integration-card__logo svg {
-  width: 100%;
-  height: 100%;
-  display: block;
   border-radius: 10px;
 }
 .aw-integration-card__actions {
@@ -2697,7 +3066,13 @@
 .aw-add-int-modal__title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+.aw-add-int-modal__title-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fg-secondary);
 }
 .aw-add-int-modal__title {
   margin: 0;
@@ -2813,13 +3188,33 @@
   border-color: var(--fg-primary);
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
+.aw-add-int-modal__card--custom {
+  border: 1px dashed var(--border-default);
+  background: transparent;
+}
+.aw-add-int-modal__card--custom:hover {
+  border-color: var(--fg-primary);
+  background: var(--bg-raised);
+}
+.aw-add-int-modal__card-logo--custom {
+  background: var(--bg-raised);
+  border: 1px dashed var(--border-default);
+  border-radius: var(--radius-md);
+  color: var(--fg-secondary);
+  width: 40px;
+  height: 40px;
+}
+.aw-add-int-modal__card--custom:hover .aw-add-int-modal__card-logo--custom {
+  border-color: var(--fg-primary);
+  color: var(--fg-primary);
+}
 .aw-add-int-modal__card-logo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  margin-bottom: 2px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 4px;
 }
 .aw-add-int-modal__card-name {
   font: 600 14px/1.25 var(--font-sans);
@@ -2833,20 +3228,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-.aw-add-int-modal__card-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font: 500 10.5px/1 var(--font-sans);
-  color: var(--aw-emerald-700, var(--fg-secondary));
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-full);
-  padding: 4px 8px 4px 6px;
 }
 .aw-add-int-modal__empty {
   display: flex;
@@ -2979,6 +3360,7 @@
   animation: aw-sheet-in 220ms var(--ease-out);
   overflow: hidden;
 }
+.aw-sheet--wide { width: 1080px; }
 @keyframes aw-sheet-in {
   from { transform: translateX(100%); }
   to   { transform: none; }

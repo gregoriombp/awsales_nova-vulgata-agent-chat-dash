@@ -12,11 +12,13 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
     { invalid, dense, iconLeft, className, disabled, ...rest },
     ref
   ) {
+    const isSearch = iconLeft === "search"
     const wrapperClasses = [
       "aw-input",
       invalid && "aw-input--invalid",
       dense && "aw-input--dense",
       disabled && "aw-input--disabled",
+      isSearch && "aw-input--search",
       className,
     ]
       .filter(Boolean)

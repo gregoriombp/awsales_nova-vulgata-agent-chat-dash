@@ -46,6 +46,31 @@ npm run dev
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
 
+## Claude Code edit overlay (dev-only)
+
+Um copilot flutuante que aparece sobre qualquer tela do app, conversa com Claude Code via bridge local e suporta um "cursor seletor" estilo Cursor — clica num elemento da UI, ele vira referência no chat e o Claude pode editar o arquivo correspondente diretamente no repo.
+
+```bash
+# Em outro terminal — sobe o bridge local que executa Claude Code:
+npm run edit-bridge:install   # primeira vez
+npm run edit-bridge:dev
+```
+
+Ative o overlay no `.env.local`:
+
+```
+NEXT_PUBLIC_CLAUDE_EDIT_ENABLED=true
+NEXT_PUBLIC_CLAUDE_EDIT_BRIDGE_URL=http://localhost:9877
+```
+
+Atalhos:
+- `⌘⇧L` abre/fecha o overlay
+- Botão de alvo (ou `Esc`) ativa/desativa o seletor de elementos
+
+O overlay é gated por env flag — em build de produção sem a var, ele não renderiza nem faz nenhuma chamada ao bridge. O bridge ouve apenas em `127.0.0.1` e usa as tools built-in do Claude Agent SDK (Read, Edit, Write, Glob, Grep, Bash) com `cwd` apontando pro root do repo.
+
+> Já existia um bridge irmão em `bridge/` dedicado ao page-builder do Bombardier (`npm run bridge:dev`, porta 9876). O `bridge-edit/` é separado para não misturar a lógica de "gerar nodes pro canvas" com "editar arquivos do repo".
+
 ## Project Structure
 
 ```

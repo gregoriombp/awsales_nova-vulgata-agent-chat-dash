@@ -98,6 +98,9 @@ const NAV_SECTIONS: NavSection[] = [
   },
 ];
 
+const STORAGE_KEY = "awsales:sidebar:collapsed";
+const FORCE_COLLAPSED_PREFIX = "/agent-studio";
+
 export default function Sidebar({
   forcedCollapsed,
   floating,
@@ -113,11 +116,20 @@ export default function Sidebar({
     () =>
       forcedCollapsed ??
       floating ??
-      (pathname?.startsWith("/knowledge-os") ?? false)
+      (pathname?.startsWith(FORCE_COLLAPSED_PREFIX) ?? false)
   );
 
   useEffect(() => {
-    if (pathname?.startsWith("/knowledge-os")) setIsCollapsed(true);
+    if (forcedCollapsed || floating) return;
+    if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) return;
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved === "1") setIsCollapsed(true);
+    else if (saved === "0") setIsCollapsed(false);
+  }, []);
+
+  useEffect(() => {
+    if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) setIsCollapsed(true);
   }, [pathname]);
 
   useEffect(() => {
@@ -127,6 +139,16 @@ export default function Sidebar({
   useEffect(() => {
     if (floating) setIsCollapsed(true);
   }, [floating]);
+
+  const handleToggleCollapsed = () => {
+    setIsCollapsed((v) => {
+      const next = !v;
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
+      }
+      return next;
+    });
+  };
 
   const [selectedOrgId, setSelectedOrgId] = useState<string>(ORGANIZATIONS[0].id);
   const [selectedUserId, setSelectedUserId] = useState<string>(USERS[0].id);
@@ -153,12 +175,16 @@ export default function Sidebar({
   return (
     <aside
       className="h-screen flex-shrink-0 p-3 flex bg-transparent"
-      style={{ width: isCollapsed ? 88 : 284 }}
+      style={{
+        width: isCollapsed ? 88 : 320,
+        transition: "width var(--dur-slow) var(--ease-out)",
+      }}
     >
       <AwNavRail
         translucent
+        theme="light"
         collapsed={isCollapsed}
-        onToggleCollapsed={() => setIsCollapsed((v) => !v)}
+        onToggleCollapsed={handleToggleCollapsed}
         style={{ height: "100%", width: "100%" }}
         top={
           <AwNavRailOrgSwitcher

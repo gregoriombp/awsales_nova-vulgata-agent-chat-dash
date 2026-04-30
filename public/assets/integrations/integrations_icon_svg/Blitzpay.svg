@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_33_1333)">
+<rect width="64" height="64" fill="white" style="fill:white;fill-opacity:1;"/>
+<g clip-path="url(#clip1_33_1333)">
+<path d="M11.4386 0H52.5574C52.6213 0.0471996 54.691 0.432998 55.0572 0.551223C59.2182 1.89451 62.473 5.22853 63.6156 9.45963C63.695 9.75325 63.9481 11.3731 64 11.4451V52.6039C63.7912 53.8403 63.5412 54.9406 63.0694 56.0963C61.5931 59.7116 58.4793 62.4931 54.7171 63.5356C54.3146 63.6475 53.2429 63.8444 52.9237 64H14.4273H11.186C10.3276 63.7812 9.50331 63.63 8.64369 63.33C5.04812 62.0771 2.22684 59.3414 0.812638 55.8122C0.460267 54.9328 0.340077 53.8954 0.0185661 53.0166C0.0123774 53.0052 0.00618871 52.9937 0 52.9823V48.2985V11.4023C0.14956 10.9013 0.219722 10.1574 0.366422 9.59488C1.44134 5.47253 4.48563 2.14874 8.48669 0.692312C8.87844 0.549724 11.4074 0.0217103 11.4386 0Z" fill="white" style="fill:white;fill-opacity:1;"/>
+<path d="M21.1176 13.0507C26.9059 13.0485 33.2172 12.9178 38.9633 13.0849C35.1212 17.0192 30.9505 20.909 27.1113 24.8645L41.6238 24.8737L45.4933 24.8735C45.8722 24.8733 47.4257 24.7811 47.5914 25.0213C47.2725 25.4714 45.6329 27.0622 45.135 27.5557L40.1895 32.4512C38.8218 33.8961 37.1909 35.4449 35.7643 36.8716L26.8569 45.7582C25.6394 46.9473 24.4334 48.1482 23.2393 49.3607C22.5398 50.0589 21.8035 50.7138 21.1838 51.4817C21.1017 46.8454 21.0823 42.2082 21.1259 37.5714L21.1176 13.0507Z" fill="url(#paint0_radial_33_1333)"/>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_33_1333" cx="0" cy="0" r="1" gradientTransform="matrix(22.5563 -37.5798 25.8673 32.7696 23.3796 52.3836)" gradientUnits="userSpaceOnUse">
+<stop offset="0.0625" stop-color="#B81F7B" style="stop-color:#B81F7B;stop-color:color(display-p3 0.7216 0.1216 0.4816);stop-opacity:1;"/>
+<stop offset="0.405037" stop-color="#8E1FB8" style="stop-color:#8E1FB8;stop-color:color(display-p3 0.5569 0.1216 0.7216);stop-opacity:1;"/>
+<stop offset="0.880394" stop-color="#160E52" style="stop-color:#160E52;stop-color:color(display-p3 0.0854 0.0542 0.3216);stop-opacity:1;"/>
+</radialGradient>
+<clipPath id="clip0_33_1333">
+<rect width="64" height="64" fill="white" style="fill:white;fill-opacity:1;"/>
+</clipPath>
+<clipPath id="clip1_33_1333">
+<rect width="64" height="64" fill="white" style="fill:white;fill-opacity:1;"/>
+</clipPath>
+</defs>
+</svg>

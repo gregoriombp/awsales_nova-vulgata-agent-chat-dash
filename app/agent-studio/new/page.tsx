@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
+import { AwButton } from "@/components/ui/AwButton";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 
 // Parse text into segments: plain text, @logic (chip), {{interpolation}} (chip)
 type Segment = { type: "text"; content: string } | { type: "at"; content: string } | { type: "mustache"; content: string };
@@ -233,7 +235,7 @@ function VariableChipEditor({
   );
 
   if (readOnly) {
-    if (!value) return <div className={`${className} text-[#9d9d9d]`} style={{ minHeight }}>{placeholder}</div>;
+    if (!value) return <div className={`${className} text-fg-tertiary`} style={{ minHeight }}>{placeholder}</div>;
     const segments = parseVariableSegments(value);
     return (
       <div className={`${className} whitespace-pre-wrap break-words`} style={{ minHeight }}>
@@ -256,7 +258,7 @@ function VariableChipEditor({
       contentEditable
       suppressContentEditableWarning
       data-placeholder={placeholder}
-      className={`${className} whitespace-pre-wrap break-words outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-[#9d9d9d]`}
+      className={`${className} whitespace-pre-wrap break-words outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-fg-tertiary`}
       style={{ minHeight }}
       onInput={handleInput}
       onKeyDown={handleKeyDown}
@@ -506,7 +508,7 @@ const IntegrationIcon = ({ type }: { type: string }) => {
 // Module tag component for the editor
 const ModuleTag = ({ module }: { module: PromptModule }) => {
   const colors: Record<string, { bg: string; text: string; border: string }> = {
-    variable: { bg: "bg-[#f3f3f3]", text: "text-[#0d1013]", border: "border-[#e5e5e5]" },
+    variable: { bg: "bg-bg-surface", text: "text-fg-primary", border: "border-border" },
     action: { bg: "bg-[#e8f5e9]", text: "text-[#1b5e20]", border: "border-[#c8e6c9]" },
     condition: { bg: "bg-[#fff3e0]", text: "text-[#e65100]", border: "border-[#ffe0b2]" },
     loop: { bg: "bg-[#e3f2fd]", text: "text-[#0d47a1]", border: "border-[#bbdefb]" },
@@ -644,8 +646,8 @@ const FlowNodeComponent = ({
       case "message":
         return {
           bg: "bg-white",
-          border: "border-[#e5e5e5]",
-          text: "text-[#0d1013]",
+          border: "border-border",
+          text: "text-fg-primary",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -655,8 +657,8 @@ const FlowNodeComponent = ({
       case "action":
         return {
           bg: "bg-white",
-          border: "border-[#e5e5e5]",
-          text: "text-[#0d1013]",
+          border: "border-border",
+          text: "text-fg-primary",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -689,8 +691,8 @@ const FlowNodeComponent = ({
       default:
         return {
           bg: "bg-white",
-          border: "border-[#e5e5e5]",
-          text: "text-[#0d1013]",
+          border: "border-border",
+          text: "text-fg-primary",
           icon: null,
         };
     }
@@ -715,14 +717,14 @@ const FlowNodeComponent = ({
       <div
         className={`
           ${style.bg} ${style.text}
-          border-2 ${isSelected ? "border-[#0d1013] shadow-lg" : style.border}
+          border-2 ${isSelected ? "border-aw-gray-1200 shadow-lg" : style.border}
           rounded-xl px-4 py-3
           min-w-[200px] max-w-[240px]
           transition-all duration-200
         `}
       >
         <div className="flex items-start gap-2">
-          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-white" : "text-[#9d9d9d]"}`}>
+          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-white" : "text-fg-tertiary"}`}>
             {style.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -730,7 +732,7 @@ const FlowNodeComponent = ({
               {node.label}
             </div>
             {node.description && (
-              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-gray-300" : "text-[#9d9d9d]"}`}>
+              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-gray-300" : "text-fg-tertiary"}`}>
                 {node.description}
               </div>
             )}
@@ -739,7 +741,7 @@ const FlowNodeComponent = ({
       </div>
 
       {/* Connection point (bottom) */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-[#e5e5e5] rounded-full border-2 border-white" />
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-aw-gray-300 rounded-full border-2 border-white" />
     </div>
   );
 };
@@ -1157,27 +1159,21 @@ const KnowledgeBaseManagement = () => {
   );
 
   return (
-    <div className="flex-1 flex flex-col bg-[#fafafa] overflow-hidden">
+    <div className="flex-1 flex flex-col bg-bg-surface overflow-hidden">
       {/* Header */}
-      <div className="px-6 py-4 bg-white border-b border-[#e5e5e5]">
+      <div className="px-6 py-4 bg-white border-b border-border">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="font-heading text-lg font-medium text-[#0d1013]">
+            <h2 className="font-heading text-lg font-medium text-fg-primary">
               Bases de Conhecimento
             </h2>
-            <p className="text-sm text-[#9d9d9d] mt-0.5">
+            <p className="text-sm text-fg-tertiary mt-0.5">
               Gerencie as fontes e knowledge layers usadas pelo agente
             </p>
           </div>
-          <button
-            type="button"
-            className="px-4 py-2 bg-[#0d1013] text-white rounded-lg text-sm font-medium hover:bg-[#1a1d21] transition-colors flex items-center gap-2"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M12 5v14M5 12h14" />
-            </svg>
+          <AwButton variant="primary" size="md" iconLeft="add">
             Adicionar Base
-          </button>
+          </AwButton>
         </div>
       </div>
 
@@ -1195,14 +1191,14 @@ const KnowledgeBaseManagement = () => {
             return (
               <div
                 key={base.id}
-                className="bg-white border border-[#e5e5e5] rounded-xl overflow-hidden"
+                className="bg-white border border-border rounded-xl overflow-hidden"
               >
                 {/* Base header */}
                 <div className="px-5 py-4 flex items-start gap-4">
                   <button
                     type="button"
                     onClick={() => toggleBase(base.id)}
-                    className="shrink-0 mt-1 p-1 rounded hover:bg-[#f5f5f5] transition-colors text-[#9d9d9d]"
+                    className="shrink-0 mt-1 p-1 rounded hover:bg-bg-muted transition-colors text-fg-tertiary"
                   >
                     <svg
                       width="16"
@@ -1220,13 +1216,13 @@ const KnowledgeBaseManagement = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-heading text-base font-medium text-[#0d1013] mb-1">
+                        <h3 className="font-heading text-base font-medium text-fg-primary mb-1">
                           {base.name}
                         </h3>
-                        <p className="text-sm text-[#9d9d9d] mb-3">
+                        <p className="text-sm text-fg-tertiary mb-3">
                           {base.description}
                         </p>
-                        <div className="flex items-center gap-4 text-xs text-[#9d9d9d]">
+                        <div className="flex items-center gap-4 text-xs text-fg-tertiary">
                           <span>
                             {enabledSourcesCount} de {base.sourcesCount} fontes ativas
                           </span>
@@ -1238,7 +1234,7 @@ const KnowledgeBaseManagement = () => {
                       </div>
 
                       <label className="flex items-center gap-2 shrink-0 cursor-pointer group">
-                        <span className="text-sm text-[#9d9d9d] group-hover:text-[#0d1013] transition-colors">
+                        <span className="text-sm text-fg-tertiary group-hover:text-fg-primary transition-colors">
                           {base.enabled ? "Ativa" : "Inativa"}
                         </span>
                         <div className="relative">
@@ -1248,7 +1244,7 @@ const KnowledgeBaseManagement = () => {
                             onChange={() => toggleBaseEnabled(base.id)}
                             className="sr-only peer"
                           />
-                          <div className="w-11 h-6 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                          <div className="w-11 h-6 bg-aw-gray-300 rounded-full peer peer-checked:bg-aw-gray-1200 transition-colors" />
                           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5" />
                         </div>
                       </label>
@@ -1258,7 +1254,7 @@ const KnowledgeBaseManagement = () => {
 
                 {/* Sources list */}
                 {isExpanded && (
-                  <div className="border-t border-[#e5e5e5] bg-[#fafafa]">
+                  <div className="border-t border-border bg-bg-surface">
                     {base.sources.map(source => {
                       const isSourceExpanded = expandedSources.has(source.id);
                       const enabledLayersCount = source.layers.filter(l => l.enabled).length;
@@ -1266,14 +1262,14 @@ const KnowledgeBaseManagement = () => {
                       return (
                         <div
                           key={source.id}
-                          className="border-b border-[#e5e5e5] last:border-b-0"
+                          className="border-b border-border last:border-b-0"
                         >
                           {/* Source header */}
                           <div className="px-5 py-3 flex items-center gap-3 hover:bg-white/50 transition-colors">
                             <button
                               type="button"
                               onClick={() => toggleSource(source.id)}
-                              className="shrink-0 p-1 rounded hover:bg-white transition-colors text-[#9d9d9d]"
+                              className="shrink-0 p-1 rounded hover:bg-white transition-colors text-fg-tertiary"
                             >
                               <svg
                                 width="14"
@@ -1288,13 +1284,13 @@ const KnowledgeBaseManagement = () => {
                               </svg>
                             </button>
 
-                            <div className="shrink-0 text-[#9d9d9d]">
+                            <div className="shrink-0 text-fg-tertiary">
                               {getSourceIcon(source.type)}
                             </div>
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-sm font-medium text-[#0d1013] truncate">
+                                <span className="text-sm font-medium text-fg-primary truncate">
                                   {source.name}
                                 </span>
                                 {source.status === "processing" && (
@@ -1308,7 +1304,7 @@ const KnowledgeBaseManagement = () => {
                                   </span>
                                 )}
                               </div>
-                              <div className="text-xs text-[#9d9d9d]">
+                              <div className="text-xs text-fg-tertiary">
                                 {enabledLayersCount} de {source.layersCount} layers ativos
                               </div>
                             </div>
@@ -1321,7 +1317,7 @@ const KnowledgeBaseManagement = () => {
                                   onChange={() => toggleSourceEnabled(base.id, source.id)}
                                   className="sr-only peer"
                                 />
-                                <div className="w-9 h-5 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                                <div className="w-9 h-5 bg-aw-gray-300 rounded-full peer peer-checked:bg-aw-gray-1200 transition-colors" />
                                 <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
                               </div>
                             </label>
@@ -1333,16 +1329,16 @@ const KnowledgeBaseManagement = () => {
                               {source.layers.map(layer => (
                                 <div
                                   key={layer.id}
-                                  className="flex items-start gap-3 py-3 px-4 bg-white rounded-lg border border-[#e5e5e5] hover:border-[#d0d0d0] transition-colors"
+                                  className="flex items-start gap-3 py-3 px-4 bg-white rounded-lg border border-border hover:border-aw-gray-400 transition-colors"
                                 >
                                   <div className="shrink-0 mt-0.5">
                                     <KnowledgeLayerIcon />
                                   </div>
                                   <div className="flex-1 min-w-0">
-                                    <div className="text-sm font-medium text-[#0d1013] mb-1 leading-tight">
+                                    <div className="text-sm font-medium text-fg-primary mb-1 leading-tight">
                                       {layer.question}
                                     </div>
-                                    <div className="text-xs text-[#9d9d9d] leading-relaxed">
+                                    <div className="text-xs text-fg-tertiary leading-relaxed">
                                       {layer.answer}
                                     </div>
                                   </div>
@@ -1356,7 +1352,7 @@ const KnowledgeBaseManagement = () => {
                                         }
                                         className="sr-only peer"
                                       />
-                                      <div className="w-9 h-5 bg-[#e5e5e5] rounded-full peer peer-checked:bg-[#0d1013] transition-colors" />
+                                      <div className="w-9 h-5 bg-aw-gray-300 rounded-full peer peer-checked:bg-aw-gray-1200 transition-colors" />
                                       <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4" />
                                     </div>
                                   </label>
@@ -1388,45 +1384,39 @@ const ModularFlowVisualization = () => {
   const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
   return (
-    <div className="flex-1 flex relative bg-[#fafafa]">
+    <div className="flex-1 flex relative bg-bg-surface">
       {/* Canvas */}
       <div className="flex-1 relative overflow-hidden">
         {/* Toolbar */}
         <div className="absolute top-6 left-6 z-10 flex items-center gap-2">
-          <div className="bg-white border border-[#e5e5e5] rounded-lg px-3 py-1.5 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => setZoom(z => Math.min(z + 0.1, 2))}
-              className="p-1 hover:bg-[#f5f5f5] rounded transition-colors text-[#9d9d9d] hover:text-[#0d1013]"
+          <div className="bg-white border border-border rounded-lg px-1 py-0.5 flex items-center gap-1">
+            <AwButton
+              variant="ghost"
+              size="sm"
+              iconOnly="zoom_in"
+              aria-label="Zoom in"
               title="Zoom in"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/>
-              </svg>
-            </button>
-            <span className="text-xs font-medium text-[#9d9d9d] tabular-nums">
+              onClick={() => setZoom(z => Math.min(z + 0.1, 2))}
+            />
+            <span className="text-xs font-medium text-fg-tertiary tabular-nums px-1">
               {Math.round(zoom * 100)}%
             </span>
-            <button
-              type="button"
-              onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
-              className="p-1 hover:bg-[#f5f5f5] rounded transition-colors text-[#9d9d9d] hover:text-[#0d1013]"
+            <AwButton
+              variant="ghost"
+              size="sm"
+              iconOnly="zoom_out"
+              aria-label="Zoom out"
               title="Zoom out"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="11" cy="11" r="8"/>
-                <path d="M21 21l-4.35-4.35M8 11h6"/>
-              </svg>
-            </button>
+              onClick={() => setZoom(z => Math.max(z - 0.1, 0.5))}
+            />
           </div>
-          <button
-            type="button"
+          <AwButton
+            variant="secondary"
+            size="sm"
             onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }}
-            className="bg-white border border-[#e5e5e5] rounded-lg px-3 py-1.5 text-xs font-medium text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
           >
             Reset
-          </button>
+          </AwButton>
         </div>
 
         {/* Flow canvas */}
@@ -1482,27 +1472,26 @@ const ModularFlowVisualization = () => {
 
       {/* Inspector Panel */}
       {selectedNode && (
-        <div className="w-[360px] bg-white border-l border-[#e5e5e5] flex flex-col">
+        <div className="w-[360px] bg-white border-l border-border flex flex-col">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-[#e5e5e5]">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="font-heading text-base font-medium text-[#0d1013] mb-1">
+                <h3 className="font-heading text-base font-medium text-fg-primary mb-1">
                   {selectedNode.label}
                 </h3>
-                <p className="text-xs text-[#9d9d9d]">
+                <p className="text-xs text-fg-tertiary">
                   {selectedNode.description}
                 </p>
               </div>
-              <button
-                type="button"
+              <AwButton
+                variant="ghost"
+                size="sm"
+                iconOnly="close"
+                aria-label="Fechar inspetor"
+                className="-mr-1.5"
                 onClick={() => setSelectedNodeId(null)}
-                className="p-1.5 rounded-lg text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors -mr-1.5"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M18 6L6 18M6 6l12 12"/>
-                </svg>
-              </button>
+              />
             </div>
           </div>
 
@@ -1511,10 +1500,10 @@ const ModularFlowVisualization = () => {
             <div className="space-y-6">
               {/* Type */}
               <div>
-                <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-2">
                   Tipo de Módulo
                 </label>
-                <div className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm text-[#0d1013] font-medium">
+                <div className="px-3 py-2 bg-bg-muted rounded-lg text-sm text-fg-primary font-medium">
                   {selectedNode.type === "trigger" && "Gatilho"}
                   {selectedNode.type === "greeting" && "Saudação"}
                   {selectedNode.type === "message" && "Mensagem"}
@@ -1528,16 +1517,16 @@ const ModularFlowVisualization = () => {
               {/* Configuration fields based on type */}
               {selectedNode.config?.message && (
                 <div>
-                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-2">
                     Mensagem
                   </label>
                   <textarea
                     value={selectedNode.config.message}
                     readOnly
-                    className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm text-[#0d1013] focus:outline-none focus:border-[#0d1013] resize-none"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-fg-primary focus:outline-none focus:border-aw-gray-1200 resize-none"
                     rows={3}
                   />
-                  <p className="mt-2 text-xs text-[#9d9d9d]">
+                  <p className="mt-2 text-xs text-fg-tertiary">
                     Use {"{"}{"{"} variáveis {"}"}{"}"}  e @ações para tornar a mensagem dinâmica.
                   </p>
                 </div>
@@ -1545,40 +1534,39 @@ const ModularFlowVisualization = () => {
 
               {selectedNode.config?.action && (
                 <div>
-                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-2">
                     Ação
                   </label>
-                  <div className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm font-mono text-[#0d1013]">
+                  <div className="px-3 py-2 bg-bg-muted rounded-lg text-sm font-mono text-fg-primary">
                     {selectedNode.config.action}
                   </div>
                 </div>
               )}
 
               {selectedNode.config?.condition && (
-                <div>
-                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
-                    Condição
-                  </label>
-                  <input
+                <AwField
+                  label="Condição"
+                  helper="Condição avaliada para decidir o próximo passo."
+                  htmlFor="node-condition"
+                >
+                  <AwInput
+                    id="node-condition"
                     type="text"
                     value={selectedNode.config.condition}
                     readOnly
-                    className="w-full px-3 py-2 border border-[#e5e5e5] rounded-lg text-sm font-mono text-[#0d1013] focus:outline-none focus:border-[#0d1013]"
+                    className="font-mono"
                   />
-                  <p className="mt-2 text-xs text-[#9d9d9d]">
-                    Condição avaliada para decidir o próximo passo.
-                  </p>
-                </div>
+                </AwField>
               )}
 
               {selectedNode.config?.fields && (
                 <div>
-                  <label className="block text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-2">
                     Campos a coletar
                   </label>
                   <div className="space-y-2">
                     {selectedNode.config.fields.map((field: string, idx: number) => (
-                      <div key={idx} className="px-3 py-2 bg-[#f5f5f5] rounded-lg text-sm text-[#0d1013]">
+                      <div key={idx} className="px-3 py-2 bg-bg-muted rounded-lg text-sm text-fg-primary">
                         {field}
                       </div>
                     ))}
@@ -1587,13 +1575,10 @@ const ModularFlowVisualization = () => {
               )}
 
               {/* Add button */}
-              <div className="pt-4 border-t border-[#e5e5e5]">
-                <button
-                  type="button"
-                  className="w-full px-4 py-2 bg-[#0d1013] text-white rounded-lg text-sm font-medium hover:bg-[#1a1d21] transition-colors"
-                >
+              <div className="pt-4 border-t border-border">
+                <AwButton variant="primary" size="md" block>
                   Editar Módulo
-                </button>
+                </AwButton>
               </div>
             </div>
           </div>
@@ -2082,10 +2067,10 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           <div className="relative z-10 flex flex-col items-center gap-8">
             <SparkleIcon />
             <div className="text-center">
-              <h1 className="font-heading text-2xl md:text-3xl font-medium text-[#0d1013] tracking-[-0.5px] mb-3">
+              <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-3">
                 Gerando seu Agente
               </h1>
-              <p className="text-base text-[#9d9d9d] font-sans animate-pulse">
+              <p className="text-base text-fg-tertiary font-sans animate-pulse">
                 {LOADING_MESSAGES[loadingMessageIndex]}
               </p>
             </div>
@@ -2105,18 +2090,18 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
       <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
         <div className="min-h-full w-full flex">
           {/* Left sidebar - light card style (Insert a Simple Poll style) */}
-          <aside className="w-[260px] flex-shrink-0 bg-[#f9f9f9] rounded-l-2xl flex flex-col min-h-0">
+          <aside className="w-[260px] flex-shrink-0 bg-bg-surface rounded-l-2xl flex flex-col min-h-0">
             {/* Header: title + description */}
-            <div className="p-4 pb-3 border-b border-[#eee]">
+            <div className="p-4 pb-3 border-b border-border-subtle">
               <div className="flex items-start gap-2">
-                <h2 className="text-sm font-semibold text-[#333] leading-tight">
+                <h2 className="text-sm font-semibold text-fg-secondary leading-tight">
                   {AGENT_STUDIO_SIDEBAR_ITEMS.find((i) => i.id === agentStudioTab)?.label ?? "Agente"}
                 </h2>
-                <button type="button" className="shrink-0 p-0.5 rounded text-[#9d9d9d] hover:text-[#333] hover:bg-[#eee] transition-colors" aria-label="Informação">
+                <button type="button" className="shrink-0 p-0.5 rounded text-fg-tertiary hover:text-fg-secondary hover:bg-bg-muted transition-colors" aria-label="Informação">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
                 </button>
               </div>
-              <p className="mt-1.5 text-xs text-[#6b7280] leading-snug">
+              <p className="mt-1.5 text-xs text-aw-gray-700 leading-snug">
                 {AGENT_STUDIO_SIDEBAR_ITEMS.find((i) => i.id === agentStudioTab)?.description ?? "Configure personalidade, checkpoint e primeira mensagem do agente."}
               </p>
             </div>
@@ -2131,11 +2116,11 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     onClick={() => setAgentStudioTab(item.id)}
                     className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition-colors ${
                       isActive
-                        ? "bg-[#f0f2f5] text-[#333] font-medium"
-                        : "text-[#555] hover:bg-[#eee] hover:text-[#333]"
+                        ? "bg-bg-surface text-fg-secondary font-medium"
+                        : "text-fg-secondary hover:bg-bg-muted hover:text-fg-secondary"
                     }`}
                   >
-                    <span className={`shrink-0 w-5 h-5 flex items-center justify-center ${isActive ? "text-[#333]" : "text-[#6b7280]"}`}>
+                    <span className={`shrink-0 w-5 h-5 flex items-center justify-center ${isActive ? "text-fg-secondary" : "text-aw-gray-700"}`}>
                       {item.id === "agente" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>}
                       {item.id === "visualizacao-modular" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>}
                       {item.id === "bases-conhecimento" && <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8"/><path d="M8 11h8"/></svg>}
@@ -2151,13 +2136,13 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               })}
             </nav>
             {/* Footer: step indicator */}
-            <div className="p-3 pt-2 border-t border-[#eee]">
-              <p className="text-xs text-[#9d9d9d]">
+            <div className="p-3 pt-2 border-t border-border-subtle">
+              <p className="text-xs text-fg-tertiary">
                 Etapa {AGENT_STUDIO_SIDEBAR_ITEMS.findIndex((i) => i.id === agentStudioTab) + 1} de {AGENT_STUDIO_SIDEBAR_ITEMS.length}
               </p>
-              <div className="mt-1.5 h-1 bg-[#e5e5e5] rounded-full overflow-hidden">
+              <div className="mt-1.5 h-1 bg-aw-gray-300 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#d1d5db] rounded-full transition-all duration-300"
+                  className="h-full bg-aw-gray-400 rounded-full transition-all duration-300"
                   style={{ width: `${((AGENT_STUDIO_SIDEBAR_ITEMS.findIndex((i) => i.id === agentStudioTab) + 1) / AGENT_STUDIO_SIDEBAR_ITEMS.length) * 100}%` }}
                 />
               </div>
@@ -2167,67 +2152,55 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             {agentStudioTab === "agente" ? (
               <div className="flex flex-col min-h-full">
           {/* Page Header */}
-          <div className="border-b border-[#e5e5e5] px-4 py-[38px]">
+          <div className="border-b border-border px-4 py-[38px]">
             <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-[#0d1013]/20 blur-xl scale-150 border" aria-hidden />
+                  <div className="absolute inset-0 rounded-full bg-aw-gray-1200/20 blur-xl scale-150 border" aria-hidden />
                   <img
                     src="/assets/agent_imgs/Agent_img_01-3.png"
                     alt=""
                     className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-none"
                   />
                 </div>
-                <h1 className="font-heading text-[32px] font-medium text-[#0d1013] tracking-[-0.5px]">
+                <h1 className="font-heading text-[32px] font-medium text-fg-primary tracking-[-0.5px]">
                   {agentName || "Agente"}
                 </h1>
               </div>
               <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-[#0d1013] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f5] transition-colors"
-                >
+                <AwButton variant="secondary" size="md">
                   Pré-visualizar
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePublishClick}
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#0d1013] rounded-lg hover:bg-[#1a1a1a] transition-colors"
-                >
+                </AwButton>
+                <AwButton variant="primary" size="md" onClick={handlePublishClick}>
                   Publicar
-                </button>
+                </AwButton>
                 <div className="relative" ref={headerMenuRef}>
-                  <button
-                    type="button"
-                    onClick={() => setHeaderMenuOpen(!headerMenuOpen)}
-                    className="p-2 rounded-lg text-[#6b7280] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                  <AwButton
+                    variant="ghost"
+                    size="md"
+                    iconOnly="more_vert"
                     aria-label="Mais opções"
-                  >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="6" r="1.5" fill="currentColor"/>
-                      <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
-                      <circle cx="12" cy="18" r="1.5" fill="currentColor"/>
-                    </svg>
-                  </button>
+                    onClick={() => setHeaderMenuOpen(!headerMenuOpen)}
+                  />
                   {headerMenuOpen && (
-                    <div className="absolute right-0 top-full mt-1 py-1 min-w-[180px] bg-white rounded-lg border border-[#e5e5e5] shadow-lg z-50">
+                    <div className="absolute right-0 top-full mt-1 py-1 min-w-[180px] bg-white rounded-lg border border-border shadow-lg z-50">
                       <button
                         type="button"
-                        className="w-full px-4 py-2 text-left text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                        className="w-full px-4 py-2 text-left text-sm text-fg-primary hover:bg-bg-muted transition-colors"
                         onClick={() => { setHeaderMenuOpen(false); /* Arquivar */ }}
                       >
                         Arquivar agente
                       </button>
                       <button
                         type="button"
-                        className="w-full px-4 py-2 text-left text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                        className="w-full px-4 py-2 text-left text-sm text-fg-primary hover:bg-bg-muted transition-colors"
                         onClick={() => { setHeaderMenuOpen(false); /* Duplicar */ }}
                       >
                         Duplicar agente
                       </button>
                       <button
                         type="button"
-                        className="w-full px-4 py-2 text-left text-sm text-[#dc2626] hover:bg-[#fef2f2] transition-colors"
+                        className="w-full px-4 py-2 text-left text-sm text-aw-red-600 hover:bg-[#fef2f2] transition-colors"
                         onClick={() => { setHeaderMenuOpen(false); /* Excluir */ }}
                       >
                         Excluir agente
@@ -2242,13 +2215,13 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {/* Autocomplete Suggestion Box - positioned under caret */}
           {(showAtSuggestions || showVarSuggestions) && (
             <div 
-              className="fixed z-50 bg-white rounded-lg border border-[#e5e5e5] shadow-lg py-2 min-w-[280px] max-h-[300px] overflow-y-auto"
+              className="fixed z-50 bg-white rounded-lg border border-border shadow-lg py-2 min-w-[280px] max-h-[300px] overflow-y-auto"
               style={{ 
                 top: cursorPosition.top + 4, 
                 left: Math.min(cursorPosition.left, typeof window !== "undefined" ? window.innerWidth - 300 : 980) 
               }}
             >
-              <div className="px-3 py-1.5 text-xs font-medium text-[#9d9d9d] uppercase tracking-wider border-b border-[#e5e5e5] mb-1">
+              <div className="px-3 py-1.5 text-xs font-medium text-fg-tertiary uppercase tracking-wider border-b border-border mb-1">
                 {showAtSuggestions ? "Recursos e Ações" : "Variáveis"}
               </div>
               {(showAtSuggestions ? filteredAtSuggestions : filteredVarSuggestions).map((suggestion) => (
@@ -2256,16 +2229,16 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   key={suggestion.id}
                   type="button"
                   onClick={() => insertSuggestion(suggestion.label)}
-                  className="w-full px-3 py-2 text-left hover:bg-[#f5f5f5] transition-colors flex items-center gap-3"
+                  className="w-full px-3 py-2 text-left hover:bg-bg-muted transition-colors flex items-center gap-3"
                 >
-                  <span className="font-mono text-sm text-[#0d1013] bg-[#f0f0f0] px-1.5 py-0.5 rounded">
+                  <span className="font-mono text-sm text-fg-primary bg-bg-muted px-1.5 py-0.5 rounded">
                     {suggestion.label}
                   </span>
-                  <span className="text-xs text-[#9d9d9d]">{suggestion.description}</span>
+                  <span className="text-xs text-fg-tertiary">{suggestion.description}</span>
                 </button>
               ))}
               {(showAtSuggestions ? filteredAtSuggestions : filteredVarSuggestions).length === 0 && (
-                <div className="px-3 py-2 text-sm text-[#9d9d9d]">Nenhum resultado encontrado</div>
+                <div className="px-3 py-2 text-sm text-fg-tertiary">Nenhum resultado encontrado</div>
               )}
             </div>
           )}
@@ -2279,54 +2252,40 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
+                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-fg-primary underline decoration-dotted underline-offset-4 hover:no-underline">
                         Prompt do Agente
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
                           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
-                      <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Personalidade</span>
+                      <span className="text-xs text-fg-tertiary bg-bg-muted px-2 py-0.5 rounded">Personalidade</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
+                      <AwButton
+                        variant={isPromptEditing ? "primary" : "secondary"}
+                        size="sm"
+                        iconLeft="edit"
                         onClick={() => setIsPromptEditing(!isPromptEditing)}
-                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
-                          isPromptEditing
-                            ? "bg-[#0d1013] text-white border-[#0d1013]"
-                            : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
-                        }`}
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
                         {isPromptEditing ? "Salvar" : "Editar"}
-                      </button>
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#6b7280] rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013] transition-colors"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                      </AwButton>
+                      <AwButton variant="secondary" size="sm" iconLeft="auto_awesome">
                         Otimizar com IA
-                      </button>
+                      </AwButton>
                     </div>
                   </div>
-                  <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
+                  <div className="rounded-xl border border-border bg-white overflow-hidden">
                   {/* Editor area */}
                   <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setPromptEditorExpanded(!promptEditorExpanded)}
-                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
+                    <AwButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly={promptEditorExpanded ? "close_fullscreen" : "open_in_full"}
                       title={promptEditorExpanded ? "Reduzir" : "Expandir"}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
+                      aria-label={promptEditorExpanded ? "Reduzir" : "Expandir"}
+                      className="absolute top-2 right-2 z-10"
+                      onClick={() => setPromptEditorExpanded(!promptEditorExpanded)}
+                    />
                     <VariableChipEditor
                       value={agentPrompt}
                       onChange={(v) => handleEditorChange(v, setAgentPrompt, "prompt")}
@@ -2336,8 +2295,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                         promptEditorExpanded ? "min-h-[300px]" : "min-h-[160px]"
                       } ${
                         isPromptEditing
-                          ? "bg-white text-[#0d1013] cursor-text"
-                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
+                          ? "bg-white text-fg-primary cursor-text"
+                          : "bg-bg-muted text-aw-gray-700 cursor-default"
                       }`}
                       minHeight={promptEditorExpanded ? "300px" : "160px"}
                       onTriggerAt={() => handleTriggerAt("prompt")}
@@ -2346,9 +2305,9 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   </div>
 
                   {/* Bottom bar */}
-                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
-                    <span className="text-xs text-[#9d9d9d]">
-                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-border bg-white">
+                    <span className="text-xs text-fg-tertiary">
+                      Digite <span className="font-mono text-fg-primary bg-bg-muted px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-fg-primary bg-bg-muted px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
                     </span>
                   </div>
                   </div>
@@ -2358,54 +2317,40 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-[#0d1013] underline decoration-dotted underline-offset-4 hover:no-underline">
+                      <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-fg-primary underline decoration-dotted underline-offset-4 hover:no-underline">
                         Checkpoint do Agente
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
                           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
-                      <span className="text-xs text-[#9d9d9d] bg-[#f5f5f5] px-2 py-0.5 rounded">Fluxo</span>
+                      <span className="text-xs text-fg-tertiary bg-bg-muted px-2 py-0.5 rounded">Fluxo</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button
-                        type="button"
+                      <AwButton
+                        variant={isCheckpointEditing ? "primary" : "secondary"}
+                        size="sm"
+                        iconLeft="edit"
                         onClick={() => setIsCheckpointEditing(!isCheckpointEditing)}
-                        className={`flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg border transition-colors ${
-                          isCheckpointEditing
-                            ? "bg-[#0d1013] text-white border-[#0d1013]"
-                            : "text-[#6b7280] border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013]"
-                        }`}
                       >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
                         {isCheckpointEditing ? "Salvar" : "Editar"}
-                      </button>
-                      <button
-                        type="button"
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-[#6b7280] rounded-lg border border-[#e5e5e5] hover:border-[#d1d5db] hover:text-[#0d1013] transition-colors"
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                      </AwButton>
+                      <AwButton variant="secondary" size="sm" iconLeft="auto_awesome">
                         Otimizar com IA
-                      </button>
+                      </AwButton>
                     </div>
                   </div>
-                  <div className="rounded-xl border border-[#e5e5e5] bg-white overflow-hidden">
+                  <div className="rounded-xl border border-border bg-white overflow-hidden">
                   {/* Editor area */}
                   <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setCheckpointEditorExpanded(!checkpointEditorExpanded)}
-                      className="absolute top-3 right-3 p-1.5 rounded text-[#c4c4c4] hover:text-[#9d9d9d] hover:bg-white/80 transition-colors z-10"
+                    <AwButton
+                      variant="ghost"
+                      size="sm"
+                      iconOnly={checkpointEditorExpanded ? "close_fullscreen" : "open_in_full"}
                       title={checkpointEditorExpanded ? "Reduzir" : "Expandir"}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 14H10V20M20 10H14V4M14 10L21 3M3 21L10 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </button>
+                      aria-label={checkpointEditorExpanded ? "Reduzir" : "Expandir"}
+                      className="absolute top-2 right-2 z-10"
+                      onClick={() => setCheckpointEditorExpanded(!checkpointEditorExpanded)}
+                    />
                     <VariableChipEditor
                       value={checkpointContent}
                       onChange={(v) => handleEditorChange(v, setCheckpointContent, "checkpoint")}
@@ -2415,8 +2360,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                         checkpointEditorExpanded ? "min-h-[500px]" : "min-h-[280px]"
                       } ${
                         isCheckpointEditing
-                          ? "bg-white text-[#0d1013] cursor-text"
-                          : "bg-[#f5f5f5] text-[#6b7280] cursor-default"
+                          ? "bg-white text-fg-primary cursor-text"
+                          : "bg-bg-muted text-aw-gray-700 cursor-default"
                       }`}
                       minHeight={checkpointEditorExpanded ? "500px" : "280px"}
                       onTriggerAt={() => handleTriggerAt("checkpoint")}
@@ -2425,9 +2370,9 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   </div>
 
                   {/* Bottom bar */}
-                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-[#e5e5e5] bg-white">
-                    <span className="text-xs text-[#9d9d9d]">
-                      Digite <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-[#0d1013] bg-[#f5f5f5] px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
+                  <div className="flex flex-wrap items-center gap-4 px-5 py-3 border-t border-border bg-white">
+                    <span className="text-xs text-fg-tertiary">
+                      Digite <span className="font-mono text-fg-primary bg-bg-muted px-1 py-0.5 rounded text-[10px]">@</span> ou <span className="font-mono text-fg-primary bg-bg-muted px-1 py-0.5 rounded text-[10px]">{"{{"}</span> para variáveis
                     </span>
                   </div>
                   </div>
@@ -2445,29 +2390,29 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     onClick={() => setVariáveisSectionExpanded(!variáveisSectionExpanded)}
                     className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
                   >
-                    <h3 className="text-sm font-semibold text-[#0d1013]">Variáveis</h3>
+                    <h3 className="text-sm font-semibold text-fg-primary">Variáveis</h3>
                     <svg
                       width="16"
                       height="16"
                       viewBox="0 0 24 24"
                       fill="none"
-                      className={`text-[#6b7280] transition-transform ${variáveisSectionExpanded ? "rotate-180" : ""}`}
+                      className={`text-aw-gray-700 transition-transform ${variáveisSectionExpanded ? "rotate-180" : ""}`}
                     >
                       <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
                   {variáveisSectionExpanded && (
                     <div className="pt-2">
-                      <p className="text-xs text-[#9d9d9d] mb-3">
+                      <p className="text-xs text-fg-tertiary mb-3">
                         Selecione variáveis disponíveis das integrações selecionadas.
                       </p>
                       <ul className="space-y-2">
                         {(variáveisVerMaisExpanded ? SIDEBAR_VARIABLES : SIDEBAR_VARIABLES.slice(0, 3)).map((v) => (
                           <li key={v.id} className="flex items-center gap-2 text-sm">
-                            <span className="shrink-0 rounded bg-[#f5f5f5] px-1.5 py-0.5 font-mono text-[#6b7280] text-xs">
+                            <span className="shrink-0 rounded bg-bg-muted px-1.5 py-0.5 font-mono text-aw-gray-700 text-xs">
                               {v.name}
                             </span>
-                            <span className="min-w-0 flex-1 truncate text-[#0d1013]">
+                            <span className="min-w-0 flex-1 truncate text-fg-primary">
                               {editingSidebarVariableId === v.id ? (
                                 <input
                                   type="text"
@@ -2475,7 +2420,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   onChange={(e) => setSidebarVariableValues((prev) => ({ ...prev, [v.id]: e.target.value }))}
                                   onBlur={() => setEditingSidebarVariableId(null)}
                                   onKeyDown={(e) => { if (e.key === "Enter") setEditingSidebarVariableId(null); }}
-                                  className="w-full rounded border border-[#e5e5e5] px-2 py-0.5 text-sm outline-none focus:border-[#0d1013]"
+                                  className="w-full rounded border border-border px-2 py-0.5 text-sm outline-none focus:border-aw-gray-1200"
                                   autoFocus
                                 />
                               ) : (
@@ -2485,7 +2430,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             <button
                               type="button"
                               onClick={() => setEditingSidebarVariableId(editingSidebarVariableId === v.id ? null : v.id)}
-                              className="shrink-0 p-1 rounded text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                              className="shrink-0 p-1 rounded text-fg-tertiary hover:text-fg-primary hover:bg-bg-muted transition-colors"
                               aria-label="Editar valor"
                             >
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -2499,7 +2444,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       <button
                         type="button"
                         onClick={() => setVariáveisVerMaisExpanded(!variáveisVerMaisExpanded)}
-                        className="mt-2 flex items-center gap-1.5 text-xs text-[#6b7280] hover:text-[#0d1013] transition-colors"
+                        className="mt-2 flex items-center gap-1.5 text-xs text-aw-gray-700 hover:text-fg-primary transition-colors"
                       >
                         {variáveisVerMaisExpanded ? "Ver menos" : "Ver mais"}
                         <svg
@@ -2523,20 +2468,20 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     onClick={() => setToolsSectionExpanded(!toolsSectionExpanded)}
                     className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
                   >
-                    <h3 className="text-sm font-semibold text-[#0d1013]">Tools</h3>
+                    <h3 className="text-sm font-semibold text-fg-primary">Tools</h3>
                     <svg
                       width="16"
                       height="16"
                       viewBox="0 0 24 24"
                       fill="none"
-                      className={`text-[#6b7280] transition-transform ${toolsSectionExpanded ? "rotate-180" : ""}`}
+                      className={`text-aw-gray-700 transition-transform ${toolsSectionExpanded ? "rotate-180" : ""}`}
                     >
                       <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </button>
                   {toolsSectionExpanded && (
                     <div className="pt-2">
-                      <p className="text-xs text-[#9d9d9d] mb-3">
+                      <p className="text-xs text-fg-tertiary mb-3">
                         Selecione variáveis disponíveis das integrações selecionadas.
                       </p>
                       <ul className="space-y-3">
@@ -2545,12 +2490,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             <button
                               type="button"
                               onClick={() => setSelectedSidebarToolId(tool.id)}
-                              className="w-full text-left p-3 rounded-[14px] border border-[#e5e5e5] hover:border-[#d1d5db] hover:bg-[#fafafa] transition-colors"
+                              className="w-full text-left p-3 rounded-[14px] border border-border hover:border-aw-gray-400 hover:bg-bg-surface transition-colors"
                             >
                               <div className="flex items-start gap-3">
-                                <span className="shrink-0 w-9 h-9 rounded-lg bg-[#f5f5f5] flex items-center justify-center">
+                                <span className="shrink-0 w-9 h-9 rounded-lg bg-bg-muted flex items-center justify-center">
                                   {tool.icon === "system" && (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#6b7280]">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-aw-gray-700">
                                       <rect x="4" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
                                       <rect x="14" y="4" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
                                       <rect x="4" y="14" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
@@ -2574,21 +2519,21 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   )}
                                 </span>
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-semibold text-[#0d1013]">{tool.title}</p>
-                                  <p className="text-xs text-[#9d9d9d] mt-0.5 line-clamp-2">{tool.description}</p>
+                                  <p className="text-sm font-semibold text-fg-primary">{tool.title}</p>
+                                  <p className="text-xs text-fg-tertiary mt-0.5 line-clamp-2">{tool.description}</p>
                                   <div className="flex flex-wrap gap-1.5 mt-2">
                                     {tool.activeCount > 0 && (
-                                      <span className="inline-flex items-center gap-1 text-xs text-[#0d1013] bg-[#f0fdf4] text-[#166534] px-1.5 py-0.5 rounded">
+                                      <span className="inline-flex items-center gap-1 text-xs text-fg-primary bg-[#f0fdf4] text-[#166534] px-1.5 py-0.5 rounded">
                                         <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
                                         {tool.activeCount} Ativas
                                       </span>
                                     )}
-                                    <span className="text-xs text-[#6b7280] bg-[#f5f5f5] px-1.5 py-0.5 rounded">
+                                    <span className="text-xs text-aw-gray-700 bg-bg-muted px-1.5 py-0.5 rounded">
                                       {tool.availableCount} Disponíveis
                                     </span>
                                   </div>
                                 </div>
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-[#9d9d9d] mt-1">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="shrink-0 text-fg-tertiary mt-1">
                                   <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               </div>
@@ -2609,14 +2554,14 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             {agentStudioTab !== "agente" && agentStudioTab !== "visualizacao-modular" && agentStudioTab !== "bases-conhecimento" && (
               <div className="flex-1 px-4 py-8 flex items-center justify-center min-h-[200px]">
                 <div className="text-center max-w-md">
-                  <p className="text-sm text-[#9d9d9d] mb-2">
+                  <p className="text-sm text-fg-tertiary mb-2">
                     {agentStudioTab === "aop" && "Protocolos específicos (AOP) do agente em breve."}
                     {agentStudioTab === "analise" && "Análises e informações relevantes do agente em breve."}
                     {agentStudioTab === "playground" && "Playground para conversar e testar o agente em breve."}
                     {agentStudioTab === "historico" && "Histórico de alterações em breve."}
                     {agentStudioTab === "configuracoes" && "Configurações do agente em breve."}
                   </p>
-                  <p className="text-xs text-[#c4c4c4]">Esta seção será implementada em breve.</p>
+                  <p className="text-xs text-fg-muted">Esta seção será implementada em breve.</p>
                 </div>
               </div>
             )}
@@ -2626,70 +2571,64 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
         {variableModalOpen && selectedVariable && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
             <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-[#e5e5e5]">
-                <h3 className="font-heading text-lg font-medium text-[#0d1013]">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
+                <h3 className="font-heading text-lg font-medium text-fg-primary">
                   Configurar variável
                 </h3>
-                <button
-                  type="button"
-                  onClick={() => { setVariableModalOpen(false); setSelectedVariable(null); }}
-                  className="p-2 rounded-lg text-[#9d9d9d] hover:text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
+                <AwButton
+                  variant="ghost"
+                  size="md"
+                  iconOnly="close"
                   aria-label="Fechar"
-                >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </button>
+                  onClick={() => { setVariableModalOpen(false); setSelectedVariable(null); }}
+                />
               </div>
               <div className="p-6 overflow-y-auto flex-1">
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Variável</p>
-                    <p className="font-mono text-sm text-[#0d1013] bg-[#f5f5f5] px-3 py-2 rounded-lg">
+                    <p className="text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-1">Variável</p>
+                    <p className="font-mono text-sm text-fg-primary bg-bg-muted px-3 py-2 rounded-lg">
                       {selectedVariable.variable}
                     </p>
                   </div>
                   <div>
-                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Tipo</p>
-                    <p className="text-sm text-[#0d1013]">
+                    <p className="text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-1">Tipo</p>
+                    <p className="text-sm text-fg-primary">
                       {selectedVariable.type === "at" ? "Lógica / Ação" : "Interpolação (mensagem)"}
                     </p>
                   </div>
                   {VARIABLE_META[selectedVariable.variable] && (
                     <div>
-                      <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">Descrição</p>
-                      <p className="text-sm text-[#0d1013]">
+                      <p className="text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-1">Descrição</p>
+                      <p className="text-sm text-fg-primary">
                         {VARIABLE_META[selectedVariable.variable].description}
                       </p>
                     </div>
                   )}
                   <div>
-                    <p className="text-xs font-medium text-[#9d9d9d] uppercase tracking-wider mb-1">ID</p>
-                    <p className="font-mono text-xs text-[#0d1013] bg-[#f5f5f5] px-3 py-2 rounded-lg">
+                    <p className="text-xs font-medium text-fg-tertiary uppercase tracking-wider mb-1">ID</p>
+                    <p className="font-mono text-xs text-fg-primary bg-bg-muted px-3 py-2 rounded-lg">
                       {VARIABLE_META[selectedVariable.variable]?.id ?? selectedVariable.variable}
                     </p>
                   </div>
-                  <div className="pt-4 border-t border-[#e5e5e5]">
-                    <p className="text-xs text-[#9d9d9d] mb-2">
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-xs text-fg-tertiary mb-2">
                       Opções de configuração e ajustes desta variável serão definidas aqui.
                     </p>
                   </div>
                 </div>
               </div>
-              <div className="px-6 py-4 border-t border-[#e5e5e5] flex justify-end gap-2">
-                <button
-                  type="button"
+              <div className="px-6 py-4 border-t border-border flex justify-end gap-2">
+                <AwButton
+                  variant="secondary"
+                  size="md"
                   onClick={() => { setVariableModalOpen(false); setSelectedVariable(null); }}
-                  className="px-4 py-2 text-sm font-medium text-[#0d1013] border border-[#e5e5e5] rounded-lg hover:bg-[#f5f5f5] transition-colors"
                 >
                   Fechar
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#0d1013] rounded-lg hover:bg-[#1a1a1a] transition-colors"
-                >
+                </AwButton>
+                <AwButton variant="primary" size="md">
                   Salvar
-                </button>
+                </AwButton>
               </div>
             </div>
           </div>
@@ -2703,31 +2642,22 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               onClick={() => setShowPublishOptionsModal(false)}
             />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-              <h2 className="font-heading text-xl font-medium text-[#0d1013] mb-2">
+              <h2 className="font-heading text-xl font-medium text-fg-primary mb-2">
                 Próximos passos
               </h2>
-              <p className="text-sm text-[#9d9d9d] mb-6">
+              <p className="text-sm text-fg-tertiary mb-6">
                 Escolha como deseja prosseguir com seu agente
               </p>
               <div className="flex flex-col gap-3">
-                <button
-                  onClick={handlePublishAgent}
-                  className="w-full h-12 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
-                >
+                <AwButton variant="primary" size="lg" block onClick={handlePublishAgent}>
                   Publicar agente
-                </button>
-                <button
-                  onClick={handleTestAgent}
-                  className="w-full h-12 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
-                >
+                </AwButton>
+                <AwButton variant="secondary" size="lg" block onClick={handleTestAgent}>
                   Testar agente
-                </button>
-                <button
-                  onClick={() => setShowPublishOptionsModal(false)}
-                  className="w-full h-12 flex items-center justify-center rounded-xl font-heading font-medium text-sm text-[#9d9d9d] hover:bg-[#f5f5f5] transition-colors"
-                >
+                </AwButton>
+                <AwButton variant="ghost" size="lg" block onClick={() => setShowPublishOptionsModal(false)}>
                   Cancelar
-                </button>
+                </AwButton>
               </div>
             </div>
           </div>
@@ -2746,25 +2676,27 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <h2 className="font-heading text-xl font-medium text-[#0d1013] mb-2">
+              <h2 className="font-heading text-xl font-medium text-fg-primary mb-2">
                 Publicar agente?
               </h2>
-              <p className="text-sm text-[#9d9d9d] mb-6">
-                Seu agente <span className="font-medium text-[#0d1013]">{agentName || "Agente"}</span> será publicado e ficará disponível para uso. Você poderá editá-lo a qualquer momento.
+              <p className="text-sm text-fg-tertiary mb-6">
+                Seu agente <span className="font-medium text-fg-primary">{agentName || "Agente"}</span> será publicado e ficará disponível para uso. Você poderá editá-lo a qualquer momento.
               </p>
               <div className="flex items-center justify-end gap-3">
-                <button
+                <AwButton
+                  variant="secondary"
+                  size="md"
                   onClick={() => setShowPublishConfirmModal(false)}
-                  className="h-10 px-4 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
                 >
                   Cancelar
-                </button>
-                <button
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="md"
                   onClick={handleConfirmPublish}
-                  className="h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
                 >
                   Confirmar publicação
-                </button>
+                </AwButton>
               </div>
             </div>
           </div>
@@ -2783,10 +2715,10 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 1 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-[#0d1013] tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
                   Caso de uso
                 </h1>
-                <p className="text-base text-[#9d9d9d] font-sans">
+                <p className="text-base text-fg-tertiary font-sans">
                   Com o que o seu agente vai ajudar?
                 </p>
               </div>
@@ -2802,13 +2734,13 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       onClick={() => handleGoalSelect(goal.id)}
                       className={`flex flex-col items-center justify-center gap-3 px-4 py-6 rounded-2xl border transition-all duration-200 text-center min-h-[120px] ${
                         isSelected
-                          ? "bg-[#0d1013] border-[#0d1013]"
-                          : "bg-white border-[#e5e5e5] hover:border-[#d1d5db] hover:bg-[#fafafa]"
+                          ? "bg-aw-gray-1200 border-aw-gray-1200"
+                          : "bg-white border-border hover:border-aw-gray-400 hover:bg-bg-surface"
                       }`}
                     >
                       <IconComponent color={isSelected ? "#ffffff" : "#9d9d9d"} />
                       <h3 className={`font-heading font-medium text-sm leading-5 ${
-                        isSelected ? "text-white" : "text-[#0d1013]"
+                        isSelected ? "text-white" : "text-fg-primary"
                       }`}>
                         {goal.title}
                       </h3>
@@ -2820,53 +2752,46 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   onClick={handleOtherSelect}
                   className={`flex flex-col items-center justify-center gap-3 px-4 py-6 rounded-2xl border-2 transition-all duration-200 text-center min-h-[120px] ${
                     isOtherSelected
-                      ? "bg-white border-[#0d1013]"
-                      : "bg-white border-dashed border-[#d1d5db] hover:border-[#9d9d9d]"
+                      ? "bg-white border-aw-gray-1200"
+                      : "bg-white border-dashed border-aw-gray-400 hover:border-aw-gray-600"
                   }`}
                 >
                   <OtherIcon color={isOtherSelected ? "#0d1013" : "#9d9d9d"} />
-                  <h3 className="font-heading font-medium text-sm leading-5 text-[#0d1013]">
+                  <h3 className="font-heading font-medium text-sm leading-5 text-fg-primary">
                     Outro
                   </h3>
                 </button>
               </div>
 
               {showCustomInput && (
-                <div className="flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
-                  <div className="flex-1 flex items-center h-12 px-4 bg-white border border-[#e5e5e5] rounded-xl">
-                    <input
-                      type="text"
-                      value={customGoal}
-                      onChange={(e) => setCustomGoal(e.target.value)}
-                      placeholder="ex.: Qualificação de leads, Onboarding de clientes..."
-                      className="flex-1 text-base text-[#0d1013] bg-transparent outline-none font-sans placeholder:text-[#9d9d9d]"
-                      autoFocus
-                    />
-                  </div>
+                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                  <AwInput
+                    type="text"
+                    value={customGoal}
+                    onChange={(e) => setCustomGoal(e.target.value)}
+                    placeholder="ex.: Qualificação de leads, Onboarding de clientes..."
+                    autoFocus
+                  />
                 </div>
               )}
 
               <div className="flex items-center justify-between pt-4">
-                <button
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
                   onClick={handleBack}
-                  className="h-10 px-4 flex items-center justify-center gap-1 border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
                   Voltar
-                </button>
-                <button
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="md"
                   onClick={handleAdvance}
                   disabled={!canAdvanceStep1}
-                  className={`h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm transition-colors ${
-                    canAdvanceStep1
-                      ? "bg-[#0d0d0d] text-white hover:bg-[#1a1a1a]"
-                      : "bg-[#e5e5e5] text-[#9d9d9d] cursor-not-allowed"
-                  }`}
                 >
                   Avançar
-                </button>
+                </AwButton>
               </div>
             </>
           )}
@@ -2875,36 +2800,33 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 2 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-[#0d1013] tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
                   Configure seu agente
                 </h1>
-                <p className="text-base text-[#9d9d9d] font-sans">
+                <p className="text-base text-fg-tertiary font-sans">
                   Defina o nome e a base de conhecimento do seu agente
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-[#0d1013]">
-                  Nome do agente
-                </label>
-                <input
+              <AwField label="Nome do agente" htmlFor="agent-name">
+                <AwInput
+                  id="agent-name"
                   type="text"
                   value={agentName}
                   onChange={(e) => setAgentName(e.target.value)}
                   placeholder="Ex: Assistente de Vendas"
-                  className="w-full h-12 px-4 bg-white border border-[#e5e5e5] rounded-xl text-base text-[#0d1013] outline-none font-sans placeholder:text-[#9d9d9d] focus:border-[#0d1013] transition-colors"
                   autoFocus
                 />
-              </div>
+              </AwField>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-[#0d1013]">
+                  <label className="block text-sm font-medium text-fg-primary">
                     Base de conhecimento
                   </label>
                   <button
                     onClick={handleCreateNewBase}
-                    className="text-sm font-medium text-[#0d1013] hover:underline flex items-center gap-1"
+                    className="text-sm font-medium text-fg-primary hover:underline flex items-center gap-1"
                   >
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path d="M7 3v8M3 7h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -2912,18 +2834,18 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     Criar nova base
                   </button>
                 </div>
-                <p className="text-sm text-[#9d9d9d]">
+                <p className="text-sm text-fg-tertiary">
                   Selecione qual base de conhecimento o agente vai utilizar
                 </p>
                 
                 {knowledgeBases.length === 0 ? (
-                  <div className="p-6 border border-dashed border-[#e5e5e5] rounded-xl text-center">
-                    <p className="text-sm text-[#9d9d9d] mb-3">
+                  <div className="p-6 border border-dashed border-border rounded-xl text-center">
+                    <p className="text-sm text-fg-tertiary mb-3">
                       Nenhuma base de conhecimento encontrada
                     </p>
                     <button
                       onClick={handleCreateNewBase}
-                      className="text-sm font-medium text-[#0d1013] underline hover:no-underline"
+                      className="text-sm font-medium text-fg-primary underline hover:no-underline"
                     >
                       Criar uma base de conhecimento
                     </button>
@@ -2942,12 +2864,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             onClick={() => setSelectedBaseId(base.id)}
                             className={`flex items-start gap-3 p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                               isSelected
-                                ? "bg-[#0d1013] border-[#0d1013]"
-                                : "bg-white border-[#e5e5e5] hover:border-[#d1d5db]"
+                                ? "bg-aw-gray-1200 border-aw-gray-1200"
+                                : "bg-white border-border hover:border-aw-gray-400"
                             }`}
                           >
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                              isSelected ? "bg-white/10" : "bg-[#f5f5f5]"
+                              isSelected ? "bg-white/10" : "bg-bg-muted"
                             }`}>
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <path 
@@ -2961,12 +2883,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             
                             <div className="flex-1 min-w-0">
                               <h4 className={`font-heading font-medium text-sm truncate ${
-                                isSelected ? "text-white" : "text-[#0d1013]"
+                                isSelected ? "text-white" : "text-fg-primary"
                               }`}>
                                 {base.name}
                               </h4>
                               <div className={`flex items-center gap-3 mt-1 text-xs ${
-                                isSelected ? "text-white/70" : "text-[#9d9d9d]"
+                                isSelected ? "text-white/70" : "text-fg-tertiary"
                               }`}>
                                 <span>{layers} Knowledge Layer{layers !== 1 ? "s" : ""}</span>
                                 <span>{sources} Fonte{sources !== 1 ? "s" : ""}</span>
@@ -2974,7 +2896,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             </div>
 
                             <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
-                              isSelected ? "bg-white" : "border-2 border-[#d1d5db]"
+                              isSelected ? "bg-white" : "border-2 border-aw-gray-400"
                             }`}>
                               {isSelected && (
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
@@ -2990,7 +2912,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     {hasMoreBases && (
                       <button
                         onClick={() => setShowAllBases(!showAllBases)}
-                        className="text-sm font-medium text-[#0d1013] hover:underline mt-2"
+                        className="text-sm font-medium text-fg-primary hover:underline mt-2"
                       >
                         {showAllBases ? "Ver menos" : `Ver mais (${knowledgeBases.length - MAX_VISIBLE_BASES})`}
                       </button>
@@ -3000,26 +2922,22 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               </div>
 
               <div className="flex items-center justify-between pt-4">
-                <button
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
                   onClick={handleBack}
-                  className="h-10 px-4 flex items-center justify-center gap-1 border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
                   Voltar
-                </button>
-                <button
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="md"
                   onClick={handleAdvance}
                   disabled={!canAdvanceStep2}
-                  className={`h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm transition-colors ${
-                    canAdvanceStep2
-                      ? "bg-[#0d0d0d] text-white hover:bg-[#1a1a1a]"
-                      : "bg-[#e5e5e5] text-[#9d9d9d] cursor-not-allowed"
-                  }`}
                 >
                   Avançar
-                </button>
+                </AwButton>
               </div>
             </>
           )}
@@ -3028,10 +2946,10 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 3 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-[#0d1013] tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
                   Integrações
                 </h1>
-                <p className="text-base text-[#9d9d9d] font-sans">
+                <p className="text-base text-fg-tertiary font-sans">
                   Selecione quais canais o agente deve utilizar
                 </p>
               </div>
@@ -3039,7 +2957,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               {/* Configured Integrations – mesma largura dos cards de "Adicionar nova integração", seleção por clique (sem toggle) */}
               {configuredIntegrations.length > 0 && (
                 <div className="space-y-3">
-                  <label className="block text-sm font-medium text-[#0d1013]">
+                  <label className="block text-sm font-medium text-fg-primary">
                     Integrações configuradas
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3052,14 +2970,14 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           onClick={() => handleToggleIntegration(integration.id)}
                           className={`flex items-center justify-between gap-3 p-4 rounded-xl border text-left transition-colors ${
                             selected
-                              ? "bg-[#0d0d0d] border-[#0d0d0d]"
-                              : "bg-white border-[#e5e5e5] hover:border-[#d4d4d4] hover:bg-[#fbfcfd]"
+                              ? "bg-aw-gray-1200 border-aw-gray-1200"
+                              : "bg-white border-border hover:border-aw-gray-400 hover:bg-bg-surface"
                           }`}
                         >
                           <div className="flex items-center gap-3 min-w-0 flex-1">
                             <div
                               className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                selected ? "bg-white/20" : "bg-[#f5f5f5]"
+                                selected ? "bg-white/20" : "bg-bg-muted"
                               }`}
                             >
                               <IntegrationIcon type={integration.icon} />
@@ -3067,14 +2985,14 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             <div className="min-w-0">
                               <h4
                                 className={`font-heading font-medium text-sm truncate ${
-                                  selected ? "text-white" : "text-[#0d1013]"
+                                  selected ? "text-white" : "text-fg-primary"
                                 }`}
                               >
                                 {integration.name}
                               </h4>
                               <p
                                 className={`text-xs truncate ${
-                                  selected ? "text-white/80" : "text-[#9d9d9d]"
+                                  selected ? "text-white/80" : "text-fg-tertiary"
                                 }`}
                               >
                                 {integration.description}
@@ -3083,7 +3001,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           </div>
                           {selected && (
                             <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white flex items-center justify-center" aria-hidden>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[#0d0d0d]">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-fg-primary">
                                 <path
                                   d="M20 6 9 17l-5-5"
                                   stroke="currentColor"
@@ -3104,10 +3022,10 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               {/* Unconfigured Integrations */}
               {unconfiguredIntegrations.length > 0 && (
                 <div className="space-y-3">
-                  <label className="block text-sm font-medium text-[#0d1013]">
+                  <label className="block text-sm font-medium text-fg-primary">
                     Adicionar nova integração
                   </label>
-                  <p className="text-sm text-[#9d9d9d]">
+                  <p className="text-sm text-fg-tertiary">
                     Configure integrações com aplicações de terceiros
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -3115,20 +3033,20 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       <button
                         key={integration.id}
                         onClick={() => router.push("/integrations")}
-                        className="flex items-center gap-3 p-4 bg-white border border-dashed border-[#d1d5db] rounded-xl hover:border-[#9d9d9d] transition-colors text-left"
+                        className="flex items-center gap-3 p-4 bg-white border border-dashed border-aw-gray-400 rounded-xl hover:border-aw-gray-600 transition-colors text-left"
                       >
-                        <div className="w-10 h-10 rounded-lg bg-[#f5f5f5] flex items-center justify-center opacity-50">
+                        <div className="w-10 h-10 rounded-lg bg-bg-muted flex items-center justify-center opacity-50">
                           <IntegrationIcon type={integration.icon} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-heading font-medium text-sm text-[#0d1013]">
+                          <h4 className="font-heading font-medium text-sm text-fg-primary">
                             {integration.name}
                           </h4>
-                          <p className="text-xs text-[#9d9d9d]">
+                          <p className="text-xs text-fg-tertiary">
                             {integration.description}
                           </p>
                         </div>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-[#9d9d9d]">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-fg-tertiary">
                           <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                         </svg>
                       </button>
@@ -3138,21 +3056,17 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               )}
 
               <div className="flex items-center justify-between pt-4">
-                <button
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
                   onClick={handleBack}
-                  className="h-10 px-4 flex items-center justify-center gap-1 border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
                 >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M10 12L6 8L10 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
                   Voltar
-                </button>
-                <button
-                  onClick={handleAdvance}
-                  className="h-10 px-6 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
-                >
+                </AwButton>
+                <AwButton variant="primary" size="md" onClick={handleAdvance}>
                   Criar agente
-                </button>
+                </AwButton>
               </div>
             </>
           )}
@@ -3164,25 +3078,27 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowExitModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-            <h2 className="font-heading text-xl font-medium text-[#0d1013] mb-2">
+            <h2 className="font-heading text-xl font-medium text-fg-primary mb-2">
               Você está prestes a sair
             </h2>
-            <p className="text-sm text-[#9d9d9d] mb-6">
+            <p className="text-sm text-fg-tertiary mb-6">
               Você será redirecionado para o Knowledge OS para criar uma nova base de conhecimento. O progresso atual não será perdido.
             </p>
             <div className="flex items-center justify-end gap-3">
-              <button
+              <AwButton
+                variant="secondary"
+                size="md"
                 onClick={() => setShowExitModal(false)}
-                className="h-10 px-4 flex items-center justify-center border border-[#e5e5e5] rounded-xl font-heading font-medium text-sm text-[#0d1013] hover:bg-[#f5f5f5] transition-colors"
               >
                 Cancelar
-              </button>
-              <button
+              </AwButton>
+              <AwButton
+                variant="primary"
+                size="md"
                 onClick={handleConfirmExit}
-                className="h-10 px-4 flex items-center justify-center rounded-xl font-heading font-medium text-sm bg-[#0d0d0d] text-white hover:bg-[#1a1a1a] transition-colors"
               >
                 Ir para Knowledge OS
-              </button>
+              </AwButton>
             </div>
           </div>
         </div>

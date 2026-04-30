@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
@@ -14,10 +14,21 @@ import {
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { type AwIntegrationCardState } from "@/components/ui/AwIntegrationCard";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
-import { AwConnectModal } from "@/components/ui/AwConnectModal";
+import {
+  AwConnectModal,
+  type AwWebhookStep,
+} from "@/components/ui/AwConnectModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
+
+const HUBLA_WEBHOOK_TEMPLATE = (id: string) =>
+  `https://app.awsales.io/api/webhooks/checkouts/${id}`;
+
+/** Mirrors the default organization shown in the nav rail switcher. */
+const ORG_LOGO_SRC = "/assets/icon_artificial_concord_organization.png";
+const ORG_NAME = "Nome da organização";
 
 type IntegrationCategory =
   | "channels"
@@ -26,9 +37,11 @@ type IntegrationCategory =
   | "forms"
   | "meetings"
   | "crms"
-  | "marketplaces";
+  | "marketplaces"
+  | "ai"
+  | "signatures";
 
-type AuthMethod = "oauth" | "api";
+type AuthMethod = "oauth" | "webhook" | "apiKey";
 
 type PermissionMode = "always" | "approval" | "never";
 
@@ -59,15 +72,86 @@ interface Integration {
   tools?: IntegrationTools;
 }
 
+interface IntegrationInstance {
+  instanceId: string;
+  integrationId: string;
+  name: string;
+}
+
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
+  { id: "ai", label: "Modelos de IA" },
   { id: "checkouts", label: "Checkouts" },
   { id: "members", label: "Área de membros" },
   { id: "forms", label: "Formulários" },
   { id: "meetings", label: "Reuniões" },
   { id: "crms", label: "CRMs" },
   { id: "marketplaces", label: "Marketplaces" },
+  { id: "signatures", label: "Assinaturas" },
 ];
+
+function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
+  const url = HUBLA_WEBHOOK_TEMPLATE(`${integration.id}-d12fa78b3e4c4a1f`);
+  return [
+    {
+      label: "Copiar",
+      title: "Copie o webhook",
+      body: (
+        <p>
+          Copie o link abaixo. Ele será utilizado na configuração do{" "}
+          {integration.name}.
+        </p>
+      ),
+      copy: { label: "Webhook URL", value: url },
+    },
+    {
+      label: "Configurar",
+      title: `Acesse o ${integration.name}`,
+      body: (
+        <>
+          <p>
+            No painel do {integration.name}, abra{" "}
+            <strong>Webhooks → Novo webhook</strong> e preencha:
+          </p>
+          <ul>
+            <li>
+              <strong>Nome:</strong> Integração AwSales
+            </li>
+            <li>
+              <strong>URL:</strong> cole o webhook copiado na etapa anterior
+            </li>
+            <li>
+              <strong>Eventos:</strong> Fatura Criada, Fatura Paga, Fatura
+              Reembolsada, Carrinho Abandonado e Pagamento Falhou
+            </li>
+          </ul>
+        </>
+      ),
+    },
+    {
+      label: "Salvar",
+      title: "Salve a configuração",
+      body: (
+        <p>
+          Após ajustar todas as configurações, garanta que o webhook foi
+          salvo e aparece como <strong>Ativo</strong> no painel do{" "}
+          {integration.name}.
+        </p>
+      ),
+    },
+    {
+      label: "Testar",
+      title: "Faça um teste",
+      body: (
+        <p>
+          O {integration.name} oferece a opção <em>Testar configuração</em>{" "}
+          na tela de edição do webhook. Use essa opção — nosso sistema
+          verifica se a integração foi realizada com sucesso.
+        </p>
+      ),
+    },
+  ];
+}
 
 const ITEMS: Integration[] = [
   // CHANNELS
@@ -104,7 +188,7 @@ const ITEMS: Integration[] = [
     name: "Instagram",
     domain: "instagram.com",
     desc: "Responda DMs do Instagram automaticamente com agentes.",
-    state: "connected",
+    state: "attention",
     auth: "oauth",
     permissions: [
       "Ler e responder mensagens diretas",
@@ -131,7 +215,7 @@ const ITEMS: Integration[] = [
     domain: "hotmart.com",
     desc: "Capture transações e eventos do checkout Hotmart.",
     state: "connected",
-    auth: "api",
+    auth: "apiKey",
     tools: {
       readOnly: [
         { id: "list-sales", name: "Listar vendas", defaultMode: "always" },
@@ -150,7 +234,7 @@ const ITEMS: Integration[] = [
     domain: "stripe.com",
     desc: "Pagamentos globais — cartão, PIX, assinaturas.",
     state: "attention",
-    auth: "api",
+    auth: "apiKey",
     tools: {
       readOnly: [
         { id: "list-charges", name: "Listar cobranças", defaultMode: "always" },
@@ -162,18 +246,27 @@ const ITEMS: Integration[] = [
       ],
     },
   },
-  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "api" },
-  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "api" },
-  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "api" },
-  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "api" },
-  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "api" },
+  { id: "kiwify", cat: "checkouts", name: "Kiwify", domain: "kiwify.com.br", desc: "Sincronize vendas e abandonos do checkout Kiwify.", state: "available", auth: "webhook" },
+  { id: "eduzz", cat: "checkouts", name: "Eduzz", domain: "eduzz.com", desc: "Capture transações do checkout Eduzz.", state: "available", auth: "webhook" },
+  { id: "hubla", cat: "checkouts", name: "Hubla", domain: "hub.la", desc: "Sincronize vendas e clientes da Hubla.", state: "available", auth: "webhook" },
+  { id: "ticto", cat: "checkouts", name: "Ticto", domain: "ticto.com.br", desc: "Receba eventos de venda do checkout Ticto.", state: "available", auth: "webhook" },
+  { id: "lastlink", cat: "checkouts", name: "LastLink", domain: "lastlink.com", desc: "Capture transações e renovações da LastLink.", state: "available", auth: "webhook" },
+  { id: "braip", cat: "checkouts", name: "Braip", domain: "braip.com", desc: "Sincronize vendas e indicações do checkout Braip.", state: "available", auth: "webhook" },
+  { id: "zouti", cat: "checkouts", name: "Zouti", domain: "zouti.com.br", desc: "Capture transações e abandonos do checkout Zouti.", state: "available", auth: "webhook" },
+  { id: "blitzpay", cat: "checkouts", name: "BlitzPay", domain: "blitzpay.com.br", desc: "Receba eventos do checkout BlitzPay em tempo real.", state: "available", auth: "webhook" },
+  { id: "onprofit", cat: "checkouts", name: "OnProfit", domain: "onprofit.com.br", desc: "Sincronize vendas e assinaturas do OnProfit.", state: "available", auth: "webhook" },
+  { id: "greenn", cat: "checkouts", name: "Greenn", domain: "greenn.com.br", desc: "Conecte vendas e clientes do checkout Greenn.", state: "available", auth: "webhook" },
+  { id: "payt", cat: "checkouts", name: "Payt", domain: "payt.com.br", desc: "Receba eventos de venda do checkout Payt.", state: "available", auth: "webhook" },
+  { id: "pagtrust", cat: "checkouts", name: "PagTrust", domain: "pagtrust.com.br", desc: "Sincronize transações do checkout PagTrust.", state: "available", auth: "webhook" },
+  { id: "tmb", cat: "checkouts", name: "TMB", domain: "tmb.education", desc: "Capture eventos de venda do checkout TMB.", state: "available", auth: "webhook" },
+  { id: "dmg", cat: "checkouts", name: "Digital Manager Guru", domain: "digitalmanager.guru", desc: "Sincronize vendas e assinaturas do DMG.", state: "available", auth: "webhook" },
   // MEMBERS
-  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "api" },
-  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "api" },
+  { id: "memberkit", cat: "members", name: "MemberKit", domain: "memberkit.com.br", desc: "Sincronize alunos e progresso da área de membros.", state: "available", auth: "apiKey" },
+  { id: "cademi", cat: "members", name: "Cademi", domain: "cademi.com.br", desc: "Conecte sua área de membros Cademi para automações.", state: "available", auth: "apiKey" },
   // FORMS
   { id: "googleforms", cat: "forms", name: "Google Forms", domain: "forms.google.com", desc: "Receba submissões do Google Forms em tempo real.", state: "available", auth: "oauth", permissions: ["Acessar a lista de formulários da conta", "Receber respostas em tempo real", "Ler metadados das perguntas"] },
   { id: "typeform", cat: "forms", name: "Typeform", domain: "typeform.com", desc: "Capture leads dos seus formulários conversacionais.", state: "available", auth: "oauth", permissions: ["Acessar formulários da workspace", "Receber novas respostas via webhook", "Ler informações do respondente"] },
-  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "api" },
+  { id: "tally", cat: "forms", name: "Tally", domain: "tally.so", desc: "Formulários simples — dispare ações com cada submissão.", state: "available", auth: "apiKey" },
   // MEETINGS
   { id: "calendly", cat: "meetings", name: "Calendly", domain: "calendly.com", desc: "Agendamentos automáticos sincronizados com agentes.", state: "available", auth: "oauth", permissions: ["Acessar tipos de evento e disponibilidade", "Criar e cancelar agendamentos", "Receber notificações de novos eventos"] },
   { id: "googlecal", cat: "meetings", name: "Google Calendar", domain: "calendar.google.com", desc: "Reuniões e disponibilidade direto do Google Agenda.", state: "available", auth: "oauth", permissions: ["Ler eventos e disponibilidade da agenda", "Criar e atualizar eventos em seu nome", "Acessar agendas compartilhadas"] },
@@ -182,6 +275,12 @@ const ITEMS: Integration[] = [
   { id: "kommo", cat: "crms", name: "Kommo", domain: "kommo.com", desc: "Conecte funis, leads e tarefas do Kommo CRM.", state: "available", auth: "oauth", permissions: ["Acessar leads, contatos e empresas", "Criar e atualizar tarefas", "Mover leads entre etapas do funil"] },
   { id: "rdstation", cat: "crms", name: "RD Station", domain: "rdstation.com", desc: "Sincronize leads, oportunidades e tags do RD Station.", state: "available", auth: "oauth", permissions: ["Acessar leads e oportunidades", "Criar e atualizar tags", "Disparar eventos de conversão"] },
   { id: "hubspot", cat: "crms", name: "HubSpot", domain: "hubspot.com", desc: "Conecte contatos, empresas e pipelines do HubSpot.", state: "available", auth: "oauth", permissions: ["Acessar contatos e empresas", "Criar e atualizar deals do pipeline", "Disparar workflows quando uma oportunidade fechar"] },
+  // AI PROVIDERS
+  { id: "claude", cat: "ai", name: "Claude", domain: "anthropic.com", desc: "Conecte sua chave da Anthropic e use Claude como cérebro dos agentes.", state: "available", auth: "apiKey" },
+  { id: "chatgpt", cat: "ai", name: "ChatGPT", domain: "openai.com", desc: "Use os modelos GPT da OpenAI nas execuções dos seus agentes.", state: "available", auth: "apiKey" },
+  { id: "deepseek", cat: "ai", name: "DeepSeek", domain: "deepseek.com", desc: "Conecte sua chave DeepSeek e habilite os modelos R1 e V3.", state: "available", auth: "apiKey" },
+  // SIGNATURES
+  { id: "assiny", cat: "signatures", name: "Assiny", domain: "assiny.com.br", desc: "Envie e acompanhe contratos com assinatura eletrônica.", state: "available", auth: "apiKey" },
   // MARKETPLACES
   {
     id: "shopify",
@@ -209,7 +308,7 @@ const ITEMS: Integration[] = [
       ],
     },
   },
-  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "api" },
+  { id: "magalu", cat: "marketplaces", name: "Magalu", domain: "magalu.com", desc: "Sincronize produtos e pedidos do marketplace Magalu.", state: "available", auth: "apiKey" },
 ];
 
 const PERM_MODE_META: Record<PermissionMode, { icon: string; label: string }> = {
@@ -348,15 +447,30 @@ function PermissionGroup({
 
 function IntegrationSettings({
   integration,
+  displayName,
   permModes,
   onPermissionChange,
+  onDisconnect,
+  onReconnect,
+  onClose,
 }: {
   integration: Integration;
+  displayName?: string;
   permModes: Record<string, PermissionMode>;
   onPermissionChange: (toolId: string, next: PermissionMode) => void;
+  onDisconnect?: () => void;
+  onReconnect?: () => void;
+  onClose?: () => void;
 }) {
   const [enabled, setEnabled] = useState(true);
   const isOAuth = integration.auth === "oauth";
+  const isWebhook = integration.auth === "webhook";
+  const isApiKey = integration.auth === "apiKey";
+  const authMeta = isOAuth
+    ? { label: "OAuth 2.0", hint: "Renovação automática" }
+    : isWebhook
+      ? { label: "Webhook", hint: "Eventos em tempo real" }
+      : { label: "Chave de API", hint: "Renovação manual" };
   const lastSync =
     integration.state === "attention"
       ? "Token expira em 3 dias — renove para continuar"
@@ -371,7 +485,7 @@ function IntegrationSettings({
           <div>
             <div className="flex items-center gap-2">
               <h2 className="m-0 text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                {integration.name}
+                {displayName ?? integration.name}
               </h2>
               {integration.state === "attention" ? (
                 <AwPill variant="beta">Atenção</AwPill>
@@ -385,12 +499,19 @@ function IntegrationSettings({
           </div>
         </div>
         <div className="flex flex-shrink-0 items-center gap-2">
-          <AwButton variant="secondary" size="sm" iconLeft="refresh">
+          <AwButton variant="secondary" size="sm" iconLeft="refresh" onClick={onReconnect}>
             Reconectar
           </AwButton>
-          <AwButton variant="secondary" size="sm" iconLeft="link_off">
+          <AwButton variant="secondary" size="sm" iconLeft="link_off" onClick={onDisconnect}>
             Desconectar
           </AwButton>
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly="close"
+            aria-label="Fechar configurações"
+            onClick={onClose}
+          />
         </div>
       </header>
 
@@ -430,10 +551,10 @@ function IntegrationSettings({
               Autenticação
             </div>
             <div className="mt-1 text-[14px] font-semibold text-[var(--fg-primary)]">
-              {isOAuth ? "OAuth 2.0" : "Chave de API"}
+              {authMeta.label}
             </div>
             <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
-              {isOAuth ? "Renovação automática" : "Renovação manual"}
+              {authMeta.hint}
             </div>
           </div>
         </div>
@@ -471,8 +592,8 @@ function IntegrationSettings({
           </button>
         </div>
 
-        {/* Credentials — API auth shows masked key + webhook secret */}
-        {!isOAuth && (
+        {/* API key credentials */}
+        {isApiKey && (
           <section className="mb-7">
             <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
               Credenciais
@@ -500,6 +621,32 @@ function IntegrationSettings({
                 />
               </AwField>
             </div>
+          </section>
+        )}
+
+        {/* Webhook URL — for webhook-based integrations */}
+        {isWebhook && (
+          <section className="mb-7">
+            <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+              Webhook
+            </h3>
+            <p className="m-0 mb-3.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+              Endpoint que o {integration.name} usa para enviar eventos.
+              Reconfigure no painel do parceiro se rotacionar a URL.
+            </p>
+            <AwField
+              label="Webhook URL"
+              htmlFor={`live-webhook-${integration.id}`}
+            >
+              <AwInput
+                id={`live-webhook-${integration.id}`}
+                readOnly
+                defaultValue={HUBLA_WEBHOOK_TEMPLATE(
+                  `${integration.id}-d12fa78b3e4c4a1f`,
+                )}
+                iconLeft="bolt"
+              />
+            </AwField>
           </section>
         )}
 
@@ -624,10 +771,10 @@ function IntegrationSettings({
 
       {/* Footer actions */}
       <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
-        <AwButton variant="secondary" size="md">
+        <AwButton variant="secondary" size="md" onClick={onClose}>
           Cancelar
         </AwButton>
-        <AwButton variant="primary" size="md">
+        <AwButton variant="primary" size="md" onClick={onClose}>
           Salvar alterações
         </AwButton>
       </footer>
@@ -639,6 +786,11 @@ function IntegrationSettings({
  * Active integration list row — horizontal selectable item.
  * ---------------------------------------------------------------- */
 
+type ActiveRowStatus = {
+  label: string;
+  variant: "live" | "beta" | "neutral" | "error";
+};
+
 function ActiveRow({
   brand,
   name,
@@ -646,6 +798,7 @@ function ActiveRow({
   state,
   selected,
   onClick,
+  status,
 }: {
   brand: string;
   name: string;
@@ -653,6 +806,7 @@ function ActiveRow({
   state: AwIntegrationCardState;
   selected: boolean;
   onClick: () => void;
+  status?: ActiveRowStatus;
 }) {
   return (
     <button
@@ -660,10 +814,10 @@ function ActiveRow({
       onClick={onClick}
       aria-pressed={selected}
       className={
-        "group flex w-full items-center gap-3 rounded-[var(--radius-md)] px-2 py-2.5 text-left transition-colors " +
+        "group flex w-full items-center gap-3 px-2 py-2.5 text-left transition-colors " +
         (selected
-          ? "bg-[var(--bg-raised)]"
-          : "hover:bg-[var(--bg-raised)]")
+          ? "bg-[var(--bg-surface)]"
+          : "hover:bg-[var(--bg-surface)]")
       }
     >
       <AwBrandLogo brand={brand} size="md" />
@@ -672,7 +826,7 @@ function ActiveRow({
           <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
             {name}
           </span>
-          {state === "attention" && (
+          {state === "attention" && !status && (
             <Icon
               name="error"
               size={14}
@@ -684,6 +838,9 @@ function ActiveRow({
           {description}
         </div>
       </div>
+      {status && (
+        <AwPill variant={status.variant}>{status.label}</AwPill>
+      )}
       <Icon
         name="chevron_right"
         size={18}
@@ -691,6 +848,25 @@ function ActiveRow({
       />
     </button>
   );
+}
+
+const CHANNEL_IDS = ["whatsapp", "instagram", "messenger"] as const;
+type ChannelId = (typeof CHANNEL_IDS)[number];
+const isChannelId = (id: string): id is ChannelId =>
+  (CHANNEL_IDS as readonly string[]).includes(id);
+
+function statusForState(state: AwIntegrationCardState): ActiveRowStatus {
+  switch (state) {
+    case "connected":
+      return { label: "Ativo", variant: "live" };
+    case "attention":
+      return { label: "Requer atenção", variant: "beta" };
+    case "disabled":
+      return { label: "Desabilitado", variant: "error" };
+    case "available":
+    default:
+      return { label: "Não configurado", variant: "neutral" };
+  }
 }
 
 /* ================================================================
@@ -702,23 +878,35 @@ export default function IntegrationsPage() {
   const [connectId, setConnectId] = useState<string | null>(null);
   /** add-integration catalog modal — opened from the page header CTA */
   const [addOpen, setAddOpen] = useState(false);
+  /** custom-integration placeholder modal */
+  const [customOpen, setCustomOpen] = useState(false);
+  /** disconnect confirmation modal */
+  const [disconnectPending, setDisconnectPending] = useState(false);
   const [permModes, setPermModes] = useState<Record<string, PermissionMode>>({});
 
-  const connected = ITEMS.filter((i) => isActive(i.state));
-  /** selected integration in the inline settings panel */
-  const [selectedId, setSelectedId] = useState<string | null>(
-    connected[0]?.id ?? null,
+  /** Search query for filtering the active integrations list. */
+  const [searchQuery, setSearchQuery] = useState("");
+
+  /** Connected accounts shown in the left list — one row per instance. */
+  const [instances, setInstances] = useState<IntegrationInstance[]>(() =>
+    ITEMS.filter((i) => isActive(i.state)).map((i) => ({
+      instanceId: `${i.id}-default`,
+      integrationId: i.id,
+      name: i.name,
+    })),
   );
-  const selected = selectedId
-    ? ITEMS.find((i) => i.id === selectedId) ?? null
+  /** selected instance in the inline settings panel — null = panel hidden */
+  const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+  const selectedInstance =
+    instances.find((i) => i.instanceId === selectedInstanceId) ?? null;
+  const selected = selectedInstance
+    ? ITEMS.find((i) => i.id === selectedInstance.integrationId) ?? null
     : null;
 
   const connectTarget = connectId
     ? ITEMS.find((i) => i.id === connectId) ?? null
     : null;
 
-  const showOAuthModal = !!connectTarget && connectTarget.auth === "oauth";
-  const showFormModal = !!connectTarget && connectTarget.auth === "api";
 
   const breadcrumbs = [
     { label: "Integrações", icon: <Icon name="extension" size={20} /> },
@@ -729,15 +917,51 @@ export default function IntegrationsPage() {
     setPermModes((m) => ({ ...m, [toolId]: next }));
 
   const closeConnect = () => setConnectId(null);
+  const closeSettings = () => setSelectedInstanceId(null);
+
+  const isPanelOpen = !!selected;
+  const anyModalOpen =
+    !!connectId || addOpen || customOpen || disconnectPending;
+
+  useEffect(() => {
+    if (!isPanelOpen || anyModalOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSelectedInstanceId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isPanelOpen, anyModalOpen]);
+
+  /** Settings content stays at opacity 0 until the list-slide finishes. */
+  const [contentReady, setContentReady] = useState(false);
+  useEffect(() => {
+    if (!isPanelOpen) {
+      setContentReady(false);
+      return;
+    }
+    const t = setTimeout(() => setContentReady(true), 420);
+    return () => clearTimeout(t);
+  }, [isPanelOpen]);
+
+  const handleDisconnectConfirm = () => {
+    if (!selectedInstanceId) return;
+    setInstances((list) => {
+      const next = list.filter((i) => i.instanceId !== selectedInstanceId);
+      setSelectedInstanceId(next[0]?.instanceId ?? null);
+      return next;
+    });
+    setDisconnectPending(false);
+  };
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-surface)]">
+      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="w-full px-10 pt-12 pb-24">
           {/* Header */}
           <header className="mb-7 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
-              <h1 className="m-0 mb-1.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+              <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+                <Icon name="event_list" size={28} />
                 Integrações
               </h1>
               <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
@@ -745,9 +969,6 @@ export default function IntegrationsPage() {
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-2">
-              <AwButton variant="secondary" size="md" iconLeft="link">
-                Solicitar
-              </AwButton>
               <AwButton
                 variant="primary"
                 size="md"
@@ -759,70 +980,132 @@ export default function IntegrationsPage() {
             </div>
           </header>
 
-          {/* Two-column: active list + settings panel */}
-          <div className="grid gap-6 lg:grid-cols-[minmax(320px,400px)_1fr]">
-            {/* Left: active integrations */}
-            <aside>
-              <h2 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                Integrações ativas
-              </h2>
-              {connected.length === 0 ? (
-                <AwEmpty>
-                  <AwEmptyHeader>
-                    <AwEmptyMedia variant="icon">
-                      <Icon name="extension_off" size={20} />
-                    </AwEmptyMedia>
-                    <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
-                    <AwEmptyDescription>
-                      Conecte uma plataforma para começar.
-                    </AwEmptyDescription>
-                  </AwEmptyHeader>
-                </AwEmpty>
-              ) : (
-                <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
-                  {connected.map((it) => (
-                    <li key={it.id}>
+          {/* List + sliding settings panel */}
+          <div className="flex w-full justify-center gap-6">
+            {/* Active list — slides left when settings panel opens */}
+            <aside
+              aria-label="Lista de integrações"
+              className={
+                "transition-all duration-300 ease-out " +
+                (isPanelOpen
+                  ? "w-[400px] flex-shrink-0"
+                  : "w-full max-w-[640px]")
+              }
+            >
+              {/* List header: title + search */}
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <h2 className="m-0 text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  Integrações ativas
+                </h2>
+                <AwInput
+                  type="search"
+                  dense
+                  iconLeft="search"
+                  placeholder="Buscar integração"
+                  aria-label="Buscar integração"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-[220px]"
+                />
+              </div>
+
+              {/* All integrations — flat list */}
+              <ul className="m-0 flex list-none flex-col divide-y divide-[var(--border-subtle)] border-y border-[var(--border-subtle)] p-0">
+                {CHANNEL_IDS.map((id) => {
+                  const it = ITEMS.find((i) => i.id === id);
+                  if (!it) return null;
+                  const inst = instances.find((i) => i.integrationId === id);
+                  const effectiveState: AwIntegrationCardState = inst
+                    ? it.state
+                    : "available";
+                  if (
+                    searchQuery &&
+                    !it.name
+                      .toLowerCase()
+                      .includes(searchQuery.trim().toLowerCase())
+                  ) {
+                    return null;
+                  }
+                  return (
+                    <li key={id}>
                       <ActiveRow
                         brand={it.id}
                         name={it.name}
                         description={it.desc}
-                        state={it.state}
-                        selected={selectedId === it.id}
-                        onClick={() => setSelectedId(it.id)}
+                        state={effectiveState}
+                        selected={
+                          !!inst && selectedInstanceId === inst.instanceId
+                        }
+                        onClick={() => {
+                          if (inst) setSelectedInstanceId(inst.instanceId);
+                          else setConnectId(id);
+                        }}
+                        status={statusForState(effectiveState)}
                       />
                     </li>
-                  ))}
-                </ul>
-              )}
+                  );
+                })}
+                {instances
+                  .filter((i) => !isChannelId(i.integrationId))
+                  .filter((inst) => {
+                    if (!searchQuery) return true;
+                    const q = searchQuery.trim().toLowerCase();
+                    return inst.name.toLowerCase().includes(q);
+                  })
+                  .map((inst) => {
+                    const it = ITEMS.find((i) => i.id === inst.integrationId);
+                    if (!it) return null;
+                    return (
+                      <li key={inst.instanceId}>
+                        <ActiveRow
+                          brand={it.id}
+                          name={inst.name}
+                          description={it.desc}
+                          state={it.state}
+                          selected={selectedInstanceId === inst.instanceId}
+                          onClick={() =>
+                            setSelectedInstanceId(inst.instanceId)
+                          }
+                        />
+                      </li>
+                    );
+                  })}
+              </ul>
             </aside>
 
-            {/* Right: settings panel */}
+            {/* Settings panel — outer animates width, inner fades content in/out */}
             <section
               aria-label="Configurações da integração"
-              className="min-h-[640px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]"
+              aria-hidden={!isPanelOpen}
+              className={
+                "overflow-hidden rounded-[var(--radius-xl)] bg-[var(--bg-canvas)] transition-[flex,width,border-color,border-width,min-height] duration-[400ms] ease-[cubic-bezier(0.22,1,0.36,1)] " +
+                (isPanelOpen
+                  ? "min-h-[640px] flex-1 border border-[var(--border-subtle)]"
+                  : "w-0 flex-[0_0_0px] border-0")
+              }
             >
-              {selected ? (
-                <IntegrationSettings
-                  integration={selected}
-                  permModes={permModes}
-                  onPermissionChange={setMode}
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center p-8">
-                  <AwEmpty>
-                    <AwEmptyHeader>
-                      <AwEmptyMedia variant="icon">
-                        <Icon name="tune" size={22} />
-                      </AwEmptyMedia>
-                      <AwEmptyTitle>
-                        Selecione uma integração
-                      </AwEmptyTitle>
-                      <AwEmptyDescription>
-                        Escolha uma integração ativa à esquerda para ver e
-                        ajustar suas configurações.
-                      </AwEmptyDescription>
-                    </AwEmptyHeader>
-                  </AwEmpty>
+              {selected && (
+                <div
+                  className={
+                    "h-full transition-opacity duration-[280ms] ease-out " +
+                    (contentReady ? "opacity-100" : "opacity-0")
+                  }
+                >
+                  {selected.id === "whatsapp" ? (
+                    <AwWhatsAppPanel
+                      onAddWaba={() => setConnectId("whatsapp")}
+                    />
+                  ) : (
+                    <IntegrationSettings
+                      integration={selected}
+                      displayName={selectedInstance?.name}
+                      permModes={permModes}
+                      onPermissionChange={setMode}
+                      onDisconnect={() => setDisconnectPending(true)}
+                      onReconnect={() => setConnectId(selected.id)}
+                      onClose={closeSettings}
+                    />
+                  )}
                 </div>
               )}
             </section>
@@ -830,11 +1113,35 @@ export default function IntegrationsPage() {
         </div>
       </div>
 
+      {/* Disconnect confirmation modal */}
+      <AwModal
+        open={disconnectPending}
+        onClose={() => setDisconnectPending(false)}
+        title="Desconectar integração"
+        footer={
+          <div className="flex justify-end gap-2">
+            <AwButton variant="secondary" size="md" onClick={() => setDisconnectPending(false)}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="danger" size="md" iconLeft="link_off" onClick={handleDisconnectConfirm}>
+              Desconectar
+            </AwButton>
+          </div>
+        }
+      >
+        <p className="m-0 text-[13.5px] leading-[1.6] text-[var(--fg-secondary)]">
+          Tem certeza que deseja desconectar{" "}
+          <strong className="text-[var(--fg-primary)]">
+            {selectedInstance?.name ?? selected?.name}
+          </strong>
+          ? Os agentes perderão acesso a esta integração imediatamente.
+        </p>
+      </AwModal>
+
       {/* Catalog modal — pick an integration to add */}
       <AwAddIntegrationModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        alpha
         categories={ADD_MODAL_CATS}
         items={ITEMS.map((it) => ({
           id: it.id,
@@ -842,18 +1149,74 @@ export default function IntegrationsPage() {
           name: it.name,
           description: it.desc,
           category: it.cat,
-          connected: isActive(it.state),
         }))}
         onSelect={(id) => {
           setAddOpen(false);
           setConnectId(id);
         }}
+        onCustomIntegration={() => {
+          setAddOpen(false);
+          setCustomOpen(true);
+        }}
       />
 
-      {/* OAuth permission dialog — adds new instance for an OAuth integration */}
+      {/* Custom integration placeholder — final fields TBD */}
       <AwConnectModal
-        open={showOAuthModal}
+        open={customOpen}
+        onClose={() => setCustomOpen(false)}
+        kind="apiKey"
+        productLogoSrc={ORG_LOGO_SRC}
+        productName={ORG_NAME}
+        targetBrand="custom"
+        targetName="Integração personalizada"
+        description="Conecte qualquer API. Os campos finais serão definidos para essa integração."
+        defaultConnectionName="Minha integração"
+        apiKeyIntro={
+          <>
+            Preencha os campos abaixo para configurar uma conexão
+            personalizada. <em>Os campos definitivos serão ajustados
+            depois.</em>
+          </>
+        }
+        apiKeyFields={[
+          {
+            id: "custom-base-url",
+            label: "URL base da API",
+            placeholder: "https://api.exemplo.com",
+            iconLeft: "link",
+            required: true,
+          },
+          {
+            id: "custom-auth-method",
+            label: "Método de autenticação",
+            placeholder: "Bearer / API key / Basic",
+            iconLeft: "lock",
+            required: true,
+          },
+          {
+            id: "custom-credential",
+            label: "Credencial",
+            placeholder: "Cole sua credencial aqui",
+            iconLeft: "key",
+            required: true,
+          },
+          {
+            id: "custom-notes",
+            label: "Observações",
+            placeholder: "Cabeçalhos extras, escopos, etc.",
+            iconLeft: "notes",
+          },
+        ]}
+        onAllow={() => setCustomOpen(false)}
+      />
+
+      {/* Connect dialog — kind derived from the integration auth method */}
+      <AwConnectModal
+        open={!!connectTarget}
         onClose={closeConnect}
+        kind={connectTarget?.auth ?? "oauth"}
+        productLogoSrc={ORG_LOGO_SRC}
+        productName={ORG_NAME}
         targetBrand={connectTarget?.id ?? ""}
         targetName={
           connectTarget
@@ -862,70 +1225,88 @@ export default function IntegrationsPage() {
               : connectTarget.name
             : ""
         }
-        productName="AwSales"
         description={connectTarget?.desc}
-        permissionsTitle={connectTarget ? `O AwSales precisa` : undefined}
-        permissions={connectTarget?.permissions ?? []}
+        /* OAuth */
+        permissionsTitle={
+          connectTarget?.auth === "oauth" ? `O AwSales precisa` : undefined
+        }
+        permissions={
+          connectTarget?.auth === "oauth"
+            ? connectTarget?.permissions ?? []
+            : undefined
+        }
         redirectUrl={
-          connectTarget
+          connectTarget?.auth === "oauth"
             ? `https://app.awsales.io/integrations/${connectTarget.id}/callback`
             : undefined
         }
-        onAllow={closeConnect}
-      />
-
-      {/* API key form modal — adds new instance for an API integration */}
-      <AwModal
-        open={showFormModal}
-        onClose={closeConnect}
-        title={
-          connectTarget
-            ? isActive(connectTarget.state)
-              ? `Adicionar nova conexão de ${connectTarget.name}`
-              : `Conectar ${connectTarget.name}`
+        /* Webhook */
+        steps={
+          connectTarget?.auth === "webhook"
+            ? buildWebhookSteps(connectTarget)
             : undefined
         }
-        footer={
-          <>
-            <AwButton variant="secondary" onClick={closeConnect}>
-              Cancelar
-            </AwButton>
-            <AwButton variant="primary" onClick={closeConnect}>
-              Conectar
-            </AwButton>
-          </>
+        /* API key */
+        apiKeyIntro={
+          connectTarget?.auth === "apiKey" ? (
+            <>
+              Adicione abaixo as credenciais da sua conta{" "}
+              {connectTarget.name}. Para ver o passo a passo de como
+              encontrar as informações,{" "}
+              <a
+                href={`https://${connectTarget.domain}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                clique aqui
+              </a>
+              .
+            </>
+          ) : undefined
         }
-      >
-        {connectTarget && (
-          <>
-            <div className="mb-4 flex items-center gap-3">
-              <AwBrandLogo brand={connectTarget.id} size="md" />
-              <p className="m-0 text-xs text-[var(--fg-tertiary)]">
-                {connectTarget.domain}
-              </p>
-            </div>
-            <p className="mb-3.5 text-[13.5px] leading-[1.5] text-[var(--fg-secondary)]">
-              Cole sua chave de API do <strong>{connectTarget.name}</strong>{" "}
-              para começar a sincronizar transações e eventos.
-            </p>
-            <AwField label="API Key" htmlFor={`key-${connectTarget.id}`}>
-              <AwInput
-                id={`key-${connectTarget.id}`}
-                placeholder="sk_live_••••••••••••"
-              />
-            </AwField>
-            <AwField
-              label="Webhook secret"
-              htmlFor={`secret-${connectTarget.id}`}
-            >
-              <AwInput
-                id={`secret-${connectTarget.id}`}
-                placeholder="whsec_••••••••"
-              />
-            </AwField>
-          </>
-        )}
-      </AwModal>
+        apiKeyFields={
+          connectTarget?.auth === "apiKey"
+            ? [
+                {
+                  id: `client-id-${connectTarget.id}`,
+                  label: "Insira o clientId",
+                  placeholder: "Insira aqui seu ClientId",
+                  required: true,
+                },
+                {
+                  id: `client-secret-${connectTarget.id}`,
+                  label: "Insira o Client Secret",
+                  placeholder: "Insira aqui seu Client Secret",
+                  required: true,
+                },
+                {
+                  id: `basic-token-${connectTarget.id}`,
+                  label: "Insira o basic token",
+                  placeholder: "Insira aqui seu basic token",
+                  required: true,
+                },
+              ]
+            : undefined
+        }
+        onAllow={(name) => {
+          if (connectTarget) {
+            const instanceId = `${connectTarget.id}-${Date.now()}`;
+            const finalName =
+              name?.trim() ||
+              `${connectTarget.name} ${instances.filter((i) => i.integrationId === connectTarget.id).length + 1}`;
+            setInstances((list) => [
+              ...list,
+              {
+                instanceId,
+                integrationId: connectTarget.id,
+                name: finalName,
+              },
+            ]);
+            setSelectedInstanceId(instanceId);
+          }
+          closeConnect();
+        }}
+      />
     </DashboardLayout>
   );
 }
