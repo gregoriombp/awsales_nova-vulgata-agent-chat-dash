@@ -915,80 +915,6 @@ function statusForState(state: AwIntegrationCardState): ActiveRowStatus {
   }
 }
 
-function SuggestionsCard({
-  suggestions,
-  onPick,
-  onSeeAll,
-  collapsed,
-}: {
-  suggestions: { id: string; name: string; desc: string }[];
-  onPick: (id: string) => void;
-  onSeeAll: () => void;
-  collapsed?: boolean;
-}) {
-  if (collapsed) {
-    return (
-      <button
-        type="button"
-        onClick={onSeeAll}
-        title="Adicionar integrações"
-        aria-label="Adicionar integrações"
-        className="flex w-full items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] p-2 text-[var(--fg-secondary)] transition-colors hover:border-[var(--fg-primary)] hover:text-[var(--fg-primary)]"
-      >
-        <Icon name="add" size={20} />
-      </button>
-    );
-  }
-  return (
-    <div className="rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] p-3.5">
-      <div className="mb-1 flex items-center gap-2">
-        <Icon
-          name="add_circle"
-          size={18}
-          className="text-[var(--fg-secondary)]"
-        />
-        <h3 className="m-0 text-[14px] font-semibold text-[var(--fg-primary)]">
-          Adicione mais integrações
-        </h3>
-      </div>
-      <p className="m-0 mb-3 text-[12.5px] leading-[1.45] text-[var(--fg-secondary)]">
-        Capture eventos e amplie o que seus agentes podem fazer.
-      </p>
-      {suggestions.length > 0 && (
-        <ul className="m-0 mb-2 flex list-none flex-col gap-0.5 p-0">
-          {suggestions.map((s) => (
-            <li key={s.id}>
-              <button
-                type="button"
-                onClick={() => onPick(s.id)}
-                className="flex w-full items-center gap-2.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
-              >
-                <AwBrandLogo brand={s.id} size="sm" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13px] font-semibold text-[var(--fg-primary)]">
-                    {s.name}
-                  </div>
-                  <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
-                    {s.desc}
-                  </div>
-                </div>
-                <Icon
-                  name="add"
-                  size={16}
-                  className="text-[var(--fg-tertiary)]"
-                />
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-      <AwButton variant="ghost" size="sm" block onClick={onSeeAll}>
-        Ver todas as integrações
-      </AwButton>
-    </div>
-  );
-}
-
 /* ================================================================
  * Page
  * ================================================================ */
@@ -1156,16 +1082,11 @@ export default function IntegrationsPage() {
                 </button>
               </div>
 
-              {/* Channels — always shows the 3 first-class channels */}
-              {!sidebarCollapsed && (
-                <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                  Canais
-                </h3>
-              )}
+              {/* All integrations — flat list */}
               <ul
                 className={
                   "m-0 flex list-none flex-col p-0 " +
-                  (sidebarCollapsed ? "mb-3 gap-1" : "mb-6 gap-0.5")
+                  (sidebarCollapsed ? "gap-1" : "gap-0.5")
                 }
               >
                 {CHANNEL_IDS.map((id) => {
@@ -1195,98 +1116,28 @@ export default function IntegrationsPage() {
                     </li>
                   );
                 })}
+                {instances
+                  .filter((i) => !isChannelId(i.integrationId))
+                  .map((inst) => {
+                    const it = ITEMS.find((i) => i.id === inst.integrationId);
+                    if (!it) return null;
+                    return (
+                      <li key={inst.instanceId}>
+                        <ActiveRow
+                          brand={it.id}
+                          name={inst.name}
+                          description={it.desc}
+                          state={it.state}
+                          selected={selectedInstanceId === inst.instanceId}
+                          onClick={() =>
+                            setSelectedInstanceId(inst.instanceId)
+                          }
+                          collapsed={sidebarCollapsed}
+                        />
+                      </li>
+                    );
+                  })}
               </ul>
-
-              {sidebarCollapsed && (
-                <div
-                  aria-hidden="true"
-                  className="mx-2 mb-3 border-t border-[var(--border-subtle)]"
-                />
-              )}
-
-              {/* Active integrations — non-channel */}
-              {(() => {
-                const activeNonChannels = instances.filter(
-                  (i) => !isChannelId(i.integrationId),
-                );
-                return (
-                  <>
-                    {!sidebarCollapsed && (
-                      <h3 className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                        Integrações ativas
-                      </h3>
-                    )}
-                    {activeNonChannels.length === 0 ? (
-                      !sidebarCollapsed && (
-                        <AwEmpty>
-                          <AwEmptyHeader>
-                            <AwEmptyMedia variant="icon">
-                              <Icon name="extension_off" size={20} />
-                            </AwEmptyMedia>
-                            <AwEmptyTitle>Nenhuma integração ativa</AwEmptyTitle>
-                            <AwEmptyDescription>
-                              Conecte uma plataforma para começar.
-                            </AwEmptyDescription>
-                          </AwEmptyHeader>
-                        </AwEmpty>
-                      )
-                    ) : (
-                      <ul
-                        className={
-                          "m-0 flex list-none flex-col p-0 " +
-                          (sidebarCollapsed ? "mb-3 gap-1" : "mb-6 gap-0.5")
-                        }
-                      >
-                        {activeNonChannels.map((inst) => {
-                          const it = ITEMS.find(
-                            (i) => i.id === inst.integrationId,
-                          );
-                          if (!it) return null;
-                          return (
-                            <li key={inst.instanceId}>
-                              <ActiveRow
-                                brand={it.id}
-                                name={inst.name}
-                                description={it.desc}
-                                state={it.state}
-                                selected={
-                                  selectedInstanceId === inst.instanceId
-                                }
-                                onClick={() =>
-                                  setSelectedInstanceId(inst.instanceId)
-                                }
-                                collapsed={sidebarCollapsed}
-                              />
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
-                  </>
-                );
-              })()}
-
-              {/* Suggestions card */}
-              {(() => {
-                const suggestions = ITEMS.filter(
-                  (i) =>
-                    i.state === "available" &&
-                    !isChannelId(i.id) &&
-                    !instances.some((inst) => inst.integrationId === i.id),
-                ).slice(0, 3);
-                return (
-                  <SuggestionsCard
-                    suggestions={suggestions.map((s) => ({
-                      id: s.id,
-                      name: s.name,
-                      desc: s.desc,
-                    }))}
-                    onPick={(id) => setConnectId(id)}
-                    onSeeAll={() => setAddOpen(true)}
-                    collapsed={sidebarCollapsed}
-                  />
-                );
-              })()}
             </aside>
 
             {/* Settings panel — outer animates width, inner fades content in/out */}
