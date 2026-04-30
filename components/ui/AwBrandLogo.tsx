@@ -17,92 +17,151 @@ type Brand = {
   /** Adds a subtle hairline; useful for light-bg marks (e.g. Google Calendar). */
   bordered?: boolean
   /** Inner SVG mark, drawn on a 24×24 viewBox without its own background. */
-  mark: BrandMark
+  mark?: BrandMark
+  /** Path to a pre-built SVG tile in /public. Takes precedence over `mark`. */
+  iconSrc?: string
 }
 
+const ICON_BASE = "/assets/integrations/integrations_icon_svg"
+
 const BRANDS: Record<string, Brand> = {
+  /* ------------------------------------------------------------------
+   * Channels
+   * ------------------------------------------------------------------ */
   whatsapp: {
     bg: "#25D366",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="62%" height="62%">
-        <path
-          fill={fg}
-          d="M20.5 3.5C18.3 1.2 15.2 0 12 0 5.4 0 0 5.4 0 12c0 2.1.6 4.2 1.6 6L0 24l6.2-1.6c1.7.9 3.7 1.4 5.7 1.4h.1c6.6 0 12-5.4 12-12 0-3.2-1.2-6.2-3.5-8.4zM12 22c-1.8 0-3.6-.5-5.2-1.4l-.4-.2-3.7 1 1-3.6-.2-.4C2.5 15.7 2 13.9 2 12 2 6.5 6.5 2 12 2c5.5 0 10 4.5 10 10s-4.5 10-10 10z"
-        />
-        <path
-          fill={fg}
-          d="M17.5 14.4c-.3-.1-1.7-.8-2-1-.3-.1-.5-.1-.7.1-.2.3-.7.9-.9 1.1-.2.2-.3.2-.6.1-.3-.2-1.2-.5-2.3-1.4-.9-.7-1.4-1.7-1.6-2-.2-.3 0-.5.1-.6.1-.1.3-.3.4-.5.1-.2.2-.3.3-.5.1-.2 0-.4 0-.5-.1-.1-.7-1.6-.9-2.2-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.7.4-.3.3-1 1-1 2.5s1 2.9 1.2 3.1c.1.2 2.1 3.2 5.1 4.5.7.3 1.3.5 1.7.6.7.2 1.4.2 1.9.1.6-.1 1.7-.7 2-1.4.2-.7.2-1.2.2-1.4-.1-.1-.3-.2-.6-.4z"
-        />
-      </svg>
-    ),
+    iconSrc: `${ICON_BASE}/canal_Whatsapp.svg`,
   },
   instagram: {
     bg: "linear-gradient(135deg, #FEDA77 0%, #F58529 25%, #DD2A7B 55%, #8134AF 80%, #515BD4 100%)",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="62%" height="62%">
-        <rect
-          x="3"
-          y="3"
-          width="18"
-          height="18"
-          rx="5"
-          fill="none"
-          stroke={fg}
-          strokeWidth="2"
-        />
-        <circle
-          cx="12"
-          cy="12"
-          r="4"
-          fill="none"
-          stroke={fg}
-          strokeWidth="2"
-        />
-        <circle cx="17" cy="7" r="1.2" fill={fg} />
-      </svg>
-    ),
+    iconSrc: `${ICON_BASE}/canal_Instagram.svg`,
   },
   messenger: {
     bg: "linear-gradient(135deg, #00C6FF 0%, #0078FF 50%, #C026D3 100%)",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="68%" height="68%">
-        <path
-          fill={fg}
-          d="M12 2C6.5 2 2 6.2 2 11.4c0 2.9 1.4 5.5 3.6 7.2v3.6l3.3-1.8c.9.3 2 .4 3.1.4 5.5 0 10-4.2 10-9.4S17.5 2 12 2zM5.6 14.4l3.1-4.9c.5-.7 1.4-.9 2.1-.4l2.4 1.8c.3.2.7.2 1 0l3.3-2.5c.5-.4 1.3.2.8.8l-3.1 4.9c-.5.7-1.4.9-2.1.4L10.7 12.7c-.3-.2-.7-.2-1 0l-3.3 2.5c-.5.4-1.3-.2-.8-.8z"
-        />
-      </svg>
-    ),
+    iconSrc: `${ICON_BASE}/canal_Messenger.svg`,
   },
+  /* ------------------------------------------------------------------
+   * Checkouts
+   * ------------------------------------------------------------------ */
   hotmart: {
-    bg: "#EF4E23",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="58%" height="58%">
-        <path
-          fill={fg}
-          d="M12 2c-1.5 4-4 6-6 8-2 1.5-3 4-3 6.5C3 21 7 23 12 23s9-2 9-7c0-3-1.5-5.5-4-7-1 1.5-2 2.5-3 2.5-1.5 0-2-1.5-2-3 0-2 .5-4 0-7z"
-        />
-      </svg>
-    ),
+    bg: "#100300",
+    iconSrc: `${ICON_BASE}/Hotmart.svg`,
   },
   stripe: {
-    bg: "#635BFF",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="62%" height="62%">
-        <text
-          x="12"
-          y="18"
-          textAnchor="middle"
-          fontFamily="Inter, system-ui, sans-serif"
-          fontSize="18"
-          fontWeight="800"
-          fontStyle="italic"
-          fill={fg}
-        >
-          S
-        </text>
-      </svg>
-    ),
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Stripe.svg`,
   },
+  kiwify: {
+    bg: "#000000",
+    iconSrc: `${ICON_BASE}/Kwify.svg`,
+  },
+  eduzz: {
+    bg: "#F4C043",
+    iconSrc: `${ICON_BASE}/Eduzz.svg`,
+  },
+  hubla: {
+    bg: "#131705",
+    iconSrc: `${ICON_BASE}/Hubla.svg`,
+  },
+  ticto: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Ticto.svg`,
+  },
+  lastlink: {
+    bg: "#1C272D",
+    iconSrc: `${ICON_BASE}/Lastlink.svg`,
+  },
+  zouti: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Zouti.svg`,
+  },
+  blitzpay: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Blitzpay.svg`,
+  },
+  onprofit: {
+    bg: "#21443F",
+    iconSrc: `${ICON_BASE}/Onprofit.svg`,
+  },
+  greenn: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Greenn.svg`,
+  },
+  payt: {
+    bg: "#1B1607",
+    iconSrc: `${ICON_BASE}/Payt.svg`,
+  },
+  pagtrust: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Pagtrust.svg`,
+  },
+  braip: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Braip.svg`,
+  },
+  tmb: {
+    bg: "#000000",
+    iconSrc: `${ICON_BASE}/Tmb.svg`,
+  },
+  dmg: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/DMG.svg`,
+  },
+  /* ------------------------------------------------------------------
+   * Forms
+   * ------------------------------------------------------------------ */
+  typeform: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Typeform.svg`,
+  },
+  /* ------------------------------------------------------------------
+   * Meetings
+   * ------------------------------------------------------------------ */
+  calendly: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Calendly.svg`,
+  },
+  googlecal: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Google%20Calendar.svg`,
+  },
+  /* ------------------------------------------------------------------
+   * AI providers
+   * ------------------------------------------------------------------ */
+  claude: {
+    bg: "#D97757",
+    iconSrc: `${ICON_BASE}/Claude.svg`,
+  },
+  chatgpt: {
+    bg: "#FFFFFF",
+    bordered: true,
+    iconSrc: `${ICON_BASE}/Chatgpt.svg`,
+  },
+  deepseek: {
+    bg: "#4D6BFE",
+    iconSrc: `${ICON_BASE}/Deepseek.svg`,
+  },
+  /* ------------------------------------------------------------------
+   * Documents / signatures
+   * ------------------------------------------------------------------ */
+  assiny: {
+    bg: "#5B45FF",
+    iconSrc: `${ICON_BASE}/Assiny.svg`,
+  },
+  /* ------------------------------------------------------------------
+   * Brands kept as inline marks — no SVG tile available yet.
+   * ------------------------------------------------------------------ */
   shopify: {
     bg: "#95BF47",
     mark: ({ fg }) => (
@@ -110,73 +169,6 @@ const BRANDS: Record<string, Brand> = {
         <path
           fill={fg}
           d="M16.6 5.4c-.1-.1-.2-.1-.3-.1L15 5.2c-.2-.6-.9-1.4-1.9-1.4-.6 0-1.3.3-1.9.9-.6.2-1.1.4-1.5.5-.4-.5-.9-1.2-1.6-1.2-.5 0-.9.3-1.2.7l-.1.1c-.4.1-.8.3-.8.3s-.5.2-.6.6c-.1.4-1 8.7-1.9 17.4l11.6.1L17 5.5l-.4-.1zM12.7 5.6c-.5.1-1 .3-1.5.5l-.3.1c0-.4.1-.8.2-1.1.1-.4.4-.8.8-.8.4 0 .7.4.8 1.3zm-1.2-2c-.4 0-.7.3-.9.7-.2.4-.3.9-.4 1.4-.5.1-1 .3-1.4.4.3-1 .9-2.5 1.9-2.5.3 0 .5 0 .8 0z"
-        />
-      </svg>
-    ),
-  },
-  kiwify: {
-    bg: "#04C26A",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="60%" height="60%">
-        <path
-          fill={fg}
-          d="M16 4c-4 0-7 4-8 8 0 0 4-3 8-3 0 0-1 4-1 7 0 0 4-3 5-7 1-3-1-5-4-5z"
-        />
-        <circle cx="9" cy="14" r="1.4" fill={fg} />
-      </svg>
-    ),
-  },
-  eduzz: {
-    bg: "#FFB800",
-    fg: "#1A1A1A",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="64%" height="64%">
-        <path
-          fill={fg}
-          d="M5 5h14v3H8v3h9v3H8v3h11v3H5z"
-        />
-      </svg>
-    ),
-  },
-  hubla: {
-    bg: "#0F0F0F",
-    fg: "#C5F754",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="58%" height="58%">
-        <path fill={fg} d="M5 4h3v7h8V4h3v16h-3v-6H8v6H5z" />
-      </svg>
-    ),
-  },
-  ticto: {
-    bg: "#0D0D0D",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="60%" height="60%">
-        <text
-          x="12"
-          y="18"
-          textAnchor="middle"
-          fontFamily="Inter, system-ui, sans-serif"
-          fontSize="18"
-          fontWeight="800"
-          fill={fg}
-        >
-          t
-        </text>
-      </svg>
-    ),
-  },
-  lastlink: {
-    bg: "#04C26A",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="62%" height="62%">
-        <circle cx="6" cy="12" r="2.8" fill="none" stroke={fg} strokeWidth="2" />
-        <circle cx="18" cy="6" r="1.8" fill={fg} />
-        <circle cx="18" cy="18" r="1.8" fill={fg} />
-        <path
-          stroke={fg}
-          strokeWidth="2"
-          strokeLinecap="round"
-          d="M8.5 11 16 7m-7.5 6 7.5 4"
         />
       </svg>
     ),
@@ -216,24 +208,6 @@ const BRANDS: Record<string, Brand> = {
       </svg>
     ),
   },
-  typeform: {
-    bg: "#0D0D0D",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="62%" height="62%">
-        <text
-          x="12"
-          y="18"
-          textAnchor="middle"
-          fontFamily="Inter, system-ui, sans-serif"
-          fontSize="18"
-          fontWeight="800"
-          fill={fg}
-        >
-          T
-        </text>
-      </svg>
-    ),
-  },
   tally: {
     bg: "#0D0D0D",
     mark: ({ fg }) => (
@@ -244,37 +218,6 @@ const BRANDS: Record<string, Brand> = {
           strokeLinecap="round"
           d="M7 6v12M11 6v12M15 6v12M5.5 12.5l11-1.5"
         />
-      </svg>
-    ),
-  },
-  calendly: {
-    bg: "#006BFF",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="58%" height="58%">
-        <circle cx="12" cy="12" r="8" fill="none" stroke={fg} strokeWidth="2.4" />
-        <circle cx="12" cy="6" r="1.6" fill={fg} />
-      </svg>
-    ),
-  },
-  googlecal: {
-    bg: "#FFFFFF",
-    fg: "#1A73E8",
-    bordered: true,
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="64%" height="64%">
-        <rect x="4" y="6" width="16" height="14" rx="2" fill="none" stroke={fg} strokeWidth="1.6" />
-        <path stroke={fg} strokeWidth="1.6" strokeLinecap="round" d="M8 4v4m8-4v4M4 10h16" />
-        <text
-          x="12"
-          y="18"
-          textAnchor="middle"
-          fontFamily="Inter, system-ui, sans-serif"
-          fontSize="6"
-          fontWeight="700"
-          fill={fg}
-        >
-          31
-        </text>
       </svg>
     ),
   },
@@ -391,7 +334,20 @@ export function AwBrandLogo({
   const wrapperSize = bare ? bareSize : tile
   const radius = bare ? Math.round(wrapperSize * 0.26) : 10
 
-  const inner = def ? (
+  const inner = def?.iconSrc ? (
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={def.iconSrc}
+      alt=""
+      aria-hidden="true"
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "block",
+        objectFit: "cover",
+      }}
+    />
+  ) : def?.mark ? (
     def.mark({ fg })
   ) : (
     <span
