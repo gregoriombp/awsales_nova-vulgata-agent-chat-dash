@@ -4,6 +4,7 @@
   "description": "AwSales 2.0 - Login and Authentication System",
   "scripts": {
     "dev": "next dev",
+    "dev:lan": "DEV_LAN=1 next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
