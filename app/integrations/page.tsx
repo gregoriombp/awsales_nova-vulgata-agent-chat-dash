@@ -387,7 +387,7 @@ function CardWithActions({
         domain={domain}
         description={description}
         state={state}
-        onClick={hasInstance ? undefined : onCardClick}
+        onClick={hasInstance ? onConfigure : onCardClick}
       />
       {hasInstance && (
         <CardActionMenu
