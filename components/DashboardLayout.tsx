@@ -6,12 +6,7 @@ import Sidebar from "./Sidebar";
 import KnowledgeOSSidebar from "./KnowledgeOSSidebar";
 import Header from "./Header";
 import CopilotDrawer from "./CopilotDrawer";
-
-interface BreadcrumbItem {
-  label: string;
-  href?: string;
-  icon?: React.ReactNode;
-}
+import { BreadcrumbsBar, type BreadcrumbItem } from "./Breadcrumbs";
 
 export default function DashboardLayout({
   children,
@@ -58,6 +53,9 @@ export default function DashboardLayout({
         <div className="flex flex-1 min-w-0 overflow-hidden">
           {isInKnowledgeOS && <KnowledgeOSSidebar />}
           <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+            {breadcrumbs && breadcrumbs.length > 0 && (
+              <BreadcrumbsBar items={breadcrumbs} />
+            )}
             <main className={`flex-1 overflow-y-auto p-8 ${mainClassName ?? ""}`}>
               {title && (
                 <h1 className="text-3xl font-heading font-bold text-text-primary mb-6">{title}</h1>

@@ -344,10 +344,9 @@ export default function WhatsAppSetupPage({
   const exitSetup = () => router.push("/integrations");
 
   const breadcrumbs = [
-    { label: "Configurações" },
-    { label: "Integrações", href: "/integrations" },
-    { label: "WhatsApp" },
-    { label: "Setup" },
+    { label: "Integrações", href: "/integrations", icon: <Icon name="extension" size={20} /> },
+    { label: "WhatsApp", href: "/integrations/whatsapp" },
+    { label: "Conectar nova conta" },
   ];
 
   return (
