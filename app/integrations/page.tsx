@@ -10,6 +10,7 @@ import {
   AwConnectModal,
   type AwWebhookStep,
 } from "@/components/ui/AwConnectModal";
+import { AwModal } from "@/components/ui/AwModal";
 import {
   AwIntegrationCard,
   type AwIntegrationCardState,
@@ -543,6 +544,7 @@ export default function IntegrationsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
+  const [disconnectId, setDisconnectId] = useState<string | null>(null);
   const [instances, setInstances] = useState<IntegrationInstance[]>([]);
   /** True for any user who has ever connected at least one integration.
    *  Drives which empty state to render when the instance list is
@@ -609,8 +611,18 @@ export default function IntegrationsPage() {
   };
 
   const handleDisconnectInstance = (instanceId: string) => {
-    setInstances((list) => list.filter((i) => i.instanceId !== instanceId));
+    setDisconnectId(instanceId);
   };
+
+  const confirmDisconnect = () => {
+    if (!disconnectId) return;
+    setInstances((list) => list.filter((i) => i.instanceId !== disconnectId));
+    setDisconnectId(null);
+  };
+
+  const disconnectTarget = disconnectId
+    ? instances.find((i) => i.instanceId === disconnectId)
+    : null;
 
   const handleConfigureInstance = (instanceId: string) => {
     const inst = instances.find((i) => i.instanceId === instanceId);
@@ -974,6 +986,43 @@ export default function IntegrationsPage() {
           closeConnect();
         }}
       />
+
+      {/* Disconnect confirmation — destructive action gets a deliberate
+          two-step so the user does not lose a configured integration on
+          a stray menu click. */}
+      <AwModal
+        open={!!disconnectTarget}
+        onClose={() => setDisconnectId(null)}
+        title="Desconectar integração"
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              onClick={() => setDisconnectId(null)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="md"
+              iconLeft="link_off"
+              onClick={confirmDisconnect}
+            >
+              Desconectar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Tem certeza que deseja desconectar{" "}
+          <strong className="text-[var(--fg-primary)]">
+            {disconnectTarget?.name ?? "esta integração"}
+          </strong>
+          ? Os agentes vão perder o acesso aos dados e ações dessa
+          ferramenta. Você pode reconectar depois a qualquer momento.
+        </p>
+      </AwModal>
     </DashboardLayout>
   );
 }
