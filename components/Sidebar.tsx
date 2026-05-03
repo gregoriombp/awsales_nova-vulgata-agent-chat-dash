@@ -101,6 +101,17 @@ const NAV_SECTIONS: NavSection[] = [
 const STORAGE_KEY = "awsales:sidebar:collapsed";
 const FORCE_COLLAPSED_PREFIX = "/agent-studio";
 
+/** Read the persisted collapsed flag synchronously so the very first render
+ *  matches the user's last preference. Returning `undefined` on the server
+ *  lets the props/path fallbacks decide. */
+function readStoredCollapsed(): boolean | undefined {
+  if (typeof window === "undefined") return undefined;
+  const saved = window.localStorage.getItem(STORAGE_KEY);
+  if (saved === "1") return true;
+  if (saved === "0") return false;
+  return undefined;
+}
+
 export default function Sidebar({
   forcedCollapsed,
   floating,
@@ -112,20 +123,23 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
 
-  const [isCollapsed, setIsCollapsed] = useState(
-    () =>
-      forcedCollapsed ??
-      floating ??
-      (pathname?.startsWith(FORCE_COLLAPSED_PREFIX) ?? false)
-  );
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (forcedCollapsed) return true;
+    if (floating) return true;
+    if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) return true;
+    return readStoredCollapsed() ?? false;
+  });
 
+  /** Suppress the width transition until after the first paint. Each route
+   *  change in the App Router remounts this Sidebar, and without this guard
+   *  any state correction during mount would animate from one width to the
+   *  other on every navigation — producing the "jumping rail" feel. */
+  const [animationsReady, setAnimationsReady] = useState(false);
   useEffect(() => {
-    if (forcedCollapsed || floating) return;
-    if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) return;
-    if (typeof window === "undefined") return;
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved === "1") setIsCollapsed(true);
-    else if (saved === "0") setIsCollapsed(false);
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => setAnimationsReady(true)),
+    );
+    return () => cancelAnimationFrame(id);
   }, []);
 
   useEffect(() => {
@@ -177,7 +191,9 @@ export default function Sidebar({
       className="h-screen flex-shrink-0 p-3 flex bg-transparent"
       style={{
         width: isCollapsed ? 88 : 320,
-        transition: "width var(--dur-slow) var(--ease-out)",
+        transition: animationsReady
+          ? "width var(--dur-slow) var(--ease-out)"
+          : "none",
       }}
     >
       <AwNavRail
