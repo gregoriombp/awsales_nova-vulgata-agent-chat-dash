@@ -344,16 +344,18 @@ export default function WhatsAppSetupPage({
   const goTo = (n: number) => router.push(`/setup/whatsapp/${n}`);
   const exitSetup = () => router.push("/integrations");
 
-  /** Persist the new WhatsApp WABA before leaving the success step.
-   *  We name it "WhatsApp N" where N is the next sequence so multiple
-   *  WABAs don't collide. */
+  /** Persist the new WhatsApp WABA before leaving the success step,
+   *  then land the user on the integration's own page (not the global
+   *  /integrations grid) so they immediately see the canal they just
+   *  configured. We name it "WhatsApp N" where N is the next sequence
+   *  so multiple WABAs don't collide. */
   const finishSetup = () => {
     const existing = loadInstances().filter(
       (i) => i.integrationId === "whatsapp",
     );
     const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
     addInstance("whatsapp", name);
-    exitSetup();
+    router.push("/integrations/whatsapp");
   };
 
   const breadcrumbs = [
