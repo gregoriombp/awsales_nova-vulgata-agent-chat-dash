@@ -8,6 +8,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { addInstance, loadInstances } from "@/lib/integrationsStore";
 
 /* ----------------------------------------------------------------
  * Static content — flow copy lives next to the page so reviewers can
@@ -342,6 +343,18 @@ export default function WhatsAppSetupPage({
 
   const goTo = (n: number) => router.push(`/setup/whatsapp/${n}`);
   const exitSetup = () => router.push("/integrations");
+
+  /** Persist the new WhatsApp WABA before leaving the success step.
+   *  We name it "WhatsApp N" where N is the next sequence so multiple
+   *  WABAs don't collide. */
+  const finishSetup = () => {
+    const existing = loadInstances().filter(
+      (i) => i.integrationId === "whatsapp",
+    );
+    const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
+    addInstance("whatsapp", name);
+    exitSetup();
+  };
 
   const breadcrumbs = [
     { label: "Integrações", href: "/integrations", icon: <Icon name="extension" size={20} /> },
@@ -771,7 +784,7 @@ export default function WhatsAppSetupPage({
                 variant="primary"
                 size="md"
                 iconRight="chevron_right"
-                onClick={exitSetup}
+                onClick={finishSetup}
               >
                 Ir para o painel do WhatsApp
               </AwButton>

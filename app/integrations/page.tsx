@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -15,6 +15,13 @@ import {
   type AwIntegrationCardState,
 } from "@/components/ui/AwIntegrationCard";
 import { Icon } from "@/components/ui/Icon";
+import {
+  loadHasEverConnected,
+  loadInstances,
+  saveHasEverConnected,
+  saveInstances,
+  type IntegrationInstance,
+} from "@/lib/integrationsStore";
 
 /* ----------------------------------------------------------------
  * Constants — minimal subset preserved from the previous page so the
@@ -50,25 +57,6 @@ interface Integration {
   auth: AuthMethod;
   permissions?: string[];
 }
-
-interface IntegrationInstance {
-  instanceId: string;
-  integrationId: string;
-  name: string;
-  active: boolean;
-}
-
-/** Seed instances so the populated state renders by default while we
- *  iterate the new UX flow. Disconnect everything to fall back to the
- *  empty state hero below. */
-const SEED_INSTANCES: IntegrationInstance[] = [
-  { instanceId: "whatsapp-default", integrationId: "whatsapp", name: "WhatsApp", active: true },
-  { instanceId: "instagram-default", integrationId: "instagram", name: "Instagram", active: true },
-  { instanceId: "hotmart-default", integrationId: "hotmart", name: "Hotmart", active: true },
-  { instanceId: "stripe-default", integrationId: "stripe", name: "Stripe", active: true },
-  { instanceId: "shopify-default", integrationId: "shopify", name: "Shopify", active: true },
-  { instanceId: "calendly-default", integrationId: "calendly", name: "Calendly", active: true },
-];
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "channels", label: "Canais" },
@@ -390,10 +378,6 @@ function CardWithActions({
   onConfigure?: () => void;
   onDisconnect?: () => void;
 }) {
-  const stop = (cb?: () => void) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    cb?.();
-  };
   return (
     <div className="relative">
       <AwIntegrationCard
@@ -405,34 +389,125 @@ function CardWithActions({
         onClick={hasInstance ? undefined : onCardClick}
       />
       {hasInstance && (
-        <div className="absolute right-2 top-2 flex items-center gap-0.5">
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly={active ? "toggle_on" : "toggle_off"}
-            aria-label={active ? "Pausar integração" : "Ativar integração"}
-            title={active ? "Pausar integração" : "Ativar integração"}
-            onClick={stop(onToggle)}
+        <CardActionMenu
+          active={active}
+          onToggle={onToggle}
+          onConfigure={onConfigure}
+          onDisconnect={onDisconnect}
+        />
+      )}
+    </div>
+  );
+}
+
+function CardActionMenu({
+  active,
+  onToggle,
+  onConfigure,
+  onDisconnect,
+}: {
+  active?: boolean;
+  onToggle?: () => void;
+  onConfigure?: () => void;
+  onDisconnect?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handlePointer = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("mousedown", handlePointer);
+    window.addEventListener("keydown", handleKey);
+    return () => {
+      window.removeEventListener("mousedown", handlePointer);
+      window.removeEventListener("keydown", handleKey);
+    };
+  }, [open]);
+
+  const select = (cb?: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen(false);
+    cb?.();
+  };
+
+  return (
+    <div
+      ref={ref}
+      className="absolute right-2 top-2"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <AwButton
+        variant="ghost"
+        size="sm"
+        iconOnly="more_vert"
+        aria-label="Ações da integração"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title="Ações"
+        onClick={(e) => {
+          e.stopPropagation();
+          setOpen((v) => !v);
+        }}
+      />
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-20 mt-1 min-w-[180px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
+        >
+          <MenuItem
+            icon={active ? "pause" : "play_arrow"}
+            label={active ? "Pausar integração" : "Ativar integração"}
+            onClick={select(onToggle)}
           />
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly="tune"
-            aria-label="Configurar integração"
-            title="Configurar integração"
-            onClick={stop(onConfigure)}
+          <MenuItem
+            icon="tune"
+            label="Configurar"
+            onClick={select(onConfigure)}
           />
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly="link_off"
-            aria-label="Desconectar integração"
-            title="Desconectar integração"
-            onClick={stop(onDisconnect)}
+          <MenuItem
+            icon="link_off"
+            label="Desconectar"
+            danger
+            onClick={select(onDisconnect)}
           />
         </div>
       )}
     </div>
+  );
+}
+
+function MenuItem({
+  icon,
+  label,
+  danger,
+  onClick,
+}: {
+  icon: string;
+  label: string;
+  danger?: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className={
+        "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
+        (danger
+          ? "text-[var(--fg-danger,#b42318)]"
+          : "text-[var(--fg-primary)]")
+      }
+    >
+      <Icon name={icon} size={16} />
+      <span>{label}</span>
+    </button>
   );
 }
 
@@ -461,12 +536,38 @@ function QuickPickPill({
  * Page
  * ================================================================ */
 
+type EmptyVariant = "populated" | "all-removed" | "first-run";
+
 export default function IntegrationsPage() {
   const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
-  const [instances, setInstances] = useState<IntegrationInstance[]>(SEED_INSTANCES);
+  const [instances, setInstances] = useState<IntegrationInstance[]>([]);
+  /** True for any user who has ever connected at least one integration.
+   *  Drives which empty state to render when the instance list is
+   *  empty: returning user vs. brand-new user. */
+  const [hasEverConnected, setHasEverConnected] = useState(false);
+  /** Hold rendering until localStorage has been read on the client, so
+   *  we never flash the first-run hero to a returning user during the
+   *  first paint. */
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setInstances(loadInstances());
+    setHasEverConnected(loadHasEverConnected());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveInstances(instances);
+  }, [hydrated, instances]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveHasEverConnected(hasEverConnected);
+  }, [hydrated, hasEverConnected]);
 
   const connectTarget = connectId
     ? ITEMS.find((i) => i.id === connectId) ?? null
@@ -478,7 +579,23 @@ export default function IntegrationsPage() {
 
   const closeConnect = () => setConnectId(null);
 
-  const isPopulated = instances.length > 0;
+  /** WhatsApp owns a multi-step WABA wizard instead of the generic
+   *  Connect modal. Every entry point (quick picks, catalog, anywhere
+   *  the user picks WhatsApp) must funnel through here. */
+  const handleConnect = (id: string) => {
+    if (id === "whatsapp") {
+      router.push("/setup/whatsapp/1");
+      return;
+    }
+    setConnectId(id);
+  };
+
+  const variant: EmptyVariant =
+    instances.length > 0
+      ? "populated"
+      : hasEverConnected
+        ? "all-removed"
+        : "first-run";
 
   const stateFor = (instance: IntegrationInstance): AwIntegrationCardState =>
     instance.active ? "connected" : "disabled";
@@ -504,9 +621,17 @@ export default function IntegrationsPage() {
     // Settings flow not built yet for other integrations — placeholder.
   };
 
+  if (!hydrated) {
+    return (
+      <DashboardLayout breadcrumbs={breadcrumbs}>
+        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      {isPopulated ? (
+      {variant !== "first-run" ? (
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
             {/* Header */}
@@ -534,37 +659,75 @@ export default function IntegrationsPage() {
               </div>
             </header>
 
-            {/* Suas integrações — single unified grid (channels + others) */}
-            <section aria-label="Suas integrações">
-              <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                Suas integrações
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {instances.map((inst) => {
-                  const it = ITEMS.find((i) => i.id === inst.integrationId);
-                  if (!it) return null;
-                  return (
-                    <CardWithActions
-                      key={inst.instanceId}
-                      brand={it.id}
-                      name={inst.name}
-                      domain={it.domain}
-                      description={it.desc}
-                      state={stateFor(inst)}
-                      hasInstance
-                      active={inst.active}
-                      onToggle={() => handleToggleInstance(inst.instanceId)}
-                      onConfigure={() =>
-                        handleConfigureInstance(inst.instanceId)
-                      }
-                      onDisconnect={() =>
-                        handleDisconnectInstance(inst.instanceId)
-                      }
+            {variant === "populated" ? (
+              /* Suas integrações — single unified grid (channels + others) */
+              <section aria-label="Suas integrações">
+                <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  Suas integrações
+                </h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {instances.map((inst) => {
+                    const it = ITEMS.find((i) => i.id === inst.integrationId);
+                    if (!it) return null;
+                    return (
+                      <CardWithActions
+                        key={inst.instanceId}
+                        brand={it.id}
+                        name={inst.name}
+                        domain={it.domain}
+                        description={it.desc}
+                        state={stateFor(inst)}
+                        hasInstance
+                        active={inst.active}
+                        onToggle={() => handleToggleInstance(inst.instanceId)}
+                        onConfigure={() =>
+                          handleConfigureInstance(inst.instanceId)
+                        }
+                        onDisconnect={() =>
+                          handleDisconnectInstance(inst.instanceId)
+                        }
+                      />
+                    );
+                  })}
+                </div>
+              </section>
+            ) : (
+              /* All-removed — returning user with zero active instances.
+                 Keeps the page header so the user does not lose orientation,
+                 and offers the same quick picks without the onboarding tone. */
+              <section
+                aria-label="Você não tem integrações conectadas"
+                className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-8 py-14 text-center"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]">
+                  <Icon name="link_off" size={24} />
+                </div>
+                <h2 className="m-0 mt-5 text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+                  Você não tem integrações conectadas
+                </h2>
+                <p className="m-0 mt-2 max-w-[420px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+                  Reconecte uma das suas ferramentas ou explore o catálogo
+                  completo para escolher por onde começar de novo.
+                </p>
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+                  {QUICK_PICKS.map((q) => (
+                    <QuickPickPill
+                      key={q.id}
+                      brand={q.id}
+                      name={q.name}
+                      onClick={() => handleConnect(q.id)}
                     />
-                  );
-                })}
-              </div>
-            </section>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(true)}
+                  className="mt-5 text-[13px] font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+                >
+                  Ver catálogo completo
+                </button>
+              </section>
+            )}
           </div>
         </div>
       ) : (
@@ -638,7 +801,7 @@ export default function IntegrationsPage() {
                   key={q.id}
                   brand={q.id}
                   name={q.name}
-                  onClick={() => setConnectId(q.id)}
+                  onClick={() => handleConnect(q.id)}
                 />
               ))}
             </div>
@@ -660,7 +823,7 @@ export default function IntegrationsPage() {
         }))}
         onSelect={(id) => {
           setAddOpen(false);
-          setConnectId(id);
+          handleConnect(id);
         }}
         onCustomIntegration={() => {
           setAddOpen(false);
@@ -806,6 +969,7 @@ export default function IntegrationsPage() {
                 active: true,
               },
             ]);
+            setHasEverConnected(true);
           }
           closeConnect();
         }}
