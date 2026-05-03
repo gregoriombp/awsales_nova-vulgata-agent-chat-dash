@@ -58,11 +58,6 @@ interface IntegrationInstance {
   active: boolean;
 }
 
-const CHANNEL_IDS = ["whatsapp", "messenger", "instagram"] as const;
-type ChannelId = (typeof CHANNEL_IDS)[number];
-const isChannelId = (id: string): id is ChannelId =>
-  (CHANNEL_IDS as readonly string[]).includes(id);
-
 /** Seed instances so the populated state renders by default while we
  *  iterate the new UX flow. Disconnect everything to fall back to the
  *  empty state hero below. */
@@ -484,17 +479,9 @@ export default function IntegrationsPage() {
   const closeConnect = () => setConnectId(null);
 
   const isPopulated = instances.length > 0;
-  const nonChannelInstances = instances.filter(
-    (i) => !isChannelId(i.integrationId),
-  );
 
-  const findInstance = (integrationId: string) =>
-    instances.find((i) => i.integrationId === integrationId);
-
-  const stateFor = (instance?: IntegrationInstance): AwIntegrationCardState => {
-    if (!instance) return "available";
-    return instance.active ? "connected" : "disabled";
-  };
+  const stateFor = (instance: IntegrationInstance): AwIntegrationCardState =>
+    instance.active ? "connected" : "disabled";
 
   const handleToggleInstance = (instanceId: string) => {
     setInstances((list) =>
@@ -547,79 +534,37 @@ export default function IntegrationsPage() {
               </div>
             </header>
 
-            {/* Canais — always shown, 3 fixed channels */}
-            <section aria-label="Canais" className="mb-10">
+            {/* Suas integrações — single unified grid (channels + others) */}
+            <section aria-label="Suas integrações">
               <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                Canais
+                Suas integrações
               </h2>
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {CHANNEL_IDS.map((id) => {
-                  const it = ITEMS.find((i) => i.id === id);
+                {instances.map((inst) => {
+                  const it = ITEMS.find((i) => i.id === inst.integrationId);
                   if (!it) return null;
-                  const inst = findInstance(id);
                   return (
                     <CardWithActions
-                      key={id}
+                      key={inst.instanceId}
                       brand={it.id}
-                      name={inst?.name ?? it.name}
+                      name={inst.name}
                       domain={it.domain}
                       description={it.desc}
                       state={stateFor(inst)}
-                      onCardClick={() => setConnectId(id)}
-                      hasInstance={!!inst}
-                      active={inst?.active}
-                      onToggle={
-                        inst ? () => handleToggleInstance(inst.instanceId) : undefined
+                      hasInstance
+                      active={inst.active}
+                      onToggle={() => handleToggleInstance(inst.instanceId)}
+                      onConfigure={() =>
+                        handleConfigureInstance(inst.instanceId)
                       }
-                      onConfigure={
-                        inst
-                          ? () => handleConfigureInstance(inst.instanceId)
-                          : undefined
-                      }
-                      onDisconnect={
-                        inst
-                          ? () => handleDisconnectInstance(inst.instanceId)
-                          : undefined
+                      onDisconnect={() =>
+                        handleDisconnectInstance(inst.instanceId)
                       }
                     />
                   );
                 })}
               </div>
             </section>
-
-            {/* Integrações Ativas — non-channel connected instances */}
-            {nonChannelInstances.length > 0 && (
-              <section aria-label="Integrações ativas">
-                <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                  Integrações ativas
-                </h2>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {nonChannelInstances.map((inst) => {
-                    const it = ITEMS.find((i) => i.id === inst.integrationId);
-                    if (!it) return null;
-                    return (
-                      <CardWithActions
-                        key={inst.instanceId}
-                        brand={it.id}
-                        name={inst.name}
-                        domain={it.domain}
-                        description={it.desc}
-                        state={stateFor(inst)}
-                        hasInstance
-                        active={inst.active}
-                        onToggle={() => handleToggleInstance(inst.instanceId)}
-                        onConfigure={() =>
-                          handleConfigureInstance(inst.instanceId)
-                        }
-                        onDisconnect={() =>
-                          handleDisconnectInstance(inst.instanceId)
-                        }
-                      />
-                    );
-                  })}
-                </div>
-              </section>
-            )}
           </div>
         </div>
       ) : (
