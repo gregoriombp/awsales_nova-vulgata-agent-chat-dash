@@ -927,13 +927,11 @@
 .aw-card--interactive {
   transition:
     border-color var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out),
     background var(--dur-base) var(--ease-out);
   cursor: pointer;
 }
 .aw-card--interactive:hover {
   border-color: var(--fg-primary);
-  transform: translateY(-2px);
   background: var(--bg-surface);
 }
 .aw-card--ai {
@@ -946,6 +944,35 @@
   outline: 0;
   border-color: var(--fg-primary);
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+/* Dashed variant — for "browse more" / placeholder cards. Sits on the canvas
+   instead of bg-raised so the dashed outline reads as "open slot". */
+.aw-card--dashed {
+  border-style: dashed;
+  border-width: 2px;
+  background: var(--bg-canvas);
+}
+.aw-card--dashed.aw-card--interactive:hover {
+  background: var(--bg-surface);
+}
+
+/* Quiet/explore variant — mirrors the catalog modal card affordance:
+   lighter resting border, more roundness, hover that shifts background
+   without the lift. Used by the Explore grid on /integrations. */
+.aw-explore-card {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-xl);
+}
+.aw-card--interactive.aw-explore-card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+}
+.aw-card--dashed.aw-explore-card {
+  border-color: var(--border-subtle);
+}
+.aw-card--dashed.aw-explore-card.aw-card--interactive:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
 }
 
 /* ---------------- Slots — anatomy mirrors shadcn/ui Card. ---------------- */
@@ -1689,9 +1716,8 @@
   gap: 14px;
   align-items: flex-start;
   padding: 14px 16px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--bg-raised);
-  border: 1px solid var(--border-default);
   color: var(--fg-secondary);
   font-size: 13px;
   line-height: 1.55;
@@ -1705,13 +1731,13 @@
   display: block;
   margin: 0 0 2px 0;
 }
-.aw-alert--info    { border-color: var(--aw-blue-300); background: var(--aw-blue-100); }
+.aw-alert--info    { background: var(--aw-blue-100); }
 .aw-alert--info    .aw-alert__icon { color: var(--aw-blue-600); }
-.aw-alert--success { border-color: var(--aw-emerald-300); background: var(--aw-emerald-100); }
+.aw-alert--success { background: var(--aw-emerald-100); }
 .aw-alert--success .aw-alert__icon { color: var(--aw-emerald-600); }
-.aw-alert--warning { border-color: var(--aw-amber-300); background: var(--aw-amber-100); }
+.aw-alert--warning { background: var(--aw-amber-100); }
 .aw-alert--warning .aw-alert__icon { color: var(--aw-amber-600); }
-.aw-alert--danger  { border-color: var(--aw-red-300); background: var(--aw-red-100); }
+.aw-alert--danger  { background: var(--aw-red-100); }
 .aw-alert--danger  .aw-alert__icon { color: var(--aw-red-600); }
 
 /* ============================================================
@@ -2507,6 +2533,15 @@
 }
 .aw-table--airy thead tr th { border-bottom: 1px solid var(--border-subtle); }
 .aw-table--airy tbody tr.aw-row-clickable { cursor: pointer; }
+/* Inactive integration rows fade back so the active ones lead the eye.
+   Hover restores full opacity so the row is still legible on intent. */
+.aw-table tbody tr.aw-row-inactive {
+  opacity: 0.55;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.aw-table tbody tr.aw-row-inactive:hover { opacity: 1; }
 .aw-table--airy .aw-th-sort {
   display: inline-flex;
   align-items: center;
@@ -2848,12 +2883,11 @@
   gap: 12px;
   border-radius: var(--radius-2xl);
 }
-/* Disable AwCard interactive hover lift/border-shift on integration cards —
+/* Disable AwCard interactive border/background shift on integration cards —
  * the CTA button is the affordance now. */
 .aw-integration-card.aw-card--interactive:hover {
   border-color: var(--border-default);
   background: var(--bg-raised);
-  transform: none;
 }
 .aw-integration-card__head {
   display: flex;
@@ -3184,6 +3218,8 @@
 .aw-add-int-modal__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 156px;
+  align-content: start;
   gap: 12px;
   overflow-y: auto;
   padding-right: 4px;
