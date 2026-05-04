@@ -1113,6 +1113,35 @@
   background: rgba(13, 13, 13, 0.58);
 }
 
+/* Clear button — sits inside the input, stays inside the rounded boundary
+ * regardless of variant. Suppress the native WebKit clear glyph so it can't
+ * leak through (any consumer passing type="search" would otherwise get two). */
+.aw-input__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color var(--dur-base) var(--ease-out);
+}
+.aw-input__clear:hover { color: var(--fg-secondary); }
+.aw-input__clear:focus-visible {
+  outline: 2px solid var(--aw-blue-500);
+  outline-offset: 2px;
+}
+.aw-input input::-webkit-search-cancel-button,
+.aw-input input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
 /* ============================================================
  * AwPill — inline status marker with optional pulse dot.
  * ============================================================ */
