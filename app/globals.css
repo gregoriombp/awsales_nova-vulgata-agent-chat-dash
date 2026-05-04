@@ -2491,6 +2491,45 @@
 .aw-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
 .aw-table tbody tr:hover td { background: var(--bg-surface); }
 
+/* Airy variant — no outer chrome, generous row height, sentence-case headers.
+   Used on the integrations list to match the Mobbin-style entity table. */
+.aw-table--airy {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+}
+.aw-table--airy th {
+  background: transparent;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  padding: 14px 20px;
+}
+.aw-table--airy td {
+  padding: 18px 20px;
+  border-bottom-color: var(--border-subtle);
+}
+.aw-table--airy thead tr th { border-bottom: 1px solid var(--border-subtle); }
+.aw-table--airy tbody tr.aw-row-clickable { cursor: pointer; }
+.aw-table--airy .aw-th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.aw-table--airy .aw-th-sort[aria-sort="ascending"],
+.aw-table--airy .aw-th-sort[aria-sort="descending"] {
+  color: var(--fg-primary);
+}
+
 /* ============================================================
  * AwToggle — on/off switch, optional AI variant.
  * ============================================================ */
