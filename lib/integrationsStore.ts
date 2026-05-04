@@ -13,6 +13,9 @@ export interface IntegrationInstance {
    *  needs to re-authorize or fix the binding. UI surfaces this as a
    *  warning state separate from "disabled". */
   needsAttention?: boolean;
+  /** Short error description shown as a tooltip on the attention pill
+   *  (e.g. "Token expirou", "Webhook retornou 401"). */
+  attentionReason?: string;
   /** Epoch ms the instance was created. Optional so legacy instances
    *  written before this field landed still parse; the list view falls
    *  back to deriving the timestamp from `instanceId` for those. */
