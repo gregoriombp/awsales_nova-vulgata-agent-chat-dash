@@ -9,6 +9,10 @@ export interface IntegrationInstance {
   integrationId: string;
   name: string;
   active: boolean;
+  /** Set when the connection is broken/expired/etc. and the user
+   *  needs to re-authorize or fix the binding. UI surfaces this as a
+   *  warning state separate from "disabled". */
+  needsAttention?: boolean;
 }
 
 const INSTANCES_KEY = "awsales:integrations:instances";
