@@ -126,7 +126,7 @@ export default function PillsPage() {
             />
             <Spec
               k="fonte"
-              v="11px 500 Mona Sans · 0.02em"
+              v="11px 500 Geist · 0.02em"
               d="Leve tracking positivo para legibilidade em maiúsculas/minúsculas curtas."
             />
             <Spec

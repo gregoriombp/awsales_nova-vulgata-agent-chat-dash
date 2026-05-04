@@ -470,11 +470,11 @@ export default function StyleguidePage() {
         <Section
           id="typography"
           title="Typography"
-          lead="One voice: Mona Sans. Type tightens with size — -2% tracking on display, neutral on body. JetBrains Mono is reserved strictly for code, tokens, and IDs."
+          lead="One voice: Geist. Type tightens with size — -2% tracking on display, neutral on body. Geist Mono is reserved strictly for code, tokens, and IDs."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-10">
             <div>
-              <div className="aw-eyebrow mb-4">display · Mona Sans Medium</div>
+              <div className="aw-eyebrow mb-4">display · Geist Medium</div>
               <div className="flex flex-col gap-4">
                 {displayScale.map((d) => (
                   <div
@@ -493,7 +493,7 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="aw-eyebrow mb-4">headings · Mona Sans Medium</div>
+              <div className="aw-eyebrow mb-4">headings · Geist Medium</div>
               <div className="flex flex-col gap-3">
                 {headingScale.map(({ Tag, label, size }) => (
                   <div
@@ -514,7 +514,7 @@ export default function StyleguidePage() {
             </div>
 
             <div>
-              <div className="aw-eyebrow mb-4">body · Mona Sans Regular</div>
+              <div className="aw-eyebrow mb-4">body · Geist Regular</div>
               <div className="flex flex-col gap-3">
                 {bodyScale.map((b) => (
                   <div
@@ -540,7 +540,7 @@ export default function StyleguidePage() {
 
             <div>
               <div className="aw-eyebrow mb-4">
-                mono · JetBrains Mono — code, tokens, IDs
+                mono · Geist Mono — code, tokens, IDs
               </div>
               <div className="flex flex-col gap-2">
                 <code className="mono text-[var(--mono-md-size)] bg-[var(--bg-surface)] px-3 py-2 rounded-[var(--radius-sm)] w-fit">

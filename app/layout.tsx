@@ -20,8 +20,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* AwSales Design System fonts — loaded via <link> because Turbopack
-         * strips CSS @import. One typographic voice: Mona Sans.
-         * JetBrains Mono for code. Material Symbols Rounded for iconography. */}
+         * strips CSS @import. One typographic voice: Geist.
+         * Geist Mono for code. Material Symbols Rounded for iconography. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
