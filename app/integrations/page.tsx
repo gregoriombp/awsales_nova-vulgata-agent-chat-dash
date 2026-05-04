@@ -1015,7 +1015,6 @@ type EmptyVariant = "populated" | "all-removed" | "first-run";
 export default function IntegrationsPage() {
   const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
-  const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
   const [disconnectId, setDisconnectId] = useState<string | null>(null);
   /** Set when the user clicks an Explore card for a brand they already
@@ -1343,58 +1342,8 @@ export default function IntegrationsPage() {
         }}
         onCustomIntegration={() => {
           setAddOpen(false);
-          setCustomOpen(true);
+          router.push("/integrations/custom");
         }}
-      />
-
-      {/* Custom integration placeholder */}
-      <AwConnectModal
-        open={customOpen}
-        onClose={() => setCustomOpen(false)}
-        kind="apiKey"
-        productLogoSrc={ORG_LOGO_SRC}
-        productName={ORG_NAME}
-        targetBrand="custom"
-        targetName="Integração personalizada"
-        description="Conecte qualquer API. Os campos finais serão definidos para essa integração."
-        defaultConnectionName="Minha integração"
-        apiKeyIntro={
-          <>
-            Preencha os campos abaixo para configurar uma conexão
-            personalizada. <em>Os campos definitivos serão ajustados
-            depois.</em>
-          </>
-        }
-        apiKeyFields={[
-          {
-            id: "custom-base-url",
-            label: "URL base da API",
-            placeholder: "https://api.exemplo.com",
-            iconLeft: "link",
-            required: true,
-          },
-          {
-            id: "custom-auth-method",
-            label: "Método de autenticação",
-            placeholder: "Bearer / API key / Basic",
-            iconLeft: "lock",
-            required: true,
-          },
-          {
-            id: "custom-credential",
-            label: "Credencial",
-            placeholder: "Cole sua credencial aqui",
-            iconLeft: "key",
-            required: true,
-          },
-          {
-            id: "custom-notes",
-            label: "Observações",
-            placeholder: "Cabeçalhos extras, escopos, etc.",
-            iconLeft: "notes",
-          },
-        ]}
-        onAllow={() => setCustomOpen(false)}
       />
 
       {/* Connect dialog */}
