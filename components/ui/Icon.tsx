@@ -14,7 +14,7 @@ export function Icon({
   name,
   size = 20,
   fill = 0,
-  weight = 400,
+  weight = 300,
   grade = 0,
   className,
   style,
