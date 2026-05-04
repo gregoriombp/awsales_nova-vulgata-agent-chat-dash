@@ -15,7 +15,7 @@ export default function PillsPage() {
     <>
       <PageHero title="Pills">
         Marcador inline de status ou categoria. Altura 22 px, radius total,
-          1px de borda. Um ponto opcional comunica estado — a variante{" "}
+          sem borda. Um ponto opcional comunica estado — a variante{" "}
           <strong>ai</strong> pulsa.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -25,19 +25,19 @@ export default function PillsPage() {
           title="Variantes"
           lead="Seis variantes cobrem os estados que aparecem no produto. Cada uma já vem com a cor do dot e a cor do texto combinando."
         >
-          <Stage label="live · draft · beta · error · neutral · ai">
-            <AwPill variant="live">live</AwPill>
-            <AwPill variant="draft">draft</AwPill>
-            <AwPill variant="beta">beta</AwPill>
-            <AwPill variant="error">error</AwPill>
-            <AwPill variant="neutral">neutral</AwPill>
-            <AwPill variant="ai">ai</AwPill>
+          <Stage label="Live · Draft · Beta · Error · Neutral · AI">
+            <AwPill variant="live">Live</AwPill>
+            <AwPill variant="draft">Draft</AwPill>
+            <AwPill variant="beta">Beta</AwPill>
+            <AwPill variant="error">Error</AwPill>
+            <AwPill variant="neutral">Neutral</AwPill>
+            <AwPill variant="ai">AI</AwPill>
           </Stage>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="live">live</AwPill>
+                <AwPill variant="live">Live</AwPill>
               </div>
               <p className="body-sm m-0">
                 Agente publicado e servindo tráfego. Verde emerald.
@@ -45,7 +45,7 @@ export default function PillsPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="draft">draft</AwPill>
+                <AwPill variant="draft">Draft</AwPill>
               </div>
               <p className="body-sm m-0">
                 Rascunho / não publicado. Cinza neutro.
@@ -53,7 +53,7 @@ export default function PillsPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="beta">beta</AwPill>
+                <AwPill variant="beta">Beta</AwPill>
               </div>
               <p className="body-sm m-0">
                 Feature em disponibilidade restrita. Amber.
@@ -61,7 +61,7 @@ export default function PillsPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="error">error</AwPill>
+                <AwPill variant="error">Error</AwPill>
               </div>
               <p className="body-sm m-0">
                 Falha de autenticação, sync ou execução. Vermelho.
@@ -69,7 +69,7 @@ export default function PillsPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="neutral">neutral</AwPill>
+                <AwPill variant="neutral">Neutral</AwPill>
               </div>
               <p className="body-sm m-0">
                 Categoria, tag ou filtro sem semântica de status.
@@ -77,7 +77,7 @@ export default function PillsPage() {
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="flex items-center gap-3 mb-2">
-                <AwPill variant="ai">ai</AwPill>
+                <AwPill variant="ai">AI</AwPill>
               </div>
               <p className="body-sm m-0">
                 Conteúdo gerado pelo agente. O dot pulsa a 2.2s — único pulse
@@ -93,17 +93,17 @@ export default function PillsPage() {
           lead="Dot é default. Desligue via dot={false} quando a pill estiver dentro de uma superfície que já traz semântica (ex.: chip de filtro)."
         >
           <Stage label="dot · sem dot">
-            <AwPill variant="live">live</AwPill>
+            <AwPill variant="live">Live</AwPill>
             <AwPill variant="live" dot={false}>
-              live
+              Live
             </AwPill>
-            <AwPill variant="error">error</AwPill>
+            <AwPill variant="error">Error</AwPill>
             <AwPill variant="error" dot={false}>
-              error
+              Error
             </AwPill>
-            <AwPill variant="ai">ai</AwPill>
+            <AwPill variant="ai">AI</AwPill>
             <AwPill variant="ai" dot={false}>
-              ai
+              AI
             </AwPill>
           </Stage>
         </Section>
@@ -127,12 +127,7 @@ export default function PillsPage() {
             <Spec
               k="fonte"
               v="11px 500 Geist · 0.02em"
-              d="Leve tracking positivo para legibilidade em maiúsculas/minúsculas curtas."
-            />
-            <Spec
-              k="border"
-              v="1px"
-              d="Cor depende da variante — sempre 1 passo acima do background."
+              d="Leve tracking positivo para legibilidade em palavras curtas."
             />
             <Spec
               k="dot"
@@ -179,18 +174,18 @@ export default function PillsPage() {
 
           <CodeExample>{`import { AwPill } from "@/components/ui/AwPill"
 
-<AwPill variant="live">live</AwPill>
-<AwPill variant="error">falha</AwPill>
-<AwPill variant="ai">ai</AwPill>
+<AwPill variant="live">Live</AwPill>
+<AwPill variant="error">Falha</AwPill>
+<AwPill variant="ai">AI</AwPill>
 
 {/* chip de filtro sem dot */}
-<AwPill variant="neutral" dot={false}>whatsapp</AwPill>`}</CodeExample>
+<AwPill variant="neutral" dot={false}>WhatsApp</AwPill>`}</CodeExample>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">
           <DoDont
             dos={[
-              <>Labels curtos, minúsculos, uma a três palavras.</>,
+              <>Labels curtos, capitalizados, uma a três palavras.</>,
               <>AI apenas quando o item foi gerado ou inferido pelo agente.</>,
               <>Error em falhas reversíveis — não em “erro 500” de servidor.</>,
             ]}

@@ -1097,7 +1097,6 @@
   padding: 0 10px;
   border-radius: var(--radius-full);
   font: 500 11px/1 var(--font-sans);
-  border: 1px solid var(--border-default);
   background: var(--bg-surface);
   color: var(--fg-primary);
   letter-spacing: 0.02em;
@@ -1112,36 +1111,30 @@
 }
 .aw-pill--live {
   background: var(--aw-emerald-100);
-  border-color: var(--aw-emerald-300);
   color: var(--aw-emerald-700);
 }
 .aw-pill--live .aw-pill__dot { background: var(--aw-emerald-500); }
 .aw-pill--draft {
   background: var(--aw-gray-150);
-  border-color: var(--aw-gray-300);
   color: var(--aw-gray-800);
 }
 .aw-pill--draft .aw-pill__dot { background: var(--aw-gray-600); }
 .aw-pill--beta {
   background: var(--aw-amber-100);
-  border-color: var(--aw-amber-300);
   color: var(--aw-amber-700);
 }
 .aw-pill--beta .aw-pill__dot { background: var(--aw-amber-500); }
 .aw-pill--error {
   background: var(--aw-red-100);
-  border-color: var(--aw-red-300);
   color: var(--aw-red-700);
 }
 .aw-pill--error .aw-pill__dot { background: var(--aw-red-500); }
 .aw-pill--neutral {
   background: var(--bg-surface);
-  border-color: var(--border-default);
   color: var(--fg-primary);
 }
 .aw-pill--ai {
   background: var(--aw-blue-100);
-  border-color: var(--aw-blue-300);
   color: var(--aw-blue-700);
 }
 .aw-pill--ai .aw-pill__dot {
