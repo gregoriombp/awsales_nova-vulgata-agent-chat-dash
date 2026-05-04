@@ -10,7 +10,6 @@ AwSales — plataforma de agentes de IA para vendas. Construída com o método *
 
 - Next.js 16 + React 19 + TypeScript
 - Tailwind CSS v3.4 (não v4) — tokens via `tailwind.config.ts` + CSS variables em `globals.css`
-- **Sem shadcn/ui.** Componentes são custom (em `components/ui/*` e `components/*`)
 - Geist + Geist Mono + Material Symbols Rounded
 - Zustand, react-hook-form + zod, recharts, @xyflow/react, dnd-kit, @anthropic-ai/sdk, @google/genai
 
