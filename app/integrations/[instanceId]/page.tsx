@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -400,20 +400,27 @@ function DetailHeader({
           : { variant: "live", label: "ativo" };
 
   return (
-    <header className="flex items-center justify-between gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 pl-5">
-      <div className="flex min-w-0 items-center gap-3">
-        <AwBrandLogo brand={integration.id} size="lg" bare />
+    <header className="flex items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-4">
+        <AwBrandLogo
+          brand={integration.id}
+          size="lg"
+          bare
+          style={{ width: 64, height: 64, borderRadius: 14 }}
+        />
         <div className="min-w-0">
-          <h1 className="m-0 truncate text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-            {integration.name} · {account.name}
-          </h1>
+          <div className="flex items-center gap-2.5">
+            <h1 className="m-0 truncate text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+              {integration.name} · {account.name}
+            </h1>
+            <AwPill variant={status.variant}>{status.label}</AwPill>
+          </div>
           <p className="m-0 mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
             {CATEGORY_LABELS[integration.cat]} · {AUTH_LABELS[integration.auth]}
           </p>
         </div>
       </div>
       <div className="flex flex-shrink-0 items-center gap-2">
-        <AwPill variant={status.variant}>{status.label}</AwPill>
         <AwButton
           variant="secondary"
           size="sm"
@@ -629,7 +636,7 @@ function PermissionsTab({
                   {s.label}
                 </div>
               </div>
-              <PermissionToggle
+              <PermissionMenu
                 value={s.mode}
                 onChange={(m) => setMode(s.label, m)}
               />
@@ -646,40 +653,83 @@ function PermissionsTab({
   );
 }
 
-function PermissionToggle({
+function PermissionMenu({
   value,
   onChange,
 }: {
   value: PermissionMode;
   onChange: (mode: PermissionMode) => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("mousedown", onPointer);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onPointer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const current =
+    PERMISSION_OPTIONS.find((o) => o.id === value) ?? PERMISSION_OPTIONS[0];
+
   return (
-    <div
-      role="radiogroup"
-      className="inline-flex items-center gap-0.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0.5"
-    >
-      {PERMISSION_OPTIONS.map((opt) => {
-        const active = opt.id === value;
-        return (
-          <button
-            key={opt.id}
-            type="button"
-            role="radio"
-            aria-checked={active}
-            aria-label={opt.label}
-            title={opt.label}
-            onClick={() => onChange(opt.id)}
-            className={
-              "inline-flex h-7 w-9 items-center justify-center rounded-[var(--radius-sm)] transition-colors " +
-              (active
-                ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] ring-1 ring-[var(--border-strong)]"
-                : "text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]")
-            }
-          >
-            <Icon name={opt.icon} size={16} />
-          </button>
-        );
-      })}
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="inline-flex h-8 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 text-[13px] text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-raised)]"
+      >
+        <Icon name={current.icon} size={16} />
+        <span>{current.label}</span>
+        <Icon
+          name="expand_more"
+          size={16}
+          className="text-[var(--fg-tertiary)]"
+        />
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
+        >
+          {PERMISSION_OPTIONS.map((opt) => {
+            const active = opt.id === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className={
+                  "flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
+                  (active
+                    ? "text-[var(--fg-primary)]"
+                    : "text-[var(--fg-secondary)]")
+                }
+              >
+                <Icon name={opt.icon} size={16} />
+                <span className="flex-1">{opt.label}</span>
+                {active && <Icon name="check" size={14} />}
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
