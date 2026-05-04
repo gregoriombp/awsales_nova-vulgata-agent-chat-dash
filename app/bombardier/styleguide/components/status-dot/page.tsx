@@ -30,23 +30,23 @@ export default function StatusDotPage() {
             <Stage label="variant">
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="live" />
-                <span className="text-sm">live</span>
+                <span className="text-sm">Live</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="attention" />
-                <span className="text-sm">attention</span>
+                <span className="text-sm">Attention</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="offline" />
-                <span className="text-sm">offline</span>
+                <span className="text-sm">Offline</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="info" />
-                <span className="text-sm">info</span>
+                <span className="text-sm">Info</span>
               </span>
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="neutral" />
-                <span className="text-sm">neutral</span>
+                <span className="text-sm">Neutral</span>
               </span>
             </Stage>
           </Section>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -10,11 +11,18 @@ import {
   AwConnectModal,
   type AwWebhookStep,
 } from "@/components/ui/AwConnectModal";
-import {
-  AwIntegrationCard,
-  type AwIntegrationCardState,
-} from "@/components/ui/AwIntegrationCard";
+import { AwModal } from "@/components/ui/AwModal";
+import { AwInput } from "@/components/ui/AwInput";
+import { AwPill } from "@/components/ui/AwPill";
+import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
+import {
+  loadHasEverConnected,
+  loadInstances,
+  saveHasEverConnected,
+  saveInstances,
+  type IntegrationInstance,
+} from "@/lib/integrationsStore";
 
 /* ----------------------------------------------------------------
  * Constants — minimal subset preserved from the previous page so the
@@ -29,7 +37,6 @@ const ORG_LOGO_SRC = "/assets/icon_artificial_concord_organization.png";
 const ORG_NAME = "Nome da organização";
 
 type IntegrationCategory =
-  | "channels"
   | "checkouts"
   | "members"
   | "forms"
@@ -38,6 +45,11 @@ type IntegrationCategory =
   | "marketplaces"
   | "ai"
   | "signatures";
+
+/** Channels live in /canais now. We keep the ids here only so any
+ *  legacy localStorage instances created before the split are filtered
+ *  out instead of crashing the catalog lookup. */
+const CHANNEL_IDS = new Set(["whatsapp", "instagram", "messenger"]);
 
 type AuthMethod = "oauth" | "webhook" | "apiKey";
 
@@ -51,27 +63,7 @@ interface Integration {
   permissions?: string[];
 }
 
-interface IntegrationInstance {
-  instanceId: string;
-  integrationId: string;
-  name: string;
-  active: boolean;
-}
-
-/** Seed instances so the populated state renders by default while we
- *  iterate the new UX flow. Disconnect everything to fall back to the
- *  empty state hero below. */
-const SEED_INSTANCES: IntegrationInstance[] = [
-  { instanceId: "whatsapp-default", integrationId: "whatsapp", name: "WhatsApp", active: true },
-  { instanceId: "instagram-default", integrationId: "instagram", name: "Instagram", active: true },
-  { instanceId: "hotmart-default", integrationId: "hotmart", name: "Hotmart", active: true },
-  { instanceId: "stripe-default", integrationId: "stripe", name: "Stripe", active: true },
-  { instanceId: "shopify-default", integrationId: "shopify", name: "Shopify", active: true },
-  { instanceId: "calendly-default", integrationId: "calendly", name: "Calendly", active: true },
-];
-
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
-  { id: "channels", label: "Canais" },
   { id: "ai", label: "Modelos de IA" },
   { id: "checkouts", label: "Checkouts" },
   { id: "members", label: "Área de membros" },
@@ -83,46 +75,6 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
 ];
 
 const ITEMS: Integration[] = [
-  // Channels
-  {
-    id: "whatsapp",
-    cat: "channels",
-    name: "WhatsApp",
-    domain: "whatsapp.com",
-    desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
-    auth: "oauth",
-    permissions: [
-      "Enviar e receber mensagens em seu nome",
-      "Acessar contatos e conversas ativas",
-      "Ler mídias enviadas pelos clientes",
-    ],
-  },
-  {
-    id: "instagram",
-    cat: "channels",
-    name: "Instagram",
-    domain: "instagram.com",
-    desc: "Responda DMs do Instagram automaticamente com agentes.",
-    auth: "oauth",
-    permissions: [
-      "Ler e responder mensagens diretas",
-      "Acessar comentários em posts e reels",
-      "Ver informações básicas da conta",
-    ],
-  },
-  {
-    id: "messenger",
-    cat: "channels",
-    name: "Messenger",
-    domain: "messenger.com",
-    desc: "Atendimento automatizado pelo Messenger do Facebook.",
-    auth: "oauth",
-    permissions: [
-      "Ler e responder mensagens da página",
-      "Acessar perfis públicos dos clientes",
-      "Receber webhooks de novas conversas",
-    ],
-  },
   // Checkouts
   { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", auth: "apiKey" },
   { id: "stripe", cat: "checkouts", name: "Stripe", domain: "stripe.com", desc: "Pagamentos globais — cartão, PIX, assinaturas.", auth: "apiKey" },
@@ -341,98 +293,351 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
  * Visual building blocks for the empty state.
  * ---------------------------------------------------------------- */
 
+/** 11 brand picks featured in the "Explore" section below the populated
+ *  table. Combined with the trailing "Ver todas" tile this is exactly 12
+ *  cells, which divides cleanly across 3- and 4-column grids on wider
+ *  monitors without leaving an orphan in the last row. Order = visual
+ *  priority; mix spans checkout / AI / meetings / CRM / marketplace so
+ *  the grid reads as a sample of the catalog, not a single niche. */
+const EXPLORE_BRAND_IDS = [
+  "hotmart",
+  "stripe",
+  "kiwify",
+  "claude",
+  "chatgpt",
+  "calendly",
+  "googlecal",
+  "rdstation",
+  "hubspot",
+  "pipedrive",
+  "shopify",
+] as const;
+
 const HERO_BRANDS_TOP = ["hotmart", "eduzz", "kiwify"] as const;
 const HERO_BRANDS_BOTTOM = [
-  "whatsapp",
+  "stripe",
   "rdstation",
-  "instagram",
   "calendly",
+  "hubspot",
 ] as const;
 
 const QUICK_PICKS: { id: string; name: string }[] = [
-  { id: "whatsapp", name: "WhatsApp" },
   { id: "hotmart", name: "Hotmart" },
   { id: "stripe", name: "Stripe" },
   { id: "calendly", name: "Calendly" },
   { id: "rdstation", name: "RD Station" },
+  { id: "claude", name: "Claude" },
 ];
 
 /* ----------------------------------------------------------------
- * Card with quick actions — wraps AwIntegrationCard with three
- * top-right ghost icon buttons: toggle (active/paused), configure,
- * disconnect. Buttons are only rendered when an instance exists;
- * "available" channels stay clickable as a single connect target.
+ * Row helpers — list view derived data + UI bits
+ *
+ * The list view is rendered as a Mobbin-style entity table. Each row
+ * shows the integration brand, the connection name, status, created
+ * date, and last event. Created date and last event are deterministic
+ * placeholders for the prototype: addedAt is real when available; the
+ * last-event label is hashed from instanceId so the same row always
+ * shows the same value across reloads.
  * ---------------------------------------------------------------- */
 
-function CardWithActions({
-  brand,
-  name,
-  domain,
-  description,
-  state,
-  onCardClick,
-  hasInstance,
-  active,
-  onToggle,
-  onConfigure,
-  onDisconnect,
-}: {
-  brand: string;
-  name: string;
-  domain: string;
-  description: string;
-  state: AwIntegrationCardState;
-  /** Card body click — used for "available" channels to open Connect. */
-  onCardClick?: () => void;
-  hasInstance: boolean;
-  active?: boolean;
-  onToggle?: () => void;
-  onConfigure?: () => void;
-  onDisconnect?: () => void;
-}) {
-  const stop = (cb?: () => void) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    cb?.();
-  };
+type SortKey = "name" | "status" | "created" | "event";
+type SortDir = "asc" | "desc";
+interface SortState {
+  by: SortKey;
+  dir: SortDir;
+}
+
+const MONTHS_PT = [
+  "jan", "fev", "mar", "abr", "mai", "jun",
+  "jul", "ago", "set", "out", "nov", "dez",
+];
+
+function createdAtOf(inst: IntegrationInstance): number {
+  if (typeof inst.addedAt === "number") return inst.addedAt;
+  const tail = inst.instanceId.split("-").pop();
+  const n = tail ? parseInt(tail, 10) : NaN;
+  return Number.isFinite(n) ? n : 0;
+}
+
+function formatDateBR(ms: number): string {
+  if (!ms) return "—";
+  const d = new Date(ms);
+  return `${d.getDate()} ${MONTHS_PT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function lastEventFor(instanceId: string): { mins: number; label: string } {
+  let h = 0;
+  for (let i = 0; i < instanceId.length; i++) {
+    h = ((h << 5) - h + instanceId.charCodeAt(i)) | 0;
+  }
+  const mins = (Math.abs(h) % 10080) + 1;
+  if (mins < 60) return { mins, label: `${mins} min atrás` };
+  if (mins < 60 * 24)
+    return { mins, label: `${Math.round(mins / 60)} h atrás` };
+  return { mins, label: `${Math.round(mins / (60 * 24))} d atrás` };
+}
+
+function statusOf(inst: IntegrationInstance): {
+  variant: "live" | "draft" | "neutral" | "error";
+  label: string;
+  order: number;
+  reason?: string;
+} {
+  if (!inst.active) return { variant: "neutral", label: "Inativa", order: 2 };
+  if (inst.needsAttention)
+    return {
+      variant: "error",
+      label: "Requer atenção",
+      order: 1,
+      reason:
+        inst.attentionReason ??
+        "A integração reportou um erro. Reconecte ou revise as credenciais.",
+    };
+  return { variant: "live", label: "Ativa", order: 0 };
+}
+
+function SortGlyph({ active, dir }: { active: boolean; dir: SortDir }) {
+  if (!active)
+    return <Icon name="unfold_more" size={14} aria-hidden="true" />;
   return (
-    <div className="relative">
-      <AwIntegrationCard
-        brand={brand}
-        name={name}
-        domain={domain}
-        description={description}
-        state={state}
-        onClick={hasInstance ? undefined : onCardClick}
-      />
-      {hasInstance && (
-        <div className="absolute right-2 top-2 flex items-center gap-0.5">
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly={active ? "toggle_on" : "toggle_off"}
-            aria-label={active ? "Pausar integração" : "Ativar integração"}
-            title={active ? "Pausar integração" : "Ativar integração"}
-            onClick={stop(onToggle)}
-          />
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly="tune"
-            aria-label="Configurar integração"
-            title="Configurar integração"
-            onClick={stop(onConfigure)}
-          />
-          <AwButton
-            variant="ghost"
-            size="sm"
-            iconOnly="link_off"
-            aria-label="Desconectar integração"
-            title="Desconectar integração"
-            onClick={stop(onDisconnect)}
-          />
+    <Icon
+      name={dir === "asc" ? "arrow_upward" : "arrow_downward"}
+      size={14}
+      aria-hidden="true"
+    />
+  );
+}
+
+function SortMenu({
+  sort,
+  onChange,
+}: {
+  sort: SortState;
+  onChange: (s: SortState) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("mousedown", onPointer);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("mousedown", onPointer);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const options: { id: SortState; label: string }[] = [
+    { id: { by: "name", dir: "asc" }, label: "Nome (A → Z)" },
+    { id: { by: "name", dir: "desc" }, label: "Nome (Z → A)" },
+    { id: { by: "created", dir: "desc" }, label: "Mais recentes" },
+    { id: { by: "created", dir: "asc" }, label: "Mais antigas" },
+    { id: { by: "event", dir: "asc" }, label: "Último evento" },
+  ];
+
+  const currentLabel =
+    options.find((o) => o.id.by === sort.by && o.id.dir === sort.dir)?.label ??
+    "Ordenar";
+
+  return (
+    <div ref={ref} className="relative">
+      <AwButton
+        variant="secondary"
+        size="md"
+        iconLeft="swap_vert"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
+        {currentLabel}
+      </AwButton>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
+        >
+          {options.map((o) => {
+            const active = o.id.by === sort.by && o.id.dir === sort.dir;
+            return (
+              <button
+                key={o.label}
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  onChange(o.id);
+                  setOpen(false);
+                }}
+                className={
+                  "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
+                  (active
+                    ? "text-[var(--fg-primary)]"
+                    : "text-[var(--fg-secondary)]")
+                }
+              >
+                <span>{o.label}</span>
+                {active && <Icon name="check" size={14} />}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
+  );
+}
+
+function RowActionMenu({
+  active,
+  needsAttention,
+  onToggle,
+  onToggleAttention,
+  onConfigure,
+  onDisconnect,
+}: {
+  active?: boolean;
+  needsAttention?: boolean;
+  onToggle?: () => void;
+  onToggleAttention?: () => void;
+  onConfigure?: () => void;
+  onDisconnect?: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+  const triggerRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (triggerRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    /* Portal menu uses fixed positioning calculated from the trigger,
+     * so any layout shift (scroll, resize) invalidates the anchor.
+     * Cheaper to dismiss than to keep recomputing. */
+    const dismiss = () => setOpen(false);
+    window.addEventListener("mousedown", onPointer);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", dismiss, true);
+    window.addEventListener("resize", dismiss);
+    return () => {
+      window.removeEventListener("mousedown", onPointer);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", dismiss, true);
+      window.removeEventListener("resize", dismiss);
+    };
+  }, [open]);
+
+  const select = (cb?: () => void) => (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setOpen(false);
+    cb?.();
+  };
+
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!open && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPos({
+        top: rect.bottom + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setOpen((v) => !v);
+  };
+
+  return (
+    <div
+      ref={triggerRef}
+      className="relative inline-block"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <AwButton
+        variant="ghost"
+        size="sm"
+        iconOnly="more_vert"
+        aria-label="Ações da integração"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        title="Ações"
+        onClick={handleTriggerClick}
+      />
+      {open && pos && typeof window !== "undefined"
+        ? createPortal(
+            <div
+              ref={menuRef}
+              role="menu"
+              className="z-50 min-w-[180px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
+              style={{ position: "fixed", top: pos.top, right: pos.right }}
+            >
+              <MenuItem
+                icon={active ? "pause" : "play_arrow"}
+                label={active ? "Pausar integração" : "Ativar integração"}
+                onClick={select(onToggle)}
+              />
+              <MenuItem
+                icon="tune"
+                label="Configurar"
+                onClick={select(onConfigure)}
+              />
+              {onToggleAttention && (
+                <MenuItem
+                  icon={needsAttention ? "check_circle" : "report"}
+                  label={needsAttention ? "Limpar erro" : "Simular erro"}
+                  onClick={select(onToggleAttention)}
+                />
+              )}
+              <MenuItem
+                icon="link_off"
+                label="Desconectar"
+                danger
+                onClick={select(onDisconnect)}
+              />
+            </div>,
+            document.body,
+          )
+        : null}
+    </div>
+  );
+}
+
+function MenuItem({
+  icon,
+  label,
+  danger,
+  onClick,
+}: {
+  icon: string;
+  label: string;
+  danger?: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="menuitem"
+      onClick={onClick}
+      className={
+        "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
+        (danger
+          ? "text-[var(--fg-danger,#b42318)]"
+          : "text-[var(--fg-primary)]")
+      }
+    >
+      <Icon name={icon} size={16} />
+      <span>{label}</span>
+    </button>
   );
 }
 
@@ -457,16 +662,392 @@ function QuickPickPill({
   );
 }
 
+/* ----------------------------------------------------------------
+ * IntegrationsTable — list view for the populated variant.
+ *
+ * Toolbar: search + sort menu + filter (filter is a placeholder for
+ * future segment filtering; sort drives the table order). Table: Nome,
+ * Status, Criado em, Último evento, with a row-level action menu.
+ * Row click → detail page.
+ * ---------------------------------------------------------------- */
+
+function IntegrationsTable({
+  instances,
+  items,
+  onToggle,
+  onToggleAttention,
+  onConfigure,
+  onDisconnect,
+}: {
+  instances: IntegrationInstance[];
+  items: Integration[];
+  onToggle: (instanceId: string) => void;
+  onToggleAttention: (instanceId: string) => void;
+  onConfigure: (instanceId: string) => void;
+  onDisconnect: (instanceId: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<SortState>({ by: "name", dir: "asc" });
+
+  const rows = useMemo(() => {
+    const enriched = instances
+      .map((instance) => {
+        const integration = items.find((i) => i.id === instance.integrationId);
+        if (!integration) return null;
+        const createdAt = createdAtOf(instance);
+        const ev = lastEventFor(instance.instanceId);
+        return {
+          instance,
+          integration,
+          createdAt,
+          eventMins: ev.mins,
+          eventLabel: ev.label,
+        };
+      })
+      .filter((r): r is NonNullable<typeof r> => !!r);
+
+    const q = query.trim().toLowerCase();
+    const filtered = q
+      ? enriched.filter(
+          ({ instance, integration }) =>
+            instance.name.toLowerCase().includes(q) ||
+            integration.name.toLowerCase().includes(q),
+        )
+      : enriched;
+
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return [...filtered].sort((a, b) => {
+      if (sort.by === "name")
+        return a.instance.name.localeCompare(b.instance.name, "pt-BR") * dir;
+      if (sort.by === "status")
+        return (statusOf(a.instance).order - statusOf(b.instance).order) * dir;
+      if (sort.by === "created") return (a.createdAt - b.createdAt) * dir;
+      return (a.eventMins - b.eventMins) * dir;
+    });
+  }, [instances, items, query, sort]);
+
+  const toggleSort = (key: SortKey) => {
+    setSort((s) =>
+      s.by === key
+        ? { by: key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { by: key, dir: key === "name" ? "asc" : "desc" },
+    );
+  };
+
+  const ariaSort = (key: SortKey): "ascending" | "descending" | "none" =>
+    sort.by !== key ? "none" : sort.dir === "asc" ? "ascending" : "descending";
+
+  return (
+    <section aria-label="Suas integrações">
+      <div className="mb-5 flex items-baseline justify-between gap-4">
+        <h2 className="m-0 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          Suas integrações
+        </h2>
+        <span className="text-[12px] text-[var(--fg-tertiary)]">
+          {rows.length} {rows.length === 1 ? "ativa" : "ativas"}
+        </span>
+      </div>
+
+      <div className="mb-4 flex items-center gap-2">
+        <div className="flex-1">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar integração…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            aria-label="Buscar integração"
+          />
+        </div>
+        <SortMenu sort={sort} onChange={setSort} />
+        <AwButton
+          variant="secondary"
+          size="md"
+          iconOnly="filter_list"
+          aria-label="Filtros"
+          title="Filtros"
+        />
+      </div>
+
+      <AwTable className="aw-table--airy">
+        <thead>
+            <tr>
+              <th>
+                <button
+                  type="button"
+                  className="aw-th-sort"
+                  aria-sort={ariaSort("name")}
+                  onClick={() => toggleSort("name")}
+                >
+                  Nome
+                  <SortGlyph active={sort.by === "name"} dir={sort.dir} />
+                </button>
+              </th>
+              <th>
+                <button
+                  type="button"
+                  className="aw-th-sort"
+                  aria-sort={ariaSort("status")}
+                  onClick={() => toggleSort("status")}
+                >
+                  Status
+                  <SortGlyph active={sort.by === "status"} dir={sort.dir} />
+                </button>
+              </th>
+              <th>
+                <button
+                  type="button"
+                  className="aw-th-sort"
+                  aria-sort={ariaSort("created")}
+                  onClick={() => toggleSort("created")}
+                >
+                  Criado em
+                  <SortGlyph active={sort.by === "created"} dir={sort.dir} />
+                </button>
+              </th>
+              <th>
+                <button
+                  type="button"
+                  className="aw-th-sort"
+                  aria-sort={ariaSort("event")}
+                  onClick={() => toggleSort("event")}
+                >
+                  Último evento
+                  <SortGlyph active={sort.by === "event"} dir={sort.dir} />
+                </button>
+              </th>
+              <th aria-label="Ações" style={{ width: 56 }} />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={5}
+                  style={{ padding: "48px 20px", textAlign: "center" }}
+                  className="text-[13px] text-[var(--fg-tertiary)]"
+                >
+                  {query
+                    ? `Nenhuma integração corresponde a "${query}".`
+                    : "Sem integrações ativas."}
+                </td>
+              </tr>
+            ) : (
+              rows.map(
+                ({ instance, integration, createdAt, eventLabel }) => {
+                  const status = statusOf(instance);
+                  return (
+                    <tr
+                      key={instance.instanceId}
+                      className={
+                        "aw-row-clickable" +
+                        (instance.active ? "" : " aw-row-inactive")
+                      }
+                      aria-disabled={!instance.active || undefined}
+                      onClick={() => onConfigure(instance.instanceId)}
+                    >
+                      <td>
+                        <div className="flex items-center gap-3">
+                          <AwBrandLogo brand={integration.id} size="md" />
+                          <div className="min-w-0">
+                            <div className="truncate font-medium text-[var(--fg-primary)]">
+                              {instance.name}
+                            </div>
+                            <div className="truncate text-[12px] text-[var(--fg-tertiary)]">
+                              {integration.name}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <AwPill
+                          variant={status.variant}
+                          title={status.reason}
+                        >
+                          {status.label}
+                        </AwPill>
+                      </td>
+                      <td className="text-[var(--fg-secondary)]">
+                        {formatDateBR(createdAt)}
+                      </td>
+                      <td className="text-[var(--fg-secondary)]">
+                        {eventLabel}
+                      </td>
+                      <td onClick={(e) => e.stopPropagation()}>
+                        <RowActionMenu
+                          active={instance.active}
+                          needsAttention={instance.needsAttention}
+                          onToggle={() => onToggle(instance.instanceId)}
+                          onToggleAttention={() =>
+                            onToggleAttention(instance.instanceId)
+                          }
+                          onConfigure={() => onConfigure(instance.instanceId)}
+                          onDisconnect={() =>
+                            onDisconnect(instance.instanceId)
+                          }
+                        />
+                      </td>
+                    </tr>
+                  );
+                },
+              )
+            )}
+          </tbody>
+        </AwTable>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------
+ * ExploreIntegrations — 3×3 grid below the populated table.
+ *
+ * 8 featured brand cards + a 9th "Ver todas" tile that opens the full
+ * catalog modal. Brand cards trigger onPick(id); the page decides
+ * whether to open Connect directly or surface a "you already have one"
+ * choice modal first.
+ * ---------------------------------------------------------------- */
+
+function ExploreIntegrations({
+  items,
+  onPick,
+  onSeeAll,
+  totalCount,
+}: {
+  items: Integration[];
+  onPick: (integrationId: string) => void;
+  onSeeAll: () => void;
+  totalCount: number;
+}) {
+  const featured = EXPLORE_BRAND_IDS.map((id) =>
+    items.find((i) => i.id === id),
+  ).filter((i): i is Integration => !!i);
+
+  return (
+    <section aria-label="Explore novas integrações" className="mt-12">
+      <div className="mb-5 flex items-baseline justify-between gap-4">
+        <h2 className="m-0 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          Explore novas integrações
+        </h2>
+        <button
+          type="button"
+          onClick={onSeeAll}
+          className="text-[13px] font-medium text-[var(--fg-secondary)] underline-offset-2 hover:text-[var(--fg-primary)] hover:underline"
+        >
+          Ver catálogo completo →
+        </button>
+      </div>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {featured.map((it) => (
+          <ExploreCard
+            key={it.id}
+            integration={it}
+            onClick={() => onPick(it.id)}
+          />
+        ))}
+        <SeeAllCard count={totalCount} onClick={onSeeAll} />
+      </div>
+    </section>
+  );
+}
+
+function ExploreCard({
+  integration,
+  onClick,
+}: {
+  integration: Integration;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="aw-card aw-card--interactive aw-explore-card flex h-full items-center gap-4 text-left"
+    >
+      <AwBrandLogo brand={integration.id} size="md" />
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          {integration.name}
+        </div>
+        <p className="m-0 mt-0.5 line-clamp-2 text-[13px] leading-[1.45] text-[var(--fg-tertiary)]">
+          {integration.desc}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+function SeeAllCard({
+  count,
+  onClick,
+}: {
+  count: number;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="aw-card aw-card--interactive aw-card--dashed aw-explore-card flex h-full items-center gap-4 text-left"
+    >
+      <div
+        className="flex flex-shrink-0 items-center justify-center rounded-[8px] bg-[var(--bg-raised)] text-[var(--fg-secondary)]"
+        style={{ width: 40, height: 40 }}
+      >
+        <Icon name="apps" size={20} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          Ver todas
+        </div>
+        <p className="m-0 mt-0.5 text-[13px] leading-[1.45] text-[var(--fg-tertiary)]">
+          {count} integrações disponíveis
+        </p>
+      </div>
+    </button>
+  );
+}
+
 /* ================================================================
  * Page
  * ================================================================ */
 
+type EmptyVariant = "populated" | "all-removed" | "first-run";
+
 export default function IntegrationsPage() {
   const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
-  const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
-  const [instances, setInstances] = useState<IntegrationInstance[]>(SEED_INSTANCES);
+  const [disconnectId, setDisconnectId] = useState<string | null>(null);
+  /** Set when the user clicks an Explore card for a brand they already
+   *  have a live connection of — surfaces a choice modal (gerenciar
+   *  existentes vs. criar nova conexão) instead of dumping them into a
+   *  duplicate Connect flow. */
+  const [explorePick, setExplorePick] = useState<Integration | null>(null);
+  const [instances, setInstances] = useState<IntegrationInstance[]>([]);
+  const tableRef = useRef<HTMLDivElement>(null);
+  /** True for any user who has ever connected at least one integration.
+   *  Drives which empty state to render when the instance list is
+   *  empty: returning user vs. brand-new user. */
+  const [hasEverConnected, setHasEverConnected] = useState(false);
+  /** Hold rendering until localStorage has been read on the client, so
+   *  we never flash the first-run hero to a returning user during the
+   *  first paint. */
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setInstances(loadInstances());
+    setHasEverConnected(loadHasEverConnected());
+    setHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveInstances(instances);
+  }, [hydrated, instances]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveHasEverConnected(hasEverConnected);
+  }, [hydrated, hasEverConnected]);
 
   const connectTarget = connectId
     ? ITEMS.find((i) => i.id === connectId) ?? null
@@ -478,10 +1059,24 @@ export default function IntegrationsPage() {
 
   const closeConnect = () => setConnectId(null);
 
-  const isPopulated = instances.length > 0;
+  const handleConnect = (id: string) => {
+    setConnectId(id);
+  };
 
-  const stateFor = (instance: IntegrationInstance): AwIntegrationCardState =>
-    instance.active ? "connected" : "disabled";
+  /** Channels are managed in /canais, but they share the same
+   *  localStorage list. Filter them here so the integrations grid only
+   *  shows non-channel instances. The empty-state variant likewise
+   *  ignores channels. */
+  const nonChannelInstances = instances.filter(
+    (i) => !CHANNEL_IDS.has(i.integrationId),
+  );
+
+  const variant: EmptyVariant =
+    nonChannelInstances.length > 0
+      ? "populated"
+      : hasEverConnected
+        ? "all-removed"
+        : "first-run";
 
   const handleToggleInstance = (instanceId: string) => {
     setInstances((list) =>
@@ -491,22 +1086,80 @@ export default function IntegrationsPage() {
     );
   };
 
-  const handleDisconnectInstance = (instanceId: string) => {
-    setInstances((list) => list.filter((i) => i.instanceId !== instanceId));
+  const handleToggleAttention = (instanceId: string) => {
+    setInstances((list) =>
+      list.map((i) => {
+        if (i.instanceId !== instanceId) return i;
+        if (i.needsAttention) {
+          const { needsAttention: _drop, attentionReason: _drop2, ...rest } = i;
+          return rest;
+        }
+        return {
+          ...i,
+          needsAttention: true,
+          attentionReason:
+            "Token de autenticação expirou. Reconecte para continuar recebendo eventos.",
+        };
+      }),
+    );
   };
 
-  const handleConfigureInstance = (instanceId: string) => {
-    const inst = instances.find((i) => i.instanceId === instanceId);
-    if (inst?.integrationId === "whatsapp") {
-      router.push("/integrations/whatsapp");
-      return;
-    }
-    // Settings flow not built yet for other integrations — placeholder.
+  const handleDisconnectInstance = (instanceId: string) => {
+    setDisconnectId(instanceId);
   };
+
+  const confirmDisconnect = () => {
+    if (!disconnectId) return;
+    setInstances((list) => list.filter((i) => i.instanceId !== disconnectId));
+    setDisconnectId(null);
+  };
+
+  const disconnectTarget = disconnectId
+    ? instances.find((i) => i.instanceId === disconnectId)
+    : null;
+
+  const handleConfigureInstance = (instanceId: string) => {
+    router.push(`/integrations/${instanceId}`);
+  };
+
+  const handleExplorePick = (integrationId: string) => {
+    const integration = ITEMS.find((i) => i.id === integrationId);
+    if (!integration) return;
+    const hasActive = nonChannelInstances.some(
+      (inst) => inst.integrationId === integrationId,
+    );
+    if (hasActive) {
+      setExplorePick(integration);
+    } else {
+      handleConnect(integrationId);
+    }
+  };
+
+  const closeExplorePick = () => setExplorePick(null);
+
+  const handleManageExisting = () => {
+    closeExplorePick();
+    tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const handleCreateAnother = () => {
+    if (!explorePick) return;
+    const id = explorePick.id;
+    closeExplorePick();
+    handleConnect(id);
+  };
+
+  if (!hydrated) {
+    return (
+      <DashboardLayout breadcrumbs={breadcrumbs}>
+        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      {isPopulated ? (
+      {variant !== "first-run" ? (
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
             {/* Header */}
@@ -517,8 +1170,8 @@ export default function IntegrationsPage() {
                   Integrações
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
-                  Conecte canais, plataformas e ferramentas para que seus
-                  agentes coletem contexto, executem ações e mantenham seus
+                  Conecte plataformas e ferramentas para que seus agentes
+                  coletem contexto, executem ações e mantenham seus
                   sistemas sincronizados.
                 </p>
               </div>
@@ -534,37 +1187,62 @@ export default function IntegrationsPage() {
               </div>
             </header>
 
-            {/* Suas integrações — single unified grid (channels + others) */}
-            <section aria-label="Suas integrações">
-              <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-                Suas integrações
-              </h2>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {instances.map((inst) => {
-                  const it = ITEMS.find((i) => i.id === inst.integrationId);
-                  if (!it) return null;
-                  return (
-                    <CardWithActions
-                      key={inst.instanceId}
-                      brand={it.id}
-                      name={inst.name}
-                      domain={it.domain}
-                      description={it.desc}
-                      state={stateFor(inst)}
-                      hasInstance
-                      active={inst.active}
-                      onToggle={() => handleToggleInstance(inst.instanceId)}
-                      onConfigure={() =>
-                        handleConfigureInstance(inst.instanceId)
-                      }
-                      onDisconnect={() =>
-                        handleDisconnectInstance(inst.instanceId)
-                      }
+            {variant === "populated" ? (
+              <>
+                <div ref={tableRef}>
+                  <IntegrationsTable
+                    instances={nonChannelInstances}
+                    items={ITEMS}
+                    onToggle={handleToggleInstance}
+                    onToggleAttention={handleToggleAttention}
+                    onConfigure={handleConfigureInstance}
+                    onDisconnect={handleDisconnectInstance}
+                  />
+                </div>
+                <ExploreIntegrations
+                  items={ITEMS}
+                  onPick={handleExplorePick}
+                  onSeeAll={() => setAddOpen(true)}
+                  totalCount={ITEMS.length}
+                />
+              </>
+            ) : (
+              /* All-removed — returning user with zero active instances.
+                 Keeps the page header so the user does not lose orientation,
+                 and offers the same quick picks without the onboarding tone. */
+              <section
+                aria-label="Você não tem integrações conectadas"
+                className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-8 py-14 text-center"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]">
+                  <Icon name="link_off" size={24} />
+                </div>
+                <h2 className="m-0 mt-5 text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+                  Você não tem integrações conectadas
+                </h2>
+                <p className="m-0 mt-2 max-w-[420px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+                  Reconecte uma das suas ferramentas ou explore o catálogo
+                  completo para escolher por onde começar de novo.
+                </p>
+                <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
+                  {QUICK_PICKS.map((q) => (
+                    <QuickPickPill
+                      key={q.id}
+                      brand={q.id}
+                      name={q.name}
+                      onClick={() => handleConnect(q.id)}
                     />
-                  );
-                })}
-              </div>
-            </section>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setAddOpen(true)}
+                  className="mt-5 text-[13px] font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+                >
+                  Ver catálogo completo
+                </button>
+              </section>
+            )}
           </div>
         </div>
       ) : (
@@ -594,7 +1272,7 @@ export default function IntegrationsPage() {
                 Comece conectando sua primeira ferramenta
               </h2>
               <p className="m-0 mt-3 max-w-[480px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-                Hotmart, Stripe, WhatsApp, Calendly, RD Station… escolha
+                Hotmart, Stripe, Calendly, RD Station, Claude… escolha
                 por onde começar e o agente assume daí.
               </p>
             </div>
@@ -638,7 +1316,7 @@ export default function IntegrationsPage() {
                   key={q.id}
                   brand={q.id}
                   name={q.name}
-                  onClick={() => setConnectId(q.id)}
+                  onClick={() => handleConnect(q.id)}
                 />
               ))}
             </div>
@@ -660,62 +1338,12 @@ export default function IntegrationsPage() {
         }))}
         onSelect={(id) => {
           setAddOpen(false);
-          setConnectId(id);
+          handleConnect(id);
         }}
         onCustomIntegration={() => {
           setAddOpen(false);
-          setCustomOpen(true);
+          router.push("/integrations/custom");
         }}
-      />
-
-      {/* Custom integration placeholder */}
-      <AwConnectModal
-        open={customOpen}
-        onClose={() => setCustomOpen(false)}
-        kind="apiKey"
-        productLogoSrc={ORG_LOGO_SRC}
-        productName={ORG_NAME}
-        targetBrand="custom"
-        targetName="Integração personalizada"
-        description="Conecte qualquer API. Os campos finais serão definidos para essa integração."
-        defaultConnectionName="Minha integração"
-        apiKeyIntro={
-          <>
-            Preencha os campos abaixo para configurar uma conexão
-            personalizada. <em>Os campos definitivos serão ajustados
-            depois.</em>
-          </>
-        }
-        apiKeyFields={[
-          {
-            id: "custom-base-url",
-            label: "URL base da API",
-            placeholder: "https://api.exemplo.com",
-            iconLeft: "link",
-            required: true,
-          },
-          {
-            id: "custom-auth-method",
-            label: "Método de autenticação",
-            placeholder: "Bearer / API key / Basic",
-            iconLeft: "lock",
-            required: true,
-          },
-          {
-            id: "custom-credential",
-            label: "Credencial",
-            placeholder: "Cole sua credencial aqui",
-            iconLeft: "key",
-            required: true,
-          },
-          {
-            id: "custom-notes",
-            label: "Observações",
-            placeholder: "Cabeçalhos extras, escopos, etc.",
-            iconLeft: "notes",
-          },
-        ]}
-        onAllow={() => setCustomOpen(false)}
       />
 
       {/* Connect dialog */}
@@ -789,7 +1417,8 @@ export default function IntegrationsPage() {
         }
         onAllow={(name) => {
           if (connectTarget) {
-            const instanceId = `${connectTarget.id}-${Date.now()}`;
+            const now = Date.now();
+            const instanceId = `${connectTarget.id}-${now}`;
             const finalName =
               name?.trim() ||
               `${connectTarget.name} ${
@@ -804,12 +1433,93 @@ export default function IntegrationsPage() {
                 integrationId: connectTarget.id,
                 name: finalName,
                 active: true,
+                addedAt: now,
               },
             ]);
+            setHasEverConnected(true);
           }
           closeConnect();
         }}
       />
+
+      {/* Explore pick — user clicked a featured brand they already have a
+          live connection of. Offer to surface the existing rows in the
+          table or kick off a brand-new Connect flow for a second account. */}
+      <AwModal
+        open={!!explorePick}
+        onClose={closeExplorePick}
+        title={
+          explorePick
+            ? `${explorePick.name} já está conectado`
+            : "Integração já conectada"
+        }
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              iconLeft="visibility"
+              onClick={handleManageExisting}
+            >
+              Ver existentes
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="md"
+              iconLeft="add"
+              onClick={handleCreateAnother}
+            >
+              Conectar outra conta
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Você já tem ao menos uma conexão de{" "}
+          <strong className="text-[var(--fg-primary)]">
+            {explorePick?.name ?? "essa ferramenta"}
+          </strong>
+          . Quer ver e gerenciar as conexões existentes, ou conectar uma
+          nova conta?
+        </p>
+      </AwModal>
+
+      {/* Disconnect confirmation — destructive action gets a deliberate
+          two-step so the user does not lose a configured integration on
+          a stray menu click. */}
+      <AwModal
+        open={!!disconnectTarget}
+        onClose={() => setDisconnectId(null)}
+        title="Desconectar integração"
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              onClick={() => setDisconnectId(null)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="md"
+              iconLeft="link_off"
+              onClick={confirmDisconnect}
+            >
+              Desconectar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Tem certeza que deseja desconectar{" "}
+          <strong className="text-[var(--fg-primary)]">
+            {disconnectTarget?.name ?? "esta integração"}
+          </strong>
+          ? Os agentes vão perder o acesso aos dados e ações dessa
+          ferramenta. Você pode reconectar depois a qualquer momento.
+        </p>
+      </AwModal>
     </DashboardLayout>
   );
 }

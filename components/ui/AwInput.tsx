@@ -9,10 +9,57 @@ export type AwInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
 
 export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
   function AwInput(
-    { invalid, dense, iconLeft, className, disabled, ...rest },
+    {
+      invalid,
+      dense,
+      iconLeft,
+      className,
+      disabled,
+      value,
+      defaultValue,
+      onChange,
+      ...rest
+    },
     ref
   ) {
     const isSearch = iconLeft === "search"
+    const innerRef = React.useRef<HTMLInputElement | null>(null)
+    React.useImperativeHandle(
+      ref,
+      () => innerRef.current as HTMLInputElement
+    )
+
+    const isControlled = value !== undefined
+    const [internalValue, setInternalValue] = React.useState<string>(
+      typeof defaultValue === "string" ? defaultValue : ""
+    )
+    const currentValue = isControlled
+      ? value == null
+        ? ""
+        : String(value)
+      : internalValue
+    const showClear = isSearch && !disabled && currentValue.length > 0
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (!isControlled) setInternalValue(e.target.value)
+      onChange?.(e)
+    }
+
+    // Native input.value setter + bubbling input event is the React-compatible
+    // way to clear a controlled input from outside the consumer's onChange.
+    const clearValue = () => {
+      const node = innerRef.current
+      if (!node) return
+      const setter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        "value"
+      )?.set
+      setter?.call(node, "")
+      node.dispatchEvent(new Event("input", { bubbles: true }))
+      if (!isControlled) setInternalValue("")
+      node.focus()
+    }
+
     const wrapperClasses = [
       "aw-input",
       invalid && "aw-input--invalid",
@@ -26,7 +73,25 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
     return (
       <div className={wrapperClasses}>
         {iconLeft && <Icon name={iconLeft} size={16} />}
-        <input ref={ref} disabled={disabled} {...rest} />
+        <input
+          ref={innerRef}
+          disabled={disabled}
+          value={isControlled ? currentValue : undefined}
+          defaultValue={isControlled ? undefined : defaultValue}
+          onChange={handleChange}
+          {...rest}
+        />
+        {showClear && (
+          <button
+            type="button"
+            className="aw-input__clear"
+            aria-label="Limpar busca"
+            tabIndex={-1}
+            onClick={clearValue}
+          >
+            <Icon name="cancel" size={18} />
+          </button>
+        )}
       </div>
     )
   }

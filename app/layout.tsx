@@ -7,8 +7,8 @@ const claudeEditEnabled =
   process.env.NEXT_PUBLIC_CLAUDE_EDIT_ENABLED === "true";
 
 export const metadata: Metadata = {
-  title: "AwSales 2.0 - Login",
-  description: "Authentication system for AwSales 2.0",
+  title: "AwSales",
+  description: "Plataforma de agentes de IA para vendas.",
 };
 
 export default function RootLayout({
@@ -20,8 +20,8 @@ export default function RootLayout({
     <html lang="en">
       <head>
         {/* AwSales Design System fonts — loaded via <link> because Turbopack
-         * strips CSS @import. One typographic voice: Mona Sans.
-         * JetBrains Mono for code. Material Symbols Rounded for iconography. */}
+         * strips CSS @import. One typographic voice: Geist.
+         * Geist Mono for code. Material Symbols Rounded for iconography. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

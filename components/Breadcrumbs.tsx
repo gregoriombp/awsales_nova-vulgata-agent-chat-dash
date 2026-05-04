@@ -80,7 +80,9 @@ export function Breadcrumbs({ items }: { items: BreadcrumbsItems }) {
 }
 
 export function BreadcrumbsBar({ items }: { items: BreadcrumbsItems }) {
-  if (!items || items.length === 0) return null;
+  // Breadcrumbs only make sense as a navigation trail. With a single item the
+  // label just duplicates the page header, so we hide the bar entirely.
+  if (!items || items.length <= 1) return null;
   return (
     <div className="flex h-11 shrink-0 items-center border-b border-[#e5e5e5] bg-white px-8">
       <Breadcrumbs items={items} />

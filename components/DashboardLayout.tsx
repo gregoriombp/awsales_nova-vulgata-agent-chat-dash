@@ -29,7 +29,7 @@ export default function DashboardLayout({
   const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white relative">
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)] relative">
       {floatingSidebar ? (
         <div className="absolute inset-y-0 left-0 z-[32]">
           <Sidebar floating />
@@ -40,8 +40,8 @@ export default function DashboardLayout({
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         {/* Ícones ficam abaixo do Copilot quando ele está aberto */}
         <div
-          className={`absolute right-8 z-20 transition-[top] duration-300 ease-out ${
-            isCopilotOpen ? "top-[calc(70vh+12px)]" : "top-3"
+          className={`absolute right-8 z-30 transition-[top] duration-300 ease-out ${
+            isCopilotOpen ? "top-[calc(70vh+12px)]" : "top-6"
           }`}
         >
           <Header
@@ -52,7 +52,9 @@ export default function DashboardLayout({
         </div>
         <div className="flex flex-1 min-w-0 overflow-hidden">
           {isInKnowledgeOS && <KnowledgeOSSidebar />}
-          <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+          {/* Floating content panel — mirrors the sidebar's container
+              treatment so the surface tone shows around the edges. */}
+          <div className="my-3 mr-3 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
             {breadcrumbs && breadcrumbs.length > 0 && (
               <BreadcrumbsBar items={breadcrumbs} />
             )}

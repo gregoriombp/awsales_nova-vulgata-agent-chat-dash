@@ -37,6 +37,30 @@ export default function InputsPage() {
         </Section>
 
         <Section
+          id="search"
+          title="Search com clear"
+          lead='Quando iconLeft="search" e o campo tem valor, um botão de limpar aparece à direita — dentro da boundary arredondada. Sem prop extra: o input cuida disso sozinho. O clear nativo do browser é suprimido.'
+        >
+          <Stage
+            label="vazio · com valor · vazio dense"
+            gridClassName="flex flex-col gap-3 max-w-[420px]"
+          >
+            <AwInput placeholder="Buscar integração…" iconLeft="search" />
+            <AwInput
+              placeholder="Buscar integração…"
+              iconLeft="search"
+              defaultValue="hubspot"
+            />
+            <AwInput
+              placeholder="Buscar produto…"
+              iconLeft="search"
+              dense
+              defaultValue="loja expressa"
+            />
+          </Stage>
+        </Section>
+
+        <Section
           id="field"
           title="Field (input + label + helper/erro)"
           lead="AwField é o padrão para formulários — label sempre acima, erro ou helper abaixo."

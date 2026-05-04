@@ -8,6 +8,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { addInstance, loadInstances } from "@/lib/integrationsStore";
 
 /* ----------------------------------------------------------------
  * Static content — flow copy lives next to the page so reviewers can
@@ -341,11 +342,25 @@ export default function WhatsAppSetupPage({
   const userFirstName = "Marina";
 
   const goTo = (n: number) => router.push(`/setup/whatsapp/${n}`);
-  const exitSetup = () => router.push("/integrations");
+  const exitSetup = () => router.push("/canais");
+
+  /** Persist the new WhatsApp WABA before leaving the success step,
+   *  then land the user on the channel's own page (not the global
+   *  /canais grid) so they immediately see the canal they just
+   *  configured. We name it "WhatsApp N" where N is the next sequence
+   *  so multiple WABAs don't collide. */
+  const finishSetup = () => {
+    const existing = loadInstances().filter(
+      (i) => i.integrationId === "whatsapp",
+    );
+    const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
+    addInstance("whatsapp", name);
+    router.push("/canais/whatsapp");
+  };
 
   const breadcrumbs = [
-    { label: "Integrações", href: "/integrations", icon: <Icon name="extension" size={20} /> },
-    { label: "WhatsApp", href: "/integrations/whatsapp" },
+    { label: "Canais", href: "/canais", icon: <Icon name="forum" size={20} /> },
+    { label: "WhatsApp", href: "/canais/whatsapp" },
     { label: "Conectar nova conta" },
   ];
 
@@ -771,7 +786,7 @@ export default function WhatsAppSetupPage({
                 variant="primary"
                 size="md"
                 iconRight="chevron_right"
-                onClick={exitSetup}
+                onClick={finishSetup}
               >
                 Ir para o painel do WhatsApp
               </AwButton>

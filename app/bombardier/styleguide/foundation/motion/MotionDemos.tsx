@@ -110,7 +110,7 @@ export function ThinkingPulse() {
       <span
         className="aw-pill aw-pill--ai"
       >
-        <span className="aw-pill__dot" /> pensando
+        <span className="aw-pill__dot" /> Pensando
       </span>
       <span className="text-sm text-[var(--fg-secondary)]">
         — 2.2 s loop

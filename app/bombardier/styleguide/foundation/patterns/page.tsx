@@ -487,22 +487,22 @@ export default function PatternsPage() {
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
             <AwPill variant="neutral" dot={false}>
-              shell
+              Shell
             </AwPill>
             <AwPill variant="neutral" dot={false}>
-              onboarding
+              Onboarding
             </AwPill>
             <AwPill variant="neutral" dot={false}>
-              confirm
+              Confirm
             </AwPill>
             <AwPill variant="ai" dot={false}>
-              ai-inline
+              AI inline
             </AwPill>
             <AwPill variant="neutral" dot={false}>
-              feedback
+              Feedback
             </AwPill>
             <AwPill variant="neutral" dot={false}>
-              loading
+              Loading
             </AwPill>
           </div>
         </Section>

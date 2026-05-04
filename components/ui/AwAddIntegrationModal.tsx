@@ -184,23 +184,6 @@ export function AwAddIntegrationModal({
               </div>
             ) : (
               <div className="aw-add-int-modal__grid">
-                {onCustomIntegration && !q && (
-                  <button
-                    type="button"
-                    className="aw-add-int-modal__card aw-add-int-modal__card--custom"
-                    onClick={onCustomIntegration}
-                  >
-                    <span className="aw-add-int-modal__card-logo aw-add-int-modal__card-logo--custom">
-                      <Icon name="dashboard_customize" size={22} />
-                    </span>
-                    <span className="aw-add-int-modal__card-name">
-                      {customIntegrationLabel}
-                    </span>
-                    <span className="aw-add-int-modal__card-desc">
-                      {customIntegrationDescription}
-                    </span>
-                  </button>
-                )}
                 {filtered.map((it) => (
                   <button
                     key={it.id}
@@ -219,6 +202,23 @@ export function AwAddIntegrationModal({
                     </span>
                   </button>
                 ))}
+                {onCustomIntegration && !q && (
+                  <button
+                    type="button"
+                    className="aw-add-int-modal__card aw-add-int-modal__card--custom"
+                    onClick={onCustomIntegration}
+                  >
+                    <span className="aw-add-int-modal__card-logo aw-add-int-modal__card-logo--custom">
+                      <Icon name="dashboard_customize" size={22} />
+                    </span>
+                    <span className="aw-add-int-modal__card-name">
+                      {customIntegrationLabel}
+                    </span>
+                    <span className="aw-add-int-modal__card-desc">
+                      {customIntegrationDescription}
+                    </span>
+                  </button>
+                )}
               </div>
             )}
           </section>

@@ -9,7 +9,7 @@ export default function WhatsAppConfigPage() {
   const router = useRouter();
 
   const breadcrumbs = [
-    { label: "Integrações", href: "/integrations", icon: <Icon name="extension" size={20} /> },
+    { label: "Canais", href: "/canais", icon: <Icon name="forum" size={20} /> },
     { label: "WhatsApp" },
   ];
 
@@ -18,8 +18,8 @@ export default function WhatsAppConfigPage() {
       <div className="-m-8 h-full min-h-full bg-[var(--bg-canvas)]">
         <AwWhatsAppPanel
           onAddWaba={() => router.push("/setup/whatsapp/1")}
-          onCancel={() => router.push("/integrations")}
-          onSave={() => router.push("/integrations")}
+          onCancel={() => router.push("/canais")}
+          onSave={() => router.push("/canais")}
         />
       </div>
     </DashboardLayout>

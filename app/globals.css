@@ -1,5 +1,5 @@
-/* AwSales Design System — one typographic voice: Mona Sans.
- * JetBrains Mono reserved strictly for code, tokens, IDs.
+/* AwSales Design System — one typographic voice: Geist.
+ * Geist Mono reserved strictly for code, tokens, IDs.
  * Material Symbols Rounded is the AwSales icon system (12/16/20/24/28/32 px).
  * Font loading happens via <link> tags in app/layout.tsx — Next.js/Turbopack
  * strips CSS @import statements, so keeping them here silently breaks fonts. */
@@ -927,13 +927,11 @@
 .aw-card--interactive {
   transition:
     border-color var(--dur-base) var(--ease-out),
-    transform var(--dur-base) var(--ease-out),
     background var(--dur-base) var(--ease-out);
   cursor: pointer;
 }
 .aw-card--interactive:hover {
   border-color: var(--fg-primary);
-  transform: translateY(-2px);
   background: var(--bg-surface);
 }
 .aw-card--ai {
@@ -946,6 +944,35 @@
   outline: 0;
   border-color: var(--fg-primary);
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+}
+/* Dashed variant — for "browse more" / placeholder cards. Sits on the canvas
+   instead of bg-raised so the dashed outline reads as "open slot". */
+.aw-card--dashed {
+  border-style: dashed;
+  border-width: 2px;
+  background: var(--bg-canvas);
+}
+.aw-card--dashed.aw-card--interactive:hover {
+  background: var(--bg-surface);
+}
+
+/* Quiet/explore variant — mirrors the catalog modal card affordance:
+   lighter resting border, more roundness, hover that shifts background
+   without the lift. Used by the Explore grid on /integrations. */
+.aw-explore-card {
+  border-color: var(--border-subtle);
+  border-radius: var(--radius-xl);
+}
+.aw-card--interactive.aw-explore-card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+}
+.aw-card--dashed.aw-explore-card {
+  border-color: var(--border-subtle);
+}
+.aw-card--dashed.aw-explore-card.aw-card--interactive:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
 }
 
 /* ---------------- Slots — anatomy mirrors shadcn/ui Card. ---------------- */
@@ -1086,6 +1113,35 @@
   background: rgba(13, 13, 13, 0.58);
 }
 
+/* Clear button — sits inside the input, stays inside the rounded boundary
+ * regardless of variant. Suppress the native WebKit clear glyph so it can't
+ * leak through (any consumer passing type="search" would otherwise get two). */
+.aw-input__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  border-radius: 50%;
+  transition: color var(--dur-base) var(--ease-out);
+}
+.aw-input__clear:hover { color: var(--fg-secondary); }
+.aw-input__clear:focus-visible {
+  outline: 2px solid var(--aw-blue-500);
+  outline-offset: 2px;
+}
+.aw-input input::-webkit-search-cancel-button,
+.aw-input input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  display: none;
+}
+
 /* ============================================================
  * AwPill — inline status marker with optional pulse dot.
  * ============================================================ */
@@ -1097,7 +1153,6 @@
   padding: 0 10px;
   border-radius: var(--radius-full);
   font: 500 11px/1 var(--font-sans);
-  border: 1px solid var(--border-default);
   background: var(--bg-surface);
   color: var(--fg-primary);
   letter-spacing: 0.02em;
@@ -1112,36 +1167,30 @@
 }
 .aw-pill--live {
   background: var(--aw-emerald-100);
-  border-color: var(--aw-emerald-300);
   color: var(--aw-emerald-700);
 }
 .aw-pill--live .aw-pill__dot { background: var(--aw-emerald-500); }
 .aw-pill--draft {
   background: var(--aw-gray-150);
-  border-color: var(--aw-gray-300);
   color: var(--aw-gray-800);
 }
 .aw-pill--draft .aw-pill__dot { background: var(--aw-gray-600); }
 .aw-pill--beta {
   background: var(--aw-amber-100);
-  border-color: var(--aw-amber-300);
   color: var(--aw-amber-700);
 }
 .aw-pill--beta .aw-pill__dot { background: var(--aw-amber-500); }
 .aw-pill--error {
   background: var(--aw-red-100);
-  border-color: var(--aw-red-300);
   color: var(--aw-red-700);
 }
 .aw-pill--error .aw-pill__dot { background: var(--aw-red-500); }
 .aw-pill--neutral {
   background: var(--bg-surface);
-  border-color: var(--border-default);
   color: var(--fg-primary);
 }
 .aw-pill--ai {
   background: var(--aw-blue-100);
-  border-color: var(--aw-blue-300);
   color: var(--aw-blue-700);
 }
 .aw-pill--ai .aw-pill__dot {
@@ -1696,9 +1745,8 @@
   gap: 14px;
   align-items: flex-start;
   padding: 14px 16px;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   background: var(--bg-raised);
-  border: 1px solid var(--border-default);
   color: var(--fg-secondary);
   font-size: 13px;
   line-height: 1.55;
@@ -1712,13 +1760,13 @@
   display: block;
   margin: 0 0 2px 0;
 }
-.aw-alert--info    { border-color: var(--aw-blue-300); background: var(--aw-blue-100); }
+.aw-alert--info    { background: var(--aw-blue-100); }
 .aw-alert--info    .aw-alert__icon { color: var(--aw-blue-600); }
-.aw-alert--success { border-color: var(--aw-emerald-300); background: var(--aw-emerald-100); }
+.aw-alert--success { background: var(--aw-emerald-100); }
 .aw-alert--success .aw-alert__icon { color: var(--aw-emerald-600); }
-.aw-alert--warning { border-color: var(--aw-amber-300); background: var(--aw-amber-100); }
+.aw-alert--warning { background: var(--aw-amber-100); }
 .aw-alert--warning .aw-alert__icon { color: var(--aw-amber-600); }
-.aw-alert--danger  { border-color: var(--aw-red-300); background: var(--aw-red-100); }
+.aw-alert--danger  { background: var(--aw-red-100); }
 .aw-alert--danger  .aw-alert__icon { color: var(--aw-red-600); }
 
 /* ============================================================
@@ -2491,6 +2539,54 @@
 .aw-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
 .aw-table tbody tr:hover td { background: var(--bg-surface); }
 
+/* Airy variant — no outer chrome, generous row height, sentence-case headers.
+   Used on the integrations list to match the Mobbin-style entity table. */
+.aw-table--airy {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+}
+.aw-table--airy th {
+  background: transparent;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg-secondary);
+  padding: 14px 20px;
+}
+.aw-table--airy td {
+  padding: 18px 20px;
+  border-bottom-color: var(--border-subtle);
+}
+.aw-table--airy thead tr th { border-bottom: 1px solid var(--border-subtle); }
+.aw-table--airy tbody tr.aw-row-clickable { cursor: pointer; }
+/* Inactive integration rows fade back so the active ones lead the eye.
+   Hover restores full opacity so the row is still legible on intent. */
+.aw-table tbody tr.aw-row-inactive {
+  opacity: 0.55;
+  transition:
+    opacity var(--dur-base) var(--ease-out),
+    background var(--dur-fast) var(--ease-out);
+}
+.aw-table tbody tr.aw-row-inactive:hover { opacity: 1; }
+.aw-table--airy .aw-th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.aw-table--airy .aw-th-sort[aria-sort="ascending"],
+.aw-table--airy .aw-th-sort[aria-sort="descending"] {
+  color: var(--fg-primary);
+}
+
 /* ============================================================
  * AwToggle — on/off switch, optional AI variant.
  * ============================================================ */
@@ -2816,12 +2912,11 @@
   gap: 12px;
   border-radius: var(--radius-2xl);
 }
-/* Disable AwCard interactive hover lift/border-shift on integration cards —
+/* Disable AwCard interactive border/background shift on integration cards —
  * the CTA button is the affordance now. */
 .aw-integration-card.aw-card--interactive:hover {
   border-color: var(--border-default);
   background: var(--bg-raised);
-  transform: none;
 }
 .aw-integration-card__head {
   display: flex;
@@ -3152,6 +3247,8 @@
 .aw-add-int-modal__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-auto-rows: 156px;
+  align-content: start;
   gap: 12px;
   overflow-y: auto;
   padding-right: 4px;

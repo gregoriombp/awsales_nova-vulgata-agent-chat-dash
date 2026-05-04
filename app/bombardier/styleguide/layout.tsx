@@ -68,7 +68,7 @@ export default function StyleguideLayout({
         <div className="mt-auto text-xs text-[var(--fg-tertiary)] leading-relaxed">
           AwSales Design System
           <br />
-          Mona Sans · JetBrains Mono
+          Geist · Geist Mono
         </div>
       </aside>
 

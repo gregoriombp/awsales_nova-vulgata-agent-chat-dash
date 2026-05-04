@@ -1,7 +1,7 @@
 {
-  "name": "beta_01",
+  "name": "awsales",
   "version": "1.0.0",
-  "description": "AwSales 2.0 - Login and Authentication System",
+  "description": "AwSales — plataforma de agentes de IA para vendas. Construída com o método Bombardier (design system + telas + fluxos via /bombardier/styleguide).",
   "scripts": {
     "dev": "next dev",
     "dev:lan": "DEV_LAN=1 next dev -H 0.0.0.0",

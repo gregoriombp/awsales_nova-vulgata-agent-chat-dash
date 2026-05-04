@@ -41,7 +41,7 @@ export default function TablePage() {
                 <tr>
                   <td className="aw-table__name">Atendimento FAQ</td>
                   <td>
-                    <AwPill variant="live">live</AwPill>
+                    <AwPill variant="live">Live</AwPill>
                   </td>
                   <td className="aw-table__mono">v12.4</td>
                   <td className="aw-table__num">1 840</td>
@@ -56,7 +56,7 @@ export default function TablePage() {
                 <tr>
                   <td className="aw-table__name">Pré-venda B2B</td>
                   <td>
-                    <AwPill variant="ai">pensando</AwPill>
+                    <AwPill variant="ai">Pensando</AwPill>
                   </td>
                   <td className="aw-table__mono">v08.1</td>
                   <td className="aw-table__num">412</td>
@@ -71,7 +71,7 @@ export default function TablePage() {
                 <tr>
                   <td className="aw-table__name">Onboarding SDK</td>
                   <td>
-                    <AwPill variant="draft">rascunho</AwPill>
+                    <AwPill variant="draft">Rascunho</AwPill>
                   </td>
                   <td className="aw-table__mono">v01.0</td>
                   <td className="aw-table__num">—</td>
@@ -81,7 +81,7 @@ export default function TablePage() {
                 <tr>
                   <td className="aw-table__name">Retenção pós-venda</td>
                   <td>
-                    <AwPill variant="error">erro</AwPill>
+                    <AwPill variant="error">Erro</AwPill>
                   </td>
                   <td className="aw-table__mono">v04.2</td>
                   <td className="aw-table__num">86</td>
@@ -96,7 +96,7 @@ export default function TablePage() {
                 <tr>
                   <td className="aw-table__name">Qualificação inbound</td>
                   <td>
-                    <AwPill variant="beta">beta</AwPill>
+                    <AwPill variant="beta">Beta</AwPill>
                   </td>
                   <td className="aw-table__mono">v02.0</td>
                   <td className="aw-table__num">233</td>
@@ -209,7 +209,7 @@ import { AwPill } from "@/components/ui/AwPill"
   <tbody>
     <tr>
       <td className="aw-table__name">Atendimento FAQ</td>
-      <td><AwPill variant="live">live</AwPill></td>
+      <td><AwPill variant="live">Live</AwPill></td>
       <td className="aw-table__mono">v12.4</td>
       <td className="aw-table__num">1 840</td>
     </tr>
