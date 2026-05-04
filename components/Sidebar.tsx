@@ -198,7 +198,7 @@ export default function Sidebar({
       }}
     >
       <AwNavRail
-        translucent
+        translucent={floating}
         theme="light"
         collapsed={isCollapsed}
         onToggleCollapsed={handleToggleCollapsed}
