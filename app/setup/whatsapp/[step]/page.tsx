@@ -342,11 +342,11 @@ export default function WhatsAppSetupPage({
   const userFirstName = "Marina";
 
   const goTo = (n: number) => router.push(`/setup/whatsapp/${n}`);
-  const exitSetup = () => router.push("/integrations");
+  const exitSetup = () => router.push("/canais");
 
   /** Persist the new WhatsApp WABA before leaving the success step,
-   *  then land the user on the integration's own page (not the global
-   *  /integrations grid) so they immediately see the canal they just
+   *  then land the user on the channel's own page (not the global
+   *  /canais grid) so they immediately see the canal they just
    *  configured. We name it "WhatsApp N" where N is the next sequence
    *  so multiple WABAs don't collide. */
   const finishSetup = () => {
@@ -355,12 +355,12 @@ export default function WhatsAppSetupPage({
     );
     const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
     addInstance("whatsapp", name);
-    router.push("/integrations/whatsapp");
+    router.push("/canais/whatsapp");
   };
 
   const breadcrumbs = [
-    { label: "Integrações", href: "/integrations", icon: <Icon name="extension" size={20} /> },
-    { label: "WhatsApp", href: "/integrations/whatsapp" },
+    { label: "Canais", href: "/canais", icon: <Icon name="forum" size={20} /> },
+    { label: "WhatsApp", href: "/canais/whatsapp" },
     { label: "Conectar nova conta" },
   ];
 
