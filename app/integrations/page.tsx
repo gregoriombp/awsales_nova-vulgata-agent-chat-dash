@@ -378,13 +378,21 @@ function lastEventFor(instanceId: string): { mins: number; label: string } {
 }
 
 function statusOf(inst: IntegrationInstance): {
-  variant: "live" | "draft" | "neutral";
+  variant: "live" | "draft" | "neutral" | "error";
   label: string;
   order: number;
+  reason?: string;
 } {
   if (!inst.active) return { variant: "neutral", label: "Inativa", order: 2 };
   if (inst.needsAttention)
-    return { variant: "draft", label: "Atenção", order: 1 };
+    return {
+      variant: "error",
+      label: "Requer atenção",
+      order: 1,
+      reason:
+        inst.attentionReason ??
+        "A integração reportou um erro. Reconecte ou revise as credenciais.",
+    };
   return { variant: "live", label: "Ativa", order: 0 };
 }
 
@@ -486,12 +494,16 @@ function SortMenu({
 
 function RowActionMenu({
   active,
+  needsAttention,
   onToggle,
+  onToggleAttention,
   onConfigure,
   onDisconnect,
 }: {
   active?: boolean;
+  needsAttention?: boolean;
   onToggle?: () => void;
+  onToggleAttention?: () => void;
   onConfigure?: () => void;
   onDisconnect?: () => void;
 }) {
@@ -579,6 +591,13 @@ function RowActionMenu({
                 label="Configurar"
                 onClick={select(onConfigure)}
               />
+              {onToggleAttention && (
+                <MenuItem
+                  icon={needsAttention ? "check_circle" : "report"}
+                  label={needsAttention ? "Limpar erro" : "Simular erro"}
+                  onClick={select(onToggleAttention)}
+                />
+              )}
               <MenuItem
                 icon="link_off"
                 label="Desconectar"
@@ -656,12 +675,14 @@ function IntegrationsTable({
   instances,
   items,
   onToggle,
+  onToggleAttention,
   onConfigure,
   onDisconnect,
 }: {
   instances: IntegrationInstance[];
   items: Integration[];
   onToggle: (instanceId: string) => void;
+  onToggleAttention: (instanceId: string) => void;
   onConfigure: (instanceId: string) => void;
   onDisconnect: (instanceId: string) => void;
 }) {
@@ -817,7 +838,11 @@ function IntegrationsTable({
                   return (
                     <tr
                       key={instance.instanceId}
-                      className="aw-row-clickable"
+                      className={
+                        "aw-row-clickable" +
+                        (instance.active ? "" : " aw-row-inactive")
+                      }
+                      aria-disabled={!instance.active || undefined}
                       onClick={() => onConfigure(instance.instanceId)}
                     >
                       <td>
@@ -834,7 +859,10 @@ function IntegrationsTable({
                         </div>
                       </td>
                       <td>
-                        <AwPill variant={status.variant}>
+                        <AwPill
+                          variant={status.variant}
+                          title={status.reason}
+                        >
                           {status.label}
                         </AwPill>
                       </td>
@@ -847,7 +875,11 @@ function IntegrationsTable({
                       <td onClick={(e) => e.stopPropagation()}>
                         <RowActionMenu
                           active={instance.active}
+                          needsAttention={instance.needsAttention}
                           onToggle={() => onToggle(instance.instanceId)}
+                          onToggleAttention={() =>
+                            onToggleAttention(instance.instanceId)
+                          }
                           onConfigure={() => onConfigure(instance.instanceId)}
                           onDisconnect={() =>
                             onDisconnect(instance.instanceId)
@@ -928,9 +960,9 @@ function ExploreCard({
     <button
       type="button"
       onClick={onClick}
-      className="group flex h-full items-center gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 text-left transition-all hover:border-[var(--border-strong)] hover:shadow-sm"
+      className="aw-card aw-card--interactive aw-explore-card flex h-full items-center gap-4 text-left"
     >
-      <AwBrandLogo brand={integration.id} size="lg" />
+      <AwBrandLogo brand={integration.id} size="md" />
       <div className="min-w-0 flex-1">
         <div className="truncate text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
           {integration.name}
@@ -954,13 +986,13 @@ function SeeAllCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-full items-center gap-4 rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 text-left transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+      className="aw-card aw-card--interactive aw-card--dashed aw-explore-card flex h-full items-center gap-4 text-left"
     >
       <div
-        className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-[var(--bg-raised)] text-[var(--fg-secondary)]"
-        style={{ width: 56, height: 56 }}
+        className="flex flex-shrink-0 items-center justify-center rounded-[8px] bg-[var(--bg-raised)] text-[var(--fg-secondary)]"
+        style={{ width: 40, height: 40 }}
       >
-        <Icon name="apps" size={24} />
+        <Icon name="apps" size={20} />
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
@@ -1055,6 +1087,24 @@ export default function IntegrationsPage() {
     );
   };
 
+  const handleToggleAttention = (instanceId: string) => {
+    setInstances((list) =>
+      list.map((i) => {
+        if (i.instanceId !== instanceId) return i;
+        if (i.needsAttention) {
+          const { needsAttention: _drop, attentionReason: _drop2, ...rest } = i;
+          return rest;
+        }
+        return {
+          ...i,
+          needsAttention: true,
+          attentionReason:
+            "Token de autenticação expirou. Reconecte para continuar recebendo eventos.",
+        };
+      }),
+    );
+  };
+
   const handleDisconnectInstance = (instanceId: string) => {
     setDisconnectId(instanceId);
   };
@@ -1145,6 +1195,7 @@ export default function IntegrationsPage() {
                     instances={nonChannelInstances}
                     items={ITEMS}
                     onToggle={handleToggleInstance}
+                    onToggleAttention={handleToggleAttention}
                     onConfigure={handleConfigureInstance}
                     onDisconnect={handleDisconnectInstance}
                   />
