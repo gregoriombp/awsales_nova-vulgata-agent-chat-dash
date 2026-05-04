@@ -13,6 +13,10 @@ export interface IntegrationInstance {
    *  needs to re-authorize or fix the binding. UI surfaces this as a
    *  warning state separate from "disabled". */
   needsAttention?: boolean;
+  /** Epoch ms the instance was created. Optional so legacy instances
+   *  written before this field landed still parse; the list view falls
+   *  back to deriving the timestamp from `instanceId` for those. */
+  addedAt?: number;
 }
 
 const INSTANCES_KEY = "awsales:integrations:instances";
@@ -51,11 +55,13 @@ export function addInstance(
   integrationId: string,
   name: string,
 ): IntegrationInstance {
+  const now = Date.now();
   const instance: IntegrationInstance = {
-    instanceId: `${integrationId}-${Date.now()}`,
+    instanceId: `${integrationId}-${now}`,
     integrationId,
     name,
     active: true,
+    addedAt: now,
   };
   const next = [...loadInstances(), instance];
   saveInstances(next);
