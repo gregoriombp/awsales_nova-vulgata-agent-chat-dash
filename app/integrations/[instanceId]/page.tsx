@@ -570,58 +570,113 @@ function OverviewTab({
  * Tab: Permissões
  * ---------------------------------------------------------------- */
 
+type PermissionMode = "read_write" | "read" | "forbidden";
+
+const PERMISSION_OPTIONS: {
+  id: PermissionMode;
+  icon: string;
+  label: string;
+}[] = [
+  { id: "read_write", icon: "check_circle", label: "Leitura e escrita" },
+  { id: "read", icon: "front_hand", label: "Somente leitura" },
+  { id: "forbidden", icon: "block", label: "Proibido" },
+];
+
 function PermissionsTab({
   integration,
 }: {
   integration: IntegrationCatalogItem;
 }) {
-  if (integration.auth === "webhook") {
-    return (
-      <SectionCard title="Permissões">
-        <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
-          {integration.name} é webhook-only — sem escopos OAuth para revisar.
-        </p>
-      </SectionCard>
-    );
-  }
+  const initialScopes: { label: string; mode: PermissionMode }[] = useMemo(
+    () =>
+      integration.auth === "webhook"
+        ? [{ label: "Webhooks", mode: "read" as PermissionMode }]
+        : [
+            { label: "Produtos", mode: "read_write" },
+            { label: "Compradores", mode: "read" },
+            { label: "Cupons", mode: "read_write" },
+            { label: "Transações", mode: "read" },
+            { label: "Webhooks", mode: "read" },
+          ],
+    [integration.auth],
+  );
 
-  const scopes: { label: string; modes: string[] }[] = [
-    { label: "Produtos", modes: ["read", "write"] },
-    { label: "Compradores", modes: ["read"] },
-    { label: "Cupons", modes: ["read", "write"] },
-    { label: "Transações", modes: ["read"] },
-    { label: "Webhooks", modes: ["recv"] },
-  ];
+  const [scopes, setScopes] = useState(initialScopes);
+
+  const setMode = (label: string, mode: PermissionMode) => {
+    setScopes((list) =>
+      list.map((s) => (s.label === label ? { ...s, mode } : s)),
+    );
+  };
 
   return (
     <div className="flex flex-col gap-5">
       <SectionCard title="Escopos concedidos">
-        <div className="flex flex-wrap gap-2">
-          {scopes.map((s) => (
-            <span
+        <ul className="flex flex-col">
+          {scopes.map((s, idx) => (
+            <li
               key={s.label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-1 text-[12px] text-[var(--fg-secondary)]"
+              className={
+                "flex items-center justify-between gap-4 py-3 " +
+                (idx > 0 ? "border-t border-[var(--border-subtle)]" : "")
+              }
             >
-              <span className="font-medium text-[var(--fg-primary)]">
-                {s.label}
-              </span>
-              {s.modes.map((m) => (
-                <span
-                  key={m}
-                  className="rounded-md bg-[var(--bg-raised)] px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-[var(--fg-tertiary)]"
-                >
-                  {m}
-                </span>
-              ))}
-            </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+                  {s.label}
+                </div>
+              </div>
+              <PermissionToggle
+                value={s.mode}
+                onChange={(m) => setMode(s.label, m)}
+              />
+            </li>
           ))}
-        </div>
+        </ul>
         <div className="mt-4">
           <AwButton variant="secondary" size="sm" iconLeft="lock_open">
             Reconectar com mais escopos
           </AwButton>
         </div>
       </SectionCard>
+    </div>
+  );
+}
+
+function PermissionToggle({
+  value,
+  onChange,
+}: {
+  value: PermissionMode;
+  onChange: (mode: PermissionMode) => void;
+}) {
+  return (
+    <div
+      role="radiogroup"
+      className="inline-flex items-center gap-0.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-0.5"
+    >
+      {PERMISSION_OPTIONS.map((opt) => {
+        const active = opt.id === value;
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={opt.label}
+            title={opt.label}
+            onClick={() => onChange(opt.id)}
+            className={
+              "inline-flex h-7 w-9 items-center justify-center rounded-[var(--radius-sm)] transition-colors " +
+              (active
+                ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_1px_2px_rgba(0,0,0,0.04)] ring-1 ring-[var(--border-strong)]"
+                : "text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]")
+            }
+          >
+            <Icon name={opt.icon} size={16} />
+          </button>
+        );
+      })}
     </div>
   );
 }
