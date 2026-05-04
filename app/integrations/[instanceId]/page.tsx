@@ -60,9 +60,9 @@ const TABS = [
   { id: "overview", label: "Visão" },
   { id: "permissions", label: "Permissões" },
   { id: "objects", label: "Objetos" },
-  { id: "webhooks", label: "Webhooks" },
+  { id: "webhooks", label: "Eventos" },
   { id: "tools", label: "Tools" },
-  { id: "audit", label: "Auditoria" },
+  { id: "audit", label: "Logs" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
