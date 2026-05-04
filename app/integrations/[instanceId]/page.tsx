@@ -9,8 +9,10 @@ import { AwPill } from "@/components/ui/AwPill";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwAlert } from "@/components/ui/AwAlert";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { AwTable } from "@/components/ui/AwTable";
+import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 import {
   AUTH_LABELS,
@@ -870,146 +872,171 @@ function WebhooksTab({
  * Tab: Tools
  * ---------------------------------------------------------------- */
 
+type ToolCat = "read" | "write" | "destructive";
+
+type ToolStatus = "available" | "missing_scope" | "unsupported";
+
+interface ToolRow {
+  name: string;
+  desc: string;
+  cat: ToolCat;
+  agents: string[];
+  exec: number;
+  enabled?: boolean;
+  status?: ToolStatus;
+}
+
+const TOOL_CAT_ICON: Record<ToolCat, string> = {
+  read: "search",
+  write: "bolt",
+  destructive: "delete_sweep",
+};
+
+const TOOL_CAT_PERMISSION: Record<ToolCat, string> = {
+  read: "Somente leitura",
+  write: "Leitura e escrita",
+  destructive: "Leitura e escrita",
+};
+
 function ToolsTab({
   integration,
 }: {
   integration: IntegrationCatalogItem;
 }) {
-  const native: {
-    name: string;
-    desc: string;
-    cat: "read" | "write" | "destructive";
-    enabled: boolean;
-    status: "available" | "missing_scope" | "unsupported";
-    exec: number;
-  }[] = [
+  const router = useRouter();
+  const [openTool, setOpenTool] = useState<ToolRow | null>(null);
+  const [nativeTools, setNativeTools] = useState<ToolRow[]>(() => [
     {
       name: `buscar-produto-${integration.id}`,
       desc: "Busca produto pelo ID",
       cat: "read",
+      agents: ["FAQ", "Pré-venda"],
+      exec: 324,
       enabled: true,
       status: "available",
-      exec: 324,
     },
     {
       name: "listar-vendas",
       desc: "Lista vendas do produto",
       cat: "read",
+      agents: ["Pré-venda"],
+      exec: 187,
       enabled: true,
       status: "available",
-      exec: 187,
     },
     {
       name: "buscar-comprador",
       desc: "Busca comprador por email",
       cat: "read",
+      agents: ["FAQ"],
+      exec: 12,
       enabled: true,
       status: "available",
-      exec: 12,
     },
     {
       name: "criar-cupom",
       desc: "Cria cupom de desconto",
       cat: "write",
+      agents: [],
+      exec: 0,
       enabled: false,
       status: "available",
-      exec: 0,
     },
     {
       name: "refund",
       desc: "Estorna compra",
       cat: "destructive",
+      agents: [],
+      exec: 0,
       enabled: false,
       status: "missing_scope",
-      exec: 0,
     },
     {
       name: "assinatura-cancelar",
       desc: "Cancela assinatura · em breve",
       cat: "destructive",
+      agents: [],
+      exec: 0,
       enabled: false,
       status: "unsupported",
-      exec: 0,
     },
-  ];
+  ]);
 
-  const custom: { name: string; desc: string; cat: "read" | "write"; exec: number }[] = [
+  const custom: ToolRow[] = [
     {
       name: "agendar-especialista",
       desc: "Agenda reunião com especialista",
       cat: "write",
+      agents: ["Pré-venda", "SDR"],
       exec: 89,
     },
     {
       name: "consulta-preco",
       desc: "Consulta preço com regras",
       cat: "read",
+      agents: ["FAQ", "Pré-venda", "Retenção"],
       exec: 1247,
     },
   ];
 
-  const enabledCount = native.filter((n) => n.enabled).length;
+  const enabledCount = nativeTools.filter((n) => n.enabled).length;
+
+  const toggleNative = (name: string, next: boolean) => {
+    setNativeTools((list) =>
+      list.map((n) => (n.name === name ? { ...n, enabled: next } : n)),
+    );
+  };
 
   return (
     <div className="flex flex-col gap-5">
       <SectionCard
         title={`Tools nativas (${integration.name})`}
-        meta={`Habilitadas: ${enabledCount} de ${native.length}`}
+        meta={`Habilitadas: ${enabledCount} de ${nativeTools.length}`}
       >
         <AwTable>
           <thead>
             <tr>
-              <th></th>
-              <th>Nome</th>
-              <th>Descrição</th>
-              <th>Categoria</th>
+              <th>Tool</th>
+              <th>Agentes</th>
+              <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
-            {native.map((n) => (
-              <tr
-                key={n.name}
-                style={n.status !== "available" ? { opacity: 0.6 } : undefined}
-              >
-                <td>
-                  <AwStatusDot
-                    variant={
-                      n.status === "available"
-                        ? "live"
-                        : n.status === "missing_scope"
-                          ? "attention"
-                          : "offline"
-                    }
-                    size="sm"
-                  />
-                </td>
-                <td className="aw-table__name">
-                  <span className="inline-flex items-center gap-2">
-                    <span
-                      className={
-                        "inline-flex h-4 w-4 items-center justify-center rounded border " +
-                        (n.enabled
-                          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                          : "border-[var(--border-strong)] bg-[var(--bg-raised)]")
-                      }
-                    >
-                      {n.enabled && <Icon name="check" size={11} />}
-                    </span>
-                    <span className="font-mono text-[12px]">{n.name}</span>
-                  </span>
-                </td>
-                <td className="text-[var(--fg-tertiary)]">{n.desc}</td>
-                <td>
-                  <ToolCategoryPill cat={n.cat} />
-                </td>
-                <td className="aw-table__num">{n.exec}</td>
-              </tr>
-            ))}
+            {nativeTools.map((n) => {
+              const locked = n.status !== "available";
+              return (
+                <tr
+                  key={n.name}
+                  style={locked ? { opacity: 0.6 } : undefined}
+                >
+                  <td>
+                    <ToolNameCell tool={n} onClick={() => setOpenTool(n)} />
+                  </td>
+                  <td>
+                    <ToolAgentsCell agents={n.agents} />
+                  </td>
+                  <td className="text-[13px] text-[var(--fg-secondary)]">
+                    {TOOL_CAT_PERMISSION[n.cat]}
+                  </td>
+                  <td className="aw-table__num">{n.exec}</td>
+                  <td>
+                    <AwToggle
+                      checked={!!n.enabled}
+                      onChange={(v) => toggleNative(n.name, v)}
+                      disabled={locked}
+                      label={`Ativar ${n.name}`}
+                    />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </AwTable>
         <p className="mt-3 m-0 text-[11px] italic text-[var(--fg-tertiary)]">
-          ● disponível · ◐ scope insuficiente · ○ provider não suporta ainda
+          Tools desabilitadas estão com escopo insuficiente ou não são
+          suportadas pelo provider ainda.
         </p>
       </SectionCard>
 
@@ -1024,52 +1051,150 @@ function ToolsTab({
         <AwTable>
           <thead>
             <tr>
-              <th>Nome</th>
-              <th>Descrição</th>
-              <th>Categoria</th>
+              <th>Tool</th>
+              <th>Agentes</th>
+              <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             {custom.map((c) => (
               <tr key={c.name}>
-                <td className="aw-table__name font-mono text-[12px]">{c.name}</td>
-                <td className="text-[var(--fg-tertiary)]">{c.desc}</td>
                 <td>
-                  <ToolCategoryPill cat={c.cat} />
+                  <ToolNameCell tool={c} onClick={() => setOpenTool(c)} />
                 </td>
-                <td className="aw-table__num">{c.exec.toLocaleString("pt-BR")}</td>
                 <td>
-                  <span className="inline-flex gap-1">
-                    <AwButton variant="ghost" size="sm" iconOnly="edit" aria-label="Editar" />
-                    <AwButton variant="ghost" size="sm" iconOnly="delete" aria-label="Excluir" />
-                  </span>
+                  <ToolAgentsCell agents={c.agents} />
+                </td>
+                <td className="text-[13px] text-[var(--fg-secondary)]">
+                  {TOOL_CAT_PERMISSION[c.cat]}
+                </td>
+                <td className="aw-table__num">
+                  {c.exec.toLocaleString("pt-BR")}
                 </td>
               </tr>
             ))}
           </tbody>
         </AwTable>
       </SectionCard>
+
+      <ToolDetailModal
+        tool={openTool}
+        onClose={() => setOpenTool(null)}
+        onGoToTools={() => {
+          setOpenTool(null);
+          router.push("/tools");
+        }}
+      />
     </div>
   );
 }
 
-function ToolCategoryPill({
-  cat,
+function ToolNameCell({
+  tool,
+  onClick,
 }: {
-  cat: "read" | "write" | "destructive";
+  tool: ToolRow;
+  onClick: () => void;
 }) {
-  const map: Record<typeof cat, { variant: "live" | "draft" | "error"; label: string }> = {
-    read: { variant: "live", label: "read" },
-    write: { variant: "draft", label: "write" },
-    destructive: { variant: "error", label: "destrutivo" },
-  };
-  const { variant, label } = map[cat];
   return (
-    <AwPill variant={variant} dot={false}>
-      {label}
-    </AwPill>
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-start gap-3 text-left"
+    >
+      <span
+        className="mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]"
+      >
+        <Icon name={TOOL_CAT_ICON[tool.cat]} size={16} />
+      </span>
+      <span className="min-w-0 flex flex-col">
+        <span className="font-mono text-[12px] font-medium text-[var(--fg-primary)] group-hover:underline">
+          {tool.name}
+        </span>
+        <span className="text-[12px] text-[var(--fg-tertiary)]">
+          {tool.desc}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+function ToolAgentsCell({ agents }: { agents: string[] }) {
+  if (agents.length === 0) {
+    return (
+      <span className="text-[12px] italic text-[var(--fg-tertiary)]">
+        nenhum
+      </span>
+    );
+  }
+  return (
+    <div className="flex flex-wrap gap-1">
+      {agents.map((a) => (
+        <span
+          key={a}
+          className="inline-flex items-center rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)]"
+        >
+          {a}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function ToolDetailModal({
+  tool,
+  onClose,
+  onGoToTools,
+}: {
+  tool: ToolRow | null;
+  onClose: () => void;
+  onGoToTools: () => void;
+}) {
+  return (
+    <AwModal
+      open={!!tool}
+      onClose={onClose}
+      title="Configuração de tool"
+      footer={
+        <div className="flex w-full justify-end gap-2">
+          <AwButton variant="secondary" size="sm" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            variant="primary"
+            size="sm"
+            iconLeft="open_in_new"
+            onClick={onGoToTools}
+          >
+            Abrir em Tools
+          </AwButton>
+        </div>
+      }
+    >
+      {tool && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-start gap-3">
+            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+              <Icon name={TOOL_CAT_ICON[tool.cat]} size={18} />
+            </span>
+            <div className="min-w-0">
+              <div className="font-mono text-[13px] font-medium text-[var(--fg-primary)]">
+                {tool.name}
+              </div>
+              <div className="text-[13px] text-[var(--fg-tertiary)]">
+                {tool.desc}
+              </div>
+            </div>
+          </div>
+          <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+            Aqui na integração você só vê o status da tool. Para mudar
+            comportamento, parâmetros ou autenticação, abra a página{" "}
+            <strong>Tools</strong> — é lá que mora a configuração.
+          </p>
+        </div>
+      )}
+    </AwModal>
   );
 }
 
