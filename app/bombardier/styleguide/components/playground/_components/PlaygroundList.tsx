@@ -103,7 +103,7 @@ export function PlaygroundList({ entries }: { entries: PlaygroundEntry[] }) {
                 <div className="flex items-center gap-2 flex-wrap">
                   <h3 className="text-base font-semibold">{e.name}</h3>
                   <AwPill variant="draft">
-                    {e.meta?.approval ?? "pending"}
+                    {e.meta?.approval ?? "Pending"}
                   </AwPill>
                 </div>
                 {e.meta?.description && (

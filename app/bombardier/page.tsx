@@ -78,7 +78,7 @@ export default function BombardierHub() {
                   >
                     <Icon name={s.icon} size={24} />
                   </span>
-                  {!ready && <AwPill variant="draft">em breve</AwPill>}
+                  {!ready && <AwPill variant="draft">Em breve</AwPill>}
                 </div>
                 <div className="flex flex-col gap-1">
                   <h2 className="text-xl font-semibold">{s.title}</h2>

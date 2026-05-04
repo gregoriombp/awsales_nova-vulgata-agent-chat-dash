@@ -129,8 +129,8 @@ export default function CardsPage() {
                   </AwCardDescription>
                 </AwCardHeader>
                 <AwCardFooter>
-                  <AwPill variant="live">ativo</AwPill>
-                  <AwPill variant="beta">beta</AwPill>
+                  <AwPill variant="live">Ativo</AwPill>
+                  <AwPill variant="beta">Beta</AwPill>
                 </AwCardFooter>
               </AwCard>
 
@@ -266,19 +266,19 @@ export default function CardsPage() {
                     <li className="flex items-center justify-between text-sm">
                       <span>Notion · Playbook</span>
                       <AwPill variant="live" dot={false}>
-                        sync
+                        Sync
                       </AwPill>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span>Drive · FAQ</span>
                       <AwPill variant="live" dot={false}>
-                        sync
+                        Sync
                       </AwPill>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span>Intercom · Help Center</span>
                       <AwPill variant="error" dot={false}>
-                        auth
+                        Auth
                       </AwPill>
                     </li>
                   </ul>
@@ -382,7 +382,7 @@ export default function CardsPage() {
                     </AwCardDescription>
                   </AwCardHeader>
                   <AwCardFooter>
-                    <AwPill variant="live">ativo</AwPill>
+                    <AwPill variant="live">Ativo</AwPill>
                   </AwCardFooter>
                 </AwCard>
                 <AwCard variant="ai">
