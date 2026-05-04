@@ -222,6 +222,7 @@ export default function IntegrationDetailPage({
             {isMulti && (
               <ConnectionsSidebar
                 accounts={accounts}
+                integration={integration}
                 selectedIndex={selectedAccount}
                 onSelect={setSelectedAccount}
                 onAddAccount={() => router.push("/integrations")}
@@ -306,11 +307,13 @@ export default function IntegrationDetailPage({
 
 function ConnectionsSidebar({
   accounts,
+  integration,
   selectedIndex,
   onSelect,
   onAddAccount,
 }: {
   accounts: ConnectionAccount[];
+  integration: IntegrationCatalogItem;
   selectedIndex: number;
   onSelect: (i: number) => void;
   onAddAccount: () => void;
@@ -324,6 +327,12 @@ function ConnectionsSidebar({
         <ul className="flex flex-col gap-1">
           {accounts.map((a, i) => {
             const active = i === selectedIndex;
+            const dotVariant =
+              a.health === "healthy"
+                ? "live"
+                : a.health === "degraded"
+                  ? "attention"
+                  : "offline";
             return (
               <li key={a.id}>
                 <button
@@ -336,16 +345,10 @@ function ConnectionsSidebar({
                       : "hover:bg-[var(--bg-surface)]")
                   }
                 >
-                  <AwStatusDot
-                    variant={
-                      a.health === "healthy"
-                        ? "live"
-                        : a.health === "degraded"
-                          ? "attention"
-                          : "offline"
-                    }
-                    size="sm"
-                  />
+                  <span className="relative inline-flex flex-shrink-0">
+                    <AwBrandLogo brand={integration.id} size="sm" bare />
+                    <AwStatusDot variant={dotVariant} size="sm" ring absolute />
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
                       {a.name}
