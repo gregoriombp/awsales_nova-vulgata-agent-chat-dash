@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
@@ -502,6 +503,7 @@ function QuickPickPill({
 type EmptyVariant = "populated" | "all-removed" | "first-run";
 
 export default function IntegrationsPage() {
+  const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
@@ -586,8 +588,8 @@ export default function IntegrationsPage() {
     ? instances.find((i) => i.instanceId === disconnectId)
     : null;
 
-  const handleConfigureInstance = (_instanceId: string) => {
-    // Settings flow not built yet for non-channel integrations.
+  const handleConfigureInstance = (instanceId: string) => {
+    router.push(`/integrations/${instanceId}`);
   };
 
   if (!hydrated) {
