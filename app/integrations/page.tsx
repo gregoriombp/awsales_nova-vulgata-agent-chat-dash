@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
@@ -37,7 +36,6 @@ const ORG_LOGO_SRC = "/assets/icon_artificial_concord_organization.png";
 const ORG_NAME = "Nome da organização";
 
 type IntegrationCategory =
-  | "channels"
   | "checkouts"
   | "members"
   | "forms"
@@ -46,6 +44,11 @@ type IntegrationCategory =
   | "marketplaces"
   | "ai"
   | "signatures";
+
+/** Channels live in /canais now. We keep the ids here only so any
+ *  legacy localStorage instances created before the split are filtered
+ *  out instead of crashing the catalog lookup. */
+const CHANNEL_IDS = new Set(["whatsapp", "instagram", "messenger"]);
 
 type AuthMethod = "oauth" | "webhook" | "apiKey";
 
@@ -60,7 +63,6 @@ interface Integration {
 }
 
 const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
-  { id: "channels", label: "Canais" },
   { id: "ai", label: "Modelos de IA" },
   { id: "checkouts", label: "Checkouts" },
   { id: "members", label: "Área de membros" },
@@ -72,46 +74,6 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
 ];
 
 const ITEMS: Integration[] = [
-  // Channels
-  {
-    id: "whatsapp",
-    cat: "channels",
-    name: "WhatsApp",
-    domain: "whatsapp.com",
-    desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
-    auth: "oauth",
-    permissions: [
-      "Enviar e receber mensagens em seu nome",
-      "Acessar contatos e conversas ativas",
-      "Ler mídias enviadas pelos clientes",
-    ],
-  },
-  {
-    id: "instagram",
-    cat: "channels",
-    name: "Instagram",
-    domain: "instagram.com",
-    desc: "Responda DMs do Instagram automaticamente com agentes.",
-    auth: "oauth",
-    permissions: [
-      "Ler e responder mensagens diretas",
-      "Acessar comentários em posts e reels",
-      "Ver informações básicas da conta",
-    ],
-  },
-  {
-    id: "messenger",
-    cat: "channels",
-    name: "Messenger",
-    domain: "messenger.com",
-    desc: "Atendimento automatizado pelo Messenger do Facebook.",
-    auth: "oauth",
-    permissions: [
-      "Ler e responder mensagens da página",
-      "Acessar perfis públicos dos clientes",
-      "Receber webhooks de novas conversas",
-    ],
-  },
   // Checkouts
   { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", auth: "apiKey" },
   { id: "stripe", cat: "checkouts", name: "Stripe", domain: "stripe.com", desc: "Pagamentos globais — cartão, PIX, assinaturas.", auth: "apiKey" },
@@ -332,18 +294,18 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
 
 const HERO_BRANDS_TOP = ["hotmart", "eduzz", "kiwify"] as const;
 const HERO_BRANDS_BOTTOM = [
-  "whatsapp",
+  "stripe",
   "rdstation",
-  "instagram",
   "calendly",
+  "hubspot",
 ] as const;
 
 const QUICK_PICKS: { id: string; name: string }[] = [
-  { id: "whatsapp", name: "WhatsApp" },
   { id: "hotmart", name: "Hotmart" },
   { id: "stripe", name: "Stripe" },
   { id: "calendly", name: "Calendly" },
   { id: "rdstation", name: "RD Station" },
+  { id: "claude", name: "Claude" },
 ];
 
 /* ----------------------------------------------------------------
@@ -540,7 +502,6 @@ function QuickPickPill({
 type EmptyVariant = "populated" | "all-removed" | "first-run";
 
 export default function IntegrationsPage() {
-  const router = useRouter();
   const [addOpen, setAddOpen] = useState(false);
   const [customOpen, setCustomOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
@@ -581,19 +542,20 @@ export default function IntegrationsPage() {
 
   const closeConnect = () => setConnectId(null);
 
-  /** WhatsApp owns a multi-step WABA wizard instead of the generic
-   *  Connect modal. Every entry point (quick picks, catalog, anywhere
-   *  the user picks WhatsApp) must funnel through here. */
   const handleConnect = (id: string) => {
-    if (id === "whatsapp") {
-      router.push("/setup/whatsapp/1");
-      return;
-    }
     setConnectId(id);
   };
 
+  /** Channels are managed in /canais, but they share the same
+   *  localStorage list. Filter them here so the integrations grid only
+   *  shows non-channel instances. The empty-state variant likewise
+   *  ignores channels. */
+  const nonChannelInstances = instances.filter(
+    (i) => !CHANNEL_IDS.has(i.integrationId),
+  );
+
   const variant: EmptyVariant =
-    instances.length > 0
+    nonChannelInstances.length > 0
       ? "populated"
       : hasEverConnected
         ? "all-removed"
@@ -624,13 +586,8 @@ export default function IntegrationsPage() {
     ? instances.find((i) => i.instanceId === disconnectId)
     : null;
 
-  const handleConfigureInstance = (instanceId: string) => {
-    const inst = instances.find((i) => i.instanceId === instanceId);
-    if (inst?.integrationId === "whatsapp") {
-      router.push("/integrations/whatsapp");
-      return;
-    }
-    // Settings flow not built yet for other integrations — placeholder.
+  const handleConfigureInstance = (_instanceId: string) => {
+    // Settings flow not built yet for non-channel integrations.
   };
 
   if (!hydrated) {
@@ -654,8 +611,8 @@ export default function IntegrationsPage() {
                   Integrações
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
-                  Conecte canais, plataformas e ferramentas para que seus
-                  agentes coletem contexto, executem ações e mantenham seus
+                  Conecte plataformas e ferramentas para que seus agentes
+                  coletem contexto, executem ações e mantenham seus
                   sistemas sincronizados.
                 </p>
               </div>
@@ -672,13 +629,12 @@ export default function IntegrationsPage() {
             </header>
 
             {variant === "populated" ? (
-              /* Suas integrações — single unified grid (channels + others) */
               <section aria-label="Suas integrações">
                 <h2 className="m-0 mb-4 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
                   Suas integrações
                 </h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {instances.map((inst) => {
+                  {nonChannelInstances.map((inst) => {
                     const it = ITEMS.find((i) => i.id === inst.integrationId);
                     if (!it) return null;
                     return (
@@ -769,7 +725,7 @@ export default function IntegrationsPage() {
                 Comece conectando sua primeira ferramenta
               </h2>
               <p className="m-0 mt-3 max-w-[480px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-                Hotmart, Stripe, WhatsApp, Calendly, RD Station… escolha
+                Hotmart, Stripe, Calendly, RD Station, Claude… escolha
                 por onde começar e o agente assume daí.
               </p>
             </div>
