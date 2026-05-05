@@ -53,6 +53,8 @@ export const navigation: NavSection[] = [
     title: "Playground",
     items: [
       { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
+      { name: "AwDropdownMenu", href: "/bombardier/styleguide/playground/components/aw-dropdown-menu" },
+      { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
     ],
   },
 ]
