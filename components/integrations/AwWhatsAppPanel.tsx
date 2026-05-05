@@ -2050,6 +2050,10 @@ export type AwWhatsAppPanelProps = {
   onAddWaba?: () => void;
   onSave?: () => void;
   onCancel?: () => void;
+  /** When true, opens the template builder sheet on mount and lands the
+   *  user on the Templates tab — used by the post-setup flow to take a
+   *  fresh WABA straight into "create your first template". */
+  initialOpenTemplateBuilder?: boolean;
 };
 
 type SheetState =
@@ -2063,12 +2067,17 @@ export function AwWhatsAppPanel({
   onAddWaba,
   onSave,
   onCancel,
+  initialOpenTemplateBuilder = false,
 }: AwWhatsAppPanelProps) {
   const [selectedId, setSelectedId] = useState<string>(wabas[0]?.id ?? "");
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(
+    initialOpenTemplateBuilder ? "templates" : "overview",
+  );
   const [enabled, setEnabled] = useState(true);
   const [sheet, setSheet] = useState<SheetState>({ kind: null });
-  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(false);
+  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(
+    initialOpenTemplateBuilder,
+  );
 
   const isAll = selectedId === ALL_KEY;
 

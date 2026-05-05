@@ -66,18 +66,7 @@ const NEXT_STEPS = [
     icon: "stacks",
     title: "Crie seu primeiro template",
     desc: "Mensagem de boas-vindas, recuperação de carrinho ou disparo em massa.",
-  },
-  {
-    id: "checkout",
-    icon: "power",
-    title: "Conecte um checkout",
-    desc: "Hotmart, Stripe, Eduzz — leads aprovados caem direto no agente.",
-  },
-  {
-    id: "agent",
-    icon: "auto_awesome",
-    title: "Configure o agente de IA",
-    desc: "Personalidade, conhecimento e gatilhos de transferência.",
+    href: "/canais/whatsapp?new-template=1",
   },
 ] as const;
 
@@ -162,37 +151,26 @@ function StepIndicator({ current }: { current: number }) {
 }
 
 /* ----------------------------------------------------------------
- * Prerequisite checkbox row — a click anywhere on the row toggles.
+ * Prerequisite info row — read-only checklist item.
  * ---------------------------------------------------------------- */
 
 function PrereqRow({
   title,
   description,
   helpLabel,
-  checked,
-  onToggle,
 }: {
   title: string;
   description: string;
   helpLabel: string;
-  checked: boolean;
-  onToggle: () => void;
 }) {
   return (
-    <label
-      className={
-        "flex cursor-pointer items-start gap-3.5 rounded-[var(--radius-md)] border px-4 py-3.5 transition-colors " +
-        (checked
-          ? "border-[var(--fg-primary)] bg-[var(--bg-surface)]"
-          : "border-[var(--border-subtle)] bg-[var(--bg-canvas)] hover:bg-[var(--bg-surface)]")
-      }
-    >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onToggle}
-        className="mt-0.5 h-4 w-4 flex-shrink-0 cursor-pointer accent-[var(--fg-primary)]"
-      />
+    <div className="flex items-start gap-3.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3.5">
+      <span
+        aria-hidden="true"
+        className="mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[var(--bg-surface)] text-[var(--fg-secondary)]"
+      >
+        <Icon name="check" size={14} />
+      </span>
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-semibold leading-tight text-[var(--fg-primary)]">
           {title}
@@ -209,7 +187,7 @@ function PrereqRow({
         {helpLabel}
         <Icon name="north_east" size={14} />
       </a>
-    </label>
+    </div>
   );
 }
 
@@ -256,13 +234,13 @@ function PhonePreview({
     description.trim() ||
     "Olá! 👋 Sou a Marina, sua atendente virtual. Em que posso ajudar hoje?";
   return (
-    <div className="flex w-full max-w-[320px] flex-col items-stretch">
+    <div className="flex w-full max-w-[280px] flex-col items-stretch">
       <p className="mb-3 text-center text-[10.5px] font-medium uppercase tracking-[0.08em] text-[var(--fg-tertiary)]">
         Como aparece no celular do seu cliente
       </p>
-      <div className="rounded-[28px] border-[6px] border-[var(--fg-primary)] bg-white p-0 shadow-sm">
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[#075E54] shadow-[var(--shadow-md)]">
         {/* Top status row */}
-        <div className="flex items-center justify-between rounded-t-[22px] bg-[#075E54] px-3 pt-2 text-[10px] text-white/90">
+        <div className="flex items-center justify-between bg-[#075E54] px-3 pt-2 text-[10px] text-white/90">
           <span>9:41</span>
           <span className="flex items-center gap-1.5">
             <Icon name="signal_cellular_4_bar" size={12} />
@@ -283,7 +261,7 @@ function PhonePreview({
         </div>
         {/* Chat */}
         <div
-          className="min-h-[200px] px-3 py-4"
+          className="min-h-[420px] px-3 py-4"
           style={{
             backgroundColor: "#ECE5DD",
             backgroundImage:
@@ -327,11 +305,6 @@ export default function WhatsAppSetupPage({
   const stepNum =
     Number.isFinite(rawStep) && rawStep >= 1 && rawStep <= 4 ? rawStep : 1;
 
-  const [checkedPrereqs, setCheckedPrereqs] = useState<Record<string, boolean>>(
-    {},
-  );
-  const allPrereqsChecked = PREREQUISITES.every((p) => checkedPrereqs[p.id]);
-
   const [profile, setProfile] = useState({
     displayName: "",
     category: CATEGORY_OPTIONS[0],
@@ -345,17 +318,18 @@ export default function WhatsAppSetupPage({
   const exitSetup = () => router.push("/canais");
 
   /** Persist the new WhatsApp WABA before leaving the success step,
-   *  then land the user on the channel's own page (not the global
-   *  /canais grid) so they immediately see the canal they just
-   *  configured. We name it "WhatsApp N" where N is the next sequence
-   *  so multiple WABAs don't collide. */
-  const finishSetup = () => {
+   *  then land the user on the destination passed in. Defaults to the
+   *  channel's own page; the "Crie seu primeiro template" card sends to
+   *  /canais/whatsapp?new-template=1 so the template builder opens
+   *  automatically. We name the WABA "WhatsApp N" where N is the next
+   *  sequence so multiple WABAs don't collide. */
+  const finishSetup = (destination = "/canais/whatsapp") => {
     const existing = loadInstances().filter(
       (i) => i.integrationId === "whatsapp",
     );
     const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
     addInstance("whatsapp", name);
-    router.push("/canais/whatsapp");
+    router.push(destination);
   };
 
   const breadcrumbs = [
@@ -433,10 +407,6 @@ export default function WhatsAppSetupPage({
                     title={p.title}
                     description={p.description}
                     helpLabel={p.helpLabel}
-                    checked={!!checkedPrereqs[p.id]}
-                    onToggle={() =>
-                      setCheckedPrereqs((m) => ({ ...m, [p.id]: !m[p.id] }))
-                    }
                   />
                 ))}
               </div>
@@ -657,6 +627,7 @@ export default function WhatsAppSetupPage({
                   <button
                     key={n.id}
                     type="button"
+                    onClick={() => finishSetup(n.href)}
                     className="group flex items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
                   >
                     <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-surface)] text-[var(--fg-primary)] group-hover:bg-[var(--bg-canvas)]">
@@ -728,7 +699,6 @@ export default function WhatsAppSetupPage({
                 variant="primary"
                 size="md"
                 iconRight="chevron_right"
-                disabled={!allPrereqsChecked}
                 onClick={() => goTo(2)}
               >
                 Continuar
@@ -786,7 +756,7 @@ export default function WhatsAppSetupPage({
                 variant="primary"
                 size="md"
                 iconRight="chevron_right"
-                onClick={finishSetup}
+                onClick={() => finishSetup()}
               >
                 Ir para o painel do WhatsApp
               </AwButton>
