@@ -1,4 +1,5 @@
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 export type AwSliderProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -16,7 +17,7 @@ export const AwSlider = React.forwardRef<HTMLInputElement, AwSliderProps>(
     ref
   ) {
     return (
-      <div className={["aw-slider", className].filter(Boolean).join(" ")}>
+      <div className={cn("aw-slider", className)}>
         {(label || valueDisplay !== undefined) && (
           <div className="aw-slider__top">
             <span>{label}</span>

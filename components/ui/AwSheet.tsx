@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { cn } from "@/lib/utils"
 import { Icon } from "./Icon"
 
 export type AwSheetSize = "default" | "wide"
@@ -37,10 +39,6 @@ export function AwSheet({
   React.useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose()
-        return
-      }
       if (e.key === "ArrowUp" && onPrev) {
         e.preventDefault()
         onPrev()
@@ -50,49 +48,71 @@ export function AwSheet({
       }
     }
     window.addEventListener("keydown", onKey)
-    const prev = document.body.style.overflow
-    document.body.style.overflow = "hidden"
-    return () => {
-      window.removeEventListener("keydown", onKey)
-      document.body.style.overflow = prev
-    }
-  }, [open, onClose, onPrev, onNext])
-
-  if (!open) return null
+    return () => window.removeEventListener("keydown", onKey)
+  }, [open, onPrev, onNext])
 
   return (
-    <div
-      className="aw-sheet-scrim"
-      onClick={dismissible ? onClose : undefined}
-      role="dialog"
-      aria-modal="true"
-      aria-label={typeof title === "string" ? title : "Painel lateral"}
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
     >
-      <aside
-        className={`aw-sheet aw-sheet--${size}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {(title || meta) && (
-          <header className="aw-sheet__top">
-            <div>
-              {title && <h2 className="aw-sheet__title">{title}</h2>}
-              {meta && <div className="aw-sheet__meta">{meta}</div>}
-            </div>
-            <button
-              type="button"
-              className="aw-sheet__close"
-              aria-label="Fechar"
-              onClick={onClose}
-            >
-              <Icon name="close" size={18} />
-            </button>
-          </header>
-        )}
-        {tabs && <div className="aw-sheet__tabs">{tabs}</div>}
-        <div className="aw-sheet__body">{children}</div>
-        {footer && <footer className="aw-sheet__foot">{footer}</footer>}
-      </aside>
-    </div>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="aw-sheet-scrim" />
+        {/* Radix Portal renders Overlay and Content as siblings; the original
+         * .aw-sheet-scrim used flex justify-end to dock its child .aw-sheet
+         * to the right edge. This wrapper recreates that dock without
+         * touching globals.css. */}
+        <div className="fixed inset-0 z-[1001] flex justify-end pointer-events-none">
+          <DialogPrimitive.Content
+            aria-label={typeof title === "string" ? title : "Painel lateral"}
+            className={cn(
+              "aw-sheet pointer-events-auto",
+              `aw-sheet--${size}`
+            )}
+            onPointerDownOutside={(e) => {
+              if (!dismissible) e.preventDefault()
+            }}
+            onInteractOutside={(e) => {
+              if (!dismissible) e.preventDefault()
+            }}
+          >
+            {(title || meta) && (
+              <header className="aw-sheet__top">
+                <div>
+                  {title &&
+                    (typeof title === "string" ? (
+                      <DialogPrimitive.Title className="aw-sheet__title">
+                        {title}
+                      </DialogPrimitive.Title>
+                    ) : (
+                      <DialogPrimitive.Title asChild>
+                        <h2 className="aw-sheet__title">{title}</h2>
+                      </DialogPrimitive.Title>
+                    ))}
+                  {meta && <div className="aw-sheet__meta">{meta}</div>}
+                </div>
+                <DialogPrimitive.Close
+                  className="aw-sheet__close"
+                  aria-label="Fechar"
+                >
+                  <Icon name="close" size={18} />
+                </DialogPrimitive.Close>
+              </header>
+            )}
+            {!title && !meta && (
+              <DialogPrimitive.Title className="sr-only">
+                Painel lateral
+              </DialogPrimitive.Title>
+            )}
+            {tabs && <div className="aw-sheet__tabs">{tabs}</div>}
+            <div className="aw-sheet__body">{children}</div>
+            {footer && <footer className="aw-sheet__foot">{footer}</footer>}
+          </DialogPrimitive.Content>
+        </div>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   )
 }
 
@@ -109,12 +129,10 @@ export function AwSheetTab({
     <button
       type="button"
       onClick={onClick}
-      className={[
+      className={cn(
         "aw-sheet__tab",
-        active && "aw-sheet__tab--active",
-      ]
-        .filter(Boolean)
-        .join(" ")}
+        active && "aw-sheet__tab--active"
+      )}
     >
       {children}
     </button>
@@ -133,7 +151,7 @@ export function AwSheetRow({
   return (
     <div className="aw-sheet__row">
       <span className="aw-sheet__row-k">{label}</span>
-      <span className={["aw-sheet__row-v", mono && "mono"].filter(Boolean).join(" ")}>
+      <span className={cn("aw-sheet__row-v", mono && "mono")}>
         {children}
       </span>
     </div>

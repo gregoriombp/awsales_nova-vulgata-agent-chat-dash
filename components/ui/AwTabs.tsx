@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import * as TabsPrimitive from "@radix-ui/react-tabs"
+import { cn } from "@/lib/utils"
 
 export type AwTabsVariant = "segmented" | "standalone" | "underline"
 
@@ -29,41 +31,31 @@ export function AwTabs({
   "aria-label": ariaLabel,
 }: AwTabsProps) {
   return (
-    <div
-      role="tablist"
-      aria-label={ariaLabel}
-      className={[
-        "aw-tabs",
-        `aw-tabs--${variant}`,
-        className,
-      ]
-        .filter(Boolean)
-        .join(" ")}
-    >
-      {items.map((it) => {
-        const active = it.value === value
-        return (
-          <button
-            key={it.value}
-            role="tab"
-            type="button"
-            aria-selected={active}
-            disabled={it.disabled}
-            className={[
-              "aw-tabs__tab",
-              active && "aw-tabs__tab--active",
-            ]
-              .filter(Boolean)
-              .join(" ")}
-            onClick={() => onChange(it.value)}
-          >
-            <span className="aw-tabs__label">{it.label}</span>
-            {typeof it.count === "number" && (
-              <span className="aw-tabs__count">{it.count}</span>
-            )}
-          </button>
-        )
-      })}
-    </div>
+    <TabsPrimitive.Root value={value} onValueChange={onChange}>
+      <TabsPrimitive.List
+        aria-label={ariaLabel}
+        className={cn("aw-tabs", `aw-tabs--${variant}`, className)}
+      >
+        {items.map((it) => {
+          const active = it.value === value
+          return (
+            <TabsPrimitive.Trigger
+              key={it.value}
+              value={it.value}
+              disabled={it.disabled}
+              className={cn(
+                "aw-tabs__tab",
+                active && "aw-tabs__tab--active"
+              )}
+            >
+              <span className="aw-tabs__label">{it.label}</span>
+              {typeof it.count === "number" && (
+                <span className="aw-tabs__count">{it.count}</span>
+              )}
+            </TabsPrimitive.Trigger>
+          )
+        })}
+      </TabsPrimitive.List>
+    </TabsPrimitive.Root>
   )
 }

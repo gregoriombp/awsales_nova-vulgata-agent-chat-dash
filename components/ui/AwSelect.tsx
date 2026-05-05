@@ -1,4 +1,5 @@
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 export type AwSelectProps = Omit<
   React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -13,7 +14,7 @@ export const AwSelect = React.forwardRef<HTMLButtonElement, AwSelectProps>(
       <button
         ref={ref}
         type="button"
-        className={["aw-select", className].filter(Boolean).join(" ")}
+        className={cn("aw-select", className)}
         {...rest}
       >
         <span>{children}</span>

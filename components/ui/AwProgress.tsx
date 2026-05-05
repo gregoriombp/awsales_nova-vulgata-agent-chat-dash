@@ -1,4 +1,8 @@
+"use client"
+
 import * as React from "react"
+import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { cn } from "@/lib/utils"
 
 export type AwProgressVariant = "default" | "success" | "warning" | "danger"
 
@@ -21,32 +25,28 @@ export function AwProgress({
 }: AwProgressProps) {
   const clamped = Math.max(0, Math.min(value, max))
   const pct = (clamped / max) * 100
-  const fillClass = [
-    "aw-progress",
-    variant !== "default" && `aw-progress--${variant}`,
-  ]
-    .filter(Boolean)
-    .join(" ")
 
   return (
-    <div
-      className={["aw-progress-row", className].filter(Boolean).join(" ")}
-    >
+    <div className={cn("aw-progress-row", className)}>
       {(label || valueLabel !== undefined) && (
         <div className="aw-progress-row__top">
           <span>{label}</span>
           <b>{valueLabel ?? `${Math.round(pct)}%`}</b>
         </div>
       )}
-      <div
-        className={fillClass}
-        role="progressbar"
-        aria-valuenow={clamped}
-        aria-valuemin={0}
-        aria-valuemax={max}
+      <ProgressPrimitive.Root
+        value={clamped}
+        max={max}
+        className={cn(
+          "aw-progress",
+          variant !== "default" && `aw-progress--${variant}`
+        )}
       >
-        <div className="aw-progress__fill" style={{ width: `${pct}%` }} />
-      </div>
+        <ProgressPrimitive.Indicator
+          className="aw-progress__fill"
+          style={{ width: `${pct}%` }}
+        />
+      </ProgressPrimitive.Root>
     </div>
   )
 }

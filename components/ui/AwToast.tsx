@@ -1,6 +1,8 @@
 "use client"
 
 import * as React from "react"
+import * as ToastPrimitives from "@radix-ui/react-toast"
+import { cn } from "@/lib/utils"
 import { Icon } from "./Icon"
 
 export type AwToastVariant = "success" | "ai" | "error" | "warning" | "info"
@@ -76,17 +78,21 @@ export function AwToastProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastContext.Provider value={value}>
-      {children}
-      <div
-        className="aw-toast-stack"
-        role="region"
-        aria-label="Notificações"
-        aria-live="polite"
-      >
-        {visible.map((t) => (
-          <ToastItem key={t.id} toast={t} onDismiss={() => dismiss(t.id)} />
-        ))}
-      </div>
+      <ToastPrimitives.Provider swipeDirection="right" duration={Infinity}>
+        {children}
+        <ToastPrimitives.Viewport
+          className="aw-toast-stack"
+          aria-label="Notificações"
+        >
+          {visible.map((t) => (
+            <ToastItem
+              key={t.id}
+              toast={t}
+              onDismiss={() => dismiss(t.id)}
+            />
+          ))}
+        </ToastPrimitives.Viewport>
+      </ToastPrimitives.Provider>
     </ToastContext.Provider>
   )
 }
@@ -100,48 +106,54 @@ function ToastItem({
 }) {
   const variant = toast.variant ?? "success"
   const glyph = toast.icon ?? DEFAULT_ICON[variant]
-  const className = [
-    "aw-toast",
-    `aw-toast--${variant}`,
-    toast.leaving && "aw-toast--leaving",
-  ]
-    .filter(Boolean)
-    .join(" ")
   return (
-    <div className={className} role="status">
+    <ToastPrimitives.Root
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onDismiss()
+      }}
+      duration={Infinity}
+      className={cn(
+        "aw-toast",
+        `aw-toast--${variant}`,
+        toast.leaving && "aw-toast--leaving"
+      )}
+    >
       <span className="aw-toast__icon">
         <Icon name={glyph} size={18} />
       </span>
       <div className="aw-toast__body">
-        <p className="aw-toast__title">{toast.title}</p>
+        <ToastPrimitives.Title className="aw-toast__title">
+          {toast.title}
+        </ToastPrimitives.Title>
         {(toast.description || toast.action) && (
-          <p className="aw-toast__desc">
+          <ToastPrimitives.Description className="aw-toast__desc">
             {toast.description}
             {toast.description && toast.action && " · "}
             {toast.action && (
-              <button
-                type="button"
-                className="aw-toast__action"
+              <ToastPrimitives.Action
+                altText={toast.action.label}
+                asChild
                 onClick={() => {
                   toast.action!.onClick()
                   onDismiss()
                 }}
               >
-                {toast.action.label}
-              </button>
+                <button type="button" className="aw-toast__action">
+                  {toast.action.label}
+                </button>
+              </ToastPrimitives.Action>
             )}
-          </p>
+          </ToastPrimitives.Description>
         )}
       </div>
-      <button
-        type="button"
+      <ToastPrimitives.Close
         className="aw-toast__close"
         aria-label="Fechar notificação"
-        onClick={onDismiss}
       >
         ×
-      </button>
-    </div>
+      </ToastPrimitives.Close>
+    </ToastPrimitives.Root>
   )
 }
 
