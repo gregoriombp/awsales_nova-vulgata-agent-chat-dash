@@ -36,6 +36,7 @@ export const navigation: NavSection[] = [
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
+      { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
       { name: "Modais", href: "/bombardier/styleguide/components/modals" },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
