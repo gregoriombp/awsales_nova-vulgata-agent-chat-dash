@@ -21,6 +21,8 @@ export interface ChannelAccount {
   /** Override the default status pill text — e.g. "Pagamento pendente"
    *  for an attention account that has a more specific reason to flag. */
   statusLabel?: string;
+  /** Profile photo for the account row. Falls back to initials when absent. */
+  avatarSrc?: string;
 }
 
 const ACCOUNTS: ChannelAccount[] = [
@@ -31,6 +33,7 @@ const ACCOUNTS: ChannelAccount[] = [
     name: "Marina Cosméticos",
     subtitle: "Marina Costa · 2 números",
     status: "active",
+    avatarSrc: "/assets/ui-faces/female-3.jpg",
   },
   {
     id: "waba-eng",
@@ -47,6 +50,7 @@ const ACCOUNTS: ChannelAccount[] = [
     name: "@marinacosmeticos",
     subtitle: "12,4 mil seguidores · DM ativa",
     status: "active",
+    avatarSrc: "/assets/ui-faces/female-3.jpg",
   },
   // Messenger
   {
@@ -55,6 +59,7 @@ const ACCOUNTS: ChannelAccount[] = [
     name: "Marina Cosméticos",
     subtitle: "Página oficial · 8,2 mil curtidas",
     status: "disabled",
+    avatarSrc: "/assets/ui-faces/female-3.jpg",
   },
 ];
 
