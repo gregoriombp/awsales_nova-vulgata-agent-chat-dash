@@ -1,0 +1,66 @@
+import * as React from "react"
+import { cn } from "@/lib/utils"
+import { Icon } from "./Icon"
+
+/**
+ * AwStatCard — KPI / stat tile.
+ *
+ * Bombardier-era replacement for the legacy `KPICard` and `MetricCard` in
+ * `/components/`, both of which are pre-token-system and use hardcoded
+ * colors. AwStatCard takes a value, a label, an optional eyebrow icon
+ * and an optional hint line, with two visual variants:
+ *
+ *  - `default` — neutral surface, used for inventory KPIs (counts, totals).
+ *  - `ai`      — soft AI-gradient mesh on the corners (same treatment used
+ *                by `aw-card--ai`), reserved for AI-flavoured stats.
+ *
+ * Lives in Playground until reviewed for promotion.
+ */
+
+export type AwStatCardVariant = "default" | "ai"
+
+export type AwStatCardProps = React.HTMLAttributes<HTMLDivElement> & {
+  /** Material Symbol shown in the eyebrow line, before the label. */
+  icon?: string
+  /** Small uppercase label above the value (the eyebrow). */
+  label: string
+  /** Big value — number, formatted string, or any node. */
+  value: React.ReactNode
+  /** Optional one-line hint below the value. */
+  hint?: React.ReactNode
+  /** Variant — `ai` paints the soft mesh used elsewhere in the DS. */
+  variant?: AwStatCardVariant
+}
+
+export const AwStatCard = React.forwardRef<HTMLDivElement, AwStatCardProps>(
+  function AwStatCard(
+    { icon, label, value, hint, variant = "default", className, ...rest },
+    ref,
+  ) {
+    return (
+      <div
+        ref={ref}
+        data-slot="stat-card"
+        className={cn(
+          "flex flex-col gap-1.5 rounded-2xl border border-subtle bg-raised p-5",
+          variant === "ai" && "aw-card--ai",
+          className,
+        )}
+        {...rest}
+      >
+        <div className="flex items-center gap-2 text-[12px] font-medium uppercase tracking-[0.04em] text-fg-tertiary">
+          {icon && <Icon name={icon} size={16} />}
+          <span>{label}</span>
+        </div>
+        <div className="text-[28px] font-semibold leading-none tracking-[-0.02em] text-fg-primary">
+          {value}
+        </div>
+        {hint && (
+          <div className="text-[12px] leading-[1.45] text-fg-tertiary">
+            {hint}
+          </div>
+        )}
+      </div>
+    )
+  },
+)
