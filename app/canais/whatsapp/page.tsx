@@ -19,7 +19,7 @@ export default function WhatsAppConfigPage() {
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 h-full min-h-full bg-[var(--bg-canvas)]">
         <AwWhatsAppPanel
-          onAddWaba={() => router.push("/setup/whatsapp/1")}
+          onAddWaba={() => router.push("/setup/whatsapp")}
           onCancel={() => router.push("/canais")}
           onSave={() => router.push("/canais")}
           initialOpenTemplateBuilder={openNewTemplate}

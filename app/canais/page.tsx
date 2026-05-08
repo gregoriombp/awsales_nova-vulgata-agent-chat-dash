@@ -265,7 +265,7 @@ export default function CanaisPage() {
    *  Connect modal. Every entry point must funnel through here. */
   const handleConnect = (id: string) => {
     if (id === "whatsapp") {
-      router.push("/setup/whatsapp/1");
+      router.push("/setup/whatsapp");
       return;
     }
     setConnectId(id);
