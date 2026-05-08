@@ -2,11 +2,17 @@
 
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { addInstance, loadInstances } from "@/lib/integrationsStore";
 
@@ -16,10 +22,8 @@ import { addInstance, loadInstances } from "@/lib/integrationsStore";
  * ---------------------------------------------------------------- */
 
 const STEPS = [
-  { id: 1, label: "Pré-requisitos" },
-  { id: 2, label: "Conexão Meta" },
-  { id: 3, label: "Perfil do número" },
-  { id: 4, label: "Pronto" },
+  { id: 1, label: "Conectar com a Meta" },
+  { id: 2, label: "Perfil do número" },
 ] as const;
 
 const PREREQUISITES = [
@@ -60,16 +64,6 @@ const META_LOGIN_STEPS: { num: number; head: string; tail: string }[] = [
   { num: 4, head: "Autorizar a AwSales", tail: " a enviar mensagens em seu nome" },
 ];
 
-const NEXT_STEPS = [
-  {
-    id: "template",
-    icon: "stacks",
-    title: "Crie seu primeiro template",
-    desc: "Mensagem de boas-vindas, recuperação de carrinho ou disparo em massa.",
-    href: "/canais/whatsapp?new-template=1",
-  },
-] as const;
-
 const CATEGORY_OPTIONS = [
   "Educação",
   "Varejo",
@@ -87,7 +81,7 @@ const LANGUAGE_OPTIONS = [
 ];
 
 /* ----------------------------------------------------------------
- * Step indicator — 4 numbered dots with dashed connectors.
+ * Step indicator — 2 numbered dots with dashed connectors.
  * ---------------------------------------------------------------- */
 
 function StepIndicator({ current }: { current: number }) {
@@ -192,7 +186,7 @@ function PrereqRow({
 }
 
 /* ----------------------------------------------------------------
- * Numbered list item used in step 2.
+ * Numbered list item used in step 1.
  * ---------------------------------------------------------------- */
 
 function NumberedItem({
@@ -218,7 +212,7 @@ function NumberedItem({
 }
 
 /* ----------------------------------------------------------------
- * Phone preview used in step 3 — purely decorative mock.
+ * Phone preview used in step 2 — purely decorative mock.
  * ---------------------------------------------------------------- */
 
 function PhonePreview({
@@ -300,10 +294,13 @@ export default function WhatsAppSetupPage({
 }) {
   const { step } = use(params);
   const router = useRouter();
+  const { push: pushToast } = useToast();
 
   const rawStep = Number(step);
   const stepNum =
-    Number.isFinite(rawStep) && rawStep >= 1 && rawStep <= 4 ? rawStep : 1;
+    Number.isFinite(rawStep) && rawStep >= 1 && rawStep <= STEPS.length
+      ? rawStep
+      : 1;
 
   const [profile, setProfile] = useState({
     displayName: "",
@@ -312,24 +309,31 @@ export default function WhatsAppSetupPage({
     description: "",
   });
 
-  const userFirstName = "Marina";
-
   const goTo = (n: number) => router.push(`/setup/whatsapp/${n}`);
   const exitSetup = () => router.push("/canais");
 
-  /** Persist the new WhatsApp WABA before leaving the success step,
-   *  then land the user on the destination passed in. Defaults to the
-   *  channel's own page; the "Crie seu primeiro template" card sends to
-   *  /canais/whatsapp?new-template=1 so the template builder opens
-   *  automatically. We name the WABA "WhatsApp N" where N is the next
-   *  sequence so multiple WABAs don't collide. */
-  const finishSetup = (destination = "/canais/whatsapp") => {
+  /** Persist the new WhatsApp WABA, fire a success toast with a "Criar
+   *  template" action that deep-links into the panel's template builder,
+   *  and land the user on the channel page. We name the WABA "WhatsApp N"
+   *  where N is the next sequence so multiple WABAs don't collide. */
+  const finishSetup = () => {
     const existing = loadInstances().filter(
       (i) => i.integrationId === "whatsapp",
     );
     const name = existing.length === 0 ? "WhatsApp" : `WhatsApp ${existing.length + 1}`;
     addInstance("whatsapp", name);
-    router.push(destination);
+    pushToast({
+      variant: "success",
+      title: "WhatsApp conectado",
+      description:
+        "Seu canal está pronto. Crie seu primeiro template pra começar a conversar.",
+      action: {
+        label: "Criar template",
+        onClick: () => router.push("/canais/whatsapp?new-template=1"),
+      },
+      duration: 10000,
+    });
+    router.push("/canais/whatsapp");
   };
 
   const breadcrumbs = [
@@ -375,58 +379,6 @@ export default function WhatsAppSetupPage({
         {/* Body */}
         <main className="flex-1 px-10 py-10 pb-32">
           {stepNum === 1 && (
-            <section className="mx-auto w-full max-w-[820px]">
-              <div className="mb-8 flex items-start justify-between gap-6">
-                <div>
-                  <h2 className="m-0 text-[26px] font-semibold tracking-[-0.015em] text-[var(--fg-primary)]">
-                    Antes de começar
-                  </h2>
-                  <p className="m-0 mt-2 max-w-[480px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-                    A integração com WhatsApp é feita pela API oficial da
-                    Meta. Vamos verificar 4 itens rápidos para que tudo
-                    funcione na primeira tentativa.
-                  </p>
-                </div>
-                <div
-                  aria-hidden="true"
-                  className="flex h-[88px] w-[88px] flex-shrink-0 items-center justify-center rounded-full bg-[#E8EAFB]"
-                >
-                  <Icon
-                    name="forum"
-                    size={40}
-                    className="text-[#3D4DC4]"
-                    fill={1}
-                  />
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-3">
-                {PREREQUISITES.map((p) => (
-                  <PrereqRow
-                    key={p.id}
-                    title={p.title}
-                    description={p.description}
-                    helpLabel={p.helpLabel}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-6 flex items-start gap-3 rounded-[var(--radius-md)] border border-[#BFD4FB] bg-[#EAF1FE] px-4 py-3.5 text-[13px] leading-[1.5] text-[var(--fg-primary)]">
-                <Icon
-                  name="info"
-                  size={18}
-                  className="mt-0.5 flex-shrink-0 text-[#1F4DC0]"
-                />
-                <div>
-                  <strong>Sem pressa.</strong> Suas tentativas ficam salvas.
-                  Se algo der errado durante a conexão com a Meta, você
-                  pode retomar daqui.
-                </div>
-              </div>
-            </section>
-          )}
-
-          {stepNum === 2 && (
             <section className="mx-auto w-full max-w-[640px] rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-10 py-12">
               <div className="flex justify-center">
                 <div
@@ -461,7 +413,37 @@ export default function WhatsAppSetupPage({
                 ))}
               </ol>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-2 border-t border-[var(--border-subtle)] pt-6">
+              <Collapsible className="group mt-7 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+                <CollapsibleTrigger className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] px-4 py-3 text-left text-[13px] font-medium text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-surface)]">
+                  <span className="flex items-center gap-2">
+                    <Icon
+                      name="checklist"
+                      size={16}
+                      className="text-[var(--fg-secondary)]"
+                    />
+                    Antes de continuar — 4 itens rápidos
+                  </span>
+                  <Icon
+                    name="expand_more"
+                    size={18}
+                    className="text-[var(--fg-tertiary)] transition-transform group-data-[state=open]:rotate-180"
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="border-t border-[var(--border-subtle)] px-4 py-4">
+                  <div className="flex flex-col gap-3">
+                    {PREREQUISITES.map((p) => (
+                      <PrereqRow
+                        key={p.id}
+                        title={p.title}
+                        description={p.description}
+                        helpLabel={p.helpLabel}
+                      />
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              <div className="mt-7 flex flex-wrap items-center justify-center gap-2 border-t border-[var(--border-subtle)] pt-6">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--aw-emerald-50,#E6F9EE)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--aw-emerald-700)]">
                   <span className="h-1.5 w-1.5 rounded-full bg-[var(--aw-emerald-700)]" />
                   Conexão criptografada · OAuth 2.0
@@ -474,7 +456,7 @@ export default function WhatsAppSetupPage({
             </section>
           )}
 
-          {stepNum === 3 && (
+          {stepNum === 2 && (
             <section className="mx-auto grid w-full max-w-[1080px] gap-12 lg:grid-cols-[1fr,minmax(0,360px)]">
               <div>
                 <h2 className="m-0 text-[26px] font-semibold tracking-[-0.015em] text-[var(--fg-primary)]">
@@ -597,87 +579,6 @@ export default function WhatsAppSetupPage({
               </div>
             </section>
           )}
-
-          {stepNum === 4 && (
-            <section className="mx-auto w-full max-w-[760px]">
-              <div className="flex justify-center">
-                <div
-                  aria-hidden="true"
-                  className="flex h-[120px] w-[120px] items-center justify-center rounded-full bg-[#E8EAFB]"
-                >
-                  <Icon
-                    name="rocket_launch"
-                    size={56}
-                    className="text-[#3D4DC4]"
-                    fill={1}
-                  />
-                </div>
-              </div>
-
-              <h2 className="m-0 mt-6 text-center text-[26px] font-semibold tracking-[-0.015em] text-[var(--fg-primary)]">
-                Tudo pronto, {userFirstName} 🎉
-              </h2>
-              <p className="m-0 mx-auto mt-2 max-w-[520px] text-center text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-                Seu canal WhatsApp está conectado e pronto para receber
-                leads. Aqui está o que vem agora:
-              </p>
-
-              <div className="mx-auto mt-8 flex max-w-[640px] flex-col gap-3">
-                {NEXT_STEPS.map((n) => (
-                  <button
-                    key={n.id}
-                    type="button"
-                    onClick={() => finishSetup(n.href)}
-                    className="group flex items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
-                  >
-                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-surface)] text-[var(--fg-primary)] group-hover:bg-[var(--bg-canvas)]">
-                      <Icon name={n.icon} size={20} />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[14.5px] font-semibold text-[var(--fg-primary)]">
-                        {n.title}
-                      </div>
-                      <p className="m-0 mt-0.5 text-[12.5px] leading-[1.5] text-[var(--fg-secondary)]">
-                        {n.desc}
-                      </p>
-                    </div>
-                    <Icon
-                      name="chevron_right"
-                      size={18}
-                      className="text-[var(--fg-tertiary)]"
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <div className="mx-auto mt-10 grid max-w-[640px] grid-cols-3 gap-6 border-t border-[var(--border-subtle)] pt-8 text-center">
-                <div>
-                  <div className="text-[26px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-                    250
-                  </div>
-                  <div className="mt-1 text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                    Conversas/24h iniciais
-                  </div>
-                </div>
-                <div className="border-x border-[var(--border-subtle)]">
-                  <div className="text-[26px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-                    1
-                  </div>
-                  <div className="mt-1 text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                    Número conectado
-                  </div>
-                </div>
-                <div>
-                  <div className="text-[26px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-                    OAuth 2.0
-                  </div>
-                  <div className="mt-1 text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                    Autenticado
-                  </div>
-                </div>
-              </div>
-            </section>
-          )}
         </main>
 
         {/* Sticky footer */}
@@ -698,10 +599,10 @@ export default function WhatsAppSetupPage({
               <AwButton
                 variant="primary"
                 size="md"
-                iconRight="chevron_right"
+                iconRight="open_in_new"
                 onClick={() => goTo(2)}
               >
-                Continuar
+                Conectar com a Meta
               </AwButton>
             )}
             {stepNum === 2 && (
@@ -715,51 +616,14 @@ export default function WhatsAppSetupPage({
                   Voltar
                 </AwButton>
                 <AwButton
-                  variant="ghost"
-                  size="md"
-                  onClick={() => goTo(3)}
-                >
-                  Pular por enquanto
-                </AwButton>
-                <AwButton
-                  variant="primary"
-                  size="md"
-                  iconRight="open_in_new"
-                  onClick={() => goTo(3)}
-                >
-                  Conectar com a Meta
-                </AwButton>
-              </>
-            )}
-            {stepNum === 3 && (
-              <>
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={() => goTo(2)}
-                >
-                  Voltar
-                </AwButton>
-                <AwButton
                   variant="primary"
                   size="md"
                   iconRight="check"
-                  onClick={() => goTo(4)}
+                  onClick={finishSetup}
                 >
                   Salvar e finalizar
                 </AwButton>
               </>
-            )}
-            {stepNum === 4 && (
-              <AwButton
-                variant="primary"
-                size="md"
-                iconRight="chevron_right"
-                onClick={() => finishSetup()}
-              >
-                Ir para o painel do WhatsApp
-              </AwButton>
             )}
           </div>
         </footer>
