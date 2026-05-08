@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
@@ -357,20 +358,238 @@ function ToolPack({
           }}
           className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
         >
-          <Icon name={open ? "expand_less" : "expand_more"} size={18} />
+          <Icon
+            name="expand_more"
+            size={18}
+            className={`transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+          />
         </button>
       </header>
-      {open && (
-        <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
-          {children}
-          {total === 0 && emptyHint && (
-            <div className="px-5 py-8 text-center text-[13px] text-[var(--fg-tertiary)]">
-              {emptyHint}
-            </div>
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        aria-hidden={!open}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
+            {children}
+            {total === 0 && emptyHint && (
+              <div className="px-5 py-8 text-center text-[13px] text-[var(--fg-tertiary)]">
+                {emptyHint}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ----------------------------------------------------------------
+ * IntegrationGroup — top-level pack grouping every connected account
+ * of a single integration brand. The pack header carries the brand
+ * identity (logo, name, description) and aggregated stats across all
+ * accounts of that brand. Inside it, each account renders as its own
+ * InstancePack.
+ * ---------------------------------------------------------------- */
+
+function IntegrationGroup({
+  brand,
+  title,
+  subtitle,
+  accountCount,
+  activeSkills,
+  totalSkills,
+  headerRight,
+  defaultOpen = true,
+  children,
+}: {
+  brand: string;
+  title: string;
+  subtitle?: string;
+  accountCount: number;
+  activeSkills: number;
+  totalSkills: number;
+  headerRight?: React.ReactNode;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+  /* When the integration has a single connected account, the InstancePack
+   * level collapses away and rows render directly under this header — so
+   * "1 conta" becomes redundant noise next to the rest of the chrome. */
+  const showAccountCount = accountCount > 1;
+
+  return (
+    <section className="overflow-hidden">
+      <header
+        className="flex items-center gap-4 px-6 py-5"
+        onClick={() => setOpen((v) => !v)}
+        style={{ cursor: "pointer" }}
+      >
+        <AwBrandLogo brand={brand} size="md" />
+        <div className="min-w-0 flex-1">
+          <h3 className="m-0 truncate text-[17px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+            {title}
+          </h3>
+          {subtitle && (
+            <p className="m-0 mt-0.5 truncate text-[13px] text-[var(--fg-tertiary)]">
+              {subtitle}
+            </p>
           )}
         </div>
-      )}
+        <div className="hidden flex-shrink-0 flex-col items-end text-right sm:flex">
+          {showAccountCount && (
+            <span className="text-[12px] font-medium tabular-nums text-[var(--fg-secondary)]">
+              {accountCount} contas
+            </span>
+          )}
+          <span className="text-[12px] tabular-nums text-[var(--fg-tertiary)]">
+            {activeSkills}/{totalSkills} habilidades ativas
+          </span>
+        </div>
+        {headerRight && (
+          <div
+            className="flex-shrink-0"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {headerRight}
+          </div>
+        )}
+        <button
+          type="button"
+          aria-label={open ? "Recolher" : "Expandir"}
+          aria-expanded={open}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }}
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
+        >
+          <Icon
+            name="expand_more"
+            size={18}
+            className={`transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </header>
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        aria-hidden={!open}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
+            {children}
+          </div>
+        </div>
+      </div>
     </section>
+  );
+}
+
+/* ----------------------------------------------------------------
+ * InstancePack — mid-level pack inside an IntegrationGroup, scoped to
+ * a single connected account. Carries the instance name, per-account
+ * activation count, optional attention warning, and a "+ Nova" CTA
+ * that opens the same custom-skill modal as the page header.
+ * ---------------------------------------------------------------- */
+
+function InstancePack({
+  brand,
+  instanceName,
+  active,
+  total,
+  needsAttention,
+  attentionReason,
+  onCreateNew,
+  defaultOpen = true,
+  children,
+}: {
+  brand: string;
+  instanceName: string;
+  active: number;
+  total: number;
+  needsAttention?: boolean;
+  attentionReason?: string;
+  onCreateNew: () => void;
+  defaultOpen?: boolean;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div>
+      <header
+        className="flex items-center gap-3 py-3 pl-12 pr-6"
+        onClick={() => setOpen((v) => !v)}
+        style={{ cursor: "pointer" }}
+      >
+        <AwBrandLogo brand={brand} size="sm" />
+        <div className="min-w-0 flex-1">
+          <span className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            {instanceName}
+          </span>
+          <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[var(--fg-tertiary)]">
+            <span className="tabular-nums">
+              {active}/{total} habilidades ativas
+            </span>
+            {needsAttention && (
+              <>
+                <span aria-hidden>·</span>
+                <span
+                  className="inline-flex items-center gap-1 text-[var(--aw-red-700)]"
+                  title={attentionReason}
+                >
+                  <Icon name="warning" size={12} />
+                  {attentionReason || "atenção necessária"}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
+        <span className="hidden flex-shrink-0 text-[12px] font-medium tabular-nums text-[var(--fg-tertiary)] sm:inline-block">
+          {active}/{total}
+        </span>
+        <div
+          className="flex-shrink-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AwButton
+            variant="secondary"
+            size="sm"
+            iconLeft="add"
+            onClick={onCreateNew}
+          >
+            Nova
+          </AwButton>
+        </div>
+        <button
+          type="button"
+          aria-label={open ? "Recolher" : "Expandir"}
+          aria-expanded={open}
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpen((v) => !v);
+          }}
+          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
+        >
+          <Icon
+            name="expand_more"
+            size={16}
+            className={`transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+          />
+        </button>
+      </header>
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+        aria-hidden={!open}
+      >
+        <div className="overflow-hidden">
+          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)] pl-6">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1042,23 +1261,56 @@ export default function ToolsPage() {
                 aria-label="Buscar habilidade"
               />
             </div>
-            <div className="sm:w-[260px]">
-              <InlineSelect
-                value={filterInstanceId}
-                onChange={(v) => setFilterInstanceId(v)}
-                options={[
-                  { value: "", label: "Todas as integrações" },
-                  ...activeInstances.map(({ instance, integration }) => ({
-                    value: instance.instanceId,
-                    label:
-                      instance.name === integration.name
-                        ? integration.name
-                        : `${integration.name} · ${instance.name}`,
-                  })),
-                ]}
-                ariaLabel="Filtrar por integração"
-              />
-            </div>
+            {(() => {
+              const labelFor = (
+                instance: IntegrationInstance,
+                integration: IntegrationCatalogItem,
+              ) =>
+                instance.name === integration.name
+                  ? integration.name
+                  : `${integration.name} · ${instance.name}`;
+              const selected = filterInstanceId
+                ? activeInstances.find(
+                    ({ instance }) => instance.instanceId === filterInstanceId,
+                  )
+                : undefined;
+              const triggerLabel = selected
+                ? labelFor(selected.instance, selected.integration)
+                : "Todas as integrações";
+              return (
+                <AwDropdownMenu
+                  aria-label="Filtrar por integração"
+                  trigger={
+                    <AwButton
+                      variant="secondary"
+                      size="md"
+                      iconLeft="filter_list"
+                      iconRight="expand_more"
+                    >
+                      {triggerLabel}
+                    </AwButton>
+                  }
+                  items={[
+                    {
+                      id: "__all__",
+                      label: "Todas as integrações",
+                      checked: !filterInstanceId,
+                      onSelect: () => setFilterInstanceId(""),
+                    },
+                    ...(activeInstances.length > 0
+                      ? [{ id: "__sep__", separator: true } as const]
+                      : []),
+                    ...activeInstances.map(({ instance, integration }) => ({
+                      id: instance.instanceId,
+                      label: labelFor(instance, integration),
+                      checked: filterInstanceId === instance.instanceId,
+                      onSelect: () =>
+                        setFilterInstanceId(instance.instanceId),
+                    })),
+                  ]}
+                />
+              );
+            })()}
           </div>
 
           {/* ---------------- Content ---------------- */}
@@ -1095,47 +1347,166 @@ export default function ToolsPage() {
               </AwEmptyContent>
             </AwEmpty>
           ) : (
-            <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
-              {/* Native packs — one per connected instance. Two Hotmart
-                  accounts produce two packs, each with its own toggles. */}
+            <div className="flex flex-col">
+              {/* Native packs — grouped by integration brand at the top
+                  level, then by connected account inside. Two Hotmart
+                  accounts share one Hotmart parent, each with its own
+                  inner pack and toggles. */}
+              <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
               {showNative &&
-                activeInstances.map(({ instance, integration }) => {
-                  const allRows = nativeRows.filter(
-                    (r) => r.groupId === instance.instanceId,
-                  );
-                  const visibleRows = filteredNative.filter(
-                    (r) => r.groupId === instance.instanceId,
-                  );
-                  if (filterInstanceId && filterInstanceId !== instance.instanceId) {
-                    return null;
+                (() => {
+                  const groups = new Map<
+                    string,
+                    {
+                      integration: IntegrationCatalogItem;
+                      instances: IntegrationInstance[];
+                    }
+                  >();
+                  for (const { instance, integration } of activeInstances) {
+                    const g = groups.get(integration.id);
+                    if (g) {
+                      g.instances.push(instance);
+                    } else {
+                      groups.set(integration.id, {
+                        integration,
+                        instances: [instance],
+                      });
+                    }
                   }
-                  if (visibleRows.length === 0 && (query || filterInstanceId)) {
-                    return null;
-                  }
-                  const active = allRows.filter((r) => isEnabled(r.id)).length;
-                  const useInstanceLabel = instance.name !== integration.name;
-                  return (
-                    <ToolPack
-                      key={instance.instanceId}
-                      brand={integration.id}
-                      title={useInstanceLabel ? instance.name : integration.name}
-                      subtitle={useInstanceLabel ? integration.name : integration.desc}
-                      total={allRows.length}
-                      active={active}
-                    >
-                      {visibleRows.map((row) => (
-                        <ToolRow
-                          key={row.id}
-                          row={row}
-                          enabled={isEnabled(row.id)}
-                          onToggle={() => toggleEnabled(row.id)}
-                          onOpen={() => setDetailRow(row)}
-                          query={query}
-                        />
-                      ))}
-                    </ToolPack>
+                  return Array.from(groups.values()).map(
+                    ({ integration, instances }) => {
+                      /* When an instance filter is on, only show the
+                       * integration that owns it. Other groups disappear. */
+                      const visibleInstances = filterInstanceId
+                        ? instances.filter(
+                            (i) => i.instanceId === filterInstanceId,
+                          )
+                        : instances;
+                      if (visibleInstances.length === 0) return null;
+
+                      /* Per-instance row buckets, with search applied. */
+                      const buckets = visibleInstances.map((instance) => {
+                        const all = nativeRows.filter(
+                          (r) => r.groupId === instance.instanceId,
+                        );
+                        const visible = filteredNative.filter(
+                          (r) => r.groupId === instance.instanceId,
+                        );
+                        return { instance, allRows: all, visibleRows: visible };
+                      });
+
+                      /* Hide instances with no matches when the user is
+                       * actively searching/filtering. Without a query,
+                       * keep them so the empty state is informative. */
+                      const renderableBuckets =
+                        query || filterInstanceId
+                          ? buckets.filter((b) => b.visibleRows.length > 0)
+                          : buckets;
+                      if (renderableBuckets.length === 0) return null;
+
+                      /* Aggregate brand-wide stats — counted across ALL
+                       * instances of this integration, not just the
+                       * filtered ones, so the header stays truthful. */
+                      const allRowsForBrand = nativeRows.filter(
+                        (r) => r.brand === integration.id,
+                      );
+                      const activeSkills = allRowsForBrand.filter((r) =>
+                        isEnabled(r.id),
+                      ).length;
+                      const totalSkills = allRowsForBrand.length;
+
+                      /* Single-account integrations skip the InstancePack
+                       * level — the account ↔ integration mapping is 1:1
+                       * and the extra nesting just adds noise. The rows
+                       * render directly under the integration header,
+                       * which absorbs the "+ Nova" CTA. */
+                      const isSingleAccount = instances.length === 1;
+
+                      return (
+                        <IntegrationGroup
+                          key={integration.id}
+                          brand={integration.id}
+                          title={integration.name}
+                          subtitle={integration.desc}
+                          accountCount={instances.length}
+                          activeSkills={activeSkills}
+                          totalSkills={totalSkills}
+                          headerRight={
+                            isSingleAccount ? (
+                              <AwButton
+                                variant="secondary"
+                                size="sm"
+                                iconLeft="add"
+                                onClick={() => setCreateOpen(true)}
+                              >
+                                Nova
+                              </AwButton>
+                            ) : undefined
+                          }
+                        >
+                          {isSingleAccount
+                            ? renderableBuckets[0].visibleRows.map((row) => (
+                                <ToolRow
+                                  key={row.id}
+                                  row={row}
+                                  enabled={isEnabled(row.id)}
+                                  onToggle={() => toggleEnabled(row.id)}
+                                  onOpen={() => setDetailRow(row)}
+                                  query={query}
+                                />
+                              ))
+                            : renderableBuckets.map(
+                                ({ instance, allRows, visibleRows }) => {
+                                  const active = allRows.filter((r) =>
+                                    isEnabled(r.id),
+                                  ).length;
+                                  return (
+                                    <InstancePack
+                                      key={instance.instanceId}
+                                      brand={integration.id}
+                                      instanceName={instance.name}
+                                      active={active}
+                                      total={allRows.length}
+                                      needsAttention={instance.needsAttention}
+                                      attentionReason={instance.attentionReason}
+                                      onCreateNew={() => setCreateOpen(true)}
+                                    >
+                                      {visibleRows.map((row) => (
+                                        <ToolRow
+                                          key={row.id}
+                                          row={row}
+                                          enabled={isEnabled(row.id)}
+                                          onToggle={() => toggleEnabled(row.id)}
+                                          onOpen={() => setDetailRow(row)}
+                                          query={query}
+                                        />
+                                      ))}
+                                    </InstancePack>
+                                  );
+                                },
+                              )}
+                        </IntegrationGroup>
+                      );
+                    },
                   );
-                })}
+                })()}
+              </div>
+
+              {/* Visual section break between native integrations and
+                  custom skills — they're conceptually different tracks
+                  (one is brand-scoped, the other user-defined endpoints)
+                  so the page reads better with a clear seam between
+                  them. The break only renders when both sections are
+                  on screen at the same time. */}
+              {showNative &&
+                filteredNative.length > 0 &&
+                showCustom &&
+                !filterInstanceId && (
+                  <div
+                    className="my-4 border-t-2 border-[var(--border-subtle)]"
+                    aria-hidden
+                  />
+                )}
 
               {/* Custom tools pack — always rendered when the tab allows
                   it, even when empty, because it owns the "create" CTA. */}
