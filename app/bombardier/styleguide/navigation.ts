@@ -32,6 +32,7 @@ export const navigation: NavSection[] = [
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
       { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
+      { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
@@ -54,7 +55,6 @@ export const navigation: NavSection[] = [
     title: "Playground",
     items: [
       { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
-      { name: "AwDropdownMenu", href: "/bombardier/styleguide/playground/components/aw-dropdown-menu" },
       { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
     ],
   },

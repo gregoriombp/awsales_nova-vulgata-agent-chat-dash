@@ -3,20 +3,11 @@
 import { useState } from "react"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu"
-import { PageHero, Section, Stage } from "../../../_primitives"
-
-/**
- * AwDropdownMenu — experimental showcase.
- *
- * Wrapper sobre Radix DropdownMenu seguindo o mesmo padrão declarativo
- * de AwTabs e AwModal. Substituirá os menus inline reimplementados em
- * /integrations (SortMenu, RowActionMenu) e em qualquer página de
- * listagem futura.
- */
+import { PageHero, Section, Stage } from "../../_primitives"
 
 type SortKey = "name-asc" | "name-desc" | "recent" | "old"
 
-export default function AwDropdownMenuPlaygroundPage() {
+export default function AwDropdownMenuPage() {
   const [sort, setSort] = useState<SortKey>("name-asc")
   const [active, setActive] = useState(true)
 
