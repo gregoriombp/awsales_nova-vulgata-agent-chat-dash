@@ -986,11 +986,46 @@ function WebhooksTab({
     { name: "chargeback", on: false },
   ];
 
-  const events: { time: string; status: number; type: string; id: string }[] = [
+  type WebhookEvent = {
+    time: string;
+    status: number;
+    type: string;
+    id: string;
+  };
+
+  const [events, setEvents] = useState<WebhookEvent[]>([
     { time: "30/04 10:02", status: 200, type: "purchase_completed", id: "#4321" },
     { time: "30/04 09:51", status: 200, type: "purchase_completed", id: "#4320" },
     { time: "30/04 09:30", status: 422, type: "schema inválido", id: "—" },
-  ];
+  ]);
+  const [sending, setSending] = useState(false);
+  const testCounterRef = useRef(0);
+  const toast = useToast();
+
+  const handleSendTestEvent = () => {
+    if (sending) return;
+    setSending(true);
+    window.setTimeout(() => {
+      testCounterRef.current += 1;
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const testId = `#test-${String(testCounterRef.current).padStart(4, "0")}`;
+      const event: WebhookEvent = {
+        time: `${pad(now.getDate())}/${pad(now.getMonth() + 1)} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+        status: 200,
+        type: "purchase_completed",
+        id: testId,
+      };
+      setEvents((list) => [event, ...list]);
+      setSending(false);
+      toast.push({
+        variant: "success",
+        title: "Evento de teste entregue",
+        description: `200 OK · ${testId}`,
+        duration: 4000,
+      });
+    }, 1100);
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -1067,8 +1102,14 @@ function WebhooksTab({
           </tbody>
         </AwTable>
         <div className="mt-3">
-          <AwButton variant="secondary" size="sm" iconLeft="bolt">
-            Enviar evento de teste
+          <AwButton
+            variant="secondary"
+            size="sm"
+            iconLeft="bolt"
+            loading={sending}
+            onClick={handleSendTestEvent}
+          >
+            {sending ? "Enviando…" : "Enviar evento de teste"}
           </AwButton>
         </div>
       </SectionCard>
