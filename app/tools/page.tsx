@@ -244,7 +244,7 @@ function ToolRow({
             size="sm"
             iconOnly="delete"
             aria-label={`Excluir ${row.name}`}
-            title="Excluir tool"
+            title="Excluir habilidade"
             onClick={onDelete}
           />
         </div>
@@ -423,7 +423,7 @@ function ToolDetailModal({
               onToggle();
             }}
           >
-            {enabled ? "Pausar tool" : "Ativar tool"}
+            {enabled ? "Pausar habilidade" : "Ativar habilidade"}
           </AwButton>
         </>
       }
@@ -460,10 +460,10 @@ function ToolDetailModal({
                 </span>
               ) : row.custom ? (
                 <span>
-                  Tool personalizada · {row.custom.method}
+                  Habilidade personalizada · {row.custom.method}
                 </span>
               ) : (
-                <span>Native tool</span>
+                <span>Habilidade nativa</span>
               )}
             </div>
           </div>
@@ -659,7 +659,7 @@ function CustomToolModal({
     <AwModal
       open={open}
       onClose={onClose}
-      title="Criar tool personalizada"
+      title="Criar habilidade personalizada"
       footer={
         <>
           <AwButton variant="secondary" size="md" onClick={onClose}>
@@ -672,7 +672,7 @@ function CustomToolModal({
             disabled={!valid}
             onClick={submit}
           >
-            Criar tool
+            Criar habilidade
           </AwButton>
         </>
       }
@@ -680,11 +680,11 @@ function CustomToolModal({
       <div className="flex flex-col gap-4">
         <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
           Conecte um endpoint HTTP do seu backend ou de um serviço
-          externo. O agente passa a chamá-lo como qualquer outra tool
-          nativa.
+          externo. O agente passa a chamá-lo como qualquer outra
+          habilidade nativa.
         </p>
 
-        <AwField label="Nome da tool">
+        <AwField label="Nome da habilidade">
           <AwInput
             placeholder="Ex.: Validar CPF na Receita"
             value={name}
@@ -695,7 +695,7 @@ function CustomToolModal({
 
         <AwField
           label="Descrição"
-          helper="O que essa tool faz, escrito do ponto de vista do agente."
+          helper="O que essa habilidade faz, escrito do ponto de vista do agente."
         >
           <AwInput
             placeholder="Ex.: Consulta a Receita Federal e retorna o status do CPF."
@@ -715,7 +715,7 @@ function CustomToolModal({
                 { value: "write", label: "Escrita" },
                 { value: "action", label: "Ação" },
               ]}
-              ariaLabel="Tipo da tool"
+              ariaLabel="Tipo da habilidade"
             />
           </AwField>
           <AwField label="Método HTTP">
@@ -950,7 +950,7 @@ export default function ToolsPage() {
   };
 
   const breadcrumbs = [
-    { label: "Tools", icon: <Icon name="handyman" size={20} /> },
+    { label: "Habilidades", icon: <Icon name="handyman" size={20} /> },
   ];
 
   /* ---- Render ---- */
@@ -979,13 +979,13 @@ export default function ToolsPage() {
             <div>
               <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
                 <Icon name="handyman" size={28} />
-                Tools
+                Habilidades
               </h1>
               <p className="m-0 max-w-[600px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
-                Cada ferramenta é uma ação que seus agentes podem
+                Cada habilidade é uma ação que seus agentes podem
                 chamar — buscar uma transação, agendar uma reunião,
                 disparar um contrato. Conecte uma integração e o pacote
-                de tools dela aparece aqui automaticamente.
+                de habilidades dela aparece aqui automaticamente.
               </p>
             </div>
             <div className="flex flex-shrink-0 gap-2">
@@ -1004,7 +1004,7 @@ export default function ToolsPage() {
                 iconLeft="add"
                 onClick={() => setCreateOpen(true)}
               >
-                Nova tool personalizada
+                Nova habilidade personalizada
               </AwButton>
             </div>
           </header>
@@ -1031,15 +1031,15 @@ export default function ToolsPage() {
                   count: totalCustom,
                 },
               ]}
-              aria-label="Filtrar tools por origem"
+              aria-label="Filtrar habilidades por origem"
             />
             <div className="sm:ml-auto sm:w-[300px]">
               <AwInput
                 iconLeft="search"
-                placeholder="Buscar tool…"
+                placeholder="Buscar habilidade…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                aria-label="Buscar tool"
+                aria-label="Buscar habilidade"
               />
             </div>
             <div className="sm:w-[260px]">
@@ -1073,11 +1073,11 @@ export default function ToolsPage() {
                 <AwEmptyMedia variant="icon">
                   <Icon name="search_off" size={28} />
                 </AwEmptyMedia>
-                <AwEmptyTitle>Nenhuma tool encontrada</AwEmptyTitle>
+                <AwEmptyTitle>Nenhuma habilidade encontrada</AwEmptyTitle>
                 <AwEmptyDescription>
                   {query
                     ? `Sua busca por "${query}" não retornou resultados.`
-                    : "Ajuste os filtros para ver tools."}
+                    : "Ajuste os filtros para ver habilidades."}
                 </AwEmptyDescription>
               </AwEmptyHeader>
               <AwEmptyContent>
@@ -1142,7 +1142,7 @@ export default function ToolsPage() {
               {showCustom && !filterInstanceId && (
                 <ToolPack
                   brand={undefined}
-                  title="Tools personalizadas"
+                  title="Habilidades personalizadas"
                   subtitle="Endpoints HTTP que você definiu pra estender o agente."
                   total={customRows.length}
                   active={
@@ -1156,12 +1156,12 @@ export default function ToolsPage() {
                       iconLeft="add"
                       onClick={() => setCreateOpen(true)}
                     >
-                      Nova tool
+                      Nova habilidade
                     </AwButton>
                   }
                   emptyHint={
                     <span>
-                      Você ainda não criou nenhuma tool personalizada.{" "}
+                      Você ainda não criou nenhuma habilidade personalizada.{" "}
                       <button
                         type="button"
                         onClick={() => setCreateOpen(true)}
@@ -1213,7 +1213,7 @@ export default function ToolsPage() {
       <AwModal
         open={!!deleteId}
         onClose={() => setDeleteId(null)}
-        title="Excluir tool personalizada"
+        title="Excluir habilidade personalizada"
         footer={
           <>
             <AwButton
@@ -1235,7 +1235,7 @@ export default function ToolsPage() {
         }
       >
         <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-          Os agentes que usam essa tool vão perder acesso ao endpoint
+          Os agentes que usam essa habilidade vão perder acesso ao endpoint
           imediatamente. Essa ação não pode ser desfeita.
         </p>
       </AwModal>
@@ -1273,13 +1273,14 @@ function NoConnectionsHero({
           <AwBrandLogo brand="claude" size="md" />
         </div>
         <h2 className="m-0 mt-7 text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-          Conecte uma integração pra liberar tools
+          Conecte uma integração pra liberar habilidades
         </h2>
         <p className="m-0 mt-3 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
-          Cada integração ativa traz um pacote de tools nativas que os
-          agentes podem usar — pesquisar transação, agendar reunião,
-          atualizar deal no CRM. Você também pode criar uma tool
-          personalizada apontando pra qualquer endpoint HTTP.
+          Cada integração ativa traz um pacote de habilidades nativas
+          que os agentes podem usar — pesquisar transação, agendar
+          reunião, atualizar deal no CRM. Você também pode criar uma
+          habilidade personalizada apontando pra qualquer endpoint
+          HTTP.
         </p>
         <div className="mt-7 flex flex-wrap items-center justify-center gap-2">
           <AwButton
@@ -1296,7 +1297,7 @@ function NoConnectionsHero({
             iconLeft="add"
             onClick={onCreateCustom}
           >
-            Criar tool personalizada
+            Criar habilidade personalizada
           </AwButton>
         </div>
       </div>

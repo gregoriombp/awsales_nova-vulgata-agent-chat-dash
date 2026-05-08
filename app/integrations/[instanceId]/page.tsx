@@ -63,7 +63,7 @@ const TABS = [
   { id: "permissions", label: "Permissões" },
   { id: "objects", label: "Objetos" },
   { id: "webhooks", label: "Eventos" },
-  { id: "tools", label: "Tools" },
+  { id: "tools", label: "Habilidades" },
   { id: "audit", label: "Logs" },
 ] as const;
 
@@ -551,7 +551,7 @@ function OverviewTab({
               ),
             },
             {
-              k: "Tools ativas",
+              k: "Habilidades ativas",
               v: (
                 <span className="text-[13px] text-[var(--fg-secondary)]">
                   4 nativas · 2 custom
@@ -1040,13 +1040,13 @@ function ToolsTab({
   return (
     <div className="flex flex-col gap-5">
       <SectionCard
-        title={`Tools nativas (${integration.name})`}
+        title={`Habilidades nativas (${integration.name})`}
         meta={`Habilitadas: ${enabledCount} de ${nativeTools.length}`}
       >
         <AwTable>
           <thead>
             <tr>
-              <th>Tool</th>
+              <th>Habilidade</th>
               <th>Agentes</th>
               <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
@@ -1085,23 +1085,23 @@ function ToolsTab({
           </tbody>
         </AwTable>
         <p className="mt-3 m-0 text-[11px] italic text-[var(--fg-tertiary)]">
-          Tools desabilitadas estão com escopo insuficiente ou não são
-          suportadas pelo provider ainda.
+          Habilidades desabilitadas estão com escopo insuficiente ou
+          não são suportadas pelo provider ainda.
         </p>
       </SectionCard>
 
       <SectionCard
-        title="Tools customizadas dessa conexão"
+        title="Habilidades customizadas dessa conexão"
         action={
           <AwButton variant="secondary" size="sm" iconLeft="add">
-            Nova Tool HTTP
+            Nova habilidade HTTP
           </AwButton>
         }
       >
         <AwTable>
           <thead>
             <tr>
-              <th>Tool</th>
+              <th>Habilidade</th>
               <th>Agentes</th>
               <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
@@ -1217,7 +1217,7 @@ function ToolDetailModal({
             iconLeft="open_in_new"
             onClick={onGoToTools}
           >
-            Abrir em Tools
+            Abrir em Habilidades
           </AwButton>
         </div>
       }
@@ -1238,9 +1238,10 @@ function ToolDetailModal({
             </div>
           </div>
           <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
-            Aqui na integração você só vê o status da tool. Para mudar
-            comportamento, parâmetros ou autenticação, abra a página{" "}
-            <strong>Tools</strong> — é lá que mora a configuração.
+            Aqui na integração você só vê o status da habilidade. Para
+            mudar comportamento, parâmetros ou autenticação, abra a
+            página <strong>Habilidades</strong> — é lá que mora a
+            configuração.
           </p>
         </div>
       )}

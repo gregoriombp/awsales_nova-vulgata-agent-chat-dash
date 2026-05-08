@@ -81,7 +81,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Memory base", href: "/knowledge-os", icon: "hub" },
       { label: "AOPs", href: "/aops", icon: "description" },
       { label: "Biblioteca", href: "/library", icon: "bookmark" },
-      { label: "Tools", href: "/tools", icon: "build" },
+      { label: "Habilidades", href: "/tools", icon: "build" },
       { label: "Canais", href: "/canais", icon: "forum" },
       { label: "Integrações", href: "/integrations", icon: "extension" },
     ],

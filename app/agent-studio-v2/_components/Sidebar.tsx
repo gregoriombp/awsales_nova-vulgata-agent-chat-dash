@@ -36,7 +36,7 @@ const NAV_STRUCTURE: NavGroup[] = [
       { id: "memory", icon: "database", label: "Memory base" },
       { id: "aops", icon: "earthquake", label: "AOPs" },
       { id: "biblioteca", icon: "menu_book", label: "Biblioteca" },
-      { id: "tools", icon: "build", label: "Tools" },
+      { id: "tools", icon: "build", label: "Habilidades" },
       { id: "integracoes", icon: "extension", label: "Integrações" },
     ],
   },
