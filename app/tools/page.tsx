@@ -21,7 +21,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
-import { AwInput, AwField } from "@/components/ui/AwInput";
+import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTabs } from "@/components/ui/AwTabs";
@@ -54,66 +54,23 @@ import {
 import {
   agentsUsingCount,
   lastRunLabel,
+  legacyCustomIntegration,
   loadCustom,
+  loadCustomIntegrations,
   loadDisabled,
   saveCustom,
+  saveCustomIntegrations,
   saveDisabled,
+  type CustomIntegration,
   type CustomTool,
-  type CustomToolMethod,
 } from "@/lib/toolsStore";
+import { PickTypeModal, type CreateSkillType } from "./_pick-type-modal";
+import { PickIntegrationModal } from "./_pick-integration-modal";
+import { NewCustomIntegrationModal } from "./_new-custom-integration-modal";
 
 const CHANNEL_IDS = new Set(["whatsapp", "instagram", "messenger"]);
 
 type TabValue = "all" | "native" | "custom";
-
-/** Small native select wrapped in the aw-input chrome — gives us a real
- *  controlled <select> with the same focus ring and surface treatment as
- *  the rest of the form controls. AwSelect in the registry is decorative
- *  only, so we keep this local to the page rather than fighting it. */
-function InlineSelect({
-  value,
-  onChange,
-  options,
-  ariaLabel,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-  options: { value: string; label: string }[];
-  ariaLabel?: string;
-}) {
-  return (
-    <div className="aw-input" style={{ paddingRight: 6 }}>
-      <select
-        aria-label={ariaLabel}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        style={{
-          flex: 1,
-          border: 0,
-          outline: 0,
-          background: "transparent",
-          font: "400 14px/1.4 var(--font-sans)",
-          color: "var(--fg-primary)",
-          appearance: "none",
-          paddingRight: 22,
-          cursor: "pointer",
-        }}
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <Icon
-        name="expand_more"
-        size={18}
-        className="text-[var(--fg-tertiary)]"
-        style={{ marginLeft: -22, pointerEvents: "none" }}
-      />
-    </div>
-  );
-}
 
 /** Unified row model. Both native tools and custom tools render through
  *  the same row component, so a `RowTool` is the lowest-common-denominator
@@ -182,7 +139,7 @@ function ToolRow({
         }
       }}
       className={
-        "flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--aw-blue-100)] focus:outline-none focus-visible:bg-[var(--aw-blue-100)] " +
+        "flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)] " +
         (dimmed ? "opacity-55" : "")
       }
     >
@@ -282,109 +239,6 @@ function Highlight({
 }
 
 /* ----------------------------------------------------------------
- * ToolPack — a collapsible panel per integration / custom group.
- * ---------------------------------------------------------------- */
-
-function ToolPack({
-  brand,
-  title,
-  subtitle,
-  total,
-  active,
-  defaultOpen = true,
-  headerRight,
-  children,
-  emptyHint,
-  customLook,
-}: {
-  brand?: string;
-  title: string;
-  subtitle?: string;
-  total: number;
-  active: number;
-  defaultOpen?: boolean;
-  headerRight?: React.ReactNode;
-  children?: React.ReactNode;
-  emptyHint?: React.ReactNode;
-  customLook?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <section className="overflow-hidden">
-      <header
-        className="flex items-center gap-4 px-6 py-5"
-        onClick={() => setOpen((v) => !v)}
-        style={{ cursor: "pointer" }}
-      >
-        {brand ? (
-          <AwBrandLogo brand={brand} size="md" />
-        ) : (
-          <div
-            className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
-            style={{ width: 40, height: 40 }}
-          >
-            <Icon name="bolt" size={20} />
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <h3 className="m-0 truncate text-[17px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-            {title}
-          </h3>
-          {subtitle && (
-            <p className="m-0 mt-0.5 truncate text-[13px] text-[var(--fg-tertiary)]">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        <span className="hidden flex-shrink-0 text-[12px] font-medium tabular-nums text-[var(--fg-tertiary)] sm:inline-block">
-          {active} de {total}
-        </span>
-        {headerRight && (
-          <div
-            className="flex-shrink-0"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {headerRight}
-          </div>
-        )}
-        <button
-          type="button"
-          aria-label={open ? "Recolher" : "Expandir"}
-          aria-expanded={open}
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpen((v) => !v);
-          }}
-          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
-        >
-          <Icon
-            name="expand_more"
-            size={18}
-            className={`transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
-          />
-        </button>
-      </header>
-      <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-        aria-hidden={!open}
-      >
-        <div className="overflow-hidden">
-          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
-            {children}
-            {total === 0 && emptyHint && (
-              <div className="px-5 py-8 text-center text-[13px] text-[var(--fg-tertiary)]">
-                {emptyHint}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ----------------------------------------------------------------
  * IntegrationGroup — top-level pack grouping every connected account
  * of a single integration brand. The pack header carries the brand
  * identity (logo, name, description) and aggregated stats across all
@@ -394,6 +248,7 @@ function ToolPack({
 
 function IntegrationGroup({
   brand,
+  customIcon,
   title,
   subtitle,
   accountCount,
@@ -403,7 +258,10 @@ function IntegrationGroup({
   defaultOpen = true,
   children,
 }: {
-  brand: string;
+  /** Either a brand id (renders AwBrandLogo) or a customIcon
+   *  (renders a gradient tile) — exactly one should be set. */
+  brand?: string;
+  customIcon?: string;
   title: string;
   subtitle?: string;
   accountCount: number;
@@ -426,7 +284,16 @@ function IntegrationGroup({
         onClick={() => setOpen((v) => !v)}
         style={{ cursor: "pointer" }}
       >
-        <AwBrandLogo brand={brand} size="md" />
+        {brand ? (
+          <AwBrandLogo brand={brand} size="md" />
+        ) : (
+          <div
+            className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+            style={{ width: 40, height: 40 }}
+          >
+            <Icon name={customIcon ?? "bolt"} size={20} />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
           <h3 className="m-0 truncate text-[17px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
             {title}
@@ -463,7 +330,7 @@ function IntegrationGroup({
             e.stopPropagation();
             setOpen((v) => !v);
           }}
-          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
+          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
         >
           <Icon
             name="expand_more"
@@ -570,7 +437,7 @@ function InstancePack({
             e.stopPropagation();
             setOpen((v) => !v);
           }}
-          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--aw-blue-100)]"
+          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
         >
           <Icon
             name="expand_more"
@@ -803,211 +670,9 @@ function ParamRow({ param, divider }: { param: ToolParam; divider: boolean }) {
   );
 }
 
-/* ----------------------------------------------------------------
- * Create custom tool modal.
- * ---------------------------------------------------------------- */
-
-const ICON_PRESETS = [
-  "bolt",
-  "api",
-  "data_object",
-  "webhook",
-  "extension",
-  "deployed_code",
-  "send",
-  "hub",
-];
-
-function CustomToolModal({
-  open,
-  onClose,
-  onCreate,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onCreate: (tool: CustomTool) => void;
-}) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [kind, setKind] = useState<ToolKind>("action");
-  const [method, setMethod] = useState<CustomToolMethod>("POST");
-  const [url, setUrl] = useState("");
-  const [auth, setAuth] = useState<CustomTool["auth"]>("bearer");
-  const [icon, setIcon] = useState<string>("bolt");
-
-  /* Reset on open so reopening after a save does not pre-fill the form
-   * with the previous tool's data. */
-  useEffect(() => {
-    if (!open) return;
-    setName("");
-    setDescription("");
-    setKind("action");
-    setMethod("POST");
-    setUrl("");
-    setAuth("bearer");
-    setIcon("bolt");
-  }, [open]);
-
-  const valid =
-    name.trim().length >= 2 &&
-    description.trim().length >= 5 &&
-    /^https?:\/\//.test(url.trim());
-
-  const submit = () => {
-    if (!valid) return;
-    const id = `custom.${name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 40)}-${Date.now().toString(36)}`;
-    onCreate({
-      id,
-      name: name.trim(),
-      description: description.trim(),
-      kind,
-      method,
-      url: url.trim(),
-      auth,
-      icon,
-      addedAt: Date.now(),
-    });
-  };
-
-  return (
-    <AwModal
-      open={open}
-      onClose={onClose}
-      title="Criar habilidade personalizada"
-      footer={
-        <>
-          <AwButton variant="secondary" size="md" onClick={onClose}>
-            Cancelar
-          </AwButton>
-          <AwButton
-            variant="primary"
-            size="md"
-            iconLeft="add"
-            disabled={!valid}
-            onClick={submit}
-          >
-            Criar habilidade
-          </AwButton>
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
-          Conecte um endpoint HTTP do seu backend ou de um serviço
-          externo. O agente passa a chamá-lo como qualquer outra
-          habilidade nativa.
-        </p>
-
-        <AwField label="Nome da habilidade">
-          <AwInput
-            placeholder="Ex.: Validar CPF na Receita"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            maxLength={60}
-          />
-        </AwField>
-
-        <AwField
-          label="Descrição"
-          helper="O que essa habilidade faz, escrito do ponto de vista do agente."
-        >
-          <AwInput
-            placeholder="Ex.: Consulta a Receita Federal e retorna o status do CPF."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            maxLength={140}
-          />
-        </AwField>
-
-        <div className="grid grid-cols-2 gap-3">
-          <AwField label="Tipo">
-            <InlineSelect
-              value={kind}
-              onChange={(v) => setKind(v as ToolKind)}
-              options={[
-                { value: "read", label: "Leitura" },
-                { value: "write", label: "Escrita" },
-                { value: "action", label: "Ação" },
-              ]}
-              ariaLabel="Tipo da habilidade"
-            />
-          </AwField>
-          <AwField label="Método HTTP">
-            <InlineSelect
-              value={method}
-              onChange={(v) => setMethod(v as CustomToolMethod)}
-              options={[
-                { value: "GET", label: "GET" },
-                { value: "POST", label: "POST" },
-                { value: "PUT", label: "PUT" },
-                { value: "PATCH", label: "PATCH" },
-                { value: "DELETE", label: "DELETE" },
-              ]}
-              ariaLabel="Método HTTP"
-            />
-          </AwField>
-        </div>
-
-        <AwField label="URL do endpoint" helper="Deve começar com https://">
-          <AwInput
-            placeholder="https://api.empresa.com/v1/cpf/validar"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            inputMode="url"
-            autoCorrect="off"
-            spellCheck={false}
-          />
-        </AwField>
-
-        <AwField label="Autenticação">
-          <InlineSelect
-            value={auth}
-            onChange={(v) => setAuth(v as CustomTool["auth"])}
-            options={[
-              { value: "none", label: "Nenhuma" },
-              { value: "bearer", label: "Bearer token" },
-              { value: "basic", label: "Basic auth" },
-              { value: "apiKey", label: "API key (header)" },
-            ]}
-            ariaLabel="Autenticação"
-          />
-        </AwField>
-
-        <div>
-          <div className="mb-1.5 text-[12px] font-medium text-[var(--fg-secondary)]">
-            Ícone
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {ICON_PRESETS.map((p) => {
-              const active = p === icon;
-              return (
-                <button
-                  type="button"
-                  key={p}
-                  onClick={() => setIcon(p)}
-                  aria-pressed={active}
-                  className={
-                    "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors " +
-                    (active
-                      ? "border-[var(--fg-primary)] bg-[var(--aw-blue-100)] text-[var(--fg-primary)]"
-                      : "border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:bg-[var(--aw-blue-100)]")
-                  }
-                >
-                  <Icon name={p} size={18} />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </AwModal>
-  );
-}
+/* The single-step CustomToolModal that used to live here was retired
+ * when the create flow split into a PickIntegrationModal (chooses
+ * parent integration) plus a full-page builder at /tools/new. */
 
 /* ================================================================
  * Page
@@ -1020,13 +685,27 @@ export default function ToolsPage() {
   const [instances, setInstances] = useState<IntegrationInstance[]>([]);
   const [disabledIds, setDisabledIds] = useState<string[]>([]);
   const [customTools, setCustomTools] = useState<CustomTool[]>([]);
+  const [customIntegrations, setCustomIntegrations] = useState<
+    CustomIntegration[]
+  >([]);
 
   const [tab, setTab] = useState<TabValue>("all");
   const [query, setQuery] = useState("");
   const [filterInstanceId, setFilterInstanceId] = useState<string>("");
 
   const [detailRow, setDetailRow] = useState<RowTool | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
+  /* Three-step create flow:
+   *   1. `type`   — Native vs Custom (PickTypeModal)
+   *   2. `native` or `custom` — pick the actual integration
+   *      (PickIntegrationModal scoped to that type)
+   *   3. /tools/new — full-page builder
+   * The "create new custom integration" branch (NewCustomIntegrationModal)
+   * forks off step 2 to mint a fresh connection before reentering the
+   * builder. `idle` collapses everything closed. */
+  const [pickStep, setPickStep] = useState<
+    "idle" | "type" | "native" | "custom"
+  >("idle");
+  const [newCustomIntOpen, setNewCustomIntOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   /* Hydrate from localStorage once. */
@@ -1034,6 +713,7 @@ export default function ToolsPage() {
     setInstances(loadInstances());
     setDisabledIds(loadDisabled());
     setCustomTools(loadCustom());
+    setCustomIntegrations(loadCustomIntegrations());
     setHydrated(true);
   }, []);
 
@@ -1046,6 +726,11 @@ export default function ToolsPage() {
     if (!hydrated) return;
     saveCustom(customTools);
   }, [hydrated, customTools]);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    saveCustomIntegrations(customIntegrations);
+  }, [hydrated, customIntegrations]);
 
   /* ---- Derived data ---- */
 
@@ -1093,22 +778,68 @@ export default function ToolsPage() {
     return rows;
   }, [activeInstances]);
 
+  /** Custom rows. The parent is encoded in `customIntegrationId`:
+   *  `native:<instanceId>` means this tool extends a connected native
+   *  integration (and inherits its OAuth/API key); anything else is a
+   *  pointer to a CustomIntegration the user owns. We collapse both
+   *  cases into a single `groupId` keyed on the actual parent id —
+   *  rendering matches it against either an IntegrationInstance or a
+   *  CustomIntegration depending on which list it lands in. */
   const customRows: RowTool[] = useMemo(
     () =>
-      customTools.map<RowTool>((c) => ({
-        id: c.id,
-        name: c.name,
-        description: c.description,
-        kind: c.kind,
-        icon: c.icon,
-        brand: null,
-        groupId: "custom",
-        instanceId: null,
-        instanceName: null,
-        custom: c,
-      })),
+      customTools.map<RowTool>((c) => {
+        const parent = c.customIntegrationId;
+        const isNativeChild = parent.startsWith("native:");
+        const groupId = isNativeChild
+          ? parent.slice("native:".length)
+          : parent;
+        return {
+          id: c.id,
+          name: c.name,
+          description: c.description,
+          kind: c.kind,
+          icon: c.icon,
+          brand: null,
+          groupId,
+          instanceId: groupId,
+          instanceName: null,
+          custom: c,
+        };
+      }),
     [customTools],
   );
+
+  /** Custom rows partitioned by where they render. Native children sit
+   *  inside the parent native instance's pack alongside the catalog
+   *  tools; standalone customs sit under their owning CustomIntegration. */
+  const nativeChildCustomRows = useMemo(
+    () =>
+      customRows.filter((r) =>
+        r.custom?.customIntegrationId.startsWith("native:"),
+      ),
+    [customRows],
+  );
+  const standaloneCustomRows = useMemo(
+    () =>
+      customRows.filter(
+        (r) => !r.custom?.customIntegrationId.startsWith("native:"),
+      ),
+    [customRows],
+  );
+
+  /** Custom integrations the page should render — combines saved
+   *  CustomIntegrations with a synthesized "Minhas tools" bucket if
+   *  any legacy customs are still pointing at it. */
+  const visibleCustomIntegrations = useMemo(() => {
+    const list: CustomIntegration[] = [...customIntegrations];
+    const hasLegacy = customTools.some(
+      (t) => t.customIntegrationId === "custom-int.legacy",
+    );
+    if (hasLegacy && !list.some((c) => c.id === "custom-int.legacy")) {
+      list.push(legacyCustomIntegration());
+    }
+    return list;
+  }, [customIntegrations, customTools]);
 
   /* Apply tab + filter + search to a row source. */
   const filterRows = (rows: RowTool[]): RowTool[] => {
@@ -1133,13 +864,15 @@ export default function ToolsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [nativeRows, query, filterInstanceId],
   );
-  const filteredCustom = useMemo(
-    () =>
-      filterInstanceId
-        ? [] /* custom rows belong to no instance — hide them when an instance filter is on */
-        : filterRows(customRows),
+  const filteredNativeChildCustom = useMemo(
+    () => filterRows(nativeChildCustomRows),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [customRows, query, filterInstanceId],
+    [nativeChildCustomRows, query, filterInstanceId],
+  );
+  const filteredCustom = useMemo(
+    () => filterRows(standaloneCustomRows),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [standaloneCustomRows, query, filterInstanceId],
   );
 
   const totalNative = nativeRows.length;
@@ -1156,9 +889,40 @@ export default function ToolsPage() {
     );
   };
 
-  const handleCreateCustom = (tool: CustomTool) => {
-    setCustomTools((list) => [tool, ...list]);
-    setCreateOpen(false);
+  /* Pick-flow callbacks. Step 1 picks a type, step 2 picks the
+   * specific integration, then we navigate to the builder. The
+   * "create new custom integration" branch forks step 2 into the
+   * NewCustomIntegrationModal, which saves the connection and
+   * forwards into the same builder with the new id. */
+  const handlePickType = (type: CreateSkillType) => {
+    setPickStep(type);
+  };
+
+  const handleBackToTypePick = () => {
+    setPickStep("type");
+  };
+
+  const handleSelectNative = (instanceId: string) => {
+    setPickStep("idle");
+    router.push(`/tools/new?conn=native:${instanceId}`);
+  };
+
+  const handleSelectCustom = (customIntegrationId: string) => {
+    setPickStep("idle");
+    router.push(`/tools/new?conn=custom:${customIntegrationId}`);
+  };
+
+  const handleStartNewCustomIntegration = () => {
+    setPickStep("idle");
+    setNewCustomIntOpen(true);
+  };
+
+  const handleCreatedCustomIntegration = (
+    integration: CustomIntegration,
+  ) => {
+    setCustomIntegrations((list) => [integration, ...list]);
+    setNewCustomIntOpen(false);
+    router.push(`/tools/new?conn=custom:${integration.id}`);
   };
 
   const handleDeleteCustom = () => {
@@ -1184,9 +948,17 @@ export default function ToolsPage() {
 
   const showNative = tab === "all" || tab === "native";
   const showCustom = tab === "all" || tab === "custom";
-  const noConnections = activeInstances.length === 0;
+  /* The "no connections" hero replaces the listing only when the user
+   * has nothing at all — no native instances and no custom
+   * integrations either. Once any integration exists (native or
+   * custom, with or without tools), we surface the listing so the
+   * user can navigate it. */
+  const noConnections =
+    activeInstances.length === 0 && visibleCustomIntegrations.length === 0;
   const nothingToShow =
-    (!showNative || filteredNative.length === 0) &&
+    (!showNative ||
+      (filteredNative.length === 0 &&
+        filteredNativeChildCustom.length === 0)) &&
     (!showCustom || filteredCustom.length === 0);
 
   return (
@@ -1221,7 +993,7 @@ export default function ToolsPage() {
                 variant="primary"
                 size="md"
                 iconLeft="add"
-                onClick={() => setCreateOpen(true)}
+                onClick={() => setPickStep("type")}
               >
                 Nova habilidade personalizada
               </AwButton>
@@ -1269,14 +1041,24 @@ export default function ToolsPage() {
                 instance.name === integration.name
                   ? integration.name
                   : `${integration.name} · ${instance.name}`;
-              const selected = filterInstanceId
+              const selectedNative = filterInstanceId
                 ? activeInstances.find(
                     ({ instance }) => instance.instanceId === filterInstanceId,
                   )
                 : undefined;
-              const triggerLabel = selected
-                ? labelFor(selected.instance, selected.integration)
-                : "Todas as integrações";
+              const selectedCustom =
+                filterInstanceId && !selectedNative
+                  ? visibleCustomIntegrations.find(
+                      (c) => c.id === filterInstanceId,
+                    )
+                  : undefined;
+              const triggerLabel = selectedNative
+                ? labelFor(selectedNative.instance, selectedNative.integration)
+                : selectedCustom
+                  ? selectedCustom.alias
+                    ? `${selectedCustom.name} · ${selectedCustom.alias}`
+                    : selectedCustom.name
+                  : "Todas as integrações";
               return (
                 <AwDropdownMenu
                   aria-label="Filtrar por integração"
@@ -1284,11 +1066,10 @@ export default function ToolsPage() {
                     <AwButton
                       variant="secondary"
                       size="md"
-                      iconLeft="filter_list"
-                      iconRight="expand_more"
-                    >
-                      {triggerLabel}
-                    </AwButton>
+                      iconOnly="filter_list"
+                      aria-label="Filtrar por integração"
+                      title={triggerLabel}
+                    />
                   }
                   items={[
                     {
@@ -1298,7 +1079,7 @@ export default function ToolsPage() {
                       onSelect: () => setFilterInstanceId(""),
                     },
                     ...(activeInstances.length > 0
-                      ? [{ id: "__sep__", separator: true } as const]
+                      ? [{ id: "__sep_native__", separator: true } as const]
                       : []),
                     ...activeInstances.map(({ instance, integration }) => ({
                       id: instance.instanceId,
@@ -1307,6 +1088,15 @@ export default function ToolsPage() {
                       onSelect: () =>
                         setFilterInstanceId(instance.instanceId),
                     })),
+                    ...(visibleCustomIntegrations.length > 0
+                      ? [{ id: "__sep_custom__", separator: true } as const]
+                      : []),
+                    ...visibleCustomIntegrations.map((c) => ({
+                      id: c.id,
+                      label: c.alias ? `${c.name} · ${c.alias}` : c.name,
+                      checked: filterInstanceId === c.id,
+                      onSelect: () => setFilterInstanceId(c.id),
+                    })),
                   ]}
                 />
               );
@@ -1314,9 +1104,9 @@ export default function ToolsPage() {
           </div>
 
           {/* ---------------- Content ---------------- */}
-          {noConnections && totalCustom === 0 ? (
+          {noConnections ? (
             <NoConnectionsHero
-              onCreateCustom={() => setCreateOpen(true)}
+              onCreateCustom={() => setPickStep("type")}
               onConnect={() => router.push("/integrations")}
             />
           ) : nothingToShow ? (
@@ -1384,14 +1174,28 @@ export default function ToolsPage() {
                         : instances;
                       if (visibleInstances.length === 0) return null;
 
-                      /* Per-instance row buckets, with search applied. */
+                      /* Per-instance row buckets — catalog tools merged
+                       * with any user-defined customs that point at this
+                       * native instance as their parent. Both go through
+                       * the same toggle/search machinery, so we just
+                       * concatenate. */
                       const buckets = visibleInstances.map((instance) => {
-                        const all = nativeRows.filter(
-                          (r) => r.groupId === instance.instanceId,
-                        );
-                        const visible = filteredNative.filter(
-                          (r) => r.groupId === instance.instanceId,
-                        );
+                        const all = [
+                          ...nativeRows.filter(
+                            (r) => r.groupId === instance.instanceId,
+                          ),
+                          ...nativeChildCustomRows.filter(
+                            (r) => r.groupId === instance.instanceId,
+                          ),
+                        ];
+                        const visible = [
+                          ...filteredNative.filter(
+                            (r) => r.groupId === instance.instanceId,
+                          ),
+                          ...filteredNativeChildCustom.filter(
+                            (r) => r.groupId === instance.instanceId,
+                          ),
+                        ];
                         return { instance, allRows: all, visibleRows: visible };
                       });
 
@@ -1405,11 +1209,21 @@ export default function ToolsPage() {
                       if (renderableBuckets.length === 0) return null;
 
                       /* Aggregate brand-wide stats — counted across ALL
-                       * instances of this integration, not just the
-                       * filtered ones, so the header stays truthful. */
-                      const allRowsForBrand = nativeRows.filter(
-                        (r) => r.brand === integration.id,
+                       * instances of this integration (plus any custom
+                       * tools attached to those instances), not just
+                       * the filtered ones, so the header stays
+                       * truthful. */
+                      const instanceIdsForBrand = new Set(
+                        instances.map((i) => i.instanceId),
                       );
+                      const allRowsForBrand = [
+                        ...nativeRows.filter(
+                          (r) => r.brand === integration.id,
+                        ),
+                        ...nativeChildCustomRows.filter((r) =>
+                          instanceIdsForBrand.has(r.groupId),
+                        ),
+                      ];
                       const activeSkills = allRowsForBrand.filter((r) =>
                         isEnabled(r.id),
                       ).length;
@@ -1437,7 +1251,11 @@ export default function ToolsPage() {
                                 variant="secondary"
                                 size="sm"
                                 iconLeft="add"
-                                onClick={() => setCreateOpen(true)}
+                                onClick={() =>
+                                  router.push(
+                                    `/tools/new?conn=native:${renderableBuckets[0].instance.instanceId}`,
+                                  )
+                                }
                               >
                                 Nova
                               </AwButton>
@@ -1452,6 +1270,11 @@ export default function ToolsPage() {
                                   enabled={isEnabled(row.id)}
                                   onToggle={() => toggleEnabled(row.id)}
                                   onOpen={() => setDetailRow(row)}
+                                  onDelete={
+                                    row.custom
+                                      ? () => setDeleteId(row.id)
+                                      : undefined
+                                  }
                                   query={query}
                                 />
                               ))
@@ -1469,7 +1292,11 @@ export default function ToolsPage() {
                                       total={allRows.length}
                                       needsAttention={instance.needsAttention}
                                       attentionReason={instance.attentionReason}
-                                      onCreateNew={() => setCreateOpen(true)}
+                                      onCreateNew={() =>
+                                        router.push(
+                                          `/tools/new?conn=native:${instance.instanceId}`,
+                                        )
+                                      }
                                     >
                                       {visibleRows.map((row) => (
                                         <ToolRow
@@ -1478,6 +1305,11 @@ export default function ToolsPage() {
                                           enabled={isEnabled(row.id)}
                                           onToggle={() => toggleEnabled(row.id)}
                                           onOpen={() => setDetailRow(row)}
+                                          onDelete={
+                                            row.custom
+                                              ? () => setDeleteId(row.id)
+                                              : undefined
+                                          }
                                           query={query}
                                         />
                                       ))}
@@ -1508,54 +1340,83 @@ export default function ToolsPage() {
                   />
                 )}
 
-              {/* Custom tools pack — always rendered when the tab allows
-                  it, even when empty, because it owns the "create" CTA. */}
-              {showCustom && !filterInstanceId && (
-                <ToolPack
-                  brand={undefined}
-                  title="Habilidades personalizadas"
-                  subtitle="Endpoints HTTP que você definiu pra estender o agente."
-                  total={customRows.length}
-                  active={
-                    customRows.filter((r) => isEnabled(r.id)).length
-                  }
-                  customLook
-                  headerRight={
-                    <AwButton
-                      variant="secondary"
-                      size="sm"
-                      iconLeft="add"
-                      onClick={() => setCreateOpen(true)}
-                    >
-                      Nova habilidade
-                    </AwButton>
-                  }
-                  emptyHint={
-                    <span>
-                      Você ainda não criou nenhuma habilidade personalizada.{" "}
-                      <button
-                        type="button"
-                        onClick={() => setCreateOpen(true)}
-                        className="font-medium text-[var(--fg-primary)] underline-offset-2 hover:underline"
+              {/* Custom integrations — each connection renders as its
+                  own pack, parallel to the native ones. Tools live
+                  directly under the integration header (a custom
+                  connection has no "accounts" sub-level — the
+                  connection itself IS the account). */}
+              {showCustom && (
+                <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+                  {visibleCustomIntegrations.map((c) => {
+                    if (filterInstanceId && filterInstanceId !== c.id) {
+                      return null;
+                    }
+                    const allRows = customRows.filter(
+                      (r) => r.groupId === c.id,
+                    );
+                    const visibleRows = filteredCustom.filter(
+                      (r) => r.groupId === c.id,
+                    );
+                    if (
+                      (query || filterInstanceId) &&
+                      visibleRows.length === 0
+                    ) {
+                      return null;
+                    }
+                    const active = allRows.filter((r) =>
+                      isEnabled(r.id),
+                    ).length;
+                    return (
+                      <IntegrationGroup
+                        key={c.id}
+                        customIcon={c.icon}
+                        title={c.alias ? `${c.name} · ${c.alias}` : c.name}
+                        subtitle={
+                          c.baseUrl ?? "Conexão HTTP personalizada"
+                        }
+                        accountCount={1}
+                        activeSkills={active}
+                        totalSkills={allRows.length}
+                        headerRight={
+                          <AwButton
+                            variant="secondary"
+                            size="sm"
+                            iconLeft="add"
+                            onClick={() =>
+                              router.push(
+                                `/tools/new?conn=custom:${c.id}`,
+                              )
+                            }
+                          >
+                            Nova
+                          </AwButton>
+                        }
                       >
-                        Criar a primeira
-                      </button>
-                      .
-                    </span>
-                  }
-                >
-                  {filteredCustom.map((row) => (
-                    <ToolRow
-                      key={row.id}
-                      row={row}
-                      enabled={isEnabled(row.id)}
-                      onToggle={() => toggleEnabled(row.id)}
-                      onOpen={() => setDetailRow(row)}
-                      onDelete={() => setDeleteId(row.id)}
-                      query={query}
-                    />
-                  ))}
-                </ToolPack>
+                        {allRows.length === 0 ? (
+                          <CustomEmptyHint
+                            onCreate={() =>
+                              router.push(
+                                `/tools/new?conn=custom:${c.id}`,
+                              )
+                            }
+                          />
+                        ) : (
+                          visibleRows.map((row) => (
+                            <ToolRow
+                              key={row.id}
+                              row={row}
+                              enabled={isEnabled(row.id)}
+                              onToggle={() => toggleEnabled(row.id)}
+                              onOpen={() => setDetailRow(row)}
+                              onDelete={() => setDeleteId(row.id)}
+                              query={query}
+                            />
+                          ))
+                        )}
+                      </IntegrationGroup>
+                    );
+                  })}
+                </div>
               )}
             </div>
           )}
@@ -1573,11 +1434,38 @@ export default function ToolsPage() {
         }}
       />
 
-      {/* Create custom */}
-      <CustomToolModal
-        open={createOpen}
-        onClose={() => setCreateOpen(false)}
-        onCreate={handleCreateCustom}
+      {/* Step 1 — native vs custom. The pre-modal exists so the
+          second step has room to breathe instead of stacking native
+          instances + custom integrations + a creation card on the
+          same scroll. */}
+      <PickTypeModal
+        open={pickStep === "type"}
+        onClose={() => setPickStep("idle")}
+        onPickType={handlePickType}
+      />
+
+      {/* Step 2 — actual integration list, scoped to the type the
+          user picked in step 1. The modal carries a "Voltar" affordance
+          so the user can switch tracks without having to start over. */}
+      <PickIntegrationModal
+        open={pickStep === "native" || pickStep === "custom"}
+        type={pickStep === "native" ? "native" : "custom"}
+        onClose={() => setPickStep("idle")}
+        onBack={handleBackToTypePick}
+        nativeOptions={activeInstances}
+        customOptions={visibleCustomIntegrations}
+        onSelectNative={handleSelectNative}
+        onSelectCustom={handleSelectCustom}
+        onCreateNew={handleStartNewCustomIntegration}
+      />
+
+      {/* Step 2b (optional) — create a new custom integration when
+          the brand the user wants isn't in the catalog yet. On save
+          we forward straight into the builder with the new id. */}
+      <NewCustomIntegrationModal
+        open={newCustomIntOpen}
+        onClose={() => setNewCustomIntOpen(false)}
+        onCreate={handleCreatedCustomIntegration}
       />
 
       {/* Delete custom */}
@@ -1673,5 +1561,28 @@ function NoConnectionsHero({
         </div>
       </div>
     </section>
+  );
+}
+
+/* ----------------------------------------------------------------
+ * CustomEmptyHint — message shown inside an empty custom integration
+ * pack. The pack itself stays expanded so the user can see "this
+ * connection has no skills yet" without having to expand it; the
+ * inline button opens the builder pre-bound to that connection.
+ * ---------------------------------------------------------------- */
+
+function CustomEmptyHint({ onCreate }: { onCreate: () => void }) {
+  return (
+    <div className="px-6 py-8 text-center text-[13px] text-[var(--fg-tertiary)]">
+      Nenhuma habilidade nessa conexão ainda.{" "}
+      <button
+        type="button"
+        onClick={onCreate}
+        className="font-medium text-[var(--fg-primary)] underline-offset-2 hover:underline"
+      >
+        Criar a primeira
+      </button>
+      .
+    </div>
   );
 }
