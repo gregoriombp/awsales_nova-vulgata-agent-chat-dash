@@ -293,24 +293,16 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
  * Visual building blocks for the empty state.
  * ---------------------------------------------------------------- */
 
-/** 11 brand picks featured in the "Explore" section below the populated
- *  table. Combined with the trailing "Ver todas" tile this is exactly 12
- *  cells, which divides cleanly across 3- and 4-column grids on wider
- *  monitors without leaving an orphan in the last row. Order = visual
- *  priority; mix spans checkout / AI / meetings / CRM / marketplace so
- *  the grid reads as a sample of the catalog, not a single niche. */
+/** 3 brand picks featured in the "Explore" section below the populated
+ *  table. Combined with the trailing "Ver todas" tile this is exactly 4
+ *  cells, which fills a single 4-up row on wide monitors and breaks
+ *  cleanly into 2×2 on smaller widths. Order = visual priority; mix
+ *  spans checkout / AI / meetings so the grid reads as a sample of the
+ *  catalog, not a single niche. */
 const EXPLORE_BRAND_IDS = [
   "hotmart",
-  "stripe",
-  "kiwify",
   "claude",
-  "chatgpt",
   "calendly",
-  "googlecal",
-  "rdstation",
-  "hubspot",
-  "pipedrive",
-  "shopify",
 ] as const;
 
 const HERO_BRANDS_TOP = ["hotmart", "eduzz", "kiwify"] as const;
@@ -817,7 +809,7 @@ function ExploreIntegrations({
           Ver catálogo completo →
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {featured.map((it) => (
           <ExploreCard
             key={it.id}
@@ -899,6 +891,7 @@ export default function IntegrationsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
   const [disconnectId, setDisconnectId] = useState<string | null>(null);
+  const [customConfirmOpen, setCustomConfirmOpen] = useState(false);
   /** Set when the user clicks an Explore card for a brand they already
    *  have a live connection of — surfaces a choice modal (gerenciar
    *  existentes vs. criar nova conexão) instead of dumping them into a
@@ -1224,7 +1217,7 @@ export default function IntegrationsPage() {
         }}
         onCustomIntegration={() => {
           setAddOpen(false);
-          router.push("/integrations/custom");
+          setCustomConfirmOpen(true);
         }}
       />
 
@@ -1363,6 +1356,56 @@ export default function IntegrationsPage() {
           </strong>
           . Quer ver e gerenciar as conexões existentes, ou conectar uma
           nova conta?
+        </p>
+      </AwModal>
+
+      {/* Custom integration confirmation — clicking the catalog card lands
+          the user on a long contract reference page that reads as "you're
+          already setting it up". Confirm intent first so curious clicks
+          don't feel like they kicked off a creation flow. Cancel returns
+          the user to the catalog (the entry point) instead of dumping them
+          on the integrations page mid-decision. */}
+      <AwModal
+        open={customConfirmOpen}
+        onClose={() => {
+          setCustomConfirmOpen(false);
+          setAddOpen(true);
+        }}
+        title="Criar integração personalizada?"
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                setCustomConfirmOpen(false);
+                setAddOpen(true);
+              }}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="md"
+              iconRight="arrow_forward"
+              onClick={() => {
+                setCustomConfirmOpen(false);
+                router.push("/integrations/custom");
+              }}
+            >
+              Continuar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Você vai abrir a configuração de uma{" "}
+          <strong className="text-[var(--fg-primary)]">
+            integração personalizada via webhook
+          </strong>
+          . É preciso definir um nome único, gerar um endpoint e enviar
+          eventos no formato esperado pelo AwSales. Nada é criado até você
+          concluir a configuração — quer continuar?
         </p>
       </AwModal>
 
