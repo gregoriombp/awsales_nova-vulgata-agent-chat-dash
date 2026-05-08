@@ -1048,7 +1048,7 @@ export default function IntegrationsPage() {
             <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
               <div>
                 <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-                  <Icon name="event_list" size={28} />
+                  <Icon name="extension" size={28} />
                   Integrações
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
