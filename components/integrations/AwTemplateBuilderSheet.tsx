@@ -4,7 +4,9 @@ import * as React from "react";
 import { useMemo, useState } from "react";
 
 import { AwButton } from "@/components/ui/AwButton";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { AwSheet } from "@/components/ui/AwSheet";
 import { Icon } from "@/components/ui/Icon";
 
@@ -103,27 +105,27 @@ function FormSelect<T extends string>({
   id?: string;
   ariaLabel?: string;
 }) {
+  const current = options.find((o) => o.value === value);
   return (
-    <span className="relative inline-flex w-full">
-      <select
-        id={id}
-        aria-label={ariaLabel}
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="h-[42px] w-full appearance-none rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 pr-9 text-[14px] text-[var(--fg-primary)] outline-none transition-colors hover:border-[var(--fg-primary)] focus:border-[var(--aw-blue-500)] focus:shadow-[0_0_0_3px_rgba(71,138,255,0.18)]"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <Icon
-        name="expand_more"
-        size={18}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--fg-tertiary)]"
-      />
-    </span>
+    <AwDropdownMenu
+      align="start"
+      aria-label={ariaLabel}
+      trigger={
+        <AwSelect
+          id={id}
+          aria-label={ariaLabel}
+          className="w-full justify-between"
+        >
+          {current?.label ?? ""}
+        </AwSelect>
+      }
+      items={options.map((o) => ({
+        id: o.value,
+        label: o.label,
+        checked: o.value === value,
+        onSelect: () => onChange(o.value),
+      }))}
+    />
   );
 }
 
