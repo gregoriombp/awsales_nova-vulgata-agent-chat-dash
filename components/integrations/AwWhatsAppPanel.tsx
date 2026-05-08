@@ -2082,7 +2082,10 @@ export function AwWhatsAppPanel({
   const isAll = selectedId === ALL_KEY;
 
   React.useEffect(() => {
-    if (isAll && (tab === "account" || tab === "developer")) {
+    if (
+      isAll &&
+      (tab === "account" || tab === "developer" || tab === "variables")
+    ) {
       setTab("overview");
     }
   }, [isAll, tab]);
@@ -2155,14 +2158,14 @@ export function AwWhatsAppPanel({
       label: "Templates",
       count: viewWabas.reduce((a, w) => a + w.templates.length, 0),
     },
-    {
-      value: "variables",
-      label: "Variáveis fixas",
-      count: viewWabas.reduce((a, w) => a + w.variables.length, 0),
-    },
     ...(isAll
       ? []
       : [
+          {
+            value: "variables",
+            label: "Variáveis fixas",
+            count: viewWabas.reduce((a, w) => a + w.variables.length, 0),
+          },
           { value: "account", label: "Conta & permissões" },
           { value: "developer", label: "API & webhooks" },
         ]),
