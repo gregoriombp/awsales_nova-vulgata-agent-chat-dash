@@ -24,7 +24,6 @@ import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTabs } from "@/components/ui/AwTabs";
-import { AwStatCard } from "@/components/ui/AwStatCard";
 import { AwToggle } from "@/components/ui/AwToggle";
 import {
   AwEmpty,
@@ -905,14 +904,9 @@ export default function ToolsPage() {
     [customRows, query, filterIntegrationId],
   );
 
-  /* Stats (always computed against the full dataset, not the filtered
-   * view — the KPI band is a global picture, not a search result). */
   const totalNative = nativeRows.length;
   const totalCustom = customRows.length;
   const totalTools = totalNative + totalCustom;
-  const activeTools =
-    totalTools - disabledIds.length /* disabled subset clamped on read */;
-  const enabledCount = Math.max(0, activeTools);
 
   /* ---- Handlers ---- */
 
@@ -995,36 +989,6 @@ export default function ToolsPage() {
               </AwButton>
             </div>
           </header>
-
-          {/* ---------------- KPI band ---------------- */}
-          <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <AwStatCard
-              icon="bolt"
-              label="Tools disponíveis"
-              value={totalTools}
-              hint={`${enabledCount} ativas · ${disabledIds.length} pausadas`}
-            />
-            <AwStatCard
-              icon="extension"
-              label="Integrações conectadas"
-              value={activeIntegrationIds.length}
-              hint={
-                activeIntegrationIds.length === 0
-                  ? "Conecte uma integração para liberar tools nativas."
-                  : `${totalNative} tools nativas disponíveis`
-              }
-            />
-            <AwStatCard
-              icon="auto_awesome"
-              label="Tools personalizadas"
-              value={totalCustom}
-              hint={
-                totalCustom === 0
-                  ? "Adicione endpoints HTTP do seu backend."
-                  : `${totalCustom} ${totalCustom === 1 ? "endpoint" : "endpoints"} conectado${totalCustom === 1 ? "" : "s"}`
-              }
-            />
-          </div>
 
           {/* ---------------- Toolbar ---------------- */}
           <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
