@@ -74,6 +74,20 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "signatures", label: "Assinaturas" },
 ];
 
+/** Synthetic catalog entry for user-created custom (webhook) integrations.
+ *  Not surfaced in the Add modal or Explore grid — its only job is to
+ *  satisfy the table's `items.find(...)` lookup so rows persisted from
+ *  /integrations/custom render with a generic identity instead of being
+ *  filtered out. */
+const CUSTOM_INTEGRATION: Integration = {
+  id: "custom",
+  cat: "checkouts",
+  name: "Personalizada",
+  domain: "",
+  desc: "Integração personalizada via webhook.",
+  auth: "webhook",
+};
+
 const ITEMS: Integration[] = [
   // Checkouts
   { id: "hotmart", cat: "checkouts", name: "Hotmart", domain: "hotmart.com", desc: "Capture transações e eventos do checkout Hotmart.", auth: "apiKey" },
@@ -1067,7 +1081,7 @@ export default function IntegrationsPage() {
                 <div ref={tableRef}>
                   <IntegrationsTable
                     instances={nonChannelInstances}
-                    items={ITEMS}
+                    items={[...ITEMS, CUSTOM_INTEGRATION]}
                     onToggle={handleToggleInstance}
                     onToggleAttention={handleToggleAttention}
                     onConfigure={handleConfigureInstance}
