@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ToastProvider } from "@/lib/contexts/ToastContext";
+import { AwToastProvider } from "@/components/ui/AwToast";
 import { ClaudeEditOverlayProvider } from "@/components/claude-edit/ClaudeEditOverlayProvider";
 
 const claudeEditEnabled =
@@ -41,8 +42,10 @@ export default function RootLayout({
       </head>
       <body>
         <ToastProvider>
-          {children}
-          {claudeEditEnabled && <ClaudeEditOverlayProvider />}
+          <AwToastProvider>
+            {children}
+            {claudeEditEnabled && <ClaudeEditOverlayProvider />}
+          </AwToastProvider>
         </ToastProvider>
       </body>
     </html>
