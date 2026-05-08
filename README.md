@@ -18,8 +18,7 @@ Plataforma de agentes de IA para vendas. Construída com o método **Bombardier*
 
 ```bash
 npm install
-npm run dev          # localhost:3000
-npm run dev:lan      # acessível na rede local (DEV_LAN=1, host 0.0.0.0)
+npm run dev          # localhost:3000 + acessível na rede local (host 0.0.0.0)
 ```
 
 ## Design system
@@ -108,8 +107,7 @@ Esse projeto usa o método **Bombardier** (design-as-product). Manual canônico 
 ## Scripts
 
 ```bash
-npm run dev              # dev server localhost:3000
-npm run dev:lan          # dev server acessível na LAN
+npm run dev              # dev server localhost:3000 + acessível na LAN (0.0.0.0)
 npm run build            # build de produção
 npm start                # production server
 npm run lint             # ESLint

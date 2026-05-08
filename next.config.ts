@@ -1,11 +1,7 @@
 import type { NextConfig } from "next";
 
-const lanOrigins = process.env.DEV_LAN
-  ? ['*'] // qualquer origem da rede — só em dev, controlado por DEV_LAN=1
-  : ['10.10.255.130', '*.local'];
-
 const nextConfig: NextConfig = {
-  allowedDevOrigins: lanOrigins,
+  allowedDevOrigins: ['10.10.255.193', 'localhost', '*.local'],
   images: {
     remotePatterns: [
       {
