@@ -125,8 +125,12 @@ interface RowTool {
   icon: string;
   /** Brand id when the tool comes from an integration; null for custom. */
   brand: string | null;
-  /** Which group the row belongs to. Either an integration id or "custom". */
+  /** Which group the row belongs to. Instance id for native (so two
+   *  Hotmarts each own their own pack), or "custom" for custom tools. */
   groupId: string;
+  /** Connected instance the row belongs to. Null for custom tools. */
+  instanceId: string | null;
+  instanceName: string | null;
   /** Optional native catalog reference for the detail panel. */
   catalog?: CatalogTool;
   /** Optional custom tool reference for the detail panel. */
@@ -440,7 +444,7 @@ function ToolDetailModal({
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
               <span className="truncate font-mono text-[12px] text-[var(--fg-secondary)]">
-                {row.id}
+                {row.catalog?.id ?? row.id}
               </span>
               <AwPill variant={KIND_PILL_VARIANT[row.kind]} dot={false}>
                 {KIND_LABELS[row.kind]}
@@ -448,7 +452,12 @@ function ToolDetailModal({
             </div>
             <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[var(--fg-tertiary)]">
               {integration ? (
-                <span>{integration.name}</span>
+                <span>
+                  {integration.name}
+                  {row.instanceName && row.instanceName !== integration.name
+                    ? ` · ${row.instanceName}`
+                    : null}
+                </span>
               ) : row.custom ? (
                 <span>
                   Tool personalizada · {row.custom.method}
@@ -795,7 +804,7 @@ export default function ToolsPage() {
 
   const [tab, setTab] = useState<TabValue>("all");
   const [query, setQuery] = useState("");
-  const [filterIntegrationId, setFilterIntegrationId] = useState<string>("");
+  const [filterInstanceId, setFilterInstanceId] = useState<string>("");
 
   const [detailRow, setDetailRow] = useState<RowTool | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
@@ -821,41 +830,49 @@ export default function ToolsPage() {
 
   /* ---- Derived data ---- */
 
-  /** Active connected non-channel instances, deduped per integration —
-   *  the tool inventory is per-brand, not per-instance. */
-  const activeIntegrationIds = useMemo(() => {
-    const ids = new Set<string>();
+  /** Active connected non-channel instances. The tool inventory is
+   *  per-instance: each connected account exposes its own copy of the
+   *  brand's tools, so the user can pause "Buscar transação" on
+   *  Hotmart-Marketing while leaving it live on Hotmart-Vendas. */
+  const activeInstances = useMemo(() => {
+    const out: {
+      instance: IntegrationInstance;
+      integration: IntegrationCatalogItem;
+    }[] = [];
     for (const inst of instances) {
       if (CHANNEL_IDS.has(inst.integrationId)) continue;
       if (!inst.active) continue;
-      ids.add(inst.integrationId);
+      const integration = findIntegration(inst.integrationId);
+      if (!integration) continue;
+      out.push({ instance: inst, integration });
     }
-    return Array.from(ids);
+    return out;
   }, [instances]);
 
-  const activeIntegrations: IntegrationCatalogItem[] = useMemo(
-    () =>
-      activeIntegrationIds
-        .map((id) => findIntegration(id))
-        .filter((x): x is IntegrationCatalogItem => !!x),
-    [activeIntegrationIds],
-  );
-
-  /** Every native tool whose integration is currently connected. */
+  /** Every native tool, expanded per connected instance. The row id is
+   *  composite (`instanceId:toolId`) so the disabled-list keys each
+   *  instance independently. */
   const nativeRows: RowTool[] = useMemo(() => {
-    return TOOLS_CATALOG.filter((t) =>
-      activeIntegrationIds.includes(t.integrationId),
-    ).map<RowTool>((t) => ({
-      id: t.id,
-      name: t.name,
-      description: t.description,
-      kind: t.kind,
-      icon: t.icon,
-      brand: t.integrationId,
-      groupId: t.integrationId,
-      catalog: t,
-    }));
-  }, [activeIntegrationIds]);
+    const rows: RowTool[] = [];
+    for (const { instance, integration } of activeInstances) {
+      for (const t of TOOLS_CATALOG) {
+        if (t.integrationId !== integration.id) continue;
+        rows.push({
+          id: `${instance.instanceId}:${t.id}`,
+          name: t.name,
+          description: t.description,
+          kind: t.kind,
+          icon: t.icon,
+          brand: integration.id,
+          groupId: instance.instanceId,
+          instanceId: instance.instanceId,
+          instanceName: instance.name,
+          catalog: t,
+        });
+      }
+    }
+    return rows;
+  }, [activeInstances]);
 
   const customRows: RowTool[] = useMemo(
     () =>
@@ -867,6 +884,8 @@ export default function ToolsPage() {
         icon: c.icon,
         brand: null,
         groupId: "custom",
+        instanceId: null,
+        instanceName: null,
         custom: c,
       })),
     [customTools],
@@ -875,8 +894,8 @@ export default function ToolsPage() {
   /* Apply tab + filter + search to a row source. */
   const filterRows = (rows: RowTool[]): RowTool[] => {
     let out = rows;
-    if (filterIntegrationId) {
-      out = out.filter((r) => r.brand === filterIntegrationId);
+    if (filterInstanceId) {
+      out = out.filter((r) => r.groupId === filterInstanceId);
     }
     const q = query.trim().toLowerCase();
     if (q) {
@@ -893,15 +912,15 @@ export default function ToolsPage() {
   const filteredNative = useMemo(
     () => filterRows(nativeRows),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [nativeRows, query, filterIntegrationId],
+    [nativeRows, query, filterInstanceId],
   );
   const filteredCustom = useMemo(
     () =>
-      filterIntegrationId
-        ? [] /* custom rows have no brand — hide them when an integration filter is on */
+      filterInstanceId
+        ? [] /* custom rows belong to no instance — hide them when an instance filter is on */
         : filterRows(customRows),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [customRows, query, filterIntegrationId],
+    [customRows, query, filterInstanceId],
   );
 
   const totalNative = nativeRows.length;
@@ -946,7 +965,7 @@ export default function ToolsPage() {
 
   const showNative = tab === "all" || tab === "native";
   const showCustom = tab === "all" || tab === "custom";
-  const noConnections = activeIntegrationIds.length === 0;
+  const noConnections = activeInstances.length === 0;
   const nothingToShow =
     (!showNative || filteredNative.length === 0) &&
     (!showCustom || filteredCustom.length === 0);
@@ -1023,15 +1042,18 @@ export default function ToolsPage() {
                 aria-label="Buscar tool"
               />
             </div>
-            <div className="sm:w-[220px]">
+            <div className="sm:w-[260px]">
               <InlineSelect
-                value={filterIntegrationId}
-                onChange={(v) => setFilterIntegrationId(v)}
+                value={filterInstanceId}
+                onChange={(v) => setFilterInstanceId(v)}
                 options={[
                   { value: "", label: "Todas as integrações" },
-                  ...activeIntegrations.map((i) => ({
-                    value: i.id,
-                    label: i.name,
+                  ...activeInstances.map(({ instance, integration }) => ({
+                    value: instance.instanceId,
+                    label:
+                      instance.name === integration.name
+                        ? integration.name
+                        : `${integration.name} · ${instance.name}`,
                   })),
                 ]}
                 ariaLabel="Filtrar por integração"
@@ -1064,7 +1086,7 @@ export default function ToolsPage() {
                   size="md"
                   onClick={() => {
                     setQuery("");
-                    setFilterIntegrationId("");
+                    setFilterInstanceId("");
                     setTab("all");
                   }}
                 >
@@ -1074,28 +1096,30 @@ export default function ToolsPage() {
             </AwEmpty>
           ) : (
             <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
-              {/* Native packs — one per connected integration. */}
+              {/* Native packs — one per connected instance. Two Hotmart
+                  accounts produce two packs, each with its own toggles. */}
               {showNative &&
-                activeIntegrations.map((integration) => {
+                activeInstances.map(({ instance, integration }) => {
                   const allRows = nativeRows.filter(
-                    (r) => r.brand === integration.id,
+                    (r) => r.groupId === instance.instanceId,
                   );
                   const visibleRows = filteredNative.filter(
-                    (r) => r.brand === integration.id,
+                    (r) => r.groupId === instance.instanceId,
                   );
-                  if (filterIntegrationId && filterIntegrationId !== integration.id) {
+                  if (filterInstanceId && filterInstanceId !== instance.instanceId) {
                     return null;
                   }
-                  if (visibleRows.length === 0 && (query || filterIntegrationId)) {
+                  if (visibleRows.length === 0 && (query || filterInstanceId)) {
                     return null;
                   }
                   const active = allRows.filter((r) => isEnabled(r.id)).length;
+                  const useInstanceLabel = instance.name !== integration.name;
                   return (
                     <ToolPack
-                      key={integration.id}
+                      key={instance.instanceId}
                       brand={integration.id}
-                      title={integration.name}
-                      subtitle={integration.desc}
+                      title={useInstanceLabel ? instance.name : integration.name}
+                      subtitle={useInstanceLabel ? integration.name : integration.desc}
                       total={allRows.length}
                       active={active}
                     >
@@ -1115,7 +1139,7 @@ export default function ToolsPage() {
 
               {/* Custom tools pack — always rendered when the tab allows
                   it, even when empty, because it owns the "create" CTA. */}
-              {showCustom && !filterIntegrationId && (
+              {showCustom && !filterInstanceId && (
                 <ToolPack
                   brand={undefined}
                   title="Tools personalizadas"
