@@ -261,7 +261,7 @@ function WabaRail({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
-                    Todas as WABAs
+                    Todos os números de WhatsApp
                   </span>
                   <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
                     {wabas.length} {wabas.length === 1 ? "conta" : "contas"} ·{" "}
@@ -1513,7 +1513,7 @@ function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-              Todas as WABAs
+              Todos os números de WhatsApp
             </h2>
             {issuesCount > 0 && (
               <AwPill variant="beta">
