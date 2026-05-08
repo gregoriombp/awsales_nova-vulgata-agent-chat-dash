@@ -185,7 +185,7 @@ function ChannelGroup({
               onOpenChannel();
             }
           }}
-          className="flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--aw-blue-100)] focus:outline-none focus-visible:bg-[var(--aw-blue-100)]"
+          className="flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
         >
           <AwAvatar
             size="md"

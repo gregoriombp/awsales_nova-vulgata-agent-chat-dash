@@ -155,6 +155,12 @@
   --bg-raised: var(--aw-white);
   --bg-muted: var(--aw-gray-200);
   --bg-inverse: var(--aw-gray-1200);
+  /* Hover/focus fill for interactive surfaces (rows, dropdown items,
+   * pickers). Aliased to --bg-surface so it stays in sync with the
+   * neutral chrome of the system; split from --bg-surface so callers
+   * can style "this is a hover state" semantically. Used to be tinted
+   * brand-blue and was migrated to neutral gray for calm. */
+  --bg-hover: var(--aw-gray-200);
 
   --fg-primary: var(--aw-gray-1200);
   --fg-secondary: var(--aw-gray-800);
@@ -260,6 +266,7 @@
   --bg-raised: var(--aw-gray-1100);
   --bg-muted: var(--aw-gray-1000);
   --bg-inverse: var(--aw-white);
+  --bg-hover: var(--aw-gray-1000);
 
   --fg-primary: var(--aw-white);
   --fg-secondary: var(--aw-gray-500);
@@ -1166,7 +1173,7 @@
 }
 .aw-dropdown__item:focus,
 .aw-dropdown__item[data-highlighted] {
-  background: var(--aw-blue-100);
+  background: var(--bg-hover);
 }
 .aw-dropdown__item[data-disabled] {
   opacity: 0.5;

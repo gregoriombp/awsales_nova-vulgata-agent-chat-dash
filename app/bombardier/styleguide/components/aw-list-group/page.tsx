@@ -343,7 +343,7 @@ function ChildRow({
     .toUpperCase()
 
   return (
-    <div className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[var(--aw-blue-100)]">
+    <div className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[var(--bg-hover)]">
       <AwAvatar size="md" src={avatarSrc} alt={name} initials={initials} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
