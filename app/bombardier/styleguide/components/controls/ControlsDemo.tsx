@@ -4,6 +4,8 @@ import * as React from "react"
 import { AwToggle, AwToggleRow } from "@/components/ui/AwToggle"
 import { AwSlider } from "@/components/ui/AwSlider"
 import { AwTabs } from "@/components/ui/AwTabs"
+import { AwSelect } from "@/components/ui/AwSelect"
+import { AwProgress } from "@/components/ui/AwProgress"
 
 export function ToggleDemo() {
   const [off, setOff] = React.useState(false)
@@ -152,6 +154,53 @@ export function TabsDemo() {
         ativa (standalone): <code className="mono">{cat}</code> · Seção ativa
         (underline): <code className="mono">{page}</code>
       </div>
+    </div>
+  )
+}
+
+export function SelectDemo() {
+  const [period, setPeriod] = React.useState("Últimos 30 dias")
+  return (
+    <div className="flex flex-col gap-3 max-w-[260px]">
+      <AwSelect onClick={() => setPeriod((p) => (p === "Hoje" ? "Últimos 30 dias" : "Hoje"))}>
+        {period}
+      </AwSelect>
+      <div className="text-xs text-[var(--fg-tertiary)]">
+        Trigger puro — clique alterna o exemplo. Combine com um menu (AwDropdownMenu) para abrir as opções.
+      </div>
+    </div>
+  )
+}
+
+export function ProgressDemo() {
+  const [value, setValue] = React.useState(62)
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setValue((v) => (v >= 100 ? 0 : v + 4))
+    }, 600)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <div className="flex flex-col gap-5 max-w-[420px]">
+      <AwProgress label="Sincronizando" value={value} />
+      <AwProgress
+        variant="success"
+        label="Templates aprovados"
+        value={84}
+        valueLabel="84 / 100"
+      />
+      <AwProgress
+        variant="warning"
+        label="Quota de mensagens"
+        value={72}
+        valueLabel="72%"
+      />
+      <AwProgress
+        variant="danger"
+        label="Falhas de entrega"
+        value={18}
+        valueLabel="18 falhas"
+      />
     </div>
   )
 }
