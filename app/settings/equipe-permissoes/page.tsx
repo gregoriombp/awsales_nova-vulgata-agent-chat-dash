@@ -83,9 +83,6 @@ export default function MembersPage() {
             />
           </div>
           <div className="flex items-center gap-2">
-            <AwButton size="sm" variant="secondary" iconLeft="download">
-              Exportar
-            </AwButton>
             <AwButton
               size="sm"
               variant="primary"
