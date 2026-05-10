@@ -23,6 +23,20 @@ export default function BrandLogoPage() {
         para monograma quando o brand id não está no registry.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
+        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mb-10 text-sm text-[var(--aw-blue-900)]">
+          <strong>AwBrandLogo vs AwLogo.</strong> Use{" "}
+          <code className="mono">AwBrandLogo</code> aqui para marcas de
+          terceiros (canais, checkouts, CRMs). Para a logo do{" "}
+          <strong>próprio AwSales</strong>, use{" "}
+          <code className="mono">AwLogo</code> — documentado em{" "}
+          <a
+            href="/bombardier/styleguide/foundation/logos"
+            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+          >
+            Foundation → Logos
+          </a>
+          .
+        </div>
         <div className="flex flex-col gap-16">
           <Section
             id="sizes"
