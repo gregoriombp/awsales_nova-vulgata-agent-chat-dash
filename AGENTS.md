@@ -1,135 +1,143 @@
 # AGENTS.md
 
-Convenções para qualquer agente de IA (Claude Code, Codex, Cursor, etc.) trabalhando neste repositório. Este arquivo é o ponto de entrada — leia antes de começar.
+Conventions for any AI agent (Claude Code, Codex, Cursor, etc.) working in this repository. This file is the entry point — read it before starting.
 
-> **Para contexto completo do projeto, princípios e onde-está-o-quê, leia também `CLAUDE.md` na raiz.** Este arquivo extrai apenas as regras hard que TODO agente deve obedecer, independente da skill ou prompt em uso.
+> **For full project context, principles, and where-is-what, also read `CLAUDE.md` at the root.** This file extracts only the hard rules that EVERY agent must follow, regardless of which skill or prompt is in use.
 
-## Regras hard
+## Hard rules
 
-### 1. Prefixo `Aw` em todo componente novo do design system
+### 1. `Aw` prefix on every new design system component
 
-Todo componente do design system **deve** começar com `Aw`. Sem exceção dentro do escopo do DS.
+Every design system component **must** start with `Aw`. No exceptions within the DS scope.
 
-**Padrão obrigatório:**
+**Required pattern:**
 
-| Item | Convenção |
+| Item | Convention |
 |---|---|
-| Nome do arquivo | `Aw[Nome].tsx` (PascalCase) |
-| Nome do export | `export function Aw[Nome](...)` ou `export const Aw[Nome] = ...` |
-| Pasta destino (oficial) | `/components/ui/Aw[Nome].tsx` |
-| Pasta destino (experimental / playground) | `/app/bombardier/styleguide/playground/components/aw-[nome]/` |
-| Showcase (oficial) | `/app/bombardier/styleguide/components/aw-[nome]/page.tsx` |
-| Entrada de navegação | `navigation.ts` com `name: "Aw[Nome]"` e `href: "/bombardier/styleguide/components/aw-[nome]"` |
+| File name | `Aw[Name].tsx` (PascalCase) |
+| Export name | `export function Aw[Name](...)` or `export const Aw[Name] = ...` |
+| Official destination | `/components/ui/Aw[Name].tsx` |
+| Experimental / playground destination | `/app/bombardier/styleguide/playground/components/aw-[name]/` |
+| Official showcase | `/app/bombardier/styleguide/components/aw-[name]/page.tsx` |
+| Navigation entry | `navigation.ts` with descriptive `name` (e.g. `"Dropdown Menu"`) and `href: "/bombardier/styleguide/components/aw-[name]"` |
 
-**Exemplos corretos:**
+> **Showcase href convention:** Legacy components (built before this rule) live at
+> `/bombardier/styleguide/components/[name]/` (e.g. `buttons/`, `cards/`). New components
+> go to `/bombardier/styleguide/components/aw-[name]/`. **Never rename existing showcase
+> folders** — doing so breaks live routes. The `name` field in `navigation.ts` uses
+> descriptive labels (in PT-BR or EN), not the raw `Aw[Name]` identifier.
+
+**Correct examples:**
 
 ```
 components/ui/AwButton.tsx
 components/ui/AwCard.tsx
 components/ui/AwIntegrationCard.tsx
-app/bombardier/styleguide/components/aw-button/page.tsx
+app/bombardier/styleguide/components/aw-dropdown-menu/page.tsx
 app/bombardier/styleguide/playground/components/aw-onboarding-banner/page.tsx
 ```
 
-**Exemplos errados (não fazer):**
+**Wrong examples (do not do this):**
 
 ```
-components/Button.tsx                    ← raiz é zona legada em migração
-components/ui/button.tsx                 ← isso é o primitivo shadcn, não o wrapper do DS
-components/ui/MyButton.tsx               ← sem prefixo
-components/ui/aw-button.tsx              ← arquivo deve ser PascalCase
+components/Button.tsx                    ← root is a legacy zone being migrated
+components/ui/button.tsx                 ← this is the shadcn primitive, not the DS wrapper
+components/ui/MyButton.tsx               ← no prefix
+components/ui/aw-button.tsx              ← file must be PascalCase
 ```
 
-**`Aw[Nome]` é wrapper de shadcn primitive — sempre.**
+**`Aw[Name]` is a wrapper around a shadcn primitive — always.**
 
-O fluxo correto, sem exceção:
+The correct flow, no exceptions:
 
-1. **Consulta o shadcn primitive correspondente** via MCP (`search_items_in_registries`, `view_items_in_registries`, `get_item_examples_from_registries`).
-2. **Instala** com `npx shadcn@latest add [nome]`. O primitivo vai pra `components/ui/[nome].tsx` (lowercase, gerado pelo CLI shadcn).
-3. **Cria `components/ui/Aw[Nome].tsx`** ao lado, importando o primitivo. Aplica tokens AwSales, adiciona variantes da marca (intents, sizes, ai-gradient, slot pra `Icon`, etc.).
-4. Páginas e features importam **apenas o `Aw[Nome]`**, nunca o primitivo direto.
-5. Showcase em `app/bombardier/styleguide/components/aw-[nome]/page.tsx` + entrada em `navigation.ts`.
+1. **Look up the shadcn primitive** via MCP (`search_items_in_registries`, `view_items_in_registries`, `get_item_examples_from_registries`).
+2. **Install** with `npx shadcn@latest add [name]`. The primitive lands in `components/ui/[name].tsx` (lowercase, CLI-generated).
+3. **Create `components/ui/Aw[Name].tsx`** next to it, importing the primitive. Apply AwSales tokens, add brand variants (intents, sizes, ai-gradient, `Icon` slot, etc.).
+4. Pages and features import **only `Aw[Name]`**, never the raw primitive directly.
+5. Showcase at `app/bombardier/styleguide/components/aw-[name]/page.tsx` + entry in `navigation.ts`.
 
-**Estado atual do repo (débito conhecido):**
+**Current repo state (known debt):**
 
-Hoje o repo **não tem shadcn instalado** — sem `components.json`, sem `@radix-ui/*` em `package.json`. Os `Aw*` existentes em `components/ui/` foram construídos antes da decisão de adotar shadcn, então hoje são hand-rolled em Tailwind. **Isso é um erro de origem que precisa ser corrigido.** Plano:
+shadcn is already initialized (`components.json` exists, `@radix-ui/*` packages are installed). Installed shadcn primitives live in `components/ui/[name].tsx` (lowercase). The existing `Aw*` components in `components/ui/` were built before the decision to adopt shadcn — they use Radix directly or are hand-rolled in Tailwind. **This is known debt.** When you touch one of them:
 
-1. `npx shadcn@latest init` para configurar o repo.
-2. Para cada `Aw[Nome]` existente, instalar o primitivo correspondente e refatorar o wrapper para importá-lo.
-3. Componentes **novos a partir de agora já seguem o fluxo correto** (primitivo + wrapper).
+1. Install the corresponding shadcn primitive (`npx shadcn@latest add [name]`).
+2. Refactor the `Aw[Name].tsx` to import and wrap the primitive.
+3. Preserve the existing props API to avoid breaking pages that already use it.
 
-**Componentes legados na raiz `/components/`:**
+New components from now on follow the correct flow from day one (primitive + wrapper).
 
-`components/Button.tsx`, `components/Input.tsx`, `components/KPICard.tsx`, etc. são **pré-Bombardier**, hardcoded, sem prefixo, ainda em migração. Quando precisar evoluir um deles:
+**Legacy components at the `/components/` root:**
 
-1. Garante que o shadcn primitive correspondente está em `components/ui/[nome].tsx`.
-2. Cria `components/ui/Aw[Nome].tsx` como wrapper desse primitivo, replicando a funcionalidade do legado + tokens atuais + `Icon`.
-3. Migra os imports nas páginas progressivamente.
-4. Quando ninguém mais importa do legado, deleta o arquivo da raiz.
-5. Cria showcase no styleguide e registra em `navigation.ts`.
+`components/Button.tsx`, `components/Input.tsx`, `components/KPICard.tsx`, `components/Header.tsx`, `components/Sidebar.tsx`, `components/DashboardLayout.tsx`, etc. are **pre-Bombardier**, hardcoded, unprefixed, and still being migrated. When you need to evolve one of them:
 
-**Única exceção ao prefixo — componentes de quarentena do Canvas Builder:**
+1. Ensure the shadcn primitive is in `components/ui/[name].tsx`.
+2. Create `components/ui/Aw[Name].tsx` as a wrapper, replicating the legacy behavior + current tokens + `Icon` slot.
+3. Migrate imports in pages progressively.
+4. When nothing imports the legacy file anymore, delete it from the root.
+5. Create a showcase in the styleguide and register it in `navigation.ts`.
 
-Componentes gerados pela skill `bombardier-generate` (page builder visual) em `/components/playground/` usam PascalCase **sem** `Aw` — esses não fazem parte do DS oficial até serem promovidos. Quando promovidos, são renomeados para `Aw[Nome]` e movidos para `/components/ui/`.
+**Single exception to the prefix — Canvas Builder quarantine components:**
 
-### 2. Tokens são sagrados
+Components generated by the `bombardier-generate` skill (visual page builder) in `/components/playground/` use PascalCase **without** `Aw` — they are not part of the official DS until promoted. When promoted, they are renamed to `Aw[Name]` and moved to `/components/ui/`.
 
-- Apenas a skill `bombardier-design-system-foundation` cria tokens. Qualquer outra skill, prompt ou edição manual **não** adiciona tokens novos a `globals.css` ou `tailwind.config.ts`.
-- Proibido: `bg-[#hex]`, `text-[#hex]`, `p-[Npx]`, `border-[#hex]`, `rounded-[Npx]`, ou qualquer Tailwind arbitrary value para cor / spacing / radius / shadow / typography.
-- Permitido: classes Tailwind que referenciam tokens existentes (`bg-primary`, `text-fg-primary`, `border-border`, `rounded-lg`, `shadow-sm`, etc.) e CSS variables (`var(--bg-canvas)`, `var(--accent-brand)`).
-- Se um token genuinamente não existe e o trabalho exige, **reporte no output** ao invés de criar — a foundation skill é a única autorizada a estender o set.
+### 2. Tokens are sacred
 
-### 3. Componentes antes de código
+- Only the `bombardier-design-system-foundation` skill creates tokens. Any other skill, prompt, or manual edit **must not** add new tokens to `globals.css` or `tailwind.config.ts`.
+- Forbidden: `bg-[#hex]`, `text-[#hex]`, `p-[Npx]`, `border-[#hex]`, `rounded-[Npx]`, or any Tailwind arbitrary value for color / spacing / radius / shadow / typography.
+- Allowed: Tailwind classes that reference existing tokens (`bg-primary`, `text-fg-primary`, `border-border`, `rounded-lg`, `shadow-sm`, etc.) and CSS variables (`var(--bg-canvas)`, `var(--accent-brand)`).
+- If a token genuinely does not exist and the work requires it, **report it in the output** instead of creating it — the foundation skill is the only one authorized to extend the token set.
 
-- Antes de escrever um componente novo, verifique:
-  1. `/components/ui/Aw*` (oficial)
-  2. `/components/*` raiz (legados — preferir migrar pra `Aw*` em vez de duplicar)
-  3. `/app/bombardier/styleguide/playground/components/aw-*` (experimentais)
-  4. `/components/ui/*.tsx` minúsculo (primitivos shadcn — verificar se existe wrapper Aw)
-- Reutilizar e estender > recriar.
+### 3. Components before code
 
-### 4. Playground primeiro para novidades
+- Before writing a new component, check:
+  1. `/components/ui/Aw*` (official)
+  2. `/components/*` root (legacy — prefer migrating to `Aw*` instead of duplicating)
+  3. `/app/bombardier/styleguide/playground/components/aw-*` (experimental)
+  4. `/components/ui/*.tsx` lowercase (shadcn primitives — check if an `Aw` wrapper exists)
+- Reuse and extend > recreate.
 
-- Componentes gerados por IA, ou criados durante construção de página (skill `bombardier-new-page`), começam em `/app/bombardier/styleguide/playground/components/aw-[nome]/`.
-- Promoção para `/components/ui/Aw[Nome].tsx` exige revisão manual (tokens, acessibilidade, naming, reuso).
+### 4. Playground first for new things
 
-## Skills disponíveis em `.claude/skills/`
+- Components generated by AI, or created during page building (`bombardier-new-page` skill), start in `/app/bombardier/styleguide/playground/components/aw-[name]/`.
+- Promotion to `/components/ui/Aw[Name].tsx` requires manual review (tokens, accessibility, naming, reuse).
 
-| Skill | Quando usar |
+## Available skills in `.claude/skills/`
+
+| Skill | When to use |
 |---|---|
-| `bombardier-design-system-foundation` | Setup inicial / extrair tokens de referência (raramente — DS já existe) |
-| `bombardier-new-component` | Adicionar componente ao DS (sempre `Aw*`, sempre em `components/ui/`) |
-| `bombardier-new-page` | Construir uma página de produto a partir de referência |
-| `bombardier-design-system-audit` | Auditar consistência (tokens / componentes / showcases / navigation) |
-| `bombardier-generate` | Page Builder visual — gera JSON `BuilderNode[]` para o canvas (escopo separado) |
+| `bombardier-design-system-foundation` | Initial setup / extract tokens from a reference (rare — DS already exists) |
+| `bombardier-new-component` | Add a component to the DS (always `Aw*`, always in `components/ui/`) |
+| `bombardier-new-page` | Build a product page from a reference |
+| `bombardier-design-system-audit` | Audit consistency (tokens / components / showcases / navigation) |
+| `bombardier-generate` | Visual Page Builder — generates JSON `BuilderNode[]` for the canvas (separate scope) |
 
-As 4 primeiras skills são **genéricas** (servem para qualquer projeto Bombardier). A regra do prefixo `Aw` é **convenção deste repositório** e está documentada aqui — as skills não a conhecem, é o agente que aplica este AGENTS.md sobre o output delas.
+The first 4 skills are **generic** (they work for any Bombardier project). The `Aw` prefix rule is **this repository's convention** and is documented here — the skills don't know about it, so the agent applies this AGENTS.md on top of their output.
 
-## Como o agente deve combinar skill + convenção
+## How the agent should combine skill + convention
 
-Quando uma skill (qualquer) sugerir criar `MyComponent.tsx` em `components/`:
+When any skill suggests creating `MyComponent.tsx` in `components/`:
 
-1. **Renomeia** para `AwMyComponent.tsx`
-2. **Move** para `components/ui/` (oficial) ou `app/bombardier/styleguide/playground/components/aw-my-component/` (experimental)
-3. **Atualiza imports** no resto do código
-4. **Cria showcase** em `app/bombardier/styleguide/components/aw-my-component/page.tsx` (oficial) ou playground equivalente
-5. **Registra** em `navigation.ts`
+1. **Rename** to `AwMyComponent.tsx`
+2. **Move** to `components/ui/` (official) or `app/bombardier/styleguide/playground/components/aw-my-component/` (experimental)
+3. **Update imports** across the codebase
+4. **Create showcase** at `app/bombardier/styleguide/components/aw-my-component/page.tsx` (official) or playground equivalent
+5. **Register** in `navigation.ts`
 
-A skill produz o esqueleto; este AGENTS.md ajusta o naming e o destino.
+The skill produces the skeleton; this AGENTS.md adjusts naming and destination.
 
-## Dúvidas comuns
+## Common questions
 
-**"Posso criar um componente sem o prefixo Aw?"**
-Não, dentro do DS. Único lugar permitido é `/components/playground/` (canvas builder, fora do DS oficial).
+**"Can I create a component without the Aw prefix?"**
+No, within the DS. The only place without the prefix is `/components/playground/` (canvas builder, outside the official DS).
 
-**"O componente é wrapper de um shadcn primitive — o nome do arquivo é qual?"**
-O primitivo shadcn fica em `components/ui/button.tsx` (gerado pelo `npx shadcn add`). O seu wrapper fica em `components/ui/AwButton.tsx` e importa o primitivo. Páginas importam `AwButton`.
+**"The component wraps a shadcn primitive — what's the file name?"**
+The shadcn primitive lives at `components/ui/button.tsx` (generated by `npx shadcn add`). Your wrapper lives at `components/ui/AwButton.tsx` and imports the primitive. Pages import `AwButton`.
 
-**"Já tem um `Button.tsx` na raiz de `components/`. Atualizo ele ou crio `AwButton`?"**
-Cria `components/ui/AwButton.tsx` como wrapper do shadcn primitive `Button`. Replica a funcionalidade do legado + tokens atuais + ícones via `Icon`. Migra os usos página a página. O legado morre quando ninguém mais importa dele.
+**"There's already a `Button.tsx` at the `components/` root. Do I update it or create `AwButton`?"**
+Create `components/ui/AwButton.tsx` as a wrapper around the shadcn primitive `Button`. Replicate the legacy behavior + current tokens + icons via `Icon`. Migrate usages page by page. The legacy file dies when nothing imports it anymore.
 
-**"O skill manda `npx shadcn@latest add button` — eu rodo?"**
-**Sim.** É o caminho oficial deste repo. O primitivo vai pra `components/ui/button.tsx` (lowercase). Em seguida, cria/atualiza `components/ui/AwButton.tsx` que importa esse primitivo e adiciona a camada de marca (variantes, sizes, intents, ícone). Páginas importam só `AwButton`.
+**"A skill runs `npx shadcn@latest add button` — should I run it?"**
+**Yes.** That's this repo's official path. The primitive goes to `components/ui/button.tsx` (lowercase). Then create/update `components/ui/AwButton.tsx` which imports that primitive and adds the brand layer (variants, sizes, intents, icon). Pages import only `AwButton`.
 
-**"Já existe um `AwButton.tsx` no repo, mas sem shadcn por trás. O que faço?"**
-Esse é o débito atual. Quando precisar mexer naquele componente, instala o primitivo shadcn (`npx shadcn add button`) e refatora o `AwButton.tsx` para virar wrapper do primitivo, mantendo o mesmo contrato de props pra não quebrar páginas que já o usam.
+**"There's already an `AwButton.tsx` in the repo, but no shadcn primitive behind it. What do I do?"**
+That's the current debt. When you need to touch that component, install the shadcn primitive (`npx shadcn add button`) and refactor `AwButton.tsx` to wrap it, preserving the same props contract so existing pages don't break.
