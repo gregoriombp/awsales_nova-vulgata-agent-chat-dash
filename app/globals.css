@@ -1,6 +1,7 @@
 /* AwSales Design System — one typographic voice: Geist.
  * Geist Mono reserved strictly for code, tokens, IDs.
  * Material Symbols Rounded is the AwSales icon system (12/16/20/24/28/32 px).
+ * Weight range: 200–700. Default weight: 200 (thin/light).
  * Font loading happens via <link> tags in app/layout.tsx — Next.js/Turbopack
  * strips CSS @import statements, so keeping them here silently breaks fonts. */
 
