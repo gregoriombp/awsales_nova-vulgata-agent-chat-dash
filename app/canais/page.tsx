@@ -327,8 +327,8 @@ export default function CanaisPage() {
           <div className="w-full px-10 pt-12 pb-24">
             <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
               <div>
-                <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-                  <Icon name="forum" size={28} />
+                <h1 className="m-0 mb-1.5 flex items-center gap-2.5  font-regular leading-tight tracking-[-0.04em] text-[var(--fg-primary)]">
+                  <Icon name="forum" size={48} weight={300} />
                   Canais
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
