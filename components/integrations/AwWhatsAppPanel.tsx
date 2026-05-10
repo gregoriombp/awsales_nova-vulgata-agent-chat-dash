@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -260,7 +261,7 @@ function WabaRail({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
-                    Todas as WABAs
+                    Todos os números de WhatsApp
                   </span>
                   <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
                     {wabas.length} {wabas.length === 1 ? "conta" : "contas"} ·{" "}
@@ -340,11 +341,21 @@ function WabaRail({
  * Header — selected WABA title + actions
  * ================================================================ */
 
-function PanelHeader({ waba }: { waba: Waba }) {
+function PanelHeader({
+  waba,
+  enabled,
+  onToggleEnabled,
+}: {
+  waba: Waba;
+  enabled: boolean;
+  onToggleEnabled: (next: boolean) => void;
+}) {
   const meta = STATUS_PILL[waba.status];
+  const toggleId = `waba-active-${waba.id}`;
+  const metaBusinessUrl = `https://business.facebook.com/wa/manage/home?business_id=${waba.bmId}`;
 
   return (
-    <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-6">
+    <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-5">
       <div className="flex min-w-0 items-center gap-3.5">
         <AwBrandLogo brand="whatsapp" size="lg" />
         <div className="min-w-0">
@@ -374,11 +385,30 @@ function PanelHeader({ waba }: { waba: Waba }) {
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 items-center gap-2">
-        <AwButton variant="secondary" size="sm" iconLeft="open_in_new">
+      <div className="flex flex-shrink-0 items-center gap-3">
+        <label
+          htmlFor={toggleId}
+          className="flex cursor-pointer items-center gap-2 text-[12.5px] font-medium text-[var(--fg-secondary)]"
+        >
+          <span>{enabled ? "Ativa" : "Desativada"}</span>
+          <AwToggle
+            id={toggleId}
+            checked={enabled}
+            onChange={onToggleEnabled}
+            label="Ativar ou desativar a integração"
+          />
+        </label>
+        <span aria-hidden className="h-6 w-px bg-[var(--border-subtle)]" />
+        <AwButton
+          variant="secondary"
+          size="sm"
+          iconLeft="open_in_new"
+          onClick={() =>
+            window.open(metaBusinessUrl, "_blank", "noopener,noreferrer")
+          }
+        >
           Abrir no Meta Business
         </AwButton>
-        <AwButton variant="secondary" size="sm" iconOnly="more_horiz" aria-label="Mais ações" />
       </div>
     </header>
   );
@@ -391,6 +421,7 @@ function PanelHeader({ waba }: { waba: Waba }) {
 type Issue = { sev: "high" | "med"; title: string; desc: string; cta: string };
 
 function IssuesBanner({ waba }: { waba: Waba }) {
+  const metaBusinessUrl = `https://business.facebook.com/wa/manage/home?business_id=${waba.bmId}`;
   const issues: Issue[] = useMemo(() => {
     const list: Issue[] = [];
     if (waba.status === "rejected") {
@@ -446,7 +477,14 @@ function IssuesBanner({ waba }: { waba: Waba }) {
                 {it.desc}
               </div>
             </div>
-            <AwButton variant="ghost" size="sm" iconRight="open_in_new">
+            <AwButton
+              variant="ghost"
+              size="sm"
+              iconRight="open_in_new"
+              onClick={() =>
+                window.open(metaBusinessUrl, "_blank", "noopener,noreferrer")
+              }
+            >
               {it.cta}
             </AwButton>
           </li>
@@ -554,7 +592,7 @@ function OverviewTab({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ConfigCard waba={waba} />
+        <ConfigCard waba={waba} onEdit={() => onTab("account")} />
         <ActivityCard />
       </div>
 
@@ -587,6 +625,7 @@ function OverviewTab({
             icon="auto_awesome"
             title="Disparo em massa"
             desc="Use templates aprovados"
+            href="/triggers"
           />
         </div>
       </section>
@@ -599,22 +638,28 @@ function ShortcutCard({
   title,
   desc,
   onClick,
+  href,
 }: {
   icon: string;
   title: string;
   desc: string;
   onClick?: () => void;
+  href?: string;
 }) {
+  const router = useRouter();
+  const interactive = !!onClick || !!href;
+  const handleClick = onClick ?? (href ? () => router.push(href) : undefined);
+
   return (
     <AwCard
-      interactive
-      role="button"
-      tabIndex={0}
-      onClick={onClick}
+      interactive={interactive}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onClick={handleClick}
       onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
+        if (interactive && (e.key === "Enter" || e.key === " ")) {
           e.preventDefault();
-          onClick?.();
+          handleClick?.();
         }
       }}
       className="flex items-start gap-3 p-3.5"
@@ -634,7 +679,7 @@ function ShortcutCard({
   );
 }
 
-function ConfigCard({ waba }: { waba: Waba }) {
+function ConfigCard({ waba, onEdit }: { waba: Waba; onEdit: () => void }) {
   const rows: { icon: string; label: string; value: React.ReactNode }[] = [
     { icon: "business", label: "Nome da empresa", value: <b>{waba.name}</b> },
     { icon: "public", label: "Fuso horário", value: <b>{waba.timezone}</b> },
@@ -666,7 +711,7 @@ function ConfigCard({ waba }: { waba: Waba }) {
         <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
           Configuração da integração
         </h3>
-        <AwButton variant="ghost" size="sm">
+        <AwButton variant="ghost" size="sm" onClick={onEdit}>
           Editar
         </AwButton>
       </header>
@@ -723,12 +768,6 @@ function ActivityCard() {
         <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
           Atividade recente
         </h3>
-        <button
-          type="button"
-          className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
-        >
-          Ver tudo <Icon name="chevron_right" size={14} />
-        </button>
       </header>
       <ul className="m-0 list-none p-0">
         {ACTIVITY.map((a, i) => (
@@ -800,16 +839,11 @@ function PhonesTab({
           {items.length === 1 ? "número conectado" : "números conectados"}
           {showWabaTag && ` · ${wabas.length} contas`}
         </span>
-        <div className="flex items-center gap-2">
-          <AwButton variant="secondary" size="sm" iconLeft="refresh">
-            Sincronizar
+        {!showWabaTag && (
+          <AwButton variant="primary" size="sm" iconLeft="add">
+            Adicionar número
           </AwButton>
-          {!showWabaTag && (
-            <AwButton variant="primary" size="sm" iconLeft="add">
-              Adicionar número
-            </AwButton>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
@@ -942,27 +976,16 @@ function TemplatesTab({
             dense
           />
         </div>
-        <AwButton variant="secondary" size="sm" iconLeft="filter_list">
-          Categoria
-        </AwButton>
-        <AwButton variant="secondary" size="sm" iconLeft="filter_list">
-          Status
-        </AwButton>
-        <div className="ml-auto flex items-center gap-2">
-          <AwButton variant="secondary" size="sm" iconLeft="layers">
-            Aplicar a múltiplas WABAs
+        {!showWabaCol && (
+          <AwButton
+            variant="primary"
+            size="sm"
+            iconLeft="add"
+            onClick={onCreateTemplate}
+          >
+            Criar template
           </AwButton>
-          {!showWabaCol && (
-            <AwButton
-              variant="primary"
-              size="sm"
-              iconLeft="add"
-              onClick={onCreateTemplate}
-            >
-              Criar template
-            </AwButton>
-          )}
-        </div>
+        )}
       </div>
 
       <div className="overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
@@ -1029,12 +1052,6 @@ function TemplatesTab({
                         aria-label="Editar"
                         onClick={() => onOpenTemplate(wabaId, t.name, "edit")}
                       />
-                      <AwButton
-                        variant="ghost"
-                        size="sm"
-                        iconOnly="more_horiz"
-                        aria-label="Mais ações"
-                      />
                     </span>
                   </td>
                 </tr>
@@ -1071,10 +1088,19 @@ function VariablesTab({
   onOpenVariable: (wabaId: string, name: string) => void;
   onNewVariable: () => void;
 }) {
+  const [query, setQuery] = useState("");
   const showWabaCol = wabas.length > 1;
-  const items = wabas.flatMap((w) =>
+  const allItems = wabas.flatMap((w) =>
     w.variables.map((v) => ({ variable: v, wabaId: w.id, wabaName: w.name })),
   );
+  const items = allItems.filter(({ variable: v }) => {
+    const q = query.toLowerCase();
+    return (
+      v.name.toLowerCase().includes(q) ||
+      v.label.toLowerCase().includes(q) ||
+      v.value.toLowerCase().includes(q)
+    );
+  });
 
   return (
     <div className="flex flex-col gap-4">
@@ -1087,7 +1113,13 @@ function VariablesTab({
 
       <div className="flex items-center gap-2">
         <div className="min-w-[240px] flex-1">
-          <AwInput placeholder="Buscar variável…" iconLeft="search" dense />
+          <AwInput
+            placeholder="Buscar variável…"
+            iconLeft="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            dense
+          />
         </div>
         {!showWabaCol && (
           <AwButton variant="primary" size="sm" iconLeft="add" onClick={onNewVariable}>
@@ -1096,7 +1128,7 @@ function VariablesTab({
         )}
       </div>
 
-      {items.length === 0 ? (
+      {allItems.length === 0 ? (
         <AwEmpty>
           <AwEmptyHeader>
             <AwEmptyMedia variant="icon">
@@ -1159,16 +1191,21 @@ function VariablesTab({
                         aria-label="Editar"
                         onClick={() => onOpenVariable(wabaId, v.name)}
                       />
-                      <AwButton
-                        variant="ghost"
-                        size="sm"
-                        iconOnly="delete"
-                        aria-label="Remover"
-                      />
                     </span>
                   </td>
                 </tr>
               ))}
+              {items.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={showWabaCol ? 7 : 6}
+                    className="text-center text-[var(--fg-tertiary)]"
+                    style={{ padding: "32px 14px" }}
+                  >
+                    Nenhuma variável encontrada para “{query}”.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -1297,12 +1334,6 @@ function AccountTab({ waba }: { waba: Waba }) {
                 </div>
               </div>
               <AwPill variant="neutral">{u.role}</AwPill>
-              <AwButton
-                variant="ghost"
-                size="sm"
-                iconOnly="more_horiz"
-                aria-label={`Mais ações para ${u.name}`}
-              />
             </li>
           ))}
         </ul>
@@ -1427,31 +1458,8 @@ function DangerRow({
 }
 
 /* ================================================================
- * Active toggle + credentials block (above tabs)
+ * Credentials block (developer tab)
  * ================================================================ */
-
-function ActiveToggle({
-  enabled,
-  onChange,
-}: {
-  enabled: boolean;
-  onChange: (next: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-4 py-3.5">
-      <div>
-        <div className="text-[13.5px] font-medium text-[var(--fg-primary)]">
-          Integração ativa
-        </div>
-        <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
-          Quando desativada, agentes ignoram esta integração e nenhum evento é
-          processado.
-        </div>
-      </div>
-      <AwToggle checked={enabled} onChange={onChange} label="Integração ativa" />
-    </div>
-  );
-}
 
 function WebhookCard({ wabaId }: { wabaId: string }) {
   return (
@@ -1505,7 +1513,7 @@ function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
         <div className="min-w-0">
           <div className="flex items-center gap-2">
             <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-              Todas as WABAs
+              Todos os números de WhatsApp
             </h2>
             {issuesCount > 0 && (
               <AwPill variant="beta">
@@ -2042,6 +2050,10 @@ export type AwWhatsAppPanelProps = {
   onAddWaba?: () => void;
   onSave?: () => void;
   onCancel?: () => void;
+  /** When true, opens the template builder sheet on mount and lands the
+   *  user on the Templates tab — used by the post-setup flow to take a
+   *  fresh WABA straight into "create your first template". */
+  initialOpenTemplateBuilder?: boolean;
 };
 
 type SheetState =
@@ -2055,17 +2067,25 @@ export function AwWhatsAppPanel({
   onAddWaba,
   onSave,
   onCancel,
+  initialOpenTemplateBuilder = false,
 }: AwWhatsAppPanelProps) {
   const [selectedId, setSelectedId] = useState<string>(wabas[0]?.id ?? "");
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState(
+    initialOpenTemplateBuilder ? "templates" : "overview",
+  );
   const [enabled, setEnabled] = useState(true);
   const [sheet, setSheet] = useState<SheetState>({ kind: null });
-  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(false);
+  const [templateBuilderOpen, setTemplateBuilderOpen] = useState(
+    initialOpenTemplateBuilder,
+  );
 
   const isAll = selectedId === ALL_KEY;
 
   React.useEffect(() => {
-    if (isAll && (tab === "account" || tab === "developer")) {
+    if (
+      isAll &&
+      (tab === "account" || tab === "developer" || tab === "variables")
+    ) {
       setTab("overview");
     }
   }, [isAll, tab]);
@@ -2138,14 +2158,14 @@ export function AwWhatsAppPanel({
       label: "Templates",
       count: viewWabas.reduce((a, w) => a + w.templates.length, 0),
     },
-    {
-      value: "variables",
-      label: "Variáveis fixas",
-      count: viewWabas.reduce((a, w) => a + w.variables.length, 0),
-    },
     ...(isAll
       ? []
       : [
+          {
+            value: "variables",
+            label: "Variáveis fixas",
+            count: viewWabas.reduce((a, w) => a + w.variables.length, 0),
+          },
           { value: "account", label: "Conta & permissões" },
           { value: "developer", label: "API & webhooks" },
         ]),
@@ -2166,16 +2186,16 @@ export function AwWhatsAppPanel({
         {isAll ? (
           <AggregatedHeader wabas={wabas} />
         ) : (
-          selected && <PanelHeader waba={selected} />
+          selected && (
+            <PanelHeader
+              waba={selected}
+              enabled={enabled}
+              onToggleEnabled={setEnabled}
+            />
+          )
         )}
 
         <div className="flex-1 overflow-y-auto px-7 py-6">
-          {!isAll && selected && (
-            <div className="mb-6">
-              <ActiveToggle enabled={enabled} onChange={setEnabled} />
-            </div>
-          )}
-
           <div className="mb-5">
             <AwTabs
               aria-label={isAll ? "Visão consolidada" : "Configurações da WABA"}

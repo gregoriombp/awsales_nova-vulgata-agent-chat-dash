@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -11,6 +10,7 @@ import {
   AwConnectModal,
   type AwWebhookStep,
 } from "@/components/ui/AwConnectModal";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
@@ -73,6 +73,20 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "marketplaces", label: "Marketplaces" },
   { id: "signatures", label: "Assinaturas" },
 ];
+
+/** Synthetic catalog entry for user-created custom (webhook) integrations.
+ *  Not surfaced in the Add modal or Explore grid — its only job is to
+ *  satisfy the table's `items.find(...)` lookup so rows persisted from
+ *  /integrations/custom render with a generic identity instead of being
+ *  filtered out. */
+const CUSTOM_INTEGRATION: Integration = {
+  id: "custom",
+  cat: "checkouts",
+  name: "Personalizada",
+  domain: "",
+  desc: "Integração personalizada via webhook.",
+  auth: "webhook",
+};
 
 const ITEMS: Integration[] = [
   // Checkouts
@@ -293,24 +307,16 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
  * Visual building blocks for the empty state.
  * ---------------------------------------------------------------- */
 
-/** 11 brand picks featured in the "Explore" section below the populated
- *  table. Combined with the trailing "Ver todas" tile this is exactly 12
- *  cells, which divides cleanly across 3- and 4-column grids on wider
- *  monitors without leaving an orphan in the last row. Order = visual
- *  priority; mix spans checkout / AI / meetings / CRM / marketplace so
- *  the grid reads as a sample of the catalog, not a single niche. */
+/** 3 brand picks featured in the "Explore" section below the populated
+ *  table. Combined with the trailing "Ver todas" tile this is exactly 4
+ *  cells, which fills a single 4-up row on wide monitors and breaks
+ *  cleanly into 2×2 on smaller widths. Order = visual priority; mix
+ *  spans checkout / AI / meetings so the grid reads as a sample of the
+ *  catalog, not a single niche. */
 const EXPLORE_BRAND_IDS = [
   "hotmart",
-  "stripe",
-  "kiwify",
   "claude",
-  "chatgpt",
   "calendly",
-  "googlecal",
-  "rdstation",
-  "hubspot",
-  "pipedrive",
-  "shopify",
 ] as const;
 
 const HERO_BRANDS_TOP = ["hotmart", "eduzz", "kiwify"] as const;
@@ -408,6 +414,15 @@ function SortGlyph({ active, dir }: { active: boolean; dir: SortDir }) {
   );
 }
 
+/* The SortMenu, RowActionMenu and MenuItem inline implementations were
+ * replaced by AwDropdownMenu (Radix-based, registered in the styleguide
+ * Playground). Both menus are now thin declarative wrappers that build
+ * the items array and forward the trigger.
+ *
+ * Net effect: ~250 lines of bespoke menu / portal / click-outside / ESC
+ * code removed from this page in favour of the shared primitive.
+ */
+
 function SortMenu({
   sort,
   onChange,
@@ -415,80 +430,34 @@ function SortMenu({
   sort: SortState;
   onChange: (s: SortState) => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (e: MouseEvent) => {
-      if (!ref.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    window.addEventListener("mousedown", onPointer);
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("mousedown", onPointer);
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
-
-  const options: { id: SortState; label: string }[] = [
-    { id: { by: "name", dir: "asc" }, label: "Nome (A → Z)" },
-    { id: { by: "name", dir: "desc" }, label: "Nome (Z → A)" },
-    { id: { by: "created", dir: "desc" }, label: "Mais recentes" },
-    { id: { by: "created", dir: "asc" }, label: "Mais antigas" },
-    { id: { by: "event", dir: "asc" }, label: "Último evento" },
+  const options: { state: SortState; label: string }[] = [
+    { state: { by: "name", dir: "asc" }, label: "Nome (A → Z)" },
+    { state: { by: "name", dir: "desc" }, label: "Nome (Z → A)" },
+    { state: { by: "created", dir: "desc" }, label: "Mais recentes" },
+    { state: { by: "created", dir: "asc" }, label: "Mais antigas" },
+    { state: { by: "event", dir: "asc" }, label: "Último evento" },
   ];
 
   const currentLabel =
-    options.find((o) => o.id.by === sort.by && o.id.dir === sort.dir)?.label ??
-    "Ordenar";
+    options.find(
+      (o) => o.state.by === sort.by && o.state.dir === sort.dir,
+    )?.label ?? "Ordenar";
 
   return (
-    <div ref={ref} className="relative">
-      <AwButton
-        variant="secondary"
-        size="md"
-        iconLeft="swap_vert"
-        onClick={() => setOpen((v) => !v)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-      >
-        {currentLabel}
-      </AwButton>
-      {open && (
-        <div
-          role="menu"
-          className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
-        >
-          {options.map((o) => {
-            const active = o.id.by === sort.by && o.id.dir === sort.dir;
-            return (
-              <button
-                key={o.label}
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  onChange(o.id);
-                  setOpen(false);
-                }}
-                className={
-                  "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
-                  (active
-                    ? "text-[var(--fg-primary)]"
-                    : "text-[var(--fg-secondary)]")
-                }
-              >
-                <span>{o.label}</span>
-                {active && <Icon name="check" size={14} />}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
+    <AwDropdownMenu
+      aria-label="Ordenar"
+      trigger={
+        <AwButton variant="secondary" size="md" iconLeft="swap_vert">
+          {currentLabel}
+        </AwButton>
+      }
+      items={options.map((o) => ({
+        id: `${o.state.by}-${o.state.dir}`,
+        label: o.label,
+        checked: o.state.by === sort.by && o.state.dir === sort.dir,
+        onSelect: () => onChange(o.state),
+      }))}
+    />
   );
 }
 
@@ -507,137 +476,56 @@ function RowActionMenu({
   onConfigure?: () => void;
   onDisconnect?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
-  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onPointer = (e: MouseEvent) => {
-      const target = e.target as Node;
-      if (triggerRef.current?.contains(target)) return;
-      if (menuRef.current?.contains(target)) return;
-      setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    /* Portal menu uses fixed positioning calculated from the trigger,
-     * so any layout shift (scroll, resize) invalidates the anchor.
-     * Cheaper to dismiss than to keep recomputing. */
-    const dismiss = () => setOpen(false);
-    window.addEventListener("mousedown", onPointer);
-    window.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", dismiss, true);
-    window.addEventListener("resize", dismiss);
-    return () => {
-      window.removeEventListener("mousedown", onPointer);
-      window.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", dismiss, true);
-      window.removeEventListener("resize", dismiss);
-    };
-  }, [open]);
-
-  const select = (cb?: () => void) => (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setOpen(false);
-    cb?.();
-  };
-
-  const handleTriggerClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!open && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setPos({
-        top: rect.bottom + 4,
-        right: window.innerWidth - rect.right,
-      });
-    }
-    setOpen((v) => !v);
-  };
-
   return (
-    <div
-      ref={triggerRef}
-      className="relative inline-block"
+    <span
+      className="inline-block"
       onClick={(e) => e.stopPropagation()}
     >
-      <AwButton
-        variant="ghost"
-        size="sm"
-        iconOnly="more_vert"
+      <AwDropdownMenu
         aria-label="Ações da integração"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title="Ações"
-        onClick={handleTriggerClick}
+        trigger={
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly="more_vert"
+            aria-label="Ações da integração"
+            title="Ações"
+          />
+        }
+        items={[
+          {
+            id: "toggle",
+            icon: active ? "pause" : "play_arrow",
+            label: active ? "Pausar integração" : "Ativar integração",
+            onSelect: onToggle,
+          },
+          {
+            id: "configure",
+            icon: "tune",
+            label: "Configurar",
+            onSelect: onConfigure,
+          },
+          ...(onToggleAttention
+            ? [
+                {
+                  id: "attention",
+                  icon: needsAttention ? "check_circle" : "report",
+                  label: needsAttention ? "Limpar erro" : "Simular erro",
+                  onSelect: onToggleAttention,
+                } as const,
+              ]
+            : []),
+          { id: "sep", separator: true } as const,
+          {
+            id: "disconnect",
+            icon: "link_off",
+            label: "Desconectar",
+            danger: true,
+            onSelect: onDisconnect,
+          },
+        ]}
       />
-      {open && pos && typeof window !== "undefined"
-        ? createPortal(
-            <div
-              ref={menuRef}
-              role="menu"
-              className="z-50 min-w-[180px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
-              style={{ position: "fixed", top: pos.top, right: pos.right }}
-            >
-              <MenuItem
-                icon={active ? "pause" : "play_arrow"}
-                label={active ? "Pausar integração" : "Ativar integração"}
-                onClick={select(onToggle)}
-              />
-              <MenuItem
-                icon="tune"
-                label="Configurar"
-                onClick={select(onConfigure)}
-              />
-              {onToggleAttention && (
-                <MenuItem
-                  icon={needsAttention ? "check_circle" : "report"}
-                  label={needsAttention ? "Limpar erro" : "Simular erro"}
-                  onClick={select(onToggleAttention)}
-                />
-              )}
-              <MenuItem
-                icon="link_off"
-                label="Desconectar"
-                danger
-                onClick={select(onDisconnect)}
-              />
-            </div>,
-            document.body,
-          )
-        : null}
-    </div>
-  );
-}
-
-function MenuItem({
-  icon,
-  label,
-  danger,
-  onClick,
-}: {
-  icon: string;
-  label: string;
-  danger?: boolean;
-  onClick: (e: React.MouseEvent) => void;
-}) {
-  return (
-    <button
-      type="button"
-      role="menuitem"
-      onClick={onClick}
-      className={
-        "flex w-full items-center gap-2.5 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
-        (danger
-          ? "text-[var(--fg-danger,#b42318)]"
-          : "text-[var(--fg-primary)]")
-      }
-    >
-      <Icon name={icon} size={16} />
-      <span>{label}</span>
-    </button>
+    </span>
   );
 }
 
@@ -935,7 +823,7 @@ function ExploreIntegrations({
           Ver catálogo completo →
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {featured.map((it) => (
           <ExploreCard
             key={it.id}
@@ -1017,6 +905,7 @@ export default function IntegrationsPage() {
   const [addOpen, setAddOpen] = useState(false);
   const [connectId, setConnectId] = useState<string | null>(null);
   const [disconnectId, setDisconnectId] = useState<string | null>(null);
+  const [customConfirmOpen, setCustomConfirmOpen] = useState(false);
   /** Set when the user clicks an Explore card for a brand they already
    *  have a live connection of — surfaces a choice modal (gerenciar
    *  existentes vs. criar nova conexão) instead of dumping them into a
@@ -1166,7 +1055,7 @@ export default function IntegrationsPage() {
             <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
               <div>
                 <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-                  <Icon name="event_list" size={28} />
+                  <Icon name="extension" size={28} />
                   Integrações
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
@@ -1192,7 +1081,7 @@ export default function IntegrationsPage() {
                 <div ref={tableRef}>
                   <IntegrationsTable
                     instances={nonChannelInstances}
-                    items={ITEMS}
+                    items={[...ITEMS, CUSTOM_INTEGRATION]}
                     onToggle={handleToggleInstance}
                     onToggleAttention={handleToggleAttention}
                     onConfigure={handleConfigureInstance}
@@ -1342,7 +1231,7 @@ export default function IntegrationsPage() {
         }}
         onCustomIntegration={() => {
           setAddOpen(false);
-          router.push("/integrations/custom");
+          setCustomConfirmOpen(true);
         }}
       />
 
@@ -1481,6 +1370,56 @@ export default function IntegrationsPage() {
           </strong>
           . Quer ver e gerenciar as conexões existentes, ou conectar uma
           nova conta?
+        </p>
+      </AwModal>
+
+      {/* Custom integration confirmation — clicking the catalog card lands
+          the user on a long contract reference page that reads as "you're
+          already setting it up". Confirm intent first so curious clicks
+          don't feel like they kicked off a creation flow. Cancel returns
+          the user to the catalog (the entry point) instead of dumping them
+          on the integrations page mid-decision. */}
+      <AwModal
+        open={customConfirmOpen}
+        onClose={() => {
+          setCustomConfirmOpen(false);
+          setAddOpen(true);
+        }}
+        title="Criar integração personalizada?"
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              onClick={() => {
+                setCustomConfirmOpen(false);
+                setAddOpen(true);
+              }}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="md"
+              iconRight="arrow_forward"
+              onClick={() => {
+                setCustomConfirmOpen(false);
+                router.push("/integrations/custom");
+              }}
+            >
+              Continuar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Você vai abrir a configuração de uma{" "}
+          <strong className="text-[var(--fg-primary)]">
+            integração personalizada via webhook
+          </strong>
+          . É preciso definir um nome único, gerar um endpoint e enviar
+          eventos no formato esperado pelo AwSales. Nada é criado até você
+          concluir a configuração — quer continuar?
         </p>
       </AwModal>
 

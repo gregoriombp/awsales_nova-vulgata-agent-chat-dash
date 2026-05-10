@@ -9,11 +9,11 @@
 >
 > **Marcações:**
 >
-> - ✅ defesa robusta · 🟡 defesa razoável (depende de validação) · ⚠️ duvidosa (revisar)
+> - ✅ defesa robusta · 🟡 defesa razoável (depende de validação) · ⚠️ duvidosa (revisar) - 🏄‍♂️ Resolvido por greg
 
 ---
 
-## Estrutura de informação (high-level)
+##  Estrutura de informação (high-level) - 🏄‍♂️
 
 ### D-IA1 — Separar "Minhas conexões" (default) de "Catálogo de adicionar" (modal) ✅
 
@@ -34,6 +34,10 @@
 **Trade-off.** Modal de adicionar é mais um nível de profundidade. Cliente vai descobrir "+ Adicionar" no primeiro uso, mas não é instantâneo se nunca usou ferramenta similar.
 
 **Quando reconsiderar.** Se telemetria mostrar que >30% dos cliques abrem o modal e voltam sem adicionar nada (=cliente entrou pra "ver o que tem"), revisitar. Solução possível: empty state mais rico ou "highlight" temporário do botão adicionar.
+
+
+
+
 
 ---
 
@@ -138,7 +142,7 @@
 
 - **A. 3 cards Hotmart separados no grid** — Prós: cada um tem sua identidade visível. Contras: 1 cliente com 3 Hotmarts ocupa 3 slots. 1 cliente com 5 Hotmarts ocupa 5 slots. Pra cliente com 18 BMs (Deds/UOL EdTech) o grid vira lista densa. **Paulo: "fica poluído visualmente falando, três Hotmart aí".**
 - **B. Visão "tudo unificado com filtros"** — caso do Deds. Prós: enterprise gosta. Contras: caso de uso do Deds, fora do Pareto. Stress test G16 já registrou.
-- **C. 1 card Hotmart com lista das N conexões dentro** ← escolhida 
+- **C. 1 card Hotmart com lista das N conexões dentro** ← escolhida
 
 **Por que C é superior.** Mecânica:
 

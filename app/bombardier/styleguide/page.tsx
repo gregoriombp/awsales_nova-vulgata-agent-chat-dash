@@ -220,6 +220,8 @@ const semanticGroups: Array<{
       { token: "--bg-surface", role: "Subtle inset panels" },
       { token: "--bg-raised", role: "Cards, modals" },
       { token: "--bg-muted", role: "Muted fills" },
+      { token: "--bg-hover", role: "Hover fill on rows / dropdown items" },
+      { token: "--bg-selected", role: "Active selection fill (no stroke needed)" },
       { token: "--bg-inverse", role: "Dark shell / sidebar" },
     ],
   },

@@ -1,4 +1,8 @@
+"use client"
+
 import * as React from "react"
+import * as AvatarPrimitive from "@radix-ui/react-avatar"
+import { cn } from "@/lib/utils"
 
 export type AwAvatarSize = "sm" | "md" | "lg"
 
@@ -20,26 +24,27 @@ export function AwAvatar({
   children,
   ...rest
 }: AwAvatarProps) {
-  const classes = [
-    "aw-avatar",
-    size !== "md" && `aw-avatar--${size}`,
-    ai && "aw-avatar--ai",
-    className,
-  ]
-    .filter(Boolean)
-    .join(" ")
   return (
-    <span className={classes} {...rest}>
-      {src ? (
-        <img
+    <AvatarPrimitive.Root
+      className={cn(
+        "aw-avatar",
+        size !== "md" && `aw-avatar--${size}`,
+        ai && "aw-avatar--ai",
+        className
+      )}
+      {...rest}
+    >
+      {src && (
+        <AvatarPrimitive.Image
           src={src}
           alt={alt ?? ""}
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
-      ) : (
-        children ?? initials
       )}
-    </span>
+      <AvatarPrimitive.Fallback>
+        {children ?? initials}
+      </AvatarPrimitive.Fallback>
+    </AvatarPrimitive.Root>
   )
 }
 
@@ -49,10 +54,7 @@ export function AwAvatarGroup({
   ...rest
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
-    <span
-      className={["aw-avatar-group", className].filter(Boolean).join(" ")}
-      {...rest}
-    >
+    <span className={cn("aw-avatar-group", className)} {...rest}>
       {children}
     </span>
   )

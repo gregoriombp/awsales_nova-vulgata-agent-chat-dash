@@ -1,12 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 import { Icon } from "@/components/ui/Icon";
 
 export default function WhatsAppConfigPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const openNewTemplate = searchParams.get("new-template") === "1";
 
   const breadcrumbs = [
     { label: "Canais", href: "/canais", icon: <Icon name="forum" size={20} /> },
@@ -17,9 +19,10 @@ export default function WhatsAppConfigPage() {
     <DashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 h-full min-h-full bg-[var(--bg-canvas)]">
         <AwWhatsAppPanel
-          onAddWaba={() => router.push("/setup/whatsapp/1")}
+          onAddWaba={() => router.push("/setup/whatsapp")}
           onCancel={() => router.push("/canais")}
           onSave={() => router.push("/canais")}
+          initialOpenTemplateBuilder={openNewTemplate}
         />
       </div>
     </DashboardLayout>

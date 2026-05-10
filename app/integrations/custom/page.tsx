@@ -9,6 +9,7 @@ import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
+import { addInstance } from "@/lib/integrationsStore";
 
 /* ----------------------------------------------------------------
  * Custom checkout integration — webhook contract reference page.
@@ -798,7 +799,10 @@ export default function CustomCheckoutIntegrationPage() {
               size="md"
               iconRight="arrow_forward"
               disabled={!name.trim()}
-              onClick={() => router.push("/integrations")}
+              onClick={() => {
+                addInstance("custom", name.trim());
+                router.push("/integrations");
+              }}
             >
               Concluir configuração
             </AwButton>

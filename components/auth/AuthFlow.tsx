@@ -43,8 +43,6 @@ const COPY = {
       forgot: "Esqueci minha senha",
       cta: "Entrar",
       loadingCta: "Entrando\u2026",
-      footer: "Ainda n\u00e3o tem conta?",
-      footerLink: "Criar conta",
       errPw: "Senha incorreta. Tente novamente ou recupere sua senha.",
     },
     en: {
@@ -59,8 +57,6 @@ const COPY = {
       forgot: "Forgot password",
       cta: "Sign in",
       loadingCta: "Signing in\u2026",
-      footer: "Don\u2019t have an account?",
-      footerLink: "Sign up",
       errPw: "Wrong password. Try again or recover your password.",
     },
   },
@@ -408,14 +404,6 @@ function LoginScreen({
       <AwButton variant="primary" size="md" block type="submit" loading={isLoading}>
         {isLoading ? c.loadingCta : c.cta}
       </AwButton>
-
-      <div className="h-px bg-aw-gray-200 my-6" />
-      <p className="text-[13px] text-aw-gray-800 text-center">
-        {c.footer}{" "}
-        <button type="button" className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]">
-          {c.footerLink}
-        </button>
-      </p>
     </form>
   );
 }

@@ -9,10 +9,12 @@ import { AwPill } from "@/components/ui/AwPill";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwAlert } from "@/components/ui/AwAlert";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { AwTable } from "@/components/ui/AwTable";
 import { AwToggle } from "@/components/ui/AwToggle";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import {
   AUTH_LABELS,
@@ -63,7 +65,7 @@ const TABS = [
   { id: "permissions", label: "Permissões" },
   { id: "objects", label: "Objetos" },
   { id: "webhooks", label: "Eventos" },
-  { id: "tools", label: "Tools" },
+  { id: "tools", label: "Habilidades" },
   { id: "audit", label: "Logs" },
 ] as const;
 
@@ -82,10 +84,12 @@ export default function IntegrationDetailPage({
   const { instanceId } = use(params);
   const router = useRouter();
 
+  const toast = useToast();
   const [hydrated, setHydrated] = useState(false);
   const [instances, setInstances] = useState<IntegrationInstance[]>([]);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [selectedAccount, setSelectedAccount] = useState(0);
+  const [disconnectOpen, setDisconnectOpen] = useState(false);
 
   useEffect(() => {
     setInstances(loadInstances());
@@ -236,12 +240,53 @@ export default function IntegrationDetailPage({
               <DetailHeader
                 integration={integration}
                 account={account}
+                onTogglePause={() => {
+                  const willPause = instance.active;
+                  updateInstance((i) => ({
+                    ...i,
+                    active: !i.active,
+                    needsAttention: willPause ? i.needsAttention : false,
+                  }));
+                  toast.push({
+                    title: willPause
+                      ? "Integração pausada"
+                      : "Integração ativada",
+                    variant: willPause ? "warning" : "success",
+                  });
+                }}
                 onReconnect={() => {
                   updateInstance((i) => ({ ...i, active: true, needsAttention: false }));
+                  toast.push({
+                    title: "Reconexão simulada",
+                    description: "No protótipo isso só limpa o estado de erro.",
+                    variant: "success",
+                  });
                 }}
                 onTest={() => {
-                  /* prototype: noop */
+                  toast.push({
+                    title: "Teste enviado",
+                    description: "Resposta esperada em alguns segundos.",
+                    variant: "info",
+                  });
                 }}
+                onCopyId={() => {
+                  navigator.clipboard
+                    ?.writeText(instance.instanceId)
+                    .then(() =>
+                      toast.push({
+                        title: "ID copiado",
+                        description: instance.instanceId,
+                        variant: "success",
+                      }),
+                    )
+                    .catch(() =>
+                      toast.push({
+                        title: "Não foi possível copiar",
+                        variant: "error",
+                      }),
+                    );
+                }}
+                onDisconnect={() => setDisconnectOpen(true)}
               />
 
               {hasError && (
@@ -299,6 +344,50 @@ export default function IntegrationDetailPage({
           </div>
         </div>
       </div>
+
+      <AwModal
+        open={disconnectOpen}
+        onClose={() => setDisconnectOpen(false)}
+        title={`Desconectar ${integration.name} · ${instance.name}?`}
+        footer={
+          <>
+            <AwButton
+              variant="secondary"
+              size="md"
+              onClick={() => setDisconnectOpen(false)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="danger"
+              size="md"
+              iconLeft="link_off"
+              onClick={() => {
+                const next = instances.filter(
+                  (i) => i.instanceId !== instance.instanceId,
+                );
+                saveInstances(next);
+                setInstances(next);
+                setDisconnectOpen(false);
+                toast.push({
+                  title: "Conexão desconectada",
+                  description: `${integration.name} · ${instance.name}`,
+                  variant: "success",
+                });
+                router.push("/integrations");
+              }}
+            >
+              Desconectar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+          Os agentes que usam essa conexão vão perder acesso aos dados
+          do {integration.name} imediatamente. Você pode reconectar
+          depois a qualquer momento.
+        </p>
+      </AwModal>
     </DashboardLayout>
   );
 }
@@ -382,13 +471,19 @@ function ConnectionsSidebar({
 function DetailHeader({
   integration,
   account,
+  onTogglePause,
   onReconnect,
   onTest,
+  onCopyId,
+  onDisconnect,
 }: {
   integration: IntegrationCatalogItem;
   account: ConnectionAccount;
+  onTogglePause: () => void;
   onReconnect: () => void;
   onTest: () => void;
+  onCopyId: () => void;
+  onDisconnect: () => void;
 }) {
   const status: { variant: "live" | "draft" | "error"; label: string } =
     !account.active
@@ -398,6 +493,8 @@ function DetailHeader({
         : account.health === "degraded"
           ? { variant: "draft", label: "atenção" }
           : { variant: "live", label: "ativo" };
+
+  const paused = !account.active;
 
   return (
     <header className="flex items-center justify-between gap-4">
@@ -424,10 +521,10 @@ function DetailHeader({
         <AwButton
           variant="secondary"
           size="sm"
-          iconLeft="link"
-          onClick={onReconnect}
+          iconLeft={paused ? "play_arrow" : "pause"}
+          onClick={onTogglePause}
         >
-          Reconectar
+          {paused ? "Ativar integração" : "Pausar integração"}
         </AwButton>
         <AwButton
           variant="secondary"
@@ -437,11 +534,39 @@ function DetailHeader({
         >
           Testar
         </AwButton>
-        <AwButton
-          variant="ghost"
-          size="sm"
-          iconOnly="more_horiz"
-          aria-label="Mais ações"
+        <AwDropdownMenu
+          aria-label="Mais ações da integração"
+          trigger={
+            <AwButton
+              variant="ghost"
+              size="sm"
+              iconOnly="more_horiz"
+              aria-label="Mais ações"
+              title="Mais ações"
+            />
+          }
+          items={[
+            {
+              id: "reconnect",
+              icon: "link",
+              label: "Reconectar",
+              onSelect: onReconnect,
+            },
+            {
+              id: "copy-id",
+              icon: "content_copy",
+              label: "Copiar ID da conexão",
+              onSelect: onCopyId,
+            },
+            { id: "sep", separator: true },
+            {
+              id: "disconnect",
+              icon: "link_off",
+              label: "Desconectar",
+              danger: true,
+              onSelect: onDisconnect,
+            },
+          ]}
         />
       </div>
     </header>
@@ -551,7 +676,7 @@ function OverviewTab({
               ),
             },
             {
-              k: "Tools ativas",
+              k: "Habilidades ativas",
               v: (
                 <span className="text-[13px] text-[var(--fg-secondary)]">
                   4 nativas · 2 custom
@@ -597,16 +722,46 @@ function PermissionsTab({
 }: {
   integration: IntegrationCatalogItem;
 }) {
-  const initialScopes: { label: string; mode: PermissionMode }[] = useMemo(
+  const initialScopes: {
+    label: string;
+    desc: string;
+    mode: PermissionMode;
+  }[] = useMemo(
     () =>
       integration.auth === "webhook"
-        ? [{ label: "Webhooks", mode: "read" as PermissionMode }]
+        ? [
+            {
+              label: "Webhooks",
+              desc: "Eventos que o provider dispara em tempo real (compras, reembolsos, atualizações).",
+              mode: "read" as PermissionMode,
+            },
+          ]
         : [
-            { label: "Produtos", mode: "read_write" },
-            { label: "Compradores", mode: "read" },
-            { label: "Cupons", mode: "read_write" },
-            { label: "Transações", mode: "read" },
-            { label: "Webhooks", mode: "read" },
+            {
+              label: "Produtos",
+              desc: "Catálogo, preços, disponibilidade e variações dos seus produtos.",
+              mode: "read_write",
+            },
+            {
+              label: "Compradores",
+              desc: "Nome, e-mail, telefone e histórico de quem comprou.",
+              mode: "read",
+            },
+            {
+              label: "Cupons",
+              desc: "Códigos de desconto, regras de validade e limites de uso.",
+              mode: "read_write",
+            },
+            {
+              label: "Transações",
+              desc: "Pagamentos, reembolsos, chargebacks e status financeiros.",
+              mode: "read",
+            },
+            {
+              label: "Webhooks",
+              desc: "Eventos enviados pelo provider em tempo real para o agente reagir.",
+              mode: "read",
+            },
           ],
     [integration.auth],
   );
@@ -627,7 +782,7 @@ function PermissionsTab({
             <li
               key={s.label}
               className={
-                "flex items-center justify-between gap-4 py-3 " +
+                "flex items-start justify-between gap-4 py-3 " +
                 (idx > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
@@ -635,6 +790,9 @@ function PermissionsTab({
                 <div className="text-[13px] font-medium text-[var(--fg-primary)]">
                   {s.label}
                 </div>
+                <p className="m-0 mt-0.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+                  {s.desc}
+                </p>
               </div>
               <PermissionMenu
                 value={s.mode}
@@ -828,11 +986,46 @@ function WebhooksTab({
     { name: "chargeback", on: false },
   ];
 
-  const events: { time: string; status: number; type: string; id: string }[] = [
+  type WebhookEvent = {
+    time: string;
+    status: number;
+    type: string;
+    id: string;
+  };
+
+  const [events, setEvents] = useState<WebhookEvent[]>([
     { time: "30/04 10:02", status: 200, type: "purchase_completed", id: "#4321" },
     { time: "30/04 09:51", status: 200, type: "purchase_completed", id: "#4320" },
     { time: "30/04 09:30", status: 422, type: "schema inválido", id: "—" },
-  ];
+  ]);
+  const [sending, setSending] = useState(false);
+  const testCounterRef = useRef(0);
+  const toast = useToast();
+
+  const handleSendTestEvent = () => {
+    if (sending) return;
+    setSending(true);
+    window.setTimeout(() => {
+      testCounterRef.current += 1;
+      const now = new Date();
+      const pad = (n: number) => String(n).padStart(2, "0");
+      const testId = `#test-${String(testCounterRef.current).padStart(4, "0")}`;
+      const event: WebhookEvent = {
+        time: `${pad(now.getDate())}/${pad(now.getMonth() + 1)} ${pad(now.getHours())}:${pad(now.getMinutes())}`,
+        status: 200,
+        type: "purchase_completed",
+        id: testId,
+      };
+      setEvents((list) => [event, ...list]);
+      setSending(false);
+      toast.push({
+        variant: "success",
+        title: "Evento de teste entregue",
+        description: `200 OK · ${testId}`,
+        duration: 4000,
+      });
+    }, 1100);
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -909,8 +1102,14 @@ function WebhooksTab({
           </tbody>
         </AwTable>
         <div className="mt-3">
-          <AwButton variant="secondary" size="sm" iconLeft="bolt">
-            Enviar evento de teste
+          <AwButton
+            variant="secondary"
+            size="sm"
+            iconLeft="bolt"
+            loading={sending}
+            onClick={handleSendTestEvent}
+          >
+            {sending ? "Enviando…" : "Enviar evento de teste"}
           </AwButton>
         </div>
       </SectionCard>
@@ -1040,13 +1239,13 @@ function ToolsTab({
   return (
     <div className="flex flex-col gap-5">
       <SectionCard
-        title={`Tools nativas (${integration.name})`}
+        title={`Habilidades nativas (${integration.name})`}
         meta={`Habilitadas: ${enabledCount} de ${nativeTools.length}`}
       >
         <AwTable>
           <thead>
             <tr>
-              <th>Tool</th>
+              <th>Habilidade</th>
               <th>Agentes</th>
               <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
@@ -1085,23 +1284,23 @@ function ToolsTab({
           </tbody>
         </AwTable>
         <p className="mt-3 m-0 text-[11px] italic text-[var(--fg-tertiary)]">
-          Tools desabilitadas estão com escopo insuficiente ou não são
-          suportadas pelo provider ainda.
+          Habilidades desabilitadas estão com escopo insuficiente ou
+          não são suportadas pelo provider ainda.
         </p>
       </SectionCard>
 
       <SectionCard
-        title="Tools customizadas dessa conexão"
+        title="Habilidades customizadas dessa conexão"
         action={
           <AwButton variant="secondary" size="sm" iconLeft="add">
-            Nova Tool HTTP
+            Nova habilidade HTTP
           </AwButton>
         }
       >
         <AwTable>
           <thead>
             <tr>
-              <th>Tool</th>
+              <th>Habilidade</th>
               <th>Agentes</th>
               <th>Permissão</th>
               <th className="aw-table__num">Exec 30d</th>
@@ -1217,7 +1416,7 @@ function ToolDetailModal({
             iconLeft="open_in_new"
             onClick={onGoToTools}
           >
-            Abrir em Tools
+            Abrir em Habilidades
           </AwButton>
         </div>
       }
@@ -1238,9 +1437,10 @@ function ToolDetailModal({
             </div>
           </div>
           <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
-            Aqui na integração você só vê o status da tool. Para mudar
-            comportamento, parâmetros ou autenticação, abra a página{" "}
-            <strong>Tools</strong> — é lá que mora a configuração.
+            Aqui na integração você só vê o status da habilidade. Para
+            mudar comportamento, parâmetros ou autenticação, abra a
+            página <strong>Habilidades</strong> — é lá que mora a
+            configuração.
           </p>
         </div>
       )}

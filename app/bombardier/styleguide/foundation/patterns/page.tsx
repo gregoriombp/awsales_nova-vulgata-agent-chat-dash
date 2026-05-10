@@ -78,6 +78,44 @@ function Pattern({
   )
 }
 
+function SelectableRow({
+  state,
+}: {
+  state: "default" | "hover" | "selected"
+}) {
+  const surface =
+    state === "default"
+      ? "bg-[var(--bg-raised)] border-[var(--border-subtle)]"
+      : state === "hover"
+        ? "bg-[var(--bg-hover)] border-[var(--border-subtle)]"
+        : "bg-[var(--bg-selected)] border-transparent"
+  const stateLabel =
+    state === "default" ? "Default" : state === "hover" ? "Hover" : "Selected"
+  return (
+    <div
+      className={
+        "flex items-center gap-4 rounded-[var(--radius-lg)] border px-4 py-3 transition-colors duration-aw-fast " +
+        surface
+      }
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+        <Icon name="person" size={18} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
+          Item da lista
+        </p>
+        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+          item@exemplo.com
+        </p>
+      </div>
+      <AwPill variant="neutral" dot={false}>
+        {stateLabel}
+      </AwPill>
+    </div>
+  )
+}
+
 export default function PatternsPage() {
   return (
     <>
@@ -437,6 +475,53 @@ export default function PatternsPage() {
             <div className="aw-skel" />
             <div className="aw-skel" />
             <div className="aw-skel" style={{ width: "70%" }} />
+          </div>
+        </Pattern>
+
+        {/* ───────── 7 · Selectable item ───────── */}
+        <Pattern
+          number="7"
+          tag="lists / selection"
+          title="Item selecionável"
+          lead={
+            <>
+              Linhas e cards que podem ser selecionados de uma lista (membros,
+              integrações, modelos, contas) usam três estados visuais. O fill
+              carrega o sinal — borda some quando o item é o ativo, evitando
+              ruído de duplo destaque (stroke + fill).
+            </>
+          }
+          dos={[
+            <>
+              Default: fundo <code className="mono">--bg-raised</code>, borda{" "}
+              <code className="mono">--border-subtle</code>.
+            </>,
+            <>
+              Hover: fundo <code className="mono">--bg-hover</code>,{" "}
+              <strong>borda mantida</strong>. Indica afetabilidade sem
+              comprometer.
+            </>,
+            <>
+              Selected: fundo <code className="mono">--bg-selected</code>{" "}
+              (gray-300, mais escuro que hover), <strong>borda transparente</strong>.
+              O fill é o sinal — stroke ali seria redundante.
+            </>,
+          ]}
+          donts={[
+            <>
+              Não use stroke colorido (azul, verde) pra marcar seleção em
+              listas neutras — distrai do conteúdo.
+            </>,
+            <>
+              Não combine stroke + fill no estado selected. Um ou outro,
+              nunca os dois.
+            </>,
+          ]}
+        >
+          <div className="flex flex-col gap-3 max-w-[520px] mx-auto">
+            <SelectableRow state="default" />
+            <SelectableRow state="hover" />
+            <SelectableRow state="selected" />
           </div>
         </Pattern>
 

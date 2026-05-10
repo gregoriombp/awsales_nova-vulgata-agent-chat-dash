@@ -81,7 +81,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Memory base", href: "/knowledge-os", icon: "hub" },
       { label: "AOPs", href: "/aops", icon: "description" },
       { label: "Biblioteca", href: "/library", icon: "bookmark" },
-      { label: "Tools", href: "/tools", icon: "build" },
+      { label: "Habilidades", href: "/tools", icon: "build" },
       { label: "Canais", href: "/canais", icon: "forum" },
       { label: "Integrações", href: "/integrations", icon: "extension" },
     ],
@@ -189,7 +189,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className="h-screen flex-shrink-0 p-3 flex bg-transparent"
+      className="h-screen flex-shrink-0 py-3 pl-3 pr-1 flex bg-transparent"
       style={{
         width: isCollapsed ? 88 : 320,
         transition: animationsReady

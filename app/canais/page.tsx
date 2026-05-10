@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwConnectModal } from "@/components/ui/AwConnectModal";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwListGroup } from "@/components/ui/AwListGroup";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -131,14 +133,10 @@ function QuickPickPill({
 function ChannelGroup({
   channel,
   accounts,
-  collapsed,
-  onToggleCollapsed,
   onOpenChannel,
 }: {
   channel: Channel;
   accounts: ChannelAccount[];
-  collapsed: boolean;
-  onToggleCollapsed: () => void;
   onOpenChannel: () => void;
 }) {
   const count = accounts.length;
@@ -147,97 +145,79 @@ function ChannelGroup({
   ).length;
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-      <header className="flex items-center gap-3 px-5 py-4">
-        <AwBrandLogo brand={channel.id} size="md" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
-              {channel.name}
+    <AwListGroup
+      media={<AwBrandLogo brand={channel.id} size="md" />}
+      title={channel.name}
+      subtitle={channel.desc}
+      meta={
+        <>
+          <span>
+            · {count} {count === 1 ? "conta" : "contas"}
+          </span>
+          {attentionCount > 0 && (
+            <AwPill variant="beta">
+              {attentionCount}{" "}
+              {attentionCount === 1 ? "alerta" : "alertas"}
+            </AwPill>
+          )}
+        </>
+      }
+      actions={
+        <AwButton
+          variant="secondary"
+          size="sm"
+          iconRight="arrow_forward"
+          onClick={onOpenChannel}
+        >
+          Gerenciar
+        </AwButton>
+      }
+    >
+      {accounts.map((account) => (
+        <div
+          key={account.id}
+          role="button"
+          tabIndex={0}
+          onClick={onOpenChannel}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              onOpenChannel();
+            }
+          }}
+          className="flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
+        >
+          <AwAvatar
+            size="md"
+            src={account.avatarSrc}
+            alt={account.name}
+            initials={getAccountInitials(account.name)}
+          />
+          <div className="min-w-0 flex-1">
+            <span className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+              {account.name}
             </span>
-            <span className="text-[13px] text-[var(--fg-secondary)]">
-              · {count} {count === 1 ? "conta" : "contas"}
-            </span>
-            {attentionCount > 0 && (
-              <AwPill variant="beta">
-                {attentionCount}{" "}
-                {attentionCount === 1 ? "alerta" : "alertas"}
-              </AwPill>
+            {account.subtitle && (
+              <span className="mt-0.5 block truncate text-[12.5px] leading-[1.45] text-[var(--fg-tertiary)]">
+                {account.subtitle}
+              </span>
             )}
           </div>
-          <p className="m-0 mt-0.5 truncate text-[13px] text-[var(--fg-secondary)]">
-            {channel.desc}
-          </p>
+          <AwPill variant={STATUS_PILL_VARIANT[account.status]}>
+            {account.statusLabel ?? STATUS_LABEL[account.status]}
+          </AwPill>
         </div>
-
-        <div className="flex flex-shrink-0 items-center gap-1.5">
-          <AwButton
-            variant="secondary"
-            size="sm"
-            iconRight="arrow_forward"
-            onClick={onOpenChannel}
-          >
-            Gerenciar
-          </AwButton>
-          <button
-            type="button"
-            onClick={onToggleCollapsed}
-            className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-canvas)]"
-            aria-label={collapsed ? "Expandir contas" : "Recolher contas"}
-            aria-expanded={!collapsed}
-          >
-            <Icon
-              name="expand_more"
-              size={20}
-              className={
-                collapsed
-                  ? "transition-transform"
-                  : "rotate-180 transition-transform"
-              }
-            />
-          </button>
-        </div>
-      </header>
-
-      {!collapsed && (
-        <ul className="m-0 list-none border-t border-[var(--border-subtle)] p-0">
-          {accounts.map((account, idx) => (
-            <li
-              key={account.id}
-              className={
-                "flex items-center gap-3 px-5 py-3 transition-colors hover:bg-[var(--bg-canvas)] " +
-                (idx === 0 ? "" : "border-t border-[var(--border-subtle)]")
-              }
-            >
-              <span
-                aria-hidden="true"
-                className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]"
-              >
-                <Icon name="account_circle" size={20} />
-              </span>
-              <button
-                type="button"
-                onClick={onOpenChannel}
-                className="flex min-w-0 flex-1 flex-col items-start text-left"
-              >
-                <span className="text-[14px] font-medium text-[var(--fg-primary)] hover:underline underline-offset-2">
-                  {account.name}
-                </span>
-                {account.subtitle && (
-                  <span className="m-0 mt-0.5 truncate text-[12.5px] text-[var(--fg-secondary)]">
-                    {account.subtitle}
-                  </span>
-                )}
-              </button>
-              <AwPill variant={STATUS_PILL_VARIANT[account.status]}>
-                {account.statusLabel ?? STATUS_LABEL[account.status]}
-              </AwPill>
-            </li>
-          ))}
-        </ul>
-      )}
-    </article>
+      ))}
+    </AwListGroup>
   );
+}
+
+function getAccountInitials(name: string) {
+  const cleaned = name.replace(/^@/, "").trim();
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
 type EmptyVariant = "populated" | "all-removed" | "first-run";
@@ -250,7 +230,6 @@ export default function CanaisPage() {
   const [hasEverConnected, setHasEverConnected] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [search, setSearch] = useState("");
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     setInstances(loadInstances());
@@ -286,7 +265,7 @@ export default function CanaisPage() {
    *  Connect modal. Every entry point must funnel through here. */
   const handleConnect = (id: string) => {
     if (id === "whatsapp") {
-      router.push("/setup/whatsapp/1");
+      router.push("/setup/whatsapp");
       return;
     }
     setConnectId(id);
@@ -333,9 +312,6 @@ export default function CanaisPage() {
     0,
   );
 
-  const toggleGroupCollapsed = (channelId: string) =>
-    setCollapsed((c) => ({ ...c, [channelId]: !c[channelId] }));
-
   if (!hydrated) {
     return (
       <DashboardLayout breadcrumbs={breadcrumbs}>
@@ -351,8 +327,8 @@ export default function CanaisPage() {
           <div className="w-full px-10 pt-12 pb-24">
             <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
               <div>
-                <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-                  <Icon name="forum" size={28} />
+                <h1 className="m-0 mb-1.5 flex items-center gap-2.5  font-regular leading-tight tracking-[-0.04em] text-[var(--fg-primary)]">
+                  <Icon name="forum" size={48} weight={300} />
                   Canais
                 </h1>
                 <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
@@ -401,16 +377,12 @@ export default function CanaisPage() {
                     </p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-4">
                     {groups.map((g) => (
                       <ChannelGroup
                         key={g.channel.id}
                         channel={g.channel}
                         accounts={g.accounts}
-                        collapsed={!!collapsed[g.channel.id]}
-                        onToggleCollapsed={() =>
-                          toggleGroupCollapsed(g.channel.id)
-                        }
                         onOpenChannel={() => router.push(g.channel.configHref)}
                       />
                     ))}

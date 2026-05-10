@@ -4,7 +4,9 @@ import * as React from "react";
 import { useMemo, useState } from "react";
 
 import { AwButton } from "@/components/ui/AwButton";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { AwSheet } from "@/components/ui/AwSheet";
 import { Icon } from "@/components/ui/Icon";
 
@@ -103,27 +105,27 @@ function FormSelect<T extends string>({
   id?: string;
   ariaLabel?: string;
 }) {
+  const current = options.find((o) => o.value === value);
   return (
-    <span className="relative inline-flex w-full">
-      <select
-        id={id}
-        aria-label={ariaLabel}
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="h-[42px] w-full appearance-none rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 pr-9 text-[14px] text-[var(--fg-primary)] outline-none transition-colors hover:border-[var(--fg-primary)] focus:border-[var(--aw-blue-500)] focus:shadow-[0_0_0_3px_rgba(71,138,255,0.18)]"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <Icon
-        name="expand_more"
-        size={18}
-        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[var(--fg-tertiary)]"
-      />
-    </span>
+    <AwDropdownMenu
+      align="start"
+      aria-label={ariaLabel}
+      trigger={
+        <AwSelect
+          id={id}
+          aria-label={ariaLabel}
+          className="w-full justify-between"
+        >
+          {current?.label ?? ""}
+        </AwSelect>
+      }
+      items={options.map((o) => ({
+        id: o.value,
+        label: o.label,
+        checked: o.value === value,
+        onSelect: () => onChange(o.value),
+      }))}
+    />
   );
 }
 
@@ -342,15 +344,14 @@ function PhonePreview({
   const showHeader = draft.header !== "none";
 
   return (
-    <div className="relative mx-auto w-[300px]">
-      {/* Phone bezel */}
-      <div className="overflow-hidden rounded-[36px] border-[8px] border-[#1A1A1A] bg-[#1A1A1A] shadow-[0_24px_48px_-12px_rgba(0,0,0,0.35)]">
+    <div className="relative mx-auto w-[260px]">
+      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[#075E54] shadow-[var(--shadow-md)]">
         {/* Status bar */}
-        <div className="flex h-[18px] items-center justify-end bg-[#075E54] px-4 text-[10px] font-medium text-white/90">
+        <div className="flex h-[18px] items-center justify-end bg-[#075E54] px-3 text-[10px] font-medium text-white/90">
           9:41
         </div>
         {/* Conversation header */}
-        <div className="flex items-center gap-2 bg-[#075E54] px-3 py-2 text-white">
+        <div className="flex items-center gap-2 bg-[#075E54] px-3 pb-2.5 pt-1 text-white">
           <Icon name="arrow_back" size={18} className="opacity-90" />
           <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-[12px] font-semibold">
             {accountName.charAt(0)}
@@ -366,7 +367,7 @@ function PhonePreview({
         </div>
         {/* Chat area */}
         <div
-          className="min-h-[280px] bg-[#E5DDD5] px-3 py-3"
+          className="min-h-[420px] bg-[#E5DDD5] px-3 py-3"
           style={{
             backgroundImage:
               "radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px)",

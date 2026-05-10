@@ -2468,7 +2468,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     onClick={() => setToolsSectionExpanded(!toolsSectionExpanded)}
                     className="w-full flex items-center justify-between text-left hover:opacity-80 transition-opacity"
                   >
-                    <h3 className="text-sm font-semibold text-fg-primary">Tools</h3>
+                    <h3 className="text-sm font-semibold text-fg-primary">Habilidades</h3>
                     <svg
                       width="16"
                       height="16"

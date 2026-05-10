@@ -1,43 +1,37 @@
 "use client"
 
 import * as React from "react"
+import * as SwitchPrimitives from "@radix-ui/react-switch"
+import { cn } from "@/lib/utils"
 
 export type AwToggleProps = Omit<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  "onChange" | "type"
+  React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>,
+  "checked" | "onCheckedChange" | "asChild" | "onChange"
 > & {
   checked: boolean
   onChange?: (next: boolean) => void
   label?: string
 }
 
-export const AwToggle = React.forwardRef<HTMLButtonElement, AwToggleProps>(
-  function AwToggle(
-    { checked, onChange, label, className, disabled, ...rest },
-    ref
-  ) {
-    const classes = [
-      "aw-toggle",
-      checked && "aw-toggle--on",
-      className,
-    ]
-      .filter(Boolean)
-      .join(" ")
-    return (
-      <button
-        ref={ref}
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        disabled={disabled}
-        className={classes}
-        onClick={() => onChange?.(!checked)}
-        {...rest}
-      />
-    )
-  }
-)
+export const AwToggle = React.forwardRef<
+  React.ElementRef<typeof SwitchPrimitives.Root>,
+  AwToggleProps
+>(function AwToggle(
+  { checked, onChange, label, className, disabled, ...rest },
+  ref
+) {
+  return (
+    <SwitchPrimitives.Root
+      ref={ref}
+      checked={checked}
+      onCheckedChange={onChange}
+      disabled={disabled}
+      aria-label={label}
+      className={cn("aw-toggle", checked && "aw-toggle--on", className)}
+      {...rest}
+    />
+  )
+})
 
 export type AwToggleRowProps = {
   title: React.ReactNode
@@ -57,9 +51,7 @@ export function AwToggleRow({
   className,
 }: AwToggleRowProps) {
   return (
-    <div
-      className={["aw-toggle-row", className].filter(Boolean).join(" ")}
-    >
+    <div className={cn("aw-toggle-row", className)}>
       <div className="aw-toggle-row__copy">
         <div className="aw-toggle-row__copy-title">{title}</div>
         {description && (

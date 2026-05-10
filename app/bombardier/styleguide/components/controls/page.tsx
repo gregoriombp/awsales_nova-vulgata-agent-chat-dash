@@ -13,6 +13,8 @@ import {
   ToggleInline,
   SliderDemo,
   TabsDemo,
+  SelectDemo,
+  ProgressDemo,
 } from "./ControlsDemo"
 
 export default function ControlsPage() {
@@ -21,7 +23,9 @@ export default function ControlsPage() {
       <PageHero title="Controles">
         Controles compactos para configurações dentro de painéis:
           <strong> Toggle</strong> (boolean), <strong>Slider</strong>{" "}
-          (numérico) e <strong>Tabs</strong> (agrupamento de conteúdo).
+          (numérico), <strong>Tabs</strong> (agrupamento de conteúdo),{" "}
+          <strong>Select</strong> (trigger de menu) e <strong>Progress</strong>{" "}
+          (barra de progresso determinística).
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
 <div className="flex flex-col gap-16">
@@ -118,9 +122,68 @@ export default function ControlsPage() {
         </Section>
 
         <Section
+          id="select"
+          title="Select"
+          lead="Trigger de menu — botão estilizado com label e caret. Não é um menu por si só; pareie com AwDropdownMenu (ou Radix) pra abrir as opções."
+        >
+          <Stage label="select trigger — clique alterna o exemplo">
+            <SelectDemo />
+          </Stage>
+
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <Spec
+              k="altura"
+              v="36 px"
+              d="Mesmo ritmo do AwButton size=md."
+            />
+            <Spec
+              k="superfície"
+              v="--bg-raised + 1px --border-default"
+              d="Hover sobe pra --border-strong."
+            />
+            <Spec
+              k="caret"
+              v="14 px · --fg-tertiary"
+              d="Sempre à direita; gira 180° quando o menu abre (controle externo)."
+            />
+          </div>
+        </Section>
+
+        <Section
+          id="progress"
+          title="Progress"
+          lead="Barra de progresso determinística (valor conhecido). Quatro variantes para semântica de status."
+        >
+          <Stage
+            label="default · success · warning · danger"
+            gridClassName="flex flex-col gap-6"
+          >
+            <ProgressDemo />
+          </Stage>
+
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <Spec
+              k="track"
+              v="6 px · --bg-muted"
+              d="Pill-radius. Indicator anima de 0 → value em ease-out."
+            />
+            <Spec
+              k="indicator"
+              v="--accent-brand"
+              d="Variantes trocam pra emerald-700 / amber-500 / red-700."
+            />
+            <Spec
+              k="label + valor"
+              v="row top — 13 px"
+              d="Label à esquerda em --fg-secondary, valor à direita em --fg-primary (bold)."
+            />
+          </div>
+        </Section>
+
+        <Section
           id="api"
           title="API"
-          lead="Todos os 3 controles vivem em arquivos separados dentro de components/ui/."
+          lead="Todos os controles vivem em arquivos separados dentro de components/ui/."
         >
           <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
             AwToggle
@@ -190,6 +253,60 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
+          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+            AwSelect
+          </h3>
+          <ApiTable>
+            <PropRow
+              prop="children"
+              type="ReactNode"
+              doc="Texto/label visível dentro do trigger. Pode ser string ou JSX (ex.: ícone + label)."
+            />
+            <PropRow
+              prop="onClick"
+              type="MouseEventHandler"
+              doc="Handler para abrir o menu. AwSelect é puramente o trigger — o menu fica a cargo do consumidor."
+            />
+            <PropRow
+              prop="...rest"
+              type="ButtonHTMLAttributes"
+              doc="Demais props HTML do <button> — disabled, aria-*, ref via forwardRef."
+            />
+          </ApiTable>
+
+          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+            AwProgress
+          </h3>
+          <ApiTable>
+            <PropRow
+              prop="value"
+              type="number"
+              doc="Valor atual; clamp em [0, max]."
+            />
+            <PropRow
+              prop="max"
+              type="number"
+              def="100"
+              doc="Valor máximo da escala."
+            />
+            <PropRow
+              prop="label"
+              type="ReactNode"
+              doc="Texto à esquerda no top da row. Omita para esconder a row de header."
+            />
+            <PropRow
+              prop="valueLabel"
+              type="ReactNode"
+              doc='Valor formatado à direita. Default: "{round(pct)}%".'
+            />
+            <PropRow
+              prop="variant"
+              type='"default" | "success" | "warning" | "danger"'
+              def='"default"'
+              doc="Cor do indicator — semântica de status."
+            />
+          </ApiTable>
+
           <CodeExample>{`"use client"
 import { useState } from "react"
 import { AwToggle, AwTabs, AwSlider } from "@/components/ui/*"
@@ -223,11 +340,15 @@ const [temp, setTemp] = useState(70)
               <>Toggle para estado binário, imediato e reversível.</>,
               <>Slider sempre com valor numérico visível.</>,
               <>Tabs para alternar painéis dentro da mesma tela.</>,
+              <>Select pareado com AwDropdownMenu pra abrir as opções.</>,
+              <>Progress quando o valor é determinístico (% conhecido).</>,
             ]}
             donts={[
               <>Checkbox quando o estado é binário, imediato e reversível — use toggle.</>,
               <>Slider sem max/min explícitos ou unidade.</>,
               <>Tabs para navegação entre páginas — use o router.</>,
+              <>Select sem menu acoplado — vira só um botão.</>,
+              <>Progress para tarefas indeterminadas — use AwSkeleton ou um spinner.</>,
             ]}
           />
         </Section>

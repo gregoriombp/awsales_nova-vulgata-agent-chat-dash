@@ -1,4 +1,6 @@
 import * as React from "react"
+import { Slot } from "@radix-ui/react-slot"
+import { cn } from "@/lib/utils"
 import { Icon } from "./Icon"
 
 export type AwButtonVariant =
@@ -21,6 +23,7 @@ export type AwButtonProps = Omit<
   iconOnly?: string
   loading?: boolean
   block?: boolean
+  asChild?: boolean
 }
 
 export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
@@ -34,6 +37,7 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
       loading,
       block,
       disabled,
+      asChild,
       children,
       className,
       ...rest
@@ -41,24 +45,22 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
     ref
   ) {
     const iconSize = size === "sm" ? 14 : size === "lg" ? 18 : 16
-    const classes = [
-      "aw-btn",
-      `aw-btn--${variant}`,
-      `aw-btn--${size}`,
-      iconOnly && "aw-btn--icon",
-      block && "aw-btn--block",
-      loading && "aw-btn--loading",
-      className,
-    ]
-      .filter(Boolean)
-      .join(" ")
+    const Comp = asChild ? Slot : "button"
 
     return (
-      <button
+      <Comp
         ref={ref}
-        disabled={disabled || loading}
-        className={classes}
+        disabled={asChild ? undefined : disabled || loading}
         aria-busy={loading || undefined}
+        className={cn(
+          "aw-btn",
+          `aw-btn--${variant}`,
+          `aw-btn--${size}`,
+          iconOnly && "aw-btn--icon",
+          block && "aw-btn--block",
+          loading && "aw-btn--loading",
+          className
+        )}
         {...rest}
       >
         {iconOnly ? (
@@ -71,7 +73,7 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
           </>
         )}
         {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
-      </button>
+      </Comp>
     )
   }
 )

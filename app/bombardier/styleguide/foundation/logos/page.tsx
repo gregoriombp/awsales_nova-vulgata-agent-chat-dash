@@ -62,6 +62,20 @@ export default function LogosPage() {
           acompanha em cabeçalhos, documentos e assinatura.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
+        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mb-10 text-sm text-[var(--aw-blue-900)]">
+          <strong>AwLogo vs AwBrandLogo.</strong> Esta página documenta o{" "}
+          <code className="mono">AwLogo</code> — a logo do{" "}
+          <strong>próprio AwSales</strong> (mark e wordmark). Para logos de{" "}
+          <strong>marcas de terceiros</strong> (WhatsApp, Stripe, etc.), use{" "}
+          <code className="mono">AwBrandLogo</code>, documentado em{" "}
+          <a
+            href="/bombardier/styleguide/components/brand-logo"
+            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+          >
+            Components → Brand logo
+          </a>
+          .
+        </div>
 <div className="flex flex-col gap-16">
         <Section
           id="anatomy"
