@@ -19,6 +19,8 @@ export const navigation: NavSection[] = [
       { name: "Acessibilidade", href: "/bombardier/styleguide/foundation/accessibility" },
       { name: "Escrita", href: "/bombardier/styleguide/foundation/content" },
       { name: "Padrões de UI", href: "/bombardier/styleguide/foundation/patterns" },
+      { name: "Review Mode", href: "/bombardier/styleguide/foundation/review-mode" },
+      { name: "Review · Inbox", href: "/bombardier/styleguide/review" },
     ],
   },
   {
