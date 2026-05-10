@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar } from "@/components/ui/AwAvatar";
@@ -150,6 +151,7 @@ const SESSIONS: Session[] = [
 ];
 
 export default function SettingsPage() {
+  const router = useRouter();
   const [active, setActive] = useState<SectionId>("profile");
   const refs = useRef<Record<SectionId, HTMLElement | null>>({
     profile: null,
@@ -458,8 +460,15 @@ export default function SettingsPage() {
                 title="Equipe & permissões"
                 description="Quem pode criar agentes, aprovar ações e acessar dados sensíveis."
                 action={
-                  <AwButton size="sm" variant="primary" iconLeft="person_add">
-                    Convidar membro
+                  <AwButton
+                    size="sm"
+                    variant="secondary"
+                    iconRight="arrow_forward"
+                    onClick={() =>
+                      router.push("/settings/equipe-permissoes")
+                    }
+                  >
+                    Gerenciar equipe completa
                   </AwButton>
                 }
               />
