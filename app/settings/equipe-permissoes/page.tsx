@@ -15,9 +15,9 @@ import { AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import {
-  CAPABILITIES,
   INTEGRATIONS,
   MEMBERS,
+  SCOPES,
   type Member,
 } from "./_components/data";
 import { InviteModal } from "./_components/InviteModal";
@@ -270,38 +270,39 @@ function MemberDetail({ member }: { member: Member | null }) {
         <DetailStat label="Membro desde" value={member.joinedAt} />
       </div>
 
-      <DetailSection title="Permissões granulares">
-        <ul className="flex flex-col gap-2.5">
-          {CAPABILITIES.map((c) => {
-            const has = memberPermissions.has(c.id);
+      <DetailSection title="Permissões por escopo">
+        <ul className="flex flex-col gap-2">
+          {SCOPES.map((scope) => {
+            const ids = scope.groups.flatMap((g) =>
+              g.permissions.map((p) => p.id)
+            );
+            const granted = ids.filter((id) => memberPermissions.has(id))
+              .length;
+            const total = ids.length;
+            const all = granted === total;
+            const some = granted > 0 && !all;
+            const variant = all ? "live" : some ? "beta" : "neutral";
+            const status = all ? "Completo" : some ? "Parcial" : "Sem acesso";
             return (
-              <li key={c.id} className="flex items-start gap-3">
-                <span
-                  className={
-                    "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[var(--radius-sm)] " +
-                    (has
-                      ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                      : "border border-[var(--border-default)] bg-[var(--bg-raised)] text-[var(--fg-tertiary)]")
-                  }
-                  aria-hidden="true"
-                >
-                  <Icon name={has ? "check" : "close"} size={12} />
+              <li
+                key={scope.id}
+                className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+              >
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+                  <Icon name={scope.icon} size={14} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p
-                    className={
-                      "m-0 text-[13px] font-medium " +
-                      (has
-                        ? "text-[var(--fg-primary)]"
-                        : "text-[var(--fg-tertiary)] line-through")
-                    }
-                  >
-                    {c.label}
+                  <p className="m-0 truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                    {scope.name}
                   </p>
                   <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
-                    {c.description}
+                    {granted}/{total} permiss
+                    {total === 1 ? "ão" : "ões"}
                   </p>
                 </div>
+                <AwPill variant={variant} dot={false}>
+                  {status}
+                </AwPill>
               </li>
             );
           })}
