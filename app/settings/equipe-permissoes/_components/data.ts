@@ -3,7 +3,16 @@
  * Lives under `_components/` so Next.js does not treat the folder as a route.
  */
 
-export type Role = "Owner" | "Admin" | "Operador" | "Viewer";
+export type Role =
+  | "Administrador"
+  | "Gerente de Operações"
+  | "Analista Sênior"
+  | "Analista Pleno"
+  | "Colaborador Externo"
+  | "Gerente da conta"
+  | "Operador";
+
+export type MemberStatus = "active" | "invited" | "inactive";
 
 export type RoleColorId =
   | "blue"
@@ -38,14 +47,6 @@ export function getRoleColor(id: RoleColorId | undefined): RoleColor {
 
 /* -----------------------------------------------------------------
  * Capability-based permissions, grouped by scope.
- *
- * Within each scope, permissions sit in groups tagged with an *intent*:
- *   - "module"          → access to the module/screen itself
- *   - "operational"     → day-to-day actions on resources
- *   - "administrative"  → sensitive/admin actions
- *
- * The intent drives accent + ordering in the UI; not every scope needs
- * every intent.
  * ----------------------------------------------------------------- */
 
 export type PermissionIntent = "module" | "operational" | "administrative";
@@ -370,14 +371,12 @@ export const SCOPES: Scope[] = [
   },
 ];
 
-/** Flat list of every permission across every scope. */
 export const ALL_PERMISSIONS: Permission[] = SCOPES.flatMap((s) =>
   s.groups.flatMap((g) => g.permissions)
 );
 
 export const ALL_PERMISSION_IDS: string[] = ALL_PERMISSIONS.map((p) => p.id);
 
-/** Map permission id → { permission, group, scope } for quick lookup. */
 export type PermissionLocation = {
   permission: Permission;
   group: ScopeGroup;
@@ -419,6 +418,7 @@ export type Member = {
   initials: string;
   avatar?: string;
   isYou?: boolean;
+  status: MemberStatus;
   lastActive: string;
   joinedAt: string;
   ticketsThisWeek: number;
@@ -448,6 +448,8 @@ export type RoleDefinition = {
   id: string;
   name: string;
   description: string;
+  /** Curta nota descrevendo o perfil ideal pra essa função. */
+  idealFor?: string;
   memberCount: number;
   capabilities: string[];
   isSystem: boolean;
@@ -457,7 +459,15 @@ export type RoleDefinition = {
 
 export const DEFAULT_CUSTOM_ROLE_ICON = "badge";
 
-export const ROLE_OPTIONS: Role[] = ["Owner", "Admin", "Operador", "Viewer"];
+export const ROLE_OPTIONS: Role[] = [
+  "Administrador",
+  "Gerente de Operações",
+  "Analista Sênior",
+  "Analista Pleno",
+  "Colaborador Externo",
+  "Gerente da conta",
+  "Operador",
+];
 
 export const PROJECT_OPTIONS = [
   "Vendas — WhatsApp",
@@ -473,14 +483,55 @@ export const INTEGRATIONS: Integration[] = [
 ];
 
 /* -----------------------------------------------------------------
- * Role presets — drive both the role list and member sample data.
+ * Role presets — capability subsets per role.
  * ----------------------------------------------------------------- */
 
-const ADMIN_PERMISSIONS = ALL_PERMISSION_IDS.filter(
+const ADMINISTRADOR_PERMISSIONS = ALL_PERMISSION_IDS;
+
+const GERENTE_OPERACOES_PERMISSIONS = ALL_PERMISSION_IDS.filter(
   (id) => !id.startsWith("workspace.billing.")
 );
 
-const OPERADOR_PERMISSIONS = [
+const ANALISTA_SENIOR_PERMISSIONS = [
+  "agentes.access",
+  "agentes.create",
+  "agentes.edit",
+  "agentes.publish",
+  "agentes.types",
+  "campanhas.access",
+  "campanhas.create",
+  "campanhas.edit",
+  "campanhas.publish",
+  "campanhas.pause",
+  "conversas.access",
+  "conversas.view.all",
+  "conversas.export",
+  "integracoes.access",
+  "integracoes.tools.manage",
+];
+
+const ANALISTA_PLENO_PERMISSIONS = [
+  "agentes.access",
+  "agentes.create",
+  "agentes.edit",
+  "campanhas.access",
+  "campanhas.create",
+  "campanhas.edit",
+  "conversas.access",
+  "conversas.view.assigned",
+  "integracoes.access",
+];
+
+const COLABORADOR_EXTERNO_PERMISSIONS = [
+  "atendimento.access",
+  "atendimento.tickets.respond",
+  "campanhas.access",
+  "campanhas.approve",
+  "conversas.access",
+  "conversas.view.assigned",
+];
+
+const GERENTE_DA_CONTA_PERMISSIONS = [
   "atendimento.access",
   "atendimento.tickets.assume",
   "atendimento.tickets.respond",
@@ -488,69 +539,114 @@ const OPERADOR_PERMISSIONS = [
   "atendimento.tickets.close",
   "atendimento.transfer.operator",
   "atendimento.transfer.team",
-  "atendimento.transfer.queue",
-  "agentes.access",
-  "agentes.edit",
   "campanhas.access",
-  "campanhas.edit",
   "conversas.access",
-  "conversas.view.assigned",
-  "integracoes.access",
+  "conversas.view.all",
+  "conversas.financial",
+  "agentes.access",
 ];
 
-const VIEWER_PERMISSIONS = [
+const OPERADOR_PERMISSIONS = [
   "atendimento.access",
-  "agentes.access",
-  "campanhas.access",
+  "atendimento.tickets.assume",
+  "atendimento.tickets.respond",
+  "atendimento.tickets.status",
   "conversas.access",
   "conversas.view.assigned",
-  "integracoes.access",
+  "agentes.access",
 ];
 
 export const ROLE_DEFINITIONS: RoleDefinition[] = [
   {
-    id: "r-owner",
-    name: "Owner",
+    id: "r-administrador",
+    name: "Administrador",
     description:
-      "Acesso total. Único papel com permissões irreversíveis (excluir organização, faturamento).",
+      "Controle total sobre a operação, ativos de IA e infraestrutura da organização.",
+    idealFor:
+      "Founders, CTOs e responsáveis pelo workspace inteiro.",
     memberCount: 1,
-    capabilities: ALL_PERMISSION_IDS,
+    capabilities: ADMINISTRADOR_PERMISSIONS,
     isSystem: true,
     color: "purple",
-    icon: "workspace_premium",
-  },
-  {
-    id: "r-admin",
-    name: "Admin",
-    description:
-      "Gerencia agentes, integrações, atendimento e equipe. Não toca em faturamento.",
-    memberCount: 1,
-    capabilities: ADMIN_PERMISSIONS,
-    isSystem: true,
-    color: "blue",
     icon: "admin_panel_settings",
   },
   {
-    id: "r-operador",
-    name: "Operador",
+    id: "r-gerente-operacoes",
+    name: "Gerente de Operações",
     description:
-      "Roda agentes, atende conversas e aprova ações comuns. Não convida membros nem mexe em integrações.",
+      "Focado no sucesso da conta e na validação técnica. Cria e edita agentes e ferramentas, e gerencia fluxos de aprovação.",
+    idealFor:
+      "Supervisores de equipe e gestores de sucesso do cliente (CSMs).",
+    memberCount: 2,
+    capabilities: GERENTE_OPERACOES_PERMISSIONS,
+    isSystem: true,
+    color: "blue",
+    icon: "manage_accounts",
+  },
+  {
+    id: "r-analista-senior",
+    name: "Analista Sênior",
+    description:
+      "Principal criador de conteúdo. Gerencia bases de conhecimento complexas, edita knowledge layers e configura disparos.",
+    idealFor:
+      "Especialistas em conteúdo e prompts que mantêm a qualidade dos agentes.",
+    memberCount: 2,
+    capabilities: ANALISTA_SENIOR_PERMISSIONS,
+    isSystem: true,
+    color: "amber",
+    icon: "engineering",
+  },
+  {
+    id: "r-analista-pleno",
+    name: "Analista Pleno",
+    description:
+      "Focado na execução e manutenção. Cria agentes e alimenta as bases de conhecimento, testando no playground.",
+    idealFor:
+      "Analistas operacionais que tocam o dia a dia dos agentes.",
+    memberCount: 2,
+    capabilities: ANALISTA_PLENO_PERMISSIONS,
+    isSystem: true,
+    color: "teal",
+    icon: "psychology",
+  },
+  {
+    id: "r-colaborador-externo",
+    name: "Colaborador Externo",
+    description:
+      "Perfil de supervisão focado em aprovações e controle de qualidade. Gerencia conversas e bases sem editar produção.",
+    idealFor:
+      "Parceiros, agências e consultores temporários com escopo restrito.",
     memberCount: 1,
-    capabilities: OPERADOR_PERMISSIONS,
+    capabilities: COLABORADOR_EXTERNO_PERMISSIONS,
+    isSystem: true,
+    color: "gray",
+    icon: "group",
+  },
+  {
+    id: "r-gerente-conta",
+    name: "Gerente da conta",
+    description:
+      "Responsável pelo relacionamento com clientes. Gerencia conversas, disparos e acompanha métricas de atendimento.",
+    idealFor:
+      "Especialistas Awsales designados pra acompanhar a sua organização.",
+    memberCount: 4,
+    capabilities: GERENTE_DA_CONTA_PERMISSIONS,
     isSystem: true,
     color: "emerald",
     icon: "support_agent",
   },
   {
-    id: "r-viewer",
-    name: "Viewer",
+    id: "r-operador",
+    name: "Operador",
     description:
-      "Somente leitura. Vê dashboards, conversas atribuídas e relatórios, sem editar nada.",
-    memberCount: 0,
-    capabilities: VIEWER_PERMISSIONS,
+      "Acesso básico focado em monitoramento e suporte. Visualiza a maioria das áreas e usa o playground para testes.",
+    idealFor:
+      "Atendentes da linha de frente e novos membros em onboarding.",
+    memberCount: 4,
+    capabilities: OPERADOR_PERMISSIONS,
     isSystem: true,
-    color: "gray",
-    icon: "visibility",
+    color: "pink",
+    icon: "headset_mic",
   },
 ];
 
@@ -560,17 +656,18 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
 
 export const MEMBERS: Member[] = [
   {
-    id: "u-1",
+    id: "u-greg",
     name: "Gregório Pinheiro",
     email: "greg@awsales.io",
-    role: "Owner",
+    role: "Administrador",
     initials: "GP",
     avatar: "/assets/users/greg.jpg",
     isYou: true,
+    status: "active",
     lastActive: "agora mesmo",
-    joinedAt: "12 jan 2026",
+    joinedAt: "12/01/2026",
     ticketsThisWeek: 12,
-    permissions: ALL_PERMISSION_IDS,
+    permissions: ADMINISTRADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
       { time: "há 2h", description: "Atualizou o agente \"Marina\"." },
@@ -579,16 +676,89 @@ export const MEMBERS: Member[] = [
     ],
   },
   {
-    id: "u-2",
-    name: "Gabriel Lima",
-    email: "gabriel@awsales.io",
-    role: "Admin",
-    initials: "GL",
-    avatar: "/assets/users/gabriel_lima.jpg",
+    id: "u-gabriel-rocha",
+    name: "Gabriel Rocha",
+    email: "gabriel.rocha@awsales.io",
+    role: "Gerente da conta",
+    initials: "GR",
+    avatar: "/assets/ui-faces/male-1.jpg",
+    status: "active",
+    lastActive: "há 12 minutos",
+    joinedAt: "11/04/2023",
+    ticketsThisWeek: 18,
+    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 12min", description: "Encerrou conversa com cliente VIP." },
+      { time: "há 1d", description: "Adicionou cliente \"Loja Marinha\"." },
+    ],
+  },
+  {
+    id: "u-larissa-pinto",
+    name: "Larissa Pinto",
+    email: "larissa.pinto@awsales.io",
+    role: "Gerente da conta",
+    initials: "LP",
+    avatar: "/assets/ui-faces/female-1.jpg",
+    status: "active",
+    lastActive: "há 1 hora",
+    joinedAt: "31/08/2022",
+    ticketsThisWeek: 14,
+    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    integrations: ["whatsapp", "instagram"],
+    activity: [
+      { time: "há 1h", description: "Atualizou status de 4 tickets." },
+      { time: "há 2d", description: "Transferiu conversa para equipe." },
+    ],
+  },
+  {
+    id: "u-rafael-andrade",
+    name: "Rafael Andrade",
+    email: "rafael.andrade@awsales.io",
+    role: "Gerente da conta",
+    initials: "RA",
+    avatar: "/assets/ui-faces/male-2.jpg",
+    status: "active",
+    lastActive: "há 2 horas",
+    joinedAt: "07/02/2024",
+    ticketsThisWeek: 9,
+    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 2h", description: "Resolveu disputa de pagamento." },
+      { time: "há 1d", description: "Subiu lista de leads do trimestre." },
+    ],
+  },
+  {
+    id: "u-camila-nogueira",
+    name: "Camila Nogueira",
+    email: "camila.nogueira@awsales.io",
+    role: "Gerente da conta",
+    initials: "CN",
+    avatar: "/assets/ui-faces/female-2.jpg",
+    status: "active",
+    lastActive: "há 5 horas",
+    joinedAt: "22/11/2023",
+    ticketsThisWeek: 11,
+    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    integrations: ["whatsapp", "checkout"],
+    activity: [
+      { time: "há 5h", description: "Acompanhou métricas semanais." },
+      { time: "há 3d", description: "Reativou cliente \"Bossa Beauty\"." },
+    ],
+  },
+  {
+    id: "u-ana-souza",
+    name: "Ana Souza",
+    email: "ana.souza@awsales.io",
+    role: "Gerente de Operações",
+    initials: "AS",
+    avatar: "/assets/ui-faces/female-3.jpg",
+    status: "active",
     lastActive: "há 14 minutos",
-    joinedAt: "03 fev 2026",
+    joinedAt: "14/01/2023",
     ticketsThisWeek: 8,
-    permissions: ADMIN_PERMISSIONS,
+    permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
       { time: "há 14min", description: "Aprovou troca de status de pedido." },
@@ -597,21 +767,181 @@ export const MEMBERS: Member[] = [
     ],
   },
   {
-    id: "u-3",
-    name: "José Júnior",
-    email: "jose@awsales.io",
-    role: "Operador",
-    initials: "JJ",
-    avatar: "/assets/users/jose.jpg",
+    id: "u-carlos-lima",
+    name: "Carlos Lima",
+    email: "carlos.lima@awsales.io",
+    role: "Gerente de Operações",
+    initials: "CL",
+    avatar: "/assets/ui-faces/male-3.jpg",
+    status: "active",
     lastActive: "há 3 horas",
-    joinedAt: "21 fev 2026",
-    ticketsThisWeek: 23,
+    joinedAt: "19/08/2022",
+    ticketsThisWeek: 6,
+    permissions: GERENTE_OPERACOES_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 3h", description: "Aprovou nova campanha de retenção." },
+      { time: "há 2d", description: "Atualizou template de SLA." },
+    ],
+  },
+  {
+    id: "u-henrique-tavares",
+    name: "Henrique Tavares",
+    email: "henrique.tavares@awsales.io",
+    role: "Analista Sênior",
+    initials: "HT",
+    avatar: "/assets/ui-faces/male-4.jpg",
+    status: "active",
+    lastActive: "há 25 minutos",
+    joinedAt: "08/05/2022",
+    ticketsThisWeek: 4,
+    permissions: ANALISTA_SENIOR_PERMISSIONS,
+    integrations: ["whatsapp", "instagram"],
+    activity: [
+      { time: "há 25min", description: "Publicou versão 3.2 do agente \"Vitrine\"." },
+      { time: "há 1d", description: "Refatorou knowledge layer de catálogo." },
+    ],
+  },
+  {
+    id: "u-juliana-barreto",
+    name: "Juliana Barreto",
+    email: "juliana.barreto@awsales.io",
+    role: "Analista Sênior",
+    initials: "JB",
+    avatar: "/assets/ui-faces/female-4.jpg",
+    status: "active",
+    lastActive: "há 50 minutos",
+    joinedAt: "16/09/2022",
+    ticketsThisWeek: 5,
+    permissions: ANALISTA_SENIOR_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 50min", description: "Configurou disparo segmentado de Black Friday." },
+      { time: "há 2d", description: "Aprovou base de FAQ atualizada." },
+    ],
+  },
+  {
+    id: "u-diego-ferreira",
+    name: "Diego Ferreira",
+    email: "diego.ferreira@awsales.io",
+    role: "Analista Pleno",
+    initials: "DF",
+    avatar: "/assets/ui-faces/male-5.jpg",
+    status: "active",
+    lastActive: "há 30 minutos",
+    joinedAt: "04/06/2023",
+    ticketsThisWeek: 11,
+    permissions: ANALISTA_PLENO_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 30min", description: "Criou novo agente \"Suporte Pro\"." },
+      { time: "há 2d", description: "Subiu nova base de conhecimento." },
+    ],
+  },
+  {
+    id: "u-pedro-vasconcelos",
+    name: "Pedro Vasconcelos",
+    email: "pedro.vasconcelos@awsales.io",
+    role: "Analista Pleno",
+    initials: "PV",
+    avatar: "/assets/ui-faces/male-6.jpg",
+    status: "active",
+    lastActive: "há 4 horas",
+    joinedAt: "13/10/2023",
+    ticketsThisWeek: 9,
+    permissions: ANALISTA_PLENO_PERMISSIONS,
+    integrations: ["whatsapp"],
+    activity: [
+      { time: "há 4h", description: "Editou agente \"Pré-venda\"." },
+      { time: "há 3d", description: "Testou nova chain de qualificação." },
+    ],
+  },
+  {
+    id: "u-marina-cavalcanti",
+    name: "Marina Cavalcanti",
+    email: "marina.cavalcanti@partner.io",
+    role: "Colaborador Externo",
+    initials: "MC",
+    avatar: "/assets/ui-faces/female-5.jpg",
+    status: "active",
+    lastActive: "há 1 dia",
+    joinedAt: "02/02/2024",
+    ticketsThisWeek: 2,
+    permissions: COLABORADOR_EXTERNO_PERMISSIONS,
+    integrations: [],
+    activity: [
+      { time: "há 1d", description: "Aprovou batch de 12 conversas de QA." },
+      { time: "há 5d", description: "Sinalizou divergência no playbook." },
+    ],
+  },
+  {
+    id: "u-beatriz-mendes",
+    name: "Beatriz Mendes",
+    email: "beatriz@awsales.io",
+    role: "Operador",
+    initials: "BM",
+    avatar: "/assets/ui-faces/female-6.jpg",
+    status: "invited",
+    lastActive: "—",
+    joinedAt: "09/03/2024",
+    ticketsThisWeek: 0,
+    permissions: OPERADOR_PERMISSIONS,
+    integrations: [],
+    activity: [
+      { time: "há 2d", description: "Convite enviado por Gregório Pinheiro." },
+    ],
+  },
+  {
+    id: "u-thiago-oliveira",
+    name: "Thiago Oliveira",
+    email: "thiago.oliveira@awsales.io",
+    role: "Operador",
+    initials: "TO",
+    avatar: "/assets/ui-faces/male-7.jpg",
+    status: "active",
+    lastActive: "há 8 minutos",
+    joinedAt: "27/07/2023",
+    ticketsThisWeek: 22,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
-      { time: "há 3h", description: "Encerrou conversa com cliente VIP." },
-      { time: "há 2d", description: "Marcou template como aprovado." },
-      { time: "há 5d", description: "Subiu nova base de conhecimento." },
+      { time: "há 8min", description: "Atendeu cliente em fila prioritária." },
+      { time: "há 1d", description: "Encerrou 14 conversas." },
+    ],
+  },
+  {
+    id: "u-bianca-rezende",
+    name: "Bianca Rezende",
+    email: "bianca.rezende@awsales.io",
+    role: "Operador",
+    initials: "BR",
+    avatar: "/assets/ui-faces/female-7.jpg",
+    status: "active",
+    lastActive: "há 2 horas",
+    joinedAt: "15/12/2023",
+    ticketsThisWeek: 17,
+    permissions: OPERADOR_PERMISSIONS,
+    integrations: ["whatsapp", "instagram"],
+    activity: [
+      { time: "há 2h", description: "Transferiu ticket para Gerente de Operações." },
+      { time: "há 2d", description: "Marcou conversas como spam." },
+    ],
+  },
+  {
+    id: "u-fernanda-costa",
+    name: "Fernanda Costa",
+    email: "fernanda@awsales.io",
+    role: "Operador",
+    initials: "FC",
+    avatar: "/assets/ui-faces/female-8.jpg",
+    status: "inactive",
+    lastActive: "há 3 meses",
+    joinedAt: "31/10/2021",
+    ticketsThisWeek: 0,
+    permissions: OPERADOR_PERMISSIONS,
+    integrations: [],
+    activity: [
+      { time: "há 3 meses", description: "Último login antes da inatividade." },
     ],
   },
 ];
@@ -620,14 +950,14 @@ export const INVITATIONS: Invitation[] = [
   {
     id: "i-1",
     email: "marina@cliente.com",
-    role: "Viewer",
+    role: "Operador",
     initials: "M",
     sentAt: "há 2 dias",
   },
   {
     id: "i-2",
     email: "pedro.rocha@awsales.io",
-    role: "Operador",
+    role: "Analista Pleno",
     initials: "P",
     sentAt: "há 5 horas",
   },
@@ -640,7 +970,7 @@ export const GROUPS: Group[] = [
     description: "Time que cuida de conversas em tempo real e SLAs.",
     memberCount: 8,
     icon: "support_agent",
-    roles: ["Operador", "Admin"],
+    roles: ["Operador", "Gerente de Operações"],
   },
   {
     id: "g-comercial",
@@ -648,7 +978,7 @@ export const GROUPS: Group[] = [
     description: "Vendas, qualificação de leads e follow-up.",
     memberCount: 5,
     icon: "trending_up",
-    roles: ["Operador"],
+    roles: ["Operador", "Gerente da conta"],
   },
   {
     id: "g-operacoes",
@@ -656,6 +986,6 @@ export const GROUPS: Group[] = [
     description: "Setup de agentes, integrações e moderação.",
     memberCount: 3,
     icon: "settings",
-    roles: ["Admin"],
+    roles: ["Gerente de Operações", "Administrador"],
   },
 ];
