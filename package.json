@@ -13,7 +13,10 @@
     "bridge:install": "npm --prefix bridge install",
     "edit-bridge": "npm --prefix bridge-edit start",
     "edit-bridge:dev": "npm --prefix bridge-edit run dev",
-    "edit-bridge:install": "npm --prefix bridge-edit install"
+    "edit-bridge:install": "npm --prefix bridge-edit install",
+    "review-bridge": "npm --prefix review-bridge start",
+    "review-bridge:dev": "npm --prefix review-bridge run dev",
+    "review-bridge:install": "npm --prefix review-bridge install"
   },
   "keywords": [],
   "author": "",
