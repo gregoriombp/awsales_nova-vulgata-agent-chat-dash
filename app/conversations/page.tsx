@@ -25,7 +25,7 @@ type Conversation = {
 
 const ICON_SIZE = 20;
 const ICON_SIZE_SM = 16;
-const BTN_ICON = "h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-[#f2f2f2] transition-colors flex-shrink-0";
+const BTN_ICON = "h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-aw-gray-200 transition-colors flex-shrink-0";
 
 const MOCK_CONVERSATIONS: Conversation[] = [
   { id: "1", contactName: "Luis Easton", contactInitial: "L", lastSnippet: "I bought this product from your store, but I just missed the return date by a day. Can you please make an exception?", lastTime: "3m" },
@@ -128,10 +128,10 @@ export default function ConversationsPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="flex h-screen min-h-[520px] -m-8 bg-white border-t border-[#f2f2f2]">
+      <div className="flex h-screen min-h-[520px] -m-8 bg-white border-t border-aw-gray-200">
         {/* Coluna 1: Inbox */}
-        <aside className="w-[300px] flex-shrink-0 border-r border-[#f2f2f2] flex flex-col bg-white">
-          <div className="p-4 border-b border-[#f2f2f2]">
+        <aside className="w-[300px] flex-shrink-0 border-r border-aw-gray-200 flex flex-col bg-white">
+          <div className="p-4 border-b border-aw-gray-200">
             <h2 className="text-base font-heading font-semibold text-text-primary mb-3">Sua caixa de entrada</h2>
             <div className="flex gap-2">
               <div className="relative">
@@ -158,8 +158,8 @@ export default function ConversationsPage() {
                 key={conv.id}
                 type="button"
                 onClick={() => setSelectedId(conv.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left border-b border-[#f2f2f2] transition-colors ${
-                  selectedId === conv.id ? "bg-[#f2f2f2]" : "hover:bg-[#fbfcfd]"
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left border-b border-aw-gray-200 transition-colors ${
+                  selectedId === conv.id ? "bg-aw-gray-200" : "hover:bg-aw-gray-150"
                 }`}
               >
                 <div className="w-10 h-10 rounded-full bg-gray-1200 text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
@@ -170,7 +170,7 @@ export default function ConversationsPage() {
                     <span className="text-sm font-medium text-text-primary truncate">{conv.contactName}</span>
                     <span className="flex items-center gap-1.5 flex-shrink-0">
                       {conv.badge && (
-                        <span className="px-2 py-0.5 rounded-full bg-[#f2f2f2] text-[10px] font-medium text-text-primary">
+                        <span className="px-2 py-0.5 rounded-full bg-aw-gray-200 text-[10px] font-medium text-text-primary">
                           {conv.badge}
                         </span>
                       )}
@@ -190,10 +190,10 @@ export default function ConversationsPage() {
         </aside>
 
         {/* Coluna 2: Chat ativo */}
-        <section className="flex-1 flex flex-col min-w-0 bg-white border-r border-[#f2f2f2]">
+        <section className="flex-1 flex flex-col min-w-0 bg-white border-r border-aw-gray-200">
           {selected ? (
             <>
-              <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-[#f2f2f2]">
+              <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-aw-gray-200">
                 <span className="text-base font-heading font-semibold text-text-primary">{selected.contactName}</span>
                 <div className="flex items-center gap-0.5">
                   <button type="button" className={BTN_ICON} aria-label="Favoritar">
@@ -239,9 +239,9 @@ export default function ConversationsPage() {
                         <div className="w-8 h-8 rounded-full bg-gray-1200 text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
                           {selected.contactInitial}
                         </div>
-                        <div className="rounded-2xl rounded-bl-md bg-[#f2f2f2] px-4 py-2.5">
+                        <div className="rounded-2xl rounded-bl-md bg-aw-gray-200 px-4 py-2.5">
                           {msg.imageTitle ? (
-                            <div className="rounded-lg overflow-hidden bg-[#eaeaea] w-36 h-28 flex flex-col items-center justify-center text-xs text-text-secondary">
+                            <div className="rounded-lg overflow-hidden bg-aw-gray-300 w-36 h-28 flex flex-col items-center justify-center text-xs text-text-secondary">
                               <span className="font-medium text-text-primary mt-1">[Imagem]</span>
                               <span>{msg.imageTitle}</span>
                             </div>
@@ -273,7 +273,7 @@ export default function ConversationsPage() {
               <div className="flex-shrink-0 p-4 pt-0">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-sm font-medium text-text-primary">Chat</span>
-                  <button type="button" className="p-1 -m-1 rounded text-text-secondary hover:text-text-primary hover:bg-[#f2f2f2]">
+                  <button type="button" className="p-1 -m-1 rounded text-text-secondary hover:text-text-primary hover:bg-aw-gray-200">
                     <IconChevronDown size={16} />
                   </button>
                 </div>
@@ -284,21 +284,21 @@ export default function ConversationsPage() {
                     rows={3}
                     className="w-full px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary resize-none border-0 rounded-t-xl focus:outline-none focus:ring-0 bg-transparent"
                   />
-                  <div className="flex items-center justify-between px-2 py-2 border-t border-[#f2f2f2]">
+                  <div className="flex items-center justify-between px-2 py-2 border-t border-aw-gray-200">
                     <div className="flex items-center gap-0.5">
-                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-[#f2f2f2]" aria-label="Anexar">
+                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-aw-gray-200" aria-label="Anexar">
                         <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <path d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l10.6-10.6a4 4 0 1 1 5.66 5.66l-10.6 10.6a2 2 0 0 1-2.83-2.83l9.9-9.9" />
                         </svg>
                       </button>
-                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-[#f2f2f2]" aria-label="Imagem">
+                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-aw-gray-200" aria-label="Imagem">
                         <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                           <circle cx="8.5" cy="8.5" r="1.5" />
                           <path d="M21 15l-5-5L5 21" />
                         </svg>
                       </button>
-                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-[#f2f2f2]" aria-label="Emoji">
+                      <button type="button" className="h-8 w-8 flex items-center justify-center rounded-lg text-text-secondary hover:text-text-primary hover:bg-aw-gray-200" aria-label="Emoji">
                         <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                           <circle cx="12" cy="12" r="9" />
                           <path d="M8 14c1 1.333 2.333 2 4 2s3-.667 4-2" />
@@ -326,8 +326,8 @@ export default function ConversationsPage() {
         </section>
 
         {/* Coluna 3: AI Copilot */}
-        <aside className="w-[340px] flex-shrink-0 flex flex-col bg-[#fbfcfd] border-l border-[#f2f2f2]">
-          <div className="border-b border-[#f2f2f2] flex">
+        <aside className="w-[340px] flex-shrink-0 flex flex-col bg-aw-gray-150 border-l border-aw-gray-200">
+          <div className="border-b border-aw-gray-200 flex">
             <button
               type="button"
               onClick={() => setCopilotTab("details")}
@@ -354,7 +354,7 @@ export default function ConversationsPage() {
                 {/* Exchange 1: You + Fin */}
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#f2f2f2] flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
                       Você
                     </div>
                     <p className="text-sm text-text-primary pt-1">{COPILOT_EXCHANGE_1.you}</p>
@@ -392,7 +392,7 @@ export default function ConversationsPage() {
                 {/* Exchange 2: You + Fin (placeholder) */}
                 <div className="space-y-3 pt-2">
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-[#f2f2f2] flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
                       Você
                     </div>
                     <p className="text-sm text-text-primary pt-1">{COPILOT_EXCHANGE_2.you}</p>
@@ -430,7 +430,7 @@ export default function ConversationsPage() {
                     />
                     <button
                       type="button"
-                      className="h-9 w-9 rounded-lg bg-gray-1200 text-white flex items-center justify-center hover:bg-[#111111] flex-shrink-0 transition-colors"
+                      className="h-9 w-9 rounded-lg bg-aw-gray-1200 text-white flex items-center justify-center hover:bg-aw-gray-1100 flex-shrink-0 transition-colors"
                       aria-label="Enviar"
                     >
                       <IconArrowUp />
