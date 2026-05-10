@@ -15,6 +15,7 @@ export default function DashboardLayout({
   showDateSelector,
   mainClassName,
   floatingSidebar,
+  breadcrumbInnerClassName,
 }: {
   children: React.ReactNode;
   title?: string;
@@ -23,6 +24,8 @@ export default function DashboardLayout({
   mainClassName?: string;
   /** Sidebar floats over full-width content as a liquid-glass rail. */
   floatingSidebar?: boolean;
+  /** Center/limit breadcrumb text to match a narrow main column (e.g. Agent Studio). */
+  breadcrumbInnerClassName?: string;
 }) {
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const pathname = usePathname();
@@ -56,7 +59,10 @@ export default function DashboardLayout({
               treatment so the surface tone shows around the edges. */}
           <div className="my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <BreadcrumbsBar items={breadcrumbs} />
+              <BreadcrumbsBar
+                items={breadcrumbs}
+                innerClassName={breadcrumbInnerClassName}
+              />
             )}
             <main className={`flex-1 overflow-y-auto p-6 ${mainClassName ?? ""}`}>
               {title && (
