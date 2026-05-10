@@ -421,6 +421,7 @@ export type Member = {
   isYou?: boolean;
   lastActive: string;
   joinedAt: string;
+  ticketsThisWeek: number;
   permissions: string[];
   integrations: string[];
   activity: ActivityEntry[];
@@ -568,6 +569,7 @@ export const MEMBERS: Member[] = [
     isYou: true,
     lastActive: "agora mesmo",
     joinedAt: "12 jan 2026",
+    ticketsThisWeek: 12,
     permissions: ALL_PERMISSION_IDS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
@@ -585,6 +587,7 @@ export const MEMBERS: Member[] = [
     avatar: "/assets/users/gabriel_lima.jpg",
     lastActive: "há 14 minutos",
     joinedAt: "03 fev 2026",
+    ticketsThisWeek: 8,
     permissions: ADMIN_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -602,6 +605,7 @@ export const MEMBERS: Member[] = [
     avatar: "/assets/users/jose.jpg",
     lastActive: "há 3 horas",
     joinedAt: "21 fev 2026",
+    ticketsThisWeek: 23,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
