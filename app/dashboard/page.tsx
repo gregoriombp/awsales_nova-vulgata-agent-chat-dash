@@ -104,7 +104,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setIsPeriodOpen((v) => !v)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm border border-[#e5e5e5] rounded-lg bg-white text-text-primary hover:border-[#d4d4d4] transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-text-secondary">
                       <rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.5"/>
@@ -116,7 +116,7 @@ export default function Dashboard() {
                     </svg>
                   </button>
                   {isPeriodOpen && (
-                    <div className="absolute left-0 top-full mt-1 z-20 min-w-[200px] py-1 bg-white border border-[#e5e5e5] rounded-lg shadow-lg">
+                    <div className="absolute left-0 top-full mt-1 z-20 min-w-[200px] py-1 bg-white border border-aw-gray-300 rounded-lg shadow-lg">
                       {PERIOD_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
@@ -125,7 +125,7 @@ export default function Dashboard() {
                             setPeriod(opt.value);
                             setIsPeriodOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${period === opt.value ? "bg-gray-50 text-text-primary font-medium" : "text-text-secondary"}`}
+                          className={`w-full text-left px-3 py-2 text-sm hover:bg-aw-gray-150 ${period === opt.value ? "bg-aw-gray-150 text-text-primary font-medium" : "text-text-secondary"}`}
                         >
                           {opt.label}
                         </button>
@@ -139,7 +139,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setIsFilterOpen((v) => !v)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm border border-[#e5e5e5] rounded-lg bg-white text-text-primary hover:border-[#d4d4d4] transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 text-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M2 3h12M4 6h8M6 9h4M8 12h0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -155,7 +155,7 @@ export default function Dashboard() {
                     </svg>
                   </button>
                   {isFilterOpen && (
-                    <div className="absolute left-0 top-full mt-1 z-20 w-[320px] py-3 px-4 bg-white border border-[#e5e5e5] rounded-xl shadow-lg">
+                    <div className="absolute left-0 top-full mt-1 z-20 w-[320px] py-3 px-4 bg-white border border-aw-gray-300 rounded-xl shadow-lg">
                       <div className="text-sm font-medium text-text-primary mb-3">Filtros personalizados</div>
                       <div className="space-y-4">
                         <div>
@@ -167,7 +167,7 @@ export default function Dashboard() {
                                   type="checkbox"
                                   checked={selectedAgents.includes(a.id)}
                                   onChange={() => toggleAgent(a.id)}
-                                  className="rounded border-[#e5e5e5] text-primary focus:ring-primary"
+                                  className="rounded border-aw-gray-300 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm text-text-primary">{a.name}</span>
                               </label>
@@ -183,7 +183,7 @@ export default function Dashboard() {
                                   type="checkbox"
                                   checked={selectedChannels.includes(c.id)}
                                   onChange={() => toggleChannel(c.id)}
-                                  className="rounded border-[#e5e5e5] text-primary focus:ring-primary"
+                                  className="rounded border-aw-gray-300 text-primary focus:ring-primary"
                                 />
                                 <span className="text-sm text-text-primary">{c.name}</span>
                               </label>
@@ -191,14 +191,14 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex gap-2 mt-4 pt-3 border-t border-[#e5e5e5]">
+                      <div className="flex gap-2 mt-4 pt-3 border-t border-aw-gray-300">
                         <button
                           type="button"
                           onClick={() => {
                             setSelectedAgents([]);
                             setSelectedChannels([]);
                           }}
-                          className="flex-1 py-2 text-sm text-text-secondary hover:text-text-primary border border-[#e5e5e5] rounded-lg"
+                          className="flex-1 py-2 text-sm text-text-secondary hover:text-text-primary border border-aw-gray-300 rounded-lg"
                         >
                           Limpar
                         </button>
@@ -292,7 +292,7 @@ export default function Dashboard() {
                     cx="64"
                     cy="64"
                     r="56"
-                    stroke="#e5e7eb"
+                    stroke="var(--aw-gray-300)"
                     strokeWidth="12"
                     fill="none"
                   />
@@ -300,7 +300,7 @@ export default function Dashboard() {
                     cx="64"
                     cy="64"
                     r="56"
-                    stroke="rgb(59, 130, 246)"
+                    stroke="var(--aw-blue-500)"
                     strokeWidth="12"
                     fill="none"
                     strokeDasharray={`${2 * Math.PI * 56 * 0.75} ${2 * Math.PI * 56}`}
@@ -329,9 +329,9 @@ export default function Dashboard() {
                     <span className="text-text-primary">{item.label}</span>
                     <span className="text-text-secondary">{item.value}</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-aw-gray-200 rounded-full h-2">
                     <div
-                      className="bg-gray-400 h-2 rounded-full"
+                      className="bg-aw-gray-400 h-2 rounded-full"
                       style={{ width: `${(item.value / item.max) * 100}%` }}
                     />
                   </div>
