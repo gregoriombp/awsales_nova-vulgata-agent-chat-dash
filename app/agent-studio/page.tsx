@@ -53,50 +53,52 @@ export default function AgentStudioEntrancePage() {
       mainClassName="!p-0 !overflow-hidden"
       floatingSidebar
     >
-      <div className="flex min-h-full w-full flex-col items-center justify-center bg-[#000000]">
-      {/* Central column: animation + content */}
-      <div className="flex flex-col items-center justify-center gap-10 max-w-lg w-full">
-        {/* Dot tunnel (perspective + motion) */}
-        <div className="relative w-full aspect-square max-w-[320px] flex-shrink-0 agent-studio-tunnel-wrap">
-          <svg
-            className="absolute inset-0 w-full h-full"
-            viewBox="0 0 200 200"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            {tunnelDots.map((dot, i) => (
-              <circle
-                key={i}
-                className="agent-studio-tunnel-dot"
-                cx={dot.cx}
-                cy={dot.cy}
-                r={dot.r}
-                fill="white"
-                style={{
-                  animationDelay: `${dot.delay}s`,
-                }}
-              />
-            ))}
-          </svg>
-        </div>
+      <div className="flex min-h-full w-full flex-col items-center px-5 sm:px-6">
+        <div className="flex min-h-full w-full max-w-4xl flex-col items-center justify-center rounded-[var(--radius-lg)] bg-[var(--aw-black)] py-10 sm:py-12">
+          {/* Central column: animation + content */}
+          <div className="flex w-full max-w-lg flex-col items-center justify-center gap-10 px-5">
+            {/* Dot tunnel (perspective + motion) */}
+            <div className="relative aspect-square w-full max-w-[320px] flex-shrink-0 agent-studio-tunnel-wrap">
+              <svg
+                className="absolute inset-0 h-full w-full"
+                viewBox="0 0 200 200"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {tunnelDots.map((dot, i) => (
+                  <circle
+                    key={i}
+                    className="agent-studio-tunnel-dot"
+                    cx={dot.cx}
+                    cy={dot.cy}
+                    r={dot.r}
+                    fill="white"
+                    style={{
+                      animationDelay: `${dot.delay}s`,
+                    }}
+                  />
+                ))}
+              </svg>
+            </div>
 
-        {/* Title, subtitle, CTA */}
-        <div className="flex flex-col items-center text-center">
-          <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl font-regular text-white tracking-tight mb-3">
-            Agent Studio
-          </h1>
-          <p className="text-lg sm:text-xl text-white/80 max-w-md mb-10 font-sans font-normal">
-            Crie seu primeiro agente em menos de 90 minutos
-          </p>
-          <Link
-            href="/agent-studio/new"
-            className="px-8 py-4 rounded-lg bg-white text-black font-semibold text-base hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-white/10"
-          >
-            Criar agente
-          </Link>
+            {/* Title, subtitle, CTA */}
+            <div className="flex flex-col items-center text-center">
+              <h1 className="mb-3 font-heading text-4xl font-regular tracking-tight text-white sm:text-5xl md:text-6xl">
+                Agent Studio
+              </h1>
+              <p className="mb-10 max-w-md font-sans text-lg font-normal text-white/80 sm:text-xl">
+                Crie seu primeiro agente em menos de 90 minutos
+              </p>
+              <Link
+                href="/agent-studio/new"
+                className="rounded-lg bg-white px-8 py-4 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:scale-[1.02] hover:bg-white/95 hover:shadow-xl hover:shadow-white/10 active:scale-[0.98]"
+              >
+                Criar agente
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
     </DashboardLayout>
   );
 }
