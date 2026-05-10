@@ -189,7 +189,7 @@ export default function Sidebar({
 
   return (
     <aside
-      className="h-screen flex-shrink-0 py-3 pl-3 pr-1 flex bg-transparent"
+      className="flex h-screen flex-shrink-0 bg-transparent py-2 pl-2 pr-1"
       style={{
         width: isCollapsed ? 88 : 320,
         transition: animationsReady

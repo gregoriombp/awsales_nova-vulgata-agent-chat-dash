@@ -1991,6 +1991,13 @@
 }
 .aw-nav-rail--collapsed { width: 64px; }
 .aw-nav-rail--expanded  { width: 296px; padding: 12px; }
+/* Floating (translucent) rail: tighter shell to match app chrome my-2 / pl-2 */
+.aw-nav-rail--translucent.aw-nav-rail--collapsed {
+  padding: 8px 6px;
+}
+.aw-nav-rail--translucent.aw-nav-rail--expanded {
+  padding: 10px;
+}
 .aw-nav-rail--dark {
   background: var(--dark-bg);
   border-color: var(--dark-border);
