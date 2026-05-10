@@ -16,6 +16,13 @@ import { cn } from "@/lib/utils"
  * so feature pages don't re-implement the pattern.
  * ----------------------------------------------------------------- */
 
+export type AwMembersTableSortDir = "asc" | "desc"
+
+export type AwMembersTableSort = {
+  by: string
+  dir: AwMembersTableSortDir
+}
+
 export type AwMembersTableColumn = {
   label: React.ReactNode
   /** Material icon name rendered to the left of the column label (e.g. "person"). */
@@ -25,15 +32,45 @@ export type AwMembersTableColumn = {
   /** Fixed pixel width for the column. */
   width?: number
   align?: "left" | "right"
+  /**
+   * Make this column sortable. Pair with the `sort` + `onSort` props on
+   * `AwMembersTable` to receive click events.
+   */
+  sortKey?: string
 }
 
 export type AwMembersTableProps = React.HTMLAttributes<HTMLTableElement> & {
   columns: AwMembersTableColumn[]
+  /** Active sort state. When omitted, no column shows an active sort. */
+  sort?: AwMembersTableSort
+  /** Fires when a sortable header is clicked. Toggle dir externally. */
+  onSort?: (key: string) => void
   children?: React.ReactNode
+}
+
+function SortGlyph({
+  active,
+  dir,
+}: {
+  active: boolean
+  dir: AwMembersTableSortDir
+}) {
+  if (!active) {
+    return <Icon name="unfold_more" size={14} aria-hidden="true" />
+  }
+  return (
+    <Icon
+      name={dir === "asc" ? "arrow_upward" : "arrow_downward"}
+      size={14}
+      aria-hidden="true"
+    />
+  )
 }
 
 export function AwMembersTable({
   columns,
+  sort,
+  onSort,
   children,
   className,
   ...rest
@@ -42,12 +79,19 @@ export function AwMembersTable({
     <AwTable className={cn("aw-table--airy", className)} {...rest}>
       <thead>
         <tr>
-          {columns.map((col, i) => (
-            <th
-              key={i}
-              style={{ width: col.width, textAlign: col.align ?? "left" }}
-            >
-              <span className="inline-flex items-center gap-1.5">
+          {columns.map((col, i) => {
+            const sortable = !!col.sortKey
+            const active = sortable && sort?.by === col.sortKey
+            const ariaSort: React.AriaAttributes["aria-sort"] = active
+              ? sort?.dir === "asc"
+                ? "ascending"
+                : "descending"
+              : sortable
+                ? "none"
+                : undefined
+
+            const inner = (
+              <>
                 {col.icon && (
                   <span className="inline-flex h-5 w-5 items-center justify-center text-[var(--fg-tertiary)]">
                     <Icon name={col.icon} size={16} />
@@ -63,9 +107,37 @@ export function AwMembersTable({
                     <Icon name="help" size={13} />
                   </span>
                 )}
-              </span>
-            </th>
-          ))}
+                {sortable && (
+                  <SortGlyph
+                    active={!!active}
+                    dir={sort?.dir ?? "asc"}
+                  />
+                )}
+              </>
+            )
+
+            return (
+              <th
+                key={i}
+                style={{ width: col.width, textAlign: col.align ?? "left" }}
+                aria-sort={ariaSort}
+              >
+                {sortable ? (
+                  <button
+                    type="button"
+                    className="aw-th-sort"
+                    onClick={() => onSort?.(col.sortKey!)}
+                  >
+                    {inner}
+                  </button>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5">
+                    {inner}
+                  </span>
+                )}
+              </th>
+            )
+          })}
         </tr>
       </thead>
       <tbody>{children}</tbody>
@@ -79,9 +151,11 @@ export function AwMembersTable({
 
 export type AwMembersTablePersonCellProps =
   React.TdHTMLAttributes<HTMLTableCellElement> & {
-    name: string
+    /** Rendered name. ReactNode supported — pass e.g. <>Greg <span>(você)</span></>. */
+    name: React.ReactNode
     email?: string
     avatarSrc?: string
+    /** Required when `name` is not a string. */
     initials?: string
     avatarSize?: AwAvatarSize
     /** Pill content rendered inline next to the name (e.g. "ADMIN"). */
@@ -102,12 +176,14 @@ export function AwMembersTablePersonCell({
 }: AwMembersTablePersonCellProps) {
   const fallbackInitials =
     initials ??
-    name
-      .split(" ")
-      .map((p) => p.charAt(0))
-      .join("")
-      .slice(0, 2)
-      .toUpperCase()
+    (typeof name === "string"
+      ? name
+          .split(" ")
+          .map((p) => p.charAt(0))
+          .join("")
+          .slice(0, 2)
+          .toUpperCase()
+      : "?")
 
   return (
     <td className={className} {...rest}>
@@ -116,7 +192,7 @@ export function AwMembersTablePersonCell({
           size={avatarSize}
           src={avatarSrc}
           initials={fallbackInitials}
-          alt={name}
+          alt={typeof name === "string" ? name : undefined}
         />
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="flex items-center gap-2">
