@@ -13,6 +13,7 @@ import {
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import {
   AwMembersTable,
   AwMembersTablePersonCell,
@@ -73,7 +74,7 @@ export default function MembersPage() {
     [members, selectedMemberId]
   );
 
-  const handleChangeRole = useCallback((id: string, role: Role) => {
+  const applyRoleChange = useCallback((id: string, role: Role) => {
     setMembers((prev) =>
       prev.map((m) => {
         if (m.id !== id) return m;
@@ -87,6 +88,33 @@ export default function MembersPage() {
     );
   }, []);
 
+  const [pendingRoleChange, setPendingRoleChange] = useState<{
+    memberId: string;
+    memberName: string;
+    fromRole: Role;
+    toRole: Role;
+  } | null>(null);
+
+  const requestRoleChange = useCallback(
+    (id: string, role: Role) => {
+      const m = members.find((x) => x.id === id);
+      if (!m || m.role === role) return;
+      setPendingRoleChange({
+        memberId: id,
+        memberName: m.name,
+        fromRole: m.role,
+        toRole: role,
+      });
+    },
+    [members]
+  );
+
+  const handleConfirmRoleChange = useCallback(() => {
+    if (!pendingRoleChange) return;
+    applyRoleChange(pendingRoleChange.memberId, pendingRoleChange.toRole);
+    setPendingRoleChange(null);
+  }, [pendingRoleChange, applyRoleChange]);
+
   const handleRemove = useCallback(
     (id: string) => {
       setMembers((prev) => prev.filter((m) => m.id !== id));
@@ -99,9 +127,12 @@ export default function MembersPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+          <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-primary)]">
+              <Icon name="groups" size={22} />
+            </span>
             Equipe &amp; permissões
           </h1>
           <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
@@ -122,7 +153,7 @@ export default function MembersPage() {
             />
           </div>
           <AwButton
-            size="sm"
+            size="md"
             variant="primary"
             iconLeft="person_add"
             onClick={() => setInviteOpen(true)}
@@ -131,30 +162,59 @@ export default function MembersPage() {
           </AwButton>
         </div>
 
-        {!isExpanded ? (
-          <MembersTableState
-            members={filteredMembers}
-            onSelect={setSelectedMemberId}
-            onChangeRole={handleChangeRole}
-          />
-        ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <CompactMemberList
-              members={filteredMembers}
-              selectedId={selectedMember.id}
-              onSelect={setSelectedMemberId}
-            />
-            <MemberDetail
-              member={selectedMember}
-              onChangeRole={(role) => handleChangeRole(selectedMember.id, role)}
-              onRemove={() => handleRemove(selectedMember.id)}
-              onClose={() => setSelectedMemberId(null)}
-            />
+        <div className="flex w-full gap-4">
+          <div
+            className="min-w-0 shrink-0 transition-[width] duration-300 ease-out"
+            style={{ width: isExpanded ? "340px" : "100%" }}
+          >
+            {!isExpanded ? (
+              <MembersTableState
+                members={filteredMembers}
+                onSelect={setSelectedMemberId}
+                onChangeRole={requestRoleChange}
+              />
+            ) : (
+              <CompactMemberList
+                members={filteredMembers}
+                selectedId={selectedMember.id}
+                onSelect={setSelectedMemberId}
+              />
+            )}
           </div>
-        )}
+
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <div
+              className="transition-[opacity,transform] duration-300 ease-out"
+              style={{
+                opacity: isExpanded ? 1 : 0,
+                transform: isExpanded
+                  ? "translateX(0)"
+                  : "translateX(32px)",
+                pointerEvents: isExpanded ? "auto" : "none",
+              }}
+            >
+              {selectedMember && (
+                <MemberDetail
+                  member={selectedMember}
+                  onChangeRole={(role) =>
+                    requestRoleChange(selectedMember.id, role)
+                  }
+                  onRemove={() => handleRemove(selectedMember.id)}
+                  onClose={() => setSelectedMemberId(null)}
+                />
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
+
+      <RoleChangeConfirmModal
+        pending={pendingRoleChange}
+        onConfirm={handleConfirmRoleChange}
+        onCancel={() => setPendingRoleChange(null)}
+      />
     </DashboardLayout>
   );
 }
@@ -162,6 +222,8 @@ export default function MembersPage() {
 /* -----------------------------------------------------------------
  * State A — full-width members table
  * ----------------------------------------------------------------- */
+
+const MANAGER_ROLE: Role = "Gerente da conta";
 
 function MembersTableState({
   members,
@@ -172,6 +234,9 @@ function MembersTableState({
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
 }) {
+  const managers = members.filter((m) => m.role === MANAGER_ROLE);
+  const others = members.filter((m) => m.role !== MANAGER_ROLE);
+
   if (members.length === 0) {
     return (
       <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10">
@@ -191,47 +256,104 @@ function MembersTableState({
   }
 
   return (
-    <AwMembersTable
-      columns={[
-        { label: "Pessoa", icon: "person" },
-        { label: "Função", help: "Define o conjunto de permissões." },
-        { label: "Última atividade" },
-      ]}
-    >
-      {members.map((m) => (
-        <tr
-          key={m.id}
-          className="aw-row-clickable"
-          onClick={() => onSelect(m.id)}
+    <div className="flex flex-col gap-8">
+      <MemberSection
+        title="Gerentes da conta"
+        description="O Gerente de Contas é um especialista da equipe Awsales designado para acompanhar sua organização. Ele irá oferecer suporte técnico, auxiliar em configurações estratégicas e garantir que você extraia o máximo potencial da plataforma sempre que necessário."
+        members={managers}
+        onSelect={onSelect}
+        onChangeRole={onChangeRole}
+        emptyHint="Nenhum gerente da conta atribuído ainda."
+      />
+      <MemberSection
+        title="Outros membros"
+        members={others}
+        onSelect={onSelect}
+        onChangeRole={onChangeRole}
+        emptyHint="Sem membros nessa categoria."
+      />
+    </div>
+  );
+}
+
+function MemberSection({
+  title,
+  description,
+  members,
+  onSelect,
+  onChangeRole,
+  emptyHint,
+}: {
+  title: string;
+  description?: string;
+  members: Member[];
+  onSelect: (id: string) => void;
+  onChangeRole: (id: string, role: Role) => void;
+  emptyHint: string;
+}) {
+  return (
+    <section>
+      <header className="mb-3">
+        <h2 className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          {title}
+        </h2>
+        {description && (
+          <p className="m-0 mt-2 max-w-[760px] text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+            {description}
+          </p>
+        )}
+      </header>
+
+      {members.length === 0 ? (
+        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-6 py-8 text-center">
+          <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
+            {emptyHint}
+          </p>
+        </div>
+      ) : (
+        <AwMembersTable
+          columns={[
+            { label: "Pessoa", icon: "person" },
+            { label: "Função", help: "Define o conjunto de permissões." },
+            { label: "Última atividade" },
+          ]}
         >
-          <AwMembersTablePersonCell
-            name={m.name}
-            email={m.email}
-            avatarSrc={m.avatar}
-            initials={m.initials}
-            tag={m.isYou ? "Você" : undefined}
-            tagVariant="live"
-          />
-          <td onClick={(e) => e.stopPropagation()}>
-            <AwDropdownMenu
-              trigger={<AwSelect>{m.role}</AwSelect>}
-              items={ROLE_OPTIONS.map((r) => ({
-                id: r,
-                label: r,
-                checked: r === m.role,
-                onSelect: () => onChangeRole(m.id, r),
-              }))}
-            />
-          </td>
-          <AwMembersTableTextCell muted>
-            <span className="inline-flex items-center gap-2">
-              <AwStatusDot variant="live" size="xs" />
-              {m.lastActive}
-            </span>
-          </AwMembersTableTextCell>
-        </tr>
-      ))}
-    </AwMembersTable>
+          {members.map((m) => (
+            <tr
+              key={m.id}
+              className="aw-row-clickable"
+              onClick={() => onSelect(m.id)}
+            >
+              <AwMembersTablePersonCell
+                name={m.name}
+                email={m.email}
+                avatarSrc={m.avatar}
+                initials={m.initials}
+                tag={m.isYou ? "Você" : undefined}
+                tagVariant="live"
+              />
+              <td onClick={(e) => e.stopPropagation()}>
+                <AwDropdownMenu
+                  trigger={<AwSelect>{m.role}</AwSelect>}
+                  items={ROLE_OPTIONS.map((r) => ({
+                    id: r,
+                    label: r,
+                    checked: r === m.role,
+                    onSelect: () => onChangeRole(m.id, r),
+                  }))}
+                />
+              </td>
+              <AwMembersTableTextCell muted>
+                <span className="inline-flex items-center gap-2">
+                  <AwStatusDot variant="live" size="xs" />
+                  {m.lastActive}
+                </span>
+              </AwMembersTableTextCell>
+            </tr>
+          ))}
+        </AwMembersTable>
+      )}
+    </section>
   );
 }
 
@@ -577,5 +699,117 @@ function ScopeRow({
         </div>
       )}
     </li>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Role change confirmation modal
+ * ----------------------------------------------------------------- */
+
+function RoleChangeConfirmModal({
+  pending,
+  onConfirm,
+  onCancel,
+}: {
+  pending: {
+    memberId: string;
+    memberName: string;
+    fromRole: Role;
+    toRole: Role;
+  } | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const fromDef = pending
+    ? ROLE_DEFINITIONS.find((r) => r.name === pending.fromRole)
+    : null;
+  const toDef = pending
+    ? ROLE_DEFINITIONS.find((r) => r.name === pending.toRole)
+    : null;
+
+  const fromCount = fromDef?.capabilities.length ?? 0;
+  const toCount = toDef?.capabilities.length ?? 0;
+  const diff = toCount - fromCount;
+
+  return (
+    <AwModal
+      open={pending !== null}
+      onClose={onCancel}
+      title="Mudar função"
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onCancel}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="primary"
+            iconLeft="check"
+            onClick={onConfirm}
+          >
+            Confirmar mudança
+          </AwButton>
+        </>
+      }
+    >
+      {pending && (
+        <div className="flex flex-col gap-4">
+          <p className="m-0 text-[13.5px] leading-[1.55] text-[var(--fg-primary)]">
+            Você vai mudar{" "}
+            <strong className="font-semibold">{pending.memberName}</strong> de{" "}
+            <strong className="font-semibold">{pending.fromRole}</strong> para{" "}
+            <strong className="font-semibold">{pending.toRole}</strong>.
+          </p>
+
+          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                  De
+                </p>
+                <p className="m-0 mt-1 text-[13px] font-medium text-[var(--fg-primary)]">
+                  {pending.fromRole}
+                </p>
+                <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+                  {fromCount} permiss{fromCount === 1 ? "ão" : "ões"}
+                </p>
+              </div>
+              <Icon
+                name="arrow_forward"
+                size={18}
+                className="shrink-0 text-[var(--fg-tertiary)]"
+              />
+              <div className="min-w-0 text-right">
+                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                  Para
+                </p>
+                <p className="m-0 mt-1 text-[13px] font-medium text-[var(--fg-primary)]">
+                  {pending.toRole}
+                </p>
+                <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+                  {toCount} permiss{toCount === 1 ? "ão" : "ões"}
+                  {diff !== 0 && (
+                    <span
+                      className={
+                        diff > 0
+                          ? "ml-1.5 text-[var(--accent-success)]"
+                          : "ml-1.5 text-[var(--accent-danger)]"
+                      }
+                    >
+                      {diff > 0 ? `+${diff}` : diff}
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            As permissões serão ajustadas automaticamente. Você pode reverter a
+            qualquer momento abrindo o membro novamente.
+          </p>
+        </div>
+      )}
+    </AwModal>
   );
 }
