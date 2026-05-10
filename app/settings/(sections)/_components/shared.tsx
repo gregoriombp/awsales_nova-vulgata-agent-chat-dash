@@ -1,0 +1,162 @@
+"use client";
+
+import { AwButton } from "@/components/ui/AwButton";
+import { AwProgress } from "@/components/ui/AwProgress";
+
+export type ApiKey = {
+  id: string;
+  name: string;
+  prefix: string;
+  createdAt: string;
+  lastUsed: string;
+};
+
+export const API_KEYS: ApiKey[] = [
+  {
+    id: "k-prod",
+    name: "Produção — backend",
+    prefix: "aws_live_8f3a…",
+    createdAt: "12 jan 2026",
+    lastUsed: "há 4 minutos",
+  },
+  {
+    id: "k-staging",
+    name: "Staging",
+    prefix: "aws_test_2c91…",
+    createdAt: "08 mar 2026",
+    lastUsed: "há 2 dias",
+  },
+];
+
+export type Session = {
+  id: string;
+  device: string;
+  location: string;
+  lastActive: string;
+  current?: boolean;
+};
+
+export const SESSIONS: Session[] = [
+  {
+    id: "s-1",
+    device: "MacBook Pro · Chrome",
+    location: "São Paulo, BR",
+    lastActive: "agora mesmo",
+    current: true,
+  },
+  {
+    id: "s-2",
+    device: "iPhone 15 · Safari",
+    location: "São Paulo, BR",
+    lastActive: "há 2 horas",
+  },
+  {
+    id: "s-3",
+    device: "Windows · Firefox",
+    location: "Curitiba, BR",
+    lastActive: "há 6 dias",
+  },
+];
+
+export function SectionHeading({
+  title,
+  description,
+  action,
+}: {
+  title: string;
+  description?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="mb-4 flex items-end justify-between gap-4">
+      <div>
+        <h2 className="m-0 mb-1 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+          {title}
+        </h2>
+        {description && (
+          <p className="m-0 max-w-[520px] text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+            {description}
+          </p>
+        )}
+      </div>
+      {action}
+    </div>
+  );
+}
+
+export function NotifGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border-b border-[var(--border-subtle)] last:border-b-0">
+      <p className="m-0 px-6 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        {label}
+      </p>
+      <div className="px-6 py-2">{children}</div>
+    </div>
+  );
+}
+
+export function SaveBar() {
+  return (
+    <div className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-6 py-3">
+      <AwButton size="sm" variant="ghost">
+        Cancelar
+      </AwButton>
+      <AwButton size="sm" variant="primary">
+        Salvar alterações
+      </AwButton>
+    </div>
+  );
+}
+
+export function UsageMetric({
+  label,
+  value,
+  max,
+  valueLabel,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  valueLabel?: string;
+}) {
+  const pct = Math.round((value / max) * 100);
+  const variant = pct >= 90 ? "danger" : pct >= 70 ? "warning" : "default";
+  return (
+    <AwProgress
+      label={label}
+      value={value}
+      max={max}
+      valueLabel={
+        valueLabel ?? `${value.toLocaleString("pt-BR")} / ${max.toLocaleString("pt-BR")}`
+      }
+      variant={variant}
+    />
+  );
+}
+
+export function SettingsPageHeader({
+  title,
+  description,
+}: {
+  title: string;
+  description?: string;
+}) {
+  return (
+    <header className="mb-10">
+      <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+        {title}
+      </h1>
+      {description && (
+        <p className="m-0 max-w-[520px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          {description}
+        </p>
+      )}
+    </header>
+  );
+}

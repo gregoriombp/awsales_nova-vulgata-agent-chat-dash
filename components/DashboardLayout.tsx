@@ -15,6 +15,7 @@ export default function DashboardLayout({
   showDateSelector,
   mainClassName,
   floatingSidebar,
+  breadcrumbInnerClassName,
 }: {
   children: React.ReactNode;
   title?: string;
@@ -23,6 +24,8 @@ export default function DashboardLayout({
   mainClassName?: string;
   /** Sidebar floats over full-width content as a liquid-glass rail. */
   floatingSidebar?: boolean;
+  /** Center/limit breadcrumb text to match a narrow main column (e.g. Agent Studio). */
+  breadcrumbInnerClassName?: string;
 }) {
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
   const pathname = usePathname();
@@ -40,8 +43,8 @@ export default function DashboardLayout({
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         {/* Ícones ficam abaixo do Copilot quando ele está aberto */}
         <div
-          className={`absolute right-8 z-30 transition-[top] duration-300 ease-out ${
-            isCopilotOpen ? "top-[calc(70vh+12px)]" : "top-6"
+          className={`absolute right-5 z-30 transition-[top] duration-300 ease-out ${
+            isCopilotOpen ? "top-[calc(70vh+8px)]" : "top-4"
           }`}
         >
           <Header
@@ -54,11 +57,14 @@ export default function DashboardLayout({
           {isInKnowledgeOS && <KnowledgeOSSidebar />}
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
-          <div className="my-3 mr-3 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+          <div className="my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <BreadcrumbsBar items={breadcrumbs} />
+              <BreadcrumbsBar
+                items={breadcrumbs}
+                innerClassName={breadcrumbInnerClassName}
+              />
             )}
-            <main className={`flex-1 overflow-y-auto p-8 ${mainClassName ?? ""}`}>
+            <main className={`flex-1 overflow-y-auto p-6 ${mainClassName ?? ""}`}>
               {title && (
                 <h1 className="text-3xl font-heading font-bold text-text-primary mb-6">{title}</h1>
               )}

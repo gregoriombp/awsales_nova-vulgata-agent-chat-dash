@@ -19,37 +19,64 @@ const IconCell = ({ name }: { name: string }) => (
 const navIcons = [
   "dashboard",
   "smart_toy",
-  "library_books",
   "chat",
-  "history",
+  "forum",
+  "hub",
+  "handyman",
+  "extension",
+  "apps",
+  "groups",
   "settings",
-  "integration_instructions",
+  "tune",
   "monitoring",
   "folder",
+  "folder_open",
   "schedule",
-  "security",
+  "library_books",
+  "history",
   "person",
+  "person_search",
+  "shield_person",
+  "security",
 ]
 
 const actionIcons = [
   "add",
+  "remove",
   "close",
+  "cancel",
   "check",
   "edit",
   "delete",
+  "delete_sweep",
   "refresh",
   "search",
+  "search_off",
   "download",
   "upload",
   "share",
   "content_copy",
   "link",
+  "link_off",
   "more_horiz",
   "more_vert",
   "arrow_forward",
   "arrow_back",
+  "north_east",
   "open_in_new",
   "filter_list",
+  "expand_more",
+  "expand_less",
+  "chevron_right",
+  "unfold_more",
+  "drag_indicator",
+  "menu",
+  "menu_open",
+  "touch_app",
+  "ads_click",
+  "center_focus_strong",
+  "sync_alt",
+  "key",
 ]
 
 const stateIcons = [
@@ -57,6 +84,7 @@ const stateIcons = [
   "bolt",
   "sync",
   "check_circle",
+  "done_all",
   "error",
   "warning",
   "info",
@@ -65,10 +93,35 @@ const stateIcons = [
   "visibility",
   "visibility_off",
   "notifications",
+  "verified",
+  "shield",
+  "circle",
+  "star",
+  "favorite",
+  "flag",
+  "help",
+]
+
+const contentIcons = [
+  "image",
+  "photo_camera",
+  "description",
+  "mail",
+  "phone",
+  "alternate_email",
+  "webhook",
+  "dashboard_customize",
+  "layers",
+  "sell",
+  "target",
+  "science",
+  "menu_book",
+  "shopping_cart",
+  "integration_instructions",
 ]
 
 const sizes = [12, 16, 20, 24, 28, 32]
-const weights: Array<300 | 400 | 500 | 600 | 700> = [300, 400, 500, 600, 700]
+const weights: Array<200 | 300 | 400 | 500 | 600 | 700> = [200, 300, 400, 500, 600, 700]
 
 export default function IconographyPage() {
   return (
@@ -93,8 +146,8 @@ export default function IconographyPage() {
             />
             <Spec
               k="wght"
-              v="300..700"
-              d="Peso. 400 default; 500/600 em contexto dark."
+              v="200..700"
+              d="Peso. 200 default (thin); 300/400 regular; 500/600 em contexto dark."
             />
             <Spec
               k="FILL"
@@ -129,7 +182,7 @@ export default function IconographyPage() {
         <Section
           id="weights"
           title="Pesos"
-          lead="Mesmo glyph, pesos de 300 a 700. 400 é o default; 500/600 quando o ícone precisa se destacar em superfície escura."
+          lead="Mesmo glyph, pesos de 200 a 700. 200 é o default (thin/light); 300/400 para ênfase regular; 500/600 quando o ícone precisa se destacar em superfície escura."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap items-end gap-6">
             {weights.map((w) => (
@@ -177,10 +230,10 @@ export default function IconographyPage() {
         <Section
           id="library"
           title="Biblioteca"
-          lead="Subset usado no produto. Agrupado por função — nav, ações, estados. Biblioteca completa em fonts.google.com/icons."
+          lead="Todos os glyphs usados no produto, agrupados por função. Biblioteca completa em fonts.google.com/icons (estilo Rounded)."
         >
           <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
-            Nav
+            Navegação
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
             {navIcons.map((n) => (
@@ -198,10 +251,19 @@ export default function IconographyPage() {
           </div>
 
           <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
-            Estados
+            Estados & Feedback
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
+            {stateIcons.map((n) => (
+              <IconCell key={n} name={n} />
+            ))}
+          </div>
+
+          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+            Conteúdo & Mídia
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
-            {stateIcons.map((n) => (
+            {contentIcons.map((n) => (
               <IconCell key={n} name={n} />
             ))}
           </div>
@@ -244,11 +306,14 @@ export default function IconographyPage() {
         >
           <CodeExample>{`import { Icon } from "@/components/ui/Icon"
 
-// Default — herda currentColor, size 20, weight 400, outlined.
+// Default — herda currentColor, size 20, weight 200 (thin), outlined.
 <Icon name="search" />
 
 // Size 16 dentro de um AwButton sm.
 <Icon name="add" size={16} />
+
+// Weight 300 para contexto regular.
+<Icon name="settings" size={20} weight={300} />
 
 // Filled + cor brand — estado selecionado.
 <Icon name="star" size={24} fill={1} style={{ color: "var(--aw-blue-600)" }} />

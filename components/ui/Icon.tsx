@@ -4,7 +4,7 @@ export type IconProps = {
   name: string
   size?: number
   fill?: 0 | 1
-  weight?: 300 | 400 | 500 | 600 | 700
+  weight?: 200 | 300 | 400 | 500 | 600 | 700
   grade?: -25 | 0 | 200
   className?: string
   style?: React.CSSProperties
@@ -14,7 +14,7 @@ export function Icon({
   name,
   size = 20,
   fill = 0,
-  weight = 300,
+  weight = 200,
   grade = 0,
   className,
   style,
