@@ -160,7 +160,13 @@
    * neutral chrome of the system; split from --bg-surface so callers
    * can style "this is a hover state" semantically. Used to be tinted
    * brand-blue and was migrated to neutral gray for calm. */
-  --bg-hover: var(--aw-gray-200);
+  --bg-hover: var(--aw-gray-150);
+  /* Persistent fill for the currently-selected interactive item in a
+   * list/grid. One step darker than --bg-hover so a hovered-but-not-
+   * selected row remains distinguishable from the active selection.
+   * Pair with `border-color: transparent` — the fill carries the
+   * selection signal, no extra stroke needed. */
+  --bg-selected: var(--aw-gray-200);
 
   --fg-primary: var(--aw-gray-1200);
   --fg-secondary: var(--aw-gray-800);
@@ -267,6 +273,7 @@
   --bg-muted: var(--aw-gray-1000);
   --bg-inverse: var(--aw-white);
   --bg-hover: var(--aw-gray-1000);
+  --bg-selected: var(--aw-gray-900);
 
   --fg-primary: var(--aw-white);
   --fg-secondary: var(--aw-gray-500);

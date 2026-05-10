@@ -161,6 +161,8 @@ const config: Config = {
           surface: "var(--bg-surface)",
           raised: "var(--bg-raised)",
           muted: "var(--bg-muted)",
+          hover: "var(--bg-hover)",
+          selected: "var(--bg-selected)",
           inverse: "var(--bg-inverse)",
         },
         fg: {
