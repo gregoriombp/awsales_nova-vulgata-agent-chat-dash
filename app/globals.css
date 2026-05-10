@@ -2174,19 +2174,27 @@
   color: var(--fg-primary);
 }
 .aw-nav-rail__item--active {
-  background: var(--bg-surface);
-  color: var(--fg-primary);
+  background: var(--bg-inverse);
+  color: var(--fg-on-inverse);
   font-weight: 500;
+}
+.aw-nav-rail__item--active:hover {
+  background: var(--bg-inverse);
+  color: var(--fg-on-inverse);
 }
 .aw-nav-rail__item:focus-visible {
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
 .aw-nav-rail--dark .aw-nav-rail__item { color: var(--dark-fg-secondary); }
-.aw-nav-rail--dark .aw-nav-rail__item:hover,
-.aw-nav-rail--dark .aw-nav-rail__item--active {
+.aw-nav-rail--dark .aw-nav-rail__item:hover {
   background: var(--dark-bg-hover);
   color: var(--dark-fg-primary);
+}
+.aw-nav-rail--dark .aw-nav-rail__item--active,
+.aw-nav-rail--dark .aw-nav-rail__item--active:hover {
+  background: var(--aw-white);
+  color: var(--aw-gray-1200);
 }
 
 .aw-nav-rail__item-label {
