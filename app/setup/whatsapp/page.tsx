@@ -176,12 +176,12 @@ export default function WhatsAppSetupPage() {
             <div className="flex justify-center">
               <div
                 aria-hidden="true"
-                className="flex h-[112px] w-[112px] items-center justify-center rounded-full bg-[#E8EAFB]"
+                className="flex h-[112px] w-[112px] items-center justify-center rounded-full bg-aw-blue-150"
               >
                 <Icon
                   name="hub"
                   size={52}
-                  className="text-[#3D4DC4]"
+                  className="text-aw-blue-700"
                   fill={1}
                 />
               </div>
