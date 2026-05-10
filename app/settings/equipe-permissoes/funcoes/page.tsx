@@ -1,17 +1,12 @@
 "use client";
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwPill } from "@/components/ui/AwPill";
+import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import {
   ALL_PERMISSION_IDS,
@@ -67,29 +62,24 @@ export default function RolesPage() {
     );
   }, [roles, search]);
 
-  const handleCreateRole = useCallback(
-    (name: string) => {
-      const trimmed = name.trim();
-      if (!trimmed) return;
-      const usedColors = new Set(roles.map((r) => r.color));
-      const nextColor =
-        ROLE_COLORS.find((c) => !usedColors.has(c.id))?.id ?? "blue";
-      const id = `r-custom-${Date.now()}`;
-      const role: RoleDefinition = {
-        id,
-        name: trimmed,
-        description: "Função personalizada — defina permissões à direita.",
-        memberCount: 0,
-        capabilities: [],
-        isSystem: false,
-        color: nextColor,
-        icon: DEFAULT_CUSTOM_ROLE_ICON,
-      };
-      setRoles((prev) => [...prev, role]);
-      setSelectedId(id);
-    },
-    [roles]
-  );
+  const handleCreateRole = useCallback(() => {
+    const usedColors = new Set(roles.map((r) => r.color));
+    const nextColor =
+      ROLE_COLORS.find((c) => !usedColors.has(c.id))?.id ?? "blue";
+    const id = `r-custom-${Date.now()}`;
+    const role: RoleDefinition = {
+      id,
+      name: "Nova função",
+      description: "Função personalizada — defina permissões à direita.",
+      memberCount: 0,
+      capabilities: [],
+      isSystem: false,
+      color: nextColor,
+      icon: DEFAULT_CUSTOM_ROLE_ICON,
+    };
+    setRoles((prev) => [...prev, role]);
+    setSelectedId(id);
+  }, [roles]);
 
   const handlePatchRole = useCallback(
     (id: string, patch: Partial<RoleDefinition>) => {
@@ -132,7 +122,7 @@ export default function RolesPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
-      <div className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-10 pb-20 pt-12">
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
             Equipe &amp; permissões
@@ -146,7 +136,7 @@ export default function RolesPage() {
         <TeamTabs />
 
         {!isExpanded ? (
-          <RoleGrid
+          <RoleTable
             roles={filteredRoles}
             search={search}
             onSearchChange={setSearch}
@@ -154,24 +144,13 @@ export default function RolesPage() {
             onCreate={handleCreateRole}
           />
         ) : (
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
-            <RoleSidebar
-              roles={filteredRoles}
-              search={search}
-              onSearchChange={setSearch}
-              selectedId={selected!.id}
-              onSelect={setSelectedId}
-              onCreate={handleCreateRole}
-              onBackToList={() => setSelectedId(null)}
-            />
-
-            <RoleDetail
-              role={selected!}
-              onPatch={(patch) => handlePatchRole(selected!.id, patch)}
-              onDuplicate={() => handleDuplicateRole(selected!.id)}
-              onDelete={() => handleDeleteRole(selected!.id)}
-            />
-          </div>
+          <RoleDetail
+            role={selected!}
+            onBack={() => setSelectedId(null)}
+            onPatch={(patch) => handlePatchRole(selected!.id, patch)}
+            onDuplicate={() => handleDuplicateRole(selected!.id)}
+            onDelete={() => handleDeleteRole(selected!.id)}
+          />
         )}
       </div>
     </DashboardLayout>
@@ -179,10 +158,10 @@ export default function RolesPage() {
 }
 
 /* -----------------------------------------------------------------
- * Role grid (initial state, full-width)
+ * Role table (initial state)
  * ----------------------------------------------------------------- */
 
-function RoleGrid({
+function RoleTable({
   roles,
   search,
   onSearchChange,
@@ -193,25 +172,9 @@ function RoleGrid({
   search: string;
   onSearchChange: (v: string) => void;
   onSelect: (id: string) => void;
-  onCreate: (name: string) => void;
+  onCreate: () => void;
 }) {
-  const [creating, setCreating] = useState(false);
-  const [draft, setDraft] = useState("");
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (creating) inputRef.current?.focus();
-  }, [creating]);
-
-  const submit = () => {
-    if (!draft.trim()) {
-      setCreating(false);
-      return;
-    }
-    onCreate(draft);
-    setDraft("");
-    setCreating(false);
-  };
+  const total = ALL_PERMISSION_IDS.length;
 
   return (
     <div className="flex flex-col gap-4">
@@ -224,274 +187,114 @@ function RoleGrid({
             onChange={(e) => onSearchChange(e.target.value)}
           />
         </div>
-        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
-          Selecione uma função para ver e ajustar suas permissões.
-        </p>
+        <AwButton
+          size="sm"
+          variant="primary"
+          iconLeft="add"
+          onClick={onCreate}
+        >
+          Criar função
+        </AwButton>
       </div>
 
-      <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {roles.map((r) => (
-          <li key={r.id}>
-            <button
-              type="button"
-              onClick={() => onSelect(r.id)}
-              className="group flex h-full w-full flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 text-left transition-colors duration-aw-fast outline-none hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)] focus-visible:border-[var(--fg-primary)]"
-            >
-              <header className="flex items-start gap-3">
-                <RoleIconTile role={r} size="md" />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="m-0 truncate text-[14.5px] font-semibold text-[var(--fg-primary)]">
-                      {r.name}
-                    </h3>
-                    {r.isSystem && (
-                      <AwPill variant="neutral" dot={false}>
-                        Padrão
-                      </AwPill>
-                    )}
+      <AwTable className="aw-table--airy">
+        <thead>
+          <tr>
+            <th>Função</th>
+            <th>Descrição</th>
+            <th style={{ width: 140 }}>Membros</th>
+            <th style={{ width: 160 }}>Permissões</th>
+            <th aria-label="Ações" style={{ width: 56 }} />
+          </tr>
+        </thead>
+        <tbody>
+          {roles.length === 0 ? (
+            <tr>
+              <td
+                colSpan={5}
+                style={{ padding: "48px 20px", textAlign: "center" }}
+              >
+                <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+                  Nenhuma função encontrada.
+                </p>
+              </td>
+            </tr>
+          ) : (
+            roles.map((r) => (
+              <tr
+                key={r.id}
+                className="aw-row-clickable"
+                onClick={() => onSelect(r.id)}
+              >
+                <td>
+                  <div className="flex items-center gap-3">
+                    <RoleIconTile role={r} size="sm" />
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[13.5px] font-medium text-[var(--fg-primary)]">
+                          {r.name}
+                        </span>
+                        {r.isSystem && (
+                          <AwPill variant="neutral" dot={false}>
+                            Padrão
+                          </AwPill>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <p className="m-0 mt-1 line-clamp-2 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
+                </td>
+                <td>
+                  <p className="m-0 line-clamp-1 max-w-[420px] text-[12.5px] text-[var(--fg-secondary)]">
                     {r.description}
                   </p>
-                </div>
-              </header>
-              <footer className="mt-auto flex items-center justify-between border-t border-[var(--border-subtle)] pt-3 text-[11.5px] text-[var(--fg-secondary)]">
-                <span>
-                  {r.memberCount} membro{r.memberCount === 1 ? "" : "s"}
-                </span>
-                <span>
-                  {r.capabilities.length}/{ALL_PERMISSION_IDS.length} permiss
-                  {ALL_PERMISSION_IDS.length === 1 ? "ão" : "ões"}
-                </span>
-              </footer>
-            </button>
-          </li>
-        ))}
-
-        <li>
-          {creating ? (
-            <div className="flex h-full w-full flex-col gap-3 rounded-[var(--radius-lg)] border border-dashed border-[var(--fg-primary)] bg-[var(--bg-raised)] p-4">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] text-[var(--fg-secondary)]">
-                  <Icon name="add" size={18} />
-                </span>
-                <input
-                  ref={inputRef}
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  onBlur={submit}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      submit();
-                    } else if (e.key === "Escape") {
-                      setDraft("");
-                      setCreating(false);
-                    }
-                  }}
-                  placeholder="Nome da nova função…"
-                  className="w-full bg-transparent text-[14.5px] font-semibold text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)]"
-                />
-              </div>
-              <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
-                Pressione Enter para criar e abrir o editor de permissões.
-              </p>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              className="flex h-full w-full flex-col gap-3 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-transparent p-4 text-left transition-colors duration-aw-fast outline-none hover:border-[var(--fg-primary)] hover:bg-[var(--bg-hover)] focus-visible:border-[var(--fg-primary)]"
-            >
-              <header className="flex items-start gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] text-[var(--fg-secondary)]">
-                  <Icon name="add" size={18} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="m-0 text-[14.5px] font-semibold text-[var(--fg-primary)]">
-                    Criar nova função
-                  </h3>
-                  <p className="m-0 mt-1 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
-                    Defina nome, descrição e permissões customizadas.
-                  </p>
-                </div>
-              </header>
-            </button>
+                </td>
+                <td>
+                  <span className="text-[13px] text-[var(--fg-primary)]">
+                    {r.memberCount}{" "}
+                    <span className="text-[var(--fg-secondary)]">
+                      {r.memberCount === 1 ? "pessoa" : "pessoas"}
+                    </span>
+                  </span>
+                </td>
+                <td>
+                  <span className="text-[13px] text-[var(--fg-primary)]">
+                    {r.capabilities.length}
+                    <span className="text-[var(--fg-secondary)]">
+                      {" "}
+                      / {total}
+                    </span>
+                  </span>
+                </td>
+                <td>
+                  <span
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)]"
+                    aria-hidden="true"
+                  >
+                    <Icon name="chevron_right" size={16} />
+                  </span>
+                </td>
+              </tr>
+            ))
           )}
-        </li>
-      </ul>
+        </tbody>
+      </AwTable>
     </div>
   );
 }
 
 /* -----------------------------------------------------------------
- * Sidebar (collapsed mode)
- * ----------------------------------------------------------------- */
-
-function RoleSidebar({
-  roles,
-  search,
-  onSearchChange,
-  selectedId,
-  onSelect,
-  onCreate,
-  onBackToList,
-}: {
-  roles: RoleDefinition[];
-  search: string;
-  onSearchChange: (v: string) => void;
-  selectedId: string;
-  onSelect: (id: string) => void;
-  onCreate: (name: string) => void;
-  onBackToList: () => void;
-}) {
-  const [draft, setDraft] = useState("");
-  const [creating, setCreating] = useState(false);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    if (creating) inputRef.current?.focus();
-  }, [creating]);
-
-  const submit = () => {
-    if (!draft.trim()) {
-      setCreating(false);
-      return;
-    }
-    onCreate(draft);
-    setDraft("");
-    setCreating(false);
-  };
-
-  return (
-    <aside className="flex flex-col self-start overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-3 py-2">
-        <button
-          type="button"
-          onClick={onBackToList}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
-          aria-label="Voltar para a lista de funções"
-        >
-          <Icon name="arrow_back" size={16} />
-        </button>
-        <span className="text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-          Funções
-        </span>
-      </div>
-
-      <div className="border-b border-[var(--border-subtle)] p-3">
-        <AwInput
-          iconLeft="search"
-          placeholder="Buscar funções…"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
-
-      <ul className="flex flex-col gap-px overflow-y-auto p-2">
-        {roles.length === 0 ? (
-          <li className="px-3 py-6 text-center text-[12.5px] text-[var(--fg-secondary)]">
-            Nenhuma função encontrada.
-          </li>
-        ) : (
-          roles.map((r) => {
-            const active = selectedId === r.id;
-            return (
-              <li key={r.id}>
-                <button
-                  type="button"
-                  onClick={() => onSelect(r.id)}
-                  aria-pressed={active}
-                  className={
-                    "flex w-full items-start gap-3 rounded-[var(--radius-md)] px-2.5 py-2 text-left transition-colors duration-aw-fast outline-none focus-visible:bg-[var(--bg-hover)] " +
-                    (active
-                      ? "bg-[var(--bg-selected)]"
-                      : "hover:bg-[var(--bg-hover)]")
-                  }
-                >
-                  <RoleIconTile role={r} size="sm" />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-2">
-                      <span className="truncate text-[13.5px] font-medium text-[var(--fg-primary)]">
-                        {r.name}
-                      </span>
-                      {r.isSystem && (
-                        <AwPill variant="neutral" dot={false}>
-                          Padrão
-                        </AwPill>
-                      )}
-                    </span>
-                    <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-secondary)]">
-                      {r.memberCount} membro{r.memberCount === 1 ? "" : "s"} ·{" "}
-                      {r.capabilities.length} permiss
-                      {r.capabilities.length === 1 ? "ão" : "ões"}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            );
-          })
-        )}
-      </ul>
-
-      <div className="border-t border-[var(--border-subtle)] p-2">
-        {creating ? (
-          <div className="flex items-center gap-2 px-1">
-            <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-secondary)]"
-              aria-hidden="true"
-            >
-              <Icon name="add" size={16} />
-            </span>
-            <input
-              ref={inputRef}
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onBlur={submit}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  submit();
-                } else if (e.key === "Escape") {
-                  setDraft("");
-                  setCreating(false);
-                }
-              }}
-              placeholder="Nome da nova função…"
-              className="w-full bg-transparent text-[13px] font-medium text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)]"
-            />
-          </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="flex w-full items-center gap-2 rounded-[var(--radius-md)] px-2 py-2 text-left text-[13px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
-          >
-            <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-dashed border-[var(--border-default)] text-[var(--fg-secondary)]"
-              aria-hidden="true"
-            >
-              <Icon name="add" size={16} />
-            </span>
-            Criar nova função
-          </button>
-        )}
-      </div>
-    </aside>
-  );
-}
-
-/* -----------------------------------------------------------------
- * Detail panel
+ * Detail view (full-width, no sidebar)
  * ----------------------------------------------------------------- */
 
 function RoleDetail({
   role,
+  onBack,
   onPatch,
   onDuplicate,
   onDelete,
 }: {
   role: RoleDefinition;
+  onBack: () => void;
   onPatch: (patch: Partial<RoleDefinition>) => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -520,62 +323,73 @@ function RoleDetail({
   };
 
   return (
-    <section className="flex flex-col self-start overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <RoleHeader
-        role={role}
-        editable={editable}
-        onPatch={onPatch}
-        onDuplicate={onDuplicate}
-        onDelete={onDelete}
-      />
+    <div className="flex flex-col gap-4">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 self-start rounded-[var(--radius-sm)] px-2 py-1 text-[12.5px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
+      >
+        <Icon name="arrow_back" size={14} />
+        Voltar para todas as funções
+      </button>
 
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-3">
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-          Permissões por escopo
-        </p>
-        {editable && (
-          <div className="flex items-center gap-2">
-            <AwButton
-              size="sm"
-              variant="ghost"
-              onClick={() =>
-                onPatch({ capabilities: [...ALL_PERMISSION_IDS] })
-              }
-            >
-              Marcar tudo
-            </AwButton>
-            <AwButton
-              size="sm"
-              variant="ghost"
-              onClick={() => onPatch({ capabilities: [] })}
-            >
-              Limpar
-            </AwButton>
-          </div>
-        )}
-      </div>
+      <section className="flex flex-col self-start overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+        <RoleHeader
+          role={role}
+          editable={editable}
+          onPatch={onPatch}
+          onDuplicate={onDuplicate}
+          onDelete={onDelete}
+        />
 
-      <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
-        {SCOPES.map((scope) => (
-          <ScopeBlock
-            key={scope.id}
-            scope={scope}
-            granted={granted}
-            editable={editable}
-            onToggle={togglePermission}
-            onToggleAll={(next) => setScopeAll(scope, next)}
-          />
-        ))}
-      </div>
+        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-3">
+          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            Permissões por escopo
+          </p>
+          {editable && (
+            <div className="flex items-center gap-2">
+              <AwButton
+                size="sm"
+                variant="ghost"
+                onClick={() =>
+                  onPatch({ capabilities: [...ALL_PERMISSION_IDS] })
+                }
+              >
+                Marcar tudo
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="ghost"
+                onClick={() => onPatch({ capabilities: [] })}
+              >
+                Limpar
+              </AwButton>
+            </div>
+          )}
+        </div>
 
-      <footer className="flex items-center gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
-        <Icon name="info" size={14} />
-        <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
-          Em breve: permissões condicionais (ex.: ver apenas conversas da
-          própria equipe, visualizar campanhas sem publicar).
-        </p>
-      </footer>
-    </section>
+        <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+          {SCOPES.map((scope) => (
+            <ScopeBlock
+              key={scope.id}
+              scope={scope}
+              granted={granted}
+              editable={editable}
+              onToggle={togglePermission}
+              onToggleAll={(next) => setScopeAll(scope, next)}
+            />
+          ))}
+        </div>
+
+        <footer className="flex items-center gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
+          <Icon name="info" size={14} />
+          <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+            Em breve: permissões condicionais (ex.: ver apenas conversas da
+            própria equipe, visualizar campanhas sem publicar).
+          </p>
+        </footer>
+      </section>
+    </div>
   );
 }
 
@@ -671,7 +485,7 @@ function RoleHeader({
 }
 
 /* -----------------------------------------------------------------
- * Role icon tile (color-tinted background + material icon)
+ * Role icon tile
  * ----------------------------------------------------------------- */
 
 function RoleIconTile({
@@ -701,7 +515,7 @@ function RoleIconTile({
 }
 
 /* -----------------------------------------------------------------
- * Editable inline text (click-to-edit)
+ * Editable inline text
  * ----------------------------------------------------------------- */
 
 function EditableText({
