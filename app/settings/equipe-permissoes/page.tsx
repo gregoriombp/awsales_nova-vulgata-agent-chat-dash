@@ -99,6 +99,12 @@ export default function MembersPage() {
     (id: string, role: Role) => {
       const m = members.find((x) => x.id === id);
       if (!m || m.role === role) return;
+      if (
+        role === MANAGER_ROLE &&
+        members.some((x) => x.id !== id && x.role === MANAGER_ROLE)
+      ) {
+        return;
+      }
       setPendingRoleChange({
         memberId: id,
         memberName: m.name,
@@ -106,6 +112,11 @@ export default function MembersPage() {
         toRole: role,
       });
     },
+    [members]
+  );
+
+  const managerAlreadyAssigned = useMemo(
+    () => members.some((m) => m.role === MANAGER_ROLE),
     [members]
   );
 
@@ -127,7 +138,7 @@ export default function MembersPage() {
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
+      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
             <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-primary)]">
@@ -170,6 +181,7 @@ export default function MembersPage() {
             {!isExpanded ? (
               <MembersTableState
                 members={filteredMembers}
+                managerAlreadyAssigned={managerAlreadyAssigned}
                 onSelect={setSelectedMemberId}
                 onChangeRole={requestRoleChange}
               />
@@ -196,6 +208,7 @@ export default function MembersPage() {
               {selectedMember && (
                 <MemberDetail
                   member={selectedMember}
+                  managerAlreadyAssigned={managerAlreadyAssigned}
                   onChangeRole={(role) =>
                     requestRoleChange(selectedMember.id, role)
                   }
@@ -227,10 +240,12 @@ const MANAGER_ROLE: Role = "Gerente da conta";
 
 function MembersTableState({
   members,
+  managerAlreadyAssigned,
   onSelect,
   onChangeRole,
 }: {
   members: Member[];
+  managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
 }) {
@@ -258,9 +273,10 @@ function MembersTableState({
   return (
     <div className="flex flex-col gap-8">
       <MemberSection
-        title="Gerentes da conta"
-        description="O Gerente de Contas é um especialista da equipe Awsales designado para acompanhar sua organização. Ele irá oferecer suporte técnico, auxiliar em configurações estratégicas e garantir que você extraia o máximo potencial da plataforma sempre que necessário."
+        title="Gerente da conta"
+        description="O Gerente de Contas é um especialista da equipe Awsales designado para acompanhar sua organização. Ele irá oferecer suporte técnico, auxiliar em configurações estratégicas e garantir que você extraia o máximo potencial da plataforma sempre que necessário. Apenas um membro pode ocupar essa função."
         members={managers}
+        managerAlreadyAssigned={managerAlreadyAssigned}
         onSelect={onSelect}
         onChangeRole={onChangeRole}
         emptyHint="Nenhum gerente da conta atribuído ainda."
@@ -268,6 +284,7 @@ function MembersTableState({
       <MemberSection
         title="Outros membros"
         members={others}
+        managerAlreadyAssigned={managerAlreadyAssigned}
         onSelect={onSelect}
         onChangeRole={onChangeRole}
         emptyHint="Sem membros nessa categoria."
@@ -280,6 +297,7 @@ function MemberSection({
   title,
   description,
   members,
+  managerAlreadyAssigned,
   onSelect,
   onChangeRole,
   emptyHint,
@@ -287,6 +305,7 @@ function MemberSection({
   title: string;
   description?: string;
   members: Member[];
+  managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
   emptyHint: string;
@@ -339,6 +358,10 @@ function MemberSection({
                     id: r,
                     label: r,
                     checked: r === m.role,
+                    disabled:
+                      r === MANAGER_ROLE &&
+                      managerAlreadyAssigned &&
+                      m.role !== MANAGER_ROLE,
                     onSelect: () => onChangeRole(m.id, r),
                   }))}
                 />
@@ -427,11 +450,13 @@ function CompactMemberList({
 
 function MemberDetail({
   member,
+  managerAlreadyAssigned,
   onChangeRole,
   onRemove,
   onClose,
 }: {
   member: Member;
+  managerAlreadyAssigned: boolean;
   onChangeRole: (role: Role) => void;
   onRemove: () => void;
   onClose: () => void;
@@ -478,6 +503,10 @@ function MemberDetail({
                 id: r,
                 label: r,
                 checked: r === member.role,
+                disabled:
+                  r === MANAGER_ROLE &&
+                  managerAlreadyAssigned &&
+                  member.role !== MANAGER_ROLE,
                 onSelect: () => onChangeRole(r),
               })),
             ]}
