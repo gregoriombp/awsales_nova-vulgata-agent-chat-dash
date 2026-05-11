@@ -52,7 +52,6 @@ export function AwOnboardingShell({
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-bg-canvas text-fg-primary">
-      <OnboardingTopBar />
       <OnboardingStepper currentStep={currentStep} />
       <div className="flex flex-1 overflow-hidden">
         <OnboardingBrandPane
@@ -62,34 +61,12 @@ export function AwOnboardingShell({
           subtitle={subtitle}
         />
         <main className="flex-1 overflow-auto bg-bg-canvas">
-          <div className="mx-auto flex min-h-full w-full max-w-[520px] items-center px-10 py-10">
+          <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
             <div className="w-full">{children}</div>
           </div>
         </main>
       </div>
     </div>
-  )
-}
-
-function OnboardingTopBar() {
-  return (
-    <header className="flex h-14 flex-shrink-0 items-center border-b border-border-subtle bg-bg-canvas px-6">
-      <div className="flex items-center gap-2.5">
-        <AwLogo variant="mark" height={20} />
-        <span
-          className="font-display font-semibold text-fg-primary"
-          style={{ fontSize: 14, letterSpacing: "-0.01em" }}
-        >
-          awsales
-        </span>
-        <span
-          className="font-mono text-fg-tertiary"
-          style={{ fontSize: 11 }}
-        >
-          · primeiro acesso
-        </span>
-      </div>
-    </header>
   )
 }
 
@@ -155,14 +132,8 @@ function OnboardingBrandPane({
       </div>
 
       <div className="relative z-10">
-        <div className="mb-7 flex items-center gap-2.5">
-          <AwLogo variant="mark" height={22} />
-          <span
-            className="font-display font-semibold text-white"
-            style={{ fontSize: 14, letterSpacing: "-0.01em" }}
-          >
-            awsales
-          </span>
+        <div className="mb-7 flex items-center">
+          <AwLogo variant="wordmark" height={20} className="text-white" />
         </div>
         <h1
           className="mb-3.5 font-display font-medium text-white text-balance"
