@@ -73,24 +73,6 @@ export default function RolesPage() {
     []
   );
 
-  const handleDuplicateRole = useCallback(
-    (sourceId: string) => {
-      const source = roles.find((r) => r.id === sourceId);
-      if (!source) return;
-      const id = `r-custom-${Date.now()}`;
-      const role: RoleDefinition = {
-        ...source,
-        id,
-        name: `${source.name} (cópia)`,
-        memberCount: 0,
-        isSystem: false,
-      };
-      setRoles((prev) => [...prev, role]);
-      setSelectedId(id);
-    },
-    [roles]
-  );
-
   const handleDeleteRole = useCallback(
     (id: string) => {
       const role = roles.find((r) => r.id === id);
@@ -131,7 +113,6 @@ export default function RolesPage() {
             role={selected!}
             onBack={() => setSelectedId(null)}
             onPatch={(patch) => handlePatchRole(selected!.id, patch)}
-            onDuplicate={() => handleDuplicateRole(selected!.id)}
             onDelete={() => handleDeleteRole(selected!.id)}
           />
         )}
@@ -273,13 +254,11 @@ function RoleDetail({
   role,
   onBack,
   onPatch,
-  onDuplicate,
   onDelete,
 }: {
   role: RoleDefinition;
   onBack: () => void;
   onPatch: (patch: Partial<RoleDefinition>) => void;
-  onDuplicate: () => void;
   onDelete: () => void;
 }) {
   const editable = !role.isSystem;
@@ -316,12 +295,11 @@ function RoleDetail({
         Voltar para todas as funções
       </button>
 
-      <section className="flex flex-col self-start overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+      <section className="flex w-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
         <RoleHeader
           role={role}
           editable={editable}
           onPatch={onPatch}
-          onDuplicate={onDuplicate}
           onDelete={onDelete}
         />
 
@@ -364,12 +342,29 @@ function RoleDetail({
           ))}
         </div>
 
-        <footer className="flex items-center gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
-          <Icon name="info" size={14} />
-          <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
-            Em breve: permissões condicionais (ex.: ver apenas conversas da
-            própria equipe, visualizar campanhas sem publicar).
-          </p>
+        <footer className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
+          <div className="flex min-w-0 items-center gap-2">
+            <Icon name="info" size={14} />
+            <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+              Em breve: permissões condicionais (ex.: ver apenas conversas da
+              própria equipe, visualizar campanhas sem publicar).
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <AwButton size="sm" variant="ghost" onClick={onBack}>
+              Cancelar
+            </AwButton>
+            {editable && (
+              <AwButton
+                size="sm"
+                variant="primary"
+                iconLeft="check"
+                onClick={onBack}
+              >
+                Salvar alterações
+              </AwButton>
+            )}
+          </div>
         </footer>
       </section>
     </div>
@@ -384,13 +379,11 @@ function RoleHeader({
   role,
   editable,
   onPatch,
-  onDuplicate,
   onDelete,
 }: {
   role: RoleDefinition;
   editable: boolean;
   onPatch: (patch: Partial<RoleDefinition>) => void;
-  onDuplicate: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -428,16 +421,8 @@ function RoleHeader({
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconLeft="content_copy"
-            onClick={onDuplicate}
-          >
-            Duplicar
-          </AwButton>
-          {editable && (
+        {editable && (
+          <div className="flex shrink-0 items-center gap-2">
             <AwButton
               size="sm"
               variant="ghost"
@@ -446,8 +431,8 @@ function RoleHeader({
             >
               Excluir
             </AwButton>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {editable ? (
