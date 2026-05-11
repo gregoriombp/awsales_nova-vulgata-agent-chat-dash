@@ -66,7 +66,7 @@ export default async function ConfirmadoPage({
                 </Link>
               </div>
               <div
-                className="mt-1 font-mono text-fg-tertiary"
+                className="mt-1 text-fg-tertiary"
                 style={{ fontSize: 10, letterSpacing: "0.04em" }}
               >
                 você pode adiantar a definição do seu método de acesso enquanto

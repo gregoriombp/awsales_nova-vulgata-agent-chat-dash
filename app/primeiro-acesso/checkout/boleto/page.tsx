@@ -59,7 +59,7 @@ export default function CheckoutBoletoPage() {
           <div className="mb-4 flex items-start justify-between">
             <div>
               <div
-                className="mb-1 font-mono uppercase text-fg-tertiary"
+                className="mb-1 uppercase text-fg-tertiary"
                 style={{ fontSize: 10, letterSpacing: "0.06em" }}
               >
                 Valor
@@ -73,7 +73,7 @@ export default function CheckoutBoletoPage() {
             </div>
             <div className="text-right">
               <div
-                className="mb-1 font-mono uppercase text-fg-tertiary"
+                className="mb-1 uppercase text-fg-tertiary"
                 style={{ fontSize: 10, letterSpacing: "0.06em" }}
               >
                 Vencimento
@@ -88,7 +88,7 @@ export default function CheckoutBoletoPage() {
 
           <div className="mt-3 flex items-center gap-2 rounded-md border border-border bg-bg-canvas py-1.5 pl-3 pr-1.5">
             <code
-              className="flex-1 self-center overflow-hidden font-mono text-fg-secondary"
+              className="flex-1 self-center overflow-hidden text-fg-secondary"
               style={{
                 fontSize: 11,
                 whiteSpace: "nowrap",
@@ -152,7 +152,7 @@ export default function CheckoutBoletoPage() {
           </Link>
           <span className="flex-1" />
           <span
-            className="font-mono text-fg-tertiary"
+            className="text-fg-tertiary"
             style={{ fontSize: 10, letterSpacing: "0.04em" }}
           >
             você pode fechar e voltar pelo e-mail

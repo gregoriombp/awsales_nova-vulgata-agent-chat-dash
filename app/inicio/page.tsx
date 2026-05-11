@@ -62,7 +62,7 @@ export default function Inicio() {
             </button>
           </div>
           <div
-            className="mt-1 font-mono text-fg-tertiary"
+            className="mt-1 text-fg-tertiary"
             style={{ fontSize: 10, letterSpacing: "0.04em" }}
           >
             primeira sessão · sua conta foi ativada
