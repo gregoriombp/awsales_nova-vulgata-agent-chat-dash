@@ -50,6 +50,7 @@ export const navigation: NavSection[] = [
       { name: "Pills", href: "/bombardier/styleguide/components/pills" },
       { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
+      { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       { name: "Status dot", href: "/bombardier/styleguide/components/status-dot" },
       { name: "Tabela", href: "/bombardier/styleguide/components/table" },
       { name: "Template builder sheet", href: "/bombardier/styleguide/components/template-builder-sheet" },

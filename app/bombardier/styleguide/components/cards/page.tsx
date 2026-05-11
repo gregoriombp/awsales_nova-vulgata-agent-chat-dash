@@ -115,10 +115,10 @@ export default function CardsPage() {
           <Section
             id="variants"
             title="Variantes"
-            lead="Duas variantes. Default é o padrão. AI é reservado a áreas ligadas ao agente — nunca em ambiente."
+            lead="Quatro variantes. Default é o padrão. AI (azul/roxo), AI warm (peach) e AI cortex (silver) são reservados a áreas ligadas ao agente — nunca em ambiente."
           >
             <Stage
-              label="default · ai"
+              label="default · ai · ai-warm · ai-cortex"
               gridClassName="grid grid-cols-1 md:grid-cols-2 gap-4"
             >
               <AwCard>
@@ -151,6 +151,36 @@ export default function CardsPage() {
                   </AwButton>
                 </AwCardFooter>
               </AwCard>
+
+              <AwCard variant="ai-warm">
+                <AwCardHeader>
+                  <AwCardTitle>Especialista da Awsales</AwCardTitle>
+                  <AwCardDescription>
+                    Seu Gerente de contas dedicado está disponível pra revisar
+                    estratégia.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardFooter>
+                  <AwButton variant="secondary" size="sm" iconLeft="event">
+                    Agendar agora
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
+
+              <AwCard variant="ai-cortex">
+                <AwCardHeader>
+                  <AwCardTitle>Cortex · AI Account Manager</AwCardTitle>
+                  <AwCardDescription>
+                    Monitora o workspace 24/7 e antecipa gargalos antes que
+                    eles cheguem ao seu time.
+                  </AwCardDescription>
+                </AwCardHeader>
+                <AwCardFooter>
+                  <AwButton variant="primary" size="sm" iconLeft="chat_bubble">
+                    Iniciar conversa
+                  </AwButton>
+                </AwCardFooter>
+              </AwCard>
             </Stage>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
@@ -168,6 +198,26 @@ export default function CardsPage() {
                   Gradient-mesh radial blue → purple a 8–10% de opacidade.
                   Sinaliza superfície gerada pelo agente — sugestões, resumos,
                   insights. Nunca em KPI estático.
+                </p>
+              </div>
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+                <div className="aw-eyebrow mb-2">ai-warm</div>
+                <p className="body-sm m-0">
+                  Gradient-mesh peach a ~14% sobre{" "}
+                  <code className="mono">--bg-raised</code>. Reservado pro
+                  lado humano em superfícies que pareiam um especialista da
+                  Awsales com a IA — o calor codifica "pessoa real" sem virar
+                  CTA.
+                </p>
+              </div>
+              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+                <div className="aw-eyebrow mb-2">ai-cortex</div>
+                <p className="body-sm m-0">
+                  Silver mesh inspirado no cubo de mármore da marca — base
+                  slate fria com pocket claro à esquerda e sombra slate à
+                  direita. Reservado pro Cortex (AI Account Manager) — não
+                  use pra agentes generativos, que ficam com{" "}
+                  <code className="mono">ai</code>.
                 </p>
               </div>
             </div>
