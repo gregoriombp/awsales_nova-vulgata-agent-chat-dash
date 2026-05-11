@@ -29,6 +29,9 @@ export type AwOnboardingOrg = {
   contractTerm: string
 }
 
+export const AW_ONBOARDING_BRAND_BACKGROUND =
+  "/assets/group-backgrounds/group-bg-17.jpg"
+
 export type AwOnboardingShellProps = {
   currentStep: number
   org: AwOnboardingOrg
@@ -44,7 +47,7 @@ export function AwOnboardingShell({
   children,
   brandTitle,
   brandSubtitle,
-  brandBackground,
+  brandBackground = AW_ONBOARDING_BRAND_BACKGROUND,
 }: AwOnboardingShellProps) {
   const step = AW_ONBOARDING_STEPS[currentStep] ?? AW_ONBOARDING_STEPS[0]
   const title = brandTitle ?? step.brandTitle
