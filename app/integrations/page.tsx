@@ -393,13 +393,50 @@ function statusOf(inst: IntegrationInstance): {
   if (inst.needsAttention)
     return {
       variant: "error",
-      label: "Requer atenção",
+      label: "Falha na conexão",
       order: 1,
       reason:
         inst.attentionReason ??
         "A integração reportou um erro. Reconecte ou revise as credenciais.",
     };
   return { variant: "live", label: "Ativa", order: 0 };
+}
+
+/* Demo seeding — generates many synthetic instances cycling through the
+ * catalog so the infinite-scroll behavior is observable in the prototype
+ * without forcing the user to connect dozens of accounts manually. Every
+ * 7th row is marked as `needsAttention` so the failure state is visible
+ * without any interaction. */
+const DEMO_FAILURE_REASONS = [
+  "Token de autenticação expirou. Reconecte para continuar recebendo eventos.",
+  "Webhook retornou 401 nas últimas 3 tentativas. Revise as credenciais.",
+  "Endpoint do parceiro está respondendo timeout. Verifique o status do serviço.",
+  "Permissão revogada no aplicativo conectado. Reautorize para retomar.",
+  "Assinatura do parceiro expirou. Renove para reativar a integração.",
+];
+
+function buildDemoInstances(count: number): IntegrationInstance[] {
+  const out: IntegrationInstance[] = [];
+  const baseTime = Date.now();
+  for (let i = 0; i < count; i++) {
+    const brand = ITEMS[i % ITEMS.length];
+    const seq = Math.floor(i / ITEMS.length) + 1;
+    const ts = baseTime - i * 1000 * 60 * 37;
+    const inst: IntegrationInstance = {
+      instanceId: `demo-${brand.id}-${ts}-${i}`,
+      integrationId: brand.id,
+      name: seq > 1 ? `${brand.name} • Conta ${seq}` : brand.name,
+      active: true,
+      addedAt: ts,
+    };
+    if (i % 7 === 0) {
+      inst.needsAttention = true;
+      inst.attentionReason =
+        DEMO_FAILURE_REASONS[i % DEMO_FAILURE_REASONS.length];
+    }
+    out.push(inst);
+  }
+  return out;
 }
 
 function SortGlyph({ active, dir }: { active: boolean; dir: SortDir }) {
@@ -559,6 +596,11 @@ function QuickPickPill({
  * Row click → detail page.
  * ---------------------------------------------------------------- */
 
+/** Rows loaded per infinite-scroll page. 20 fills more than a typical
+ *  viewport so the first batch already shows the failure-state pill and
+ *  triggers the IntersectionObserver only after the user actually scrolls. */
+const ROWS_PER_PAGE = 20;
+
 function IntegrationsTable({
   instances,
   items,
@@ -566,6 +608,7 @@ function IntegrationsTable({
   onToggleAttention,
   onConfigure,
   onDisconnect,
+  onSeedDemo,
 }: {
   instances: IntegrationInstance[];
   items: Integration[];
@@ -573,9 +616,12 @@ function IntegrationsTable({
   onToggleAttention: (instanceId: string) => void;
   onConfigure: (instanceId: string) => void;
   onDisconnect: (instanceId: string) => void;
+  onSeedDemo?: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<SortState>({ by: "name", dir: "asc" });
+  const [visibleCount, setVisibleCount] = useState(ROWS_PER_PAGE);
+  const sentinelRef = useRef<HTMLTableRowElement | null>(null);
 
   const rows = useMemo(() => {
     const enriched = instances
@@ -614,6 +660,37 @@ function IntegrationsTable({
     });
   }, [instances, items, query, sort]);
 
+  /* When the filtered/sorted set changes (search, sort, or new
+   * instances), collapse the visible window back to the first page so
+   * the user lands at the top of the freshly-ordered list instead of
+   * mid-way through whatever they had scrolled to before. */
+  useEffect(() => {
+    setVisibleCount(ROWS_PER_PAGE);
+  }, [query, sort, rows.length]);
+
+  /* IntersectionObserver-driven infinite scroll. The sentinel <tr> is
+   * appended after the visible rows; when it enters the viewport (with
+   * a generous rootMargin so the next page loads before the user hits
+   * the bottom), bump `visibleCount` by one page. */
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    if (visibleCount >= rows.length) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setVisibleCount((n) => Math.min(n + ROWS_PER_PAGE, rows.length));
+        }
+      },
+      { rootMargin: "320px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [rows.length, visibleCount]);
+
+  const visibleRows = rows.slice(0, visibleCount);
+  const hasMore = visibleCount < rows.length;
+
   const toggleSort = (key: SortKey) => {
     setSort((s) =>
       s.by === key
@@ -631,9 +708,20 @@ function IntegrationsTable({
         <h2 className="m-0 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
           Suas integrações
         </h2>
-        <span className="text-[12px] text-[var(--fg-tertiary)]">
-          {rows.length} {rows.length === 1 ? "ativa" : "ativas"}
-        </span>
+        <div className="flex items-baseline gap-3 text-[12px] text-[var(--fg-tertiary)]">
+          {onSeedDemo && instances.length < 25 ? (
+            <button
+              type="button"
+              onClick={onSeedDemo}
+              className="font-medium text-[var(--fg-secondary)] underline-offset-2 hover:text-[var(--fg-primary)] hover:underline"
+            >
+              + 100 exemplos (demo)
+            </button>
+          ) : null}
+          <span>
+            {rows.length} {rows.length === 1 ? "ativa" : "ativas"}
+          </span>
+        </div>
       </div>
 
       <div className="mb-4 flex items-center gap-2">
@@ -720,64 +808,104 @@ function IntegrationsTable({
                 </td>
               </tr>
             ) : (
-              rows.map(
-                ({ instance, integration, createdAt, eventLabel }) => {
-                  const status = statusOf(instance);
-                  return (
-                    <tr
-                      key={instance.instanceId}
-                      className={
-                        "aw-row-clickable" +
-                        (instance.active ? "" : " aw-row-inactive")
-                      }
-                      aria-disabled={!instance.active || undefined}
-                      onClick={() => onConfigure(instance.instanceId)}
-                    >
-                      <td>
-                        <div className="flex items-center gap-3">
-                          <AwBrandLogo brand={integration.id} size="md" />
-                          <div className="min-w-0">
-                            <div className="truncate font-medium text-[var(--fg-primary)]">
-                              {instance.name}
-                            </div>
-                            <div className="truncate text-[12px] text-[var(--fg-tertiary)]">
-                              {integration.name}
+              <>
+                {visibleRows.map(
+                  ({ instance, integration, createdAt, eventLabel }) => {
+                    const status = statusOf(instance);
+                    const failing = !!instance.needsAttention && instance.active;
+                    const rowClass = [
+                      "aw-row-clickable",
+                      instance.active ? "" : "aw-row-inactive",
+                      failing ? "aw-row-attention" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ");
+                    return (
+                      <tr
+                        key={instance.instanceId}
+                        className={rowClass}
+                        aria-disabled={!instance.active || undefined}
+                        onClick={() => onConfigure(instance.instanceId)}
+                      >
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <AwBrandLogo brand={integration.id} size="md" />
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-1.5">
+                                <span className="truncate font-medium text-[var(--fg-primary)]">
+                                  {instance.name}
+                                </span>
+                                {failing ? (
+                                  <Icon
+                                    name="error"
+                                    size={14}
+                                    className="flex-shrink-0 text-[var(--aw-red-500)]"
+                                    aria-label="Falha na conexão"
+                                  />
+                                ) : null}
+                              </div>
+                              <div className="truncate text-[12px] text-[var(--fg-tertiary)]">
+                                {integration.name}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>
-                        <AwPill
-                          variant={status.variant}
-                          title={status.reason}
-                        >
-                          {status.label}
-                        </AwPill>
-                      </td>
-                      <td className="text-[var(--fg-secondary)]">
-                        {formatDateBR(createdAt)}
-                      </td>
-                      <td className="text-[var(--fg-secondary)]">
-                        {eventLabel}
-                      </td>
-                      <td onClick={(e) => e.stopPropagation()}>
-                        <RowActionMenu
-                          active={instance.active}
-                          needsAttention={instance.needsAttention}
-                          onToggle={() => onToggle(instance.instanceId)}
-                          onToggleAttention={() =>
-                            onToggleAttention(instance.instanceId)
-                          }
-                          onConfigure={() => onConfigure(instance.instanceId)}
-                          onDisconnect={() =>
-                            onDisconnect(instance.instanceId)
-                          }
-                        />
-                      </td>
-                    </tr>
-                  );
-                },
-              )
+                        </td>
+                        <td>
+                          <AwPill
+                            variant={status.variant}
+                            title={status.reason}
+                          >
+                            {status.label}
+                          </AwPill>
+                        </td>
+                        <td className="text-[var(--fg-secondary)]">
+                          {formatDateBR(createdAt)}
+                        </td>
+                        <td className="text-[var(--fg-secondary)]">
+                          {eventLabel}
+                        </td>
+                        <td onClick={(e) => e.stopPropagation()}>
+                          <RowActionMenu
+                            active={instance.active}
+                            needsAttention={instance.needsAttention}
+                            onToggle={() => onToggle(instance.instanceId)}
+                            onToggleAttention={() =>
+                              onToggleAttention(instance.instanceId)
+                            }
+                            onConfigure={() =>
+                              onConfigure(instance.instanceId)
+                            }
+                            onDisconnect={() =>
+                              onDisconnect(instance.instanceId)
+                            }
+                          />
+                        </td>
+                      </tr>
+                    );
+                  },
+                )}
+                {hasMore ? (
+                  <tr ref={sentinelRef} aria-hidden="true">
+                    <td
+                      colSpan={5}
+                      style={{ padding: "20px", textAlign: "center" }}
+                      className="text-[12px] text-[var(--fg-tertiary)]"
+                    >
+                      Carregando mais integrações…
+                    </td>
+                  </tr>
+                ) : rows.length > ROWS_PER_PAGE ? (
+                  <tr aria-hidden="true">
+                    <td
+                      colSpan={5}
+                      style={{ padding: "20px", textAlign: "center" }}
+                      className="text-[12px] text-[var(--fg-tertiary)]"
+                    >
+                      Você chegou ao fim — {rows.length} integrações.
+                    </td>
+                  </tr>
+                ) : null}
+              </>
             )}
           </tbody>
         </AwTable>
@@ -997,6 +1125,11 @@ export default function IntegrationsPage() {
     setDisconnectId(instanceId);
   };
 
+  const handleSeedDemo = () => {
+    setInstances((list) => [...list, ...buildDemoInstances(100)]);
+    setHasEverConnected(true);
+  };
+
   const confirmDisconnect = () => {
     if (!disconnectId) return;
     setInstances((list) => list.filter((i) => i.instanceId !== disconnectId));
@@ -1086,6 +1219,7 @@ export default function IntegrationsPage() {
                     onToggleAttention={handleToggleAttention}
                     onConfigure={handleConfigureInstance}
                     onDisconnect={handleDisconnectInstance}
+                    onSeedDemo={handleSeedDemo}
                   />
                 </div>
                 <ExploreIntegrations
