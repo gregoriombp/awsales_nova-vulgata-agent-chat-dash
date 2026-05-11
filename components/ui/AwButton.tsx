@@ -7,6 +7,7 @@ export type AwButtonVariant =
   | "primary"
   | "secondary"
   | "ghost"
+  | "subtle"
   | "danger"
   | "ai"
 

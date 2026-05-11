@@ -893,6 +893,22 @@
   background: var(--bg-surface);
 }
 
+/* Subtle — tonal fill, sits between ghost (invisible at rest) and
+   secondary (bordered). Designed for icon-only row actions in tables
+   and other dense surfaces where the trigger needs a real touch target
+   without competing with the row's primary CTA. */
+.aw-btn--subtle {
+  background: var(--bg-muted);
+  color: var(--fg-primary);
+  border-color: transparent;
+}
+.aw-btn--subtle:hover:not(:disabled) {
+  background: var(--aw-gray-300);
+}
+.dark .aw-btn--subtle:hover:not(:disabled) {
+  background: var(--aw-gray-900);
+}
+
 /* Danger — destructive actions */
 .aw-btn--danger {
   background: var(--aw-red-700);
