@@ -602,6 +602,19 @@
   }
 }
 
+/* Entry animation for primeiro-acesso step transitions.
+   Wraps `app/primeiro-acesso/template.tsx`; re-fires on every navigation
+   inside the segment. Uses the project ease-out token. */
+.aw-step-transition {
+  animation: onboarding-fadeInUp 0.42s var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-step-transition {
+    animation: none;
+  }
+}
+
 /* Simple fade in */
 @keyframes onboarding-fadeIn {
   from {

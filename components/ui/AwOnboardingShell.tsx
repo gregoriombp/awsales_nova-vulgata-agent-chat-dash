@@ -51,62 +51,19 @@ export function AwOnboardingShell({
     `Configuração inicial da sua conta ${org.name} na plataforma AwSales.`
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-bg-canvas text-fg-primary">
-      <OnboardingStepper currentStep={currentStep} />
-      <div className="flex flex-1 overflow-hidden">
-        <OnboardingBrandPane
-          currentStep={currentStep}
-          org={org}
-          title={title}
-          subtitle={subtitle}
-        />
-        <main className="flex-1 overflow-auto bg-bg-canvas">
-          <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
-            <div className="w-full">{children}</div>
-          </div>
-        </main>
-      </div>
+    <div className="flex h-screen overflow-hidden bg-bg-canvas text-fg-primary">
+      <OnboardingBrandPane
+        currentStep={currentStep}
+        org={org}
+        title={title}
+        subtitle={subtitle}
+      />
+      <main className="flex-1 overflow-auto bg-bg-canvas">
+        <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
+          <div className="aw-step-transition w-full">{children}</div>
+        </div>
+      </main>
     </div>
-  )
-}
-
-function OnboardingStepper({ currentStep }: { currentStep: number }) {
-  return (
-    <nav className="flex flex-shrink-0 items-center gap-1 overflow-x-auto border-b border-border-subtle bg-bg-canvas px-6 py-3.5">
-      {AW_ONBOARDING_STEPS.map((step, i) => {
-        const active = i === currentStep
-        const done = i < currentStep
-        const pipClass = [
-          "flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono whitespace-nowrap transition-colors duration-aw-fast",
-          active
-            ? "border-border-subtle bg-bg-muted text-fg-primary"
-            : done
-            ? "border-transparent text-fg-secondary"
-            : "border-transparent text-fg-tertiary",
-        ].join(" ")
-        const dotClass = [
-          "inline-flex h-4 w-4 items-center justify-center rounded-full border",
-          active
-            ? "border-fg-primary bg-fg-primary text-bg-canvas"
-            : done
-            ? "border-bg-muted bg-bg-muted text-fg-primary"
-            : "border-border",
-        ].join(" ")
-        return (
-          <React.Fragment key={step.id}>
-            <div className={pipClass} style={{ fontSize: 10, letterSpacing: "0.04em" }}>
-              <span className={dotClass} style={{ fontSize: 9 }}>
-                {done ? "✓" : step.num}
-              </span>
-              <span>{step.label}</span>
-            </div>
-            {i < AW_ONBOARDING_STEPS.length - 1 && (
-              <span className="h-px w-3 flex-shrink-0 bg-border" />
-            )}
-          </React.Fragment>
-        )
-      })}
-    </nav>
   )
 }
 
@@ -155,7 +112,7 @@ function OnboardingBrandPane({
 
       <div className="relative z-10 rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-5 backdrop-blur-md">
         <div
-          className="mb-2.5 font-mono uppercase text-aw-gray-700"
+          className="mb-2.5 uppercase text-aw-gray-700"
           style={{ fontSize: 10, letterSpacing: "0.06em" }}
         >
           organização
@@ -166,18 +123,18 @@ function OnboardingBrandPane({
         >
           {org.name}
         </div>
-        <div className="font-mono text-aw-gray-500" style={{ fontSize: 11 }}>
+        <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
           {org.cnpj}
         </div>
         <div className="mt-3.5 flex gap-1.5">
           <span
-            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] font-mono text-aw-gray-500"
+            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
             style={{ fontSize: 10 }}
           >
             {org.plan}
           </span>
           <span
-            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] font-mono text-aw-gray-500"
+            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
             style={{ fontSize: 10 }}
           >
             {org.contractTerm}
@@ -186,7 +143,7 @@ function OnboardingBrandPane({
       </div>
 
       <div
-        className="relative z-10 flex flex-col gap-2 font-mono text-aw-gray-700"
+        className="relative z-10 flex flex-col gap-2 text-aw-gray-700"
         style={{ fontSize: 10, letterSpacing: "0.04em" }}
       >
         <div>etapa {String(currentStep + 1).padStart(2, "0")} / 08</div>
