@@ -6,6 +6,7 @@ import ComingSoon from "@/components/ComingSoon";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
+import { ONBOARDING_USER } from "@/app/primeiro-acesso/_data";
 
 export default function Inicio() {
   const breadcrumbs = ["Início"];
@@ -34,7 +35,7 @@ export default function Inicio() {
                 letterSpacing: "-0.015em",
               }}
             >
-              Bem-vindo à AwSales
+              Bem-vindo, {ONBOARDING_USER.firstName}.
             </h2>
             <p
               className="mx-auto mt-2 max-w-[360px] text-fg-secondary text-pretty"
@@ -50,22 +51,16 @@ export default function Inicio() {
               onClick={closeWelcome}
               className="aw-btn aw-btn--ghost aw-btn--md"
             >
-              <span className="aw-btn__label">Dar uma olhada antes</span>
+              <span className="aw-btn__label">Fechar</span>
             </button>
             <button
               type="button"
               onClick={closeWelcome}
               className="aw-btn aw-btn--primary aw-btn--md"
             >
-              <Icon name="add" size={16} />
-              <span className="aw-btn__label">Criar agente</span>
+              <Icon name="manage_accounts" size={16} />
+              <span className="aw-btn__label">Personalizar perfil</span>
             </button>
-          </div>
-          <div
-            className="mt-1 text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
-            primeira sessão · sua conta foi ativada
           </div>
         </div>
       </AwModal>
