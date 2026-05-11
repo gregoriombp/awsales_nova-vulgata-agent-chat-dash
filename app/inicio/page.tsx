@@ -34,7 +34,7 @@ export default function Inicio() {
                 letterSpacing: "-0.015em",
               }}
             >
-              Bem-vindo ao Agent Studio
+              Bem-vindo à AwSales
             </h2>
             <p
               className="mx-auto mt-2 max-w-[360px] text-fg-secondary text-pretty"
