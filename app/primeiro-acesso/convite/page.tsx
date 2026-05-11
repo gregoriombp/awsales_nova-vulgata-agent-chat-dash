@@ -214,15 +214,19 @@ export default function ConvitePage() {
 
         {(status === "verifying" || status === "success") && (
           <div className="mt-4 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-            <span
-              className={`relative h-2.5 w-2.5 flex-shrink-0 rounded-full ${
-                status === "success" ? "bg-aw-emerald-500" : "bg-brand"
-              }`}
-            >
-              {status === "verifying" && (
-                <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
-              )}
-            </span>
+            {status === "verifying" ? (
+              <span
+                aria-hidden="true"
+                className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
+              />
+            ) : (
+              <Icon
+                name="check_circle"
+                size={16}
+                fill={1}
+                className="flex-shrink-0 text-aw-emerald-700"
+              />
+            )}
             <div
               className="font-medium text-fg-primary"
               style={{ fontSize: 13 }}

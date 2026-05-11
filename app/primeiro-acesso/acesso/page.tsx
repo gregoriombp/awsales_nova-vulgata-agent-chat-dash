@@ -119,9 +119,10 @@ export default function AcessoPage() {
 
             {picked && picked !== "password" && (
               <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-                <span className="relative h-2.5 w-2.5 flex-shrink-0 rounded-full bg-brand">
-                  <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
-                </span>
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
+                />
                 <div
                   className="font-medium text-fg-primary"
                   style={{ fontSize: 13 }}
@@ -264,9 +265,10 @@ function PasswordSetup({
 
       {submitting && (
         <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-          <span className="relative h-2.5 w-2.5 flex-shrink-0 rounded-full bg-brand">
-            <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
-          </span>
+          <span
+            aria-hidden="true"
+            className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
+          />
           <div
             className="font-medium text-fg-primary"
             style={{ fontSize: 13 }}
