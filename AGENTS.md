@@ -141,3 +141,18 @@ Create `components/ui/AwButton.tsx` as a wrapper around the shadcn primitive `Bu
 
 **"There's already an `AwButton.tsx` in the repo, but no shadcn primitive behind it. What do I do?"**
 That's the current debt. When you need to touch that component, install the shadcn primitive (`npx shadcn add button`) and refactor `AwButton.tsx` to wrap it, preserving the same props contract so existing pages don't break.
+
+## Cursor Cloud specific instructions
+
+### Running the app
+
+- **Dev server**: `npm run dev` starts Next.js on `http://localhost:3000` (bound to `0.0.0.0`). No database or external services needed — all data is localStorage/Zustand.
+- **TypeScript check**: `npm run typecheck` (there are pre-existing TS errors — 2 in `app/bombardier/styleguide/components/integration-card/page.tsx` and 1 in `components/astral-flow.tsx` missing `@types/three` — known debt, not blocking).
+- **Lint**: `npm run lint` currently does **not work** because Next.js 16 removed the `next lint` subcommand, and the project still uses `.eslintrc.json` (legacy format) with ESLint 9 (which requires flat config). This is a known migration gap.
+
+### Key caveats
+
+- **No auth backend**: The login page at `/` uses client-side form validation with an email-code verification flow. For testing, navigate directly to protected routes (e.g. `/dashboard`, `/agent-studio`, `/bombardier/styleguide`) — there is no server-side auth guard.
+- **Bridge services are optional**: `bridge/` (port 9876), `bridge-edit/` (port 9877), `review-bridge/` (port 9878) are developer tooling for Claude Code integration and design review. They are **not** needed for the main app.
+- **API routes**: `/api/copilot/chat` requires `GEMINI_API_KEY` in `.env.local` for the copilot feature. The app works fully without it.
+- **Knowledge OS file uploads** go to `storage/uploads/` on the local filesystem.
