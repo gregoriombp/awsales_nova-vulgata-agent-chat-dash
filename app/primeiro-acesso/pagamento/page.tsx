@@ -72,23 +72,29 @@ export default function PagamentoPage() {
                   type="button"
                   onClick={() => setSelected(method.id)}
                   className={[
-                    "flex w-full items-center gap-3.5 rounded-lg border bg-bg-raised px-4 py-4 text-left transition-colors duration-aw-fast",
+                    "flex w-full items-center gap-3.5 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
                     isSelected
-                      ? "border-fg-primary shadow-[0_0_0_1px_var(--fg-primary)_inset]"
-                      : "border-border hover:border-border-strong hover:bg-bg-surface",
+                      ? "border-fg-primary bg-fg-primary text-white"
+                      : "border-border bg-bg-raised hover:border-border-strong hover:bg-bg-surface",
                   ].join(" ")}
                 >
                   <AwBrandLogo brand={method.brand} size="md" />
 
                   <span className="min-w-0 flex-1">
                     <span
-                      className="block font-medium text-fg-primary"
+                      className={[
+                        "block font-medium",
+                        isSelected ? "text-white" : "text-fg-primary",
+                      ].join(" ")}
                       style={{ fontSize: 14 }}
                     >
                       {method.title}
                     </span>
                     <span
-                      className="block text-fg-tertiary"
+                      className={[
+                        "block",
+                        isSelected ? "text-white/70" : "text-fg-tertiary",
+                      ].join(" ")}
                       style={{ fontSize: 12 }}
                     >
                       {method.description}
@@ -96,15 +102,13 @@ export default function PagamentoPage() {
                   </span>
                   <span
                     className={[
-                      "flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-full border-[1.5px]",
+                      "flex h-[22px] w-[22px] flex-shrink-0 items-center justify-center rounded-full border-[1.5px]",
                       isSelected
-                        ? "border-fg-primary"
-                        : "border-border-strong",
+                        ? "border-white bg-white text-fg-primary"
+                        : "border-border-strong bg-transparent text-transparent",
                     ].join(" ")}
                   >
-                    {isSelected && (
-                      <span className="h-2 w-2 rounded-full bg-fg-primary" />
-                    )}
+                    <Icon name="check" size={14} weight={700} />
                   </span>
                 </button>
               </li>
