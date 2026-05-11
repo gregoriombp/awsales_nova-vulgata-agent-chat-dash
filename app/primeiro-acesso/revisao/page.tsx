@@ -22,7 +22,7 @@ const ROWS: Row[] = [
   {
     label: "CNPJ",
     value: (
-      <span className="font-mono" style={{ fontSize: 12.5, fontWeight: 400 }}>
+      <span style={{ fontSize: 13, fontWeight: 500 }}>
         {ONBOARDING_ORG.cnpj}
       </span>
     ),
@@ -38,8 +38,8 @@ const ROWS: Row[] = [
       <>
         {ONBOARDING_USER.name}{" "}
         <span
-          className="font-mono text-fg-tertiary"
-          style={{ fontSize: 11, fontWeight: 400 }}
+          className="text-fg-tertiary"
+          style={{ fontSize: 12, fontWeight: 400 }}
         >
           · {ONBOARDING_USER.email}
         </span>
@@ -119,6 +119,36 @@ export default function RevisaoPage() {
             </div>
           ))}
         </dl>
+
+        <a
+          href="#"
+          download
+          className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3 transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface"
+        >
+          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-primary">
+            <Icon name="picture_as_pdf" size={18} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span
+              className="block font-medium text-fg-primary"
+              style={{ fontSize: 13 }}
+            >
+              Contrato_{ONBOARDING_ORG.name.replace(/\s+/g, "_")}.pdf
+            </span>
+            <span
+              className="block text-fg-tertiary"
+              style={{ fontSize: 12 }}
+            >
+              PDF · {ONBOARDING_ORG.plan} · {ONBOARDING_ORG.contractTerm} · 48 KB
+            </span>
+          </span>
+          <span className="flex items-center gap-1.5 text-fg-secondary">
+            <span style={{ fontSize: 12 }} className="font-medium">
+              Baixar
+            </span>
+            <Icon name="download" size={16} />
+          </span>
+        </a>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
           <Link
