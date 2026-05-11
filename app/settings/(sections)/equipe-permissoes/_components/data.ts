@@ -434,6 +434,22 @@ export type Invitation = {
   sentAt: string;
 };
 
+/** Pool of curated greyscale background images stored under public/assets/group-backgrounds/. */
+export const GROUP_BACKGROUNDS: string[] = Array.from(
+  { length: 40 },
+  (_, i) => `/assets/group-backgrounds/group-bg-${String(i + 1).padStart(2, "0")}.jpg`
+);
+
+/** Deterministic pick from the pool — same group id always lands on the same image. */
+export function pickGroupBackground(groupId: string): string {
+  let hash = 0;
+  for (let i = 0; i < groupId.length; i++) {
+    hash = (hash * 31 + groupId.charCodeAt(i)) | 0;
+  }
+  const index = Math.abs(hash) % GROUP_BACKGROUNDS.length;
+  return GROUP_BACKGROUNDS[index];
+}
+
 export type Group = {
   id: string;
   name: string;
@@ -441,6 +457,10 @@ export type Group = {
   memberCount: number;
   icon: string;
   roles: Role[];
+  /** Member ids that compose this group (used to render the avatar stack). */
+  members: string[];
+  /** Background image rendered on the top half of the group card. */
+  backgroundImage: string;
 };
 
 export type RoleDefinition = {
@@ -950,25 +970,60 @@ export const GROUPS: Group[] = [
   {
     id: "g-atendimento",
     name: "Atendimento",
-    description: "Time que cuida de conversas em tempo real e SLAs.",
+    description:
+      "Equipe dedicada a monitorar conversas em tempo real, garantindo o cumprimento rigoroso dos SLAs.",
     memberCount: 8,
-    icon: "support_agent",
+    icon: "groups",
     roles: ["Operador", "Gerente de Operações"],
+    members: [
+      "u-thiago-oliveira",
+      "u-bianca-rezende",
+      "u-fernanda-costa",
+      "u-larissa-pinto",
+      "u-ana-souza",
+      "u-carlos-lima",
+      "u-rafael-andrade",
+      "u-camila-nogueira",
+    ],
+    backgroundImage: pickGroupBackground("g-atendimento"),
   },
   {
     id: "g-comercial",
     name: "Comercial",
-    description: "Vendas, qualificação de leads e follow-up.",
+    description:
+      "Vendas, qualificação de leads e follow-up — atua direto na ponta do funil para acelerar o ciclo.",
     memberCount: 5,
-    icon: "trending_up",
+    icon: "groups",
     roles: ["Operador", "Gerente da conta"],
+    members: [
+      "u-gabriel-rocha",
+      "u-juliana-barreto",
+      "u-pedro-vasconcelos",
+      "u-henrique-tavares",
+      "u-diego-ferreira",
+    ],
+    backgroundImage: pickGroupBackground("g-comercial"),
   },
   {
     id: "g-operacoes",
     name: "Operações",
-    description: "Setup de agentes, integrações e moderação.",
+    description:
+      "Setup de agentes, integrações e moderação. Cuida da espinha dorsal do workspace.",
     memberCount: 3,
-    icon: "settings",
+    icon: "groups",
     roles: ["Gerente de Operações", "Administrador"],
+    members: ["u-greg", "u-larissa-pinto", "u-ana-souza"],
+    backgroundImage: pickGroupBackground("g-operacoes"),
+  },
+  {
+    id: "g-suporte",
+    name: "Suporte",
+    description:
+      "Time especializado em acompanhar conversas ao vivo, assegurando o cumprimento estrito dos SLAs.",
+    memberCount: 2,
+    icon: "groups",
+    roles: ["Operador"],
+    members: ["u-thiago-oliveira", "u-bianca-rezende"],
+    backgroundImage: pickGroupBackground("g-suporte"),
   },
 ];
