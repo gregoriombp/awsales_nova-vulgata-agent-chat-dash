@@ -421,7 +421,6 @@ export type Member = {
   status: MemberStatus;
   lastActive: string;
   joinedAt: string;
-  ticketsThisWeek: number;
   permissions: string[];
   integrations: string[];
   activity: ActivityEntry[];
@@ -666,7 +665,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "agora mesmo",
     joinedAt: "12/01/2026",
-    ticketsThisWeek: 12,
     permissions: ADMINISTRADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
@@ -685,7 +683,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 12 minutos",
     joinedAt: "11/04/2023",
-    ticketsThisWeek: 18,
     permissions: GERENTE_DA_CONTA_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -703,7 +700,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 1 hora",
     joinedAt: "31/08/2022",
-    ticketsThisWeek: 14,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -721,7 +717,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "07/02/2024",
-    ticketsThisWeek: 9,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -739,7 +734,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 5 horas",
     joinedAt: "22/11/2023",
-    ticketsThisWeek: 11,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp", "checkout"],
     activity: [
@@ -757,7 +751,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 14 minutos",
     joinedAt: "14/01/2023",
-    ticketsThisWeek: 8,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -776,7 +769,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 3 horas",
     joinedAt: "19/08/2022",
-    ticketsThisWeek: 6,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -794,7 +786,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 25 minutos",
     joinedAt: "08/05/2022",
-    ticketsThisWeek: 4,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -812,7 +803,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 50 minutos",
     joinedAt: "16/09/2022",
-    ticketsThisWeek: 5,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -830,7 +820,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 30 minutos",
     joinedAt: "04/06/2023",
-    ticketsThisWeek: 11,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -848,7 +837,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 4 horas",
     joinedAt: "13/10/2023",
-    ticketsThisWeek: 9,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -866,7 +854,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 1 dia",
     joinedAt: "02/02/2024",
-    ticketsThisWeek: 2,
     permissions: COLABORADOR_EXTERNO_PERMISSIONS,
     integrations: [],
     activity: [
@@ -884,7 +871,6 @@ export const MEMBERS: Member[] = [
     status: "invited",
     lastActive: "—",
     joinedAt: "09/03/2024",
-    ticketsThisWeek: 0,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [
@@ -901,7 +887,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 8 minutos",
     joinedAt: "27/07/2023",
-    ticketsThisWeek: 22,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -919,7 +904,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "15/12/2023",
-    ticketsThisWeek: 17,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -937,7 +921,6 @@ export const MEMBERS: Member[] = [
     status: "inactive",
     lastActive: "há 3 meses",
     joinedAt: "31/10/2021",
-    ticketsThisWeek: 0,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [
