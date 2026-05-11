@@ -6,7 +6,8 @@ import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwButton } from "@/components/ui/AwButton"
 import AstralFlow from "@/components/astral-flow"
 
-const HEX_CLIP = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"
+const HEX_CLIP =
+  "polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)"
 
 export type AwSpecialistRole = {
   name: string
@@ -70,7 +71,7 @@ function SpecialistCard({
     <div
       className={cn(
         "aw-card",
-        isAi ? "aw-card--ai-cortex" : "aw-card--ai-warm",
+        isAi && "aw-card--ai-cortex",
         "!rounded-full !px-4 !py-3 flex items-center gap-4",
       )}
     >
@@ -81,7 +82,13 @@ function SpecialistCard({
           className="relative h-12 w-12 shrink-0 overflow-hidden"
           style={{ clipPath: HEX_CLIP }}
         >
-          <AstralFlow />
+          <AstralFlow
+            speed={0.35}
+            color1="#141416"
+            color2="#6B6E74"
+            color3="#DDE0E4"
+            className="!bg-[#141416]"
+          />
         </div>
       ) : (
         <AwAvatar
