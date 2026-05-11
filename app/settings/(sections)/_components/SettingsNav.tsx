@@ -54,7 +54,7 @@ export function SettingsNav() {
         <h2 className="m-0 mb-6 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
           Workspace
         </h2>
-        <nav className="aw-nav-rail aw-nav-rail--expanded !p-0 !border-0 !bg-transparent">
+        <nav className="aw-nav-rail aw-nav-rail--expanded !w-full !p-0 !border-0 !bg-transparent">
           <div className="aw-nav-rail__items">
             {SETTINGS_NAV_ITEMS.map((item) => {
               const active = isSettingsNavItemActive(pathname, item);
