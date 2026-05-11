@@ -522,8 +522,8 @@ function RowActionMenu({
         aria-label="Ações da integração"
         trigger={
           <AwButton
-            variant="ghost"
-            size="sm"
+            variant="subtle"
+            size="md"
             iconOnly="more_vert"
             aria-label="Ações da integração"
             title="Ações"

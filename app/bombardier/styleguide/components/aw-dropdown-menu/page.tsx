@@ -81,14 +81,14 @@ export default function AwDropdownMenuPage() {
           <Section
             id="actions"
             title="Action menu — com ícones, separator e danger"
-            lead="Padrão de menu de ações de row: comandos com ícone à esquerda, separator entre grupos, comando destrutivo no fim com cor de danger."
+            lead="Padrão de menu de ações de row: trigger com variant subtle (pílula tonal) em size md, comandos com ícone à esquerda, separator entre grupos, comando destrutivo no fim com cor de danger."
           >
             <Stage label="…sem hover label">
               <AwDropdownMenu
                 trigger={
                   <AwButton
-                    variant="ghost"
-                    size="sm"
+                    variant="subtle"
+                    size="md"
                     iconOnly="more_vert"
                     aria-label="Ações"
                     title="Ações"
