@@ -126,7 +126,7 @@ export default function MembersPage() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
             <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-primary)]">
@@ -229,10 +229,7 @@ const MANAGER_ROLE: Role = "Gerente da conta";
 const CORTEX = {
   name: "Cortex",
   role: "AI Account Manager",
-  roleIcon: "visibility",
   avatarSrc: "/assets/Cortex.png",
-  description:
-    "Converse com o Cortex pra explorar métricas, identificar gargalos e receber sugestões em tempo real.",
   ctaLabel: "Iniciar conversa",
   ctaIcon: "chat_bubble",
 };
@@ -276,14 +273,11 @@ function MembersTableState({
       {manager && (
         <AwSpecialistsPair
           title="Especialistas dedicados à sua conta"
-          description="Dois reforços fixos pra acelerar sua operação: um Gerente de Contas humano da Awsales pra estratégia, e o Cortex, copilot de IA que monitora seu workspace 24/7."
           human={{
             name: manager.name,
             role: "Gerente de contas",
-            roleIcon: "headset_mic",
             avatarSrc: manager.avatar,
             initials: manager.initials,
-            description: `Agende uma consultoria com ${manager.name.split(" ")[0]}, seu especialista dedicado da AwSales.`,
             ctaLabel: "Agendar agora",
             ctaIcon: "event",
           }}

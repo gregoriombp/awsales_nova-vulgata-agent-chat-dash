@@ -4,16 +4,15 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwButton } from "@/components/ui/AwButton"
-import { Icon } from "@/components/ui/Icon"
+import AstralFlow from "@/components/astral-flow"
+
+const HEX_CLIP = "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)"
 
 export type AwSpecialistRole = {
   name: string
   role: string
-  /** Optional Material Symbol shown next to the role label. */
-  roleIcon?: string
   avatarSrc?: string
   initials?: string
-  description: string
   ctaLabel: string
   ctaIcon?: string
   onCtaClick?: () => void
@@ -76,40 +75,31 @@ function SpecialistCard({
       )}
     >
       {isAi ? (
-        <img
-          src={data.avatarSrc}
-          alt={data.name}
-          className="h-14 w-14 shrink-0 rounded-2xl object-cover"
-        />
+        <div
+          role="img"
+          aria-label={data.name}
+          className="relative h-12 w-12 shrink-0 overflow-hidden"
+          style={{ clipPath: HEX_CLIP }}
+        >
+          <AstralFlow />
+        </div>
       ) : (
         <AwAvatar
           size="lg"
           src={data.avatarSrc}
           alt={data.name}
           initials={data.initials}
-          className="!h-14 !w-14 !text-[18px]"
+          className="!h-12 !w-12 !text-[16px]"
         />
       )}
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate text-[15px] font-semibold text-[var(--fg-primary)]">
-            {data.name}
-          </span>
-          {data.roleIcon && (
-            <Icon
-              name={data.roleIcon}
-              size={14}
-              className="shrink-0 text-[var(--fg-tertiary)]"
-            />
-          )}
-          <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
-            {data.role}
-          </span>
-        </div>
-        <p className="m-0 mt-0.5 truncate text-[12.5px] leading-[1.5] text-[var(--fg-secondary)]">
-          {data.description}
-        </p>
+      <div className="min-w-0 flex-1 flex items-baseline gap-2">
+        <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
+          {data.name}
+        </span>
+        <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
+          {data.role}
+        </span>
       </div>
 
       <AwButton

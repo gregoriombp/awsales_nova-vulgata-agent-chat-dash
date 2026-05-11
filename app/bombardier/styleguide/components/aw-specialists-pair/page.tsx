@@ -12,11 +12,8 @@ import {
 const HUMAN = {
   name: "Gabriel Rocha",
   role: "Gerente de contas",
-  roleIcon: "headset_mic",
   avatarSrc: "/assets/ui-faces/male-1.jpg",
   initials: "GR",
-  description:
-    "Agende uma consultoria com Gabriel, seu especialista dedicado da AwSales.",
   ctaLabel: "Agendar agora",
   ctaIcon: "event",
 }
@@ -24,10 +21,7 @@ const HUMAN = {
 const CORTEX = {
   name: "Cortex",
   role: "AI Account Manager",
-  roleIcon: "visibility",
   avatarSrc: "/assets/Cortex.png",
-  description:
-    "Converse com o Cortex pra explorar métricas, identificar gargalos e receber sugestões em tempo real.",
   ctaLabel: "Iniciar conversa",
   ctaIcon: "chat_bubble",
 }
@@ -80,7 +74,7 @@ export default function SpecialistsPairPage() {
           <Section
             id="custom-copy"
             title="Copy customizado"
-            lead="Toda a copy (nome, role, descrição, label do CTA) chega via props — você decide o tom da página."
+            lead="Toda a copy (nome, role, label do CTA) chega via props — você decide o tom da página."
           >
             <Stage
               label="onboarding"
@@ -91,15 +85,11 @@ export default function SpecialistsPairPage() {
                 description="Seu workspace já vem com dois especialistas conectados. Apresente-se e comece a tirar valor desde o dia um."
                 human={{
                   ...HUMAN,
-                  description:
-                    "Marque uma reunião de kickoff com Gabriel pra mapear seus objetivos e configurar o workspace do jeito certo.",
                   ctaLabel: "Marcar kickoff",
                   ctaIcon: "calendar_today",
                 }}
                 ai={{
                   ...CORTEX,
-                  description:
-                    "Faça uma rodada de perguntas pro Cortex pra entender o que ele já enxerga do seu workspace.",
                   ctaLabel: "Falar com Cortex",
                   ctaIcon: "chat_bubble",
                 }}
@@ -110,7 +100,7 @@ export default function SpecialistsPairPage() {
           <Section
             id="api"
             title="API"
-            lead="human e ai compartilham o mesmo shape — name, role, descrição e CTA. title e description do bloco são opcionais."
+            lead="human e ai compartilham o mesmo shape — name, role, avatar e CTA. title e description do bloco são opcionais."
           >
             <ApiTable>
               <PropRow
@@ -152,24 +142,14 @@ export default function SpecialistsPairPage() {
                 doc='Papel/função (ex: "Gerente de contas", "AI Account Manager").'
               />
               <PropRow
-                prop="roleIcon"
-                type="string"
-                doc="Material Symbol exibido entre o nome e o role (ex: 'headset_mic', 'visibility')."
-              />
-              <PropRow
                 prop="avatarSrc"
                 type="string"
-                doc="Imagem. Humano: /assets/ui-faces/* (renderizado circular). IA: /assets/Cortex.png ou /assets/agent_imgs/* (renderizado quadrado, rounded-2xl)."
+                doc="Imagem. Humano: /assets/ui-faces/* (renderizado circular via AwAvatar). IA: ignorado — o lado AI sempre renderiza o AstralFlow recortado em hex."
               />
               <PropRow
                 prop="initials"
                 type="string"
-                doc="Fallback do avatar quando a imagem falha."
-              />
-              <PropRow
-                prop="description"
-                type="string"
-                doc="Pitch do que esse especialista entrega — 1–2 frases curtas."
+                doc="Fallback do avatar quando a imagem falha (humano)."
               />
               <PropRow
                 prop="ctaLabel"
@@ -191,14 +171,11 @@ export default function SpecialistsPairPage() {
             <CodeExample label="exemplo — Equipe & permissões" lang="tsx">
               {`<AwSpecialistsPair
   title="Especialistas dedicados à sua conta"
-  description="Dois reforços fixos pra acelerar sua operação: um Gerente de Contas humano da Awsales pra estratégia, e o Cortex, copilot de IA que monitora seu workspace 24/7."
   human={{
     name: "Gabriel Rocha",
     role: "Gerente de contas",
-    roleIcon: "headset_mic",
     avatarSrc: "/assets/ui-faces/male-1.jpg",
     initials: "GR",
-    description: "Agende uma consultoria com Gabriel…",
     ctaLabel: "Agendar agora",
     ctaIcon: "event",
     onCtaClick: openScheduler,
@@ -206,9 +183,6 @@ export default function SpecialistsPairPage() {
   ai={{
     name: "Cortex",
     role: "AI Account Manager",
-    roleIcon: "visibility",
-    avatarSrc: "/assets/Cortex.png",
-    description: "Converse com o Cortex pra explorar métricas…",
     ctaLabel: "Iniciar conversa",
     ctaIcon: "chat_bubble",
     onCtaClick: openCortex,
