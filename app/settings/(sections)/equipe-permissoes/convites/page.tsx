@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import {
@@ -22,22 +21,6 @@ export default function InvitationsPage() {
   const [search, setSearch] = useState("");
   const [inviteOpen, setInviteOpen] = useState(false);
 
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Configurações",
-        icon: <Icon name="tune" size={16} />,
-        href: "/settings",
-      },
-      {
-        label: "Equipe & permissões",
-        href: "/settings/equipe-permissoes",
-      },
-      { label: "Convites" },
-    ],
-    []
-  );
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return INVITATIONS;
@@ -49,7 +32,7 @@ export default function InvitationsPage() {
   }, [search]);
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+    <>
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
@@ -145,6 +128,6 @@ export default function InvitationsPage() {
       </div>
 
       <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
-    </DashboardLayout>
+    </>
   );
 }

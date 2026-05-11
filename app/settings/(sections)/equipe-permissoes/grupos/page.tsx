@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import {
   AwEmpty,
@@ -19,22 +18,6 @@ import { TeamTabs } from "../_components/TeamTabs";
 export default function GroupsPage() {
   const [search, setSearch] = useState("");
 
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Configurações",
-        icon: <Icon name="tune" size={16} />,
-        href: "/settings",
-      },
-      {
-        label: "Equipe & permissões",
-        href: "/settings/equipe-permissoes",
-      },
-      { label: "Grupos" },
-    ],
-    []
-  );
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return GROUPS;
@@ -46,7 +29,7 @@ export default function GroupsPage() {
   }, [search]);
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+    <>
       <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
@@ -143,6 +126,6 @@ export default function GroupsPage() {
           </ul>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }
