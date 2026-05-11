@@ -12,7 +12,7 @@ export type AwOnboardingStep = {
 }
 
 export const AW_ONBOARDING_STEPS: readonly AwOnboardingStep[] = [
-  { id: "convite",      label: "convite",      num: "01", brandTitle: "Convite enviado" },
+  { id: "convite",      label: "convite",      num: "01", brandTitle: "Confirme que é você" },
   { id: "boas-vindas",  label: "boas-vindas",  num: "02", brandTitle: "Bem-vindo" },
   { id: "revisao",      label: "revisão",      num: "03", brandTitle: "Revise os dados" },
   { id: "pagamento",    label: "pagamento",    num: "04", brandTitle: "Forma de pagamento" },
@@ -131,13 +131,7 @@ function OnboardingBrandPane({
             className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
             style={{ fontSize: 10 }}
           >
-            {org.plan}
-          </span>
-          <span
-            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
-            style={{ fontSize: 10 }}
-          >
-            {org.contractTerm}
+            Plano Enterprise
           </span>
         </div>
       </div>
@@ -146,7 +140,6 @@ function OnboardingBrandPane({
         className="relative z-10 flex flex-col gap-2 text-aw-gray-700"
         style={{ fontSize: 10, letterSpacing: "0.04em" }}
       >
-        <div>etapa {String(currentStep + 1).padStart(2, "0")} / 08</div>
         <div>passo: {AW_ONBOARDING_STEPS[currentStep]?.label}</div>
       </div>
     </aside>
