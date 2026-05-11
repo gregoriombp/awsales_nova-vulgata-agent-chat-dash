@@ -17,9 +17,9 @@ export default function IntegrationCardPage() {
     <>
       <PageHero title="Integration card">
         Card composto para listar integrações de terceiros — combina
-        AwCard interativo, AwBrandLogo, AwStatusDot, AwPill e Icon. Slots
-        de meta e cta são overrideáveis; defaults sensatos saem do{" "}
-        <code className="mono">state</code>.
+        AwCard interativo, AwBrandLogo e AwStatusDot. O visual é
+        controlado pelo <code className="mono">state</code> (connected,
+        available, attention, disabled).
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-16">
@@ -63,37 +63,6 @@ export default function IntegrationCardPage() {
                 domain="acme.com"
                 description="Em integração privada — disponível em breve."
                 state="disabled"
-              />
-            </Stage>
-          </Section>
-
-          <Section
-            id="custom-slots"
-            title="Slots custom (meta, cta)"
-            lead="Override quando o conteúdo padrão não couber — ex.: lookup de sync real, CTA de upgrade, link externo."
-          >
-            <Stage
-              label="meta + cta custom"
-              gridClassName="grid grid-cols-1 md:grid-cols-2 gap-3"
-            >
-              <AwIntegrationCard
-                brand="hotmart"
-                name="Hotmart"
-                domain="hotmart.com"
-                description="Capture transações e eventos do checkout Hotmart."
-                state="connected"
-                meta="Última sync 12:34"
-                cta="Configurar →"
-                onClick={() => {}}
-              />
-              <AwIntegrationCard
-                brand="hubspot"
-                name="HubSpot"
-                domain="hubspot.com"
-                description="Conecte contatos, empresas e pipelines do HubSpot."
-                state="available"
-                cta="Pedir acesso →"
-                onClick={() => {}}
               />
             </Stage>
           </Section>
@@ -152,24 +121,15 @@ export default function IntegrationCardPage() {
             lead="Anatomia rígida — alterar slots quebra o reconhecimento."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Spec k="padding" v="18px" d="Mais denso que AwCard default." />
-              <Spec k="gap interno" v="12px" d="Entre top, header, descrição e footer." />
-              <Spec k="logo" v="AwBrandLogo size=md" d="Tile 40×40." />
+              <Spec k="container" v="AwCard interactive" d="Card padrão; ganha cursor/role=button quando há onClick." />
+              <Spec k="header" v="logo + heading" d="Logo (lg) à esquerda; nome + domínio à direita." />
+              <Spec k="logo" v="AwBrandLogo size=lg, bare" d="Sem tile/background — usa o asset bruto." />
               <Spec
                 k="status dot"
                 v="AwStatusDot variant=live, ring, absolute"
-                d="Aparece só em connected."
+                d="Aparece só em connected, ancorado ao logo."
               />
-              <Spec
-                k="pill"
-                v="AwPill"
-                d="live → Conectada (· N); beta → Atenção; vazio em available/disabled."
-              />
-              <Spec
-                k="footer"
-                v="meta · cta"
-                d="Border-top --border-subtle. Truncate horizontal."
-              />
+              <Spec k="descrição" v="parágrafo" d="2 linhas no máximo; sem clamp forçado pelo CSS atual." />
             </div>
           </Section>
 
@@ -195,17 +155,7 @@ export default function IntegrationCardPage() {
               <PropRow
                 prop="instances"
                 type="number"
-                doc='Quando state="connected" e > 1, renderiza "Conectada · N".'
-              />
-              <PropRow
-                prop="meta"
-                type="ReactNode"
-                doc="Override do slot esquerdo do footer."
-              />
-              <PropRow
-                prop="cta"
-                type="ReactNode"
-                doc="Override do slot direito do footer."
+                doc='Reservado — atualmente aceito no tipo mas o componente não renderiza nada baseado nele (dívida).'
               />
               <PropRow
                 prop="onClick"
@@ -230,7 +180,7 @@ export default function IntegrationCardPage() {
             <DoDont
               dos={[
                 <>Use grid auto-fill mínimo 240–260px.</>,
-                <>Confie no state — não passe meta/cta se o default basta.</>,
+                <>Confie no <code className="mono">state</code> — ele controla dot, ring e interatividade.</>,
                 <>onClick abre modal/drawer de detalhe, não navega para outra página.</>,
               ]}
               donts={[
