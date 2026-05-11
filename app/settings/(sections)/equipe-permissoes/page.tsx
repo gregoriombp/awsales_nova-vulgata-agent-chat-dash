@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/AwMembersTable";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwSpecialistsPair } from "@/components/ui/AwSpecialistsPair";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -225,6 +226,17 @@ export default function MembersPage() {
 
 const MANAGER_ROLE: Role = "Gerente da conta";
 
+const CORTEX = {
+  name: "Cortex",
+  role: "AI Account Manager",
+  roleIcon: "visibility",
+  avatarSrc: "/assets/Cortex.png",
+  description:
+    "Converse com o Cortex pra explorar métricas, identificar gargalos e receber sugestões em tempo real.",
+  ctaLabel: "Iniciar conversa",
+  ctaIcon: "chat_bubble",
+};
+
 function MembersTableState({
   members,
   managerAlreadyAssigned,
@@ -257,19 +269,29 @@ function MembersTableState({
     );
   }
 
+  const manager = managers[0];
+
   return (
     <div className="flex flex-col gap-8">
+      {manager && (
+        <AwSpecialistsPair
+          title="Especialistas dedicados à sua conta"
+          description="Dois reforços fixos pra acelerar sua operação: um Gerente de Contas humano da Awsales pra estratégia, e o Cortex, copilot de IA que monitora seu workspace 24/7."
+          human={{
+            name: manager.name,
+            role: "Gerente de contas",
+            roleIcon: "headset_mic",
+            avatarSrc: manager.avatar,
+            initials: manager.initials,
+            description: `Agende uma consultoria com ${manager.name.split(" ")[0]}, seu especialista dedicado da AwSales.`,
+            ctaLabel: "Agendar agora",
+            ctaIcon: "event",
+          }}
+          ai={CORTEX}
+        />
+      )}
       <MemberSection
-        title="Gerente da conta"
-        description="O Gerente de Contas é um especialista da equipe Awsales designado para acompanhar sua organização. Ele irá oferecer suporte técnico, auxiliar em configurações estratégicas e garantir que você extraia o máximo potencial da plataforma sempre que necessário. Apenas um membro pode ocupar essa função."
-        members={managers}
-        managerAlreadyAssigned={managerAlreadyAssigned}
-        onSelect={onSelect}
-        onChangeRole={onChangeRole}
-        emptyHint="Nenhum gerente da conta atribuído ainda."
-      />
-      <MemberSection
-        title="Outros membros"
+        title="Membros do workspace"
         members={others}
         managerAlreadyAssigned={managerAlreadyAssigned}
         onSelect={onSelect}
