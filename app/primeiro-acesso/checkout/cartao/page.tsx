@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
+import { AwCardBrand, detectCardBrand } from "@/components/ui/AwCardBrand"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG } from "../../_data"
 
@@ -23,6 +24,7 @@ export default function CheckoutCartaoPage() {
   const [cvv, setCvv] = React.useState("")
   const [loading, setLoading] = React.useState(false)
 
+  const brand = detectCardBrand(number)
   const valid =
     number.replace(/\s/g, "").length >= 13 &&
     name.length > 3 &&
@@ -40,8 +42,8 @@ export default function CheckoutCartaoPage() {
   return (
     <AwOnboardingShell currentStep={4} org={ONBOARDING_ORG}>
       <section>
-        <div className="mb-5 flex items-center gap-3">
-          <AwBrandLogo brand="card" size="md" />
+        <div className="mb-5 flex items-center gap-2.5">
+          <AwBrandLogo brand="card" size="sm" />
           <span
             className="uppercase text-fg-tertiary"
             style={{ fontSize: 11, letterSpacing: "0.06em" }}
@@ -70,15 +72,38 @@ export default function CheckoutCartaoPage() {
         </p>
 
         <div className="grid gap-3.5">
-          <FieldText label="Número do cartão" iconLeft="credit_card">
-            <input
-              placeholder="0000 0000 0000 0000"
-              value={number}
-              onChange={(e) => setNumber(fmtCard(e.target.value))}
-              className="flex-1 border-0 bg-transparent font-sans outline-0"
-              style={{ fontSize: 14 }}
-            />
-          </FieldText>
+          <label className="flex flex-col gap-1.5">
+            <span
+              className="font-medium text-fg-secondary"
+              style={{ fontSize: 12 }}
+            >
+              Número do cartão
+            </span>
+            <span className="flex h-11 items-center gap-2.5 rounded-md border border-border bg-bg-raised pl-2.5 pr-3.5 focus-within:border-fg-primary">
+              <AwCardBrand pan={number} size="md" />
+              <input
+                placeholder="0000 0000 0000 0000"
+                value={number}
+                onChange={(e) => setNumber(fmtCard(e.target.value))}
+                inputMode="numeric"
+                autoComplete="cc-number"
+                className="flex-1 border-0 bg-transparent font-sans outline-0"
+                style={{
+                  fontSize: 14,
+                  fontVariantNumeric: "tabular-nums",
+                  letterSpacing: "0.02em",
+                }}
+              />
+              {brand !== "unknown" && (
+                <span
+                  className="uppercase text-fg-tertiary"
+                  style={{ fontSize: 10, letterSpacing: "0.06em" }}
+                >
+                  {brand === "amex" ? "Amex" : brand === "diners" ? "Diners" : brand}
+                </span>
+              )}
+            </span>
+          </label>
           <FieldText label="Nome impresso no cartão">
             <input
               placeholder="Como está no cartão"

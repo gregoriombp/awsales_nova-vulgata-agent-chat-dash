@@ -72,7 +72,7 @@ const BRANDS: Record<string, Brand> = {
     ),
   },
   card: {
-    bg: "#3730A3",
+    bg: "#0F1419",
     mark: ({ fg }) => (
       <svg viewBox="0 0 24 24" width="62%" height="62%" aria-hidden="true">
         <rect

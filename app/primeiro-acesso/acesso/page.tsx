@@ -38,7 +38,10 @@ export default function AcessoPage() {
       setMode("password")
       return
     }
-    setTimeout(() => router.push("/inicio?welcome=1"), 900)
+    setTimeout(
+      () => router.push(`/primeiro-acesso/perfil?via=${id}`),
+      900,
+    )
   }
 
   const goBackToChoose = () => {
@@ -52,7 +55,9 @@ export default function AcessoPage() {
         {mode === "password" ? (
           <PasswordSetup
             onBack={goBackToChoose}
-            onSubmit={() => router.push("/inicio?welcome=1")}
+            onSubmit={() =>
+              router.push("/primeiro-acesso/perfil?via=password")
+            }
           />
         ) : (
           <>
