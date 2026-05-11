@@ -22,14 +22,9 @@ const STEPS = [
     description: "Pix, cartão ou boleto",
   },
   {
-    icon: "key",
-    title: "Definir acesso",
-    description: "SSO, magic-link ou senha",
-  },
-  {
-    icon: "neurology",
-    title: "Entrar no Agent Studio",
-    description: "Configurar seu primeiro agente",
+    icon: "manage_accounts",
+    title: "Configurar sua conta",
+    description: "Perfil, acesso e preferências",
   },
 ]
 
@@ -57,31 +52,41 @@ export default function BoasVindasPage() {
           implementação e escolher como vai acessar a plataforma.
         </p>
 
-        <ol className="mb-6 grid grid-cols-2 gap-2.5 list-none p-0">
-          {STEPS.map((step, i) => (
-            <li
-              key={step.title}
-              className="flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3.5"
-            >
-              <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-primary">
-                <Icon name={step.icon} size={18} />
-              </span>
-              <span className="min-w-0">
-                <span
-                  className="block font-medium text-fg-primary"
-                  style={{ fontSize: 13 }}
-                >
-                  {i + 1}. {step.title}
+        <ol className="mb-6 list-none p-0">
+          {STEPS.map((step, i) => {
+            const isLast = i === STEPS.length - 1
+            return (
+              <li
+                key={step.title}
+                className={`relative flex gap-4 ${isLast ? "" : "pb-5"}`}
+              >
+                {!isLast && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-[17px] top-[34px] w-px bg-border"
+                    style={{ bottom: 0 }}
+                  />
+                )}
+                <span className="relative z-10 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-fg-primary text-white shadow-sm">
+                  <Icon name={step.icon} size={16} />
                 </span>
-                <span
-                  className="block text-fg-tertiary"
-                  style={{ fontSize: 11 }}
-                >
-                  {step.description}
-                </span>
-              </span>
-            </li>
-          ))}
+                <div className="min-w-0 pt-1.5">
+                  <div
+                    className="font-medium text-fg-primary"
+                    style={{ fontSize: 14, letterSpacing: "-0.005em" }}
+                  >
+                    {i + 1}. {step.title}
+                  </div>
+                  <div
+                    className="text-fg-tertiary"
+                    style={{ fontSize: 12, lineHeight: 1.5 }}
+                  >
+                    {step.description}
+                  </div>
+                </div>
+              </li>
+            )
+          })}
         </ol>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
