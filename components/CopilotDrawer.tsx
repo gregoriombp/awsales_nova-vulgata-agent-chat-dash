@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import AstralFlow from "@/components/astral-flow";
 
-const CORTEX_HEX_CLIP =
-  "polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)";
+// Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with
+// quadratic-Bézier rounded vertices. Encoded as an SVG mask so it scales
+// with any container size.
+const CORTEX_HEX_MASK = (() => {
+  const path =
+    "M5 41.34 L20 15.36 Q25 6.7 35 6.7 L65 6.7 Q75 6.7 80 15.36 L95 41.34 Q100 50 95 58.66 L80 84.64 Q75 93.3 65 93.3 L35 93.3 Q25 93.3 20 84.64 L5 58.66 Q0 50 5 41.34 Z";
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><path d='${path}' fill='black'/></svg>`;
+  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+})();
 
 function Close24() {
   return (
@@ -67,7 +74,17 @@ export function CopilotOrb({ size = 36 }: { size?: number }) {
   return (
     <div
       className="relative shrink-0 overflow-hidden"
-      style={{ width: size, height: size, clipPath: CORTEX_HEX_CLIP }}
+      style={{
+        width: size,
+        height: size,
+        maskImage: CORTEX_HEX_MASK,
+        WebkitMaskImage: CORTEX_HEX_MASK,
+        maskSize: "100% 100%",
+        WebkitMaskSize: "100% 100%",
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskMode: "alpha",
+      }}
       aria-hidden="true"
     >
       <AstralFlow
@@ -166,7 +183,7 @@ export default function CopilotDrawer({
   const panel = (
     <aside
       ref={panelRef}
-      className={`h-full border-l border-[#e5e5e5] bg-[#f9f9f9] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
+      className={`h-full bg-[#f9f9f9] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
         isOpen ? "w-[405px]" : "w-0"
       }`}
       role="dialog"
