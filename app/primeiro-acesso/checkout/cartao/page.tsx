@@ -16,13 +16,28 @@ const fmtExp = (v: string) => {
   return n.length > 2 ? n.slice(0, 2) + "/" + n.slice(2) : n
 }
 
+const parseBRL = (s: string) =>
+  Number(s.replace(/[^\d,]/g, "").replace(/\./g, "").replace(",", "."))
+
+const fmtBRL = (n: number) =>
+  n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+
 export default function CheckoutCartaoPage() {
   const router = useRouter()
   const [number, setNumber] = React.useState("")
   const [name, setName] = React.useState("")
   const [exp, setExp] = React.useState("")
   const [cvv, setCvv] = React.useState("")
+  const [installments, setInstallments] = React.useState(1)
   const [loading, setLoading] = React.useState(false)
+
+  const total = parseBRL(ONBOARDING_ORG.valorImplementacao)
+  const maxInstallments = ONBOARDING_ORG.parcelamentoMaxImplementacao
+  const installmentValue = total / installments
+  const summaryLabel =
+    installments === 1
+      ? `Pagar ${fmtBRL(total)}`
+      : `Pagar em ${installments}x de ${fmtBRL(installmentValue)}`
 
   const brand = detectCardBrand(number)
   const valid =
@@ -66,9 +81,9 @@ export default function CheckoutCartaoPage() {
           className="mb-7 text-fg-secondary text-pretty"
           style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
         >
-          Aprovação imediata. Você verá uma cobrança de{" "}
-          <b>{ONBOARDING_ORG.valorImplementacao}</b> na fatura da bandeira
-          escolhida.
+          Aprovação imediata. O total de{" "}
+          <b>{ONBOARDING_ORG.valorImplementacao}</b> pode ser parcelado em até{" "}
+          {maxInstallments}x sem juros na fatura da bandeira escolhida.
         </p>
 
         <div className="grid gap-3.5">
@@ -135,6 +150,72 @@ export default function CheckoutCartaoPage() {
               />
             </FieldText>
           </div>
+
+          <div className="flex flex-col gap-1.5">
+            <div className="flex items-baseline justify-between">
+              <span
+                className="font-medium text-fg-secondary"
+                style={{ fontSize: 12 }}
+              >
+                Parcelamento
+              </span>
+              <span
+                className="text-fg-tertiary"
+                style={{ fontSize: 11 }}
+              >
+                até {maxInstallments}x sem juros · entrada à vista
+              </span>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="Número de parcelas"
+              className="grid gap-2"
+              style={{
+                gridTemplateColumns: `repeat(${maxInstallments}, minmax(0, 1fr))`,
+              }}
+            >
+              {Array.from({ length: maxInstallments }, (_, i) => i + 1).map(
+                (n) => {
+                  const isSelected = installments === n
+                  const value = total / n
+                  return (
+                    <button
+                      key={n}
+                      type="button"
+                      role="radio"
+                      aria-checked={isSelected}
+                      onClick={() => setInstallments(n)}
+                      className={[
+                        "flex flex-col items-start gap-0.5 rounded-md border bg-bg-raised px-3 py-2.5 text-left transition-colors duration-aw-fast",
+                        isSelected
+                          ? "border-fg-primary shadow-[0_0_0_1px_var(--fg-primary)_inset]"
+                          : "border-border hover:border-border-strong hover:bg-bg-surface",
+                      ].join(" ")}
+                    >
+                      <span
+                        className="font-medium text-fg-primary"
+                        style={{
+                          fontSize: 13,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {n}x
+                      </span>
+                      <span
+                        className="text-fg-tertiary"
+                        style={{
+                          fontSize: 11,
+                          fontVariantNumeric: "tabular-nums",
+                        }}
+                      >
+                        {n === 1 ? "à vista" : fmtBRL(value)}
+                      </span>
+                    </button>
+                  )
+                },
+              )}
+            </div>
+          </div>
         </div>
 
         {loading && (
@@ -175,7 +256,7 @@ export default function CheckoutCartaoPage() {
             className="aw-btn aw-btn--primary aw-btn--md"
           >
             <span className="aw-btn__label">
-              {loading ? "Processando…" : `Pagar ${ONBOARDING_ORG.valorImplementacao}`}
+              {loading ? "Processando…" : summaryLabel}
             </span>
             <Icon name="arrow_forward" size={16} />
           </button>

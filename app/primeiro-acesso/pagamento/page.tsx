@@ -25,7 +25,7 @@ const METHODS: Method[] = [
     id: "cartao",
     brand: "card",
     title: "Cartão de crédito",
-    description: "Aprovação imediata · em até 1 parcela",
+    description: `Aprovação imediata · em até ${ONBOARDING_ORG.parcelamentoMaxImplementacao}x sem juros`,
   },
   {
     id: "boleto",
