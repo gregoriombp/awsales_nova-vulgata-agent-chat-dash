@@ -30,107 +30,343 @@ const MsIcon = () => (
 export default function AcessoPage() {
   const router = useRouter()
   const [picked, setPicked] = React.useState<Pick | null>(null)
+  const [mode, setMode] = React.useState<"choose" | "password">("choose")
 
   const choose = (id: Pick) => {
     setPicked(id)
+    if (id === "password") {
+      setMode("password")
+      return
+    }
     setTimeout(() => router.push("/inicio?welcome=1"), 900)
+  }
+
+  const goBackToChoose = () => {
+    setMode("choose")
+    setPicked(null)
   }
 
   return (
     <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
-          Como você prefere entrar?
-        </h1>
-
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
-          Você poderá alterar isso depois nas configurações da conta.
-          Recomendamos SSO para times com Google Workspace ou Microsoft 365.
-        </p>
-
-        <div className="flex flex-col gap-2.5">
-          <AuthOption
-            disabled={!!picked && picked !== "google"}
-            onClick={() => choose("google")}
-            icon={<GoogleIcon />}
-            label="Continuar com Google"
+        {mode === "password" ? (
+          <PasswordSetup
+            onBack={goBackToChoose}
+            onSubmit={() => router.push("/inicio?welcome=1")}
           />
-          <AuthOption
-            disabled={!!picked && picked !== "ms"}
-            onClick={() => choose("ms")}
-            icon={<MsIcon />}
-            label="Continuar com Microsoft"
-          />
-        </div>
-
-        <div
-          className="my-4 flex items-center gap-3 font-mono uppercase text-fg-tertiary before:h-px before:flex-1 before:bg-border-subtle before:content-[''] after:h-px after:flex-1 after:bg-border-subtle after:content-['']"
-          style={{ fontSize: 10, letterSpacing: "0.06em" }}
-        >
-          ou
-        </div>
-
-        <div className="flex flex-col gap-2.5">
-          <AuthOption
-            disabled={!!picked && picked !== "magic"}
-            onClick={() => choose("magic")}
-            icon={<Icon name="mail" size={18} />}
-            label={`Enviar magic-link para ${ONBOARDING_USER.email}`}
-          />
-          <AuthOption
-            disabled={!!picked && picked !== "password"}
-            onClick={() => choose("password")}
-            icon={<Icon name="lock" size={18} />}
-            label="Definir uma senha"
-          />
-        </div>
-
-        {picked && (
-          <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-            <span className="relative h-2.5 w-2.5 flex-shrink-0 rounded-full bg-brand">
-              <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
-            </span>
-            <div
-              className="font-medium text-fg-primary"
-              style={{ fontSize: 13 }}
+        ) : (
+          <>
+            <h1
+              className="mb-2 font-display font-medium text-fg-primary text-balance"
+              style={{
+                fontSize: "var(--h3-size)",
+                lineHeight: 1.15,
+                letterSpacing: "-0.015em",
+              }}
             >
-              {picked === "google" && "Redirecionando para Google…"}
-              {picked === "ms" && "Redirecionando para Microsoft…"}
-              {picked === "magic" &&
-                `Enviando link para ${ONBOARDING_USER.email}…`}
-              {picked === "password" && "Abrindo definição de senha…"}
-            </div>
-          </div>
-        )}
+              Como você prefere entrar?
+            </h1>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-          <Link
-            href="/primeiro-acesso/confirmado"
-            className="aw-btn aw-btn--ghost aw-btn--md"
-          >
-            <Icon name="arrow_back" size={16} />
-            <span className="aw-btn__label">Voltar</span>
-          </Link>
-          <span className="flex-1" />
-          <span
-            className="font-mono text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
-            autenticação via OAuth ou e-mail
-          </span>
-        </footer>
+            <p
+              className="mb-7 text-fg-secondary text-pretty"
+              style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
+            >
+              Você poderá alterar isso depois nas configurações da conta.
+              Recomendamos SSO para times com Google Workspace ou Microsoft 365.
+            </p>
+
+            <div className="flex flex-col gap-2.5">
+              <AuthOption
+                disabled={!!picked && picked !== "google"}
+                onClick={() => choose("google")}
+                icon={<GoogleIcon />}
+                label="Continuar com Google"
+              />
+              <AuthOption
+                disabled={!!picked && picked !== "ms"}
+                onClick={() => choose("ms")}
+                icon={<MsIcon />}
+                label="Continuar com Microsoft"
+              />
+            </div>
+
+            <div
+              className="my-4 flex items-center gap-3 uppercase text-fg-tertiary before:h-px before:flex-1 before:bg-border-subtle before:content-[''] after:h-px after:flex-1 after:bg-border-subtle after:content-['']"
+              style={{ fontSize: 10, letterSpacing: "0.06em" }}
+            >
+              ou
+            </div>
+
+            <div className="flex flex-col gap-2.5">
+              <AuthOption
+                disabled={!!picked && picked !== "magic"}
+                onClick={() => choose("magic")}
+                icon={<Icon name="mail" size={18} />}
+                label={`Enviar magic-link para ${ONBOARDING_USER.email}`}
+              />
+              <AuthOption
+                disabled={!!picked && picked !== "password"}
+                onClick={() => choose("password")}
+                icon={<Icon name="lock" size={18} />}
+                label="Definir uma senha"
+              />
+            </div>
+
+            {picked && picked !== "password" && (
+              <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+                <span className="relative h-2.5 w-2.5 flex-shrink-0 rounded-full bg-brand">
+                  <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
+                </span>
+                <div
+                  className="font-medium text-fg-primary"
+                  style={{ fontSize: 13 }}
+                >
+                  {picked === "google" && "Redirecionando para Google…"}
+                  {picked === "ms" && "Redirecionando para Microsoft…"}
+                  {picked === "magic" &&
+                    `Enviando link para ${ONBOARDING_USER.email}…`}
+                </div>
+              </div>
+            )}
+
+            <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+              <Link
+                href="/primeiro-acesso/confirmado"
+                className="aw-btn aw-btn--ghost aw-btn--md"
+              >
+                <Icon name="arrow_back" size={16} />
+                <span className="aw-btn__label">Voltar</span>
+              </Link>
+              <span className="flex-1" />
+              <span
+                className="text-fg-tertiary"
+                style={{ fontSize: 10, letterSpacing: "0.04em" }}
+              >
+                autenticação via OAuth ou e-mail
+              </span>
+            </footer>
+          </>
+        )}
       </section>
     </AwOnboardingShell>
+  )
+}
+
+function PasswordSetup({
+  onBack,
+  onSubmit,
+}: {
+  onBack: () => void
+  onSubmit: () => void
+}) {
+  const [pwd, setPwd] = React.useState("")
+  const [confirm, setConfirm] = React.useState("")
+  const [show, setShow] = React.useState(false)
+  const [submitting, setSubmitting] = React.useState(false)
+
+  const rules = [
+    { label: "Mínimo de 8 caracteres", ok: pwd.length >= 8 },
+    { label: "Pelo menos 1 letra maiúscula", ok: /[A-Z]/.test(pwd) },
+    { label: "Pelo menos 1 número", ok: /\d/.test(pwd) },
+    {
+      label: "Pelo menos 1 símbolo (!@#$…)",
+      ok: /[^A-Za-z0-9]/.test(pwd),
+    },
+  ]
+  const allOk = rules.every((r) => r.ok)
+  const matches = confirm.length > 0 && pwd === confirm
+  const valid = allOk && matches
+
+  const submit = () => {
+    if (!valid || submitting) return
+    setSubmitting(true)
+    setTimeout(onSubmit, 1100)
+  }
+
+  return (
+    <>
+      <h1
+        className="mb-2 font-display font-medium text-fg-primary text-balance"
+        style={{
+          fontSize: "var(--h3-size)",
+          lineHeight: 1.15,
+          letterSpacing: "-0.015em",
+        }}
+      >
+        Defina uma senha para o seu acesso.
+      </h1>
+
+      <p
+        className="mb-7 text-fg-secondary text-pretty"
+        style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
+      >
+        Você usará seu e-mail{" "}
+        <span className="font-medium text-fg-primary">
+          {ONBOARDING_USER.email}
+        </span>{" "}
+        e esta senha para entrar na AwSales.
+      </p>
+
+      <div className="grid gap-3.5">
+        <PasswordField
+          label="Nova senha"
+          value={pwd}
+          onChange={setPwd}
+          show={show}
+          onToggleShow={() => setShow((v) => !v)}
+        />
+        <PasswordField
+          label="Confirmar senha"
+          value={confirm}
+          onChange={setConfirm}
+          show={show}
+          onToggleShow={() => setShow((v) => !v)}
+          status={
+            confirm.length === 0
+              ? "idle"
+              : matches
+              ? "match"
+              : "mismatch"
+          }
+        />
+      </div>
+
+      <ul className="mt-4 m-0 grid grid-cols-2 gap-x-4 gap-y-1.5 list-none p-0">
+        {rules.map((rule) => (
+          <li
+            key={rule.label}
+            className="flex items-center gap-2"
+            style={{ fontSize: 12 }}
+          >
+            <span
+              className={[
+                "flex h-4 w-4 items-center justify-center rounded-full",
+                rule.ok
+                  ? "bg-aw-emerald-100 text-aw-emerald-700"
+                  : "bg-bg-muted text-fg-tertiary",
+              ].join(" ")}
+            >
+              <Icon name={rule.ok ? "check" : "remove"} size={12} />
+            </span>
+            <span
+              className={rule.ok ? "text-fg-secondary" : "text-fg-tertiary"}
+            >
+              {rule.label}
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {submitting && (
+        <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+          <span className="relative h-2.5 w-2.5 flex-shrink-0 rounded-full bg-brand">
+            <span className="absolute -inset-1 animate-ping rounded-full border-2 border-brand opacity-60" />
+          </span>
+          <div
+            className="font-medium text-fg-primary"
+            style={{ fontSize: 13 }}
+          >
+            Criando seu acesso…
+          </div>
+        </div>
+      )}
+
+      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <button
+          type="button"
+          onClick={onBack}
+          disabled={submitting}
+          className="aw-btn aw-btn--ghost aw-btn--md"
+        >
+          <Icon name="arrow_back" size={16} />
+          <span className="aw-btn__label">Outro método</span>
+        </button>
+        <span className="flex-1" />
+        <button
+          type="button"
+          onClick={submit}
+          disabled={!valid || submitting}
+          className="aw-btn aw-btn--primary aw-btn--md"
+        >
+          <span className="aw-btn__label">
+            {submitting ? "Criando…" : "Criar acesso e entrar"}
+          </span>
+          <Icon name="arrow_forward" size={16} />
+        </button>
+      </footer>
+    </>
+  )
+}
+
+function PasswordField({
+  label,
+  value,
+  onChange,
+  show,
+  onToggleShow,
+  status = "idle",
+}: {
+  label: string
+  value: string
+  onChange: (v: string) => void
+  show: boolean
+  onToggleShow: () => void
+  status?: "idle" | "match" | "mismatch"
+}) {
+  const borderClass =
+    status === "mismatch"
+      ? "border-aw-amber-500 focus-within:border-aw-amber-500"
+      : status === "match"
+      ? "border-aw-emerald-500 focus-within:border-aw-emerald-500"
+      : "border-border focus-within:border-fg-primary"
+
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span
+        className="font-medium text-fg-secondary"
+        style={{ fontSize: 12 }}
+      >
+        {label}
+      </span>
+      <span
+        className={`flex h-11 items-center gap-2 rounded-md border ${borderClass} bg-bg-raised px-3.5`}
+      >
+        <Icon name="lock" size={16} className="text-fg-tertiary" />
+        <input
+          type={show ? "text" : "password"}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="••••••••"
+          className="flex-1 border-0 bg-transparent font-sans outline-0"
+          style={{ fontSize: 14, letterSpacing: show ? "0" : "0.1em" }}
+        />
+        {status === "match" && (
+          <Icon
+            name="check_circle"
+            size={16}
+            className="text-aw-emerald-700"
+            fill={1}
+          />
+        )}
+        {status === "mismatch" && (
+          <Icon
+            name="error"
+            size={16}
+            className="text-aw-amber-700"
+            fill={1}
+          />
+        )}
+        <button
+          type="button"
+          onClick={onToggleShow}
+          tabIndex={-1}
+          aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+          className="flex h-7 w-7 items-center justify-center rounded-sm text-fg-tertiary hover:bg-bg-muted hover:text-fg-secondary"
+        >
+          <Icon name={show ? "visibility_off" : "visibility"} size={18} />
+        </button>
+      </span>
+    </label>
   )
 }
 
