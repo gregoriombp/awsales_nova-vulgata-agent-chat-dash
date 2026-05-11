@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import AstralFlow from "@/components/astral-flow";
+
+const CORTEX_HEX_CLIP =
+  "polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%)";
 
 function Close24() {
   return (
@@ -62,18 +66,16 @@ function Send20() {
 export function CopilotOrb({ size = 36 }: { size?: number }) {
   return (
     <div
-      className="relative copilot-orb"
-      style={{ width: size, height: size, borderRadius: 9999 }}
+      className="relative shrink-0 overflow-hidden"
+      style={{ width: size, height: size, clipPath: CORTEX_HEX_CLIP }}
+      aria-hidden="true"
     >
-      <div
-        className="absolute inset-0 rounded-full orb-inner bg-[radial-gradient(120%_120%_at_20%_25%,#1fb6ff_0%,#bfefff_45%,#f3e6ff_75%,#ffd6e7_100%)]"
-      />
-      <div
-        className="absolute left-[22%] top-[18%] h-[45%] w-[45%] rounded-full blur-[6px] orb-shine"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%)",
-        }}
+      <AstralFlow
+        speed={0.15}
+        color1="#fafafa"
+        color2="#E2E2E2"
+        color3="#ffffff"
+        className="!bg-[#141416]"
       />
     </div>
   );
@@ -168,7 +170,7 @@ export default function CopilotDrawer({
         isOpen ? "w-[405px]" : "w-0"
       }`}
       role="dialog"
-      aria-label="AwSales Copilot"
+      aria-label="Cortex"
     >
       <div className="h-full w-[405px] min-w-[405px] bg-white flex flex-col">
         {/* Top bar */}
@@ -177,7 +179,7 @@ export default function CopilotDrawer({
             <CopilotOrb size={46} />
             <div className="flex flex-col">
               <div className="text-[20px] leading-[30px] font-semibold tracking-[-0.4492px] text-[#252b33]">
-                AwSales Copilot
+                Cortex
               </div>
               <div className="flex items-center gap-2 text-[12px] leading-4 text-[#00a63e]">
                 <span className="h-[6px] w-[6px] rounded-full bg-[#00c950] opacity-50" />
@@ -326,7 +328,7 @@ export default function CopilotDrawer({
           </div>
 
           <div className="text-[10px] leading-[15px] tracking-[0.1172px] text-[#99a1af] text-center">
-            Ai Copilot pode cometer erros. Verifique informações importantes.
+            Cortex pode cometer erros. Verifique informações importantes.
           </div>
         </div>
       </div>
@@ -344,7 +346,7 @@ export default function CopilotDrawer({
     >
       <button
         type="button"
-        aria-label="Fechar Copilot"
+        aria-label="Fechar Cortex"
         className={`absolute inset-0 h-full w-full bg-black/0 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0"
         }`}
@@ -356,7 +358,7 @@ export default function CopilotDrawer({
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
-        aria-label="AwSales Copilot"
+        aria-label="Cortex"
       >
         <div className="h-full w-full bg-white">{/* content reused from panel */}</div>
       </aside>
