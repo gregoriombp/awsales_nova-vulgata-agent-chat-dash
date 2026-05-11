@@ -46,14 +46,23 @@ export default function PlaygroundPage() {
   return (
     <div className="max-w-4xl mx-auto px-8 py-12">
       <header className="mb-8">
-        <p className="aw-eyebrow mb-2">Styleguide · Playground</p>
+        <p className="aw-eyebrow mb-2">Styleguide · Playground IA</p>
         <h1 className="text-4xl font-semibold tracking-tight mb-3">
           Componentes propostos
         </h1>
         <p className="text-[var(--fg-secondary)] leading-relaxed max-w-2xl">
-          Componentes criados dinamicamente pela IA do Bombardier quando a
-          paleta e o shadcn não ofereceram uma solução. Ficam em quarentena
-          até um designer aprovar — só então entram em{" "}
+          Quarentena dos componentes gerados pela IA do Bombardier quando
+          a paleta e o shadcn não cobriam o caso. Listados aqui — direto
+          do filesystem em{" "}
+          <code className="px-1.5 py-0.5 text-xs rounded bg-[var(--bg-muted)] font-mono">
+            components/playground/
+          </code>{" "}
+          — esperam revisão de um designer. Quando aprovados, ganham
+          prefixo{" "}
+          <code className="px-1.5 py-0.5 text-xs rounded bg-[var(--bg-muted)] font-mono">
+            Aw
+          </code>{" "}
+          e migram pra{" "}
           <code className="px-1.5 py-0.5 text-xs rounded bg-[var(--bg-muted)] font-mono">
             components/ui/
           </code>

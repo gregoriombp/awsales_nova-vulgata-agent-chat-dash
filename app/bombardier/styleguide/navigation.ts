@@ -62,11 +62,21 @@ export const navigation: NavSection[] = [
     ],
   },
   {
-    title: "Playground",
+    title: "Playground IA",
     items: [
       { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
+    ],
+  },
+  {
+    title: "Experimentos",
+    items: [
       { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
       { name: "Onboarding shell", href: "/bombardier/styleguide/playground/components/aw-onboarding-shell" },
+    ],
+  },
+  {
+    title: "Protótipos · Telas",
+    items: [
       { name: "Primeiro acesso · 02 boas-vindas", href: "/primeiro-acesso/boas-vindas" },
       { name: "Primeiro acesso · 03 revisão", href: "/primeiro-acesso/revisao" },
       { name: "Primeiro acesso · 04 pagamento", href: "/primeiro-acesso/pagamento" },
