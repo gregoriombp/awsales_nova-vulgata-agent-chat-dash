@@ -33,7 +33,7 @@ export default function AcessoPage() {
 
   const choose = (id: Pick) => {
     setPicked(id)
-    setTimeout(() => router.push("/primeiro-acesso/agent-studio"), 900)
+    setTimeout(() => router.push("/inicio?welcome=1"), 900)
   }
 
   return (

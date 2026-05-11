@@ -72,7 +72,7 @@ export const navigation: NavSection[] = [
       { name: "Primeiro acesso · 05 checkout boleto", href: "/primeiro-acesso/checkout/boleto" },
       { name: "Primeiro acesso · 06 confirmado", href: "/primeiro-acesso/confirmado" },
       { name: "Primeiro acesso · 07 acesso", href: "/primeiro-acesso/acesso" },
-      { name: "Primeiro acesso · 08 agent studio", href: "/primeiro-acesso/agent-studio" },
+      { name: "Início · welcome modal", href: "/inicio?welcome=1" },
     ],
   },
 ]
