@@ -2,21 +2,13 @@ import Link from "next/link"
 import type { Metadata } from "next"
 import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
+import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
 export const metadata: Metadata = {
   title: "Boas-vindas · Primeiro acesso · AwSales",
   description:
     "Ative o ambiente da sua organização na AwSales: revise dados, finalize o pagamento e escolha como vai acessar a plataforma.",
 }
-
-const MOCK_ORG = {
-  name: "Magalu Pay",
-  cnpj: "47.960.950/0001-21",
-  plan: "Enterprise",
-  contractTerm: "12 meses",
-}
-
-const MOCK_USER_FIRST_NAME = "Ricardo"
 
 const STEPS = [
   {
@@ -43,7 +35,7 @@ const STEPS = [
 
 export default function BoasVindasPage() {
   return (
-    <AwOnboardingShell currentStep={1} org={MOCK_ORG}>
+    <AwOnboardingShell currentStep={1} org={ONBOARDING_ORG}>
       <section>
         <div
           className="mb-3.5 font-mono uppercase text-fg-tertiary"
@@ -60,7 +52,7 @@ export default function BoasVindasPage() {
             letterSpacing: "-0.015em",
           }}
         >
-          Olá, {MOCK_USER_FIRST_NAME}. Vamos ativar o ambiente da {MOCK_ORG.name}.
+          Olá, {ONBOARDING_USER.firstName}. Vamos ativar o ambiente da {ONBOARDING_ORG.name}.
         </h1>
 
         <p
