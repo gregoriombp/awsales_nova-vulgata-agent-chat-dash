@@ -51,6 +51,27 @@ export default function BrandLogoPage() {
           </Section>
 
           <Section
+            id="payment-methods"
+            title="Meios de pagamento (BR)"
+            lead="Pix, boleto e cartão moram no mesmo registry de brand — vivem ao lado de Stripe/Hotmart numa lista de checkout. Pix usa a cor oficial (#32BCAD); boleto e card são genéricos (não há brand oficial)."
+          >
+            <Stage label="payment methods">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                <AwBrandLogo brand="pix" size="md" />
+                <span className="mono">pix</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                <AwBrandLogo brand="boleto" size="md" />
+                <span className="mono">boleto</span>
+              </div>
+              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                <AwBrandLogo brand="card" size="md" />
+                <span className="mono">card</span>
+              </div>
+            </Stage>
+          </Section>
+
+          <Section
             id="bare"
             title="Bare (sem tile)"
             lead="Para usar a logo crua dentro de outro container — chip, dropdown item, header inline."
@@ -60,6 +81,7 @@ export default function BrandLogoPage() {
               <AwBrandLogo brand="shopify" bare />
               <AwBrandLogo brand="hubspot" bare />
               <AwBrandLogo brand="instagram" bare />
+              <AwBrandLogo brand="pix" bare />
             </Stage>
           </Section>
 

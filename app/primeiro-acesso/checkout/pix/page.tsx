@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG } from "../../_data"
 
@@ -76,6 +77,15 @@ export default function CheckoutPixPage() {
   return (
     <AwOnboardingShell currentStep={4} org={ONBOARDING_ORG}>
       <section>
+        <div className="mb-5 flex items-center gap-3">
+          <AwBrandLogo brand="pix" size="md" />
+          <span
+            className="uppercase text-fg-tertiary"
+            style={{ fontSize: 11, letterSpacing: "0.06em" }}
+          >
+            Pagamento via Pix
+          </span>
+        </div>
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
           style={{

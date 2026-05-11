@@ -37,6 +37,7 @@ export const navigation: NavSection[] = [
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
+      { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },

@@ -3,12 +3,13 @@
 import * as React from "react"
 import Link from "next/link"
 import { Icon } from "@/components/ui/Icon"
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG } from "../_data"
 
 type Method = {
   id: "pix" | "cartao" | "boleto"
-  icon: string
+  brand: "pix" | "card" | "boleto"
   title: string
   description: string
 }
@@ -16,19 +17,19 @@ type Method = {
 const METHODS: Method[] = [
   {
     id: "pix",
-    icon: "qr_code_2",
+    brand: "pix",
     title: "Pix",
     description: "Aprovação imediata · liberação automática",
   },
   {
     id: "cartao",
-    icon: "credit_card",
+    brand: "card",
     title: "Cartão de crédito",
     description: "Aprovação imediata · em até 1 parcela",
   },
   {
     id: "boleto",
-    icon: "receipt_long",
+    brand: "boleto",
     title: "Boleto bancário",
     description: "Compensação em 2 a 3 dias úteis",
   },
@@ -77,9 +78,8 @@ export default function PagamentoPage() {
                       : "border-border hover:border-border-strong hover:bg-bg-surface",
                   ].join(" ")}
                 >
-                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-primary">
-                    <Icon name={method.icon} size={20} />
-                  </span>
+                  <AwBrandLogo brand={method.brand} size="md" />
+
                   <span className="min-w-0 flex-1">
                     <span
                       className="block font-medium text-fg-primary"
