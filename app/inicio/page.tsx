@@ -4,9 +4,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import ComingSoon from "@/components/ComingSoon";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwLogo } from "@/components/ui/AwLogo";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_USER, ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
+
+const userInitials = ONBOARDING_USER.name
+  .split(/\s+/)
+  .filter(Boolean)
+  .slice(0, 2)
+  .map((p) => p[0]?.toUpperCase() ?? "")
+  .join("");
 
 export default function Inicio() {
   const breadcrumbs = ["Início"];
@@ -27,12 +34,13 @@ export default function Inicio() {
       <ComingSoon />
       <AwModal open={showWelcome} onClose={dismiss} dismissible>
         <div className="flex flex-col items-center gap-4 px-2 py-4 text-center">
-          <div
-            className="flex h-14 w-14 items-center justify-center rounded-xl text-white"
-            style={{ background: "var(--aw-blue-600)" }}
-          >
-            <AwLogo variant="mark" height={28} />
-          </div>
+          <AwAvatar
+            size="lg"
+            src={ONBOARDING_USER.photo}
+            initials={userInitials}
+            alt={ONBOARDING_USER.name}
+            style={{ width: 56, height: 56, fontSize: 18 }}
+          />
           <div>
             <h2
               className="m-0 font-display font-medium text-fg-primary text-balance"
@@ -73,12 +81,6 @@ export default function Inicio() {
               <Icon name="play_arrow" size={16} fill={1} />
               <span className="aw-btn__label">Iniciar tour (60s)</span>
             </button>
-          </div>
-          <div
-            className="mt-1 text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
-            você pode refazer o tour depois em Ajuda → Onboarding
           </div>
         </div>
       </AwModal>
