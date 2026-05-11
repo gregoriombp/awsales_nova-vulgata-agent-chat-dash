@@ -63,6 +63,8 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
       { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
+      { name: "Onboarding shell", href: "/bombardier/styleguide/playground/components/aw-onboarding-shell" },
+      { name: "Primeiro acesso · boas-vindas", href: "/primeiro-acesso/boas-vindas" },
     ],
   },
 ]
