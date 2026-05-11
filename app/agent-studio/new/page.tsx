@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
 // Parse text into segments: plain text, @logic (chip), {{interpolation}} (chip)
 type Segment = { type: "text"; content: string } | { type: "at"; content: string } | { type: "mustache"; content: string };
@@ -2158,7 +2159,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 <div className="relative flex items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-aw-gray-1200/20 blur-xl scale-150 border" aria-hidden />
                   <img
-                    src="/assets/agent_imgs/Agent_img_01-3.png"
+                    src={agentName ? getOrbForAgent(agentName) : AGENT_ORBS[0]}
                     alt=""
                     className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-none"
                   />
