@@ -10,6 +10,8 @@ export type SettingsNavItem = {
   icon: string;
   /** Match any path that starts with one of these prefixes. */
   matchPrefixes?: string[];
+  /** Label for sub-route segments — used to build the third breadcrumb. */
+  subRoutes?: Record<string, string>;
 };
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
@@ -20,6 +22,11 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     label: "Equipe & permissões",
     icon: "groups",
     matchPrefixes: ["/settings/equipe-permissoes"],
+    subRoutes: {
+      convites: "Convites",
+      funcoes: "Funções",
+      grupos: "Grupos",
+    },
   },
   { href: "/settings/notificacoes", label: "Notificações", icon: "notifications" },
   { href: "/settings/aparencia", label: "Aparência", icon: "palette" },
