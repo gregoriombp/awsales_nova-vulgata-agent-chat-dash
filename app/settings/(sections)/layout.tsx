@@ -26,7 +26,19 @@ export default function SettingsLayout({
     const match = SETTINGS_NAV_ITEMS.find((item) =>
       isSettingsNavItemActive(pathname, item),
     );
-    return match ? [root, { label: match.label }] : [root];
+    if (!match) return [root];
+
+    const subLabel = (() => {
+      if (!match.subRoutes) return null;
+      if (!pathname.startsWith(`${match.href}/`)) return null;
+      const segment = pathname.slice(match.href.length + 1).split("/")[0];
+      return match.subRoutes[segment] ?? null;
+    })();
+
+    if (subLabel) {
+      return [root, { label: match.label, href: match.href }, { label: subLabel }];
+    }
+    return [root, { label: match.label }];
   }, [pathname]);
 
   return (

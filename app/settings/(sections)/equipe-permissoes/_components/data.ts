@@ -421,7 +421,6 @@ export type Member = {
   status: MemberStatus;
   lastActive: string;
   joinedAt: string;
-  ticketsThisWeek: number;
   permissions: string[];
   integrations: string[];
   activity: ActivityEntry[];
@@ -577,7 +576,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       "Focado no sucesso da conta e na validação técnica. Cria e edita agentes e ferramentas, e gerencia fluxos de aprovação.",
     idealFor:
       "Supervisores de equipe e gestores de sucesso do cliente (CSMs).",
-    memberCount: 2,
+    memberCount: 3,
     capabilities: GERENTE_OPERACOES_PERMISSIONS,
     isSystem: true,
     color: "blue",
@@ -590,7 +589,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       "Principal criador de conteúdo. Gerencia bases de conhecimento complexas, edita knowledge layers e configura disparos.",
     idealFor:
       "Especialistas em conteúdo e prompts que mantêm a qualidade dos agentes.",
-    memberCount: 2,
+    memberCount: 3,
     capabilities: ANALISTA_SENIOR_PERMISSIONS,
     isSystem: true,
     color: "amber",
@@ -603,7 +602,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       "Focado na execução e manutenção. Cria agentes e alimenta as bases de conhecimento, testando no playground.",
     idealFor:
       "Analistas operacionais que tocam o dia a dia dos agentes.",
-    memberCount: 2,
+    memberCount: 3,
     capabilities: ANALISTA_PLENO_PERMISSIONS,
     isSystem: true,
     color: "teal",
@@ -629,7 +628,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
       "Responsável pelo relacionamento com clientes. Gerencia conversas, disparos e acompanha métricas de atendimento.",
     idealFor:
       "Especialistas Awsales designados pra acompanhar a sua organização.",
-    memberCount: 4,
+    memberCount: 1,
     capabilities: GERENTE_DA_CONTA_PERMISSIONS,
     isSystem: true,
     color: "emerald",
@@ -666,7 +665,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "agora mesmo",
     joinedAt: "12/01/2026",
-    ticketsThisWeek: 12,
     permissions: ADMINISTRADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
@@ -685,7 +683,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 12 minutos",
     joinedAt: "11/04/2023",
-    ticketsThisWeek: 18,
     permissions: GERENTE_DA_CONTA_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -697,14 +694,13 @@ export const MEMBERS: Member[] = [
     id: "u-larissa-pinto",
     name: "Larissa Pinto",
     email: "larissa.pinto@awsales.io",
-    role: "Gerente da conta",
+    role: "Gerente de Operações",
     initials: "LP",
     avatar: "/assets/ui-faces/female-1.jpg",
     status: "active",
     lastActive: "há 1 hora",
     joinedAt: "31/08/2022",
-    ticketsThisWeek: 14,
-    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
       { time: "há 1h", description: "Atualizou status de 4 tickets." },
@@ -715,14 +711,13 @@ export const MEMBERS: Member[] = [
     id: "u-rafael-andrade",
     name: "Rafael Andrade",
     email: "rafael.andrade@awsales.io",
-    role: "Gerente da conta",
+    role: "Analista Sênior",
     initials: "RA",
     avatar: "/assets/ui-faces/male-2.jpg",
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "07/02/2024",
-    ticketsThisWeek: 9,
-    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
       { time: "há 2h", description: "Resolveu disputa de pagamento." },
@@ -733,14 +728,13 @@ export const MEMBERS: Member[] = [
     id: "u-camila-nogueira",
     name: "Camila Nogueira",
     email: "camila.nogueira@awsales.io",
-    role: "Gerente da conta",
+    role: "Analista Pleno",
     initials: "CN",
     avatar: "/assets/ui-faces/female-2.jpg",
     status: "active",
     lastActive: "há 5 horas",
     joinedAt: "22/11/2023",
-    ticketsThisWeek: 11,
-    permissions: GERENTE_DA_CONTA_PERMISSIONS,
+    permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp", "checkout"],
     activity: [
       { time: "há 5h", description: "Acompanhou métricas semanais." },
@@ -757,7 +751,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 14 minutos",
     joinedAt: "14/01/2023",
-    ticketsThisWeek: 8,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -776,7 +769,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 3 horas",
     joinedAt: "19/08/2022",
-    ticketsThisWeek: 6,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -794,7 +786,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 25 minutos",
     joinedAt: "08/05/2022",
-    ticketsThisWeek: 4,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -812,7 +803,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 50 minutos",
     joinedAt: "16/09/2022",
-    ticketsThisWeek: 5,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -830,7 +820,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 30 minutos",
     joinedAt: "04/06/2023",
-    ticketsThisWeek: 11,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -848,7 +837,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 4 horas",
     joinedAt: "13/10/2023",
-    ticketsThisWeek: 9,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -866,7 +854,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 1 dia",
     joinedAt: "02/02/2024",
-    ticketsThisWeek: 2,
     permissions: COLABORADOR_EXTERNO_PERMISSIONS,
     integrations: [],
     activity: [
@@ -884,7 +871,6 @@ export const MEMBERS: Member[] = [
     status: "invited",
     lastActive: "—",
     joinedAt: "09/03/2024",
-    ticketsThisWeek: 0,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [
@@ -901,7 +887,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 8 minutos",
     joinedAt: "27/07/2023",
-    ticketsThisWeek: 22,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -919,7 +904,6 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "15/12/2023",
-    ticketsThisWeek: 17,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -937,7 +921,6 @@ export const MEMBERS: Member[] = [
     status: "inactive",
     lastActive: "há 3 meses",
     joinedAt: "31/10/2021",
-    ticketsThisWeek: 0,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [

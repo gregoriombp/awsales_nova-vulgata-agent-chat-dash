@@ -2,6 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
+import AstralFlow from "@/components/astral-flow";
+
+// Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with
+// quadratic-Bézier rounded vertices. Encoded as an SVG mask so it scales
+// with any container size.
+const CORTEX_HEX_MASK = (() => {
+  const path =
+    "M5 41.34 L20 15.36 Q25 6.7 35 6.7 L65 6.7 Q75 6.7 80 15.36 L95 41.34 Q100 50 95 58.66 L80 84.64 Q75 93.3 65 93.3 L35 93.3 Q25 93.3 20 84.64 L5 58.66 Q0 50 5 41.34 Z";
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><path d='${path}' fill='black'/></svg>`;
+  return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+})();
 
 function Close24() {
   return (
@@ -62,18 +73,26 @@ function Send20() {
 export function CopilotOrb({ size = 36 }: { size?: number }) {
   return (
     <div
-      className="relative copilot-orb"
-      style={{ width: size, height: size, borderRadius: 9999 }}
+      className="relative shrink-0 overflow-hidden"
+      style={{
+        width: size,
+        height: size,
+        maskImage: CORTEX_HEX_MASK,
+        WebkitMaskImage: CORTEX_HEX_MASK,
+        maskSize: "100% 100%",
+        WebkitMaskSize: "100% 100%",
+        maskRepeat: "no-repeat",
+        WebkitMaskRepeat: "no-repeat",
+        maskMode: "alpha",
+      }}
+      aria-hidden="true"
     >
-      <div
-        className="absolute inset-0 rounded-full orb-inner bg-[radial-gradient(120%_120%_at_20%_25%,#1fb6ff_0%,#bfefff_45%,#f3e6ff_75%,#ffd6e7_100%)]"
-      />
-      <div
-        className="absolute left-[22%] top-[18%] h-[45%] w-[45%] rounded-full blur-[6px] orb-shine"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0) 70%)",
-        }}
+      <AstralFlow
+        speed={0.15}
+        color1="#fafafa"
+        color2="#E2E2E2"
+        color3="#ffffff"
+        className="!bg-[#141416]"
       />
     </div>
   );
@@ -164,11 +183,11 @@ export default function CopilotDrawer({
   const panel = (
     <aside
       ref={panelRef}
-      className={`h-full border-l border-[#e5e5e5] bg-[#f9f9f9] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
+      className={`h-full bg-[#f9f9f9] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
         isOpen ? "w-[405px]" : "w-0"
       }`}
       role="dialog"
-      aria-label="AwSales Copilot"
+      aria-label="Cortex"
     >
       <div className="h-full w-[405px] min-w-[405px] bg-white flex flex-col">
         {/* Top bar */}
@@ -177,7 +196,7 @@ export default function CopilotDrawer({
             <CopilotOrb size={46} />
             <div className="flex flex-col">
               <div className="text-[20px] leading-[30px] font-semibold tracking-[-0.4492px] text-[#252b33]">
-                AwSales Copilot
+                Cortex
               </div>
               <div className="flex items-center gap-2 text-[12px] leading-4 text-[#00a63e]">
                 <span className="h-[6px] w-[6px] rounded-full bg-[#00c950] opacity-50" />
@@ -326,7 +345,7 @@ export default function CopilotDrawer({
           </div>
 
           <div className="text-[10px] leading-[15px] tracking-[0.1172px] text-[#99a1af] text-center">
-            Ai Copilot pode cometer erros. Verifique informações importantes.
+            Cortex pode cometer erros. Verifique informações importantes.
           </div>
         </div>
       </div>
@@ -344,7 +363,7 @@ export default function CopilotDrawer({
     >
       <button
         type="button"
-        aria-label="Fechar Copilot"
+        aria-label="Fechar Cortex"
         className={`absolute inset-0 h-full w-full bg-black/0 transition-opacity ${
           isOpen ? "opacity-100" : "opacity-0"
         }`}
@@ -356,7 +375,7 @@ export default function CopilotDrawer({
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
-        aria-label="AwSales Copilot"
+        aria-label="Cortex"
       >
         <div className="h-full w-full bg-white">{/* content reused from panel */}</div>
       </aside>

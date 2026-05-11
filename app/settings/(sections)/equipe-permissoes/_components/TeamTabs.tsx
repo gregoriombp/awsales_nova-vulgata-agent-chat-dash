@@ -2,13 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { AwTabs } from "@/components/ui/AwTabs";
-import { INVITATIONS, MEMBERS } from "./data";
+import { MEMBERS } from "./data";
 
 const BASE = "/settings/equipe-permissoes";
 
 const TABS = [
   { value: BASE, label: "Membros", count: MEMBERS.length },
-  { value: `${BASE}/convites`, label: "Convites", count: INVITATIONS.length },
   { value: `${BASE}/grupos`, label: "Grupos" },
   { value: `${BASE}/funcoes`, label: "Funções" },
 ] as const;

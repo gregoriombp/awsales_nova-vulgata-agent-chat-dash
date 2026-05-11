@@ -41,12 +41,7 @@ export default function DashboardLayout({
         <Sidebar forcedCollapsed={isInKnowledgeOS} />
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
-        {/* Ícones ficam abaixo do Copilot quando ele está aberto */}
-        <div
-          className={`absolute right-5 z-30 transition-[top] duration-300 ease-out ${
-            isCopilotOpen ? "top-[calc(70vh+8px)]" : "top-4"
-          }`}
-        >
+        <div className="absolute right-5 top-4 z-30">
           <Header
             minimal
             isCopilotOpen={isCopilotOpen}
@@ -71,17 +66,22 @@ export default function DashboardLayout({
               {children}
             </main>
           </div>
-          {/* Copilot acima dos ícones: altura 70vh quando aberto */}
-          <div
-            className="flex shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
-            style={isCopilotOpen ? { width: 405, height: "70vh" } : { width: 0 }}
-          >
-            <CopilotDrawer
-              isOpen={isCopilotOpen}
-              onClose={() => setIsCopilotOpen(false)}
-              embedded
-            />
-          </div>
+        </div>
+        {/* Copilot — floats over the right edge so it doesn't push the main
+            content or relocate the Header icons. */}
+        <div
+          className="absolute right-2 top-16 bottom-2 z-20 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,opacity] duration-300 ease-out"
+          style={{
+            width: isCopilotOpen ? 405 : 0,
+            opacity: isCopilotOpen ? 1 : 0,
+            pointerEvents: isCopilotOpen ? "auto" : "none",
+          }}
+        >
+          <CopilotDrawer
+            isOpen={isCopilotOpen}
+            onClose={() => setIsCopilotOpen(false)}
+            embedded
+          />
         </div>
       </div>
     </div>

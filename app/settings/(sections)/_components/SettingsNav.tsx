@@ -10,6 +10,8 @@ export type SettingsNavItem = {
   icon: string;
   /** Match any path that starts with one of these prefixes. */
   matchPrefixes?: string[];
+  /** Label for sub-route segments — used to build the third breadcrumb. */
+  subRoutes?: Record<string, string>;
 };
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
@@ -20,6 +22,11 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     label: "Equipe & permissões",
     icon: "groups",
     matchPrefixes: ["/settings/equipe-permissoes"],
+    subRoutes: {
+      convites: "Convites",
+      funcoes: "Funções",
+      grupos: "Grupos",
+    },
   },
   { href: "/settings/notificacoes", label: "Notificações", icon: "notifications" },
   { href: "/settings/aparencia", label: "Aparência", icon: "palette" },
@@ -54,7 +61,7 @@ export function SettingsNav() {
         <h2 className="m-0 mb-6 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
           Workspace
         </h2>
-        <nav className="aw-nav-rail aw-nav-rail--expanded !p-0 !border-0 !bg-transparent">
+        <nav className="aw-nav-rail aw-nav-rail--expanded !w-full !p-0 !border-0 !bg-transparent">
           <div className="aw-nav-rail__items">
             {SETTINGS_NAV_ITEMS.map((item) => {
               const active = isSettingsNavItemActive(pathname, item);

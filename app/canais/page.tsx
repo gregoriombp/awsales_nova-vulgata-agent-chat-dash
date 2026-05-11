@@ -10,6 +10,7 @@ import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwConnectModal } from "@/components/ui/AwConnectModal";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwListGroup } from "@/components/ui/AwListGroup";
+import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -325,18 +326,11 @@ export default function CanaisPage() {
       {variant !== "first-run" ? (
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
-            <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
-              <div>
-                <h1 className="m-0 mb-1.5 flex items-center gap-2.5  font-regular leading-tight tracking-[-0.04em] text-[var(--fg-primary)]">
-                  <Icon name="forum" size={48} weight={300} />
-                  Canais
-                </h1>
-                <p className="m-0 max-w-[560px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
-                  Conecte os canais por onde seus agentes vão conversar com
-                  clientes — WhatsApp, Instagram, Messenger e mais.
-                </p>
-              </div>
-              <div className="flex flex-shrink-0 gap-2">
+            <AwPageHeader
+              icon="forum"
+              title="Canais"
+              description="Conecte os canais por onde seus agentes vão conversar com clientes — WhatsApp, Instagram, Messenger e mais."
+              actions={
                 <AwButton
                   variant="primary"
                   size="md"
@@ -345,8 +339,8 @@ export default function CanaisPage() {
                 >
                   Novo canal
                 </AwButton>
-              </div>
-            </header>
+              }
+            />
 
             {variant === "populated" ? (
               <section aria-label="Seus canais">

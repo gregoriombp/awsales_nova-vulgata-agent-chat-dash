@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import {
   AwEmpty,
@@ -19,22 +18,6 @@ import { TeamTabs } from "../_components/TeamTabs";
 export default function GroupsPage() {
   const [search, setSearch] = useState("");
 
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Configurações",
-        icon: <Icon name="tune" size={16} />,
-        href: "/settings",
-      },
-      {
-        label: "Equipe & permissões",
-        href: "/settings/equipe-permissoes",
-      },
-      { label: "Grupos" },
-    ],
-    []
-  );
-
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return GROUPS;
@@ -46,8 +29,8 @@ export default function GroupsPage() {
   }, [search]);
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
-      <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-6 px-10 pb-20 pt-12">
+    <>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
             Equipe &amp; permissões
@@ -59,6 +42,19 @@ export default function GroupsPage() {
         </header>
 
         <TeamTabs />
+
+        <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
+          <Icon
+            name="lightbulb"
+            size={16}
+            className="mt-0.5 shrink-0 text-[var(--fg-secondary)]"
+          />
+          <p className="m-0 text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+            Pense em cada grupo como um <strong className="font-semibold text-[var(--fg-primary)]">departamento</strong> da empresa — uma forma de
+            agrupar pessoas que compartilham contexto e responsabilidades (ex.:
+            Atendimento, Comercial, Operações).
+          </p>
+        </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="w-full max-w-[320px]">
@@ -143,6 +139,6 @@ export default function GroupsPage() {
           </ul>
         )}
       </div>
-    </DashboardLayout>
+    </>
   );
 }

@@ -114,9 +114,11 @@ export default function ButtonsPage() {
   return (
     <>
       <PageHero title="Botões">
-        Cinco variantes. <strong>Primary</strong> é alto contraste — a ação
+        Seis variantes. <strong>Primary</strong> é alto contraste — a ação
           principal da tela. <strong>AI</strong> é reservado para ações que
-          disparam o agente. Três tamanhos: 30 · 38 · 46 px. O padrão é{" "}
+          disparam o agente. <strong>Subtle</strong> é a pílula tonal entre
+          ghost e secondary, indicada pra row actions em tabelas. Três
+          tamanhos: 30 · 38 · 46 px. O padrão é{" "}
           <code className="mono">md</code>; <code className="mono">lg</code> só
           em CTA de hero.
       </PageHero>
@@ -129,7 +131,7 @@ export default function ButtonsPage() {
           lead="Cinco variantes. Cada uma tem um papel definido na hierarquia de ações — não mixar arbitrariamente."
         >
           <Stage
-            label="Primary · Secondary · Ghost · Danger · AI"
+            label="Primary · Secondary · Ghost · Subtle · Danger · AI"
             hint="Ordem de hierarquia de cima pra baixo."
           >
             <AwButton variant="primary" iconLeft="add">
@@ -137,6 +139,11 @@ export default function ButtonsPage() {
             </AwButton>
             <AwButton variant="secondary">Duplicar</AwButton>
             <AwButton variant="ghost">Cancelar</AwButton>
+            <AwButton
+              variant="subtle"
+              iconOnly="more_vert"
+              aria-label="Ações da linha"
+            />
             <AwButton variant="danger" iconLeft="error">
               Arquivar
             </AwButton>
@@ -179,6 +186,23 @@ export default function ButtonsPage() {
               <p className="body-sm m-0">
                 Ação de baixa ênfase (cancelar, voltar). Sem borda. Hover
                 recebe fill suave (<code className="mono">--bg-surface</code>).
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="flex items-center gap-3 mb-2">
+                <AwButton
+                  variant="subtle"
+                  size="sm"
+                  iconOnly="more_vert"
+                  aria-label="Ações"
+                />
+              </div>
+              <p className="body-sm m-0">
+                Pílula tonal — fundo{" "}
+                <code className="mono">--bg-muted</code> permanente, fg
+                primário. Usada como trigger de row action menu em tabelas,
+                onde ghost some no meio das linhas e secondary compete com a
+                CTA da linha. Hover escurece um passo na escala de cinzas.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
@@ -358,6 +382,11 @@ export default function ButtonsPage() {
               </AwButton>
               <AwButton variant="secondary">Duplicar</AwButton>
               <AwButton variant="ghost">Cancelar</AwButton>
+              <AwButton
+                variant="subtle"
+                iconOnly="more_vert"
+                aria-label="Ações da linha"
+              />
               <AwButton variant="danger" iconLeft="error">
                 Arquivar
               </AwButton>

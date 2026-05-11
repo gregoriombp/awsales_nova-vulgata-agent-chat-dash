@@ -602,6 +602,19 @@
   }
 }
 
+/* Entry animation for primeiro-acesso step transitions.
+   Wraps `app/primeiro-acesso/template.tsx`; re-fires on every navigation
+   inside the segment. Uses the project ease-out token. */
+.aw-step-transition {
+  animation: onboarding-fadeInUp 0.42s var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-step-transition {
+    animation: none;
+  }
+}
+
 /* Simple fade in */
 @keyframes onboarding-fadeIn {
   from {
@@ -893,6 +906,22 @@
   background: var(--bg-surface);
 }
 
+/* Subtle — tonal fill, sits between ghost (invisible at rest) and
+   secondary (bordered). Designed for icon-only row actions in tables
+   and other dense surfaces where the trigger needs a real touch target
+   without competing with the row's primary CTA. */
+.aw-btn--subtle {
+  background: var(--bg-muted);
+  color: var(--fg-primary);
+  border-color: transparent;
+}
+.aw-btn--subtle:hover:not(:disabled) {
+  background: var(--aw-gray-300);
+}
+.dark .aw-btn--subtle:hover:not(:disabled) {
+  background: var(--aw-gray-900);
+}
+
 /* Danger — destructive actions */
 .aw-btn--danger {
   background: var(--aw-red-700);
@@ -954,6 +983,21 @@
     radial-gradient(ellipse 60% 80% at 90% 10%, rgba(71, 138, 255, 0.10), transparent 60%),
     radial-gradient(ellipse 60% 80% at 10% 90%, rgba(158, 91, 223, 0.08), transparent 60%),
     var(--bg-raised);
+}
+.aw-card--ai-warm {
+  background:
+    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(242, 169, 91, 0.14), transparent 60%),
+    radial-gradient(ellipse 60% 80% at 10% 90%, rgba(252, 212, 163, 0.10), transparent 60%),
+    var(--bg-raised);
+}
+/* Ai-cortex — silver mesh inspired by the Cortex marble cube.
+   Cool slate base, brighter pocket on the left, darker pocket on the
+   right where the dark CTA usually sits. Designed for the AI side of
+   AwSpecialistsPair, where the AI is a system co-pilot rather than a
+   generative agent (which keeps using the blue/purple ai variant). */
+.aw-card--ai-cortex {
+
+  background: var(--bg-surface);
 }
 .aw-card--interactive:focus-visible {
   outline: 0;
@@ -2657,6 +2701,13 @@
     background var(--dur-fast) var(--ease-out);
 }
 .aw-table tbody tr.aw-row-inactive:hover { opacity: 1; }
+/* Failure-state row — pairs with the AwPill error variant to flag a
+   broken connection at a glance in long lists. The accent lives as an
+   inset shadow on the first cell so the row keeps the same height and
+   alignment as healthy ones. */
+.aw-table tbody tr.aw-row-attention td:first-child {
+  box-shadow: inset 3px 0 0 var(--aw-red-500);
+}
 .aw-table--airy .aw-th-sort {
   display: inline-flex;
   align-items: center;

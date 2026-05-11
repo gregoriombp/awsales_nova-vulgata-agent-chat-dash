@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
@@ -21,15 +21,17 @@ import {
 } from "@/components/ui/AwMembersTable";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwSpecialistsPair } from "@/components/ui/AwSpecialistsPair";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import {
   ALL_PERMISSION_IDS,
-  INTEGRATIONS,
+  INVITATIONS,
   MEMBERS,
   ROLE_DEFINITIONS,
   ROLE_OPTIONS,
   SCOPES,
+  type Invitation,
   type Member,
   type Role,
   type Scope,
@@ -42,18 +44,6 @@ export default function MembersPage() {
   const [search, setSearch] = useState("");
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
-
-  const breadcrumbs = useMemo(
-    () => [
-      {
-        label: "Configurações",
-        icon: <Icon name="tune" size={16} />,
-        href: "/settings",
-      },
-      { label: "Equipe & permissões" },
-    ],
-    []
-  );
 
   const filteredMembers = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -99,6 +89,12 @@ export default function MembersPage() {
     (id: string, role: Role) => {
       const m = members.find((x) => x.id === id);
       if (!m || m.role === role) return;
+      if (
+        role === MANAGER_ROLE &&
+        members.some((x) => x.id !== id && x.role === MANAGER_ROLE)
+      ) {
+        return;
+      }
       setPendingRoleChange({
         memberId: id,
         memberName: m.name,
@@ -106,6 +102,11 @@ export default function MembersPage() {
         toRole: role,
       });
     },
+    [members]
+  );
+
+  const managerAlreadyAssigned = useMemo(
+    () => members.some((m) => m.role === MANAGER_ROLE),
     [members]
   );
 
@@ -123,16 +124,67 @@ export default function MembersPage() {
     []
   );
 
+  const handleTogglePermission = useCallback(
+    (id: string, permissionId: string, next: boolean) => {
+      setMembers((prev) =>
+        prev.map((m) => {
+          if (m.id !== id) return m;
+          const has = m.permissions.includes(permissionId);
+          if (next && !has) {
+            return { ...m, permissions: [...m.permissions, permissionId] };
+          }
+          if (!next && has) {
+            return {
+              ...m,
+              permissions: m.permissions.filter((p) => p !== permissionId),
+            };
+          }
+          return m;
+        })
+      );
+    },
+    []
+  );
+
+  const handleToggleScope = useCallback(
+    (id: string, scopeIds: string[], next: boolean) => {
+      setMembers((prev) =>
+        prev.map((m) => {
+          if (m.id !== id) return m;
+          const without = m.permissions.filter((p) => !scopeIds.includes(p));
+          return {
+            ...m,
+            permissions: next ? [...without, ...scopeIds] : without,
+          };
+        })
+      );
+    },
+    []
+  );
+
   const isExpanded = selectedMember !== null;
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+    <>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background: `
+            radial-gradient(ellipse 70% 60% at 0% 0%, color-mix(in srgb, var(--aw-blue-600) 7%, transparent), transparent 65%),
+            radial-gradient(ellipse 60% 50% at 100% 100%, color-mix(in srgb, var(--aw-purple-500) 6%, transparent), transparent 65%)
+          `,
+        }}
+      />
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-primary)]">
-              <Icon name="groups" size={22} />
-            </span>
+            <Icon
+              name="groups"
+              size={36}
+              weight={300}
+              className="text-[var(--fg-primary)]"
+            />
             Equipe &amp; permissões
           </h1>
           <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
@@ -170,6 +222,7 @@ export default function MembersPage() {
             {!isExpanded ? (
               <MembersTableState
                 members={filteredMembers}
+                managerAlreadyAssigned={managerAlreadyAssigned}
                 onSelect={setSelectedMemberId}
                 onChangeRole={requestRoleChange}
               />
@@ -196,11 +249,22 @@ export default function MembersPage() {
               {selectedMember && (
                 <MemberDetail
                   member={selectedMember}
+                  managerAlreadyAssigned={managerAlreadyAssigned}
                   onChangeRole={(role) =>
                     requestRoleChange(selectedMember.id, role)
                   }
                   onRemove={() => handleRemove(selectedMember.id)}
                   onClose={() => setSelectedMemberId(null)}
+                  onTogglePermission={(permissionId, next) =>
+                    handleTogglePermission(
+                      selectedMember.id,
+                      permissionId,
+                      next
+                    )
+                  }
+                  onToggleScope={(scopeIds, next) =>
+                    handleToggleScope(selectedMember.id, scopeIds, next)
+                  }
                 />
               )}
             </div>
@@ -215,7 +279,7 @@ export default function MembersPage() {
         onConfirm={handleConfirmRoleChange}
         onCancel={() => setPendingRoleChange(null)}
       />
-    </DashboardLayout>
+    </>
   );
 }
 
@@ -225,12 +289,22 @@ export default function MembersPage() {
 
 const MANAGER_ROLE: Role = "Gerente da conta";
 
+const CORTEX = {
+  name: "Cortex",
+  role: "Gerente de contas",
+  avatarSrc: "/assets/Cortex.png",
+  ctaLabel: "Iniciar conversa",
+  ctaIcon: "chat_bubble",
+};
+
 function MembersTableState({
   members,
+  managerAlreadyAssigned,
   onSelect,
   onChangeRole,
 }: {
   members: Member[];
+  managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
 }) {
@@ -255,24 +329,87 @@ function MembersTableState({
     );
   }
 
+  const manager = managers[0];
+
   return (
     <div className="flex flex-col gap-8">
+      {manager && (
+        <AwSpecialistsPair
+          title="Especialistas dedicados à sua conta"
+          human={{
+            name: manager.name,
+            role: "Gerente de contas",
+            avatarSrc: manager.avatar,
+            initials: manager.initials,
+            ctaLabel: "Agendar agora",
+            ctaIcon: "event",
+          }}
+          ai={CORTEX}
+        />
+      )}
       <MemberSection
-        title="Gerentes da conta"
-        description="O Gerente de Contas é um especialista da equipe Awsales designado para acompanhar sua organização. Ele irá oferecer suporte técnico, auxiliar em configurações estratégicas e garantir que você extraia o máximo potencial da plataforma sempre que necessário."
-        members={managers}
-        onSelect={onSelect}
-        onChangeRole={onChangeRole}
-        emptyHint="Nenhum gerente da conta atribuído ainda."
-      />
-      <MemberSection
-        title="Outros membros"
+        title="Membros do workspace"
         members={others}
+        managerAlreadyAssigned={managerAlreadyAssigned}
         onSelect={onSelect}
         onChangeRole={onChangeRole}
         emptyHint="Sem membros nessa categoria."
       />
+      <InvitationsSection invitations={INVITATIONS} />
     </div>
+  );
+}
+
+function InvitationsSection({ invitations }: { invitations: Invitation[] }) {
+  if (invitations.length === 0) return null;
+  return (
+    <section>
+      <header className="mb-3">
+        <h2 className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          Convites pendentes
+        </h2>
+      </header>
+      <AwMembersTable
+        columns={[
+          { label: "Pessoa", icon: "person" },
+          { label: "Função", help: "Função atribuída no convite." },
+          { label: "Última atividade" },
+        ]}
+      >
+        {invitations.map((i) => (
+          <tr key={i.id}>
+            <AwMembersTablePersonCell
+              name={i.email}
+              email={`Convite enviado ${i.sentAt}`}
+              initials={i.initials.toUpperCase()}
+              tag="Pendente"
+              tagVariant="draft"
+            />
+            <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
+            <td>
+              <div className="flex items-center justify-between gap-3">
+                <span className="inline-flex items-center gap-2 text-[12.5px] text-[var(--fg-secondary)]">
+                  <Icon
+                    name="mail"
+                    size={14}
+                    className="text-[var(--fg-tertiary)]"
+                  />
+                  Aguardando aceite
+                </span>
+                <div className="flex shrink-0 items-center gap-1">
+                  <AwButton size="sm" variant="secondary" iconLeft="send">
+                    Reenviar
+                  </AwButton>
+                  <AwButton size="sm" variant="ghost" iconLeft="close">
+                    Remover
+                  </AwButton>
+                </div>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </AwMembersTable>
+    </section>
   );
 }
 
@@ -280,6 +417,7 @@ function MemberSection({
   title,
   description,
   members,
+  managerAlreadyAssigned,
   onSelect,
   onChangeRole,
   emptyHint,
@@ -287,6 +425,7 @@ function MemberSection({
   title: string;
   description?: string;
   members: Member[];
+  managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
   emptyHint: string;
@@ -339,6 +478,10 @@ function MemberSection({
                     id: r,
                     label: r,
                     checked: r === m.role,
+                    disabled:
+                      r === MANAGER_ROLE &&
+                      managerAlreadyAssigned &&
+                      m.role !== MANAGER_ROLE,
                     onSelect: () => onChangeRole(m.id, r),
                   }))}
                 />
@@ -427,17 +570,22 @@ function CompactMemberList({
 
 function MemberDetail({
   member,
+  managerAlreadyAssigned,
   onChangeRole,
   onRemove,
   onClose,
+  onTogglePermission,
+  onToggleScope,
 }: {
   member: Member;
+  managerAlreadyAssigned: boolean;
   onChangeRole: (role: Role) => void;
   onRemove: () => void;
   onClose: () => void;
+  onTogglePermission: (permissionId: string, next: boolean) => void;
+  onToggleScope: (scopeIds: string[], next: boolean) => void;
 }) {
   const memberPermissions = new Set(member.permissions);
-  const memberIntegrations = new Set(member.integrations);
   const hasFullAccess =
     member.permissions.length === ALL_PERMISSION_IDS.length;
 
@@ -478,6 +626,10 @@ function MemberDetail({
                 id: r,
                 label: r,
                 checked: r === member.role,
+                disabled:
+                  r === MANAGER_ROLE &&
+                  managerAlreadyAssigned &&
+                  member.role !== MANAGER_ROLE,
                 onSelect: () => onChangeRole(r),
               })),
             ]}
@@ -501,79 +653,85 @@ function MemberDetail({
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-3 gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
+        <div className="grid grid-cols-2 gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
           <DetailStat label="Função" value={member.role} />
           <DetailStat label="Último acesso" value={member.lastActive} />
-          <DetailStat
-            label="Tickets essa semana"
-            value={`${member.ticketsThisWeek}`}
-          />
         </div>
 
         <DetailSection title="Permissões por escopo">
-          {hasFullAccess ? (
-            <FullAccessBanner />
-          ) : (
+          <div className="flex flex-col gap-3">
+            {hasFullAccess && <FullAccessBanner />}
             <ul className="flex flex-col divide-y divide-[var(--border-subtle)]">
               {SCOPES.map((scope) => (
                 <ScopeRow
                   key={scope.id}
                   scope={scope}
                   memberPermissions={memberPermissions}
+                  onTogglePermission={onTogglePermission}
+                  onToggleScope={onToggleScope}
                 />
+              ))}
+            </ul>
+          </div>
+        </DetailSection>
+
+        <DetailSection title="Logs de atividade">
+          {member.activity.length === 0 ? (
+            <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
+              Sem eventos registrados para este membro.
+            </p>
+          ) : (
+            <ul className="flex flex-col gap-2">
+              {member.activity.map((entry, i) => (
+                <li
+                  key={i}
+                  className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+                >
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+                    <Icon name={inferActivityIcon(entry.description)} size={14} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] text-[var(--fg-primary)]">
+                      {entry.description}
+                    </span>
+                    <span className="block text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                      {entry.time}
+                    </span>
+                  </span>
+                </li>
               ))}
             </ul>
           )}
         </DetailSection>
 
-        <DetailSection title="Integrações conectadas">
-          {memberIntegrations.size === 0 ? (
-            <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
-              Sem integrações associadas a este membro.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-2">
-              {INTEGRATIONS.filter((i) => memberIntegrations.has(i.id)).map(
-                (i) => (
-                  <li
-                    key={i.id}
-                    className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
-                  >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
-                      <Icon name={i.icon} size={14} />
-                    </span>
-                    <span className="flex-1 text-[13px] font-medium text-[var(--fg-primary)]">
-                      {i.name}
-                    </span>
-                    <AwPill variant="live" dot>
-                      Ativa
-                    </AwPill>
-                  </li>
-                )
-              )}
-            </ul>
-          )}
-        </DetailSection>
-
         <DetailSection title="Histórico recente">
-          <ol className="relative ml-1 flex flex-col gap-3 border-l border-[var(--border-subtle)] pl-4">
-            {member.activity.map((entry, i) => (
-              <li key={i} className="relative">
-                <span
-                  className="absolute -left-[19px] top-1.5 flex h-2.5 w-2.5 items-center justify-center rounded-full bg-[var(--bg-raised)]"
-                  aria-hidden="true"
+          <div className="-mx-6 overflow-x-auto px-6">
+            <ol className="relative flex min-w-min items-start gap-0">
+              <span
+                className="pointer-events-none absolute left-3 right-3 top-[6px] h-px bg-[var(--border-subtle)]"
+                aria-hidden="true"
+              />
+              {member.activity.map((entry, i) => (
+                <li
+                  key={i}
+                  className="relative flex w-[220px] shrink-0 flex-col gap-1.5 pr-4"
                 >
-                  <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg-primary)]" />
-                </span>
-                <p className="m-0 text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-                  {entry.time}
-                </p>
-                <p className="m-0 text-[13px] text-[var(--fg-primary)]">
-                  {entry.description}
-                </p>
-              </li>
-            ))}
-          </ol>
+                  <span
+                    className="relative z-[1] flex h-3 w-3 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-raised)]"
+                    aria-hidden="true"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg-primary)]" />
+                  </span>
+                  <p className="m-0 text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                    {entry.time}
+                  </p>
+                  <p className="m-0 text-[13px] leading-[1.4] text-[var(--fg-primary)]">
+                    {entry.description}
+                  </p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </DetailSection>
       </div>
     </section>
@@ -610,6 +768,18 @@ function DetailSection({
   );
 }
 
+function inferActivityIcon(description: string): string {
+  const d = description.toLowerCase();
+  if (d.includes("convid")) return "person_add";
+  if (d.includes("aprov")) return "check_circle";
+  if (d.includes("removeu") || d.includes("excluiu")) return "delete";
+  if (d.includes("atualiz") || d.includes("editou")) return "edit";
+  if (d.includes("encerrou") || d.includes("fechou")) return "task_alt";
+  if (d.includes("adicionou") || d.includes("criou")) return "add_circle";
+  if (d.includes("login") || d.includes("acesso")) return "login";
+  return "schedule";
+}
+
 function FullAccessBanner() {
   return (
     <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
@@ -632,9 +802,13 @@ function FullAccessBanner() {
 function ScopeRow({
   scope,
   memberPermissions,
+  onTogglePermission,
+  onToggleScope,
 }: {
   scope: Scope;
   memberPermissions: Set<string>;
+  onTogglePermission: (permissionId: string, next: boolean) => void;
+  onToggleScope: (scopeIds: string[], next: boolean) => void;
 }) {
   const [open, setOpen] = useState(false);
   const ids = scope.groups.flatMap((g) => g.permissions.map((p) => p.id));
@@ -644,58 +818,92 @@ function ScopeRow({
   const some = granted > 0 && !all;
   const variant = all ? "live" : some ? "beta" : "neutral";
   const status = all ? "Completo" : some ? "Parcial" : "Sem acesso";
+  const scopeCheckState: boolean | "indeterminate" = all
+    ? true
+    : some
+    ? "indeterminate"
+    : false;
 
   return (
     <li>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 px-1 py-2.5 text-left transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] focus-visible:bg-[var(--bg-hover)]"
-        aria-expanded={open}
-      >
-        <Icon name={open ? "expand_more" : "chevron_right"} size={16} />
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
-          <Icon name={scope.icon} size={14} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block truncate text-[13px] font-medium text-[var(--fg-primary)]">
-            {scope.name}
+      <div className="flex w-full items-center gap-3 px-1 py-2.5">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          className="flex min-w-0 flex-1 items-center gap-3 text-left transition-colors duration-aw-fast outline-none rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] focus-visible:bg-[var(--bg-hover)]"
+          aria-expanded={open}
+        >
+          <Icon name={open ? "expand_more" : "chevron_right"} size={16} />
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+            <Icon name={scope.icon} size={14} />
           </span>
-          <span className="block text-[11.5px] text-[var(--fg-secondary)]">
-            {granted}/{total} permiss{total === 1 ? "ão" : "ões"}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[13px] font-medium text-[var(--fg-primary)]">
+              {scope.name}
+            </span>
+            <span className="block text-[11.5px] text-[var(--fg-secondary)]">
+              {granted}/{total} permiss{total === 1 ? "ão" : "ões"}
+            </span>
           </span>
-        </span>
+        </button>
         <AwPill variant={variant} dot={false}>
           {status}
         </AwPill>
-      </button>
+        <AwCheckbox
+          checked={scopeCheckState}
+          onChange={(next) => onToggleScope(ids, next)}
+          label={`Ativar todas as permissões de ${scope.name}`}
+        />
+      </div>
 
       {open && (
-        <div className="px-1 pb-3 pl-10">
-          {granted === 0 ? (
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
-              Sem permissões neste escopo.
-            </p>
-          ) : (
-            <ul className="flex flex-col gap-1.5">
-              {scope.groups.flatMap((g) =>
-                g.permissions
-                  .filter((p) => memberPermissions.has(p.id))
-                  .map((p) => (
-                    <li key={p.id} className="flex items-start gap-2">
-                      <Icon
-                        name="check"
-                        size={14}
-                        className="mt-0.5 text-[var(--accent-success)]"
-                      />
-                      <span className="text-[12.5px] text-[var(--fg-primary)]">
-                        {p.label}
+        <div className="flex flex-col gap-3 px-1 pb-3 pl-10">
+          {scope.groups.map((g) => (
+            <div key={g.id}>
+              <p className="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                {g.label}
+              </p>
+              <ul className="flex flex-col gap-1">
+                {g.permissions.map((p) => {
+                  const has = memberPermissions.has(p.id);
+                  return (
+                    <li
+                      key={p.id}
+                      className="flex items-start gap-2 rounded-[var(--radius-sm)] px-1 py-1 hover:bg-[var(--bg-hover)]"
+                    >
+                      <span className="mt-0.5">
+                        <AwCheckbox
+                          checked={has}
+                          onChange={(next) => onTogglePermission(p.id, next)}
+                          label={p.label}
+                        />
                       </span>
+                      <label
+                        className="min-w-0 flex-1 cursor-pointer text-[12.5px]"
+                        onClick={() => onTogglePermission(p.id, !has)}
+                      >
+                        <span
+                          className={
+                            "block " +
+                            (has
+                              ? "font-medium text-[var(--fg-primary)]"
+                              : "text-[var(--fg-secondary)]")
+                          }
+                        >
+                          {p.label}
+                        </span>
+                        {p.description && (
+                          <span className="block text-[11px] text-[var(--fg-tertiary)]">
+                            {p.description}
+                          </span>
+                        )}
+                      </label>
                     </li>
-                  ))
-              )}
-            </ul>
-          )}
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
     </li>

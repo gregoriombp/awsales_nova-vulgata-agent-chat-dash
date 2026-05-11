@@ -9,7 +9,7 @@ import * as React from "react"
  * <AwCard> keep working untouched.
  */
 
-export type AwCardVariant = "default" | "ai"
+export type AwCardVariant = "default" | "ai" | "ai-warm" | "ai-cortex"
 
 export type AwCardProps = React.HTMLAttributes<HTMLDivElement> & {
   variant?: AwCardVariant
