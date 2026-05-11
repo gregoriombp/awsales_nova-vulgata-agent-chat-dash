@@ -43,6 +43,19 @@ export default function GroupsPage() {
 
         <TeamTabs />
 
+        <div className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
+          <Icon
+            name="lightbulb"
+            size={16}
+            className="mt-0.5 shrink-0 text-[var(--fg-secondary)]"
+          />
+          <p className="m-0 text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+            Pense em cada grupo como um <strong className="font-semibold text-[var(--fg-primary)]">departamento</strong> da empresa — uma forma de
+            agrupar pessoas que compartilham contexto e responsabilidades (ex.:
+            Atendimento, Comercial, Operações).
+          </p>
+        </div>
+
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="w-full max-w-[320px]">
             <AwInput
