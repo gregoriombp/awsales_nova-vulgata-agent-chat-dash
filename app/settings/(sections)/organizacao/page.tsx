@@ -5,7 +5,21 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
-import { SaveBar, SettingsPageHeader } from "../_components/shared";
+import { Icon } from "@/components/ui/Icon";
+import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
+import { SaveBar, SectionHeading, SettingsPageHeader } from "../_components/shared";
+
+const COMPANY_ROWS: { label: string; value: string; tabular?: boolean }[] = [
+  { label: "Razão social", value: ONBOARDING_ORG.razaoSocial },
+  { label: "CNPJ", value: ONBOARDING_ORG.cnpj, tabular: true },
+  { label: "Segmento", value: ONBOARDING_ORG.segmento },
+  { label: "Porte", value: ONBOARDING_ORG.porte },
+  {
+    label: "Plano contratado",
+    value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${ONBOARDING_ORG.valorMensal.replace(",00", "")}/mês`,
+  },
+  { label: "Data de criação", value: "11 de mai. 2026" },
+];
 
 export default function OrganizationSettingsPage() {
   const [orgName, setOrgName] = useState("Nome da organização");
@@ -75,6 +89,55 @@ export default function OrganizationSettingsPage() {
         </div>
         <SaveBar />
       </AwCard>
+
+      <div className="mt-10">
+        <SectionHeading
+          title="Dados contratuais"
+          description="Cadastrados pela equipe AwSales no fechamento do contrato. Para alterar, abra um chamado com seu Account Manager."
+        />
+        <AwCard className="!p-0">
+          <dl className="m-0">
+            {COMPANY_ROWS.map((row, i) => (
+              <div
+                key={row.label}
+                className={
+                  "grid grid-cols-[200px_1fr_auto] items-center gap-4 px-6 py-3.5" +
+                  (i < COMPANY_ROWS.length - 1
+                    ? " border-b border-[var(--border-subtle)]"
+                    : "")
+                }
+              >
+                <dt className="m-0 text-[13px] text-[var(--fg-tertiary)]">
+                  {row.label}
+                </dt>
+                <dd
+                  className="m-0 text-[13px] font-medium text-[var(--fg-primary)]"
+                  style={
+                    row.tabular ? { fontVariantNumeric: "tabular-nums" } : undefined
+                  }
+                >
+                  {row.value}
+                </dd>
+                <span
+                  className="text-[var(--fg-tertiary)]"
+                  title="Campo somente leitura — definido em contrato"
+                >
+                  <Icon name="lock" size={14} />
+                </span>
+              </div>
+            ))}
+          </dl>
+          <div className="flex items-center gap-2 border-t border-[var(--border-subtle)] px-6 py-3 text-[var(--fg-secondary)]">
+            <Icon name="warning" size={14} />
+            <a
+              href="#"
+              className="text-[13px] font-medium text-[var(--accent-primary)] underline-offset-2 hover:underline"
+            >
+              Algo está errado?
+            </a>
+          </div>
+        </AwCard>
+      </div>
     </div>
   );
 }
