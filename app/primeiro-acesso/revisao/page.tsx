@@ -1,6 +1,8 @@
 import Link from "next/link"
 import type { Metadata } from "next"
 import { Icon } from "@/components/ui/Icon"
+import { AwAvatar } from "@/components/ui/AwAvatar"
+import { AwFileIcon } from "@/components/ui/AwFileIcon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
@@ -43,35 +45,22 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    id: "implementacao",
+    id: "condicoes",
     eyebrow: "02",
-    title: "Implementação",
+    title: "Condições comerciais",
     rows: [
       {
-        label: "Valor",
+        label: "Implementação",
         value: ONBOARDING_ORG.valorImplementacao,
         emphasized: true,
       },
-      { label: "Cobrança", value: "Setup único · à vista" },
-      { label: "Métodos disponíveis", value: ONBOARDING_ORG.metodosImplementacao },
       { label: "Parcelamento", value: ONBOARDING_ORG.parcelamentoImplementacao },
-    ],
-  },
-  {
-    id: "plano",
-    eyebrow: "03",
-    title: "Plano recorrente",
-    rows: [
       {
         label: "Plano",
         value: ONBOARDING_ORG.plan,
         emphasized: true,
       },
-      { label: "Valor mensal", value: ONBOARDING_ORG.valorMensal },
-      { label: "Intervalo de cobrança", value: ONBOARDING_ORG.intervaloPlano },
-      { label: "Métodos aceitos", value: ONBOARDING_ORG.metodosPlano },
-      { label: "Limite de uso variável", value: ONBOARDING_ORG.limiteUsoVariavel },
-      { label: "Fidelidade", value: ONBOARDING_ORG.fidelidade },
+      { label: "Mensalidade", value: ONBOARDING_ORG.valorMensal },
     ],
   },
 ]
@@ -183,7 +172,14 @@ export default function RevisaoPage() {
               >
                 Account Manager AwSales
               </div>
-              <div className="text-fg-primary" style={{ fontWeight: 500 }}>
+              <div className="flex items-center gap-2 text-fg-primary" style={{ fontWeight: 500 }}>
+                <AwAvatar
+                  size="sm"
+                  src={ONBOARDING_ORG.accountManagerPhoto}
+                  initials="LV"
+                  alt={ONBOARDING_ORG.accountManager}
+                  style={{ width: 20, height: 20, fontSize: 9 }}
+                />
                 {ONBOARDING_ORG.accountManager}
               </div>
             </div>
@@ -209,9 +205,7 @@ export default function RevisaoPage() {
           download
           className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3 transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface"
         >
-          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-primary">
-            <Icon name="picture_as_pdf" size={18} />
-          </span>
+          <AwFileIcon type="pdf" size="md" alt="Contrato em PDF" />
           <span className="min-w-0 flex-1">
             <span
               className="block font-medium text-fg-primary"
