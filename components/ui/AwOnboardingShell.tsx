@@ -19,7 +19,7 @@ export const AW_ONBOARDING_STEPS: readonly AwOnboardingStep[] = [
   { id: "checkout",     label: "checkout",     num: "05", brandTitle: "Quase lá" },
   { id: "confirmado",   label: "confirmado",   num: "06", brandTitle: "Pagamento confirmado" },
   { id: "acesso",       label: "acesso",       num: "07", brandTitle: "Defina seu acesso" },
-  { id: "agent-studio", label: "agent studio", num: "08", brandTitle: "Pronto" },
+  { id: "perfil",       label: "perfil",       num: "08", brandTitle: "Personalize seu perfil" },
 ] as const
 
 export type AwOnboardingOrg = {
@@ -35,6 +35,7 @@ export type AwOnboardingShellProps = {
   children: React.ReactNode
   brandTitle?: string
   brandSubtitle?: string
+  brandBackground?: string
 }
 
 export function AwOnboardingShell({
@@ -43,6 +44,7 @@ export function AwOnboardingShell({
   children,
   brandTitle,
   brandSubtitle,
+  brandBackground,
 }: AwOnboardingShellProps) {
   const step = AW_ONBOARDING_STEPS[currentStep] ?? AW_ONBOARDING_STEPS[0]
   const title = brandTitle ?? step.brandTitle
@@ -57,6 +59,7 @@ export function AwOnboardingShell({
         org={org}
         title={title}
         subtitle={subtitle}
+        background={brandBackground}
       />
       <main className="flex-1 overflow-auto bg-bg-canvas">
         <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
@@ -72,26 +75,52 @@ function OnboardingBrandPane({
   org,
   title,
   subtitle,
+  background,
 }: {
   currentStep: number
   org: AwOnboardingOrg
   title: string
   subtitle: string
+  background?: string
 }) {
+  const hasImage = Boolean(background)
+
   return (
     <aside className="relative flex w-[38%] min-w-[320px] max-w-[480px] flex-shrink-0 flex-col justify-between overflow-hidden border-r border-aw-gray-1100 bg-aw-gray-1200 p-10 text-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 z-0 opacity-[0.38]"
-        style={{ transform: "translate(-50%, -52%)" }}
-      >
-        <NeuralPattern size={720} />
+      {hasImage ? (
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${background})`,
+              filter: "saturate(0.75)",
+            }}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(13,13,15,0.78) 0%, rgba(13,13,15,0.85) 45%, rgba(13,13,15,0.95) 100%)",
+            }}
+          />
+        </>
+      ) : (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 opacity-[0.38]"
+          style={{ transform: "translate(-50%, -52%)" }}
+        >
+          <NeuralPattern size={720} />
+        </div>
+      )}
+
+      <div className="relative z-10 flex items-center">
+        <AwLogo variant="wordmark" height={20} className="text-white" />
       </div>
 
-      <div className="relative z-10">
-        <div className="mb-7 flex items-center">
-          <AwLogo variant="wordmark" height={20} className="text-white" />
-        </div>
+      <div className="relative z-10 flex flex-1 flex-col justify-center">
         <h1
           className="mb-3.5 font-display font-medium text-white text-balance"
           style={{
@@ -131,17 +160,11 @@ function OnboardingBrandPane({
             className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
             style={{ fontSize: 10 }}
           >
-            Plano Enterprise
+            Plano {org.plan}
           </span>
         </div>
       </div>
 
-      <div
-        className="relative z-10 flex flex-col gap-2 text-aw-gray-700"
-        style={{ fontSize: 10, letterSpacing: "0.04em" }}
-      >
-        <div>passo: {AW_ONBOARDING_STEPS[currentStep]?.label}</div>
-      </div>
     </aside>
   )
 }
