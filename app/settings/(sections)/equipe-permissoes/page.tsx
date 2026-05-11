@@ -129,9 +129,12 @@ export default function MembersPage() {
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
-            <span className="flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-primary)]">
-              <Icon name="groups" size={22} />
-            </span>
+            <Icon
+              name="groups"
+              size={36}
+              weight={300}
+              className="text-[var(--fg-primary)]"
+            />
             Equipe &amp; permissões
           </h1>
           <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
@@ -228,7 +231,7 @@ const MANAGER_ROLE: Role = "Gerente da conta";
 
 const CORTEX = {
   name: "Cortex",
-  role: "AI Account Manager",
+  role: "Gerente de contas",
   avatarSrc: "/assets/Cortex.png",
   ctaLabel: "Iniciar conversa",
   ctaIcon: "chat_bubble",
