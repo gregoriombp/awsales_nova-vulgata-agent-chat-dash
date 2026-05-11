@@ -46,6 +46,7 @@ export const navigation: NavSection[] = [
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
+      { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
       { name: "Pills", href: "/bombardier/styleguide/components/pills" },
       { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
