@@ -37,13 +37,6 @@ export default function BoasVindasPage() {
   return (
     <AwOnboardingShell currentStep={1} org={ONBOARDING_ORG}>
       <section>
-        <div
-          className="mb-3.5 font-mono uppercase text-fg-tertiary"
-          style={{ fontSize: 10, letterSpacing: "0.08em" }}
-        >
-          primeiro acesso · etapa 1 de 4
-        </div>
-
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
           style={{
@@ -93,12 +86,6 @@ export default function BoasVindasPage() {
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
           <span className="flex-1" />
-          <span
-            className="font-mono text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
-            leva ~3 min
-          </span>
           <Link
             href="/primeiro-acesso/revisao"
             className="aw-btn aw-btn--primary aw-btn--md"

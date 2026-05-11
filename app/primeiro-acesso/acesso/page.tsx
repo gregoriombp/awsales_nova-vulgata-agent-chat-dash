@@ -39,13 +39,6 @@ export default function AcessoPage() {
   return (
     <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
       <section>
-        <div
-          className="mb-3.5 font-mono uppercase text-fg-tertiary"
-          style={{ fontSize: 10, letterSpacing: "0.08em" }}
-        >
-          etapa 4 de 4 · método de acesso
-        </div>
-
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
           style={{

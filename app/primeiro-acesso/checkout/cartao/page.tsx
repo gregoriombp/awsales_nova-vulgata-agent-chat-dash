@@ -39,13 +39,6 @@ export default function CheckoutCartaoPage() {
   return (
     <AwOnboardingShell currentStep={4} org={ONBOARDING_ORG}>
       <section>
-        <div
-          className="mb-3.5 font-mono uppercase text-fg-tertiary"
-          style={{ fontSize: 10, letterSpacing: "0.08em" }}
-        >
-          etapa 3 de 4 · cartão de crédito · {ONBOARDING_ORG.valorImplementacao}
-        </div>
-
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
           style={{
