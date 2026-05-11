@@ -2657,6 +2657,13 @@
     background var(--dur-fast) var(--ease-out);
 }
 .aw-table tbody tr.aw-row-inactive:hover { opacity: 1; }
+/* Failure-state row — pairs with the AwPill error variant to flag a
+   broken connection at a glance in long lists. The accent lives as an
+   inset shadow on the first cell so the row keeps the same height and
+   alignment as healthy ones. */
+.aw-table tbody tr.aw-row-attention td:first-child {
+  box-shadow: inset 3px 0 0 var(--aw-red-500);
+}
 .aw-table--airy .aw-th-sort {
   display: inline-flex;
   align-items: center;
