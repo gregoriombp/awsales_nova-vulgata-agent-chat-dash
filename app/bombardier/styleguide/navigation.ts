@@ -30,6 +30,7 @@ export const navigation: NavSection[] = [
       { name: "Botões", href: "/bombardier/styleguide/components/buttons" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
       { name: "Breadcrumb", href: "/bombardier/styleguide/components/aw-breadcrumb" },
+      { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
@@ -37,6 +38,8 @@ export const navigation: NavSection[] = [
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
+      { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },
+      { name: "Group card", href: "/bombardier/styleguide/components/aw-group-card" },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
@@ -59,11 +62,21 @@ export const navigation: NavSection[] = [
     ],
   },
   {
-    title: "Playground",
+    title: "Playground IA",
     items: [
       { name: "Componentes propostos", href: "/bombardier/styleguide/components/playground" },
+    ],
+  },
+  {
+    title: "Experimentos",
+    items: [
       { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
       { name: "Onboarding shell", href: "/bombardier/styleguide/playground/components/aw-onboarding-shell" },
+    ],
+  },
+  {
+    title: "Protótipos · Telas",
+    items: [
       { name: "Primeiro acesso · 02 boas-vindas", href: "/primeiro-acesso/boas-vindas" },
       { name: "Primeiro acesso · 03 revisão", href: "/primeiro-acesso/revisao" },
       { name: "Primeiro acesso · 04 pagamento", href: "/primeiro-acesso/pagamento" },
@@ -72,6 +85,9 @@ export const navigation: NavSection[] = [
       { name: "Primeiro acesso · 05 checkout boleto", href: "/primeiro-acesso/checkout/boleto" },
       { name: "Primeiro acesso · 06 confirmado", href: "/primeiro-acesso/confirmado" },
       { name: "Primeiro acesso · 07 acesso", href: "/primeiro-acesso/acesso" },
+      { name: "Primeiro acesso · 08 perfil (Google)", href: "/primeiro-acesso/perfil?via=google" },
+      { name: "Primeiro acesso · 08 perfil (Microsoft)", href: "/primeiro-acesso/perfil?via=ms" },
+      { name: "Primeiro acesso · 08 perfil (sem OAuth)", href: "/primeiro-acesso/perfil?via=password" },
       { name: "Início · welcome modal", href: "/inicio?welcome=1" },
     ],
   },

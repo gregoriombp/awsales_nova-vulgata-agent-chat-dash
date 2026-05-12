@@ -42,20 +42,7 @@ import {
   TbTrash,
   TbFolderOpen,
 } from "react-icons/tb";
-
-const AGENT_IMGS = [
-  "/assets/agent_imgs/Agent_img_01-3.png",
-  "/assets/agent_imgs/Agent_img_02-3.png",
-  "/assets/agent_imgs/Agent_img_03-3.png",
-  "/assets/agent_imgs/Agent_img_04-3.png",
-  "/assets/agent_imgs/Agent_img_05-3.png",
-  "/assets/agent_imgs/Agent_img_06-3.png",
-  "/assets/agent_imgs/Agent_img_07-3.png",
-  "/assets/agent_imgs/Agent_img_08-3.png",
-  "/assets/agent_imgs/Agent_img_09-3.png",
-  "/assets/agent_imgs/Agent_img_10-3.png",
-  "/assets/agent_imgs/Agent_img_11-3.png",
-];
+import { getOrbForAgent } from "@/lib/agentOrbs";
 
 /** Gera um UUID determinístico a partir do id da linha (para exibição como ID do arquivo). */
 function idToFileUuid(id: string): string {
@@ -1001,7 +988,7 @@ export default function KnowledgeOSDirectoryPage() {
                             className="w-full flex items-center gap-3 text-[13px] text-[#2f2f2f] rounded-lg px-2 py-2 text-left transition-colors hover:bg-[#f2f2f2]"
                           >
                             <img
-                              src={AGENT_IMGS[index % AGENT_IMGS.length]}
+                              src={getOrbForAgent(agent.id)}
                               alt=""
                               width={36}
                               height={36}
@@ -2092,7 +2079,7 @@ export default function KnowledgeOSDirectoryPage() {
             <>
               <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[#f2f2f2]">
                 <img
-                  src={AGENT_IMGS[connectedAgents.findIndex((a) => a.id === agentSettingsModalAgent.id) % AGENT_IMGS.length]}
+                  src={getOrbForAgent(agentSettingsModalAgent.id)}
                   alt=""
                   width={56}
                   height={56}

@@ -3,8 +3,9 @@
 import * as React from "react"
 import Link from "next/link"
 import { Icon } from "@/components/ui/Icon"
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import { ONBOARDING_ORG } from "../../_data"
+import { ONBOARDING_ORG, ONBOARDING_USER } from "../../_data"
 
 const BOLETO_LINHA = "23793.38128 60079.811604 41005.396305 1 99230000001200000"
 
@@ -32,10 +33,32 @@ function Barcode() {
   )
 }
 
+type EmailStatus = "idle" | "sending" | "sent"
+
 export default function CheckoutBoletoPage() {
+  const [emailStatus, setEmailStatus] = React.useState<EmailStatus>("idle")
+
+  const sendEmail = () => {
+    if (emailStatus !== "idle") return
+    setEmailStatus("sending")
+    setTimeout(() => {
+      setEmailStatus("sent")
+      setTimeout(() => setEmailStatus("idle"), 4000)
+    }, 900)
+  }
+
   return (
     <AwOnboardingShell currentStep={4} org={ONBOARDING_ORG}>
       <section>
+        <div className="mb-5 flex items-center gap-3">
+          <AwBrandLogo brand="boleto" size="md" />
+          <span
+            className="uppercase text-fg-tertiary"
+            style={{ fontSize: 11, letterSpacing: "0.06em" }}
+          >
+            Pagamento via boleto
+          </span>
+        </div>
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
           style={{
@@ -109,22 +132,55 @@ export default function CheckoutBoletoPage() {
           <div className="mt-3 flex gap-2">
             <button
               type="button"
-              className="aw-btn aw-btn--secondary aw-btn--md flex-1"
+              className="aw-btn aw-btn--primary aw-btn--md flex-1"
             >
               <Icon name="picture_as_pdf" size={16} />
               <span className="aw-btn__label">Baixar PDF</span>
             </button>
             <button
               type="button"
-              className="aw-btn aw-btn--secondary aw-btn--md flex-1"
+              onClick={sendEmail}
+              disabled={emailStatus !== "idle"}
+              className="aw-btn aw-btn--primary aw-btn--md flex-1"
             >
-              <Icon name="mail" size={16} />
-              <span className="aw-btn__label">Enviar por e-mail</span>
+              {emailStatus === "idle" && (
+                <>
+                  <Icon name="mail" size={16} />
+                  <span className="aw-btn__label">Enviar por e-mail</span>
+                </>
+              )}
+              {emailStatus === "sending" && (
+                <>
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-[1.5px] border-current border-r-transparent"
+                  />
+                  <span className="aw-btn__label">Enviando…</span>
+                </>
+              )}
+              {emailStatus === "sent" && (
+                <>
+                  <Icon name="check" size={16} />
+                  <span className="aw-btn__label">Enviado</span>
+                </>
+              )}
             </button>
           </div>
+          {emailStatus === "sent" && (
+            <div
+              className="mt-3 text-fg-tertiary"
+              style={{ fontSize: 12 }}
+            >
+              Boleto enviado para{" "}
+              <span className="font-medium text-fg-secondary">
+                {ONBOARDING_USER.email}
+              </span>
+              .
+            </div>
+          )}
         </div>
 
-        <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-aw-amber-300 bg-aw-amber-100 px-4 py-3.5 text-aw-amber-800">
+        <div className="mt-5 flex items-center gap-3.5 rounded-lg bg-aw-amber-100 px-4 py-3.5 text-aw-amber-800">
           <Icon name="schedule" size={18} />
           <div className="flex-1">
             <div className="font-medium" style={{ fontSize: 13 }}>

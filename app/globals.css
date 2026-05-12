@@ -849,7 +849,10 @@
 }
 .aw-btn:focus-visible {
   outline: 0;
-  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
+  box-shadow: 0 0 0 3px rgba(13, 16, 19, 0.14);
+}
+.dark .aw-btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
 }
 .aw-btn:disabled {
   opacity: 0.5;

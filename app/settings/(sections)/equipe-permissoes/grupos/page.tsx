@@ -9,24 +9,92 @@ import {
   AwEmptyMedia,
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
+import { AwGroupCard } from "@/components/ui/AwGroupCard";
 import { AwInput } from "@/components/ui/AwInput";
-import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
-import { GROUPS } from "../_components/data";
+import {
+  GROUPS,
+  MEMBERS,
+  pickGroupBackground,
+  type Group,
+} from "../_components/data";
+import { CreateGroupModal } from "../_components/CreateGroupModal";
+import { ManageGroupSheet } from "../_components/ManageGroupSheet";
 import { TeamTabs } from "../_components/TeamTabs";
 
 export default function GroupsPage() {
   const [search, setSearch] = useState("");
+  const [groups, setGroups] = useState<Group[]>(GROUPS);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editing, setEditing] = useState<Group | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return GROUPS;
-    return GROUPS.filter(
+    if (!q) return groups;
+    return groups.filter(
       (g) =>
         g.name.toLowerCase().includes(q) ||
         g.description.toLowerCase().includes(q)
     );
-  }, [search]);
+  }, [search, groups]);
+
+  const handleCreate = (next: {
+    name: string;
+    description: string;
+    icon: string;
+    members: typeof MEMBERS;
+  }) => {
+    const id = `g-${next.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`;
+    setGroups((prev) => [
+      ...prev,
+      {
+        id,
+        name: next.name,
+        description: next.description,
+        icon: next.icon || "groups",
+        memberCount: next.members.length,
+        roles: [],
+        members: next.members.map((m) => m.id),
+        backgroundImage: pickGroupBackground(id),
+      },
+    ]);
+  };
+
+  const handleSave = (
+    groupId: string,
+    next: { name: string; description: string; memberIds: string[] }
+  ) => {
+    setGroups((prev) =>
+      prev.map((g) =>
+        g.id === groupId
+          ? {
+              ...g,
+              name: next.name,
+              description: next.description,
+              members: next.memberIds,
+              memberCount: next.memberIds.length,
+            }
+          : g
+      )
+    );
+  };
+
+  const handleDelete = (groupId: string) => {
+    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+  };
+
+  const handleDuplicate = (source: Group) => {
+    const id = `${source.id}-copy-${Date.now()}`;
+    setGroups((prev) => [
+      ...prev,
+      {
+        ...source,
+        id,
+        name: `${source.name} (cópia)`,
+        backgroundImage: pickGroupBackground(id),
+      },
+    ]);
+  };
 
   return (
     <>
@@ -65,14 +133,14 @@ export default function GroupsPage() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-2">
-            <AwButton size="sm" variant="secondary" iconLeft="download">
-              Exportar
-            </AwButton>
-            <AwButton size="sm" variant="primary" iconLeft="add">
-              Criar grupo
-            </AwButton>
-          </div>
+          <AwButton
+            size="sm"
+            variant="primary"
+            iconLeft="add"
+            onClick={() => setCreateOpen(true)}
+          >
+            Criar grupo
+          </AwButton>
         </div>
 
         {filtered.length === 0 ? (
@@ -91,54 +159,81 @@ export default function GroupsPage() {
             </AwEmpty>
           </div>
         ) : (
-          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {filtered.map((g) => (
-              <li
-                key={g.id}
-                className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 transition-colors duration-aw-fast hover:border-[var(--border-default)]"
-              >
-                <div className="flex items-start gap-3">
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
-                    <Icon name={g.icon} size={20} />
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="m-0 truncate text-[14.5px] font-semibold text-[var(--fg-primary)]">
-                      {g.name}
-                    </p>
-                    <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
-                      {g.memberCount} membro{g.memberCount === 1 ? "" : "s"}
-                    </p>
-                  </div>
-                </div>
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {filtered.map((g) => {
+              const members = g.members.map((id) => {
+                const m = MEMBERS.find((member) => member.id === id);
+                return {
+                  name: m?.name ?? id,
+                  avatar: m?.avatar,
+                  initials: m?.initials ?? "?",
+                };
+              });
 
-                <p className="m-0 line-clamp-2 text-[12.5px] leading-[1.5] text-[var(--fg-secondary)]">
-                  {g.description}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {g.roles.map((r) => (
-                    <AwPill key={r} variant="neutral" dot={false}>
-                      {r}
-                    </AwPill>
-                  ))}
-                </div>
-
-                <div className="mt-auto flex items-center justify-between border-t border-[var(--border-subtle)] pt-3">
-                  <AwButton size="sm" variant="ghost" iconLeft="visibility">
-                    Ver membros
-                  </AwButton>
-                  <AwButton
-                    size="sm"
-                    variant="ghost"
-                    iconOnly="more_horiz"
-                    aria-label="Mais opções"
+              return (
+                <li key={g.id}>
+                  <AwGroupCard
+                    name={g.name}
+                    description={g.description}
+                    memberCount={g.memberCount}
+                    members={members}
+                    icon={g.icon}
+                    backgroundImage={g.backgroundImage}
+                    onManage={() => setEditing(g)}
+                    menu={[
+                      {
+                        id: "manage",
+                        label: "Gerenciar equipe",
+                        icon: "settings",
+                        onSelect: () => setEditing(g),
+                      },
+                      {
+                        id: "add-members",
+                        label: "Adicionar membros",
+                        icon: "person_add",
+                        onSelect: () => setEditing(g),
+                      },
+                      {
+                        id: "rename",
+                        label: "Renomear grupo",
+                        icon: "edit",
+                        onSelect: () => setEditing(g),
+                      },
+                      {
+                        id: "duplicate",
+                        label: "Duplicar grupo",
+                        icon: "content_copy",
+                        onSelect: () => handleDuplicate(g),
+                      },
+                      { id: "sep", separator: true },
+                      {
+                        id: "delete",
+                        label: "Excluir grupo",
+                        icon: "delete",
+                        danger: true,
+                        onSelect: () => handleDelete(g.id),
+                      },
+                    ]}
                   />
-                </div>
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>
+
+      <CreateGroupModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreate={handleCreate}
+      />
+
+      <ManageGroupSheet
+        group={editing}
+        onClose={() => setEditing(null)}
+        onSave={(next) => editing && handleSave(editing.id, next)}
+        onDelete={handleDelete}
+      />
     </>
   );
 }
