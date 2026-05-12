@@ -35,8 +35,11 @@ export default function ApiSettingsPage() {
                 <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
                   {k.name}
                 </p>
-                <p className="m-0 font-mono text-[12px] text-[var(--fg-secondary)]">
-                  {k.prefix} · criada {k.createdAt} · usada {k.lastUsed}
+                <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+                  <code className="font-mono text-[var(--fg-primary)]">
+                    {k.prefix}
+                  </code>{" "}
+                  · criada {k.createdAt} · usada {k.lastUsed}
                 </p>
               </div>
               <AwButton size="sm" variant="ghost" iconLeft="content_copy">
