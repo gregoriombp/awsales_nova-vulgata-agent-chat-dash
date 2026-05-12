@@ -39,6 +39,8 @@ export type AwOnboardingShellProps = {
   brandTitle?: string
   brandSubtitle?: string
   brandBackground?: string
+  /** Hide the organization card in the brand pane (e.g. before user recognition). */
+  showOrgCard?: boolean
 }
 
 export function AwOnboardingShell({
@@ -48,12 +50,15 @@ export function AwOnboardingShell({
   brandTitle,
   brandSubtitle,
   brandBackground = AW_ONBOARDING_BRAND_BACKGROUND,
+  showOrgCard = true,
 }: AwOnboardingShellProps) {
   const step = AW_ONBOARDING_STEPS[currentStep] ?? AW_ONBOARDING_STEPS[0]
   const title = brandTitle ?? step.brandTitle
   const subtitle =
     brandSubtitle ??
-    `Configuração inicial da sua conta ${org.name} na plataforma AwSales.`
+    (showOrgCard
+      ? `Configuração inicial da sua conta ${org.name} na plataforma AwSales.`
+      : "Configuração inicial da sua conta na plataforma AwSales.")
 
   return (
     <div className="flex h-screen overflow-hidden bg-bg-canvas text-fg-primary">
@@ -63,6 +68,7 @@ export function AwOnboardingShell({
         title={title}
         subtitle={subtitle}
         background={brandBackground}
+        showOrgCard={showOrgCard}
       />
       <main className="flex-1 overflow-auto bg-bg-canvas">
         <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
@@ -79,12 +85,14 @@ function OnboardingBrandPane({
   title,
   subtitle,
   background,
+  showOrgCard,
 }: {
   currentStep: number
   org: AwOnboardingOrg
   title: string
   subtitle: string
   background?: string
+  showOrgCard: boolean
 }) {
   const hasImage = Boolean(background)
 
@@ -142,31 +150,46 @@ function OnboardingBrandPane({
         </p>
       </div>
 
-      <div className="relative z-10 rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-5 backdrop-blur-md">
-        <div
-          className="mb-2.5 uppercase text-aw-gray-700"
-          style={{ fontSize: 10, letterSpacing: "0.06em" }}
-        >
-          organização
-        </div>
-        <div
-          className="mb-1 font-medium text-white"
-          style={{ fontSize: 16 }}
-        >
-          {org.name}
-        </div>
-        <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
-          {org.cnpj}
-        </div>
-        <div className="mt-3.5 flex gap-1.5">
-          <span
-            className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
-            style={{ fontSize: 10 }}
+      {showOrgCard ? (
+        <div className="relative z-10 rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-5 backdrop-blur-md">
+          <div
+            className="mb-2.5 uppercase text-aw-gray-700"
+            style={{ fontSize: 10, letterSpacing: "0.06em" }}
           >
-            Plano {org.plan}
+            organização
+          </div>
+          <div
+            className="mb-1 font-medium text-white"
+            style={{ fontSize: 16 }}
+          >
+            {org.name}
+          </div>
+          <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
+            {org.cnpj}
+          </div>
+          <div className="mt-3.5 flex gap-1.5">
+            <span
+              className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
+              style={{ fontSize: 10 }}
+            >
+              Plano {org.plan}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="relative z-10 flex items-center gap-2.5 text-aw-gray-500"
+          style={{ fontSize: 11, letterSpacing: "0.02em" }}
+        >
+          <span
+            aria-hidden="true"
+            className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500"
+          />
+          <span>
+            Estamos prontos para reconhecer você assim que você inserir o código.
           </span>
         </div>
-      </div>
+      )}
 
     </aside>
   )
