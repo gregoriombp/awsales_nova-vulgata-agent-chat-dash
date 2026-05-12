@@ -40,8 +40,6 @@ const SECTIONS: Section[] = [
           </span>
         ),
       },
-      { label: "Segmento", value: ONBOARDING_ORG.segmento },
-      { label: "Porte", value: ONBOARDING_ORG.porte },
     ],
   },
   {
@@ -54,7 +52,6 @@ const SECTIONS: Section[] = [
         value: ONBOARDING_ORG.valorImplementacao,
         emphasized: true,
       },
-      { label: "Parcelamento", value: ONBOARDING_ORG.parcelamentoImplementacao },
       {
         label: "Plano",
         value: ONBOARDING_ORG.plan,
