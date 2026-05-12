@@ -15,7 +15,7 @@ export default function SheetPage() {
       <PageHero title="Sheet">
         Alternativa preferida ao modal quando a tela de trás ajuda a dar
         contexto — ex.: lista de conversas. Desliza da direita em 220 ms,
-        suporta navegação <code className="mono">↑/↓</code> entre itens e
+        suporta navegação <span>↑/↓</span> entre itens e
         mantém scrim a 40% (vs. 55% do modal) para preservar orientação.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">

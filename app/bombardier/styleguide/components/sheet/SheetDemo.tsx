@@ -117,10 +117,10 @@ export function SheetDemo() {
               </AwPill>
             </AwSheetRow>
             <AwSheetRow label="CSAT">{c.csat}</AwSheetRow>
-            <AwSheetRow label="Custo" mono>
+            <AwSheetRow label="Custo">
               {c.cost}
             </AwSheetRow>
-            <AwSheetRow label="Latência p95" mono>
+            <AwSheetRow label="Latência p95">
               {c.latency}
             </AwSheetRow>
           </>

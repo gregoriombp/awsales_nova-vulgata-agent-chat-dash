@@ -81,7 +81,7 @@ export default function CardBrandPage() {
                   }}
                 />
                 <span
-                  className="mono text-[var(--fg-tertiary)]"
+                  className="text-[var(--fg-tertiary)]"
                   style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}
                 >
                   {detected === "unknown" ? "—" : detected}
@@ -93,7 +93,7 @@ export default function CardBrandPage() {
                     key={s.pan}
                     type="button"
                     onClick={() => setPan(s.pan)}
-                    className="rounded-sm border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 mono text-[var(--fg-secondary)] hover:border-[var(--fg-primary)]"
+                    className="rounded-sm border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 text-[var(--fg-secondary)] hover:border-[var(--fg-primary)]"
                     style={{ fontSize: 11 }}
                   >
                     {s.label}
