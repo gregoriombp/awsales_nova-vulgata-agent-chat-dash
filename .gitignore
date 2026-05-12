@@ -18,6 +18,12 @@
 # local cursor settings (personal)
 .cursor/settings.json
 
+# local agent context docs (personal — do not share)
+AGENTS.md
+CLAUDE.md
+BOMBARDIER.md
+AWSALES_CONTEXT.md
+
 # next.js
 /.next/
 /out/
