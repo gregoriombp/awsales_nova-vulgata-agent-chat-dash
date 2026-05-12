@@ -10,8 +10,13 @@
 /coverage
 /.playwright-cli
 
-# local claude code settings
+# local claude code settings (personal — do not share)
+.claude/settings.json
 .claude/settings.local.json
+.claude/skills/
+
+# local cursor settings (personal)
+.cursor/settings.json
 
 # next.js
 /.next/
