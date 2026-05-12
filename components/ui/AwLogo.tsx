@@ -8,6 +8,45 @@ export type AwLogoProps = {
   "aria-label"?: string
 }
 
+/**
+ * Catálogo oficial de exportações da logo AwSales.
+ *
+ * Use este registry como **fonte de verdade** para qualquer asset estático
+ * (PNG ou SVG) servido a partir de `/public/assets/brand/`. Para uso
+ * **dentro do app** prefira o componente `<AwLogo />` (SVG inline,
+ * `fill="currentColor"`), que herda a cor do contexto.
+ *
+ * Assets estáticos são para: e-mail, deck, social, favicon, exports de
+ * marketing — qualquer lugar onde `currentColor` não funciona.
+ */
+export const AW_LOGO_ASSETS = {
+  mark: {
+    brand: "/assets/brand/awsales-mark-brand.png",
+    muted: "/assets/brand/awsales-mark-muted.png",
+    black: "/assets/brand/awsales-mark-black.png",
+    white: "/assets/brand/awsales-mark-white.png",
+  },
+  wordmark: {
+    brand: "/assets/brand/awsales-wordmark-brand.png",
+    muted: "/assets/brand/awsales-wordmark-muted.png",
+    black: "/assets/brand/awsales-wordmark-black.png",
+    brandOnDark: "/assets/brand/awsales-wordmark-brand-on-dark.png",
+    mutedOnDark: "/assets/brand/awsales-wordmark-muted-on-dark.png",
+    white: "/assets/brand/awsales-wordmark-white.png",
+  },
+  svg: {
+    mark: "/assets/brand/awsales-mark.svg",
+    markBrand: "/assets/brand/awsales-mark-brand.svg",
+    markWhite: "/assets/brand/awsales-mark-white.svg",
+    wordmarkBlack: "/assets/brand/awsales-wordmark-black.svg",
+    wordmarkBrand: "/assets/brand/awsales-wordmark-brand.svg",
+    wordmarkWhite: "/assets/brand/awsales-wordmark-white.svg",
+  },
+} as const
+
+export type AwMarkTone = keyof typeof AW_LOGO_ASSETS.mark
+export type AwWordmarkTone = keyof typeof AW_LOGO_ASSETS.wordmark
+
 /** AwSales logo. Fill is currentColor so it adapts to light/dark surfaces. */
 export function AwLogo({
   variant = "wordmark",

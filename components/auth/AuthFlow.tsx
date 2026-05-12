@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
+import Link from "next/link";
 import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -759,7 +760,14 @@ export default function AuthFlow() {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end pt-4 text-xs text-aw-gray-700">
+        <div className="flex flex-col items-end gap-1.5 pt-4 text-xs text-aw-gray-700">
+          <Link
+            href="/primeiro-acesso/convite"
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+          >
+            <span>{locale === "pt" ? "Primeiro acesso" : "First access"}</span>
+            <ArrowOutIcon />
+          </Link>
           <div className="flex gap-1">
             <a href="#" className="text-aw-gray-800 hover:text-aw-gray-1200 hover:underline">
               {locale === "pt" ? "Termos" : "Terms"}

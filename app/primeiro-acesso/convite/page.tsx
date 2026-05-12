@@ -4,18 +4,10 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
+import { ONBOARDING_ORG } from "../_data"
 
 const CODE_LENGTH = 6
 const RESEND_COOLDOWN_SECONDS = 30
-
-function maskEmail(email: string) {
-  const [user, domain] = email.split("@")
-  if (!user || !domain) return email
-  const visible = user.slice(0, 2)
-  const masked = "•".repeat(Math.max(user.length - 2, 2))
-  return `${visible}${masked}@${domain}`
-}
 
 export default function ConvitePage() {
   const router = useRouter()
@@ -139,7 +131,13 @@ export default function ConvitePage() {
   }
 
   return (
-    <AwOnboardingShell currentStep={0} org={ONBOARDING_ORG}>
+    <AwOnboardingShell
+      currentStep={0}
+      org={ONBOARDING_ORG}
+      showOrgCard={false}
+      brandTitle="Primeiro acesso"
+      brandSubtitle="Digite o código de segurança para que a gente possa reconhecer você e liberar o ambiente da sua organização."
+    >
       <section>
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
@@ -149,19 +147,16 @@ export default function ConvitePage() {
             letterSpacing: "-0.015em",
           }}
         >
-          Confirme que é você, {ONBOARDING_USER.firstName}.
+          Insira seu código de primeiro acesso.
         </h1>
 
         <p
           className="mb-7 text-fg-secondary text-pretty"
           style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
         >
-          Enviamos um código de segurança para{" "}
-          <span className="font-medium text-fg-primary">
-            {maskEmail(ONBOARDING_USER.email)}
-          </span>
-          . Digite os 6 dígitos abaixo para liberar a ativação do ambiente da{" "}
-          {ONBOARDING_ORG.name}.
+          Digite os 6 dígitos do código de segurança enviado no e-mail de
+          convite. Assim que reconhecermos você, abrimos o ambiente da sua
+          organização para concluir a ativação.
         </p>
 
         <div className="flex flex-col gap-2.5">

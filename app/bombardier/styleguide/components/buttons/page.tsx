@@ -1,138 +1,130 @@
 import { AwButton } from "@/components/ui/AwButton"
-import { PageHero } from "../../_primitives"
+import {
+  PageHero,
+  Section,
+  Stage,
+  Spec,
+  Tldr,
+  Toc,
+  StatesMatrix,
+  PropRow,
+  ApiTable,
+  TokensConsumed,
+  ResponsiveStage,
+  KeyboardTable,
+  CodeExample,
+  DoDont,
+  RelatedLinks,
+} from "../../_primitives"
 
 /* ============================================================
- * Botões — AwSales Design System
- * Fonte de verdade: AwSales Design System (2).zip
- *   · design_handoff_awsales_ds_react/packages/ui/src/Button/*
- *   · design_handoff_awsales_ds_react/reference_html/componentes.html
- *   · colors_and_type.css
+ * AwButton — página exemplar do padrão canônico do styleguide.
+ * Doc do padrão: docs/styleguide-page-structure.md
+ * Componente: components/ui/AwButton.tsx
  * ============================================================ */
 
-function Section({
-  id,
-  title,
-  lead,
-  children,
-}: {
-  id: string
-  title: string
-  lead?: string
-  children: React.ReactNode
-}) {
-  return (
-    <section id={id} className="scroll-mt-16">
-      <div className="mb-6">
-        <h2 className="m-0">{title}</h2>
-        {lead && (
-          <p className="text-[var(--body-md-size)] text-[var(--fg-secondary)] mt-2 max-w-2xl">
-            {lead}
-          </p>
-        )}
-      </div>
-      {children}
-    </section>
-  )
-}
-
-function Stage({
-  label,
-  hint,
-  children,
-  dark,
-}: {
-  label: string
-  hint?: string
-  children: React.ReactNode
-  dark?: boolean
-}) {
-  return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex items-baseline justify-between">
-        <div>
-          <div className="text-sm font-medium text-[var(--fg-primary)]">
-            {label}
-          </div>
-          {hint && <div className="caption mt-0.5">{hint}</div>}
-        </div>
-      </div>
-      <div
-        className="p-8 flex flex-wrap items-center gap-3"
-        style={
-          dark
-            ? {
-                backgroundColor: "var(--dark-bg)",
-                color: "var(--dark-fg-primary)",
-              }
-            : undefined
-        }
-      >
-        {children}
-      </div>
-    </div>
-  )
-}
-
-function PropRow({
-  prop,
-  type,
-  def,
-  doc,
-}: {
-  prop: string
-  type: string
-  def?: string
-  doc: string
-}) {
-  return (
-    <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-      <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
-        {prop}
-      </td>
-      <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
-        {type}
-      </td>
-      <td className="py-3 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
-        {def ?? "—"}
-      </td>
-      <td className="py-3 text-sm text-[var(--fg-secondary)]">{doc}</td>
-    </tr>
-  )
-}
-
-function Spec({ k, v, d }: { k: string; v: string; d?: string }) {
-  return (
-    <div>
-      <div className="aw-eyebrow mb-1">{k}</div>
-      <div className="mono text-sm text-[var(--fg-primary)]">{v}</div>
-      {d && <div className="caption mt-1">{d}</div>}
-    </div>
-  )
-}
+const TOC = [
+  { id: "anatomy", label: "Anatomia" },
+  { id: "variants", label: "Variantes" },
+  { id: "sizes", label: "Tamanhos" },
+  { id: "states", label: "Estados" },
+  { id: "composition", label: "Composition" },
+  { id: "responsive", label: "Responsivo" },
+  { id: "api", label: "API" },
+  { id: "tokens", label: "Tokens consumidos" },
+  { id: "accessibility", label: "Acessibilidade" },
+  { id: "code", label: "Em código" },
+  { id: "do-dont", label: "Do / Don't" },
+  { id: "related", label: "Veja também" },
+]
 
 export default function ButtonsPage() {
   return (
     <>
       <PageHero title="Botões">
-        Seis variantes. <strong>Primary</strong> é alto contraste — a ação
-          principal da tela. <strong>AI</strong> é reservado para ações que
-          disparam o agente. <strong>Subtle</strong> é a pílula tonal entre
-          ghost e secondary, indicada pra row actions em tabelas. Três
-          tamanhos: 30 · 38 · 46 px. O padrão é{" "}
-          <code className="mono">md</code>; <code className="mono">lg</code> só
-          em CTA de hero.
+        Seis variantes, três tamanhos. <strong>Primary</strong> é alto
+        contraste — uma só por tela. <strong>AI</strong> é reservado para ações
+        que disparam o agente. <strong>Subtle</strong> é a pílula tonal entre
+        ghost e secondary, indicada pra row actions em tabelas.
       </PageHero>
-      <div className="max-w-[1200px] mx-auto px-10 pb-14">
-<div className="flex flex-col gap-16">
-        {/* ───────── Variants ───────── */}
+
+      <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
+        {/* ── 2. Tldr ──────────────────────────────────────────────── */}
+        <Tldr
+          use={[
+            <>Como CTA principal da tela (uma única primary).</>,
+            <>Disparar uma ação clara e nomeável (verbo no infinitivo).</>,
+            <>Em formulários, modais, tabelas, toolbars, empty states.</>,
+            <>
+              Em ações que invocam o agente (gerar, resumir, sugerir) — variant
+              <code className="mono"> ai</code>.
+            </>,
+          ]}
+          dontUse={[
+            <>Para navegar entre páginas — use link/AwBreadcrumb.</>,
+            <>Como toggle binário — use AwSwitch / AwCheckbox.</>,
+            <>Como seletor de uma de várias opções — use AwPill ou tabs.</>,
+            <>Mais de uma primary lado a lado na mesma tela.</>,
+          ]}
+        />
+
+        {/* ── 3. Toc ───────────────────────────────────────────────── */}
+        <Toc items={TOC} />
+
+        {/* ── 4. Anatomy ───────────────────────────────────────────── */}
+        <Section
+          id="anatomy"
+          title="Anatomia"
+          lead="Quatro partes nomeadas, todas plugadas a tokens. O componente nunca hardcoda valores — mude o token, não o CSS."
+        >
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10 flex items-center justify-center">
+            <AwButton variant="primary" size="lg" iconLeft="add">
+              Criar agente
+            </AwButton>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <Spec
+              k="container"
+              v="aw-btn"
+              d="Wrapper inline-flex. Define altura, padding, radius, gap."
+            />
+            <Spec
+              k="ícone"
+              v="14 · 16 · 18 px"
+              d="Material Symbols Rounded via componente Icon. Antes do label por padrão."
+            />
+            <Spec
+              k="label"
+              v="aw-btn__label"
+              d="Texto. Verbo no infinitivo, sem emoji, sem exclamação."
+            />
+            <Spec
+              k="spinner"
+              v="aw-btn__spinner"
+              d="Aparece quando loading=true, ao final. Botão fica aria-busy."
+            />
+            <Spec
+              k="radius"
+              v="var(--radius-md) · 8 px"
+              d="Fixo. Não muda com size nem variant."
+            />
+            <Spec
+              k="hit target"
+              v="≥ 44 px (stacked)"
+              d="Atendido via espaço externo — nunca encolha um botão pra evitar isso."
+            />
+          </div>
+        </Section>
+
+        {/* ── 5. Variants ──────────────────────────────────────────── */}
         <Section
           id="variants"
           title="Variantes"
-          lead="Cinco variantes. Cada uma tem um papel definido na hierarquia de ações — não mixar arbitrariamente."
+          lead="Seis variantes, cada uma com papel definido na hierarquia. Não mixar arbitrariamente — a variante carrega a intenção."
         >
           <Stage
-            label="Primary · Secondary · Ghost · Subtle · Danger · AI"
-            hint="Ordem de hierarquia de cima pra baixo."
+            label="primary · secondary · ghost · subtle · danger · ai"
+            hint="Ordem da hierarquia, de mais forte a mais especializado."
           >
             <AwButton variant="primary" iconLeft="add">
               Criar agente
@@ -153,91 +145,107 @@ export default function ButtonsPage() {
           </Stage>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center gap-3 mb-2">
+            <VariantCard
+              demo={
                 <AwButton variant="primary" size="sm" iconLeft="add">
                   Criar
                 </AwButton>
-              </div>
-              <p className="body-sm m-0">
-                Ação principal da tela. Use uma única primária por superfície.
-                Fundo preto (<code className="mono">--fg-primary</code>), texto
-                branco.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center gap-3 mb-2">
+              }
+              title="primary"
+              body={
+                <>
+                  Ação principal da tela. Uma só por superfície. Fundo{" "}
+                  <code className="mono">--fg-primary</code>, texto branco.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
                 <AwButton variant="secondary" size="sm">
                   Duplicar
                 </AwButton>
-              </div>
-              <p className="body-sm m-0">
-                Ações complementares. Contorno 1px{" "}
-                <code className="mono">--border-default</code>; escurece no
-                hover.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center gap-3 mb-2">
+              }
+              title="secondary"
+              body={
+                <>
+                  Ações complementares. Contorno 1px{" "}
+                  <code className="mono">--border-default</code>; escurece no
+                  hover.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
                 <AwButton variant="ghost" size="sm">
                   Cancelar
                 </AwButton>
-              </div>
-              <p className="body-sm m-0">
-                Ação de baixa ênfase (cancelar, voltar). Sem borda. Hover
-                recebe fill suave (<code className="mono">--bg-surface</code>).
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center gap-3 mb-2">
+              }
+              title="ghost"
+              body={
+                <>
+                  Baixa ênfase (cancelar, voltar). Sem borda; hover recebe fill{" "}
+                  <code className="mono">--bg-surface</code>.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
                 <AwButton
                   variant="subtle"
                   size="sm"
                   iconOnly="more_vert"
                   aria-label="Ações"
                 />
-              </div>
-              <p className="body-sm m-0">
-                Pílula tonal — fundo{" "}
-                <code className="mono">--bg-muted</code> permanente, fg
-                primário. Usada como trigger de row action menu em tabelas,
-                onde ghost some no meio das linhas e secondary compete com a
-                CTA da linha. Hover escurece um passo na escala de cinzas.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="flex items-center gap-3 mb-2">
+              }
+              title="subtle"
+              body={
+                <>
+                  Pílula tonal — fundo{" "}
+                  <code className="mono">--bg-muted</code> permanente. Ideal
+                  como trigger de row action menu em tabelas, onde ghost some no
+                  meio das linhas.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
                 <AwButton variant="danger" size="sm" iconLeft="error">
                   Arquivar
                 </AwButton>
-              </div>
-              <p className="body-sm m-0">
-                Ações destrutivas (excluir, arquivar, revogar). Vermelho{" "}
-                <code className="mono">--aw-red-700</code>. Confirmação sempre
-                recomendada.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 md:col-span-2">
-              <div className="flex items-center gap-3 mb-2">
+              }
+              title="danger"
+              body={
+                <>
+                  Ações destrutivas (excluir, arquivar, revogar).{" "}
+                  <code className="mono">--aw-red-700</code>. Sempre acompanhe
+                  de confirmação.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
                 <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
                   Gerar sugestão
                 </AwButton>
-              </div>
-              <p className="body-sm m-0">
-                Reservada para ações que invocam o agente (gerar, sugerir,
-                resumir). Gradient blue → purple —{" "}
-                <code className="mono">--aw-blue-600 → --aw-purple-500</code>.
-                Nunca iniciar gradiente em cor quente.
-              </p>
-            </div>
+              }
+              title="ai"
+              body={
+                <>
+                  Reservada a ações do agente. Gradient{" "}
+                  <code className="mono">--aw-blue-600 → --aw-purple-500</code>.
+                  Nunca iniciar em cor quente.
+                </>
+              }
+              wide
+            />
           </div>
         </Section>
 
-        {/* ───────── Sizes ───────── */}
+        {/* ── 6. Sizes ─────────────────────────────────────────────── */}
         <Section
           id="sizes"
           title="Tamanhos"
-          lead="Três tamanhos cobrem 100% dos usos. Uso padrão = md. lg só em CTA de hero. sm em toolbars e inline."
+          lead="Três tamanhos cobrem 100% dos usos. Md é o padrão; lg só em CTA de hero; sm em toolbars e inline."
         >
           <Stage label="sm · md · lg" hint="30 · 38 · 46 px de altura.">
             <AwButton variant="primary" size="sm">
@@ -252,131 +260,146 @@ export default function ButtonsPage() {
           </Stage>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-            <Spec k="sm" v="height 30 · pad 12 · 13px" d="toolbars, inline" />
-            <Spec k="md" v="height 38 · pad 16 · 14px" d="padrão" />
-            <Spec k="lg" v="height 46 · pad 22 · 15px" d="CTA de hero" />
+            <Spec k="sm" v="h 30 · pad 12 · 13px" d="toolbars, inline" />
+            <Spec k="md" v="h 38 · pad 16 · 14px" d="padrão (default)" />
+            <Spec k="lg" v="h 46 · pad 22 · 15px" d="CTA de hero" />
+          </div>
+
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)]">
+            <strong className="text-[var(--fg-primary)]">Ícone.</strong> 14 px em
+            <code className="mono"> sm</code>, 16 px em
+            <code className="mono"> md</code>, 18 px em
+            <code className="mono"> lg</code>. Calculado automaticamente — não
+            passe <code className="mono">style</code>.
           </div>
         </Section>
 
-        {/* ───────── Icons ───────── */}
-        <Section
-          id="icons"
-          title="Com ícone"
-          lead="Ícones Material Symbols Rounded. iconLeft por padrão; iconRight só em “Próximo” ou “Ver detalhes →”."
-        >
-          <Stage label="iconLeft · iconRight · iconOnly">
-            <AwButton variant="primary" iconLeft="add">
-              Adicionar fonte
-            </AwButton>
-            <AwButton variant="secondary" iconRight="arrow_forward">
-              Ver detalhes
-            </AwButton>
-            <AwButton variant="primary" iconLeft="download">
-              Exportar
-            </AwButton>
-            <AwButton variant="ghost" iconLeft="settings">
-              Configurar
-            </AwButton>
-            <AwButton
-              variant="secondary"
-              iconOnly="more_horiz"
-              aria-label="Mais ações"
-            />
-            <AwButton
-              variant="ghost"
-              iconOnly="close"
-              aria-label="Fechar"
-            />
-          </Stage>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm">
-            <strong>Regra.</strong> Ícone 14–18 px dependendo do tamanho do
-            botão. Sempre antes do texto — a única exceção é um ícone direcional
-            (→, ↗) sinalizando navegação.
-          </div>
-        </Section>
-
-        {/* ───────── States ───────── */}
+        {/* ── 7. States ────────────────────────────────────────────── */}
         <Section
           id="states"
           title="Estados"
-          lead="Hover translada 1px para cima; focus usa ring azul a 30%; disabled fica em 50% opacity sem pointer events."
+          lead="Default, focus, loading e disabled são forçáveis via prop. Hover e active dependem do mouse — passe o cursor para conferir."
         >
-          <Stage label="default · hover · focus · loading · disabled">
-            <AwButton variant="primary">Default</AwButton>
-            <AwButton variant="primary" className="aw-btn--hover-preview">
-              Hover
-            </AwButton>
-            <AwButton variant="primary" autoFocus>
-              Focus
-            </AwButton>
-            <AwButton variant="primary" loading>
-              Carregando
-            </AwButton>
-            <AwButton variant="primary" disabled>
-              Publicado
-            </AwButton>
-          </Stage>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">hover</div>
-              <p className="body-sm m-0">
-                <code className="mono">transform: translateY(-1px)</code> +
-                escurece um passo na escala da variante. Sem scale, sem bounce.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">focus-visible</div>
-              <p className="body-sm m-0">
-                <code className="mono">
-                  box-shadow: 0 0 0 3px rgba(71,138,255,0.30)
-                </code>
-                . Visível apenas para navegação por teclado.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">loading</div>
-              <p className="body-sm m-0">
-                Spinner 14px circular à direita do label. O label fica em 60%
-                opacity. Botão fica não-interativo (aria-busy).
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">disabled</div>
-              <p className="body-sm m-0">
-                <code className="mono">opacity: 0.5</code>,{" "}
-                <code className="mono">pointer-events: none</code>. Nenhum
-                efeito de hover.
-              </p>
-            </div>
-          </div>
+          <StatesMatrix
+            columns={3}
+            states={[
+              {
+                name: "default",
+                node: <AwButton variant="primary">Criar agente</AwButton>,
+              },
+              {
+                name: "hover",
+                node: <AwButton variant="primary">Criar agente</AwButton>,
+                note: "Passe o mouse: translada 1px pra cima e escurece um passo.",
+              },
+              {
+                name: "focus",
+                node: (
+                  <AwButton variant="primary" autoFocus>
+                    Criar agente
+                  </AwButton>
+                ),
+                note: "Ring 3px rgba(71,138,255,0.30). Só via teclado (focus-visible).",
+              },
+              {
+                name: "active",
+                node: <AwButton variant="primary">Criar agente</AwButton>,
+                note: "Clique e mantenha: estado :active reduz translação.",
+              },
+              {
+                name: "loading",
+                node: (
+                  <AwButton variant="primary" loading>
+                    Criando
+                  </AwButton>
+                ),
+                note: "Spinner 14px à direita; aria-busy=true.",
+              },
+              {
+                name: "disabled",
+                node: (
+                  <AwButton variant="primary" disabled>
+                    Indisponível
+                  </AwButton>
+                ),
+                note: "opacity 0.5, pointer-events none.",
+              },
+            ]}
+          />
         </Section>
 
-        {/* ───────── Block / Full-width ───────── */}
+        {/* ── 8. Composition ───────────────────────────────────────── */}
         <Section
-          id="block"
-          title="Full-width"
-          lead="Block buttons ocupam 100% do container — formulários mobile, modais em coluna única e empty-states."
+          id="composition"
+          title="Composition"
+          lead="Padrões reais de uso. Combinações que aparecem em produção — copie o padrão, não invente."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 max-w-[360px]">
-            <AwButton variant="primary" block iconLeft="bolt">
-              Publicar agora
-            </AwButton>
-            <div className="h-2" />
-            <AwButton variant="ghost" block>
-              Cancelar
-            </AwButton>
-          </div>
-        </Section>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Stage label="Modal footer · ghost + primary">
+              <AwButton variant="ghost">Cancelar</AwButton>
+              <AwButton variant="primary">Salvar alterações</AwButton>
+            </Stage>
 
-        {/* ───────── On dark shell ───────── */}
-        <Section
-          id="on-dark"
-          title="Sobre shell escuro"
-          lead="Tokens semânticos invertem em .dark — primary usa branco sobre preto; ghost brilha via --bg-surface. AI preserva o gradiente."
-        >
-          <div className="dark">
-            <Stage label="Dark shell · sidebar / top-bar" dark>
+            <Stage label="Destrutivo · ghost + danger">
+              <AwButton variant="ghost">Manter</AwButton>
+              <AwButton variant="danger" iconLeft="delete">
+                Excluir definitivamente
+              </AwButton>
+            </Stage>
+
+            <Stage label="Row actions · subtle iconOnly">
+              <AwButton
+                variant="subtle"
+                size="sm"
+                iconOnly="more_vert"
+                aria-label="Ações da linha 1"
+              />
+              <AwButton
+                variant="subtle"
+                size="sm"
+                iconOnly="edit"
+                aria-label="Editar"
+              />
+              <AwButton
+                variant="subtle"
+                size="sm"
+                iconOnly="content_copy"
+                aria-label="Duplicar"
+              />
+            </Stage>
+
+            <Stage label="Empty state · primary block">
+              <div style={{ width: "100%", maxWidth: 280 }}>
+                <AwButton variant="primary" block iconLeft="add">
+                  Criar primeiro agente
+                </AwButton>
+              </div>
+            </Stage>
+
+            <Stage label="Hero CTA · primary lg + ghost">
+              <AwButton variant="primary" size="lg" iconLeft="bolt">
+                Começar grátis
+              </AwButton>
+              <AwButton variant="ghost" size="lg">
+                Ver demonstração
+              </AwButton>
+            </Stage>
+
+            <Stage label="Agente · ai + secondary">
+              <AwButton variant="ai" iconLeft="auto_awesome">
+                Gerar resposta
+              </AwButton>
+              <AwButton variant="secondary">Reescrever manualmente</AwButton>
+            </Stage>
+          </div>
+
+          {/* Dark shell */}
+          <div className="dark mt-4">
+            <Stage
+              label="Sobre shell escuro"
+              hint="Tokens semânticos invertem em .dark — primary usa branco sobre preto; AI preserva o gradient."
+              dark
+            >
               <AwButton variant="primary" iconLeft="add">
                 Criar agente
               </AwButton>
@@ -385,201 +408,370 @@ export default function ButtonsPage() {
               <AwButton
                 variant="subtle"
                 iconOnly="more_vert"
-                aria-label="Ações da linha"
+                aria-label="Ações"
               />
               <AwButton variant="danger" iconLeft="error">
                 Arquivar
               </AwButton>
               <AwButton variant="ai" iconLeft="auto_awesome">
-                Gerar sugestão
+                Gerar
               </AwButton>
             </Stage>
           </div>
         </Section>
 
-        {/* ───────── Anatomy / Tokens ───────── */}
+        {/* ── 9. Responsive ────────────────────────────────────────── */}
         <Section
-          id="anatomy"
-          title="Anatomia"
-          lead="Todos os valores abaixo saem de tokens em globals.css. Não hardcodar — mudar o token, não o componente."
+          id="responsive"
+          title="Responsivo"
+          lead="O botão em si tem tamanho fixo — o que muda é o layout em volta. Em mobile, blocos full-width; em desktop, alinhados à direita."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 border-b border-[var(--border-subtle)]">
-              <Spec
-                k="tamanhos"
-                v="sm 30 · md 38 · lg 46"
-                d="Uso padrão = md. lg só em CTA de hero."
-              />
-              <Spec
-                k="hit target"
-                v="≥ 44 px (stacked)"
-                d="Garantido via espaço ao redor — nunca ao arrepio do touch."
-              />
-              <Spec
-                k="ícone"
-                v="14–18 px · antes do texto"
-                d="Depois do texto só em “Próximo” ou “Ver detalhes →”."
-              />
-              <Spec
-                k="radius"
-                v="--radius-md · 8px"
-                d="Fixo em todas as variantes e tamanhos."
-              />
-              <Spec
-                k="focus ring"
-                v="3 px · rgba(71,138,255,0.30)"
-                d="Visível apenas via teclado (focus-visible)."
-              />
-              <Spec
-                k="motion"
-                v="--dur-base · --ease-out"
-                d="180ms · cubic-bezier(0.22,0.61,0.36,1)."
-              />
-              <Spec
-                k="primary bg"
-                v="--fg-primary"
-                d="#0D0D0D no light; inverte em .dark para branco."
-              />
-              <Spec
-                k="danger bg"
-                v="--aw-red-700 (#A82222)"
-                d="Hover cai para --aw-red-800."
-              />
-              <Spec
-                k="ai bg"
-                v="blue-600 → purple-500"
-                d="Gradiente linear-90°. Nunca iniciar em cor quente."
-              />
-            </div>
-          </div>
+          <ResponsiveStage
+            label="Modal footer · responsive"
+            hint="Mobile empilha em block; desktop alinha à direita com ghost à esquerda."
+            mobile={
+              <div className="p-4 flex flex-col gap-2">
+                <AwButton variant="primary" block>
+                  Salvar alterações
+                </AwButton>
+                <AwButton variant="ghost" block>
+                  Cancelar
+                </AwButton>
+              </div>
+            }
+            tablet={
+              <div className="p-4 flex justify-end gap-2">
+                <AwButton variant="ghost">Cancelar</AwButton>
+                <AwButton variant="primary">Salvar alterações</AwButton>
+              </div>
+            }
+            desktop={
+              <div className="p-4 flex justify-end gap-2">
+                <AwButton variant="ghost">Cancelar</AwButton>
+                <AwButton variant="primary">Salvar alterações</AwButton>
+              </div>
+            }
+          />
         </Section>
 
-        {/* ───────── API ───────── */}
+        {/* ── 10. API ──────────────────────────────────────────────── */}
         <Section
           id="api"
           title="API"
-          lead={`Import direto: import { AwButton } from "@/components/ui/AwButton".`}
+          lead={`Import: import { AwButton } from "@/components/ui/AwButton". Aceita todas as props nativas de <button>.`}
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
-                  <th className="pb-2 aw-eyebrow">prop</th>
-                  <th className="pb-2 aw-eyebrow">type</th>
-                  <th className="pb-2 aw-eyebrow">default</th>
-                  <th className="pb-2 aw-eyebrow">doc</th>
-                </tr>
-              </thead>
-              <tbody>
-                <PropRow
-                  prop="variant"
-                  type='"primary" | "secondary" | "ghost" | "danger" | "ai"'
-                  def='"secondary"'
-                  doc="Hierarquia visual + intent. Ver seção Variantes."
-                />
-                <PropRow
-                  prop="size"
-                  type='"sm" | "md" | "lg"'
-                  def='"md"'
-                  doc="30 · 38 · 46 px de altura."
-                />
-                <PropRow
-                  prop="iconLeft"
-                  type="string"
-                  doc="Nome de glyph Material Symbols Rounded (ex: 'add')."
-                />
-                <PropRow
-                  prop="iconRight"
-                  type="string"
-                  doc="Idem, depois do label. Reservado a direções/navegação."
-                />
-                <PropRow
-                  prop="iconOnly"
-                  type="string"
-                  doc="Botão quadrado apenas com ícone. Exige aria-label."
-                />
-                <PropRow
-                  prop="loading"
-                  type="boolean"
-                  def="false"
-                  doc="Mostra spinner, desativa interação, define aria-busy."
-                />
-                <PropRow
-                  prop="block"
-                  type="boolean"
-                  def="false"
-                  doc="Ocupa 100% da largura do container."
-                />
-                <PropRow
-                  prop="disabled"
-                  type="boolean"
-                  def="false"
-                  doc="Opacidade 0.5, sem pointer events."
-                />
-                <PropRow
-                  prop="...rest"
-                  type="ButtonHTMLAttributes"
-                  doc="Qualquer prop nativa de <button> é repassada."
-                />
-              </tbody>
-            </table>
-          </div>
+          <ApiTable>
+            <PropRow
+              prop="variant"
+              type='"primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai"'
+              def='"secondary"'
+              doc="Hierarquia visual + intent. Ver seção Variantes."
+            />
+            <PropRow
+              prop="size"
+              type='"sm" | "md" | "lg"'
+              def='"md"'
+              doc="30 · 38 · 46 px de altura. Define tamanho do ícone automaticamente."
+            />
+            <PropRow
+              prop="iconLeft"
+              type="string"
+              doc="Nome de glyph Material Symbols Rounded antes do label (ex: 'add')."
+            />
+            <PropRow
+              prop="iconRight"
+              type="string"
+              doc="Idem, depois do label. Reservado a direções/navegação (→, ↗)."
+            />
+            <PropRow
+              prop="iconOnly"
+              type="string"
+              doc="Botão quadrado apenas com ícone. Exige aria-label."
+            />
+            <PropRow
+              prop="loading"
+              type="boolean"
+              def="false"
+              doc="Mostra spinner ao final, desativa interação, aria-busy=true."
+            />
+            <PropRow
+              prop="block"
+              type="boolean"
+              def="false"
+              doc="Ocupa 100% da largura do container."
+            />
+            <PropRow
+              prop="disabled"
+              type="boolean"
+              def="false"
+              doc="Opacidade 0.5, pointer-events none."
+            />
+            <PropRow
+              prop="asChild"
+              type="boolean"
+              def="false"
+              doc="Renderiza o filho via Radix Slot — útil pra envolver <Link>."
+            />
+            <PropRow
+              prop="...rest"
+              type="ButtonHTMLAttributes<HTMLButtonElement>"
+              doc="Qualquer prop nativa de <button> é repassada."
+            />
+          </ApiTable>
+        </Section>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 mt-4">
-            <div className="aw-eyebrow mb-2">exemplo</div>
-            <pre className="mono text-sm text-[var(--fg-primary)] m-0 whitespace-pre-wrap">{`import { AwButton } from "@/components/ui/AwButton"
+        {/* ── 11. TokensConsumed ───────────────────────────────────── */}
+        <Section
+          id="tokens"
+          title="Tokens consumidos"
+          lead="Tudo via CSS variables. Mudar o token muda o botão automaticamente — incluindo light/dark."
+        >
+          <TokensConsumed
+            tokens={[
+              {
+                token: "--fg-primary",
+                role: "fundo de primary; cor do label em secondary/ghost",
+                value: "#0D0D0D (light) · #FFFFFF (dark)",
+              },
+              {
+                token: "--fg-on-inverse",
+                role: "label dentro de primary (branco no light, preto no dark)",
+                value: "#FFFFFF (light) · #0D0D0D (dark)",
+              },
+              {
+                token: "--border-default",
+                role: "contorno do secondary",
+                value: "var(--aw-gray-300)",
+              },
+              {
+                token: "--bg-surface",
+                role: "fill do ghost em hover",
+                value: "var(--aw-gray-150)",
+              },
+              {
+                token: "--bg-muted",
+                role: "fundo permanente do subtle",
+                value: "var(--aw-gray-200)",
+              },
+              {
+                token: "--aw-red-700",
+                role: "fundo do danger",
+                value: "#A82222",
+              },
+              {
+                token: "--aw-blue-600 / --aw-purple-500",
+                role: "endpoints do gradient da variant ai",
+                value: "linear-gradient 90°",
+              },
+              {
+                token: "--radius-md",
+                role: "border-radius do container",
+                value: "8 px",
+              },
+              {
+                token: "--dur-base · --ease-out",
+                role: "transição de hover/focus",
+                value: "180ms · cubic-bezier(0.22,0.61,0.36,1)",
+              },
+            ]}
+          />
+        </Section>
+
+        {/* ── 12. Accessibility ────────────────────────────────────── */}
+        <Section
+          id="accessibility"
+          title="Acessibilidade"
+          lead="O <button> nativo carrega a semântica. O componente só adiciona aria-busy quando loading. iconOnly exige aria-label explícito."
+        >
+          <KeyboardTable
+            rows={[
+              { keys: ["Tab"], action: "Move o foco para o botão." },
+              {
+                keys: ["Shift", "Tab"],
+                action: "Move o foco para o botão anterior na ordem do DOM.",
+              },
+              {
+                keys: ["Enter"],
+                action: "Aciona o botão (equivalente a click).",
+              },
+              {
+                keys: ["Space"],
+                action: "Aciona o botão (comportamento nativo de <button>).",
+              },
+            ]}
+          />
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)] flex flex-col gap-2">
+            <p className="m-0">
+              <strong className="text-[var(--fg-primary)]">iconOnly.</strong>{" "}
+              Sempre passe <code className="mono">aria-label</code>. Sem ele, o
+              screen reader anuncia apenas o nome do glyph.
+            </p>
+            <p className="m-0">
+              <strong className="text-[var(--fg-primary)]">loading.</strong>{" "}
+              O componente seta <code className="mono">aria-busy=&quot;true&quot;</code>{" "}
+              e desabilita o click. O label permanece visível para preservar a
+              largura — não troque o label por &quot;Aguarde…&quot;.
+            </p>
+            <p className="m-0">
+              <strong className="text-[var(--fg-primary)]">contraste.</strong>{" "}
+              Todas as variantes atingem WCAG AA (4.5:1) em texto. AI usa
+              gradient com luminosidade controlada em ambos os endpoints.
+            </p>
+          </div>
+        </Section>
+
+        {/* ── 13. Code ─────────────────────────────────────────────── */}
+        <Section
+          id="code"
+          title="Em código"
+          lead="Quatro padrões cobrem >90% dos casos. Imports vêm sempre de @/components/ui/AwButton — nunca do shadcn primitive."
+        >
+          <CodeExample label="básico">{`import { AwButton } from "@/components/ui/AwButton"
 
 <AwButton variant="primary" iconLeft="add">
   Criar agente
-</AwButton>
+</AwButton>`}</CodeExample>
 
-<AwButton variant="ai" iconLeft="auto_awesome" loading>
-  Gerando resposta
-</AwButton>
+          <CodeExample label="loading com estado">{`const [saving, setSaving] = useState(false)
 
-<AwButton variant="secondary" iconOnly="more_horiz" aria-label="Mais" />`}</pre>
-          </div>
+<AwButton
+  variant="primary"
+  loading={saving}
+  onClick={async () => {
+    setSaving(true)
+    await save()
+    setSaving(false)
+  }}
+>
+  Salvar alterações
+</AwButton>`}</CodeExample>
+
+          <CodeExample label="iconOnly com aria-label">{`<AwButton
+  variant="subtle"
+  iconOnly="more_vert"
+  aria-label="Ações da linha"
+  onClick={openMenu}
+/>`}</CodeExample>
+
+          <CodeExample label="asChild com Link (Next.js)">{`import Link from "next/link"
+
+<AwButton asChild variant="primary" iconRight="arrow_forward">
+  <Link href="/onboarding">Continuar</Link>
+</AwButton>`}</CodeExample>
         </Section>
 
-        {/* ───────── Do / Don't ───────── */}
-        <Section
-          id="do-dont"
-          title="Do / Don't"
-          lead="Regras que vêm da documentação original — desvios são correção, não criatividade."
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--aw-emerald-300)] bg-[var(--aw-emerald-100)] p-5">
-              <div className="aw-eyebrow mb-2 text-[var(--aw-emerald-800)]">
-                do
-              </div>
-              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-emerald-900)]">
-                <li>Uma única primary por tela.</li>
-                <li>
-                  AI apenas para ações que disparam o agente (gerar, sugerir,
-                  resumir).
-                </li>
-                <li>
-                  Danger sempre acompanhado de confirmação antes de executar.
-                </li>
-                <li>Infinitivos nos labels: “Criar agente”, “Aprovar”.</li>
-              </ul>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--aw-red-300)] bg-[var(--aw-red-100)] p-5">
-              <div className="aw-eyebrow mb-2 text-[var(--aw-red-800)]">
-                don&apos;t
-              </div>
-              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-red-900)]">
-                <li>Duas primárias lado a lado.</li>
-                <li>AI em ações puramente CRUD (salvar, duplicar).</li>
-                <li>Emoji no label. Exclamação. “Vamos lá!”.</li>
-                <li>Gradient iniciando em cor quente (laranja, rosa).</li>
-                <li>Botões de 2px de borda. Sempre 1px.</li>
-              </ul>
-            </div>
-          </div>
+        {/* ── 14. DoDont ───────────────────────────────────────────── */}
+        <Section id="do-dont" title="Do / Don't">
+          <DoDont
+            dos={[
+              <>Uma única primary por tela.</>,
+              <>
+                Variant <code className="mono">ai</code> apenas em ações que
+                disparam o agente (gerar, sugerir, resumir).
+              </>,
+              <>
+                Variant <code className="mono">danger</code> sempre seguida de
+                confirmação antes da ação destrutiva.
+              </>,
+              <>
+                Verbos no infinitivo nos labels: &quot;Criar agente&quot;,
+                &quot;Aprovar&quot;, &quot;Salvar alterações&quot;.
+              </>,
+              <>
+                <code className="mono">iconOnly</code> sempre com{" "}
+                <code className="mono">aria-label</code>.
+              </>,
+            ]}
+            donts={[
+              <>Duas primárias lado a lado na mesma superfície.</>,
+              <>
+                Usar <code className="mono">ai</code> em CRUD comum (salvar,
+                duplicar, excluir).
+              </>,
+              <>Emoji, exclamação ou gírias no label.</>,
+              <>Gradient começando em cor quente (laranja, rosa).</>,
+              <>
+                Trocar o label durante <code className="mono">loading</code> —
+                o botão muda de largura.
+              </>,
+              <>
+                Hardcode de cor ou padding —{" "}
+                <code className="mono">bg-[#hex]</code>,{" "}
+                <code className="mono">p-[12px]</code> nunca.
+              </>,
+            ]}
+          />
+        </Section>
+
+        {/* ── 15. RelatedLinks ─────────────────────────────────────── */}
+        <Section id="related" title="Veja também">
+          <RelatedLinks
+            items={[
+              {
+                name: "Iconography",
+                href: "/bombardier/styleguide/foundation/iconography",
+                description:
+                  "Material Symbols Rounded — biblioteca dos glyphs aceitos em iconLeft / iconRight / iconOnly.",
+              },
+              {
+                name: "Pills",
+                href: "/bombardier/styleguide/components/pills",
+                description:
+                  "Pílulas tonais para filtros e tags — não confundir com variant subtle.",
+              },
+              {
+                name: "Controls",
+                href: "/bombardier/styleguide/components/controls",
+                description:
+                  "Switch / Checkbox / Radio — quando você precisa de toggle, não de botão.",
+              },
+              {
+                name: "Toast",
+                href: "/bombardier/styleguide/components/toast",
+                description:
+                  "Feedback assíncrono após acionar um botão (sucesso, erro).",
+              },
+              {
+                name: "Cor",
+                href: "/bombardier/styleguide/foundation/color",
+                description:
+                  "Tokens semânticos consumidos pelos botões — paleta completa.",
+              },
+              {
+                name: "Spacing",
+                href: "/bombardier/styleguide/foundation/spacing",
+                description:
+                  "Escala de espaço — gap entre botões, padding interno, hit target.",
+              },
+            ]}
+          />
         </Section>
       </div>
-    </div>
     </>
+  )
+}
+
+function VariantCard({
+  demo,
+  title,
+  body,
+  wide,
+}: {
+  demo: React.ReactNode
+  title: string
+  body: React.ReactNode
+  wide?: boolean
+}) {
+  return (
+    <div
+      className={
+        "rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 " +
+        (wide ? "md:col-span-2" : "")
+      }
+    >
+      <div className="flex items-center gap-3 mb-2">{demo}</div>
+      <div className="aw-eyebrow mb-1">{title}</div>
+      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+    </div>
   )
 }
