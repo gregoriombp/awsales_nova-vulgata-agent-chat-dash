@@ -4,7 +4,7 @@ import { PageHero, Section } from "../../_primitives"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] text-[var(--fg-primary)] font-mono text-[11px] mx-0.5">
+    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] text-[var(--fg-primary)] text-[11px] mx-0.5">
       {children}
     </kbd>
   )

@@ -249,7 +249,7 @@ export default function LogosPage() {
                   <td className="px-5 py-4 text-[var(--fg-primary)]">
                     E-mail transacional, deck, social, favicon, OG image
                   </td>
-                  <td className="px-5 py-4 mono text-xs text-[var(--aw-blue-700)]">
+                  <td className="px-5 py-4 text-xs font-medium text-[var(--aw-blue-700)]">
                     PNG export oficial
                   </td>
                   <td className="px-5 py-4">
@@ -260,7 +260,7 @@ export default function LogosPage() {
                   <td className="px-5 py-4 text-[var(--fg-primary)]">
                     Marketing site externo (Next/Image), hero hardcoded
                   </td>
-                  <td className="px-5 py-4 mono text-xs text-[var(--aw-blue-700)]">
+                  <td className="px-5 py-4 text-xs font-medium text-[var(--aw-blue-700)]">
                     SVG estático
                   </td>
                   <td className="px-5 py-4">
@@ -483,7 +483,7 @@ export default function LogosPage() {
                 height={16}
               />
               <div className="caption text-center">
-                mark min. <b className="mono">16 px</b>
+                mark min. <b>16 px</b>
                 <br />
                 favicon, inline UI
               </div>
@@ -496,7 +496,7 @@ export default function LogosPage() {
                 height={24}
               />
               <div className="caption text-center">
-                mark uso comum <b className="mono">24 px</b>
+                mark uso comum <b>24 px</b>
                 <br />
                 sidebar, cabeçalhos
               </div>
@@ -508,7 +508,7 @@ export default function LogosPage() {
                 style={{ height: 20, width: "auto" }}
               />
               <div className="caption text-center">
-                wordmark min. <b className="mono">20 px alto</b>
+                wordmark min. <b>20 px alto</b>
                 <br />
                 documentos, e-mail
               </div>
@@ -520,7 +520,7 @@ export default function LogosPage() {
                 style={{ height: 28, width: "auto" }}
               />
               <div className="caption text-center">
-                wordmark uso comum <b className="mono">28 px alto</b>
+                wordmark uso comum <b>28 px alto</b>
                 <br />
                 cabeçalho de página
               </div>

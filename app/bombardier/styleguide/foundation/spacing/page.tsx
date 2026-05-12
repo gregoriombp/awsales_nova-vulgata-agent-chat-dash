@@ -153,13 +153,13 @@ export default function SpacingPage() {
                     key={s.token}
                     className="border-b border-[var(--border-subtle)] last:border-b-0 align-middle"
                   >
-                    <td className="px-5 py-3 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-sm font-medium text-[var(--fg-primary)] whitespace-nowrap">
                       {s.name}
                     </td>
                     <td className="px-5 py-3 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
                       {s.token}
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
                       {s.px} px
                     </td>
                     <td className="px-5 py-3">
@@ -397,7 +397,7 @@ function Principle({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="mono text-xs text-[var(--fg-tertiary)]">{n}</span>
+      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
       <div className="text-sm font-medium text-[var(--fg-primary)]">
         {title}
       </div>
