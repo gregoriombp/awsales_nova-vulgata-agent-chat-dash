@@ -1,5 +1,15 @@
 import Link from "next/link"
-import Button from "@/components/Button"
+import { AwAlert } from "@/components/ui/AwAlert"
+import { AwButton } from "@/components/ui/AwButton"
+import {
+  AwCard,
+  AwCardContent,
+  AwCardDescription,
+  AwCardHeader,
+  AwCardTitle,
+} from "@/components/ui/AwCard"
+import { AwField, AwInput } from "@/components/ui/AwInput"
+import { AwPill } from "@/components/ui/AwPill"
 import { PageHero } from "./_primitives"
 
 /*
@@ -12,12 +22,12 @@ import { PageHero } from "./_primitives"
  */
 
 const radii = [
-  { name: "xs", token: "--radius-xs", value: "4px", use: "chips, tags" },
-  { name: "sm", token: "--radius-sm", value: "6px", use: "small controls" },
-  { name: "md", token: "--radius-md", value: "8px", use: "buttons, inputs" },
-  { name: "lg", token: "--radius-lg", value: "12px", use: "cards" },
-  { name: "xl", token: "--radius-xl", value: "16px", use: "large cards, modals" },
-  { name: "2xl", token: "--radius-2xl", value: "24px", use: "hero containers" },
+  { name: "xs", token: "--radius-xs", value: "8px", use: "chips, tags" },
+  { name: "sm", token: "--radius-sm", value: "12px", use: "controles pequenos" },
+  { name: "md", token: "--radius-md", value: "16px", use: "botões, inputs" },
+  { name: "lg", token: "--radius-lg", value: "24px", use: "cards" },
+  { name: "xl", token: "--radius-xl", value: "32px", use: "cards grandes, modais" },
+  { name: "2xl", token: "--radius-2xl", value: "48px", use: "containers hero" },
   { name: "full", token: "--radius-full", value: "9999px", use: "avatars, pills" },
 ]
 
@@ -99,7 +109,7 @@ function FoundationSummary({
             {facts.map((f) => (
               <div key={f.k} className="flex flex-col gap-0.5">
                 <dt className="aw-eyebrow">{f.k}</dt>
-                <dd className="mono text-xs text-[var(--fg-primary)] m-0">
+                <dd className="text-[13px] font-medium text-[var(--fg-primary)] m-0">
                   {f.v}
                 </dd>
               </div>
@@ -121,43 +131,65 @@ export default function StyleguidePage() {
   return (
     <>
       <PageHero title="Design tokens">
-        Geometric minimalism grounded in grayscale, punctuated by a single
-        blue-origin &ldquo;thinking&rdquo; accent. Gray is structure; the AI
-        gradient is subjectivity. Every token below lives in{" "}
-        <code className="mono">app/globals.css</code>.
+        Minimalismo geométrico ancorado em grayscale, pontuado por um único
+        acento azul — a &ldquo;voz&rdquo; da IA. Cinza é estrutura; o gradiente
+        iridescente é subjetividade. Cada token abaixo mora em{" "}
+        <code className="mono">app/globals.css</code> — variável funcional do
+        sistema, inspecionável no DevTools.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-20">
           <Section
             id="color"
-            title="Color"
-            lead="Dez escalas primitivas + ~30 tokens semânticos. Grayscale é estrutura, blue é a voz do produto. A página dedicada tem paleta completa, mapping primitivo→semântico, light/dark e contraste WCAG."
+            title="Cor"
+            lead="Dez escalas primitivas + ~30 tokens semânticos. Grayscale é estrutura, blue é a voz do produto. A página dedicada tem paleta completa, mapping primitivo → semântico, light/dark e contraste WCAG."
           >
             <FoundationSummary
               href="/bombardier/styleguide/foundation/color"
               sample={
-                <div className="grid grid-cols-12 gap-1">
-                  {[
-                    "--aw-gray-1200",
-                    "--aw-gray-900",
-                    "--aw-gray-600",
-                    "--aw-gray-300",
-                    "--aw-gray-150",
-                    "--aw-blue-700",
-                    "--aw-blue-500",
-                    "--aw-blue-200",
-                    "--aw-emerald-600",
-                    "--aw-red-600",
-                    "--aw-amber-500",
-                    "--aw-purple-500",
-                  ].map((t) => (
-                    <div
-                      key={t}
-                      className="h-10 rounded-[var(--radius-xs)]"
-                      style={{ backgroundColor: `var(${t})` }}
-                      title={t}
-                    />
-                  ))}
+                <div className="flex flex-col gap-3 w-full">
+                  <div className="grid grid-cols-10 gap-1">
+                    {[
+                      "--aw-gray-1200",
+                      "--aw-gray-1000",
+                      "--aw-gray-800",
+                      "--aw-gray-600",
+                      "--aw-gray-400",
+                      "--aw-gray-300",
+                      "--aw-gray-200",
+                      "--aw-gray-150",
+                      "--aw-gray-100",
+                      "--aw-gray-50",
+                    ].map((t) => (
+                      <div
+                        key={t}
+                        className="h-10 rounded-[var(--radius-xs)] border border-[var(--border-subtle)]"
+                        style={{ backgroundColor: `var(${t})` }}
+                        title={t}
+                      />
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-10 gap-1">
+                    {[
+                      "--aw-blue-900",
+                      "--aw-blue-700",
+                      "--aw-blue-500",
+                      "--aw-blue-300",
+                      "--aw-blue-150",
+                      "--aw-emerald-700",
+                      "--aw-amber-500",
+                      "--aw-red-600",
+                      "--aw-purple-500",
+                      "--aw-pink-300",
+                    ].map((t) => (
+                      <div
+                        key={t}
+                        className="h-10 rounded-[var(--radius-xs)] border border-[var(--border-subtle)]"
+                        style={{ backgroundColor: `var(${t})` }}
+                        title={t}
+                      />
+                    ))}
+                  </div>
                 </div>
               }
               facts={[
@@ -171,20 +203,25 @@ export default function StyleguidePage() {
 
           <Section
             id="typography"
-            title="Typography"
+            title="Tipografia"
             lead="Uma voz: Geist + Geist Mono. Escala progressiva de 12 px (caption) a 96 px (display-xl). Tracking aperta com o tamanho. A página dedicada tem escala completa, regras de uso e exemplos."
           >
             <FoundationSummary
               href="/bombardier/styleguide/foundation/typography"
               sample={
-                <div className="flex flex-col gap-3">
-                  <div className="display-sm">agent studio</div>
-                  <h2 className="m-0">Crie agentes em menos de 90 minutos</h2>
-                  <p
-                    className="m-0"
-                    style={{ fontSize: "var(--body-md-size)" }}
-                  >
-                    Body padrão · 16px · Geist Regular.
+                <div className="flex flex-col gap-2.5 w-full">
+                  <div className="display-md leading-none">agent studio</div>
+                  <h1 className="m-0">Crie agentes em 90 min</h1>
+                  <h3 className="m-0">Cada token mora em globals.css</h3>
+                  <p className="body-md m-0">
+                    Body padrão · 16 px · Geist Regular · line-height 1.5.
+                  </p>
+                  <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                    Body small · 14 px — usado em meta, captions de tabela e
+                    suporte secundário.
+                  </p>
+                  <p className="caption m-0">
+                    CAPTION · 12 PX · LABEL DE METADADOS
                   </p>
                   <code className="mono text-xs bg-[var(--bg-surface)] px-2 py-1 rounded-[var(--radius-sm)] w-fit">
                     --accent-brand: var(--aw-blue-600);
@@ -202,7 +239,7 @@ export default function StyleguidePage() {
 
           <Section
             id="spacing"
-            title="Spacing"
+            title="Espaçamento"
             lead="Base 4 px, passo padrão 8 px. Onze degraus de 4 a 72 px. A página dedicada tem escala completa, regras de uso por tier e padrões canônicos."
           >
             <FoundationSummary
@@ -211,14 +248,14 @@ export default function StyleguidePage() {
                 <div className="flex flex-col gap-2">
                   {spacing.map((s) => (
                     <div key={s.token} className="flex items-center gap-3">
-                      <div className="w-10 mono text-[10px] text-[var(--fg-tertiary)]">
+                      <div className="w-10 text-[11px] font-medium text-[var(--fg-secondary)]">
                         {s.name}
                       </div>
                       <div
                         className="h-2 rounded-[var(--radius-xs)] bg-[var(--aw-blue-500)]"
                         style={{ width: s.value }}
                       />
-                      <div className="mono text-[10px] text-[var(--fg-tertiary)]">
+                      <div className="text-[11px] text-[var(--fg-tertiary)]">
                         {s.value}
                       </div>
                     </div>
@@ -236,7 +273,7 @@ export default function StyleguidePage() {
 
           <Section
             id="grid"
-            title="Grid &amp; layout"
+            title="Grid e layout"
             lead="Container 1200 px, 12 colunas, 5 breakpoints, 5 layouts canônicos. A página dedicada tem container, breakpoints, gutters e 5 layouts prontos pra copiar."
           >
             <FoundationSummary
@@ -246,7 +283,7 @@ export default function StyleguidePage() {
                   {Array.from({ length: 12 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-10 rounded-[var(--radius-xs)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center mono text-[10px] text-[var(--aw-blue-900)]"
+                      className="h-10 rounded-[var(--radius-xs)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-[10px] font-medium text-[var(--aw-blue-900)]"
                     >
                       {i + 1}
                     </div>
@@ -264,8 +301,8 @@ export default function StyleguidePage() {
 
           <Section
             id="radius"
-            title="Border radius"
-            lead="Soft and consistent. Buttons at 8px, cards at 12px, modals at 16px. 9999px is reserved for avatars and round icon buttons."
+            title="Raio"
+            lead="Suave e consistente. Botões em 16 px, cards em 24 px, modais em 32 px. 9999 px é reservado pra avatars e botões de ícone redondos."
           >
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {radii.map((r) => (
@@ -279,7 +316,7 @@ export default function StyleguidePage() {
                   />
                   <div className="text-center">
                     <div className="text-sm font-medium">{r.name}</div>
-                    <div className="mono text-xs text-[var(--fg-tertiary)]">
+                    <div className="text-xs text-[var(--fg-tertiary)] mt-0.5">
                       {r.value}
                     </div>
                     <div className="caption mt-1">{r.use}</div>
@@ -291,8 +328,8 @@ export default function StyleguidePage() {
 
           <Section
             id="shadows"
-            title="Shadows"
-            lead="Restrained. Most UI is flat-with-border. No inner shadows, no colored shadows."
+            title="Sombras"
+            lead="Contidas. A maior parte da UI é flat-with-border. Sem sombras internas, sem sombras coloridas."
           >
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
               {shadows.map((s) => (
@@ -302,9 +339,9 @@ export default function StyleguidePage() {
                   style={{ boxShadow: `var(${s.token})` }}
                 >
                   <div className="text-sm font-medium">{s.name}</div>
-                  <div className="mono text-xs text-[var(--fg-tertiary)] mt-1">
+                  <code className="mono text-xs text-[var(--fg-tertiary)] mt-1">
                     {s.token}
-                  </div>
+                  </code>
                   <div className="caption text-center mt-1">{s.use}</div>
                 </div>
               ))}
@@ -313,8 +350,8 @@ export default function StyleguidePage() {
 
           <Section
             id="motion"
-            title="Motion"
-            lead="Fast, utilitarian. 120–280ms durations. No bounces, no overshoot. The only expressive motion is the AI gradient-mesh drift."
+            title="Movimento"
+            lead="Rápido, utilitário. Durações de 120 a 280 ms. Sem bounces, sem overshoot. A única animação expressiva é o drift do mesh iridescente da IA."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
               <ul className="divide-y divide-[var(--border-subtle)]">
@@ -323,8 +360,8 @@ export default function StyleguidePage() {
                     key={m.name}
                     className="flex items-center justify-between px-4 py-3"
                   >
-                    <span className="mono text-sm">--{m.name}</span>
-                    <span className="mono text-xs text-[var(--fg-tertiary)]">
+                    <code className="mono text-sm">--{m.name}</code>
+                    <span className="text-xs text-[var(--fg-tertiary)]">
                       {m.value}
                     </span>
                   </li>
@@ -371,8 +408,8 @@ export default function StyleguidePage() {
 
           <Section
             id="surfaces"
-            title="Dark shell"
-            lead="The product sidebar and shell live on a permanent dark surface. These tokens don't flip with dark mode — they describe the chrome."
+            title="Casca escura"
+            lead="A sidebar e o shell do produto vivem em uma superfície escura permanente. Esses tokens não viram com o modo escuro — eles descrevem o chrome."
           >
             <div
               className="rounded-[var(--radius-xl)] p-8 flex flex-col gap-4"
@@ -424,142 +461,155 @@ export default function StyleguidePage() {
 
           <Section
             id="components"
-            title="Components"
-            lead="Superfícies demo compostas só de tokens. Cada componente tem página própria com API + states no padrão canônico."
+            title="Componentes"
+            lead="Superfícies demo compostas só de tokens. Cada componente tem página própria com API e states no padrão canônico."
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">button</div>
+                <div className="aw-eyebrow mb-4">AwButton</div>
                 <div className="flex flex-col gap-3">
-                  <div className="flex gap-2">
-                    <Button variant="primary" className="w-auto">
-                      Criar agente
-                    </Button>
-                    <Button variant="secondary" className="w-auto">
-                      Cancelar
-                    </Button>
-                    <Button variant="tertiary" className="w-auto">
-                      Saiba mais
-                    </Button>
-                    <Button variant="danger" className="w-auto">
-                      Excluir
-                    </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <AwButton variant="primary">Criar agente</AwButton>
+                    <AwButton variant="secondary">Cancelar</AwButton>
+                    <AwButton variant="ghost">Saiba mais</AwButton>
+                    <AwButton variant="danger">Excluir</AwButton>
                   </div>
-                  <div className="flex gap-2 items-center">
-                    <Button variant="primary" size="sm" className="w-auto">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AwButton variant="primary" size="sm">
                       Small
-                    </Button>
-                    <Button variant="primary" size="md" className="w-auto">
+                    </AwButton>
+                    <AwButton variant="primary" size="md">
                       Medium
-                    </Button>
-                    <Button variant="primary" size="lg" className="w-auto">
+                    </AwButton>
+                    <AwButton variant="primary" size="lg">
                       Large
-                    </Button>
+                    </AwButton>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <AwButton variant="ai" iconLeft="auto_awesome">
+                      Sugerir com IA
+                    </AwButton>
+                    <AwButton variant="secondary" iconLeft="upload">
+                      Carregar arquivo
+                    </AwButton>
+                    <AwButton variant="primary" loading>
+                      Salvando
+                    </AwButton>
                   </div>
                 </div>
               </div>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">card</div>
-                <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5">
-                  <h4 className="m-0 mb-2">Agentes ativos</h4>
-                  <p className="body-sm m-0">
-                    12 agentes em produção. Última revisão há 3 dias.
-                  </p>
-                  <div className="flex gap-2 mt-4">
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-[var(--radius-xs)] bg-[var(--aw-emerald-150)] text-[var(--aw-emerald-800)]">
-                      sucesso
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-[var(--radius-xs)] bg-[var(--aw-amber-150)] text-[var(--aw-amber-800)]">
-                      review
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-[var(--radius-xs)] bg-[var(--aw-blue-150)] text-[var(--aw-blue-800)]">
-                      info
-                    </span>
-                  </div>
-                </div>
+                <div className="aw-eyebrow mb-4">AwCard</div>
+                <AwCard>
+                  <AwCardHeader>
+                    <AwCardTitle>Agentes ativos</AwCardTitle>
+                    <AwCardDescription>
+                      12 agentes em produção. Última revisão há 3 dias.
+                    </AwCardDescription>
+                  </AwCardHeader>
+                  <AwCardContent>
+                    <div className="flex flex-wrap gap-1.5">
+                      <AwPill variant="live" dot={false}>
+                        em produção
+                      </AwPill>
+                      <AwPill variant="beta" dot={false}>
+                        em review
+                      </AwPill>
+                      <AwPill variant="ai" dot={false}>
+                        ia ativa
+                      </AwPill>
+                    </div>
+                  </AwCardContent>
+                </AwCard>
               </div>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">pills · tags</div>
+                <div className="aw-eyebrow mb-4">AwPill</div>
                 <div className="flex flex-wrap gap-2">
-                  <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--bg-surface)] text-[var(--fg-secondary)] border border-[var(--border-subtle)]">
-                    neutral
-                  </span>
-                  <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--aw-blue-150)] text-[var(--aw-blue-800)]">
-                    ai
-                  </span>
-                  <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--aw-emerald-150)] text-[var(--aw-emerald-800)]">
-                    ativo
-                  </span>
-                  <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--aw-amber-150)] text-[var(--aw-amber-800)]">
-                    pendente
-                  </span>
-                  <span className="inline-flex items-center text-xs font-medium px-2 py-1 rounded-[var(--radius-full)] bg-[var(--aw-red-150)] text-[var(--aw-red-800)]">
-                    erro
-                  </span>
+                  <AwPill variant="neutral">neutral</AwPill>
+                  <AwPill variant="ai">ai</AwPill>
+                  <AwPill variant="live">live</AwPill>
+                  <AwPill variant="draft">draft</AwPill>
+                  <AwPill variant="beta">beta</AwPill>
+                  <AwPill variant="error">error</AwPill>
                 </div>
               </div>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">input</div>
-                <div className="flex flex-col gap-3">
-                  <input
-                    type="text"
-                    placeholder="Nome do agente"
-                    className="h-10 px-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] text-[var(--fg-primary)] text-sm outline-none transition-colors duration-[var(--dur-base)] focus:border-[var(--accent-brand)] focus:ring-2 focus:ring-[var(--aw-blue-200)]"
-                  />
-                  <input
-                    type="text"
-                    disabled
-                    placeholder="Desabilitado"
-                    className="h-10 px-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-muted)] text-sm opacity-60"
-                  />
+                <div className="aw-eyebrow mb-4">AwInput · AwField</div>
+                <div className="flex flex-col gap-4">
+                  <AwField
+                    label="Nome do agente"
+                    htmlFor="sg-input-name"
+                    helper="Visível para o time."
+                  >
+                    <AwInput
+                      id="sg-input-name"
+                      placeholder="ex: Vendas Outbound"
+                    />
+                  </AwField>
+                  <AwField label="Workspace" htmlFor="sg-input-disabled">
+                    <AwInput
+                      id="sg-input-disabled"
+                      value="artificial-concord"
+                      disabled
+                    />
+                  </AwField>
+                  <AwField label="Buscar" htmlFor="sg-input-search">
+                    <AwInput
+                      id="sg-input-search"
+                      iconLeft="search"
+                      placeholder="Filtrar por nome…"
+                    />
+                  </AwField>
                 </div>
               </div>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">alert</div>
+                <div className="aw-eyebrow mb-4">AwAlert</div>
                 <div className="flex flex-col gap-2">
-                  <div className="rounded-[var(--radius-md)] border border-[var(--aw-emerald-200)] bg-[var(--aw-emerald-100)] px-4 py-3 text-sm text-[var(--aw-emerald-900)]">
-                    Agente aprovado. Pronto para deploy.
-                  </div>
-                  <div className="rounded-[var(--radius-md)] border border-[var(--aw-amber-200)] bg-[var(--aw-amber-100)] px-4 py-3 text-sm text-[var(--aw-amber-900)]">
-                    Aguardando revisão de compliance.
-                  </div>
-                  <div className="rounded-[var(--radius-md)] border border-[var(--aw-red-200)] bg-[var(--aw-red-100)] px-4 py-3 text-sm text-[var(--aw-red-900)]">
-                    Falha no último deploy. Revisar logs.
-                  </div>
-                  <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)]">
-                    Nova versão disponível.
-                  </div>
+                  <AwAlert variant="success" title="Agente aprovado.">
+                    Pronto para deploy.
+                  </AwAlert>
+                  <AwAlert
+                    variant="warning"
+                    title="Aguardando revisão de compliance."
+                  >
+                    Bloqueante até liberação manual.
+                  </AwAlert>
+                  <AwAlert variant="danger" title="Falha no último deploy.">
+                    Revise os logs para identificar a causa.
+                  </AwAlert>
+                  <AwAlert variant="info" title="Nova versão disponível.">
+                    Atualize para receber os novos templates.
+                  </AwAlert>
                 </div>
               </div>
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-                <div className="aw-eyebrow mb-4">radio group</div>
-                <div className="flex flex-col gap-2">
-                  {[
-                    { id: "r1", label: "Atendimento", checked: true },
-                    { id: "r2", label: "Vendas", checked: false },
-                    { id: "r3", label: "Qualificação", checked: false },
-                  ].map((o) => (
-                    <label
-                      key={o.id}
-                      htmlFor={o.id}
-                      className="flex items-center gap-3 px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] cursor-pointer hover:bg-[var(--bg-surface)]"
-                    >
-                      <input
-                        id={o.id}
-                        type="radio"
-                        name="styleguide-radio"
-                        defaultChecked={o.checked}
-                        className="accent-[var(--accent-brand)]"
-                      />
-                      <span className="text-sm">{o.label}</span>
-                    </label>
-                  ))}
+                <div className="aw-eyebrow mb-4">
+                  AwCard · variant=&quot;ai&quot;
                 </div>
+                <AwCard variant="ai">
+                  <AwCardHeader>
+                    <AwCardTitle>Resumo da última conversa</AwCardTitle>
+                    <AwCardDescription>
+                      Insights gerados automaticamente pelo Cortex a partir das
+                      últimas 24h de transcrições.
+                    </AwCardDescription>
+                  </AwCardHeader>
+                  <AwCardContent>
+                    <div className="flex flex-wrap gap-1.5">
+                      <AwPill variant="ai" dot={false}>
+                        gerado por IA
+                      </AwPill>
+                      <AwPill variant="neutral" dot={false}>
+                        18 mensagens
+                      </AwPill>
+                    </div>
+                  </AwCardContent>
+                </AwCard>
               </div>
             </div>
           </Section>
