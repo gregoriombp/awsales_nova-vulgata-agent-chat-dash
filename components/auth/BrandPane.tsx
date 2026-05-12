@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import type { AuthScreen } from "./AuthFlow";
 
 type Locale = "pt" | "en";
@@ -8,6 +9,11 @@ interface BrandPaneProps {
   screen: AuthScreen;
   locale: Locale;
 }
+
+const BG_IMAGE_COUNT = 20;
+const pickRandomBgIndex = () => Math.floor(Math.random() * BG_IMAGE_COUNT) + 1;
+const bgImageSrc = (idx: number) =>
+  `/assets/group-backgrounds/group-bg-${String(idx).padStart(2, "0")}.jpg`;
 
 const PANE_COPY: Record<AuthScreen, Record<Locale, { kicker: string; title: string; sub: string }>> = {
   login: {
@@ -86,9 +92,30 @@ const PANE_COPY: Record<AuthScreen, Record<Locale, { kicker: string; title: stri
 
 export default function BrandPane({ screen, locale }: BrandPaneProps) {
   const copy = PANE_COPY[screen][locale];
+  const [bgIndex, setBgIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    setBgIndex(pickRandomBgIndex());
+  }, []);
 
   return (
     <section className="relative hidden lg:flex flex-col min-h-screen overflow-hidden bg-aw-gray-1200 text-white p-8 xl:p-10">
+      {/* Random background image overlay */}
+      {bgIndex !== null && (
+        <div
+          className="pointer-events-none absolute inset-0 z-0 transition-opacity duration-700"
+          style={{
+            backgroundImage: `url(${bgImageSrc(bgIndex)})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: 0.18,
+            filter: "grayscale(100%) contrast(1.05)",
+            maskImage: "radial-gradient(ellipse at 60% 50%, black 40%, transparent 90%)",
+            WebkitMaskImage: "radial-gradient(ellipse at 60% 50%, black 40%, transparent 90%)",
+          }}
+        />
+      )}
+
       {/* Grid texture overlay */}
       <div
         className="pointer-events-none absolute inset-0 z-[1]"
