@@ -24,11 +24,11 @@ import { PageHero } from "./_primitives"
 const radii = [
   { name: "xs", token: "--radius-xs", value: "4px", use: "chips, tags" },
   { name: "sm", token: "--radius-sm", value: "6px", use: "controles pequenos" },
-  { name: "md", token: "--radius-md", value: "8px", use: "botões, inputs" },
-  { name: "lg", token: "--radius-lg", value: "12px", use: "cards" },
-  { name: "xl", token: "--radius-xl", value: "16px", use: "cards grandes, modais" },
+  { name: "md", token: "--radius-md", value: "8px", use: "inputs, selects" },
+  { name: "lg", token: "--radius-lg", value: "12px", use: "containers médios" },
+  { name: "xl", token: "--radius-xl", value: "16px", use: "cards, modais" },
   { name: "2xl", token: "--radius-2xl", value: "24px", use: "containers hero" },
-  { name: "full", token: "--radius-full", value: "9999px", use: "avatars, pills" },
+  { name: "full", token: "--radius-full", value: "9999px", use: "botões, avatars, pills" },
 ]
 
 const spacing = [
@@ -302,7 +302,7 @@ export default function StyleguidePage() {
           <Section
             id="radius"
             title="Raio"
-            lead="Suave e consistente. Botões em 8 px, cards em 12 px, modais em 16 px. 9999 px é reservado pra avatars e botões de ícone redondos."
+            lead="Suave e consistente. Botões usam full radius (9999 px) — mesma curva de avatars e pills. Cards e modais em 16 px. Inputs em 8 px."
           >
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
               {radii.map((r) => (
