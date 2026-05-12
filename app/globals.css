@@ -936,14 +936,32 @@
   border-color: var(--aw-red-800);
 }
 
-/* AI — reserved for actions that invoke the agent. Blue → Purple gradient. */
+/* AI — reserved for actions that invoke the agent.
+ * Iridescent gradient: sky blue → peach/cream → lavender.
+ * The radial overlays give the holographic "thinking" feel; the linear
+ * base keeps the pill readable on any background. Text is dark gray so the
+ * pill works on both light and dark shells (the gradient itself carries
+ * the luminosity). Border stays transparent in light, gets a subtle white
+ * inner stroke in dark to lift it off the canvas.
+ */
 .aw-btn--ai {
-  background: linear-gradient(90deg, var(--aw-blue-600) 0%, var(--aw-purple-500) 100%);
-  color: #fff;
+  background:
+    radial-gradient(ellipse 70% 120% at 18% 50%, var(--aw-blue-400) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 130% at 82% 50%, var(--aw-amber-200) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 120% at 50% 50%, var(--aw-purple-200) 0%, transparent 70%),
+    linear-gradient(90deg, var(--aw-blue-300) 0%, var(--aw-pink-200) 100%);
+  color: var(--aw-gray-1200);
   border-color: transparent;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
 }
 .aw-btn--ai:hover:not(:disabled) {
-  filter: brightness(1.08);
+  filter: brightness(1.05) saturate(1.06);
+}
+.dark .aw-btn--ai {
+  color: var(--aw-gray-1200);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    0 0 32px rgba(143, 184, 255, 0.18);
 }
 
 /* Loading */
@@ -981,17 +999,71 @@
   border-color: var(--fg-primary);
   background: var(--bg-surface);
 }
+/* AI card — iridescent mesh: cool blue pocket on one corner, peach/cream
+ * pocket on the opposite, lavender drift in the middle. Sits over
+ * bg-raised so the card remains readable. Alpha values keep the mesh
+ * subtle — the card content stays the protagonist. */
 .aw-card--ai {
   background:
-    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(71, 138, 255, 0.10), transparent 60%),
-    radial-gradient(ellipse 60% 80% at 10% 90%, rgba(158, 91, 223, 0.08), transparent 60%),
+    radial-gradient(ellipse 70% 90% at 88% 12%, rgba(143, 184, 255, 0.22), transparent 65%),
+    radial-gradient(ellipse 70% 90% at 12% 88%, rgba(252, 212, 163, 0.18), transparent 65%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, rgba(219, 191, 242, 0.12), transparent 70%),
     var(--bg-raised);
 }
+/* AI card warm — same iridescent family but pulling toward peach/pink.
+ * For agentic cards where the AI is "expressive" (responding, summarising). */
 .aw-card--ai-warm {
   background:
-    radial-gradient(ellipse 60% 80% at 90% 10%, rgba(242, 169, 91, 0.14), transparent 60%),
-    radial-gradient(ellipse 60% 80% at 10% 90%, rgba(252, 212, 163, 0.10), transparent 60%),
+    radial-gradient(ellipse 70% 90% at 88% 12%, rgba(252, 227, 238, 0.40), transparent 65%),
+    radial-gradient(ellipse 70% 90% at 12% 88%, rgba(252, 212, 163, 0.28), transparent 65%),
+    radial-gradient(ellipse 60% 80% at 50% 50%, rgba(184, 212, 255, 0.18), transparent 70%),
     var(--bg-raised);
+}
+
+/* ============================================================
+ * Iridescent gradient utilities — the signature "thinking" surface.
+ * Compose existing color tokens (no new primitives) into reusable
+ * gradient patterns. Use these to brand any AI-adjacent surface
+ * (badges, banners, headers, hero accents) — not just buttons/cards.
+ *
+ * Three patterns, all sharing the same color story:
+ *   sky blue → lavender → peach/cream
+ *
+ *   .aw-gradient-iridescent          fill (filled pill / banner)
+ *   .aw-gradient-iridescent-soft     low-alpha mesh (background panel)
+ *   .aw-gradient-iridescent-border   1px iridescent border on dark fill
+ * ============================================================ */
+.aw-gradient-iridescent {
+  background:
+    radial-gradient(ellipse 70% 120% at 18% 50%, var(--aw-blue-400) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 130% at 82% 50%, var(--aw-amber-200) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 120% at 50% 50%, var(--aw-purple-200) 0%, transparent 70%),
+    linear-gradient(90deg, var(--aw-blue-300) 0%, var(--aw-pink-200) 100%);
+  color: var(--aw-gray-1200);
+}
+.aw-gradient-iridescent-soft {
+  background:
+    radial-gradient(ellipse 60% 90% at 88% 12%, rgba(143, 184, 255, 0.22), transparent 65%),
+    radial-gradient(ellipse 60% 90% at 12% 88%, rgba(252, 212, 163, 0.18), transparent 65%),
+    radial-gradient(ellipse 50% 80% at 50% 50%, rgba(219, 191, 242, 0.12), transparent 70%),
+    var(--bg-raised);
+}
+/* 1px iridescent border on top of an arbitrary fill. Caller must set
+ * --aw-iridescent-fill (defaults to bg-canvas) and `border: 1px solid transparent`
+ * on the element. The trick uses two backgrounds (padding-box for the
+ * fill, border-box for the gradient stroke). */
+.aw-gradient-iridescent-border {
+  background:
+    linear-gradient(
+      var(--aw-iridescent-fill, var(--bg-canvas)),
+      var(--aw-iridescent-fill, var(--bg-canvas))
+    ) padding-box,
+    linear-gradient(90deg,
+      var(--aw-blue-400) 0%,
+      var(--aw-purple-300) 50%,
+      var(--aw-amber-300) 100%
+    ) border-box;
+  border: 1px solid transparent;
 }
 /* Ai-cortex — silver mesh inspired by the Cortex marble cube.
    Cool slate base, brighter pocket on the left, darker pocket on the
