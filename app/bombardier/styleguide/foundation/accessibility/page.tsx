@@ -32,11 +32,11 @@ function Contrast({
         className="p-5 flex items-center justify-between"
       >
         <span className="text-sm font-medium">{label}</span>
-        <span className="mono text-xs">{ratio}</span>
+        <span className="text-xs font-medium">{ratio}</span>
       </div>
       <div className="px-4 py-2 bg-[var(--bg-raised)] border-t border-[var(--border-subtle)] flex items-center justify-between">
-        <span className="mono text-[10px] text-[var(--fg-tertiary)]">
-          {fg} on {bg}
+        <span className="text-[10px] text-[var(--fg-tertiary)]">
+          <code className="mono">{fg}</code> on <code className="mono">{bg}</code>
         </span>
         <span
           className="aw-eyebrow px-2 py-0.5 rounded-[var(--radius-xs)]"
@@ -163,7 +163,7 @@ export default function AccessibilityPage() {
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-4 max-w-[480px]">
             <p className="body-sm text-[var(--fg-secondary)] m-0">
-              Foque via <kbd className="mono text-xs px-1.5 py-0.5 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">Tab</kbd>{" "}
+              Foque via <kbd className="text-xs px-1.5 py-0.5 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">Tab</kbd>{" "}
               nos controles abaixo — cada um tem o mesmo padrão de ring 3 px
               azul a 30%.
             </p>
@@ -228,14 +228,14 @@ export default function AccessibilityPage() {
                 ].map(([k, effect, ctx]) => (
                   <tr key={k as string} className="border-b border-[var(--border-subtle)] last:border-b-0">
                     <td className="px-4 py-3">
-                      <kbd className="mono text-xs px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">
+                      <kbd className="text-xs px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">
                         {k}
                       </kbd>
                     </td>
                     <td className="px-4 py-3 text-[var(--fg-primary)]">
                       {effect}
                     </td>
-                    <td className="px-4 py-3 text-[var(--fg-tertiary)] mono text-xs">
+                    <td className="px-4 py-3 text-[var(--fg-tertiary)] text-xs">
                       {ctx}
                     </td>
                   </tr>
@@ -324,7 +324,7 @@ export default function AccessibilityPage() {
                   className="flex items-start gap-3 text-sm text-[var(--fg-primary)]"
                 >
                   <span
-                    className="mono text-xs mt-0.5"
+                    className="text-xs mt-0.5"
                     style={{ color: "var(--aw-emerald-700)" }}
                   >
                     ✓

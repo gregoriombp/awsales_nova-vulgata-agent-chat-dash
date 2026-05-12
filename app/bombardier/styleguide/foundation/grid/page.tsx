@@ -133,8 +133,8 @@ export default function GridPage() {
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] overflow-hidden">
             <div className="max-w-[1200px] mx-auto px-10 py-10 bg-[var(--bg-raised)] border-x border-dashed border-[var(--aw-blue-300)]">
-              <div className="flex items-center justify-center h-32 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-sm text-[var(--fg-tertiary)] mono">
-                max-w-[1200px] mx-auto px-10
+              <div className="flex items-center justify-center h-32 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-sm text-[var(--fg-tertiary)]">
+                <code className="mono">max-w-[1200px] mx-auto px-10</code>
               </div>
             </div>
           </div>
@@ -212,7 +212,7 @@ export default function GridPage() {
               {Array.from({ length: 12 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-12 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center mono text-xs text-[var(--aw-blue-900)]"
+                  className="h-12 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-xs font-medium text-[var(--aw-blue-900)]"
                 >
                   {i + 1}
                 </div>
@@ -308,10 +308,10 @@ export default function GridPage() {
               description="Sidebar fixa de 256 px + conteúdo flex-1. É o esqueleto do produto inteiro."
               demo={
                 <div className="flex h-40 rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-subtle)]">
-                  <div className="w-1/4 bg-[var(--aw-gray-1100)] text-[var(--aw-white)] flex items-center justify-center mono text-xs">
+                  <div className="w-1/4 bg-[var(--aw-gray-1100)] text-[var(--aw-white)] flex items-center justify-center text-xs">
                     sidebar
                   </div>
-                  <div className="flex-1 bg-[var(--bg-surface)] flex items-center justify-center mono text-xs text-[var(--fg-tertiary)]">
+                  <div className="flex-1 bg-[var(--bg-surface)] flex items-center justify-center text-xs text-[var(--fg-tertiary)]">
                     main
                   </div>
                 </div>
@@ -553,7 +553,7 @@ function Principle({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="mono text-xs text-[var(--fg-tertiary)]">{n}</span>
+      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
       <div className="text-sm font-medium text-[var(--fg-primary)]">
         {title}
       </div>
@@ -569,14 +569,14 @@ function ColumnExample({ spans, label }: { spans: number[]; label: string }) {
         {spans.map((s, i) => (
           <div
             key={i}
-            className="h-8 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center mono text-[10px] text-[var(--aw-blue-900)]"
+            className="h-8 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-[10px] font-medium text-[var(--aw-blue-900)]"
             style={{ gridColumn: `span ${s} / span ${s}` }}
           >
             {s}
           </div>
         ))}
       </div>
-      <div className="mono text-[10px] text-[var(--fg-tertiary)]">{label}</div>
+      <div className="text-[10px] text-[var(--fg-tertiary)]">{label}</div>
     </div>
   )
 }
@@ -599,7 +599,7 @@ function Canonical({
       <header className="px-6 py-4 border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
         <div>
           <h3 className="m-0 text-[var(--h5-size)]">
-            <span className="mono text-[var(--fg-tertiary)] text-sm mr-2">
+            <span className="text-[var(--fg-tertiary)] text-sm mr-2">
               {n} ·
             </span>
             {title}

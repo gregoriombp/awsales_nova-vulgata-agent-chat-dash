@@ -137,7 +137,7 @@ export function PlaygroundList({ entries }: { entries: PlaygroundEntry[] }) {
                 </button>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-[11px] text-[var(--fg-tertiary)] font-mono">
+            <div className="flex items-center gap-4 text-[11px] text-[var(--fg-tertiary)]">
               <span className="flex items-center gap-1">
                 <Icon name="description" size={11} />
                 {e.filePath}

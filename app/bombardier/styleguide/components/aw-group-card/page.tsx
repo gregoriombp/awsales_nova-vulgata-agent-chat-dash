@@ -41,10 +41,9 @@ export default function AwGroupCardPage() {
   return (
     <>
       <PageHero title="Group card">
-        Card de grupo (departamento) usado em <code className="mono">Equipe &amp;
-        permissões → Grupos</code>. Cada card mostra a foto curada do grupo
-        com os membros empilhados sobre ela, nome, contagem de membros,
-        descrição curta e um CTA <code className="mono">Gerenciar equipe</code>.
+        Card de grupo (departamento) usado em Equipe &amp; permissões → Grupos.
+        Cada card mostra a foto curada do grupo com os membros empilhados sobre
+        ela, nome, contagem de membros, descrição curta e um CTA Gerenciar equipe.
         Pensado pra grids de 2 ou 3 colunas.
       </PageHero>
 

@@ -28,7 +28,7 @@ export function DurationProbe() {
               <div className="mono text-sm text-[var(--fg-primary)]">
                 {c.name}
               </div>
-              <div className="mono text-xs text-[var(--fg-tertiary)]">
+              <div className="text-xs text-[var(--fg-tertiary)]">
                 {c.value}
               </div>
             </div>

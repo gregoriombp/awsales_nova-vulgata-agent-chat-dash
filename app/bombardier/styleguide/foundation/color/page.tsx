@@ -620,7 +620,7 @@ function Principle({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="mono text-xs text-[var(--fg-tertiary)]">{n}</span>
+      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
       <div className="text-sm font-medium text-[var(--fg-primary)]">
         {title}
       </div>
@@ -646,7 +646,7 @@ function SwatchStrip({ scale }: { scale: Scale }) {
             dangerouslySetInnerHTML={{ __html: scale.intent }}
           />
         </div>
-        <div className="mono text-xs text-[var(--fg-tertiary)] shrink-0">
+        <div className="text-xs text-[var(--fg-tertiary)] shrink-0">
           {scale.swatches.length} steps
         </div>
       </div>

@@ -62,7 +62,7 @@ function AddPageMenu() {
               >
                 <Icon name={p.icon} size={16} />
                 <span className="flex-1">{p.label}</span>
-                <span className="text-xs text-[var(--fg-tertiary)] font-mono">
+                <span className="text-xs text-[var(--fg-tertiary)]">
                   {p.width}×{p.height}
                 </span>
               </button>
@@ -101,7 +101,7 @@ function ZoomControls({
       >
         <Icon name="remove" size={14} />
       </button>
-      <span className="w-14 text-center text-xs font-mono text-[var(--fg-secondary)]">
+      <span className="w-14 text-center text-xs text-[var(--fg-secondary)]">
         {Math.round(zoom * 100)}%
       </span>
       <button

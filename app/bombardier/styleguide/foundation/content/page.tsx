@@ -86,7 +86,7 @@ const mechanics: Mech[] = [
     k: "Número",
     rule: "Algarismos sempre — inclusive de 0 a 10 em UI.",
     example: (
-      <span className="mono">3 fontes, v12.4, 2 min.</span>
+      <span>3 fontes, v12.4, 2 min.</span>
     ),
   },
   {
@@ -94,9 +94,9 @@ const mechanics: Mech[] = [
     rule: "Relativa até 48 h. Absoluta depois disso, em pt-BR.",
     example: (
       <>
-        <span className="mono">há 14 min</span> ·{" "}
-        <span className="mono">ontem, 18:42</span> ·{" "}
-        <span className="mono">24 mar, 18:42</span>
+        <span>há 14 min</span> ·{" "}
+        <span>ontem, 18:42</span> ·{" "}
+        <span>24 mar, 18:42</span>
       </>
     ),
   },
@@ -224,7 +224,7 @@ export default function ContentPage() {
                 className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5"
               >
                 <div className="flex items-baseline gap-3 mb-1">
-                  <span className="mono text-xs text-[var(--fg-tertiary)]">
+                  <span className="text-xs text-[var(--fg-tertiary)]">
                     {a.n}
                   </span>
                   <h4 className="m-0">{a.name}</h4>
@@ -435,7 +435,7 @@ export default function ContentPage() {
                   key={i}
                   className="flex items-start gap-4 px-5 py-4 border-b border-[var(--border-subtle)] last:border-b-0"
                 >
-                  <span className="mono text-xs text-[var(--fg-tertiary)] pt-0.5 w-6 shrink-0">
+                  <span className="text-xs text-[var(--fg-tertiary)] pt-0.5 w-6 shrink-0">
                     0{i + 1}
                   </span>
                   <div>

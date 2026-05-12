@@ -591,7 +591,7 @@ function Principle({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="mono text-xs text-[var(--fg-tertiary)]">{n}</span>
+      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
       <div className="text-sm font-medium text-[var(--fg-primary)]">
         {title}
       </div>
@@ -618,7 +618,7 @@ function PatternBlock({
       <header className="px-6 py-4 border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
         <div>
           <h3 className="m-0 text-[var(--h5-size)]">
-            <span className="mono text-[var(--fg-tertiary)] text-sm mr-2">
+            <span className="text-[var(--fg-tertiary)] text-sm mr-2">
               {n} ·
             </span>
             {title}

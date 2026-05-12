@@ -171,7 +171,7 @@ export default function IconographyPage() {
             {sizes.map((s) => (
               <div key={s} className="flex flex-col items-center gap-2">
                 <Icon name="auto_awesome" size={s} />
-                <span className="mono text-xs text-[var(--fg-tertiary)]">
+                <span className="text-xs text-[var(--fg-tertiary)]">
                   {s}
                 </span>
               </div>
@@ -188,7 +188,7 @@ export default function IconographyPage() {
             {weights.map((w) => (
               <div key={w} className="flex flex-col items-center gap-2">
                 <Icon name="auto_awesome" size={32} weight={w} />
-                <span className="mono text-xs text-[var(--fg-tertiary)]">
+                <span className="text-xs text-[var(--fg-tertiary)]">
                   {w}
                 </span>
               </div>
@@ -209,19 +209,19 @@ export default function IconographyPage() {
               >
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={0} />
-                  <span className="mono text-[10px] text-[var(--fg-tertiary)]">
+                  <span className="text-[10px] text-[var(--fg-tertiary)]">
                     FILL 0
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={1} />
-                  <span className="mono text-[10px] text-[var(--fg-tertiary)]">
+                  <span className="text-[10px] text-[var(--fg-tertiary)]">
                     FILL 1
                   </span>
                 </div>
-                <span className="mono text-xs text-[var(--fg-tertiary)] pb-1">
+                <code className="mono text-xs text-[var(--fg-tertiary)] pb-1">
                   {n}
-                </span>
+                </code>
               </div>
             ))}
           </div>

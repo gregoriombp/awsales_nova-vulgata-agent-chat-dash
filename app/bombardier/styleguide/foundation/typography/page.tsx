@@ -161,8 +161,8 @@ export default function TypographyPage() {
                 key={d.name}
                 className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0"
               >
-                <div className="w-32 shrink-0 mono text-xs text-[var(--fg-tertiary)] pt-2 flex flex-col gap-0.5">
-                  <span>{d.name}</span>
+                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] pt-2 flex flex-col gap-0.5">
+                  <code className="mono">{d.name}</code>
                   <span className="text-[var(--aw-blue-700)]">{d.size}px</span>
                   <span className="text-[var(--fg-tertiary)]">{d.use}</span>
                 </div>
@@ -184,10 +184,10 @@ export default function TypographyPage() {
                 key={Tag}
                 className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-4 last:border-b-0 last:pb-0"
               >
-                <div className="w-32 shrink-0 mono text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
-                  <span>{Tag}</span>
+                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
+                  <code className="mono">{Tag}</code>
                   <span className="text-[var(--aw-blue-700)]">{size}px</span>
-                  <span className="text-[var(--fg-tertiary)]">{token}</span>
+                  <code className="mono">{token}</code>
                 </div>
                 <Tag className="m-0">
                   Crie agentes em menos de 90 minutos
@@ -224,7 +224,7 @@ export default function TypographyPage() {
                     <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
                       {h.token}
                     </td>
-                    <td className="py-3 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+                    <td className="py-3 pr-4 text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
                       {h.size}px
                     </td>
                     <td className="py-3 text-sm text-[var(--fg-secondary)]">
@@ -249,8 +249,8 @@ export default function TypographyPage() {
                 key={b.name}
                 className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-3 last:border-b-0 last:pb-0"
               >
-                <div className="w-32 shrink-0 mono text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
-                  <span>{b.name}</span>
+                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
+                  <code className="mono">{b.name}</code>
                   <span className="text-[var(--aw-blue-700)]">{b.size}px</span>
                   <span className="text-[var(--fg-tertiary)]">{b.use}</span>
                 </div>
@@ -357,7 +357,7 @@ export default function TypographyPage() {
                     <td className="py-2 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
                       {t.token}
                     </td>
-                    <td className="py-2 mono text-xs text-[var(--fg-primary)]">
+                    <td className="py-2 text-xs font-medium text-[var(--fg-primary)]">
                       {t.value}
                     </td>
                   </tr>
@@ -467,7 +467,7 @@ function Principle({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="mono text-xs text-[var(--fg-tertiary)]">{n}</span>
+      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
       <div className="text-sm font-medium text-[var(--fg-primary)]">
         {title}
       </div>

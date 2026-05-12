@@ -30,7 +30,7 @@ function Pattern({
       <header className="px-6 py-5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
         <div>
           <h2 className="m-0 text-[var(--h3-size)]">
-            <span className="mono text-[var(--fg-tertiary)] text-[var(--h6-size)] mr-2">
+            <span className="text-[var(--fg-tertiary)] text-[var(--h6-size)] mr-2 font-medium">
               {number} ·
             </span>
             {title}
@@ -51,8 +51,9 @@ function Pattern({
             className="flex items-start gap-3 px-6 py-3 text-sm text-[var(--fg-primary)]"
           >
             <span
-              className="mono text-xs mt-0.5"
+              className="text-sm mt-0.5"
               style={{ color: "var(--aw-emerald-700)" }}
+              aria-hidden="true"
             >
               ✓
             </span>
@@ -65,8 +66,9 @@ function Pattern({
             className="flex items-start gap-3 px-6 py-3 text-sm text-[var(--fg-secondary)]"
           >
             <span
-              className="mono text-xs mt-0.5"
+              className="text-sm mt-0.5"
               style={{ color: "var(--aw-red-700)" }}
+              aria-hidden="true"
             >
               ✗
             </span>
@@ -132,71 +134,117 @@ export default function PatternsPage() {
           number="1"
           tag="shell / navigation"
           title="Shell de produto"
-          lead="Sidebar fixa à esquerda, topbar fina, canvas ao centro. Layout padrão de qualquer tela interna. A sidebar nunca colapsa em desktop — navegação precisa estar sempre à vista."
+          lead="Sidebar primária light à esquerda (320 px expandida, 88 px colapsada), content panel com gutters de 8 px à direita, e cortex flutuando sobre o canto direito quando aberto. O header de ações globais flutua no canto superior direito — sem topbar de largura total. Breadcrumbs vivem dentro do content panel."
           dos={[
-            <>Sidebar sempre visível em desktop (≥ 1024 px). Drawer só em mobile.</>,
-            <>Topbar fina (56 px) com breadcrumb + ações globais. Sem logo — ela vive na sidebar.</>,
-            <>Canvas respira. Margem interna mínima de 24 px; em telas densas, ainda 16 px.</>,
+            <>Sidebar primária sempre visível em desktop (≥ 1024 px). Colapsa pra 88 px nas rotas que exigem foco (knowledge-os, agent-studio).</>,
+            <>Content panel respira com <code className="mono">my-2 mr-2</code> (8 px). À esquerda abuta a sidebar — sem gutter ali.</>,
+            <>Header flutuante (botões 40 × 40) mora em <code className="mono">top-4 right-5</code>, z-30. Não ocupa altura no fluxo.</>,
+            <>Breadcrumbs em uma barra fina (44 px) no topo do content panel. Tabs vão dentro do canvas, não acima.</>,
+            <>Cortex/Copilot drawer (405 px) flutua à direita sobre o content panel, z-20. Abre/fecha via animação de width.</>,
           ]}
           donts={[
-            <>Não empilhar toolbars secundárias abaixo da topbar. Tabs dentro do canvas, não fora.</>,
+            <>Não usar sidebar dark como padrão — a chrome do produto é light. Dark fica reservada pra superfícies específicas (preview escuro, contraste forçado).</>,
+            <>Não empilhar toolbars secundárias abaixo dos breadcrumbs.</>,
+            <>Não colocar logo no header — a marca vive no topo da sidebar.</>,
           ]}
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] overflow-hidden h-[360px] flex">
-            <aside
-              className="w-[180px] p-4 flex flex-col gap-4"
-              style={{
-                backgroundColor: "var(--dark-bg)",
-                color: "var(--dark-fg-primary)",
-                borderRight: "1px solid var(--dark-border)",
-              }}
-            >
-              <div className="text-sm font-medium">AwSales</div>
-              <div style={{ color: "var(--dark-fg-tertiary)" }} className="aw-eyebrow">
+          <div className="relative rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--bg-surface)] overflow-hidden h-[400px] flex">
+            {/* Sidebar primária 320 light (proporcional ao mockup: ~140) */}
+            <aside className="w-[140px] shrink-0 bg-[var(--bg-surface)] p-3 flex flex-col gap-3">
+              <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] h-9 flex items-center px-2 text-[11px] font-medium text-[var(--fg-primary)]">
+                AwSales
+              </div>
+              <div className="rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] h-6" />
+              <div className="aw-eyebrow text-[9px] text-[var(--fg-tertiary)] px-1 mt-1">
                 Geral
               </div>
-              <div className="flex flex-col gap-1 text-xs">
-                <span style={{ color: "var(--dark-fg-primary)" }}>Dashboard</span>
-                <span style={{ color: "var(--dark-fg-secondary)" }}>Agentes</span>
+              <div className="flex flex-col gap-1">
+                <div className="rounded-[var(--radius-sm)] bg-[var(--bg-raised)] h-7 flex items-center px-2 text-[11px] font-medium text-[var(--fg-primary)]">
+                  Dashboard
+                </div>
+                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                  Agentes
+                </div>
               </div>
-              <div style={{ color: "var(--dark-fg-tertiary)" }} className="aw-eyebrow mt-2">
+              <div className="aw-eyebrow text-[9px] text-[var(--fg-tertiary)] px-1 mt-1">
                 Dados
               </div>
-              <div className="flex flex-col gap-1 text-xs">
-                <span style={{ color: "var(--dark-fg-secondary)" }}>Fontes</span>
-                <span style={{ color: "var(--dark-fg-secondary)" }}>Conversas</span>
-                <span style={{ color: "var(--dark-fg-secondary)" }}>Rastros</span>
+              <div className="flex flex-col gap-1">
+                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                  Fontes
+                </div>
+                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                  Conversas
+                </div>
               </div>
+              <div className="mt-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] h-9" />
             </aside>
-            <div className="flex-1 flex flex-col">
-              <header className="h-[56px] px-5 flex items-center justify-between border-b border-[var(--border-subtle)]">
-                <div className="flex items-center gap-2 text-xs text-[var(--fg-tertiary)]">
+            {/* Outer flex containing content panel + cortex zone */}
+            <div className="relative flex-1 py-2 pr-2 flex">
+              {/* Content panel rounded */}
+              <div className="flex-1 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden flex flex-col">
+                {/* Breadcrumbs bar */}
+                <header className="h-[28px] px-4 flex items-center border-b border-[var(--border-subtle)] text-[11px] text-[var(--fg-tertiary)] gap-1.5">
                   <span>Agentes</span>
-                  <span className="opacity-50">/</span>
-                  <span className="text-[var(--fg-primary)]">Atendimento FAQ</span>
+                  <span className="opacity-50">›</span>
+                  <span className="text-[var(--fg-primary)]">
+                    Atendimento FAQ
+                  </span>
+                </header>
+                <div className="flex-1 p-4 grid grid-cols-2 gap-3 bg-[var(--bg-canvas)]">
+                  <AwCard>
+                    <div className="caption">Conversas 24h</div>
+                    <div className="text-xl font-semibold mt-1">1.840</div>
+                  </AwCard>
+                  <AwCard>
+                    <div className="caption">Confiança média</div>
+                    <div className="text-xl font-semibold mt-1">94%</div>
+                  </AwCard>
+                  <AwCard>
+                    <div className="caption">Tempo médio</div>
+                    <div className="text-xl font-semibold mt-1">2,1 s</div>
+                  </AwCard>
+                  <AwCard>
+                    <div className="caption">Escaladas</div>
+                    <div className="text-xl font-semibold mt-1">8</div>
+                  </AwCard>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Icon name="search" size={16} />
-                  <Icon name="notifications" size={16} />
-                </div>
-              </header>
-              <div className="flex-1 p-5 grid grid-cols-2 gap-3 bg-[var(--bg-canvas)]">
-                <AwCard>
-                  <div className="caption">Conversas 24h</div>
-                  <div className="text-xl font-medium mt-1">1 840</div>
-                </AwCard>
-                <AwCard>
-                  <div className="caption">Confiança média</div>
-                  <div className="text-xl font-medium mt-1">94%</div>
-                </AwCard>
-                <AwCard>
-                  <div className="caption">Tempo médio</div>
-                  <div className="text-xl font-medium mt-1 mono">2.1 s</div>
-                </AwCard>
-                <AwCard>
-                  <div className="caption">Escaladas</div>
-                  <div className="text-xl font-medium mt-1">8</div>
-                </AwCard>
+              </div>
+              {/* Cortex zone — ghost indicator on the right */}
+              <div
+                className="ml-2 w-[60px] rounded-[var(--radius-lg)] border border-dashed flex flex-col items-center justify-start pt-3 gap-2 opacity-60"
+                style={{
+                  borderColor: "var(--aw-purple-400)",
+                  background:
+                    "linear-gradient(180deg, var(--aw-purple-50), transparent)",
+                }}
+                aria-hidden="true"
+              >
+                <Icon
+                  name="auto_awesome"
+                  size={14}
+                  style={{ color: "var(--aw-purple-500)" }}
+                />
+                <span className="text-[8px] text-center text-[var(--aw-purple-700)] leading-tight px-1">
+                  Cortex 405 px
+                </span>
+              </div>
+              {/* Floating header — top right */}
+              <div className="absolute right-4 top-4 flex gap-1.5">
+                <span className="h-7 w-7 rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex items-center justify-center shadow-sm">
+                  <Icon
+                    name="search"
+                    size={14}
+                    style={{ color: "var(--fg-secondary)" }}
+                  />
+                </span>
+                <span className="h-7 w-7 rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex items-center justify-center shadow-sm">
+                  <Icon
+                    name="notifications"
+                    size={14}
+                    style={{ color: "var(--fg-secondary)" }}
+                  />
+                </span>
               </div>
             </div>
           </div>
@@ -329,7 +377,9 @@ export default function PatternsPage() {
                   <span>·</span>
                   <span>
                     Fonte:{" "}
-                    <span className="mono">playbook de incidentes v3</span>
+                    <span style={{ color: "var(--fg-secondary)" }}>
+                      playbook de incidentes v3
+                    </span>
                   </span>
                 </div>
                 <div className="flex gap-2 pl-6">
@@ -435,7 +485,12 @@ export default function PatternsPage() {
                     {t.desc}
                   </div>
                 </div>
-                <span className="mono text-xs text-[var(--fg-tertiary)]">×</span>
+                <span
+                  className="text-xs text-[var(--fg-tertiary)]"
+                  aria-hidden="true"
+                >
+                  ×
+                </span>
               </div>
             ))}
           </div>

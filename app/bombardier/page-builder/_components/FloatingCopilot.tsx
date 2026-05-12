@@ -232,7 +232,7 @@ function ChatItem({
         )}
       {msg.status === "done" &&
         (msg.costUsd !== undefined || msg.durationMs !== undefined) && (
-          <span className="text-[11px] text-[var(--fg-tertiary)] px-1 font-mono">
+          <span className="text-[11px] text-[var(--fg-tertiary)] px-1">
             {msg.durationMs !== undefined &&
               `${(msg.durationMs / 1000).toFixed(1)}s`}
             {msg.durationMs !== undefined &&

@@ -520,7 +520,9 @@ function ReadyBody({ info }: { info: BridgeHealth }) {
       <div className="px-4 py-2.5 border-b border-[var(--border-subtle)] text-[11px] text-[var(--fg-tertiary)] flex items-center justify-between">
         <span>
           Claude{" "}
-          <span className="font-mono">{info.claude.version ?? "?"}</span>
+          <span className="text-[var(--fg-secondary)]">
+            {info.claude.version ?? "?"}
+          </span>
         </span>
         <span>
           Frame:{" "}
@@ -764,7 +766,7 @@ function ChatItem({
           </span>
         )}
       {msg.status === "done" && (msg.costUsd !== undefined || msg.durationMs !== undefined) && (
-        <span className="text-[11px] text-[var(--fg-tertiary)] px-1 font-mono">
+        <span className="text-[11px] text-[var(--fg-tertiary)] px-1">
           {msg.durationMs !== undefined && `${(msg.durationMs / 1000).toFixed(1)}s`}
           {msg.durationMs !== undefined && msg.costUsd !== undefined && " · "}
           {msg.costUsd !== undefined && `$${msg.costUsd.toFixed(4)}`}
