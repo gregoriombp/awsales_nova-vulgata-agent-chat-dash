@@ -3255,10 +3255,12 @@
 }
 
 /* Hero — full-bleed page header. Sits above the content max-width so it
- * spans the whole main area. Tinted background, no gradient. */
+ * spans the whole main area. Dark surface, fixed in both light and dark
+ * mode (uses `--dark-*` tokens, not theme-reactive `--bg-*`). */
 .aw-hero {
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border-subtle);
+  background: var(--dark-bg);
+  color: var(--dark-fg-primary);
+  border-bottom: 1px solid var(--dark-border);
   padding: 64px 56px 56px;
   margin: 0 0 56px 0;
 }
@@ -3270,11 +3272,12 @@
   margin: 0;
   letter-spacing: -0.02em;
   font-weight: 500;
+  color: var(--dark-fg-primary);
 }
 .aw-hero__lead {
   margin: 16px 0 0 0;
   font-size: var(--body-lg-size);
-  color: var(--fg-secondary);
+  color: var(--dark-fg-secondary);
   line-height: 1.55;
   max-width: 640px;
 }
