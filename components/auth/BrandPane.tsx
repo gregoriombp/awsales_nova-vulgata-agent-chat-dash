@@ -108,10 +108,11 @@ export default function BrandPane({ screen, locale }: BrandPaneProps) {
             backgroundImage: `url(${bgImageSrc(bgIndex)})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
-            opacity: 0.18,
-            filter: "grayscale(100%) contrast(1.05)",
-            maskImage: "radial-gradient(ellipse at 60% 50%, black 40%, transparent 90%)",
-            WebkitMaskImage: "radial-gradient(ellipse at 60% 50%, black 40%, transparent 90%)",
+            opacity: 0.45,
+            filter: "grayscale(100%) contrast(1.1)",
+            mixBlendMode: "screen",
+            maskImage: "radial-gradient(ellipse at 55% 50%, black 55%, transparent 100%)",
+            WebkitMaskImage: "radial-gradient(ellipse at 55% 50%, black 55%, transparent 100%)",
           }}
         />
       )}
