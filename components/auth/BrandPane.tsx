@@ -19,7 +19,7 @@ const PANE_COPY: Record<AuthScreen, Record<Locale, { kicker: string; title: stri
   login: {
     pt: {
       kicker: "// acesso",
-      title: "Uma voz única, uma plataforma.",
+      title: "Orquestração de agentes em um único idioma.",
       sub: "AwSales unifica seus agentes, fluxos e integrações em uma única linguagem de operação.",
     },
     en: {
