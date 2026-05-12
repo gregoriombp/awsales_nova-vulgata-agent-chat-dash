@@ -29,6 +29,10 @@ export default function Inicio() {
     router.replace("/inicio?tour=1");
   };
 
+  const inviteMembers = () => {
+    router.push("/settings/equipe-permissoes");
+  };
+
   return (
     <DashboardLayout title="Início" breadcrumbs={breadcrumbs}>
       <ComingSoon />
@@ -82,6 +86,16 @@ export default function Inicio() {
               <span className="aw-btn__label">Iniciar tour (60s)</span>
             </button>
           </div>
+          <button
+            type="button"
+            onClick={inviteMembers}
+            className="mt-1 inline-flex items-center gap-1.5 text-fg-secondary hover:text-fg-primary transition-colors"
+            style={{ fontSize: "var(--body-sm-size)" }}
+          >
+            <Icon name="person_add" size={16} />
+            <span>Convidar membros agora</span>
+            <Icon name="arrow_forward" size={14} />
+          </button>
         </div>
       </AwModal>
     </DashboardLayout>
