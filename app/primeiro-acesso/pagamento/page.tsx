@@ -124,7 +124,8 @@ export default function PagamentoPage() {
           >
             Você pagará <b>{ONBOARDING_ORG.valorImplementacao}</b> referentes
             à implementação. A primeira mensalidade (
-            {ONBOARDING_ORG.valorMensal}) será cobrada apenas após 30 dias.
+            {ONBOARDING_ORG.valorMensalProrrata}, prorrata) é configurada na
+            etapa seguinte.
           </p>
         </div>
 

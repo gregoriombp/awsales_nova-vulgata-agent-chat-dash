@@ -98,12 +98,116 @@ export default function CheckoutPixPage() {
         </h1>
 
         <p
-          className="mb-7 text-fg-secondary text-pretty"
+          className="mb-5 text-fg-secondary text-pretty"
           style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
         >
           Após pagar, sua conta é liberada automaticamente. Você pode fechar
           esta tela; o link do e-mail continua válido.
         </p>
+
+        <div className="mb-3 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+          <div>
+            <div
+              className="uppercase text-fg-tertiary"
+              style={{ fontSize: 10, letterSpacing: "0.08em" }}
+            >
+              Valor desta cobrança
+            </div>
+            <div
+              className="text-fg-tertiary"
+              style={{ fontSize: 11, marginTop: 2 }}
+            >
+              Implementação · pagamento à vista
+            </div>
+          </div>
+          <div
+            className="font-display font-medium text-fg-primary"
+            style={{
+              fontSize: 22,
+              letterSpacing: "-0.01em",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {ONBOARDING_ORG.valorImplementacao}
+          </div>
+        </div>
+
+        <details className="mb-5 group overflow-hidden rounded-lg border border-border-subtle bg-bg-raised">
+          <summary
+            className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-bg-surface"
+            style={{ fontSize: 12 }}
+          >
+            <Icon
+              name="event_repeat"
+              size={16}
+              className="text-fg-tertiary"
+            />
+            <span className="font-medium text-fg-primary">
+              Próximas cobranças (mensalidade)
+            </span>
+            <span className="ml-1 text-fg-tertiary">
+              · 1ª no dia {ONBOARDING_ORG.diaVencimento.toString().padStart(2, "0")}/06,
+              prorrateada
+            </span>
+            <Icon
+              name="expand_more"
+              size={16}
+              className="ml-auto text-fg-tertiary transition-transform group-open:rotate-180"
+            />
+          </summary>
+          <div className="border-t border-border-subtle">
+            {ONBOARDING_ORG.proximosVencimentos.map((parcela, i) => {
+              const isProrata = i === 0
+              return (
+                <div
+                  key={parcela.mes}
+                  className={[
+                    "grid grid-cols-[1fr_auto_auto] items-center gap-3 px-4 py-2.5",
+                    i < ONBOARDING_ORG.proximosVencimentos.length - 1
+                      ? "border-b border-border-subtle"
+                      : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
+                  style={{ fontSize: 12 }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-fg-secondary">{parcela.mes}</span>
+                    {isProrata && (
+                      <span
+                        className="rounded-xs bg-bg-muted px-1.5 py-0.5 text-fg-tertiary"
+                        style={{ fontSize: 10, letterSpacing: "0.02em" }}
+                      >
+                        prorrata
+                      </span>
+                    )}
+                  </div>
+                  <span
+                    className="text-fg-tertiary"
+                    style={{ fontVariantNumeric: "tabular-nums" }}
+                  >
+                    venc. {parcela.vencimento}
+                  </span>
+                  <span
+                    className="font-medium text-fg-primary"
+                    style={{ fontVariantNumeric: "tabular-nums" }}
+                  >
+                    {parcela.valor}
+                  </span>
+                </div>
+              )
+            })}
+            <div
+              className="border-t border-border-subtle bg-bg-surface px-4 py-2.5 text-fg-tertiary text-pretty"
+              style={{ fontSize: 11, lineHeight: 1.5 }}
+            >
+              A primeira mensalidade é cobrada na prorrata
+              (proporcional aos {ONBOARDING_ORG.diasRestantesMesAtual} dias
+              restantes do mês corrente). As próximas vencem todo dia{" "}
+              {ONBOARDING_ORG.diaVencimento}.
+            </div>
+          </div>
+        </details>
 
         <div className="mb-5 flex flex-col items-center gap-4 rounded-xl border border-border-subtle bg-bg-raised p-6">
           <FakeQR />

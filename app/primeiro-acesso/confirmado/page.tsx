@@ -42,9 +42,11 @@ export default async function ConfirmadoPage({
                   className="m-0 text-fg-secondary text-pretty"
                   style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
                 >
-                  Vamos verificar a compensação do boleto. Quando o banco
-                  confirmar, você receberá um e-mail e sua conta será liberada
-                  automaticamente — em geral, 2 a 3 dias úteis.
+                  Vamos verificar a compensação do boleto da implementação.
+                  Quando o banco confirmar, você receberá um e-mail — em geral,
+                  2 a 3 dias úteis. Em seguida você configura a primeira
+                  mensalidade ({ONBOARDING_ORG.valorMensalProrrata}, prorrata)
+                  e libera o acesso.
                 </p>
               </div>
               <div className="mt-2 flex justify-center gap-2.5">
@@ -56,11 +58,11 @@ export default async function ConfirmadoPage({
                   <span className="aw-btn__label">Enviar comprovante</span>
                 </button>
                 <Link
-                  href="/primeiro-acesso/acesso"
+                  href="/primeiro-acesso/mensalidade"
                   className="aw-btn aw-btn--primary aw-btn--md"
                 >
                   <span className="aw-btn__label">
-                    Adiantar — definir acesso agora
+                    Adiantar — configurar mensalidade
                   </span>
                   <Icon name="arrow_forward" size={16} />
                 </Link>
@@ -69,8 +71,8 @@ export default async function ConfirmadoPage({
                 className="mt-1 text-fg-tertiary"
                 style={{ fontSize: 10, letterSpacing: "0.04em" }}
               >
-                você pode adiantar a definição do seu método de acesso enquanto
-                aguardamos a compensação
+                você pode adiantar a configuração da mensalidade enquanto
+                aguardamos a compensação do boleto
               </div>
             </>
           ) : (
@@ -87,22 +89,25 @@ export default async function ConfirmadoPage({
                     letterSpacing: "-0.015em",
                   }}
                 >
-                  Pagamento confirmado.
+                  Pagamento da implementação confirmado.
                 </h1>
                 <p
                   className="m-0 text-fg-secondary text-pretty"
                   style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
                 >
-                  Sua conta {ONBOARDING_ORG.name} foi liberada na AwSales.
-                  Falta apenas escolher como você vai acessar a plataforma.
+                  Sua conta {ONBOARDING_ORG.name} já está provisionada. Falta
+                  só configurar a primeira mensalidade ({ONBOARDING_ORG.valorMensalProrrata},
+                  prorrata) e definir como você vai acessar a plataforma.
                 </p>
               </div>
               <div className="mt-2 flex justify-center gap-3">
                 <Link
-                  href="/primeiro-acesso/acesso"
+                  href="/primeiro-acesso/mensalidade"
                   className="aw-btn aw-btn--primary aw-btn--md"
                 >
-                  <span className="aw-btn__label">Definir meu acesso</span>
+                  <span className="aw-btn__label">
+                    Configurar mensalidade
+                  </span>
                   <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
