@@ -58,6 +58,42 @@ const SECTIONS: Section[] = [
         emphasized: true,
       },
       { label: "Mensalidade", value: ONBOARDING_ORG.valorMensal },
+      {
+        label: "+ Custos variáveis de uso",
+        value: (
+          <details className="group inline-flex flex-col gap-1.5">
+            <summary
+              className="inline-flex w-fit cursor-pointer items-center gap-1 text-fg-secondary hover:text-fg-primary"
+              style={{ fontSize: 13, fontWeight: 500 }}
+            >
+              <span>Sob consumo</span>
+              <Icon
+                name="info"
+                size={14}
+                className="text-fg-tertiary group-hover:text-fg-secondary"
+              />
+              <span
+                className="ml-1 underline decoration-dotted underline-offset-2 text-fg-tertiary group-hover:text-fg-secondary"
+                style={{ fontSize: 12, fontWeight: 400 }}
+              >
+                Saiba mais
+              </span>
+            </summary>
+            <p
+              className="m-0 mt-1 text-fg-tertiary text-pretty"
+              style={{ fontSize: 12, lineHeight: 1.55, maxWidth: 360 }}
+            >
+              Cobrança proporcional ao volume de atendimentos e mensagens que
+              excedem o pacote incluído no seu plano. O limite mensal de uso
+              variável da sua conta é{" "}
+              <span className="font-medium text-fg-secondary">
+                {ONBOARDING_ORG.limiteUsoVariavel}
+              </span>
+              ; o que ultrapassar é cobrado na fatura do mês seguinte.
+            </p>
+          </details>
+        ),
+      },
     ],
   },
 ]
@@ -164,25 +200,49 @@ export default function RevisaoPage() {
           <div className="grid grid-cols-2 gap-3 text-fg-secondary">
             <div>
               <div
-                className="mb-0.5 text-fg-tertiary"
+                className="mb-1.5 text-fg-tertiary"
                 style={{ fontSize: 11 }}
               >
-                Account Manager AwSales
+                Time AwSales
               </div>
-              <div className="flex items-center gap-2 text-fg-primary" style={{ fontWeight: 500 }}>
-                <AwAvatar
-                  size="sm"
-                  src={ONBOARDING_ORG.accountManagerPhoto}
-                  initials="LV"
-                  alt={ONBOARDING_ORG.accountManager}
-                  style={{ width: 20, height: 20, fontSize: 9 }}
-                />
-                {ONBOARDING_ORG.accountManager}
+              <div className="flex flex-col gap-1.5">
+                <div
+                  className="flex items-center gap-2 text-fg-primary"
+                  style={{ fontWeight: 500 }}
+                >
+                  <AwAvatar
+                    size="sm"
+                    src={ONBOARDING_ORG.accountManagerPhoto}
+                    initials="LV"
+                    alt={ONBOARDING_ORG.accountManager}
+                    style={{ width: 20, height: 20, fontSize: 9 }}
+                  />
+                  <span>{ONBOARDING_ORG.accountManager}</span>
+                  <span className="text-fg-tertiary" style={{ fontSize: 11, fontWeight: 400 }}>
+                    · Account Manager
+                  </span>
+                </div>
+                <div
+                  className="flex items-center gap-2 text-fg-primary"
+                  style={{ fontWeight: 500 }}
+                >
+                  <AwAvatar
+                    size="sm"
+                    src={ONBOARDING_ORG.representanteComercialPhoto}
+                    initials="BA"
+                    alt={ONBOARDING_ORG.representanteComercial}
+                    style={{ width: 20, height: 20, fontSize: 9 }}
+                  />
+                  <span>{ONBOARDING_ORG.representanteComercial}</span>
+                  <span className="text-fg-tertiary" style={{ fontSize: 11, fontWeight: 400 }}>
+                    · Comercial
+                  </span>
+                </div>
               </div>
             </div>
             <div>
               <div
-                className="mb-0.5 text-fg-tertiary"
+                className="mb-1.5 text-fg-tertiary"
                 style={{ fontSize: 11 }}
               >
                 Admin responsável
