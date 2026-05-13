@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
-type Pick = "google" | "ms" | "magic" | "password"
+type Pick = "google" | "ms" | "password"
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width={18} height={18} aria-hidden="true">
@@ -50,7 +50,7 @@ export default function AcessoPage() {
   }
 
   return (
-    <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={7} org={ONBOARDING_ORG}>
       <section>
         {mode === "password" ? (
           <PasswordSetup
@@ -104,12 +104,6 @@ export default function AcessoPage() {
 
             <div className="flex flex-col gap-2.5">
               <AuthOption
-                disabled={!!picked && picked !== "magic"}
-                onClick={() => choose("magic")}
-                icon={<Icon name="mail" size={18} />}
-                label={`Enviar magic-link para ${ONBOARDING_USER.email}`}
-              />
-              <AuthOption
                 disabled={!!picked && picked !== "password"}
                 onClick={() => choose("password")}
                 icon={<Icon name="lock" size={18} />}
@@ -129,8 +123,6 @@ export default function AcessoPage() {
                 >
                   {picked === "google" && "Redirecionando para Google…"}
                   {picked === "ms" && "Redirecionando para Microsoft…"}
-                  {picked === "magic" &&
-                    `Enviando link para ${ONBOARDING_USER.email}…`}
                 </div>
               </div>
             )}
