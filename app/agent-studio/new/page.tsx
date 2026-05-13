@@ -2335,6 +2335,22 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       >
                         {isCheckpointEditing ? "Salvar" : "Editar"}
                       </AwButton>
+                      <AwButton
+                        variant="secondary"
+                        size="sm"
+                        iconLeft="open_in_new"
+                        onClick={() => {
+                          const slug = (agentName || "novo-agente")
+                            .toLowerCase()
+                            .normalize("NFD")
+                            .replace(/[̀-ͯ]/g, "")
+                            .replace(/[^a-z0-9]+/g, "-")
+                            .replace(/(^-|-$)/g, "")
+                          router.push(`/agent-studio/${slug}/checkpoint`)
+                        }}
+                      >
+                        Editor avançado
+                      </AwButton>
                       <AwButton variant="secondary" size="sm" iconLeft="auto_awesome">
                         Otimizar com IA
                       </AwButton>
