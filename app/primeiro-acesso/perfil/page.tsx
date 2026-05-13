@@ -8,11 +8,27 @@ import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
-type Via = "google" | "ms" | "magic" | "password" | null
+type Via = "google" | "ms" | "password" | null
 
 const OAUTH_AVATARS: Record<"google" | "ms", string> = {
   google: "/assets/ui-faces/male-2.jpg",
   ms: "/assets/ui-faces/male-7.jpg",
+}
+
+type InvoiceRecipient = {
+  email: string
+  name: string
+  role: string
+  phone: string
+}
+
+function formatPhoneBR(input: string): string {
+  const digits = input.replace(/\D/g, "").slice(0, 11)
+  if (digits.length <= 2) return digits
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`
+  if (digits.length <= 10)
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`
 }
 
 export default function PerfilPage() {
@@ -22,10 +38,20 @@ export default function PerfilPage() {
   const oauthLabel = via === "google" ? "Google" : via === "ms" ? "Microsoft" : null
 
   const [name, setName] = React.useState(ONBOARDING_USER.name)
+  const [phone, setPhone] = React.useState("")
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(
     isOAuth ? OAUTH_AVATARS[via as "google" | "ms"] : null,
   )
   const [keepOauthAvatar, setKeepOauthAvatar] = React.useState(isOAuth)
+  const [invoiceSelf, setInvoiceSelf] = React.useState(true)
+  const [recipient, setRecipient] = React.useState<InvoiceRecipient>({
+    email: "",
+    name: "",
+    role: "",
+    phone: "",
+  })
+  const [extraEmails, setExtraEmails] = React.useState<string[]>([])
+  const [termsAccepted, setTermsAccepted] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
   const initials = name
@@ -54,10 +80,35 @@ export default function PerfilPage() {
     if (fileInputRef.current) fileInputRef.current.value = ""
   }
 
+  const updateRecipient = (key: keyof InvoiceRecipient, value: string) => {
+    setRecipient((prev) => ({
+      ...prev,
+      [key]: key === "phone" ? formatPhoneBR(value) : value,
+    }))
+  }
+
+  const addExtraEmail = () => setExtraEmails((prev) => [...prev, ""])
+  const updateExtraEmail = (i: number, value: string) =>
+    setExtraEmails((prev) => prev.map((v, idx) => (idx === i ? value : v)))
+  const removeExtraEmail = (i: number) =>
+    setExtraEmails((prev) => prev.filter((_, idx) => idx !== i))
+
   const nameValid = name.trim().length >= 2
+  const phoneValid = phone.replace(/\D/g, "").length >= 10
+  const recipientValid =
+    invoiceSelf ||
+    (recipient.email.includes("@") &&
+      recipient.name.trim().length >= 2 &&
+      recipient.role.trim().length >= 2 &&
+      recipient.phone.replace(/\D/g, "").length >= 10)
+  const extrasValid = extraEmails.every(
+    (e) => e.trim().length === 0 || e.includes("@"),
+  )
+  const formValid =
+    nameValid && phoneValid && recipientValid && extrasValid && termsAccepted
 
   return (
-    <AwOnboardingShell currentStep={7} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={8} org={ONBOARDING_ORG}>
       <section>
         <h1
           className="mb-2 font-display font-medium text-fg-primary text-balance"
@@ -76,14 +127,14 @@ export default function PerfilPage() {
         >
           {isOAuth ? (
             <>
-              Importamos sua foto e nome da sua conta{" "}
+              Trouxemos sua foto e nome da sua conta{" "}
               <span className="font-medium text-fg-primary">{oauthLabel}</span>.
-              Você pode editar agora ou deixar pra depois nas configurações.
+              Ajuste agora ou edite depois nas configurações.
             </>
           ) : (
             <>
               Adicione uma foto e confirme como quer ser chamado por aqui.
-              Tudo isso pode mudar depois nas configurações da conta.
+              Você pode mudar tudo depois nas configurações da conta.
             </>
           )}
         </p>
@@ -118,7 +169,7 @@ export default function PerfilPage() {
               style={{ fontSize: 12, lineHeight: 1.5 }}
             >
               {isOAuth && keepOauthAvatar
-                ? `Importado da sua conta ${oauthLabel}. PNG ou JPG, até 4 MB.`
+                ? `Importada da sua conta ${oauthLabel}. PNG ou JPG, até 4 MB.`
                 : avatarUrl
                 ? "PNG ou JPG, até 4 MB."
                 : "PNG ou JPG, até 4 MB. Quadrada de preferência."}
@@ -157,30 +208,209 @@ export default function PerfilPage() {
           </div>
         </div>
 
-        <label className="flex flex-col gap-1.5">
-          <span
-            className="font-medium text-fg-secondary"
-            style={{ fontSize: 12 }}
-          >
-            Seu nome
-          </span>
-          <span className="flex h-11 items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 focus-within:border-fg-primary">
-            <Icon name="person" size={18} className="text-fg-tertiary" />
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Como você gosta de ser chamado(a)"
-              autoComplete="name"
-              className="flex-1 border-0 bg-transparent font-sans outline-0"
-              style={{ fontSize: 14 }}
+        <div className="flex flex-col gap-4">
+          <TextField
+            label="Seu nome"
+            icon="person"
+            value={name}
+            onChange={setName}
+            placeholder="Como você gosta de ser chamado(a)"
+            autoComplete="name"
+            hint="É assim que seu nome aparece pra equipe — nos agentes, no Review Mode e nos convites que você mandar."
+          />
+
+          <TextField
+            label="Telefone"
+            icon="phone"
+            value={phone}
+            onChange={(v) => setPhone(formatPhoneBR(v))}
+            placeholder="(11) 99999-0000"
+            autoComplete="tel"
+            inputMode="tel"
+            hint="Usamos pra notificações críticas da conta e pro seu Account Manager te encontrar."
+          />
+        </div>
+
+        <div className="mt-6 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
+          <label className="flex cursor-pointer items-start gap-3 px-4 py-3.5">
+            <CheckboxControl
+              checked={invoiceSelf}
+              onChange={setInvoiceSelf}
             />
-          </span>
-          <span
-            className="text-fg-tertiary"
-            style={{ fontSize: 11, lineHeight: 1.4 }}
+            <span className="min-w-0 flex-1">
+              <span
+                className="block font-medium text-fg-primary"
+                style={{ fontSize: 13 }}
+              >
+                Receber faturas e notas fiscais neste e-mail
+              </span>
+              <span
+                className="mt-0.5 block text-fg-tertiary"
+                style={{ fontSize: 12 }}
+              >
+                {ONBOARDING_USER.email}
+              </span>
+            </span>
+          </label>
+
+          <div
+            className={[
+              "grid transition-[grid-template-rows] ease-out",
+              invoiceSelf ? "grid-rows-[0fr]" : "grid-rows-[1fr]",
+            ].join(" ")}
+            style={{ transitionDuration: "260ms" }}
+            aria-hidden={invoiceSelf}
           >
-            É assim que seu nome aparece nos agentes, no Review Mode e nos
-            convites que você enviar pro time.
+            <div className="min-h-0 overflow-hidden">
+              <div
+                className={[
+                  "border-t border-border-subtle transition-opacity ease-out",
+                  invoiceSelf
+                    ? "opacity-0 pointer-events-none"
+                    : "opacity-100",
+                ].join(" ")}
+                style={{ transitionDuration: "240ms" }}
+              >
+                <div className="grid gap-3 px-4 py-4">
+                  <div
+                    className="text-fg-tertiary"
+                    style={{ fontSize: 11, lineHeight: 1.45 }}
+                  >
+                    Quem deve receber as faturas?
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <TextField
+                      label="E-mail"
+                      icon="mail"
+                      value={recipient.email}
+                      onChange={(v) => updateRecipient("email", v)}
+                      placeholder="financeiro@empresa.com"
+                      autoComplete="email"
+                      type="email"
+                      compact
+                    />
+                    <TextField
+                      label="Nome"
+                      icon="person"
+                      value={recipient.name}
+                      onChange={(v) => updateRecipient("name", v)}
+                      placeholder="Nome completo"
+                      autoComplete="name"
+                      compact
+                    />
+                    <TextField
+                      label="Cargo"
+                      icon="badge"
+                      value={recipient.role}
+                      onChange={(v) => updateRecipient("role", v)}
+                      placeholder="Ex: Analista financeiro"
+                      compact
+                    />
+                    <TextField
+                      label="Telefone"
+                      icon="phone"
+                      value={recipient.phone}
+                      onChange={(v) => updateRecipient("phone", v)}
+                      placeholder="(11) 99999-0000"
+                      autoComplete="tel"
+                      inputMode="tel"
+                      compact
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-border-subtle px-4 py-3.5">
+                  <div
+                    className="mb-2 flex items-center justify-between"
+                    style={{ fontSize: 12 }}
+                  >
+                    <span className="font-medium text-fg-primary">
+                      E-mails extras pra receber as faturas
+                    </span>
+                    <span
+                      className="text-fg-tertiary"
+                      style={{ fontSize: 11 }}
+                    >
+                      opcional
+                    </span>
+                  </div>
+                  {extraEmails.length > 0 && (
+                    <ul className="m-0 mb-2.5 flex flex-col gap-2 list-none p-0">
+                      {extraEmails.map((email, i) => (
+                        <li
+                          key={i}
+                          className="aw-fade-in flex items-center gap-2"
+                        >
+                          <span className="flex h-10 flex-1 items-center gap-2 rounded-md border border-border bg-bg-canvas px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
+                            <Icon
+                              name="mail"
+                              size={16}
+                              className="text-fg-tertiary"
+                            />
+                            <input
+                              value={email}
+                              onChange={(e) =>
+                                updateExtraEmail(i, e.target.value)
+                              }
+                              placeholder="email-extra@empresa.com"
+                              type="email"
+                              autoComplete="email"
+                              className="flex-1 border-0 bg-transparent font-sans outline-none focus:outline-none focus-visible:outline-none"
+                              style={{ fontSize: 13 }}
+                            />
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeExtraEmail(i)}
+                            aria-label="Remover e-mail"
+                            className="flex h-10 w-10 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
+                          >
+                            <Icon name="delete" size={18} />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <button
+                    type="button"
+                    onClick={addExtraEmail}
+                    className="aw-btn aw-btn--ghost aw-btn--sm"
+                  >
+                    <Icon name="add" size={14} />
+                    <span className="aw-btn__label">Adicionar e-mail</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+          <CheckboxControl
+            checked={termsAccepted}
+            onChange={setTermsAccepted}
+          />
+          <span
+            className="min-w-0 flex-1 text-fg-secondary text-pretty"
+            style={{ fontSize: 12, lineHeight: 1.55 }}
+          >
+            Li e concordo com os{" "}
+            <a
+              href="#"
+              className="font-medium text-fg-primary underline decoration-dotted underline-offset-2 hover:no-underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Termos de Uso
+            </a>{" "}
+            e a{" "}
+            <a
+              href="#"
+              className="font-medium text-fg-primary underline decoration-dotted underline-offset-2 hover:no-underline"
+              onClick={(e) => e.stopPropagation()}
+            >
+              Política de Privacidade
+            </a>{" "}
+            da AwSales.
           </span>
         </label>
 
@@ -193,7 +423,7 @@ export default function PerfilPage() {
             <span className="aw-btn__label">Voltar</span>
           </Link>
           <span className="flex-1" />
-          {nameValid ? (
+          {formValid ? (
             <Link
               href="/inicio?welcome=1"
               className="aw-btn aw-btn--primary aw-btn--md"
@@ -214,6 +444,101 @@ export default function PerfilPage() {
         </footer>
       </section>
     </AwOnboardingShell>
+  )
+}
+
+function TextField({
+  label,
+  icon,
+  value,
+  onChange,
+  placeholder,
+  autoComplete,
+  type = "text",
+  inputMode,
+  hint,
+  compact = false,
+}: {
+  label: string
+  icon: string
+  value: string
+  onChange: (v: string) => void
+  placeholder?: string
+  autoComplete?: string
+  type?: string
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  hint?: string
+  compact?: boolean
+}) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span
+        className="font-medium text-fg-secondary"
+        style={{ fontSize: 12 }}
+      >
+        {label}
+      </span>
+      <span
+        className={[
+          "flex items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary",
+          compact ? "h-10" : "h-11",
+        ].join(" ")}
+      >
+        <Icon name={icon} size={compact ? 16 : 18} className="text-fg-tertiary" />
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete={autoComplete}
+          type={type}
+          inputMode={inputMode}
+          className="flex-1 border-0 bg-transparent font-sans outline-none focus:outline-none focus-visible:outline-none"
+          style={{ fontSize: compact ? 13 : 14, boxShadow: "none" }}
+        />
+      </span>
+      {hint && (
+        <span
+          className="text-fg-tertiary"
+          style={{ fontSize: 11, lineHeight: 1.4 }}
+        >
+          {hint}
+        </span>
+      )}
+    </label>
+  )
+}
+
+function CheckboxControl({
+  checked,
+  onChange,
+}: {
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <span
+      role="checkbox"
+      aria-checked={checked}
+      tabIndex={0}
+      onClick={(e) => {
+        e.preventDefault()
+        onChange(!checked)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === " " || e.key === "Enter") {
+          e.preventDefault()
+          onChange(!checked)
+        }
+      }}
+      className={[
+        "mt-0.5 flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-sm border-[1.5px] transition-colors duration-aw-fast",
+        checked
+          ? "border-fg-primary bg-fg-primary text-white"
+          : "border-border-strong bg-bg-canvas text-transparent",
+      ].join(" ")}
+    >
+      <Icon name="check" size={12} weight={700} />
+    </span>
   )
 }
 

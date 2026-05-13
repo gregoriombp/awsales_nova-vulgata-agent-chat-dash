@@ -615,6 +615,19 @@
   }
 }
 
+/* Light fade-in for newly inserted rows / list items (e.g. dynamic email
+   fields under onboarding). Uses the same ease as step transitions but
+   shorter and gentler so it doesn't compete with the parent animation. */
+.aw-fade-in {
+  animation: onboarding-fadeInUp 220ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-fade-in {
+    animation: none;
+  }
+}
+
 /* Simple fade in */
 @keyframes onboarding-fadeIn {
   from {
