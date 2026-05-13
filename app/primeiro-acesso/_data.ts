@@ -11,12 +11,23 @@ export const ONBOARDING_ORG = {
   limiteUsoVariavel: "R$ 300/mês (Padrão)",
   valorImplementacao: "R$ 12.000,00",
   valorMensal: "R$ 2.500,00",
+  valorMensalProrrata: "R$ 1.583,33",
+  diasRestantesMesAtual: 19,
+  diaVencimento: 10,
+  dataPrimeiroVencimento: "10/06/2026",
+  proximosVencimentos: [
+    { mes: "Junho 2026", valor: "R$ 1.583,33", vencimento: "10/06/2026" },
+    { mes: "Julho 2026", valor: "R$ 2.500,00", vencimento: "10/07/2026" },
+    { mes: "Agosto 2026", valor: "R$ 2.500,00", vencimento: "10/08/2026" },
+  ],
   metodosImplementacao: "Cartão · Pix · Boleto",
   metodosPlano: "Cartão · Boleto",
   parcelamentoImplementacao: "Até 4x no cartão · entrada à vista",
   parcelamentoMaxImplementacao: 4,
   accountManager: "Lucas Vieira",
   accountManagerPhoto: "/assets/ui-faces/male-7.jpg",
+  representanteComercial: "Beatriz Andrade",
+  representanteComercialPhoto: "/assets/ui-faces/female-3.jpg",
   brandBackground: "/assets/group-backgrounds/group-bg-17.jpg",
 }
 

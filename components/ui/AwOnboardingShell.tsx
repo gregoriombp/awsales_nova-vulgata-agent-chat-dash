@@ -18,8 +18,9 @@ export const AW_ONBOARDING_STEPS: readonly AwOnboardingStep[] = [
   { id: "pagamento",    label: "pagamento",    num: "04", brandTitle: "Forma de pagamento" },
   { id: "checkout",     label: "checkout",     num: "05", brandTitle: "Quase lá" },
   { id: "confirmado",   label: "confirmado",   num: "06", brandTitle: "Pagamento confirmado" },
-  { id: "acesso",       label: "acesso",       num: "07", brandTitle: "Defina seu acesso" },
-  { id: "perfil",       label: "perfil",       num: "08", brandTitle: "Personalize seu perfil" },
+  { id: "mensalidade",  label: "mensalidade",  num: "07", brandTitle: "Primeira mensalidade" },
+  { id: "acesso",       label: "acesso",       num: "08", brandTitle: "Defina seu acesso" },
+  { id: "perfil",       label: "perfil",       num: "09", brandTitle: "Personalize seu perfil" },
 ] as const
 
 export type AwOnboardingOrg = {

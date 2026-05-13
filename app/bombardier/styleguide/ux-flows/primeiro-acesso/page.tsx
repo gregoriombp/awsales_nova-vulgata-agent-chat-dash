@@ -88,8 +88,9 @@ const Y = {
   pagamento: 280,
   checkout: 460,
   confirmado: 620,
-  acesso: 760,
-  perfil: 940,
+  mensalidade: 760,
+  acesso: 900,
+  perfil: 1080,
 }
 
 const nodes: Node[] = [
@@ -166,7 +167,18 @@ const nodes: Node[] = [
       step: "06",
       title: "Confirmado",
       href: "/primeiro-acesso/confirmado",
-      note: "Pagamento aprovado. Conta provisionada.",
+      note: "Implementação confirmada. Falta a mensalidade.",
+    } satisfies ScreenData,
+  },
+  {
+    id: "mensalidade",
+    type: "screen",
+    position: { x: COL_CENTER, y: Y.mensalidade },
+    data: {
+      step: "07",
+      title: "Mensalidade",
+      href: "/primeiro-acesso/mensalidade",
+      note: "Cobrança da 1ª mensalidade na prorrata.",
     } satisfies ScreenData,
   },
   {
@@ -174,7 +186,7 @@ const nodes: Node[] = [
     type: "decision",
     position: { x: COL_CENTER - 20, y: Y.acesso },
     data: {
-      step: "07",
+      step: "08",
       title: "Acesso",
       question: "Cliente escolhe método: Google, Microsoft ou senha.",
     } satisfies DecisionData,
@@ -184,7 +196,7 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_LEFT, y: Y.perfil },
     data: {
-      step: "08",
+      step: "09",
       title: "Perfil (Google)",
       href: "/primeiro-acesso/perfil?via=google",
       note: "OAuth Google · dados pré-preenchidos.",
@@ -195,7 +207,7 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_CENTER, y: Y.perfil },
     data: {
-      step: "08",
+      step: "09",
       title: "Perfil (Microsoft)",
       href: "/primeiro-acesso/perfil?via=ms",
       note: "OAuth Microsoft · dados pré-preenchidos.",
@@ -206,7 +218,7 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_RIGHT, y: Y.perfil },
     data: {
-      step: "08",
+      step: "09",
       title: "Perfil (senha)",
       href: "/primeiro-acesso/perfil?via=password",
       note: "Sem OAuth · cliente preenche tudo manualmente.",
@@ -257,7 +269,8 @@ const edges: Edge[] = [
   { ...edgeBase, id: "e-pix-confirmado", source: "checkout-pix", target: "confirmado" },
   { ...edgeBase, id: "e-cartao-confirmado", source: "checkout-cartao", target: "confirmado" },
   { ...edgeBase, id: "e-boleto-confirmado", source: "checkout-boleto", target: "confirmado" },
-  { ...edgeBase, id: "e-confirmado-acesso", source: "confirmado", target: "acesso" },
+  { ...edgeBase, id: "e-confirmado-mensalidade", source: "confirmado", target: "mensalidade" },
+  { ...edgeBase, id: "e-mensalidade-acesso", source: "mensalidade", target: "acesso" },
   {
     ...edgeBase,
     id: "e-acesso-google",
@@ -327,21 +340,28 @@ const screens = [
     step: "06",
     title: "Confirmado",
     href: "/primeiro-acesso/confirmado",
-    purpose: "Pagamento aprovado e conta provisionada. Confirma sucesso e prepara o cliente pra criar acesso.",
-    decisions: "Continuar para criação de acesso.",
+    purpose: "Implementação confirmada e conta provisionada. Sinaliza que a primeira metade do pagamento foi concluída e que falta configurar a mensalidade.",
+    decisions: "Continuar para a etapa de mensalidade.",
   },
   {
     step: "07",
+    title: "Mensalidade",
+    href: "/primeiro-acesso/mensalidade",
+    purpose: "Cobrança da primeira mensalidade na prorrata (proporcional aos dias restantes do mês). Define o método recorrente que será usado nas mensalidades seguintes.",
+    decisions: "Escolher método (Pix, cartão ou boleto) e pagar → continua para criação de acesso.",
+  },
+  {
+    step: "08",
     title: "Acesso",
     href: "/primeiro-acesso/acesso",
     purpose: "Decisão sobre método de autenticação. OAuth (Google/Microsoft) reduz fricção e é preferido. Senha pra quem não quer vincular conta corporativa.",
     decisions: "Escolher entre Google, Microsoft ou senha.",
   },
   {
-    step: "08",
+    step: "09",
     title: "Perfil (Google / Microsoft / senha)",
     href: "/primeiro-acesso/perfil?via=google",
-    purpose: "Última etapa. Com OAuth, dados pré-preenchidos do provedor. Sem OAuth, cliente preenche tudo. Salvar leva pro Início logado.",
+    purpose: "Última etapa. Com OAuth, dados pré-preenchidos do provedor. Sem OAuth, cliente preenche tudo (nome, telefone, dados de invoice, aceite de termos). Salvar leva pro Início logado.",
     decisions: "Salvar → /inicio (home logada).",
   },
 ]
@@ -374,7 +394,7 @@ export default function PrimeiroAcessoFlowPage() {
         >
           <div
             className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
-            style={{ height: 1180 }}
+            style={{ height: 1320 }}
           >
             <ReactFlow
               nodes={nodes}
