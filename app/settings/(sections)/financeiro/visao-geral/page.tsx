@@ -3,26 +3,23 @@
 import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeading } from "../../_components/shared";
-import { InvoiceHistoryTable } from "../_components/InvoiceHistoryTable";
+import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
-  INVOICE_HISTORY,
   OVERVIEW_KPIS,
+  PAYMENT_METHODS,
 } from "../_components/data";
 
 export default function VisaoGeralPage() {
   return (
     <div className="flex flex-col gap-10">
       <BillingHero />
-      <PartialChargeBanner />
-      <ShortcutGrid />
 
       <section>
         <SectionHeading
@@ -30,14 +27,6 @@ export default function VisaoGeralPage() {
           description="Distribuição do consumo no período. Alterne entre serviço e campanha pra rastrear de onde vem o gasto."
         />
         <VariableSpendingBlock />
-      </section>
-
-      <section>
-        <SectionHeading
-          title="Histórico de faturas"
-          description="Faturas dos últimos meses, com totais brutos, descontos aplicados e o valor efetivamente cobrado."
-        />
-        <InvoiceHistoryTable />
       </section>
     </div>
   );
@@ -55,69 +44,122 @@ function BillingHero() {
 }
 
 function AccumulatedCard() {
+  const variableLimit = OVERVIEW_KPIS.partialChargeAt;
+  const variableSoFar = OVERVIEW_KPIS.accumulated;
+  const planMonthly = CURRENT_PLAN.monthly;
+  const nextChargeTotal = planMonthly + variableSoFar;
+  const variablePct = OVERVIEW_KPIS.accumulatedPct;
+
   return (
-    <AwCard className="flex flex-col gap-4 !p-6">
+    <AwCard className="flex flex-col gap-6 !p-6">
       <div className="flex items-center justify-between gap-3">
         <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
-          Acumulado neste ciclo
+          Próxima cobrança
         </p>
         <span className="text-[11px] font-medium tabular-nums text-[var(--fg-tertiary)]">
-          {OVERVIEW_KPIS.accumulatedPct}% até a próxima cobrança parcial
+          em 14 dias · {CURRENT_INVOICE.dueAt}
         </span>
       </div>
 
       <div>
-        <h2 className="m-0 text-[36px] font-semibold leading-none tracking-[-0.02em] text-[var(--fg-primary)]">
-          {brl(OVERVIEW_KPIS.accumulated)}
-        </h2>
-        <p className="m-0 mt-1 text-[12px] text-[var(--fg-secondary)]">
-          de {brl(OVERVIEW_KPIS.partialChargeAt)} até cobrança parcial
+        <h1 className="m-0 text-[64px] font-light leading-[0.95] tracking-[-0.035em] text-[var(--fg-primary)] tabular-nums">
+          {brl(nextChargeTotal)}
+        </h1>
+        <p className="m-0 mt-3 text-[12.5px] text-[var(--fg-secondary)]">
+          Cobrada em{" "}
+          <strong className="font-medium text-[var(--fg-primary)]">
+            {CURRENT_INVOICE.dueAt}
+          </strong>{" "}
+          <em>ou</em> quando os variáveis chegarem em{" "}
+          <strong className="font-medium text-[var(--fg-primary)]">
+            {brl(variableLimit)}
+          </strong>{" "}
+          — o que vier primeiro.
         </p>
       </div>
 
-      <AwProgress
-        value={OVERVIEW_KPIS.accumulatedPct}
-        max={100}
-        valueLabel=""
-      />
+      <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+        <div className="flex items-baseline justify-between gap-2 py-2 text-[13px]">
+          <span className="text-[var(--fg-secondary)]">Plano mensal</span>
+          <span className="font-medium tabular-nums text-[var(--fg-primary)]">
+            {brl(planMonthly)}
+          </span>
+        </div>
+        <div className="flex items-baseline justify-between gap-2 py-2 text-[13px]">
+          <span className="text-[var(--fg-secondary)]">Variáveis até agora</span>
+          <span className="font-medium tabular-nums text-[var(--fg-primary)]">
+            {brl(variableSoFar)}
+          </span>
+        </div>
+      </div>
 
-      <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
-        Próximo fechamento em{" "}
-        <strong className="font-medium text-[var(--fg-primary)]">
-          {CURRENT_INVOICE.dueAt}
-        </strong>{" "}
-        · total estimado{" "}
-        <strong className="font-medium text-[var(--fg-primary)]">
-          {brl(CURRENT_INVOICE.total)}
-        </strong>
-      </p>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-baseline justify-between gap-2 text-[11.5px] text-[var(--fg-tertiary)]">
+          <span>Limite de gastos variáveis</span>
+          <span className="tabular-nums">
+            {brl(variableSoFar)} / {brl(variableLimit)} · {variablePct}%
+          </span>
+        </div>
+        <AwProgress value={variablePct} max={100} valueLabel="" />
+      </div>
     </AwCard>
   );
 }
 
 function PlanCard() {
+  const defaultMethod =
+    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
+
   return (
-    <AwCard className="flex flex-col gap-4 !p-6">
+    <AwCard className="flex flex-col gap-4 !p-6 !border-transparent !bg-[var(--aw-gray-1200)] text-white shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)]">
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-white/55">
           Plano atual
         </p>
-        <AwPill variant="live">{CURRENT_PLAN.status}</AwPill>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-white/90 ring-1 ring-inset ring-white/20">
+          <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-success)]" />
+          {CURRENT_PLAN.status}
+        </span>
       </div>
 
       <div>
-        <h3 className="m-0 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h3 className="m-0 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-white">
           {CURRENT_PLAN.name}
         </h3>
-        <p className="m-0 mt-1 text-[12px] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 text-[12px] text-white/65">
           {brl(CURRENT_PLAN.monthly)} / mês · próxima cobrança em{" "}
-          <strong className="font-medium text-[var(--fg-primary)]">
+          <strong className="font-medium text-white">
             {CURRENT_PLAN.nextChargeAt}
           </strong>
         </p>
       </div>
 
-      <ul className="m-0 flex flex-col gap-1.5 p-0 text-[12.5px] text-[var(--fg-secondary)]">
+      {defaultMethod && (
+        <div className="flex items-center gap-3 rounded-[var(--radius-md)] bg-white/[0.06] px-3 py-2.5 ring-1 ring-inset ring-white/10">
+          <span className="flex h-8 w-12 shrink-0 items-center justify-center rounded-[6px] bg-white">
+            <CardBrandLogo brand={defaultMethod.brand} size={26} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="m-0 text-[10.5px] font-medium uppercase tracking-[0.06em] text-white/55">
+              Cobrado em
+            </p>
+            <p className="m-0 text-[12.5px] font-medium text-white tabular-nums">
+              {defaultMethod.brand} •••• {defaultMethod.last4}
+              <span className="ml-1.5 font-normal text-white/55">
+                · expira {defaultMethod.expiresAt}
+              </span>
+            </p>
+          </div>
+          <Link
+            href="/settings/financeiro/metodos-pagamento"
+            className="shrink-0 text-[11.5px] font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+          >
+            Trocar
+          </Link>
+        </div>
+      )}
+
+      <ul className="m-0 flex flex-col gap-1.5 p-0 text-[12.5px] text-white/75">
         <li className="flex items-center gap-2">
           <Icon
             name="check"
@@ -144,110 +186,22 @@ function PlanCard() {
         </li>
       </ul>
 
-      <div className="mt-auto flex flex-wrap gap-2">
-        <AwButton size="sm" variant="secondary">
+      <div className="mt-auto flex flex-wrap gap-2 pt-1">
+        <AwButton
+          size="sm"
+          variant="secondary"
+          className="!bg-white !text-[var(--aw-gray-1200)] hover:!bg-white/90"
+        >
           Mudar plano
         </AwButton>
-        <AwButton size="sm" variant="ghost">
+        <AwButton
+          size="sm"
+          variant="ghost"
+          className="!text-white/85 hover:!bg-white/10"
+        >
           Detalhes do plano
         </AwButton>
       </div>
     </AwCard>
-  );
-}
-
-/* ---------- info banner ---------- */
-
-function PartialChargeBanner() {
-  return (
-    <div className="flex flex-wrap items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
-      <Icon name="info" size={18} className="shrink-0 text-[var(--fg-tertiary)]" />
-      <div className="min-w-0 flex-1">
-        <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
-          Cobrança parcial em {brl(OVERVIEW_KPIS.partialChargeAt)}
-        </p>
-        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
-          Não limitamos seu uso. Quando o acumulado atinge esse valor,
-          emitimos uma fatura parcial e o contador reinicia.
-        </p>
-      </div>
-      <AwButton size="sm" variant="ghost">
-        Saiba mais
-      </AwButton>
-    </div>
-  );
-}
-
-/* ---------- shortcut grid ---------- */
-
-function ShortcutGrid() {
-  const paidCount = INVOICE_HISTORY.filter((r) => r.status === "Paga").length;
-  return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-      <Shortcut
-        icon="receipt_long"
-        title="Fatura atual"
-        description={`Vence em ${CURRENT_INVOICE.dueAt} · ${brl(CURRENT_INVOICE.total)}`}
-        href="#fatura-atual"
-      />
-      <Shortcut
-        icon="credit_card"
-        title="Forma de pagamento"
-        description={`${CURRENT_INVOICE.paymentMethod.brand} •••• ${CURRENT_INVOICE.paymentMethod.last4} · trocar`}
-        href="#metodos-pagamento"
-      />
-      <Shortcut
-        icon="savings"
-        title="Economia com créditos"
-        description={`${brl(OVERVIEW_KPIS.monthSavings)} este mês · ver vouchers ativos`}
-        href="/settings/financeiro/saldo-creditos"
-      />
-      <Shortcut
-        icon="history"
-        title="Histórico de faturas"
-        description={`${paidCount} faturas pagas · baixar comprovantes`}
-        href="#historico"
-      />
-    </div>
-  );
-}
-
-function Shortcut({
-  icon,
-  title,
-  description,
-  href,
-}: {
-  icon: string;
-  title: string;
-  description: string;
-  href: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="block outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
-    >
-      <AwCard interactive className="!p-0">
-        <div className="flex items-center gap-3 px-4 py-3">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
-            <Icon name={icon} size={18} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
-              {title}
-            </p>
-            <p className="m-0 truncate text-[12px] text-[var(--fg-secondary)]">
-              {description}
-            </p>
-          </div>
-          <Icon
-            name="chevron_right"
-            size={18}
-            className="shrink-0 text-[var(--fg-tertiary)]"
-          />
-        </div>
-      </AwCard>
-    </Link>
   );
 }
