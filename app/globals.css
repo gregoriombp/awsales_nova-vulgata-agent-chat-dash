@@ -243,6 +243,7 @@
   --font-mono: 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* Type scale */
+  --display-xxl-size: 128px;
   --display-xl-size: 96px;
   --display-lg-size: 80px;
   --display-md-size: 64px;
@@ -330,17 +331,30 @@
 }
 
 @layer components {
-  .display-xl, .display-lg, .display-md, .display-sm {
+  /* Display — voz cinemática. Peso fino (300/Light) carrega a presença,
+   * tamanho carrega a hierarquia. Tracking aperta forte porque caracteres
+   * gigantes deixam espaço visual demais por padrão. */
+  .display-xxl, .display-xl, .display-lg, .display-md, .display-sm {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.02em;
+    font-weight: 300;
+    letter-spacing: -0.025em;
     line-height: 1;
     color: var(--fg-primary);
   }
+  .display-xxl { font-size: var(--display-xxl-size); }
   .display-xl { font-size: var(--display-xl-size); }
   .display-lg { font-size: var(--display-lg-size); }
   .display-md { font-size: var(--display-md-size); }
   .display-sm { font-size: var(--display-sm-size); }
+
+  /* Body — Geist Regular (400). Cada degrau define a sua altura de linha:
+   * leituras compactas (xs/sm) ficam mais apertadas, leitura corrida
+   * (md/lg) respira. */
+  .body-xl { font-family: var(--font-body); font-size: var(--body-xl-size); line-height: 1.45; letter-spacing: -0.005em; font-weight: 400; }
+  .body-lg { font-family: var(--font-body); font-size: var(--body-lg-size); line-height: 1.5;  letter-spacing: -0.005em; font-weight: 400; }
+  .body-md { font-family: var(--font-body); font-size: var(--body-md-size); line-height: 1.55; letter-spacing: 0;        font-weight: 400; }
+  .body-sm { font-family: var(--font-body); font-size: var(--body-sm-size); line-height: 1.5;  letter-spacing: 0;        font-weight: 400; }
+  .body-xs { font-family: var(--font-body); font-size: var(--body-xs-size); line-height: 1.4;  letter-spacing: 0.005em;  font-weight: 400; }
 
   /* Eyebrow — the small uppercase tracked label used above titles, inside
    * card metadata, on spec rows, etc. Named `.aw-eyebrow` on purpose:

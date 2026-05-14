@@ -12,6 +12,7 @@ import {
 const TOC = [
   { id: "principles", label: "Princípios" },
   { id: "fonts", label: "Famílias" },
+  { id: "weights", label: "Pesos" },
   { id: "display", label: "Display" },
   { id: "headings", label: "Headings" },
   { id: "body", label: "Body" },
@@ -23,57 +24,106 @@ const TOC = [
   { id: "related", label: "Veja também" },
 ]
 
-const DISPLAY = [
-  { name: "display-xl", size: 96, token: "--display-xl-size", use: "splash, landing externa" },
-  { name: "display-lg", size: 80, token: "--display-lg-size", use: "hero de landing" },
-  { name: "display-md", size: 64, token: "--display-md-size", use: "marketing internal hero" },
-  { name: "display-sm", size: 48, token: "--display-sm-size", use: "hero compacto, empty state" },
+type TypeSpec = {
+  name: string
+  size: number
+  leading: number
+  tracking: string
+  weight: number
+  use: string
+  token: string
+}
+
+type HeadingSpec = {
+  tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"
+  size: number
+  leading: number
+  tracking: string
+  weight: number
+  use: string
+  token: string
+}
+
+const DISPLAY: TypeSpec[] = [
+  { name: "display-xxl", size: 128, leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xxl-size", use: "splash externo, landing de marca" },
+  { name: "display-xl",  size: 96,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xl-size",  use: "hero de landing" },
+  { name: "display-lg",  size: 80,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-lg-size",  use: "hero interno grande" },
+  { name: "display-md",  size: 64,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-md-size",  use: "marketing dentro do app" },
+  { name: "display-sm",  size: 48,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-sm-size",  use: "hero compacto, empty state" },
 ]
 
-const HEADINGS: Array<{ tag: "h1" | "h2" | "h3" | "h4" | "h5" | "h6"; size: number; token: string; use: string }> = [
-  { tag: "h1", size: 40, token: "--h1-size", use: "PageHero, primeiro título da rota" },
-  { tag: "h2", size: 32, token: "--h2-size", use: "Section.title (h2 dentro de uma página)" },
-  { tag: "h3", size: 28, token: "--h3-size", use: "Cabeçalho dentro de bloco grande" },
-  { tag: "h4", size: 24, token: "--h4-size", use: "Cabeçalho de card de hero" },
-  { tag: "h5", size: 20, token: "--h5-size", use: "Sub-seção dentro de Section" },
-  { tag: "h6", size: 18, token: "--h6-size", use: "Card title comum" },
+const HEADINGS: HeadingSpec[] = [
+  { tag: "h1", size: 40, leading: 1.15, tracking: "-0.02em",  weight: 500, token: "--h1-size", use: "PageHero, primeiro título da rota" },
+  { tag: "h2", size: 32, leading: 1.15, tracking: "-0.015em", weight: 500, token: "--h2-size", use: "Section.title dentro de uma página" },
+  { tag: "h3", size: 28, leading: 1.15, tracking: "-0.01em",  weight: 500, token: "--h3-size", use: "Cabeçalho dentro de bloco grande" },
+  { tag: "h4", size: 24, leading: 1.25, tracking: "-0.01em",  weight: 500, token: "--h4-size", use: "Cabeçalho de card de hero" },
+  { tag: "h5", size: 20, leading: 1.3,  tracking: "-0.01em",  weight: 500, token: "--h5-size", use: "Sub-seção dentro de Section" },
+  { tag: "h6", size: 18, leading: 1.35, tracking: "-0.01em",  weight: 500, token: "--h6-size", use: "Card title comum" },
 ]
 
-const BODY = [
-  { name: "body-xl", size: 20, token: "--body-xl-size", use: "intro grande (rara)" },
-  { name: "body-lg", size: 18, token: "--body-lg-size", use: "lead de hero, intro de seção" },
-  { name: "body-md", size: 16, token: "--body-md-size", use: "padrão de leitura (default)" },
-  { name: "body-sm", size: 14, token: "--body-sm-size", use: "corpo denso de UI, lista" },
-  { name: "body-xs", size: 12, token: "--body-xs-size", use: "caption, metadata" },
+const BODY: TypeSpec[] = [
+  { name: "body-xl", size: 20, leading: 1.45, tracking: "-0.005em", weight: 400, token: "--body-xl-size", use: "intro grande (rara)" },
+  { name: "body-lg", size: 18, leading: 1.5,  tracking: "-0.005em", weight: 400, token: "--body-lg-size", use: "lead de hero, intro de seção" },
+  { name: "body-md", size: 16, leading: 1.55, tracking: "0",        weight: 400, token: "--body-md-size", use: "padrão de leitura (default)" },
+  { name: "body-sm", size: 14, leading: 1.5,  tracking: "0",        weight: 400, token: "--body-sm-size", use: "corpo denso de UI, lista" },
+  { name: "body-xs", size: 12, leading: 1.4,  tracking: "0.005em",  weight: 400, token: "--body-xs-size", use: "caption, metadata" },
+]
+
+const GEIST_WEIGHTS: Array<{ value: number; name: string }> = [
+  { value: 100, name: "Thin" },
+  { value: 200, name: "ExtraLight" },
+  { value: 300, name: "Light" },
+  { value: 400, name: "Regular" },
+  { value: 500, name: "Medium" },
+  { value: 600, name: "SemiBold" },
+  { value: 700, name: "Bold" },
+  { value: 800, name: "ExtraBold" },
+  { value: 900, name: "Black" },
 ]
 
 export default function TypographyPage() {
   return (
     <>
       <PageHero title="Tipografia">
-        Uma voz: <strong>Geist</strong>. <strong>Geist Mono</strong> só pra
-        código, tokens e IDs. Escala progressiva de 12 px (caption) a 96 px
-        (display-xl). Tracking aperta com o tamanho — display em -2%, body em
-        neutro.
+        <strong>Geist</strong> é a família principal da interface — usamos pra{" "}
+        <em>tudo</em>: títulos, body, navegação, labels, números.{" "}
+        <strong>Geist Mono</strong> entra <em>só</em> em conteúdo literalmente
+        monoespaçado: código, tokens, IDs, paths e timestamps. Uma voz, uma
+        escala, hierarquia via tamanho.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
         <Tldr
           use={[
-            <>Use <strong>Geist</strong> pra tudo que é texto humano.</>,
-            <>Use <strong>Geist Mono</strong> só pra código, tokens, IDs e timestamps.</>,
             <>
-              Default de body é <code className="mono">body-md (16px)</code>. Subir
-              só em hero/landing.
+              <strong>Geist</strong> em <em>tudo</em> que é texto humano:
+              títulos, body, botões, labels, números, navegação.
             </>,
             <>
-              Headings sempre <strong>medium (500)</strong>, nunca bold (700).
+              <strong>Geist Mono</strong> só em código, tokens, IDs, paths e
+              timestamps.
+            </>,
+            <>
+              Body padrão é <code className="mono">body-md (16px)</code>; só
+              sobe em hero/landing.
+            </>,
+            <>
+              Headings em <strong>medium (500)</strong>, display em{" "}
+              <strong>light (300)</strong>.
+            </>,
+            <>
+              Toda frase começa com maiúscula —{" "}
+              <strong>&ldquo;Agent studio&rdquo;</strong>, nunca{" "}
+              <em>agent studio</em>.
             </>,
           ]}
           dontUse={[
-            <>Carregar outra fonte (Inter, Roboto, etc.).</>,
+            <>Carregar outra fonte (Inter, Roboto, Manrope, etc.).</>,
             <>Misturar Geist Mono em texto humano (vira código falso).</>,
-            <>Pular degraus arbitrariamente — <code className="mono">font-size: 17px</code> não existe.</>,
+            <>
+              Pular degraus —{" "}
+              <code className="mono">font-size: 17px</code> não existe.
+            </>,
             <>ALL CAPS fora de utility eyebrow.</>,
           ]}
         />
@@ -90,17 +140,17 @@ export default function TypographyPage() {
             <Principle
               n="01"
               title="Uma só voz"
-              body="Geist + Geist Mono. Sem fontes decorativas, sem fallback humanista."
+              body="Geist em tudo. Geist Mono só em código. Sem fontes decorativas, sem fallback humanista."
             />
             <Principle
               n="02"
               title="Tracking inverso ao tamanho"
-              body="Display aperta (-2% / -1.5%), heading neutraliza, body relaxa."
+              body="Display aperta forte (-2.5%), heading neutraliza, body relaxa."
             />
             <Principle
               n="03"
-              title="Peso 400 / 500"
-              body="Regular pra body, Medium pra heading. Bold (700) só em ênfase inline."
+              title="Pesos com função"
+              body="Display em Light (300). Body em Regular (400). Heading em Medium (500). Bold (700) só em ênfase inline."
             />
             <Principle
               n="04"
@@ -114,33 +164,37 @@ export default function TypographyPage() {
         <Section
           id="fonts"
           title="Famílias"
-          lead="Duas. Carregadas via Next/Font no layout raiz — sem CDN externo, sem FOUT."
+          lead="Duas. Carregadas via Google Fonts no layout raiz — sem CDN externo, sem FOUT. Geist é onipresente; Geist Mono é dosada."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
-              <div className="aw-eyebrow">--font-sans</div>
-              <div className="text-[48px] leading-none tracking-[-0.02em] font-medium text-[var(--fg-primary)]">
+              <div className="aw-eyebrow">--font-sans · principal</div>
+              <div className="text-[64px] leading-none tracking-[-0.025em] font-light text-[var(--fg-primary)]">
                 Geist
               </div>
               <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                Sans-serif geométrica com personalidade neutra. Carrega
-                pesos 400 (Regular) e 500 (Medium). Para qualquer texto humano.
+                Sans-serif geométrica com personalidade neutra. É a família
+                principal da interface — usada em <strong>tudo</strong>:
+                títulos, body, botões, navegação, números. Carregamos todos os
+                pesos (100 → 900).
               </p>
               <code className="mono text-xs text-[var(--fg-tertiary)]">
                 font-family: Geist, ui-sans-serif, system-ui, …
               </code>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
-              <div className="aw-eyebrow">--font-mono</div>
+              <div className="aw-eyebrow">--font-mono · auxiliar</div>
               <div
-                className="text-[48px] leading-none font-medium text-[var(--fg-primary)]"
+                className="text-[64px] leading-none font-medium text-[var(--fg-primary)]"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 Geist Mono
               </div>
               <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                Monospace pareada. Largura constante facilita leitura de
-                código, tokens e IDs. <strong>Nunca</strong> em texto humano.
+                Monospace pareada. Largura constante facilita leitura técnica.
+                Use <strong>só</strong> em código, tokens (
+                <code className="mono">--accent-brand</code>), IDs,
+                timestamps e paths. <strong>Nunca</strong> em texto humano.
               </p>
               <code className="mono text-xs text-[var(--fg-tertiary)]">
                 font-family: &apos;Geist Mono&apos;, ui-monospace, SF Mono, Menlo, …
@@ -149,92 +203,106 @@ export default function TypographyPage() {
           </div>
         </Section>
 
+        {/* ── Pesos ──────────────────────────────────────────────── */}
+        <Section
+          id="weights"
+          title="Pesos"
+          lead="Carregamos toda a faixa, do mais fino ao mais grosso. A aplicabilidade fina de cada peso ainda está em definição — por enquanto, display em Light (300), body em Regular (400) e heading em Medium (500) cobrem o essencial."
+        >
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
+              {GEIST_WEIGHTS.map((w) => (
+                <div
+                  key={w.value}
+                  className="flex items-baseline justify-between gap-4 border-b border-[var(--border-subtle)] pb-3 last:border-b-0"
+                >
+                  <span
+                    className="text-[40px] leading-none tracking-[-0.015em] text-[var(--fg-primary)]"
+                    style={{ fontWeight: w.value }}
+                  >
+                    Agent studio
+                  </span>
+                  <span className="shrink-0 text-right flex flex-col gap-0.5">
+                    <code className="mono text-xs text-[var(--aw-blue-700)]">
+                      {w.value}
+                    </code>
+                    <span className="text-[11px] text-[var(--fg-tertiary)]">
+                      {w.name}
+                    </span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 mt-4 text-sm text-[var(--aw-blue-900)]">
+            Os 9 pesos estão disponíveis. Quais entram no produto, e onde, vai
+            sendo decidido conforme as telas pedem.
+          </div>
+        </Section>
+
         {/* ── Display ────────────────────────────────────────────── */}
         <Section
           id="display"
           title="Display"
-          lead="Tamanhos cinemáticos. Quatro escalas, todas Geist Medium com tracking -2%, line-height 1. Use só em landing/splash/hero externo."
+          lead="Tamanhos cinemáticos. Cinco escalas, todas em Geist Light (300) com tracking apertado e line-height 1. Use em landing, splash e hero externo."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-6">
+          <SpecCard>
             {DISPLAY.map((d) => (
-              <div
+              <SpecRow
                 key={d.name}
-                className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0"
-              >
-                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] pt-2 flex flex-col gap-0.5">
-                  <code className="mono">{d.name}</code>
-                  <span className="text-[var(--aw-blue-700)]">{d.size}px</span>
-                  <span className="text-[var(--fg-tertiary)]">{d.use}</span>
-                </div>
-                <div className={d.name}>agent studio</div>
-              </div>
+                name={d.name}
+                token={d.token}
+                size={d.size}
+                leading={d.leading}
+                tracking={d.tracking}
+                weight={d.weight}
+                use={d.use}
+                sample={<span className={d.name}>Agent studio</span>}
+              />
             ))}
-          </div>
+          </SpecCard>
+
+          <UsagePattern
+            fake={`<p className="display-xl">Agent studio</p>`}
+            real={`<Typography variant="display-xl" component="p">
+  Agent studio
+</Typography>`}
+          />
         </Section>
 
         {/* ── Headings ───────────────────────────────────────────── */}
         <Section
           id="headings"
           title="Headings"
-          lead="Geist Medium. Tracking aperta de h1 (-2%) até h3 (neutro), depois line-height aumenta de 1.15 a 1.35. Em código, use a tag HTML (h1–h6) — os estilos já vêm de globals.css."
+          lead="Geist Medium (500). Tracking aperta de h1 (-2%) até h3 (-1%), depois line-height aumenta de 1.15 a 1.35 conforme o tamanho cai. Em código, use a tag HTML — os estilos já vêm de globals.css."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-4">
-            {HEADINGS.map(({ tag: Tag, size, token, use }) => (
-              <div
+          <SpecCard>
+            {HEADINGS.map(({ tag: Tag, size, leading, tracking, weight, use, token }) => (
+              <SpecRow
                 key={Tag}
-                className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-4 last:border-b-0 last:pb-0"
-              >
-                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
-                  <code className="mono">{Tag}</code>
-                  <span className="text-[var(--aw-blue-700)]">{size}px</span>
-                  <code className="mono">{token}</code>
-                </div>
-                <Tag className="m-0">
-                  Crie agentes em menos de 90 minutos
-                </Tag>
-              </div>
+                name={Tag}
+                token={token}
+                size={size}
+                leading={leading}
+                tracking={tracking}
+                weight={weight}
+                use={use}
+                sample={<Tag className="m-0">Agent studio</Tag>}
+              />
             ))}
-            <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-2">
-              <strong>
-                Headings nunca usam color decorativa — sempre{" "}
-                <code className="mono">--fg-primary</code> herdado do contexto.
-              </strong>
-            </div>
+          </SpecCard>
+
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <strong>
+              Headings nunca usam color decorativa — sempre{" "}
+              <code className="mono">--fg-primary</code> herdado do contexto.
+            </strong>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4 overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
-                  <th className="pb-2 aw-eyebrow">tag</th>
-                  <th className="pb-2 aw-eyebrow">token</th>
-                  <th className="pb-2 aw-eyebrow">px</th>
-                  <th className="pb-2 aw-eyebrow">uso</th>
-                </tr>
-              </thead>
-              <tbody>
-                {HEADINGS.map((h) => (
-                  <tr
-                    key={h.tag}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
-                  >
-                    <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
-                      {h.tag}
-                    </td>
-                    <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
-                      {h.token}
-                    </td>
-                    <td className="py-3 pr-4 text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
-                      {h.size}px
-                    </td>
-                    <td className="py-3 text-sm text-[var(--fg-secondary)]">
-                      {h.use}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <UsagePattern
+            fake={`<h2>Agent studio</h2>`}
+            real={`<Typography variant="h2">Agent studio</Typography>`}
+          />
         </Section>
 
         {/* ── Body ───────────────────────────────────────────────── */}
@@ -243,27 +311,33 @@ export default function TypographyPage() {
           title="Body"
           lead="Geist Regular (400). Cinco degraus de 12 a 20 px. O padrão é body-md (16); leia o caso antes de subir/descer."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-3">
+          <SpecCard>
             {BODY.map((b) => (
-              <div
+              <SpecRow
                 key={b.name}
-                className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-3 last:border-b-0 last:pb-0"
-              >
-                <div className="w-32 shrink-0 text-xs text-[var(--fg-tertiary)] flex flex-col gap-0.5">
-                  <code className="mono">{b.name}</code>
-                  <span className="text-[var(--aw-blue-700)]">{b.size}px</span>
-                  <span className="text-[var(--fg-tertiary)]">{b.use}</span>
-                </div>
-                <p
-                  className="m-0"
-                  style={{ fontSize: `var(${b.token})` }}
-                >
-                  A Navigation Sidebar é a espinha dorsal da arquitetura de
-                  informação da plataforma.
-                </p>
-              </div>
+                name={b.name}
+                token={b.token}
+                size={b.size}
+                leading={b.leading}
+                tracking={b.tracking}
+                weight={b.weight}
+                use={b.use}
+                sample={
+                  <p className={`${b.name} m-0 text-[var(--fg-primary)]`}>
+                    A navigation sidebar é a espinha dorsal da arquitetura de
+                    informação da plataforma.
+                  </p>
+                }
+              />
             ))}
-          </div>
+          </SpecCard>
+
+          <UsagePattern
+            fake={`<p className="body-md">Texto humano em 16px.</p>`}
+            real={`<Typography variant="body-md" component="p">
+  Texto humano em 16px.
+</Typography>`}
+          />
         </Section>
 
         {/* ── Mono ───────────────────────────────────────────────── */}
@@ -287,15 +361,22 @@ export default function TypographyPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
             <Spec
               k="mono-md"
-              v="14 px · --mono-md-size"
+              v="14px · lh 1.4 · ls 0 · 500"
               d="Default. Tokens em docs, código em <code>."
             />
             <Spec
               k="mono-sm"
-              v="12 px · --mono-sm-size"
+              v="12px · lh 1.4 · ls 0.01em · 500"
               d="IDs, timestamps, metadados em UI."
             />
           </div>
+
+          <UsagePattern
+            fake={`<code className="mono">--accent-brand</code>`}
+            real={`<Typography variant="mono-md" component="code">
+  --accent-brand
+</Typography>`}
+          />
         </Section>
 
         {/* ── Utility ────────────────────────────────────────────── */}
@@ -306,22 +387,22 @@ export default function TypographyPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
-              <div className="caption">caption</div>
+              <div className="caption">caption · 12px · lh 1.4</div>
               <code className="mono text-xs text-[var(--fg-tertiary)]">
                 .caption
               </code>
               <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                12 px · <code className="mono">--fg-tertiary</code> · line-height
-                1.4. Metadata abaixo de cards, footnotes em forms.
+                12 px · <code className="mono">--fg-tertiary</code> ·
+                line-height 1.4. Metadata abaixo de cards, footnotes em forms.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
-              <div className="aw-eyebrow">overline / eyebrow</div>
+              <div className="aw-eyebrow">overline / eyebrow · 10px · 700</div>
               <code className="mono text-xs text-[var(--fg-tertiary)]">
                 .aw-eyebrow
               </code>
               <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                Uppercase, letter-spacing 0.12em, peso medium. Headers de
+                Uppercase, letter-spacing 0.12em, peso bold (700). Headers de
                 tabela, labels de Spec/PropRow.
               </p>
             </div>
@@ -371,22 +452,41 @@ export default function TypographyPage() {
         <Section
           id="code"
           title="Em código"
-          lead="As tags HTML já vêm estilizadas via globals.css. Para utilities use as classes; para custom, consuma o token."
+          lead="No styleguide o exemplo aparece com a tag HTML + className representando a variant. Na implementação real, o time usa o componente <Typography /> com variant + component. Mostramos os dois lados pra deixar o mapping explícito."
         >
-          <CodeExample label="tag semântica (preferido)">{`<h1>Crie agentes em minutos</h1>
+          <UsagePattern
+            label="display"
+            fake={`<p className="display-xl">Agent studio</p>`}
+            real={`<Typography variant="display-xl" component="p">
+  Agent studio
+</Typography>`}
+          />
+          <UsagePattern
+            label="heading"
+            fake={`<h2>Agent studio</h2>`}
+            real={`<Typography variant="h2">Agent studio</Typography>`}
+          />
+          <UsagePattern
+            label="body"
+            fake={`<p className="body-md">Texto humano em 16px.</p>`}
+            real={`<Typography variant="body-md" component="p">
+  Texto humano em 16px.
+</Typography>`}
+          />
+          <UsagePattern
+            label="utility (caption, eyebrow, mono)"
+            fake={`<span className="caption">metadata · 12px tertiary</span>
+<div className="aw-eyebrow">overline · uppercase tracked</div>
+<code className="mono">--accent-brand</code>`}
+            real={`<Typography variant="caption">metadata · 12px tertiary</Typography>
+<Typography variant="eyebrow">overline · uppercase tracked</Typography>
+<Typography variant="mono-md" component="code">--accent-brand</Typography>`}
+          />
+
+          <CodeExample label="forma curta com tag semântica">{`// Heading nunca precisa de className — a tag carrega o estilo.
+<h1>Agent studio</h1>
 <h2>Como funciona</h2>
 <p>Texto humano em body-md por padrão (herdado).</p>`}</CodeExample>
-
-          <CodeExample label="tamanho custom via token">{`<p style={{ fontSize: "var(--body-lg-size)" }}>
-  Lead de hero — 18px.
-</p>
-
-<span className="caption">metadata · 12px tertiary</span>
-<div className="aw-eyebrow">overline · uppercase tracked</div>`}</CodeExample>
-
-          <CodeExample label="mono (código, tokens, ids)">{`<code className="mono text-sm">
-  --accent-brand
-</code>`}</CodeExample>
         </Section>
 
         {/* ── Do / Don't ─────────────────────────────────────────── */}
@@ -394,14 +494,22 @@ export default function TypographyPage() {
           <DoDont
             dos={[
               <>
+                Use Geist em <em>tudo</em> que é texto humano — não tem motivo
+                pra carregar outra fonte.
+              </>,
+              <>
                 Use as tags semânticas (h1–h6, p, code) — estilo já vem.
               </>,
               <>
                 Para tamanho custom, consuma <code className="mono">var(--*-size)</code>.
               </>,
               <>
-                Body padrão é <code className="mono">body-md</code> (16). Suba só
-                em hero.
+                Body padrão é <code className="mono">body-md</code> (16). Suba
+                só em hero.
+              </>,
+              <>
+                Toda frase começa com maiúscula — <strong>&ldquo;Agent
+                studio&rdquo;</strong>, não <em>agent studio</em>.
               </>,
               <>
                 Mono apenas em código, tokens, IDs, timestamps.
@@ -418,8 +526,14 @@ export default function TypographyPage() {
                 fora da escala.
               </>,
               <>Mono em texto humano (vira código falso).</>,
-              <>Bold 700 fora de inline emphasis.</>,
-              <>ALL CAPS fora de <code className="mono">.aw-eyebrow</code>.</>,
+              <>Bold 700 fora de inline emphasis ou eyebrow.</>,
+              <>
+                ALL CAPS fora de <code className="mono">.aw-eyebrow</code>.
+              </>,
+              <>
+                Frases em minúscula no produto (<em>agent studio</em>,{" "}
+                <em>visão geral</em>).
+              </>,
             ]}
           />
         </Section>
@@ -456,6 +570,10 @@ export default function TypographyPage() {
   )
 }
 
+/* ────────────────────────────────────────────────────────────
+ * Componentes locais
+ * ──────────────────────────────────────────────────────────── */
+
 function Principle({
   n,
   title,
@@ -472,6 +590,90 @@ function Principle({
         {title}
       </div>
       <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+    </div>
+  )
+}
+
+function SpecCard({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-6">
+      {children}
+    </div>
+  )
+}
+
+function SpecRow({
+  name,
+  token,
+  size,
+  leading,
+  tracking,
+  weight,
+  use,
+  sample,
+}: {
+  name: string
+  token: string
+  size: number
+  leading: number
+  tracking: string
+  weight: number
+  use: string
+  sample: React.ReactNode
+}) {
+  return (
+    <div className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0">
+      <div className="w-44 shrink-0 flex flex-col gap-0.5 pt-1">
+        <code className="mono text-xs text-[var(--fg-primary)]">{name}</code>
+        <code className="mono text-[10px] text-[var(--aw-blue-700)]">
+          {token}
+        </code>
+        <div className="mt-1.5 flex flex-col gap-0.5 text-[11px] text-[var(--fg-tertiary)] leading-tight">
+          <span>
+            <span className="text-[var(--fg-secondary)]">size</span> · {size}px
+          </span>
+          <span>
+            <span className="text-[var(--fg-secondary)]">line-height</span> ·{" "}
+            {leading}
+          </span>
+          <span>
+            <span className="text-[var(--fg-secondary)]">tracking</span> ·{" "}
+            {tracking}
+          </span>
+          <span>
+            <span className="text-[var(--fg-secondary)]">weight</span> ·{" "}
+            {weight}
+          </span>
+        </div>
+        <span className="mt-1.5 text-[11px] text-[var(--fg-tertiary)]">
+          {use}
+        </span>
+      </div>
+      <div className="flex-1 min-w-0">{sample}</div>
+    </div>
+  )
+}
+
+function UsagePattern({
+  label,
+  fake,
+  real,
+}: {
+  label?: string
+  fake: string
+  real: string
+}) {
+  return (
+    <div className="mt-4">
+      {label && (
+        <div className="text-xs text-[var(--fg-tertiary)] mb-2 mono">
+          {label}
+        </div>
+      )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <CodeExample label="no styleguide (exemplo)">{fake}</CodeExample>
+        <CodeExample label="na implementação real">{real}</CodeExample>
+      </div>
     </div>
   )
 }
