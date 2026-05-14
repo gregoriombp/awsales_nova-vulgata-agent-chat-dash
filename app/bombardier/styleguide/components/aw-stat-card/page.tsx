@@ -1,5 +1,5 @@
 import { AwStatCard } from "@/components/ui/AwStatCard"
-import { PageHero, Section, Stage } from "../../../_primitives"
+import { PageHero, Section, Stage } from "../../_primitives"
 
 /**
  * AwStatCard — experimental showcase.

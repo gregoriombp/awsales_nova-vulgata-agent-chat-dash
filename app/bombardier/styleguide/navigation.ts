@@ -35,6 +35,7 @@ export const navigation: NavSection[] = [
     title: "Identidade visual",
     items: [
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
+      { name: "Avatar", href: "/bombardier/styleguide/components/aw-avatar" },
       { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },
       { name: "Status dot", href: "/bombardier/styleguide/components/status-dot" },
     ],
@@ -43,7 +44,10 @@ export const navigation: NavSection[] = [
     title: "Inputs & formulários",
     items: [
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
+      { name: "Select", href: "/bombardier/styleguide/components/aw-select" },
+      { name: "Tabs", href: "/bombardier/styleguide/components/aw-tabs" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
+      { name: "Progress", href: "/bombardier/styleguide/components/aw-progress" },
     ],
   },
   {
@@ -71,7 +75,9 @@ export const navigation: NavSection[] = [
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Group card", href: "/bombardier/styleguide/components/aw-group-card" },
+      { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
       { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
+      { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
     ],
@@ -107,19 +113,18 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    title: "Agentes",
+    items: [
+      { name: "Visual dos agentes", href: "/bombardier/styleguide/components/agents" },
+    ],
+  },
+  {
     title: "Integrações",
     items: [
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
       { name: "Template builder sheet", href: "/bombardier/styleguide/components/template-builder-sheet" },
-    ],
-  },
-  {
-    title: "Experimentos",
-    items: [
-      { name: "AwStatCard", href: "/bombardier/styleguide/playground/components/aw-stat-card" },
-      { name: "Onboarding shell", href: "/bombardier/styleguide/playground/components/aw-onboarding-shell" },
     ],
   },
   {

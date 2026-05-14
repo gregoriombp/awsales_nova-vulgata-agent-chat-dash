@@ -4,7 +4,7 @@ import {
   PageHero,
   PropRow,
   Section,
-} from "../../../_primitives"
+} from "../../_primitives"
 
 export default function AwOnboardingShellPlaygroundPage() {
   return (
