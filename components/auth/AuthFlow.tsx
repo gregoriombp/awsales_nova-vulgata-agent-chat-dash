@@ -189,38 +189,40 @@ const COPY = {
 };
 
 
-const ORGS_PT = [
+type Org = {
+  name: string;
+  meta: string;
+  avatar?: string;
+};
+
+const ORGS_PT: Org[] = [
   {
-    name: "Aurora Infoprodutos",
+    name: "Nome da organiza\u00e7\u00e3o",
     meta: "12 membros \u00b7 admin",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_02.png",
+    avatar: "/assets/icon_artificial_concord_organization.png",
   },
   {
-    name: "Barbosa & Filhos",
-    meta: "4 membros \u00b7 operador",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_05.png",
+    name: "Fyntra Tecnologia",
+    meta: "8 membros \u00b7 operador",
   },
   {
-    name: "Claudia Coach",
+    name: "AwSales Labs",
     meta: "1 membro \u00b7 dono",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_08.png",
   },
 ];
-const ORGS_EN = [
+const ORGS_EN: Org[] = [
   {
-    name: "Aurora Infoproducts",
+    name: "Organization name",
     meta: "12 members \u00b7 admin",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_02.png",
+    avatar: "/assets/icon_artificial_concord_organization.png",
   },
   {
-    name: "Barbosa & Sons",
-    meta: "4 members \u00b7 operator",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_05.png",
+    name: "Fyntra Tecnologia",
+    meta: "8 members \u00b7 operator",
   },
   {
-    name: "Claudia Coach",
+    name: "AwSales Labs",
     meta: "1 member \u00b7 owner",
-    avatar: "/assets/agent_imgs/orbs/orb_model-a_08.png",
   },
 ];
 
@@ -786,14 +788,20 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
                 : "border-aw-gray-300 bg-white hover:border-aw-gray-400 hover:bg-aw-gray-150"
             }`}
           >
-            <span className="w-9 h-9 rounded-lg overflow-hidden bg-aw-gray-150 shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={org.avatar}
-                alt={org.name}
-                className="h-full w-full object-cover"
-              />
-            </span>
+            {org.avatar ? (
+              <span className="w-9 h-9 rounded-lg overflow-hidden bg-aw-gray-150 shrink-0">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={org.avatar}
+                  alt={org.name}
+                  className="h-full w-full object-cover"
+                />
+              </span>
+            ) : (
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center font-heading font-medium text-[15px] shrink-0 bg-aw-gray-150 text-aw-gray-1200 border border-aw-gray-300">
+                {org.name.substring(0, 1).toUpperCase()}
+              </span>
+            )}
             <span className="flex-1 min-w-0">
               <span className="block text-sm font-medium text-aw-gray-1200">{org.name}</span>
               <span className="block text-xs text-aw-gray-700 mt-0.5">{org.meta}</span>
