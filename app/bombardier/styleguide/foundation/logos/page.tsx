@@ -146,6 +146,43 @@ const SVG_EXPORTS: SvgExport[] = [
   },
 ]
 
+/* Cor de preview por tom. Para `brand`, o wordmark prefere a versão SVG com
+ * gradiente (Aw azul + sales preto); o mark é renderizado em cor sólida. */
+const TONE_COLOR: Record<Tone, string> = {
+  brand: "var(--aw-blue-600)",
+  muted: "var(--aw-gray-500)",
+  black: "var(--aw-gray-1200)",
+  white: "#ffffff",
+  "brand-on-dark": "var(--aw-blue-400)",
+  "muted-on-dark": "var(--aw-gray-500)",
+}
+
+function LogoCardPreview({ item }: { item: LogoExport }) {
+  const height = item.kind === "mark" ? 96 : 36
+
+  // Wordmark brand (light e on-dark) usa a SVG estática com gradiente — única
+  // forma de manter o dois-tons (blue Aw + black sales) num único asset.
+  if (item.kind === "wordmark" && item.tone === "brand") {
+    return (
+      <img
+        src={AW_LOGO_ASSETS.svg.wordmarkBrand}
+        alt={item.label}
+        style={{ display: "block", height, width: "auto" }}
+      />
+    )
+  }
+
+  // Restante: renderiza inline com cor controlada via currentColor.
+  return (
+    <span
+      aria-label={item.label}
+      style={{ color: TONE_COLOR[item.tone], display: "inline-flex" }}
+    >
+      <AwLogo variant={item.kind} height={height} />
+    </span>
+  )
+}
+
 function LogoCard({ item }: { item: LogoExport }) {
   return (
     <div
@@ -158,24 +195,10 @@ function LogoCard({ item }: { item: LogoExport }) {
         className="flex-1 flex items-center justify-center p-8"
         style={{ minHeight: item.kind === "mark" ? 180 : 140 }}
       >
-        {item.kind === "mark" ? (
-          <img
-            src={item.src}
-            alt={item.label}
-            width={96}
-            height={96}
-            style={{ display: "block", height: 96, width: "auto" }}
-          />
-        ) : (
-          <img
-            src={item.src}
-            alt={item.label}
-            style={{ display: "block", height: 36, width: "auto" }}
-          />
-        )}
+        <LogoCardPreview item={item} />
       </div>
       <div className="px-4 py-3 border-t border-[var(--border-subtle)] bg-[var(--bg-raised)] flex flex-col gap-1">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <span className="text-sm font-medium text-[var(--fg-primary)]">
             {item.label}
           </span>
