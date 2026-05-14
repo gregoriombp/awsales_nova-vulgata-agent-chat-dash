@@ -180,8 +180,8 @@
   --border-strong: var(--aw-gray-500);
   --border-inverse: var(--aw-gray-1000);
 
-  --accent-brand: var(--aw-blue-600);
-  --accent-brand-hover: var(--aw-blue-700);
+  --accent-brand: var(--aw-slate-900);
+  --accent-brand-hover: var(--aw-slate-1000);
   --accent-success: var(--aw-emerald-700);
   --accent-danger: var(--aw-red-700);
   --accent-warning: var(--aw-amber-500);
@@ -287,8 +287,8 @@
   --border-strong: var(--aw-gray-900);
   --border-inverse: var(--aw-gray-300);
 
-  --accent-brand: var(--aw-blue-500);
-  --accent-brand-hover: var(--aw-blue-400);
+  --accent-brand: var(--aw-slate-200);
+  --accent-brand-hover: var(--aw-slate-100);
   --accent-success: var(--aw-emerald-500);
   --accent-danger: var(--aw-red-500);
   --accent-warning: var(--aw-amber-400);

@@ -17,6 +17,7 @@ const TOC = [
   { id: "accessibility", label: "Contraste & a11y" },
   { id: "code", label: "Em código" },
   { id: "do-dont", label: "Do / Don't" },
+  { id: "quando-usar", label: "Quando usar · quando não usar" },
   { id: "related", label: "Veja também" },
 ]
 
@@ -185,8 +186,8 @@ const scales: Scale[] = [
   },
   {
     title: "Blue",
-    description: "Marca + origem do AI gradient.",
-    intent: "Toda &quot;voz do produto&quot; começa em blue.",
+    description: "Cor de marca. Origem do AI gradient (blue → purple).",
+    intent: "Marca está em blue, mas a interface é grayscale — uso restrito a referências explícitas à IA (Cortex).",
     swatches: blueSteps,
   },
   {
@@ -239,6 +240,15 @@ const scales: Scale[] = [
   },
 ]
 
+const ALL_SWATCHES: Swatch[] = scales.flatMap((s) => s.swatches)
+
+function hexFor(name: string): string {
+  if (name === "aw-white") return "#FFFFFF"
+  if (name === "aw-black") return "#000000"
+  const sw = ALL_SWATCHES.find((s) => s.token === `--${name}`)
+  return sw?.hex ?? "transparent"
+}
+
 const SEMANTIC_GROUPS: Array<{
   title: string
   items: Array<{ token: string; role: string; lightValue: string; darkValue: string }>
@@ -277,8 +287,8 @@ const SEMANTIC_GROUPS: Array<{
   {
     title: "Accents",
     items: [
-      { token: "--accent-brand", role: "Primary CTA / links", lightValue: "aw-blue-600", darkValue: "aw-blue-500" },
-      { token: "--accent-brand-hover", role: "Hover do brand", lightValue: "aw-blue-700", darkValue: "aw-blue-400" },
+      { token: "--accent-brand", role: "Primary CTA / links (grayscale, não brand blue)", lightValue: "aw-slate-900", darkValue: "aw-slate-200" },
+      { token: "--accent-brand-hover", role: "Hover do accent", lightValue: "aw-slate-1000", darkValue: "aw-slate-100" },
     ],
   },
 ]
@@ -294,31 +304,6 @@ export default function ColorPage() {
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
-        <Tldr
-          use={[
-            <>
-              <strong>Semantic tokens</strong> (<code className="mono">--bg-*</code>,{" "}
-              <code className="mono">--fg-*</code>, <code className="mono">--border-*</code>,{" "}
-              <code className="mono">--accent-*</code>) em <strong>todo componente</strong>.
-            </>,
-            <>
-              <strong>Primitive</strong> (<code className="mono">--aw-blue-600</code>,{" "}
-              etc.) só pra acentos pontuais que o sistema semântico não cobre.
-            </>,
-            <>Light e dark se resolvem sozinhos via semantic tokens.</>,
-          ]}
-          dontUse={[
-            <>
-              Hex hardcoded — <code className="mono">bg-[#1A5EC8]</code> está
-              proibido.
-            </>,
-            <>
-              Primitive em componente reutilizável (quebra dark mode automático).
-            </>,
-            <>Criar nova escala antes de tentar reusar uma existente.</>,
-          ]}
-        />
-
         <Toc items={TOC} />
 
         {/* ── Princípios ─────────────────────────────────────────── */}
@@ -331,7 +316,7 @@ export default function ColorPage() {
             <Principle
               n="01"
               title="Grayscale primeiro"
-              body="Comece em gray. Adicione cor só se a função pede (sucesso, erro, warning, brand)."
+              body="Comece em gray. Adicione cor só quando a função exige (sucesso, erro, warning)."
             />
             <Principle
               n="02"
@@ -340,13 +325,13 @@ export default function ColorPage() {
             />
             <Principle
               n="03"
-              title="Brand = blue"
-              body="Uma marca, uma cor. Blue é o ponto de partida do AI gradient. Nada mais."
+              title="Brand ≠ interface"
+              body="A marca é azul; a interface é grayscale (com black e white). O gradient blue → purple aparece somente em referências explícitas à IA (Cortex). Proporção típica: 98% grayscale, 2% gradient."
             />
             <Principle
               n="04"
               title="Cor é intent"
-              body="Vermelho diz destrutivo. Verde diz sucesso. Não use por estética."
+              body="Cada cor sinaliza intenção: vermelho para destrutivo, verde para sucesso, âmbar para aviso. Decisão funcional, nunca estética."
             />
           </div>
         </Section>
@@ -409,14 +394,14 @@ export default function ColorPage() {
                       key={item.token}
                       className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
                     >
-                      <td className="py-2 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                      <td className="py-2 pr-4 mono text-xs text-[var(--fg-primary)] whitespace-nowrap">
                         {item.token}
                       </td>
-                      <td className="py-2 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
-                        {item.lightValue}
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        <MappingValueCell value={item.lightValue} />
                       </td>
-                      <td className="py-2 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
-                        {item.darkValue}
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        <MappingValueCell value={item.darkValue} />
                       </td>
                       <td className="py-2 text-sm text-[var(--fg-secondary)]">
                         {item.role}
@@ -572,6 +557,38 @@ export default function ColorPage() {
               <>
                 Inventar uma nova escala antes de tentar reusar uma existente.
               </>,
+            ]}
+          />
+        </Section>
+
+        {/* ── Quando usar / não usar ─────────────────────────────── */}
+        <Section
+          id="quando-usar"
+          title="Quando usar · quando não usar"
+          lead="Resumo operacional. Se está em dúvida no meio de uma feature, leia esta seção antes de escolher token."
+        >
+          <Tldr
+            use={[
+              <>
+                <strong>Semantic tokens</strong> (<code className="mono">--bg-*</code>,{" "}
+                <code className="mono">--fg-*</code>, <code className="mono">--border-*</code>,{" "}
+                <code className="mono">--accent-*</code>) em <strong>todo componente</strong>.
+              </>,
+              <>
+                <strong>Primitive</strong> (<code className="mono">--aw-slate-900</code>,{" "}
+                etc.) só para acentos pontuais que o sistema semântico não cobre.
+              </>,
+              <>Light e dark se resolvem sozinhos via semantic tokens.</>,
+            ]}
+            dontUse={[
+              <>
+                Hex hardcoded — <code className="mono">bg-[#1A5EC8]</code> está
+                proibido.
+              </>,
+              <>
+                Primitive em componente reutilizável (quebra dark mode automático).
+              </>,
+              <>Criar nova escala antes de tentar reusar uma existente.</>,
             ]}
           />
         </Section>
@@ -752,6 +769,25 @@ function SurfaceCard({ label, dark }: { label: string; dark: boolean }) {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  )
+}
+
+function MappingValueCell({ value }: { value: string }) {
+  const hex = hexFor(value)
+  return (
+    <div className="flex items-center gap-2">
+      <span
+        className="w-4 h-4 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] shrink-0"
+        style={{ backgroundColor: hex }}
+        aria-hidden
+      />
+      <div className="flex flex-col leading-tight">
+        <code className="mono text-xs text-[var(--fg-secondary)]">{value}</code>
+        <code className="mono text-[10px] text-[var(--fg-tertiary)] uppercase">
+          {hex}
+        </code>
       </div>
     </div>
   )
