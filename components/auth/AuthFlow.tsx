@@ -141,19 +141,17 @@ const COPY = {
   },
   workspace: {
     pt: {
-      kicker: "// workspace",
-      title: "Selecione um workspace",
-      sub: "Voc\u00ea faz parte de 3 workspaces. Escolha onde quer trabalhar agora.",
+      kicker: "// organiza\u00e7\u00e3o",
+      title: "Selecione uma organiza\u00e7\u00e3o",
+      sub: "Voc\u00ea faz parte de 3 organiza\u00e7\u00f5es. Escolha em qual quer entrar agora.",
       cta: "Continuar",
-      create: "Criar novo workspace",
       change: "Trocar de conta",
     },
     en: {
-      kicker: "// workspace",
-      title: "Select a workspace",
-      sub: "You belong to 3 workspaces. Pick where you want to work now.",
+      kicker: "// organization",
+      title: "Select an organization",
+      sub: "You belong to 3 organizations. Pick the one you want to access now.",
       cta: "Continue",
-      create: "Create new workspace",
       change: "Switch account",
     },
   },
@@ -172,15 +170,39 @@ const COPY = {
 };
 
 
-const WORKSPACES_PT = [
-  { ini: "A", name: "Aurora Infoprodutos", meta: "12 membros \u00b7 admin", tone: "blue" as const },
-  { ini: "B", name: "Barbosa & Filhos", meta: "4 membros \u00b7 operador", tone: "ink" as const },
-  { ini: "C", name: "Claudia Coach", meta: "1 membro \u00b7 dono", tone: "soft" as const },
+const ORGS_PT = [
+  {
+    name: "Aurora Infoprodutos",
+    meta: "12 membros \u00b7 admin",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_02.png",
+  },
+  {
+    name: "Barbosa & Filhos",
+    meta: "4 membros \u00b7 operador",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_05.png",
+  },
+  {
+    name: "Claudia Coach",
+    meta: "1 membro \u00b7 dono",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_08.png",
+  },
 ];
-const WORKSPACES_EN = [
-  { ini: "A", name: "Aurora Infoproducts", meta: "12 members \u00b7 admin", tone: "blue" as const },
-  { ini: "B", name: "Barbosa & Sons", meta: "4 members \u00b7 operator", tone: "ink" as const },
-  { ini: "C", name: "Claudia Coach", meta: "1 member \u00b7 owner", tone: "soft" as const },
+const ORGS_EN = [
+  {
+    name: "Aurora Infoproducts",
+    meta: "12 members \u00b7 admin",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_02.png",
+  },
+  {
+    name: "Barbosa & Sons",
+    meta: "4 members \u00b7 operator",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_05.png",
+  },
+  {
+    name: "Claudia Coach",
+    meta: "1 member \u00b7 owner",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_08.png",
+  },
 ];
 
 /* ═══════════════════════════════════════════
@@ -235,14 +257,6 @@ function ChevLeftIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
       <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function PlusIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" width="14" height="14">
-      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   );
 }
@@ -693,24 +707,18 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
 
 function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) => void }) {
   const c = COPY.workspace[locale];
-  const workspaces = locale === "pt" ? WORKSPACES_PT : WORKSPACES_EN;
+  const orgs = locale === "pt" ? ORGS_PT : ORGS_EN;
   const [selected, setSelected] = useState(0);
-
-  const toneBg: Record<string, string> = {
-    blue: "bg-[#1B76F2] text-white",
-    ink: "bg-aw-gray-1200 text-white",
-    soft: "bg-aw-gray-150 text-aw-gray-1200 border border-aw-gray-300",
-  };
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
+      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
         {c.title}
       </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">{c.sub}</p>
+      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6 text-center">{c.sub}</p>
 
       <div className="flex flex-col gap-2 mb-5">
-        {workspaces.map((ws, i) => (
+        {orgs.map((org, i) => (
           <button
             key={i}
             type="button"
@@ -721,12 +729,17 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
                 : "border-aw-gray-300 bg-white hover:border-aw-gray-400 hover:bg-aw-gray-150"
             }`}
           >
-            <span className={`w-9 h-9 rounded-lg flex items-center justify-center font-heading font-medium text-[15px] shrink-0 ${toneBg[ws.tone]}`}>
-              {ws.ini}
+            <span className="w-9 h-9 rounded-lg overflow-hidden bg-aw-gray-150 shrink-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={org.avatar}
+                alt={org.name}
+                className="h-full w-full object-cover"
+              />
             </span>
             <span className="flex-1 min-w-0">
-              <span className="block text-sm font-medium text-aw-gray-1200">{ws.name}</span>
-              <span className="block text-xs text-aw-gray-700 mt-0.5">{ws.meta}</span>
+              <span className="block text-sm font-medium text-aw-gray-1200">{org.name}</span>
+              <span className="block text-xs text-aw-gray-700 mt-0.5">{org.meta}</span>
             </span>
             <span className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 ${
               selected === i ? "border-aw-gray-1200" : "border-aw-gray-400"
@@ -737,14 +750,6 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
         ))}
       </div>
 
-      <button
-        type="button"
-        className="flex items-center gap-2 w-full p-3 rounded-lg border border-dashed border-aw-gray-400 text-[13px] text-aw-gray-900 hover:border-aw-gray-1200 hover:text-aw-gray-1200 hover:bg-aw-gray-150 transition-all cursor-pointer"
-      >
-        <PlusIcon /> {c.create}
-      </button>
-
-      <div className="h-4" />
       <AwButton variant="primary" size="md" block onClick={() => goTo("success")}>{c.cta}</AwButton>
 
       <div className="h-px bg-aw-gray-200 my-6" />
@@ -813,7 +818,7 @@ export default function AuthFlow() {
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
       {/* Left rail */}
-      <aside className="flex flex-col bg-white border-r border-aw-gray-300 px-8 py-8 xl:px-12 min-h-screen">
+      <aside className="flex flex-col bg-white px-8 py-8 xl:px-12 min-h-screen">
         {/* Brand */}
         <div className="mb-3">
           <AwLogo variant="wordmark" height={20} className="text-aw-gray-1200" />
