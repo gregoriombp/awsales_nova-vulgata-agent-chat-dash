@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
@@ -58,22 +59,76 @@ export function isSettingsNavItemActive(
   );
 }
 
+const COLLAPSED_STORAGE_KEY = "awsales:settings-nav:collapsed";
+
 export function SettingsNav() {
   const pathname = usePathname() ?? "";
+  const [collapsed, setCollapsed] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+      if (raw === "1") setCollapsed(true);
+    } catch {
+      /* noop */
+    }
+    setHydrated(true);
+  }, []);
+
+  const toggle = () => {
+    setCollapsed((c) => {
+      const next = !c;
+      try {
+        localStorage.setItem(COLLAPSED_STORAGE_KEY, next ? "1" : "0");
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
+  };
 
   return (
     <aside
       aria-label="Seções de configurações"
-      className="hidden w-[260px] shrink-0 border-r border-[var(--border-subtle)] lg:block"
+      data-collapsed={collapsed ? "true" : "false"}
+      className={`hidden shrink-0 border-r border-[var(--border-subtle)] transition-[width] duration-200 ease-out lg:block ${
+        collapsed ? "w-[72px]" : "w-[260px]"
+      }`}
+      style={hydrated ? undefined : { visibility: "hidden" }}
     >
-      <div className="sticky top-0 px-6 pt-12 pb-8">
-        <p className="m-0 mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--fg-tertiary)]">
-          Configurações
-        </p>
-        <h2 className="m-0 mb-6 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
-          Workspace
-        </h2>
-        <nav className="aw-nav-rail aw-nav-rail--expanded !w-full !p-0 !border-0 !bg-transparent">
+      <div className={`sticky top-0 ${collapsed ? "px-3" : "px-6"} pt-5 pb-8`}>
+        <div
+          className={`mb-5 flex items-center ${
+            collapsed ? "justify-center" : "justify-between"
+          }`}
+        >
+          {!collapsed && (
+            <div>
+              <p className="m-0 mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--fg-tertiary)]">
+                Configurações
+              </p>
+              <h2 className="m-0 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+                Workspace
+              </h2>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={collapsed ? "Expandir navegação" : "Recolher navegação"}
+            aria-expanded={!collapsed}
+            className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--fg-tertiary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+          >
+            <Icon name={collapsed ? "menu_open" : "menu"} size={18} />
+          </button>
+        </div>
+
+        <nav
+          className={`aw-nav-rail ${
+            collapsed ? "aw-nav-rail--collapsed" : "aw-nav-rail--expanded"
+          } !w-full !p-0 !border-0 !bg-transparent`}
+        >
           <div className="aw-nav-rail__items">
             {SETTINGS_NAV_ITEMS.map((item) => {
               const active = isSettingsNavItemActive(pathname, item);
@@ -89,6 +144,8 @@ export function SettingsNav() {
                   href={item.href}
                   prefetch
                   aria-current={active ? "page" : undefined}
+                  aria-label={collapsed ? item.label : undefined}
+                  title={collapsed ? item.label : undefined}
                   className={classes}
                 >
                   <Icon name={item.icon} size={20} fill={active ? 1 : 0} />
