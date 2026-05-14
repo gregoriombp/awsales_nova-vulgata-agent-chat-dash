@@ -8,6 +8,8 @@ const BASE = "/settings/financeiro";
 const TABS = [
   { value: `${BASE}/visao-geral`, label: "Visão geral" },
   { value: `${BASE}/saldo-creditos`, label: "Saldo de créditos" },
+  { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
+  { value: `${BASE}/historico-faturas`, label: "Histórico de faturas" },
   { value: `${BASE}/auditoria`, label: "Auditoria" },
 ] as const;
 

@@ -40,6 +40,8 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     subRoutes: {
       "visao-geral": "Visão geral",
       "saldo-creditos": "Saldo de créditos",
+      "metodos-pagamento": "Métodos de pagamento",
+      "historico-faturas": "Histórico de faturas",
       auditoria: "Auditoria",
     },
   },

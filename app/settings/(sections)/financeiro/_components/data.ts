@@ -202,6 +202,49 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   },
 ];
 
+// ---- Métodos de pagamento ----
+
+export type CardBrand = "Visa" | "Mastercard" | "Amex";
+
+export type PaymentMethod = {
+  id: string;
+  brand: CardBrand;
+  last4: string;
+  /** MM/AAAA */
+  expiresAt: string;
+  isDefault: boolean;
+};
+
+export const PAYMENT_METHODS: PaymentMethod[] = [
+  {
+    id: "pm-visa-3012",
+    brand: "Visa",
+    last4: "3012",
+    expiresAt: "08/2028",
+    isDefault: true,
+  },
+  {
+    id: "pm-mc-8888",
+    brand: "Mastercard",
+    last4: "8888",
+    expiresAt: "04/2027",
+    isDefault: false,
+  },
+  {
+    id: "pm-amex-1004",
+    brand: "Amex",
+    last4: "1004",
+    expiresAt: "11/2026",
+    isDefault: false,
+  },
+];
+
+export const BR_STATES = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
+  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
+  "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+] as const;
+
 // ---- Saldo de créditos ----
 
 export const CREDITS_KPIS = {
