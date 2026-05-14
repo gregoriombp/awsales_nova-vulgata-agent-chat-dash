@@ -85,6 +85,12 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    title: "Movimento",
+    items: [
+      { name: "Transition", href: "/bombardier/styleguide/components/aw-transition" },
+    ],
+  },
+  {
     title: "Feedback",
     items: [
       { name: "Alertas", href: "/bombardier/styleguide/components/alerts" },
