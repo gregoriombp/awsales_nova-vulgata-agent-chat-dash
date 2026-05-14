@@ -45,7 +45,17 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
     },
     ref
   ) {
-    const iconSize = size === "sm" ? 14 : size === "lg" ? 18 : 16
+    const iconSize = iconOnly
+      ? size === "sm"
+        ? 18
+        : size === "lg"
+          ? 22
+          : 20
+      : size === "sm"
+        ? 14
+        : size === "lg"
+          ? 18
+          : 16
     const Comp = asChild ? Slot : "button"
 
     return (

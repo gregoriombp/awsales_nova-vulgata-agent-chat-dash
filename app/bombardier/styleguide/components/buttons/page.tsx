@@ -27,7 +27,9 @@ const TOC = [
   { id: "anatomy", label: "Anatomia" },
   { id: "variants", label: "Variantes" },
   { id: "sizes", label: "Tamanhos" },
+  { id: "icons", label: "Ícones" },
   { id: "states", label: "Estados" },
+  { id: "matrix", label: "Matriz completa" },
   { id: "composition", label: "Composition" },
   { id: "responsive", label: "Responsivo" },
   { id: "api", label: "API" },
@@ -36,6 +38,24 @@ const TOC = [
   { id: "code", label: "Em código" },
   { id: "do-dont", label: "Do / Don't" },
   { id: "related", label: "Veja também" },
+]
+
+const ALL_VARIANTS: Array<{
+  value: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai"
+  label: string
+}> = [
+  { value: "primary", label: "primary" },
+  { value: "secondary", label: "secondary" },
+  { value: "ghost", label: "ghost" },
+  { value: "subtle", label: "subtle" },
+  { value: "danger", label: "danger" },
+  { value: "ai", label: "ai" },
+]
+
+const ALL_SIZES: Array<{ value: "sm" | "md" | "lg"; label: string; h: number }> = [
+  { value: "sm", label: "sm", h: 30 },
+  { value: "md", label: "md", h: 38 },
+  { value: "lg", label: "lg", h: 46 },
 ]
 
 export default function ButtonsPage() {
@@ -266,11 +286,119 @@ export default function ButtonsPage() {
           </div>
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)]">
-            <strong className="text-[var(--fg-primary)]">Ícone.</strong> 14 px em
-            <code className="mono"> sm</code>, 16 px em
-            <code className="mono"> md</code>, 18 px em
-            <code className="mono"> lg</code>. Calculado automaticamente — não
+            <strong className="text-[var(--fg-primary)]">Ícone com label.</strong>{" "}
+            14 px em <code className="mono">sm</code>, 16 px em{" "}
+            <code className="mono">md</code>, 18 px em{" "}
+            <code className="mono">lg</code>.{" "}
+            <strong className="text-[var(--fg-primary)]">Icon-only</strong> sobe
+            de 18 / 20 / 22 px — o glyph carrega todo o sinal sem o auxílio do
+            label, então respira um pouco mais. Calculado automaticamente — não
             passe <code className="mono">style</code>.
+          </div>
+        </Section>
+
+        {/* ── 6.5 Ícones (left / right / only) ─────────────────────── */}
+        <Section
+          id="icons"
+          title="Ícones"
+          lead="Três posições. Ícone à esquerda (default) significa “ação que aciona algo”. À direita é reservado pra navegação ou direção. Icon-only é só para gestos secundários conhecidos — sempre com aria-label."
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+              <div className="aw-eyebrow">iconLeft</div>
+              <div className="flex flex-col items-start gap-2">
+                <AwButton variant="primary" iconLeft="add">
+                  Criar agente
+                </AwButton>
+                <AwButton variant="secondary" iconLeft="content_copy">
+                  Duplicar
+                </AwButton>
+                <AwButton variant="ai" iconLeft="auto_awesome">
+                  Gerar sugestão
+                </AwButton>
+              </div>
+              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                Default. Use sempre que o ícone <strong>identifica a ação</strong>{" "}
+                (criar, duplicar, gerar, enviar). O ícone vem antes porque é
+                lido junto com o verbo.
+              </p>
+            </div>
+
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+              <div className="aw-eyebrow">iconRight</div>
+              <div className="flex flex-col items-start gap-2">
+                <AwButton variant="primary" iconRight="arrow_forward">
+                  Continuar
+                </AwButton>
+                <AwButton variant="secondary" iconRight="open_in_new">
+                  Abrir docs
+                </AwButton>
+                <AwButton variant="ghost" iconRight="expand_more">
+                  Mais opções
+                </AwButton>
+              </div>
+              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                Reservado a <strong>direção e navegação</strong>: avançar,
+                voltar, sair, abrir externo, expandir. Nunca pra identificar a
+                ação — isso é trabalho do iconLeft.
+              </p>
+            </div>
+
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+              <div className="aw-eyebrow">iconOnly</div>
+              <div className="flex items-center gap-2">
+                <AwButton
+                  variant="subtle"
+                  iconOnly="more_vert"
+                  aria-label="Mais ações"
+                />
+                <AwButton
+                  variant="subtle"
+                  iconOnly="edit"
+                  aria-label="Editar"
+                />
+                <AwButton
+                  variant="subtle"
+                  iconOnly="content_copy"
+                  aria-label="Duplicar"
+                />
+                <AwButton
+                  variant="ghost"
+                  iconOnly="close"
+                  aria-label="Fechar"
+                />
+              </div>
+              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                Quadrado com cantos rounded. Apenas gestos secundários{" "}
+                <strong>cujo glyph é universal</strong> (mais, fechar, editar,
+                duplicar). Sempre acompanhado de{" "}
+                <code className="mono">aria-label</code>.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4">
+            <div className="aw-eyebrow mb-4">comparativo · mesma ação, três posições</div>
+            <div className="flex flex-wrap items-center gap-4">
+              <AwButton variant="primary" iconLeft="cloud_upload">
+                Publicar
+              </AwButton>
+              <span className="caption">↔</span>
+              <AwButton variant="primary" iconRight="cloud_upload">
+                Publicar
+              </AwButton>
+              <span className="caption">↔</span>
+              <AwButton
+                variant="primary"
+                iconOnly="cloud_upload"
+                aria-label="Publicar"
+              />
+            </div>
+            <p className="caption mt-3 m-0">
+              O primeiro é certo (ícone identifica a ação). O segundo está
+              quebrado — “Publicar” não é direção. O terceiro só funciona em
+              toolbar densa onde o gesto já é conhecido.
+            </p>
           </div>
         </Section>
 
@@ -326,6 +454,44 @@ export default function ButtonsPage() {
               },
             ]}
           />
+        </Section>
+
+        {/* ── 7.5 Matriz completa ──────────────────────────────────── */}
+        <Section
+          id="matrix"
+          title="Matriz completa"
+          lead="Todas as variantes, todos os tamanhos, todos os estados — uma única tela pra inspecionar. Linhas são variantes; colunas agrupam tamanhos (sm · md · lg) por estado. Hover e focus precisam do mouse / Tab; o resto é forçado via prop."
+        >
+          {ALL_VARIANTS.map((v) => (
+            <div
+              key={v.value}
+              className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-5 mb-4 last:mb-0"
+            >
+              <div className="flex items-baseline justify-between">
+                <code className="mono text-sm text-[var(--fg-primary)]">
+                  variant=&quot;{v.label}&quot;
+                </code>
+                <span className="caption">sm · md · lg</span>
+              </div>
+
+              {/* Linhas de estado */}
+              <MatrixRow label="default" variant={v.value} />
+              <MatrixRow label="focus" variant={v.value} autoFocus />
+              <MatrixRow label="loading" variant={v.value} loading />
+              <MatrixRow label="disabled" variant={v.value} disabled />
+              <MatrixRow
+                label="icon-only"
+                variant={v.value}
+                iconOnly="more_vert"
+              />
+            </div>
+          ))}
+
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-2">
+            Os estados <strong>hover</strong> e <strong>active</strong> não
+            aparecem aqui porque dependem de cursor — passe o mouse em qualquer
+            linha de default pra verificar.
+          </div>
         </Section>
 
         {/* ── 8. Composition ───────────────────────────────────────── */}
@@ -819,4 +985,85 @@ function VariantCard({
       <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
     </div>
   )
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+ * MatrixRow — uma linha de estado (default / focus / loading / disabled
+ * / icon-only) com as 3 escalas (sm · md · lg) lado a lado. Usada na
+ * seção "Matriz completa" pra mostrar cada variant em todas as
+ * combinações sem inundar a tela.
+ * ────────────────────────────────────────────────────────────────────── */
+function MatrixRow({
+  label,
+  variant,
+  autoFocus,
+  loading,
+  disabled,
+  iconOnly,
+}: {
+  label: string
+  variant: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai"
+  autoFocus?: boolean
+  loading?: boolean
+  disabled?: boolean
+  iconOnly?: string
+}) {
+  return (
+    <div className="grid grid-cols-[100px_1fr] gap-4 items-center border-b border-[var(--border-subtle)] pb-4 last:border-b-0 last:pb-0">
+      <div className="aw-eyebrow">{label}</div>
+      <div className="flex items-center gap-3 flex-wrap">
+        {ALL_SIZES.map((s) => {
+          if (iconOnly) {
+            return (
+              <AwButton
+                key={s.value}
+                variant={variant}
+                size={s.value}
+                iconOnly={iconOnly}
+                aria-label={`${variant} ${s.value}`}
+                loading={loading}
+                disabled={disabled}
+              />
+            )
+          }
+          return (
+            <AwButton
+              key={s.value}
+              variant={variant}
+              size={s.value}
+              autoFocus={autoFocus}
+              loading={loading}
+              disabled={disabled}
+              iconLeft={
+                variant === "ai" ? "auto_awesome" : variant === "danger" ? "delete" : "add"
+              }
+            >
+              {labelFor(variant, loading)}
+            </AwButton>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function labelFor(
+  variant: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai",
+  loading?: boolean,
+): string {
+  if (loading) return "Carregando"
+  switch (variant) {
+    case "primary":
+      return "Criar"
+    case "secondary":
+      return "Duplicar"
+    case "ghost":
+      return "Cancelar"
+    case "subtle":
+      return "Ações"
+    case "danger":
+      return "Arquivar"
+    case "ai":
+      return "Gerar"
+  }
 }

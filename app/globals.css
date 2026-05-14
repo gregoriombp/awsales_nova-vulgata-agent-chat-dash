@@ -952,6 +952,21 @@
   background: var(--aw-gray-900);
 }
 
+/* Row actions — subtle + iconOnly: square rounded tile, transparent at
+ * rest, soft gray fill on hover. Pill shape competes with the table's
+ * grid, so the row trigger goes square; the gray only appears on
+ * intent so the column doesn't drown in muted pills. */
+.aw-btn--subtle.aw-btn--icon {
+  background: transparent;
+  border-radius: var(--radius-md);
+}
+.aw-btn--subtle.aw-btn--icon:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+.dark .aw-btn--subtle.aw-btn--icon:hover:not(:disabled) {
+  background: var(--bg-hover);
+}
+
 /* Danger — destructive actions */
 .aw-btn--danger {
   background: var(--aw-red-700);
@@ -964,31 +979,41 @@
 }
 
 /* AI — reserved for actions that invoke the agent.
- * Iridescent gradient: sky blue → peach/cream → lavender.
- * The radial overlays give the holographic "thinking" feel; the linear
- * base keeps the pill readable on any background. Text is dark gray so the
- * pill works on both light and dark shells (the gradient itself carries
- * the luminosity). Border stays transparent in light, gets a subtle white
- * inner stroke in dark to lift it off the canvas.
+ * Holographic gradient: saturated azure base with a warm peach core
+ * bleeding across the middle, hinting at the "thinking aurora" of
+ * the moodboard. Edges keep the blue saturated so the pill silhouette
+ * reads even on busy surfaces; the central highlight + inner stroke
+ * give it the iridescent foil feel. Text sits in deep navy so the
+ * gradient carries the luminosity, not the type.
  */
 .aw-btn--ai {
   background:
-    radial-gradient(ellipse 70% 120% at 18% 50%, var(--aw-blue-400) 0%, transparent 65%),
-    radial-gradient(ellipse 80% 130% at 82% 50%, var(--aw-amber-200) 0%, transparent 65%),
-    radial-gradient(ellipse 60% 120% at 50% 50%, var(--aw-purple-200) 0%, transparent 70%),
-    linear-gradient(90deg, var(--aw-blue-300) 0%, var(--aw-pink-200) 100%);
-  color: var(--aw-gray-1200);
+    radial-gradient(ellipse 55% 130% at 50% 50%, var(--aw-amber-200) 0%, rgba(253, 230, 204, 0.55) 30%, transparent 60%),
+    radial-gradient(ellipse 90% 140% at 8% 50%, var(--aw-blue-500) 0%, transparent 65%),
+    radial-gradient(ellipse 90% 140% at 92% 50%, var(--aw-blue-500) 0%, transparent 65%),
+    linear-gradient(110deg, var(--aw-blue-400) 0%, var(--aw-blue-300) 35%, var(--aw-amber-200) 55%, var(--aw-blue-300) 75%, var(--aw-blue-500) 100%);
+  color: var(--aw-blue-1100);
   border-color: transparent;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    inset 0 -1px 0 rgba(13, 49, 122, 0.20),
+    0 6px 18px -6px rgba(71, 138, 255, 0.40);
 }
 .aw-btn--ai:hover:not(:disabled) {
-  filter: brightness(1.05) saturate(1.06);
+  filter: brightness(1.04) saturate(1.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+    inset 0 -1px 0 rgba(13, 49, 122, 0.24),
+    0 10px 28px -8px rgba(71, 138, 255, 0.50);
 }
 .dark .aw-btn--ai {
-  color: var(--aw-gray-1200);
+  color: var(--aw-blue-1100);
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
-    0 0 32px rgba(143, 184, 255, 0.18);
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.40),
+    0 0 36px rgba(143, 184, 255, 0.28);
 }
 
 /* Loading */
