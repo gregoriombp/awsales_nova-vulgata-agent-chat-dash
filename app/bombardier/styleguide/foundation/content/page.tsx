@@ -17,16 +17,16 @@ const rewrites: Rewrite[] = [
     before:
       "No momento, devido a uma instabilidade em nosso sistema, não foi possível concluir o seu pedido. Pedimos desculpas pelo inconveniente e agradecemos a sua paciência.",
     after:
-      "O pedido ficou em espera. Processamos assim que o serviço voltar — em até 10 minutos. Você recebe um e-mail.",
+      "O pedido ficou em espera. Processamos assim que o serviço voltar — em até 10 minutos. Você receberá um e-mail.",
     note: "Três parágrafos viram três frases. Fato, compromisso, próximo passo. A desculpa cabe só se a situação for grave — aqui não é.",
   },
   {
     context: "onboarding · sucesso",
     before:
-      "Parabéns! 🎉 Você criou com sucesso o seu primeiro agente de atendimento. Agora é só configurar e começar a usar!",
+      "Parabéns! Você criou com sucesso o seu primeiro agente de atendimento. Agora é só configurar e começar a usar!",
     after:
-      "Seu primeiro agente existe. Falta ensinar o que responder e onde aparecer.",
-    note: "Nada de confete. O usuário já sabe que criou — ele apertou o botão. O valor do texto aqui é apontar o próximo passo com uma metáfora precisa.",
+      "Seu primeiro agente existe. Falta conectar as fontes, ensinar o que responder e escolher onde ele aparece.",
+    note: "Nada de celebração. O usuário já sabe que criou — ele apertou o botão. O valor do texto aqui é apontar os próximos passos concretos, sem rodeios.",
   },
   {
     context: "confirmação destrutiva",
@@ -41,26 +41,26 @@ const rewrites: Rewrite[] = [
 const axes = [
   {
     n: "01",
-    name: "precisão",
+    name: "Precisão",
     rule: "Direto, nunca seco.",
     avoid:
       "“Esta ação pode resultar em consequências irreversíveis para os seus dados.”",
   },
   {
     n: "02",
-    name: "respeito",
+    name: "Respeito",
     rule: "Trata o leitor como par.",
     avoid: "“Não se preocupe — é super simples, você consegue!”",
   },
   {
     n: "03",
-    name: "vivacidade",
+    name: "Vivacidade",
     rule: "Tem cadência, verbos no presente.",
     avoid: "Linguagem passiva e rodeios institucionais.",
   },
   {
     n: "04",
-    name: "honestidade",
+    name: "Honestidade",
     rule: "Não esconde o custo.",
     avoid: "“Essa funcionalidade está sendo otimizada.”",
   },
@@ -425,7 +425,7 @@ export default function ContentPage() {
 
         <Section
           id="checklist"
-          title="Antes de colar no Figma"
+          title="Antes de criar um texto"
           lead="Seis perguntas rápidas."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
