@@ -19,6 +19,7 @@ import { AwButton } from "@/components/ui/AwButton";
 
 export type AuthScreen =
   | "login"
+  | "email"
   | "forgot"
   | "reset"
   | "verify"
@@ -36,6 +37,28 @@ const COPY = {
       kicker: "// acesso",
       title: "Bem-vindo de volta",
       sub: "Entre na sua conta para continuar.",
+      ssoGoogle: "Continuar com Google",
+      ssoMs: "Continuar com Microsoft",
+      ssoEmail: "Continuar com email",
+      noAccount: "Ainda n\u00e3o tem conta?",
+      signUp: "Solicitar acesso",
+    },
+    en: {
+      kicker: "// access",
+      title: "Welcome back",
+      sub: "Sign in to your account to continue.",
+      ssoGoogle: "Continue with Google",
+      ssoMs: "Continue with Microsoft",
+      ssoEmail: "Continue with email",
+      noAccount: "Don\u2019t have an account?",
+      signUp: "Request access",
+    },
+  },
+  email: {
+    pt: {
+      kicker: "// email",
+      title: "Entre com seu email",
+      sub: "Use o email e a senha da sua conta AwSales.",
       email: "Email",
       emailPh: "voce@empresa.com",
       password: "Senha",
@@ -45,14 +68,12 @@ const COPY = {
       cta: "Entrar",
       loadingCta: "Entrando\u2026",
       errPw: "Senha incorreta. Tente novamente ou recupere sua senha.",
-      ssoGoogle: "Continuar com Google",
-      ssoMs: "Continuar com Microsoft",
-      ssoDivider: "ou continuar com email",
+      back: "Outras op\u00e7\u00f5es",
     },
     en: {
-      kicker: "// access",
-      title: "Welcome back",
-      sub: "Sign in to your account to continue.",
+      kicker: "// email",
+      title: "Sign in with email",
+      sub: "Use your AwSales account email and password.",
       email: "Email",
       emailPh: "you@company.com",
       password: "Password",
@@ -62,9 +83,7 @@ const COPY = {
       cta: "Sign in",
       loadingCta: "Signing in\u2026",
       errPw: "Wrong password. Try again or recover your password.",
-      ssoGoogle: "Continue with Google",
-      ssoMs: "Continue with Microsoft",
-      ssoDivider: "or continue with email",
+      back: "Other options",
     },
   },
   forgot: {
@@ -372,6 +391,15 @@ function PasswordInput({
    Screens
    ═══════════════════════════════════════════ */
 
+function MailIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
+      <rect x="3.25" y="5.25" width="17.5" height="13.5" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M4 7.5l8 6 8-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function LoginScreen({
   locale,
   goTo,
@@ -380,7 +408,41 @@ function LoginScreen({
   goTo: (s: AuthScreen) => void;
 }) {
   const c = COPY.login[locale];
-  const router = useRouter();
+
+  return (
+    <div className="w-full max-w-[340px] animate-fadeInUp">
+      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
+        {c.title}
+      </h2>
+      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-7 text-center">{c.sub}</p>
+
+      <div className="flex flex-col gap-2.5">
+        <SsoButton icon={<MailIcon />} label={c.ssoEmail} onClick={() => goTo("email")} />
+        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} />
+        <SsoButton icon={<MsIcon />} label={c.ssoMs} />
+      </div>
+
+      <p className="mt-7 text-center text-[13px] text-aw-gray-700">
+        {c.noAccount}{" "}
+        <a
+          href="#"
+          className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+        >
+          {c.signUp}
+        </a>
+      </p>
+    </div>
+  );
+}
+
+function EmailLoginScreen({
+  locale,
+  goTo,
+}: {
+  locale: Locale;
+  goTo: (s: AuthScreen) => void;
+}) {
+  const c = COPY.email[locale];
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState(false);
 
@@ -407,23 +469,18 @@ function LoginScreen({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
+      <button
+        type="button"
+        onClick={() => goTo("login")}
+        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6"
+      >
+        <ChevLeftIcon /> {c.back}
+      </button>
+
       <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
         {c.title}
       </h2>
       <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6 text-center">{c.sub}</p>
-
-      {/* SSO */}
-      <div className="flex flex-col gap-2 mb-5">
-        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} disabled={isLoading} />
-        <SsoButton icon={<MsIcon />} label={c.ssoMs} disabled={isLoading} />
-      </div>
-
-      <div
-        className="my-5 flex items-center gap-3 uppercase text-aw-gray-700 before:h-px before:flex-1 before:bg-aw-gray-300 before:content-[''] after:h-px after:flex-1 after:bg-aw-gray-300 after:content-['']"
-        style={{ fontSize: 10, letterSpacing: "0.06em" }}
-      >
-        {c.ssoDivider}
-      </div>
 
       {/* Email */}
       <div className="mb-4">
@@ -503,7 +560,7 @@ function ForgotScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
-      <button type="button" onClick={() => goTo("login")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
+      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
         <ChevLeftIcon /> {c.back}
       </button>
 
@@ -651,7 +708,7 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <button type="button" onClick={() => goTo("login")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
+      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
         <ChevLeftIcon /> {c.back}
       </button>
 
@@ -802,6 +859,8 @@ export default function AuthFlow() {
     switch (screen) {
       case "login":
         return <LoginScreen locale={locale} goTo={goTo} />;
+      case "email":
+        return <EmailLoginScreen locale={locale} goTo={goTo} />;
       case "forgot":
         return <ForgotScreen locale={locale} goTo={goTo} />;
       case "reset":

@@ -14,6 +14,7 @@ interface BrandPaneProps {
 // progresses through the auth flow.
 const SCREEN_IMAGE: Record<AuthScreen, string> = {
   login: "/assets/group-backgrounds/group-bg-04.jpg",
+  email: "/assets/group-backgrounds/group-bg-11.jpg",
   forgot: "/assets/group-backgrounds/group-bg-09.jpg",
   reset: "/assets/group-backgrounds/group-bg-13.jpg",
   verify: "/assets/group-backgrounds/group-bg-07.jpg",
@@ -41,7 +42,7 @@ export default function BrandPane({ screen }: BrandPaneProps) {
   }, [prevSrc, tick]);
 
   return (
-    <section className="relative hidden lg:flex items-center justify-center min-h-screen bg-white p-6 xl:p-8">
+    <section className="relative hidden lg:flex items-center justify-center min-h-screen bg-white p-2 xl:p-3">
       <div className="relative h-full w-full overflow-hidden rounded-2xl bg-aw-gray-200">
         {prevSrc && (
           <div
