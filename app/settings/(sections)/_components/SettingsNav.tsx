@@ -32,7 +32,17 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
   { href: "/settings/aparencia", label: "Aparência", icon: "palette" },
   { href: "/settings/seguranca", label: "Segurança", icon: "shield" },
   { href: "/settings/api", label: "API & desenvolvedores", icon: "key" },
-  { href: "/settings/faturamento", label: "Faturamento & uso", icon: "credit_card" },
+  {
+    href: "/settings/financeiro",
+    label: "Financeiro",
+    icon: "account_balance_wallet",
+    matchPrefixes: ["/settings/financeiro"],
+    subRoutes: {
+      "visao-geral": "Visão geral",
+      "saldo-creditos": "Saldo de créditos",
+      auditoria: "Auditoria",
+    },
+  },
   { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },
 ];
 
