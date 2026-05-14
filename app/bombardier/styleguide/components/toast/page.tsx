@@ -161,7 +161,56 @@ export default function ToastPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`"use client"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <code className="mono">variant</code> vira token de{" "}
+            <code className="mono">className</code>; title, description e
+            action viram filhos com classes próprias. O toast é instanciado
+            via hook no produto — o markup à esquerda só ilustra o resultado
+            renderizado.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="success">{`<div
+  className="toast success"
+  role="status"
+>
+  <span
+    className="toast-icon"
+    data-icon="check_circle"
+  />
+  <div className="toast-body">
+    <strong className="toast-title">
+      Agente publicado
+    </strong>
+    <p className="toast-description">
+      Live em Web e WhatsApp.
+    </p>
+  </div>
+</div>`}</CodeExample>
+              <CodeExample label="ai com ação inline">{`<div className="toast ai" role="status">
+  <span
+    className="toast-icon"
+    data-icon="auto_awesome"
+  />
+  <div className="toast-body">
+    <strong className="toast-title">
+      6 respostas reescritas
+    </strong>
+    <p className="toast-description">
+      Revise antes de publicar
+    </p>
+    <button className="toast-action">
+      desfazer
+    </button>
+  </div>
+</div>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · useToast()</div>
+              <CodeExample label="success">{`"use client"
 import { useToast } from "@/components/ui/AwToast"
 
 function PublishButton() {
@@ -176,29 +225,36 @@ function PublishButton() {
     })
   }
 
-  return <AwButton onClick={onPublish}>Publicar</AwButton>
-}
-
-// Com desfazer — dura 8 s
-push({
+  return (
+    <AwButton onClick={onPublish}>
+      Publicar
+    </AwButton>
+  )
+}`}</CodeExample>
+              <CodeExample label="ai com desfazer (8s)">{`push({
   variant: "ai",
   title: "6 respostas reescritas",
   description: "Revise antes de publicar",
-  action: { label: "desfazer", onClick: undoRewrite },
-})
-
-// Setup (uma vez, no layout raiz)
-import { AwToastProvider } from "@/components/ui/AwToast"
+  action: {
+    label: "desfazer",
+    onClick: undoRewrite,
+  },
+})`}</CodeExample>
+              <CodeExample label="setup no layout raiz">{`import { AwToastProvider } from "@/components/ui/AwToast"
 
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <AwToastProvider>{children}</AwToastProvider>
+        <AwToastProvider>
+          {children}
+        </AwToastProvider>
       </body>
     </html>
   )
 }`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">

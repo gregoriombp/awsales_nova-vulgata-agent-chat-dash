@@ -247,13 +247,63 @@ export default function InputsPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`import { AwField, AwInput } from "@/components/ui/AwInput"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            Modificadores booleanos (<code className="mono">invalid</code>,{" "}
+            <code className="mono">dense</code>) viram tokens na{" "}
+            <code className="mono">className</code>; props com valor (
+            <code className="mono">iconLeft=&quot;mail&quot;</code>) viram{" "}
+            <code className="mono">data-icon-left</code>. Esquerda é o formato
+            curto do styleguide; direita é AwField / AwInput no produto.
+          </div>
 
-<AwField label="E-mail" htmlFor="email" error="Formato inválido.">
-  <AwInput id="email" invalid iconLeft="mail" />
-</AwField>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="field com erro">{`<label
+  className="field"
+  htmlFor="email"
+>
+  <span className="field-label">E-mail</span>
+  <input
+    id="email"
+    type="email"
+    className="invalid"
+    data-icon-left="mail"
+  />
+  <span className="field-error">
+    Formato inválido.
+  </span>
+</label>`}</CodeExample>
+              <CodeExample label="search dense">{`<input
+  type="search"
+  className="dense"
+  placeholder="Buscar..."
+  data-icon-left="search"
+/>`}</CodeExample>
+            </div>
 
-<AwInput placeholder="Buscar..." iconLeft="search" dense />`}</CodeExample>
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwField / AwInput</div>
+              <CodeExample label="field com erro">{`import { AwField, AwInput } from "@/components/ui/AwInput"
+
+<AwField
+  label="E-mail"
+  htmlFor="email"
+  error="Formato inválido."
+>
+  <AwInput
+    id="email"
+    invalid
+    iconLeft="mail"
+  />
+</AwField>`}</CodeExample>
+              <CodeExample label="search dense">{`<AwInput
+  placeholder="Buscar..."
+  iconLeft="search"
+  dense
+/>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">

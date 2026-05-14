@@ -159,15 +159,56 @@ export default function AlertsPage() {
               doc="Corpo da mensagem. Mantenha curto — 1 a 3 frases."
             />
           </ApiTable>
-          <CodeExample>{`import { AwAlert } from "@/components/ui/AwAlert"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <code className="mono">variant</code> vira token de{" "}
+            <code className="mono">className</code>;{" "}
+            <code className="mono">title</code> e{" "}
+            <code className="mono">icon</code> viram elementos filhos com a sua
+            className própria. Esquerda é como o styleguide rascunha; direita é
+            como o dev escreve no produto.
+          </div>
 
-<AwAlert variant="warning" title="2 intenções sem resposta.">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="warning com título">{`<div className="alert warning">
+  <span
+    className="alert-icon"
+    data-icon="warning"
+  />
+  <div className="alert-body">
+    <strong className="alert-title">
+      2 intenções sem resposta.
+    </strong>
+    <p>Publicar mesmo assim usará fallback. Revisar antes é recomendado.</p>
+  </div>
+</div>`}</CodeExample>
+              <CodeExample label="danger sem título">{`<div className="alert danger">
+  <span
+    className="alert-icon"
+    data-icon="error"
+  />
+  <p className="alert-body">
+    Falha ao sincronizar. Tente novamente.
+  </p>
+</div>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwAlert</div>
+              <CodeExample label="warning com título">{`import { AwAlert } from "@/components/ui/AwAlert"
+
+<AwAlert
+  variant="warning"
+  title="2 intenções sem resposta."
+>
   Publicar mesmo assim usará fallback. Revisar antes é recomendado.
-</AwAlert>
-
-<AwAlert variant="danger">
+</AwAlert>`}</CodeExample>
+              <CodeExample label="danger sem título">{`<AwAlert variant="danger">
   Falha ao sincronizar. Tente novamente.
 </AwAlert>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">

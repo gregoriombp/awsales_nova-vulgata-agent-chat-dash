@@ -307,14 +307,70 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`"use client"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <code className="mono">checked</code>,{" "}
+            <code className="mono">active</code>,{" "}
+            <code className="mono">variant</code> viram tokens na{" "}
+            <code className="mono">className</code>; props com valor (label,
+            value, max) ficam como atributos nativos. Esquerda é o formato
+            curto do styleguide; direita é a API real.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="toggle">{`<label className="toggle">
+  <input
+    type="checkbox"
+    className="toggle-input"
+    checked
+  />
+  <span className="toggle-track" />
+  <span className="toggle-label">
+    Pause global
+  </span>
+</label>`}</CodeExample>
+              <CodeExample label="tabs">{`<nav className="tabs">
+  <button className="tab active">
+    Geral
+  </button>
+  <button className="tab">
+    Fontes
+  </button>
+</nav>`}</CodeExample>
+              <CodeExample label="slider">{`<label className="slider">
+  <span className="slider-label">
+    Temperatura
+  </span>
+  <input
+    type="range"
+    min={0}
+    max={100}
+    value={70}
+  />
+  <span className="slider-value">
+    0.7
+  </span>
+</label>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwToggle / AwTabs / AwSlider</div>
+              <CodeExample label="toggle">{`"use client"
 import { useState } from "react"
-import { AwToggle, AwTabs, AwSlider } from "@/components/ui/*"
+import { AwToggle } from "@/components/ui/AwToggle"
 
 const [open, setOpen] = useState(false)
-<AwToggle checked={open} onChange={setOpen} label="Pause global" />
+
+<AwToggle
+  checked={open}
+  onChange={setOpen}
+  label="Pause global"
+/>`}</CodeExample>
+              <CodeExample label="tabs">{`import { AwTabs } from "@/components/ui/AwTabs"
 
 const [tab, setTab] = useState("geral")
+
 <AwTabs
   value={tab}
   onChange={setTab}
@@ -322,16 +378,21 @@ const [tab, setTab] = useState("geral")
     { value: "geral", label: "Geral" },
     { value: "fontes", label: "Fontes" },
   ]}
-/>
+/>`}</CodeExample>
+              <CodeExample label="slider">{`import { AwSlider } from "@/components/ui/AwSlider"
 
 const [temp, setTemp] = useState(70)
+
 <AwSlider
   label="Temperatura"
   valueDisplay={(temp / 100).toFixed(1)}
-  min={0} max={100}
+  min={0}
+  max={100}
   value={temp}
   onChange={(e) => setTemp(+e.target.value)}
 />`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">

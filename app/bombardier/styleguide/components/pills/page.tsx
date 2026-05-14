@@ -172,14 +172,36 @@ export default function PillsPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`import { AwPill } from "@/components/ui/AwPill"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <code className="mono">variant</code> e modificadores booleanos
+            (<code className="mono">dot=&#123;false&#125;</code>) viram tokens
+            na <code className="mono">className</code> do exemplo. Esquerda é
+            como o styleguide escreve; direita é como o dev implementa no
+            produto.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="status">{`<span className="live">Live</span>
+<span className="error">Falha</span>
+<span className="ai">AI</span>`}</CodeExample>
+              <CodeExample label="chip de filtro sem dot">{`<span className="neutral no-dot">
+  WhatsApp
+</span>`}</CodeExample>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwPill</div>
+              <CodeExample label="status">{`import { AwPill } from "@/components/ui/AwPill"
 
 <AwPill variant="live">Live</AwPill>
 <AwPill variant="error">Falha</AwPill>
-<AwPill variant="ai">AI</AwPill>
-
-{/* chip de filtro sem dot */}
-<AwPill variant="neutral" dot={false}>WhatsApp</AwPill>`}</CodeExample>
+<AwPill variant="ai">AI</AwPill>`}</CodeExample>
+              <CodeExample label="chip de filtro sem dot">{`<AwPill variant="neutral" dot={false}>
+  WhatsApp
+</AwPill>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">

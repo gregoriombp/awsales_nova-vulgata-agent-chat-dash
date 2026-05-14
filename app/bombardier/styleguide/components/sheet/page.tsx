@@ -165,9 +165,65 @@ export default function SheetPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`"use client"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            Modificadores booleanos da AwSheetRow (
+            <code className="mono">mono</code>) viram tokens na{" "}
+            <code className="mono">className</code> do filho;{" "}
+            <code className="mono">active</code> da tab idem.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="sheet de detalhe">{`<aside className="sheet" data-open>
+  <header className="sheet-header">
+    <h2 className="sheet-title">
+      Conversa #8412
+    </h2>
+    <span className="sheet-meta">
+      iniciada há 12m · WhatsApp
+    </span>
+  </header>
+  <nav className="sheet-tabs">
+    <button className="sheet-tab active">
+      Resumo
+    </button>
+    <button className="sheet-tab">
+      Transcrição
+    </button>
+  </nav>
+  <dl className="sheet-body">
+    <div className="sheet-row">
+      <dt>Usuário</dt>
+      <dd>Marina S.</dd>
+    </div>
+    <div className="sheet-row">
+      <dt>Status</dt>
+      <dd>resolvida em 4 mensagens</dd>
+    </div>
+    <div className="sheet-row mono">
+      <dt>Custo</dt>
+      <dd>$0.012 · 1 842 tokens</dd>
+    </div>
+  </dl>
+  <footer className="sheet-footer">
+    <button className="ghost">Fechar</button>
+    <button className="primary">
+      Marcar revisão
+    </button>
+  </footer>
+</aside>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwSheet</div>
+              <CodeExample label="sheet de detalhe">{`"use client"
 import { useState } from "react"
-import { AwSheet, AwSheetTab, AwSheetRow } from "@/components/ui/AwSheet"
+import {
+  AwSheet,
+  AwSheetTab,
+  AwSheetRow,
+} from "@/components/ui/AwSheet"
 
 const [open, setOpen] = useState(false)
 const [tab, setTab] = useState("resumo")
@@ -181,25 +237,46 @@ const [tab, setTab] = useState("resumo")
   onNext={() => select(next)}
   tabs={
     <>
-      <AwSheetTab active={tab === "resumo"} onClick={() => setTab("resumo")}>
+      <AwSheetTab
+        active={tab === "resumo"}
+        onClick={() => setTab("resumo")}
+      >
         Resumo
       </AwSheetTab>
-      <AwSheetTab active={tab === "trans"} onClick={() => setTab("trans")}>
+      <AwSheetTab
+        active={tab === "trans"}
+        onClick={() => setTab("trans")}
+      >
         Transcrição
       </AwSheetTab>
     </>
   }
   footer={
     <>
-      <AwButton variant="ghost" onClick={() => setOpen(false)}>Fechar</AwButton>
-      <AwButton variant="primary">Marcar revisão</AwButton>
+      <AwButton
+        variant="ghost"
+        onClick={() => setOpen(false)}
+      >
+        Fechar
+      </AwButton>
+      <AwButton variant="primary">
+        Marcar revisão
+      </AwButton>
     </>
   }
 >
-  <AwSheetRow label="Usuário">Marina S.</AwSheetRow>
-  <AwSheetRow label="Status">resolvida em 4 mensagens</AwSheetRow>
-  <AwSheetRow label="Custo" mono>$0.012 · 1 842 tokens</AwSheetRow>
+  <AwSheetRow label="Usuário">
+    Marina S.
+  </AwSheetRow>
+  <AwSheetRow label="Status">
+    resolvida em 4 mensagens
+  </AwSheetRow>
+  <AwSheetRow label="Custo" mono>
+    $0.012 · 1 842 tokens
+  </AwSheetRow>
 </AwSheet>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section

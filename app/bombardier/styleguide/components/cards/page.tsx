@@ -584,7 +584,63 @@ export default function CardsPage() {
               </ul>
             </div>
 
-            <CodeExample>{`import {
+            <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+              <code className="mono">variant</code>,{" "}
+              <code className="mono">interactive</code> e os slots viram tokens
+              de <code className="mono">className</code>{" "}
+              (<code className="mono">card</code>,{" "}
+              <code className="mono">card-header</code>,{" "}
+              <code className="mono">card-title</code>, …). Esquerda é o
+              formato curto usado pra rascunhar telas dentro do styleguide;
+              direita é o que o dev escreve no produto.
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              <div className="flex flex-col gap-2">
+                <div className="aw-eyebrow">styleguide · HTML + className</div>
+                <CodeExample label="card interativo">{`<div
+  className="card interactive"
+  role="button"
+  tabIndex={0}
+>
+  <div className="card-header">
+    <h3 className="card-title">Suporte N1</h3>
+    <p className="card-description">
+      WhatsApp · 4 fontes
+    </p>
+    <div className="card-action">
+      <button
+        className="ghost icon-only"
+        data-icon="more_horiz"
+      />
+    </div>
+  </div>
+  <div className="card-content">
+    74% resolvidas pelo agente.
+  </div>
+  <div className="card-footer">
+    <button className="secondary">Abrir</button>
+  </div>
+</div>`}</CodeExample>
+                <CodeExample label="variante ai">{`<div className="card ai">
+  <div className="card-header">
+    <h3 className="card-title">Sugestão</h3>
+    <p className="card-description">
+      Crie um trigger de fallback.
+    </p>
+  </div>
+  <div className="card-footer">
+    <button
+      className="ai"
+      data-icon-left="auto_awesome"
+    >Aplicar</button>
+  </div>
+</div>`}</CodeExample>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <div className="aw-eyebrow">produto · AwCard</div>
+                <CodeExample label="card interativo">{`import {
   AwCard,
   AwCardHeader,
   AwCardTitle,
@@ -594,32 +650,51 @@ export default function CardsPage() {
   AwCardFooter,
 } from "@/components/ui/AwCard"
 
-<AwCard interactive onClick={() => router.push("/agent/01HX")}>
+<AwCard
+  interactive
+  onClick={() => router.push("/agent/01HX")}
+>
   <AwCardHeader>
     <AwCardTitle>Suporte N1</AwCardTitle>
-    <AwCardDescription>WhatsApp · 4 fontes</AwCardDescription>
+    <AwCardDescription>
+      WhatsApp · 4 fontes
+    </AwCardDescription>
     <AwCardAction>
-      <AwButton variant="ghost" size="sm" iconOnly="more_horiz" />
+      <AwButton
+        variant="ghost"
+        size="sm"
+        iconOnly="more_horiz"
+      />
     </AwCardAction>
   </AwCardHeader>
-  <AwCardContent>74% resolvidas pelo agente.</AwCardContent>
+  <AwCardContent>
+    74% resolvidas pelo agente.
+  </AwCardContent>
   <AwCardFooter>
-    <AwButton variant="secondary" size="sm">Abrir</AwButton>
+    <AwButton variant="secondary" size="sm">
+      Abrir
+    </AwButton>
   </AwCardFooter>
-</AwCard>
-
-{/* Variante AI — sugestão do agente */}
-<AwCard variant="ai">
+</AwCard>`}</CodeExample>
+                <CodeExample label="variante ai">{`<AwCard variant="ai">
   <AwCardHeader>
     <AwCardTitle>Sugestão</AwCardTitle>
-    <AwCardDescription>Crie um trigger de fallback.</AwCardDescription>
+    <AwCardDescription>
+      Crie um trigger de fallback.
+    </AwCardDescription>
   </AwCardHeader>
   <AwCardFooter>
-    <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+    <AwButton
+      variant="ai"
+      size="sm"
+      iconLeft="auto_awesome"
+    >
       Aplicar
     </AwButton>
   </AwCardFooter>
 </AwCard>`}</CodeExample>
+              </div>
+            </div>
           </Section>
 
           {/* ───────── Do / Don't ───────── */}

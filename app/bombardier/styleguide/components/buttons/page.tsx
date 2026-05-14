@@ -624,15 +624,56 @@ export default function ButtonsPage() {
         <Section
           id="code"
           title="Em código"
-          lead="Quatro padrões cobrem >90% dos casos. Imports vêm sempre de @/components/ui/AwButton — nunca do shadcn primitive."
+          lead="Cada padrão tem duas escritas. Esquerda: HTML + className representando a variant — formato usado dentro do próprio styleguide pra gerar telas rápido. Direita: AwButton no produto, onde os devs implementam pra valer."
         >
-          <CodeExample label="básico">{`import { AwButton } from "@/components/ui/AwButton"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)]">
+            Regra: <code className="mono">variant</code> e modificadores
+            booleanos (<code className="mono">loading</code>,{" "}
+            <code className="mono">block</code>,{" "}
+            <code className="mono">iconOnly</code>) viram tokens na{" "}
+            <code className="mono">className</code> do exemplo; props com valor
+            (<code className="mono">iconLeft=&quot;add&quot;</code>) viram{" "}
+            <code className="mono">data-icon-left=&quot;add&quot;</code>. Esse
+            padrão se repete pra <em>todos</em> os componentes do styleguide.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="básico">{`<button
+  className="primary"
+  data-icon-left="add"
+>
+  Criar agente
+</button>`}</CodeExample>
+              <CodeExample label="loading com estado">{`<button
+  className="primary loading"
+  aria-busy="true"
+>
+  Salvar alterações
+</button>`}</CodeExample>
+              <CodeExample label="iconOnly com aria-label">{`<button
+  className="subtle icon-only"
+  data-icon="more_vert"
+  aria-label="Ações da linha"
+/>`}</CodeExample>
+              <CodeExample label="link estilizado como botão">{`<a
+  className="primary"
+  href="/onboarding"
+  data-icon-right="arrow_forward"
+>
+  Continuar
+</a>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwButton</div>
+              <CodeExample label="básico">{`import { AwButton } from "@/components/ui/AwButton"
 
 <AwButton variant="primary" iconLeft="add">
   Criar agente
 </AwButton>`}</CodeExample>
-
-          <CodeExample label="loading com estado">{`const [saving, setSaving] = useState(false)
+              <CodeExample label="loading com estado">{`const [saving, setSaving] = useState(false)
 
 <AwButton
   variant="primary"
@@ -645,19 +686,23 @@ export default function ButtonsPage() {
 >
   Salvar alterações
 </AwButton>`}</CodeExample>
-
-          <CodeExample label="iconOnly com aria-label">{`<AwButton
+              <CodeExample label="iconOnly com aria-label">{`<AwButton
   variant="subtle"
   iconOnly="more_vert"
   aria-label="Ações da linha"
   onClick={openMenu}
 />`}</CodeExample>
+              <CodeExample label="asChild com Link (Next.js)">{`import Link from "next/link"
 
-          <CodeExample label="asChild com Link (Next.js)">{`import Link from "next/link"
-
-<AwButton asChild variant="primary" iconRight="arrow_forward">
+<AwButton
+  asChild
+  variant="primary"
+  iconRight="arrow_forward"
+>
   <Link href="/onboarding">Continuar</Link>
 </AwButton>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         {/* ── 14. DoDont ───────────────────────────────────────────── */}

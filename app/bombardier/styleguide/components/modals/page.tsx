@@ -178,14 +178,52 @@ export default function ModalsPage() {
             />
           </ApiTable>
 
-          <CodeExample>{`"use client"
+          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <code className="mono">size</code> e modificadores booleanos
+            (<code className="mono">closeOnOverlay=&#123;false&#125;</code>{" "}
+            → <code className="mono">overlay-locked</code>) viram tokens na{" "}
+            <code className="mono">className</code>; <em>slots</em> com valor
+            (title, footer) viram filhos com a sua className própria.
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">styleguide · HTML + className</div>
+              <CodeExample label="confirmação">{`<dialog className="modal md" open>
+  <header className="modal-header">
+    <h2 className="modal-title">
+      Publicar agente
+    </h2>
+    <button
+      className="ghost icon-only"
+      data-icon="close"
+      aria-label="Fechar"
+    />
+  </header>
+  <div className="modal-body">
+    O agente começa a receber tráfego real no canal conectado.
+  </div>
+  <footer className="modal-footer">
+    <button className="ghost">Cancelar</button>
+    <button className="primary">
+      Publicar agora
+    </button>
+  </footer>
+</dialog>`}</CodeExample>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <div className="aw-eyebrow">produto · AwModal</div>
+              <CodeExample label="confirmação">{`"use client"
 import { useState } from "react"
 import { AwModal } from "@/components/ui/AwModal"
 import { AwButton } from "@/components/ui/AwButton"
 
 const [open, setOpen] = useState(false)
 
-<AwButton onClick={() => setOpen(true)}>Publicar</AwButton>
+<AwButton onClick={() => setOpen(true)}>
+  Publicar
+</AwButton>
 
 <AwModal
   open={open}
@@ -193,10 +231,16 @@ const [open, setOpen] = useState(false)
   title="Publicar agente"
   footer={
     <>
-      <AwButton variant="ghost" onClick={() => setOpen(false)}>
+      <AwButton
+        variant="ghost"
+        onClick={() => setOpen(false)}
+      >
         Cancelar
       </AwButton>
-      <AwButton variant="primary" onClick={handlePublish}>
+      <AwButton
+        variant="primary"
+        onClick={handlePublish}
+      >
         Publicar agora
       </AwButton>
     </>
@@ -204,6 +248,8 @@ const [open, setOpen] = useState(false)
 >
   O agente começa a receber tráfego real no canal conectado.
 </AwModal>`}</CodeExample>
+            </div>
+          </div>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">
