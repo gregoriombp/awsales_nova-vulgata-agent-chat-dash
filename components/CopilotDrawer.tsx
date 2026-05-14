@@ -4,15 +4,78 @@ import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import AstralFlow from "@/components/astral-flow";
 
-// Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with
-// quadratic-Bézier rounded vertices. Encoded as an SVG mask so it scales
-// with any container size.
+// Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with sharp
+// vertices. Encoded as an SVG mask so it scales with any container size.
 const CORTEX_HEX_MASK = (() => {
-  const path =
-    "M5 41.34 L20 15.36 Q25 6.7 35 6.7 L65 6.7 Q75 6.7 80 15.36 L95 41.34 Q100 50 95 58.66 L80 84.64 Q75 93.3 65 93.3 L35 93.3 Q25 93.3 20 84.64 L5 58.66 Q0 50 5 41.34 Z";
+  const path = "M25 6.7 L75 6.7 L100 50 L75 93.3 L25 93.3 L0 50 Z";
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'><path d='${path}' fill='black'/></svg>`;
   return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 })();
+
+export type CortexState =
+  | "idle"
+  | "listening"
+  | "thinking"
+  | "responding"
+  | "error";
+
+type CortexPreset = {
+  speed: number;
+  color1: string;
+  color2: string;
+  color3: string;
+  flowMin: number;
+  flowMax: number;
+  bg: string;
+};
+
+export const CORTEX_STATE_PRESETS: Record<CortexState, CortexPreset> = {
+  idle: {
+    speed: 0.15,
+    color1: "#fafafa",
+    color2: "#E2E2E2",
+    color3: "#ffffff",
+    flowMin: 3.0,
+    flowMax: 7.0,
+    bg: "#141416",
+  },
+  listening: {
+    speed: 0.28,
+    color1: "#dee9ff",
+    color2: "#9eb3df",
+    color3: "#ffffff",
+    flowMin: 3.5,
+    flowMax: 6.5,
+    bg: "#10131c",
+  },
+  thinking: {
+    speed: 0.55,
+    color1: "#fafafa",
+    color2: "#cfd6e3",
+    color3: "#ffffff",
+    flowMin: 2.0,
+    flowMax: 9.0,
+    bg: "#141416",
+  },
+  responding: {
+    speed: 0.22,
+    color1: "#fff4dd",
+    color2: "#e5c79a",
+    color3: "#ffffff",
+    flowMin: 3.0,
+    flowMax: 6.0,
+    bg: "#181410",
+  },
+  error: {
+    speed: 0.08,
+    color1: "#2b0e0e",
+    color2: "#7a2222",
+    color3: "#e0a3a3",
+    flowMin: 4.0,
+    flowMax: 4.5,
+    bg: "#0e0707",
+  },
+};
 
 function Close24() {
   return (
@@ -70,7 +133,29 @@ function Send20() {
   );
 }
 
-export function CopilotOrb({ size = 36 }: { size?: number }) {
+export function CopilotOrb({
+  size = 36,
+  state = "idle",
+  speed,
+  color1,
+  color2,
+  color3,
+  flowMin,
+  flowMax,
+  bg,
+}: {
+  size?: number;
+  state?: CortexState;
+  speed?: number;
+  color1?: string;
+  color2?: string;
+  color3?: string;
+  flowMin?: number;
+  flowMax?: number;
+  bg?: string;
+}) {
+  const preset = CORTEX_STATE_PRESETS[state];
+  const bgColor = bg ?? preset.bg;
   return (
     <div
       className="relative shrink-0 overflow-hidden"
@@ -88,11 +173,13 @@ export function CopilotOrb({ size = 36 }: { size?: number }) {
       aria-hidden="true"
     >
       <AstralFlow
-        speed={0.15}
-        color1="#fafafa"
-        color2="#E2E2E2"
-        color3="#ffffff"
-        className="!bg-[#141416]"
+        speed={speed ?? preset.speed}
+        color1={color1 ?? preset.color1}
+        color2={color2 ?? preset.color2}
+        color3={color3 ?? preset.color3}
+        flowMin={flowMin ?? preset.flowMin}
+        flowMax={flowMax ?? preset.flowMax}
+        style={{ backgroundColor: bgColor }}
       />
     </div>
   );

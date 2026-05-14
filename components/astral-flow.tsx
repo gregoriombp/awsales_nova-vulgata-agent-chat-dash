@@ -135,6 +135,7 @@ const fragmentShader = `
 
 interface AstralFlowProps {
   className?: string;
+  style?: React.CSSProperties;
   speed?: number;
   color1?: string;
   color2?: string;
@@ -150,7 +151,7 @@ const Effect = ({
   color3,
   flowMin,
   flowMax,
-}: Required<Omit<AstralFlowProps, "className">>) => {
+}: Required<Omit<AstralFlowProps, "className" | "style">>) => {
   const material = useRef<THREE.ShaderMaterial>(null);
 
   const uniforms = useMemo(
@@ -204,6 +205,7 @@ const Effect = ({
 
 export default function AstralFlow({
   className,
+  style,
   speed = 1.5,
   color1 = "#05070a", // Deep void blue-black
   color2 = "#2e1a38", // Moody dark plum/purple
@@ -217,6 +219,7 @@ export default function AstralFlow({
         "absolute inset-0 w-full h-full pointer-events-none overflow-hidden bg-[#05070a]",
         className
       )}
+      style={style}
     >
       <Canvas camera={{ position: [0, 0, 1] }} dpr={1}>
         <Effect
