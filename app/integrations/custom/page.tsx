@@ -498,7 +498,7 @@ function FieldRow({ field }: { field: SchemaField }) {
   return (
     <li className="flex flex-col gap-1.5 border-t border-[var(--border-subtle)] py-3.5 first:border-t-0">
       <div className="flex flex-wrap items-center gap-2">
-        <code className="font-mono text-[13px] font-medium text-[var(--fg-primary)]">
+        <code className="mono-sm font-medium text-[var(--fg-primary)]">
           {field.name}
         </code>
         {field.required ? (
@@ -512,14 +512,14 @@ function FieldRow({ field }: { field: SchemaField }) {
         )}
         <span
           className={
-            "font-mono text-[11px] uppercase tracking-[0.04em] " +
+            "aw-eyebrow " +
             typeColor(field.type)
           }
         >
           {field.type}
         </span>
       </div>
-      <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+      <p className="m-0 body-xs text-[var(--fg-secondary)]">
         {field.description}
       </p>
       {field.values && (
@@ -527,7 +527,7 @@ function FieldRow({ field }: { field: SchemaField }) {
           {field.values.map((v) => (
             <code
               key={v}
-              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1.5 py-0.5 font-mono text-[11px] text-[var(--fg-secondary)]"
+              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1.5 py-0.5 mono-sm text-[var(--fg-secondary)]"
             >
               {v}
             </code>
@@ -546,9 +546,9 @@ function FieldRow({ field }: { field: SchemaField }) {
 function SchemaGroupBlock({ group }: { group: SchemaGroup }) {
   return (
     <section aria-label={group.title} className="mt-7 first:mt-0">
-      <h4 className="m-0 mb-2 text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+      <h6 className="m-0 mb-2 body-sm font-medium text-[var(--fg-primary)]">
         {group.title}
-      </h4>
+      </h6>
       <ul className="m-0 list-none p-0">
         {group.fields.map((f) => (
           <FieldRow key={f.name} field={f} />
@@ -568,7 +568,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
   return (
     <li className="flex items-start gap-3 border-t border-[var(--border-subtle)] py-3 first:border-t-0">
       <span
-        className="mt-0.5 inline-flex min-w-[44px] justify-center rounded-md px-1.5 py-0.5 font-mono text-[12px] font-semibold"
+        className="mt-0.5 inline-flex min-w-[44px] justify-center rounded-md px-1.5 py-0.5 mono-sm font-medium"
         style={{
           color: tone,
           background: "color-mix(in oklab, " + tone + " 12%, transparent)",
@@ -576,7 +576,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
       >
         {entry.code}
       </span>
-      <span className="text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+      <span className="body-xs text-[var(--fg-secondary)]">
         {entry.description}
       </span>
     </li>
@@ -586,7 +586,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
 function CodeBlock({ value }: { value: string }) {
   return (
     <div className="relative">
-      <pre className="m-0 max-h-[520px] overflow-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 font-mono text-[12px] leading-[1.6] text-[var(--fg-secondary)]">
+      <pre className="m-0 max-h-[520px] overflow-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 mono-sm text-[var(--fg-secondary)]">
         <code>{value}</code>
       </pre>
       <div className="absolute right-3 top-3">
@@ -634,11 +634,11 @@ export default function CustomCheckoutIntegrationPage() {
           {/* Header */}
           <header className="mb-8 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
-              <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[26px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+              <h4 className="m-0 mb-1.5 flex items-center gap-2.5 text-[var(--fg-primary)]">
                 <Icon name="webhook" size={26} />
                 Integração personalizada
-              </h1>
-              <p className="m-0 max-w-[640px] text-sm leading-[1.55] text-[var(--fg-secondary)]">
+              </h4>
+              <p className="m-0 max-w-[640px] body-sm text-[var(--fg-secondary)]">
                 Conecte qualquer checkout via webhook. Defina um nome único, gere
                 o endpoint e envie eventos de transação no formato esperado pelo
                 AwSales.
@@ -659,7 +659,7 @@ export default function CustomCheckoutIntegrationPage() {
               <section className="aw-card" aria-label="Identificação da integração">
                 <header className="aw-card__header">
                   <div>
-                    <h2 className="aw-card__title text-[16px]">
+                    <h2 className="aw-card__title body-md">
                       Identificação da integração
                     </h2>
                     <p className="aw-card__description">
@@ -706,7 +706,7 @@ export default function CustomCheckoutIntegrationPage() {
               >
                 <header className="aw-card__header">
                   <div>
-                    <h2 className="aw-card__title text-[16px]">
+                    <h2 className="aw-card__title body-md">
                       Corpo da requisição
                     </h2>
                     <p className="aw-card__description">
@@ -726,7 +726,7 @@ export default function CustomCheckoutIntegrationPage() {
               <section className="aw-card" aria-label="Status de resposta">
                 <header className="aw-card__header">
                   <div>
-                    <h2 className="aw-card__title text-[16px]">
+                    <h2 className="aw-card__title body-md">
                       Status de resposta
                     </h2>
                     <p className="aw-card__description">
@@ -753,13 +753,13 @@ export default function CustomCheckoutIntegrationPage() {
               >
                 <header className="aw-card__header">
                   <div>
-                    <h2 className="aw-card__title text-[16px]">
+                    <h2 className="aw-card__title body-md">
                       Exemplo de comando de teste
                     </h2>
                     <p className="aw-card__description">
                       Inclui campos opcionais — recomendado para relatórios
                       detalhados. Substitua{" "}
-                      <code className="font-mono text-[12px] text-[var(--fg-primary)]">
+                      <code className="mono-sm text-[var(--fg-primary)]">
                         {ORG_ID_PLACEHOLDER}
                       </code>{" "}
                       pela ID da sua organização antes de testar.
