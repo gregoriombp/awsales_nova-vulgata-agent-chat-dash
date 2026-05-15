@@ -22,10 +22,10 @@ export default function DangerZoneSettingsPage() {
       <AwCard className="!p-0 mt-4">
         <div className="flex items-center justify-between gap-4 px-6 py-5">
           <div>
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Exportar todos os dados da organização
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Geramos um arquivo .zip e enviamos para seu email.
             </p>
           </div>
@@ -35,10 +35,10 @@ export default function DangerZoneSettingsPage() {
         </div>
         <div className="flex items-center justify-between gap-4 border-t border-[var(--border-subtle)] px-6 py-5">
           <div>
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Excluir organização
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Remove agentes, conversas e integrações. Não há como reverter.
             </p>
           </div>
