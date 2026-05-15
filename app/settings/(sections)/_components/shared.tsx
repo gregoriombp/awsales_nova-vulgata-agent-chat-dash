@@ -70,11 +70,11 @@ export function SectionHeading({
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
       <div>
-        <h2 className="m-0 mb-1 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
           {title}
-        </h2>
+        </h6>
         {description && (
-          <p className="m-0 max-w-[520px] text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
             {description}
           </p>
         )}
@@ -93,7 +93,7 @@ export function NotifGroup({
 }) {
   return (
     <div className="border-b border-[var(--border-subtle)] last:border-b-0">
-      <p className="m-0 px-6 pb-1 pt-5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <p className="m-0 px-6 pb-1 pt-5 aw-eyebrow text-[var(--fg-tertiary)]">
         {label}
       </p>
       <div className="px-6 py-2">{children}</div>
@@ -149,11 +149,11 @@ export function SettingsPageHeader({
 }) {
   return (
     <header className="mb-10">
-      <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+      <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
         {title}
-      </h1>
+      </h3>
       {description && (
-        <p className="m-0 max-w-[520px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
           {description}
         </p>
       )}
