@@ -26,13 +26,13 @@ export default function KnowledgeOSEmptyState({
       {/* Content */}
       <div className="relative z-10 flex items-center h-full px-10 py-20">
         <div className="max-w-md">
-          <h2 className="text-white text-2xl font-heading font-bold mb-6 leading-tight">
+          <h2 className="text-white  font-heading font-bold mb-6 leading-tight">
             Você ainda não possui nenhuma<br />
             Base de Conhecimento.
           </h2>
           <button
             onClick={onCreateBase}
-            className="inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#0c1421] rounded-lg font-medium hover:bg-gray-100 transition-colors text-sm"
+            className="inline-flex items-center justify-center px-6 py-2.5 bg-white text-[#0c1421] rounded-lg font-medium hover:bg-gray-100 transition-colors body-sm"
           >
             Nova base
           </button>
