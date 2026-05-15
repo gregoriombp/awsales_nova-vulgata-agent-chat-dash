@@ -103,7 +103,7 @@ export function CreateGroupModal({
     >
       {mode === "form" ? (
         <div className="flex flex-col gap-5">
-          <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
             Grupos funcionam como departamentos: agrupam pessoas que
             compartilham contexto e responsabilidades. Você pode editar tudo
             depois.
@@ -123,7 +123,7 @@ export function CreateGroupModal({
           <AwField label="Descrição" htmlFor="group-description">
             <textarea
               id="group-description"
-              className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 text-[13.5px] leading-[1.55] text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+              className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 body-xs text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
               placeholder="Para que esse grupo existe? (opcional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -144,7 +144,7 @@ export function CreateGroupModal({
             />
             <div className="mt-2 max-h-[220px] overflow-y-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)]">
               {filteredMembers.length === 0 ? (
-                <p className="m-0 px-3 py-4 text-center text-[12.5px] text-[var(--fg-tertiary)]">
+                <p className="m-0 px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
                   Nenhuma pessoa encontrada.
                 </p>
               ) : (
@@ -166,10 +166,10 @@ export function CreateGroupModal({
                             alt={m.name}
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="m-0 truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                            <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
                               {m.name}
                             </p>
-                            <p className="m-0 truncate text-[11.5px] text-[var(--fg-secondary)]">
+                            <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
                               {m.role}
                             </p>
                           </div>
@@ -187,10 +187,10 @@ export function CreateGroupModal({
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--accent-success)]">
             <Icon name="check" size={28} />
           </span>
-          <p className="m-0 text-[18px] font-semibold text-[var(--fg-primary)]">
+          <h6 className="m-0 text-[var(--fg-primary)]">
             Grupo criado!
-          </p>
-          <p className="m-0 max-w-[360px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          </h6>
+          <p className="m-0 max-w-[360px] body-xs text-[var(--fg-secondary)]">
             {memberCount > 0
               ? `O grupo "${name}" foi criado com ${memberCount} membro${memberCount === 1 ? "" : "s"}.`
               : `O grupo "${name}" foi criado. Você pode adicionar membros a qualquer momento.`}
