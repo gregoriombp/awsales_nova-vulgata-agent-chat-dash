@@ -37,7 +37,7 @@ export default function FormModal({
       <form onSubmit={handleSubmit} className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-heading font-bold text-text-primary">
+          <h2 className=" font-heading font-bold text-text-primary">
             {title}
           </h2>
           <button
