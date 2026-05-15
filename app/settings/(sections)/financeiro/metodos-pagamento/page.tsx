@@ -118,21 +118,21 @@ function PaymentMethodCard({
           <div className="flex flex-wrap items-center gap-2">
             <p
               className={
-                "m-0 text-[14px] font-medium " +
+                "m-0 body-sm font-medium " +
                 (isActive ? "text-white" : "text-[var(--fg-primary)]")
               }
             >
               {method.brand} •••• {method.last4}
             </p>
             {isActive && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-white/90 ring-1 ring-inset ring-white/20">
+              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 aw-eyebrow text-white/90 ring-1 ring-inset ring-white/20">
                 Principal
               </span>
             )}
           </div>
           <p
             className={
-              "m-0 mt-0.5 text-[12px] " +
+              "m-0 mt-0.5 body-xs " +
               (isActive ? "text-white/70" : "text-[var(--fg-secondary)]")
             }
           >
@@ -176,10 +176,10 @@ function AddPaymentMethodTile({ onClick }: { onClick: () => void }) {
       <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)] transition-colors group-hover:bg-[var(--fg-primary)] group-hover:text-[var(--bg-raised)]">
         <Icon name="add" size={20} />
       </span>
-      <span className="text-[13.5px] font-medium">
+      <span className="body-xs font-medium">
         Adicionar método de pagamento
       </span>
-      <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+      <span className="body-xs text-[var(--fg-tertiary)]">
         Cartão, Pix automático ou boleto
       </span>
     </button>
@@ -211,7 +211,7 @@ function RemovePaymentMethodModal({
         </div>
       }
     >
-      <p className="m-0 text-[13.5px] text-[var(--fg-primary)]">
+      <p className="m-0 body-xs text-[var(--fg-primary)]">
         {method ? (
           <>
             Você vai remover{" "}
@@ -224,7 +224,7 @@ function RemovePaymentMethodModal({
           "Você vai remover este método de pagamento da sua conta."
         )}
       </p>
-      <p className="m-0 mt-2 text-[12.5px] text-[var(--fg-secondary)]">
+      <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
         Faturas futuras vão tentar cobrar no próximo método disponível. Você
         pode reativar a qualquer momento adicionando o cartão de novo.
       </p>
@@ -236,7 +236,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <AwCard className="!p-0">
       <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-        <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Você ainda não tem nenhum método de pagamento cadastrado.
         </p>
         <AwButton
