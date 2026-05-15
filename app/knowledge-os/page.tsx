@@ -361,7 +361,7 @@ label: "Knowledge OS",
                 <div className="space-y-4">
                   <h6 className="text-[#1a1a1a]">
                     Bases de conhecimento
-                  </h2>
+                  </h6>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                     {bases.map((base) => {
                       const layers = base.knowledgeLayersCount ?? 0;
