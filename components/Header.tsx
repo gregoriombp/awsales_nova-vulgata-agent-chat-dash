@@ -60,12 +60,12 @@ export default function Header({
           {hasLink ? (
             <Link
               href={breadcrumbItem.href!}
-              className="text-sm leading-5 hover:underline hover:text-[#0a0a0a] focus:outline-none focus:underline"
+              className="body-sm leading-5 hover:underline hover:text-[#0a0a0a] focus:outline-none focus:underline"
             >
               {content}
             </Link>
           ) : (
-            <span className="text-sm leading-5">{content}</span>
+            <span className="body-sm leading-5">{content}</span>
           )}
         </div>
         {!isLast && (
