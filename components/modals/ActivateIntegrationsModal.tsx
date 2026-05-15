@@ -110,10 +110,10 @@ export default function ActivateIntegrationsModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="flex flex-col max-h-[90vh]">
         <div className="p-6 border-b border-[#f2f2f2]">
-          <h2 className="text-xl font-heading font-bold text-[#1a1a1a]">
+          <h2 className="body-xl font-heading font-bold text-[#1a1a1a]">
             Ativar integrações
           </h2>
-          <p className="mt-1 text-sm text-[#5e5e5e]">
+          <p className="mt-1 body-sm text-[#5e5e5e]">
             Selecione as integrações que deseja ativar. Elas serão adicionadas à lista de fontes da pasta.
           </p>
         </div>
@@ -123,12 +123,12 @@ export default function ActivateIntegrationsModal({
             <button
               type="button"
               onClick={selectAll}
-              className="text-sm font-medium text-[#1a1a1a] hover:text-[#5e5e5e]"
+              className="body-sm font-medium text-[#1a1a1a] hover:text-[#5e5e5e]"
             >
               {selectedIds.size === integrations.length ? "Desmarcar todas" : "Selecionar todas"}
             </button>
             {selectedCount > 0 && (
-              <span className="text-sm text-[#5e5e5e]">
+              <span className="body-sm text-[#5e5e5e]">
                 {selectedCount} selecionada{selectedCount !== 1 ? "s" : ""}
               </span>
             )}
@@ -157,15 +157,15 @@ export default function ActivateIntegrationsModal({
                       {integration.icon ? (
                         <img src={integration.icon} alt="" className="w-full h-full object-contain" />
                       ) : (
-                        <span className="text-[#1a1a1a] font-bold text-sm">{integration.shortLabel}</span>
+                        <span className="text-[#1a1a1a] font-bold body-sm">{integration.shortLabel}</span>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-[#0d0d0d]">
+                      <div className="body-sm font-medium text-[#0d0d0d]">
                         {integration.name}
                       </div>
                       {integration.description && (
-                        <div className="text-xs text-[#5e5e5e] mt-0.5">
+                        <div className="body-xs text-[#5e5e5e] mt-0.5">
                           {integration.description}
                         </div>
                       )}
