@@ -218,6 +218,15 @@
   --space-16: 64px;
   --space-18: 72px;
 
+  /* Layout — content container intents.
+   * A page picks ONE intent based on what it holds, not on viewport size.
+   * Above the max, the canvas centers — it does not stretch. */
+  --content-narrow: 720px;    /* single-column reading: forms, perfil, onboarding */
+  --content-default: 1200px;  /* mixed content: docs, catalog, billing overview */
+  --content-wide: 1440px;     /* data dense: dashboard, agent studio, big tables */
+  --content-px: 40px;         /* horizontal padding inside the container */
+  --content-gutter: 24px;     /* default gap between cards / blocks (gap-6) */
+
   /* Shadows — restrained */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
@@ -2751,37 +2760,55 @@
 }
 
 /* ============================================================
+ * Tool UI surfaces — scoped resets.
+ * Some shadcn primitives (Radix Accordion) render their own <h3>
+ * as the trigger header. Without this scope, the styleguide's global
+ * h2/h3 sizing (28-32px) leaks into surface cards and blows up the
+ * typography. Reset to inherit so the component's own classes win.
+ * ============================================================ */
+[data-slot="data-table"] h2,
+[data-slot="data-table"] h3,
+[data-slot="data-table"] h4 {
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: 0;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+}
+
+/* ============================================================
  * AwTable — dense entity list. Mono + right-align for numbers.
  * ============================================================ */
 .aw-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  font-size: 13px;
+  background: transparent;
+  border: 0;
+  font-size: 14px;
+  color: var(--fg-primary);
 }
 .aw-table th,
 .aw-table td {
   text-align: left;
-  padding: 10px 14px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
-.aw-table th {
-  background: var(--bg-surface);
+.aw-table thead th {
+  background: transparent;
   font-family: var(--font-body);
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--fg-tertiary);
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 .aw-table td.aw-table__mono,
 .aw-table th.aw-table__mono {
-  font-family: var(--font-body);
   font-variant-numeric: tabular-nums;
   font-size: 13px;
   color: var(--fg-secondary);
@@ -2789,17 +2816,17 @@
 .aw-table td.aw-table__num,
 .aw-table th.aw-table__num {
   text-align: right;
-  font-family: var(--font-body);
   font-variant-numeric: tabular-nums;
   font-size: 13px;
 }
 .aw-table td.aw-table__name {
-  font-family: var(--font-heading);
   font-weight: 500;
   color: var(--fg-primary);
 }
 .aw-table tr:last-child td { border-bottom: 0; }
-.aw-table tbody tr { transition: background var(--dur-fast) var(--ease-out); }
+.aw-table tbody tr td {
+  transition: background var(--dur-base) var(--ease-out);
+}
 .aw-table tbody tr:hover td { background: var(--bg-surface); }
 
 /* Airy variant — no outer chrome, generous row height, sentence-case headers.
@@ -2841,7 +2868,7 @@
 .aw-table tbody tr.aw-row-attention td:first-child {
   box-shadow: inset 3px 0 0 var(--aw-red-500);
 }
-.aw-table--airy .aw-th-sort {
+.aw-table .aw-th-sort {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2851,10 +2878,30 @@
   border: 0;
   padding: 0;
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
 }
-.aw-table--airy .aw-th-sort[aria-sort="ascending"],
-.aw-table--airy .aw-th-sort[aria-sort="descending"] {
+.aw-table .aw-th-sort:hover {
   color: var(--fg-primary);
+}
+.aw-table .aw-th-sort[aria-sort="ascending"],
+.aw-table .aw-th-sort[aria-sort="descending"] {
+  color: var(--fg-primary);
+}
+.aw-table .aw-th-sort__icon {
+  display: inline-block;
+  min-width: 14px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.25;
+  font-variant-numeric: tabular-nums;
+}
+.aw-table .aw-th-sort[aria-sort="ascending"] .aw-th-sort__icon,
+.aw-table .aw-th-sort[aria-sort="descending"] .aw-th-sort__icon {
+  opacity: 1;
+}
+.aw-table th.aw-table__num .aw-th-sort {
+  margin-left: auto;
 }
 
 /* ============================================================

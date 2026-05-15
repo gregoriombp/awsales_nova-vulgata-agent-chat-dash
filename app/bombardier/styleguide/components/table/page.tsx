@@ -1,5 +1,4 @@
-import { AwTable } from "@/components/ui/AwTable"
-import { AwPill } from "@/components/ui/AwPill"
+import { SortableTableDemo } from "./_sortable-demo"
 import {
   PageHero,
   Section,
@@ -16,100 +15,22 @@ export default function TablePage() {
       <PageHero title="Tabela">
         Lista densa de entidades. Bordas sutis, hover discreto,{" "}
           <strong>zero zebra</strong>. Dados numéricos e técnicos em mono,
-          alinhados à direita.
+          alinhados à direita. Pra tabela com sort + responsive auto +
+          formatters declarativos, veja{" "}
+        <a className="underline" href="/bombardier/styleguide/components/data-table">
+          Data table
+        </a>{" "}
+        (surface tool-ui).
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
 <div className="flex flex-col gap-16">
         <Section
           id="default"
           title="Exemplo"
-          lead="Headers em eyebrow tracked. Nome da entidade na primeira coluna, em font-heading. Números e IDs em mono."
+          lead="Headers sortable de verdade — clique pra ciclar none → asc → desc. Coluna ativa fica em --fg-primary com a direção; as outras mostram ⇅ esmaecido. Sort vem do hook useTableSort (documentado abaixo)."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-            <AwTable>
-              <thead>
-                <tr>
-                  <th>Agente</th>
-                  <th>Status</th>
-                  <th className="aw-table__mono">Versão</th>
-                  <th className="aw-table__num">Conversas</th>
-                  <th className="aw-table__num">Resolução</th>
-                  <th className="aw-table__mono">Atualizado</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="aw-table__name">Atendimento FAQ</td>
-                  <td>
-                    <AwPill variant="live">Live</AwPill>
-                  </td>
-                  <td className="aw-table__mono">v12.4</td>
-                  <td className="aw-table__num">1 840</td>
-                  <td
-                    className="aw-table__num"
-                    style={{ color: "var(--aw-emerald-700)" }}
-                  >
-                    94%
-                  </td>
-                  <td className="aw-table__mono">14 min atrás</td>
-                </tr>
-                <tr>
-                  <td className="aw-table__name">Pré-venda B2B</td>
-                  <td>
-                    <AwPill variant="ai">Pensando</AwPill>
-                  </td>
-                  <td className="aw-table__mono">v08.1</td>
-                  <td className="aw-table__num">412</td>
-                  <td
-                    className="aw-table__num"
-                    style={{ color: "var(--aw-emerald-700)" }}
-                  >
-                    87%
-                  </td>
-                  <td className="aw-table__mono">2 h atrás</td>
-                </tr>
-                <tr>
-                  <td className="aw-table__name">Onboarding SDK</td>
-                  <td>
-                    <AwPill variant="draft">Rascunho</AwPill>
-                  </td>
-                  <td className="aw-table__mono">v01.0</td>
-                  <td className="aw-table__num">—</td>
-                  <td className="aw-table__num">—</td>
-                  <td className="aw-table__mono">ontem</td>
-                </tr>
-                <tr>
-                  <td className="aw-table__name">Retenção pós-venda</td>
-                  <td>
-                    <AwPill variant="error">Erro</AwPill>
-                  </td>
-                  <td className="aw-table__mono">v04.2</td>
-                  <td className="aw-table__num">86</td>
-                  <td
-                    className="aw-table__num"
-                    style={{ color: "var(--aw-red-700)" }}
-                  >
-                    41%
-                  </td>
-                  <td className="aw-table__mono">4 h atrás</td>
-                </tr>
-                <tr>
-                  <td className="aw-table__name">Qualificação inbound</td>
-                  <td>
-                    <AwPill variant="beta">Beta</AwPill>
-                  </td>
-                  <td className="aw-table__mono">v02.0</td>
-                  <td className="aw-table__num">233</td>
-                  <td
-                    className="aw-table__num"
-                    style={{ color: "var(--aw-emerald-700)" }}
-                  >
-                    76%
-                  </td>
-                  <td className="aw-table__mono">1 d atrás</td>
-                </tr>
-              </tbody>
-            </AwTable>
+            <SortableTableDemo />
           </div>
         </Section>
 
@@ -121,7 +42,7 @@ export default function TablePage() {
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k=".aw-table__name"
-              v="heading 500 · --fg-primary"
+              v="500 · --fg-primary"
               d="Nome da entidade principal; primeira coluna da linha."
             />
             <Spec
@@ -140,40 +61,131 @@ export default function TablePage() {
         <Section
           id="anatomy"
           title="Anatomia"
-          lead="A estética é de lista densa sóbria — não planilha. Hover ilumina a linha inteira; não há linhas alternadas."
+          lead="Lista densa sóbria — não planilha. Sem chrome próprio: a tabela respira dentro do wrapper da página. Hover ilumina a linha inteira, zero zebra."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="padding"
-              v="10 · 14"
-              d="Vertical · horizontal, em th e td."
+              v="16 · 20"
+              d="Vertical · horizontal, em td. Header com vertical 12."
             />
             <Spec
               k="header"
-              v="10.5 px · 600 · uppercase · 0.14em"
-              d="--fg-tertiary sobre --bg-surface."
+              v="12 px · 500 · sentence-case"
+              d="--fg-tertiary, fundo transparente. Sem uppercase."
             />
             <Spec
               k="hover row"
               v="--bg-surface"
-              d="Transição 120ms — discreta, sem pulse."
+              d="Transição base — suave, sem flash."
             />
             <Spec
               k="divisor"
               v="1px --border-subtle"
-              d="Última linha não tem divisor."
+              d="Última linha sem divisor. Sem outer border."
             />
             <Spec
-              k="radius"
-              v="--radius-md"
-              d="overflow: hidden evita sobrepor no corner."
+              k="body"
+              v="14 px · --fg-primary"
+              d="Texto padrão. Coluna nome em font-weight 500."
             />
             <Spec
               k="numeric"
-              v="mono · right-align"
-              d="Sempre mono em coluna numérica — alinha o ponto decimal."
+              v="tabular-nums · right-align · 13 px"
+              d="Coluna numérica alinha decimais e fica um clique menor."
             />
           </div>
+        </Section>
+
+        <Section
+          id="sort"
+          title="Sort · useTableSort"
+          lead="Pra header sortable de verdade, plugue o hook useTableSort. Ele cuida do tri-state (none → asc → desc → none), guarda o estado interno, devolve as linhas ordenadas e os props pro <button> + ícone. Cada coluna sortable tem um <button class='aw-th-sort'> dentro do <th>; o resto é só markup nativo."
+        >
+          <CodeExample>{`"use client"
+import { AwTable } from "@/components/ui/AwTable"
+import { useTableSort } from "@/lib/hooks/useTableSort"
+
+type Row = {
+  id: string
+  name: string
+  conversations: number
+  updatedAt: string  // ISO
+}
+
+const rows: Row[] = [/* ... */]
+
+export function AgentsTable() {
+  const { sortedRows, getHeaderProps, getSortIcon } =
+    useTableSort<Row, "name" | "conversations" | "updatedAt">(rows, {
+      initialSort: { by: "conversations", direction: "desc" },
+    })
+
+  const sortableTh = (key, label, className) => (
+    <th className={className}>
+      <button {...getHeaderProps(key)} className="aw-th-sort">
+        {label}
+        <span aria-hidden className="aw-th-sort__icon">
+          {getSortIcon(key)}
+        </span>
+      </button>
+    </th>
+  )
+
+  return (
+    <AwTable>
+      <thead>
+        <tr>
+          {sortableTh("name", "Agente")}
+          {sortableTh("conversations", "Conversas", "aw-table__num")}
+          {sortableTh("updatedAt", "Atualizado", "aw-table__mono")}
+        </tr>
+      </thead>
+      <tbody>
+        {sortedRows.map((row) => (
+          <tr key={row.id}>
+            <td className="aw-table__name">{row.name}</td>
+            <td className="aw-table__num">{row.conversations}</td>
+            <td className="aw-table__mono">{row.updatedAt}</td>
+          </tr>
+        ))}
+      </tbody>
+    </AwTable>
+  )
+}`}</CodeExample>
+
+          <ApiTable>
+            <PropRow
+              prop="rows"
+              type="readonly T[]"
+              doc="Lista de linhas. O hook só reorganiza — não muta o array original."
+            />
+            <PropRow
+              prop="options.initialSort"
+              type='{ by, direction }?'
+              doc="Sort inicial. Omita pra começar sem ordenação (linhas na ordem do array)."
+            />
+            <PropRow
+              prop="options.getSortValue"
+              type="(row, key) => primitive?"
+              doc="Override do valor comparado. Use quando a célula renderizada não ordena bem (ex.: 'há 2h' vira ISO timestamp, 'v12.4' vira número)."
+            />
+            <PropRow
+              prop="→ sortedRows"
+              type="T[]"
+              doc="Linhas já ordenadas. Use direto no .map() do <tbody>."
+            />
+            <PropRow
+              prop="→ getHeaderProps(key)"
+              type="SortableHeaderProps"
+              doc="Spread no <button> do header: dá type, onClick, aria-sort."
+            />
+            <PropRow
+              prop="→ getSortIcon(key)"
+              type='"⇅" | "↑" | "↓"'
+              doc="Caractere pra colocar no span do ícone. ⇅ quando inativa, ↑/↓ quando ativa."
+            />
+          </ApiTable>
         </Section>
 
         <Section
