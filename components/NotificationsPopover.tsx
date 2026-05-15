@@ -72,7 +72,7 @@ export default function NotificationsPopover({
       <div className="w-[582px] max-w-[calc(100vw-32px)] rounded-[24px] bg-white p-6 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.3),0px_1px_3px_0px_rgba(0,0,0,0.15)]">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="text-[18px] font-normal text-[#2f2f2f]">
+          <div className="body-lg font-normal text-[#2f2f2f]">
             Notificações
           </div>
           <div className="flex items-center gap-4 text-[#737373]">
@@ -134,7 +134,7 @@ export default function NotificationsPopover({
             <button
               type="button"
               onClick={() => setTab("all")}
-              className={`flex-1 py-2 text-[16px] font-normal text-[#2f2f2f] ${
+              className={`flex-1 py-2 body-md font-normal text-[#2f2f2f] ${
                 tab === "all" ? "border-b border-[#0d0d0d]" : ""
               }`}
             >
@@ -143,7 +143,7 @@ export default function NotificationsPopover({
             <button
               type="button"
               onClick={() => setTab("unread")}
-              className={`flex-1 py-2 text-[16px] font-normal text-[#2f2f2f] ${
+              className={`flex-1 py-2 body-md font-normal text-[#2f2f2f] ${
                 tab === "unread" ? "border-b border-[#0d0d0d]" : ""
               }`}
             >
@@ -155,7 +155,7 @@ export default function NotificationsPopover({
         {/* List */}
         <div className="mt-4 flex max-h-[640px] flex-col gap-4 overflow-auto pr-1">
           {filtered.length === 0 ? (
-            <div className="rounded-[16px] border border-[#f2f2f2] p-4 text-sm text-[#7a7a7a]">
+            <div className="rounded-[16px] border border-[#f2f2f2] p-4 body-sm text-[#7a7a7a]">
               Nenhuma notificação.
             </div>
           ) : (
@@ -183,13 +183,13 @@ export default function NotificationsPopover({
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-[14px] font-medium text-[#2f2f2f]">
+                    <div className="body-sm font-medium text-[#2f2f2f]">
                       {n.title}
                     </div>
-                    <div className="mt-1 text-[12px] font-normal text-[#5e5e5e]">
+                    <div className="mt-1 body-xs font-normal text-[#5e5e5e]">
                       {n.description}
                     </div>
-                    <div className="mt-1 text-[10px] font-normal text-[#7a7a7a]">
+                    <div className="mt-1 body-xs font-normal text-[#7a7a7a]">
                       {n.dateLabel}
                     </div>
                   </div>
@@ -198,7 +198,7 @@ export default function NotificationsPopover({
                 <div className="mt-3 flex items-center justify-end gap-6">
                   <button
                     type="button"
-                    className="text-sm font-medium tracking-[-0.1px] text-[#999999] hover:text-[#0d0d0d]"
+                    className="body-sm font-medium tracking-[-0.1px] text-[#999999] hover:text-[#0d0d0d]"
                   >
                     {n.isUnread ? "Marcar como lida" : "Ignorar"}
                   </button>
