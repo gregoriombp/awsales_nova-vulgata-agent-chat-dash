@@ -37,7 +37,7 @@ export function VariableSpendingBlock() {
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-4">
         <div className="flex items-center gap-2">
           <Icon name="bar_chart" size={18} className="text-[var(--fg-tertiary)]" />
-          <p className="m-0 text-[14px] font-semibold text-[var(--fg-primary)]">
+          <p className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
             Gastos variáveis
           </p>
         </div>
@@ -62,7 +62,7 @@ export function VariableSpendingBlock() {
           value={grouping}
           onChange={setGrouping}
         />
-        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Acumulado no período:{" "}
           <strong className="text-[var(--fg-primary)]">
             {brl(OVERVIEW_KPIS.accumulated)}
@@ -110,7 +110,7 @@ function SegmentedToggle<T extends string>({
             aria-selected={active}
             onClick={() => onChange(opt.value)}
             className={
-              "rounded-[var(--radius-sm)] px-3 py-1 text-[12.5px] font-medium transition-colors duration-aw-fast " +
+              "rounded-[var(--radius-sm)] px-3 py-1 body-xs font-medium transition-colors duration-aw-fast " +
               (active
                 ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[var(--shadow-xs)]"
                 : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]")
@@ -213,7 +213,7 @@ function Legend({
       {categories.map((c) => (
         <span
           key={c.id}
-          className="inline-flex items-center gap-1.5 text-[12px] text-[var(--fg-secondary)]"
+          className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]"
         >
           <span
             aria-hidden="true"
