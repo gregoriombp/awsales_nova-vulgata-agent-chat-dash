@@ -52,8 +52,8 @@ export default function KnowledgeOSSettingsPage() {
       <div className="-m-8">
         <div className="bg-white border-b border-[#f2f2f2]">
           <div className="mx-auto max-w-[1544px] px-12 py-8">
-            <h1 className="text-[28px] font-semibold text-[#1a1a1a] leading-tight">Configurações</h1>
-            <p className="mt-2 text-[14px] text-[#5e5e5e]">
+            <h3 className="text-[#1a1a1a]">Configurações</h3>
+            <p className="mt-2 body-sm text-[#5e5e5e]">
               Configure esta base de conhecimento. As opções desta base estarão disponíveis aqui.
             </p>
           </div>
@@ -62,7 +62,7 @@ export default function KnowledgeOSSettingsPage() {
         <div className="bg-white">
           <div className="mx-auto max-w-[1544px] px-12 pt-8 pb-14">
             <div className="rounded-xl border border-[#f2f2f2] bg-[#fbfcfd] p-8 text-center">
-              <p className="text-[14px] text-[#5e5e5e]">As configurações desta base de conhecimento estarão disponíveis em breve.</p>
+              <p className="body-sm text-[#5e5e5e]">As configurações desta base de conhecimento estarão disponíveis em breve.</p>
             </div>
           </div>
         </div>

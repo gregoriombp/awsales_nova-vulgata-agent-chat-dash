@@ -53,19 +53,19 @@ function AccumulatedCard() {
   return (
     <AwCard className="flex flex-col gap-6 !p-6">
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Próxima cobrança
         </p>
-        <span className="text-[11px] font-medium tabular-nums text-[var(--fg-tertiary)]">
+        <span className="body-xs font-medium tabular-nums text-[var(--fg-tertiary)]">
           em 14 dias · {CURRENT_INVOICE.dueAt}
         </span>
       </div>
 
       <div>
-        <h1 className="m-0 text-[64px] font-light leading-[0.95] tracking-[-0.035em] text-[var(--fg-primary)] tabular-nums">
+        <h1 className="m-0 display-md tabular-nums text-[var(--fg-primary)]">
           {brl(nextChargeTotal)}
         </h1>
-        <p className="m-0 mt-3 text-[12.5px] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-3 body-xs text-[var(--fg-secondary)]">
           Cobrada em{" "}
           <strong className="font-medium text-[var(--fg-primary)]">
             {CURRENT_INVOICE.dueAt}
@@ -79,13 +79,13 @@ function AccumulatedCard() {
       </div>
 
       <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
-        <div className="flex items-baseline justify-between gap-2 py-2 text-[13px]">
+        <div className="flex items-baseline justify-between gap-2 py-2 body-xs">
           <span className="text-[var(--fg-secondary)]">Plano mensal</span>
           <span className="font-medium tabular-nums text-[var(--fg-primary)]">
             {brl(planMonthly)}
           </span>
         </div>
-        <div className="flex items-baseline justify-between gap-2 py-2 text-[13px]">
+        <div className="flex items-baseline justify-between gap-2 py-2 body-xs">
           <span className="text-[var(--fg-secondary)]">Variáveis até agora</span>
           <span className="font-medium tabular-nums text-[var(--fg-primary)]">
             {brl(variableSoFar)}
@@ -94,7 +94,7 @@ function AccumulatedCard() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <div className="flex items-baseline justify-between gap-2 text-[11.5px] text-[var(--fg-tertiary)]">
+        <div className="flex items-baseline justify-between gap-2 body-xs text-[var(--fg-tertiary)]">
           <span>Limite de gastos variáveis</span>
           <span className="tabular-nums">
             {brl(variableSoFar)} / {brl(variableLimit)} · {variablePct}%
@@ -113,20 +113,20 @@ function PlanCard() {
   return (
     <AwCard className="flex flex-col gap-4 !p-6 !border-transparent !bg-[var(--aw-gray-1200)] text-white shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)]">
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-white/55">
+        <p className="m-0 aw-eyebrow text-white/55">
           Plano atual
         </p>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 text-[10.5px] font-medium uppercase tracking-[0.06em] text-white/90 ring-1 ring-inset ring-white/20">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-2.5 py-0.5 aw-eyebrow text-white/90 ring-1 ring-inset ring-white/20">
           <span className="h-1.5 w-1.5 rounded-full bg-[var(--accent-success)]" />
           {CURRENT_PLAN.status}
         </span>
       </div>
 
       <div>
-        <h3 className="m-0 text-[24px] font-semibold leading-tight tracking-[-0.01em] text-white">
+        <h4 className="m-0 text-white">
           {CURRENT_PLAN.name}
-        </h3>
-        <p className="m-0 mt-1 text-[12px] text-white/65">
+        </h4>
+        <p className="m-0 mt-1 body-xs text-white/65">
           {brl(CURRENT_PLAN.monthly)} / mês · próxima cobrança em{" "}
           <strong className="font-medium text-white">
             {CURRENT_PLAN.nextChargeAt}
@@ -140,10 +140,10 @@ function PlanCard() {
             <CardBrandLogo brand={defaultMethod.brand} size={26} />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="m-0 text-[10.5px] font-medium uppercase tracking-[0.06em] text-white/55">
+            <p className="m-0 aw-eyebrow text-white/55">
               Cobrado em
             </p>
-            <p className="m-0 text-[12.5px] font-medium text-white tabular-nums">
+            <p className="m-0 body-xs font-medium text-white tabular-nums">
               {defaultMethod.brand} •••• {defaultMethod.last4}
               <span className="ml-1.5 font-normal text-white/55">
                 · expira {defaultMethod.expiresAt}
@@ -152,14 +152,14 @@ function PlanCard() {
           </div>
           <Link
             href="/settings/financeiro/metodos-pagamento"
-            className="shrink-0 text-[11.5px] font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+            className="shrink-0 body-xs font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
           >
             Trocar
           </Link>
         </div>
       )}
 
-      <ul className="m-0 flex flex-col gap-1.5 p-0 text-[12.5px] text-white/75">
+      <ul className="m-0 flex flex-col gap-1.5 p-0 body-xs text-white/75">
         <li className="flex items-center gap-2">
           <Icon
             name="check"

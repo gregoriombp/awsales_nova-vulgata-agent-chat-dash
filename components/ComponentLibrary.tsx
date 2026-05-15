@@ -15,11 +15,11 @@ function Section({
   return (
     <section className="flex flex-col gap-4">
       <div>
-        <h2 className="text-xl font-heading font-bold text-white tracking-[-0.2px]">
+        <h2 className="body-xl font-heading font-bold text-white tracking-[-0.2px]">
           {title}
         </h2>
         {description && (
-          <p className="text-sm text-[#999999] mt-1 tracking-[0.18px]">
+          <p className="body-sm text-[#999999] mt-1">
             {description}
           </p>
         )}
@@ -33,10 +33,10 @@ export default function ComponentLibrary() {
   return (
     <div className="rounded-2xl bg-[#1a1a1a] border border-[#242424] p-8 flex flex-col gap-10">
       <header className="flex flex-col gap-1">
-        <h1 className="text-2xl font-heading font-bold text-white tracking-[-0.2px]">
+        <h1 className=" font-heading font-bold text-white tracking-[-0.2px]">
           Component library — AW
         </h1>
-        <p className="text-sm text-[#999999] tracking-[0.18px]">
+        <p className="body-sm text-[#999999]">
           AwSales design system components
         </p>
       </header>

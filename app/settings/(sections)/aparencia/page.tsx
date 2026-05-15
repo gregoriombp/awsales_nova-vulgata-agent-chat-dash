@@ -24,7 +24,7 @@ export default function AppearanceSettingsPage() {
       />
       <AwCard className="!p-0">
         <div className="border-b border-[var(--border-subtle)] px-6 py-5">
-          <p className="m-0 mb-3 text-[13px] font-medium text-[var(--fg-primary)]">
+          <p className="m-0 mb-3 body-xs font-medium text-[var(--fg-primary)]">
             Tema
           </p>
           <div className="flex flex-wrap gap-3">
@@ -50,7 +50,7 @@ export default function AppearanceSettingsPage() {
                   }
                 >
                   <Icon name={t.icon} size={18} />
-                  <span className="text-[13px] font-medium text-[var(--fg-primary)]">
+                  <span className="body-xs font-medium text-[var(--fg-primary)]">
                     {t.label}
                   </span>
                 </button>

@@ -218,10 +218,10 @@ function WabaRail({
     >
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Contas WABA
           </h3>
-          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 text-[11px] font-semibold text-[var(--bg-raised)]">
+          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 body-xs font-semibold text-[var(--bg-raised)]">
             {wabas.length}
           </span>
         </div>
@@ -260,10 +260,10 @@ function WabaRail({
                   <Icon name="dashboard" size={18} fill={1} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     Todos os números de WhatsApp
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {wabas.length} {wabas.length === 1 ? "conta" : "contas"} ·{" "}
                     {totalPhones} {totalPhones === 1 ? "número" : "números"}
                   </span>
@@ -303,10 +303,10 @@ function WabaRail({
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     {w.name}
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {w.bmName} · {w.phones.length}{" "}
                     {w.phones.length === 1 ? "número" : "números"}
                   </span>
@@ -360,22 +360,22 @@ function PanelHeader({
         <AwBrandLogo brand="whatsapp" size="lg" />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               {waba.name}
             </h2>
             <AwPill variant={meta.variant}>{waba.statusLabel}</AwPill>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span className="inline-flex items-center gap-1">
               WABA
-              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px font-mono text-[11px] text-[var(--fg-secondary)]">
+              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px mono body-xs text-[var(--fg-secondary)]">
                 {waba.wabaId}
               </code>
             </span>
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
               BM
-              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px font-mono text-[11px] text-[var(--fg-secondary)]">
+              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px mono body-xs text-[var(--fg-secondary)]">
                 {waba.bmId}
               </code>
             </span>
@@ -388,7 +388,7 @@ function PanelHeader({
       <div className="flex flex-shrink-0 items-center gap-3">
         <label
           htmlFor={toggleId}
-          className="flex cursor-pointer items-center gap-2 text-[12.5px] font-medium text-[var(--fg-secondary)]"
+          className="flex cursor-pointer items-center gap-2 body-xs font-medium text-[var(--fg-secondary)]"
         >
           <span>{enabled ? "Ativa" : "Desativada"}</span>
           <AwToggle
@@ -458,7 +458,7 @@ function IssuesBanner({ waba }: { waba: Waba }) {
     <AwAlert
       variant={issues.some((i) => i.sev === "high") ? "danger" : "warning"}
     >
-      <strong className="text-[13px] font-semibold text-[var(--fg-primary)]">
+      <strong className="body-xs font-semibold text-[var(--fg-primary)]">
         {issues.length}{" "}
         {issues.length === 1 ? "ação necessária" : "ações necessárias"} para esta
         WABA
@@ -470,10 +470,10 @@ function IssuesBanner({ waba }: { waba: Waba }) {
             className="flex items-start justify-between gap-3 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--bg-raised)_60%,transparent)] px-2.5 py-2"
           >
             <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+              <div className="body-xs font-medium text-[var(--fg-primary)]">
                 {it.title}
               </div>
-              <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-secondary)]">
                 {it.desc}
               </div>
             </div>
@@ -514,12 +514,12 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde da conta
           </div>
           <div className="flex items-baseline gap-1">
             <span
-              className="text-[24px] font-semibold leading-none"
+              className="body-xl font-semibold leading-none"
               style={{
                 color:
                   healthVariant === "success"
@@ -531,10 +531,10 @@ function OverviewTab({
             >
               {waba.health}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress value={waba.health} variant={healthVariant} />
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             {healthVariant === "success"
               ? "Tudo certo para escalar"
               : healthVariant === "warning"
@@ -544,13 +544,13 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Conversas (mês)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {waba.conversations.toLocaleString("pt-BR")}
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="flex items-center gap-2 body-xs text-[var(--fg-tertiary)]">
             <AwPill
               variant={waba.conversationsTrend.startsWith("+") ? "live" : "error"}
               dot={false}
@@ -562,16 +562,16 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Limite de mensagens
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {waba.limit24h}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/24h</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/24h</span>
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             {waba.limitUpgradeIn > 0
               ? `Próximo upgrade em ${waba.limitUpgradeIn} conversas qualificadas`
               : "Aguardando qualidade alta para upgrade"}
@@ -579,13 +579,13 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Qualidade dos números
           </div>
           <div className="mt-0.5">
             <AwPill variant={QUALITY_PILL[waba.quality]}>{waba.quality}</AwPill>
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Calculada pela Meta com base em respostas dos últimos 7 dias.
           </div>
         </AwCard>
@@ -598,7 +598,7 @@ function OverviewTab({
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
             Atalhos
           </h3>
         </div>
@@ -668,10 +668,10 @@ function ShortcutCard({
         <Icon name={icon} size={18} />
       </span>
       <div className="min-w-0">
-        <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 truncate text-[12px] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -708,7 +708,7 @@ function ConfigCard({ waba, onEdit }: { waba: Waba; onEdit: () => void }) {
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Configuração da integração
         </h3>
         <AwButton variant="ghost" size="sm" onClick={onEdit}>
@@ -720,7 +720,7 @@ function ConfigCard({ waba, onEdit }: { waba: Waba; onEdit: () => void }) {
           <li
             key={r.label}
             className={
-              "flex items-center gap-3 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+              "flex items-center gap-3 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -739,7 +739,7 @@ const ACTIVITY: { dot: AwStatusDotVariant; title: React.ReactNode; meta: string 
     dot: "live",
     title: (
       <>
-        Template <code className="font-mono text-[12px]">recuperacao_carrinho_v2</code> aprovado
+        Template <code className="mono body-xs">recuperacao_carrinho_v2</code> aprovado
       </>
     ),
     meta: "há 8 min · pela Meta",
@@ -765,7 +765,7 @@ function ActivityCard() {
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Atividade recente
         </h3>
       </header>
@@ -774,7 +774,7 @@ function ActivityCard() {
           <li
             key={i}
             className={
-              "flex items-start gap-3 px-4 py-3 text-[12.5px] " +
+              "flex items-start gap-3 px-4 py-3 body-xs " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -783,7 +783,7 @@ function ActivityCard() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[var(--fg-primary)]">{a.title}</div>
-              <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                 {a.meta}
               </div>
             </div>
@@ -834,7 +834,7 @@ function PhonesTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-[12.5px] text-[var(--fg-tertiary)]">
+        <span className="body-xs text-[var(--fg-tertiary)]">
           {items.length}{" "}
           {items.length === 1 ? "número conectado" : "números conectados"}
           {showWabaTag && ` · ${wabas.length} contas`}
@@ -855,7 +855,7 @@ function PhonesTab({
             className="flex flex-col gap-3 p-4 text-left"
           >
             <div className="flex items-start justify-between gap-2">
-              <div className="grid h-9 w-9 place-items-center rounded-full bg-[var(--bg-surface)] text-[13px] font-semibold text-[var(--fg-secondary)]">
+              <div className="grid h-9 w-9 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {p.name.charAt(0)}
               </div>
               {p.official && (
@@ -865,14 +865,14 @@ function PhonesTab({
               )}
             </div>
             <div>
-              <div className="text-[14px] font-semibold text-[var(--fg-primary)]">
+              <div className="body-sm font-semibold text-[var(--fg-primary)]">
                 {p.name}
               </div>
-              <div className="mt-0.5 font-mono text-[12px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 mono body-xs text-[var(--fg-tertiary)]">
                 {p.num}
               </div>
               {showWabaTag && (
-                <div className="mt-1.5 inline-flex items-center gap-1 text-[11px] text-[var(--fg-tertiary)]">
+                <div className="mt-1.5 inline-flex items-center gap-1 body-xs text-[var(--fg-tertiary)]">
                   <Icon name="dashboard" size={11} />
                   {wabaName}
                 </div>
@@ -886,7 +886,7 @@ function PhonesTab({
                 <AwPill variant={QUALITY_PILL[p.quality]}>{p.quality}</AwPill>
               </PhoneStat>
               <PhoneStat label="Limite">
-                <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-[var(--fg-primary)]">
                   {p.limit}
                 </span>
               </PhoneStat>
@@ -907,7 +907,7 @@ function PhoneStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -1017,7 +1017,7 @@ function TemplatesTab({
                         size={13}
                         className="text-[var(--fg-tertiary)]"
                       />
-                      <code className="font-mono text-[12px] text-[var(--fg-primary)]">
+                      <code className="mono body-xs text-[var(--fg-primary)]">
                         {t.name}
                       </code>
                     </button>
@@ -1106,7 +1106,7 @@ function VariablesTab({
     <div className="flex flex-col gap-4">
       <AwAlert variant="info">
         Variáveis fixas substituem placeholders{" "}
-        <code className="font-mono text-[12px]">{`{{nome_empresa}}`}</code> nos
+        <code className="mono body-xs">{`{{nome_empresa}}`}</code> nos
         templates antes do envio. Alterar o valor aqui atualiza todos os templates
         que usam essa variável.
       </AwAlert>
@@ -1163,7 +1163,7 @@ function VariablesTab({
                       onClick={() => onOpenVariable(wabaId, v.name)}
                       className="rounded-[var(--radius-sm)] px-1 py-0.5 text-left transition-colors hover:bg-[var(--bg-surface)]"
                     >
-                      <code className="font-mono text-[12px] text-[var(--fg-primary)]">{`{{${v.name}}}`}</code>
+                      <code className="mono body-xs text-[var(--fg-primary)]">{`{{${v.name}}}`}</code>
                     </button>
                   </td>
                   {showWabaCol && (
@@ -1276,7 +1276,7 @@ function AccountTab({ waba }: { waba: Waba }) {
             <li
               key={p.label}
               className={
-                "flex items-center gap-2.5 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+                "flex items-center gap-2.5 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
@@ -1296,7 +1296,7 @@ function AccountTab({ waba }: { waba: Waba }) {
               )}
               <span className="flex-1 text-[var(--fg-primary)]">{p.label}</span>
               {p.note && (
-                <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+                <span className="body-xs text-[var(--fg-tertiary)]">
                   ({p.note})
                 </span>
               )}
@@ -1322,14 +1322,14 @@ function AccountTab({ waba }: { waba: Waba }) {
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {u.initials}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {u.name}
                 </div>
-                <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="truncate body-xs text-[var(--fg-tertiary)]">
                   {u.email}
                 </div>
               </div>
@@ -1378,7 +1378,7 @@ function SectionCard({
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
         <h3
           className={
-            "m-0 text-[13.5px] font-semibold " +
+            "m-0 body-xs font-semibold " +
             (tone === "danger"
               ? "text-[var(--aw-red-700,#B42318)]"
               : "text-[var(--fg-primary)]")
@@ -1406,14 +1406,14 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
         <span
           className={
-            "text-[13px] text-[var(--fg-primary)] " +
-            (mono ? "font-mono text-[12px]" : "")
+            "body-xs text-[var(--fg-primary)] " +
+            (mono ? "mono body-xs" : "")
           }
         >
           {value}
@@ -1443,10 +1443,10 @@ function DangerRow({
   return (
     <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-4 py-3.5 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-[var(--fg-primary)]">
+        <div className="body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -1464,10 +1464,10 @@ function DangerRow({
 function WebhookCard({ wabaId }: { wabaId: string }) {
   return (
     <AwCard className="p-4">
-      <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+      <h3 className="m-0 mb-1 body-xs font-semibold text-[var(--fg-primary)]">
         Webhook & API
       </h3>
-      <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+      <p className="m-0 mb-3 body-xs text-[var(--fg-tertiary)]">
         Endpoint dedicado para receber eventos da Meta Cloud API. Use o segredo
         para validar assinaturas.
       </p>
@@ -1512,7 +1512,7 @@ function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               Todos os números de WhatsApp
             </h2>
             {issuesCount > 0 && (
@@ -1522,7 +1522,7 @@ function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
               </AwPill>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>{wabas.length} contas conectadas</span>
             <span aria-hidden>·</span>
             <span>
@@ -1560,12 +1560,12 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
             <span
-              className="text-[24px] font-semibold leading-none"
+              className="body-xl font-semibold leading-none"
               style={{
                 color:
                   healthVariant === "success"
@@ -1577,47 +1577,47 @@ function AggregatedOverviewTab({
             >
               {avgHealth}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress value={avgHealth} variant={healthVariant} />
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Média ponderada das {wabas.length} contas conectadas.
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Conversas (mês)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalConversations.toLocaleString("pt-BR")}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Soma de todas as contas no mês corrente.
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Números conectados
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalPhones}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Distribuídos entre {wabas.length}{" "}
             {wabas.length === 1 ? "conta" : "contas"}.
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Templates
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalTemplates}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Aprovados, em análise e pausados — somando todas as contas.
           </div>
         </AwCard>
@@ -1625,10 +1625,10 @@ function AggregatedOverviewTab({
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
             Detalhe por WABA
           </h3>
-          <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+          <span className="body-xs text-[var(--fg-tertiary)]">
             Clique para abrir uma conta específica.
           </span>
         </div>
@@ -1649,10 +1649,10 @@ function AggregatedOverviewTab({
                       <AwStatusDot variant={meta.dot} size="sm" ring absolute />
                     </span>
                     <div className="min-w-0">
-                      <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+                      <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
                         {w.name}
                       </div>
-                      <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                      <div className="truncate body-xs text-[var(--fg-tertiary)]">
                         {w.bmName}
                       </div>
                     </div>
@@ -1661,17 +1661,17 @@ function AggregatedOverviewTab({
                 </div>
                 <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
                   <PhoneStat label="Saúde">
-                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                    <span className="body-xs font-semibold text-[var(--fg-primary)]">
                       {w.health}/100
                     </span>
                   </PhoneStat>
                   <PhoneStat label="Números">
-                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                    <span className="body-xs font-semibold text-[var(--fg-primary)]">
                       {w.phones.length}
                     </span>
                   </PhoneStat>
                   <PhoneStat label="Templates">
-                    <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                    <span className="body-xs font-semibold text-[var(--fg-primary)]">
                       {w.templates.length}
                     </span>
                   </PhoneStat>
@@ -1729,7 +1729,7 @@ function PhoneSheet({
         </span>
       }
       meta={
-        <span className="font-mono text-[12px] text-[var(--fg-tertiary)]">
+        <span className="mono body-xs text-[var(--fg-tertiary)]">
           {phone.num}
         </span>
       }
@@ -1826,10 +1826,10 @@ function PhoneSheet({
             >
               <span className="mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[var(--fg-tertiary)]" />
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] text-[var(--fg-primary)]">
+                <div className="body-xs text-[var(--fg-primary)]">
                   {e.text}
                 </div>
-                <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                   {e.ts}
                 </div>
               </div>
@@ -1864,7 +1864,7 @@ function TemplateSheet({
       onClose={onClose}
       title={
         <span className="inline-flex items-center gap-2">
-          <code className="font-mono text-[14px] text-[var(--fg-primary)]">
+          <code className="mono body-sm text-[var(--fg-primary)]">
             {template.name}
           </code>
           <AwPill variant={pill.variant}>{pill.label}</AwPill>
@@ -1928,7 +1928,7 @@ function TemplateSheet({
             readOnly={!isEditing}
             defaultValue={`Olá {{1}}, tudo bem?\n\nVi que você deixou o produto {{2}} no carrinho. Está disponível por {{3}} até hoje à noite — quer que eu separe?`}
             rows={6}
-            className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 font-mono text-[12.5px] leading-[1.55] text-[var(--fg-primary)] outline-none transition-colors focus:border-[var(--fg-primary)]"
+            className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 mono body-xs text-[var(--fg-primary)] outline-none transition-colors focus:border-[var(--fg-primary)]"
           />
         </AwField>
 
@@ -1950,13 +1950,13 @@ function TemplateSheet({
         </div>
 
         <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Variáveis usadas
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">
-            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{1}}`}</code>
-            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{2}}`}</code>
-            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 font-mono text-[11.5px] text-[var(--fg-secondary)]">{`{{3}}`}</code>
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 mono body-xs text-[var(--fg-secondary)]">{`{{1}}`}</code>
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 mono body-xs text-[var(--fg-secondary)]">{`{{2}}`}</code>
+            <code className="rounded bg-[var(--bg-raised)] px-1.5 py-0.5 mono body-xs text-[var(--fg-secondary)]">{`{{3}}`}</code>
           </div>
         </div>
       </div>
@@ -1982,7 +1982,7 @@ function VariableSheet({
       title={isNew ? "Nova variável fixa" : variable?.label ?? "Variável"}
       meta={
         variable && !isNew ? (
-          <code className="font-mono text-[12px] text-[var(--fg-tertiary)]">
+          <code className="mono body-xs text-[var(--fg-tertiary)]">
             {`{{${variable.name}}}`}
           </code>
         ) : (

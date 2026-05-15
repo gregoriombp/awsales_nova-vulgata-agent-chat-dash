@@ -52,8 +52,8 @@ export function ActionButtons({
             className={cn(
               "rounded-full px-4!",
               "justify-center",
-              "min-h-11 w-full text-base",
-              "@sm/actions:min-h-0 @sm/actions:w-auto @sm/actions:px-3 @sm/actions:py-2 @sm/actions:text-sm",
+              "min-h-11 w-full body-md",
+              "@sm/actions:min-h-0 @sm/actions:w-auto @sm/actions:px-3 @sm/actions:py-2 @sm/actions:body-sm",
               action.isConfirming &&
                 "ring-[var(--accent-danger)] ring-2 ring-offset-2 motion-safe:animate-pulse",
             )}
@@ -88,7 +88,7 @@ export function ActionButtons({
             )}
             {label}
             {action.shortcut && !action.isLoading && (
-              <kbd className="border-[var(--border-subtle)] bg-[var(--bg-muted)] ml-2.5 hidden rounded-lg border px-2 py-0.5 font-mono text-xs font-medium sm:inline-block">
+              <kbd className="border-[var(--border-subtle)] bg-[var(--bg-muted)] ml-2.5 hidden rounded-lg border px-2 py-0.5 mono body-xs font-medium sm:inline-block">
                 {action.shortcut}
               </kbd>
             )}

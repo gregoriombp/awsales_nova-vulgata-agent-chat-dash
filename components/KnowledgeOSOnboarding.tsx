@@ -209,7 +209,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
           </div>
 
           {/* Title */}
-          <h1 className="text-[45px] font-heading font-regular text-text-primary mb-6 leading-tight">
+          <h1 className=" font-heading font-regular text-text-primary mb-6 leading-tight">
             Bem-vindo ao Knowledge OS
           </h1>
 
@@ -224,7 +224,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
           <button
             onClick={handleStartCreation}
             disabled={isAnimating}
-            className="inline-flex items-center justify-center px-8 py-4 bg-[#0d0d0d] text-white rounded-xl font-medium text-base hover:bg-[#262626] active:bg-black transition-all duration-200 disabled:opacity-50"
+            className="inline-flex items-center justify-center px-8 py-4 bg-[#0d0d0d] text-white rounded-xl font-medium body-md hover:bg-[#262626] active:bg-black transition-all duration-200 disabled:opacity-50"
           >
             Criar Base de Conhecimento
           </button>
@@ -325,7 +325,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
           </div>
 
           {/* Title */}
-          <h2 className="text-[32px] font-heading font-medium text-text-primary mb-8 text-center leading-tight">
+          <h2 className=" font-heading font-medium text-text-primary mb-8 text-center leading-tight">
             Escolha um nome para a<br />Base de Conhecimento
           </h2>
 
@@ -336,7 +336,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
               value={baseName}
               onChange={(e) => setBaseName(e.target.value)}
               placeholder="Ex: BrandBook da Marca 2026"
-              className="flex-1 h-14 px-5 text-base border border-[#e5e5e5] rounded-xl bg-white text-[#0d0d0d] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[#0d0d0d] focus:border-transparent transition-all"
+              className="flex-1 h-14 px-5 body-md border border-[#e5e5e5] rounded-xl bg-white text-[#0d0d0d] placeholder:text-[#999] focus:outline-none focus:ring-2 focus:ring-[#0d0d0d] focus:border-transparent transition-all"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && baseName.trim()) {
                   handleCreateBase();
@@ -346,7 +346,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
             <button
               onClick={handleCreateBase}
               disabled={!baseName.trim() || isAnimating}
-              className="h-14 px-8 bg-[#0d0d0d] text-white rounded-xl font-medium text-base hover:bg-[#262626] active:bg-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="h-14 px-8 bg-[#0d0d0d] text-white rounded-xl font-medium body-md hover:bg-[#262626] active:bg-black transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Criar
             </button>
@@ -379,7 +379,7 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
 
             {/* Base Name */}
             <p
-              className="text-[24px] font-medium text-[#0d0d0d] text-center"
+              className="body-xl font-medium text-[#0d0d0d] text-center"
               style={{
                 animation: step === 3 ? "onboarding-fadeIn 0.5s ease-out 0.5s forwards" : "none",
                 opacity: 0,
@@ -467,20 +467,20 @@ export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboard
             </div>
 
             <h1
-              className="text-[32px] sm:text-[38px] font-heading font-bold text-white mb-4 leading-tight"
+              className=" sm: font-heading font-bold text-white mb-4 leading-tight"
               style={{ animation: "step4-content-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.25s both" }}
             >
               Sua Primeira Base de Conhecimento
             </h1>
             <p
-              className="text-white/75 text-base sm:text-lg mb-10 leading-relaxed"
+              className="text-white/75 body-md sm:body-lg mb-10 leading-relaxed"
               style={{ animation: "step4-content-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.4s both" }}
             >
               É o momento perfeito para enriquecer sua base com arquivos, sites, trechos, integrações e muito mais.
             </p>
             <button
               onClick={handleConfigure}
-              className="step4-cta inline-flex items-center justify-center px-8 py-4 bg-white text-[#0a0e17] rounded-xl font-semibold text-base hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-black/20"
+              className="step4-cta inline-flex items-center justify-center px-8 py-4 bg-white text-[#0a0e17] rounded-xl font-semibold body-md hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-lg shadow-black/20"
               style={{ animation: "step4-content-in 0.7s cubic-bezier(0.22,1,0.36,1) 0.55s both" }}
             >
               Configurar

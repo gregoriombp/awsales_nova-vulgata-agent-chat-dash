@@ -44,7 +44,7 @@ export function ReviewCommentSheet() {
       onClose={() => setSheetOpen(false)}
       title="Comentários"
       meta={
-        <span className="text-xs text-[var(--fg-tertiary)]">
+        <span className="body-xs text-[var(--fg-tertiary)]">
           {scope === "page" ? "Nesta tela" : "Em todas as telas"} ·{" "}
           {filtered.length}
         </span>
@@ -54,7 +54,7 @@ export function ReviewCommentSheet() {
           {...{ [OVERLAY_DATA_ATTR]: "" }}
           className="flex items-center justify-between gap-2"
         >
-          <span className="text-[11px] text-[var(--fg-tertiary)]">
+          <span className="body-xs text-[var(--fg-tertiary)]">
             Total: {allComments.length}
           </span>
           <AwButton
@@ -75,7 +75,7 @@ export function ReviewCommentSheet() {
         {...{ [OVERLAY_DATA_ATTR]: "" }}
         className="flex flex-col gap-3 h-full"
       >
-        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] self-start text-[11px] font-medium">
+        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] self-start body-xs font-medium">
           {(["page", "all"] as Scope[]).map((s) => (
             <button
               key={s}
@@ -93,7 +93,7 @@ export function ReviewCommentSheet() {
           ))}
         </div>
 
-        <div className="flex items-center gap-1 text-[11px] font-medium">
+        <div className="flex items-center gap-1 body-xs font-medium">
           {(["all", "open", "resolved"] as Filter[]).map((f) => (
             <button
               key={f}
@@ -150,7 +150,7 @@ export function ReviewCommentSheet() {
           <button
             type="button"
             onClick={() => setScope("all")}
-            className="self-start text-[11px] text-[var(--accent-brand)] hover:underline inline-flex items-center gap-1"
+            className="self-start body-xs text-[var(--accent-brand)] hover:underline inline-flex items-center gap-1"
           >
             <Icon name="open_in_new" size={11} />
             Ver todos ({allComments.length})

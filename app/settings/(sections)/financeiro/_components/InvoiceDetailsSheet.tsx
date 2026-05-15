@@ -43,7 +43,7 @@ export function InvoiceDetailsSheet({
           <AwPill variant={statusVariant(invoice.status)}>
             {invoice.status}
           </AwPill>
-          <span className="text-[12px] text-[var(--fg-secondary)]">
+          <span className="body-xs text-[var(--fg-secondary)]">
             {invoice.refMonth} · {invoice.description}
           </span>
         </div>
@@ -66,13 +66,13 @@ export function InvoiceDetailsSheet({
     >
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-1">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
             Valor líquido
           </p>
-          <h2 className="m-0 text-[32px] font-semibold leading-none tracking-[-0.02em] text-[var(--fg-primary)] tabular-nums">
+          <h2 className="m-0 text-[var(--fg-primary)] tabular-nums">
             {brl(invoice.net)}
           </h2>
-          <p className="m-0 mt-1 text-[12px] text-[var(--fg-secondary)]">
+          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
             Vencimento em{" "}
             <strong className="font-medium text-[var(--fg-primary)]">
               {invoice.dueAt}
@@ -89,10 +89,10 @@ export function InvoiceDetailsSheet({
         </section>
 
         <section>
-          <p className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
             Composição
           </p>
-          <ul className="m-0 flex flex-col gap-0 p-0 text-[13px] text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
+          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
             <Row label="Valor bruto" value={brl(invoice.gross)} />
             {invoice.discount ? (
               <Row
@@ -114,10 +114,10 @@ export function InvoiceDetailsSheet({
         </section>
 
         <section>
-          <p className="m-0 mb-2 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
             Pagamento
           </p>
-          <ul className="m-0 flex flex-col gap-0 p-0 text-[13px] text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
+          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
             <Row label="Forma de pagamento" value={invoice.paymentMethod} />
             <Row
               label="Mês de referência"
@@ -134,7 +134,7 @@ export function InvoiceDetailsSheet({
               size={16}
               className="mt-0.5 shrink-0 text-[var(--fg-tertiary)]"
             />
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               A fatura em PDF e o recibo (quando aplicável) são gerados pelo
               processador no momento do download — espelham exatamente o que
               foi cobrado no cartão / boleto.

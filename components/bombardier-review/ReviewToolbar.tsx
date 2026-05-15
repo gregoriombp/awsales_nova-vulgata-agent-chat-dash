@@ -60,7 +60,7 @@ export function ReviewToolbar() {
           onClick={toggleActive}
           aria-label="Abrir Review Mode (⌘⇧Y)"
           title="Review Mode · ⌘⇧Y"
-          className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-lg hover:opacity-90 text-xs font-medium"
+          className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-lg hover:opacity-90 body-xs font-medium"
         >
           <Icon name="rate_review" size={14} />
           Review
@@ -77,7 +77,7 @@ export function ReviewToolbar() {
       <div className="pointer-events-auto rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] shadow-lg px-1.5 py-1.5 flex items-center gap-1">
         {identity && (
           <span
-            className="h-7 w-7 rounded-full flex items-center justify-center text-[11px] font-semibold text-[var(--fg-on-inverse)] mr-0.5"
+            className="h-7 w-7 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)] mr-0.5"
             style={{ background: identity.colorToken }}
             title={`Revisor: ${identity.name}`}
           >
@@ -117,7 +117,7 @@ export function ReviewToolbar() {
         >
           <Icon name="forum" size={16} />
           {openCount > 0 && (
-            <span className="text-[11px] font-semibold tabular-nums">
+            <span className="body-xs font-semibold tabular-nums">
               {openCount}
             </span>
           )}

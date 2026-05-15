@@ -159,12 +159,12 @@ function ToolRow({
         <Highlight
           text={row.name}
           query={query}
-          className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]"
+          className="block truncate body-sm font-medium text-[var(--fg-primary)]"
         />
         <Highlight
           text={row.description}
           query={query}
-          className="mt-0.5 block truncate text-[12.5px] leading-[1.45] text-[var(--fg-tertiary)]"
+          className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]"
         />
       </div>
 
@@ -295,22 +295,22 @@ function IntegrationGroup({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 truncate text-[17px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+          <h3 className="m-0 truncate body-md font-medium text-[var(--fg-primary)]">
             {title}
           </h3>
           {subtitle && (
-            <p className="m-0 mt-0.5 truncate text-[13px] text-[var(--fg-tertiary)]">
+            <p className="m-0 mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
               {subtitle}
             </p>
           )}
         </div>
         <div className="hidden flex-shrink-0 flex-col items-end text-right sm:flex">
           {showAccountCount && (
-            <span className="text-[12px] font-medium tabular-nums text-[var(--fg-secondary)]">
+            <span className="body-xs font-medium tabular-nums text-[var(--fg-secondary)]">
               {accountCount} contas
             </span>
           )}
-          <span className="text-[12px] tabular-nums text-[var(--fg-tertiary)]">
+          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
             {activeSkills}/{totalSkills} habilidades ativas
           </span>
         </div>
@@ -392,10 +392,10 @@ function InstancePack({
       >
         <AwBrandLogo brand={brand} size="sm" />
         <div className="min-w-0 flex-1">
-          <span className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
             {instanceName}
           </span>
-          <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-0.5 flex items-center gap-1.5 body-xs text-[var(--fg-tertiary)]">
             <span className="tabular-nums">
               {active}/{total} habilidades ativas
             </span>
@@ -413,7 +413,7 @@ function InstancePack({
             )}
           </div>
         </div>
-        <span className="hidden flex-shrink-0 text-[12px] font-medium tabular-nums text-[var(--fg-tertiary)] sm:inline-block">
+        <span className="hidden flex-shrink-0 body-xs font-medium tabular-nums text-[var(--fg-tertiary)] sm:inline-block">
           {active}/{total}
         </span>
         <div
@@ -529,14 +529,14 @@ function ToolDetailModal({
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="truncate font-mono text-[12px] text-[var(--fg-secondary)]">
+              <span className="truncate mono body-xs text-[var(--fg-secondary)]">
                 {row.catalog?.id ?? row.id}
               </span>
               <AwPill variant={KIND_PILL_VARIANT[row.kind]} dot={false}>
                 {KIND_LABELS[row.kind]}
               </AwPill>
             </div>
-            <div className="mt-0.5 flex items-center gap-1.5 text-[12px] text-[var(--fg-tertiary)]">
+            <div className="mt-0.5 flex items-center gap-1.5 body-xs text-[var(--fg-tertiary)]">
               {integration ? (
                 <span>
                   {integration.name}
@@ -556,12 +556,12 @@ function ToolDetailModal({
         </div>
 
         {/* Description */}
-        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-[var(--fg-secondary)]">
           {row.description}
         </p>
 
         {/* Stats line */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] text-[var(--fg-tertiary)]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 body-xs text-[var(--fg-tertiary)]">
           <span className="inline-flex items-center gap-1.5">
             <Icon name="smart_toy" size={14} />
             {agents === 0
@@ -586,7 +586,7 @@ function ToolDetailModal({
         {/* Params */}
         {params.length > 0 && (
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
               Parâmetros de entrada
             </div>
             <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)]">
@@ -600,11 +600,11 @@ function ToolDetailModal({
         {/* Custom tool extras */}
         {row.custom && (
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
               Endpoint
             </div>
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 font-mono text-[12px] text-[var(--fg-primary)]">
-              <span className="mr-2 inline-block text-[10px] font-semibold tracking-wider text-[var(--fg-tertiary)]">
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 mono body-xs text-[var(--fg-primary)]">
+              <span className="mr-2 inline-block aw-eyebrow text-[var(--fg-tertiary)]">
                 {row.custom.method}
               </span>
               {row.custom.url}
@@ -615,10 +615,10 @@ function ToolDetailModal({
         {/* Returns */}
         {returns && (
           <div>
-            <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.04em] text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
               Retorno
             </div>
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 font-mono text-[12px] text-[var(--fg-primary)]">
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 mono body-xs text-[var(--fg-primary)]">
               {returns}
             </div>
           </div>
@@ -638,19 +638,19 @@ function ParamRow({ param, divider }: { param: ToolParam; divider: boolean }) {
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-[12px] text-[var(--fg-primary)]">
+          <span className="mono body-xs text-[var(--fg-primary)]">
             {param.name}
           </span>
           {param.required && (
-            <span className="rounded bg-[var(--aw-red-150)] px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wider text-[var(--aw-red-700)]">
+            <span className="rounded bg-[var(--aw-red-150)] px-1.5 py-0.5 aw-eyebrow text-[var(--aw-red-700)]">
               obrigatório
             </span>
           )}
-          <span className="font-mono text-[10px] text-[var(--fg-tertiary)]">
+          <span className="mono text-[var(--fg-tertiary)]">
             {param.type}
           </span>
         </div>
-        <p className="m-0 mt-1 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
           {param.description}
         </p>
         {param.values && param.values.length > 0 && (
@@ -658,7 +658,7 @@ function ParamRow({ param, divider }: { param: ToolParam; divider: boolean }) {
             {param.values.map((v) => (
               <span
                 key={v}
-                className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 font-mono text-[11px] text-[var(--fg-secondary)]"
+                className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 mono body-xs text-[var(--fg-secondary)]"
               >
                 {v}
               </span>
@@ -968,11 +968,11 @@ export default function ToolsPage() {
           {/* ---------------- Header ---------------- */}
           <header className="mb-8 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
-              <h1 className="m-0 mb-1.5 flex items-center gap-2.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+              <h3 className="m-0 mb-1.5 flex items-center gap-2.5 text-[var(--fg-primary)]">
                 <Icon name="handyman" size={28} />
                 Habilidades
-              </h1>
-              <p className="m-0 max-w-[600px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
+              </h3>
+              <p className="m-0 max-w-[600px] body-sm text-[var(--fg-secondary)]">
                 Cada habilidade é uma ação que seus agentes podem
                 chamar — buscar uma transação, agendar uma reunião,
                 disparar um contrato. Conecte uma integração e o pacote
@@ -1493,7 +1493,7 @@ export default function ToolsPage() {
           </>
         }
       >
-        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-[var(--fg-secondary)]">
           Os agentes que usam essa habilidade vão perder acesso ao endpoint
           imediatamente. Essa ação não pode ser desfeita.
         </p>
@@ -1531,10 +1531,10 @@ function NoConnectionsHero({
           <AwBrandLogo brand="hubspot" size="md" />
           <AwBrandLogo brand="claude" size="md" />
         </div>
-        <h2 className="m-0 mt-7 text-[24px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+        <h4 className="m-0 mt-7 text-[var(--fg-primary)]">
           Conecte uma integração pra liberar habilidades
-        </h2>
-        <p className="m-0 mt-3 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        </h4>
+        <p className="m-0 mt-3 body-sm text-[var(--fg-secondary)]">
           Cada integração ativa traz um pacote de habilidades nativas
           que os agentes podem usar — pesquisar transação, agendar
           reunião, atualizar deal no CRM. Você também pode criar uma
@@ -1573,7 +1573,7 @@ function NoConnectionsHero({
 
 function CustomEmptyHint({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="px-6 py-8 text-center text-[13px] text-[var(--fg-tertiary)]">
+    <div className="px-6 py-8 text-center body-xs text-[var(--fg-tertiary)]">
       Nenhuma habilidade nessa conexão ainda.{" "}
       <button
         type="button"

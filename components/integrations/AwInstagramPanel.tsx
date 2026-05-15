@@ -220,10 +220,10 @@ function AccountRail({
     >
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Contas
           </h3>
-          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 text-[11px] font-semibold text-[var(--bg-raised)]">
+          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 body-xs font-semibold text-[var(--bg-raised)]">
             {accounts.length}
           </span>
         </div>
@@ -262,10 +262,10 @@ function AccountRail({
                   <Icon name="dashboard" size={18} fill={1} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     Todas as contas
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {accounts.length} {accounts.length === 1 ? "conta" : "contas"} ·{" "}
                     {totalDms} {totalDms === 1 ? "DM aberta" : "DMs abertas"}
                   </span>
@@ -310,10 +310,10 @@ function AccountRail({
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     @{a.handle}
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {KIND_LABEL[a.kind]} · {formatFollowers(a.followers)}
                   </span>
                   {a.status !== "active" && (
@@ -384,12 +384,12 @@ function PanelHeader({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               @{account.handle}
             </h2>
             <AwPill variant={meta.variant}>{account.statusLabel}</AwPill>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>{account.displayName}</span>
             <span aria-hidden>·</span>
             <span>{KIND_LABEL[account.kind]}</span>
@@ -404,7 +404,7 @@ function PanelHeader({
       <div className="flex flex-shrink-0 items-center gap-3">
         <label
           htmlFor={toggleId}
-          className="flex cursor-pointer items-center gap-2 text-[12.5px] font-medium text-[var(--fg-secondary)]"
+          className="flex cursor-pointer items-center gap-2 body-xs font-medium text-[var(--fg-secondary)]"
         >
           <span>{enabled ? "Ativa" : "Desativada"}</span>
           <AwToggle
@@ -478,7 +478,7 @@ function IssuesBanner({ account }: { account: IgAccount }) {
 
   return (
     <AwAlert variant={issues.some((i) => i.sev === "high") ? "danger" : "warning"}>
-      <strong className="text-[13px] font-semibold text-[var(--fg-primary)]">
+      <strong className="body-xs font-semibold text-[var(--fg-primary)]">
         {issues.length}{" "}
         {issues.length === 1 ? "ação necessária" : "ações necessárias"} nesta conta
       </strong>
@@ -489,10 +489,10 @@ function IssuesBanner({ account }: { account: IgAccount }) {
             className="flex items-start justify-between gap-3 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--bg-raised)_60%,transparent)] px-2.5 py-2"
           >
             <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+              <div className="body-xs font-medium text-[var(--fg-primary)]">
                 {it.title}
               </div>
-              <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-secondary)]">
                 {it.desc}
               </div>
             </div>
@@ -526,12 +526,12 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde da conta
           </div>
           <div className="flex items-baseline gap-1">
             <span
-              className="text-[24px] font-semibold leading-none"
+              className="body-xl font-semibold leading-none"
               style={{
                 color:
                   healthVariant === "success"
@@ -543,10 +543,10 @@ function OverviewTab({
             >
               {account.health}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress value={account.health} variant={healthVariant} />
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             {healthVariant === "success"
               ? "Tudo certo para escalar"
               : healthVariant === "warning"
@@ -556,13 +556,13 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             DMs (30d)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {account.dms30d.toLocaleString("pt-BR")}
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="flex items-center gap-2 body-xs text-[var(--fg-tertiary)]">
             <AwPill
               variant={account.dmsTrend.startsWith("+") ? "live" : "error"}
               dot={false}
@@ -574,32 +574,32 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Stories & comentários (30d)
           </div>
           <div className="flex items-baseline gap-2">
-            <span className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {account.storyReplies30d}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">stories</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">stories</span>
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             <b className="text-[var(--fg-primary)]">{account.comments30d}</b>{" "}
             comentários · respondidos pelo AwSales
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Tempo de resposta
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {account.responseTimeMin}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">min · médio</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">min · médio</span>
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Taxa de resposta:{" "}
             <b className="text-[var(--fg-primary)]">{account.responseRate}%</b>
           </div>
@@ -613,7 +613,7 @@ function OverviewTab({
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
             Atalhos
           </h3>
         </div>
@@ -683,10 +683,10 @@ function ShortcutCard({
         <Icon name={icon} size={18} />
       </span>
       <div className="min-w-0">
-        <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 truncate text-[12px] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -737,7 +737,7 @@ function ConfigCard({
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Configuração da integração
         </h3>
         <AwButton variant="ghost" size="sm" onClick={onEdit}>
@@ -749,7 +749,7 @@ function ConfigCard({
           <li
             key={r.label}
             className={
-              "flex items-center gap-3 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+              "flex items-center gap-3 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -784,7 +784,7 @@ const ACTIVITY: { dot: AwStatusDotVariant; title: React.ReactNode; meta: string 
     title: (
       <>
         Webhook conectado:{" "}
-        <code className="font-mono text-[12px]">message_reactions</code>
+        <code className="mono body-xs">message_reactions</code>
       </>
     ),
     meta: "há 3 d · automático",
@@ -795,7 +795,7 @@ function ActivityCard() {
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Atividade recente
         </h3>
       </header>
@@ -804,7 +804,7 @@ function ActivityCard() {
           <li
             key={i}
             className={
-              "flex items-start gap-3 px-4 py-3 text-[12.5px] " +
+              "flex items-start gap-3 px-4 py-3 body-xs " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -813,7 +813,7 @@ function ActivityCard() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[var(--fg-primary)]">{a.title}</div>
-              <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                 {a.meta}
               </div>
             </div>
@@ -858,7 +858,7 @@ function AccountsTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-[12.5px] text-[var(--fg-tertiary)]">
+        <span className="body-xs text-[var(--fg-tertiary)]">
           {accounts.length}{" "}
           {accounts.length === 1 ? "conta conectada" : "contas conectadas"}
         </span>
@@ -884,24 +884,24 @@ function AccountsTab({
               </AwPill>
             </div>
             <div>
-              <div className="text-[14px] font-semibold text-[var(--fg-primary)]">
+              <div className="body-sm font-semibold text-[var(--fg-primary)]">
                 @{a.handle}
               </div>
-              <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                 {a.displayName}
               </div>
-              <div className="mt-1 text-[11.5px] text-[var(--fg-tertiary)]">
+              <div className="mt-1 body-xs text-[var(--fg-tertiary)]">
                 {KIND_LABEL[a.kind]} · {formatFollowers(a.followers)}
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
               <AccountStat label="DMs abertas">
-                <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-[var(--fg-primary)]">
                   {a.openDms}
                 </span>
               </AccountStat>
               <AccountStat label="Resposta">
-                <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-[var(--fg-primary)]">
                   {a.responseRate}%
                 </span>
               </AccountStat>
@@ -925,7 +925,7 @@ function AccountStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -941,10 +941,10 @@ function DmsTab({ account }: { account: IgAccount }) {
   return (
     <div className="flex flex-col gap-6">
       <AwAlert variant="info">
-        <strong className="text-[13px] font-semibold text-[var(--fg-primary)]">
+        <strong className="body-xs font-semibold text-[var(--fg-primary)]">
           Como o Instagram trata DMs
         </strong>
-        <p className="m-0 mt-1 text-[12px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
           Tem janela de 24h após a última mensagem do usuário. Fora disso, só{" "}
           <b>HUMAN_AGENT</b> consegue responder. Ice breakers aparecem antes da
           primeira mensagem e disparam postbacks pra rotear o atendimento.
@@ -993,14 +993,14 @@ function DmsTab({ account }: { account: IgAccount }) {
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
-              <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {ib.question}
                 </div>
-                <div className="mt-0.5 truncate font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate mono body-xs text-[var(--fg-tertiary)]">
                   → {ib.payload}
                 </div>
               </div>
@@ -1014,7 +1014,7 @@ function DmsTab({ account }: { account: IgAccount }) {
             </li>
           ))}
           {account.iceBreakers.length === 0 && (
-            <li className="px-4 py-6 text-center text-[12.5px] text-[var(--fg-tertiary)]">
+            <li className="px-4 py-6 text-center body-xs text-[var(--fg-tertiary)]">
               Sem ice breakers. Adicione perguntas curtas pra agilizar o início da
               conversa.
             </li>
@@ -1134,7 +1134,7 @@ function AutomationTab({ account }: { account: IgAccount }) {
       >
         {isCreator ? (
           <div className="px-4 py-5 text-center">
-            <p className="m-0 text-[12.5px] text-[var(--fg-tertiary)]">
+            <p className="m-0 body-xs text-[var(--fg-tertiary)]">
               Contas de Criador têm acesso limitado à API de comentários. Algumas
               ações precisam ser feitas direto no app do Instagram.
             </p>
@@ -1208,10 +1208,10 @@ function ToggleRow({
   return (
     <li className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-4 py-3 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+        <div className="body-xs font-medium text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
           {description}
         </div>
       </div>
@@ -1308,7 +1308,7 @@ function AccountTab({ account }: { account: IgAccount }) {
             <li
               key={p.label}
               className={
-                "flex items-center gap-2.5 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+                "flex items-center gap-2.5 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
@@ -1328,7 +1328,7 @@ function AccountTab({ account }: { account: IgAccount }) {
               )}
               <span className="flex-1 text-[var(--fg-primary)]">{p.label}</span>
               {p.note && (
-                <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+                <span className="body-xs text-[var(--fg-tertiary)]">
                   ({p.note})
                 </span>
               )}
@@ -1354,14 +1354,14 @@ function AccountTab({ account }: { account: IgAccount }) {
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {u.initials}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {u.name}
                 </div>
-                <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="truncate body-xs text-[var(--fg-tertiary)]">
                   {u.email}
                 </div>
               </div>
@@ -1415,7 +1415,7 @@ function SectionCard({
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
         <h3
           className={
-            "m-0 text-[13.5px] font-semibold " +
+            "m-0 body-xs font-semibold " +
             (tone === "danger"
               ? "text-[var(--aw-red-700,#B42318)]"
               : "text-[var(--fg-primary)]")
@@ -1443,14 +1443,14 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
         <span
           className={
-            "text-[13px] text-[var(--fg-primary)] " +
-            (mono ? "font-mono text-[12px]" : "")
+            "body-xs text-[var(--fg-primary)] " +
+            (mono ? "mono body-xs" : "")
           }
         >
           {value}
@@ -1480,10 +1480,10 @@ function DangerRow({
   return (
     <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-4 py-3.5 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-[var(--fg-primary)]">
+        <div className="body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -1505,13 +1505,13 @@ function DeveloperTab({ account }: { account: IgAccount }) {
   return (
     <div className="flex flex-col gap-6">
       <AwCard className="p-4">
-        <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 mb-1 body-xs font-semibold text-[var(--fg-primary)]">
           Webhook & API
         </h3>
-        <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+        <p className="m-0 mb-3 body-xs text-[var(--fg-tertiary)]">
           Endpoint dedicado para receber eventos da Instagram Graph API. Use o
           segredo para validar o cabeçalho{" "}
-          <code className="font-mono text-[11.5px]">X-Hub-Signature-256</code>.
+          <code className="mono body-xs">X-Hub-Signature-256</code>.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <AwField label="Webhook URL" htmlFor={`ig-webhook-${account.id}`}>
@@ -1582,10 +1582,10 @@ function DeveloperTab({ account }: { account: IgAccount }) {
                   fill={active ? 1 : 0}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+                  <div className="body-xs font-medium text-[var(--fg-primary)]">
                     {SUBSCRIPTION_LABELS[evt]}
                   </div>
-                  <div className="mt-0.5 font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+                  <div className="mt-0.5 mono body-xs text-[var(--fg-tertiary)]">
                     {evt}
                   </div>
                 </div>
@@ -1601,10 +1601,10 @@ function DeveloperTab({ account }: { account: IgAccount }) {
 
       <AwCard className="flex items-center justify-between gap-4 p-4">
         <div className="min-w-0">
-          <div className="text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <div className="body-xs font-semibold text-[var(--fg-primary)]">
             Testar webhook
           </div>
-          <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+          <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
             Dispara um evento sintético de DM para validar a entrega.
           </div>
         </div>
@@ -1633,7 +1633,7 @@ function AggregatedHeader({ accounts }: { accounts: IgAccount[] }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               Todas as contas do Instagram
             </h2>
             {issuesCount > 0 && (
@@ -1643,7 +1643,7 @@ function AggregatedHeader({ accounts }: { accounts: IgAccount[] }) {
               </AwPill>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>{accounts.length} contas conectadas</span>
             <span aria-hidden>·</span>
             <span>
@@ -1678,14 +1678,14 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[24px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {avgHealth}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress
             value={avgHealth}
@@ -1693,35 +1693,35 @@ function AggregatedOverviewTab({
           />
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             DMs (30d)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalDms30.toLocaleString("pt-BR")}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             soma das contas
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Stories (30d)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalStories}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             menções e respostas
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Taxa de resposta média
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {avgResponse}%
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             calculada pelas contas
           </div>
         </AwCard>
@@ -1753,10 +1753,10 @@ function AggregatedOverviewTab({
                 initials={(a.handle[0] ?? "?").toUpperCase()}
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
                   @{a.handle}
                 </div>
-                <div className="mt-0.5 truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
                   {KIND_LABEL[a.kind]} · {formatFollowers(a.followers)} ·{" "}
                   {a.responseRate}% resposta
                 </div>
@@ -1786,10 +1786,10 @@ function EmptyState({ onAddAccount }: { onAddAccount: () => void }) {
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand="instagram" size="lg" />
-        <h1 className="m-0 mt-6 text-[24px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h1 className="m-0 mt-6 body-xl font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
           Conecte uma conta do Instagram
         </h1>
-        <p className="m-0 mt-2 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-2 body-sm text-[var(--fg-secondary)]">
           O Instagram só responde via API com contas Comerciais ou de Criador,
           vinculadas a uma Página do Facebook. Conecte a primeira pra começar.
         </p>
@@ -1801,10 +1801,10 @@ function EmptyState({ onAddAccount }: { onAddAccount: () => void }) {
             className="mt-0.5 text-[var(--fg-secondary)]"
           />
           <div>
-            <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
               O que você precisa
             </p>
-            <ul className="m-0 mt-1 list-disc pl-5 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+            <ul className="m-0 mt-1 list-disc pl-5 body-xs text-[var(--fg-secondary)]">
               <li>Conta Profissional (Comercial ou Criador) no Instagram</li>
               <li>Página do Facebook vinculada à conta</li>
               <li>

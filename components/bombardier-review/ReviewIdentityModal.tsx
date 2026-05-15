@@ -59,13 +59,13 @@ export function ReviewIdentityModal() {
         onSubmit={submit}
         className="flex flex-col gap-5"
       >
-        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">
+        <p className="body-sm text-[var(--fg-secondary)] leading-relaxed">
           Seu nome aparece em cada comentário pra que o time saiba quem
           escreveu o quê. Fica salvo só no seu navegador.
         </p>
 
         <label className="flex flex-col gap-2">
-          <span className="text-xs font-medium text-[var(--fg-secondary)]">
+          <span className="body-xs font-medium text-[var(--fg-secondary)]">
             Nome
           </span>
           <AwInput
@@ -78,7 +78,7 @@ export function ReviewIdentityModal() {
         </label>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-xs font-medium text-[var(--fg-secondary)] mb-1">
+          <legend className="body-xs font-medium text-[var(--fg-secondary)] mb-1">
             Cor do seu marcador
           </legend>
           <div className="flex flex-wrap gap-2">

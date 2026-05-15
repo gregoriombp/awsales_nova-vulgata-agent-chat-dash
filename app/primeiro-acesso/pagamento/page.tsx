@@ -44,21 +44,11 @@ export default function PagamentoPage() {
   return (
     <AwOnboardingShell currentStep={3} org={ONBOARDING_ORG}>
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Como você quer pagar a implementação?
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Sua conta libera o acesso assim que o pagamento for confirmado. Pix
           e cartão liberam na hora; boleto pode levar até 3 dias úteis.
         </p>
@@ -83,19 +73,17 @@ export default function PagamentoPage() {
                   <span className="min-w-0 flex-1">
                     <span
                       className={[
-                        "block font-medium",
+                        "block body-sm font-medium",
                         isSelected ? "text-white" : "text-fg-primary",
                       ].join(" ")}
-                      style={{ fontSize: 14 }}
                     >
                       {method.title}
                     </span>
                     <span
                       className={[
-                        "block",
+                        "block body-xs",
                         isSelected ? "text-white/70" : "text-fg-tertiary",
                       ].join(" ")}
-                      style={{ fontSize: 12 }}
                     >
                       {method.description}
                     </span>
@@ -118,10 +106,7 @@ export default function PagamentoPage() {
 
         <div className="mb-2 flex items-start gap-2.5 rounded-md border border-border-subtle bg-bg-surface px-3.5 py-3">
           <Icon name="info" size={16} className="mt-0.5 text-fg-tertiary" />
-          <p
-            className="m-0 text-fg-secondary"
-            style={{ fontSize: 12, lineHeight: 1.55 }}
-          >
+          <p className="m-0 body-xs text-fg-secondary">
             Você pagará <b>{ONBOARDING_ORG.valorImplementacao}</b> referentes
             à implementação. A primeira mensalidade (
             {ONBOARDING_ORG.valorMensalProrrata}, prorrata) é configurada na

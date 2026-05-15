@@ -71,16 +71,16 @@ export function ReviewCommentCard({ comment }: Props) {
     >
       <header className="flex items-center gap-2 mb-2">
         <span
-          className="h-6 w-6 rounded-full flex items-center justify-center text-[11px] font-semibold text-[var(--fg-on-inverse)]"
+          className="h-6 w-6 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)]"
           style={{ background: comment.authorColorToken }}
         >
           {comment.authorName.charAt(0).toUpperCase()}
         </span>
         <div className="flex flex-col leading-tight">
-          <span className="text-xs font-medium text-[var(--fg-primary)]">
+          <span className="body-xs font-medium text-[var(--fg-primary)]">
             {comment.authorName}
           </span>
-          <span className="text-[10px] text-[var(--fg-tertiary)]">
+          <span className="body-xs text-[var(--fg-tertiary)]">
             {formatRelative(comment.createdAt)}
           </span>
         </div>
@@ -131,14 +131,14 @@ export function ReviewCommentCard({ comment }: Props) {
         </div>
       </header>
 
-      <p className="text-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
+      <p className="body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
         {comment.text}
       </p>
 
       {!isOnThisPage && (
-        <div className="mt-2 text-[10px] text-[var(--fg-tertiary)] flex items-center gap-1">
+        <div className="mt-2 body-xs text-[var(--fg-tertiary)] flex items-center gap-1">
           <Icon name="link" size={11} />
-          <span className="font-mono truncate">{comment.url}</span>
+          <span className="mono truncate">{comment.url}</span>
         </div>
       )}
     </article>

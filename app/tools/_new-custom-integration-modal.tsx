@@ -135,7 +135,7 @@ export function NewCustomIntegrationModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Conecte um serviço HTTP que ainda não está no catálogo.
           Depois de criar, você adiciona habilidades dentro dessa
           conexão e elas herdam essa credencial automaticamente.
@@ -207,7 +207,7 @@ export function NewCustomIntegrationModal({
         )}
 
         <div>
-          <div className="mb-1.5 text-[12px] font-medium text-[var(--fg-secondary)]">
+          <div className="mb-1.5 body-xs font-medium text-[var(--fg-secondary)]">
             Ícone
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -237,7 +237,7 @@ export function NewCustomIntegrationModal({
         {testState !== "idle" && (
           <div
             className={
-              "flex items-center gap-2 rounded-xl border px-3 py-2.5 text-[12.5px] " +
+              "flex items-center gap-2 rounded-xl border px-3 py-2.5 body-xs " +
               (testState === "ok"
                 ? "border-[var(--aw-emerald-150)] bg-[var(--aw-emerald-100)] text-[var(--aw-emerald-800)]"
                 : "border-[var(--aw-red-150)] bg-[var(--aw-red-100)] text-[var(--aw-red-700)]")

@@ -244,20 +244,20 @@ export default function UrlResultsPage() {
   const getStatusBadge = (status: UrlPageRow["status"]) => {
     if (status === "Sincronizando") {
       return (
-        <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#e5e5e5] text-[10px] font-medium text-[#5e5e5e]">
+        <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#e5e5e5] aw-eyebrow text-[#5e5e5e]">
           {status}
         </span>
       );
     }
     if (status === "Ativo") {
       return (
-        <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#ddf7e5] text-[10px] font-medium text-[#105e45]">
+        <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#ddf7e5] aw-eyebrow text-[#105e45]">
           {status}
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#ffe5e5] text-[10px] font-medium text-[#8b1a1a]">
+      <span className="inline-flex items-center justify-center px-6 py-1 rounded-[32px] bg-[#ffe5e5] aw-eyebrow text-[#8b1a1a]">
         {status}
       </span>
     );
@@ -279,7 +279,7 @@ export default function UrlResultsPage() {
                 <div className="text-[#1a1a1a]">
                   <GlobeIcon48 />
                 </div>
-                <div className="text-[40px] font-medium text-[#1a1a1a] leading-none">
+                <div className="h1-display">
                   {title || websiteUrl}
                 </div>
               </div>
@@ -294,7 +294,7 @@ export default function UrlResultsPage() {
               </button>
             </div>
 
-            <div className="mt-4 flex items-center gap-3 text-[14px] text-[#5e5e5e]">
+            <div className="mt-4 flex items-center gap-3 body-sm text-[#5e5e5e]">
               <div className="flex items-center gap-1.5 pr-3 border-r border-[#d1d1d1]">
                 <TbFile className="w-4 h-4 text-[#999]" />
                 <span>{rows.length} Página{rows.length !== 1 ? "s" : ""}</span>
@@ -332,16 +332,16 @@ export default function UrlResultsPage() {
             <div className="border border-[#f2f2f2] rounded-[20px] pt-4 overflow-hidden bg-white">
               {/* Header row */}
               <div className="border-b border-[#f2f2f2] pb-2 px-6 flex items-center">
-                <div className="flex-1 min-w-0 py-2 text-[12px] text-[#999999] font-medium">
+                <div className="flex-1 min-w-0 py-2 body-xs text-[#999999] font-medium">
                   Título
                 </div>
-                <div className="w-[140px] py-2 text-[12px] text-[#999999] font-medium">
+                <div className="w-[140px] py-2 body-xs text-[#999999] font-medium">
                   Knowledge Layers
                 </div>
-                <div className="w-[140px] py-2 text-[12px] text-[#999999] font-medium">
+                <div className="w-[140px] py-2 body-xs text-[#999999] font-medium">
                   Última atualização
                 </div>
-                <div className="w-[100px] py-2 text-[12px] text-[#999999] font-medium text-right">
+                <div className="w-[100px] py-2 body-xs text-[#999999] font-medium text-right">
                   Status
                 </div>
               </div>
@@ -354,21 +354,21 @@ export default function UrlResultsPage() {
                     className="border-b border-[#f2f2f2] px-6 py-3 flex items-center transition-colors hover:bg-[#fbfcfd] last:border-b-0"
                   >
                     <div className="flex-1 min-w-0 py-1">
-                      <div className="text-[12px] font-medium text-[#0d0d0d] leading-normal">
+                      <div className="body-xs font-medium text-[#0d0d0d] leading-normal">
                         {row.title}
                       </div>
                       <a
                         href={row.link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-[11px] text-[#0066cc] hover:text-[#0052a3] hover:underline flex items-center gap-1 mt-0.5"
+                        className="body-xs text-[#0066cc] hover:text-[#0052a3] hover:underline flex items-center gap-1 mt-0.5"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span className="truncate">{row.link}</span>
                         <ExternalLink16 />
                       </a>
                     </div>
-                    <div className="w-[140px] py-1 flex items-center gap-2 text-[12px] text-[#5e5e5e]">
+                    <div className="w-[140px] py-1 flex items-center gap-2 body-xs text-[#5e5e5e]">
                       {row.status === "Sincronizando" ? (
                         <>
                           <span className="w-3.5 h-3.5 border-2 border-[#999] border-t-transparent rounded-full animate-spin flex-shrink-0" />
@@ -383,7 +383,7 @@ export default function UrlResultsPage() {
                         <span className="text-[#999]">—</span>
                       )}
                     </div>
-                    <div className="w-[140px] py-1 text-[12px] text-[#5e5e5e]">
+                    <div className="w-[140px] py-1 body-xs text-[#5e5e5e]">
                       {row.lastUpdate}
                     </div>
                     <div className="w-[100px] py-1 flex items-center justify-end">

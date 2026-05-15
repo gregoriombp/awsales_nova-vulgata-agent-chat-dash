@@ -61,21 +61,11 @@ export default function AcessoPage() {
           />
         ) : (
           <>
-            <h1
-              className="mb-2 font-display font-medium text-fg-primary text-balance"
-              style={{
-                fontSize: "var(--h3-size)",
-                lineHeight: 1.15,
-                letterSpacing: "-0.015em",
-              }}
-            >
+            <h3 className="mb-2 text-fg-primary text-balance">
               Como você prefere entrar?
-            </h1>
+            </h3>
 
-            <p
-              className="mb-7 text-fg-secondary text-pretty"
-              style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-            >
+            <p className="mb-7 body-sm text-fg-secondary text-pretty">
               Você poderá alterar isso depois nas configurações da conta.
               Recomendamos SSO para times com Google Workspace ou Microsoft 365.
             </p>
@@ -95,10 +85,7 @@ export default function AcessoPage() {
               />
             </div>
 
-            <div
-              className="my-4 flex items-center gap-3 uppercase text-fg-tertiary before:h-px before:flex-1 before:bg-border-subtle before:content-[''] after:h-px after:flex-1 after:bg-border-subtle after:content-['']"
-              style={{ fontSize: 10, letterSpacing: "0.06em" }}
-            >
+            <div className="my-4 flex items-center gap-3 aw-eyebrow text-fg-tertiary before:h-px before:flex-1 before:bg-border-subtle before:content-[''] after:h-px after:flex-1 after:bg-border-subtle after:content-['']">
               ou
             </div>
 
@@ -117,10 +104,7 @@ export default function AcessoPage() {
                   aria-hidden="true"
                   className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
                 />
-                <div
-                  className="font-medium text-fg-primary"
-                  style={{ fontSize: 13 }}
-                >
+                <div className="body-xs font-medium text-fg-primary">
                   {picked === "google" && "Redirecionando para Google…"}
                   {picked === "ms" && "Redirecionando para Microsoft…"}
                 </div>
@@ -136,10 +120,7 @@ export default function AcessoPage() {
                 <span className="aw-btn__label">Voltar</span>
               </Link>
               <span className="flex-1" />
-              <span
-                className="text-fg-tertiary"
-                style={{ fontSize: 10, letterSpacing: "0.04em" }}
-              >
+              <span className="body-xs text-fg-tertiary">
                 autenticação via OAuth ou e-mail
               </span>
             </footer>
@@ -183,21 +164,11 @@ function PasswordSetup({
 
   return (
     <>
-      <h1
-        className="mb-2 font-display font-medium text-fg-primary text-balance"
-        style={{
-          fontSize: "var(--h3-size)",
-          lineHeight: 1.15,
-          letterSpacing: "-0.015em",
-        }}
-      >
+      <h3 className="mb-2 text-fg-primary text-balance">
         Defina uma senha para o seu acesso.
-      </h1>
+      </h3>
 
-      <p
-        className="mb-7 text-fg-secondary text-pretty"
-        style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-      >
+      <p className="mb-7 body-sm text-fg-secondary text-pretty">
         Você usará seu e-mail{" "}
         <span className="font-medium text-fg-primary">
           {ONBOARDING_USER.email}
@@ -233,8 +204,7 @@ function PasswordSetup({
         {rules.map((rule) => (
           <li
             key={rule.label}
-            className="flex items-center gap-2"
-            style={{ fontSize: 12 }}
+            className="flex items-center gap-2 body-xs"
           >
             <span
               className={[
@@ -261,10 +231,7 @@ function PasswordSetup({
             aria-hidden="true"
             className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
           />
-          <div
-            className="font-medium text-fg-primary"
-            style={{ fontSize: 13 }}
-          >
+          <div className="body-xs font-medium text-fg-primary">
             Criando seu acesso…
           </div>
         </div>
@@ -321,10 +288,7 @@ function PasswordField({
 
   return (
     <label className="flex flex-col gap-1.5">
-      <span
-        className="font-medium text-fg-secondary"
-        style={{ fontSize: 12 }}
-      >
+      <span className="body-xs font-medium text-fg-secondary">
         {label}
       </span>
       <span
@@ -336,8 +300,8 @@ function PasswordField({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="••••••••"
-          className="flex-1 border-0 bg-transparent font-sans outline-0"
-          style={{ fontSize: 14, letterSpacing: show ? "0" : "0.1em" }}
+          className="flex-1 border-0 bg-transparent body-sm outline-0"
+          style={{ letterSpacing: show ? "0" : "0.1em" }}
         />
         {status === "match" && (
           <Icon
@@ -385,8 +349,7 @@ function AuthOption({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center gap-3 rounded-md border border-border bg-bg-raised px-4 py-3.5 text-left font-medium text-fg-primary transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-bg-raised"
-      style={{ fontSize: 13.5 }}
+      className="flex w-full items-center gap-3 rounded-md border border-border bg-bg-raised px-4 py-3.5 text-left body-xs font-medium text-fg-primary transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-bg-raised"
     >
       <span className="flex-shrink-0">{icon}</span>
       <span className="flex-1">{label}</span>

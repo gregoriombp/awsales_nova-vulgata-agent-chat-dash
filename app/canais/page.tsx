@@ -123,7 +123,7 @@ function QuickPickPill({
     <button
       type="button"
       onClick={onClick}
-      className="group inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-2 pr-5 text-[13px] font-medium text-[var(--fg-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-canvas)]"
+      className="group inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-2 pr-5 body-xs font-medium text-[var(--fg-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-canvas)]"
     >
       <AwBrandLogo brand={brand} size="sm" bare />
       <span>{name}</span>
@@ -195,11 +195,11 @@ function ChannelGroup({
             initials={getAccountInitials(account.name)}
           />
           <div className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
               {account.name}
             </span>
             {account.subtitle && (
-              <span className="mt-0.5 block truncate text-[12.5px] leading-[1.45] text-[var(--fg-tertiary)]">
+              <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                 {account.subtitle}
               </span>
             )}
@@ -345,9 +345,9 @@ export default function CanaisPage() {
             {variant === "populated" ? (
               <section aria-label="Seus canais">
                 <div className="mb-5 flex items-center justify-between gap-4">
-                  <h2 className="m-0 text-[16px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                  <h6 className="m-0 text-[var(--fg-primary)]">
                     Seus canais
-                  </h2>
+                  </h6>
                   <div className="w-full max-w-[320px]">
                     <AwInput
                       iconLeft="search"
@@ -361,7 +361,7 @@ export default function CanaisPage() {
 
                 {totalAfterSearch === 0 ? (
                   <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-6 py-10 text-center">
-                    <p className="m-0 text-[14px] text-[var(--fg-secondary)]">
+                    <p className="m-0 body-sm text-[var(--fg-secondary)]">
                       Nenhum canal ou conta encontrado para
                       {" "}
                       <strong className="text-[var(--fg-primary)]">
@@ -391,10 +391,10 @@ export default function CanaisPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]">
                   <Icon name="link_off" size={24} />
                 </div>
-                <h2 className="m-0 mt-5 text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+                <h5 className="m-0 mt-5 text-[var(--fg-primary)]">
                   Você não tem canais conectados
-                </h2>
-                <p className="m-0 mt-2 max-w-[420px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+                </h5>
+                <p className="m-0 mt-2 max-w-[420px] body-sm text-[var(--fg-secondary)]">
                   Reconecte um canal ou abra o catálogo para escolher por
                   onde os agentes vão atender.
                 </p>
@@ -411,7 +411,7 @@ export default function CanaisPage() {
                 <button
                   type="button"
                   onClick={() => setAddOpen(true)}
-                  className="mt-5 text-[13px] font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+                  className="mt-5 body-xs font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
                 >
                   Ver todos os canais
                 </button>
@@ -432,10 +432,10 @@ export default function CanaisPage() {
             </div>
 
             <div className="mt-10 flex flex-col items-center text-center">
-              <h2 className="m-0 max-w-[520px] text-[28px] font-semibold leading-[1.2] tracking-[-0.02em] text-[var(--fg-primary)]">
+              <h3 className="m-0 max-w-[520px] text-[var(--fg-primary)]">
                 Conecte seu primeiro canal
-              </h2>
-              <p className="m-0 mt-3 max-w-[480px] text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+              </h3>
+              <p className="m-0 mt-3 max-w-[480px] body-sm text-[var(--fg-secondary)]">
                 WhatsApp, Instagram, Messenger… escolha por onde seus
                 agentes vão conversar com seus clientes.
               </p>
@@ -459,7 +459,7 @@ export default function CanaisPage() {
               </AwButton>
             </div>
 
-            <div className="mt-10 mb-5 flex items-center gap-3 text-[12px] text-[var(--fg-tertiary)]">
+            <div className="mt-10 mb-5 flex items-center gap-3 body-xs text-[var(--fg-tertiary)]">
               <span
                 aria-hidden="true"
                 className="h-px flex-1 bg-[var(--border-subtle)]"

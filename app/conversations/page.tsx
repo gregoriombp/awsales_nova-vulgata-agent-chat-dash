@@ -132,10 +132,10 @@ export default function ConversationsPage() {
         {/* Coluna 1: Inbox */}
         <aside className="w-[300px] flex-shrink-0 border-r border-aw-gray-200 flex flex-col bg-white">
           <div className="p-4 border-b border-aw-gray-200">
-            <h2 className="text-base font-heading font-semibold text-text-primary mb-3">Sua caixa de entrada</h2>
+            <h2 className="body-md font-heading font-semibold text-text-primary mb-3">Sua caixa de entrada</h2>
             <div className="flex gap-2">
               <div className="relative">
-                <select className="h-9 min-w-[110px] pl-3 pr-9 rounded-lg border border-input-border bg-input-bg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gray-1200/20 appearance-none">
+                <select className="h-9 min-w-[110px] pl-3 pr-9 rounded-lg border border-input-border bg-input-bg body-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gray-1200/20 appearance-none">
                   <option>4 Abertas</option>
                 </select>
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary">
@@ -143,7 +143,7 @@ export default function ConversationsPage() {
                 </span>
               </div>
               <div className="relative">
-                <select className="h-9 min-w-[110px] pl-3 pr-9 rounded-lg border border-input-border bg-input-bg text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gray-1200/20 appearance-none">
+                <select className="h-9 min-w-[110px] pl-3 pr-9 rounded-lg border border-input-border bg-input-bg body-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-gray-1200/20 appearance-none">
                   <option>Mais recentes</option>
                 </select>
                 <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-text-secondary">
@@ -162,27 +162,27 @@ export default function ConversationsPage() {
                   selectedId === conv.id ? "bg-aw-gray-200" : "hover:bg-aw-gray-150"
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-gray-1200 text-white flex items-center justify-center text-sm font-medium flex-shrink-0">
+                <div className="w-10 h-10 rounded-full bg-gray-1200 text-white flex items-center justify-center body-sm font-medium flex-shrink-0">
                   {conv.contactInitial}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-sm font-medium text-text-primary truncate">{conv.contactName}</span>
+                    <span className="body-sm font-medium text-text-primary truncate">{conv.contactName}</span>
                     <span className="flex items-center gap-1.5 flex-shrink-0">
                       {conv.badge && (
-                        <span className="px-2 py-0.5 rounded-full bg-aw-gray-200 text-[10px] font-medium text-text-primary">
+                        <span className="px-2 py-0.5 rounded-full bg-aw-gray-200 body-xs font-medium text-text-primary">
                           {conv.badge}
                         </span>
                       )}
                       {conv.badgeIcon && (
-                        <span className="w-5 h-5 rounded-full bg-gray-1200 text-white flex items-center justify-center text-[10px] font-medium">
+                        <span className="w-5 h-5 rounded-full bg-gray-1200 text-white flex items-center justify-center body-xs font-medium">
                           9
                         </span>
                       )}
-                      <span className="text-xs text-text-secondary">{conv.lastTime}</span>
+                      <span className="body-xs text-text-secondary">{conv.lastTime}</span>
                     </span>
                   </div>
-                  <p className="text-xs text-text-secondary truncate mt-0.5">{conv.lastSnippet}</p>
+                  <p className="body-xs text-text-secondary truncate mt-0.5">{conv.lastSnippet}</p>
                 </div>
               </button>
             ))}
@@ -194,7 +194,7 @@ export default function ConversationsPage() {
           {selected ? (
             <>
               <header className="h-14 flex-shrink-0 flex items-center justify-between px-4 border-b border-aw-gray-200">
-                <span className="text-base font-heading font-semibold text-text-primary">{selected.contactName}</span>
+                <span className="body-md font-heading font-semibold text-text-primary">{selected.contactName}</span>
                 <div className="flex items-center gap-0.5">
                   <button type="button" className={BTN_ICON} aria-label="Favoritar">
                     <svg width={ICON_SIZE} height={ICON_SIZE} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -236,31 +236,31 @@ export default function ConversationsPage() {
                   if (msg.role === "user") {
                     return (
                       <div key={msg.id} className="flex items-end gap-2 max-w-[80%]">
-                        <div className="w-8 h-8 rounded-full bg-gray-1200 text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-gray-1200 text-white flex items-center justify-center body-xs font-medium flex-shrink-0">
                           {selected.contactInitial}
                         </div>
                         <div className="rounded-2xl rounded-bl-md bg-aw-gray-200 px-4 py-2.5">
                           {msg.imageTitle ? (
-                            <div className="rounded-lg overflow-hidden bg-aw-gray-300 w-36 h-28 flex flex-col items-center justify-center text-xs text-text-secondary">
+                            <div className="rounded-lg overflow-hidden bg-aw-gray-300 w-36 h-28 flex flex-col items-center justify-center body-xs text-text-secondary">
                               <span className="font-medium text-text-primary mt-1">[Imagem]</span>
                               <span>{msg.imageTitle}</span>
                             </div>
                           ) : (
-                            <p className="text-sm text-text-primary">{msg.text}</p>
+                            <p className="body-sm text-text-primary">{msg.text}</p>
                           )}
-                          <span className="text-[10px] text-text-secondary block mt-1.5">{msg.timestamp}</span>
+                          <span className="body-xs text-text-secondary block mt-1.5">{msg.timestamp}</span>
                         </div>
                       </div>
                     );
                   }
                   return (
                     <div key={msg.id} className="flex items-end gap-2 max-w-[80%] ml-auto flex-row-reverse">
-                      <div className="w-8 h-8 rounded-full bg-gray-1200 text-white flex items-center justify-center text-xs font-medium flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-gray-1200 text-white flex items-center justify-center body-xs font-medium flex-shrink-0">
                         A
                       </div>
                       <div className="rounded-2xl rounded-br-md bg-gray-1200 text-white px-4 py-2.5">
-                        <p className="text-sm">{msg.text}</p>
-                        <span className="text-[10px] text-white/80 block mt-1.5">
+                        <p className="body-sm">{msg.text}</p>
+                        <span className="body-xs text-white/80 block mt-1.5">
                           {msg.seen ? `Visto · ${msg.timestamp}` : msg.timestamp}
                         </span>
                       </div>
@@ -272,17 +272,17 @@ export default function ConversationsPage() {
               {/* Composer: label Chat + hint, depois área de input */}
               <div className="flex-shrink-0 p-4 pt-0">
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm font-medium text-text-primary">Chat</span>
+                  <span className="body-sm font-medium text-text-primary">Chat</span>
                   <button type="button" className="p-1 -m-1 rounded text-text-secondary hover:text-text-primary hover:bg-aw-gray-200">
                     <IconChevronDown size={16} />
                   </button>
                 </div>
-                <p className="text-xs text-text-secondary mb-2">Use ⌘K para atalhos</p>
+                <p className="body-xs text-text-secondary mb-2">Use ⌘K para atalhos</p>
                 <div className="rounded-xl border border-input-border bg-input-bg focus-within:ring-2 focus-within:ring-gray-1200/20 focus-within:border-gray-1200 transition-shadow">
                   <textarea
                     placeholder="Digite sua mensagem..."
                     rows={3}
-                    className="w-full px-4 py-3 text-sm text-text-primary placeholder:text-text-secondary resize-none border-0 rounded-t-xl focus:outline-none focus:ring-0 bg-transparent"
+                    className="w-full px-4 py-3 body-sm text-text-primary placeholder:text-text-secondary resize-none border-0 rounded-t-xl focus:outline-none focus:ring-0 bg-transparent"
                   />
                   <div className="flex items-center justify-between px-2 py-2 border-t border-aw-gray-200">
                     <div className="flex items-center gap-0.5">
@@ -319,7 +319,7 @@ export default function ConversationsPage() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-text-secondary text-sm">
+            <div className="flex-1 flex items-center justify-center text-text-secondary body-sm">
               Selecione uma conversa
             </div>
           )}
@@ -331,7 +331,7 @@ export default function ConversationsPage() {
             <button
               type="button"
               onClick={() => setCopilotTab("details")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 body-sm font-medium transition-colors ${
                 copilotTab === "details" ? "text-text-primary border-b-2 border-gray-1200 -mb-px" : "text-text-secondary hover:text-text-primary"
               }`}
             >
@@ -340,7 +340,7 @@ export default function ConversationsPage() {
             <button
               type="button"
               onClick={() => setCopilotTab("copilot")}
-              className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              className={`flex-1 py-3 body-sm font-medium transition-colors ${
                 copilotTab === "copilot" ? "text-text-primary border-b-2 border-gray-1200 -mb-px" : "text-text-secondary hover:text-text-primary"
               }`}
             >
@@ -354,17 +354,17 @@ export default function ConversationsPage() {
                 {/* Exchange 1: You + Fin */}
                 <div className="space-y-3">
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center body-xs font-medium text-text-primary flex-shrink-0">
                       Você
                     </div>
-                    <p className="text-sm text-text-primary pt-1">{COPILOT_EXCHANGE_1.you}</p>
+                    <p className="body-sm text-text-primary pt-1">{COPILOT_EXCHANGE_1.you}</p>
                   </div>
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-1200 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-1200 flex items-center justify-center body-xs font-bold text-white flex-shrink-0">
                       Fin
                     </div>
                     <div className="flex-1 min-w-0 rounded-xl border border-input-border bg-input-bg px-4 py-3">
-                      <p className="text-sm text-text-primary whitespace-pre-wrap leading-relaxed">{COPILOT_EXCHANGE_1.fin}</p>
+                      <p className="body-sm text-text-primary whitespace-pre-wrap leading-relaxed">{COPILOT_EXCHANGE_1.fin}</p>
                     </div>
                   </div>
                   <Button variant="secondary" size="sm" className="w-full gap-1.5">
@@ -377,10 +377,10 @@ export default function ConversationsPage() {
                   </Button>
                 </div>
 
-                <p className="text-xs font-medium text-text-secondary">3 fontes relevantes</p>
+                <p className="body-xs font-medium text-text-secondary">3 fontes relevantes</p>
                 <ul className="space-y-2">
                   {SOURCES_1.map((s) => (
-                    <li key={s.title} className="flex items-center gap-2 text-sm text-text-primary">
+                    <li key={s.title} className="flex items-center gap-2 body-sm text-text-primary">
                       <span className="w-7 h-7 rounded-md bg-white border border-input-border flex items-center justify-center text-text-secondary flex-shrink-0">
                         {s.icon === "lock" ? <IconLock /> : <IconDoc />}
                       </span>
@@ -392,25 +392,25 @@ export default function ConversationsPage() {
                 {/* Exchange 2: You + Fin (placeholder) */}
                 <div className="space-y-3 pt-2">
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center text-xs font-medium text-text-primary flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-aw-gray-200 flex items-center justify-center body-xs font-medium text-text-primary flex-shrink-0">
                       Você
                     </div>
-                    <p className="text-sm text-text-primary pt-1">{COPILOT_EXCHANGE_2.you}</p>
+                    <p className="body-sm text-text-primary pt-1">{COPILOT_EXCHANGE_2.you}</p>
                   </div>
                   <div className="flex gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-1200 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-gray-1200 flex items-center justify-center body-xs font-bold text-white flex-shrink-0">
                       Fin
                     </div>
                     <div className="flex-1 min-w-0 rounded-xl border border-input-border bg-input-bg px-4 py-3 min-h-[60px] flex items-center">
-                      <span className="text-sm text-text-secondary animate-pulse">Gerando resposta...</span>
+                      <span className="body-sm text-text-secondary animate-pulse">Gerando resposta...</span>
                     </div>
                   </div>
                 </div>
 
-                <p className="text-xs font-medium text-text-secondary">2 fontes relevantes</p>
+                <p className="body-xs font-medium text-text-secondary">2 fontes relevantes</p>
                 <ul className="space-y-2">
                   {SOURCES_2.map((s) => (
-                    <li key={s.title} className="flex items-center gap-2 text-sm text-text-primary">
+                    <li key={s.title} className="flex items-center gap-2 body-sm text-text-primary">
                       <span className="w-7 h-7 rounded-md bg-white border border-input-border flex items-center justify-center text-text-secondary flex-shrink-0">
                         {s.icon === "lock" ? <IconLock /> : <IconDoc />}
                       </span>
@@ -426,7 +426,7 @@ export default function ConversationsPage() {
                       value={copilotQuestion}
                       onChange={(e) => setCopilotQuestion(e.target.value)}
                       placeholder="Faça uma pergunta de acompanhamento..."
-                      className="flex-1 h-9 px-3 rounded-lg border border-input-border bg-input-bg text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-gray-1200/20"
+                      className="flex-1 h-9 px-3 rounded-lg border border-input-border bg-input-bg body-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-gray-1200/20"
                     />
                     <button
                       type="button"
@@ -440,7 +440,7 @@ export default function ConversationsPage() {
               </>
             )}
             {copilotTab === "details" && (
-              <div className="text-sm text-text-secondary">
+              <div className="body-sm text-text-secondary">
                 <p>Informações do contato e do ticket aparecem aqui.</p>
               </div>
             )}

@@ -113,7 +113,7 @@ export default function Toast({ toast, onRemove }: ToastProps) {
       className={`flex items-center gap-3 p-4 rounded-lg border shadow-lg min-w-[300px] max-w-md ${typeStyles[toast.type]}`}
     >
       <div className={iconColors[toast.type]}>{icons[toast.type]}</div>
-      <p className="flex-1 text-sm font-medium">{toast.message}</p>
+      <p className="flex-1 body-sm font-medium">{toast.message}</p>
       <button
         onClick={() => onRemove(toast.id)}
         className="text-gray-400 hover:text-gray-600 transition-colors"

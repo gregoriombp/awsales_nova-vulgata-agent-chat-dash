@@ -62,26 +62,20 @@ const SECTIONS: Section[] = [
         label: "+ Custos variáveis de uso",
         value: (
           <details className="group inline-flex flex-col gap-1.5">
-            <summary
-              className="inline-flex w-fit cursor-pointer items-center gap-1 text-fg-secondary hover:text-fg-primary"
-              style={{ fontSize: 13, fontWeight: 500 }}
-            >
+            <summary className="inline-flex w-fit cursor-pointer items-center gap-1 body-xs font-medium text-fg-secondary hover:text-fg-primary">
               <span>Sob consumo</span>
               <Icon
                 name="info"
                 size={14}
                 className="text-fg-tertiary group-hover:text-fg-secondary"
               />
-              <span
-                className="ml-1 underline decoration-dotted underline-offset-2 text-fg-tertiary group-hover:text-fg-secondary"
-                style={{ fontSize: 12, fontWeight: 400 }}
-              >
+              <span className="ml-1 body-xs underline decoration-dotted underline-offset-2 text-fg-tertiary group-hover:text-fg-secondary">
                 Saiba mais
               </span>
             </summary>
             <p
-              className="m-0 mt-1 text-fg-tertiary text-pretty"
-              style={{ fontSize: 12, lineHeight: 1.55, maxWidth: 360 }}
+              className="m-0 mt-1 body-xs text-fg-tertiary text-pretty"
+              style={{ maxWidth: 360 }}
             >
               Cobrança proporcional ao volume de atendimentos e mensagens que
               excedem o pacote incluído no seu plano. O limite mensal de uso
@@ -106,21 +100,11 @@ export default function RevisaoPage() {
       brandBackground={ONBOARDING_ORG.brandBackground}
     >
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Revise os termos antes de prosseguir.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Os dados abaixo refletem o contrato firmado com a AwSales. Confira
           cada seção com atenção; divergências devem ser tratadas com{" "}
           {ONBOARDING_ORG.accountManager} antes do pagamento.
@@ -134,21 +118,14 @@ export default function RevisaoPage() {
             >
               <header className="flex items-baseline gap-2.5 border-b border-border-subtle px-4 pb-3 pt-3.5">
                 <span
-                  className="uppercase text-fg-tertiary"
-                  style={{
-                    fontSize: 10,
-                    letterSpacing: "0.08em",
-                    fontVariantNumeric: "tabular-nums",
-                  }}
+                  className="aw-eyebrow text-fg-tertiary"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   {section.eyebrow}
                 </span>
-                <h2
-                  className="m-0 font-medium text-fg-primary"
-                  style={{ fontSize: 13, letterSpacing: "-0.005em" }}
-                >
+                <h6 className="m-0 text-fg-primary">
                   {section.title}
-                </h2>
+                </h6>
               </header>
 
               <dl className="m-0">
@@ -164,19 +141,14 @@ export default function RevisaoPage() {
                       .filter(Boolean)
                       .join(" ")}
                   >
-                    <dt
-                      className="text-fg-tertiary"
-                      style={{ fontSize: 12, letterSpacing: "0.005em" }}
-                    >
+                    <dt className="body-xs text-fg-tertiary">
                       {row.label}
                     </dt>
                     <dd
-                      className="m-0 text-fg-primary"
-                      style={{
-                        fontSize: row.emphasized ? 14 : 13,
-                        fontWeight: row.emphasized ? 600 : 500,
-                        letterSpacing: row.emphasized ? "-0.005em" : "0",
-                      }}
+                      className={[
+                        "m-0 font-medium text-fg-primary",
+                        row.emphasized ? "body-sm" : "body-xs",
+                      ].join(" ")}
                     >
                       {row.value}
                     </dd>
@@ -187,29 +159,17 @@ export default function RevisaoPage() {
           ))}
         </div>
 
-        <div
-          className="mt-4 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5"
-          style={{ fontSize: 12, lineHeight: 1.55 }}
-        >
-          <div
-            className="mb-1.5 uppercase text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.08em" }}
-          >
+        <div className="mt-4 body-xs rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+          <div className="mb-1.5 aw-eyebrow text-fg-tertiary">
             Responsáveis
           </div>
           <div className="grid grid-cols-2 gap-3 text-fg-secondary">
             <div>
-              <div
-                className="mb-1.5 text-fg-tertiary"
-                style={{ fontSize: 11 }}
-              >
+              <div className="mb-1.5 body-xs text-fg-tertiary">
                 Time AwSales
               </div>
               <div className="flex flex-col gap-1.5">
-                <div
-                  className="flex items-center gap-2 text-fg-primary"
-                  style={{ fontWeight: 500 }}
-                >
+                <div className="flex items-center gap-2 font-medium text-fg-primary">
                   <AwAvatar
                     size="sm"
                     src={ONBOARDING_ORG.accountManagerPhoto}
@@ -218,14 +178,11 @@ export default function RevisaoPage() {
                     style={{ width: 20, height: 20, fontSize: 9 }}
                   />
                   <span>{ONBOARDING_ORG.accountManager}</span>
-                  <span className="text-fg-tertiary" style={{ fontSize: 11, fontWeight: 400 }}>
+                  <span className="body-xs font-normal text-fg-tertiary">
                     · Account Manager
                   </span>
                 </div>
-                <div
-                  className="flex items-center gap-2 text-fg-primary"
-                  style={{ fontWeight: 500 }}
-                >
+                <div className="flex items-center gap-2 font-medium text-fg-primary">
                   <AwAvatar
                     size="sm"
                     src={ONBOARDING_ORG.representanteComercialPhoto}
@@ -234,23 +191,20 @@ export default function RevisaoPage() {
                     style={{ width: 20, height: 20, fontSize: 9 }}
                   />
                   <span>{ONBOARDING_ORG.representanteComercial}</span>
-                  <span className="text-fg-tertiary" style={{ fontSize: 11, fontWeight: 400 }}>
+                  <span className="body-xs font-normal text-fg-tertiary">
                     · Comercial
                   </span>
                 </div>
               </div>
             </div>
             <div>
-              <div
-                className="mb-1.5 text-fg-tertiary"
-                style={{ fontSize: 11 }}
-              >
+              <div className="mb-1.5 body-xs text-fg-tertiary">
                 Admin responsável
               </div>
-              <div className="text-fg-primary" style={{ fontWeight: 500 }}>
+              <div className="font-medium text-fg-primary">
                 {ONBOARDING_USER.name}
               </div>
-              <div className="text-fg-tertiary" style={{ fontSize: 11 }}>
+              <div className="body-xs text-fg-tertiary">
                 {ONBOARDING_USER.email}
               </div>
             </div>
@@ -264,21 +218,15 @@ export default function RevisaoPage() {
         >
           <AwFileIcon type="pdf" size="md" alt="Contrato em PDF" />
           <span className="min-w-0 flex-1">
-            <span
-              className="block font-medium text-fg-primary"
-              style={{ fontSize: 13 }}
-            >
+            <span className="block body-xs font-medium text-fg-primary">
               Contrato_{ONBOARDING_ORG.razaoSocial.replace(/\s+/g, "_")}.pdf
             </span>
-            <span
-              className="block text-fg-tertiary"
-              style={{ fontSize: 12 }}
-            >
+            <span className="block body-xs text-fg-tertiary">
               PDF · {ONBOARDING_ORG.plan} · {ONBOARDING_ORG.contractTerm} · 48 KB
             </span>
           </span>
           <span className="flex items-center gap-1.5 text-fg-secondary">
-            <span style={{ fontSize: 12 }} className="font-medium">
+            <span className="body-xs font-medium">
               Baixar
             </span>
             <Icon name="download" size={16} />

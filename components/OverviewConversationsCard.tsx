@@ -249,7 +249,7 @@ export default function OverviewConversationsCard() {
             <path d="M12 16v-4M12 8h.01" />
           </svg>
         </button>
-        <h3 className="text-base font-semibold text-[#1a1a1a]">
+        <h3 className="body-md font-semibold text-[#1a1a1a]">
           Como você está tratando as conversas
         </h3>
       </div>
@@ -391,7 +391,7 @@ export default function OverviewConversationsCard() {
           {/* Tooltip */}
           {tooltip && (
             <div
-              className="absolute pointer-events-none z-30 px-3 py-2 bg-[#1a1a1a] text-white text-sm rounded-lg shadow-lg whitespace-nowrap"
+              className="absolute pointer-events-none z-30 px-3 py-2 bg-[#1a1a1a] text-white body-sm rounded-lg shadow-lg whitespace-nowrap"
               style={{
                 left: tooltip.x,
                 top: tooltip.y,

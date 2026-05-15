@@ -48,11 +48,11 @@ export default function CreateFolderModal({
               <TbFolderPlus className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-[#1a1a1a]">
+              <h2 className="body-lg font-semibold text-[#1a1a1a]">
                 Nova Pasta
               </h2>
               {parentFolderName && (
-                <p className="text-[12px] text-[#5e5e5e]">
+                <p className="body-xs text-[#5e5e5e]">
                   Dentro de: {parentFolderName}
                 </p>
               )}
@@ -81,7 +81,7 @@ export default function CreateFolderModal({
           <div>
             <label
               htmlFor="folder-name"
-              className="block text-[13px] font-medium text-[#2f2f2f] mb-2"
+              className="block body-xs font-medium text-[#2f2f2f] mb-2"
             >
               Nome da pasta
             </label>
@@ -95,13 +95,13 @@ export default function CreateFolderModal({
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
                 placeholder="Ex: Documentos de Vendas"
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[#e5e5e5] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a] transition-colors"
+                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[#e5e5e5] bg-white body-sm text-[#1a1a1a] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a] transition-colors"
                 autoFocus
               />
             </div>
           </div>
 
-          <p className="text-[12px] text-[#5e5e5e]">
+          <p className="body-xs text-[#5e5e5e]">
             As pastas ajudam a organizar seus arquivos, URLs, snippets e
             integrações dentro da base de conhecimento.
           </p>

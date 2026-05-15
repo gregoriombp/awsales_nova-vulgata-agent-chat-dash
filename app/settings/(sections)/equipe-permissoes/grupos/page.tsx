@@ -100,10 +100,10 @@ export default function GroupsPage() {
     <>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
             Equipe &amp; permissões
-          </h1>
-          <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          </h3>
+          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -117,7 +117,7 @@ export default function GroupsPage() {
             size={16}
             className="mt-0.5 shrink-0 text-[var(--fg-secondary)]"
           />
-          <p className="m-0 text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
             Pense em cada grupo como um <strong className="font-semibold text-[var(--fg-primary)]">departamento</strong> da empresa — uma forma de
             agrupar pessoas que compartilham contexto e responsabilidades (ex.:
             Atendimento, Comercial, Operações).

@@ -251,17 +251,17 @@ export default function NewToolPage() {
           <header className="mb-8 border-b border-[var(--border-subtle)] pb-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h1 className="m-0 mb-1.5 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+                <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
                   Nova habilidade
-                </h1>
-                <p className="m-0 max-w-[600px] text-sm leading-[1.5] text-[var(--fg-secondary)]">
+                </h3>
+                <p className="m-0 max-w-[600px] body-sm text-[var(--fg-secondary)]">
                   Configure a ação, descreva pra IA quando usar, e
                   rode um teste antes de ativar.
                 </p>
               </div>
               <div className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] py-1.5 pl-1.5 pr-3">
                 {parentLogo}
-                <span className="text-[12px] text-[var(--fg-secondary)]">
+                <span className="body-xs text-[var(--fg-secondary)]">
                   Herda da conexão{" "}
                   <span className="font-semibold text-[var(--fg-primary)]">
                     {parentLabel}
@@ -307,10 +307,10 @@ export default function NewToolPage() {
                   <AwField label="Conexão a que pertence">
                     <div className="flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
                       {parentLogo}
-                      <span className="text-[13px] text-[var(--fg-primary)]">
+                      <span className="body-xs text-[var(--fg-primary)]">
                         {parentLabel}
                       </span>
-                      <span className="ml-auto text-[11px] uppercase tracking-wider text-[var(--fg-tertiary)]">
+                      <span className="ml-auto body-xs uppercase tracking-wider text-[var(--fg-tertiary)]">
                         {parent.kind === "native"
                           ? "Nativa"
                           : "Personalizada"}
@@ -327,7 +327,7 @@ export default function NewToolPage() {
                       placeholder="Use esta tool quando o lead pedir agendamento. Recebe lead_id e topic, retorna especialista disponível com slots."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
-                      className="aw-input w-full resize-y px-3 py-2.5 text-[14px] leading-[1.5]"
+                      className="aw-input w-full resize-y px-3 py-2.5 body-sm"
                       maxLength={500}
                     />
                   </AwField>
@@ -348,7 +348,7 @@ export default function NewToolPage() {
                         onChange={(e) =>
                           setMethod(e.target.value as CustomToolMethod)
                         }
-                        className="flex-1 cursor-pointer appearance-none border-0 bg-transparent text-[14px] text-[var(--fg-primary)] outline-none"
+                        className="flex-1 cursor-pointer appearance-none border-0 bg-transparent body-sm text-[var(--fg-primary)] outline-none"
                         style={{ paddingRight: 22 }}
                       >
                         {METHOD_OPTIONS.map((m) => (
@@ -383,9 +383,9 @@ export default function NewToolPage() {
                     </div>
                   </div>
                   {parent.kind === "custom" && parent.custom.baseUrl && (
-                    <span className="text-[12px] text-[var(--fg-tertiary)]">
+                    <span className="body-xs text-[var(--fg-tertiary)]">
                       Pode usar caminhos relativos —{" "}
-                      <span className="font-mono">
+                      <span className="mono">
                         {parent.custom.baseUrl}
                       </span>{" "}
                       é prefixado automaticamente.
@@ -395,7 +395,7 @@ export default function NewToolPage() {
               </Collapsible>
 
               <Collapsible title="Headers, query e body">
-                <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-tertiary)]">
+                <p className="m-0 body-xs text-[var(--fg-tertiary)]">
                   Headers customizados, query params e schema do body
                   (JSON) — virão depois. Por enquanto a habilidade usa
                   só a credencial da conexão pai e o input do teste.
@@ -403,12 +403,12 @@ export default function NewToolPage() {
               </Collapsible>
 
               <Collapsible title="Mapeamento de resposta">
-                <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-tertiary)]">
+                <p className="m-0 body-xs text-[var(--fg-tertiary)]">
                   Configure de quais campos da resposta o agente
                   extrai cada variável (ex.{" "}
-                  <span className="font-mono">especialista_nome</span>{" "}
+                  <span className="mono">especialista_nome</span>{" "}
                   ←{" "}
-                  <span className="font-mono">$.data[0].name</span>).
+                  <span className="mono">$.data[0].name</span>).
                 </p>
               </Collapsible>
             </section>
@@ -416,7 +416,7 @@ export default function NewToolPage() {
             {/* ----- Test (right) ----- */}
             <aside className="flex flex-col gap-4">
               <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5">
-                <h3 className="m-0 mb-3 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                <h3 className="m-0 mb-3 body-sm font-medium text-[var(--fg-primary)]">
                   Teste
                 </h3>
 
@@ -428,7 +428,7 @@ export default function NewToolPage() {
                     rows={6}
                     value={testInput}
                     onChange={(e) => setTestInput(e.target.value)}
-                    className="aw-input w-full resize-y px-3 py-2.5 font-mono text-[12.5px] leading-[1.55]"
+                    className="aw-input w-full resize-y px-3 py-2.5 mono body-xs"
                     spellCheck={false}
                   />
                 </AwField>
@@ -450,7 +450,7 @@ export default function NewToolPage() {
                 {testStatus !== "idle" && (
                   <div
                     className={
-                      "mt-4 rounded-xl border px-3 py-2.5 text-[12px] " +
+                      "mt-4 rounded-xl border px-3 py-2.5 body-xs " +
                       (testStatus === "ok"
                         ? "border-[var(--aw-emerald-150)] bg-[var(--aw-emerald-100)] text-[var(--aw-emerald-800)]"
                         : testStatus === "error"
@@ -476,7 +476,7 @@ export default function NewToolPage() {
                           : "Rodando…"}
                     </div>
                     {testResult && (
-                      <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-all font-mono text-[11.5px] leading-[1.5]">
+                      <pre className="m-0 overflow-x-auto whitespace-pre-wrap break-all mono body-xs">
                         {testResult}
                       </pre>
                     )}
@@ -484,7 +484,7 @@ export default function NewToolPage() {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-[12.5px] text-[var(--fg-tertiary)]">
+              <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 body-xs text-[var(--fg-tertiary)]">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="info" size={14} />
                   Pra ativar a habilidade, o teste precisa passar pelo
@@ -557,7 +557,7 @@ function Collapsible({
         onClick={() => setOpen((v) => !v)}
         className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-[var(--bg-hover)]"
       >
-        <span className="flex-1 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+        <span className="flex-1 body-sm font-medium text-[var(--fg-primary)]">
           {title}
         </span>
         <Icon
@@ -630,7 +630,7 @@ function KindPicker({
             <AwPill variant={KIND_PILL_VARIANT[it.id]} dot={false}>
               {KIND_LABELS[it.id]}
             </AwPill>
-            <span className="text-[12px] leading-[1.4] text-[var(--fg-tertiary)]">
+            <span className="body-xs text-[var(--fg-tertiary)]">
               {it.helper}
             </span>
           </button>

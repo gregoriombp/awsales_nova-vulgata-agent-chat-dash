@@ -178,7 +178,7 @@ export default function MembersPage() {
       />
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h1 className="m-0 mb-2 flex items-center gap-3 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 flex items-center gap-3 text-[var(--fg-primary)]">
             <Icon
               name="groups"
               size={36}
@@ -186,8 +186,8 @@ export default function MembersPage() {
               className="text-[var(--fg-primary)]"
             />
             Equipe &amp; permissões
-          </h1>
-          <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          </h3>
+          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -365,7 +365,7 @@ function InvitationsSection({ invitations }: { invitations: Invitation[] }) {
   return (
     <section>
       <header className="mb-3">
-        <h2 className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <h2 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Convites pendentes
         </h2>
       </header>
@@ -388,7 +388,7 @@ function InvitationsSection({ invitations }: { invitations: Invitation[] }) {
             <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
             <td>
               <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center gap-2 text-[12.5px] text-[var(--fg-secondary)]">
+                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
                   <Icon
                     name="mail"
                     size={14}
@@ -433,11 +433,11 @@ function MemberSection({
   return (
     <section>
       <header className="mb-3">
-        <h2 className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <h2 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           {title}
         </h2>
         {description && (
-          <p className="m-0 mt-2 max-w-[760px] text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+          <p className="m-0 mt-2 max-w-[760px] body-xs text-[var(--fg-secondary)]">
             {description}
           </p>
         )}
@@ -445,7 +445,7 @@ function MemberSection({
 
       {members.length === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-6 py-8 text-center">
-          <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
             {emptyHint}
           </p>
         </div>
@@ -516,7 +516,7 @@ function CompactMemberList({
   return (
     <aside className="flex flex-col self-start divide-y divide-[var(--border-subtle)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
       <div className="border-b border-[var(--border-subtle)] px-4 py-3">
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Pessoas · {members.length}
         </p>
       </div>
@@ -543,7 +543,7 @@ function CompactMemberList({
                   initials={m.initials}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
                     {m.name}
                     {m.isYou && (
                       <span className="ml-1 text-[var(--fg-secondary)]">
@@ -551,7 +551,7 @@ function CompactMemberList({
                       </span>
                     )}
                   </span>
-                  <span className="block truncate text-[11.5px] text-[var(--fg-secondary)]">
+                  <span className="block truncate body-xs text-[var(--fg-secondary)]">
                     {m.email}
                   </span>
                 </span>
@@ -600,7 +600,7 @@ function MemberDetail({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="m-0 truncate text-[15px] font-semibold text-[var(--fg-primary)]">
+            <p className="m-0 truncate body-sm font-semibold text-[var(--fg-primary)]">
               {member.name}
             </p>
             {member.isYou && (
@@ -609,7 +609,7 @@ function MemberDetail({
               </AwPill>
             )}
           </div>
-          <p className="m-0 truncate text-[12px] text-[var(--fg-secondary)]">
+          <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
             {member.email}
           </p>
         </div>
@@ -677,7 +677,7 @@ function MemberDetail({
 
         <DetailSection title="Logs de atividade">
           {member.activity.length === 0 ? (
-            <p className="m-0 text-[12.5px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Sem eventos registrados para este membro.
             </p>
           ) : (
@@ -691,10 +691,10 @@ function MemberDetail({
                     <Icon name={inferActivityIcon(entry.description)} size={14} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[13px] text-[var(--fg-primary)]">
+                    <span className="block body-xs text-[var(--fg-primary)]">
                       {entry.description}
                     </span>
-                    <span className="block text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                    <span className="block aw-eyebrow text-[var(--fg-tertiary)]">
                       {entry.time}
                     </span>
                   </span>
@@ -722,10 +722,10 @@ function MemberDetail({
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg-primary)]" />
                   </span>
-                  <p className="m-0 text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                  <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
                     {entry.time}
                   </p>
-                  <p className="m-0 text-[13px] leading-[1.4] text-[var(--fg-primary)]">
+                  <p className="m-0 body-xs text-[var(--fg-primary)]">
                     {entry.description}
                   </p>
                 </li>
@@ -741,10 +741,10 @@ function MemberDetail({
 function DetailStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="m-0 mb-1 text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <p className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
         {label}
       </p>
-      <p className="m-0 truncate text-[13px] font-medium text-[var(--fg-primary)]">
+      <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
         {value}
       </p>
     </div>
@@ -760,7 +760,7 @@ function DetailSection({
 }) {
   return (
     <section className="border-b border-[var(--border-subtle)] px-6 py-5 last:border-b-0">
-      <h3 className="m-0 mb-3 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <h3 className="m-0 mb-3 aw-eyebrow text-[var(--fg-tertiary)]">
         {title}
       </h3>
       {children}
@@ -787,10 +787,10 @@ function FullAccessBanner() {
         <Icon name="verified" size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
+        <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
           Acesso total
         </p>
-        <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Todos os {SCOPES.length} escopos liberados, incluindo ações
           irreversíveis (faturamento, exclusão).
         </p>
@@ -838,10 +838,10 @@ function ScopeRow({
             <Icon name={scope.icon} size={14} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[13px] font-medium text-[var(--fg-primary)]">
+            <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
               {scope.name}
             </span>
-            <span className="block text-[11.5px] text-[var(--fg-secondary)]">
+            <span className="block body-xs text-[var(--fg-secondary)]">
               {granted}/{total} permiss{total === 1 ? "ão" : "ões"}
             </span>
           </span>
@@ -860,7 +860,7 @@ function ScopeRow({
         <div className="flex flex-col gap-3 px-1 pb-3 pl-10">
           {scope.groups.map((g) => (
             <div key={g.id}>
-              <p className="m-0 mb-1.5 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+              <p className="m-0 mb-1.5 aw-eyebrow text-[var(--fg-tertiary)]">
                 {g.label}
               </p>
               <ul className="flex flex-col gap-1">
@@ -879,7 +879,7 @@ function ScopeRow({
                         />
                       </span>
                       <label
-                        className="min-w-0 flex-1 cursor-pointer text-[12.5px]"
+                        className="min-w-0 flex-1 cursor-pointer body-xs"
                         onClick={() => onTogglePermission(p.id, !has)}
                       >
                         <span
@@ -893,7 +893,7 @@ function ScopeRow({
                           {p.label}
                         </span>
                         {p.description && (
-                          <span className="block text-[11px] text-[var(--fg-tertiary)]">
+                          <span className="block body-xs text-[var(--fg-tertiary)]">
                             {p.description}
                           </span>
                         )}
@@ -962,7 +962,7 @@ function RoleChangeConfirmModal({
     >
       {pending && (
         <div className="flex flex-col gap-4">
-          <p className="m-0 text-[13.5px] leading-[1.55] text-[var(--fg-primary)]">
+          <p className="m-0 body-xs text-[var(--fg-primary)]">
             Você vai mudar{" "}
             <strong className="font-semibold">{pending.memberName}</strong> de{" "}
             <strong className="font-semibold">{pending.fromRole}</strong> para{" "}
@@ -972,13 +972,13 @@ function RoleChangeConfirmModal({
           <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
                   De
                 </p>
-                <p className="m-0 mt-1 text-[13px] font-medium text-[var(--fg-primary)]">
+                <p className="m-0 mt-1 body-xs font-medium text-[var(--fg-primary)]">
                   {pending.fromRole}
                 </p>
-                <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-[var(--fg-secondary)]">
                   {fromCount} permiss{fromCount === 1 ? "ão" : "ões"}
                 </p>
               </div>
@@ -988,13 +988,13 @@ function RoleChangeConfirmModal({
                 className="shrink-0 text-[var(--fg-tertiary)]"
               />
               <div className="min-w-0 text-right">
-                <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
                   Para
                 </p>
-                <p className="m-0 mt-1 text-[13px] font-medium text-[var(--fg-primary)]">
+                <p className="m-0 mt-1 body-xs font-medium text-[var(--fg-primary)]">
                   {pending.toRole}
                 </p>
-                <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-[var(--fg-secondary)]">
                   {toCount} permiss{toCount === 1 ? "ão" : "ões"}
                   {diff !== 0 && (
                     <span
@@ -1012,7 +1012,7 @@ function RoleChangeConfirmModal({
             </div>
           </div>
 
-          <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
             As permissões serão ajustadas automaticamente. Você pode reverter a
             qualquer momento abrindo o membro novamente.
           </p>

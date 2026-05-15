@@ -36,13 +36,13 @@ function CreditsHero() {
   return (
     <section className="flex flex-col gap-3">
       <div>
-        <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Saldo disponível
         </p>
-        <h2 className="m-0 mt-1.5 text-[44px] font-semibold leading-none tracking-[-0.02em] text-[var(--fg-primary)]">
+        <h1 className="m-0 mt-1.5 text-[var(--fg-primary)]">
           {brl(CREDITS_KPIS.availableDiscount)}
-        </h2>
-        <p className="m-0 mt-2 text-[12.5px] text-[var(--fg-secondary)]">
+        </h1>
+        <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
           Saldo de vouchers e cupons não consumido. A aplicação varia por
           item — alguns valem para disparos, tokens ou taxas específicas.
         </p>
@@ -66,10 +66,10 @@ function AcceleratedBanner({
         className="shrink-0 text-[var(--accent-warning)]"
       />
       <div className="min-w-0 flex-1">
-        <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
+        <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
           {name} está sendo consumido 2,3× acima do previsto
         </p>
-        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           No ritmo atual, pode expirar antes da data de término ({expiresAt}).
         </p>
       </div>

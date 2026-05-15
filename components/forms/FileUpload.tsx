@@ -79,7 +79,7 @@ export default function FileUpload({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <label className="text-[17.78px] text-text-primary tracking-[0.18px] font-normal">
+      <label className="body-md text-text-primary font-normal">
         {label}
       </label>
       <div
@@ -138,7 +138,7 @@ export default function FileUpload({
                 clique para selecionar
               </button>
             </p>
-            <p className="text-sm text-text-secondary">
+            <p className="body-sm text-text-secondary">
               Tamanho máximo: {maxSize}MB
             </p>
           </div>
@@ -167,8 +167,8 @@ export default function FileUpload({
                     strokeLinejoin="round"
                   />
                 </svg>
-                <span className="text-sm text-text-primary">{file.name}</span>
-                <span className="text-xs text-text-secondary">
+                <span className="body-sm text-text-primary">{file.name}</span>
+                <span className="body-xs text-text-secondary">
                   ({(file.size / 1024).toFixed(2)} KB)
                 </span>
               </div>
@@ -196,7 +196,7 @@ export default function FileUpload({
           ))}
         </div>
       )}
-      {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
+      {error && <span className="text-red-500 body-sm mt-1">{error}</span>}
     </div>
   );
 }

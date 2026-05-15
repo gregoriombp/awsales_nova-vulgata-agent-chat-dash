@@ -79,7 +79,7 @@ export function ReviewExportModal() {
           {...{ [OVERLAY_DATA_ATTR]: "" }}
           className="flex items-center justify-between gap-2 w-full"
         >
-          <span className="text-[11px] text-[var(--fg-tertiary)]">
+          <span className="body-xs text-[var(--fg-tertiary)]">
             {count} {count === 1 ? "comentário" : "comentários"}
           </span>
           <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export function ReviewExportModal() {
         {...{ [OVERLAY_DATA_ATTR]: "" }}
         className="flex flex-col gap-3"
       >
-        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed flex items-start gap-2">
+        <p className="body-sm text-[var(--fg-secondary)] leading-relaxed flex items-start gap-2">
           <Icon
             name="info"
             size={16}
@@ -121,7 +121,7 @@ export function ReviewExportModal() {
             manualmente até subirmos a v2 do servidor local.
           </span>
         </p>
-        <pre className="rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] p-3 max-h-[40vh] overflow-auto text-[11px] font-mono text-[var(--fg-primary)] whitespace-pre">
+        <pre className="rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] p-3 max-h-[40vh] overflow-auto body-xs mono text-[var(--fg-primary)] whitespace-pre">
           {json || "Carregando…"}
         </pre>
       </div>

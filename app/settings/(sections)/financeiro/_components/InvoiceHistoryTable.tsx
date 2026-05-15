@@ -63,7 +63,7 @@ export function InvoiceHistoryTable() {
                       −{brl(r.discount)}
                     </span>
                     {r.discountCode && (
-                      <span className="text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                      <span className="aw-eyebrow text-[var(--fg-tertiary)]">
                         {r.discountCode}
                       </span>
                     )}

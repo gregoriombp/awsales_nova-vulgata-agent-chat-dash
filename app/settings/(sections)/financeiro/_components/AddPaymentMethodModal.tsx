@@ -57,13 +57,13 @@ export function AddPaymentMethodModal({
       }
     >
       <div className="flex flex-col gap-5">
-        <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Adicione os dados do cartão abaixo. O cartão será salvo na sua conta
           e pode ser removido a qualquer momento.
         </p>
 
         <section className="flex flex-col gap-3">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
             Informações do cartão
           </p>
           <AwField label="Número do cartão" htmlFor="card-number">
@@ -100,7 +100,7 @@ export function AddPaymentMethodModal({
         </section>
 
         <section className="flex flex-col gap-3">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
             Endereço de cobrança
           </p>
           <AwField label="País" htmlFor="bill-country">
@@ -155,7 +155,7 @@ export function AddPaymentMethodModal({
             onChange={setSetAsDefault}
             label="Definir como método de pagamento padrão"
           />
-          <span className="text-[13px] text-[var(--fg-primary)]">
+          <span className="body-xs text-[var(--fg-primary)]">
             Definir como método de pagamento padrão
           </span>
         </label>

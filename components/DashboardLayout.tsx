@@ -61,7 +61,7 @@ export default function DashboardLayout({
             )}
             <main className={`flex-1 overflow-y-auto p-6 ${mainClassName ?? ""}`}>
               {title && (
-                <h1 className="text-3xl font-heading font-bold text-text-primary mb-6">{title}</h1>
+                <h1 className=" font-heading font-bold text-text-primary mb-6">{title}</h1>
               )}
               {children}
             </main>

@@ -32,11 +32,11 @@ export default function ApiSettingsPage() {
                 <Icon name="key" size={16} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
+                <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
                   {k.name}
                 </p>
-                <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
-                  <code className="font-mono text-[var(--fg-primary)]">
+                <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                  <code className="mono text-[var(--fg-primary)]">
                     {k.prefix}
                   </code>{" "}
                   · criada {k.createdAt} · usada {k.lastUsed}
@@ -53,10 +53,10 @@ export default function ApiSettingsPage() {
         </ul>
         <div className="flex items-center justify-between gap-4 border-t border-[var(--border-subtle)] px-6 py-4">
           <div>
-            <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
               Webhook signing secret
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Usado para validar payloads recebidos dos agentes.
             </p>
           </div>

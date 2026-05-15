@@ -346,7 +346,7 @@ function ActionCard({
           {right ?? <Plus24 />}
         </div>
       </div>
-      <div className="text-[14px] font-medium text-[#2f2f2f] group-hover:text-[#f9f9f9]">
+      <div className="body-sm font-medium text-[#2f2f2f] group-hover:text-[#f9f9f9]">
         {label}
       </div>
     </button>
@@ -890,7 +890,7 @@ export default function KnowledgeOSDirectoryPage() {
         {/* Header area */}
         <div className="bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
           <div className="mx-auto max-w-[1544px] px-12 py-8">
-            <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4" aria-label="Breadcrumb">
+            <nav className="flex items-center gap-2 body-sm text-gray-400 mb-4" aria-label="Breadcrumb">
               <Link href="/knowledge-os" className="hover:text-white transition-colors">
                 Knowledge OS
               </Link>
@@ -902,7 +902,7 @@ export default function KnowledgeOSDirectoryPage() {
                 <div className="text-white">
                   <FolderIconBase width={64} height={64} className="invert" />
                 </div>
-                <h1 className="text-[40px] font-regular text-white leading-none">
+                <h1 className="font-normal text-white">
                   {directoryName}
                 </h1>
               </div>
@@ -923,7 +923,7 @@ export default function KnowledgeOSDirectoryPage() {
                 >
                   <button
                     type="button"
-                    className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                    className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
                     onClick={() => {
                       setIsDirectoryActive((v) => !v);
                       setIsDirMenuOpen(false);
@@ -933,7 +933,7 @@ export default function KnowledgeOSDirectoryPage() {
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
+                    className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
                     onClick={() => {
                       setIsDirMenuOpen(false);
                       setIsDeleteDirectoryOpen(true);
@@ -946,7 +946,7 @@ export default function KnowledgeOSDirectoryPage() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-start gap-3 text-[14px] text-gray-400">
+            <div className="mt-4 flex items-start gap-3 body-sm text-gray-400">
               {/* Status */}
               <div className="flex items-center gap-2 pr-3 border-r border-gray-600">
                 <span
@@ -975,7 +975,7 @@ export default function KnowledgeOSDirectoryPage() {
                 </button>
                 {isAgentsPopoverOpen && connectedAgents.length > 0 && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[320px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3">Agentes conectados</div>
+                    <div className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-3">Agentes conectados</div>
                     <ul className="space-y-1">
                       {connectedAgents.map((agent, index) => (
                         <li key={agent.id}>
@@ -985,7 +985,7 @@ export default function KnowledgeOSDirectoryPage() {
                               setAgentSettingsModalAgent(agent);
                               setIsAgentsPopoverOpen(false);
                             }}
-                            className="w-full flex items-center gap-3 text-[13px] text-[#2f2f2f] rounded-lg px-2 py-2 text-left transition-colors hover:bg-[#f2f2f2]"
+                            className="w-full flex items-center gap-3 body-xs text-[#2f2f2f] rounded-lg px-2 py-2 text-left transition-colors hover:bg-[#f2f2f2]"
                           >
                             <img
                               src={getOrbForAgent(agent.id)}
@@ -997,7 +997,7 @@ export default function KnowledgeOSDirectoryPage() {
                             <span className="truncate flex-1 min-w-0 font-medium">{agent.name}</span>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <span
-                                className="flex items-center gap-1 rounded-md bg-[#f2f2f2] px-2 py-0.5 text-[11px] font-medium text-[#5e5e5e]"
+                                className="flex items-center gap-1 rounded-md bg-[#f2f2f2] px-2 py-0.5 body-xs font-medium text-[#5e5e5e]"
                                 title="Objective-Bound Knowledge Layers"
                               >
                                 <img
@@ -1026,7 +1026,7 @@ export default function KnowledgeOSDirectoryPage() {
                         setIsAgentsPopoverOpen(false);
                         router.push("/agent-studio");
                       }}
-                      className="mt-3 w-full text-[12px] text-[#0066cc] hover:underline text-left"
+                      className="mt-3 w-full body-xs text-[#0066cc] hover:underline text-left"
                     >
                       Ver no Agent Studio →
                     </button>
@@ -1053,8 +1053,8 @@ export default function KnowledgeOSDirectoryPage() {
                 </button>
                 {isSourcesPopoverOpen && rows.length > 0 && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[220px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-2">Resumo de Fontes</div>
-                    <div className="space-y-1.5 text-[13px] text-[#2f2f2f]">
+                    <div className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-2">Resumo de Fontes</div>
+                    <div className="space-y-1.5 body-xs text-[#2f2f2f]">
                       <div className="flex items-center justify-between">
                         <span>Arquivos</span>
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Arquivo").length}</span>
@@ -1072,7 +1072,7 @@ export default function KnowledgeOSDirectoryPage() {
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Integração").length}</span>
                       </div>
                     </div>
-                    <div className="mt-3 pt-2 border-t border-[#f2f2f2] text-[12px] text-[#5e5e5e]">
+                    <div className="mt-3 pt-2 border-t border-[#f2f2f2] body-xs text-[#5e5e5e]">
                       Clique em uma fonte abaixo para ver detalhes
                     </div>
                   </div>
@@ -1106,13 +1106,13 @@ export default function KnowledgeOSDirectoryPage() {
                     aria-labelledby="knowledge-layers-popover-title"
                     aria-describedby="knowledge-layers-popover-desc"
                   >
-                    <h3 id="knowledge-layers-popover-title" className="text-[11px] font-semibold text-[#737373] uppercase tracking-wide mb-2">
+                    <h3 id="knowledge-layers-popover-title" className="body-xs font-semibold text-[#737373] uppercase tracking-wide mb-2">
                       Knowledge Layers
                     </h3>
-                    <p id="knowledge-layers-popover-desc" className="text-[12px] text-[#525252] leading-relaxed mb-4">
+                    <p id="knowledge-layers-popover-desc" className="body-xs text-[#525252] leading-relaxed mb-4">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
-                    <div className="space-y-2 text-[13px] text-[#262626]">
+                    <div className="space-y-2 body-xs text-[#262626]">
                       <div className="flex items-center justify-between">
                         <span>Entidades extraídas</span>
                         <span className="font-medium tabular-nums">{Math.floor(totalKnowledgeLayers * 0.4)}</span>
@@ -1132,7 +1132,7 @@ export default function KnowledgeOSDirectoryPage() {
                         setIsLayersPopoverOpen(false);
                         router.push(`/knowledge-os/${params?.id}/semantic-search`);
                       }}
-                      className="mt-4 w-full text-left text-[12px] font-medium text-[#0066cc] hover:underline focus:outline-none focus:ring-2 focus:ring-[#0066cc] focus:ring-offset-1 rounded cursor-pointer"
+                      className="mt-4 w-full text-left body-xs font-medium text-[#0066cc] hover:underline focus:outline-none focus:ring-2 focus:ring-[#0066cc] focus:ring-offset-1 rounded cursor-pointer"
                     >
                       Explorar via Semantic Search →
                     </button>
@@ -1148,9 +1148,9 @@ export default function KnowledgeOSDirectoryPage() {
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
             <div className="space-y-4" data-tour="add-sources">
-              <div className="text-[18px] font-bold text-[#1a1a1a]">
+              <h6 className="text-[#1a1a1a]">
                 Adicione Fontes
-              </div>
+              </h6>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
                 <ActionCard
                   label="Enviar arquivos"
@@ -1220,7 +1220,7 @@ export default function KnowledgeOSDirectoryPage() {
                             {int.icon ? (
                               <img src={int.icon} alt="" className="w-full h-full object-contain" />
                             ) : (
-                              <span className="text-[12px] font-bold">{int.shortLabel}</span>
+                              <span className="body-xs font-bold">{int.shortLabel}</span>
                             )}
                           </div>
                         ))}
@@ -1242,7 +1242,7 @@ export default function KnowledgeOSDirectoryPage() {
                     <button
                       type="button"
                       onClick={() => navigateToFolder(currentFolder?.parentId ?? null)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 body-xs text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
                     >
                       <TbArrowLeft className="w-4 h-4" />
                       Voltar
@@ -1250,7 +1250,7 @@ export default function KnowledgeOSDirectoryPage() {
                   )}
                   
                   {/* Breadcrumbs interno das pastas */}
-                  <nav className="flex items-center gap-1 text-[13px]">
+                  <nav className="flex items-center gap-1 body-xs">
                     <button
                       type="button"
                       onClick={() => navigateToFolder(null)}
@@ -1287,7 +1287,7 @@ export default function KnowledgeOSDirectoryPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreateFolderOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 body-xs font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
                 >
                   <TbFolderPlus className="w-4 h-4" />
                   Nova pasta
@@ -1297,7 +1297,7 @@ export default function KnowledgeOSDirectoryPage() {
               {/* selection actions */}
               {selectedIds.length > 0 && (
                 <div className="px-8 pb-4 flex items-center justify-between">
-                  <div className="text-sm text-[#5e5e5e]">
+                  <div className="body-sm text-[#5e5e5e]">
                     {selectedIds.length} selecionado{selectedIds.length > 1 ? "s" : ""}
                   </div>
                   <div className="flex items-center gap-2">
@@ -1346,7 +1346,7 @@ export default function KnowledgeOSDirectoryPage() {
                     />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <div className="text-[12px] text-[#999999]">Nome do Arquivo</div>
+                  <div className="body-xs text-[#999999]">Nome do Arquivo</div>
                   <span className="text-[#999999]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M8 6h10M8 10h6M8 14h10M8 18h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -1356,9 +1356,9 @@ export default function KnowledgeOSDirectoryPage() {
                   </div>
                 </div>
 
-                <div className="min-w-[88px] py-2 text-[12px] text-[#999999]">Status</div>
-                <div className="min-w-[140px] py-2 text-[12px] text-[#999999]">Knowledge Layers</div>
-                <div className="min-w-[140px] flex items-center gap-2 py-2 text-[12px] text-[#999999]">
+                <div className="min-w-[88px] py-2 body-xs text-[#999999]">Status</div>
+                <div className="min-w-[140px] py-2 body-xs text-[#999999]">Knowledge Layers</div>
+                <div className="min-w-[140px] flex items-center gap-2 py-2 body-xs text-[#999999]">
                   Data de adição
                   <span className="text-[#999999]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -1377,10 +1377,10 @@ export default function KnowledgeOSDirectoryPage() {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#f2f2f2] mb-4">
                       <TbFolder className="w-8 h-8 text-[#999]" />
                     </div>
-                    <h3 className="text-[16px] font-medium text-[#1a1a1a] mb-2">
+                    <h3 className="body-md font-medium text-[#1a1a1a] mb-2">
                       {currentFolderId ? "Pasta vazia" : "Nenhum arquivo ainda"}
                     </h3>
-                    <p className="text-[14px] text-[#5e5e5e] mb-6 max-w-md mx-auto">
+                    <p className="body-sm text-[#5e5e5e] mb-6 max-w-md mx-auto">
                       {currentFolderId
                         ? "Esta pasta ainda não possui arquivos ou subpastas. Adicione fontes usando os botões acima."
                         : "Comece adicionando arquivos, URLs, snippets ou criando pastas para organizar sua base de conhecimento."}
@@ -1389,7 +1389,7 @@ export default function KnowledgeOSDirectoryPage() {
                       <button
                         type="button"
                         onClick={() => setIsCreateFolderOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 body-xs font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
                       >
                         <TbFolderPlus className="w-4 h-4" />
                         Nova pasta
@@ -1397,7 +1397,7 @@ export default function KnowledgeOSDirectoryPage() {
                       <button
                         type="button"
                         onClick={() => setIsSendFileOpen(true)}
-                        className="flex items-center gap-2 px-4 py-2 text-[13px] font-medium text-white bg-[#0d0d0d] rounded-lg hover:bg-[#262626] transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 body-xs font-medium text-white bg-[#0d0d0d] rounded-lg hover:bg-[#262626] transition-colors"
                       >
                         <TbFile className="w-4 h-4" />
                         Adicionar arquivo
@@ -1419,20 +1419,20 @@ export default function KnowledgeOSDirectoryPage() {
                         <TbFolder className="w-4 h-4" strokeWidth={1.5} />
                       </div>
                       <div className="flex min-w-0 flex-1 flex-col leading-normal">
-                        <div className="text-[12px] font-medium text-[#0d0d0d] truncate flex items-center gap-2">
+                        <div className="body-xs font-medium text-[#0d0d0d] truncate flex items-center gap-2">
                           {folder.name}
                         </div>
-                        <div className="text-[10px] text-[#38404a]">Pasta</div>
+                        <div className="body-xs text-[#38404a]">Pasta</div>
                       </div>
                     </div>
 
                     <div className="min-w-[88px] py-1 flex items-center">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#5e5e5e]">
+                      <span className="inline-flex items-center gap-1.5 aw-eyebrow text-[#5e5e5e]">
                         —
                       </span>
                     </div>
 
-                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 flex items-center gap-2 body-xs text-[#5e5e5e]">
                       {/* Soma de Knowledge Layers dos itens na pasta */}
                       {(() => {
                         // Função recursiva para obter todos os IDs de pastas filhas
@@ -1465,7 +1465,7 @@ export default function KnowledgeOSDirectoryPage() {
                       })()}
                     </div>
 
-                    <div className="min-w-[140px] py-1 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 body-xs text-[#5e5e5e]">
                       {new Date(folder.createdAt).toLocaleString("pt-BR", {
                         dateStyle: "short",
                         timeStyle: "short",
@@ -1492,7 +1492,7 @@ export default function KnowledgeOSDirectoryPage() {
                         >
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
+                            className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
                             onClick={(e) => {
                               e.stopPropagation();
                               setFolderMenuOpenId(null);
@@ -1504,7 +1504,7 @@ export default function KnowledgeOSDirectoryPage() {
                           </button>
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
+                            className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#2f2f2f] hover:bg-[#f2f2f2] flex items-center gap-2"
                             onClick={(e) => {
                               e.stopPropagation();
                               setFolderMenuOpenId(null);
@@ -1517,7 +1517,7 @@ export default function KnowledgeOSDirectoryPage() {
                           </button>
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2] flex items-center gap-2"
+                            className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#ff3e4c] hover:bg-[#fff1f2] flex items-center gap-2"
                             onClick={(e) => {
                               e.stopPropagation();
                               setFolderMenuOpenId(null);
@@ -1553,38 +1553,38 @@ export default function KnowledgeOSDirectoryPage() {
                       </div>
                       <FileTypeIcon name={r.name} typeLabel={r.typeLabel} />
                       <div className="flex min-w-0 flex-1 flex-col leading-normal">
-                        <div className="text-[12px] font-medium text-[#0d0d0d] truncate">
+                        <div className="body-xs font-medium text-[#0d0d0d] truncate">
                           {r.name}
                         </div>
-                        <div className="text-[10px] text-[#38404a]">{r.typeLabel}</div>
+                        <div className="body-xs text-[#38404a]">{r.typeLabel}</div>
                       </div>
                     </div>
 
                     <div className="min-w-[88px] py-1 flex items-center">
                       {r.status === "Analisando" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#b45309]">
+                        <span className="inline-flex items-center gap-1.5 aw-eyebrow text-[#b45309]">
                           <span className="w-2 h-2 rounded-full bg-amber-500 flex-shrink-0" />
                           Analisando
                         </span>
                       ) : r.status === "Ativo" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#105e45]">
+                        <span className="inline-flex items-center gap-1.5 aw-eyebrow text-[#105e45]">
                           <span className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
                           Ativo
                         </span>
                       ) : r.status === "Erro" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#b91c1c]">
+                        <span className="inline-flex items-center gap-1.5 aw-eyebrow text-[#b91c1c]">
                           <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
                           Erro
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#5e5e5e]">
+                        <span className="inline-flex items-center gap-1.5 aw-eyebrow text-[#5e5e5e]">
                           <span className="w-2 h-2 rounded-full bg-[#9ca3af] flex-shrink-0" />
                           Inativo
                         </span>
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 flex items-center gap-2 body-xs text-[#5e5e5e]">
                       {r.status === "Analisando" ? (
                         <>
                           <span className="w-4 h-4 border-2 border-[#999999] border-t-transparent rounded-full animate-spin flex-shrink-0" />
@@ -1598,7 +1598,7 @@ export default function KnowledgeOSDirectoryPage() {
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 body-xs text-[#5e5e5e]">
                       {r.createdAt}
                     </div>
 
@@ -1622,7 +1622,7 @@ export default function KnowledgeOSDirectoryPage() {
                         >
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                            className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
                             onClick={() => {
                               setRowMenuOpenId(null);
                               setDrawerRow(r);
@@ -1632,7 +1632,7 @@ export default function KnowledgeOSDirectoryPage() {
                           </button>
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
+                            className="w-full rounded-[8px] px-3 py-2 text-left body-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
                             onClick={() => {
                               setRowMenuOpenId(null);
                               openDeleteSelected([r.id]);
@@ -1673,10 +1673,10 @@ export default function KnowledgeOSDirectoryPage() {
               <div className="flex items-start gap-3 min-w-0">
                 <FileTypeIcon name={drawerRow.name} typeLabel={drawerRow.typeLabel} />
                 <div className="min-w-0">
-                  <h2 id="drawer-title" className="text-[18px] font-semibold text-[#1a1a1a] truncate">
+                  <h6 id="drawer-title" className="text-[#1a1a1a] truncate">
                     {drawerRow.name}
-                  </h2>
-                  <p className="text-[13px] text-[#5e5e5e] mt-0.5">{drawerRow.typeLabel}</p>
+                  </h6>
+                  <p className="body-xs text-[#5e5e5e] mt-0.5">{drawerRow.typeLabel}</p>
                 </div>
               </div>
               <button
@@ -1694,9 +1694,9 @@ export default function KnowledgeOSDirectoryPage() {
               {/* Left: metadata */}
               <div className="w-[220px] flex-shrink-0 border-r border-[#f2f2f2] p-6 flex flex-col gap-5 overflow-y-auto">
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">ID do arquivo</p>
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1.5">ID do arquivo</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-mono text-[#2f2f2f] truncate" title={idToFileUuid(drawerRow.id)}>
+                    <span className="mono text-[#2f2f2f] truncate" title={idToFileUuid(drawerRow.id)}>
                       {idToFileUuid(drawerRow.id)}
                     </span>
                     <button
@@ -1710,9 +1710,9 @@ export default function KnowledgeOSDirectoryPage() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Status</p>
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1.5">Status</p>
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md ${
+                    className={`inline-flex items-center gap-1.5 body-xs font-medium px-2 py-1 rounded-md ${
                       drawerRow.status === "Ativo"
                         ? "bg-green-50 text-green-700"
                         : drawerRow.status === "Analisando"
@@ -1730,17 +1730,17 @@ export default function KnowledgeOSDirectoryPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Knowledge Layers</p>
-                  <p className="text-[13px] text-[#2f2f2f]">{drawerRow.layersLabel}</p>
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1.5">Knowledge Layers</p>
+                  <p className="body-xs text-[#2f2f2f]">{drawerRow.layersLabel}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Adicionado em</p>
-                  <p className="text-[13px] text-[#2f2f2f]">{drawerRow.createdAt}</p>
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1.5">Adicionado em</p>
+                  <p className="body-xs text-[#2f2f2f]">{drawerRow.createdAt}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Atualizado em</p>
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1.5">Atualizado em</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] text-[#2f2f2f]">{drawerRow.createdAt}</span>
+                    <span className="body-xs text-[#2f2f2f]">{drawerRow.createdAt}</span>
                     <span className="text-[#999]" title="Última atualização">
                       <TbRefresh className="w-4 h-4" />
                     </span>
@@ -1754,7 +1754,7 @@ export default function KnowledgeOSDirectoryPage() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("conteudo")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 body-xs font-medium border-b-2 transition-colors ${
                       drawerTab === "conteudo"
                         ? "border-[#1a1a1a] text-[#1a1a1a]"
                         : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
@@ -1765,7 +1765,7 @@ export default function KnowledgeOSDirectoryPage() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("layers")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 body-xs font-medium border-b-2 transition-colors ${
                       drawerTab === "layers"
                         ? "border-[#1a1a1a] text-[#1a1a1a]"
                         : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
@@ -1776,7 +1776,7 @@ export default function KnowledgeOSDirectoryPage() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("visualizar")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 body-xs font-medium border-b-2 transition-colors ${
                       drawerTab === "visualizar"
                         ? "border-[#1a1a1a] text-[#1a1a1a]"
                         : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
@@ -1787,7 +1787,7 @@ export default function KnowledgeOSDirectoryPage() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-6">
                   {drawerTab === "conteudo" && (
-                    <div className="text-[14px] text-[#2f2f2f] leading-relaxed space-y-4">
+                    <div className="body-sm text-[#2f2f2f] leading-relaxed space-y-4">
                       <p>
                         Este é um exemplo de conteúdo extraído e processado pela plataforma. O texto abaixo simula o que seria exibido após a ingestão do documento.
                       </p>
@@ -1803,7 +1803,7 @@ export default function KnowledgeOSDirectoryPage() {
                         <strong>3. Conteúdo principal</strong><br />
                         A plataforma extrai automaticamente o texto do documento, identifica seções e entidades relevantes e enriquece o conteúdo com metadados para buscas e recomendações. Este bloco ilustra como um trecho processado seria apresentado ao usuário.
                       </p>
-                      <p className="text-[13px] text-[#5e5e5e]">
+                      <p className="body-xs text-[#5e5e5e]">
                         [Exemplo de demonstração — conteúdo real virá da extração automática.]
                       </p>
                     </div>
@@ -1816,7 +1816,7 @@ export default function KnowledgeOSDirectoryPage() {
                           <input
                             type="text"
                             placeholder="Pesquisar arquivo"
-                            className="w-full rounded-lg border border-[#e5e5e5] bg-white py-2 pl-3 pr-9 text-[13px] text-[#2f2f2f] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a]"
+                            className="w-full rounded-lg border border-[#e5e5e5] bg-white py-2 pl-3 pr-9 body-xs text-[#2f2f2f] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a]"
                             readOnly
                             aria-label="Pesquisar arquivo"
                           />
@@ -1824,7 +1824,7 @@ export default function KnowledgeOSDirectoryPage() {
                         </div>
                         <button
                           type="button"
-                          className="flex items-center gap-2 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2 text-[13px] text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
+                          className="flex items-center gap-2 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2 body-xs text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
                         >
                           <TbFilter className="w-4 h-4 text-[#5e5e5e]" />
                           <span>Status</span>
@@ -1833,7 +1833,7 @@ export default function KnowledgeOSDirectoryPage() {
                       </div>
 
                       {/* Cabeçalho da tabela */}
-                      <div className="flex items-center gap-4 py-2 border-b border-[#f2f2f2] text-[12px] text-[#999] flex-shrink-0">
+                      <div className="flex items-center gap-4 py-2 border-b border-[#f2f2f2] body-xs text-[#999] flex-shrink-0">
                         <div className="flex flex-1 min-w-0 items-center gap-1">
                           <span>Título</span>
                           <span className="text-[#999]" aria-hidden>
@@ -1851,11 +1851,11 @@ export default function KnowledgeOSDirectoryPage() {
                         {drawerLayersQA.map((item, index) => (
                           <li key={item.id} className="py-3 flex items-start gap-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-semibold text-[#1a1a1a] leading-snug">{item.question}</p>
-                              <p className="text-[13px] text-[#5e5e5e] leading-snug mt-0.5">{item.answer}</p>
+                              <p className="body-xs font-semibold text-[#1a1a1a] leading-snug">{item.question}</p>
+                              <p className="body-xs text-[#5e5e5e] leading-snug mt-0.5">{item.answer}</p>
                             </div>
                             <span
-                              className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                              className={`flex-shrink-0 px-2 py-0.5 rounded-full body-xs font-medium ${
                                 item.status === "Ativo"
                                   ? "bg-green-50 text-green-700"
                                   : "bg-red-50 text-red-700"
@@ -1880,7 +1880,7 @@ export default function KnowledgeOSDirectoryPage() {
                                 <div className="absolute right-0 top-full mt-1 z-20 w-[180px] rounded-[12px] border border-[#f2f2f2] bg-white p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left body-xs text-[#2f2f2f] hover:bg-[#f2f2f2]"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) =>
                                         prev.map((q, i) =>
@@ -1896,14 +1896,14 @@ export default function KnowledgeOSDirectoryPage() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left body-xs text-[#2f2f2f] hover:bg-[#f2f2f2]"
                                     onClick={() => setLayersRowMenuIndex(null)}
                                   >
                                     Editar
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left body-xs text-[#2f2f2f] hover:bg-[#f2f2f2]"
                                     onClick={() => {
                                       setLayersRowMenuIndex(null);
                                       // Reanalisar: a IA fará uma análise nova (integração futura)
@@ -1913,7 +1913,7 @@ export default function KnowledgeOSDirectoryPage() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#ff3e4c] hover:bg-[#fff1f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left body-xs text-[#ff3e4c] hover:bg-[#fff1f2]"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) => prev.filter((_, i) => i !== index));
                                       setLayersRowMenuIndex(null);
@@ -1928,7 +1928,7 @@ export default function KnowledgeOSDirectoryPage() {
                         ))}
                       </ul>
 
-                      <p className="text-[12px] text-[#999] mt-3 flex-shrink-0">
+                      <p className="body-xs text-[#999] mt-3 flex-shrink-0">
                         Exemplo de demonstração — perguntas e respostas reais virão do pipeline de Knowledge Layers.
                       </p>
                     </div>
@@ -1944,7 +1944,7 @@ export default function KnowledgeOSDirectoryPage() {
                     if (isUrl) {
                       return (
                         <div className="flex flex-col h-full min-h-[400px]">
-                          <p className="text-[13px] text-[#5e5e5e] mb-3">
+                          <p className="body-xs text-[#5e5e5e] mb-3">
                             Visualização da página em nova aba:{" "}
                             <a
                               href={drawerRow.name}
@@ -1976,7 +1976,7 @@ export default function KnowledgeOSDirectoryPage() {
                               className="w-full h-full min-h-[400px]"
                             />
                           </div>
-                          <p className="text-[12px] text-[#999] mt-2">
+                          <p className="body-xs text-[#999] mt-2">
                             Se o PDF não carregar, use o botão &quot;Download arquivos&quot; abaixo.
                           </p>
                         </div>
@@ -1992,14 +1992,14 @@ export default function KnowledgeOSDirectoryPage() {
                               className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
                             />
                           </div>
-                          <p className="text-[12px] text-[#999] mt-2">
+                          <p className="body-xs text-[#999] mt-2">
                             Se a imagem não carregar, use o botão &quot;Download arquivos&quot; abaixo.
                           </p>
                         </div>
                       );
                     }
                     return (
-                      <div className="text-[14px] text-[#2f2f2f] leading-relaxed">
+                      <div className="body-sm text-[#2f2f2f] leading-relaxed">
                         <p>
                           Este tipo de arquivo (<strong>{drawerRow.typeLabel}</strong>) não pode ser visualizado no navegador.
                         </p>
@@ -2034,10 +2034,10 @@ export default function KnowledgeOSDirectoryPage() {
         size="sm"
       >
         <div className="p-6">
-          <h2 className="text-xl font-heading font-bold text-text-primary mb-4">
+          <h2 className="body-xl font-heading font-bold text-text-primary mb-4">
             Visualizar
           </h2>
-          <div className="space-y-2 text-sm text-[#2f2f2f]">
+          <div className="space-y-2 body-sm text-[#2f2f2f]">
             <div>
               <span className="text-[#7a7a7a]">Nome:</span>{" "}
               <span className="font-medium">{viewRow?.name}</span>
@@ -2072,7 +2072,7 @@ export default function KnowledgeOSDirectoryPage() {
         size="md"
       >
         <div className="p-6">
-          <h2 className="text-xl font-heading font-bold text-[#1a1a1a] mb-4">
+          <h2 className="body-xl font-heading font-bold text-[#1a1a1a] mb-4">
             Configurações do agente
           </h2>
           {agentSettingsModalAgent && (
@@ -2086,13 +2086,13 @@ export default function KnowledgeOSDirectoryPage() {
                   className="rounded-full w-14 h-14 object-cover flex-shrink-0"
                 />
                 <div>
-                  <p className="font-semibold text-[#1a1a1a] text-lg">{agentSettingsModalAgent.name}</p>
-                  <p className="text-sm text-[#5e5e5e]">Agente conectado a esta base</p>
+                  <p className="font-semibold text-[#1a1a1a] body-lg">{agentSettingsModalAgent.name}</p>
+                  <p className="body-sm text-[#5e5e5e]">Agente conectado a esta base</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1">
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1">
                     Objective-Bound Knowledge Layers
                   </p>
                   <p className="text-[#2f2f2f] flex items-center gap-2">
@@ -2104,14 +2104,14 @@ export default function KnowledgeOSDirectoryPage() {
                       className="opacity-80"
                     />
                     <span className="font-medium">{agentSettingsModalAgent.objectiveBoundLayers}</span>
-                    <span className="text-[#5e5e5e] text-sm">layers gerados por este agente</span>
+                    <span className="text-[#5e5e5e] body-sm">layers gerados por este agente</span>
                   </p>
                 </div>
                 <div className="pt-2">
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1">
+                  <p className="body-xs font-semibold text-[#999] uppercase tracking-wide mb-1">
                     Outras configurações
                   </p>
-                  <p className="text-sm text-[#5e5e5e]">Em breve. Você poderá ajustar permissões e opções específicas do agente aqui.</p>
+                  <p className="body-sm text-[#5e5e5e]">Em breve. Você poderá ajustar permissões e opções específicas do agente aqui.</p>
                 </div>
               </div>
             </>

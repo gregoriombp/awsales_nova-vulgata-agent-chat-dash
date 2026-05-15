@@ -42,7 +42,7 @@ export default function LoginForm() {
     <div className="flex flex-col gap-[53px] w-full">
       {/* Intro */}
       <div className="flex flex-col">
-        <h2 className="font-heading font-bold text-3xl md:text-[32px] text-primary-default leading-normal">
+        <h2 className="text-primary-default">
           Login
         </h2>
       </div>

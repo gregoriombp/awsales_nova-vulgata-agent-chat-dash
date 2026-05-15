@@ -20,12 +20,12 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
             } ${className || ""}`}
             {...props}
           />
-          <span className="text-[17.78px] text-text-primary tracking-[0.18px] font-normal group-hover:text-primary-dark transition-colors">
+          <span className="body-md text-text-primary font-normal group-hover:text-primary-dark transition-colors">
             {label}
           </span>
         </label>
         {error && (
-          <span className="text-red-500 text-sm mt-1">{error}</span>
+          <span className="text-red-500 body-sm mt-1">{error}</span>
         )}
       </div>
     );

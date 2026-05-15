@@ -38,7 +38,7 @@ export default function DeflectionRateChart() {
     <div className="bg-white rounded-xl border border-[#e5e5e5] p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <h3 className="text-lg font-semibold text-text-primary">Deflection Rate</h3>
+          <h3 className="body-lg font-semibold text-text-primary">Deflection Rate</h3>
           <button className="text-text-secondary hover:text-text-primary">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5"/>
@@ -49,8 +49,8 @@ export default function DeflectionRateChart() {
       </div>
       
       <div className="mb-4">
-        <div className="text-4xl font-bold text-text-primary mb-1">75.7%</div>
-        <div className="text-sm text-success font-medium">1.3% vs last year</div>
+        <div className=" font-bold text-text-primary mb-1">75.7%</div>
+        <div className="body-sm text-success font-medium">1.3% vs last year</div>
       </div>
       
       <div className="relative" style={{ height: chartHeight, width: "100%" }}>
@@ -95,14 +95,14 @@ export default function DeflectionRateChart() {
         </svg>
         
         {/* X-axis labels */}
-        <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-text-secondary px-2">
+        <div className="absolute bottom-0 left-0 right-0 flex justify-between body-xs text-text-secondary px-2">
           {months.map((month) => (
             <span key={month}>{month}</span>
           ))}
         </div>
         
         {/* Y-axis labels */}
-        <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between text-xs text-text-secondary pr-2" style={{ paddingTop: "10px", paddingBottom: "20px" }}>
+        <div className="absolute right-0 top-0 bottom-0 flex flex-col justify-between body-xs text-text-secondary pr-2" style={{ paddingTop: "10px", paddingBottom: "20px" }}>
           <span>5k</span>
           <span>4k</span>
           <span>3k</span>

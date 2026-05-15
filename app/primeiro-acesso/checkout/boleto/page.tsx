@@ -52,28 +52,15 @@ export default function CheckoutBoletoPage() {
       <section>
         <div className="mb-5 flex items-center gap-3">
           <AwBrandLogo brand="boleto" size="md" />
-          <span
-            className="uppercase text-fg-tertiary"
-            style={{ fontSize: 11, letterSpacing: "0.06em" }}
-          >
+          <span className="aw-eyebrow text-fg-tertiary">
             Pagamento via boleto
           </span>
         </div>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Seu boleto está pronto.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Pague no app do seu banco. Sua conta é liberada automaticamente
           assim que o pagamento for compensado — em geral, 2 a 3 dias úteis.
         </p>
@@ -81,27 +68,18 @@ export default function CheckoutBoletoPage() {
         <div className="rounded-xl border border-border-subtle bg-bg-raised p-5">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <div
-                className="mb-1 uppercase text-fg-tertiary"
-                style={{ fontSize: 10, letterSpacing: "0.06em" }}
-              >
+              <div className="mb-1 aw-eyebrow text-fg-tertiary">
                 Valor
               </div>
-              <div
-                className="font-medium"
-                style={{ fontSize: 24, letterSpacing: "-0.01em" }}
-              >
+              <h4 className="m-0">
                 {ONBOARDING_ORG.valorImplementacao}
-              </div>
+              </h4>
             </div>
             <div className="text-right">
-              <div
-                className="mb-1 uppercase text-fg-tertiary"
-                style={{ fontSize: 10, letterSpacing: "0.06em" }}
-              >
+              <div className="mb-1 aw-eyebrow text-fg-tertiary">
                 Vencimento
               </div>
-              <div className="font-medium" style={{ fontSize: 14 }}>
+              <div className="body-sm font-medium">
                 14/05/2026
               </div>
             </div>
@@ -111,9 +89,8 @@ export default function CheckoutBoletoPage() {
 
           <div className="mt-3 flex items-center gap-2 rounded-md border border-border bg-bg-canvas py-1.5 pl-3 pr-1.5">
             <code
-              className="flex-1 self-center overflow-hidden text-fg-secondary"
+              className="flex-1 self-center overflow-hidden body-xs text-fg-secondary"
               style={{
-                fontSize: 11,
                 whiteSpace: "nowrap",
                 textOverflow: "ellipsis",
               }}
@@ -122,8 +99,7 @@ export default function CheckoutBoletoPage() {
             </code>
             <button
               type="button"
-              className="h-8 rounded-sm border border-border bg-bg-raised px-3 font-medium text-fg-primary hover:bg-bg-muted"
-              style={{ fontSize: 12 }}
+              className="h-8 rounded-sm border border-border bg-bg-raised px-3 body-xs font-medium text-fg-primary hover:bg-bg-muted"
             >
               Copiar
             </button>
@@ -167,10 +143,7 @@ export default function CheckoutBoletoPage() {
             </button>
           </div>
           {emailStatus === "sent" && (
-            <div
-              className="mt-3 text-fg-tertiary"
-              style={{ fontSize: 12 }}
-            >
+            <div className="mt-3 body-xs text-fg-tertiary">
               Boleto enviado para{" "}
               <span className="font-medium text-fg-secondary">
                 {ONBOARDING_USER.email}
@@ -183,10 +156,10 @@ export default function CheckoutBoletoPage() {
         <div className="mt-5 flex items-center gap-3.5 rounded-lg bg-aw-amber-100 px-4 py-3.5 text-aw-amber-800">
           <Icon name="schedule" size={18} />
           <div className="flex-1">
-            <div className="font-medium" style={{ fontSize: 13 }}>
+            <div className="body-xs font-medium">
               Aguardando compensação bancária
             </div>
-            <div style={{ fontSize: 12, opacity: 0.85 }}>
+            <div className="body-xs" style={{ opacity: 0.85 }}>
               Te notificaremos por e-mail em até 3 dias úteis após o pagamento.
             </div>
           </div>
@@ -207,10 +180,7 @@ export default function CheckoutBoletoPage() {
             <span className="aw-btn__label">Voltar</span>
           </Link>
           <span className="flex-1" />
-          <span
-            className="text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
+          <span className="body-xs text-fg-tertiary">
             você pode fechar e voltar pelo e-mail
           </span>
         </footer>

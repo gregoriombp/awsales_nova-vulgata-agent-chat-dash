@@ -20,10 +20,10 @@ export default function SecuritySettingsPage() {
       <AwCard className="!p-0">
         <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
           <div>
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Senha
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Última alteração há 3 meses.
             </p>
           </div>
@@ -41,12 +41,12 @@ export default function SecuritySettingsPage() {
         </div>
         <div className="border-t border-[var(--border-subtle)] px-6 py-5">
           <div className="mb-3 flex items-center justify-between">
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Sessões ativas
             </p>
             <button
               type="button"
-              className="text-[12px] font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
+              className="body-xs font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
             >
               Encerrar todas as outras
             </button>
@@ -62,7 +62,7 @@ export default function SecuritySettingsPage() {
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="m-0 flex items-center gap-2 text-[13px] font-medium text-[var(--fg-primary)]">
+                  <p className="m-0 flex items-center gap-2 body-xs font-medium text-[var(--fg-primary)]">
                     {s.device}
                     {s.current && (
                       <AwPill variant="live" dot={false}>
@@ -70,7 +70,7 @@ export default function SecuritySettingsPage() {
                       </AwPill>
                     )}
                   </p>
-                  <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+                  <p className="m-0 body-xs text-[var(--fg-secondary)]">
                     {s.location} · {s.lastActive}
                   </p>
                 </div>

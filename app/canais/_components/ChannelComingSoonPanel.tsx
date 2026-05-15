@@ -19,10 +19,10 @@ export function ChannelComingSoonPanel({
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand={brand} size="lg" />
-        <h1 className="m-0 mt-6 text-[24px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h4 className="m-0 mt-6 text-[var(--fg-primary)]">
           {name}
-        </h1>
-        <p className="m-0 mt-2 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        </h4>
+        <p className="m-0 mt-2 body-sm text-[var(--fg-secondary)]">
           {description}
         </p>
 
@@ -33,10 +33,10 @@ export function ChannelComingSoonPanel({
             className="mt-0.5 text-[var(--fg-secondary)]"
           />
           <div>
-            <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
               Painel de configuração em construção
             </p>
-            <p className="m-0 mt-1 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+            <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
               Em breve você vai gerenciar contas, permissões e respostas
               automáticas do {name} direto por aqui.
             </p>
