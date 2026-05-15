@@ -82,7 +82,7 @@ export function PickIntegrationModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           {isNative
             ? "Sua habilidade vai herdar a credencial OAuth/API key dessa integração."
             : "Sua habilidade vai herdar a credencial bearer/api-key/basic dessa conexão."}
@@ -156,10 +156,10 @@ export function PickIntegrationModal({
                 <Icon name="add" size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                <span className="block body-sm font-medium text-[var(--fg-primary)]">
                   Criar nova integração personalizada
                 </span>
-                <span className="mt-0.5 block text-[12.5px] text-[var(--fg-tertiary)]">
+                <span className="mt-0.5 block body-xs text-[var(--fg-tertiary)]">
                   Pra integrar com uma API que ainda não está no catálogo.
                 </span>
               </div>
@@ -195,10 +195,10 @@ function PickCard({
     >
       {leading}
       <div className="min-w-0 flex-1">
-        <span className="block truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+        <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
           {title}
         </span>
-        <span className="mt-0.5 block truncate text-[12.5px] text-[var(--fg-tertiary)]">
+        <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
           {subtitle}
         </span>
       </div>
@@ -213,7 +213,7 @@ function PickCard({
 
 function EmptyHint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3 text-[12.5px] italic text-[var(--fg-tertiary)]">
+    <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3 body-xs italic text-[var(--fg-tertiary)]">
       {children}
     </div>
   );
