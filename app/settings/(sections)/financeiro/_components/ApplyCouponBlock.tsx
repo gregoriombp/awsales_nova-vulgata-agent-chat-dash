@@ -47,10 +47,10 @@ export function ApplyCouponBlock() {
     <AwCard className="!p-0">
       <div className="flex flex-wrap items-end gap-3 px-6 py-5">
         <div className="min-w-0 flex-1">
-          <p className="m-0 mb-1 text-[13.5px] font-medium text-[var(--fg-primary)]">
+          <p className="m-0 mb-1 body-xs font-medium text-[var(--fg-primary)]">
             Aplicar código de cupom
           </p>
-          <p className="m-0 mb-3 max-w-[480px] text-[12px] text-[var(--fg-secondary)]">
+          <p className="m-0 mb-3 max-w-[480px] body-xs text-[var(--fg-secondary)]">
             Cupons são validados em tempo real. Validade, moeda e limite de uso
             são checados antes da aplicação.
           </p>
@@ -79,7 +79,7 @@ export function ApplyCouponBlock() {
           </div>
           {feedback.kind === "success" && (
             <p
-              className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-[var(--accent-success)]"
+              className="mt-3 inline-flex items-center gap-1.5 body-xs text-[var(--accent-success)]"
               role="status"
             >
               <Icon name="check_circle" size={14} fill={1} />
@@ -89,7 +89,7 @@ export function ApplyCouponBlock() {
           )}
           {feedback.kind === "error" && (
             <p
-              className="mt-3 inline-flex items-center gap-1.5 text-[12.5px] text-[var(--accent-danger)]"
+              className="mt-3 inline-flex items-center gap-1.5 body-xs text-[var(--accent-danger)]"
               role="alert"
             >
               <Icon name="error" size={14} fill={1} />
