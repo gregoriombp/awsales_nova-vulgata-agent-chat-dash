@@ -89,10 +89,10 @@ export default function RolesPage() {
     <>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h1 className="m-0 mb-2 text-[28px] font-semibold leading-tight tracking-[-0.02em] text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
             Equipe &amp; permissões
-          </h1>
-          <p className="m-0 max-w-[640px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          </h3>
+          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -178,7 +178,7 @@ function RoleTable({
                 colSpan={5}
                 style={{ padding: "48px 20px", textAlign: "center" }}
               >
-                <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-[var(--fg-secondary)]">
                   Nenhuma função encontrada.
                 </p>
               </td>
@@ -195,7 +195,7 @@ function RoleTable({
                     <RoleIconTile role={r} size="sm" />
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[13.5px] font-medium text-[var(--fg-primary)]">
+                        <span className="body-xs font-medium text-[var(--fg-primary)]">
                           {r.name}
                         </span>
                         {r.isSystem && (
@@ -208,12 +208,12 @@ function RoleTable({
                   </div>
                 </td>
                 <td>
-                  <p className="m-0 line-clamp-1 max-w-[420px] text-[12.5px] text-[var(--fg-secondary)]">
+                  <p className="m-0 line-clamp-1 max-w-[420px] body-xs text-[var(--fg-secondary)]">
                     {r.description}
                   </p>
                 </td>
                 <td>
-                  <span className="text-[13px] text-[var(--fg-primary)]">
+                  <span className="body-xs text-[var(--fg-primary)]">
                     {r.memberCount}{" "}
                     <span className="text-[var(--fg-secondary)]">
                       {r.memberCount === 1 ? "pessoa" : "pessoas"}
@@ -221,7 +221,7 @@ function RoleTable({
                   </span>
                 </td>
                 <td>
-                  <span className="text-[13px] text-[var(--fg-primary)]">
+                  <span className="body-xs text-[var(--fg-primary)]">
                     {r.capabilities.length}
                     <span className="text-[var(--fg-secondary)]">
                       {" "}
@@ -289,7 +289,7 @@ function RoleDetail({
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 self-start rounded-[var(--radius-sm)] px-2 py-1 text-[12.5px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
+        className="inline-flex items-center gap-1.5 self-start rounded-[var(--radius-sm)] px-2 py-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
       >
         <Icon name="arrow_back" size={14} />
         Voltar para todas as funções
@@ -304,7 +304,7 @@ function RoleDetail({
         />
 
         <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-3">
-          <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
             Permissões por escopo
           </p>
           {editable && (
@@ -345,7 +345,7 @@ function RoleDetail({
         <footer className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
           <div className="flex min-w-0 items-center gap-2">
             <Icon name="info" size={14} />
-            <p className="m-0 text-[11.5px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Em breve: permissões condicionais (ex.: ver apenas conversas da
               própria equipe, visualizar campanhas sem publicar).
             </p>
@@ -396,18 +396,18 @@ function RoleHeader({
               <EditableText
                 value={role.name}
                 onChange={(name) => onPatch({ name })}
-                className="text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]"
+                className="text-[var(--fg-primary)]"
                 placeholder="Nome da função"
               />
             ) : (
-              <h2 className="m-0 flex flex-wrap items-center gap-2 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h6 className="m-0 flex flex-wrap items-center gap-2 text-[var(--fg-primary)]">
                 {role.name}
                 <AwPill variant="neutral" dot={false}>
                   Padrão
                 </AwPill>
-              </h2>
+              </h6>
             )}
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-[12px] text-[var(--fg-secondary)]">
+            <div className="mt-1 flex flex-wrap items-center gap-2 body-xs text-[var(--fg-secondary)]">
               <span>
                 {role.memberCount} membro{role.memberCount === 1 ? "" : "s"}
               </span>
@@ -439,12 +439,12 @@ function RoleHeader({
         <EditableText
           value={role.description}
           onChange={(description) => onPatch({ description })}
-          className="text-[13px] leading-[1.55] text-[var(--fg-secondary)]"
+          className="body-xs text-[var(--fg-secondary)]"
           placeholder="Adicione uma descrição…"
           multiline
         />
       ) : (
-        <p className="m-0 max-w-[680px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[680px] body-xs text-[var(--fg-secondary)]">
           {role.description}
         </p>
       )}
@@ -625,10 +625,10 @@ function ScopeBlock({
             <Icon name={scope.icon} size={16} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[14px] font-semibold text-[var(--fg-primary)]">
+            <span className="block truncate body-sm font-semibold text-[var(--fg-primary)]">
               {scope.name}
             </span>
-            <span className="block truncate text-[12px] text-[var(--fg-secondary)]">
+            <span className="block truncate body-xs text-[var(--fg-secondary)]">
               {scope.description}
             </span>
           </span>
@@ -682,7 +682,7 @@ function PermissionGroupBlock({
   return (
     <div>
       <div className="mb-2 flex items-center gap-2">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-secondary)]">
+        <span className="aw-eyebrow text-[var(--fg-secondary)]">
           {group.label}
         </span>
         <IntentBadge intent={group.intent} />
@@ -718,7 +718,7 @@ function PermissionGroupBlock({
               )}
               <label
                 className={
-                  "min-w-0 flex-1 cursor-pointer text-[13px] " +
+                  "min-w-0 flex-1 cursor-pointer body-xs " +
                   (editable ? "" : "cursor-default ")
                 }
                 onClick={() => editable && onToggle(p.id, !has)}
@@ -734,7 +734,7 @@ function PermissionGroupBlock({
                   {p.label}
                 </span>
                 {p.description && (
-                  <span className="block text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="block body-xs text-[var(--fg-tertiary)]">
                     {p.description}
                   </span>
                 )}
