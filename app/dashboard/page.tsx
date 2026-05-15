@@ -104,7 +104,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setIsPeriodOpen((v) => !v)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 body-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-text-secondary">
                       <rect x="2" y="3" width="12" height="10" rx="1" stroke="currentColor" strokeWidth="1.5"/>
@@ -125,7 +125,7 @@ export default function Dashboard() {
                             setPeriod(opt.value);
                             setIsPeriodOpen(false);
                           }}
-                          className={`w-full text-left px-3 py-2 text-sm hover:bg-aw-gray-150 ${period === opt.value ? "bg-aw-gray-150 text-text-primary font-medium" : "text-text-secondary"}`}
+                          className={`w-full text-left px-3 py-2 body-sm hover:bg-aw-gray-150 ${period === opt.value ? "bg-aw-gray-150 text-text-primary font-medium" : "text-text-secondary"}`}
                         >
                           {opt.label}
                         </button>
@@ -139,14 +139,14 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => setIsFilterOpen((v) => !v)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 body-sm border border-aw-gray-300 rounded-lg bg-white text-text-primary hover:border-aw-gray-400 transition-colors"
                   >
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                       <path d="M2 3h12M4 6h8M6 9h4M8 12h0" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                     Filtros
                     {activeFiltersCount > 0 && (
-                      <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 text-xs font-medium rounded-full bg-primary text-white">
+                      <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 body-xs font-medium rounded-full bg-primary text-white">
                         {activeFiltersCount}
                       </span>
                     )}
@@ -156,10 +156,10 @@ export default function Dashboard() {
                   </button>
                   {isFilterOpen && (
                     <div className="absolute left-0 top-full mt-1 z-20 w-[320px] py-3 px-4 bg-white border border-aw-gray-300 rounded-xl shadow-lg">
-                      <div className="text-sm font-medium text-text-primary mb-3">Filtros personalizados</div>
+                      <div className="body-sm font-medium text-text-primary mb-3">Filtros personalizados</div>
                       <div className="space-y-4">
                         <div>
-                          <div className="text-xs font-medium text-text-secondary mb-2">Agentes</div>
+                          <div className="body-xs font-medium text-text-secondary mb-2">Agentes</div>
                           <div className="space-y-1.5 max-h-40 overflow-y-auto">
                             {MOCK_AGENTS.map((a) => (
                               <label key={a.id} className="flex items-center gap-2 cursor-pointer">
@@ -169,13 +169,13 @@ export default function Dashboard() {
                                   onChange={() => toggleAgent(a.id)}
                                   className="rounded border-aw-gray-300 text-primary focus:ring-primary"
                                 />
-                                <span className="text-sm text-text-primary">{a.name}</span>
+                                <span className="body-sm text-text-primary">{a.name}</span>
                               </label>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <div className="text-xs font-medium text-text-secondary mb-2">Canal</div>
+                          <div className="body-xs font-medium text-text-secondary mb-2">Canal</div>
                           <div className="space-y-1.5">
                             {CHANNEL_OPTIONS.map((c) => (
                               <label key={c.id} className="flex items-center gap-2 cursor-pointer">
@@ -185,7 +185,7 @@ export default function Dashboard() {
                                   onChange={() => toggleChannel(c.id)}
                                   className="rounded border-aw-gray-300 text-primary focus:ring-primary"
                                 />
-                                <span className="text-sm text-text-primary">{c.name}</span>
+                                <span className="body-sm text-text-primary">{c.name}</span>
                               </label>
                             ))}
                           </div>
@@ -198,14 +198,14 @@ export default function Dashboard() {
                             setSelectedAgents([]);
                             setSelectedChannels([]);
                           }}
-                          className="flex-1 py-2 text-sm text-text-secondary hover:text-text-primary border border-aw-gray-300 rounded-lg"
+                          className="flex-1 py-2 body-sm text-text-secondary hover:text-text-primary border border-aw-gray-300 rounded-lg"
                         >
                           Limpar
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsFilterOpen(false)}
-                          className="flex-1 py-2 text-sm bg-primary text-white rounded-lg hover:opacity-90"
+                          className="flex-1 py-2 body-sm bg-primary text-white rounded-lg hover:opacity-90"
                         >
                           Aplicar
                         </button>
@@ -218,7 +218,7 @@ export default function Dashboard() {
               <button
                 onClick={handleRefresh}
                 disabled={isLoading}
-                className="flex items-center gap-2 px-4 py-2 text-sm text-text-primary hover:text-primary-dark transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 py-2 body-sm text-text-primary hover:text-primary-dark transition-colors disabled:opacity-50"
               >
                 <svg
                   width="16"
@@ -309,14 +309,14 @@ export default function Dashboard() {
                 </svg>
               </div>
               <div className="text-4xl font-bold text-text-primary mb-1">4.58</div>
-              <div className="text-sm text-text-secondary">minutos</div>
+              <div className="body-sm text-text-secondary">minutos</div>
             </div>
           </MetricCard>
 
           {/* Customer Satisfaction */}
           <MetricCard title="Satisfação dos Clientes">
             <div className="space-y-3">
-              <p className="text-xs text-text-secondary mb-4">Successful outcomes / total AI interactions</p>
+              <p className="body-xs text-text-secondary mb-4">Successful outcomes / total AI interactions</p>
               {[
                 { label: "Muito útil", value: 338, max: 365 },
                 { label: "Útil", value: 365, max: 365 },
@@ -325,7 +325,7 @@ export default function Dashboard() {
                 { label: "Muito nada útil", value: 28, max: 365 },
               ].map((item, index) => (
                 <div key={index} className="space-y-1">
-                  <div className="flex justify-between text-sm">
+                  <div className="flex justify-between body-sm">
                     <span className="text-text-primary">{item.label}</span>
                     <span className="text-text-secondary">{item.value}</span>
                   </div>
@@ -343,7 +343,7 @@ export default function Dashboard() {
           {/* AI Success Rate */}
           <MetricCard title="AI Success Rate">
             <div className="space-y-3">
-              <p className="text-xs text-text-secondary mb-4">Successful outcomes / total AI interactions</p>
+              <p className="body-xs text-text-secondary mb-4">Successful outcomes / total AI interactions</p>
               <div className="h-32 flex items-end justify-between gap-1 mb-4">
                 {[65, 75, 80, 70, 85, 90, 88, 82, 78, 72, 68, 75].map((height, index) => (
                   <div
@@ -354,7 +354,7 @@ export default function Dashboard() {
                 ))}
               </div>
               <div className="text-4xl font-bold text-text-primary mb-1">87.3%</div>
-              <div className="text-sm text-text-secondary">40,064 successful of 45,892 total</div>
+              <div className="body-sm text-text-secondary">40,064 successful of 45,892 total</div>
             </div>
           </MetricCard>
         </div>
