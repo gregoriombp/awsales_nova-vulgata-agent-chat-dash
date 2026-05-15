@@ -41,7 +41,7 @@ export function PickTypeModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Toda habilidade pertence a uma integração — ela herda a
           credencial. Comece escolhendo o tipo da integração pai.
         </p>
@@ -108,13 +108,13 @@ function TypeCard({
         {leading}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="block text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+        <span className="block body-sm font-medium text-[var(--fg-primary)]">
           {title}
         </span>
-        <p className="m-0 mt-1 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
           {description}
         </p>
-        <span className="mt-2 block text-[12px] text-[var(--fg-tertiary)]">
+        <span className="mt-2 block body-xs text-[var(--fg-tertiary)]">
           {footnote}
         </span>
       </div>
