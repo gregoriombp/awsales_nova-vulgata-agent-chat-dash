@@ -210,13 +210,13 @@ function MediaDropzone({
       className="flex w-full flex-col items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] px-4 py-8 text-center transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-surface)]"
     >
       <Icon name="image" size={22} className="text-[var(--fg-tertiary)]" />
-      <span className="text-[13px] text-[var(--fg-secondary)]">
+      <span className="body-xs text-[var(--fg-secondary)]">
         Arraste uma {label} ou{" "}
         <span className="font-semibold text-[var(--aw-blue-600,#1A73E8)] underline underline-offset-2">
           selecione
         </span>
       </span>
-      <span className="text-[11.5px] text-[var(--fg-tertiary)]">{helper}</span>
+      <span className="body-xs text-[var(--fg-tertiary)]">{helper}</span>
       <input
         ref={inputRef}
         type="file"
@@ -347,20 +347,20 @@ function PhonePreview({
     <div className="relative mx-auto w-[260px]">
       <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[#075E54] shadow-[var(--shadow-md)]">
         {/* Status bar */}
-        <div className="flex h-[18px] items-center justify-end bg-[#075E54] px-3 text-[10px] font-medium text-white/90">
+        <div className="flex h-[18px] items-center justify-end bg-[#075E54] px-3 body-xs font-medium text-white/90">
           9:41
         </div>
         {/* Conversation header */}
         <div className="flex items-center gap-2 bg-[#075E54] px-3 pb-2.5 pt-1 text-white">
           <Icon name="arrow_back" size={18} className="opacity-90" />
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 text-[12px] font-semibold">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-white/20 body-xs font-semibold">
             {accountName.charAt(0)}
           </span>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-semibold leading-tight">
+            <div className="truncate body-xs font-semibold leading-tight">
               {accountName}
             </div>
-            <div className="truncate text-[10.5px] opacity-80">
+            <div className="truncate body-xs opacity-80">
               conta empresarial
             </div>
           </div>
@@ -403,7 +403,7 @@ function PhonePreview({
               </div>
             )}
             {/* Body */}
-            <div className="whitespace-pre-wrap break-words text-[12.5px] leading-[1.45] text-[#111B21]">
+            <div className="whitespace-pre-wrap break-words body-xs text-[#111B21]">
               {parts.length === 0 ? (
                 <span className="text-[#9AA0A6]">Comece a digitar o corpo…</span>
               ) : (
@@ -416,14 +416,14 @@ function PhonePreview({
                 )
               )}
             </div>
-            <div className="mt-1 flex items-center justify-end gap-1 text-[10px] text-[#667781]">
+            <div className="mt-1 flex items-center justify-end gap-1 body-xs text-[#667781]">
               14:23
               <Icon name="done_all" size={12} className="text-[#53BDEB]" />
             </div>
           </div>
           {/* Inline buttons */}
           {draft.buttons.length > 0 && (
-            <div className="ml-1 mt-1 flex max-w-[260px] flex-col gap-px overflow-hidden rounded-[8px] bg-white text-[12.5px]">
+            <div className="ml-1 mt-1 flex max-w-[260px] flex-col gap-px overflow-hidden rounded-[8px] bg-white body-xs">
               {draft.buttons.map((b, i) => {
                 const icon =
                   b.type === "url"
@@ -533,7 +533,7 @@ export function AwTemplateBuilderSheet({
       title="Novo template"
       footer={
         <div className="flex items-center justify-between gap-3">
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Tempo médio de aprovação pela Meta: 12 min
           </div>
           <div className="flex items-center gap-2">
@@ -643,19 +643,19 @@ export function AwTemplateBuilderSheet({
               onChange={(e) => setField("body", e.target.value)}
               rows={6}
               placeholder="Olá, {{1}}! 👋 Bem-vindo(a) à {{nome_empresa}}. Estamos com {{2}} ativo até {{horario_atendimento}}."
-              className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2.5 text-[13px] leading-[1.5] text-[var(--fg-primary)] outline-none transition-colors placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-blue-500)]"
+              className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2.5 body-xs text-[var(--fg-primary)] outline-none transition-colors placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-blue-500)]"
             />
           </AwField>
 
           <div>
             <div className="mb-2 flex items-baseline justify-between">
-              <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+              <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
                 Botões{" "}
-                <span className="text-[12px] font-normal text-[var(--fg-tertiary)]">
+                <span className="body-xs font-normal text-[var(--fg-tertiary)]">
                   (até {MAX_BUTTONS})
                 </span>
               </h3>
-              <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+              <span className="body-xs text-[var(--fg-tertiary)]">
                 {draft.buttons.length}/{MAX_BUTTONS}
               </span>
             </div>
@@ -684,11 +684,11 @@ export function AwTemplateBuilderSheet({
 
         {/* Preview column */}
         <aside className="flex flex-col gap-3 border-l border-[var(--border-subtle)] pl-8">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Pré-visualização
           </div>
           <PhonePreview draft={draft} accountName={accountName} />
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11.5px] text-[var(--fg-tertiary)]">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>
               {variables.total}{" "}
               {variables.total === 1 ? "variável" : "variáveis"}
