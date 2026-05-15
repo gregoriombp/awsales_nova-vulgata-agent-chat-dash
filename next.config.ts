@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
+import path from "node:path";
 
 const nextConfig: NextConfig = {
+  // Pin the workspace root so Turbopack doesn't pick up the stray
+  // ~/package-lock.json (left behind by global `shadcn` install).
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   allowedDevOrigins: ['10.10.255.193', 'localhost', '*.local'],
   images: {
     remotePatterns: [
