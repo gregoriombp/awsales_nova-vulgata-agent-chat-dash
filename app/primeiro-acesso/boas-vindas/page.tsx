@@ -32,21 +32,11 @@ export default function BoasVindasPage() {
   return (
     <AwOnboardingShell currentStep={1} org={ONBOARDING_ORG}>
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Olá, {ONBOARDING_USER.firstName}. Vamos ativar o ambiente da {ONBOARDING_ORG.name}.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Sua organização e plano já foram configurados pela equipe AwSales.
           Você só precisa confirmar os dados, finalizar o pagamento da
           implementação e escolher como vai acessar a plataforma.
@@ -71,16 +61,10 @@ export default function BoasVindasPage() {
                   <Icon name={step.icon} size={16} />
                 </span>
                 <div className="min-w-0 pt-1.5">
-                  <div
-                    className="font-medium text-fg-primary"
-                    style={{ fontSize: 14, letterSpacing: "-0.005em" }}
-                  >
+                  <div className="body-sm font-medium text-fg-primary">
                     {i + 1}. {step.title}
                   </div>
-                  <div
-                    className="text-fg-tertiary"
-                    style={{ fontSize: 12, lineHeight: 1.5 }}
-                  >
+                  <div className="body-xs text-fg-tertiary">
                     {step.description}
                   </div>
                 </div>
