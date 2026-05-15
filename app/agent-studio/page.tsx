@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
+import { Icon } from "@/components/ui/Icon";
 
 /** Same horizontal bounds as hero (breadcrumb + column stay aligned). */
 const AGENT_STUDIO_COLUMN = "mx-auto w-full max-w-lg px-5 sm:px-6";
@@ -41,25 +42,13 @@ export default function AgentStudioEntrancePage() {
     { label: "Início", href: "/inicio" },
     {
       label: "Agent Studio",
-      icon: (
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M3.75 15.625C3.75 16.3125 4.0625 16.5625 4.6875 16.875L10 18.75L15.3125 16.875C15.9375 16.5625 16.25 16.3125 16.25 15.625V7.1875C16.25 6.5 15.9375 6.25 15.3125 5.9375L10 4.0625L4.6875 5.9375C4.0625 6.25 3.75 6.5 3.75 7.1875V15.625Z" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-          <path d="M10 4.0625V18.75" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M16.25 7.1875L10 10L3.75 7.1875" stroke="currentColor" strokeWidth="1.5"/>
-        </svg>
-      ),
+      icon: <Icon name="agent_studio" size={20} />,
     },
   ];
 
   return (
-    <DashboardLayout
-      breadcrumbs={breadcrumbs}
-      breadcrumbInnerClassName={AGENT_STUDIO_COLUMN}
-      mainClassName="!p-0 !overflow-hidden"
-      floatingSidebar
-    >
-      {/* Full-bleed canvas inside main; only the hero stack is width-limited (readable column). */}
-      <div className="flex min-h-full w-full flex-col items-center justify-center bg-[var(--aw-black)] py-10 sm:py-14">
+    <DashboardLayout breadcrumbs={breadcrumbs}>
+      <div className="flex min-h-full w-full flex-col items-center justify-center py-10 sm:py-14">
         <div className={`flex flex-col items-center justify-center gap-10 ${AGENT_STUDIO_COLUMN}`}>
           {/* Dot tunnel (perspective + motion) */}
           <div className="relative aspect-square w-full max-w-[320px] flex-shrink-0 agent-studio-tunnel-wrap">
@@ -76,7 +65,7 @@ export default function AgentStudioEntrancePage() {
                   cx={dot.cx}
                   cy={dot.cy}
                   r={dot.r}
-                  fill="white"
+                  fill="var(--fg-primary)"
                   style={{
                     animationDelay: `${dot.delay}s`,
                   }}
@@ -87,15 +76,15 @@ export default function AgentStudioEntrancePage() {
 
           {/* Title, subtitle, CTA */}
           <div className="flex flex-col items-center text-center">
-            <h1 className="mb-3 font-heading text-4xl font-regular tracking-tight text-white sm:text-5xl md:text-6xl">
+            <h1 className="mb-3 font-heading text-4xl font-regular tracking-tight text-[var(--fg-primary)] sm:text-5xl md:text-6xl">
               Agent Studio
             </h1>
-            <p className="mb-10 max-w-md font-sans text-lg font-normal text-white/80 sm:text-xl">
+            <p className="mb-10 max-w-md font-sans text-lg font-normal text-[var(--fg-secondary)] sm:text-xl">
               Crie seu primeiro agente em menos de 90 minutos
             </p>
             <Link
               href="/agent-studio/new"
-              className="rounded-lg bg-white px-8 py-4 text-base font-semibold text-black shadow-lg transition-all duration-200 hover:scale-[1.02] hover:bg-white/95 hover:shadow-xl hover:shadow-white/10 active:scale-[0.98]"
+              className="rounded-lg bg-[var(--fg-primary)] px-8 py-4 text-base font-semibold text-[var(--bg-canvas)] shadow-sm transition-all duration-200 hover:scale-[1.02] hover:opacity-90 active:scale-[0.98]"
             >
               Criar agente
             </Link>

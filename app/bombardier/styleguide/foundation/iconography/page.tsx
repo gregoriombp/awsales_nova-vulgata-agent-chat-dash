@@ -321,6 +321,23 @@ export default function IconographyPage() {
         </Section>
 
         <Section
+          id="agent-studio"
+          title="Glyph customizado — Agent Studio"
+          lead={`Mark próprio da superfície do Agent Studio. Padrão radial de pontos com paleta greyscale fixa, desenhada à mão nos 6 tamanhos canônicos — 12px é monotonal pra preservar leitura, do 16 ao 28 ganha gradiente de 4 tons, e 32 adensa em pontos pretos uniformes pra firmar como mark de header. Renderiza via <Icon name="agent_studio" />, snap automático ao tamanho mais próximo. Cor é baked-in: não responde a currentColor, weight nem fill.`}
+        >
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap items-end gap-6">
+            {sizes.map((s) => (
+              <div key={s} className="flex flex-col items-center gap-2">
+                <Icon name="agent_studio" size={s} />
+                <span className="text-xs text-[var(--fg-tertiary)]">
+                  {s}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section
           id="code"
           title="Uso em código"
           lead={`Import: import { Icon } from "@/components/ui/Icon".`}

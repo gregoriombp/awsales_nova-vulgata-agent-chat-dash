@@ -70,7 +70,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Agentes",
     items: [
-      { label: "Agent studio", href: "/agent-studio", icon: "auto_awesome" },
+      { label: "Agent studio", href: "/agent-studio", icon: "agent_studio" },
       { label: "Aprovações", href: "/approvals", icon: "done_all" },
       { label: "Disparos", href: "/triggers", icon: "send" },
     ],
@@ -100,7 +100,7 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 const STORAGE_KEY = "awsales:sidebar:collapsed";
-const FORCE_COLLAPSED_PREFIX = "/agent-studio";
+const FORCE_COLLAPSED_PREFIX = "/agent-studio/";
 
 /** Read the persisted collapsed flag synchronously so the very first render
  *  matches the user's last preference. Returning `undefined` on the server
