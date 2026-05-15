@@ -20,9 +20,9 @@ export default function Button({
     "w-full inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20";
 
   const sizeStyles = {
-    sm: "h-8 px-4 text-sm tracking-[-0.1px] rounded-lg",
-    md: "h-10 px-4 text-sm tracking-[-0.1px] rounded-lg",
-    lg: "h-12 px-6 text-base tracking-[-0.1px] rounded-xl",
+    sm: "h-8 px-4 body-sm tracking-[-0.1px] rounded-lg",
+    md: "h-10 px-4 body-sm tracking-[-0.1px] rounded-lg",
+    lg: "h-12 px-6 body-md tracking-[-0.1px] rounded-xl",
   };
 
   const variantStyles = {
