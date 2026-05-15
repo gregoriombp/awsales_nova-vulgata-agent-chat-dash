@@ -69,6 +69,7 @@ export const navigation: NavSection[] = [
       { name: "Progress", href: "/bombardier/styleguide/components/aw-progress" },
       { name: "Select", href: "/bombardier/styleguide/components/aw-select" },
       { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
+      { name: "Shortcut tile", href: "/bombardier/styleguide/components/aw-shortcut-tile" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },

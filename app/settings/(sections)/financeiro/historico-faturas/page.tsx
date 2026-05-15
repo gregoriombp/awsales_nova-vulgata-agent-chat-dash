@@ -80,7 +80,7 @@ function PeriodSummary({
       <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
         Total líquido cobrado · últimos 4 meses
       </p>
-      <h1 className="m-0 mt-2 display-lg tabular-nums text-[var(--fg-primary)]">
+      <h1 className="m-0 mt-2 display-md tabular-nums text-[var(--fg-primary)]">
         {brl(totals.net)}
       </h1>
       <p className="m-0 mt-2 max-w-[520px] body-xs text-[var(--fg-secondary)]">
