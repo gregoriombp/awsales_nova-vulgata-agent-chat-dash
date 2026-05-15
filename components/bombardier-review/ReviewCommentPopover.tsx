@@ -71,15 +71,15 @@ export function ReviewCommentPopover() {
       >
         <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-subtle)]">
           <span
-            className="h-5 w-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-[var(--fg-on-inverse)]"
+            className="h-5 w-5 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)]"
             style={{ background: identity.colorToken }}
           >
             {identity.name.charAt(0).toUpperCase()}
           </span>
-          <span className="text-xs font-medium text-[var(--fg-primary)]">
+          <span className="body-xs font-medium text-[var(--fg-primary)]">
             {identity.name}
           </span>
-          <span className="text-[10px] text-[var(--fg-tertiary)] ml-auto">
+          <span className="body-xs text-[var(--fg-tertiary)] ml-auto">
             {pendingAnchor.kind === "draw" ? "Marcação livre" : "Pino"}
           </span>
         </div>
@@ -98,10 +98,10 @@ export function ReviewCommentPopover() {
           }}
           placeholder="Escreva o feedback…"
           rows={3}
-          className="w-full resize-none px-3 py-2 bg-transparent text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none"
+          className="w-full resize-none px-3 py-2 bg-transparent body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none"
         />
         <div className="px-2 py-2 flex items-center justify-between gap-2 border-t border-[var(--border-subtle)]">
-          <span className="text-[10px] text-[var(--fg-tertiary)] flex items-center gap-1">
+          <span className="body-xs text-[var(--fg-tertiary)] flex items-center gap-1">
             <Icon name="keyboard_command_key" size={11} />
             ⌘↵ pra salvar
           </span>
