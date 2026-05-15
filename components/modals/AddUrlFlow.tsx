@@ -94,7 +94,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className=" font-heading font-bold text-text-primary">
                 Adicionar URL
               </h2>
               <button
@@ -131,7 +131,7 @@ export default function AddUrlFlow({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="http://"
-                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 text-sm"
+                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 body-sm"
                 />
               </div>
             </div>
@@ -158,7 +158,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className=" font-heading font-bold text-text-primary">
                 Adicionar URL
               </h2>
               <button
@@ -194,7 +194,7 @@ export default function AddUrlFlow({
                   type="text"
                   value={url || "https://artificialconcord.com"}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 text-sm"
+                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 body-sm"
                 />
               </div>
             </div>
@@ -213,7 +213,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className=" font-heading font-bold text-text-primary">
                 Adicionar URL
               </h2>
               <button
@@ -233,23 +233,23 @@ export default function AddUrlFlow({
 
             {/* Title */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="block body-sm font-medium text-text-primary mb-2">
                 Título
               </label>
               <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-xs text-gray-600">
+                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center body-xs text-gray-600">
                   y.
                 </div>
-                <span className="text-sm text-text-primary">{title}</span>
+                <span className="body-sm text-text-primary">{title}</span>
               </div>
             </div>
 
             {/* Review pages */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">
+              <h3 className="body-lg font-semibold text-text-primary mb-2">
                 Revisar páginas para sincronizar
               </h3>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="body-sm text-text-secondary mb-4">
                 Todas as subpáginas vinculadas em cada seção selecionada serão sincronizadas. Selecione somente conteúdo relevante e atualizado.
               </p>
 
@@ -285,7 +285,7 @@ export default function AddUrlFlow({
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                       <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                     </svg>
-                    <span className="text-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
+                    <span className="body-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
                   </div>
                 </div>
 
@@ -319,7 +319,7 @@ export default function AddUrlFlow({
                         )}
                       </div>
                     </button>
-                    <span className="text-sm text-text-primary">{page.path}</span>
+                    <span className="body-sm text-text-primary">{page.path}</span>
                   </div>
                 ))}
               </div>
@@ -332,7 +332,7 @@ export default function AddUrlFlow({
                 onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
                 className="flex items-center justify-between w-full p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <span className="text-sm font-medium text-text-primary">
+                <span className="body-sm font-medium text-text-primary">
                   Configurações avançadas
                 </span>
                 <svg
@@ -370,7 +370,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className=" font-heading font-bold text-text-primary">
                 Adicionar URL
               </h2>
               <button
@@ -390,23 +390,23 @@ export default function AddUrlFlow({
 
             {/* Title */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="block body-sm font-medium text-text-primary mb-2">
                 Título
               </label>
               <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-xs text-gray-600">
+                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center body-xs text-gray-600">
                   y.
                 </div>
-                <span className="text-sm text-text-primary">{title}</span>
+                <span className="body-sm text-text-primary">{title}</span>
               </div>
             </div>
 
             {/* Review pages */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">
+              <h3 className="body-lg font-semibold text-text-primary mb-2">
                 Revisar páginas para sincronizar
               </h3>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="body-sm text-text-secondary mb-4">
                 Todas as subpáginas vinculadas em cada seção selecionada serão sincronizadas. Selecione somente conteúdo relevante e atualizado.
               </p>
 
@@ -442,7 +442,7 @@ export default function AddUrlFlow({
                       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
                       <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                     </svg>
-                    <span className="text-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
+                    <span className="body-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
                   </div>
                 </div>
 
@@ -476,7 +476,7 @@ export default function AddUrlFlow({
                         )}
                       </div>
                     </button>
-                    <span className="text-sm text-text-primary">{page.path}</span>
+                    <span className="body-sm text-text-primary">{page.path}</span>
                   </div>
                 ))}
               </div>
@@ -485,7 +485,7 @@ export default function AddUrlFlow({
             {/* Advanced settings (expanded) */}
             <div className="mb-6 space-y-4">
               <div className="border-t border-gray-200 pt-4">
-                <h3 className="text-sm font-semibold text-text-primary mb-4">
+                <h3 className="body-sm font-semibold text-text-primary mb-4">
                   Configurações avançadas
                 </h3>
 
@@ -503,7 +503,7 @@ export default function AddUrlFlow({
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-text-primary mb-2">
+                      <p className="body-sm text-text-primary mb-2">
                         Adicione páginas para sincronizar que não estejam vinculadas como subpáginas das seções acima.
                       </p>
                       <Button
@@ -535,7 +535,7 @@ export default function AddUrlFlow({
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm text-text-primary mb-2">
+                      <p className="body-sm text-text-primary mb-2">
                         Especifique todas as páginas que não quiser sincronizar.
                       </p>
                       <Button
@@ -568,7 +568,7 @@ export default function AddUrlFlow({
                       </svg>
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-text-primary mb-3">
+                      <p className="body-sm font-medium text-text-primary mb-3">
                         Elementos da página a incluir
                       </p>
                       <div className="space-y-3">
@@ -581,10 +581,10 @@ export default function AddUrlFlow({
                             className="mt-1"
                           />
                           <div>
-                            <p className="text-sm text-text-primary font-medium">
+                            <p className="body-sm text-text-primary font-medium">
                               Somente conteúdo da página principal
                             </p>
-                            <p className="text-xs text-text-secondary mt-1">
+                            <p className="body-xs text-text-secondary mt-1">
                               Exclui elementos como cabeçalhos, rodapés, modais, scripts e imagens.
                             </p>
                           </div>
@@ -598,10 +598,10 @@ export default function AddUrlFlow({
                             className="mt-1"
                           />
                           <div>
-                            <p className="text-sm text-text-primary font-medium">
+                            <p className="body-sm text-text-primary font-medium">
                               Personalizado
                             </p>
-                            <p className="text-xs text-text-secondary mt-1">
+                            <p className="body-xs text-text-secondary mt-1">
                               Inclua ou exclua elementos específicos da página, além do conteúdo principal.
                             </p>
                           </div>
@@ -630,7 +630,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className=" font-heading font-bold text-text-primary">
                 Adicionar URL
               </h2>
               <button
@@ -650,23 +650,23 @@ export default function AddUrlFlow({
 
             {/* Title */}
             <div className="mb-6">
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="block body-sm font-medium text-text-primary mb-2">
                 Título
               </label>
               <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
-                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center text-xs text-gray-600">
+                <div className="w-5 h-5 rounded bg-gray-200 flex items-center justify-center body-xs text-gray-600">
                   y.
                 </div>
-                <span className="text-sm text-text-primary">{title}</span>
+                <span className="body-sm text-text-primary">{title}</span>
               </div>
             </div>
 
             {/* Review pages summary */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-2">
+              <h3 className="body-lg font-semibold text-text-primary mb-2">
                 Revisar páginas para sincronizar
               </h3>
-              <p className="text-sm text-text-secondary mb-4">
+              <p className="body-sm text-text-secondary mb-4">
                 {pages.filter((p) => p.selected).length} página(s) selecionada(s) para sincronização.
               </p>
             </div>
@@ -674,7 +674,7 @@ export default function AddUrlFlow({
             {/* Advanced settings summary */}
             {isAdvancedOpen && (
               <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                <p className="text-sm text-text-secondary">
+                <p className="body-sm text-text-secondary">
                   Configurações avançadas aplicadas
                 </p>
               </div>
