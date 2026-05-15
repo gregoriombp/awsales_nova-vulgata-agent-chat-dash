@@ -106,7 +106,7 @@ export default function DataTable<T extends Record<string, any>>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-4 text-left text-sm font-semibold text-text-primary ${
+                  className={`px-6 py-4 text-left body-sm font-semibold text-text-primary ${
                     column.sortable ? "cursor-pointer hover:bg-gray-100" : ""
                   }`}
                   onClick={() => column.sortable && handleSort(column.key)}
@@ -133,7 +133,7 @@ export default function DataTable<T extends Record<string, any>>({
                   </div>
                 </th>
               ))}
-              {actions && <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">Ações</th>}
+              {actions && <th className="px-6 py-4 text-left body-sm font-semibold text-text-primary">Ações</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -156,7 +156,7 @@ export default function DataTable<T extends Record<string, any>>({
                   onClick={() => onRowClick?.(row)}
                 >
                   {columns.map((column) => (
-                    <td key={column.key} className="px-6 py-4 text-sm text-text-primary">
+                    <td key={column.key} className="px-6 py-4 body-sm text-text-primary">
                       {column.render
                         ? column.render(row[column.key], row)
                         : row[column.key]?.toString() || "-"}
@@ -164,7 +164,7 @@ export default function DataTable<T extends Record<string, any>>({
                   ))}
                   {actions && (
                     <td
-                      className="px-6 py-4 text-sm"
+                      className="px-6 py-4 body-sm"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {actions(row)}
