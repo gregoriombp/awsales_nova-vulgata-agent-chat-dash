@@ -51,21 +51,11 @@ export default function MensalidadePage() {
   return (
     <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Configure a primeira mensalidade.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-6 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-6 body-sm text-fg-secondary text-pretty">
           A implementação já foi paga. Falta só definir o método e quitar a
           mensalidade do mês corrente — cobrada na prorrata. As próximas
           seguem o ciclo regular do plano.
@@ -74,16 +64,10 @@ export default function MensalidadePage() {
         <article className="mb-5 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
           <header className="flex items-center justify-between gap-4 px-5 py-5">
             <div className="min-w-0">
-              <div
-                className="uppercase text-fg-tertiary"
-                style={{ fontSize: 10, letterSpacing: "0.1em", fontWeight: 500 }}
-              >
+              <div className="aw-eyebrow text-fg-tertiary">
                 A pagar agora
               </div>
-              <div
-                className="mt-2 text-fg-secondary"
-                style={{ fontSize: 13, lineHeight: 1.4 }}
-              >
+              <div className="mt-2 body-xs text-fg-secondary">
                 Plano <span className="font-medium text-fg-primary">{ONBOARDING_ORG.plan}</span>
                 <span className="text-fg-tertiary">
                   {" "}— prorrata de {ONBOARDING_ORG.diasRestantesMesAtual} dias
@@ -91,57 +75,34 @@ export default function MensalidadePage() {
               </div>
             </div>
             <div
-              className="font-display text-fg-primary"
-              style={{
-                fontSize: 34,
-                fontWeight: 500,
-                letterSpacing: "-0.02em",
-                lineHeight: 1,
-                fontVariantNumeric: "tabular-nums",
-              }}
+              className="text-fg-primary"
+              style={{ fontVariantNumeric: "tabular-nums" }}
             >
-              {ONBOARDING_ORG.valorMensalProrrata}
+              <h2 className="m-0">{ONBOARDING_ORG.valorMensalProrrata}</h2>
             </div>
           </header>
           <dl className="m-0 grid grid-cols-2 border-t border-border-subtle">
             <div className="px-5 py-3.5">
-              <dt
-                className="text-fg-tertiary"
-                style={{ fontSize: 11, letterSpacing: "0.005em" }}
-              >
+              <dt className="body-xs text-fg-tertiary">
                 Mensalidade cheia
               </dt>
               <dd
-                className="m-0 mt-1 text-fg-primary"
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  fontVariantNumeric: "tabular-nums",
-                }}
+                className="m-0 mt-1 body-sm font-medium text-fg-primary"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               >
                 {ONBOARDING_ORG.valorMensal}
-                <span
-                  className="ml-0.5 text-fg-tertiary"
-                  style={{ fontSize: 12, fontWeight: 400 }}
-                >
+                <span className="ml-0.5 body-xs text-fg-tertiary">
                   /mês
                 </span>
               </dd>
             </div>
             <div className="border-l border-border-subtle px-5 py-3.5">
-              <dt
-                className="text-fg-tertiary"
-                style={{ fontSize: 11, letterSpacing: "0.005em" }}
-              >
+              <dt className="body-xs text-fg-tertiary">
                 Próximo vencimento
               </dt>
               <dd
-                className="m-0 mt-1 text-fg-primary"
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  fontVariantNumeric: "tabular-nums",
-                }}
+                className="m-0 mt-1 body-sm font-medium text-fg-primary"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               >
                 {ONBOARDING_ORG.dataPrimeiroVencimento}
               </dd>
@@ -149,10 +110,7 @@ export default function MensalidadePage() {
           </dl>
         </article>
 
-        <div
-          className="mb-3 uppercase text-fg-tertiary"
-          style={{ fontSize: 10, letterSpacing: "0.08em" }}
-        >
+        <div className="mb-3 aw-eyebrow text-fg-tertiary">
           Método de pagamento
         </div>
 
@@ -177,19 +135,17 @@ export default function MensalidadePage() {
                   <span className="min-w-0 flex-1">
                     <span
                       className={[
-                        "block font-medium",
+                        "block body-sm font-medium",
                         isSelected ? "text-white" : "text-fg-primary",
                       ].join(" ")}
-                      style={{ fontSize: 14 }}
                     >
                       {method.title}
                     </span>
                     <span
                       className={[
-                        "block",
+                        "block body-xs",
                         isSelected ? "text-white/70" : "text-fg-tertiary",
                       ].join(" ")}
-                      style={{ fontSize: 12 }}
                     >
                       {method.description}
                     </span>
@@ -216,10 +172,7 @@ export default function MensalidadePage() {
               aria-hidden="true"
               className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
             />
-            <div
-              className="font-medium text-fg-primary"
-              style={{ fontSize: 13 }}
-            >
+            <div className="body-xs font-medium text-fg-primary">
               Processando mensalidade…
             </div>
           </div>
