@@ -191,7 +191,7 @@ export default function SendFileModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="p-6 flex flex-col max-h-[90vh]">
         <div className="flex items-center justify-between mb-6 flex-shrink-0">
-          <h2 className="text-2xl font-heading font-bold text-text-primary">
+          <h2 className=" font-heading font-bold text-text-primary">
             Enviar arquivo
           </h2>
           <button
@@ -212,11 +212,11 @@ export default function SendFileModal({
           </button>
         </div>
 
-        <p className="text-text-secondary text-sm mb-6 flex-shrink-0">
+        <p className="text-text-secondary body-sm mb-6 flex-shrink-0">
           Arraste os arquivos para esta área ou clique para selecionar. Formatos aceitos: PDF, DOC, DOCX, TXT, MD, XLSX, XLS, CSV, JPG, PNG. Tamanho máximo por arquivo: {MAX_SIZE_MB}MB.
         </p>
         {uploadError && (
-          <p className="text-red-600 text-sm mb-4 flex-shrink-0" role="alert">
+          <p className="text-red-600 body-sm mb-4 flex-shrink-0" role="alert">
             {uploadError}
           </p>
         )}
@@ -262,13 +262,13 @@ export default function SendFileModal({
                 <p className="text-[#1a1a1a] font-medium mb-1">
                   Arraste e solte arquivos aqui
                 </p>
-                <p className="text-sm text-[#999999] mb-4">
+                <p className="body-sm text-[#999999] mb-4">
                   ou clique para selecionar no seu computador
                 </p>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-1200 text-white rounded-lg hover:bg-[#111111] active:bg-black transition-colors cursor-pointer text-sm font-medium"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-1200 text-white rounded-lg hover:bg-[#111111] active:bg-black transition-colors cursor-pointer body-sm font-medium"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
@@ -298,7 +298,7 @@ export default function SendFileModal({
                   className="flex items-start gap-3 p-3 bg-white rounded-xl border border-[#e5e5e5] flex-shrink-0"
                 >
                   <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-white text-xs font-semibold uppercase ${
+                    className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-white body-xs font-semibold uppercase ${
                       kind === "csv"
                         ? "bg-[#0d7d4d]"
                         : kind === "pdf"
@@ -309,8 +309,8 @@ export default function SendFileModal({
                     {kind === "csv" ? "CSV" : kind === "pdf" ? "PDF" : "DOC"}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-[#1a1a1a] truncate">{item.name}</p>
-                    <p className="text-xs text-[#666] mt-0.5">{sizeLabel}</p>
+                    <p className="body-sm font-medium text-[#1a1a1a] truncate">{item.name}</p>
+                    <p className="body-xs text-[#666] mt-0.5">{sizeLabel}</p>
                     <div className="mt-2 h-1.5 bg-[#e8f0fe] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-[#1a73e8] rounded-full transition-all duration-150 ease-out"
@@ -351,7 +351,7 @@ export default function SendFileModal({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-[#1a73e8] hover:bg-[#e8f0fe] rounded-lg transition-colors border border-dashed border-[#1a73e8] border-opacity-50 flex-shrink-0"
+              className="flex items-center justify-center gap-2 py-2.5 body-sm font-medium text-[#1a73e8] hover:bg-[#e8f0fe] rounded-lg transition-colors border border-dashed border-[#1a73e8] border-opacity-50 flex-shrink-0"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
