@@ -21,7 +21,7 @@ export default function EmptyState({
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       {icon && <div className="mb-4 text-text-secondary">{icon}</div>}
-      <h3 className="text-xl font-heading font-bold text-text-primary mb-2">
+      <h3 className="body-xl font-heading font-bold text-text-primary mb-2">
         {title}
       </h3>
       {description && (
