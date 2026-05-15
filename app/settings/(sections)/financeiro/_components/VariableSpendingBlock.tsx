@@ -1,12 +1,19 @@
 "use client";
 
 import * as React from "react";
+import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
 import { Icon } from "@/components/ui/Icon";
 import {
   AGENT_BREAKDOWN,
@@ -77,10 +84,9 @@ export function VariableSpendingBlock() {
       </div>
 
       <div className="px-6 pb-3">
-        <StackedBarChart
+        <DailySpendingChart
           data={daily}
           categories={categories}
-          grouping={grouping}
           period={periodId}
         />
       </div>
@@ -141,191 +147,104 @@ function SegmentedToggle<T extends string>({
 
 /* ---------- chart ---------- */
 
-function StackedBarChart({
+function DailySpendingChart({
   data,
   categories,
-  grouping,
   period,
 }: {
   data: number[][];
   categories: SpendingCategory[];
-  grouping: SpendingGrouping;
   period: SpendingPeriod;
 }) {
-  const [hovered, setHovered] = React.useState<number | null>(null);
+  const totalDays = data.length;
 
-  const days = data.length;
-  const totals = data.map((d) => d.reduce((a, b) => a + b, 0));
-  const max = Math.max(...totals, 1);
-
-  const W = 100;
-  const H = 220;
-  const padX = 2;
-  const padY = 16;
-  const usableW = W - padX * 2;
-  const usableH = H - padY * 2;
-  const gap = 0.35;
-  // Garante slots mínimos pra que poucos dias (ex: "Hoje") não virem uma
-  // barra esticada na largura toda do gráfico.
-  const layoutSlots = Math.max(days, 7);
-  const slot = usableW / layoutSlots;
-  const barW = slot * (1 - gap);
-  const groupOffset = (usableW - slot * days) / 2;
-
-  const hoveredDay = hovered !== null ? data[hovered] : null;
-  const hoveredTotal = hovered !== null ? totals[hovered] : 0;
-
-  return (
-    <figure className="relative m-0">
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="none"
-        role="img"
-        aria-label="Gráfico de gastos diários por categoria"
-        className="block h-[220px] w-full"
-        onMouseLeave={() => setHovered(null)}
-      >
-        {data.map((day, i) => {
-          const x = padX + groupOffset + slot * i + (slot - barW) / 2;
-          const totalH = (totals[i] / max) * usableH;
-          let stacked = 0;
-          const isHovered = hovered === i;
-          return (
-            <g
-              key={i}
-              onMouseEnter={() => setHovered(i)}
-              style={{ opacity: hovered !== null && !isHovered ? 0.45 : 1 }}
-            >
-              {/* hover hitbox spanning the full column */}
-              <rect
-                x={padX + groupOffset + slot * i}
-                y={padY}
-                width={slot}
-                height={usableH}
-                fill="transparent"
-                style={{ cursor: "pointer" }}
-              />
-              <line
-                x1={x + barW / 2}
-                x2={x + barW / 2}
-                y1={padY + usableH}
-                y2={padY + usableH - totalH}
-                stroke="var(--border-subtle)"
-                strokeWidth={0.1}
-              />
-              {day.map((value, c) => {
-                const segH = (value / max) * usableH;
-                stacked += segH;
-                const y = padY + usableH - stacked;
-                return (
-                  <rect
-                    key={c}
-                    x={x}
-                    y={y}
-                    width={barW}
-                    height={segH}
-                    fill={categories[c]?.colorVar ?? "var(--aw-gray-500)"}
-                  />
-                );
-              })}
-            </g>
-          );
-        })}
-      </svg>
-
-      {hoveredDay && (
-        <ChartTooltip
-          dayIndex={hovered as number}
-          totalDays={days}
-          leftPct={
-            ((padX + groupOffset + slot * ((hovered as number) + 0.5)) / W) *
-            100
-          }
-          period={period}
-          values={hoveredDay}
-          total={hoveredTotal}
-          categories={categories}
-          grouping={grouping}
-        />
-      )}
-
-      <figcaption className="sr-only">
-        Distribuição diária dos gastos variáveis no período selecionado.
-      </figcaption>
-    </figure>
+  const chartData = React.useMemo(
+    () =>
+      data.map((day, i) => {
+        const row: Record<string, number | string> = {
+          day: dayLabel(i, totalDays, period),
+        };
+        categories.forEach((cat, c) => {
+          row[cat.id] = day[c] ?? 0;
+        });
+        return row;
+      }),
+    [data, categories, period, totalDays],
   );
-}
 
-function ChartTooltip({
-  dayIndex,
-  totalDays,
-  leftPct,
-  period,
-  values,
-  total,
-  categories,
-  grouping,
-}: {
-  dayIndex: number;
-  totalDays: number;
-  /** Posição horizontal do centro da barra (0..100 % do viewBox). */
-  leftPct: number;
-  period: SpendingPeriod;
-  values: number[];
-  total: number;
-  categories: SpendingCategory[];
-  grouping: SpendingGrouping;
-}) {
-  const isRightHalf = leftPct > 60;
+  const chartConfig = React.useMemo<ChartConfig>(
+    () =>
+      Object.fromEntries(
+        categories.map((cat) => [
+          cat.id,
+          { label: cat.label, color: cat.colorVar },
+        ]),
+      ),
+    [categories],
+  );
+
+  // Espaça os ticks do eixo X pra não amontoar quando há muitos dias.
+  const tickInterval =
+    totalDays <= 8 ? 0 : Math.max(0, Math.floor(totalDays / 6) - 1);
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="pointer-events-none absolute -top-2 z-10 flex min-w-[200px] -translate-y-full flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] p-3 shadow-[var(--shadow-md)]"
-      style={{
-        left: `${leftPct}%`,
-        transform: isRightHalf
-          ? "translate(-100%, -100%)"
-          : "translate(0, -100%)",
-      }}
+    <ChartContainer
+      config={chartConfig}
+      className="aspect-auto h-[220px] w-full"
     >
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="aw-eyebrow text-[var(--fg-tertiary)]">
-          {dayLabel(dayIndex, totalDays, period)}
-        </span>
-        <span className="body-sm font-semibold tabular-nums text-[var(--fg-primary)]">
-          {brl(total)}
-        </span>
-      </div>
-      <ul className="m-0 flex flex-col gap-1 p-0">
-        {values.map((value, c) => {
-          const cat = categories[c];
-          if (!cat) return null;
-          return (
-            <li
-              key={cat.id}
-              className="m-0 flex items-center justify-between gap-3"
-            >
-              <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-2 w-2 rounded-[2px]"
-                  style={{ background: cat.colorVar }}
-                />
-                {grouping === "agent" && cat.avatar && (
-                  <AwAvatar size="sm" src={cat.avatar} alt={cat.label} />
-                )}
-                {cat.label}
-              </span>
-              <span className="body-xs font-medium tabular-nums text-[var(--fg-primary)]">
-                {brl(value)}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+      <LineChart
+        accessibilityLayer
+        data={chartData}
+        margin={{ left: 12, right: 12, top: 8 }}
+      >
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="day"
+          tickLine={false}
+          axisLine={false}
+          tickMargin={8}
+          interval={tickInterval}
+          minTickGap={16}
+        />
+        <ChartTooltip
+          cursor={false}
+          content={
+            <ChartTooltipContent
+              indicator="dot"
+              formatter={(value, name) => {
+                const cat = categories.find((c) => c.id === name);
+                return (
+                  <div className="flex w-full items-center justify-between gap-3">
+                    <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
+                      <span
+                        aria-hidden="true"
+                        className="inline-block h-2 w-2 rounded-[2px]"
+                        style={{ background: cat?.colorVar }}
+                      />
+                      {cat?.label ?? String(name)}
+                    </span>
+                    <span className="body-xs font-medium tabular-nums text-[var(--fg-primary)]">
+                      {brl(Number(value))}
+                    </span>
+                  </div>
+                );
+              }}
+            />
+          }
+        />
+        {categories.map((cat) => (
+          <Line
+            key={cat.id}
+            dataKey={cat.id}
+            type="monotone"
+            stroke={`var(--color-${cat.id})`}
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ r: 4 }}
+          />
+        ))}
+      </LineChart>
+    </ChartContainer>
   );
 }
 
@@ -336,7 +255,7 @@ function dayLabel(
 ): string {
   if (period === "today") return "Hoje";
   if (period === "this-month") return `Dia ${index + 1}`;
-  // Para "last-30" e "last-90", inverte: o último bar é "hoje", o primeiro é mais antigo.
+  // Para "last-30" e "last-90", inverte: o último ponto é "hoje", o primeiro é mais antigo.
   const offset = totalDays - 1 - index;
   if (offset === 0) return "Hoje";
   if (offset === 1) return "Ontem";
