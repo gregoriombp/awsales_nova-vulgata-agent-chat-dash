@@ -3,8 +3,8 @@
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
@@ -13,7 +13,12 @@ import { PAYMENT_METHODS, type PaymentMethod } from "../_components/data";
 export default function MetodosPagamentoPage() {
   const [methods, setMethods] = React.useState<PaymentMethod[]>(PAYMENT_METHODS);
   const [addOpen, setAddOpen] = React.useState(false);
-  const [pendingRemoveId, setPendingRemoveId] = React.useState<string | null>(null);
+  const [pendingRemoveId, setPendingRemoveId] = React.useState<string | null>(
+    null,
+  );
+
+  const defaultMethod = methods.find((m) => m.isDefault) ?? null;
+  const reserves = methods.filter((m) => !m.isDefault);
 
   const pendingRemove =
     pendingRemoveId === null
@@ -56,22 +61,29 @@ export default function MetodosPagamentoPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-8">
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <section className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {methods.map((m) => (
-            <PaymentMethodCard
-              key={m.id}
-              method={m}
-              onSetDefault={() => setAsDefault(m.id)}
-              onRemoveRequest={() => setPendingRemoveId(m.id)}
-              canRemove={!(m.isDefault && methods.length === 1)}
+        <>
+          {defaultMethod && (
+            <DefaultMethodHero
+              method={defaultMethod}
+              onRemoveRequest={() => setPendingRemoveId(defaultMethod.id)}
+              canRemove={methods.length > 1}
             />
-          ))}
-          <AddPaymentMethodTile onClick={() => setAddOpen(true)} />
-        </section>
+          )}
+
+          {reserves.length > 0 && (
+            <ReserveMethodsList
+              methods={reserves}
+              onSetDefault={setAsDefault}
+              onRemoveRequest={setPendingRemoveId}
+            />
+          )}
+
+          <AddCardAction onAdd={() => setAddOpen(true)} />
+        </>
       )}
 
       <AddPaymentMethodModal
@@ -89,102 +101,152 @@ export default function MetodosPagamentoPage() {
   );
 }
 
-function PaymentMethodCard({
+/* ---------- default method hero ---------- */
+
+function DefaultMethodHero({
   method,
-  onSetDefault,
   onRemoveRequest,
   canRemove,
 }: {
   method: PaymentMethod;
-  onSetDefault: () => void;
   onRemoveRequest: () => void;
   canRemove: boolean;
 }) {
-  const isActive = method.isDefault;
-
   return (
-    <AwCard
-      className={
-        "!p-0 " +
-        (isActive
-          ? "!border-transparent !bg-[var(--aw-gray-1200)] text-white shadow-[0_10px_30px_-12px_rgba(0,0,0,0.45)]"
-          : "")
-      }
-    >
-      <div className="flex h-full flex-col gap-3 px-5 py-4">
-        <CardBrandLogo brand={method.brand} size={36} />
-
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p
-              className={
-                "m-0 body-sm font-medium " +
-                (isActive ? "text-white" : "text-[var(--fg-primary)]")
-              }
-            >
+    <section>
+      <div className="mb-4">
+        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+          Cartão padrão
+        </p>
+        <p className="m-0 mt-0.5 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          Faturas futuras vão ser cobradas aqui primeiro. Se falhar, tenta o
+          próximo método disponível.
+        </p>
+      </div>
+      <AwCard className="!p-0">
+        <div className="flex flex-wrap items-center gap-4 px-5 py-5">
+          <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+            <CardBrandLogo brand={method.brand} size={36} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="m-0 body-md font-medium text-[var(--fg-primary)]">
               {method.brand} •••• {method.last4}
             </p>
-            {isActive && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 aw-eyebrow text-white/90 ring-1 ring-inset ring-white/20">
-                Principal
-              </span>
-            )}
+            <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
+              Expira em {method.expiresAt}
+            </p>
           </div>
-          <p
-            className={
-              "m-0 mt-0.5 body-xs " +
-              (isActive ? "text-white/70" : "text-[var(--fg-secondary)]")
-            }
-          >
-            Expira em {method.expiresAt}
-          </p>
-        </div>
-
-        <div className="mt-auto flex flex-wrap items-center gap-1 pt-1">
-          {!isActive && (
-            <AwButton size="sm" variant="ghost" onClick={onSetDefault}>
-              Definir como principal
+          <div className="flex flex-wrap items-center gap-2">
+            <AwButton size="sm" variant="ghost">
+              Trocar
             </AwButton>
-          )}
-          <AwButton
-            size="sm"
-            variant="ghost"
-            disabled={!canRemove}
-            onClick={onRemoveRequest}
-            className={
-              isActive
-                ? "!text-white/85 hover:!bg-white/10"
-                : "!text-[var(--accent-danger)]"
-            }
-          >
-            Excluir
-          </AwButton>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              disabled={!canRemove}
+              onClick={onRemoveRequest}
+              className="!text-[var(--accent-danger)]"
+            >
+              Excluir
+            </AwButton>
+          </div>
         </div>
-      </div>
-    </AwCard>
+      </AwCard>
+    </section>
   );
 }
 
-function AddPaymentMethodTile({ onClick }: { onClick: () => void }) {
+/* ---------- reserves list ---------- */
+
+function ReserveMethodsList({
+  methods,
+  onSetDefault,
+  onRemoveRequest,
+}: {
+  methods: PaymentMethod[];
+  onSetDefault: (id: string) => void;
+  onRemoveRequest: (id: string) => void;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex h-full min-h-[148px] flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] px-5 py-4 text-center text-[var(--fg-secondary)] transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
-      aria-label="Adicionar método de pagamento"
-    >
-      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)] transition-colors group-hover:bg-[var(--fg-primary)] group-hover:text-[var(--bg-raised)]">
-        <Icon name="add" size={20} />
-      </span>
-      <span className="body-xs font-medium">
-        Adicionar método de pagamento
-      </span>
-      <span className="body-xs text-[var(--fg-tertiary)]">
-        Cartão, Pix automático ou boleto
-      </span>
-    </button>
+    <section>
+      <div className="mb-4">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+          Métodos reservas
+        </h6>
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          Acionados em ordem quando o cartão padrão falha.
+        </p>
+      </div>
+      <AwCard className="!p-0">
+        <ul className="m-0 divide-y divide-[var(--border-subtle)] p-0">
+          {methods.map((m) => (
+            <li key={m.id} className="m-0 p-0">
+              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 py-3">
+                <span className="flex h-9 w-12 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+                  <CardBrandLogo brand={m.brand} size={26} />
+                </span>
+                <div className="min-w-0">
+                  <p className="m-0 body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+                    {m.brand} •••• {m.last4}
+                  </p>
+                  <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                    Expira em {m.expiresAt}
+                  </p>
+                </div>
+                <AwDropdownMenu
+                  align="end"
+                  trigger={
+                    <AwButton
+                      size="sm"
+                      variant="ghost"
+                      iconOnly="more_horiz"
+                      aria-label={`Opções de ${m.brand} •••• ${m.last4}`}
+                    />
+                  }
+                  items={[
+                    {
+                      id: `${m.id}-default`,
+                      label: "Definir como padrão",
+                      onSelect: () => onSetDefault(m.id),
+                    },
+                    {
+                      id: `${m.id}-remove`,
+                      label: "Excluir",
+                      danger: true,
+                      onSelect: () => onRemoveRequest(m.id),
+                    },
+                  ]}
+                />
+              </div>
+            </li>
+          ))}
+        </ul>
+      </AwCard>
+    </section>
   );
 }
+
+/* ---------- add action ---------- */
+
+function AddCardAction({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div>
+      <AwButton
+        size="md"
+        variant="secondary"
+        iconLeft="add"
+        onClick={onAdd}
+      >
+        Adicionar método de pagamento
+      </AwButton>
+      <p className="m-0 mt-1.5 body-xs text-[var(--fg-tertiary)]">
+        Cartão, Pix automático ou boleto.
+      </p>
+    </div>
+  );
+}
+
+/* ---------- remove modal ---------- */
 
 function RemovePaymentMethodModal({
   method,
@@ -232,19 +294,21 @@ function RemovePaymentMethodModal({
   );
 }
 
+/* ---------- empty state ---------- */
+
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <AwCard className="!p-0">
       <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
+        <Icon
+          name="credit_card_off"
+          size={28}
+          className="text-[var(--fg-tertiary)]"
+        />
         <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Você ainda não tem nenhum método de pagamento cadastrado.
         </p>
-        <AwButton
-          size="sm"
-          variant="primary"
-          iconLeft="add"
-          onClick={onAdd}
-        >
+        <AwButton size="sm" variant="primary" iconLeft="add" onClick={onAdd}>
           Adicionar método de pagamento
         </AwButton>
       </div>

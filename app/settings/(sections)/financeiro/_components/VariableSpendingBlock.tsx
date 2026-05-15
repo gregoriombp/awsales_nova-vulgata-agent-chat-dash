@@ -56,8 +56,8 @@ export function VariableSpendingBlock() {
       <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
         <SegmentedToggle
           options={[
-            { value: "service", label: "Por serviço" },
-            { value: "campaign", label: "Por campanha" },
+            { value: "service", label: "Serviço" },
+            { value: "campaign", label: "Campanha" },
           ]}
           value={grouping}
           onChange={setGrouping}
