@@ -46,20 +46,10 @@ export default function Inicio() {
             style={{ width: 56, height: 56, fontSize: 18 }}
           />
           <div>
-            <h2
-              className="m-0 font-display font-medium text-fg-primary text-balance"
-              style={{
-                fontSize: "var(--h4-size)",
-                lineHeight: 1.15,
-                letterSpacing: "-0.015em",
-              }}
-            >
+            <h4 className="m-0 text-fg-primary text-balance">
               Tudo certo, {ONBOARDING_USER.firstName}. Você está dentro.
-            </h2>
-            <p
-              className="mx-auto mt-2 max-w-[380px] text-fg-secondary text-pretty"
-              style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-            >
+            </h4>
+            <p className="mx-auto mt-2 max-w-[380px] body-sm text-fg-secondary text-pretty">
               Sua conta foi ativada e a{" "}
               <span className="font-medium text-fg-primary">
                 {ONBOARDING_ORG.name}
@@ -89,8 +79,7 @@ export default function Inicio() {
           <button
             type="button"
             onClick={inviteMembers}
-            className="mt-1 inline-flex items-center gap-1.5 text-fg-secondary hover:text-fg-primary transition-colors"
-            style={{ fontSize: "var(--body-sm-size)" }}
+            className="mt-1 inline-flex items-center gap-1.5 body-sm text-fg-secondary hover:text-fg-primary transition-colors"
           >
             <Icon name="person_add" size={16} />
             <span>Convidar membros agora</span>
