@@ -34,7 +34,7 @@ export default function ConfirmationModal({
   return (
     <BaseModal isOpen={isOpen} onClose={onClose} size="sm">
       <div className="p-6">
-        <h2 className="text-2xl font-heading font-bold text-text-primary mb-4">
+        <h2 className=" font-heading font-bold text-text-primary mb-4">
           {title}
         </h2>
         <p className="text-text-secondary mb-6">{message}</p>
