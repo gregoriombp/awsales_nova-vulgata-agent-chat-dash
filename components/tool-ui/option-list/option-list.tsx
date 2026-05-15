@@ -115,8 +115,8 @@ function OptionItem({
       tabIndex={tabIndex}
       disabled={isDisabled}
       className={cn(
-        "peer group relative h-auto min-h-[50px] w-full justify-start text-left text-sm font-medium",
-        "rounded-none border-0 bg-transparent px-0 py-2 text-base shadow-none transition-none hover:bg-transparent! @md/option-list:text-sm",
+        "peer group relative h-auto min-h-[50px] w-full justify-start text-left body-sm font-medium",
+        "rounded-none border-0 bg-transparent px-0 py-2 body-md shadow-none transition-none hover:bg-transparent! @md/option-list:body-sm",
         isFirst && "pb-2.5",
         hasAdjacentOptions && "py-2.5",
       )}
@@ -140,7 +140,7 @@ function OptionItem({
         <div className="flex flex-col text-left">
           <span className="leading-6 text-pretty">{option.label}</span>
           {option.description && (
-            <span className="text-[var(--fg-secondary)] text-sm font-normal text-pretty">
+            <span className="text-[var(--fg-secondary)] body-sm font-normal text-pretty">
               {option.description}
             </span>
           )}
@@ -197,11 +197,11 @@ function OptionListConfirmation({
                 <span className="flex h-6 items-center">{option.icon}</span>
               )}
               <div className="flex flex-col text-left">
-                <span className="text-base leading-6 font-medium text-pretty @md/option-list:text-sm">
+                <span className="body-md leading-6 font-medium text-pretty @md/option-list:body-sm">
                   {option.label}
                 </span>
                 {option.description && (
-                  <span className="text-muted-foreground text-sm font-normal text-pretty">
+                  <span className="text-muted-foreground body-sm font-normal text-pretty">
                     {option.description}
                   </span>
                 )}
