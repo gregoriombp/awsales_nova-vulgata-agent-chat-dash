@@ -79,64 +79,38 @@ export default function CheckoutPixPage() {
       <section>
         <div className="mb-5 flex items-center gap-3">
           <AwBrandLogo brand="pix" size="md" />
-          <span
-            className="uppercase text-fg-tertiary"
-            style={{ fontSize: 11, letterSpacing: "0.06em" }}
-          >
+          <span className="aw-eyebrow text-fg-tertiary">
             Pagamento via Pix
           </span>
         </div>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Escaneie o QR ou copie o código.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-5 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-5 body-sm text-fg-secondary text-pretty">
           Após pagar, sua conta é liberada automaticamente. Você pode fechar
           esta tela; o link do e-mail continua válido.
         </p>
 
         <div className="mb-3 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
           <div>
-            <div
-              className="uppercase text-fg-tertiary"
-              style={{ fontSize: 10, letterSpacing: "0.08em" }}
-            >
+            <div className="aw-eyebrow text-fg-tertiary">
               Valor desta cobrança
             </div>
-            <div
-              className="text-fg-tertiary"
-              style={{ fontSize: 11, marginTop: 2 }}
-            >
+            <div className="mt-0.5 body-xs text-fg-tertiary">
               Implementação · pagamento à vista
             </div>
           </div>
           <div
-            className="font-display font-medium text-fg-primary"
-            style={{
-              fontSize: 22,
-              letterSpacing: "-0.01em",
-              fontVariantNumeric: "tabular-nums",
-            }}
+            className="body-xl font-medium text-fg-primary"
+            style={{ fontVariantNumeric: "tabular-nums" }}
           >
             {ONBOARDING_ORG.valorImplementacao}
           </div>
         </div>
 
         <details className="mb-5 group overflow-hidden rounded-lg border border-border-subtle bg-bg-raised">
-          <summary
-            className="flex cursor-pointer items-center gap-2 px-4 py-3 hover:bg-bg-surface"
-            style={{ fontSize: 12 }}
-          >
+          <summary className="flex cursor-pointer items-center gap-2 px-4 py-3 body-xs hover:bg-bg-surface">
             <Icon
               name="event_repeat"
               size={16}
@@ -162,22 +136,18 @@ export default function CheckoutPixPage() {
                 <div
                   key={parcela.mes}
                   className={[
-                    "grid grid-cols-[1fr_auto_auto] items-center gap-3 px-4 py-2.5",
+                    "grid grid-cols-[1fr_auto_auto] items-center gap-3 px-4 py-2.5 body-xs",
                     i < ONBOARDING_ORG.proximosVencimentos.length - 1
                       ? "border-b border-border-subtle"
                       : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  style={{ fontSize: 12 }}
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-fg-secondary">{parcela.mes}</span>
                     {isProrata && (
-                      <span
-                        className="rounded-xs bg-bg-muted px-1.5 py-0.5 text-fg-tertiary"
-                        style={{ fontSize: 10, letterSpacing: "0.02em" }}
-                      >
+                      <span className="rounded-xs bg-bg-muted px-1.5 py-0.5 body-xs text-fg-tertiary">
                         prorrata
                       </span>
                     )}
@@ -197,10 +167,7 @@ export default function CheckoutPixPage() {
                 </div>
               )
             })}
-            <div
-              className="border-t border-border-subtle bg-bg-surface px-4 py-2.5 text-fg-tertiary text-pretty"
-              style={{ fontSize: 11, lineHeight: 1.5 }}
-            >
+            <div className="border-t border-border-subtle bg-bg-surface px-4 py-2.5 body-xs text-fg-tertiary text-pretty">
               A primeira mensalidade é cobrada na prorrata
               (proporcional aos {ONBOARDING_ORG.diasRestantesMesAtual} dias
               restantes do mês corrente). As próximas vencem todo dia{" "}
@@ -213,9 +180,8 @@ export default function CheckoutPixPage() {
           <FakeQR />
           <div className="flex w-full items-center gap-2 rounded-md border border-border bg-bg-canvas py-1.5 pl-3 pr-1.5">
             <code
-              className="flex-1 self-center overflow-hidden text-fg-secondary"
+              className="flex-1 self-center overflow-hidden body-xs text-fg-secondary"
               style={{
-                fontSize: 11,
                 whiteSpace: "nowrap",
                 textOverflow: "ellipsis",
               }}
@@ -224,16 +190,12 @@ export default function CheckoutPixPage() {
             </code>
             <button
               type="button"
-              className="h-8 rounded-sm border border-border bg-bg-raised px-3 font-medium text-fg-primary hover:bg-bg-muted"
-              style={{ fontSize: 12 }}
+              className="h-8 rounded-sm border border-border bg-bg-raised px-3 body-xs font-medium text-fg-primary hover:bg-bg-muted"
             >
               Copiar
             </button>
           </div>
-          <div
-            className="flex items-center gap-2 text-fg-tertiary"
-            style={{ fontSize: 12 }}
-          >
+          <div className="flex items-center gap-2 body-xs text-fg-tertiary">
             <Icon name="schedule" size={14} />
             Expira em 30:00
           </div>
@@ -246,16 +208,10 @@ export default function CheckoutPixPage() {
                 <Icon name="check_circle" size={20} fill={1} />
               </span>
               <div>
-                <div
-                  className="font-medium text-fg-primary"
-                  style={{ fontSize: 13 }}
-                >
+                <div className="body-xs font-medium text-fg-primary">
                   Pagamento recebido
                 </div>
-                <div
-                  className="text-fg-tertiary"
-                  style={{ fontSize: 12 }}
-                >
+                <div className="body-xs text-fg-tertiary">
                   Liberando sua conta…
                 </div>
               </div>
@@ -267,16 +223,10 @@ export default function CheckoutPixPage() {
                 className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
               />
               <div>
-                <div
-                  className="font-medium text-fg-primary"
-                  style={{ fontSize: 13 }}
-                >
+                <div className="body-xs font-medium text-fg-primary">
                   Aguardando pagamento via Pix…
                 </div>
-                <div
-                  className="text-fg-tertiary"
-                  style={{ fontSize: 12 }}
-                >
+                <div className="body-xs text-fg-tertiary">
                   Detecção automática. Não é preciso confirmar manualmente.
                 </div>
               </div>
@@ -293,10 +243,7 @@ export default function CheckoutPixPage() {
             <span className="aw-btn__label">Voltar</span>
           </Link>
           <span className="flex-1" />
-          <span
-            className="text-fg-tertiary"
-            style={{ fontSize: 10, letterSpacing: "0.04em" }}
-          >
+          <span className="body-xs text-fg-tertiary">
             (simulação automática)
           </span>
         </footer>
