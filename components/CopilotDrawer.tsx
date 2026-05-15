@@ -282,10 +282,10 @@ export default function CopilotDrawer({
           <div className="flex items-center gap-2">
             <CopilotOrb size={46} />
             <div className="flex flex-col">
-              <div className="text-[20px] leading-[30px] font-semibold tracking-[-0.4492px] text-[#252b33]">
+              <div className="body-xl font-semibold text-[#252b33]">
                 Cortex
               </div>
-              <div className="flex items-center gap-2 text-[12px] leading-4 text-[#00a63e]">
+              <div className="flex items-center gap-2 body-xs leading-4 text-[#00a63e]">
                 <span className="h-[6px] w-[6px] rounded-full bg-[#00c950] opacity-50" />
                 <span>Online</span>
               </div>
@@ -309,7 +309,7 @@ export default function CopilotDrawer({
               <div className="mb-10">
                 <CopilotOrb size={119} />
               </div>
-              <div className="text-[20px] leading-[30px] font-semibold tracking-[-0.4492px] text-[#252b33]">
+              <div className="body-xl font-semibold text-[#252b33]">
                 Olá! Como posso te ajudar?
               </div>
             </div>
@@ -321,7 +321,7 @@ export default function CopilotDrawer({
                   className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[14px] leading-[20px] ${
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 body-sm ${
                       m.role === "user"
                         ? "bg-[#1e2939] text-white rounded-br-md"
                         : "bg-[#f4f4f4] text-[#252b33] rounded-bl-md"
@@ -340,19 +340,19 @@ export default function CopilotDrawer({
                             code: ({ children, className }) => {
                               const isInline = !className;
                               return isInline ? (
-                                <code className="bg-[#e5e5e5] px-1.5 py-0.5 rounded text-[13px] font-mono">
+                                <code className="bg-[#e5e5e5] px-1.5 py-0.5 rounded body-xs mono">
                                   {children}
                                 </code>
                               ) : (
-                                <code className="block bg-[#e5e5e5] p-2 rounded text-[13px] font-mono overflow-x-auto my-2">
+                                <code className="block bg-[#e5e5e5] p-2 rounded body-xs mono overflow-x-auto my-2">
                                   {children}
                                 </code>
                               );
                             },
                             pre: ({ children }) => <pre className="my-2">{children}</pre>,
-                            h1: ({ children }) => <h1 className="text-[16px] font-semibold mb-2 mt-3 first:mt-0">{children}</h1>,
-                            h2: ({ children }) => <h2 className="text-[15px] font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
-                            h3: ({ children }) => <h3 className="text-[14px] font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
+                            h1: ({ children }) => <h1 className="body-md font-semibold mb-2 mt-3 first:mt-0">{children}</h1>,
+                            h2: ({ children }) => <h2 className="body-sm font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
+                            h3: ({ children }) => <h3 className="body-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
                             blockquote: ({ children }) => (
                               <blockquote className="border-l-2 border-[#99a1af] pl-3 my-2 italic text-[#64748b]">
                                 {children}
@@ -400,7 +400,7 @@ export default function CopilotDrawer({
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              className="w-full bg-transparent text-[14px] tracking-[-0.1504px] text-[#111827] placeholder:text-[#99a1af] focus:outline-none"
+              className="w-full bg-transparent body-sm text-[#111827] placeholder:text-[#99a1af] focus:outline-none"
               placeholder="Pergunte qualquer coisa..."
             />
 
@@ -431,7 +431,7 @@ export default function CopilotDrawer({
             </div>
           </div>
 
-          <div className="text-[10px] leading-[15px] tracking-[0.1172px] text-[#99a1af] text-center">
+          <div className="body-xs text-[#99a1af] text-center">
             Cortex pode cometer erros. Verifique informações importantes.
           </div>
         </div>
