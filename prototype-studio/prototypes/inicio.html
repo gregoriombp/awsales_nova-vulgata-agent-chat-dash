@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Studio · Início — protótipo</title>
+<link rel="stylesheet" href="../assets/shell.css">
+<style>
+.hello {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  padding: 26px 30px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 22px;
+}
+.hello h1 { margin: 0 0 6px; font-size: 38px; }
+.hello .sub { color: var(--muted); font-size: 14px; }
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi {
+  background: var(--paper);
+  border: 1.5px dashed var(--muted2);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.kpi .lbl { color: var(--muted); font-size: 12px; margin-bottom: 4px; }
+.kpi .val { font-size: 24px; font-weight: 600; }
+.kpi .delta { color: var(--green); font-size: 11px; margin-top: 2px; }
+.kpi .delta.down { color: var(--red); }
+
+.section-h { margin: 22px 0 10px; font-size: 22px; }
+
+.shortcuts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+.shortcut {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex; flex-direction: column; gap: 6px;
+  transition: transform 0.1s;
+}
+.shortcut:hover { transform: translate(-1px, -1px); box-shadow: var(--shadow-md); }
+.shortcut .ico {
+  width: 36px; height: 36px;
+  background: var(--paper2);
+  border: 1.5px dashed var(--muted2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.shortcut .name { font-weight: 600; font-size: 15px; }
+.shortcut .desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+.activity {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-top: 14px;
+}
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 18px;
+  border-top: 1px dashed var(--muted2);
+}
+.activity-item:first-child { border-top: none; }
+.activity-item .ts { color: var(--muted); font-size: 11px; min-width: 60px; }
+.activity-item .body { flex: 1; }
+.activity-item .body strong { color: var(--ink); }
+.activity-item .body .meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<div id="proto-shell"
+     data-active="inicio"
+     data-org="Fyntra Tecnologia"
+     data-org-logo="F"
+     data-user="Guilherme Graham"
+     data-user-initials="PG"
+     data-user-role="Administrador"
+     data-breadcrumb="<strong>Início</strong>"></div>
+
+<main class="page-content">
+
+  <div class="hello">
+    <h1>Bom dia, Guilherme! 👋</h1>
+    <div class="sub">Aqui está um resumo do que aconteceu na <strong>Fyntra Tecnologia</strong> hoje.</div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="lbl">Conversas ativas</div>
+      <div class="val">14</div>
+      <div class="delta">+3 vs ontem</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Leads novos</div>
+      <div class="val">47</div>
+      <div class="delta">+12 vs ontem</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Aguardando aprovação</div>
+      <div class="val">3</div>
+      <div class="delta down">2 há mais de 24h</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Taxa de resposta · 24h</div>
+      <div class="val">94%</div>
+      <div class="delta">+2pp vs ontem</div>
+    </div>
+  </div>
+
+  <h2 class="section-h">⚡ Atalhos</h2>
+  <div class="shortcuts">
+    <a class="shortcut" href="integracoes.html">
+      <div class="ico">🔌</div>
+      <div class="name">Conectar integração</div>
+      <div class="desc">Hotmart, HubSpot, Stripe, Calendly e mais 19 provedores.</div>
+    </a>
+    <a class="shortcut" href="canais.html">
+      <div class="ico">🗣</div>
+      <div class="name">Adicionar canal</div>
+      <div class="desc">WhatsApp · Instagram · Messenger via Meta Cloud.</div>
+    </a>
+    <a class="shortcut" href="habilidades.html">
+      <div class="ico">🔧</div>
+      <div class="name">Criar habilidade</div>
+      <div class="desc">Tools que agentes executam — find_lead, schedule_meeting…</div>
+    </a>
+    <a class="shortcut" href="team-funcoes-config.html">
+      <div class="ico">👥</div>
+      <div class="name">Convidar time</div>
+      <div class="desc">Adicione membros e atribua funções com escopo claro.</div>
+    </a>
+    <a class="shortcut" href="financeiro.html">
+      <div class="ico">💰</div>
+      <div class="name">Ver financeiro</div>
+      <div class="desc">Faturas, créditos, cobrança parcial e audit trail.</div>
+    </a>
+    <a class="shortcut" href="#">
+      <div class="ico">🤖</div>
+      <div class="name">Abrir Agent Studio</div>
+      <div class="desc">Editar agentes, prompts e bindings de KB/Tools.</div>
+    </a>
+  </div>
+
+  <h2 class="section-h">📜 Atividade recente</h2>
+  <div class="activity">
+    <div class="activity-item">
+      <div class="ts">há 8 min</div>
+      <div class="body"><strong>Bruno C.</strong> aprovou campanha <strong>"Black Friday Lead Magnet"</strong>.<div class="meta">Disparo agendado pra 28/05 · 50 leads na audiência</div></div>
+    </div>
+    <div class="activity-item">
+      <div class="ts">há 23 min</div>
+      <div class="body"><strong>Agente SDR Outbound</strong> escalou conversa pra atendimento humano.<div class="meta">Lead: João Silva (joao@email.com) · motivo: "preciso de aprovação financeira"</div></div>
+    </div>
+    <div class="activity-item">
+      <div class="ts">há 1h</div>
+      <div class="body">Webhook do <strong>HubSpot</strong> falhou (3ª tentativa).<div class="meta">Evento: contact.created · próxima tentativa em 45min</div></div>
+    </div>
+    <div class="activity-item">
+      <div class="ts">há 2h</div>
+      <div class="body"><strong>Lucas Almeida</strong> (Playbooker AwSales) configurou novo agente "Suporte Pós-venda".<div class="meta">Implantação Saraiva · entrega prevista 30/04</div></div>
+    </div>
+    <div class="activity-item">
+      <div class="ts">ontem · 18:42</div>
+      <div class="body">Fatura <strong>#INV-2026-04-1234</strong> paga (R$ 1.253,04).<div class="meta">Cartão Visa •••• 3012 · cupom BF2025 aplicado</div></div>
+    </div>
+  </div>
+
+</main>
+
+<script src="../assets/shell.js?v=2026-05-12-menu-order"></script>
+
+</body>
+</html>
