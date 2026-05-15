@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>AwSales — Studio Prototypes (área de trabalho do PG)</title>
+<style>
+:root {
+  --bg: #f5f1e8; --paper: #fdfaf3; --paper2: #f9f4ea;
+  --ink: #1a1a1a; --muted: #6b6b6b; --muted2: #8b8580;
+  --orange: #c46818; --green: #2f7a35; --blue: #3257b8; --purple: #6b3da8;
+  --shadow-sm: 1px 1px 0 rgba(0,0,0,0.08);
+  --shadow-md: 2px 2px 0 rgba(0,0,0,0.12);
+  --shadow-lg: 3px 3px 0 rgba(0,0,0,0.18);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg); color: var(--ink);
+  font-family: 'Patrick Hand', system-ui, sans-serif;
+  font-size: 17px; min-height: 100vh;
+}
+h1, h2, h3 { font-family: 'Caveat', cursive; font-weight: 600; }
+h1 { font-size: 56px; line-height: 1; }
+h2 { font-size: 28px; line-height: 1.1; }
+h3 { font-size: 22px; }
+.muted { color: var(--muted); }
+a { color: var(--blue); }
+
+.page { max-width: 1100px; margin: 0 auto; padding: 50px 32px 80px; }
+
+.header { text-align: center; margin-bottom: 40px; }
+.header .logo { font-family: 'Caveat', cursive; font-size: 28px; font-weight: 700; }
+.header .logo::before { content: "✦ "; color: var(--orange); }
+.header .subtitle {
+  color: var(--muted); margin-top: 8px;
+  font-family: 'Architects Daughter', cursive; font-style: italic; font-size: 16px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px; margin-top: 30px;
+}
+.card {
+  background: var(--paper); border: 1.5px solid var(--ink); border-radius: 14px;
+  padding: 24px; box-shadow: var(--shadow-lg);
+  text-decoration: none; color: var(--ink);
+  display: flex; flex-direction: column; gap: 10px;
+  transition: transform 0.1s;
+}
+.card:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 rgba(0,0,0,0.2); }
+.card .icon {
+  width: 50px; height: 50px; background: var(--orange); color: var(--paper);
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; font-weight: 700; border: 1.5px solid var(--ink);
+}
+.card.c2 .icon { background: var(--blue); }
+.card.c3 .icon { background: var(--green); }
+.card.c4 .icon { background: var(--purple); }
+.card.c5 .icon { background: #d04f1f; }
+.card.c6 .icon { background: #19be9b; }
+.card.c7 .icon { background: var(--ink); color: var(--paper); }
+.card .summary { font-size: 14px; line-height: 1.5; color: var(--muted); }
+.card .tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.card .tag {
+  background: var(--paper2); border: 1px solid var(--muted2); border-radius: 12px;
+  padding: 2px 9px; font-size: 11px; color: var(--muted);
+}
+.card .footer {
+  margin-top: auto; padding-top: 10px;
+  border-top: 1px dashed var(--muted2);
+  font-size: 12px; color: var(--muted);
+  display: flex; justify-content: space-between;
+}
+.card .open { font-weight: 600; color: var(--orange); }
+
+.docs-section {
+  margin-top: 50px; padding: 22px 26px;
+  background: var(--paper); border: 1.5px solid var(--ink); border-radius: 12px;
+  box-shadow: var(--shadow-md);
+}
+.docs-section h3 { margin-bottom: 10px; }
+.docs-section ul { margin-left: 20px; font-size: 14px; line-height: 1.8; }
+.docs-section code {
+  background: var(--paper2); padding: 2px 6px; border-radius: 4px; font-size: 13px;
+}
+.docs-section .col2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.docs-section .col2 ul { margin: 0; padding-left: 18px; }
+
+.note {
+  font-family: 'Architects Daughter', cursive;
+  color: var(--muted); font-size: 13px; font-style: italic;
+  text-align: center; margin-top: 30px;
+}
+
+@media (max-width: 720px) {
+  .cards { grid-template-columns: 1fr; }
+  .docs-section .col2 { grid-template-columns: 1fr; }
+  h1 { font-size: 42px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <div class="logo">AwSales</div>
+    <h1>Studio · Área de trabalho</h1>
+    <p class="subtitle">Protótipos interativos do Studio · stories vivas · stress tests</p>
+  </div>
+
+  <div class="cards">
+
+    <a class="card c5" href="prototypes/canais.html">
+      <div class="icon">1</div>
+      <h2>Canais</h2>
+      <p class="summary">
+        WhatsApp · E-mail · SMS · Voz (Q3) · Instagram DMs · Telegram.
+        Janela 24h · templates aprovados · taxa de entrega · regras outbound por canal.
+      </p>
+      <div class="tags">
+        <span class="tag">6 canais</span>
+        <span class="tag">Templates Meta</span>
+        <span class="tag">Janela 24h</span>
+        <span class="tag">Stub v1</span>
+      </div>
+      <div class="footer">
+        <span>Fontes · stub inicial</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+    <a class="card c4" href="prototypes/integracoes.html">
+      <div class="icon">2</div>
+      <h2>Integrações</h2>
+      <p class="summary">
+        Hub de integrações — Hotmart · Kiwify · HubSpot · Pipedrive · RD · Magalu · Shopify · Calendly · etc.
+        OAuth client credentials · authorization code · API key · webhook.
+      </p>
+      <div class="tags">
+        <span class="tag">22 provedores</span>
+        <span class="tag">OAuth</span>
+        <span class="tag">Webhooks</span>
+        <span class="tag">Shell v2 ✓</span>
+      </div>
+      <div class="footer">
+        <span>Fontes · em refinamento</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+    <a class="card c6" href="prototypes/habilidades.html">
+      <div class="icon">3</div>
+      <h2>Habilidades</h2>
+      <p class="summary">
+        Tools function-calling — find_lead · create_task · schedule_meeting · crm_update · send_email · charge_card.
+        Schema tipado · execução server-side · 4-eyes aprovação acima de threshold.
+      </p>
+      <div class="tags">
+        <span class="tag">12 tools</span>
+        <span class="tag">JSON schema</span>
+        <span class="tag">4-eyes</span>
+        <span class="tag">Stub v1</span>
+      </div>
+      <div class="footer">
+        <span>Fontes · stub inicial</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+    <a class="card c1" href="prototypes/primeiro-login.html">
+      <div class="icon">4</div>
+      <h2>Primeiro Acesso</h2>
+      <p class="summary">
+        Responsável da org (Persona A) que recebe convite após venda, paga implementação, configura conta e convida o time.
+        Membros convidados (Persona B). CFO multi-org com detecção de conta existente.
+      </p>
+      <div class="tags">
+        <span class="tag">24 telas</span>
+        <span class="tag">Stripe</span>
+        <span class="tag">WorkOS / 2FA</span>
+        <span class="tag">Multi-org</span>
+      </div>
+      <div class="footer">
+        <span>Story · 18 SP · P0</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+    <a class="card c2" href="prototypes/team-funcoes-config.html">
+      <div class="icon">5</div>
+      <h2>Configurações da Org</h2>
+      <p class="summary">
+        Configurações Gerais · Team (convite + audit) · Funções (PII filtering + 9 funções padrão tenant + 5 internas AwSales) ·
+        Segurança (2FA + LGPD export + audit cross-org).
+      </p>
+      <div class="tags">
+        <span class="tag">15 telas</span>
+        <span class="tag">Audit trail</span>
+        <span class="tag">9+5 funções padrão</span>
+        <span class="tag">LGPD</span>
+      </div>
+      <div class="footer">
+        <span>Story · 21 SP · P0</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+    <a class="card c3" href="prototypes/financeiro.html">
+      <div class="icon">6</div>
+      <h2>Financeiro</h2>
+      <p class="summary">
+        Visão Geral (gráfico de gastos variáveis · tabela de campanhas · histórico de faturas) ·
+        Saldo de Créditos · Audit Trail Financeiro · Métodos de pagamento (Stripe Elements + PCI-DSS).
+      </p>
+      <div class="tags">
+        <span class="tag">11 telas</span>
+        <span class="tag">Stripe lifecycle</span>
+        <span class="tag">13 status invoice</span>
+        <span class="tag">PCI-DSS</span>
+      </div>
+      <div class="footer">
+        <span>Story · 13 SP · P1</span>
+        <span class="open">Abrir →</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="docs-section">
+    <h3>📂 Stories vivas (referência canônica)</h3>
+    <div class="col2">
+      <ul>
+        <li>📖 <a href="stories/primeiro-login.md">Primeiro Acesso</a></li>
+        <li>📖 <a href="stories/team-funcoes-config.md">Configurações da Org</a></li>
+      </ul>
+      <ul>
+        <li>📖 <a href="stories/financeiro.md">Financeiro</a></li>
+        <li>📖 <a href="stories/integracoes.md">Integration Hub</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="docs-section">
+    <h3>🧪 Stress tests aplicados</h3>
+    <div class="col2">
+      <ul>
+        <li>🧪 <a href="stress-tests/primeiro-login/report.md">Primeiro Acesso — report</a></li>
+        <li>🧪 <a href="stress-tests/financeiro/report.md">Financeiro — report</a></li>
+      </ul>
+      <ul>
+        <li>🧪 <a href="stress-tests/funcoes/report.md">Funções — report</a> + <a href="stress-tests/funcoes/scenarios-and-fixes/fix-backlog.md">fix backlog</a></li>
+        <li>🧪 <a href="stress-tests/integracoes/report-1.md">Integrações — rep.1</a> · <a href="stress-tests/integracoes/report-2.md">rep.2</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="docs-section">
+    <h3>🎯 Como usar essa área</h3>
+    <ul>
+      <li><strong>Top navbar preta de cada protótipo:</strong> menu de demo pra pular entre telas, modais, estados (não faz parte do produto).</li>
+      <li><strong>Interatividade real:</strong> botões avançam fluxo, modais abrem/fecham, PIX simula confirmação, cartão recusado é probabilístico.</li>
+      <li><strong>Estilo sketch handwritten:</strong> Caveat (títulos) + Patrick Hand (corpo) + paleta paper/ink. Intencionalmente "rascunho" pra convidar mudança.</li>
+      <li><strong>Sally (UX BMAD)</strong> pode ser convocada via <code>/bmad-ux-designer</code> pra review de UX antes de fechar uma iteração — ver <a href="../docs/product/ux-prototype-workflow.md">ux-prototype-workflow.md</a>.</li>
+      <li><strong>Histórico</strong> em <code>archive/</code> — wireframes ASCII antigos, transcrições, decisões originais. Não-canônico (só consulta).</li>
+    </ul>
+  </div>
+
+  <p class="note">prototype-studio · workspace permanente do PG · padrão prototype-first</p>
+
+</div>
+
+</body>
+</html>

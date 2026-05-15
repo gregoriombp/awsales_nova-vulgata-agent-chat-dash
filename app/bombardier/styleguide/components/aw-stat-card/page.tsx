@@ -87,7 +87,7 @@ export default function AwStatCardPlaygroundPage() {
             lead="Quando o contexto da página já explica o número, omita o hint pra deixar o tile mais respirado."
           >
             <Stage
-              label="só value + label"
+              label="Só value + label"
               gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"
             >
               <AwStatCard icon="forum" label="Conversas hoje" value={284} />

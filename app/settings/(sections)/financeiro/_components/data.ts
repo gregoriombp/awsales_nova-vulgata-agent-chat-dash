@@ -28,13 +28,15 @@ export const OVERVIEW_KPIS = {
 
 // Gastos variáveis — agrupados por dia (1..31) e por categoria.
 // 4 categorias por agrupamento; cada valor é em BRL.
-export type SpendingGrouping = "service" | "campaign";
+export type SpendingGrouping = "service" | "agent";
 
 export type SpendingCategory = {
   id: string;
   label: string;
   /** Token CSS var aplicado em background/fill — sem cor hardcoded. */
   colorVar: string;
+  /** Avatar do agente (apenas para agrupamento por agente). */
+  avatar?: string;
 };
 
 export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> = {
@@ -44,17 +46,64 @@ export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> =
     { id: "mensagens", label: "Mensagens transacionadas", colorVar: "var(--aw-amber-500)" },
     { id: "tokens", label: "Tokens · Knowledge", colorVar: "var(--aw-purple-500)" },
   ],
-  campaign: [
-    { id: "bf", label: "Black Friday Lead Magnet", colorVar: "var(--aw-blue-500)" },
-    { id: "crm", label: "Recuperação CRM Trial", colorVar: "var(--aw-emerald-500)" },
-    { id: "sdr", label: "SDR Outbound Pro", colorVar: "var(--aw-amber-500)" },
-    { id: "onb", label: "Onboarding Pós-Venda", colorVar: "var(--aw-purple-500)" },
+  agent: [
+    {
+      id: "aria",
+      label: "Aria",
+      colorVar: "var(--aw-blue-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png",
+    },
+    {
+      id: "atlas",
+      label: "Atlas",
+      colorVar: "var(--aw-emerald-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png",
+    },
+    {
+      id: "nova",
+      label: "Nova",
+      colorVar: "var(--aw-amber-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png",
+    },
+    {
+      id: "stella",
+      label: "Stella",
+      colorVar: "var(--aw-purple-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
+    },
   ],
 };
 
-// 31 dias × 4 valores por agrupamento. Os totais somam ~R$ 891,63 (acumulado).
-function genDaily(seed: number, n = 31): number[][] {
-  // pseudoaleatório determinístico só pra fixture parecer real
+// Período de exibição dos gastos variáveis. Cada um tem uma duração própria
+// (em barras visuais) e um total alvo. O gerador determinístico produz daily
+// values que são re-escalados pra somar exatamente o total alvo — assim o
+// gráfico e a tabela de breakdown sempre batem.
+export type SpendingPeriod = "today" | "this-month" | "last-30" | "last-90";
+
+export const SPENDING_PERIODS: { id: SpendingPeriod; label: string }[] = [
+  { id: "today", label: "Hoje" },
+  { id: "this-month", label: "Este mês" },
+  { id: "last-30", label: "Últimos 30 dias" },
+  { id: "last-90", label: "Últimos 90 dias" },
+];
+
+const PERIOD_BARS: Record<SpendingPeriod, number> = {
+  today: 1,
+  "this-month": 15, // até hoje (15/05)
+  "last-30": 30,
+  "last-90": 30, // 30 buckets representando ~3 dias cada
+};
+
+// Total alvo de cada período. `this-month` casa com o baseline da tabela.
+const PERIOD_TOTAL: Record<SpendingPeriod, number> = {
+  today: 62.4, // ~uma fatia diária do baseline mensal
+  "this-month": 891.63,
+  "last-30": 1850,
+  "last-90": 5400,
+};
+
+// Pseudoaleatório determinístico — fixture parecer real sem ser ruído.
+function genDaily(seed: number, n: number): number[][] {
   const out: number[][] = [];
   let s = seed;
   for (let i = 0; i < n; i++) {
@@ -69,42 +118,137 @@ function genDaily(seed: number, n = 31): number[][] {
   return out;
 }
 
-export const DAILY_SPENDING: Record<SpendingGrouping, number[][]> = {
-  service: genDaily(7),
-  campaign: genDaily(13),
-};
+export function getDailySpending(
+  grouping: SpendingGrouping,
+  period: SpendingPeriod,
+): number[][] {
+  const seed = grouping === "service" ? 7 : 13;
+  const raw = genDaily(seed, PERIOD_BARS[period]);
+  const rawTotal = raw.reduce(
+    (s, day) => s + day.reduce((s2, v) => s2 + v, 0),
+    0,
+  );
+  if (rawTotal === 0) return raw;
+  const factor = PERIOD_TOTAL[period] / rawTotal;
+  return raw.map((day) =>
+    day.map((v) => Math.round(v * factor * 100) / 100),
+  );
+}
+
+export function scaleBreakdown<
+  T extends { total: number; quantity?: number },
+>(rows: T[], period: SpendingPeriod): T[] {
+  const baseline = rows.reduce((s, r) => s + r.total, 0);
+  if (baseline === 0) return rows;
+  const ratio = PERIOD_TOTAL[period] / baseline;
+  if (Math.abs(ratio - 1) < 0.001) return rows;
+  return rows.map((r) => {
+    const scaled: T = {
+      ...r,
+      total: Math.round(r.total * ratio * 100) / 100,
+    };
+    if (typeof r.quantity === "number" && r.quantity >= 0) {
+      scaled.quantity = r.quantity * ratio;
+    }
+    return scaled;
+  });
+}
+
+/** Total alvo do período — usado pelo bloco quando precisa do total esperado
+ *  sem ter que somar o array de daily. */
+export function periodTotal(period: SpendingPeriod): number {
+  return PERIOD_TOTAL[period];
+}
+
+export function periodBars(period: SpendingPeriod): number {
+  return PERIOD_BARS[period];
+}
 
 export type ServiceBreakdownRow = {
   id: string;
   label: string;
   icon: string;
-  quantity: string;
-  unitPrice: string;
+  /** Quantidade base no período "Este mês". -1 sinaliza linha agregada sem unidade. */
+  quantity: number;
+  /** Como apresentar a quantidade — "decimal" (1.245), "abbrev" (2,1M / 780K) ou "lump" (—). */
+  quantityFormat: "decimal" | "abbrev" | "lump";
+  unitPriceLabel: string;
   total: number;
 };
 
 export const SERVICE_BREAKDOWN: ServiceBreakdownRow[] = [
-  { id: "disp", label: "Disparos WhatsApp", icon: "campaign", quantity: "1.245", unitPrice: "R$ 0,12", total: 149.4 },
-  { id: "leads", label: "Leads convertidos", icon: "person_add", quantity: "38", unitPrice: "R$ 2,00", total: 76.0 },
-  { id: "msgs", label: "Mensagens transacionadas", icon: "forum", quantity: "3.872", unitPrice: "R$ 0,03", total: 116.16 },
-  { id: "tokens-in", label: "Tokens · Knowledge Input", icon: "memory", quantity: "2.1M", unitPrice: "R$ 0,002 / 1K", total: 4.2 },
-  { id: "tokens-out", label: "Tokens · Knowledge Output", icon: "memory", quantity: "780K", unitPrice: "R$ 0,008 / 1K", total: 6.24 },
-  { id: "outros", label: "Outros serviços agregados", icon: "more_horiz", quantity: "—", unitPrice: "—", total: 539.63 },
+  { id: "disp", label: "Disparos WhatsApp", icon: "campaign", quantity: 1245, quantityFormat: "decimal", unitPriceLabel: "R$ 0,12", total: 149.4 },
+  { id: "leads", label: "Leads convertidos", icon: "person_add", quantity: 38, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00", total: 76.0 },
+  { id: "msgs", label: "Mensagens transacionadas", icon: "forum", quantity: 3872, quantityFormat: "decimal", unitPriceLabel: "R$ 0,03", total: 116.16 },
+  { id: "tokens-in", label: "Tokens · Knowledge Input", icon: "memory", quantity: 2_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 4.2 },
+  { id: "tokens-out", label: "Tokens · Knowledge Output", icon: "memory", quantity: 780_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,008 / 1K", total: 6.24 },
+  { id: "outros", label: "Outros serviços agregados", icon: "more_horiz", quantity: -1, quantityFormat: "lump", unitPriceLabel: "—", total: 539.63 },
 ];
 
-export type CampaignBreakdownRow = {
+export function formatQuantity(
+  n: number,
+  format: ServiceBreakdownRow["quantityFormat"],
+): string {
+  if (format === "lump" || n < 0) return "—";
+  if (format === "abbrev") {
+    if (n >= 1_000_000) {
+      return (
+        (n / 1_000_000).toLocaleString("pt-BR", {
+          minimumFractionDigits: n < 10_000_000 ? 1 : 0,
+          maximumFractionDigits: 1,
+        }) + "M"
+      );
+    }
+    if (n >= 1_000) {
+      return Math.round(n / 1_000).toLocaleString("pt-BR") + "K";
+    }
+    return Math.round(n).toLocaleString("pt-BR");
+  }
+  return Math.round(n).toLocaleString("pt-BR");
+}
+
+export type AgentBreakdownRow = {
   id: string;
   label: string;
-  type: string;
-  status: "Ativa" | "Pausada" | "Encerrada";
+  avatar: string;
+  role: string;
+  status: "Ativo" | "Pausado" | "Treinando";
   total: number;
 };
 
-export const CAMPAIGN_BREAKDOWN: CampaignBreakdownRow[] = [
-  { id: "bf", label: "Black Friday Lead Magnet", type: "Aquisição", status: "Ativa", total: 312.45 },
-  { id: "crm", label: "Recuperação CRM Trial", type: "Reativação", status: "Ativa", total: 248.9 },
-  { id: "sdr", label: "SDR Outbound Pro", type: "Outbound", status: "Pausada", total: 198.18 },
-  { id: "onb", label: "Onboarding Pós-Venda", type: "Retenção", status: "Ativa", total: 132.1 },
+export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
+  {
+    id: "aria",
+    label: "Aria",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png",
+    role: "SDR · Aquisição",
+    status: "Ativo",
+    total: 312.45,
+  },
+  {
+    id: "atlas",
+    label: "Atlas",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png",
+    role: "CS · Reativação",
+    status: "Ativo",
+    total: 248.9,
+  },
+  {
+    id: "nova",
+    label: "Nova",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png",
+    role: "Outbound",
+    status: "Pausado",
+    total: 198.18,
+  },
+  {
+    id: "stella",
+    label: "Stella",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
+    role: "Onboarding",
+    status: "Treinando",
+    total: 132.1,
+  },
 ];
 
 export type InvoiceHistoryRow = {

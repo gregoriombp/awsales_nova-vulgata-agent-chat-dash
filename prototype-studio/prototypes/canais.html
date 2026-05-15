@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Studio · Canais — protótipo</title>
+<link rel="stylesheet" href="../assets/shell.css">
+<style>
+/* ---------- Hero (first-run) ---------- */
+.hero-first {
+  display: flex; flex-direction: column; align-items: center;
+  text-align: center;
+  padding: 48px 16px 24px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+.hero-logos { display: flex; gap: 20px; align-items: center; margin-bottom: 28px; }
+.hero-logos .brand-logo { width: 64px; height: 64px; }
+.hero-first h2 {
+  margin: 0;
+  font-family: 'Caveat', cursive; font-size: 36px; font-weight: 600;
+  letter-spacing: -0.5px;
+}
+.hero-first .lead {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 14px; line-height: 1.55;
+  max-width: 480px;
+}
+.hero-actions { display: flex; gap: 10px; margin-top: 22px; flex-wrap: wrap; justify-content: center; }
+.hero-divider {
+  margin: 28px 0 18px;
+  display: flex; align-items: center; gap: 12px;
+  color: var(--muted); font-size: 12px;
+  width: 100%; max-width: 520px;
+}
+.hero-divider::before, .hero-divider::after {
+  content: ""; flex: 1; height: 1px; background: var(--muted2);
+}
+.quick-picks { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.quick-pick {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 16px 6px 8px;
+  background: var(--paper);
+  border: 1.5px solid var(--muted2);
+  border-radius: 999px;
+  font-size: 13px; color: var(--ink); cursor: pointer;
+  font-family: inherit;
+}
+.quick-pick:hover { background: var(--paper2); border-color: var(--ink); }
+.quick-pick .brand-logo { width: 22px; height: 22px; font-size: 11px; }
+
+/* ---------- Brand logos (rendered as colored squares with emoji) ---------- */
+.brand-logo {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  font-size: 20px;
+  border: 1.5px solid var(--ink);
+  color: white;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
+}
+.brand-logo.sm { width: 22px; height: 22px; font-size: 11px; border-radius: 6px; box-shadow: none; }
+.brand-logo.md { width: 40px; height: 40px; font-size: 20px; }
+.brand-logo.lg { width: 64px; height: 64px; font-size: 32px; border-radius: 16px; }
+.brand-logo.brand-whatsapp  { background: #25D366; border-color: #1ea954; }
+.brand-logo.brand-instagram { background: linear-gradient(135deg,#feda75,#fa7e1e,#d62976,#962fbf); border-color: #962fbf; }
+.brand-logo.brand-messenger { background: linear-gradient(135deg,#00B2FF,#006AFF); border-color: #006AFF; }
+.brand-logo.brand-telegram  { background: #0088cc; border-color: #006699; }
+.brand-logo.brand-sms       { background: #5e35b1; border-color: #4527a0; }
+.brand-logo.brand-email     { background: #ea4335; border-color: #c5362b; }
+.brand-logo.brand-voice     { background: #fb8c00; border-color: #ef6c00; }
+.brand-logo.brand-org       { background: var(--paper2); color: var(--ink); border-style: dashed; border-color: var(--muted2); font-family: 'Caveat'; font-weight: 700; }
+
+/* ---------- Populated view ---------- */
+.search-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.search-row h2 { margin: 0; font-family: 'Caveat'; font-size: 24px; font-weight: 600; }
+.search-input {
+  display: flex; align-items: center; gap: 8px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  padding: 6px 12px;
+  width: 320px;
+  max-width: 100%;
+}
+.search-input input {
+  border: none; background: transparent; outline: none;
+  font-family: inherit; font-size: 14px;
+  flex: 1; min-width: 0;
+}
+
+/* ---------- ChannelGroup (accordion / list-group) ---------- */
+.channel-group {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.channel-group__head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px dashed var(--muted2);
+}
+.channel-group__head .body { flex: 1; min-width: 0; }
+.channel-group__head .body .title { font-weight: 600; font-size: 16px; margin-bottom: 2px; }
+.channel-group__head .body .subtitle { color: var(--muted); font-size: 13px; margin-bottom: 4px; }
+.channel-group__head .body .meta { color: var(--muted); font-size: 12px; display: flex; gap: 8px; align-items: center; }
+.channel-group__actions { display: flex; gap: 8px; align-items: center; }
+.account-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 18px;
+  cursor: pointer;
+  border-top: 1px dashed var(--muted3);
+  transition: background 0.1s;
+}
+.account-row:first-of-type { border-top: none; }
+.account-row:hover { background: var(--paper2); }
+.account-row .avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--blue); color: var(--paper);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 12px;
+  border: 1.5px solid var(--ink);
+  flex-shrink: 0;
+}
+.account-row .body { flex: 1; min-width: 0; }
+.account-row .body .name { font-weight: 600; font-size: 14px; }
+.account-row .body .sub { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.account-row .pill { flex-shrink: 0; }
+.account-row .kebab {
+  background: transparent; border: none; cursor: pointer;
+  font-size: 18px; color: var(--muted); padding: 4px 6px;
+  font-family: inherit; border-radius: 6px;
+}
+.account-row .kebab:hover { background: var(--paper3); color: var(--ink); }
+
+/* ---------- Pills (status) ---------- */
+.pill {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px dashed var(--muted2);
+}
+.pill.live      { background: var(--green-bg);  color: var(--green);  border-color: var(--green); }
+.pill.draft     { background: var(--paper2);    color: var(--muted);  border-color: var(--muted2); }
+.pill.beta      { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow); }
+.pill.attention { background: var(--red-bg);    color: var(--red);    border-color: var(--red); }
+
+/* ---------- Empty state ---------- */
+.empty-card {
+  border: 1.5px dashed var(--muted2);
+  background: var(--paper);
+  border-radius: 14px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.empty-card .ico {
+  width: 48px; height: 48px;
+  margin: 0 auto 18px;
+  background: var(--bg);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  border: 1.5px dashed var(--muted2);
+}
+.empty-card h2 { margin: 0 0 8px; font-family: 'Caveat'; font-size: 26px; }
+.empty-card p { color: var(--muted); font-size: 14px; max-width: 420px; margin: 0 auto; }
+
+/* ---------- Coming soon ---------- */
+.coming-soon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.coming-soon-card {
+  background: var(--paper);
+  border: 1.5px dashed var(--muted2);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex; align-items: center; gap: 12px;
+  opacity: 0.85;
+}
+.coming-soon-card .body { flex: 1; }
+.coming-soon-card .name { font-weight: 600; font-size: 14px; }
+.coming-soon-card .sub  { color: var(--muted); font-size: 12px; }
+
+/* ---------- Add Integration Modal (Aw style) ---------- */
+.aw-modal-scrim {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 450;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.aw-modal-scrim[hidden] { display: none; }
+.aw-modal {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+  max-height: 86vh;
+  display: flex; flex-direction: column;
+}
+.aw-add-int-modal { max-width: 880px; }
+.aw-add-int-modal__head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px dashed var(--muted2);
+}
+.aw-add-int-modal__title-row { display: flex; align-items: center; gap: 10px; }
+.aw-add-int-modal__title-icon { font-size: 20px; }
+.aw-add-int-modal__title { margin: 0; font-family: 'Caveat'; font-size: 26px; font-weight: 600; }
+.aw-modal__close {
+  background: transparent; border: 1.5px dashed var(--muted2);
+  border-radius: 50%; width: 32px; height: 32px;
+  cursor: pointer; font-family: inherit; font-size: 14px;
+}
+.aw-modal__close:hover { background: var(--paper2); }
+.aw-add-int-modal__body { display: flex; min-height: 380px; max-height: 60vh; }
+.aw-add-int-modal__nav {
+  width: 200px;
+  border-right: 1px dashed var(--muted2);
+  padding: 12px 8px;
+  flex-shrink: 0;
+}
+.aw-add-int-modal__nav-list { list-style: none; padding: 0; margin: 0; }
+.aw-add-int-modal__nav-item {
+  width: 100%; text-align: left;
+  background: transparent; border: 1.5px solid transparent;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-family: inherit; font-size: 13px;
+  cursor: pointer; color: var(--ink);
+}
+.aw-add-int-modal__nav-item:hover { background: var(--paper2); }
+.aw-add-int-modal__nav-item--active {
+  background: var(--paper2);
+  border-color: var(--ink); border-style: dashed;
+  font-weight: 600;
+}
+.aw-add-int-modal__main { flex: 1; padding: 16px 20px; overflow-y: auto; }
+.aw-add-int-modal__main-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.aw-add-int-modal__main-title { margin: 0; font-family: 'Caveat'; font-size: 22px; }
+.aw-add-int-modal__search {
+  display: flex; align-items: center; gap: 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  padding: 4px 10px;
+  background: var(--paper);
+  width: 240px;
+}
+.aw-add-int-modal__search input {
+  border: none; background: transparent; outline: none;
+  font-family: inherit; font-size: 13px;
+  flex: 1; min-width: 0;
+}
+.aw-add-int-modal__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.aw-add-int-modal__card {
+  display: flex; flex-direction: column; gap: 6px;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.08s;
+}
+.aw-add-int-modal__card:hover { transform: translate(-1px,-1px); box-shadow: var(--shadow-md); }
+.aw-add-int-modal__card-logo { margin-bottom: 4px; }
+.aw-add-int-modal__card-name { font-weight: 600; font-size: 14px; }
+.aw-add-int-modal__card-desc { color: var(--muted); font-size: 12px; line-height: 1.45; }
+.aw-add-int-modal__empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: var(--muted);
+}
+
+/* ---------- Connect Modal (Aw style) ---------- */
+.aw-connect-modal { max-width: 520px; padding: 32px 28px 24px; position: relative; }
+.aw-connect-modal__close { position: absolute; top: 16px; right: 16px; }
+.aw-connect-modal__hero { text-align: center; }
+.aw-connect-modal__logos {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 16px;
+}
+.aw-connect-modal__connector {
+  font-size: 18px; color: var(--muted);
+  width: 28px; height: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px dashed var(--muted2);
+  border-radius: 50%;
+  background: var(--paper);
+}
+.aw-connect-modal__title { margin: 0; font-family: 'Caveat'; font-size: 26px; font-weight: 600; }
+.aw-connect-modal__desc { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.aw-connect-modal__name {
+  display: flex; flex-direction: column; gap: 6px;
+  margin-top: 18px;
+}
+.aw-connect-modal__name-label { font-size: 12px; color: var(--muted); }
+.aw-connect-modal__perms { margin-top: 18px; }
+.aw-connect-modal__perms-title { margin: 0 0 8px; font-family: 'Patrick Hand'; font-size: 14px; font-weight: 600; }
+.aw-connect-modal__perms-list { list-style: none; padding: 0; margin: 0; }
+.aw-connect-modal__perm {
+  display: flex; gap: 8px; align-items: flex-start;
+  padding: 6px 0;
+  font-size: 13px; color: var(--ink); line-height: 1.5;
+}
+.aw-connect-modal__perm-icon { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+.aw-connect-modal__foot {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 22px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--muted2);
+}
+.aw-connect-modal__foot-actions { display: flex; gap: 8px; }
+
+/* ---------- Detail Modal ---------- */
+.detail-modal { max-width: 640px; padding: 28px; position: relative; }
+.detail-modal__head {
+  display: flex; gap: 14px; align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--muted2);
+}
+.detail-modal__head .body { flex: 1; }
+.detail-modal__head h2 { margin: 0; font-family: 'Caveat'; font-size: 26px; }
+.detail-modal__head .sub { color: var(--muted); font-size: 13px; }
+.detail-modal__accounts { margin-top: 16px; }
+.detail-modal__accounts-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px;
+}
+.detail-modal__accounts-head h3 { margin: 0; font-family: 'Caveat'; font-size: 20px; }
+.detail-modal__foot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--muted2);
+}
+
+/* ---------- Kebab menu (popover) ---------- */
+.kebab-menu {
+  position: absolute;
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 10px;
+  padding: 6px;
+  z-index: 500;
+  box-shadow: var(--shadow-md);
+  min-width: 160px;
+}
+.kebab-menu button {
+  display: block; width: 100%;
+  text-align: left;
+  background: transparent; border: none;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-family: inherit; font-size: 13px;
+  cursor: pointer; color: var(--ink);
+}
+.kebab-menu button:hover { background: var(--paper2); }
+.kebab-menu button.danger { color: var(--red); }
+.kebab-menu button.danger:hover { background: var(--red-bg); }
+
+/* ---------- Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--ink); color: var(--paper);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  z-index: 600;
+  box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="proto-shell"
+     data-active="canais"
+     data-org="Fyntra Tecnologia"
+     data-org-logo="F"
+     data-user="Guilherme Graham"
+     data-user-initials="PG"
+     data-user-role="Administrador"
+     data-breadcrumb="Fontes / <strong>Canais</strong>"></div>
+
+<main class="page-content">
+  <div id="canaisRoot">
+    <!-- Conteúdo é renderizado dinamicamente em JS pra suportar os 3 estados:
+         first-run (nunca conectou), all-removed (tinha mas removeu), populated (tem canais). -->
+  </div>
+</main>
+
+<!-- Add Integration Modal -->
+<div class="aw-modal-scrim" id="addModal" hidden role="dialog" aria-modal="true" aria-label="Adicionar canal">
+  <div class="aw-modal aw-add-int-modal" onclick="event.stopPropagation()">
+    <header class="aw-add-int-modal__head">
+      <div class="aw-add-int-modal__title-row">
+        <span class="aw-add-int-modal__title-icon">🧩</span>
+        <h2 class="aw-add-int-modal__title">Adicionar canal</h2>
+      </div>
+      <button type="button" class="aw-modal__close" aria-label="Fechar" onclick="closeAdd()">✕</button>
+    </header>
+    <div class="aw-add-int-modal__body">
+      <nav class="aw-add-int-modal__nav" aria-label="Categorias">
+        <ul class="aw-add-int-modal__nav-list">
+          <li><button type="button" class="aw-add-int-modal__nav-item aw-add-int-modal__nav-item--active">Todos os canais</button></li>
+          <li><button type="button" class="aw-add-int-modal__nav-item">Canais</button></li>
+        </ul>
+      </nav>
+      <section class="aw-add-int-modal__main">
+        <div class="aw-add-int-modal__main-head">
+          <h3 class="aw-add-int-modal__main-title">Todos os canais</h3>
+          <div class="aw-add-int-modal__search">
+            <span>🔍</span>
+            <input id="addSearch" placeholder="Buscar canais…" aria-label="Buscar canal">
+          </div>
+        </div>
+        <div class="aw-add-int-modal__grid" id="addGrid"></div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<!-- Connect Modal -->
+<div class="aw-modal-scrim" id="connectModal" hidden role="dialog" aria-modal="true">
+  <div class="aw-modal aw-connect-modal" onclick="event.stopPropagation()">
+    <button type="button" class="aw-modal__close aw-connect-modal__close" aria-label="Fechar" onclick="closeConnect()">✕</button>
+    <div class="aw-connect-modal__hero">
+      <div class="aw-connect-modal__logos">
+        <span class="brand-logo brand-org lg" aria-hidden="true">F</span>
+        <span class="aw-connect-modal__connector">⇄</span>
+        <span class="brand-logo lg" id="connectTargetLogo" aria-hidden="true"></span>
+      </div>
+      <h2 class="aw-connect-modal__title" id="connectTitle"></h2>
+      <p class="aw-connect-modal__desc" id="connectDesc"></p>
+    </div>
+    <div class="aw-connect-modal__name">
+      <label class="aw-connect-modal__name-label" for="connectName">Nome</label>
+      <input class="input" id="connectName" placeholder="">
+    </div>
+    <div class="aw-connect-modal__perms" id="connectPerms">
+      <h3 class="aw-connect-modal__perms-title">O AwSales precisa</h3>
+      <ul class="aw-connect-modal__perms-list" id="connectPermsList"></ul>
+    </div>
+    <footer class="aw-connect-modal__foot">
+      <span class="muted small">🔐 OAuth · authorization code</span>
+      <div class="aw-connect-modal__foot-actions">
+        <button class="btn secondary small" onclick="closeConnect()">Cancelar</button>
+        <button class="btn small" id="connectAllowBtn">Permitir acesso</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="aw-modal-scrim" id="detailModal" hidden role="dialog" aria-modal="true">
+  <div class="aw-modal detail-modal" onclick="event.stopPropagation()">
+    <button type="button" class="aw-modal__close aw-connect-modal__close" aria-label="Fechar" onclick="closeDetail()">✕</button>
+    <div class="detail-modal__head">
+      <span class="brand-logo md" id="detailLogo" aria-hidden="true"></span>
+      <div class="body">
+        <h2 id="detailTitle"></h2>
+        <div class="sub" id="detailSub"></div>
+      </div>
+      <span class="pill live">● Conectado</span>
+    </div>
+    <div class="detail-modal__accounts">
+      <div class="detail-modal__accounts-head">
+        <h3>Contas conectadas</h3>
+        <button class="btn small secondary" id="detailAddAnotherBtn">+ Adicionar outra conta</button>
+      </div>
+      <div id="detailAccounts"></div>
+    </div>
+    <footer class="detail-modal__foot">
+      <button class="btn ghost small" id="detailDisconnectAllBtn">✕ Desconectar todas</button>
+      <div class="row gap-sm">
+        <button class="btn secondary small" onclick="closeDetail()">Fechar</button>
+        <button class="btn small" id="detailConfigureBtn">⚙ Configurar</button>
+      </div>
+    </footer>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="../assets/shell.js?v=2026-05-12-menu-order"></script>
+<script>
+/* ============================================================
+ * Dados — espelham o real (app/canais/page.tsx + lib/channelAccounts.ts)
+ * ============================================================ */
+const CHANNELS = [
+  {
+    id: "whatsapp",
+    name: "WhatsApp",
+    domain: "whatsapp.com",
+    desc: "Atenda e recupere vendas via WhatsApp com seus agentes de IA.",
+    auth: "oauth",
+    permissions: [
+      "Enviar e receber mensagens em seu nome",
+      "Acessar contatos e conversas ativas",
+      "Ler mídias enviadas pelos clientes",
+    ],
+    configHref: "/canais/whatsapp",
+  },
+  {
+    id: "instagram",
+    name: "Instagram",
+    domain: "instagram.com",
+    desc: "Responda DMs do Instagram automaticamente com agentes.",
+    auth: "oauth",
+    permissions: [
+      "Ler e responder mensagens diretas",
+      "Acessar comentários em posts e reels",
+      "Ver informações básicas da conta",
+    ],
+    configHref: "/canais/instagram",
+  },
+  {
+    id: "messenger",
+    name: "Messenger",
+    domain: "messenger.com",
+    desc: "Atendimento automatizado pelo Messenger do Facebook.",
+    auth: "oauth",
+    permissions: [
+      "Ler e responder mensagens da página",
+      "Acessar perfis públicos dos clientes",
+      "Receber webhooks de novas conversas",
+    ],
+    configHref: "/canais/messenger",
+  },
+];
+
+const BRAND_GLYPH = {
+  whatsapp: "📱",
+  instagram: "📷",
+  messenger: "💬",
+  telegram: "✈",
+  sms: "💌",
+};
+
+const COMING_SOON = [
+  { id: "telegram", name: "Telegram", desc: "Bot Telegram com webhook próprio." },
+  { id: "sms",      name: "SMS",      desc: "Mensagens curtas com sender ID Anatel." },
+];
+
+/* Dataset inicial — espelha lib/channelAccounts.ts */
+const SEED_ACCOUNTS = [
+  { id: "waba-marina", channelId: "whatsapp", name: "Marina Cosméticos", subtitle: "Marina Costa · 2 números", status: "active" },
+  { id: "waba-eng",    channelId: "whatsapp", name: "AwSales-Tech-Test", subtitle: "Time Eng · 1 número",       status: "attention", statusLabel: "Pagamento pendente" },
+  { id: "ig-marina",   channelId: "instagram",name: "@marinacosmeticos", subtitle: "12,4 mil seguidores · DM ativa", status: "active" },
+  { id: "msgr-marina", channelId: "messenger",name: "Marina Cosméticos", subtitle: "Página oficial · 8,2 mil curtidas", status: "disabled" },
+];
+
+const STATUS_LABEL = {
+  active: "Ativo",
+  disabled: "Pausado",
+  attention: "Requer atenção",
+};
+const STATUS_PILL = {
+  active: "live",
+  disabled: "draft",
+  attention: "attention",
+};
+
+/* ============================================================
+ * Estado — localStorage persistente
+ * ============================================================ */
+const LS_KEY_ACCOUNTS = "prototype-studio.channels.accounts";
+const LS_KEY_HAS_EVER = "prototype-studio.channels.hasEverConnected";
+
+function loadAccounts() {
+  try {
+    const raw = localStorage.getItem(LS_KEY_ACCOUNTS);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* ignore */ }
+  return SEED_ACCOUNTS.slice();
+}
+function saveAccounts(list) {
+  try { localStorage.setItem(LS_KEY_ACCOUNTS, JSON.stringify(list)); } catch (e) {}
+}
+function loadHasEver() {
+  try { return localStorage.getItem(LS_KEY_HAS_EVER) === "1"; } catch (e) { return false; }
+}
+function saveHasEver(v) {
+  try { localStorage.setItem(LS_KEY_HAS_EVER, v ? "1" : "0"); } catch (e) {}
+}
+
+let accounts = loadAccounts();
+let hasEverConnected = loadHasEver() || accounts.length > 0;
+let searchTerm = "";
+
+/* ============================================================
+ * Helpers
+ * ============================================================ */
+function brandLogo(brand, size) {
+  const sz = size || "md";
+  const glyph = BRAND_GLYPH[brand] || "?";
+  return '<span class="brand-logo brand-' + brand + ' ' + sz + '" aria-hidden="true">' + glyph + '</span>';
+}
+function initials(name) {
+  const cleaned = String(name || "").replace(/^@/, "").trim();
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+function escapeHtml(s) {
+  return String(s == null ? "" : s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+function accountsFor(channelId) {
+  return accounts.filter(function(a){ return a.channelId === channelId; });
+}
+function connectedChannelIds() {
+  const s = new Set();
+  accounts.forEach(function(a){ s.add(a.channelId); });
+  return s;
+}
+function toast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(function(){ el.classList.remove("show"); }, 2200);
+}
+
+/* ============================================================
+ * Render — página principal
+ * ============================================================ */
+function render() {
+  const root = document.getElementById("canaisRoot");
+  const connected = connectedChannelIds();
+  const variant = accounts.length > 0
+    ? "populated"
+    : (hasEverConnected ? "all-removed" : "first-run");
+
+  if (variant === "first-run") {
+    root.innerHTML = renderFirstRun();
+    wireFirstRun();
+    return;
+  }
+
+  // populated + all-removed share the same header
+  root.innerHTML = renderHeader() + (
+    variant === "populated"
+      ? renderPopulated(connected)
+      : renderAllRemoved()
+  ) + renderComingSoon();
+  wirePage();
+}
+
+function renderHeader() {
+  return ''
+    + '<div class="page-head">'
+    +   '<div>'
+    +     '<h1>💬 Canais</h1>'
+    +     '<div class="description">Conecte os canais por onde seus agentes vão conversar com clientes — WhatsApp, Instagram, Messenger e mais.</div>'
+    +   '</div>'
+    +   '<div class="row gap-sm">'
+    +     '<button class="btn" id="btnAddTop">+ Novo canal</button>'
+    +   '</div>'
+    + '</div>';
+}
+
+function renderPopulated(connected) {
+  const q = searchTerm.trim().toLowerCase();
+  const groups = CHANNELS.filter(function(c){ return connected.has(c.id); }).map(function(channel){
+    const all = accountsFor(channel.id);
+    const filtered = !q ? all : all.filter(function(a){
+      return (a.name || "").toLowerCase().indexOf(q) !== -1
+          || (a.subtitle || "").toLowerCase().indexOf(q) !== -1
+          || channel.name.toLowerCase().indexOf(q) !== -1;
+    });
+    return { channel: channel, accounts: filtered };
+  }).filter(function(g){ return g.accounts.length > 0; });
+
+  const totalAfter = groups.reduce(function(s,g){ return s + g.accounts.length; }, 0);
+
+  let html = ''
+    + '<section aria-label="Seus canais">'
+    +   '<div class="search-row">'
+    +     '<h2>Seus canais</h2>'
+    +     '<div class="search-input">'
+    +       '<span>🔍</span>'
+    +       '<input id="searchInput" placeholder="Buscar por canal ou conta…" value="' + escapeHtml(searchTerm) + '" aria-label="Buscar canais">'
+    +     '</div>'
+    +   '</div>';
+
+  if (totalAfter === 0) {
+    html += '<div class="empty-card"><p>Nenhum canal ou conta encontrado para <strong>"' + escapeHtml(searchTerm) + '"</strong>.</p></div>';
+  } else {
+    html += groups.map(renderChannelGroup).join("");
+  }
+  html += '</section>';
+  return html;
+}
+
+function renderChannelGroup(g) {
+  const channel = g.channel;
+  const list = g.accounts;
+  const count = list.length;
+  const attention = list.filter(function(a){ return a.status === "attention"; }).length;
+
+  let rows = list.map(function(account){
+    const status = account.status;
+    const pillCls = STATUS_PILL[status] || "draft";
+    const label = account.statusLabel || STATUS_LABEL[status] || "—";
+    return ''
+      + '<div class="account-row" data-channel="' + channel.id + '" data-account="' + account.id + '" tabindex="0">'
+      +   '<div class="avatar">' + escapeHtml(initials(account.name)) + '</div>'
+      +   '<div class="body">'
+      +     '<div class="name">' + escapeHtml(account.name) + '</div>'
+      +     (account.subtitle ? '<div class="sub">' + escapeHtml(account.subtitle) + '</div>' : "")
+      +   '</div>'
+      +   '<span class="pill ' + pillCls + '">' + escapeHtml(label) + '</span>'
+      +   '<button class="kebab" data-kebab="' + account.id + '" aria-label="Mais ações">⋮</button>'
+      + '</div>';
+  }).join("");
+
+  return ''
+    + '<div class="channel-group">'
+    +   '<div class="channel-group__head">'
+    +     brandLogo(channel.id, "md")
+    +     '<div class="body">'
+    +       '<div class="title">' + escapeHtml(channel.name) + '</div>'
+    +       '<div class="subtitle">' + escapeHtml(channel.desc) + '</div>'
+    +       '<div class="meta"><span>' + count + ' ' + (count === 1 ? "conta" : "contas") + '</span>'
+    +         (attention > 0 ? '<span class="pill attention">' + attention + ' ' + (attention === 1 ? "alerta" : "alertas") + '</span>' : "")
+    +       '</div>'
+    +     '</div>'
+    +     '<div class="channel-group__actions">'
+    +       '<button class="btn secondary small" data-manage="' + channel.id + '">Gerenciar →</button>'
+    +     '</div>'
+    +   '</div>'
+    +   rows
+    + '</div>';
+}
+
+function renderAllRemoved() {
+  return ''
+    + '<section class="empty-card">'
+    +   '<div class="ico">🔗</div>'
+    +   '<h2>Você não tem canais conectados</h2>'
+    +   '<p>Reconecte um canal ou abra o catálogo para escolher por onde os agentes vão atender.</p>'
+    +   '<div class="hero-actions" style="justify-content:center;margin-top:18px;">'
+    +     CHANNELS.map(function(c){
+            return '<button class="quick-pick" data-quickpick="' + c.id + '">' + brandLogo(c.id, "sm") + '<span>' + escapeHtml(c.name) + '</span></button>';
+          }).join("")
+    +   '</div>'
+    +   '<div style="margin-top:14px;"><button class="btn-link" id="btnSeeAll">Ver todos os canais</button></div>'
+    + '</section>';
+}
+
+function renderComingSoon() {
+  return ''
+    + '<div class="block" style="margin-top:32px;">'
+    +   '<h3>🛠 Em breve</h3>'
+    +   '<p class="note">Canais que ainda não estão disponíveis — você verá um painel "em construção" ao abrir.</p>'
+    +   '<div class="coming-soon-grid" style="margin-top:12px;">'
+    +     COMING_SOON.map(function(c){
+            return ''
+              + '<div class="coming-soon-card">'
+              +   brandLogo(c.id, "md")
+              +   '<div class="body">'
+              +     '<div class="name">' + escapeHtml(c.name) + '</div>'
+              +     '<div class="sub">' + escapeHtml(c.desc) + '</div>'
+              +   '</div>'
+              +   '<span class="pill draft">Em breve</span>'
+              + '</div>';
+          }).join("")
+    +   '</div>'
+    + '</div>';
+}
+
+function renderFirstRun() {
+  return ''
+    + '<section class="hero-first" aria-label="Conecte seu primeiro canal">'
+    +   '<div class="hero-logos">'
+    +     CHANNELS.map(function(c){ return brandLogo(c.id, "lg"); }).join("")
+    +   '</div>'
+    +   '<h2>Conecte seu primeiro canal</h2>'
+    +   '<p class="lead">WhatsApp, Instagram, Messenger… escolha por onde seus agentes vão conversar com seus clientes.</p>'
+    +   '<div class="hero-actions">'
+    +     '<button class="btn" id="btnAddTop">+ Novo canal</button>'
+    +     '<button class="btn secondary" id="btnSeeAll">Ver todos os canais</button>'
+    +   '</div>'
+    +   '<div class="hero-divider"><span>ou comece pelos mais usados</span></div>'
+    +   '<div class="quick-picks">'
+    +     CHANNELS.map(function(c){
+            return '<button class="quick-pick" data-quickpick="' + c.id + '">' + brandLogo(c.id, "sm") + '<span>' + escapeHtml(c.name) + '</span></button>';
+          }).join("")
+    +   '</div>'
+    + '</section>';
+}
+
+/* ============================================================
+ * Wiring — listeners pós render()
+ * ============================================================ */
+function wireFirstRun() {
+  document.querySelectorAll("[id=btnAddTop]").forEach(function(b){ b.onclick = openAdd; });
+  document.querySelectorAll("[id=btnSeeAll]").forEach(function(b){ b.onclick = openAdd; });
+  document.querySelectorAll("[data-quickpick]").forEach(function(b){
+    b.onclick = function(){ openConnect(b.dataset.quickpick); };
+  });
+}
+
+function wirePage() {
+  document.querySelectorAll("[id=btnAddTop]").forEach(function(b){ b.onclick = openAdd; });
+  document.querySelectorAll("[id=btnSeeAll]").forEach(function(b){ b.onclick = openAdd; });
+  document.querySelectorAll("[data-quickpick]").forEach(function(b){
+    b.onclick = function(){ openConnect(b.dataset.quickpick); };
+  });
+
+  document.querySelectorAll("[data-manage]").forEach(function(b){
+    b.onclick = function(e){
+      e.stopPropagation();
+      openDetail(b.dataset.manage);
+    };
+  });
+
+  document.querySelectorAll(".account-row").forEach(function(row){
+    row.addEventListener("click", function(e){
+      if (e.target.closest(".kebab")) return;
+      openDetail(row.dataset.channel);
+    });
+    row.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        openDetail(row.dataset.channel);
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-kebab]").forEach(function(b){
+    b.onclick = function(e){
+      e.stopPropagation();
+      openKebab(b);
+    };
+  });
+
+  const si = document.getElementById("searchInput");
+  if (si) {
+    si.addEventListener("input", function(e){
+      searchTerm = e.target.value;
+      // Re-render só a seção populated mantém foco
+      render();
+      const next = document.getElementById("searchInput");
+      if (next) { next.focus(); next.setSelectionRange(searchTerm.length, searchTerm.length); }
+    });
+  }
+}
+
+/* ============================================================
+ * Add Channel Modal
+ * ============================================================ */
+function openAdd() {
+  renderAddGrid("");
+  const m = document.getElementById("addModal");
+  m.hidden = false;
+  m.onclick = function(e){ if (e.target === m) closeAdd(); };
+  const input = document.getElementById("addSearch");
+  input.value = "";
+  input.oninput = function(e){ renderAddGrid(e.target.value); };
+  setTimeout(function(){ input.focus(); }, 50);
+}
+function closeAdd() {
+  document.getElementById("addModal").hidden = true;
+}
+function renderAddGrid(q) {
+  const ql = (q || "").trim().toLowerCase();
+  const filtered = CHANNELS.filter(function(c){
+    if (!ql) return true;
+    return c.name.toLowerCase().indexOf(ql) !== -1
+        || c.desc.toLowerCase().indexOf(ql) !== -1;
+  });
+  const grid = document.getElementById("addGrid");
+  if (filtered.length === 0) {
+    grid.innerHTML = '<div class="aw-add-int-modal__empty" style="grid-column:1/-1;">🔍<div style="margin-top:8px;font-weight:600;">Nenhum canal encontrado</div><div class="muted small">Tente outro termo.</div></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(function(c){
+    return ''
+      + '<button type="button" class="aw-add-int-modal__card" data-pick="' + c.id + '">'
+      +   '<span class="aw-add-int-modal__card-logo">' + brandLogo(c.id, "md") + '</span>'
+      +   '<span class="aw-add-int-modal__card-name">' + escapeHtml(c.name) + '</span>'
+      +   '<span class="aw-add-int-modal__card-desc">' + escapeHtml(c.desc) + '</span>'
+      + '</button>';
+  }).join("");
+  grid.querySelectorAll("[data-pick]").forEach(function(b){
+    b.onclick = function(){
+      const id = b.dataset.pick;
+      closeAdd();
+      setTimeout(function(){ openConnect(id); }, 100);
+    };
+  });
+}
+
+/* ============================================================
+ * Connect Modal — fluxo OAuth simulado
+ * ============================================================ */
+let connectTargetId = null;
+
+function openConnect(id) {
+  const channel = CHANNELS.find(function(c){ return c.id === id; });
+  if (!channel) return;
+  connectTargetId = id;
+
+  const logo = document.getElementById("connectTargetLogo");
+  logo.className = "brand-logo brand-" + id + " lg";
+  logo.textContent = BRAND_GLYPH[id] || "?";
+
+  document.getElementById("connectTitle").textContent = "Conectar AwSales para " + channel.name;
+  document.getElementById("connectDesc").textContent = channel.desc;
+
+  const existing = accountsFor(channel.id).length;
+  const suggested = channel.name + (existing > 0 ? " " + (existing + 1) : "");
+  const nameInput = document.getElementById("connectName");
+  nameInput.value = "";
+  nameInput.placeholder = suggested + " – OAuth";
+
+  const list = document.getElementById("connectPermsList");
+  list.innerHTML = (channel.permissions || []).map(function(p){
+    return '<li class="aw-connect-modal__perm"><span class="aw-connect-modal__perm-icon">✓</span><span>' + escapeHtml(p) + '</span></li>';
+  }).join("");
+
+  document.getElementById("connectAllowBtn").onclick = function(){ handleAllow(); };
+
+  const m = document.getElementById("connectModal");
+  m.hidden = false;
+  m.onclick = function(e){ if (e.target === m) closeConnect(); };
+  setTimeout(function(){ nameInput.focus(); }, 50);
+}
+function closeConnect() {
+  document.getElementById("connectModal").hidden = true;
+  connectTargetId = null;
+}
+
+function handleAllow() {
+  if (!connectTargetId) return;
+  const channel = CHANNELS.find(function(c){ return c.id === connectTargetId; });
+  if (!channel) return;
+
+  const existing = accountsFor(channel.id);
+  const inputName = document.getElementById("connectName").value.trim();
+  const finalName = inputName || (channel.name + " " + (existing.length + 1));
+
+  const newAccount = {
+    id: channel.id + "-" + Date.now(),
+    channelId: channel.id,
+    name: finalName,
+    subtitle: channelSubtitle(channel.id),
+    status: "active",
+  };
+  accounts = accounts.concat([newAccount]);
+  hasEverConnected = true;
+  saveAccounts(accounts);
+  saveHasEver(true);
+
+  closeConnect();
+  toast("Canal " + channel.name + " conectado");
+  render();
+}
+
+function channelSubtitle(channelId) {
+  if (channelId === "whatsapp") return "Conta WABA · 1 número";
+  if (channelId === "instagram") return "Conta business · DM ativa";
+  if (channelId === "messenger") return "Página oficial · Meta Cloud API";
+  return "—";
+}
+
+/* ============================================================
+ * Detail Modal — gerenciar contas de um canal
+ * ============================================================ */
+let detailChannelId = null;
+
+function openDetail(channelId) {
+  const channel = CHANNELS.find(function(c){ return c.id === channelId; });
+  if (!channel) return;
+  detailChannelId = channelId;
+
+  const logo = document.getElementById("detailLogo");
+  logo.className = "brand-logo brand-" + channelId + " md";
+  logo.textContent = BRAND_GLYPH[channelId] || "?";
+
+  document.getElementById("detailTitle").textContent = channel.name;
+  document.getElementById("detailSub").textContent = channel.desc;
+
+  renderDetailAccounts();
+
+  document.getElementById("detailAddAnotherBtn").onclick = function(){
+    closeDetail();
+    setTimeout(function(){ openConnect(channelId); }, 100);
+  };
+  document.getElementById("detailConfigureBtn").onclick = function(){
+    toast("Abriria " + channel.configHref + " (stub)");
+  };
+  document.getElementById("detailDisconnectAllBtn").onclick = function(){
+    const list = accountsFor(channelId);
+    if (list.length === 0) { closeDetail(); return; }
+    if (!confirm("Desconectar todas as " + list.length + " contas de " + channel.name + "?")) return;
+    accounts = accounts.filter(function(a){ return a.channelId !== channelId; });
+    saveAccounts(accounts);
+    closeDetail();
+    toast("Contas de " + channel.name + " desconectadas");
+    render();
+  };
+
+  const m = document.getElementById("detailModal");
+  m.hidden = false;
+  m.onclick = function(e){ if (e.target === m) closeDetail(); };
+}
+function closeDetail() {
+  document.getElementById("detailModal").hidden = true;
+  detailChannelId = null;
+}
+function renderDetailAccounts() {
+  if (!detailChannelId) return;
+  const list = accountsFor(detailChannelId);
+  const container = document.getElementById("detailAccounts");
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-card" style="padding:24px;"><p class="muted">Nenhuma conta conectada.</p></div>';
+    return;
+  }
+  container.innerHTML = list.map(function(account){
+    const pillCls = STATUS_PILL[account.status] || "draft";
+    const label = account.statusLabel || STATUS_LABEL[account.status] || "—";
+    return ''
+      + '<div class="account-row" style="cursor:default;">'
+      +   '<div class="avatar">' + escapeHtml(initials(account.name)) + '</div>'
+      +   '<div class="body">'
+      +     '<div class="name">' + escapeHtml(account.name) + '</div>'
+      +     (account.subtitle ? '<div class="sub">' + escapeHtml(account.subtitle) + '</div>' : "")
+      +   '</div>'
+      +   '<span class="pill ' + pillCls + '">' + escapeHtml(label) + '</span>'
+      +   '<button class="btn ghost small" data-rename="' + account.id + '">✎ Renomear</button>'
+      +   '<button class="btn ghost small" data-remove="' + account.id + '" style="color:var(--red);">Desconectar</button>'
+      + '</div>';
+  }).join("");
+  container.querySelectorAll("[data-rename]").forEach(function(b){
+    b.onclick = function(){
+      const id = b.dataset.rename;
+      const a = accounts.find(function(x){ return x.id === id; });
+      if (!a) return;
+      const next = prompt("Novo nome para a conta:", a.name);
+      if (next == null) return;
+      const trimmed = next.trim();
+      if (!trimmed) return;
+      a.name = trimmed;
+      saveAccounts(accounts);
+      renderDetailAccounts();
+      toast("Conta renomeada");
+      render();
+    };
+  });
+  container.querySelectorAll("[data-remove]").forEach(function(b){
+    b.onclick = function(){
+      const id = b.dataset.remove;
+      const a = accounts.find(function(x){ return x.id === id; });
+      if (!a) return;
+      if (!confirm("Desconectar a conta " + a.name + "?")) return;
+      accounts = accounts.filter(function(x){ return x.id !== id; });
+      saveAccounts(accounts);
+      renderDetailAccounts();
+      toast("Conta desconectada");
+      render();
+    };
+  });
+}
+
+/* ============================================================
+ * Kebab popover na lista principal
+ * ============================================================ */
+let openMenuEl = null;
+function closeKebab() {
+  if (openMenuEl && openMenuEl.parentNode) openMenuEl.parentNode.removeChild(openMenuEl);
+  openMenuEl = null;
+  document.removeEventListener("click", closeKebab);
+}
+function openKebab(btn) {
+  closeKebab();
+  const accountId = btn.dataset.kebab;
+  const account = accounts.find(function(a){ return a.id === accountId; });
+  if (!account) return;
+  const menu = document.createElement("div");
+  menu.className = "kebab-menu";
+  menu.innerHTML = ''
+    + '<button data-act="open">Abrir</button>'
+    + '<button data-act="rename">Renomear</button>'
+    + '<button class="danger" data-act="remove">Desconectar</button>';
+
+  const rect = btn.getBoundingClientRect();
+  menu.style.top = (rect.bottom + window.scrollY + 4) + "px";
+  menu.style.left = (rect.right - 160 + window.scrollX) + "px";
+  document.body.appendChild(menu);
+  openMenuEl = menu;
+
+  menu.addEventListener("click", function(e){ e.stopPropagation(); });
+  menu.querySelector('[data-act=open]').onclick = function(){ closeKebab(); openDetail(account.channelId); };
+  menu.querySelector('[data-act=rename]').onclick = function(){
+    closeKebab();
+    const next = prompt("Novo nome para a conta:", account.name);
+    if (next == null) return;
+    const trimmed = next.trim();
+    if (!trimmed) return;
+    account.name = trimmed;
+    saveAccounts(accounts);
+    toast("Conta renomeada");
+    render();
+  };
+  menu.querySelector('[data-act=remove]').onclick = function(){
+    closeKebab();
+    if (!confirm("Desconectar " + account.name + "?")) return;
+    accounts = accounts.filter(function(a){ return a.id !== accountId; });
+    saveAccounts(accounts);
+    toast("Conta desconectada");
+    render();
+  };
+
+  setTimeout(function(){ document.addEventListener("click", closeKebab); }, 0);
+}
+
+/* ============================================================
+ * Esc fecha modais
+ * ============================================================ */
+document.addEventListener("keydown", function(e){
+  if (e.key === "Escape") {
+    closeAdd(); closeConnect(); closeDetail(); closeKebab();
+  }
+});
+
+/* ============================================================
+ * Boot
+ * ============================================================ */
+render();
+</script>
+
+</body>
+</html>

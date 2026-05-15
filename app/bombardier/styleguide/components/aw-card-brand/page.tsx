@@ -143,14 +143,14 @@ export default function CardBrandPage() {
             lead="Chip retangular com proporção 1.5:1 (igual ao aspect físico de um cartão). Bg = cor oficial da brand. Visa, Master e Discover usam tile branco com hairline border (logos coloridas dentro)."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Spec k="chip sm" v="28 × 18 px" d="logo: ~78%" />
-              <Spec k="chip md" v="36 × 24 px" d="default · logo: ~78%" />
-              <Spec k="chip lg" v="48 × 32 px" d="logo: ~78%" />
-              <Spec k="radius" v="3 / 4 / 5 px" d="cresce com o size." />
+              <Spec k="chip sm" v="28 × 18 px" d="Logo: ~78%" />
+              <Spec k="chip md" v="36 × 24 px" d="Default · logo: ~78%" />
+              <Spec k="chip lg" v="48 × 32 px" d="Logo: ~78%" />
+              <Spec k="radius" v="3 / 4 / 5 px" d="Cresce com o size." />
               <Spec
                 k="bg branco bordered"
                 v="visa · master · discover"
-                d="usa hairline --border-subtle inset."
+                d="Usa hairline --border-subtle inset."
               />
               <Spec k="bg cor brand" v="amex · elo · hipercard · diners" />
             </div>

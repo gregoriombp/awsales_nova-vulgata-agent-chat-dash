@@ -29,7 +29,7 @@ export default function IntegrationCardPage() {
             lead="Quatro estados canônicos. O componente decide pill, dot, meta default e CTA a partir deles."
           >
             <Stage
-              label="connected / available / attention / disabled"
+              label="Connected / available / attention / disabled"
               gridClassName="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
             >
               <AwIntegrationCard

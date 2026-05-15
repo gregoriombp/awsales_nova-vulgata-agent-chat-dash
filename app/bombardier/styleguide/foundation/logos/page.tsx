@@ -22,34 +22,36 @@ type LogoExport = {
   intent: string
   /** True quando o asset precisa renderizar sobre fundo escuro pra ler. */
   needsDarkBg?: boolean
+  /** Mensagem do bug quando o PNG está incorreto e precisa ser regenerado. */
+  bug?: string
 }
 
 const MARKS: LogoExport[] = [
   {
     kind: "mark",
     tone: "brand",
-    label: "mark · brand",
+    label: "Mark · brand",
     src: AW_LOGO_ASSETS.mark.brand,
     intent: "Default em superfícies neutras claras. A cor canônica.",
   },
   {
     kind: "mark",
     tone: "muted",
-    label: "mark · muted",
+    label: "Mark · muted",
     src: AW_LOGO_ASSETS.mark.muted,
     intent: "Estados secundários: footer, watermark, slide de transição.",
   },
   {
     kind: "mark",
     tone: "black",
-    label: "mark · black",
+    label: "Mark · black",
     src: AW_LOGO_ASSETS.mark.black,
     intent: "Impressão preto-e-branco, fax, mono offset, ícone monocromo.",
   },
   {
     kind: "mark",
     tone: "white",
-    label: "mark · white",
+    label: "Mark · white",
     src: AW_LOGO_ASSETS.mark.white,
     intent: "Product shell escuro, hero ai-gradient, fundo de mídia.",
     needsDarkBg: true,
@@ -60,28 +62,29 @@ const WORDMARKS: LogoExport[] = [
   {
     kind: "wordmark",
     tone: "brand",
-    label: "wordmark · brand",
+    label: "Wordmark · brand",
     src: AW_LOGO_ASSETS.wordmark.brand,
-    intent: "Wordmark canônico em fundo claro. Use em cabeçalhos institucionais.",
+    intent: "Aw azul + sales branco com transparência. Use sobre fundo escuro ou colorido — em fundo branco o 'sales' fica invisível.",
+    needsDarkBg: true,
   },
   {
     kind: "wordmark",
     tone: "muted",
-    label: "wordmark · muted",
+    label: "Wordmark · muted",
     src: AW_LOGO_ASSETS.wordmark.muted,
     intent: "Assinatura inferior, e-mail, documentos longos.",
   },
   {
     kind: "wordmark",
     tone: "black",
-    label: "wordmark · black",
+    label: "Wordmark · black",
     src: AW_LOGO_ASSETS.wordmark.black,
     intent: "Impressão monocroma, deck preto-no-branco, fax.",
   },
   {
     kind: "wordmark",
     tone: "brand-on-dark",
-    label: "wordmark · brand on dark",
+    label: "Wordmark · brand on dark",
     src: AW_LOGO_ASSETS.wordmark.brandOnDark,
     intent: "Wordmark canônico em fundo escuro. Hero ai-gradient, product shell.",
     needsDarkBg: true,
@@ -89,7 +92,7 @@ const WORDMARKS: LogoExport[] = [
   {
     kind: "wordmark",
     tone: "muted-on-dark",
-    label: "wordmark · muted on dark",
+    label: "Wordmark · muted on dark",
     src: AW_LOGO_ASSETS.wordmark.mutedOnDark,
     intent: "Assinatura secundária em superfícies escuras (footer dark).",
     needsDarkBg: true,
@@ -97,10 +100,11 @@ const WORDMARKS: LogoExport[] = [
   {
     kind: "wordmark",
     tone: "white",
-    label: "wordmark · white",
+    label: "Wordmark · white",
     src: AW_LOGO_ASSETS.wordmark.white,
     intent: "Impressão sobre cor sólida saturada (deck, social, hero).",
     needsDarkBg: true,
+    bug: "Asset exportado preto em vez de branco — regenerar antes de distribuir. Enquanto isso, use o SVG wordmark-white.svg.",
   },
 ]
 
@@ -184,13 +188,27 @@ function LogoCardPreview({ item }: { item: LogoExport }) {
 }
 
 function LogoCard({ item }: { item: LogoExport }) {
+  const hasBug = Boolean(item.bug)
   return (
     <div
-      className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden flex flex-col"
+      className="rounded-[var(--radius-lg)] border overflow-hidden flex flex-col"
       style={{
         background: item.needsDarkBg ? "var(--dark-bg)" : "var(--bg-raised)",
+        borderColor: hasBug ? "var(--aw-amber-400)" : "var(--border-subtle)",
       }}
     >
+      {hasBug ? (
+        <div
+          className="aw-eyebrow px-4 py-1.5"
+          style={{
+            background: "var(--aw-amber-100)",
+            color: "var(--aw-amber-900)",
+            borderBottom: "1px solid var(--aw-amber-400)",
+          }}
+        >
+          asset bugado · regenerar
+        </div>
+      ) : null}
       <div
         className="flex-1 flex items-center justify-center p-8"
         style={{ minHeight: item.kind === "mark" ? 180 : 140 }}
@@ -207,6 +225,14 @@ function LogoCard({ item }: { item: LogoExport }) {
           </code>
         </div>
         <p className="caption">{item.intent}</p>
+        {hasBug ? (
+          <p
+            className="caption mt-1"
+            style={{ color: "var(--aw-amber-900)" }}
+          >
+            <strong>Bug:</strong> {item.bug}
+          </p>
+        ) : null}
       </div>
     </div>
   )
@@ -216,11 +242,11 @@ export default function LogosPage() {
   return (
     <>
       <PageHero title="Logos">
-        A identidade reduzida a uma forma primitiva: um <strong>A triangular</strong>,
-        sólido, sem floreio. O <strong>mark</strong> é a forma autônoma; o{" "}
-        <strong>wordmark</strong> acompanha em cabeçalhos, documentos e
-        assinatura. Esta página é a fonte de verdade para qualquer aplicação da
-        logo AwSales — em código, deck, e-mail, social, print.
+        Duas glifas que formam <strong>Aw</strong>: o A triangular e o w em três
+        traços. O <strong>mark</strong> (Aw) é a forma autônoma; o{" "}
+        <strong>wordmark</strong> (Awsales) acompanha em cabeçalhos, documentos
+        e assinatura. Esta página é a fonte de verdade para qualquer aplicação
+        da logo AwSales — em código, deck, e-mail, social, print.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
@@ -303,13 +329,9 @@ export default function LogosPage() {
           lead="A altura do mark é a unidade-raiz (x). Todas as regras de espaço e tamanho derivam dela."
         >
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10 flex items-center gap-12 flex-wrap">
-            <img
-              src={AW_LOGO_ASSETS.mark.brand}
-              alt="AwSales mark"
-              width={120}
-              height={120}
-              style={{ display: "block" }}
-            />
+            <span style={{ color: "var(--aw-blue-600)", display: "inline-flex" }}>
+              <AwLogo variant="mark" height={96} />
+            </span>
             <div className="flex flex-col gap-3">
               <Spec
                 k="unidade-raiz"
@@ -324,12 +346,12 @@ export default function LogosPage() {
               <Spec
                 k="alinhamento"
                 v="baseline óptica, não matemática"
-                d="O centro visual do A vira o eixo."
+                d="O centro visual do Aw é o eixo — não o canto do A."
               />
               <Spec
                 k="proporção wordmark"
-                v="altura mark × 4.6"
-                d="A largura do wordmark é fixa em relação ao mark."
+                v="largura wordmark = altura × 4.6"
+                d="A largura do wordmark é fixa em relação à altura do mark."
               />
             </div>
           </div>
@@ -341,25 +363,31 @@ export default function LogosPage() {
           title="Componente · AwLogo"
           lead="Caminho preferencial dentro do produto. SVG inline com fill=currentColor — herda a cor do parent via text-* token."
         >
-          <Stage label="variant · wordmark / mark" hint="height controla o tamanho; cor vem do contexto.">
+          <Stage label="Variant · wordmark" hint="Wordmark (Awsales). Cor vem do parent via text-* token.">
             <span style={{ color: "var(--fg-primary)" }}>
               <AwLogo variant="wordmark" height={24} />
-            </span>
-            <span style={{ color: "var(--fg-primary)" }}>
-              <AwLogo variant="mark" height={32} />
             </span>
             <span style={{ color: "var(--aw-blue-600)" }}>
               <AwLogo variant="wordmark" height={24} />
+            </span>
+          </Stage>
+
+          <Stage label="Variant · mark" hint="Mark (Aw). Forma autônoma — use sozinho, nunca ao lado do wordmark.">
+            <span style={{ color: "var(--fg-primary)" }}>
+              <AwLogo variant="mark" height={32} />
             </span>
             <span style={{ color: "var(--aw-blue-600)" }}>
               <AwLogo variant="mark" height={32} />
             </span>
           </Stage>
 
-          <Stage label="sobre superfície escura" hint="O mesmo componente; cor vem do parent." dark>
+          <Stage label="Sobre superfície escura · wordmark" hint="O mesmo componente; cor vem do parent." dark>
             <span style={{ color: "var(--dark-fg-primary)" }}>
               <AwLogo variant="wordmark" height={24} />
             </span>
+          </Stage>
+
+          <Stage label="Sobre superfície escura · mark" hint="Forma autônoma sobre dark." dark>
             <span style={{ color: "var(--dark-fg-primary)" }}>
               <AwLogo variant="mark" height={32} />
             </span>
@@ -370,7 +398,7 @@ export default function LogosPage() {
               prop="variant"
               type='"wordmark" | "mark"'
               def='"wordmark"'
-              doc="Forma autônoma (mark = A) ou completa (wordmark = Awsales)."
+              doc="Forma autônoma (mark = Aw) ou completa (wordmark = Awsales)."
             />
             <PropRow
               prop="height"
@@ -506,9 +534,9 @@ export default function LogosPage() {
                 height={16}
               />
               <div className="caption text-center">
-                mark min. <b>16 px</b>
+                Mark min. <b>16 px</b>
                 <br />
-                favicon, inline UI
+                Favicon, inline UI
               </div>
             </div>
             <div className="flex flex-col items-center gap-3">
@@ -519,9 +547,9 @@ export default function LogosPage() {
                 height={24}
               />
               <div className="caption text-center">
-                mark uso comum <b>24 px</b>
+                Mark uso comum <b>24 px</b>
                 <br />
-                sidebar, cabeçalhos
+                Sidebar, cabeçalhos
               </div>
             </div>
             <div className="flex flex-col items-center gap-3">
@@ -531,9 +559,9 @@ export default function LogosPage() {
                 style={{ height: 20, width: "auto" }}
               />
               <div className="caption text-center">
-                wordmark min. <b>20 px alto</b>
+                Wordmark min. <b>20 px alto</b>
                 <br />
-                documentos, e-mail
+                Documentos, e-mail
               </div>
             </div>
             <div className="flex flex-col items-center gap-3">
@@ -543,9 +571,9 @@ export default function LogosPage() {
                 style={{ height: 28, width: "auto" }}
               />
               <div className="caption text-center">
-                wordmark uso comum <b>28 px alto</b>
+                Wordmark uso comum <b>28 px alto</b>
                 <br />
-                cabeçalho de página
+                Cabeçalho de página
               </div>
             </div>
           </div>
@@ -575,27 +603,27 @@ export default function LogosPage() {
                   className="text-sm font-medium"
                   style={{ color: "var(--dark-fg-primary)" }}
                 >
-                  product shell
+                  Product shell
                 </div>
                 <div
                   className="caption"
                   style={{ color: "var(--dark-fg-tertiary)" }}
                 >
-                  mark white sobre #0D0D0D
+                  Mark white sobre #0D0D0D
                 </div>
               </div>
             </div>
             <div className="rounded-[var(--radius-lg)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] overflow-hidden flex flex-col">
               <div className="flex-1 flex items-center justify-center p-10 min-h-[200px]">
                 <img
-                  src={AW_LOGO_ASSETS.wordmark.brand}
+                  src={AW_LOGO_ASSETS.svg.wordmarkBrand}
                   alt="wordmark on light"
                   style={{ height: 40, width: "auto" }}
                 />
               </div>
               <div className="px-4 py-3 border-t border-[var(--border-subtle)]">
-                <div className="text-sm font-medium">hero light</div>
-                <div className="caption">wordmark brand sobre branco</div>
+                <div className="text-sm font-medium">Hero light</div>
+                <div className="caption">Wordmark brand sobre branco</div>
               </div>
             </div>
             <div
@@ -607,7 +635,7 @@ export default function LogosPage() {
             >
               <div className="flex-1 flex items-center justify-center p-10 min-h-[200px]">
                 <img
-                  src={AW_LOGO_ASSETS.wordmark.white}
+                  src={AW_LOGO_ASSETS.svg.wordmarkWhite}
                   alt="wordmark on gradient"
                   style={{ height: 40, width: "auto" }}
                 />
@@ -620,13 +648,13 @@ export default function LogosPage() {
                   className="text-sm font-medium"
                   style={{ color: "#fff" }}
                 >
-                  hero ai-gradient
+                  Hero ai-gradient
                 </div>
                 <div
                   className="caption"
                   style={{ color: "rgba(255,255,255,0.7)" }}
                 >
-                  wordmark white sobre mesh oficial
+                  Wordmark white sobre mesh oficial
                 </div>
               </div>
             </div>

@@ -53,7 +53,7 @@ export default function AwSelectPage() {
           title="Pareado com label"
           lead="O componente não traz label próprio — coloque um <label> ou <AwField> acima quando o contexto não for óbvio."
         >
-          <Stage label="dentro de um form" gridClassName="flex flex-col gap-2 w-full max-w-md">
+          <Stage label="Dentro de um form" gridClassName="flex flex-col gap-2 w-full max-w-md">
             <label className="body-sm text-[var(--fg-secondary)]" htmlFor="canal">
               Canal padrão de respostas
             </label>

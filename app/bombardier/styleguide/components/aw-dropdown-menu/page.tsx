@@ -36,7 +36,7 @@ export default function AwDropdownMenuPage() {
             title="Sort menu — items com checked"
             lead="Mostra a opção ativa com um check à direita. Clique fora ou ESC fecha."
           >
-            <Stage label={`atual: ${sortLabel[sort]}`}>
+            <Stage label={`Atual: ${sortLabel[sort]}`}>
               <AwDropdownMenu
                 trigger={
                   <AwButton
@@ -126,7 +126,7 @@ export default function AwDropdownMenuPage() {
             title="Com label de grupo"
             lead="Use itens isLabel pra agrupar comandos relacionados sob um cabeçalho upper-tracked."
           >
-            <Stage label="filtro por status">
+            <Stage label="Filtro por status">
               <AwDropdownMenu
                 trigger={
                   <AwButton

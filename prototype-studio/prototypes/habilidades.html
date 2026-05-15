@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Studio · Habilidades — protótipo</title>
+<link rel="stylesheet" href="../assets/shell.css">
+<style>
+/* ---------- Tabs (Todas / Nativas / Personalizadas) ---------- */
+.aw-tabs {
+  display: inline-flex; gap: 4px;
+  padding: 4px;
+  background: var(--paper2);
+  border: 1.5px dashed var(--muted2);
+  border-radius: 24px;
+}
+.aw-tabs button {
+  padding: 6px 14px;
+  border: 1.5px solid transparent;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  background: transparent;
+  color: var(--muted);
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.aw-tabs button:hover { color: var(--ink); }
+.aw-tabs button.active { background: var(--ink); color: var(--paper); border-color: var(--ink); font-weight: 600; }
+.aw-tabs button .count {
+  background: rgba(255,255,255,0.18);
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+}
+.aw-tabs button:not(.active) .count {
+  background: var(--paper);
+  color: var(--muted);
+  border: 1px dashed var(--muted2);
+}
+
+/* ---------- Toolbar ---------- */
+.tools-toolbar {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.tools-search {
+  flex: 1;
+  min-width: 220px;
+  max-width: 320px;
+  margin-left: auto;
+  position: relative;
+}
+.tools-search input {
+  width: 100%;
+  padding: 7px 12px 7px 30px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+}
+.tools-search::before {
+  content: "🔍";
+  position: absolute; left: 9px; top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+/* ---------- Pack (integration group) ---------- */
+.pack {
+  background: var(--paper);
+  border: 1.5px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.pack-head {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px;
+  cursor: pointer;
+  background: var(--paper);
+}
+.pack-head:hover { background: var(--paper2); }
+.pack-logo {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  background: var(--paper2);
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Caveat'; font-size: 22px; font-weight: 700;
+  flex-shrink: 0;
+}
+.pack-logo.gradient {
+  background: linear-gradient(135deg, #3257b8, #6b3da8, #2f7a35);
+  color: white;
+  border-color: var(--ink);
+  font-family: 'Patrick Hand';
+  font-size: 20px;
+}
+.pack-logo.brand-hotmart { background: #ff6b35; color: white; }
+.pack-logo.brand-stripe { background: #635bff; color: white; }
+.pack-logo.brand-kiwify { background: #00d563; color: white; }
+.pack-logo.brand-hubspot { background: #ff7a59; color: white; }
+.pack-logo.brand-calendly { background: #006bff; color: white; }
+.pack-logo.brand-gcal { background: #1a73e8; color: white; }
+.pack-logo.brand-claude { background: #d97757; color: white; }
+.pack-logo.brand-openai { background: #10a37f; color: white; }
+.pack-logo.brand-typeform { background: #262627; color: white; }
+.pack-logo.brand-memberkit { background: #4a3eb8; color: white; }
+.pack-logo.brand-eduzz { background: #f7c41f; color: var(--ink); }
+.pack-head .info { flex: 1; min-width: 0; }
+.pack-head .title {
+  font-family: 'Caveat'; font-size: 22px; font-weight: 600;
+  line-height: 1.1;
+}
+.pack-head .subtitle {
+  color: var(--muted); font-size: 12px;
+  margin-top: 2px;
+}
+.pack-head .stats {
+  text-align: right;
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.pack-head .stats strong { color: var(--ink); }
+.pack-head .pack-actions {
+  display: flex; gap: 6px;
+  flex-shrink: 0;
+}
+.pack-head .chev {
+  width: 26px; height: 26px;
+  border: 1.5px dashed var(--muted2);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.18s;
+}
+.pack-head .chev.open { transform: rotate(180deg); }
+.pack-body {
+  border-top: 1.5px dashed var(--muted2);
+}
+.pack.collapsed .pack-body { display: none; }
+.pack.collapsed .pack-head .chev { transform: rotate(-90deg); }
+
+/* ---------- Instance sub-pack (multi-conta) ---------- */
+.instance {
+  border-bottom: 1px dashed var(--muted2);
+}
+.instance:last-child { border-bottom: none; }
+.instance-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 18px 10px 40px;
+  cursor: pointer;
+  background: var(--paper2);
+}
+.instance-head:hover { background: var(--paper3); }
+.instance-head .mini-logo {
+  width: 26px; height: 26px; border-radius: 6px;
+  border: 1.5px solid var(--ink);
+  font-family: 'Caveat'; font-size: 14px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.instance-head .info { flex: 1; min-width: 0; }
+.instance-head .name { font-size: 14px; font-weight: 600; }
+.instance-head .meta { font-size: 11px; color: var(--muted); margin-top: 1px; display: flex; gap: 6px; align-items: center; }
+.instance-head .warn { color: var(--red); font-weight: 500; }
+.instance-head .ratio { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.instance-head .chev {
+  width: 22px; height: 22px;
+  border: 1.5px dashed var(--muted2);
+  border-radius: 5px;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+}
+.instance.collapsed .instance-body { display: none; }
+.instance.collapsed .instance-head .chev { transform: rotate(-90deg); }
+.instance-body {
+  background: var(--paper);
+  padding-left: 18px;
+}
+
+/* ---------- Tool rows ---------- */
+.tool-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px dashed var(--muted2);
+  cursor: pointer;
+  background: transparent;
+  transition: background 0.12s;
+}
+.tool-row:last-child { border-bottom: none; }
+.tool-row:hover { background: var(--paper2); }
+.tool-row.disabled { opacity: 0.55; }
+.tool-row .icon {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.tool-row .body { flex: 1; min-width: 0; }
+.tool-row .name {
+  font-size: 14px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tool-row .desc {
+  font-size: 12px; color: var(--muted); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tool-row .kind-pill {
+  flex-shrink: 0;
+  padding: 2px 9px;
+  font-size: 11px;
+  border-radius: 12px;
+  border: 1px dashed var(--muted2);
+  background: var(--paper2);
+  color: var(--muted);
+  font-weight: 500;
+}
+.tool-row .kind-pill.read { background: #eef0f3; color: #4a4f57; border-color: #b0b5be; }
+.tool-row .kind-pill.write { background: var(--blue-bg); color: var(--blue); border-color: var(--blue); }
+.tool-row .kind-pill.action { background: var(--purple-bg); color: var(--purple); border-color: var(--purple); }
+
+/* Toggle */
+.toggle {
+  flex-shrink: 0;
+  width: 36px; height: 20px;
+  border-radius: 12px;
+  background: var(--muted3);
+  border: 1.5px solid var(--ink);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 1px; left: 1px;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  transition: left 0.15s;
+}
+.toggle.on { background: var(--green); }
+.toggle.on::after { left: 18px; }
+
+.row-delete {
+  flex-shrink: 0;
+  width: 28px; height: 28px;
+  border: 1.5px dashed var(--muted2);
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+}
+.row-delete:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+/* ---------- Empty hint inside custom pack with no tools ---------- */
+.empty-hint {
+  padding: 22px 18px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.empty-hint a {
+  color: var(--ink); font-weight: 600;
+  text-decoration: underline; cursor: pointer;
+}
+
+/* ---------- No-connections hero ---------- */
+.hero {
+  border: 1.5px dashed var(--muted2);
+  border-radius: 18px;
+  background: var(--paper);
+  text-align: center;
+  padding: 48px 32px;
+  box-shadow: var(--shadow-sm);
+}
+.hero .brands-row {
+  display: flex; gap: 14px; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+}
+.hero .brand-chip {
+  width: 44px; height: 44px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ink);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: 'Caveat'; font-size: 22px; font-weight: 700;
+  color: white;
+}
+.hero h2 { font-size: 28px; margin-bottom: 10px; }
+.hero p { color: var(--muted); font-size: 14px; max-width: 460px; margin: 0 auto; line-height: 1.5; }
+.hero .ctas { margin-top: 24px; display: inline-flex; gap: 10px; }
+
+/* ---------- Modals (pick-type, pick-integration, new-custom-int, detail) ---------- */
+.modal h2 { font-family: 'Caveat'; font-size: 26px; margin-bottom: 4px; }
+.modal .modal-lead {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+
+.pick-card {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px;
+  border: 1.5px solid var(--ink);
+  border-radius: 12px;
+  background: var(--paper);
+  cursor: pointer;
+  margin-bottom: 10px;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+}
+.pick-card:hover { background: var(--paper2); transform: translate(-1px,-1px); box-shadow: var(--shadow-sm); }
+.pick-card .lead-icon {
+  width: 48px; height: 48px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.pick-card .lead-icon.gradient {
+  background: linear-gradient(135deg, #3257b8, #6b3da8, #2f7a35);
+  color: white;
+}
+.pick-card .lead-icon.brand { color: white; }
+.pick-card .body { flex: 1; min-width: 0; }
+.pick-card .title { font-size: 15px; font-weight: 600; }
+.pick-card .desc { color: var(--muted); font-size: 12.5px; margin-top: 3px; line-height: 1.45; }
+.pick-card .footnote { color: var(--muted2); font-size: 11.5px; margin-top: 4px; font-style: italic; }
+.pick-card .chev { color: var(--muted); font-size: 16px; flex-shrink: 0; }
+
+.pick-card.compact {
+  padding: 10px 14px;
+}
+.pick-card.compact .lead-icon { width: 32px; height: 32px; font-size: 16px; border-radius: 8px; }
+.pick-card.compact .title { font-size: 14px; }
+.pick-card.compact .desc { font-size: 11.5px; margin-top: 1px; }
+
+.pick-card.dashed {
+  border-style: dashed;
+  border-color: var(--muted2);
+}
+.pick-card.dashed .lead-icon { border-style: dashed; border-color: var(--blue); background: var(--blue-bg); color: var(--blue); }
+
+.modal-footer {
+  display: flex; gap: 10px; justify-content: flex-end;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--muted2);
+}
+
+/* Detail modal extras */
+.detail-strip {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 0 16px;
+}
+.detail-strip .left {
+  width: 42px; height: 42px;
+  border-radius: 10px;
+  border: 1.5px solid var(--ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Caveat'; font-size: 22px; font-weight: 700;
+  flex-shrink: 0;
+}
+.detail-strip .meta { flex: 1; min-width: 0; }
+.detail-strip .id {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+.detail-strip .breadcrumb-line {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.detail-section { margin-top: 14px; }
+.detail-section .head {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.param-list {
+  border: 1.5px solid var(--muted2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.param-row {
+  padding: 10px 14px;
+  border-bottom: 1px dashed var(--muted2);
+}
+.param-row:last-child { border-bottom: none; }
+.param-row .head-line { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.param-row .name {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+.param-row .type {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.param-row .required {
+  background: var(--red-bg); color: var(--red);
+  border: 1px solid var(--red);
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.param-row .desc {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.param-row .values {
+  margin-top: 6px;
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.param-row .values span {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  padding: 1px 8px;
+  border: 1px dashed var(--muted2);
+  border-radius: 10px;
+  color: var(--muted);
+  background: var(--paper2);
+}
+.endpoint-box {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  background: var(--paper2);
+  border: 1.5px dashed var(--muted2);
+  border-radius: 8px;
+}
+.endpoint-box .method {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-right: 8px;
+  letter-spacing: 0.5px;
+}
+
+/* Form field (custom int modal) */
+.field { margin-bottom: 12px; }
+.field label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.field .helper { font-size: 11px; color: var(--muted); margin-top: 3px; font-style: italic; }
+.field input, .field select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+}
+.icon-picker { display: flex; gap: 6px; flex-wrap: wrap; }
+.icon-picker button {
+  width: 34px; height: 34px;
+  border: 1.5px dashed var(--muted2);
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 17px;
+  font-family: inherit;
+  display: flex; align-items: center; justify-content: center;
+}
+.icon-picker button.active {
+  background: var(--blue-bg);
+  border-color: var(--blue);
+  border-style: solid;
+}
+
+.test-strip {
+  padding: 10px 12px;
+  border: 1.5px solid;
+  border-radius: 8px;
+  font-size: 12.5px;
+  margin-top: 8px;
+  display: flex; gap: 8px; align-items: center;
+}
+.test-strip.ok { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+.test-strip.err { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+/* Section divider between native and custom blocks */
+.section-divider {
+  border: none;
+  border-top: 2px dashed var(--muted2);
+  margin: 24px 0;
+}
+
+/* KPI row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.kpi-row .card {
+  margin: 0; padding: 11px 14px;
+}
+.kpi-row .lbl { color: var(--muted); font-size: 12px; }
+.kpi-row .val { font-size: 22px; font-weight: 600; font-family: 'Patrick Hand'; }
+.kpi-row .val.green { color: var(--green); }
+</style>
+</head>
+<body>
+
+<div id="proto-shell"
+     data-active="tools"
+     data-org="Fyntra Tecnologia"
+     data-org-logo="F"
+     data-user="Guilherme Graham"
+     data-user-initials="PG"
+     data-user-role="Administrador"
+     data-breadcrumb="Fontes / <strong>Habilidades</strong>"></div>
+
+<main class="page-content">
+
+  <div class="page-head">
+    <div>
+      <h1>🔧 Habilidades</h1>
+      <div class="description" style="max-width: 640px;">Cada habilidade é uma ação que seus agentes podem chamar — buscar uma transação, agendar uma reunião, disparar um contrato. Conecte uma integração e o pacote de habilidades dela aparece aqui automaticamente.</div>
+    </div>
+    <div class="row gap-sm">
+      <button class="btn secondary small" onclick="window.location.href='integracoes.html'">🔌 Gerenciar integrações</button>
+      <button class="btn" onclick="openPickType()">+ Nova habilidade</button>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="card">
+      <div class="lbl">Habilidades ativas</div>
+      <div class="val" id="kpiActive">—</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Total disponível</div>
+      <div class="val" id="kpiTotal">—</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Integrações conectadas</div>
+      <div class="val" id="kpiInts">—</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Taxa de sucesso 24h</div>
+      <div class="val green">97.4%</div>
+    </div>
+  </div>
+
+  <div class="tools-toolbar">
+    <div class="aw-tabs" id="awTabs" role="tablist">
+      <button class="active" data-tab="all">Todas <span class="count" id="cntAll">0</span></button>
+      <button data-tab="native">Nativas <span class="count" id="cntNative">0</span></button>
+      <button data-tab="custom">Personalizadas <span class="count" id="cntCustom">0</span></button>
+    </div>
+    <div class="tools-search">
+      <input type="text" id="searchInput" placeholder="Buscar habilidade…" aria-label="Buscar habilidade">
+    </div>
+  </div>
+
+  <div id="toolsContainer"></div>
+
+</main>
+
+<!-- Modal mount -->
+<div class="modal-mask" id="modalMask" role="dialog" aria-modal="true">
+  <div class="modal" id="modalContent" tabindex="-1"></div>
+</div>
+
+<script src="../assets/shell.js?v=2026-05-12-menu-order"></script>
+<script>
+/* ===================================================================
+ * Catalog of native tools — replica do TOOLS_CATALOG real.
+ * Cada integration tem um "pack" (checkouts/meetings/crms/forms/...).
+ * Tools nascem do pack expandido pelo nome da brand.
+ * =================================================================== */
+
+const KIND_LABELS = { read: "Leitura", write: "Escrita", action: "Ação" };
+
+const PACKS = {
+  checkouts: (b) => [
+    { id: b.id + ".search-transaction", name: "Buscar transação", desc: "Localiza uma transação na " + b.name + " por id, e-mail ou telefone.", kind: "read", icon: "🧾",
+      params: [
+        { name: "query", type: "string", required: true, desc: "Id, e-mail ou telefone do comprador." },
+        { name: "limit", type: "number", desc: "Máximo de resultados. Default 10." }
+      ], returns: "Array<Transaction>" },
+    { id: b.id + ".list-recent-orders", name: "Listar pedidos recentes", desc: "Pedidos mais recentes da " + b.name + ", com filtros por status.", kind: "read", icon: "📋",
+      params: [
+        { name: "status", type: "enum", desc: "Status do pedido.", values: ["paid","pending","refunded","chargeback"] },
+        { name: "since", type: "string", desc: "ISO 8601 — janela inicial." }
+      ] },
+    { id: b.id + ".get-subscription", name: "Detalhar assinatura", desc: "Ciclo, vencimento e histórico de uma assinatura na " + b.name + ".", kind: "read", icon: "🔁",
+      params: [{ name: "subscription_id", type: "string", required: true, desc: "Identificador da assinatura." }] },
+    { id: b.id + ".refund-transaction", name: "Reembolsar transação", desc: "Solicita reembolso integral ou parcial de uma cobrança na " + b.name + ".", kind: "action", icon: "💸",
+      params: [
+        { name: "transaction_id", type: "string", required: true, desc: "Transação a reembolsar." },
+        { name: "amount", type: "number", desc: "Valor parcial. Omitir = total." },
+        { name: "reason", type: "string", desc: "Motivo registrado no log." }
+      ] }
+  ],
+  meetings: (b) => [
+    { id: b.id + ".list-event-types", name: "Listar tipos de reunião", desc: "Tipos de evento configurados na " + b.name + ".", kind: "read", icon: "📅" },
+    { id: b.id + ".find-availability", name: "Buscar horários livres", desc: "Próximos horários disponíveis na agenda " + b.name + ".", kind: "read", icon: "🕒",
+      params: [
+        { name: "event_type_id", type: "string", required: true, desc: "Tipo de evento alvo." },
+        { name: "from", type: "string", desc: "ISO 8601 — início da janela." },
+        { name: "to", type: "string", desc: "ISO 8601 — fim da janela." }
+      ] },
+    { id: b.id + ".create-booking", name: "Agendar reunião", desc: "Cria agendamento na " + b.name + " e envia o link pelo canal.", kind: "action", icon: "➕",
+      params: [
+        { name: "event_type_id", type: "string", required: true, desc: "Tipo de evento alvo." },
+        { name: "start_at", type: "string", required: true, desc: "ISO 8601 — início do evento." },
+        { name: "invitee_email", type: "string", required: true, desc: "E-mail do convidado." }
+      ] },
+    { id: b.id + ".cancel-booking", name: "Cancelar reunião", desc: "Cancela agendamento ativo na " + b.name + ".", kind: "action", icon: "❌",
+      params: [{ name: "booking_id", type: "string", required: true, desc: "Agendamento alvo." }] }
+  ],
+  crms: (b) => [
+    { id: b.id + ".search-contact", name: "Buscar contato", desc: "Localiza um contato na " + b.name + " por e-mail, telefone ou nome.", kind: "read", icon: "🔍",
+      params: [{ name: "query", type: "string", required: true, desc: "Termo de busca." }] },
+    { id: b.id + ".create-lead", name: "Criar lead", desc: "Cria um lead na " + b.name + " com os dados coletados pelo agente.", kind: "write", icon: "👤",
+      params: [
+        { name: "name", type: "string", required: true, desc: "Nome completo." },
+        { name: "email", type: "string", desc: "E-mail principal." },
+        { name: "phone", type: "string", desc: "Telefone com DDI." }
+      ] },
+    { id: b.id + ".update-deal-stage", name: "Avançar etapa do funil", desc: "Move uma oportunidade entre etapas do pipeline na " + b.name + ".", kind: "write", icon: "📈" },
+    { id: b.id + ".log-activity", name: "Registrar atividade", desc: "Anexa atividade (call, e-mail, reunião) ao contato na " + b.name + ".", kind: "write", icon: "📝" },
+    { id: b.id + ".add-note", name: "Adicionar nota", desc: "Nota livre vinculada ao contato ou deal na " + b.name + ".", kind: "write", icon: "🗒" }
+  ],
+  forms: (b) => [
+    { id: b.id + ".list-forms", name: "Listar formulários", desc: "Formulários ativos na " + b.name + ".", kind: "read", icon: "📑" },
+    { id: b.id + ".list-responses", name: "Listar respostas", desc: "Submissões de um formulário " + b.name + ".", kind: "read", icon: "✅" },
+    { id: b.id + ".get-response", name: "Detalhar resposta", desc: "Resposta específica de um formulário " + b.name + ".", kind: "read", icon: "📄" }
+  ],
+  members: (b) => [
+    { id: b.id + ".find-student", name: "Buscar aluno", desc: "Localiza um aluno na " + b.name + ".", kind: "read", icon: "🎓" },
+    { id: b.id + ".get-progress", name: "Consultar progresso", desc: "Progresso de um aluno em um curso da " + b.name + ".", kind: "read", icon: "📊" },
+    { id: b.id + ".grant-access", name: "Liberar acesso", desc: "Concede acesso a um curso na " + b.name + ".", kind: "action", icon: "🔓" },
+    { id: b.id + ".revoke-access", name: "Revogar acesso", desc: "Remove acesso a um curso na " + b.name + ".", kind: "action", icon: "🔒" }
+  ],
+  ai: (b) => [
+    { id: b.id + ".generate-text", name: "Gerar texto", desc: "Geração livre via " + b.name + " com prompt + contexto.", kind: "action", icon: "✨",
+      params: [
+        { name: "prompt", type: "string", required: true, desc: "Instrução principal." },
+        { name: "max_tokens", type: "number", desc: "Limite de saída. Default 800." }
+      ] },
+    { id: b.id + ".classify-intent", name: "Classificar intenção", desc: "Classifica a mensagem do usuário via " + b.name + ".", kind: "action", icon: "🏷" },
+    { id: b.id + ".summarize", name: "Resumir conversa", desc: "Sintetiza histórico longo via " + b.name + ".", kind: "action", icon: "🗜" },
+    { id: b.id + ".extract-entities", name: "Extrair entidades", desc: "Identifica nomes, e-mails, valores e datas via " + b.name + ".", kind: "action", icon: "📦" }
+  ]
+};
+
+/* Brand registry — id, name, cat, icon char, brand class, integration desc */
+const BRANDS = {
+  hotmart:   { name: "Hotmart",     cat: "checkouts", icon: "H",   brandClass: "brand-hotmart",   desc: "Capture transações e eventos do checkout Hotmart." },
+  stripe:    { name: "Stripe",      cat: "checkouts", icon: "S",   brandClass: "brand-stripe",    desc: "Pagamentos globais — cartão, PIX, assinaturas." },
+  kiwify:    { name: "Kiwify",      cat: "checkouts", icon: "K",   brandClass: "brand-kiwify",    desc: "Sincronize vendas e abandonos do checkout Kiwify." },
+  eduzz:     { name: "Eduzz",       cat: "checkouts", icon: "E",   brandClass: "brand-eduzz",     desc: "Capture transações do checkout Eduzz." },
+  hubspot:   { name: "HubSpot",     cat: "crms",      icon: "Hs",  brandClass: "brand-hubspot",   desc: "Sincronize contatos e deals do CRM HubSpot." },
+  calendly:  { name: "Calendly",    cat: "meetings",  icon: "Ca",  brandClass: "brand-calendly",  desc: "Agendamento direto na agenda do owner." },
+  gcal:      { name: "Google Calendar", cat: "meetings", icon: "GC", brandClass: "brand-gcal",    desc: "Sincronize a agenda do Google com seus agentes." },
+  claude:    { name: "Claude",      cat: "ai",        icon: "Cl",  brandClass: "brand-claude",    desc: "Modelo Anthropic Claude pra geração e classificação." },
+  openai:    { name: "OpenAI",      cat: "ai",        icon: "Oa",  brandClass: "brand-openai",    desc: "Modelos GPT pra geração, classificação e embeddings." },
+  typeform:  { name: "Typeform",    cat: "forms",     icon: "Tf",  brandClass: "brand-typeform",  desc: "Capture leads dos formulários conversacionais." },
+  memberkit: { name: "MemberKit",   cat: "members",   icon: "MK",  brandClass: "brand-memberkit", desc: "Sincronize alunos e progresso da área de membros." }
+};
+
+/* Build TOOLS_CATALOG by expanding each brand's pack. */
+const TOOLS_CATALOG = [];
+Object.entries(BRANDS).forEach(([id, b]) => {
+  const pack = PACKS[b.cat];
+  if (!pack) return;
+  pack({ id, name: b.name }).forEach(t => {
+    TOOLS_CATALOG.push(Object.assign({ integrationId: id }, t));
+  });
+});
+
+function getCatalogForIntegration(id) {
+  return TOOLS_CATALOG.filter(t => t.integrationId === id);
+}
+function findCatalog(id) {
+  return TOOLS_CATALOG.find(t => t.id === id);
+}
+
+/* ===================================================================
+ * Estado simulado — instâncias conectadas e tools custom.
+ * Replica integrationsStore + toolsStore. Persiste em localStorage.
+ * =================================================================== */
+
+const LS_INSTANCES = "awsales:proto:instances";
+const LS_DISABLED  = "awsales:proto:disabled";
+const LS_CUSTOM    = "awsales:proto:custom-tools";
+const LS_CUSTOMINT = "awsales:proto:custom-ints";
+
+function loadLS(key, fallback) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; }
+  catch { return fallback; }
+}
+function saveLS(key, v) { localStorage.setItem(key, JSON.stringify(v)); }
+
+/* Seed default state — 2x Hotmart (diferentes contas), 1 Stripe, 1 HubSpot,
+   1 Calendly, 1 Claude + 1 custom integration com 1 custom tool. */
+function seedDefault() {
+  if (localStorage.getItem(LS_INSTANCES)) return;
+  const now = Date.now();
+  const instances = [
+    { instanceId: "hotmart-001",  integrationId: "hotmart",  name: "Conta principal", active: true,  addedAt: now },
+    { instanceId: "hotmart-002",  integrationId: "hotmart",  name: "Loja secundária", active: true,  addedAt: now, needsAttention: true, attentionReason: "Webhook retornou 401 ontem" },
+    { instanceId: "stripe-001",   integrationId: "stripe",   name: "Stripe",          active: true,  addedAt: now },
+    { instanceId: "hubspot-001",  integrationId: "hubspot",  name: "HubSpot Sales",   active: true,  addedAt: now },
+    { instanceId: "calendly-001", integrationId: "calendly", name: "Calendly",        active: true,  addedAt: now },
+    { instanceId: "claude-001",   integrationId: "claude",   name: "Claude",          active: true,  addedAt: now }
+  ];
+  const customInts = [
+    { id: "custom-int.gourmet", name: "Gourmet API", alias: "Produção", baseUrl: "https://api.gourmet.com.br", auth: "bearer", tokenMasked: "••••••••••••", icon: "🍴", addedAt: now }
+  ];
+  const customTools = [
+    {
+      id: "custom-tool.notify-ops",
+      customIntegrationId: "custom-int.gourmet",
+      name: "Notificar Ops",
+      actionKey: "notify-ops",
+      description: "Dispara webhook interno avisando o time de ops sobre evento crítico.",
+      method: "POST",
+      url: "/webhooks/ops/notify",
+      kind: "action",
+      icon: "📣",
+      active: true,
+      addedAt: now
+    }
+  ];
+  saveLS(LS_INSTANCES, instances);
+  saveLS(LS_CUSTOMINT, customInts);
+  saveLS(LS_CUSTOM, customTools);
+  saveLS(LS_DISABLED, ["hubspot-001:hubspot.update-deal-stage"]);
+}
+seedDefault();
+
+let state = {
+  instances:   loadLS(LS_INSTANCES, []),
+  disabled:    loadLS(LS_DISABLED, []),
+  customTools: loadLS(LS_CUSTOM, []),
+  customInts:  loadLS(LS_CUSTOMINT, []),
+  tab: "all",
+  query: ""
+};
+
+/* ===================================================================
+ * Render — pack por instância de integração nativa + pack por
+ * custom integration. Replica o agrupamento real (insight do PG).
+ * =================================================================== */
+
+function rowId(instanceId, toolId) { return instanceId + ":" + toolId; }
+function isEnabled(id) { return !state.disabled.includes(id); }
+
+function toggleEnabled(id) {
+  state.disabled = state.disabled.includes(id)
+    ? state.disabled.filter(x => x !== id)
+    : state.disabled.concat([id]);
+  saveLS(LS_DISABLED, state.disabled);
+  render();
+}
+
+function deleteCustom(id) {
+  if (!confirm("Excluir essa habilidade personalizada? Os agentes que a usam perdem acesso imediatamente.")) return;
+  state.customTools = state.customTools.filter(t => t.id !== id);
+  state.disabled = state.disabled.filter(x => x !== id);
+  saveLS(LS_CUSTOM, state.customTools);
+  saveLS(LS_DISABLED, state.disabled);
+  render();
+}
+
+function matchQuery(t) {
+  if (!state.query) return true;
+  const q = state.query.toLowerCase();
+  return (t.name && t.name.toLowerCase().includes(q))
+      || (t.desc && t.desc.toLowerCase().includes(q))
+      || (t.description && t.description.toLowerCase().includes(q))
+      || (t.id && t.id.toLowerCase().includes(q));
+}
+
+/* Aggregates everything that will render so we can fill KPIs + tab counts. */
+function computeRows() {
+  const nativeRows = [];
+  state.instances.forEach(inst => {
+    if (!inst.active) return;
+    const b = BRANDS[inst.integrationId];
+    if (!b) return;
+    getCatalogForIntegration(inst.integrationId).forEach(t => {
+      nativeRows.push({
+        rowId: rowId(inst.instanceId, t.id),
+        kind: t.kind,
+        name: t.name,
+        desc: t.desc,
+        icon: t.icon,
+        catalog: t,
+        instance: inst,
+        brand: b,
+        source: "native"
+      });
+    });
+  });
+
+  const customRows = state.customTools.map(c => ({
+    rowId: c.id,
+    kind: c.kind,
+    name: c.name,
+    desc: c.description,
+    icon: c.icon,
+    customTool: c,
+    parentId: c.customIntegrationId,
+    source: "custom"
+  }));
+
+  return { nativeRows, customRows };
+}
+
+function render() {
+  const { nativeRows, customRows } = computeRows();
+
+  /* KPIs and tab counters */
+  const total = nativeRows.length + customRows.length;
+  const active = nativeRows.filter(r => isEnabled(r.rowId)).length
+               + customRows.filter(r => isEnabled(r.rowId)).length;
+  document.getElementById("kpiActive").textContent = active;
+  document.getElementById("kpiTotal").textContent  = total;
+  document.getElementById("kpiInts").textContent   = state.instances.length + state.customInts.length;
+  document.getElementById("cntAll").textContent    = total;
+  document.getElementById("cntNative").textContent = nativeRows.length;
+  document.getElementById("cntCustom").textContent = customRows.length;
+
+  /* Sync tab active class */
+  document.querySelectorAll("#awTabs button").forEach(b => {
+    b.classList.toggle("active", b.dataset.tab === state.tab);
+  });
+
+  const container = document.getElementById("toolsContainer");
+  container.innerHTML = "";
+
+  const noConnections = state.instances.length === 0 && state.customInts.length === 0;
+  if (noConnections) {
+    container.innerHTML = renderHero();
+    return;
+  }
+
+  const showNative = state.tab === "all" || state.tab === "native";
+  const showCustom = state.tab === "all" || state.tab === "custom";
+
+  /* ---- Group native instances by brand. Two Hotmart instances share
+         one Hotmart top-pack with two InstancePack children. ---- */
+  let html = "";
+  if (showNative) {
+    const byBrand = new Map();
+    nativeRows.forEach(r => {
+      const arr = byBrand.get(r.brand) || [];
+      arr.push(r);
+      byBrand.set(r.brand, arr);
+    });
+    /* Walk by integration id to keep deterministic order */
+    const brandIds = [...new Set(state.instances.filter(i => i.active).map(i => i.integrationId))];
+    brandIds.forEach(bid => {
+      const b = BRANDS[bid]; if (!b) return;
+      const allBrandRows = nativeRows.filter(r => r.instance.integrationId === bid);
+      const instancesForBrand = state.instances.filter(i => i.active && i.integrationId === bid);
+      if (instancesForBrand.length === 0) return;
+      /* Apply search */
+      const visibleRows = allBrandRows.filter(matchQuery);
+      if (state.query && visibleRows.length === 0) return;
+
+      const totalSkills = allBrandRows.length;
+      const activeSkills = allBrandRows.filter(r => isEnabled(r.rowId)).length;
+      const isSingle = instancesForBrand.length === 1;
+
+      const headRight = isSingle
+        ? '<button class="btn small secondary" onclick="event.stopPropagation(); openPickType(\'native\',\'' + instancesForBrand[0].instanceId + '\')">+ Nova</button>'
+        : "";
+
+      html += renderPackHead({
+        brandClass: b.brandClass,
+        icon: b.icon,
+        gradient: false,
+        title: b.name,
+        subtitle: b.desc,
+        accountCount: instancesForBrand.length,
+        active: activeSkills,
+        total: totalSkills,
+        headRight
+      });
+
+      html += '<div class="pack-body">';
+      if (isSingle) {
+        const inst = instancesForBrand[0];
+        const rowsForInst = visibleRows.filter(r => r.instance.instanceId === inst.instanceId);
+        rowsForInst.forEach(r => { html += renderToolRow(r); });
+      } else {
+        instancesForBrand.forEach(inst => {
+          const rowsAll = allBrandRows.filter(r => r.instance.instanceId === inst.instanceId);
+          const rowsVis = visibleRows.filter(r => r.instance.instanceId === inst.instanceId);
+          if (state.query && rowsVis.length === 0) return;
+          const instActive = rowsAll.filter(r => isEnabled(r.rowId)).length;
+          html += '<div class="instance">';
+          html += '  <div class="instance-head" onclick="toggleInstance(this)">';
+          html += '    <div class="mini-logo ' + b.brandClass + '" style="color:white;">' + b.icon + '</div>';
+          html += '    <div class="info">';
+          html += '      <div class="name">' + escapeHtml(inst.name) + '</div>';
+          html += '      <div class="meta"><span>' + instActive + '/' + rowsAll.length + ' habilidades ativas</span>';
+          if (inst.needsAttention) html += '<span aria-hidden>·</span><span class="warn">⚠ ' + escapeHtml(inst.attentionReason || "atenção necessária") + '</span>';
+          html += '      </div>';
+          html += '    </div>';
+          html += '    <div class="ratio">' + instActive + '/' + rowsAll.length + '</div>';
+          html += '    <button class="btn small secondary" onclick="event.stopPropagation(); openPickType(\'native\',\'' + inst.instanceId + '\')">+ Nova</button>';
+          html += '    <button class="chev" aria-label="Recolher">▾</button>';
+          html += '  </div>';
+          html += '  <div class="instance-body">';
+          rowsVis.forEach(r => { html += renderToolRow(r); });
+          html += '  </div>';
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+      html += '</div>'; /* close .pack */
+    });
+  }
+
+  /* ---- Section divider ---- */
+  if (showNative && showCustom && state.customInts.length > 0 && nativeRows.length > 0) {
+    html += '<hr class="section-divider">';
+  }
+
+  /* ---- Custom integration packs ---- */
+  if (showCustom) {
+    state.customInts.forEach(c => {
+      const rowsAll = customRows.filter(r => r.parentId === c.id);
+      const rowsVis = rowsAll.filter(matchQuery);
+      if (state.query && rowsVis.length === 0) return;
+      const activeC = rowsAll.filter(r => isEnabled(r.rowId)).length;
+      html += renderPackHead({
+        brandClass: "",
+        gradient: true,
+        icon: c.icon || "⚡",
+        title: c.alias ? (c.name + " · " + c.alias) : c.name,
+        subtitle: c.baseUrl || "Conexão HTTP personalizada",
+        accountCount: 1,
+        active: activeC,
+        total: rowsAll.length,
+        headRight: '<button class="btn small secondary" onclick="event.stopPropagation(); openNewCustomTool(\'' + c.id + '\')">+ Nova</button>'
+      });
+      html += '<div class="pack-body">';
+      if (rowsAll.length === 0) {
+        html += '<div class="empty-hint">Nenhuma habilidade nessa conexão ainda. <a onclick="openNewCustomTool(\'' + c.id + '\')">Criar a primeira</a>.</div>';
+      } else {
+        rowsVis.forEach(r => { html += renderToolRow(r); });
+      }
+      html += '</div></div>';
+    });
+  }
+
+  if (!html.trim()) {
+    html = '<div class="block" style="text-align:center; padding:40px 24px;">'
+         + '<h3>🔎 Nenhuma habilidade encontrada</h3>'
+         + '<p class="muted small" style="margin-top:6px;">'
+         + (state.query ? ('Sua busca por "' + escapeHtml(state.query) + '" não retornou resultados.') : "Ajuste os filtros para ver habilidades.")
+         + '</p>'
+         + '<div style="margin-top:14px;"><button class="btn secondary small" onclick="resetFilters()">Limpar filtros</button></div>'
+         + '</div>';
+  }
+
+  container.innerHTML = html;
+}
+
+function renderPackHead(p) {
+  const stats = (p.accountCount > 1 ? ('<div><strong>' + p.accountCount + '</strong> contas</div>') : '')
+              + '<div>' + p.active + '/' + p.total + ' habilidades ativas</div>';
+  let logo;
+  if (p.gradient) {
+    logo = '<div class="pack-logo gradient">' + (p.icon || "⚡") + '</div>';
+  } else {
+    logo = '<div class="pack-logo ' + (p.brandClass || '') + '" style="color:white;">' + (p.icon || '?') + '</div>';
+  }
+  return '<section class="pack">'
+       + '  <header class="pack-head" onclick="togglePack(this)">'
+       + '    ' + logo
+       + '    <div class="info">'
+       + '      <div class="title">' + escapeHtml(p.title) + '</div>'
+       + '      <div class="subtitle">' + escapeHtml(p.subtitle || "") + '</div>'
+       + '    </div>'
+       + '    <div class="stats">' + stats + '</div>'
+       + '    <div class="pack-actions">' + (p.headRight || "") + '</div>'
+       + '    <button class="chev open" aria-label="Recolher">▾</button>'
+       + '  </header>';
+}
+
+function renderToolRow(r) {
+  const enabled = isEnabled(r.rowId);
+  const kindLabel = KIND_LABELS[r.kind] || r.kind;
+  const kindClass = r.kind;
+  const delBtn = r.source === "custom"
+    ? '<button class="row-delete" title="Excluir habilidade" onclick="event.stopPropagation(); deleteCustom(\'' + r.rowId + '\')">🗑</button>'
+    : '';
+  return '<div class="tool-row ' + (enabled ? '' : 'disabled') + '" onclick="openDetail(\'' + r.rowId + '\')">'
+       + '  <div class="icon">' + (r.icon || '•') + '</div>'
+       + '  <div class="body">'
+       + '    <div class="name">' + escapeHtml(r.name) + '</div>'
+       + '    <div class="desc">' + escapeHtml(r.desc || "") + '</div>'
+       + '  </div>'
+       + '  <span class="kind-pill ' + kindClass + '">' + kindLabel + '</span>'
+       + '  <div class="toggle ' + (enabled ? 'on' : '') + '" role="switch" aria-checked="' + enabled + '" tabindex="0" onclick="event.stopPropagation(); toggleEnabled(\'' + r.rowId + '\')"></div>'
+       + '  ' + delBtn
+       + '</div>';
+}
+
+function renderHero() {
+  const brands = ["hotmart","stripe","hubspot","calendly","claude"];
+  let chips = "";
+  brands.forEach(id => {
+    const b = BRANDS[id]; if (!b) return;
+    chips += '<div class="brand-chip ' + b.brandClass + '">' + b.icon + '</div>';
+  });
+  return '<section class="hero">'
+       + '  <div class="brands-row">' + chips + '<div class="brand-chip" style="background:linear-gradient(135deg,#3257b8,#6b3da8,#2f7a35);color:white;">⚡</div></div>'
+       + '  <h2>Conecte uma integração pra liberar habilidades</h2>'
+       + '  <p>Cada integração ativa traz um pacote de habilidades nativas que os agentes podem usar — pesquisar transação, agendar reunião, atualizar deal no CRM. Você também pode criar uma habilidade personalizada apontando pra qualquer endpoint HTTP.</p>'
+       + '  <div class="ctas">'
+       + '    <button class="btn" onclick="window.location.href=\'integracoes.html\'">🔌 Ver integrações</button>'
+       + '    <button class="btn secondary" onclick="openPickType()">+ Criar habilidade personalizada</button>'
+       + '  </div>'
+       + '</section>';
+}
+
+function togglePack(headerEl) {
+  headerEl.parentElement.classList.toggle("collapsed");
+}
+function toggleInstance(headerEl) {
+  headerEl.parentElement.classList.toggle("collapsed");
+}
+function resetFilters() {
+  state.tab = "all";
+  state.query = "";
+  document.getElementById("searchInput").value = "";
+  render();
+}
+
+/* ===================================================================
+ * Tab + search wiring
+ * =================================================================== */
+document.querySelectorAll("#awTabs button").forEach(b => {
+  b.addEventListener("click", () => {
+    state.tab = b.dataset.tab;
+    render();
+  });
+});
+document.getElementById("searchInput").addEventListener("input", e => {
+  state.query = e.target.value;
+  render();
+});
+
+/* ===================================================================
+ * Modals — PickType, PickIntegration, NewCustomIntegration,
+ * ToolDetail, NewCustomTool (stub que vira /tools/new).
+ * =================================================================== */
+
+function showModal(html, sizeLg) {
+  const m = document.getElementById("modalContent");
+  m.className = "modal" + (sizeLg ? " lg" : "");
+  m.innerHTML = html;
+  document.getElementById("modalMask").classList.add("show");
+  setTimeout(() => m.focus(), 50);
+}
+function closeModal() { document.getElementById("modalMask").classList.remove("show"); }
+document.getElementById("modalMask").addEventListener("click", e => {
+  if (e.target.id === "modalMask") closeModal();
+});
+
+/* --- Step 1: PickType --- */
+let pickContext = { presetInstanceId: null };
+function openPickType(presetType, presetInstanceId) {
+  pickContext = { presetInstanceId: presetInstanceId || null };
+  if (presetType === "native" && presetInstanceId) {
+    /* Atalho do botão "+ Nova" dentro de um pack — vai direto pro stub. */
+    openNewToolStub("native:" + presetInstanceId);
+    return;
+  }
+  const html =
+      '<h2>Como você quer criar essa habilidade?</h2>'
+    + '<div class="modal-lead">Toda habilidade pertence a uma integração — ela herda a credencial. Comece escolhendo o tipo da integração pai.</div>'
+    + '<button class="pick-card" onclick="onPickType(\'native\')">'
+    + '  <div class="lead-icon">🧩</div>'
+    + '  <div class="body">'
+    + '    <div class="title">Integração nativa</div>'
+    + '    <div class="desc">Reusa a credencial de uma integração que você já conectou — Hotmart, Stripe, Calendly, etc.</div>'
+    + '    <div class="footnote">Sem precisar configurar OAuth de novo.</div>'
+    + '  </div>'
+    + '  <div class="chev">→</div>'
+    + '</button>'
+    + '<button class="pick-card" onclick="onPickType(\'custom\')">'
+    + '  <div class="lead-icon gradient">⚡</div>'
+    + '  <div class="body">'
+    + '    <div class="title">Integração personalizada</div>'
+    + '    <div class="desc">Aponta pra uma API HTTP sua que ainda não está no catálogo. Você escolhe o tipo de auth e cola o token.</div>'
+    + '    <div class="footnote">Ideal pra serviços internos ou APIs de nicho.</div>'
+    + '  </div>'
+    + '  <div class="chev">→</div>'
+    + '</button>'
+    + '<div class="modal-footer">'
+    + '  <button class="btn secondary" onclick="closeModal()">Cancelar</button>'
+    + '</div>';
+  showModal(html);
+}
+function onPickType(type) {
+  openPickIntegration(type);
+}
+
+/* --- Step 2: PickIntegration (native list vs custom list) --- */
+function openPickIntegration(type) {
+  const isNative = type === "native";
+  let body = "";
+  if (isNative) {
+    const active = state.instances.filter(i => i.active);
+    if (active.length === 0) {
+      body = '<div class="empty-hint" style="border:1.5px dashed var(--muted2);border-radius:10px;font-style:italic;">Você ainda não conectou nenhuma integração nativa. Conecte em <strong>/integrações</strong> pra criar habilidades em cima delas.</div>';
+    } else {
+      active.forEach(inst => {
+        const b = BRANDS[inst.integrationId]; if (!b) return;
+        const label = (inst.name === b.name) ? b.name : (b.name + " · " + inst.name);
+        body += '<button class="pick-card compact" onclick="onSelectNative(\'' + inst.instanceId + '\')">'
+              + '  <div class="lead-icon brand ' + b.brandClass + '">' + b.icon + '</div>'
+              + '  <div class="body">'
+              + '    <div class="title">' + escapeHtml(label) + '</div>'
+              + '    <div class="desc">Nativa · herda credencial</div>'
+              + '  </div>'
+              + '  <div class="chev">›</div>'
+              + '</button>';
+      });
+    }
+  } else {
+    if (state.customInts.length === 0) {
+      body = '<div class="empty-hint" style="border:1.5px dashed var(--muted2);border-radius:10px;font-style:italic;">Você ainda não tem integrações personalizadas. Crie a primeira no card abaixo.</div>';
+    } else {
+      state.customInts.forEach(c => {
+        const label = c.alias ? (c.name + " · " + c.alias) : c.name;
+        const authLabel = c.auth === "bearer" ? "Bearer token" : c.auth === "basic" ? "Basic auth" : c.auth === "apiKey" ? "API key" : "Sem auth";
+        body += '<button class="pick-card compact" onclick="onSelectCustom(\'' + c.id + '\')">'
+              + '  <div class="lead-icon gradient">' + (c.icon || "⚡") + '</div>'
+              + '  <div class="body">'
+              + '    <div class="title">' + escapeHtml(label) + '</div>'
+              + '    <div class="desc">' + authLabel + ' · personalizada</div>'
+              + '  </div>'
+              + '  <div class="chev">›</div>'
+              + '</button>';
+      });
+    }
+    body += '<button class="pick-card compact dashed" onclick="openNewCustomIntegration()">'
+          + '  <div class="lead-icon">+</div>'
+          + '  <div class="body">'
+          + '    <div class="title">Criar nova integração personalizada</div>'
+          + '    <div class="desc">Pra integrar com uma API que ainda não está no catálogo.</div>'
+          + '  </div>'
+          + '  <div class="chev">→</div>'
+          + '</button>';
+  }
+  const html =
+      '<h2>' + (isNative ? "Qual integração nativa?" : "Qual integração personalizada?") + '</h2>'
+    + '<div class="modal-lead">' + (isNative
+        ? "Sua habilidade vai herdar a credencial OAuth/API key dessa integração."
+        : "Sua habilidade vai herdar a credencial bearer/api-key/basic dessa conexão.") + '</div>'
+    + body
+    + '<div class="modal-footer">'
+    + '  <button class="btn ghost small" onclick="openPickType()">‹ Voltar</button>'
+    + '  <button class="btn secondary" onclick="closeModal()">Cancelar</button>'
+    + '</div>';
+  showModal(html);
+}
+function onSelectNative(instanceId) { openNewToolStub("native:" + instanceId); }
+function onSelectCustom(customIntId) { openNewToolStub("custom:" + customIntId); }
+function openNewCustomTool(customIntId) { openNewToolStub("custom:" + customIntId); }
+
+/* --- Step 2b: NewCustomIntegration --- */
+function openNewCustomIntegration() {
+  const html =
+      '<h2>Nova integração personalizada</h2>'
+    + '<div class="modal-lead">Conecte um serviço HTTP que ainda não está no catálogo. Depois de criar, você adiciona habilidades dentro dessa conexão e elas herdam essa credencial automaticamente.</div>'
+    + '<div class="field"><label>Nome dessa conexão</label><input id="ciName" type="text" placeholder="Ex.: Gourmet API" maxlength="60"></div>'
+    + '<div class="field"><label>Apelido</label><input id="ciAlias" type="text" placeholder="Ex.: Produção" maxlength="40"><div class="helper">Opcional — útil quando você tem mais de uma conexão pra mesma API.</div></div>'
+    + '<div class="field"><label>Base URL</label><input id="ciBaseUrl" type="url" placeholder="https://api.empresa.com"><div class="helper">Opcional — se preencher, as habilidades podem usar caminhos relativos.</div></div>'
+    + '<div class="field"><label>Tipo de autenticação</label>'
+    + '  <select id="ciAuth">'
+    + '    <option value="bearer">Bearer token</option>'
+    + '    <option value="apiKey">API key (header)</option>'
+    + '    <option value="basic">Basic auth</option>'
+    + '    <option value="none">Nenhuma</option>'
+    + '  </select>'
+    + '</div>'
+    + '<div class="field" id="ciTokenWrap"><label>Token</label><input id="ciToken" type="password" placeholder="••••••••••••••••••"><div class="helper">Não armazenamos em texto puro — o servidor criptografa.</div></div>'
+    + '<div class="field"><label>Ícone</label>'
+    + '  <div class="icon-picker" id="ciIconPicker">'
+    + '    <button data-icon="⚡" class="active" type="button">⚡</button>'
+    + '    <button data-icon="🔌" type="button">🔌</button>'
+    + '    <button data-icon="📦" type="button">📦</button>'
+    + '    <button data-icon="🕸" type="button">🕸</button>'
+    + '    <button data-icon="🧩" type="button">🧩</button>'
+    + '    <button data-icon="🛰" type="button">🛰</button>'
+    + '    <button data-icon="✉" type="button">✉</button>'
+    + '    <button data-icon="🌐" type="button">🌐</button>'
+    + '  </div>'
+    + '</div>'
+    + '<div id="ciTestResult"></div>'
+    + '<div class="modal-footer">'
+    + '  <button class="btn secondary" onclick="closeModal()">Cancelar</button>'
+    + '  <button class="btn ghost" onclick="testCustomIntegration()">▶ Testar conexão</button>'
+    + '  <button class="btn" id="ciCreateBtn" onclick="createCustomIntegration()">+ Criar conexão</button>'
+    + '</div>';
+  showModal(html);
+  /* Wire icon picker */
+  document.querySelectorAll("#ciIconPicker button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#ciIconPicker button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    });
+  });
+  document.getElementById("ciAuth").addEventListener("change", e => {
+    document.getElementById("ciTokenWrap").style.display = e.target.value === "none" ? "none" : "block";
+  });
+}
+function testCustomIntegration() {
+  const url = document.getElementById("ciBaseUrl").value.trim();
+  const target = document.getElementById("ciTestResult");
+  if (!url || !/^https?:\/\//.test(url)) {
+    target.innerHTML = '<div class="test-strip err">⛔ Não consegui alcançar essa URL. Confere se começa com https://.</div>';
+    return;
+  }
+  target.innerHTML = '<div class="test-strip" style="background:var(--paper2);border-color:var(--muted2);">⏳ Testando…</div>';
+  setTimeout(() => {
+    target.innerHTML = '<div class="test-strip ok">✓ Conexão OK · 200</div>';
+  }, 400);
+}
+function createCustomIntegration() {
+  const name = document.getElementById("ciName").value.trim();
+  const alias = document.getElementById("ciAlias").value.trim();
+  const baseUrl = document.getElementById("ciBaseUrl").value.trim();
+  const auth = document.getElementById("ciAuth").value;
+  const token = document.getElementById("ciToken").value.trim();
+  const iconBtn = document.querySelector("#ciIconPicker button.active");
+  const icon = iconBtn ? iconBtn.dataset.icon : "⚡";
+  if (name.length < 2) { alert("Nome muito curto."); return; }
+  if (auth !== "none" && token.length < 4) { alert("Token obrigatório pra esse tipo de auth."); return; }
+  if (baseUrl && !/^https?:\/\//.test(baseUrl)) { alert("Base URL precisa começar com http(s)://"); return; }
+  const id = "custom-int." + slugify(name) + "-" + Date.now().toString(36);
+  const newInt = {
+    id, name, alias: alias || undefined, baseUrl: baseUrl || undefined, auth,
+    tokenMasked: auth === "none" ? undefined : "•".repeat(Math.min(token.length, 16)),
+    icon, addedAt: Date.now()
+  };
+  state.customInts = [newInt].concat(state.customInts);
+  saveLS(LS_CUSTOMINT, state.customInts);
+  closeModal();
+  /* Forward para o builder com o id novo */
+  openNewToolStub("custom:" + id);
+  render();
+}
+function slugify(s) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
+}
+
+/* --- Step 3: stub for /tools/new --- */
+function openNewToolStub(connSpec) {
+  /* connSpec é "native:<instanceId>" ou "custom:<customIntegrationId>" */
+  let parentLabel = "";
+  if (connSpec.startsWith("native:")) {
+    const iid = connSpec.slice(7);
+    const inst = state.instances.find(i => i.instanceId === iid);
+    if (inst) {
+      const b = BRANDS[inst.integrationId];
+      parentLabel = (b ? b.name : inst.integrationId) + " · " + inst.name;
+    } else parentLabel = "Instância " + iid;
+  } else if (connSpec.startsWith("custom:")) {
+    const cid = connSpec.slice(7);
+    const c = state.customInts.find(x => x.id === cid);
+    parentLabel = c ? (c.alias ? c.name + " · " + c.alias : c.name) : "Integração " + cid;
+  }
+  const html =
+      '<h2>Nova habilidade</h2>'
+    + '<div class="modal-lead">Aqui o app real abre <code>/tools/new?conn=' + escapeHtml(connSpec) + '</code> — o builder completo (nome, descrição, método HTTP, params, mapping, teste no playground).</div>'
+    + '<div class="banner info" style="margin-top:10px;"><span>ⓘ</span><div>Parente selecionado: <strong>' + escapeHtml(parentLabel) + '</strong></div></div>'
+    + '<div style="margin-top:14px;">'
+    + '  <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px;">Stub do builder</div>'
+    + '  <pre style="background:var(--paper2);border:1.5px dashed var(--muted2);border-radius:8px;padding:12px;font-size:11.5px;line-height:1.5;font-family:Geist Mono,ui-monospace,monospace;overflow-x:auto;">'
+    + '{\n'
+    + '  "conn":      "' + escapeHtml(connSpec) + '",\n'
+    + '  "name":      "...",\n'
+    + '  "actionKey": "...",\n'
+    + '  "kind":      "read | write | action",\n'
+    + '  "method":    "GET | POST | PUT | DELETE | PATCH",\n'
+    + '  "url":       "/endpoint",\n'
+    + '  "params":    [ ... ]\n'
+    + '}</pre>'
+    + '</div>'
+    + '<div class="modal-footer">'
+    + '  <button class="btn secondary" onclick="closeModal()">Fechar</button>'
+    + '  <button class="btn" onclick="closeModal()">Abrir builder completo →</button>'
+    + '</div>';
+  showModal(html, true);
+}
+
+/* --- Detail modal --- */
+function openDetail(rowId) {
+  /* Encontra row na fonte (native compõe rowId, custom não) */
+  let row = null;
+  const { nativeRows, customRows } = computeRows();
+  row = nativeRows.find(r => r.rowId === rowId) || customRows.find(r => r.rowId === rowId);
+  if (!row) return;
+
+  const enabled = isEnabled(rowId);
+  const cat = row.catalog;
+  const custom = row.customTool;
+  const params = cat && cat.params ? cat.params : [];
+  const agents = hashStable(rowId) % 5;
+  const lastRun = (hashStable(rowId) % 10080) + 1;
+  const lastRunLabel = lastRun < 60
+    ? lastRun + " min atrás"
+    : lastRun < 60 * 24 ? Math.round(lastRun / 60) + " h atrás"
+    : Math.round(lastRun / (60 * 24)) + " d atrás";
+
+  let breadcrumb;
+  if (row.source === "native") {
+    breadcrumb = row.brand.name + (row.instance.name !== row.brand.name ? " · " + row.instance.name : "");
+  } else {
+    breadcrumb = "Habilidade personalizada · " + (custom ? custom.method : "");
+  }
+
+  let paramsHtml = "";
+  if (params.length > 0) {
+    paramsHtml = '<div class="detail-section"><div class="head">Parâmetros de entrada</div><div class="param-list">';
+    params.forEach(p => {
+      paramsHtml += '<div class="param-row">'
+                  + '  <div class="head-line">'
+                  + '    <span class="name">' + escapeHtml(p.name) + '</span>'
+                  + (p.required ? '<span class="required">obrigatório</span>' : '')
+                  + '    <span class="type">' + escapeHtml(p.type) + '</span>'
+                  + '  </div>'
+                  + '  <div class="desc">' + escapeHtml(p.desc) + '</div>';
+      if (p.values && p.values.length) {
+        paramsHtml += '<div class="values">' + p.values.map(v => '<span>' + escapeHtml(v) + '</span>').join('') + '</div>';
+      }
+      paramsHtml += '</div>';
+    });
+    paramsHtml += '</div></div>';
+  }
+
+  let endpointHtml = "";
+  if (custom) {
+    endpointHtml = '<div class="detail-section"><div class="head">Endpoint</div>'
+                 + '<div class="endpoint-box"><span class="method">' + escapeHtml(custom.method) + '</span>' + escapeHtml(custom.url) + '</div></div>';
+  }
+  let returnsHtml = "";
+  if (cat && cat.returns) {
+    returnsHtml = '<div class="detail-section"><div class="head">Retorno</div><div class="endpoint-box">' + escapeHtml(cat.returns) + '</div></div>';
+  }
+
+  let leftLogo;
+  if (row.source === "native") {
+    leftLogo = '<div class="left ' + row.brand.brandClass + '" style="color:white;">' + row.brand.icon + '</div>';
+  } else {
+    leftLogo = '<div class="left" style="background:linear-gradient(135deg,#3257b8,#6b3da8,#2f7a35);color:white;">' + (row.icon || "⚡") + '</div>';
+  }
+
+  const html =
+      '<h2>' + escapeHtml(row.name) + '</h2>'
+    + '<div class="detail-strip">'
+    + '  ' + leftLogo
+    + '  <div class="meta">'
+    + '    <div class="id">' + escapeHtml((cat && cat.id) || rowId) + '  <span class="kind-pill ' + row.kind + '" style="margin-left:6px;">' + (KIND_LABELS[row.kind] || row.kind) + '</span></div>'
+    + '    <div class="breadcrumb-line">' + escapeHtml(breadcrumb) + '</div>'
+    + '  </div>'
+    + '</div>'
+    + '<p style="margin:0; font-size:14px; line-height:1.55; color:var(--ink-soft);">' + escapeHtml(row.desc || "") + '</p>'
+    + '<div class="detail-section">'
+    + '  <div style="display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--muted);">'
+    + '    <span>🤖 ' + (agents === 0 ? "Nenhum agente usando" : (agents + " agente" + (agents === 1 ? "" : "s") + " usando")) + '</span>'
+    + '    <span>🕒 Última execução ' + lastRunLabel + '</span>'
+    + '    <span>' + (enabled ? "✓ Ativa" : "⏸ Pausada") + '</span>'
+    + '  </div>'
+    + '</div>'
+    + paramsHtml
+    + endpointHtml
+    + returnsHtml
+    + '<div class="modal-footer">'
+    + '  <button class="btn secondary" onclick="closeModal()">Fechar</button>'
+    + '  <button class="btn" onclick="toggleEnabled(\'' + rowId + '\'); closeModal();">' + (enabled ? "⏸ Pausar habilidade" : "▶ Ativar habilidade") + '</button>'
+    + '</div>';
+  showModal(html, true);
+}
+
+/* Utilities */
+function escapeHtml(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function hashStable(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+
+/* Boot */
+render();
+</script>
+
+</body>
+</html>

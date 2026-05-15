@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Studio · Awsales — Financeiro</title>
+<link rel="stylesheet" href="../assets/shell.css">
+<style>
+/* === estilos específicos da página Financeiro === */
+
+.flex-1{flex:1;}.text-right{text-align:right;}
+
+/* Layout config: sub-tabs internas (esquerda) + conteúdo financeiro (direita) */
+.config-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;align-items:flex-start;}
+.config-tabs{background:var(--paper);border:1.5px solid var(--ink);border-radius:12px;padding:16px 0;box-shadow:var(--shadow-sm);height:fit-content;position:sticky;top:24px;}
+.config-tabs .org-head{padding:0 16px 12px;border-bottom:1px dashed var(--muted2);margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.config-tabs .org-head .ico{width:36px;height:36px;background:var(--blue);color:var(--paper);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Caveat';font-size:22px;font-weight:700;}
+.config-tabs .tab{display:block;padding:8px 16px;font-size:14px;cursor:pointer;color:var(--ink);border-left:3px solid transparent;text-decoration:none;}
+.config-tabs .tab:hover{background:var(--paper2);}
+.config-tabs .tab.active{background:var(--paper2);border-left-color:var(--orange);font-weight:600;}
+
+/* Page-internal nav (Visão Geral / Saldo / Modais / Sub-telas) — fica abaixo do shell demo-nav */
+.page-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:8px 10px;border:1.5px dashed var(--muted2);border-radius:10px;background:var(--paper2);}
+.page-nav .group-label{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;padding:0 4px 0 8px;border-left:1px solid var(--muted2);}
+.page-nav .group-label:first-child{border:none;}
+.page-nav button{background:var(--paper);border:1px dashed var(--muted2);color:var(--ink);padding:3px 8px;border-radius:12px;font-size:11px;cursor:pointer;font-family:inherit;}
+.page-nav button:hover{background:var(--paper3);}
+.page-nav button.active{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600;}
+
+/* Sub-tabs (Visão geral · Saldo de créditos) — dentro da página Financeiro */
+.subtabs{display:flex;gap:0;border-bottom:1.5px solid var(--ink);margin-bottom:20px;}
+.subtab{padding:12px 24px;cursor:pointer;color:var(--muted);font-size:15px;border-bottom:3px solid transparent;margin-bottom:-1.5px;}
+.subtab:hover{color:var(--ink);}
+.subtab.active{color:var(--ink);font-weight:600;border-bottom-color:var(--orange);}
+
+/* Block head extra (shell.css define .block) */
+.block h3{margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.block-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+
+/* Cards row */
+.cards-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:14px;}
+.card-mini{border:1.5px solid var(--ink);background:var(--paper);border-radius:10px;padding:12px 14px;box-shadow:var(--shadow-sm);}
+.card-mini .lbl{color:var(--muted);font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.card-mini .val{font-size:18px;font-weight:600;}
+.card-mini .sub{color:var(--muted);font-size:11px;}
+
+/* Plan card */
+.plan-card{border:1.5px solid var(--ink);border-radius:12px;background:var(--paper);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-sm);}
+.plan-card .left h3{margin:0;}
+.plan-card .left .meta{color:var(--muted);font-size:13px;margin-top:2px;}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:14px;font-size:12px;font-weight:500;}
+.status-badge.active{background:var(--green-bg);color:var(--green);}
+.status-badge.open{background:var(--yellow-bg);color:var(--yellow);}
+.status-badge.paid{background:var(--green-bg);color:var(--green);}
+.status-badge.failed{background:var(--red-bg);color:var(--red);}
+.status-badge.expired{background:var(--orange-bg);color:var(--orange);}
+.status-badge.disputed{background:var(--red-bg);color:var(--red);}
+.status-badge.void{background:var(--paper2);color:var(--muted);}
+.status-badge.pending{background:var(--yellow-bg);color:var(--yellow);}
+.status-badge.inactive{background:var(--paper2);color:var(--muted);}
+.status-badge.depleted{background:var(--purple-bg);color:var(--purple);}
+.status-badge.pastdue{background:var(--red-bg);color:var(--red);}
+.status-badge::before{content:"●";font-size:8px;}
+
+/* Fatura card layout */
+.fatura-card{border:1.5px solid var(--ink);border-radius:12px;background:var(--paper);padding:14px 18px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
+.fatura-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.fatura-card .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;align-items:center;}
+.fatura-card .grid .item{}
+.fatura-card .grid .item .lbl{color:var(--muted);font-size:12px;}
+.fatura-card .grid .item .val{font-size:16px;font-weight:500;margin-top:2px;}
+.card-method{display:inline-flex;align-items:center;gap:6px;}
+
+/* Chart */
+.chart-wrap{margin:14px 0;}
+.chart-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:10px;}
+.chart{display:flex;align-items:flex-end;gap:6px;height:220px;border-bottom:1.5px solid var(--ink);border-left:1.5px solid var(--ink);padding:10px 0 0 6px;position:relative;}
+.bar{flex:1;display:flex;flex-direction:column-reverse;min-width:18px;position:relative;}
+.bar-seg{width:100%;border-top:1px solid rgba(0,0,0,0.1);}
+.bar-seg.disparos{background:var(--blue);}
+.bar-seg.leads{background:var(--green);}
+.bar-seg.msgs{background:var(--orange);}
+.bar-seg.tokens{background:var(--purple);}
+.bar .day{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:10px;color:var(--muted);}
+.economy-overlay{position:absolute;top:30%;left:6px;right:0;height:2px;border-top:2px dashed var(--red);}
+.economy-overlay::after{content:"Economia: R$ 132,40";position:absolute;top:-18px;right:0;color:var(--red);font-size:11px;}
+.chart-legend{display:flex;gap:14px;margin-top:30px;font-size:12px;color:var(--muted);}
+.chart-legend .item{display:inline-flex;align-items:center;gap:4px;}
+.chart-legend .swatch{width:12px;height:12px;border-radius:3px;}
+
+/* Table — total-row e kebab são específicos da página */
+.table .total-row{background:var(--green-bg);font-weight:600;}
+.kebab{cursor:pointer;padding:4px 8px;border-radius:6px;}
+.kebab:hover{background:var(--paper2);}
+
+/* Audit item */
+.audit-item{border-bottom:1px dashed var(--muted2);padding:10px 0;display:grid;grid-template-columns:80px 1fr;gap:12px;align-items:flex-start;}
+.audit-item .time{color:var(--muted);font-size:12px;font-family:monospace;}
+.audit-item .actor{font-weight:600;font-size:13px;}
+.audit-item .action{color:var(--blue);font-size:13px;font-family:monospace;}
+.audit-item .meta{color:var(--muted);font-size:12px;margin-top:2px;}
+.actor-badge{display:inline-block;padding:1px 6px;border-radius:8px;font-size:10px;text-transform:uppercase;letter-spacing:0.3px;margin-right:4px;}
+.actor-badge.awsales{background:var(--blue-bg);color:var(--blue);}
+.actor-badge.cliente{background:var(--green-bg);color:var(--green);}
+.actor-badge.sistema{background:var(--orange-bg);color:var(--orange);}
+
+/* Modal extras (modal-mask, .modal, .modal.lg vêm do shell) */
+.modal h3{margin-bottom:8px;}
+.btn-row{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+.row-pair{display:grid;grid-template-columns:200px 1fr;gap:6px 12px;font-size:14px;margin:4px 0;}
+.row-pair .label{color:var(--muted);}
+
+.contact-card{border:1.5px solid var(--muted2);border-radius:8px;padding:10px 14px;background:var(--paper2);margin:8px 0;}
+
+/* Empty state */
+.empty{padding:40px 20px;text-align:center;}
+.empty .ico{font-size:48px;margin-bottom:10px;}
+
+/* Coupon row */
+.coupon-applied{background:var(--green-bg);color:var(--green);padding:2px 8px;border-radius:10px;font-size:11px;font-family:monospace;display:inline-block;}
+
+/* Toggle group (GCP-style) */
+.toggle-group{display:inline-flex;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;background:var(--paper);}
+.toggle-group button{background:transparent;border:none;padding:6px 14px;font-family:inherit;font-size:13px;cursor:pointer;color:var(--muted);border-right:1px solid var(--ink);}
+.toggle-group button:last-child{border-right:none;}
+.toggle-group button.active{background:var(--ink);color:var(--paper);font-weight:600;}
+.toggle-group button:hover:not(.active){background:var(--paper2);color:var(--ink);}
+
+/* Campaign-colored segments */
+.bar-seg.camp-bf{background:#3257b8;}
+.bar-seg.camp-crm{background:#2f7a35;}
+.bar-seg.camp-sdr{background:#c46818;}
+.bar-seg.camp-ob{background:#6b3da8;}
+.bar-seg.camp-out{background:#b8870e;}
+
+/* Timeline (Onda 2 F2.2) */
+.timeline{list-style:none;padding-left:18px;position:relative;margin:8px 0;}
+.timeline::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:var(--muted2);}
+.tl-item{position:relative;padding:6px 0 6px 16px;font-size:13px;line-height:1.5;}
+.tl-dot{position:absolute;left:-15px;top:11px;width:11px;height:11px;border-radius:50%;background:var(--muted);border:2px solid var(--paper);box-shadow:0 0 0 1px var(--muted);}
+.tl-item.ok .tl-dot{background:var(--green);box-shadow:0 0 0 1px var(--green);}
+.tl-item.warn .tl-dot{background:var(--red);box-shadow:0 0 0 1px var(--red);}
+.tl-item.info .tl-dot{background:var(--blue);box-shadow:0 0 0 1px var(--blue);}
+
+/* Progress bar voucher (Onda 2 F2.3) */
+.progress{height:10px;background:var(--paper2);border:1.5px solid var(--ink);border-radius:6px;overflow:hidden;margin:4px 0;position:relative;}
+.progress-fill{height:100%;background:var(--green);}
+.progress-fill.warn{background:var(--yellow);}
+.progress-fill.danger{background:var(--red);}
+.voucher-row{display:grid;grid-template-columns:1fr 140px;gap:10px;align-items:center;}
+
+/* Audit trail PT-BR labels + jump-to-date (Onda 2 F2.7) */
+.action-pt{color:var(--ink);font-weight:500;font-size:13px;}
+.action-pt:hover[title]{cursor:help;}
+.audit-pagination{display:flex;gap:6px;align-items:center;margin-top:14px;flex-wrap:wrap;}
+.audit-pagination button{padding:4px 10px;border:1.5px solid var(--muted2);background:var(--paper);border-radius:6px;cursor:pointer;font-family:inherit;font-size:12px;}
+.audit-pagination button.active{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:600;}
+.audit-pagination button:hover:not(.active){background:var(--paper2);}
+
+/* WCAG: focus em elementos específicos da página */
+.subtab:focus-visible,.bar:focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+@media (max-width:900px){.config-layout{grid-template-columns:1fr;}.config-tabs{position:static;}}
+</style>
+</head>
+<body>
+
+<div id="proto-shell"
+     data-layout="full"
+     data-active="settings"
+     data-org="Fyntra Tecnologia"
+     data-org-logo="F"
+     data-user="Guilherme Graham"
+     data-user-initials="PG"
+     data-user-role="Administrador"
+     data-breadcrumb="Configurações / Fyntra Tecnologia / <strong>Financeiro</strong>"></div>
+
+<main class="page-content">
+
+  <div class="config-layout">
+    <aside class="config-tabs" aria-label="Tabs de configuração da organização">
+      <div class="org-head">
+        <span class="ico">F</span>
+        <div>
+          <div style="font-weight:600">Fyntra</div>
+          <div class="muted small">Configurações da organização</div>
+        </div>
+      </div>
+      <a class="tab" href="team-funcoes-config.html#config-gerais">▤ Configurações gerais</a>
+      <a class="tab" href="team-funcoes-config.html#team">✧ Team</a>
+      <a class="tab" href="team-funcoes-config.html#funcoes">🔑 Funções</a>
+      <a class="tab active" href="#visao-geral" aria-current="page">💰 Financeiro</a>
+      <a class="tab" href="team-funcoes-config.html#seguranca">🔒 Segurança</a>
+    </aside>
+
+    <div id="finPageContent"></div>
+  </div>
+
+</main>
+
+<div class="modal-mask" id="modalMask" role="dialog" aria-modal="true" aria-labelledby="modalContent"><div class="modal" id="modalContent" tabindex="-1"></div></div>
+
+<script src="../assets/shell.js?v=2026-05-12-menu-order"></script>
+
+<script>
+/* Estados internos do protótipo Financeiro acessíveis via hash:
+ *   #visao-geral · #saldo-creditos
+ *   #modal-plano · #modal-campanha · #modal-fatura · #modal-fatura-disputed
+ *   #modal-lgpd · #modal-cupom
+ *   #plano-pastdue · #creditos-vazio
+ *   #metodos-pagamento · #audit-completo
+ * Cliques internos da tela já navegam entre eles. Nav extra no topo foi
+ * removida — agora a navegação cross-protótipos vive na demo-nav do shell. */
+
+function navigate(id) { location.hash = id; render(); }
+function setActive(_id) { /* no-op: nav local foi removida */ }
+let lastFocusBeforeModal = null;
+function showModal(html, lg) {
+  const modal = document.getElementById('modalContent');
+  modal.className = 'modal' + (lg ? ' lg' : '');
+  modal.innerHTML = html;
+  document.getElementById('modalMask').classList.add('show');
+  lastFocusBeforeModal = document.activeElement;
+  // WCAG: focus no modal pra screen readers
+  setTimeout(() => modal.focus(), 50);
+}
+function closeModal() {
+  document.getElementById('modalMask').classList.remove('show');
+  if (lastFocusBeforeModal && typeof lastFocusBeforeModal.focus === 'function') {
+    lastFocusBeforeModal.focus();
+  }
+}
+document.getElementById('modalMask').addEventListener('click', e => { if (e.target.id === 'modalMask') closeModal(); });
+// WCAG: Esc fecha modal
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('modalMask').classList.contains('show')) closeModal();
+});
+
+/* HELPERS */
+function subtabs(active) {
+  return `
+    <div class="subtabs">
+      <span class="subtab ${active === 'visao' ? 'active' : ''}" onclick="navigate('visao-geral')">▣ Visão geral</span>
+      <span class="subtab ${active === 'creditos' ? 'active' : ''}" onclick="navigate('saldo-creditos')">🎟 Saldo de créditos</span>
+    </div>
+  `;
+}
+
+/* VISÃO GERAL */
+function renderVisaoGeral() {
+  document.getElementById('breadcrumb').textContent = 'Configurações / Fyntra Tecnologia / Financeiro';
+  return `
+    ${subtabs('visao')}
+
+    <div class="plan-card">
+      <div class="left">
+        <h3>Plano Enterprise <span class="status-badge active">Ativo</span></h3>
+        <div class="meta">R$ 2.497,98 / mês</div>
+      </div>
+      <button class="btn" onclick="navigate('modal-plano')">Detalhes do plano</button>
+    </div>
+
+    <div class="fatura-card">
+      <div class="top">
+        <div>
+          <strong>Fatura atual</strong>
+          <span class="status-badge open" style="margin-left:6px;">Em aberto</span>
+        </div>
+        <button class="btn-link" onclick="navigate('modal-fatura')">Ver detalhes</button>
+      </div>
+      <div class="grid">
+        <div class="item"><div class="lbl">Vencimento</div><div class="val">28/05/2026</div></div>
+        <div class="item"><div class="lbl">Total</div><div class="val">R$ 3.389,61</div></div>
+        <div class="item">
+          <div class="lbl">Forma de pagamento</div>
+          <div class="val card-method">💳 •••• 3012 <button class="btn ghost small" onclick="navigate('metodos-pagamento')">✎ Trocar</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-row">
+      <div class="card-mini">
+        <div class="lbl">💰 Cobrança parcial em 🔒</div>
+        <div class="val">R$ 5.229,50</div>
+        <div class="sub" style="color:var(--ink);font-weight:500;">ⓘ Não limita seu uso — quando atingir, cobramos e reiniciamos</div>
+      </div>
+      <div class="card-mini">
+        <div class="lbl">📊 Acumulado atual</div>
+        <div class="val">R$ 891,63</div>
+        <div class="sub">17% até a próxima cobrança parcial</div>
+      </div>
+      <div class="card-mini">
+        <div class="lbl">📅 Próxima cobrança · 28/05/2026</div>
+        <div class="val" style="font-size:15px;line-height:1.5;">
+          Plano fixo: <strong>R$ 2.498</strong><br>
+          Variável est.: <strong>R$ 891</strong> <span title="Estimativa baseada no consumo médio dos últimos 90 dias" style="cursor:help;color:var(--muted)">ⓘ</span><br>
+          <span style="border-top:1px dashed var(--muted2);display:inline-block;padding-top:4px;margin-top:2px;">Total: <strong style="color:var(--green);">R$ 3.389</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">ⓘ <strong>NÃO limitamos seu uso.</strong> Quando seu acumulado atingir o valor de "Cobrança parcial em", emitimos uma cobrança parcial e o contador reinicia — seu uso continua normalmente. Falha no pagamento → suspensão temporária até regularização (régua D+N).</p>
+
+    <div class="block">
+      <div class="chart-header">
+        <h3>📊 Gastos variáveis</h3>
+        <select class="select" style="width:auto">
+          <option>Hoje</option>
+          <option>Ontem</option>
+          <option>Esta semana</option>
+          <option>Última semana</option>
+          <option selected>Este mês</option>
+          <option>Mês passado</option>
+          <option>Últimos 7 dias</option>
+          <option>Últimos 30 dias</option>
+          <option>Últimos 90 dias</option>
+          <option>Período customizado...</option>
+        </select>
+      </div>
+
+      <div class="row gap-sm" style="margin-bottom:6px;flex-wrap:wrap;">
+        <span class="muted small" style="font-size:13px;">Agrupar por:</span>
+        <div class="toggle-group" role="group" aria-label="Agrupar gastos por">
+          <button id="grpServico" class="active" onclick="setGrouping('servico')" aria-pressed="true">Por serviço</button>
+          <button id="grpCampanha" onclick="setGrouping('campanha')" aria-pressed="false">Por campanha</button>
+        </div>
+        <span class="muted small" style="font-size:13px;margin-left:14px;">Escala:</span>
+        <div class="toggle-group" role="group" aria-label="Escala do gráfico">
+          <button id="scaleLinear" class="active" onclick="setScale('linear')" aria-pressed="true" title="Escala linear em R$">Linear (R$)</button>
+          <button id="scale100" onclick="setScale('pct')" aria-pressed="false" title="100% empilhado — mostra proporção">100%</button>
+          <button id="scaleLog" onclick="setScale('log')" aria-pressed="false" title="Escala logarítmica — compara magnitudes diferentes">Log</button>
+        </div>
+      </div>
+
+      <p class="muted small">Período: 01/05/2026 a 31/05/2026 · USD = R$ 4,92 · <strong>nesta organização</strong></p>
+
+      <div class="chart-wrap">
+        <div class="chart" id="chart"></div>
+        <div class="chart-legend" id="chartLegend"></div>
+      </div>
+
+      <div id="detailedTable"></div>
+    </div>
+
+    <div class="block">
+      <h3>📋 Histórico de faturas <span class="muted small" style="font-size:13px;font-family:'Patrick Hand';">· nesta organização</span></h3>
+      <p class="muted small">Acompanhe o histórico de faturas. Novas faturas podem levar alguns minutos pra aparecer.</p>
+      <table class="table" style="margin-top:8px;" aria-label="Histórico de faturas desta organização">
+        <caption class="sr-only">Histórico de faturas mostrando mês, descrição, valor bruto, desconto aplicado, valor líquido e status.</caption>
+        <thead>
+          <tr>
+            <th scope="col">Mês ref.</th>
+            <th scope="col">Descrição</th>
+            <th scope="col">Venc.</th>
+            <th scope="col">Pago em</th>
+            <th scope="col">Bruto</th>
+            <th scope="col">Desconto</th>
+            <th scope="col">Líquido</th>
+            <th scope="col">Forma pgto</th>
+            <th scope="col">Status</th>
+            <th scope="col"><span class="sr-only">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Abr/26</td><td>Custos variáveis</td><td>28/04</td><td>28/04</td><td>R$ 1.253,04</td><td><span class="coupon-applied">BF2025</span><br><span class="muted small">- R$ 250,61</span></td><td><strong>R$ 1.002,43</strong></td><td>Visa •••• 3012</td><td><span class="status-badge paid" title="Pagamento confirmado">✓ Paga</span></td><td><span class="kebab" onclick="showFaturaKebab()" role="button" tabindex="0" aria-label="Ações da fatura">⋮</span></td></tr>
+          <tr><td>Abr/26</td><td>Plano</td><td>28/04</td><td>28/04</td><td>R$ 2.497,98</td><td class="muted">—</td><td><strong>R$ 2.497,98</strong></td><td>Visa •••• 3012</td><td><span class="status-badge paid" title="Pagamento confirmado">✓ Paga</span></td><td><span class="kebab" onclick="showFaturaKebab()" role="button" tabindex="0" aria-label="Ações da fatura">⋮</span></td></tr>
+          <tr><td>Abr/26</td><td>Custos variáveis</td><td>16/04</td><td>16/04</td><td>R$ 5.230,11</td><td class="muted">—</td><td><strong>R$ 5.230,11</strong></td><td>Visa •••• 3012</td><td><span class="status-badge paid" title="Pagamento confirmado">✓ Paga</span></td><td><span class="kebab" onclick="showFaturaKebab()" role="button" tabindex="0" aria-label="Ações da fatura">⋮</span></td></tr>
+          <tr><td>Mar/26</td><td>Custos variáveis</td><td>25/03</td><td>—</td><td colspan="2" style="background:var(--paper2);"><span class="muted small">Disputa resolvida — ver timeline</span></td><td><strong>R$ 2.497,98</strong></td><td>Visa •••• 3012</td><td><span class="status-badge paid" title="Disputa resolvida favorável à AwSales">⚖ Disputa OK</span></td><td><span class="kebab" onclick="navigate('modal-fatura-disputed')" role="button" tabindex="0" aria-label="Ver detalhes da disputa">⋮</span></td></tr>
+          <tr><td>Mar/26</td><td>Plano</td><td>28/03</td><td>28/03</td><td>R$ 2.497,98</td><td class="muted">—</td><td><strong>R$ 2.497,98</strong></td><td>Visa •••• 3012</td><td><span class="status-badge paid" title="Pagamento confirmado">✓ Paga</span></td><td><span class="kebab" onclick="showFaturaKebab()" role="button" tabindex="0" aria-label="Ações da fatura">⋮</span></td></tr>
+          <tr style="background:var(--red-bg);border-left:3px solid var(--red);"><td>Mar/26</td><td>Custos variáveis</td><td>25/03</td><td>—</td><td><strong>R$ 5.268,49</strong></td><td class="muted">—</td><td><strong>R$ 5.268,49</strong></td><td>Boleto</td><td><span class="status-badge failed" title="Tentaremos novamente automaticamente">✕ Pagamento falhou</span></td><td><span class="kebab" onclick="showFaturaKebab()" role="button" tabindex="0" aria-label="Ações da fatura">⋮</span></td></tr>
+        </tbody>
+        <tfoot>
+          <tr class="total-row">
+            <td colspan="4"><strong>TOTAIS do período</strong></td>
+            <td><strong>R$ 16.747,60</strong></td>
+            <td style="color:var(--green);"><strong>- R$ 250,61</strong></td>
+            <td><strong>R$ 16.496,99</strong></td>
+            <td colspan="3" class="muted small">bruto · desconto · líquido</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    ${renderAuditTrailSection('geral')}
+  `;
+}
+
+// Toggle de agrupamento: 'servico' (default) | 'campanha'
+let gastosGrouping = 'servico';
+// Toggle de escala: 'linear' (default) | 'pct' (100% empilhado) | 'log' — Onda 2 F2.4
+let gastosScale = 'linear';
+// Cache dos dias do mês — mantém estável entre re-renders (evita Math.random a cada toggle)
+let gastosDays = null;
+
+function setGrouping(mode) {
+  gastosGrouping = mode;
+  document.getElementById('grpServico').classList.toggle('active', mode === 'servico');
+  document.getElementById('grpCampanha').classList.toggle('active', mode === 'campanha');
+  document.getElementById('grpServico').setAttribute('aria-pressed', mode === 'servico');
+  document.getElementById('grpCampanha').setAttribute('aria-pressed', mode === 'campanha');
+  renderChartAndTable();
+}
+
+function setScale(mode) {
+  gastosScale = mode;
+  ['Linear', '100', 'Log'].forEach(s => {
+    const id = 'scale' + s;
+    const target = (s === 'Linear' && mode === 'linear') || (s === '100' && mode === 'pct') || (s === 'Log' && mode === 'log');
+    document.getElementById(id).classList.toggle('active', target);
+    document.getElementById(id).setAttribute('aria-pressed', target);
+  });
+  renderChartAndTable();
+}
+
+function renderChartAndTable() {
+  const chartEl = document.getElementById('chart');
+  const legendEl = document.getElementById('chartLegend');
+  const tableEl = document.getElementById('detailedTable');
+  if (!chartEl || !legendEl || !tableEl) return;
+
+  chartEl.innerHTML = generateBars(gastosGrouping, gastosScale);
+  legendEl.innerHTML = generateLegend(gastosGrouping);
+  tableEl.innerHTML = generateDetailedTable(gastosGrouping);
+}
+
+function ensureDays() {
+  if (gastosDays) return gastosDays;
+  gastosDays = [];
+  for (let i = 1; i <= 31; i++) {
+    gastosDays.push({ day: i, total: i <= 7 ? Math.random() * 80 + 20 : (i <= 14 ? Math.random() * 30 + 5 : 0) });
+  }
+  return gastosDays;
+}
+
+function generateBars(mode, scale) {
+  const days = ensureDays();
+  const maxTotal = Math.max(...days.map(d => d.total));
+  const logMax = Math.log10(maxTotal + 1);
+  let html = '';
+  days.forEach(d => {
+    let totalHeight;
+    if (scale === 'pct') totalHeight = d.total > 0 ? 100 : 0;
+    else if (scale === 'log') totalHeight = d.total > 0 ? (Math.log10(d.total + 1) / logMax) * 100 : 0;
+    else totalHeight = (d.total / maxTotal) * 100;
+
+    const isVisible = d.day % 2 === 1 || d.day === 31;
+    const segs = mode === 'servico'
+      ? [['disparos', 0.4], ['leads', 0.25], ['msgs', 0.2], ['tokens', 0.15]]
+      : [['camp-bf', 0.45], ['camp-crm', 0.30], ['camp-sdr', 0.15], ['camp-ob', 0.10]];
+    const bars = segs.map(([cls, pct]) =>
+      `<div class="bar-seg ${cls}" style="height:${totalHeight * pct}%;"></div>`
+    ).join('');
+    const tip = scale === 'pct'
+      ? `Dia ${d.day} · proporção ${segs.map(([c, p]) => Math.round(p * 100) + '%').join(' / ')}`
+      : `Dia ${d.day} · R$ ${(d.total * 12).toFixed(2)} ${scale === 'log' ? '(escala log)' : ''}`;
+    html += `
+      <div class="bar" title="${tip}" onclick="openDayDrawer(${d.day}, ${d.total.toFixed(2)})" role="button" tabindex="0" aria-label="${tip}">
+        ${bars}
+        ${isVisible ? `<span class="day">${d.day}</span>` : ''}
+      </div>
+    `;
+  });
+  if (scale !== 'pct') html += '<div class="economy-overlay" aria-label="Linha de economia: R$ 132,40 descontados via cupom/voucher"></div>';
+  return html;
+}
+
+function openDayDrawer(day, value) {
+  showModal(`
+    <h3>📅 Detalhe do dia ${day}/05</h3>
+    <p class="muted small">Breakdown desta data — ${gastosGrouping === 'servico' ? 'por serviço' : 'por campanha'}</p>
+    <table class="table" style="margin-top:10px;">
+      <thead><tr><th>${gastosGrouping === 'servico' ? 'Serviço' : 'Campanha'}</th><th>Valor</th><th>% do dia</th></tr></thead>
+      <tbody>
+        ${gastosGrouping === 'servico' ? `
+          <tr><td>📨 Disparos WhatsApp</td><td>R$ ${(value * 12 * 0.4).toFixed(2)}</td><td>40%</td></tr>
+          <tr><td>🎯 Leads convertidos</td><td>R$ ${(value * 12 * 0.25).toFixed(2)}</td><td>25%</td></tr>
+          <tr><td>💬 Mensagens</td><td>R$ ${(value * 12 * 0.2).toFixed(2)}</td><td>20%</td></tr>
+          <tr><td>🧠 Tokens (todos)</td><td>R$ ${(value * 12 * 0.15).toFixed(2)}</td><td>15%</td></tr>
+        ` : `
+          <tr><td>Black Friday Lead Magnet</td><td>R$ ${(value * 12 * 0.45).toFixed(2)}</td><td>45%</td></tr>
+          <tr><td>Recuperação CRM Trial</td><td>R$ ${(value * 12 * 0.30).toFixed(2)}</td><td>30%</td></tr>
+          <tr><td>SDR Outbound Pro</td><td>R$ ${(value * 12 * 0.15).toFixed(2)}</td><td>15%</td></tr>
+          <tr><td>Onboarding Pós-Venda</td><td>R$ ${(value * 12 * 0.10).toFixed(2)}</td><td>10%</td></tr>
+        `}
+        <tr class="total-row"><td><strong>TOTAL</strong></td><td><strong>R$ ${(value * 12).toFixed(2)}</strong></td><td>100%</td></tr>
+      </tbody>
+    </table>
+    <div class="btn-row"><button class="btn" onclick="closeModal()">Fechar</button></div>
+  `);
+}
+
+function generateLegend(mode) {
+  if (mode === 'servico') {
+    return `
+      <span class="item"><span class="swatch" style="background:var(--blue);"></span>Disparos</span>
+      <span class="item"><span class="swatch" style="background:var(--green);"></span>Leads</span>
+      <span class="item"><span class="swatch" style="background:var(--orange);"></span>Mensagens</span>
+      <span class="item"><span class="swatch" style="background:var(--purple);"></span>Tokens</span>
+      <span class="item" style="color:var(--red);">- - - Economia com créditos: R$ 132,40</span>
+    `;
+  }
+  return `
+    <span class="item"><span class="swatch" style="background:#3257b8;"></span>Black Friday Lead Magnet</span>
+    <span class="item"><span class="swatch" style="background:#2f7a35;"></span>Recuperação CRM Trial</span>
+    <span class="item"><span class="swatch" style="background:#c46818;"></span>SDR Outbound Pro</span>
+    <span class="item"><span class="swatch" style="background:#6b3da8;"></span>Onboarding Pós-Venda</span>
+    <span class="item" style="color:var(--red);">- - - Economia com créditos: R$ 132,40</span>
+  `;
+}
+
+function generateDetailedTable(mode) {
+  if (mode === 'servico') {
+    return `
+      <table class="table" style="margin-top:14px;">
+        <thead><tr><th>Serviço</th><th>Quantidade</th><th>Unitário</th><th>Total</th></tr></thead>
+        <tbody>
+          <tr><td>📨 Disparos WhatsApp</td><td>1.245</td><td>R$ 0,12</td><td><strong>R$ 149,40</strong></td></tr>
+          <tr><td>🎯 Leads convertidos</td><td>38</td><td>R$ 2,00</td><td><strong>R$ 76,00</strong></td></tr>
+          <tr><td>💬 Mensagens transacionadas</td><td>3.872</td><td>R$ 0,03</td><td><strong>R$ 116,16</strong></td></tr>
+          <tr><td>🧠 Tokens · Knowledge Input</td><td>2.1M</td><td>R$ 0,002/1K</td><td><strong>R$ 4,20</strong></td></tr>
+          <tr><td>🧠 Tokens · Knowledge Output</td><td>480K</td><td>R$ 0,008/1K</td><td><strong>R$ 3,84</strong></td></tr>
+          <tr><td>🧠 Tokens · Brain Input</td><td>12M</td><td>R$ 0,001/1K</td><td><strong>R$ 12,00</strong></td></tr>
+          <tr><td>🧠 Tokens · Brain Output</td><td>3M</td><td>R$ 0,005/1K</td><td><strong>R$ 15,00</strong></td></tr>
+          <tr><td>🧠 Tokens · Skills Input</td><td>5M</td><td>R$ 0,003/1K</td><td><strong>R$ 15,00</strong></td></tr>
+          <tr><td>🧠 Tokens · Skills Output</td><td>2.3M</td><td>R$ 0,009/1K</td><td><strong>R$ 20,70</strong></td></tr>
+          <tr><td class="muted small" colspan="3">... outros serviços agregados</td><td><strong>R$ 480,33</strong></td></tr>
+          <tr class="total-row"><td colspan="3"><strong>TOTAL</strong></td><td><strong>R$ 891,63 ✓ bate com card</strong></td></tr>
+        </tbody>
+      </table>
+    `;
+  }
+  return `
+    <div class="row gap-sm" style="margin-top:14px;margin-bottom:8px;">
+      <input class="input" placeholder="🔍 Buscar campanha..." style="width:240px;">
+      <select class="select" style="width:auto"><option>Tipo: Todos</option></select>
+      <select class="select" style="width:auto"><option>Status: Todos</option></select>
+    </div>
+    <table class="table">
+      <thead><tr><th>Nome</th><th>Tipo</th><th>Status</th><th>Valor gasto</th><th></th></tr></thead>
+      <tbody>
+        <tr><td><strong>Black Friday Lead Magnet</strong></td><td>Lead Magnet</td><td><span class="status-badge active">Ativa</span></td><td><strong>R$ 412,30</strong></td><td><button class="btn-link" onclick="navigate('modal-campanha')">Ver detalhes →</button></td></tr>
+        <tr><td><strong>Recuperação CRM Trial</strong></td><td>Recuperação</td><td><span class="status-badge active">Ativa</span></td><td><strong>R$ 287,15</strong></td><td><button class="btn-link" onclick="navigate('modal-campanha')">Ver detalhes →</button></td></tr>
+        <tr><td><strong>SDR Outbound Pro</strong></td><td>SDR</td><td><span class="status-badge pending">Pausada</span></td><td><strong>R$ 124,80</strong></td><td><button class="btn-link" onclick="navigate('modal-campanha')">Ver detalhes →</button></td></tr>
+        <tr><td><strong>Onboarding Pós-Venda</strong></td><td>Onboarding</td><td><span class="status-badge active">Ativa</span></td><td><strong>R$ 67,38</strong></td><td><button class="btn-link" onclick="navigate('modal-campanha')">Ver detalhes →</button></td></tr>
+        <tr class="total-row"><td colspan="3"><strong>TOTAL</strong></td><td><strong>R$ 891,63 ✓ mesmo card</strong></td><td></td></tr>
+      </tbody>
+    </table>
+  `;
+}
+
+// Tabela de tradução enum → label PT-BR (Onda 2 F2.7 · Cenário 34 da story)
+const ACTION_LABELS = {
+  'plano.mudou': 'Plano alterado',
+  'plano.status_mudou': 'Status do plano mudou',
+  'plano.past_due_reason_adicionado': 'Razão de inadimplência adicionada',
+  'threshold_cobranca_parcial.mudou': 'Cobrança parcial reconfigurada',
+  'cartao.adicionado': 'Cartão cadastrado',
+  'cartao.removido': 'Cartão removido',
+  'cartao.padrao_mudou': 'Cartão padrão trocado',
+  'fatura.gerada': 'Fatura emitida',
+  'fatura.paga': 'Fatura paga',
+  'fatura.falhou': 'Pagamento falhou',
+  'fatura.tentativa_retry': 'Nova tentativa de cobrança',
+  'fatura.reembolsada': 'Reembolso processado',
+  'fatura.contestada': 'Contestação aberta',
+  'fatura.chargeback': 'Banco devolveu o valor',
+  'fatura.estorno_duplicidade': 'Estorno por duplicidade',
+  'dispute.evidencia_submetida': 'Evidência de disputa submetida',
+  'dispute.aceita': 'Disputa aceita',
+  'dispute.rejeitada': 'Disputa rejeitada',
+  'cupom.aplicado_pelo_cliente': 'Cupom aplicado (pelo cliente)',
+  'cupom.aplicado_pelo_admin': 'Cupom aplicado (pela AwSales)',
+  'cupom.removido': 'Cupom removido',
+  'cupom.aplicacao_falhou': 'Aplicação de cupom falhou',
+  'voucher.emitido': 'Voucher emitido',
+  'voucher.consumido': 'Voucher consumido',
+  'voucher.depleted_rapido': 'Voucher esgotando rápido',
+  'voucher.desativado': 'Voucher pausado',
+  'voucher.reativado': 'Voucher reativado',
+  'voucher.expirou': 'Voucher expirou',
+  'audit_trail.dsr_anonimizacao_aplicada': 'Anonimização LGPD aplicada',
+  'org.suspensa_inadimplencia': 'Organização suspensa por inadimplência',
+  'org.reativada': 'Organização reativada',
+};
+
+function actionLabel(enumKey) {
+  const label = ACTION_LABELS[enumKey] || enumKey;
+  return `<span class="action-pt" title="enum técnico: ${enumKey}">${label}</span>`;
+}
+
+// Audit trail contextual por sub-aba
+const AUDIT_EVENTS = {
+  geral: [
+    { date: 'Hoje · 11/05/2026', items: [
+      ['14:32', 'awsales', 'Bruno C.', 'plano.mudou', 'Pro → Enterprise · R$ 1.997 → R$ 2.497,98'],
+      ['13:55', 'cliente', 'Felipe R.', 'cartao.padrao_mudou', '•••• 8888 → •••• 3012 · 200.4.1.5'],
+      ['11:22', 'sistema', 'webhook Stripe', 'fatura.paga', 'Fatura #INV-2026-04-1234 · R$ 1.253,04'],
+    ]},
+    { date: 'Ontem · 10/05/2026', items: [
+      ['16:00', 'awsales', 'Ana A.', 'threshold_cobranca_parcial.mudou', 'R$ 3.000 → R$ 5.229,50 (não limita uso, define frequência de billing)'],
+      ['14:15', 'sistema', 'webhook Stripe', 'fatura.gerada', 'Fatura #INV-2026-05-0042 · custos variáveis · status DRAFT → OPEN'],
+    ]},
+    { date: '22/05/2026', items: [
+      ['16:40', 'sistema', 'webhook Stripe', 'dispute.aceita', 'Fatura #INV-2026-03-0987 · disputa resolvida favorável à AwSales'],
+    ]},
+  ],
+  creditos: [
+    { date: 'Hoje · 11/05/2026', items: [
+      ['09:10', 'cliente', 'Maria R.', 'cupom.aplicado_pelo_cliente', 'BF2025 · 20% off próxima fatura'],
+    ]},
+    { date: 'Ontem · 10/05/2026', items: [
+      ['18:40', 'sistema', 'webhook Stripe', 'voucher.consumido', 'Crédito Q2 · R$ 250 debitados · saldo restante R$ 750'],
+      ['12:05', 'sistema', 'webhook Stripe', 'voucher.depleted_rapido', 'Bônus Black Friday Setup · consumindo 2.3× acima do previsto'],
+    ]},
+    { date: '09/05/2026', items: [
+      ['10:30', 'awsales', 'Bruno C.', 'voucher.emitido', 'Crédito Q2 · R$ 1.000 · vigente até 30/06 · taxas: Disparos + Knowledge Tokens'],
+      ['08:15', 'awsales', 'Ana A.', 'cupom.aplicado_pelo_admin', 'ONBOARD · R$ 482,30 aplicados na fatura #INV-1001'],
+    ]},
+  ],
+};
+
+function renderAuditTrailSection(scope) {
+  const events = AUDIT_EVENTS[scope] || AUDIT_EVENTS.geral;
+  const scopeLabel = scope === 'creditos'
+    ? '📋 Audit Trail · filtrado para Cupons e Vouchers'
+    : '📋 Audit Trail Financeiro';
+  const scopeNote = scope === 'creditos'
+    ? '<p class="note">ⓘ Filtrado pra eventos de cupom e voucher <strong>desta organização</strong> (contexto desta sub-aba). Pra ver todos os eventos financeiros, acesse o audit completo.</p>'
+    : '<p class="note">ⓘ Mostra eventos de plano, cartão, fatura e compliance <strong>desta organização</strong>. Eventos de cupom/voucher ficam na sub-aba "Saldo de créditos".</p>';
+
+  let html = `
+    <div class="block">
+      <div class="block-head">
+        <h3>${scopeLabel}</h3>
+        <div class="row gap-sm">
+          <button class="btn small ghost" onclick="navigate('audit-completo')" aria-label="Ver audit trail completo">Ver completo →</button>
+          <button class="btn small secondary" onclick="navigate('modal-lgpd')" aria-label="Exportar audit trail como CSV — abre modal de consentimento LGPD">📥 Exportar CSV</button>
+        </div>
+      </div>
+      ${scopeNote}
+
+      <div class="row gap-sm" style="margin-bottom:10px;flex-wrap:wrap;">
+        <label class="sr-only" for="audit-period-${scope}">Filtrar por período</label>
+        <select class="select" id="audit-period-${scope}" style="width:auto"><option>Período: Hoje</option></select>
+        <label class="sr-only" for="audit-type-${scope}">Filtrar por tipo</label>
+        <select class="select" id="audit-type-${scope}" style="width:auto"><option>Tipo: ${scope === 'creditos' ? 'Cupons e Vouchers' : 'Plano, Cartão, Fatura'}</option></select>
+        <label class="sr-only" for="audit-executor-${scope}">Filtrar por executor</label>
+        <select class="select" id="audit-executor-${scope}" style="width:auto"><option>Executor: Todos</option></select>
+        <label class="sr-only" for="audit-search-${scope}">Buscar recurso</label>
+        <input class="input" id="audit-search-${scope}" placeholder="🔍 Buscar recurso..." style="flex:1;">
+      </div>
+  `;
+
+  events.forEach(group => {
+    html += `<p class="muted small" style="margin-top:14px;">📅 ${group.date}</p>`;
+    group.items.forEach(([time, actorType, actor, action, meta]) => {
+      html += auditItem(time, actorType, actor, action, meta);
+    });
+  });
+
+  html += `</div>`;
+  return html;
+}
+
+function auditItem(time, actorType, actor, action, meta) {
+  const badge = { awsales: 'AwSales', cliente: 'Cliente', sistema: 'Sistema' }[actorType];
+  return `
+    <div class="audit-item">
+      <span class="time" aria-label="Horário ${time}">${time}</span>
+      <div>
+        <span class="actor-badge ${actorType}" aria-label="Executor: ${badge}">${badge}</span><span class="actor">${actor}</span> · ${actionLabel(action)}
+        <div class="meta">${meta}</div>
+      </div>
+    </div>
+  `;
+}
+
+function showFaturaKebab() {
+  showModal(`
+    <h3>Ações</h3>
+    <div style="line-height:2.2">
+      <button class="btn-link" onclick="closeModal();navigate('modal-fatura')">👁 Ver detalhes</button><br>
+      <button class="btn-link">📥 Baixar fatura</button>
+    </div>
+  `);
+}
+
+/* SALDO DE CRÉDITOS */
+function renderSaldoCreditos() {
+  document.getElementById('breadcrumb').textContent = 'Configurações / Fyntra Tecnologia / Financeiro / Saldo de créditos';
+  return `
+    ${subtabs('creditos')}
+
+    <div class="cards-row">
+      <div class="card-mini" style="background:var(--paper2);">
+        <div class="lbl">🐷 Total economizado <span class="muted small">nesta organização</span></div>
+        <div class="val">R$ 482,30</div>
+        <div class="sub">lifetime (cupons + vouchers)</div>
+      </div>
+      <div class="card-mini" style="background:var(--paper2);">
+        <div class="lbl">💰 Desconto disponível <span class="muted small">nesta organização</span></div>
+        <div class="val">R$ 1.250,00</div>
+        <div class="sub">saldo de vouchers restante</div>
+      </div>
+      <div class="card-mini" style="background:var(--paper2);">
+        <div class="lbl">🎟 Vouchers ativos <span class="muted small">nesta organização</span></div>
+        <div class="val">2</div>
+        <div class="sub">vouchers em uso</div>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>🎟 Vouchers</h3>
+      <table class="table" aria-label="Lista de vouchers desta organização">
+        <caption class="sr-only">Vouchers desta organização com status, valor total, valor utilizado e barra de progresso.</caption>
+        <thead><tr><th scope="col">Descrição</th><th scope="col">Status</th><th scope="col">Valor total</th><th scope="col">Progresso</th><th scope="col">Restante</th><th scope="col">Término</th><th scope="col">Ações</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Crédito Q2 — bônus anual</strong><br>
+              <span class="muted small">Aplica em: Disparos WhatsApp + Tokens Knowledge · Vínculo: Fyntra Tecnologia</span>
+            </td>
+            <td><span class="status-badge active" title="Voucher ativo consumindo">Ativo</span></td>
+            <td>R$ 1.000,00</td>
+            <td>
+              <div class="voucher-row">
+                <div>
+                  <div class="progress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" aria-label="25% consumido">
+                    <div class="progress-fill" style="width:25%;"></div>
+                  </div>
+                  <span class="muted small">25% (R$ 250 de R$ 1.000)</span>
+                </div>
+              </div>
+            </td>
+            <td>R$ 750,00</td>
+            <td>30/06/2026</td>
+            <td><button class="btn-link">Ver →</button></td>
+          </tr>
+          <tr style="background:var(--yellow-bg);">
+            <td>
+              <strong>Bônus Black Friday Setup</strong>
+              <span class="status-badge expired" style="margin-left:4px;" title="Consumindo 2.3× mais rápido que o previsto">⚠ Consumo acelerado</span><br>
+              <span class="muted small">Aplica em: todas as taxas · Vínculo: Fyntra Tecnologia</span>
+            </td>
+            <td><span class="status-badge active" title="Voucher ativo">Ativo</span></td>
+            <td>R$ 3.000,00</td>
+            <td>
+              <div class="voucher-row">
+                <div>
+                  <div class="progress" role="progressbar" aria-valuenow="62" aria-valuemin="0" aria-valuemax="100" aria-label="62% consumido — consumo acelerado">
+                    <div class="progress-fill warn" style="width:62%;"></div>
+                  </div>
+                  <span class="muted small">62% (R$ 1.860 de R$ 3.000) · ⚠ <strong>2.3× acima do previsto</strong></span>
+                </div>
+              </div>
+            </td>
+            <td>R$ 1.140,00</td>
+            <td>15/06/2026</td>
+            <td><button class="btn-link">Ver →</button></td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Bônus 2025</strong><br>
+              <span class="muted small">Aplica em: todas as taxas · Vínculo: Fyntra Tecnologia</span>
+            </td>
+            <td><span class="status-badge active" title="Voucher ativo">Ativo</span></td>
+            <td>R$ 500,00</td>
+            <td>
+              <div class="voucher-row">
+                <div>
+                  <div class="progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="0% consumido">
+                    <div class="progress-fill" style="width:0%;"></div>
+                  </div>
+                  <span class="muted small">0% (R$ 0 de R$ 500)</span>
+                </div>
+              </div>
+            </td>
+            <td>R$ 500,00</td>
+            <td>31/12/2026</td>
+            <td><button class="btn-link">Ver →</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">ⓘ A barra mostra o consumo do voucher em tempo real. Vouchers consumindo &gt; 50% mais rápido que o previsto recebem alerta ⚠ — sistema emite evento <code>voucher.depleted_rapido</code> consumido pela feature de Notificações.</p>
+    </div>
+
+    <div class="block">
+      <h3>🎟 Cupons aplicados</h3>
+      <table class="table">
+        <thead><tr><th>Código</th><th>Descrição</th><th>Valor descontado</th><th>Aplicação</th><th>Fatura</th><th>Data</th></tr></thead>
+        <tbody>
+          <tr><td><span class="coupon-applied">BF2025</span></td><td>Black Friday 2025</td><td>R$ 250,61</td><td>Em N ciclos (3 meses)</td><td>#INV-1234</td><td>28/04/2026</td></tr>
+          <tr><td><span class="coupon-applied">ONBOARD</span></td><td>Bônus onboarding</td><td>R$ 482,30</td><td>Uma única vez</td><td>#INV-1001</td><td>11/05/2026</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="block">
+      <h3>🎟 Aplicar código de cupom</h3>
+      <p class="muted small">Tem um código? Digite aqui:</p>
+      <div class="row gap-sm" style="margin-top:8px;">
+        <input class="input" placeholder="Ex: BF2026" id="couponCode" style="max-width:300px;">
+        <button class="btn" onclick="applyCoupon()">Aplicar →</button>
+      </div>
+      <p class="note">Cupons são validados via Stripe. Validade, currency e limite de uso são checados antes da aplicação.</p>
+    </div>
+
+    ${renderAuditTrailSection('creditos')}
+  `;
+}
+
+function applyCoupon() {
+  const code = document.getElementById('couponCode').value.trim();
+  if (!code) return;
+  // 50% sucesso — outros casos exibem mensagens específicas (Cenário 25 v2)
+  const r = Math.random();
+  if (r < 0.5 && code.length > 3) {
+    showModal(`
+      <h3 style="color:var(--green)">✓ Cupom aplicado!</h3>
+      <p>Cupom <strong>${code}</strong> aplicado com sucesso.</p>
+      <p>Você terá 20% de desconto na próxima fatura.</p>
+      <div class="btn-row"><button class="btn" onclick="closeModal()">Entendi</button></div>
+    `);
+  } else {
+    // Erro específico (Cenário 25 v2) — alterna entre os 5 motivos
+    const motivos = [
+      { titulo: "Cupom não encontrado", msg: `O cupom <strong>"${code}"</strong> não foi encontrado em nosso sistema. Verifique se digitou corretamente.` },
+      { titulo: "Cupom expirado", msg: `O cupom <strong>"${code}"</strong> expirou em <strong>31/12/2025</strong>. Solicite um novo código ao seu gerente comercial.` },
+      { titulo: "Limite de uso atingido", msg: `O cupom <strong>"${code}"</strong> atingiu o limite de uso (<strong>1.000 de 1.000 resgates</strong>). Este código não pode mais ser aplicado.` },
+      { titulo: "Moeda incompatível", msg: `O cupom <strong>"${code}"</strong> é em <strong>USD</strong>. Sua organização opera em <strong>BRL</strong> — solicite ao gerente comercial um cupom compatível com sua moeda.` },
+      { titulo: "Validade vencida", msg: `O cupom <strong>"${code}"</strong> tinha validade até <strong>10/05/2026</strong> e não pode mais ser aplicado.` },
+    ];
+    const m = motivos[Math.floor(Math.random() * motivos.length)];
+    showModal(`
+      <h3 style="color:var(--red)">✕ ${m.titulo}</h3>
+      <p>${m.msg}</p>
+      <p class="muted small" style="margin-top:14px;">Pra mais detalhes ou solicitar um novo cupom, fale com seu Gerente da Conta.</p>
+      <div class="btn-row"><button class="btn" onclick="closeModal()">Entendi</button></div>
+    `);
+  }
+}
+
+/* MODAIS */
+function renderModalPlano() {
+  setTimeout(() => showModal(modalPlanoHtml(), true), 50);
+  return renderVisaoGeral();
+}
+
+function modalPlanoHtml() {
+  return `
+    <h3>💎 Detalhes do plano</h3>
+    <div class="divider"></div>
+    <div class="row-pair"><span class="label">Plano</span><span><strong>Enterprise</strong></span></div>
+    <div class="row-pair"><span class="label">Status</span><span><span class="status-badge active">ACTIVE</span></span></div>
+    <div class="row-pair"><span class="label">Valor mensal</span><span>R$ 2.497,98</span></div>
+    <div class="row-pair"><span class="label">Intervalo</span><span>Mensal</span></div>
+    <div class="row-pair"><span class="label">Cobrança parcial em</span><span>R$ 5.229,50 <span class="muted small">(ⓘ threshold de billing — não limita uso)</span></span></div>
+    <div class="row-pair"><span class="label">Fidelidade</span><span>12 meses · multa 50% (8 meses rest.)</span></div>
+    <div class="row-pair"><span class="label">Próxima cobrança</span><span>28/05/2026</span></div>
+
+    <div class="divider"></div>
+    <div class="banner warn">
+      <span>⚖</span>
+      <div>
+        <strong>Multa de fidelidade (transparente · CDC Art. 51 IV)</strong><br>
+        Fórmula: (meses_restantes × valor_mensal) × 50%<br>
+        = (8 × R$ 2.497,98) × 50% = <strong>R$ 9.992,12</strong>
+      </div>
+    </div>
+
+    <p class="muted small" style="margin-top:14px;">Pra alterar plano ou cancelar, fale com seu responsável comercial:</p>
+    <div class="contact-card">
+      <strong>👤 Bruno Costa</strong><br>
+      <span class="muted small">✉ bruno.costa@awsales.io</span>
+    </div>
+
+    <button class="btn" style="margin-top:12px;" onclick="showFalarComercialModal()">✉ Falar com responsável comercial</button>
+
+    <div class="btn-row"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>
+  `;
+}
+
+function showFalarComercialModal() {
+  showModal(`
+    <h3>✉ Falar com responsável comercial</h3>
+    <div class="banner warn" style="margin-top:10px;">
+      <span>ⓘ</span>
+      <div><strong>Este pedido NÃO é enviado automaticamente.</strong> Escolha uma opção pra continuar:</div>
+    </div>
+    <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px;">
+      <a class="btn" href="mailto:bruno.costa@awsales.io?subject=Solicitação%20—%20Fyntra%20Tecnologia&body=Olá%20Bruno,%0A%0AGostaria%20de%20conversar%20sobre%20alteração%20do%20plano%20da%20Fyntra%20Tecnologia.%0A%0AObrigado." style="text-decoration:none;color:var(--paper);">✉ Enviar e-mail pré-preenchido</a>
+      <button class="btn secondary" onclick="navigator.clipboard && navigator.clipboard.writeText('bruno.costa@awsales.io')">📋 Copiar e-mail (bruno.costa@awsales.io)</button>
+      <button class="btn secondary">💬 WhatsApp (+55 11 99999-9999)</button>
+      <button class="btn ghost">📅 Marcar reunião (Calendly)</button>
+    </div>
+    <div class="banner info" style="margin-top:14px;">
+      <span>📅</span>
+      <div>Sua próxima cobrança de <strong>R$ 3.389</strong> está prevista pra <strong>28/05/2026</strong> e <strong>não será suspensa automaticamente</strong> ao clicar aqui. Aguarde contato do Bruno pra alinhar alteração ou cancelamento.</div>
+    </div>
+    <div class="btn-row"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>
+  `);
+}
+
+function renderModalCampanha() {
+  setTimeout(() => showModal(modalCampanhaHtml(), true), 50);
+  return renderVisaoGeral();
+}
+
+function modalCampanhaHtml() {
+  return `
+    <h3>📣 Campanha: Black Friday Lead Magnet</h3>
+    <p class="muted small">Tipo: Lead Magnet · Status: <span class="status-badge active">Ativa</span> · Período: 01–31/05/2026</p>
+    <p style="margin:10px 0;font-size:18px;"><strong>Valor total gasto: R$ 412,30</strong></p>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;">Breakdown por macro-fee</h3>
+
+    <div style="font-size:14px;line-height:2;">
+      <strong>📨 Disparos WhatsApp</strong><br>
+      &nbsp;&nbsp;1.245 disparos × R$ 0,12 ······ <strong style="float:right;">R$ 149,40</strong>
+      <div class="divider"></div>
+
+      <strong>🎯 Leads convertidos</strong><br>
+      &nbsp;&nbsp;38 leads × R$ 2,00 ············· <strong style="float:right;">R$ 76,00</strong>
+      <div class="divider"></div>
+
+      <strong>💬 Mensagens transacionadas</strong><br>
+      &nbsp;&nbsp;3.872 msgs × R$ 0,03 ·········· <strong style="float:right;">R$ 116,16</strong>
+      <div class="divider"></div>
+
+      <strong>🧠 Aw Tokens</strong><br>
+      &nbsp;&nbsp;Knowledge Input · 2.1M tokens × R$ 0,002/1K · <strong style="float:right;">R$ 4,20</strong><br>
+      &nbsp;&nbsp;Knowledge Output · 480K × R$ 0,008/1K ······· <strong style="float:right;">R$ 3,84</strong><br>
+      &nbsp;&nbsp;Brain Input · 12M × R$ 0,001/1K ············ <strong style="float:right;">R$ 12,00</strong><br>
+      &nbsp;&nbsp;Brain Output · 3M × R$ 0,005/1K ············ <strong style="float:right;">R$ 15,00</strong><br>
+      &nbsp;&nbsp;Skills Input · 5M × R$ 0,003/1K ············ <strong style="float:right;">R$ 15,00</strong><br>
+      &nbsp;&nbsp;Skills Output · 2.3M × R$ 0,009/1K ·········· <strong style="float:right;">R$ 20,70</strong>
+    </div>
+
+    <div class="divider"></div>
+    <div style="background:var(--green-bg);padding:10px;border-radius:8px;text-align:right;font-size:18px;">
+      <strong>TOTAL  R$ 412,30 ✓</strong> <span class="muted small">bate com tabela</span>
+    </div>
+
+    <div class="btn-row"><button class="btn" onclick="closeModal()">Fechar</button></div>
+  `;
+}
+
+function renderModalFatura() {
+  setTimeout(() => showModal(modalFaturaHtml(), true), 50);
+  return renderVisaoGeral();
+}
+
+function modalFaturaHtml() {
+  return `
+    <h3>📋 Fatura #INV-2026-04-1234</h3>
+    <p class="muted small">Status: <span class="status-badge paid" title="Pagamento confirmado">✓ Paga</span> · Emissão: 28/04/2026 · Vencimento: 05/05/2026 · Pago em: 28/04/2026</p>
+    <p class="muted small">Forma de pagamento: Cartão Visa •••• 3012 · Organização: <strong>Fyntra Tecnologia</strong></p>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;">Itens cobrados</h3>
+
+    <div style="font-size:14px;line-height:1.9;">
+      <strong>Custos variáveis · Abril/2026</strong><br>
+      &nbsp;&nbsp;Disparos WhatsApp · 1.245 × R$ 0,12 ·· <strong style="float:right;">R$ 149,40</strong><br>
+      &nbsp;&nbsp;Leads · 38 × R$ 2,00 ·················· <strong style="float:right;">R$ 76,00</strong><br>
+      &nbsp;&nbsp;Mensagens · 3.872 × R$ 0,03 ··········· <strong style="float:right;">R$ 116,16</strong><br>
+      &nbsp;&nbsp;Aw Tokens (vários tipos) ············· <strong style="float:right;">R$ 911,48</strong><br>
+      <br>
+      <strong>Bruto</strong> <strong style="float:right;">R$ 1.253,04</strong>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;color:var(--green);">Descontos aplicados</h3>
+    <div style="background:var(--green-bg);padding:8px 12px;border-radius:8px;font-size:14px;">
+      <span class="coupon-applied">BF2025</span> Black Friday 2025 (20% sobre subtotal) <strong style="float:right;color:var(--green);">- R$ 250,61</strong>
+    </div>
+
+    <div class="divider"></div>
+    <div style="background:var(--green-bg);padding:14px;border-radius:8px;font-size:15px;">
+      <div style="display:flex;justify-content:space-between;"><span>Bruto</span><strong>R$ 1.253,04</strong></div>
+      <div style="display:flex;justify-content:space-between;color:var(--green);"><span>Descontos</span><strong>- R$ 250,61</strong></div>
+      <div style="display:flex;justify-content:space-between;font-size:20px;border-top:1px dashed var(--green);padding-top:6px;margin-top:6px;"><span><strong>Líquido (pago)</strong></span><strong>R$ 1.002,43</strong></div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;">📜 Histórico desta fatura</h3>
+    <ol class="timeline" aria-label="Linha do tempo desta fatura">
+      <li class="tl-item ok">
+        <span class="tl-dot"></span>
+        <div><strong>28/04 · 10:30</strong> · Fatura emitida<br>
+        <span class="muted small">DRAFT → OPEN · Sistema · webhook Stripe</span></div>
+      </li>
+      <li class="tl-item ok">
+        <span class="tl-dot"></span>
+        <div><strong>28/04 · 10:35</strong> · Pagamento confirmado<br>
+        <span class="muted small">OPEN → PAID · Cartão Visa •••• 3012 · Cliente · Felipe Rezende</span></div>
+      </li>
+    </ol>
+
+    <p class="muted small" style="margin-top:14px;">Hash de integridade: <span style="font-family:monospace;font-size:11px;">a3f1b8e9c4d7f2a8b3e6c9d2e7f4a1b5…</span> <button class="btn-link" onclick="navigator.clipboard&&navigator.clipboard.writeText('a3f1b8e9c4d7f2a8b3e6c9d2e7f4a1b5')">📋 Copiar</button></p>
+
+    <div class="btn-row">
+      <button class="btn ghost" onclick="navigate('modal-fatura-disputed')">Ver exemplo com chargeback →</button>
+      <button class="btn" onclick="closeModal()">Fechar</button>
+      <button class="btn">📥 Baixar PDF (com timeline)</button>
+    </div>
+  `;
+}
+
+// Modal de fatura em DISPUTED — demonstra timeline completa (Onda 2 F2.2)
+function renderModalFaturaDisputed() {
+  setTimeout(() => showModal(modalFaturaDisputedHtml(), true), 50);
+  return renderVisaoGeral();
+}
+
+function modalFaturaDisputedHtml() {
+  return `
+    <h3>📋 Fatura #INV-2026-03-0987</h3>
+    <p class="muted small">Status: <span class="status-badge disputed" title="Chargeback aberto pelo banco do cliente — em análise">⚖ Disputa resolvida</span> · Emissão: 28/03/2026 · Organização: <strong>Fyntra Tecnologia</strong></p>
+
+    <div class="banner success" style="margin-top:8px;">
+      <span>✓</span>
+      <div><strong>Disputa resolvida favorável à AwSales em 22/05.</strong> Banco do cliente confirmou a cobrança após análise da evidência submetida.</div>
+    </div>
+
+    <div class="divider"></div>
+    <h3 style="font-size:16px;">📜 Histórico desta fatura</h3>
+    <ol class="timeline" aria-label="Linha do tempo da fatura disputada">
+      <li class="tl-item ok">
+        <span class="tl-dot"></span>
+        <div><strong>28/03 · 09:12</strong> · Fatura emitida<br>
+        <span class="muted small">DRAFT → OPEN · Sistema · webhook Stripe</span></div>
+      </li>
+      <li class="tl-item ok">
+        <span class="tl-dot"></span>
+        <div><strong>28/03 · 09:18</strong> · Pagamento confirmado<br>
+        <span class="muted small">OPEN → PAID · Cartão Visa •••• 3012 · R$ 2.497,98</span></div>
+      </li>
+      <li class="tl-item warn">
+        <span class="tl-dot"></span>
+        <div><strong>15/05 · 14:20</strong> · Contestação aberta<br>
+        <span class="muted small">PAID → DISPUTED · Chargeback aberto pelo banco do cliente · razão: "serviço não reconhecido"</span></div>
+      </li>
+      <li class="tl-item info">
+        <span class="tl-dot"></span>
+        <div><strong>18/05 · 09:15</strong> · Evidência submetida<br>
+        <span class="muted small">Comprovante de uso (logs de disparo) enviado pra Stripe · AwSales · Bruno Costa</span></div>
+      </li>
+      <li class="tl-item ok">
+        <span class="tl-dot"></span>
+        <div><strong>22/05 · 16:40</strong> · Disputa aceita<br>
+        <span class="muted small">DISPUTED → CHARGEBACK_RESOLVED · Favor AwSales · Sistema · webhook Stripe</span></div>
+      </li>
+    </ol>
+
+    <p class="muted small" style="margin-top:14px;">PDF inclui timeline completa pra fechamento contábil.</p>
+
+    <div class="btn-row">
+      <button class="btn ghost" onclick="navigate('modal-fatura')">← Voltar pra fatura paga</button>
+      <button class="btn" onclick="closeModal()">Fechar</button>
+      <button class="btn">📥 Baixar PDF</button>
+    </div>
+  `;
+}
+
+function renderModalLgpd() {
+  setTimeout(() => showModal(modalLgpdHtml()), 50);
+  return renderVisaoGeral();
+}
+
+function modalLgpdHtml() {
+  return `
+    <h3>⚠ Aviso LGPD — Export de dados pessoais</h3>
+    <p>Este export contém dados financeiros e pessoais protegidos pela <strong>Lei Geral de Proteção de Dados (Lei 13.709/18 — LGPD)</strong>.</p>
+    <p style="margin-top:10px;">Conforme <strong>Art. 9º</strong> (consentimento informado), você declara estar ciente do seu papel como <strong>controlador secundário</strong> dos dados exportados:</p>
+    <ul style="margin:8px 0 8px 22px;font-size:14px;line-height:1.7;">
+      <li>Manuseio seguro do arquivo (Art. 46)</li>
+      <li>Compartilhamento controlado (Art. 26)</li>
+      <li>Descarte adequado quando não for mais necessário (Art. 15)</li>
+    </ul>
+    <div class="banner info" style="margin-top:10px;">
+      <span>ⓘ</span>
+      <div><strong>Anonimização retroativa LGPD Art. 18 VI:</strong> este export pode conter registros pseudonimizados (<code>hash_pseudo_&lt;user_id&gt;</code>) de titulares que exerceram direito ao apagamento. Hash original disponível mediante ordem judicial — fale com nosso DPO.</div>
+    </div>
+    <p class="muted small" style="margin-top:10px;">Este ato será registrado no audit trail (<code>audit_trail.exported</code>) com hash SHA-256 do CSV pra integridade probatória (Art. 38).</p>
+    <div style="margin-top:14px;">
+      <label class="row gap-sm" style="font-size:14px;color:var(--ink);">
+        <input type="checkbox" id="lgpdCheck"> Estou ciente e autorizo o export
+      </label>
+    </div>
+    <div class="btn-row">
+      <button class="btn ghost" onclick="closeModal()">Cancelar</button>
+      <button class="btn" id="lgpdConfirm" disabled onclick="closeModal();alert('Export iniciado (job assíncrono). Você receberá e-mail com link de download em até 5 min. Link válido por 24h.')">Exportar CSV agora →</button>
+    </div>
+  `;
+}
+
+function renderModalCupom() {
+  setTimeout(() => showModal(modalCupomHtml()), 50);
+  return renderSaldoCreditos();
+}
+
+function modalCupomHtml() {
+  return `
+    <h3 style="color:var(--red)">✕ Cupom inválido</h3>
+    <p>O cupom <strong>"INVALID123"</strong> não pôde ser aplicado:</p>
+    <ul style="margin:10px 0 10px 22px;font-size:14px;line-height:1.7;">
+      <li>Cupom expirado (validade venceu em 31/12/2025), ou</li>
+      <li>Cupom não encontrado, ou</li>
+      <li>Cupom já atingiu limite de uso, ou</li>
+      <li>Cupom não é compatível com sua moeda (BRL)</li>
+    </ul>
+    <p class="muted small">Verifique o código e tente novamente. Pra mais detalhes, fale com seu Gerente da Conta.</p>
+    <div class="btn-row"><button class="btn" onclick="closeModal()">Entendi</button></div>
+  `;
+}
+
+/* ESTADOS ESPECIAIS */
+function renderPlanoPastDue() {
+  setTimeout(() => showModal(modalPlanoPastDueHtml(), true), 50);
+  return renderVisaoGeral();
+}
+
+function modalPlanoPastDueHtml() {
+  return `
+    <h3>💎 Detalhes do plano</h3>
+    <div class="divider"></div>
+    <div class="row-pair"><span class="label">Plano</span><span><strong>Enterprise</strong></span></div>
+    <div class="row-pair"><span class="label">Status</span><span><span class="status-badge pastdue">PAST_DUE</span> desde 14/05</span></div>
+    <div class="row-pair"><span class="label">Valor mensal</span><span>R$ 2.497,98</span></div>
+
+    <div class="banner error" style="margin-top:14px;">
+      <span>⚠</span>
+      <div>
+        <strong>Razões pendentes:</strong><br>
+        • <strong>PLAN</strong> — falha no pagamento de R$ 2.497,98 (16/05)<br>
+        • <strong>FEE</strong> — falha no pagamento variável de R$ 412 (18/05)
+      </div>
+    </div>
+
+    <button class="btn" style="margin-top:8px;">Resolver pendência →</button>
+    <p class="note">Link pra fatura específica que falhou.</p>
+
+    <div class="btn-row"><button class="btn ghost" onclick="closeModal()">Fechar</button></div>
+  `;
+}
+
+function renderCreditosVazio() {
+  document.getElementById('breadcrumb').textContent = 'Configurações / Financeiro / Saldo de créditos';
+  return `
+    ${subtabs('creditos')}
+
+    <div class="cards-row">
+      <div class="card-mini" style="background:var(--paper2);"><div class="lbl">🐷 Total economizado</div><div class="val">R$ 0,00</div></div>
+      <div class="card-mini" style="background:var(--paper2);"><div class="lbl">💰 Total disponível</div><div class="val">R$ 0,00</div></div>
+      <div class="card-mini" style="background:var(--paper2);"><div class="lbl">🎟 Vouchers ativos</div><div class="val">0</div></div>
+    </div>
+
+    <div class="block">
+      <h3>🎟 Vouchers</h3>
+      <div class="empty">
+        <div class="ico">🐷</div>
+        <p><strong>Você não possui créditos disponíveis no momento.</strong></p>
+        <p class="muted small">Receba créditos via campanhas comerciais ou aplique um cupom abaixo.</p>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>🎟 Aplicar código de cupom</h3>
+      <div class="row gap-sm" style="margin-top:8px;">
+        <input class="input" placeholder="Digite o código..." style="max-width:300px;">
+        <button class="btn">Aplicar →</button>
+      </div>
+    </div>
+  `;
+}
+
+/* SUB-TELAS */
+function renderMetodosPagamento() {
+  document.getElementById('breadcrumb').textContent = 'Configurações / Financeiro / Métodos de pagamento';
+  return `
+    <div class="block-head" style="padding:0;">
+      <div>
+        <button class="btn-link" onclick="navigate('visao-geral')">« Voltar pra Financeiro</button>
+        <h2 style="margin-top:8px;">💳 Métodos de pagamento</h2>
+      </div>
+      <button class="btn">+ Adicionar novo cartão</button>
+    </div>
+
+    <p class="note">ⓘ O número completo do cartão NUNCA é exibido (regra PCI-DSS, padrão Stripe Elements).</p>
+
+    <div class="block">
+      <div style="border:1.5px solid var(--green);background:var(--green-bg);border-radius:8px;padding:14px;margin-bottom:12px;">
+        <div class="row between">
+          <div>
+            <strong>💳 Visa •••• 3012</strong> <span class="status-badge active" style="margin-left:6px;">Padrão</span><br>
+            <span class="muted small">Nome: Felipe Rezende · Expira em 05/2030</span>
+          </div>
+        </div>
+        <p class="muted small" style="margin-top:8px;">Usado em: Implementação · Plano · Custos variáveis</p>
+      </div>
+
+      <div style="border:1.5px solid var(--ink);border-radius:8px;padding:14px;">
+        <div class="row between">
+          <div>
+            <strong>💳 Mastercard •••• 8888</strong><br>
+            <span class="muted small">Nome: Felipe Rezende · Expira em 12/2027</span>
+          </div>
+        </div>
+        <p class="muted small" style="margin:8px 0;">Usado em: nenhuma cobrança ativa</p>
+        <div class="row gap-sm">
+          <button class="btn small secondary">Tornar padrão</button>
+          <button class="btn small ghost" style="color:var(--red);border-color:var(--red);">Remover cartão</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="note">"+ Adicionar novo cartão" abre modal/iframe Stripe Elements — cliente nunca digita o número do cartão em campos AwSales.</p>
+  `;
+}
+
+function renderAuditCompleto() {
+  document.getElementById('breadcrumb').textContent = 'Configurações / Fyntra Tecnologia / Financeiro / Audit Trail';
+  return `
+    <div class="block-head" style="padding:0;">
+      <div>
+        <button class="btn-link" onclick="navigate('visao-geral')" aria-label="Voltar pra aba Financeiro">« Voltar pra Financeiro</button>
+        <h2 style="margin-top:8px;">📋 Audit Trail Financeiro <span class="muted small" style="font-size:14px;font-family:'Patrick Hand';">· Fyntra Tecnologia</span></h2>
+      </div>
+      <button class="btn" onclick="navigate('modal-lgpd')">📥 Exportar CSV</button>
+    </div>
+
+    <p class="muted small">Retenção 5 anos (LGPD Art. 16) · 1.245 eventos <strong>nesta organização</strong></p>
+
+    <div class="block">
+      <div class="row gap-sm" style="margin-bottom:14px;flex-wrap:wrap;">
+        <label class="sr-only" for="ac-period">Período</label>
+        <select class="select" id="ac-period" style="width:auto"><option>Período: Este mês</option><option>Últimos 7 dias</option><option>Últimos 30 dias</option><option>Últimos 90 dias</option></select>
+        <label class="sr-only" for="ac-type">Tipo de evento</label>
+        <select class="select" id="ac-type" style="width:auto"><option>Tipo: Todos</option><option>Plano</option><option>Cartão</option><option>Fatura</option><option>Cupom/Voucher</option><option>Compliance</option></select>
+        <label class="sr-only" for="ac-executor">Executor</label>
+        <select class="select" id="ac-executor" style="width:auto"><option>Executor: Todos</option><option>Cliente</option><option>AwSales</option><option>Sistema</option></select>
+        <label class="sr-only" for="ac-user">Usuário específico</label>
+        <select class="select" id="ac-user" style="width:auto"><option>Usuário: Todos</option></select>
+        <label class="sr-only" for="ac-search">Buscar</label>
+        <input class="input" id="ac-search" placeholder="🔍 Buscar recurso..." style="flex:1;min-width:160px;">
+        <label class="sr-only" for="ac-jump">Saltar pra data</label>
+        <input class="input" id="ac-jump" type="date" title="Saltar pra data — Onda 2 F1.8" style="width:auto;">
+      </div>
+
+      <p class="muted small">📅 Hoje · 11/05/2026</p>
+      ${auditItem('14:32:18', 'awsales', 'Bruno Costa', 'plano.mudou', 'Pro → Enterprise · valor mensal R$ 1.997 → R$ 2.497,98 · admin-internal')}
+      ${auditItem('13:55:44', 'cliente', 'Felipe Rezende', 'cartao.padrao_mudou', 'Era: •••• 8888 (Mastercard) → Novo: •••• 3012 (Visa) · 200.4.1.5 · Chrome/Mac')}
+      ${auditItem('11:22:01', 'sistema', 'webhook Stripe', 'fatura.paga', 'Fatura #INV-2026-04-1234 · R$ 1.253,04 · Cartão Visa •••• 3012 · Stripe ch_3PAB8M2HJ7d2lYx...')}
+      ${auditItem('09:10:30', 'cliente', 'Maria Roberta', 'cupom.aplicado_pelo_cliente', 'Cupom: BF2025 (Black Friday 2025) · 20% off · próxima fatura · 200.4.3.8 · Edge/Windows')}
+
+      <p class="muted small" style="margin-top:14px;">📅 Ontem · 10/05/2026</p>
+      ${auditItem('18:40:12', 'sistema', 'webhook Stripe', 'voucher.consumido', 'Voucher: Crédito Q2 · R$ 250 debitados da fatura #INV-2026-04-1230 · saldo restante R$ 750')}
+      ${auditItem('16:00:55', 'awsales', 'Ana Almeida', 'threshold_cobranca_parcial.mudou', 'R$ 3.000 → R$ 5.229,50 · justificativa: cliente solicitou aumento da frequência de billing (não limita uso)')}
+      ${auditItem('14:15:08', 'sistema', 'webhook Stripe', 'fatura.gerada', 'Fatura #INV-2026-05-0042 · custos variáveis · R$ 891,63 · status DRAFT → OPEN')}
+      ${auditItem('12:05:33', 'sistema', 'webhook Stripe', 'voucher.depleted_rapido', 'Bônus Black Friday Setup · consumindo 2.3× acima do previsto · evento publicado pra Notificações')}
+
+      <p class="muted small" style="margin-top:14px;">📅 09/05/2026</p>
+      ${auditItem('10:30:00', 'awsales', 'Bruno Costa', 'voucher.emitido', 'Voucher: Crédito Q2 · R$ 1.000 · vigente até 30/06/2026 · taxas: Disparos WhatsApp + Tokens Knowledge')}
+
+      <div class="audit-pagination" role="navigation" aria-label="Paginação do audit trail">
+        <span class="muted small">Itens por página:</span>
+        <button>50</button>
+        <button class="active">100</button>
+        <button>500</button>
+        <span class="muted small" style="margin-left:14px;">Página:</span>
+        <button class="active" aria-current="page">1</button>
+        <button>2</button>
+        <button>3</button>
+        <button>4</button>
+        <button>5</button>
+        <span class="muted small">…</span>
+        <button>13</button>
+        <span class="muted small" style="margin-left:8px;">de 1.245 eventos</span>
+      </div>
+
+      <p class="note" style="margin-top:8px;">ⓘ Direito de acesso LGPD Art. 18 II é incondicional — export funciona mesmo se a organização estiver suspensa por inadimplência. Job assíncrono persistido em fila durável (SQS); você recebe e-mail com link de download em até 5 min, válido por 24h.</p>
+    </div>
+  `;
+}
+
+/* ROUTER */
+const renderers = {
+  'visao-geral': renderVisaoGeral,
+  'saldo-creditos': renderSaldoCreditos,
+  'modal-plano': renderModalPlano,
+  'modal-campanha': renderModalCampanha,
+  'modal-fatura': renderModalFatura,
+  'modal-fatura-disputed': renderModalFaturaDisputed,
+  'modal-lgpd': renderModalLgpd,
+  'modal-cupom': renderModalCupom,
+  'plano-pastdue': renderPlanoPastDue,
+  'creditos-vazio': renderCreditosVazio,
+  'metodos-pagamento': renderMetodosPagamento,
+  'audit-completo': renderAuditCompleto,
+};
+
+function render() {
+  const id = (location.hash || '#visao-geral').slice(1);
+  const fn = renderers[id] || renderVisaoGeral;
+  document.getElementById('finPageContent').innerHTML = fn();
+  setActive(id);
+  window.scrollTo(0, 0);
+  // Render do gráfico+tabela com agrupamento atual
+  setTimeout(() => {
+    renderChartAndTable();
+    const cb = document.getElementById('lgpdCheck');
+    if (cb) cb.onchange = e => { document.getElementById('lgpdConfirm').disabled = !e.target.checked; };
+  }, 50);
+}
+
+window.addEventListener('hashchange', render);
+
+// Boot depois do shell — shell.js move o conteúdo de <main class="page-content"> pra dentro do app-shell.
+// Esperamos DOMContentLoaded (ou rodamos direto se a página já carregou) pra garantir que #finPageContent
+// e #breadcrumb existam antes do primeiro render.
+function bootFinanceiro() {
+  render();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootFinanceiro);
+} else {
+  bootFinanceiro();
+}
+</script>
+</body>
+</html>

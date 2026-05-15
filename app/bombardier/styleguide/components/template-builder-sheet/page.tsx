@@ -31,7 +31,7 @@ export default function TemplateBuilderSheetPage() {
             title="Estado inicial"
             lead="Form vazio — nada digitado ainda. Mostra o placeholder no preview e o estado disabled do CTA primário."
           >
-            <Stage label="empty draft">
+            <Stage label="Empty draft">
               <AwButton
                 variant="primary"
                 size="md"
@@ -60,7 +60,7 @@ export default function TemplateBuilderSheetPage() {
             title="Rascunho preenchido"
             lead="Vem pré-preenchido — header com imagem, corpo com variáveis runtime e fixas, e dois botões (URL + quick reply). É o cenário mais didático pra ver o preview reagindo."
           >
-            <Stage label="prefilled draft">
+            <Stage label="Prefilled draft">
               <AwButton
                 variant="primary"
                 size="md"
@@ -112,7 +112,7 @@ export default function TemplateBuilderSheetPage() {
               title="Último rascunho devolvido"
               lead="Valor que o componente devolveu pelo onSaveDraft / onSubmit (útil pra debug do contrato)."
             >
-              <Stage label="returned payload">
+              <Stage label="Returned payload">
                 <pre className="m-0 max-h-[280px] w-full overflow-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 font-mono text-[12px] text-[var(--fg-secondary)]">
                   {JSON.stringify(lastSaved, null, 2)}
                 </pre>

@@ -336,7 +336,7 @@ function ExitAsymmetricExample() {
                   <div className="text-sm font-medium text-[var(--fg-primary)]">
                     Salvo no histórico
                   </div>
-                  <div className="caption">há um instante</div>
+                  <div className="caption">Há um instante</div>
                 </div>
               </div>
             )}
@@ -349,7 +349,7 @@ function ExitAsymmetricExample() {
 
 function KeepMountedExample() {
   const [mounted, setMounted] = React.useState(true)
-  const [text, setText] = React.useState("rascunho preservado entre toggles")
+  const [text, setText] = React.useState("Rascunho preservado entre toggles")
 
   return (
     <Stage

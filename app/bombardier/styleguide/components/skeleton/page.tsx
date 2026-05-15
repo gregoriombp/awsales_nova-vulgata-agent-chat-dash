@@ -27,7 +27,7 @@ export default function SkeletonPage() {
           lead="Cinco presets. Cada um tem uma altura e radius calibrados para um tipo de conteúdo específico."
         >
           <Stage
-            label="block · line · title · avatar · card"
+            label="Block · line · title · avatar · card"
             gridClassName="flex flex-col gap-4 max-w-[520px]"
           >
             <AwSkeleton />

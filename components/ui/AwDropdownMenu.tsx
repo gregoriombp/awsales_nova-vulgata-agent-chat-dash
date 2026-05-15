@@ -29,6 +29,8 @@ export type AwDropdownCommandItem = {
   /** Renders the row in danger color. Use for destructive actions. */
   danger?: boolean
   disabled?: boolean
+  /** Keep the menu open after selecting this item (multi-select pattern). */
+  closeOnSelect?: boolean
   separator?: false
   isLabel?: false
 }
@@ -114,10 +116,11 @@ export function AwDropdownMenu({
                 key={it.id}
                 disabled={it.disabled}
                 onSelect={(e) => {
-                  if (!it.onSelect) return
-                  /* Radix dismisses on select by default — that's the
-                   * behaviour we want, so no preventDefault. */
-                  it.onSelect()
+                  if (it.closeOnSelect === false) {
+                    /* Multi-select pattern — keep the menu open. */
+                    e.preventDefault()
+                  }
+                  it.onSelect?.()
                 }}
                 className={cn(
                   "aw-dropdown__item",

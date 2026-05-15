@@ -422,11 +422,11 @@ export default function ColorPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SurfaceCard
-              label="light · bg-raised + fg-primary"
+              label="Light · bg-raised + fg-primary"
               dark={false}
             />
             <SurfaceCard
-              label="dark · bg-raised + fg-primary"
+              label="Dark · bg-raised + fg-primary"
               dark={true}
             />
           </div>
@@ -450,25 +450,25 @@ export default function ColorPage() {
             <ContrastCard
               fg="--fg-primary"
               bg="--bg-canvas"
-              label="primário sobre canvas"
+              label="Primário sobre canvas"
               ratio="≥ 18:1 · AAA"
             />
             <ContrastCard
               fg="--fg-secondary"
               bg="--bg-canvas"
-              label="secundário sobre canvas"
+              label="Secundário sobre canvas"
               ratio="≥ 7:1 · AAA"
             />
             <ContrastCard
               fg="--fg-tertiary"
               bg="--bg-canvas"
-              label="terciário sobre canvas (limite!)"
+              label="Terciário sobre canvas (limite!)"
               ratio="≥ 4.5:1 · AA"
             />
             <ContrastCard
               fg="--fg-muted"
               bg="--bg-canvas"
-              label="muted · disabled · só decorativo"
+              label="Muted · disabled · só decorativo"
               ratio="< 4.5:1 — uso restrito"
             />
           </div>

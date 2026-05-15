@@ -23,7 +23,7 @@ export default function WhatsAppPanelPage() {
             title="Default"
             lead="Estado completo: WABA verificada, pagamento ativo, números conectados, templates aprovados — abre na aba Visão geral."
           >
-            <Stage label="full panel" gridClassName="block">
+            <Stage label="Full panel" gridClassName="block">
               <div
                 className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
                 style={{ height: 720 }}
@@ -38,7 +38,7 @@ export default function WhatsAppPanelPage() {
             title="Sem WABAs conectadas"
             lead="Antes da primeira conexão — o painel cai num empty-state com CTA para iniciar o wizard."
           >
-            <Stage label="empty state" gridClassName="block">
+            <Stage label="Empty state" gridClassName="block">
               <div
                 className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
                 style={{ height: 480 }}

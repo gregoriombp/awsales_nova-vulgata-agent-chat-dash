@@ -92,7 +92,7 @@ export default function PillsPage() {
           title="Com e sem dot"
           lead="Dot é default. Desligue via dot={false} quando a pill estiver dentro de uma superfície que já traz semântica (ex.: chip de filtro)."
         >
-          <Stage label="dot · sem dot">
+          <Stage label="Dot · sem dot">
             <AwPill variant="live">Live</AwPill>
             <AwPill variant="live" dot={false}>
               Live

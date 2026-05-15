@@ -20,52 +20,52 @@ const TOC = [
 ]
 
 const SCALE = [
-  { name: "1", token: "--space-1", px: 4, tailwind: "p-1 · gap-1", use: "interior íntimo (ícone+texto inline, chip)" },
-  { name: "2", token: "--space-2", px: 8, tailwind: "p-2 · gap-2", use: "controles inline (toolbar, breadcrumb)" },
-  { name: "3", token: "--space-3", px: 12, tailwind: "p-3 · gap-3", use: "form fields, ações de modal" },
-  { name: "4", token: "--space-4", px: 16, tailwind: "p-4 · gap-4", use: "interior de cards · default" },
-  { name: "5", token: "--space-5", px: 20, tailwind: "p-5 · gap-5", use: "padding de card de hero" },
-  { name: "6", token: "--space-6", px: 24, tailwind: "p-6 · gap-6", use: "grid de cards · padding grande" },
-  { name: "8", token: "--space-8", px: 32, tailwind: "p-8 · gap-8", use: "padding generoso · entre blocos da seção" },
-  { name: "10", token: "--space-10", px: 40, tailwind: "p-10 · gap-10", use: "padding lateral da página (px-10)" },
-  { name: "12", token: "--space-12", px: 48, tailwind: "p-12 · gap-12", use: "hero compacto" },
-  { name: "16", token: "--space-16", px: 64, tailwind: "p-16 · gap-16", use: "entre <Section> · padding de hero amplo" },
-  { name: "18", token: "--space-18", px: 72, tailwind: "p-18 · gap-18", use: "respiração extra (landing externa)" },
+  { name: "1", token: "--space-1", px: 4, tailwind: "p-1 · gap-1", use: "Interior íntimo (ícone+texto inline, chip)" },
+  { name: "2", token: "--space-2", px: 8, tailwind: "p-2 · gap-2", use: "Controles inline (toolbar, breadcrumb)" },
+  { name: "3", token: "--space-3", px: 12, tailwind: "p-3 · gap-3", use: "Form fields, ações de modal" },
+  { name: "4", token: "--space-4", px: 16, tailwind: "p-4 · gap-4", use: "Interior de cards · default" },
+  { name: "5", token: "--space-5", px: 20, tailwind: "p-5 · gap-5", use: "Padding de card de hero" },
+  { name: "6", token: "--space-6", px: 24, tailwind: "p-6 · gap-6", use: "Grid de cards · padding grande" },
+  { name: "8", token: "--space-8", px: 32, tailwind: "p-8 · gap-8", use: "Padding generoso · entre blocos da seção" },
+  { name: "10", token: "--space-10", px: 40, tailwind: "p-10 · gap-10", use: "Padding lateral da página (px-10)" },
+  { name: "12", token: "--space-12", px: 48, tailwind: "p-12 · gap-12", use: "Hero compacto" },
+  { name: "16", token: "--space-16", px: 64, tailwind: "p-16 · gap-16", use: "Entre <Section> · padding de hero amplo" },
+  { name: "18", token: "--space-18", px: 72, tailwind: "p-18 · gap-18", use: "Respiração extra (landing externa)" },
 ]
 
 const PATTERNS = [
   {
-    name: "gap entre sections",
+    name: "Gap entre sections",
     spec: "gap-16 (64 px)",
     use: "Entre <Section> dentro do container da página.",
   },
   {
-    name: "padding lateral da página",
+    name: "Padding lateral da página",
     spec: "px-10 (40 px)",
     use: "Padding horizontal do container principal. Em mobile cai pra px-6.",
   },
   {
-    name: "padding interno de card",
+    name: "Padding interno de card",
     spec: "p-5 ou p-6 (20/24 px)",
     use: "p-5 em card compacto, p-6 em card de hero.",
   },
   {
-    name: "gap entre cards",
+    name: "Gap entre cards",
     spec: "gap-4 ou gap-6 (16/24 px)",
     use: "gap-4 em dashboard apertado, gap-6 em catálogo (padrão).",
   },
   {
-    name: "gap em form vertical",
+    name: "Gap em form vertical",
     spec: "gap-4 (16 px)",
     use: "Entre fields verticais. Não use margin nos AwInput.",
   },
   {
-    name: "gap em toolbar inline",
+    name: "Gap em toolbar inline",
     spec: "gap-2 (8 px)",
     use: "Entre botões agrupados na mesma toolbar.",
   },
   {
-    name: "padding de modal",
+    name: "Padding de modal",
     spec: "p-6 (24 px) header · p-6 body · p-4 footer",
     use: "Diferentes regiões do modal usam paddings distintos.",
   },
