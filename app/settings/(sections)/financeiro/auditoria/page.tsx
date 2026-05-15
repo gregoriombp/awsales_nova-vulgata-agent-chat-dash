@@ -91,8 +91,8 @@ export default function AuditoriaPage() {
           Trilha de eventos
         </h6>
         <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          Plano, cartão, fatura, cupom e voucher — executados pelo AwSales,
-          pelo cliente ou pelo sistema.
+          Eventos de plano, cartão, fatura, cupom e voucher — feitos por
+          AwSales, cliente ou sistema.
         </p>
       </section>
 

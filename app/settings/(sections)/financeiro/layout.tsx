@@ -19,8 +19,8 @@ export default function FinanceiroLayout({
           Financeiro
         </h3>
         <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
-          Acompanhe plano, faturas, créditos disponíveis e a trilha completa
-          de eventos financeiros desta organização.
+          Plano, faturas, créditos e auditoria desta organização — tudo em um
+          lugar.
         </p>
       </header>
 

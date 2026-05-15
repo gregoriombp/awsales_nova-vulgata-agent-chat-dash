@@ -11,32 +11,39 @@ import { Icon } from "@/components/ui/Icon";
 import {
   AGENT_BREAKDOWN,
   brl,
-  DAILY_SPENDING,
-  OVERVIEW_KPIS,
+  formatQuantity,
+  getDailySpending,
+  scaleBreakdown,
   SERVICE_BREAKDOWN,
   SPENDING_CATEGORIES,
+  SPENDING_PERIODS,
   type AgentBreakdownRow,
+  type ServiceBreakdownRow,
   type SpendingCategory,
   type SpendingGrouping,
+  type SpendingPeriod,
 } from "./data";
-
-const PERIODS = [
-  { id: "today", label: "Hoje" },
-  { id: "this-month", label: "Este mês" },
-  { id: "last-30", label: "Últimos 30 dias" },
-  { id: "last-90", label: "Últimos 90 dias" },
-];
 
 type SortKey = "label" | "role" | "status" | "total";
 type SortDir = "asc" | "desc";
 
 export function VariableSpendingBlock() {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
-  const [periodId, setPeriodId] = React.useState("this-month");
+  const [periodId, setPeriodId] = React.useState<SpendingPeriod>("this-month");
 
-  const period = PERIODS.find((p) => p.id === periodId) ?? PERIODS[1];
+  const period =
+    SPENDING_PERIODS.find((p) => p.id === periodId) ?? SPENDING_PERIODS[1];
   const categories = SPENDING_CATEGORIES[grouping];
-  const daily = DAILY_SPENDING[grouping];
+
+  const daily = React.useMemo(
+    () => getDailySpending(grouping, periodId),
+    [grouping, periodId],
+  );
+
+  const accumulated = React.useMemo(
+    () => daily.reduce((sum, day) => sum + day.reduce((s, v) => s + v, 0), 0),
+    [daily],
+  );
 
   return (
     <AwCard className="!p-0">
@@ -53,13 +60,13 @@ export function VariableSpendingBlock() {
           <p className="m-0 body-xs text-[var(--fg-secondary)]">
             Acumulado:{" "}
             <strong className="tabular-nums text-[var(--fg-primary)]">
-              {brl(OVERVIEW_KPIS.accumulated)}
+              {brl(accumulated)}
             </strong>
           </p>
           <AwDropdownMenu
             align="end"
             trigger={<AwSelect>{period.label}</AwSelect>}
-            items={PERIODS.map((p) => ({
+            items={SPENDING_PERIODS.map((p) => ({
               id: p.id,
               label: p.label,
               checked: p.id === periodId,
@@ -70,13 +77,22 @@ export function VariableSpendingBlock() {
       </div>
 
       <div className="px-6 pb-3">
-        <StackedBarChart data={daily} categories={categories} />
+        <StackedBarChart
+          data={daily}
+          categories={categories}
+          grouping={grouping}
+          period={periodId}
+        />
       </div>
 
       <Legend categories={categories} grouping={grouping} />
 
       <div className="border-t border-[var(--border-subtle)]">
-        {grouping === "service" ? <ServiceTable /> : <AgentTable />}
+        {grouping === "service" ? (
+          <ServiceTable period={periodId} />
+        ) : (
+          <AgentTable period={periodId} />
+        )}
       </div>
     </AwCard>
   );
@@ -128,10 +144,16 @@ function SegmentedToggle<T extends string>({
 function StackedBarChart({
   data,
   categories,
+  grouping,
+  period,
 }: {
   data: number[][];
   categories: SpendingCategory[];
+  grouping: SpendingGrouping;
+  period: SpendingPeriod;
 }) {
+  const [hovered, setHovered] = React.useState<number | null>(null);
+
   const days = data.length;
   const totals = data.map((d) => d.reduce((a, b) => a + b, 0));
   const max = Math.max(...totals, 1);
@@ -143,24 +165,46 @@ function StackedBarChart({
   const usableW = W - padX * 2;
   const usableH = H - padY * 2;
   const gap = 0.35;
-  const slot = usableW / days;
+  // Garante slots mínimos pra que poucos dias (ex: "Hoje") não virem uma
+  // barra esticada na largura toda do gráfico.
+  const layoutSlots = Math.max(days, 7);
+  const slot = usableW / layoutSlots;
   const barW = slot * (1 - gap);
+  const groupOffset = (usableW - slot * days) / 2;
+
+  const hoveredDay = hovered !== null ? data[hovered] : null;
+  const hoveredTotal = hovered !== null ? totals[hovered] : 0;
 
   return (
-    <figure className="m-0">
+    <figure className="relative m-0">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
         role="img"
         aria-label="Gráfico de gastos diários por categoria"
         className="block h-[220px] w-full"
+        onMouseLeave={() => setHovered(null)}
       >
         {data.map((day, i) => {
-          const x = padX + slot * i + (slot - barW) / 2;
+          const x = padX + groupOffset + slot * i + (slot - barW) / 2;
           const totalH = (totals[i] / max) * usableH;
           let stacked = 0;
+          const isHovered = hovered === i;
           return (
-            <g key={i}>
+            <g
+              key={i}
+              onMouseEnter={() => setHovered(i)}
+              style={{ opacity: hovered !== null && !isHovered ? 0.45 : 1 }}
+            >
+              {/* hover hitbox spanning the full column */}
+              <rect
+                x={padX + groupOffset + slot * i}
+                y={padY}
+                width={slot}
+                height={usableH}
+                fill="transparent"
+                style={{ cursor: "pointer" }}
+              />
               <line
                 x1={x + barW / 2}
                 x2={x + barW / 2}
@@ -181,22 +225,123 @@ function StackedBarChart({
                     width={barW}
                     height={segH}
                     fill={categories[c]?.colorVar ?? "var(--aw-gray-500)"}
-                  >
-                    <title>
-                      {`Dia ${i + 1} · ${categories[c]?.label}: ${brl(value)}`}
-                    </title>
-                  </rect>
+                  />
                 );
               })}
             </g>
           );
         })}
       </svg>
+
+      {hoveredDay && (
+        <ChartTooltip
+          dayIndex={hovered as number}
+          totalDays={days}
+          leftPct={
+            ((padX + groupOffset + slot * ((hovered as number) + 0.5)) / W) *
+            100
+          }
+          period={period}
+          values={hoveredDay}
+          total={hoveredTotal}
+          categories={categories}
+          grouping={grouping}
+        />
+      )}
+
       <figcaption className="sr-only">
         Distribuição diária dos gastos variáveis no período selecionado.
       </figcaption>
     </figure>
   );
+}
+
+function ChartTooltip({
+  dayIndex,
+  totalDays,
+  leftPct,
+  period,
+  values,
+  total,
+  categories,
+  grouping,
+}: {
+  dayIndex: number;
+  totalDays: number;
+  /** Posição horizontal do centro da barra (0..100 % do viewBox). */
+  leftPct: number;
+  period: SpendingPeriod;
+  values: number[];
+  total: number;
+  categories: SpendingCategory[];
+  grouping: SpendingGrouping;
+}) {
+  const isRightHalf = leftPct > 60;
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      className="pointer-events-none absolute -top-2 z-10 flex min-w-[200px] -translate-y-full flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] p-3 shadow-[var(--shadow-md)]"
+      style={{
+        left: `${leftPct}%`,
+        transform: isRightHalf
+          ? "translate(-100%, -100%)"
+          : "translate(0, -100%)",
+      }}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+          {dayLabel(dayIndex, totalDays, period)}
+        </span>
+        <span className="body-sm font-semibold tabular-nums text-[var(--fg-primary)]">
+          {brl(total)}
+        </span>
+      </div>
+      <ul className="m-0 flex flex-col gap-1 p-0">
+        {values.map((value, c) => {
+          const cat = categories[c];
+          if (!cat) return null;
+          return (
+            <li
+              key={cat.id}
+              className="m-0 flex items-center justify-between gap-3"
+            >
+              <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2 w-2 rounded-[2px]"
+                  style={{ background: cat.colorVar }}
+                />
+                {grouping === "agent" && cat.avatar && (
+                  <AwAvatar size="sm" src={cat.avatar} alt={cat.label} />
+                )}
+                {cat.label}
+              </span>
+              <span className="body-xs font-medium tabular-nums text-[var(--fg-primary)]">
+                {brl(value)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function dayLabel(
+  index: number,
+  totalDays: number,
+  period: SpendingPeriod,
+): string {
+  if (period === "today") return "Hoje";
+  if (period === "this-month") return `Dia ${index + 1}`;
+  // Para "last-30" e "last-90", inverte: o último bar é "hoje", o primeiro é mais antigo.
+  const offset = totalDays - 1 - index;
+  if (offset === 0) return "Hoje";
+  if (offset === 1) return "Ontem";
+  const days = period === "last-90" ? offset * 3 : offset;
+  return `${days} dia${days === 1 ? "" : "s"} atrás`;
 }
 
 function Legend({
@@ -230,8 +375,13 @@ function Legend({
 
 /* ---------- tables ---------- */
 
-function ServiceTable() {
-  const total = SERVICE_BREAKDOWN.reduce((s, r) => s + r.total, 0);
+function ServiceTable({ period }: { period: SpendingPeriod }) {
+  const scaled = React.useMemo(
+    () => scaleBreakdown(SERVICE_BREAKDOWN as ServiceBreakdownRow[], period),
+    [period],
+  );
+  const total = scaled.reduce((s, r) => s + r.total, 0);
+
   return (
     <AwTable>
       <thead>
@@ -243,7 +393,7 @@ function ServiceTable() {
         </tr>
       </thead>
       <tbody>
-        {SERVICE_BREAKDOWN.map((r) => (
+        {scaled.map((r) => (
           <tr key={r.id}>
             <td>
               <span className="inline-flex items-center gap-2">
@@ -255,8 +405,10 @@ function ServiceTable() {
                 {r.label}
               </span>
             </td>
-            <td>{r.quantity}</td>
-            <td>{r.unitPrice}</td>
+            <td className="tabular-nums">
+              {formatQuantity(r.quantity, r.quantityFormat)}
+            </td>
+            <td className="tabular-nums">{r.unitPriceLabel}</td>
             <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
               {brl(r.total)}
             </td>
@@ -288,12 +440,17 @@ function agentStatusVariant(status: AgentBreakdownRow["status"]): AwPillVariant 
   }
 }
 
-function AgentTable() {
+function AgentTable({ period }: { period: SpendingPeriod }) {
   const [sortKey, setSortKey] = React.useState<SortKey>("total");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
 
+  const scaled = React.useMemo(
+    () => scaleBreakdown(AGENT_BREAKDOWN as AgentBreakdownRow[], period),
+    [period],
+  );
+
   const sorted = React.useMemo(() => {
-    const rows = [...AGENT_BREAKDOWN];
+    const rows = [...scaled];
     rows.sort((a, b) => {
       const av = a[sortKey];
       const bv = b[sortKey];
@@ -305,9 +462,9 @@ function AgentTable() {
         : String(bv).localeCompare(String(av));
     });
     return rows;
-  }, [sortKey, sortDir]);
+  }, [scaled, sortKey, sortDir]);
 
-  const total = AGENT_BREAKDOWN.reduce((s, r) => s + r.total, 0);
+  const total = scaled.reduce((s, r) => s + r.total, 0);
 
   const headerClick = (k: SortKey) => {
     if (k === sortKey) {

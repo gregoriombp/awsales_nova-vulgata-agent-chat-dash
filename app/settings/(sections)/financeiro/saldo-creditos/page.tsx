@@ -49,8 +49,8 @@ function CreditsHero() {
         {brl(CREDITS_KPIS.availableDiscount)}
       </h1>
       <p className="m-0 mt-2 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-        Vouchers e cupons não consumidos. A aplicação varia por item — alguns
-        valem para disparos, tokens ou taxas específicas.
+        Vouchers e cupons disponíveis. Cada um vale pra itens específicos —
+        disparos, tokens ou taxas.
       </p>
     </section>
   );
@@ -161,7 +161,7 @@ function CouponsAppliedList() {
             Cupons aplicados
           </h6>
           <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-            Códigos de desconto redimidos. O valor aparece na fatura referente.
+            Códigos já usados. O desconto aparece na fatura correspondente.
           </p>
         </div>
       </div>

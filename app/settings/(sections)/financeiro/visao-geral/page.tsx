@@ -29,7 +29,7 @@ export default function VisaoGeralPage() {
       <section>
         <SectionHeading
           title="Gastos variáveis"
-          description="Distribuição do consumo no período. Alterne entre serviço e campanha pra rastrear de onde vem o gasto."
+          description="Distribuição do consumo no período. Alterne entre serviço e agente pra rastrear de onde vem o gasto."
         />
         <VariableSpendingBlock />
       </section>
