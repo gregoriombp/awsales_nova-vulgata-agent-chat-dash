@@ -28,13 +28,15 @@ export const OVERVIEW_KPIS = {
 
 // Gastos variáveis — agrupados por dia (1..31) e por categoria.
 // 4 categorias por agrupamento; cada valor é em BRL.
-export type SpendingGrouping = "service" | "campaign";
+export type SpendingGrouping = "service" | "agent";
 
 export type SpendingCategory = {
   id: string;
   label: string;
   /** Token CSS var aplicado em background/fill — sem cor hardcoded. */
   colorVar: string;
+  /** Avatar do agente (apenas para agrupamento por agente). */
+  avatar?: string;
 };
 
 export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> = {
@@ -44,11 +46,31 @@ export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> =
     { id: "mensagens", label: "Mensagens transacionadas", colorVar: "var(--aw-amber-500)" },
     { id: "tokens", label: "Tokens · Knowledge", colorVar: "var(--aw-purple-500)" },
   ],
-  campaign: [
-    { id: "bf", label: "Black Friday Lead Magnet", colorVar: "var(--aw-blue-500)" },
-    { id: "crm", label: "Recuperação CRM Trial", colorVar: "var(--aw-emerald-500)" },
-    { id: "sdr", label: "SDR Outbound Pro", colorVar: "var(--aw-amber-500)" },
-    { id: "onb", label: "Onboarding Pós-Venda", colorVar: "var(--aw-purple-500)" },
+  agent: [
+    {
+      id: "aria",
+      label: "Aria",
+      colorVar: "var(--aw-blue-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png",
+    },
+    {
+      id: "atlas",
+      label: "Atlas",
+      colorVar: "var(--aw-emerald-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png",
+    },
+    {
+      id: "nova",
+      label: "Nova",
+      colorVar: "var(--aw-amber-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png",
+    },
+    {
+      id: "stella",
+      label: "Stella",
+      colorVar: "var(--aw-purple-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
+    },
   ],
 };
 
@@ -71,7 +93,7 @@ function genDaily(seed: number, n = 31): number[][] {
 
 export const DAILY_SPENDING: Record<SpendingGrouping, number[][]> = {
   service: genDaily(7),
-  campaign: genDaily(13),
+  agent: genDaily(13),
 };
 
 export type ServiceBreakdownRow = {
@@ -92,19 +114,48 @@ export const SERVICE_BREAKDOWN: ServiceBreakdownRow[] = [
   { id: "outros", label: "Outros serviços agregados", icon: "more_horiz", quantity: "—", unitPrice: "—", total: 539.63 },
 ];
 
-export type CampaignBreakdownRow = {
+export type AgentBreakdownRow = {
   id: string;
   label: string;
-  type: string;
-  status: "Ativa" | "Pausada" | "Encerrada";
+  avatar: string;
+  role: string;
+  status: "Ativo" | "Pausado" | "Treinando";
   total: number;
 };
 
-export const CAMPAIGN_BREAKDOWN: CampaignBreakdownRow[] = [
-  { id: "bf", label: "Black Friday Lead Magnet", type: "Aquisição", status: "Ativa", total: 312.45 },
-  { id: "crm", label: "Recuperação CRM Trial", type: "Reativação", status: "Ativa", total: 248.9 },
-  { id: "sdr", label: "SDR Outbound Pro", type: "Outbound", status: "Pausada", total: 198.18 },
-  { id: "onb", label: "Onboarding Pós-Venda", type: "Retenção", status: "Ativa", total: 132.1 },
+export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
+  {
+    id: "aria",
+    label: "Aria",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png",
+    role: "SDR · Aquisição",
+    status: "Ativo",
+    total: 312.45,
+  },
+  {
+    id: "atlas",
+    label: "Atlas",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png",
+    role: "CS · Reativação",
+    status: "Ativo",
+    total: 248.9,
+  },
+  {
+    id: "nova",
+    label: "Nova",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png",
+    role: "Outbound",
+    status: "Pausado",
+    total: 198.18,
+  },
+  {
+    id: "stella",
+    label: "Stella",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
+    role: "Onboarding",
+    status: "Treinando",
+    total: 132.1,
+  },
 ];
 
 export type InvoiceHistoryRow = {

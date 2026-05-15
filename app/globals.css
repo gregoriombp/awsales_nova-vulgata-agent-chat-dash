@@ -3064,6 +3064,7 @@
 
 /* Variant: underline — text-style nav with hairline divider + underline indicator. */
 .aw-tabs--underline {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   gap: 0 24px;
@@ -3073,20 +3074,33 @@
   border-bottom: 1px solid var(--border-subtle);
 }
 .aw-tabs--underline .aw-tabs__tab {
+  position: relative;
   height: 40px;
   padding: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
-  border-bottom: 2px solid transparent;
   margin-bottom: -1px;
   font-size: 13.5px;
   font-weight: 500;
   letter-spacing: -0.005em;
+  transition: color var(--dur-base) var(--ease-out);
 }
 .aw-tabs--underline .aw-tabs__tab--active {
   color: var(--fg-primary);
-  border-bottom-color: var(--fg-primary);
+}
+.aw-tabs--underline .aw-tabs__indicator {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  background: var(--fg-primary);
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    width var(--dur-base) var(--ease-out),
+    opacity var(--dur-base) var(--ease-out);
 }
 .aw-tabs--underline .aw-tabs__count {
   display: inline-flex;

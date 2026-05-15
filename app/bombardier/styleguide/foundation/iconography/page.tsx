@@ -62,6 +62,8 @@ const actionIcons = [
   "more_vert",
   "arrow_forward",
   "arrow_back",
+  "arrow_upward",
+  "arrow_downward",
   "north_east",
   "open_in_new",
   "filter_list",
@@ -118,6 +120,16 @@ const contentIcons = [
   "menu_book",
   "shopping_cart",
   "integration_instructions",
+]
+
+const financeIcons = [
+  "account_balance_wallet",
+  "credit_card",
+  "credit_card_off",
+  "receipt_long",
+  "redeem",
+  "payments",
+  "request_quote",
 ]
 
 const sizes = [12, 16, 20, 24, 28, 32]
@@ -262,8 +274,17 @@ export default function IconographyPage() {
           <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
             Conteúdo & Mídia
           </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
             {contentIcons.map((n) => (
+              <IconCell key={n} name={n} />
+            ))}
+          </div>
+
+          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+            Financeiro
+          </div>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+            {financeIcons.map((n) => (
               <IconCell key={n} name={n} />
             ))}
           </div>

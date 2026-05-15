@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import {
   AUDIT_EVENTS,
@@ -20,21 +22,15 @@ import {
   type AuditExecutor,
 } from "../_components/data";
 
-const TYPES: { id: AuditEventType | "all"; label: string }[] = [
-  { id: "all", label: "Todos" },
-  { id: "Plano", label: "Plano" },
-  { id: "Cartão", label: "Cartão" },
-  { id: "Fatura", label: "Fatura" },
-  { id: "Cupom", label: "Cupom" },
-  { id: "Voucher", label: "Voucher" },
+const ALL_TYPES: AuditEventType[] = [
+  "Plano",
+  "Cartão",
+  "Fatura",
+  "Cupom",
+  "Voucher",
 ];
 
-const EXECUTORS: { id: AuditExecutor | "all"; label: string }[] = [
-  { id: "all", label: "Todos" },
-  { id: "AwSales", label: "AwSales" },
-  { id: "Cliente", label: "Cliente" },
-  { id: "Sistema", label: "Sistema" },
-];
+const ALL_EXECUTORS: AuditExecutor[] = ["AwSales", "Cliente", "Sistema"];
 
 function executorVariant(e: AuditExecutor): AwPillVariant {
   switch (e) {
@@ -48,17 +44,24 @@ function executorVariant(e: AuditExecutor): AwPillVariant {
 }
 
 export default function AuditoriaPage() {
-  const [typeId, setTypeId] = React.useState<AuditEventType | "all">("all");
-  const [executorId, setExecutorId] = React.useState<AuditExecutor | "all">(
-    "all",
+  const [selectedTypes, setSelectedTypes] = React.useState<AuditEventType[]>(
+    [],
   );
+  const [selectedExecutors, setSelectedExecutors] = React.useState<
+    AuditExecutor[]
+  >([]);
   const [query, setQuery] = React.useState("");
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return AUDIT_EVENTS.filter((e) => {
-      if (typeId !== "all" && e.type !== typeId) return false;
-      if (executorId !== "all" && e.executor !== executorId) return false;
+      if (selectedTypes.length > 0 && !selectedTypes.includes(e.type))
+        return false;
+      if (
+        selectedExecutors.length > 0 &&
+        !selectedExecutors.includes(e.executor)
+      )
+        return false;
       if (
         q &&
         !`${e.actor} ${e.action} ${e.meta ?? ""}`.toLowerCase().includes(q)
@@ -66,9 +69,20 @@ export default function AuditoriaPage() {
         return false;
       return true;
     });
-  }, [typeId, executorId, query]);
+  }, [selectedTypes, selectedExecutors, query]);
 
   const grouped = React.useMemo(() => groupByDate(filtered), [filtered]);
+
+  const clearAll = () => {
+    setSelectedTypes([]);
+    setSelectedExecutors([]);
+    setQuery("");
+  };
+
+  const hasFilters =
+    selectedTypes.length > 0 ||
+    selectedExecutors.length > 0 ||
+    query.trim().length > 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -83,12 +97,14 @@ export default function AuditoriaPage() {
       </section>
 
       <Toolbar
-        typeId={typeId}
-        onTypeChange={setTypeId}
-        executorId={executorId}
-        onExecutorChange={setExecutorId}
+        selectedTypes={selectedTypes}
+        onTypesChange={setSelectedTypes}
+        selectedExecutors={selectedExecutors}
+        onExecutorsChange={setSelectedExecutors}
         query={query}
         onQueryChange={setQuery}
+        onClearAll={clearAll}
+        hasFilters={hasFilters}
       />
 
       {grouped.length === 0 ? (
@@ -121,24 +137,28 @@ export default function AuditoriaPage() {
 /* ---------- toolbar ---------- */
 
 function Toolbar({
-  typeId,
-  onTypeChange,
-  executorId,
-  onExecutorChange,
+  selectedTypes,
+  onTypesChange,
+  selectedExecutors,
+  onExecutorsChange,
   query,
   onQueryChange,
+  onClearAll,
+  hasFilters,
 }: {
-  typeId: AuditEventType | "all";
-  onTypeChange: (v: AuditEventType | "all") => void;
-  executorId: AuditExecutor | "all";
-  onExecutorChange: (v: AuditExecutor | "all") => void;
+  selectedTypes: AuditEventType[];
+  onTypesChange: (v: AuditEventType[]) => void;
+  selectedExecutors: AuditExecutor[];
+  onExecutorsChange: (v: AuditExecutor[]) => void;
   query: string;
   onQueryChange: (v: string) => void;
+  onClearAll: () => void;
+  hasFilters: boolean;
 }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-[260px] flex-1">
+        <div className="min-w-[240px] flex-1">
           <AwInput
             iconLeft="search"
             placeholder="Buscar ator, ação ou referência…"
@@ -157,60 +177,95 @@ function Toolbar({
           Exportar CSV
         </AwButton>
       </div>
-      <div className="flex flex-col gap-2">
-        <PillFilter
+
+      <div className="flex flex-wrap items-center gap-2">
+        <MultiFilter
           label="Tipo"
-          options={TYPES}
-          value={typeId}
-          onChange={onTypeChange}
+          options={ALL_TYPES}
+          selected={selectedTypes}
+          onChange={onTypesChange}
         />
-        <PillFilter
+        <MultiFilter
           label="Executor"
-          options={EXECUTORS}
-          value={executorId}
-          onChange={onExecutorChange}
+          options={ALL_EXECUTORS}
+          selected={selectedExecutors}
+          onChange={onExecutorsChange}
         />
+        {hasFilters && (
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="close"
+            onClick={onClearAll}
+          >
+            Limpar
+          </AwButton>
+        )}
       </div>
     </div>
   );
 }
 
-function PillFilter<T extends string>({
+function MultiFilter<T extends string>({
   label,
   options,
-  value,
+  selected,
   onChange,
 }: {
   label: string;
-  options: { id: T; label: string }[];
-  value: T;
-  onChange: (v: T) => void;
+  options: T[];
+  selected: T[];
+  onChange: (v: T[]) => void;
 }) {
+  const toggle = (id: T) => {
+    if (selected.includes(id)) {
+      onChange(selected.filter((s) => s !== id));
+    } else {
+      onChange([...selected, id]);
+    }
+  };
+
+  const triggerLabel =
+    selected.length === 0
+      ? label
+      : selected.length === 1
+        ? `${label} · ${selected[0]}`
+        : `${label} · ${selected.length}`;
+
+  const items: AwDropdownItem[] = [
+    {
+      id: "all",
+      label: "Selecionar tudo",
+      icon: "done_all",
+      closeOnSelect: false,
+      onSelect: () => onChange([]),
+      disabled: selected.length === 0,
+    },
+    { id: "sep", separator: true },
+    ...options.map((opt) => ({
+      id: opt,
+      label: opt,
+      checked: selected.includes(opt),
+      closeOnSelect: false,
+      onSelect: () => toggle(opt),
+    })),
+  ];
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="aw-eyebrow text-[var(--fg-tertiary)]">{label}</span>
-      <div className="flex flex-wrap items-center gap-1.5">
-        {options.map((opt) => {
-          const active = opt.id === value;
-          return (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => onChange(opt.id)}
-              aria-pressed={active}
-              className={
-                "rounded-full px-2.5 py-0.5 body-xs font-medium transition-colors duration-aw-fast " +
-                (active
-                  ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                  : "bg-[var(--bg-muted)] text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]")
-              }
-            >
-              {opt.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <AwDropdownMenu
+      align="start"
+      trigger={
+        <AwSelect>
+          {triggerLabel}
+          {selected.length > 1 && (
+            <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--fg-primary)] px-1 body-xs font-semibold text-[var(--bg-raised)]">
+              {selected.length}
+            </span>
+          )}
+        </AwSelect>
+      }
+      items={items}
+    />
   );
 }
 
