@@ -78,7 +78,7 @@ export function Sparkline({
           <polygon
             points={areaPointsString}
             fill={`url(#${gradientId})`}
-            className="animate-in fade-in duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)] fill-mode-both"
+            className="animate-in fade-in duration-1000 ease-fluid fill-mode-both"
             style={{ animationDelay }}
           />
         </>

@@ -260,7 +260,8 @@ const config: Config = {
   			overlay: '0 24px 64px rgba(0, 0, 0, 0.18)'
   		},
   		transitionTimingFunction: {
-  			'aw-out': 'cubic-bezier(0.22, 0.61, 0.36, 1)'
+  			'aw-out': 'cubic-bezier(0.22, 0.61, 0.36, 1)',
+  			fluid: 'cubic-bezier(0.16, 1, 0.3, 1)'
   		},
   		transitionDuration: {
   			'aw-fast': '120ms',

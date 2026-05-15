@@ -170,7 +170,7 @@ function OptionListConfirmation({
       className={cn(
         "@container/option-list flex w-full max-w-md min-w-80 flex-col",
         "text-[var(--fg-primary)]",
-        "motion-safe:animate-in motion-safe:fade-in motion-safe:blur-in-sm motion-safe:zoom-in-95 motion-safe:duration-300 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)] motion-safe:fill-mode-both",
+        "motion-safe:animate-in motion-safe:fade-in motion-safe:blur-in-sm motion-safe:zoom-in-95 motion-safe:duration-300 motion-safe:ease-fluid motion-safe:fill-mode-both",
         className,
       )}
       data-slot="option-list"
