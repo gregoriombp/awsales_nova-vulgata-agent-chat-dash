@@ -123,7 +123,7 @@ export default function KnowledgeOSSidebar() {
           <div className="px-3">
             <div className="border-b border-[#f2f2f2] px-4 pb-4 mb-2 flex items-center gap-2">
               <FolderIcon className="flex-shrink-0 text-[#1a1a1a]" />
-              <span className="text-[16px] font-semibold text-[#1a1a1a]">Bases de Conhecimento</span>
+              <span className="body-md font-semibold text-[#1a1a1a]">Bases de Conhecimento</span>
             </div>
             {bases.map((base) => {
               const count = getSourceCount(base.id) || (base.documentCount ?? 0);
@@ -135,8 +135,8 @@ export default function KnowledgeOSSidebar() {
                   className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
                 >
                   <FolderIcon className="text-[#5e5e5e] flex-shrink-0" />
-                  <span className="flex-1 text-[14px] font-medium truncate">{base.name}</span>
-                  <span className="text-[11px] text-[#737373] flex-shrink-0">{count}</span>
+                  <span className="flex-1 body-sm font-medium truncate">{base.name}</span>
+                  <span className="body-xs text-[#737373] flex-shrink-0">{count}</span>
                 </button>
               );
             })}
@@ -151,7 +151,7 @@ export default function KnowledgeOSSidebar() {
                   <FolderIcon className="w-10 h-10" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[14px] font-medium text-[#1a1a1a] truncate">{currentBaseName}</p>
+                  <p className="body-sm font-medium text-[#1a1a1a] truncate">{currentBaseName}</p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <span className="inline-flex gap-1 items-center">
                       <span className="w-5 h-5 rounded bg-[#e5e5e5]" title="Notion" />
@@ -162,7 +162,7 @@ export default function KnowledgeOSSidebar() {
                         <img src="/assets/integrations/Tipo=Canais, Tamanho=Slack.png" alt="" className="w-full h-full object-contain" />
                       </span>
                     </span>
-                    <span className="text-[12px] text-[#5e5e5e]">{currentBaseDocCount} {currentBaseDocCount === 1 ? "fonte" : "fontes"}</span>
+                    <span className="body-xs text-[#5e5e5e]">{currentBaseDocCount} {currentBaseDocCount === 1 ? "fonte" : "fontes"}</span>
                   </div>
                 </div>
                 <button
@@ -181,17 +181,17 @@ export default function KnowledgeOSSidebar() {
             <nav className="space-y-0.5">
               <Link
                 href={`/knowledge-os/${baseId}`}
-                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isDocumentsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}
               >
                 <DocumentIcon />
                 <span className="flex-1">Documentos</span>
-                <span className="text-[12px] text-[#737373] font-normal">{currentBaseDocCount}</span>
+                <span className="body-xs text-[#737373] font-normal">{currentBaseDocCount}</span>
               </Link>
               <Link
                 href={`/knowledge-os/${baseId}/semantic-search`}
-                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isSemanticSearchActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}
               >
@@ -200,7 +200,7 @@ export default function KnowledgeOSSidebar() {
               </Link>
               <Link
                 href={`/knowledge-os/${baseId}/settings`}
-                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg text-[14px] font-medium transition-colors ${
+                className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isSettingsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}
               >
