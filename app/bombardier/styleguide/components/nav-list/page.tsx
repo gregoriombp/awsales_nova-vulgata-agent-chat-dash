@@ -25,7 +25,7 @@ export default function NavListPage() {
           title="Lista padrão"
           lead="Ícone à esquerda, label no meio, contagem opcional à direita. Um item .active por lista."
         >
-          <Stage label="com ícones + contagens">
+          <Stage label="Com ícones + contagens">
             <AwNavList style={{ maxWidth: 280 }}>
               <AwNavItem icon="dashboard" active>
                 Dashboard
@@ -48,7 +48,7 @@ export default function NavListPage() {
           title="Sem ícone"
           lead="Opcional — listas curtas ou sub-navegação interna costumam dispensar iconografia."
         >
-          <Stage label="sub-nav de painel">
+          <Stage label="Sub-nav de painel">
             <AwNavList style={{ maxWidth: 220 }}>
               <AwNavItem active>Geral</AwNavItem>
               <AwNavItem>Fontes</AwNavItem>

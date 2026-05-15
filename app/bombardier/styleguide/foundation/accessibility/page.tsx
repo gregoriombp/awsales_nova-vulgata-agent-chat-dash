@@ -106,42 +106,42 @@ export default function AccessibilityPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Contrast
-              label="primary text on canvas"
+              label="Primary text on canvas"
               bg="#FFFFFF"
               fg="#0D0D0D"
               ratio="20.4 : 1"
               pass="AA"
             />
             <Contrast
-              label="secondary text on canvas"
+              label="Secondary text on canvas"
               bg="#FFFFFF"
               fg="#5E5E5E"
               ratio="7.0 : 1"
               pass="AA"
             />
             <Contrast
-              label="tertiary text on canvas"
+              label="Tertiary text on canvas"
               bg="#FFFFFF"
               fg="#999999"
               ratio="2.9 : 1"
               pass="fail"
             />
             <Contrast
-              label="primary on dark shell"
+              label="Primary on dark shell"
               bg="#0D0D0D"
               fg="#FFFFFF"
               ratio="20.4 : 1"
               pass="AA"
             />
             <Contrast
-              label="brand blue on canvas"
+              label="Brand blue on canvas"
               bg="#FFFFFF"
               fg="#1A5EC8"
               ratio="6.8 : 1"
               pass="AA"
             />
             <Contrast
-              label="success text"
+              label="Success text"
               bg="#FFFFFF"
               fg="#17825A"
               ratio="4.8 : 1"

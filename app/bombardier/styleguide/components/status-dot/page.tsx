@@ -27,7 +27,7 @@ export default function StatusDotPage() {
             title="Variantes"
             lead="Cinco anchors semânticos. Mantenha o significado consistente — live = funcionando, attention = ação requerida, offline = desligado, info = informativo, neutral = inerte."
           >
-            <Stage label="variant">
+            <Stage label="Variant">
               <span className="inline-flex items-center gap-2">
                 <AwStatusDot variant="live" />
                 <span className="text-sm">Live</span>
@@ -56,7 +56,7 @@ export default function StatusDotPage() {
             title="Tamanhos"
             lead="Três tamanhos. xs (6px) para inline em texto pequeno; sm (8px) default; md (10px) para overlay em logos."
           >
-            <Stage label="size · xs / sm / md">
+            <Stage label="Size · xs / sm / md">
               <AwStatusDot size="xs" />
               <AwStatusDot size="sm" />
               <AwStatusDot size="md" />
@@ -110,7 +110,7 @@ export default function StatusDotPage() {
               <Spec k="offline" v="--aw-gray-500" />
               <Spec k="info" v="--aw-blue-500" />
               <Spec k="neutral" v="--fg-tertiary" />
-              <Spec k="ring" v="2–3px · --bg-raised" d="proporcional ao size." />
+              <Spec k="ring" v="2–3px · --bg-raised" d="Proporcional ao size." />
             </div>
           </Section>
 

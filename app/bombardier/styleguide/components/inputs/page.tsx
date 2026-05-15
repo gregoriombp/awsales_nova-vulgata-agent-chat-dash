@@ -27,7 +27,7 @@ export default function InputsPage() {
           lead="Input solto, sem label. Use em busca inline, toolbars e combobox."
         >
           <Stage
-            label="default · com ícone · dense"
+            label="Default · com ícone · dense"
             gridClassName="flex flex-col gap-3 max-w-[420px]"
           >
             <AwInput placeholder="Nome do agente" />
@@ -42,7 +42,7 @@ export default function InputsPage() {
           lead='Quando iconLeft="search" e o campo tem valor, um botão de limpar aparece à direita — dentro da boundary arredondada. Sem prop extra: o input cuida disso sozinho. O clear nativo do browser é suprimido.'
         >
           <Stage
-            label="vazio · com valor · vazio dense"
+            label="Vazio · com valor · vazio dense"
             gridClassName="flex flex-col gap-3 max-w-[420px]"
           >
             <AwInput placeholder="Buscar integração…" iconLeft="search" />
@@ -118,7 +118,7 @@ export default function InputsPage() {
           lead="Focus ring: 3px rgba(71,138,255,.18). Erro substitui borda por --aw-red-700 e muda o ring para vermelho."
         >
           <Stage
-            label="default · focus · invalid · disabled"
+            label="Default · focus · invalid · disabled"
             gridClassName="flex flex-col gap-3 max-w-[420px]"
           >
             <AwInput placeholder="Default" />
@@ -134,7 +134,7 @@ export default function InputsPage() {
           lead="Default 42 px; dense 34 px para toolbars e combobox inline. Não ter terceira altura — se precisar, reveja densidade da superfície."
         >
           <Stage
-            label="default · dense"
+            label="Default · dense"
             gridClassName="flex flex-col gap-3 max-w-[420px]"
           >
             <AwInput placeholder="default · 42 px" />

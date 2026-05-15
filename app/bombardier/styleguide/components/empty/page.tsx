@@ -53,7 +53,7 @@ export default function EmptyPage() {
             title="Com mídia (icon)"
             lead="AwEmptyMedia variant='icon' embrulha o ícone num círculo de superfície."
           >
-            <Stage label="search-off · ícone com tile" gridClassName="block">
+            <Stage label="Search-off · ícone com tile" gridClassName="block">
               <AwEmpty>
                 <AwEmptyHeader>
                   <AwEmptyMedia variant="icon">
@@ -73,7 +73,7 @@ export default function EmptyPage() {
             title="Com ação"
             lead="AwEmptyContent recebe os CTAs. Normalmente um primário e um secundário."
           >
-            <Stage label="content · 2 botões" gridClassName="block">
+            <Stage label="Content · 2 botões" gridClassName="block">
               <AwEmpty>
                 <AwEmptyHeader>
                   <AwEmptyMedia variant="icon">

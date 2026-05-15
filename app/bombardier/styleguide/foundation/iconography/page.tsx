@@ -309,10 +309,10 @@ export default function IconographyPage() {
                   </div>
                   <div className="caption">
                     {n === "auto_awesome"
-                      ? "gerar · sugerir"
+                      ? "Gerar · sugerir"
                       : n === "bolt"
-                        ? "executar · publicar"
-                        : "sincronizar"}
+                        ? "Executar · publicar"
+                        : "Sincronizar"}
                   </div>
                 </div>
               </div>

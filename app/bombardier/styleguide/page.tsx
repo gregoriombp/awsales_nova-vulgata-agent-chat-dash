@@ -22,13 +22,13 @@ import { PageHero } from "./_primitives"
  */
 
 const radii = [
-  { name: "xs", token: "--radius-xs", value: "4px", use: "chips, tags" },
-  { name: "sm", token: "--radius-sm", value: "6px", use: "controles pequenos" },
-  { name: "md", token: "--radius-md", value: "8px", use: "inputs, selects" },
-  { name: "lg", token: "--radius-lg", value: "12px", use: "cards" },
-  { name: "xl", token: "--radius-xl", value: "16px", use: "modais, cards grandes" },
-  { name: "2xl", token: "--radius-2xl", value: "24px", use: "containers hero" },
-  { name: "full", token: "--radius-full", value: "9999px", use: "botões, avatars, pills" },
+  { name: "xs", token: "--radius-xs", value: "4px", use: "Chips, tags" },
+  { name: "sm", token: "--radius-sm", value: "6px", use: "Controles pequenos" },
+  { name: "md", token: "--radius-md", value: "8px", use: "Inputs, selects" },
+  { name: "lg", token: "--radius-lg", value: "12px", use: "Cards" },
+  { name: "xl", token: "--radius-xl", value: "16px", use: "Modais, cards grandes" },
+  { name: "2xl", token: "--radius-2xl", value: "24px", use: "Containers hero" },
+  { name: "full", token: "--radius-full", value: "9999px", use: "Botões, avatars, pills" },
 ]
 
 const spacing = [
@@ -46,11 +46,11 @@ const spacing = [
 ]
 
 const shadows = [
-  { name: "xs", token: "--shadow-xs", use: "subtle lift" },
-  { name: "sm", token: "--shadow-sm", use: "raised cards" },
-  { name: "md", token: "--shadow-md", use: "dropdowns, popovers" },
-  { name: "lg", token: "--shadow-lg", use: "modals, toasts" },
-  { name: "overlay", token: "--shadow-overlay", use: "full-screen dialogs" },
+  { name: "xs", token: "--shadow-xs", use: "Subtle lift" },
+  { name: "sm", token: "--shadow-sm", use: "Raised cards" },
+  { name: "md", token: "--shadow-md", use: "Dropdowns, popovers" },
+  { name: "lg", token: "--shadow-lg", use: "Modals, toasts" },
+  { name: "overlay", token: "--shadow-overlay", use: "Full-screen dialogs" },
 ]
 
 const motion = [
@@ -511,13 +511,13 @@ export default function StyleguidePage() {
                   <AwCardContent>
                     <div className="flex flex-wrap gap-1.5">
                       <AwPill variant="live" dot={false}>
-                        em produção
+                        Em produção
                       </AwPill>
                       <AwPill variant="beta" dot={false}>
-                        em review
+                        Em review
                       </AwPill>
                       <AwPill variant="ai" dot={false}>
-                        ia ativa
+                        IA ativa
                       </AwPill>
                     </div>
                   </AwCardContent>
@@ -527,12 +527,12 @@ export default function StyleguidePage() {
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
                 <div className="aw-eyebrow mb-4">AwPill</div>
                 <div className="flex flex-wrap gap-2">
-                  <AwPill variant="neutral">neutral</AwPill>
-                  <AwPill variant="ai">ai</AwPill>
-                  <AwPill variant="live">live</AwPill>
-                  <AwPill variant="draft">draft</AwPill>
-                  <AwPill variant="beta">beta</AwPill>
-                  <AwPill variant="error">error</AwPill>
+                  <AwPill variant="neutral">Neutral</AwPill>
+                  <AwPill variant="ai">AI</AwPill>
+                  <AwPill variant="live">Live</AwPill>
+                  <AwPill variant="draft">Draft</AwPill>
+                  <AwPill variant="beta">Beta</AwPill>
+                  <AwPill variant="error">Error</AwPill>
                 </div>
               </div>
 
@@ -602,7 +602,7 @@ export default function StyleguidePage() {
                   <AwCardContent>
                     <div className="flex flex-wrap gap-1.5">
                       <AwPill variant="ai" dot={false}>
-                        gerado por IA
+                        Gerado por IA
                       </AwPill>
                       <AwPill variant="neutral" dot={false}>
                         18 mensagens

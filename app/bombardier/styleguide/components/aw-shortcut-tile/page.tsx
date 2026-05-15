@@ -32,7 +32,7 @@ export default function AwShortcutTilePage() {
             title="Uso padrão"
             lead="Grid 2-col dentro de um AwCard. Cada tile tem ícone à esquerda em container suave, título em medium, descrição em texto secundário."
           >
-            <Stage label="atalhos do Financeiro · 2 colunas">
+            <Stage label="Atalhos do Financeiro · 2 colunas">
               <div className="w-full max-w-[820px]">
                 <AwCard className="!p-2">
                   <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
@@ -71,7 +71,7 @@ export default function AwShortcutTilePage() {
             title="Sem descrição"
             lead="Quando o contexto da seção já explica o atalho, omita a descrição pra um tile mais respirado."
           >
-            <Stage label="só título + ícone">
+            <Stage label="Só título + ícone">
               <div className="w-full max-w-[820px]">
                 <AwCard className="!p-2">
                   <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">

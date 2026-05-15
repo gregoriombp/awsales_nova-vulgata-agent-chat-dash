@@ -63,7 +63,7 @@ export default function AlertsPage() {
           lead="Para mensagens de uma linha, o título é opcional. O corpo continua com ícone."
         >
           <Stage
-            label="apenas body"
+            label="Apenas body"
             gridClassName="flex flex-col gap-3 max-w-[560px]"
           >
             <AwAlert variant="info">
@@ -84,7 +84,7 @@ export default function AlertsPage() {
           lead="Qualquer glyph Material Symbols pode sobrescrever o ícone padrão via prop icon."
         >
           <Stage
-            label="icon override"
+            label="Icon override"
             gridClassName="flex flex-col gap-3 max-w-[560px]"
           >
             <AwAlert variant="info" icon="auto_awesome" title="Agente aprendendo.">

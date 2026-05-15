@@ -100,7 +100,7 @@ export default function PageHeaderPage() {
             lead="Slot acima do título para breadcrumb, status, badge ou label de seção. Aceita qualquer ReactNode — não é só texto."
           >
             <Stage
-              label="breadcrumb · pill · label simples"
+              label="Breadcrumb · pill · label simples"
               gridClassName="flex flex-col gap-10 bg-[var(--bg-canvas)] p-8"
             >
               <AwPageHeader
@@ -148,7 +148,7 @@ export default function PageHeaderPage() {
             lead="Quando o cabeçalho precisa de tabs, busca ou filtros logo abaixo, use o slot toolbar. Ele renderiza dentro do mesmo header — divisor inferior continua valendo."
           >
             <Stage
-              label="busca + filtro inline"
+              label="Busca + filtro inline"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <AwPageHeader
@@ -188,7 +188,7 @@ export default function PageHeaderPage() {
             lead="actions aceita N nodes. Use ghost para terciária, secondary para suporte, primary para a CTA principal — e respeite essa ordem (terciária → secundária → primária da esquerda pra direita)."
           >
             <Stage
-              label="três ações"
+              label="Três ações"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <AwPageHeader
@@ -219,7 +219,7 @@ export default function PageHeaderPage() {
             lead="Páginas mais densas ou subviews podem dispensar o ícone — basta omitir o prop."
           >
             <Stage
-              label="title-only"
+              label="Title-only"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <AwPageHeader
@@ -241,7 +241,7 @@ export default function PageHeaderPage() {
             lead="Além do nome do Material Symbol, icon aceita um objeto de config (size, weight, fill) ou qualquer ReactNode — útil para logos, avatars ou marcas."
           >
             <Stage
-              label="config object · ReactNode"
+              label="Config object · ReactNode"
               gridClassName="flex flex-col gap-10 bg-[var(--bg-canvas)] p-8"
             >
               <AwPageHeader

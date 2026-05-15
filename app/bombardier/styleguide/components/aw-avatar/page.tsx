@@ -62,13 +62,13 @@ export default function AwAvatarPage() {
           title="Tamanhos"
           lead="Três escalas: sm 24, md 36 (padrão), lg 48. Aplica pra iniciais, imagem e AI — cresce junto. Use sm em listas densas, md em rows e cards, lg em headers e hero de perfil."
         >
-          <Stage label="iniciais · 3 tamanhos">
+          <Stage label="Iniciais · 3 tamanhos">
             <AwAvatar size="sm" initials="MS" />
             <AwAvatar size="md" initials="MS" />
             <AwAvatar size="lg" initials="MS" />
           </Stage>
 
-          <Stage label="imagem · 3 tamanhos" gridClassName="flex flex-wrap items-center gap-4 mt-4">
+          <Stage label="Imagem · 3 tamanhos" gridClassName="flex flex-wrap items-center gap-4 mt-4">
             <AwAvatar size="sm" src={PHOTO_MARINA} alt="Marina" initials="MS" />
             <AwAvatar size="md" src={PHOTO_MARINA} alt="Marina" initials="MS" />
             <AwAvatar size="lg" src={PHOTO_MARINA} alt="Marina" initials="MS" />
@@ -109,7 +109,7 @@ export default function AwAvatarPage() {
           </Stage>
 
           <Stage
-            label="hero · lg com legenda"
+            label="Hero · lg com legenda"
             hint="Pattern de header de perfil: avatar grande à esquerda, nome + role à direita."
             gridClassName="flex flex-wrap items-center gap-4 mt-4"
           >
@@ -138,10 +138,10 @@ export default function AwAvatarPage() {
           lead="Status é composto: AwAvatar não traz prop própria. Use AwStatusDot com absolute + ring pra fazer o dot atravessar a borda do avatar com um halo da cor da superfície. Quatro variantes mapeam o estado real."
         >
           <Stage label="md · 4 estados" gridClassName="flex flex-wrap items-center gap-6">
-            <AvatarStatus photo={PHOTO_MARINA} initials="MS" label="online" variant="live" />
-            <AvatarStatus photo={PHOTO_JOAO} initials="JP" label="ocupado" variant="attention" />
-            <AvatarStatus photo={PHOTO_LARA} initials="LA" label="ausente" variant="info" />
-            <AvatarStatus photo={PHOTO_DANI} initials="DR" label="offline" variant="offline" />
+            <AvatarStatus photo={PHOTO_MARINA} initials="MS" label="Online" variant="live" />
+            <AvatarStatus photo={PHOTO_JOAO} initials="JP" label="Ocupado" variant="attention" />
+            <AvatarStatus photo={PHOTO_LARA} initials="LA" label="Ausente" variant="info" />
+            <AvatarStatus photo={PHOTO_DANI} initials="DR" label="Offline" variant="offline" />
           </Stage>
 
           <Stage label="sm · lg · status proporcional" gridClassName="flex flex-wrap items-end gap-6 mt-4">
@@ -182,7 +182,7 @@ export default function AwAvatarPage() {
                 <div className="text-[14px] font-medium text-[var(--fg-primary)]">
                   Agente Suporte N1
                 </div>
-                <div className="caption">disponível · pulsa enquanto pensa</div>
+                <div className="caption">Disponível · pulsa enquanto pensa</div>
               </div>
             </div>
           </Stage>
@@ -229,7 +229,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
             </AwAvatarGroup>
           </Stage>
 
-          <Stage label="híbrido · pessoas + agente AI" gridClassName="flex flex-wrap items-center gap-4 mt-4">
+          <Stage label="Híbrido · pessoas + agente AI" gridClassName="flex flex-wrap items-center gap-4 mt-4">
             <AwAvatarGroup>
               <AwAvatar size="md" src={PHOTO_MARINA} alt="Marina" initials="MS" />
               <AwAvatar size="md" src={PHOTO_RICARDO} alt="Ricardo" initials="RL" />

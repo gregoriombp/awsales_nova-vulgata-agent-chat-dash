@@ -55,7 +55,7 @@ export default function BrandLogoPage() {
             title="Meios de pagamento (BR)"
             lead="Pix, boleto e cartão moram no mesmo registry de brand — vivem ao lado de Stripe/Hotmart numa lista de checkout. Pix usa a cor oficial (#32BCAD); boleto e card são genéricos (não há brand oficial)."
           >
-            <Stage label="payment methods">
+            <Stage label="Payment methods">
               <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
                 <AwBrandLogo brand="pix" size="md" />
                 <span className="mono">pix</span>
@@ -90,7 +90,7 @@ export default function BrandLogoPage() {
             title="Fallback"
             lead="Brand desconhecido cai num monograma com fundo --fg-primary, sem quebrar a UI."
           >
-            <Stage label="brand não registrado">
+            <Stage label="Brand não registrado">
               <AwBrandLogo brand="acme" />
               <AwBrandLogo brand="custom-erp" />
               <AwBrandLogo brand="x" />
@@ -121,15 +121,15 @@ export default function BrandLogoPage() {
             lead="Tile + SVG. Brand colors (vendor identity) ficam no SVG; só o tile responde aos tokens."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Spec k="tile sm" v="32 × 32 px" d="logo: 20px" />
-              <Spec k="tile md" v="40 × 40 px" d="logo: 24px (default)" />
-              <Spec k="tile lg" v="56 × 56 px" d="logo: 32px" />
-              <Spec k="radius" v="10px" d="entre --radius-md e --radius-lg." />
-              <Spec k="background" v="--bg-surface" d="hidra com light/dark." />
+              <Spec k="tile sm" v="32 × 32 px" d="Logo: 20px" />
+              <Spec k="tile md" v="40 × 40 px" d="Logo: 24px (default)" />
+              <Spec k="tile lg" v="56 × 56 px" d="Logo: 32px" />
+              <Spec k="radius" v="10px" d="Entre --radius-md e --radius-lg." />
+              <Spec k="background" v="--bg-surface" d="Hidra com light/dark." />
               <Spec
                 k="border"
                 v="1px · --border-subtle"
-                d="hairline padrão; some no fallback monograma."
+                d="Hairline padrão; some no fallback monograma."
               />
             </div>
           </Section>

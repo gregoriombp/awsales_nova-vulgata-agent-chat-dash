@@ -292,7 +292,7 @@ export default function CardsPage() {
                   <AwCardTitle className="display-sm">1.4k</AwCardTitle>
                 </AwCardHeader>
                 <AwCardContent className="caption text-[var(--fg-tertiary)]">
-                  últimas 24h
+                  Últimas 24h
                 </AwCardContent>
               </AwCard>
             </div>
@@ -346,15 +346,15 @@ export default function CardsPage() {
                   <ul className="flex flex-col gap-2 list-none m-0 p-0">
                     <li className="flex items-center justify-between text-sm">
                       <span>Recuperar carrinho · Hotmart</span>
-                      <span className="caption">em 14 min</span>
+                      <span className="caption">Em 14 min</span>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span>Re-engajar lead · WhatsApp</span>
-                      <span className="caption">em 2 h</span>
+                      <span className="caption">Em 2 h</span>
                     </li>
                     <li className="flex items-center justify-between text-sm">
                       <span>Resumo diário · Slack</span>
-                      <span className="caption">amanhã, 09:00</span>
+                      <span className="caption">Amanhã, 09:00</span>
                     </li>
                   </ul>
                 </AwCardContent>

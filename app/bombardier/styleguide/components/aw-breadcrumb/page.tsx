@@ -77,7 +77,7 @@ export default function BreadcrumbPage() {
             title="Itens com ícone"
             lead="O label aceita qualquer ReactNode — útil pra prefixar uma raiz com ícone (Dashboard, Tools, Canais)."
           >
-            <Stage label="root com ícone + label">
+            <Stage label="Root com ícone + label">
               <AwBreadcrumb
                 items={[
                   {

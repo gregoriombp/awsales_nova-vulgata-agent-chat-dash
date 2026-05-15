@@ -110,7 +110,7 @@ export default function AwGroupCardPage() {
             lead="Quando o grupo não tem imagem curada ainda, o topo cai pra --bg-muted e a stack mantém a posição."
           >
             <Stage
-              label="fallback sem imagem"
+              label="Fallback sem imagem"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <div className="max-w-[420px]">
@@ -132,7 +132,7 @@ export default function AwGroupCardPage() {
             lead='Singular: "1 Membro" em vez de "Membros". Stack mostra só um avatar.'
           >
             <Stage
-              label="singular"
+              label="Singular"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <div className="max-w-[420px]">

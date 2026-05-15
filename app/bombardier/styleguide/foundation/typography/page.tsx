@@ -45,11 +45,11 @@ type HeadingSpec = {
 }
 
 const DISPLAY: TypeSpec[] = [
-  { name: "display-xxl", size: 128, leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xxl-size", use: "splash externo, landing de marca" },
-  { name: "display-xl",  size: 96,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xl-size",  use: "hero de landing" },
-  { name: "display-lg",  size: 80,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-lg-size",  use: "hero interno grande" },
-  { name: "display-md",  size: 64,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-md-size",  use: "marketing dentro do app" },
-  { name: "display-sm",  size: 48,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-sm-size",  use: "hero compacto, empty state" },
+  { name: "display-xxl", size: 128, leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xxl-size", use: "Splash externo, landing de marca" },
+  { name: "display-xl",  size: 96,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-xl-size",  use: "Hero de landing" },
+  { name: "display-lg",  size: 80,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-lg-size",  use: "Hero interno grande" },
+  { name: "display-md",  size: 64,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-md-size",  use: "Marketing dentro do app" },
+  { name: "display-sm",  size: 48,  leading: 1.0, tracking: "-0.025em", weight: 300, token: "--display-sm-size",  use: "Hero compacto, empty state" },
 ]
 
 const HEADINGS: HeadingSpec[] = [
@@ -62,11 +62,11 @@ const HEADINGS: HeadingSpec[] = [
 ]
 
 const BODY: TypeSpec[] = [
-  { name: "body-xl", size: 20, leading: 1.45, tracking: "-0.005em", weight: 400, token: "--body-xl-size", use: "intro grande (rara)" },
-  { name: "body-lg", size: 18, leading: 1.5,  tracking: "-0.005em", weight: 400, token: "--body-lg-size", use: "lead de hero, intro de seção" },
-  { name: "body-md", size: 16, leading: 1.55, tracking: "0",        weight: 400, token: "--body-md-size", use: "padrão de leitura (default)" },
-  { name: "body-sm", size: 14, leading: 1.5,  tracking: "0",        weight: 400, token: "--body-sm-size", use: "corpo denso de UI, lista" },
-  { name: "body-xs", size: 12, leading: 1.4,  tracking: "0.005em",  weight: 400, token: "--body-xs-size", use: "caption, metadata" },
+  { name: "body-xl", size: 20, leading: 1.45, tracking: "-0.005em", weight: 400, token: "--body-xl-size", use: "Intro grande (rara)" },
+  { name: "body-lg", size: 18, leading: 1.5,  tracking: "-0.005em", weight: 400, token: "--body-lg-size", use: "Lead de hero, intro de seção" },
+  { name: "body-md", size: 16, leading: 1.55, tracking: "0",        weight: 400, token: "--body-md-size", use: "Padrão de leitura (default)" },
+  { name: "body-sm", size: 14, leading: 1.5,  tracking: "0",        weight: 400, token: "--body-sm-size", use: "Corpo denso de UI, lista" },
+  { name: "body-xs", size: 12, leading: 1.4,  tracking: "0.005em",  weight: 400, token: "--body-xs-size", use: "Caption, metadata" },
 ]
 
 const GEIST_WEIGHTS: Array<{ value: number; name: string }> = [
@@ -387,7 +387,7 @@ export default function TypographyPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
-              <div className="caption">caption · 12px · lh 1.4</div>
+              <div className="caption">Caption · 12px · lh 1.4</div>
               <code className="mono text-xs text-[var(--fg-tertiary)]">
                 .caption
               </code>
@@ -455,26 +455,26 @@ export default function TypographyPage() {
           lead="No styleguide o exemplo aparece com a tag HTML + className representando a variant. Na implementação real, o time usa o componente <Typography /> com variant + component. Mostramos os dois lados pra deixar o mapping explícito."
         >
           <UsagePattern
-            label="display"
+            label="Display"
             fake={`<p className="display-xl">Agent studio</p>`}
             real={`<Typography variant="display-xl" component="p">
   Agent studio
 </Typography>`}
           />
           <UsagePattern
-            label="heading"
+            label="Heading"
             fake={`<h2>Agent studio</h2>`}
             real={`<Typography variant="h2">Agent studio</Typography>`}
           />
           <UsagePattern
-            label="body"
+            label="Body"
             fake={`<p className="body-md">Texto humano em 16px.</p>`}
             real={`<Typography variant="body-md" component="p">
   Texto humano em 16px.
 </Typography>`}
           />
           <UsagePattern
-            label="utility (caption, eyebrow, mono)"
+            label="Utility (caption, eyebrow, mono)"
             fake={`<span className="caption">metadata · 12px tertiary</span>
 <div className="aw-eyebrow">overline · uppercase tracked</div>
 <code className="mono">--accent-brand</code>`}

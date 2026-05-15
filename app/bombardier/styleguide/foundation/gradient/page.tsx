@@ -23,37 +23,37 @@ const TOC = [
 
 const PALETTE = [
   {
-    role: "início (frio)",
+    role: "Início (frio)",
     token: "--aw-blue-400",
     hex: "#8FB8FF",
     intent: "Origem do gradient. A 'voz da IA' começa em azul.",
   },
   {
-    role: "fundo (frio claro)",
+    role: "Fundo (frio claro)",
     token: "--aw-blue-300",
     hex: "#B8D4FF",
     intent: "Linear base do filled gradient. Mais claro pra dar luminosidade.",
   },
   {
-    role: "transição (neutro)",
+    role: "Transição (neutro)",
     token: "--aw-purple-200",
     hex: "#EADDF8",
     intent: "Lavender que costura o azul ao peach. Não é cor protagonista.",
   },
   {
-    role: "destino (quente claro)",
+    role: "Destino (quente claro)",
     token: "--aw-amber-200",
     hex: "#FDE6CC",
     intent: "Peach/cream da direita. Onde o gradient 'esfria' (paradoxalmente).",
   },
   {
-    role: "destino linear",
+    role: "Destino linear",
     token: "--aw-pink-200",
     hex: "#FCE3EE",
     intent: "Rose suave usado na linear base — mais rosado que amber, evita amarelado.",
   },
   {
-    role: "border (saturado)",
+    role: "Border (saturado)",
     token: "--aw-amber-300",
     hex: "#FCD4A3",
     intent: "Peach mais quente, usado no stroke iridescente sobre fundo dark.",

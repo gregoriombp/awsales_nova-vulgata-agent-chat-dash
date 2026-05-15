@@ -30,7 +30,7 @@ export default function ChromePage() {
           lead="36 px circular. Imagem quando disponível, iniciais como fallback em font-heading. A variante ai indica um participante automatizado."
         >
           <Stage
-            label="com imagem — sm · md · lg"
+            label="Com imagem — sm · md · lg"
             gridClassName="flex flex-wrap items-center gap-4"
           >
             <AwAvatar
@@ -65,7 +65,7 @@ export default function ChromePage() {
 
           <div className="mt-4">
             <Stage
-              label="fallback iniciais + ai"
+              label="Fallback iniciais + ai"
               gridClassName="flex flex-wrap items-center gap-4"
             >
               <AwAvatar size="sm" initials="GR" />
@@ -76,7 +76,7 @@ export default function ChromePage() {
           </div>
 
           <div className="mt-4">
-            <Stage label="avatar group — time + agente">
+            <Stage label="Avatar group — time + agente">
               <AwAvatarGroup>
                 <AwAvatar
                   src="/assets/users/greg.jpg"
@@ -136,7 +136,7 @@ export default function ChromePage() {
           lead="Caminho de navegação. Último item marca a posição atual e não é link."
         >
           <Stage
-            label="path navigation"
+            label="Path navigation"
             gridClassName="flex flex-col gap-4"
           >
             <AwBreadcrumb
@@ -170,7 +170,7 @@ export default function ChromePage() {
             <Spec
               k="fontsize"
               v="12.5 px"
-              d="body font, --fg-tertiary nos links."
+              d="Body font, --fg-tertiary nos links."
             />
           </div>
         </Section>

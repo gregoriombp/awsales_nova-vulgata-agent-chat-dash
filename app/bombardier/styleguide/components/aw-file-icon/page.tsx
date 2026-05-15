@@ -101,7 +101,7 @@ export default function FileIconPage() {
             title="Lista de anexos (uso real)"
             lead="Padrão de attachment chip à la ChatGPT: tile colorido + nome + meta. Encaixa em chat bubbles, knowledge base, sources de agente."
           >
-            <Stage label="lista mock" gridClassName="flex flex-col gap-2">
+            <Stage label="Lista mock" gridClassName="flex flex-col gap-2">
               {ATTACHMENTS.map((f) => (
                 <div
                   key={f.name}
@@ -180,16 +180,16 @@ export default function FileIconPage() {
             lead="Tile + glifo. Cor do tile usa tokens da paleta AwSales (var(--aw-red-600), var(--aw-emerald-600)…) — nada de hex hardcoded. Glifo interno sempre branco."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Spec k="tile sm" v="32 × 32 px" d="glifo: ~55% do tile" />
-              <Spec k="tile md" v="40 × 40 px" d="default. glifo: ~22px" />
-              <Spec k="tile lg" v="56 × 56 px" d="glifo: ~31px" />
+              <Spec k="tile sm" v="32 × 32 px" d="Glifo: ~55% do tile" />
+              <Spec k="tile md" v="40 × 40 px" d="Default. glifo: ~22px" />
+              <Spec k="tile lg" v="56 × 56 px" d="Glifo: ~31px" />
               <Spec k="radius" v="10px (tile) · 26% (bare)" />
               <Spec
                 k="bg"
                 v="--aw-*-600 (palette)"
-                d="vermelho=pdf, verde=xls, gray-1000=json, etc."
+                d="Vermelho=pdf, verde=xls, gray-1000=json, etc."
               />
-              <Spec k="fg" v="#fff" d="glifo branco em tudo." />
+              <Spec k="fg" v="#fff" d="Glifo branco em tudo." />
             </div>
           </Section>
 

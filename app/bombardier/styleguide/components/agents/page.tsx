@@ -168,7 +168,7 @@ export default function AgentsPage() {
             lead="Frameworks de agentes proprietários da AwSales — peças fixas do sistema, mantidas pela própria AwSales, que rodam em conjunto com o agente do usuário. Funcionam como camada de infraestrutura: cuidam de capacidades transversais (memória, contexto, orquestração, integrações internas) que qualquer Agente do Usuário herda automaticamente. O usuário não cria nem edita um Core — ele apenas se conecta."
           >
             <Stage
-              label="biblioteca de Cores"
+              label="Biblioteca de Cores"
               hint="20 orbs coloridos. Cada Core tem identidade visual única; juntos formam a família proprietária."
               gridClassName="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-5"
             >
@@ -190,7 +190,7 @@ export default function AgentsPage() {
             lead="Qualquer agente criado pelo próprio usuário dentro da plataforma — objetivo, instruções, ferramentas e personalidade definidos por ele. Ao ser instanciado, opera acoplado aos Agent Cores (recebendo capacidades base) e ao Cortex (recebendo raciocínio e decisão). É a peça customizável da arquitetura — por isso o orb vem em grayscale: serve de tela neutra que o usuário pode reconhecer como seu sem competir com os Cores."
           >
             <Stage
-              label="biblioteca grayscale"
+              label="Biblioteca grayscale"
               hint="12 modelos neutros. O usuário escolhe um na criação e ele passa a representar o agente em toda a plataforma."
               gridClassName="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-5"
             >
@@ -212,7 +212,7 @@ export default function AgentsPage() {
             lead="O cérebro central — camada de raciocínio que coordena tudo. Decide qual Agent Core acionar, em que ordem, com que contexto, e como compor as respostas do Agente do Usuário. Já vive no topbar do app, sempre ativo. Não é imagem: vem de uma lib WebGL (@react-three/fiber + shader AstralFlow) recortada por uma máscara hex flat-top de vértices sharp. Tudo escala via <CopilotOrb size />."
           >
             <Stage
-              label="cortex · idle, sempre ativo"
+              label="Cortex · idle, sempre ativo"
               hint="Renderizado pelo componente CopilotOrb — máscara SVG sharp + AstralFlow."
               gridClassName="flex items-center justify-center gap-10 bg-[var(--bg-canvas)]"
             >
@@ -428,7 +428,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             lead="Os três visuais compartilham a mesma escala canônica de tamanhos. Use o token da escala — não invente valores intermediários."
           >
             <Stage
-              label="escala canônica"
+              label="Escala canônica"
               hint="xs · sm · md · lg · xl — aplicada em qualquer um dos três visuais."
               gridClassName="grid grid-cols-1 gap-6"
             >
@@ -487,7 +487,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                   <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_03.png" alt="Agent Core" size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Agent Core</div>
-                    <div className="caption">infraestrutura proprietária</div>
+                    <div className="caption">Infraestrutura proprietária</div>
                   </div>
                 </div>
                 <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
@@ -503,7 +503,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                   <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_03-1.png" alt="Agente do Usuário" size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Agente do Usuário</div>
-                    <div className="caption">customizável pelo usuário</div>
+                    <div className="caption">Customizável pelo usuário</div>
                   </div>
                 </div>
                 <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
@@ -519,7 +519,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                   <CopilotOrb size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Cortex</div>
-                    <div className="caption">cérebro do sistema</div>
+                    <div className="caption">Cérebro do sistema</div>
                   </div>
                 </div>
                 <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">

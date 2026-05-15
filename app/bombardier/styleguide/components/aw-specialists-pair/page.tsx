@@ -64,7 +64,7 @@ export default function SpecialistsPairPage() {
             lead="title e description são opcionais — quando a página já apresenta o contexto acima, pode renderizar apenas os cards."
           >
             <Stage
-              label="só cards"
+              label="Só cards"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <AwSpecialistsPair human={HUMAN} ai={CORTEX} />
@@ -77,7 +77,7 @@ export default function SpecialistsPairPage() {
             lead="Toda a copy (nome, role, label do CTA) chega via props — você decide o tom da página."
           >
             <Stage
-              label="onboarding"
+              label="Onboarding"
               gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
             >
               <AwSpecialistsPair

@@ -32,7 +32,7 @@ export default function ListGroupPage() {
             title="Uso padrão"
             lead="Logo da marca à esquerda, título e meta inline, ações à direita, chevron sempre visível. Conteúdo expande pra baixo com filhos recuados."
           >
-            <Stage label="canal com 2 contas — clique no header pra colapsar">
+            <Stage label="Canal com 2 contas — clique no header pra colapsar">
               <div className="w-full max-w-[720px]">
                 <AwListGroup
                   media={<AwBrandLogo brand="whatsapp" size="md" />}

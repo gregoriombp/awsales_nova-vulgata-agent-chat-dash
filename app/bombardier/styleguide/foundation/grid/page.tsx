@@ -23,43 +23,43 @@ const TOC = [
 ]
 
 const breakpoints = [
-  { name: "sm", value: "640px", use: "celular landscape" },
-  { name: "md", value: "768px", use: "tablet portrait" },
-  { name: "lg", value: "1024px", use: "tablet landscape · laptop pequeno" },
-  { name: "xl", value: "1280px", use: "desktop padrão" },
-  { name: "2xl", value: "1536px", use: "monitor amplo" },
+  { name: "sm", value: "640px", use: "Celular landscape" },
+  { name: "md", value: "768px", use: "Tablet portrait" },
+  { name: "lg", value: "1024px", use: "Tablet landscape · laptop pequeno" },
+  { name: "xl", value: "1280px", use: "Desktop padrão" },
+  { name: "2xl", value: "1536px", use: "Monitor amplo" },
 ]
 
 const gaps = [
   {
     name: "gap-2",
     value: "8 px",
-    use: "ícones e controles inline (toolbar, breadcrumb)",
+    use: "Ícones e controles inline (toolbar, breadcrumb)",
   },
   {
     name: "gap-3",
     value: "12 px",
-    use: "form fields, ações secundárias de modal",
+    use: "Form fields, ações secundárias de modal",
   },
   {
     name: "gap-4",
     value: "16 px",
-    use: "interior de cards (padding entre slots), grid de pills",
+    use: "Interior de cards (padding entre slots), grid de pills",
   },
   {
     name: "gap-6",
     value: "24 px",
-    use: "entre cards de uma lista; grid de catálogo de integrações",
+    use: "Entre cards de uma lista; grid de catálogo de integrações",
   },
   {
     name: "gap-8",
     value: "32 px",
-    use: "entre blocos visuais distintos na mesma seção",
+    use: "Entre blocos visuais distintos na mesma seção",
   },
   {
     name: "gap-16",
     value: "64 px",
-    use: "entre <Section> do styleguide (padrão); entre módulos de página",
+    use: "Entre <Section> do styleguide (padrão); entre módulos de página",
   },
 ]
 
@@ -230,7 +230,7 @@ export default function GridPage() {
               />
               <ColumnExample
                 spans={[8, 4]}
-                label="content + side · col-span-8 + col-span-4"
+                label="Content + side · col-span-8 + col-span-4"
               />
               <ColumnExample
                 spans={[4, 4, 4]}
@@ -242,7 +242,7 @@ export default function GridPage() {
               />
               <ColumnExample
                 spans={[3, 6, 3]}
-                label="rail + main + rail · 3 + 6 + 3"
+                label="Rail + main + rail · 3 + 6 + 3"
               />
             </div>
           </div>

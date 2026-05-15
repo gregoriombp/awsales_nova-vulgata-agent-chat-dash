@@ -280,8 +280,8 @@ export default function ButtonsPage() {
           </Stage>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-            <Spec k="sm" v="h 30 · pad 12 · 13px" d="toolbars, inline" />
-            <Spec k="md" v="h 38 · pad 16 · 14px" d="padrão (default)" />
+            <Spec k="sm" v="h 30 · pad 12 · 13px" d="Toolbars, inline" />
+            <Spec k="md" v="h 38 · pad 16 · 14px" d="Padrão (default)" />
             <Spec k="lg" v="h 46 · pad 22 · 15px" d="CTA de hero" />
           </div>
 
@@ -450,7 +450,7 @@ export default function ButtonsPage() {
                     Indisponível
                   </AwButton>
                 ),
-                note: "opacity 0.5, pointer-events none.",
+                note: "Opacity 0.5, pointer-events none.",
               },
             ]}
           />
@@ -696,37 +696,37 @@ export default function ButtonsPage() {
             tokens={[
               {
                 token: "--fg-primary",
-                role: "fundo de primary; cor do label em secondary/ghost",
+                role: "Fundo de primary; cor do label em secondary/ghost",
                 value: "#0D0D0D (light) · #FFFFFF (dark)",
               },
               {
                 token: "--fg-on-inverse",
-                role: "label dentro de primary (branco no light, preto no dark)",
+                role: "Label dentro de primary (branco no light, preto no dark)",
                 value: "#FFFFFF (light) · #0D0D0D (dark)",
               },
               {
                 token: "--border-default",
-                role: "contorno do secondary",
+                role: "Contorno do secondary",
                 value: "var(--aw-gray-300)",
               },
               {
                 token: "--bg-surface",
-                role: "fill do ghost em hover",
+                role: "Fill do ghost em hover",
                 value: "var(--aw-gray-150)",
               },
               {
                 token: "--bg-muted",
-                role: "fundo permanente do subtle",
+                role: "Fundo permanente do subtle",
                 value: "var(--aw-gray-200)",
               },
               {
                 token: "--aw-red-700",
-                role: "fundo do danger",
+                role: "Fundo do danger",
                 value: "#A82222",
               },
               {
                 token: "--aw-blue-600 / --aw-purple-500",
-                role: "endpoints do gradient da variant ai",
+                role: "Endpoints do gradient da variant ai",
                 value: "linear-gradient 90°",
               },
               {
@@ -736,7 +736,7 @@ export default function ButtonsPage() {
               },
               {
                 token: "--dur-base · --ease-out",
-                role: "transição de hover/focus",
+                role: "Transição de hover/focus",
                 value: "180ms · cubic-bezier(0.22,0.61,0.36,1)",
               },
             ]}
