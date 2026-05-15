@@ -155,7 +155,7 @@ export function AuditTrail() {
             {grouped.map(([date, events]) => (
               <li key={date}>
                 <div className="border-b border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-2">
-                  <p className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                  <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
                     {date}
                   </p>
                 </div>
@@ -165,7 +165,7 @@ export function AuditTrail() {
                       key={e.id}
                       className="grid grid-cols-[64px_1fr] gap-4 px-6 py-3 hover:bg-[var(--bg-hover)]"
                     >
-                      <span className="pt-0.5 text-[12px] font-medium tabular-nums text-[var(--fg-tertiary)]">
+                      <span className="pt-0.5 body-xs font-medium tabular-nums text-[var(--fg-tertiary)]">
                         {e.time}
                       </span>
                       <div className="min-w-0">
@@ -173,19 +173,19 @@ export function AuditTrail() {
                           <AwPill variant={executorVariant(e.executor)}>
                             {e.executor}
                           </AwPill>
-                          <span className="text-[13px] font-medium text-[var(--fg-primary)]">
+                          <span className="body-xs font-medium text-[var(--fg-primary)]">
                             {e.actor}
                           </span>
                           <span className="text-[var(--fg-tertiary)]">·</span>
-                          <span className="text-[13px] text-[var(--fg-primary)]">
+                          <span className="body-xs text-[var(--fg-primary)]">
                             {e.action}
                           </span>
-                          <span className="ml-auto text-[11px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+                          <span className="ml-auto aw-eyebrow text-[var(--fg-tertiary)]">
                             {e.type}
                           </span>
                         </div>
                         {e.meta && (
-                          <p className="m-0 mt-1 text-[12px] text-[var(--fg-secondary)]">
+                          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
                             {e.meta}
                           </p>
                         )}
