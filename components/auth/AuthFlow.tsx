@@ -233,7 +233,7 @@ const ORGS_EN: Org[] = [
 
 function FieldLabel({ htmlFor, children }: { htmlFor?: string; children: React.ReactNode }) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-medium text-aw-gray-900 mb-1.5 tracking-[0.01em]">
+    <label htmlFor={htmlFor} className="block body-xs font-medium text-aw-gray-900 mb-1.5">
       {children}
     </label>
   );
@@ -328,7 +328,7 @@ function SsoButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center justify-center gap-2.5 h-11 rounded-lg border border-aw-gray-300 bg-white text-sm font-medium text-aw-gray-1200 transition-colors duration-150 hover:border-aw-gray-400 hover:bg-aw-gray-150 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-2.5 h-11 rounded-lg border border-aw-gray-300 bg-white body-sm font-medium text-aw-gray-1200 transition-colors duration-150 hover:border-aw-gray-400 hover:bg-aw-gray-150 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <span className="flex-shrink-0">{icon}</span>
       <span>{label}</span>
@@ -339,7 +339,7 @@ function SsoButton({
 function Checkbox({ label, defaultChecked = false }: { label: string; defaultChecked?: boolean }) {
   const [checked, setChecked] = useState(defaultChecked);
   return (
-    <label className="inline-flex items-center gap-2 text-[13px] text-aw-gray-900 cursor-pointer select-none" onClick={() => setChecked(!checked)}>
+    <label className="inline-flex items-center gap-2 body-xs text-aw-gray-900 cursor-pointer select-none" onClick={() => setChecked(!checked)}>
       <span className={`flex items-center justify-center w-4 h-4 border-[1.5px] rounded transition-all ${
         checked ? "bg-aw-gray-1200 border-aw-gray-1200" : "border-aw-gray-500"
       }`}>
@@ -373,7 +373,7 @@ function PasswordInput({
         id={id}
         type={show ? "text" : "password"}
         placeholder={placeholder}
-        className={`w-full h-11 px-3.5 pr-11 border rounded-lg bg-white text-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
+        className={`w-full h-11 px-3.5 pr-11 border rounded-lg bg-white body-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
           error ? "border-aw-red-500 shadow-[0_0_0_3px_rgba(223,91,91,0.18)]" : "border-aw-gray-300"
         }`}
         {...register}
@@ -413,10 +413,10 @@ function LoginScreen({
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
+      <h3 className="text-aw-gray-1200 mb-2.5 text-center">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-7 text-center">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-7 text-center">{c.sub}</p>
 
       <div className="flex flex-col gap-2.5">
         <SsoButton icon={<MailIcon />} label={c.ssoEmail} onClick={() => goTo("email")} />
@@ -424,7 +424,7 @@ function LoginScreen({
         <SsoButton icon={<MsIcon />} label={c.ssoMs} />
       </div>
 
-      <p className="mt-7 text-center text-[13px] text-aw-gray-700">
+      <p className="mt-7 text-center body-xs text-aw-gray-700">
         {c.noAccount}{" "}
         <a
           href="#"
@@ -474,15 +474,15 @@ function EmailLoginScreen({
       <button
         type="button"
         onClick={() => goTo("login")}
-        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6"
+        className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6"
       >
         <ChevLeftIcon /> {c.back}
       </button>
 
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
+      <h3 className="text-aw-gray-1200 mb-2.5 text-center">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6 text-center">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6 text-center">{c.sub}</p>
 
       {/* Email */}
       <div className="mb-4">
@@ -492,13 +492,13 @@ function EmailLoginScreen({
           type="email"
           placeholder={c.emailPh}
           autoComplete="email"
-          className={`w-full h-11 px-3.5 border rounded-lg bg-white text-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
+          className={`w-full h-11 px-3.5 border rounded-lg bg-white body-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
             errors.email ? "border-aw-red-500" : "border-aw-gray-300"
           }`}
           {...register("email")}
         />
         {errors.email && (
-          <p className="text-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
+          <p className="body-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
             <AlertIcon />
             {errors.email.message}
           </p>
@@ -515,13 +515,13 @@ function EmailLoginScreen({
           register={register("password")}
         />
         {errors.password && (
-          <p className="text-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
+          <p className="body-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
             <AlertIcon />
             {errors.password.message}
           </p>
         )}
         {serverError && !errors.password && (
-          <p className="text-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
+          <p className="body-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
             <AlertIcon />
             {c.errPw}
           </p>
@@ -534,7 +534,7 @@ function EmailLoginScreen({
         <button
           type="button"
           onClick={() => goTo("forgot")}
-          className="text-[13px] font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+          className="body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           {c.forgot}
         </button>
@@ -562,14 +562,14 @@ function ForgotScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) 
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
-      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
+      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
         <ChevLeftIcon /> {c.back}
       </button>
 
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
+      <h3 className="text-aw-gray-1200 mb-2.5">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
 
       <div className="mb-4">
         <FieldLabel htmlFor="forgotEmail">{c.email}</FieldLabel>
@@ -578,13 +578,13 @@ function ForgotScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) 
           type="email"
           placeholder={c.emailPh}
           autoComplete="email"
-          className={`w-full h-11 px-3.5 border rounded-lg bg-white text-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
+          className={`w-full h-11 px-3.5 border rounded-lg bg-white body-sm text-aw-gray-1200 placeholder:text-aw-gray-600 outline-none transition-all duration-150 hover:border-aw-gray-400 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
             errors.email ? "border-aw-red-500" : "border-aw-gray-300"
           }`}
           {...register("email")}
         />
         {errors.email && (
-          <p className="text-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
+          <p className="body-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
             <AlertIcon /> {errors.email.message}
           </p>
         )}
@@ -617,10 +617,10 @@ function ResetScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) =
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
+      <h3 className="text-aw-gray-1200 mb-2.5">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
 
       {/* New password */}
       <div className="mb-4">
@@ -644,14 +644,14 @@ function ResetScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) =
         <FieldLabel htmlFor="confirmPw">{c.confirmPw}</FieldLabel>
         <PasswordInput id="confirmPw" placeholder={c.confirmPh} error={errors.confirmPassword?.message} register={register("confirmPassword")} />
         {errors.confirmPassword && (
-          <p className="text-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
+          <p className="body-xs text-aw-red-700 mt-1.5 flex items-center gap-1.5">
             <AlertIcon /> {errors.confirmPassword.message}
           </p>
         )}
       </div>
 
       {/* Rules */}
-      <div className="flex flex-col gap-1.5 text-xs mb-4">
+      <div className="flex flex-col gap-1.5 body-xs mb-4">
         <span className={`flex items-center gap-2 ${has8 ? "text-aw-emerald-700" : "text-aw-gray-800"}`}>
           <CheckIcon /> {c.rule1}
         </span>
@@ -710,15 +710,15 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 text-[13px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
+      <button type="button" onClick={() => goTo("email")} className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-800 hover:text-aw-gray-1200 mb-6">
         <ChevLeftIcon /> {c.back}
       </button>
 
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
+      <h3 className="text-aw-gray-1200 mb-2.5">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">
-        {c.sub} <b className="font-semibold text-aw-gray-1200">{email}</b>.
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6">
+        {c.sub} <b className="text-aw-gray-1200">{email}</b>.
         {locale === "pt" ? " Cole abaixo para continuar." : " Paste it below to continue."}
       </p>
 
@@ -736,7 +736,7 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
               onChange={(e) => handleChange(i, e.target.value)}
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={i === 0 ? handlePaste : undefined}
-              className={`w-12 h-[54px] border rounded-lg bg-white text-center font-mono text-[22px] font-medium text-aw-gray-1200 outline-none transition-all duration-150 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
+              className={`w-12 h-[54px] border rounded-lg bg-white text-center tabular-nums body-xl font-medium text-aw-gray-1200 outline-none transition-all duration-150 focus:border-aw-blue-600 focus:shadow-[0_0_0_3px_rgba(47,118,230,0.28)] ${
                 digit ? "bg-aw-gray-150 border-aw-gray-300" : "border-aw-gray-300"
               }`}
             />
@@ -749,14 +749,14 @@ function VerifyScreen({ locale, goTo, email }: { locale: Locale; goTo: (s: AuthS
       </AwButton>
 
       <div className="flex items-center justify-between mt-4">
-        <span className="text-xs text-aw-gray-700">
+        <span className="body-xs text-aw-gray-700">
           {countdown > 0 ? `${c.resend} 00:${String(countdown).padStart(2, "0")}` : (
             <button type="button" onClick={() => setCountdown(28)} className="font-medium text-aw-gray-1200 hover:underline">
               {c.resendReady}
             </button>
           )}
         </span>
-        <button type="button" onClick={() => goTo("forgot")} className="text-[13px] font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]">
+        <button type="button" onClick={() => goTo("forgot")} className="body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]">
           {c.change}
         </button>
       </div>
@@ -771,10 +771,10 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5 text-center">
+      <h3 className="text-aw-gray-1200 mb-2.5 text-center">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6 text-center">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6 text-center">{c.sub}</p>
 
       <div className="flex flex-col gap-2 mb-5">
         {orgs.map((org, i) => (
@@ -798,13 +798,13 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
                 />
               </span>
             ) : (
-              <span className="w-9 h-9 rounded-lg flex items-center justify-center font-heading font-medium text-[15px] shrink-0 bg-aw-gray-150 text-aw-gray-1200 border border-aw-gray-300">
+              <span className="w-9 h-9 rounded-lg flex items-center justify-center body-sm font-medium shrink-0 bg-aw-gray-150 text-aw-gray-1200 border border-aw-gray-300">
                 {org.name.substring(0, 1).toUpperCase()}
               </span>
             )}
             <span className="flex-1 min-w-0">
-              <span className="block text-sm font-medium text-aw-gray-1200">{org.name}</span>
-              <span className="block text-xs text-aw-gray-700 mt-0.5">{org.meta}</span>
+              <span className="block body-sm font-medium text-aw-gray-1200">{org.name}</span>
+              <span className="block body-xs text-aw-gray-700 mt-0.5">{org.meta}</span>
             </span>
             <span className={`w-[18px] h-[18px] rounded-full border-[1.5px] flex items-center justify-center shrink-0 ${
               selected === i ? "border-aw-gray-1200" : "border-aw-gray-400"
@@ -818,7 +818,7 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
       <AwButton variant="primary" size="md" block onClick={() => goTo("success")}>{c.cta}</AwButton>
 
       <div className="h-px bg-aw-gray-200 my-6" />
-      <p className="text-[13px] text-center">
+      <p className="body-xs text-center">
         <button type="button" onClick={() => goTo("login")} className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]">
           {c.change}
         </button>
@@ -841,10 +841,10 @@ function SuccessScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen)
       <div className="w-14 h-14 rounded-full bg-aw-emerald-500 flex items-center justify-center mb-5 text-white" style={{ boxShadow: "0 0 0 8px rgba(91,223,158,0.15)" }}>
         <CheckIcon size={28} />
       </div>
-      <h2 className="font-heading font-medium text-[30px] leading-[1.1] tracking-tight text-aw-gray-1200 mb-2.5">
+      <h3 className="text-aw-gray-1200 mb-2.5">
         {c.title}
-      </h2>
-      <p className="text-sm text-aw-gray-800 leading-[1.45] mb-6">{c.sub}</p>
+      </h3>
+      <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
       <AwButton variant="primary" size="md" block onClick={() => router.push("/dashboard")}>
         {c.cta} <ArrowOutIcon />
       </AwButton>
@@ -897,10 +897,10 @@ export default function AuthFlow() {
         </div>
 
         {/* Footer */}
-        <div className="flex flex-col items-end gap-1.5 pt-4 text-xs text-aw-gray-700">
+        <div className="flex flex-col items-end gap-1.5 pt-4 body-xs text-aw-gray-700">
           <Link
             href="/primeiro-acesso/convite"
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-aw-gray-800 hover:text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+            className="inline-flex items-center gap-1 body-xs font-medium text-aw-gray-800 hover:text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
           >
             <span>{locale === "pt" ? "Primeiro acesso" : "First access"}</span>
             <ArrowOutIcon />
