@@ -110,21 +110,11 @@ export default function PerfilPage() {
   return (
     <AwOnboardingShell currentStep={8} org={ONBOARDING_ORG}>
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Vamos personalizar seu perfil.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           {isOAuth ? (
             <>
               Trouxemos sua foto e nome da sua conta{" "}
@@ -158,16 +148,10 @@ export default function PerfilPage() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <div
-              className="font-medium text-fg-primary"
-              style={{ fontSize: 14 }}
-            >
+            <div className="body-sm font-medium text-fg-primary">
               Foto de perfil
             </div>
-            <div
-              className="mt-0.5 text-fg-tertiary"
-              style={{ fontSize: 12, lineHeight: 1.5 }}
-            >
+            <div className="mt-0.5 body-xs text-fg-tertiary">
               {isOAuth && keepOauthAvatar
                 ? `Importada da sua conta ${oauthLabel}. PNG ou JPG, até 4 MB.`
                 : avatarUrl
@@ -238,16 +222,10 @@ export default function PerfilPage() {
               onChange={setInvoiceSelf}
             />
             <span className="min-w-0 flex-1">
-              <span
-                className="block font-medium text-fg-primary"
-                style={{ fontSize: 13 }}
-              >
+              <span className="block body-xs font-medium text-fg-primary">
                 Receber faturas e notas fiscais neste e-mail
               </span>
-              <span
-                className="mt-0.5 block text-fg-tertiary"
-                style={{ fontSize: 12 }}
-              >
+              <span className="mt-0.5 block body-xs text-fg-tertiary">
                 {ONBOARDING_USER.email}
               </span>
             </span>
@@ -272,10 +250,7 @@ export default function PerfilPage() {
                 style={{ transitionDuration: "240ms" }}
               >
                 <div className="grid gap-3 px-4 py-4">
-                  <div
-                    className="text-fg-tertiary"
-                    style={{ fontSize: 11, lineHeight: 1.45 }}
-                  >
+                  <div className="body-xs text-fg-tertiary">
                     Quem deve receber as faturas?
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -320,17 +295,11 @@ export default function PerfilPage() {
                 </div>
 
                 <div className="border-t border-border-subtle px-4 py-3.5">
-                  <div
-                    className="mb-2 flex items-center justify-between"
-                    style={{ fontSize: 12 }}
-                  >
+                  <div className="mb-2 flex items-center justify-between body-xs">
                     <span className="font-medium text-fg-primary">
                       E-mails extras pra receber as faturas
                     </span>
-                    <span
-                      className="text-fg-tertiary"
-                      style={{ fontSize: 11 }}
-                    >
+                    <span className="body-xs text-fg-tertiary">
                       opcional
                     </span>
                   </div>
@@ -355,8 +324,7 @@ export default function PerfilPage() {
                               placeholder="email-extra@empresa.com"
                               type="email"
                               autoComplete="email"
-                              className="flex-1 border-0 bg-transparent font-sans outline-none focus:outline-none focus-visible:outline-none"
-                              style={{ fontSize: 13 }}
+                              className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
                             />
                           </span>
                           <button
@@ -390,10 +358,7 @@ export default function PerfilPage() {
             checked={termsAccepted}
             onChange={setTermsAccepted}
           />
-          <span
-            className="min-w-0 flex-1 text-fg-secondary text-pretty"
-            style={{ fontSize: 12, lineHeight: 1.55 }}
-          >
+          <span className="min-w-0 flex-1 body-xs text-fg-secondary text-pretty">
             Li e concordo com os{" "}
             <a
               href="#"
@@ -472,10 +437,7 @@ function TextField({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span
-        className="font-medium text-fg-secondary"
-        style={{ fontSize: 12 }}
-      >
+      <span className="body-xs font-medium text-fg-secondary">
         {label}
       </span>
       <span
@@ -492,15 +454,15 @@ function TextField({
           autoComplete={autoComplete}
           type={type}
           inputMode={inputMode}
-          className="flex-1 border-0 bg-transparent font-sans outline-none focus:outline-none focus-visible:outline-none"
-          style={{ fontSize: compact ? 13 : 14, boxShadow: "none" }}
+          className={[
+            "flex-1 border-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none",
+            compact ? "body-xs" : "body-sm",
+          ].join(" ")}
+          style={{ boxShadow: "none" }}
         />
       </span>
       {hint && (
-        <span
-          className="text-fg-tertiary"
-          style={{ fontSize: 11, lineHeight: 1.4 }}
-        >
+        <span className="body-xs text-fg-tertiary">
           {hint}
         </span>
       )}
