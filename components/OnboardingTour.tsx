@@ -181,11 +181,11 @@ export default function OnboardingTour({
         role="document"
       >
         {step.title && (
-          <h3 className="text-[18px] font-semibold text-[#1a1a1a] leading-tight">
+          <h3 className="body-lg font-semibold text-[#1a1a1a] leading-tight">
             {step.title}
           </h3>
         )}
-        <p className="text-[14px] text-[#5e5e5e] leading-relaxed">
+        <p className="body-sm text-[#5e5e5e] leading-relaxed">
           {step.description}
         </p>
         <div className="flex items-center justify-between gap-3 mt-2">
@@ -193,7 +193,7 @@ export default function OnboardingTour({
             <button
               type="button"
               onClick={onSkip}
-              className="text-[13px] font-medium text-[#737373] hover:text-[#1a1a1a] transition-colors"
+              className="body-xs font-medium text-[#737373] hover:text-[#1a1a1a] transition-colors"
             >
               Pular tour
             </button>
@@ -203,7 +203,7 @@ export default function OnboardingTour({
               <button
                 type="button"
                 onClick={goBack}
-                className="px-4 py-2 rounded-lg text-[14px] font-medium text-[#2f2f2f] bg-[#f2f2f2] hover:bg-[#e5e5e5] transition-colors"
+                className="px-4 py-2 rounded-lg body-sm font-medium text-[#2f2f2f] bg-[#f2f2f2] hover:bg-[#e5e5e5] transition-colors"
               >
                 Voltar
               </button>
@@ -215,7 +215,7 @@ export default function OnboardingTour({
                   onComplete();
                   onPrimaryAction?.();
                 }}
-                className="px-4 py-2.5 rounded-lg text-[14px] font-medium text-white bg-[#0d0d0d] hover:bg-[#262626] transition-colors"
+                className="px-4 py-2.5 rounded-lg body-sm font-medium text-white bg-[#0d0d0d] hover:bg-[#262626] transition-colors"
               >
                 {step.primaryButtonLabel}
               </button>
@@ -223,7 +223,7 @@ export default function OnboardingTour({
               <button
                 type="button"
                 onClick={goNext}
-                className="px-4 py-2.5 rounded-lg text-[14px] font-medium text-white bg-[#0d0d0d] hover:bg-[#262626] transition-colors"
+                className="px-4 py-2.5 rounded-lg body-sm font-medium text-white bg-[#0d0d0d] hover:bg-[#262626] transition-colors"
               >
                 {isLast ? "Concluir" : "Próximo"}
               </button>
