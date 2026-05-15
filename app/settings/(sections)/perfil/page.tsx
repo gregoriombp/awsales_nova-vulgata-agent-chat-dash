@@ -159,7 +159,7 @@ export default function ProfileSettingsPage() {
                 src="/assets/users/greg.jpg"
                 alt={fullName}
                 initials="GP"
-                className="!h-[144px] !w-[144px] !text-[44px]"
+                className="!h-[144px] !w-[144px] !text-[40px]"
               />
             </div>
             <AwButton
@@ -172,10 +172,10 @@ export default function ProfileSettingsPage() {
             </AwButton>
           </div>
           <div className="mt-5 pb-10">
-            <h1 className="m-0 text-[28px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+            <h3 className="m-0 text-[var(--fg-primary)]">
               {fullName}
-            </h1>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[var(--fg-secondary)]">
+            </h3>
+            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-secondary)]">
               <span>@greg</span>
               <span aria-hidden="true" className="text-[var(--fg-muted)]">
                 ·
@@ -193,7 +193,7 @@ export default function ProfileSettingsPage() {
                 Brasília · GMT−03
               </AwPill>
             </div>
-            <p className="m-0 mt-3 max-w-[560px] text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+            <p className="m-0 mt-3 max-w-[560px] body-xs text-[var(--fg-secondary)]">
               Suas informações pessoais e como aparecem no produto para o
               restante do time.
             </p>
@@ -204,13 +204,13 @@ export default function ProfileSettingsPage() {
       <div className="mx-auto w-full max-w-[760px] px-10 pt-10">
         <section aria-labelledby="settings-shortcuts-title">
           <header className="mb-4">
-            <h2
+            <h6
               id="settings-shortcuts-title"
-              className="m-0 mb-1 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]"
+              className="m-0 mb-1 text-[var(--fg-primary)]"
             >
               Outras configurações
-            </h2>
-            <p className="m-0 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+            </h6>
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Atalhos para o restante das áreas do workspace.
             </p>
           </header>
@@ -229,16 +229,16 @@ export default function ProfileSettingsPage() {
                   </AwPill>
                 </div>
 
-                <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[12px] text-[var(--fg-tertiary)]">
+                <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-0.5 body-xs text-[var(--fg-tertiary)]">
                   <span className="font-medium text-[var(--fg-secondary)]">
                     {item.category}
                   </span>
                   <span aria-hidden="true">·</span>
                   <span>{item.updatedAt}</span>
                 </div>
-                <h3 className="m-0 mt-1.5 text-[19px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+                <h6 className="m-0 mt-1.5 text-[var(--fg-primary)]">
                   {item.title}
-                </h3>
+                </h6>
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {item.tags.map((tag) => (
                     <AwPill key={tag} variant="neutral" dot={false}>
@@ -250,10 +250,10 @@ export default function ProfileSettingsPage() {
                 <div className="mt-auto pt-6">
                   <div className="flex items-end justify-between gap-3 border-t border-[var(--border-subtle)] pt-4">
                     <div className="min-w-0">
-                      <p className="m-0 truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+                      <p className="m-0 truncate body-sm font-medium text-[var(--fg-primary)]">
                         {item.metric}
                       </p>
-                      <p className="m-0 mt-0.5 truncate text-[12px] text-[var(--fg-secondary)]">
+                      <p className="m-0 mt-0.5 truncate body-xs text-[var(--fg-secondary)]">
                         {item.detail}
                       </p>
                     </div>
@@ -303,10 +303,10 @@ export default function ProfileSettingsPage() {
             initials="GP"
           />
           <div className="flex-1">
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Foto de perfil
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               PNG ou JPG, mínimo 200×200 px.
             </p>
           </div>
