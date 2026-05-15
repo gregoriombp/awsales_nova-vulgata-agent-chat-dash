@@ -291,10 +291,10 @@ label: "Knowledge OS",
                       <img src="/assets/knowledge-os-icon.svg" alt="" width={76} height={80} />
                     </div>
                     <div>
-                      <h1 className="text-[40px] font-medium text-[#1a1a1a] leading-none">
+                      <h1 className="text-[#1a1a1a]">
                         Knowledge OS
                       </h1>
-                      <p className="mt-2 text-[14px] text-[#5e5e5e]">
+                      <p className="mt-2 body-sm text-[#5e5e5e]">
                         Knowledge OS é a base de conhecimento dos seus agentes. Documentos, URLs e trechos ficam organizados aqui.
                       </p>
                     </div>
@@ -325,7 +325,7 @@ label: "Knowledge OS",
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onBlur={() => { if (!searchQuery.trim()) setSearchExpanded(false); }}
                             placeholder="Pesquise por bases de memória"
-                            className="flex-1 min-w-0 h-full pl-3 pr-1 border-0 bg-transparent text-[14px] text-[#1a1a1a] placeholder:text-[#737373] focus:outline-none focus:ring-0"
+                            className="flex-1 min-w-0 h-full pl-3 pr-1 border-0 bg-transparent body-sm text-[#1a1a1a] placeholder:text-[#737373] focus:outline-none focus:ring-0"
                           />
                           <button
                             type="button"
@@ -342,7 +342,7 @@ label: "Knowledge OS",
                     </div>
                     <button
                       onClick={() => setIsCreateModalOpen(true)}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0d0d0d] text-white rounded-lg font-medium text-sm hover:bg-[#262626] active:bg-black transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#0d0d0d] text-white rounded-lg font-medium body-sm hover:bg-[#262626] active:bg-black transition-colors"
                     >
                       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                         <path d="M8 3.33333V12.6667M3.33333 8H12.6667" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -359,7 +359,7 @@ label: "Knowledge OS",
               <div className="mx-auto max-w-[1544px] px-12 pt-10 pb-14 space-y-10">
                 {/* Seção Folders – cards de pastas (bases de conhecimento) */}
                 <div className="space-y-4">
-                  <h2 className="text-[18px] font-bold text-[#1a1a1a]">
+                  <h6 className="text-[#1a1a1a]">
                     Bases de conhecimento
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
@@ -401,10 +401,10 @@ label: "Knowledge OS",
                             </button>
                           </div>
                           <div>
-                            <h3 className="text-[14px] font-medium text-[#2f2f2f] group-hover:text-[#f9f9f9] line-clamp-2">
+                            <h3 className="body-sm font-medium text-[#2f2f2f] group-hover:text-[#f9f9f9] line-clamp-2">
                               {base.name}
                             </h3>
-                            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-[#5e5e5e] group-hover:text-[#a3a3a3]">
+                            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 body-xs text-[#5e5e5e] group-hover:text-[#a3a3a3]">
                               <span className="inline-flex items-center gap-1.5">
                                 <img
                                   src="/assets/icons/knowledge-layers_icon.svg"
@@ -447,7 +447,7 @@ label: "Knowledge OS",
         >
           <form onSubmit={handleSubmit(onSubmitCreateBase)} className="flex flex-col h-full">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className="font-medium text-text-primary">
                 Nova Base de Conhecimento
               </h2>
               <button
@@ -467,7 +467,7 @@ label: "Knowledge OS",
             <div className="flex-1 overflow-y-auto p-6">
               <div className="space-y-4">
                 <div>
-                  <p className="text-sm text-text-secondary mb-4">
+                  <p className="body-sm text-text-secondary mb-4">
                     Crie uma nova base de conhecimento para organizar seus documentos
                   </p>
                 </div>
@@ -522,7 +522,7 @@ label: "Knowledge OS",
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className="font-medium text-text-primary">
                 Adicionar arquivos
               </h2>
               <button
@@ -549,7 +549,7 @@ label: "Knowledge OS",
                     <p className="text-text-primary font-medium mb-2">
                       Arraste e solte arquivos aqui
                     </p>
-                    <p className="text-sm text-text-secondary mb-4">
+                    <p className="body-sm text-text-secondary mb-4">
                       JPG, PNG ou PDF, tamanho máximo de 10 MB
                     </p>
                     <button
@@ -614,7 +614,7 @@ label: "Knowledge OS",
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className="font-medium text-text-primary">
                 Adicionar arquivos
               </h2>
               <button
@@ -643,8 +643,8 @@ label: "Knowledge OS",
                       </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-text-primary">{file.name}</p>
-                      <p className="text-xs text-text-secondary">{file.type.toUpperCase()}</p>
+                      <p className="body-sm font-medium text-text-primary">{file.name}</p>
+                      <p className="body-xs text-text-secondary">{file.type.toUpperCase()}</p>
                     </div>
                   </div>
                   <button
@@ -701,7 +701,7 @@ label: "Knowledge OS",
         >
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-text-primary">
+              <h2 className="font-medium text-text-primary">
                 Em qual Base de Conhecimento você quer adicionar?
               </h2>
               <button
@@ -741,7 +741,7 @@ label: "Knowledge OS",
                       <path d="M3 5H17V17H3V5Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M3 5L10 10L17 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
-                    <span className="text-sm font-medium">{base.name}</span>
+                    <span className="body-sm font-medium">{base.name}</span>
                   </div>
                 </button>
               ))}
@@ -802,7 +802,7 @@ label: "Knowledge OS",
               </div>
             </div>
 
-            <h2 className="text-2xl font-heading font-bold text-text-primary mb-6">
+            <h2 className="font-medium text-text-primary mb-6">
               Concluído
             </h2>
 
