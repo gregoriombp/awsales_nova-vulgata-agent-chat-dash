@@ -43,10 +43,10 @@ export default function OrganizationSettingsPage() {
             />
           </span>
           <div className="flex-1">
-            <p className="m-0 text-[14px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
               Logo da organização
             </p>
-            <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Usada na navegação e nos canais conectados.
             </p>
           </div>
@@ -107,11 +107,11 @@ export default function OrganizationSettingsPage() {
                     : "")
                 }
               >
-                <dt className="m-0 text-[13px] text-[var(--fg-tertiary)]">
+                <dt className="m-0 body-xs text-[var(--fg-tertiary)]">
                   {row.label}
                 </dt>
                 <dd
-                  className="m-0 text-[13px] font-medium text-[var(--fg-primary)]"
+                  className="m-0 body-xs font-medium text-[var(--fg-primary)]"
                   style={
                     row.tabular ? { fontVariantNumeric: "tabular-nums" } : undefined
                   }
@@ -131,7 +131,7 @@ export default function OrganizationSettingsPage() {
             <Icon name="warning" size={14} />
             <a
               href="#"
-              className="text-[13px] font-medium text-[var(--accent-primary)] underline-offset-2 hover:underline"
+              className="body-xs font-medium text-[var(--accent-primary)] underline-offset-2 hover:underline"
             >
               Algo está errado?
             </a>
