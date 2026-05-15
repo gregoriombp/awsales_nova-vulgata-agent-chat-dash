@@ -59,28 +59,15 @@ export default function CheckoutCartaoPage() {
       <section>
         <div className="mb-5 flex items-center gap-2.5">
           <AwBrandLogo brand="card" size="sm" />
-          <span
-            className="uppercase text-fg-tertiary"
-            style={{ fontSize: 11, letterSpacing: "0.06em" }}
-          >
+          <span className="aw-eyebrow text-fg-tertiary">
             Pagamento no cartão
           </span>
         </div>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Pague no cartão.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Aprovação imediata. O total de{" "}
           <b>{ONBOARDING_ORG.valorImplementacao}</b> pode ser parcelado em até{" "}
           {maxInstallments}x sem juros na fatura da bandeira escolhida.
@@ -88,10 +75,7 @@ export default function CheckoutCartaoPage() {
 
         <div className="grid gap-3.5">
           <label className="flex flex-col gap-1.5">
-            <span
-              className="font-medium text-fg-secondary"
-              style={{ fontSize: 12 }}
-            >
+            <span className="body-xs font-medium text-fg-secondary">
               Número do cartão
             </span>
             <span className="flex h-11 items-center gap-2.5 rounded-md border border-border bg-bg-raised pl-2.5 pr-3.5 focus-within:border-fg-primary">
@@ -102,18 +86,11 @@ export default function CheckoutCartaoPage() {
                 onChange={(e) => setNumber(fmtCard(e.target.value))}
                 inputMode="numeric"
                 autoComplete="cc-number"
-                className="flex-1 border-0 bg-transparent font-sans outline-0"
-                style={{
-                  fontSize: 14,
-                  fontVariantNumeric: "tabular-nums",
-                  letterSpacing: "0.02em",
-                }}
+                className="flex-1 border-0 bg-transparent body-sm outline-0"
+                style={{ fontVariantNumeric: "tabular-nums" }}
               />
               {brand !== "unknown" && (
-                <span
-                  className="uppercase text-fg-tertiary"
-                  style={{ fontSize: 10, letterSpacing: "0.06em" }}
-                >
+                <span className="aw-eyebrow text-fg-tertiary">
                   {brand === "amex" ? "Amex" : brand === "diners" ? "Diners" : brand}
                 </span>
               )}
@@ -124,8 +101,7 @@ export default function CheckoutCartaoPage() {
               placeholder="Como está no cartão"
               value={name}
               onChange={(e) => setName(e.target.value.toUpperCase())}
-              className="flex-1 border-0 bg-transparent font-sans outline-0"
-              style={{ fontSize: 14 }}
+              className="flex-1 border-0 bg-transparent body-sm outline-0"
             />
           </FieldText>
           <div className="grid grid-cols-2 gap-3">
@@ -134,8 +110,7 @@ export default function CheckoutCartaoPage() {
                 placeholder="MM/AA"
                 value={exp}
                 onChange={(e) => setExp(fmtExp(e.target.value))}
-                className="flex-1 border-0 bg-transparent font-sans outline-0"
-                style={{ fontSize: 14 }}
+                className="flex-1 border-0 bg-transparent body-sm outline-0"
               />
             </FieldText>
             <FieldText label="CVV">
@@ -145,24 +120,17 @@ export default function CheckoutCartaoPage() {
                 onChange={(e) =>
                   setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
                 }
-                className="flex-1 border-0 bg-transparent font-sans outline-0"
-                style={{ fontSize: 14 }}
+                className="flex-1 border-0 bg-transparent body-sm outline-0"
               />
             </FieldText>
           </div>
 
           <div className="flex flex-col gap-1.5">
             <div className="flex items-baseline justify-between">
-              <span
-                className="font-medium text-fg-secondary"
-                style={{ fontSize: 12 }}
-              >
+              <span className="body-xs font-medium text-fg-secondary">
                 Parcelamento
               </span>
-              <span
-                className="text-fg-tertiary"
-                style={{ fontSize: 11 }}
-              >
+              <span className="body-xs text-fg-tertiary">
                 até {maxInstallments}x sem juros · entrada à vista
               </span>
             </div>
@@ -193,20 +161,14 @@ export default function CheckoutCartaoPage() {
                       ].join(" ")}
                     >
                       <span
-                        className="font-medium text-fg-primary"
-                        style={{
-                          fontSize: 13,
-                          fontVariantNumeric: "tabular-nums",
-                        }}
+                        className="body-xs font-medium text-fg-primary"
+                        style={{ fontVariantNumeric: "tabular-nums" }}
                       >
                         {n}x
                       </span>
                       <span
-                        className="text-fg-tertiary"
-                        style={{
-                          fontSize: 11,
-                          fontVariantNumeric: "tabular-nums",
-                        }}
+                        className="body-xs text-fg-tertiary"
+                        style={{ fontVariantNumeric: "tabular-nums" }}
                       >
                         {n === 1 ? "à vista" : fmtBRL(value)}
                       </span>
@@ -225,16 +187,10 @@ export default function CheckoutCartaoPage() {
               className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
             />
             <div>
-              <div
-                className="font-medium text-fg-primary"
-                style={{ fontSize: 13 }}
-              >
+              <div className="body-xs font-medium text-fg-primary">
                 Processando cobrança…
               </div>
-              <div
-                className="text-fg-tertiary"
-                style={{ fontSize: 12 }}
-              >
+              <div className="body-xs text-fg-tertiary">
                 Estamos confirmando com a operadora.
               </div>
             </div>
@@ -278,10 +234,7 @@ function FieldText({
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span
-        className="font-medium text-fg-secondary"
-        style={{ fontSize: 12 }}
-      >
+      <span className="body-xs font-medium text-fg-secondary">
         {label}
       </span>
       <span className="flex h-11 items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 focus-within:border-fg-primary">
