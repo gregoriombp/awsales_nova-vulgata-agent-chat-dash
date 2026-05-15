@@ -88,7 +88,7 @@ export function ManageGroupSheet({
       }
       meta={
         group ? (
-          <span className="text-[12.5px] text-[var(--fg-secondary)]">
+          <span className="body-xs text-[var(--fg-secondary)]">
             {currentMembers.length} membro{currentMembers.length === 1 ? "" : "s"}
           </span>
         ) : undefined
@@ -124,7 +124,7 @@ export function ManageGroupSheet({
       {group && (
         <div className="flex flex-col gap-6">
           <section className="flex flex-col gap-3">
-            <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
               Identidade
             </h3>
             <AwField label="Nome" htmlFor="manage-group-name">
@@ -137,7 +137,7 @@ export function ManageGroupSheet({
             <AwField label="Descrição" htmlFor="manage-group-description">
               <textarea
                 id="manage-group-description"
-                className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 text-[13.5px] leading-[1.55] text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+                className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 body-xs text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
@@ -147,13 +147,13 @@ export function ManageGroupSheet({
 
           <section className="flex flex-col gap-3">
             <header className="flex items-baseline justify-between">
-              <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+              <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
                 Membros · {currentMembers.length}
               </h3>
             </header>
 
             {currentMembers.length === 0 ? (
-              <p className="m-0 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-3 py-4 text-center text-[12.5px] text-[var(--fg-secondary)]">
+              <p className="m-0 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-3 py-4 text-center body-xs text-[var(--fg-secondary)]">
                 Esse grupo ainda não tem membros. Adicione abaixo.
               </p>
             ) : (
@@ -170,10 +170,10 @@ export function ManageGroupSheet({
                       alt={m.name}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="m-0 truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                      <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
                         {m.name}
                       </p>
-                      <p className="m-0 truncate text-[11.5px] text-[var(--fg-secondary)]">
+                      <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
                         {m.role}
                       </p>
                     </div>
@@ -191,7 +191,7 @@ export function ManageGroupSheet({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
               Adicionar pessoas
             </h3>
             <AwInput
@@ -202,7 +202,7 @@ export function ManageGroupSheet({
             />
             <div className="max-h-[260px] overflow-y-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)]">
               {availableMembers.length === 0 ? (
-                <p className="m-0 px-3 py-4 text-center text-[12.5px] text-[var(--fg-tertiary)]">
+                <p className="m-0 px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
                   {memberIds.length === MEMBERS.length
                     ? "Todo mundo já está no grupo."
                     : "Nenhuma pessoa encontrada."}
@@ -223,10 +223,10 @@ export function ManageGroupSheet({
                           alt={m.name}
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="m-0 truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                          <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
                             {m.name}
                           </p>
-                          <p className="m-0 truncate text-[11.5px] text-[var(--fg-secondary)]">
+                          <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
                             {m.role}
                           </p>
                         </div>
@@ -245,10 +245,10 @@ export function ManageGroupSheet({
 
           {confirmingDelete && (
             <div className="rounded-[var(--radius-md)] border border-[var(--accent-danger)] bg-[var(--bg-muted)] p-4">
-              <p className="m-0 text-[13px] font-semibold text-[var(--fg-primary)]">
+              <p className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
                 Excluir esse grupo?
               </p>
-              <p className="m-0 mt-1 text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+              <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
                 Os membros não são removidos, mas perdem os acessos concedidos
                 via grupo. Essa ação não pode ser desfeita.
               </p>
