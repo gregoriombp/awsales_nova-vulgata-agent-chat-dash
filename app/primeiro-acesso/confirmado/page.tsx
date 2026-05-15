@@ -28,20 +28,10 @@ export default async function ConfirmadoPage({
                 <Icon name="hourglass_top" size={36} fill={1} />
               </span>
               <div>
-                <h1
-                  className="mb-2 font-display font-medium text-fg-primary text-balance"
-                  style={{
-                    fontSize: "var(--h3-size)",
-                    lineHeight: 1.15,
-                    letterSpacing: "-0.015em",
-                  }}
-                >
+                <h3 className="mb-2 text-fg-primary text-balance">
                   Recebemos sua confirmação.
-                </h1>
-                <p
-                  className="m-0 text-fg-secondary text-pretty"
-                  style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-                >
+                </h3>
+                <p className="m-0 body-sm text-fg-secondary text-pretty">
                   Vamos verificar a compensação do boleto da implementação.
                   Quando o banco confirmar, você receberá um e-mail — em geral,
                   2 a 3 dias úteis. Em seguida você configura a primeira
@@ -67,10 +57,7 @@ export default async function ConfirmadoPage({
                   <Icon name="arrow_forward" size={16} />
                 </Link>
               </div>
-              <div
-                className="mt-1 text-fg-tertiary"
-                style={{ fontSize: 10, letterSpacing: "0.04em" }}
-              >
+              <div className="mt-1 body-xs text-fg-tertiary">
                 você pode adiantar a configuração da mensalidade enquanto
                 aguardamos a compensação do boleto
               </div>
@@ -81,20 +68,10 @@ export default async function ConfirmadoPage({
                 <Icon name="check_circle" size={36} fill={1} />
               </span>
               <div>
-                <h1
-                  className="mb-2 font-display font-medium text-fg-primary text-balance"
-                  style={{
-                    fontSize: "var(--h3-size)",
-                    lineHeight: 1.15,
-                    letterSpacing: "-0.015em",
-                  }}
-                >
+                <h3 className="mb-2 text-fg-primary text-balance">
                   Pagamento da implementação confirmado.
-                </h1>
-                <p
-                  className="m-0 text-fg-secondary text-pretty"
-                  style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-                >
+                </h3>
+                <p className="m-0 body-sm text-fg-secondary text-pretty">
                   Sua conta {ONBOARDING_ORG.name} já está provisionada. Falta
                   só configurar a primeira mensalidade ({ONBOARDING_ORG.valorMensalProrrata},
                   prorrata) e definir como você vai acessar a plataforma.
