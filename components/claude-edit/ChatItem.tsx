@@ -13,7 +13,7 @@ function ToolTimeline({ tools }: { tools: ToolCall[] }) {
       {tools.map((t) => {
         const expanded = open[t.id]
         return (
-          <div key={t.id} className="text-[11px] text-[var(--fg-secondary)]">
+          <div key={t.id} className="body-xs text-[var(--fg-secondary)]">
             <button
               type="button"
               onClick={() => setOpen((o) => ({ ...o, [t.id]: !o[t.id] }))}
@@ -24,7 +24,7 @@ function ToolTimeline({ tools }: { tools: ToolCall[] }) {
                 size={11}
                 className={t.isError ? "text-[var(--aw-red-600)]" : undefined}
               />
-              <span className="font-mono">{t.name}</span>
+              <span className="mono">{t.name}</span>
               <Icon
                 name={expanded ? "expand_less" : "expand_more"}
                 size={11}
@@ -33,14 +33,14 @@ function ToolTimeline({ tools }: { tools: ToolCall[] }) {
             {expanded && (
               <div className="mt-1 pl-4 space-y-1">
                 {t.input != null && (
-                  <pre className="text-[10px] whitespace-pre-wrap break-words font-mono text-[var(--fg-tertiary)] max-h-32 overflow-y-auto">
+                  <pre className="body-xs whitespace-pre-wrap break-words mono text-[var(--fg-tertiary)] max-h-32 overflow-y-auto">
                     {typeof t.input === "string"
                       ? t.input
                       : JSON.stringify(t.input, null, 2)}
                   </pre>
                 )}
                 {t.result && (
-                  <pre className="text-[10px] whitespace-pre-wrap break-words font-mono text-[var(--fg-tertiary)] max-h-32 overflow-y-auto">
+                  <pre className="body-xs whitespace-pre-wrap break-words mono text-[var(--fg-tertiary)] max-h-32 overflow-y-auto">
                     {t.result.slice(0, 1500)}
                     {t.result.length > 1500 ? "\n…" : ""}
                   </pre>
@@ -61,7 +61,7 @@ function RefChips({ refs }: { refs: NonNullable<ChatMessage["refs"]> }) {
       {refs.map((r) => (
         <span
           key={r.id}
-          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] text-[10px] text-[var(--fg-secondary)] font-mono"
+          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] body-xs text-[var(--fg-secondary)] mono"
           title={r.fileName ?? r.tagName}
         >
           <Icon name="ads_click" size={10} />
@@ -84,18 +84,18 @@ export function ChatItem({ msg }: { msg: ChatMessage }) {
       )}
       {msg.refs && msg.refs.length > 0 && <RefChips refs={msg.refs} />}
       {msg.text && (
-        <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+        <div className="whitespace-pre-wrap break-words body-sm leading-relaxed">
           {msg.text}
         </div>
       )}
       {msg.error && (
-        <div className="mt-1 text-[11px] text-[var(--aw-red-600)] flex items-center gap-1">
+        <div className="mt-1 body-xs text-[var(--aw-red-600)] flex items-center gap-1">
           <Icon name="error" size={11} />
           {msg.error}
         </div>
       )}
       {(msg.costUsd != null || msg.durationMs != null) && (
-        <div className="mt-1 text-[10px] text-[var(--fg-tertiary)]">
+        <div className="mt-1 body-xs text-[var(--fg-tertiary)]">
           {msg.durationMs != null
             ? `${(msg.durationMs / 1000).toFixed(1)}s`
             : ""}
