@@ -136,20 +136,15 @@ function DefaultMethodHero({
               Expira em {method.expiresAt}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <AwButton size="sm" variant="ghost">
-              Trocar
-            </AwButton>
-            <AwButton
-              size="sm"
-              variant="ghost"
-              disabled={!canRemove}
-              onClick={onRemoveRequest}
-              className="!text-[var(--accent-danger)]"
-            >
-              Excluir
-            </AwButton>
-          </div>
+          <AwButton
+            size="sm"
+            variant="ghost"
+            disabled={!canRemove}
+            onClick={onRemoveRequest}
+            className="!text-[var(--accent-danger)]"
+          >
+            Excluir
+          </AwButton>
         </div>
       </AwCard>
     </section>

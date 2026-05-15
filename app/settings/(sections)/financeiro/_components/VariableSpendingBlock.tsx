@@ -34,26 +34,7 @@ export function VariableSpendingBlock() {
 
   return (
     <AwCard className="!p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-4">
-        <div className="flex items-center gap-2">
-          <Icon name="bar_chart" size={18} className="text-[var(--fg-tertiary)]" />
-          <p className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
-            Gastos variáveis
-          </p>
-        </div>
-        <AwDropdownMenu
-          align="end"
-          trigger={<AwSelect>{period.label}</AwSelect>}
-          items={PERIODS.map((p) => ({
-            id: p.id,
-            label: p.label,
-            checked: p.id === periodId,
-            onSelect: () => setPeriodId(p.id),
-          }))}
-        />
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3 px-6 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-3">
         <SegmentedToggle
           options={[
             { value: "service", label: "Serviço" },
@@ -62,12 +43,24 @@ export function VariableSpendingBlock() {
           value={grouping}
           onChange={setGrouping}
         />
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Acumulado no período:{" "}
-          <strong className="text-[var(--fg-primary)]">
-            {brl(OVERVIEW_KPIS.accumulated)}
-          </strong>
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            Acumulado:{" "}
+            <strong className="tabular-nums text-[var(--fg-primary)]">
+              {brl(OVERVIEW_KPIS.accumulated)}
+            </strong>
+          </p>
+          <AwDropdownMenu
+            align="end"
+            trigger={<AwSelect>{period.label}</AwSelect>}
+            items={PERIODS.map((p) => ({
+              id: p.id,
+              label: p.label,
+              checked: p.id === periodId,
+              onSelect: () => setPeriodId(p.id),
+            }))}
+          />
+        </div>
       </div>
 
       <div className="px-6 pb-3">
