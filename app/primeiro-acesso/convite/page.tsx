@@ -139,31 +139,18 @@ export default function ConvitePage() {
       brandSubtitle="Digite o código de segurança para que a gente possa reconhecer você e liberar o ambiente da sua organização."
     >
       <section>
-        <h1
-          className="mb-2 font-display font-medium text-fg-primary text-balance"
-          style={{
-            fontSize: "var(--h3-size)",
-            lineHeight: 1.15,
-            letterSpacing: "-0.015em",
-          }}
-        >
+        <h3 className="mb-2 text-fg-primary text-balance">
           Insira seu código de primeiro acesso.
-        </h1>
+        </h3>
 
-        <p
-          className="mb-7 text-fg-secondary text-pretty"
-          style={{ fontSize: "var(--body-sm-size)", lineHeight: 1.5 }}
-        >
+        <p className="mb-7 body-sm text-fg-secondary text-pretty">
           Digite os 6 dígitos do código de segurança enviado no e-mail de
           convite. Assim que reconhecermos você, abrimos o ambiente da sua
           organização para concluir a ativação.
         </p>
 
         <div className="flex flex-col gap-2.5">
-          <span
-            className="font-medium text-fg-secondary"
-            style={{ fontSize: 12 }}
-          >
+          <span className="body-xs font-medium text-fg-secondary">
             Código de segurança
           </span>
           <div className="flex gap-2">
@@ -183,23 +170,16 @@ export default function ConvitePage() {
                 onPaste={(e) => handlePaste(i, e)}
                 disabled={status === "verifying" || status === "success"}
                 aria-label={`Dígito ${i + 1} de ${CODE_LENGTH}`}
-                className={`h-14 w-12 rounded-md border bg-bg-raised text-center font-display text-fg-primary outline-0 transition-colors duration-aw-fast focus:border-fg-primary disabled:opacity-60 ${borderForBox(
+                className={`h-14 w-12 rounded-md border bg-bg-raised text-center tabular-nums body-xl font-medium text-fg-primary outline-0 transition-colors duration-aw-fast focus:border-fg-primary disabled:opacity-60 ${borderForBox(
                   i
                 )}`}
-                style={{
-                  fontSize: 22,
-                  letterSpacing: "0.02em",
-                }}
               />
             ))}
           </div>
         </div>
 
         {status === "error" && (
-          <div
-            className="mt-4 flex items-center gap-2.5 rounded-md border border-aw-amber-500/40 bg-aw-amber-100 px-3.5 py-2.5 text-aw-amber-700"
-            style={{ fontSize: 12.5 }}
-          >
+          <div className="mt-4 flex items-center gap-2.5 rounded-md border border-aw-amber-500/40 bg-aw-amber-100 px-3.5 py-2.5 body-xs text-aw-amber-700">
             <Icon name="error" size={16} fill={1} />
             <span>
               Código inválido. Verifique no e-mail e tente novamente.
@@ -222,10 +202,7 @@ export default function ConvitePage() {
                 className="flex-shrink-0 text-aw-emerald-700"
               />
             )}
-            <div
-              className="font-medium text-fg-primary"
-              style={{ fontSize: 13 }}
-            >
+            <div className="body-xs font-medium text-fg-primary">
               {status === "verifying"
                 ? "Verificando código…"
                 : "Identidade confirmada. Vamos lá."}
@@ -233,7 +210,7 @@ export default function ConvitePage() {
           </div>
         )}
 
-        <div className="mt-5 flex items-center gap-2 text-fg-tertiary" style={{ fontSize: 12 }}>
+        <div className="mt-5 flex items-center gap-2 body-xs text-fg-tertiary">
           <Icon name="schedule" size={14} />
           <span>O código expira em 10 minutos.</span>
         </div>
