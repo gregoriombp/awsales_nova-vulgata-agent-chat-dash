@@ -53,7 +53,7 @@ export default function RenameFolderModal({
             <div className="w-10 h-10 rounded-xl bg-[#f2f2f2] flex items-center justify-center text-[#2f2f2f]">
               <TbPencil className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-semibold text-[#1a1a1a]">
+            <h2 className="body-lg font-semibold text-[#1a1a1a]">
               Renomear Pasta
             </h2>
           </div>
@@ -80,7 +80,7 @@ export default function RenameFolderModal({
           <div>
             <label
               htmlFor="folder-name-rename"
-              className="block text-[13px] font-medium text-[#2f2f2f] mb-2"
+              className="block body-xs font-medium text-[#2f2f2f] mb-2"
             >
               Novo nome
             </label>
@@ -94,7 +94,7 @@ export default function RenameFolderModal({
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
                 placeholder="Nome da pasta"
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[#e5e5e5] bg-white text-[14px] text-[#1a1a1a] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a] transition-colors"
+                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[#e5e5e5] bg-white body-sm text-[#1a1a1a] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a] transition-colors"
                 autoFocus
               />
             </div>
