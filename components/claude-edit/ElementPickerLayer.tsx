@@ -121,13 +121,13 @@ export function ElementPickerLayer() {
       )}
       <div
         {...{ [OVERLAY_DATA_ATTR]: "" }}
-        className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] text-xs font-medium shadow-lg pointer-events-none flex items-center gap-2"
+        className="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] body-xs font-medium shadow-lg pointer-events-none flex items-center gap-2"
       >
         <span>Selecionar elemento</span>
         {previewLabel && (
-          <span className="font-mono opacity-80">· {previewLabel}</span>
+          <span className="mono opacity-80">· {previewLabel}</span>
         )}
-        <span className="opacity-60 text-[10px]">esc para cancelar</span>
+        <span className="opacity-60 body-xs">esc para cancelar</span>
       </div>
     </div>
   )
