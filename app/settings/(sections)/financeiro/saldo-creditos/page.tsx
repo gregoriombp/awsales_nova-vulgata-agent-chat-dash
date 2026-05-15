@@ -114,44 +114,36 @@ function VoucherRowItem({ row }: { row: VoucherRow }) {
   const progressVariant = row.acceleratedConsumption ? "warning" : "default";
 
   return (
-    <li className="m-0 p-0">
-      <div className="grid grid-cols-1 gap-4 px-5 py-4 md:grid-cols-[1fr_auto] md:items-start">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
-              {row.status}
-            </AwPill>
-            <span className="body-sm font-medium text-[var(--fg-primary)]">
-              {row.description}
-            </span>
-          </div>
-          <p className="m-0 mt-1 body-xs text-[var(--fg-tertiary)]">
-            Aplica em: {row.applicableTo}
-          </p>
+    <li className="m-0 flex flex-col gap-3 px-5 py-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
+            {row.status}
+          </AwPill>
+          <span className="body-sm font-medium text-[var(--fg-primary)]">
+            {row.description}
+          </span>
           {row.acceleratedConsumption && (
-            <p className="m-0 mt-1.5 inline-flex items-center gap-1.5 body-xs text-[var(--accent-warning)]">
+            <span className="inline-flex items-center gap-1 body-xs text-[var(--accent-warning)]">
               <Icon name="warning" size={13} />
-              Consumo 2,3× acima do previsto
-            </p>
+              2,3× acima do previsto
+            </span>
           )}
-          <div className="mt-3">
-            <AwProgress
-              value={pct}
-              max={100}
-              variant={progressVariant}
-              valueLabel={`${brl(row.consumed)} de ${brl(row.total)} · ${pct}%`}
-            />
-          </div>
         </div>
-        <div className="flex items-baseline justify-between gap-3 md:flex-col md:items-end md:gap-2 md:pt-1 md:text-right">
-          <span className="body-xs text-[var(--fg-tertiary)]">
-            Vigente até{" "}
-            <span className="text-[var(--fg-primary)]">{row.expiresAt}</span>
-          </span>
-          <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(remaining)} restantes
-          </span>
-        </div>
+        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          {brl(remaining)} restantes
+        </span>
+      </div>
+
+      <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+        Aplica em {row.applicableTo} · vence em {row.expiresAt}
+      </p>
+
+      <div className="flex flex-col gap-1">
+        <AwProgress value={pct} max={100} variant={progressVariant} valueLabel="" />
+        <p className="m-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
+          {brl(row.consumed)} de {brl(row.total)} consumido · {pct}%
+        </p>
       </div>
     </li>
   );
