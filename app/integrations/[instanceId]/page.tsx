@@ -382,7 +382,7 @@ export default function IntegrationDetailPage({
           </>
         }
       >
-        <p className="m-0 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-[var(--fg-secondary)]">
           Os agentes que usam essa conexão vão perder acesso aos dados
           do {integration.name} imediatamente. Você pode reconectar
           depois a qualquer momento.
@@ -411,7 +411,7 @@ function ConnectionsSidebar({
 }) {
   return (
     <aside className="w-[260px] flex-shrink-0">
-      <div className="px-1 pb-2 pt-1 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <div className="px-1 pb-2 pt-1 aw-eyebrow text-[var(--fg-tertiary)]">
         {accounts.length} conexões
       </div>
       <ul className="flex flex-col gap-1">
@@ -440,10 +440,10 @@ function ConnectionsSidebar({
                   <AwStatusDot variant={dotVariant} size="sm" ring absolute />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                  <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                     {a.name}
                   </div>
-                  <div className="text-[11px] text-[var(--fg-tertiary)]">
+                  <div className="body-xs text-[var(--fg-tertiary)]">
                     {a.lastEvent}
                   </div>
                 </div>
@@ -455,7 +455,7 @@ function ConnectionsSidebar({
       <button
         type="button"
         onClick={onAddAccount}
-        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-2.5 py-2 text-[12px] font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)]"
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-2.5 py-2 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)]"
       >
         <Icon name="add" size={14} />
         Adicionar conta
@@ -507,12 +507,12 @@ function DetailHeader({
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h1 className="m-0 truncate text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+            <h5 className="m-0 truncate text-[var(--fg-primary)]">
               {integration.name} · {account.name}
-            </h1>
+            </h5>
             <AwPill variant={status.variant}>{status.label}</AwPill>
           </div>
-          <p className="m-0 mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
+          <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
             {CATEGORY_LABELS[integration.cat]} · {AUTH_LABELS[integration.auth]}
           </p>
         </div>
@@ -596,7 +596,7 @@ function TabBar({
             aria-selected={active}
             onClick={() => onChange(t.id)}
             className={
-              "relative px-4 py-3 text-[13px] font-medium transition-colors " +
+              "relative px-4 py-3 body-xs font-medium transition-colors " +
               (active
                 ? "text-[var(--fg-primary)]"
                 : "text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]")
@@ -640,7 +640,7 @@ function OverviewTab({
             {
               k: "Saúde",
               v: (
-                <span className="inline-flex items-center gap-2 text-[13px] text-[var(--fg-secondary)]">
+                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
                   <AwStatusDot
                     variant={
                       account.health === "healthy"
@@ -658,19 +658,19 @@ function OverviewTab({
             {
               k: "Último evento",
               v: (
-                <span className="text-[13px] text-[var(--fg-secondary)]">
+                <span className="body-xs text-[var(--fg-secondary)]">
                   {account.lastEvent} (compra criada · #4321)
                 </span>
               ),
             },
             {
               k: "Eventos hoje",
-              v: <span className="text-[13px] text-[var(--fg-secondary)]">127</span>,
+              v: <span className="body-xs text-[var(--fg-secondary)]">127</span>,
             },
             {
               k: "Conectada em",
               v: (
-                <span className="text-[13px] text-[var(--fg-secondary)]">
+                <span className="body-xs text-[var(--fg-secondary)]">
                   {account.connectedOn}
                 </span>
               ),
@@ -678,7 +678,7 @@ function OverviewTab({
             {
               k: "Habilidades ativas",
               v: (
-                <span className="text-[13px] text-[var(--fg-secondary)]">
+                <span className="body-xs text-[var(--fg-secondary)]">
                   4 nativas · 2 custom
                 </span>
               ),
@@ -787,10 +787,10 @@ function PermissionsTab({
               }
             >
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="body-xs font-medium text-[var(--fg-primary)]">
                   {s.label}
                 </div>
-                <p className="m-0 mt-0.5 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+                <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
                   {s.desc}
                 </p>
               </div>
@@ -847,7 +847,7 @@ function PermissionMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="inline-flex h-8 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 text-[13px] text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-raised)]"
+        className="inline-flex h-8 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 body-xs text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-raised)]"
       >
         <Icon name={current.icon} size={16} />
         <span>{current.label}</span>
@@ -874,7 +874,7 @@ function PermissionMenu({
                   setOpen(false);
                 }}
                 className={
-                  "flex w-full items-center gap-2 px-3 py-2 text-left text-[13px] transition-colors hover:bg-[var(--bg-canvas)] " +
+                  "flex w-full items-center gap-2 px-3 py-2 text-left body-xs transition-colors hover:bg-[var(--bg-canvas)] " +
                   (active
                     ? "text-[var(--fg-primary)]"
                     : "text-[var(--fg-secondary)]")
@@ -904,7 +904,7 @@ function ObjectsTab({
   if (integration.auth === "webhook") {
     return (
       <SectionCard title="Objetos">
-        <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
           Conexões webhook-only não importam objetos do provider.
         </p>
       </SectionCard>
@@ -951,7 +951,7 @@ function ObjectsTab({
           ))}
         </tbody>
       </AwTable>
-      <div className="mt-3 flex items-center justify-between text-[12px] text-[var(--fg-tertiary)]">
+      <div className="mt-3 flex items-center justify-between body-xs text-[var(--fg-tertiary)]">
         <span>Mostrando 1–5 de 14</span>
         <span className="inline-flex items-center gap-2">
           <AwButton variant="ghost" size="sm" iconOnly="chevron_left" aria-label="Anterior" />
@@ -1032,7 +1032,7 @@ function WebhooksTab({
       <SectionCard title="URL do webhook">
         <div className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2">
           <Icon name="link" size={16} />
-          <span className="flex-1 truncate font-mono text-[12px] text-[var(--fg-primary)]">
+          <span className="flex-1 truncate mono-sm text-[var(--fg-primary)]">
             {url}
           </span>
           <AwButton variant="ghost" size="sm" iconLeft="content_copy">
@@ -1047,7 +1047,7 @@ function WebhooksTab({
             <span
               key={e.name}
               className={
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[12px] " +
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 body-xs " +
                 (e.on
                   ? "border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--fg-primary)]"
                   : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-tertiary)]")
@@ -1058,7 +1058,7 @@ function WebhooksTab({
               ) : (
                 <Icon name="circle" size={14} />
               )}
-              <span className="font-mono">{e.name}</span>
+              <code className="mono">{e.name}</code>
             </span>
           ))}
         </div>
@@ -1085,10 +1085,10 @@ function WebhooksTab({
                       variant={e.status < 300 ? "live" : "offline"}
                       size="sm"
                     />
-                    <span className="font-mono text-[12px]">{e.status}</span>
+                    <span className="mono-sm">{e.status}</span>
                   </span>
                 </td>
-                <td className="font-mono text-[12px] text-[var(--fg-secondary)]">
+                <td className="mono-sm text-[var(--fg-secondary)]">
                   {e.type}
                 </td>
                 <td className="text-[var(--fg-tertiary)]">{e.id}</td>
@@ -1266,7 +1266,7 @@ function ToolsTab({
                   <td>
                     <ToolAgentsCell agents={n.agents} />
                   </td>
-                  <td className="text-[13px] text-[var(--fg-secondary)]">
+                  <td className="body-xs text-[var(--fg-secondary)]">
                     {TOOL_CAT_PERMISSION[n.cat]}
                   </td>
                   <td className="aw-table__num">{n.exec}</td>
@@ -1283,7 +1283,7 @@ function ToolsTab({
             })}
           </tbody>
         </AwTable>
-        <p className="mt-3 m-0 text-[11px] italic text-[var(--fg-tertiary)]">
+        <p className="mt-3 m-0 body-xs italic text-[var(--fg-tertiary)]">
           Habilidades desabilitadas estão com escopo insuficiente ou
           não são suportadas pelo provider ainda.
         </p>
@@ -1315,7 +1315,7 @@ function ToolsTab({
                 <td>
                   <ToolAgentsCell agents={c.agents} />
                 </td>
-                <td className="text-[13px] text-[var(--fg-secondary)]">
+                <td className="body-xs text-[var(--fg-secondary)]">
                   {TOOL_CAT_PERMISSION[c.cat]}
                 </td>
                 <td className="aw-table__num">
@@ -1358,10 +1358,10 @@ function ToolNameCell({
         <Icon name={TOOL_CAT_ICON[tool.cat]} size={16} />
       </span>
       <span className="min-w-0 flex flex-col">
-        <span className="font-mono text-[12px] font-medium text-[var(--fg-primary)] group-hover:underline">
+        <span className="mono-sm font-medium text-[var(--fg-primary)] group-hover:underline">
           {tool.name}
         </span>
-        <span className="text-[12px] text-[var(--fg-tertiary)]">
+        <span className="body-xs text-[var(--fg-tertiary)]">
           {tool.desc}
         </span>
       </span>
@@ -1372,7 +1372,7 @@ function ToolNameCell({
 function ToolAgentsCell({ agents }: { agents: string[] }) {
   if (agents.length === 0) {
     return (
-      <span className="text-[12px] italic text-[var(--fg-tertiary)]">
+      <span className="body-xs italic text-[var(--fg-tertiary)]">
         nenhum
       </span>
     );
@@ -1382,7 +1382,7 @@ function ToolAgentsCell({ agents }: { agents: string[] }) {
       {agents.map((a) => (
         <span
           key={a}
-          className="inline-flex items-center rounded-full bg-[var(--bg-surface)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)]"
+          className="inline-flex items-center rounded-full bg-[var(--bg-surface)] px-2 py-0.5 body-xs font-medium text-[var(--fg-secondary)]"
         >
           {a}
         </span>
@@ -1428,15 +1428,15 @@ function ToolDetailModal({
               <Icon name={TOOL_CAT_ICON[tool.cat]} size={18} />
             </span>
             <div className="min-w-0">
-              <div className="font-mono text-[13px] font-medium text-[var(--fg-primary)]">
+              <div className="mono-sm font-medium text-[var(--fg-primary)]">
                 {tool.name}
               </div>
-              <div className="text-[13px] text-[var(--fg-tertiary)]">
+              <div className="body-xs text-[var(--fg-tertiary)]">
                 {tool.desc}
               </div>
             </div>
           </div>
-          <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
             Aqui na integração você só vê o status da habilidade. Para
             mudar comportamento, parâmetros ou autenticação, abra a
             página <strong>Habilidades</strong> — é lá que mora a
@@ -1527,11 +1527,11 @@ function SectionCard({
     <section>
       <header className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2">
-          <h2 className="m-0 text-[15px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+          <h6 className="m-0 body-sm font-medium text-[var(--fg-primary)]">
             {title}
-          </h2>
+          </h6>
           {meta && (
-            <span className="text-[12px] text-[var(--fg-tertiary)]">{meta}</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">{meta}</span>
           )}
         </div>
         {action}
@@ -1546,7 +1546,7 @@ function KvList({ rows }: { rows: { k: string; v: React.ReactNode }[] }) {
     <dl className="grid grid-cols-[160px_1fr] gap-x-6 gap-y-3">
       {rows.map((r) => (
         <div key={r.k} className="contents">
-          <dt className="text-[13px] text-[var(--fg-tertiary)]">{r.k}</dt>
+          <dt className="body-xs text-[var(--fg-tertiary)]">{r.k}</dt>
           <dd className="m-0">{r.v}</dd>
         </div>
       ))}
