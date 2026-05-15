@@ -82,9 +82,9 @@ function TypeNameCell({
         </AwPill>
         <span className="font-medium text-[var(--fg-primary)]">{name}</span>
       </div>
-      <span className="text-[11.5px] text-[var(--fg-tertiary)]">{meta}</span>
+      <span className="body-xs text-[var(--fg-tertiary)]">{meta}</span>
       {warning && (
-        <span className="mt-0.5 inline-flex items-center gap-1.5 text-[11.5px] text-[var(--accent-warning)]">
+        <span className="mt-0.5 inline-flex items-center gap-1.5 body-xs text-[var(--accent-warning)]">
           <Icon name="warning" size={13} />
           {warning}
         </span>
@@ -160,7 +160,7 @@ function CouponTableRow({ row }: { row: CouponRow & { kind: "coupon" } }) {
         {brl(row.discount)}
       </td>
       <td>
-        <span className="text-[12px] text-[var(--fg-secondary)]">
+        <span className="body-xs text-[var(--fg-secondary)]">
           Aplicado em{" "}
           <span className="text-[var(--fg-primary)]">{row.invoiceId}</span>
         </span>
