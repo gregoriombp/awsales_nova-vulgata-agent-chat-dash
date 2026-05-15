@@ -105,12 +105,12 @@ export function SettingsNav() {
         >
           {!collapsed && (
             <div>
-              <p className="m-0 mb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--fg-tertiary)]">
+              <p className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
                 Configurações
               </p>
-              <h2 className="m-0 text-[18px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h6 className="m-0 text-[var(--fg-primary)]">
                 Workspace
-              </h2>
+              </h6>
             </div>
           )}
           <button
