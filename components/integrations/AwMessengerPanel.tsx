@@ -215,10 +215,10 @@ function PageRail({
     >
       <header className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 text-[11px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Páginas
           </h3>
-          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 text-[11px] font-semibold text-[var(--bg-raised)]">
+          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 body-xs font-semibold text-[var(--bg-raised)]">
             {pages.length}
           </span>
         </div>
@@ -257,10 +257,10 @@ function PageRail({
                   <Icon name="dashboard" size={18} fill={1} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     Todas as páginas
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {pages.length} {pages.length === 1 ? "página" : "páginas"} ·{" "}
                     {totalConvs} {totalConvs === 1 ? "conversa aberta" : "conversas abertas"}
                   </span>
@@ -310,10 +310,10 @@ function PageRail({
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[13px] font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
                     {p.name}
                   </span>
-                  <span className="mt-0.5 block truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
                     {p.category}
                   </span>
                   {p.status !== "active" && (
@@ -381,17 +381,17 @@ function PanelHeader({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               {page.name}
             </h2>
             <AwPill variant={meta.variant}>{page.statusLabel}</AwPill>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>{page.category}</span>
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
               Page ID
-              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px font-mono text-[11px] text-[var(--fg-secondary)]">
+              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px mono body-xs text-[var(--fg-secondary)]">
                 {page.pageId}
               </code>
             </span>
@@ -404,7 +404,7 @@ function PanelHeader({
       <div className="flex flex-shrink-0 items-center gap-3">
         <label
           htmlFor={toggleId}
-          className="flex cursor-pointer items-center gap-2 text-[12.5px] font-medium text-[var(--fg-secondary)]"
+          className="flex cursor-pointer items-center gap-2 body-xs font-medium text-[var(--fg-secondary)]"
         >
           <span>{enabled ? "Ativa" : "Desativada"}</span>
           <AwToggle
@@ -470,7 +470,7 @@ function IssuesBanner({ page }: { page: Page }) {
 
   return (
     <AwAlert variant={issues.some((i) => i.sev === "high") ? "danger" : "warning"}>
-      <strong className="text-[13px] font-semibold text-[var(--fg-primary)]">
+      <strong className="body-xs font-semibold text-[var(--fg-primary)]">
         {issues.length}{" "}
         {issues.length === 1 ? "ação necessária" : "ações necessárias"} nesta Página
       </strong>
@@ -481,10 +481,10 @@ function IssuesBanner({ page }: { page: Page }) {
             className="flex items-start justify-between gap-3 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--bg-raised)_60%,transparent)] px-2.5 py-2"
           >
             <div className="min-w-0 flex-1">
-              <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+              <div className="body-xs font-medium text-[var(--fg-primary)]">
                 {it.title}
               </div>
-              <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-secondary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-secondary)]">
                 {it.desc}
               </div>
             </div>
@@ -518,12 +518,12 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde da página
           </div>
           <div className="flex items-baseline gap-1">
             <span
-              className="text-[24px] font-semibold leading-none"
+              className="body-xl font-semibold leading-none"
               style={{
                 color:
                   healthVariant === "success"
@@ -535,10 +535,10 @@ function OverviewTab({
             >
               {page.health}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress value={page.health} variant={healthVariant} />
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             {healthVariant === "success"
               ? "Tudo certo para escalar"
               : healthVariant === "warning"
@@ -548,30 +548,30 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Janelas 24h ativas
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {page.activeWindows}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">
+            <span className="body-xs text-[var(--fg-tertiary)]">
               / {page.openConversations} conversas
             </span>
           </div>
-          <div className="text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Fora da janela, só tags de mensagem ou agentes humanos podem responder.
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Conversas (30d)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {page.conversations30d.toLocaleString("pt-BR")}
           </div>
-          <div className="flex items-center gap-2 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="flex items-center gap-2 body-xs text-[var(--fg-tertiary)]">
             <AwPill
               variant={page.conversationsTrend.startsWith("+") ? "live" : "error"}
               dot={false}
@@ -583,16 +583,16 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Tempo de resposta
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {page.responseTimeMin}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">min · médio</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">min · médio</span>
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             Taxa de resposta: <b className="text-[var(--fg-primary)]">{page.responseRate}%</b>
           </div>
         </AwCard>
@@ -605,7 +605,7 @@ function OverviewTab({
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
             Atalhos
           </h3>
         </div>
@@ -675,10 +675,10 @@ function ShortcutCard({
         <Icon name={icon} size={18} />
       </span>
       <div className="min-w-0">
-        <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 truncate text-[12px] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -719,7 +719,7 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Configuração da integração
         </h3>
         <AwButton variant="ghost" size="sm" onClick={onEdit}>
@@ -731,7 +731,7 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
           <li
             key={r.label}
             className={
-              "flex items-center gap-3 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+              "flex items-center gap-3 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -748,7 +748,7 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
 const ACTIVITY: { dot: AwStatusDotVariant; title: React.ReactNode; meta: string }[] = [
   {
     dot: "live",
-    title: <>Get Started actualizado para <code className="font-mono text-[12px]">GET_STARTED_MARINA</code></>,
+    title: <>Get Started actualizado para <code className="mono body-xs">GET_STARTED_MARINA</code></>,
     meta: "há 12 min · você",
   },
   {
@@ -763,7 +763,7 @@ const ACTIVITY: { dot: AwStatusDotVariant; title: React.ReactNode; meta: string 
   },
   {
     dot: "live",
-    title: <>Webhook conectado: <code className="font-mono text-[12px]">message_reads</code></>,
+    title: <>Webhook conectado: <code className="mono body-xs">message_reads</code></>,
     meta: "há 3 d · automático",
   },
 ];
@@ -772,7 +772,7 @@ function ActivityCard() {
   return (
     <AwCard className="flex flex-col">
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
           Atividade recente
         </h3>
       </header>
@@ -781,7 +781,7 @@ function ActivityCard() {
           <li
             key={i}
             className={
-              "flex items-start gap-3 px-4 py-3 text-[12.5px] " +
+              "flex items-start gap-3 px-4 py-3 body-xs " +
               (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
             }
           >
@@ -790,7 +790,7 @@ function ActivityCard() {
             </span>
             <div className="min-w-0 flex-1">
               <div className="text-[var(--fg-primary)]">{a.title}</div>
-              <div className="mt-0.5 text-[11.5px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                 {a.meta}
               </div>
             </div>
@@ -834,7 +834,7 @@ function PagesTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="text-[12.5px] text-[var(--fg-tertiary)]">
+        <span className="body-xs text-[var(--fg-tertiary)]">
           {pages.length} {pages.length === 1 ? "Página conectada" : "Páginas conectadas"}
         </span>
       </div>
@@ -864,24 +864,24 @@ function PagesTab({
               </AwPill>
             </div>
             <div>
-              <div className="text-[14px] font-semibold text-[var(--fg-primary)]">
+              <div className="body-sm font-semibold text-[var(--fg-primary)]">
                 {p.name}
               </div>
-              <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
                 {p.category}
               </div>
-              <div className="mt-1 font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+              <div className="mt-1 mono body-xs text-[var(--fg-tertiary)]">
                 {p.pageId}
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
               <PageStat label="Janelas 24h">
-                <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-[var(--fg-primary)]">
                   {p.activeWindows}
                 </span>
               </PageStat>
               <PageStat label="Resposta">
-                <span className="text-[12.5px] font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-[var(--fg-primary)]">
                   {p.responseRate}%
                 </span>
               </PageStat>
@@ -905,7 +905,7 @@ function PageStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[10.5px] uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -921,10 +921,10 @@ function ConversationTab({ page }: { page: Page }) {
   return (
     <div className="flex flex-col gap-6">
       <AwAlert variant="info">
-        <strong className="text-[13px] font-semibold text-[var(--fg-primary)]">
+        <strong className="body-xs font-semibold text-[var(--fg-primary)]">
           Como o Messenger inicia conversa
         </strong>
-        <p className="m-0 mt-1 text-[12px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
           A saudação aparece antes da primeira mensagem. O botão{" "}
           <b>Iniciar</b> dispara um postback. <b>Ice breakers</b> e o{" "}
           <b>menu persistente</b> ficam sempre visíveis dentro do chat. Tudo isso
@@ -1003,14 +1003,14 @@ function ConversationTab({ page }: { page: Page }) {
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
-              <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {ib.question}
                 </div>
-                <div className="mt-0.5 truncate font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate mono body-xs text-[var(--fg-tertiary)]">
                   → {ib.payload}
                 </div>
               </div>
@@ -1024,7 +1024,7 @@ function ConversationTab({ page }: { page: Page }) {
             </li>
           ))}
           {page.iceBreakers.length === 0 && (
-            <li className="px-4 py-6 text-center text-[12.5px] text-[var(--fg-tertiary)]">
+            <li className="px-4 py-6 text-center body-xs text-[var(--fg-tertiary)]">
               Sem ice breakers. Adicione perguntas curtas pra agilizar o início da
               conversa.
             </li>
@@ -1055,10 +1055,10 @@ function ConversationTab({ page }: { page: Page }) {
                 className="text-[var(--fg-tertiary)]"
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {m.label}
                 </div>
-                <div className="mt-0.5 truncate font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate mono body-xs text-[var(--fg-tertiary)]">
                   {m.target}
                 </div>
               </div>
@@ -1165,7 +1165,7 @@ function AccountTab({ page }: { page: Page }) {
             <li
               key={p.label}
               className={
-                "flex items-center gap-2.5 px-4 py-2.5 text-[12.5px] text-[var(--fg-secondary)] " +
+                "flex items-center gap-2.5 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
@@ -1185,7 +1185,7 @@ function AccountTab({ page }: { page: Page }) {
               )}
               <span className="flex-1 text-[var(--fg-primary)]">{p.label}</span>
               {p.note && (
-                <span className="text-[11.5px] text-[var(--fg-tertiary)]">
+                <span className="body-xs text-[var(--fg-tertiary)]">
                   ({p.note})
                 </span>
               )}
@@ -1211,14 +1211,14 @@ function AccountTab({ page }: { page: Page }) {
                 (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
               }
             >
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] text-[12px] font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
                 {u.initials}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
                   {u.name}
                 </div>
-                <div className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="truncate body-xs text-[var(--fg-tertiary)]">
                   {u.email}
                 </div>
               </div>
@@ -1272,7 +1272,7 @@ function SectionCard({
       <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
         <h3
           className={
-            "m-0 text-[13.5px] font-semibold " +
+            "m-0 body-xs font-semibold " +
             (tone === "danger"
               ? "text-[var(--aw-red-700,#B42318)]"
               : "text-[var(--fg-primary)]")
@@ -1300,14 +1300,14 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
         <span
           className={
-            "text-[13px] text-[var(--fg-primary)] " +
-            (mono ? "font-mono text-[12px]" : "")
+            "body-xs text-[var(--fg-primary)] " +
+            (mono ? "mono body-xs" : "")
           }
         >
           {value}
@@ -1337,10 +1337,10 @@ function DangerRow({
   return (
     <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-4 py-3.5 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-[var(--fg-primary)]">
+        <div className="body-xs font-semibold text-[var(--fg-primary)]">
           {title}
         </div>
-        <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
           {desc}
         </div>
       </div>
@@ -1362,13 +1362,13 @@ function DeveloperTab({ page }: { page: Page }) {
   return (
     <div className="flex flex-col gap-6">
       <AwCard className="p-4">
-        <h3 className="m-0 mb-1 text-[13.5px] font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 mb-1 body-xs font-semibold text-[var(--fg-primary)]">
           Webhook & API
         </h3>
-        <p className="m-0 mb-3 text-[12px] leading-[1.45] text-[var(--fg-tertiary)]">
+        <p className="m-0 mb-3 body-xs text-[var(--fg-tertiary)]">
           Endpoint dedicado para receber eventos do Messenger Platform. Use o
           segredo para validar o cabeçalho{" "}
-          <code className="font-mono text-[11.5px]">X-Hub-Signature-256</code>.
+          <code className="mono body-xs">X-Hub-Signature-256</code>.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           <AwField label="Webhook URL" htmlFor={`page-webhook-${page.id}`}>
@@ -1439,10 +1439,10 @@ function DeveloperTab({ page }: { page: Page }) {
                   fill={active ? 1 : 0}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+                  <div className="body-xs font-medium text-[var(--fg-primary)]">
                     {SUBSCRIPTION_LABELS[evt]}
                   </div>
-                  <div className="mt-0.5 font-mono text-[11.5px] text-[var(--fg-tertiary)]">
+                  <div className="mt-0.5 mono body-xs text-[var(--fg-tertiary)]">
                     {evt}
                   </div>
                 </div>
@@ -1458,10 +1458,10 @@ function DeveloperTab({ page }: { page: Page }) {
 
       <AwCard className="flex items-center justify-between gap-4 p-4">
         <div className="min-w-0">
-          <div className="text-[13.5px] font-semibold text-[var(--fg-primary)]">
+          <div className="body-xs font-semibold text-[var(--fg-primary)]">
             Testar webhook
           </div>
-          <div className="mt-0.5 text-[12px] leading-[1.5] text-[var(--fg-tertiary)]">
+          <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
             Dispara um evento sintético de mensagem para validar a entrega.
           </div>
         </div>
@@ -1490,7 +1490,7 @@ function AggregatedHeader({ pages }: { pages: Page[] }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate text-[18px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
               Todas as páginas do Messenger
             </h2>
             {issuesCount > 0 && (
@@ -1500,7 +1500,7 @@ function AggregatedHeader({ pages }: { pages: Page[] }) {
               </AwPill>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
             <span>{pages.length} páginas conectadas</span>
             <span aria-hidden>·</span>
             <span>
@@ -1535,14 +1535,14 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-[24px] font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
               {avgHealth}
             </span>
-            <span className="text-[12px] text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
           </div>
           <AwProgress
             value={avgHealth}
@@ -1550,35 +1550,35 @@ function AggregatedOverviewTab({
           />
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Conversas (30d)
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalConvs30.toLocaleString("pt-BR")}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             soma das páginas
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Janelas 24h ativas
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {totalActiveWindows}
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             podem responder agora sem tag
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
             Taxa de resposta média
           </div>
-          <div className="text-[22px] font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
             {avgResponse}%
           </div>
-          <div className="text-[12px] text-[var(--fg-tertiary)]">
+          <div className="body-xs text-[var(--fg-tertiary)]">
             calculada pelas páginas
           </div>
         </AwCard>
@@ -1615,10 +1615,10 @@ function AggregatedOverviewTab({
                   .join("")}
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13.5px] font-semibold text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
                   {p.name}
                 </div>
-                <div className="mt-0.5 truncate text-[11.5px] text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
                   {p.category} · {p.activeWindows} janelas 24h ·{" "}
                   {p.responseRate}% resposta
                 </div>
@@ -1648,10 +1648,10 @@ function EmptyState({ onAddPage }: { onAddPage: () => void }) {
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand="messenger" size="lg" />
-        <h1 className="m-0 mt-6 text-[24px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h1 className="m-0 mt-6 body-xl font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
           Conecte uma Página do Facebook
         </h1>
-        <p className="m-0 mt-2 text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-2 body-sm text-[var(--fg-secondary)]">
           O Messenger usa Páginas para identificar quem está respondendo. Conecte
           a primeira página pra começar a atender por aqui.
         </p>
@@ -1663,10 +1663,10 @@ function EmptyState({ onAddPage }: { onAddPage: () => void }) {
             className="mt-0.5 text-[var(--fg-secondary)]"
           />
           <div>
-            <p className="m-0 text-[13px] font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
               O que você precisa
             </p>
-            <ul className="m-0 mt-1 list-disc pl-5 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+            <ul className="m-0 mt-1 list-disc pl-5 body-xs text-[var(--fg-secondary)]">
               <li>Ser admin da Página no Business Manager</li>
               <li>Permissões pages_messaging e pages_manage_metadata</li>
               <li>App da Meta com Webhooks habilitados</li>
