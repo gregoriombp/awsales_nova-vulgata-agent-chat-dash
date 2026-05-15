@@ -69,17 +69,17 @@ function PrereqRow({
         <Icon name="check" size={14} />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[14px] font-semibold leading-tight text-[var(--fg-primary)]">
+        <div className="body-sm font-medium text-[var(--fg-primary)]">
           {title}
         </div>
-        <p className="m-0 mt-1 text-[13px] leading-[1.5] text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
           {description}
         </p>
       </div>
       <a
         href="#"
         onClick={(e) => e.preventDefault()}
-        className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 text-[12.5px] font-medium text-[var(--accent-fg)] hover:underline"
+        className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 body-xs font-medium text-[var(--accent-fg)] hover:underline"
       >
         {helpLabel}
         <Icon name="north_east" size={14} />
@@ -99,11 +99,11 @@ function NumberedItem({
 }) {
   return (
     <li className="flex items-start gap-3.5">
-      <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[var(--fg-primary)] text-[12.5px] font-semibold text-white">
+      <span className="mt-0.5 flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[var(--fg-primary)] body-xs font-medium text-white">
         {num}
       </span>
-      <p className="m-0 text-[14.5px] leading-[1.55] text-[var(--fg-primary)]">
-        <strong className="font-semibold">{head}</strong>
+      <p className="m-0 body-sm text-[var(--fg-primary)]">
+        <strong className="font-medium">{head}</strong>
         <span className="font-normal text-[var(--fg-secondary)]">{tail}</span>
       </p>
     </li>
@@ -153,10 +153,10 @@ export default function WhatsAppSetupPage() {
           <div className="flex items-center gap-3.5">
             <AwBrandLogo brand="whatsapp" size="lg" />
             <div>
-              <h1 className="m-0 text-[20px] font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h5 className="m-0 text-[var(--fg-primary)]">
                 Conectar WhatsApp
-              </h1>
-              <p className="m-0 mt-0.5 text-[13px] text-[var(--fg-secondary)]">
+              </h5>
+              <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
                 Configure seu canal oficial em até 5 minutos
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function WhatsAppSetupPage() {
           <button
             type="button"
             onClick={exitSetup}
-            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 text-[13px] text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
+            className="inline-flex flex-shrink-0 items-center gap-1.5 rounded-[var(--radius-sm)] px-2 py-1.5 body-xs text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
           >
             <Icon name="close" size={16} />
             Sair do setup
@@ -187,10 +187,10 @@ export default function WhatsAppSetupPage() {
               </div>
             </div>
 
-            <h2 className="m-0 mt-6 text-center text-[24px] font-semibold tracking-[-0.015em] text-[var(--fg-primary)]">
+            <h4 className="m-0 mt-6 text-center text-[var(--fg-primary)]">
               Conectar com a Meta Business
-            </h2>
-            <p className="m-0 mx-auto mt-2 max-w-[460px] text-center text-[14px] leading-[1.55] text-[var(--fg-secondary)]">
+            </h4>
+            <p className="m-0 mx-auto mt-2 max-w-[460px] text-center body-sm text-[var(--fg-secondary)]">
               Vamos abrir o login oficial da Meta em uma nova janela. Lá
               você vai:
             </p>
@@ -207,7 +207,7 @@ export default function WhatsAppSetupPage() {
             </ol>
 
             <Collapsible className="group mt-7 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
-              <CollapsibleTrigger className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] px-4 py-3 text-left text-[13px] font-medium text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-surface)]">
+              <CollapsibleTrigger className="flex w-full items-center justify-between gap-3 rounded-[var(--radius-md)] px-4 py-3 text-left body-xs font-medium text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-surface)]">
                 <span className="flex items-center gap-2">
                   <Icon
                     name="checklist"
@@ -237,11 +237,11 @@ export default function WhatsAppSetupPage() {
             </Collapsible>
 
             <div className="mt-7 flex flex-wrap items-center justify-center gap-2 border-t border-[var(--border-subtle)] pt-6">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--aw-emerald-50,#E6F9EE)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--aw-emerald-700)]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--aw-emerald-50,#E6F9EE)] px-2.5 py-1 body-xs font-medium text-[var(--aw-emerald-700)]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[var(--aw-emerald-700)]" />
                 Conexão criptografada · OAuth 2.0
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 text-[11.5px] font-medium text-[var(--fg-secondary)]">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2.5 py-1 body-xs font-medium text-[var(--fg-secondary)]">
                 <Icon name="lock" size={12} />
                 Token guardado em cofre
               </span>
@@ -250,7 +250,7 @@ export default function WhatsAppSetupPage() {
         </main>
 
         <footer className="sticky bottom-0 flex items-center justify-between gap-4 border-t border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-10 py-4">
-          <div className="text-[13px] text-[var(--fg-secondary)]">
+          <div className="body-xs text-[var(--fg-secondary)]">
             Precisa de ajuda?{" "}
             <a
               href="#"
