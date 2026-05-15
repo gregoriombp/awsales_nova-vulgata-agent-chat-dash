@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import AstralFlow from "@/components/astral-flow";
+import { Icon } from "@/components/ui/Icon";
 
 // Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with sharp
 // vertices. Encoded as an SVG mask so it scales with any container size.
@@ -90,48 +91,6 @@ function Close24() {
   );
 }
 
-function Paperclip18() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M21.44 11.05 12.25 20.24a6 6 0 0 1-8.49-8.49l10.6-10.6a4 4 0 1 1 5.66 5.66l-10.6 10.6a2 2 0 0 1-2.83-2.83l9.9-9.9"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function Smile18() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-      <path
-        d="M8 14c1 1.333 2.333 2 4 2s3-.667 4-2"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-      <circle cx="9" cy="10" r="1" fill="currentColor" />
-      <circle cx="15" cy="10" r="1" fill="currentColor" />
-    </svg>
-  );
-}
-
-function Send20() {
-  return (
-    <svg width="20" height="16" viewBox="0 0 20 16" fill="none">
-      <path
-        d="M19 8L1 1L5 8L1 15L19 8Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
 
 export function CopilotOrb({
   size = 36,
@@ -394,8 +353,8 @@ export default function CopilotDrawer({
         </div>
 
         {/* Composer */}
-        <div className="h-[117px] w-full border-t border-[#f3f4f6] px-4 pt-[17px] flex flex-col gap-2 shrink-0">
-          <div className="w-full rounded-[32px] bg-[#f4f4f4] p-[17px] flex items-center justify-between">
+        <div className="w-full border-t border-[#f3f4f6] px-4 pt-3 pb-3 flex flex-col gap-2 shrink-0">
+          <div className="w-full rounded-[24px] bg-[#f4f4f4] pl-4 pr-2 py-2 flex items-center justify-between">
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
@@ -404,29 +363,29 @@ export default function CopilotDrawer({
               placeholder="Pergunte qualquer coisa..."
             />
 
-            <div className="ml-3 flex items-center gap-2">
+            <div className="ml-2 flex items-center gap-1">
               <button
                 type="button"
-                className="h-[26px] w-[26px] rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
+                className="h-7 w-7 rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
                 aria-label="Anexar"
               >
-                <Paperclip18 />
+                <Icon name="attach_file" size={18} />
               </button>
               <button
                 type="button"
-                className="h-[26px] w-[26px] rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
+                className="h-7 w-7 rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
                 aria-label="Emoji"
               >
-                <Smile18 />
+                <Icon name="mood" size={18} />
               </button>
               <button
                 type="button"
-                className="h-8 w-8 rounded-full bg-[#1e2939] text-white grid place-items-center disabled:opacity-50"
+                className="h-7 w-7 rounded-full bg-[#1e2939] text-white grid place-items-center disabled:opacity-50 ml-0.5"
                 aria-label="Enviar"
                 onClick={sendMessage}
                 disabled={!message.trim() || isTyping}
               >
-                <Send20 />
+                <Icon name="arrow_upward" size={16} weight={500} />
               </button>
             </div>
           </div>

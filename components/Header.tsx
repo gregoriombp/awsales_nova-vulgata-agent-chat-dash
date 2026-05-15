@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import NotificationsPopover from "@/components/NotificationsPopover";
 import { CopilotOrb } from "@/components/CopilotDrawer";
+import { AwInput } from "@/components/ui/AwInput";
+import { AwButton } from "@/components/ui/AwButton";
 
 interface BreadcrumbItem {
   label: string;
@@ -29,6 +31,26 @@ export default function Header({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const notificationsButtonRef = useRef<HTMLButtonElement | null>(null);
   const notificationsPanelRef = useRef<HTMLDivElement | null>(null);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+
+  const openSearch = () => {
+    setIsSearchOpen(true);
+    requestAnimationFrame(() => searchInputRef.current?.focus());
+  };
+
+  const handleSearchBlur = () => {
+    if (!searchValue) setIsSearchOpen(false);
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setSearchValue("");
+      setIsSearchOpen(false);
+      searchInputRef.current?.blur();
+    }
+  };
 
   const dateOptions = [
     { value: "today", label: "Hoje" },
@@ -102,26 +124,45 @@ export default function Header({
   }, [isNotificationsOpen]);
 
   const threeItems = (
-    <div className="relative flex items-center gap-3">
-      <button className="text-gray-500 hover:text-gray-700 p-1" aria-label="Busca">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.5"/>
-          <path d="M11 11L14.5 14.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      </button>
+    <div className="relative flex items-center gap-2">
+      <div
+        className="relative shrink-0 overflow-hidden transition-[width] duration-300 ease-out"
+        style={{ width: isSearchOpen ? 240 : 30, height: 34 }}
+      >
+        <AwInput
+          ref={searchInputRef}
+          placeholder="Buscar..."
+          iconLeft="search"
+          dense
+          aria-label="Busca"
+          className={`w-[240px] transition-colors duration-200 ${
+            isSearchOpen ? "" : "!border-transparent !bg-transparent"
+          }`}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          onBlur={handleSearchBlur}
+          onKeyDown={handleSearchKeyDown}
+          tabIndex={isSearchOpen ? 0 : -1}
+        />
+        {!isSearchOpen && (
+          <button
+            type="button"
+            aria-label="Abrir busca"
+            onClick={openSearch}
+            className="absolute inset-0 cursor-pointer rounded-full hover:bg-[var(--bg-surface)] transition-colors"
+          />
+        )}
+      </div>
 
-      <button
+      <AwButton
         ref={notificationsButtonRef}
-        className="text-gray-500 hover:text-gray-700 p-1"
+        variant="ghost"
+        size="sm"
+        iconOnly="notifications"
         aria-label="Notificações"
         aria-expanded={isNotificationsOpen}
         onClick={() => setIsNotificationsOpen((v) => !v)}
-      >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 2C6.34315 2 5 3.34315 5 5V8.5L3.5 10V11H12.5V10L11 8.5V5C11 3.34315 9.65685 2 8 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          <path d="M6.5 11V11.5C6.5 12.3284 7.17157 13 8 13C8.82843 13 9.5 12.3284 9.5 11.5V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
+      />
 
       <div ref={notificationsPanelRef}>
         <NotificationsPopover
@@ -133,10 +174,10 @@ export default function Header({
       <button
         type="button"
         aria-label={isCopilotOpen ? "Fechar AwSales Copilot" : "Abrir AwSales Copilot"}
-        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full"
+        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full ml-1"
         onClick={() => onCopilotOpen?.(!isCopilotOpen)}
       >
-        <CopilotOrb size={20} />
+        <CopilotOrb size={28} />
       </button>
     </div>
   );

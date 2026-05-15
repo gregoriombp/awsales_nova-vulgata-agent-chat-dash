@@ -41,18 +41,18 @@ export default function DashboardLayout({
         <Sidebar forcedCollapsed={isInKnowledgeOS} />
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
-        <div className="absolute right-5 top-4 z-30">
-          <Header
-            minimal
-            isCopilotOpen={isCopilotOpen}
-            onCopilotOpen={setIsCopilotOpen}
-          />
-        </div>
         <div className="flex flex-1 min-w-0 overflow-hidden">
           {isInKnowledgeOS && <KnowledgeOSSidebar />}
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
-          <div className="my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+          <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+            <div className="absolute right-3 top-2 z-30">
+              <Header
+                minimal
+                isCopilotOpen={isCopilotOpen}
+                onCopilotOpen={setIsCopilotOpen}
+              />
+            </div>
             {breadcrumbs && breadcrumbs.length > 0 && (
               <BreadcrumbsBar
                 items={breadcrumbs}
@@ -66,22 +66,24 @@ export default function DashboardLayout({
               {children}
             </main>
           </div>
-        </div>
-        {/* Copilot — floats over the right edge so it doesn't push the main
-            content or relocate the Header icons. */}
-        <div
-          className="absolute right-2 top-16 bottom-2 z-20 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,opacity] duration-300 ease-out"
-          style={{
-            width: isCopilotOpen ? 405 : 0,
-            opacity: isCopilotOpen ? 1 : 0,
-            pointerEvents: isCopilotOpen ? "auto" : "none",
-          }}
-        >
-          <CopilotDrawer
-            isOpen={isCopilotOpen}
-            onClose={() => setIsCopilotOpen(false)}
-            embedded
-          />
+          {/* Copilot — in-flow sibling that pushes the main content to the
+              left when opened, instead of overlaying it. */}
+          <div
+            className="my-2 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,margin] duration-300 ease-out shrink-0"
+            style={{
+              width: isCopilotOpen ? 405 : 0,
+              marginRight: isCopilotOpen ? 8 : 0,
+              borderWidth: isCopilotOpen ? 1 : 0,
+              pointerEvents: isCopilotOpen ? "auto" : "none",
+            }}
+            aria-hidden={!isCopilotOpen}
+          >
+            <CopilotDrawer
+              isOpen={isCopilotOpen}
+              onClose={() => setIsCopilotOpen(false)}
+              embedded
+            />
+          </div>
         </div>
       </div>
     </div>
