@@ -308,7 +308,7 @@ export default function Dashboard() {
                   />
                 </svg>
               </div>
-              <div className="text-4xl font-bold text-text-primary mb-1">4.58</div>
+              <h2 className="m-0 font-medium text-text-primary mb-1">4.58</h2>
               <div className="body-sm text-text-secondary">minutos</div>
             </div>
           </MetricCard>
@@ -353,7 +353,7 @@ export default function Dashboard() {
                   />
                 ))}
               </div>
-              <div className="text-4xl font-bold text-text-primary mb-1">87.3%</div>
+              <h2 className="m-0 font-medium text-text-primary mb-1">87.3%</h2>
               <div className="body-sm text-text-secondary">40,064 successful of 45,892 total</div>
             </div>
           </MetricCard>
