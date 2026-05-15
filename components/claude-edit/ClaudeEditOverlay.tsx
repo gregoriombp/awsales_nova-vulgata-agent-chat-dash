@@ -42,13 +42,13 @@ function StatusPill({ state }: { state: BridgeState }) {
 
 function OfflineHint({ reason }: { reason?: string }) {
   return (
-    <div className="text-[11px] text-[var(--fg-tertiary)] leading-relaxed">
+    <div className="body-xs text-[var(--fg-tertiary)] leading-relaxed">
       {reason ? (
         <>{reason}</>
       ) : (
         <>
           Ponte de edição offline. Rode{" "}
-          <code className="font-mono px-1 rounded bg-[var(--bg-raised)]">
+          <code className="mono px-1 rounded bg-[var(--bg-raised)]">
             npm run edit-bridge:dev
           </code>{" "}
           em outro terminal.
@@ -295,12 +295,12 @@ export function ClaudeEditOverlay() {
           onClick={() => setOpen(true)}
           aria-label="Abrir Claude Code (Cmd+Shift+L)"
           title="Claude Code · ⌘⇧L"
-          className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-lg hover:opacity-90 text-xs font-medium"
+          className="pointer-events-auto inline-flex items-center gap-2 px-3 py-2 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-lg hover:opacity-90 body-xs font-medium"
         >
           <Icon name="auto_awesome" size={14} />
           Claude
           {hasMessages && (
-            <span className="ml-0.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[var(--accent-brand,#3b82f6)] text-[10px]">
+            <span className="ml-0.5 inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-[var(--accent-brand,#3b82f6)] body-xs">
               {messages.length}
             </span>
           )}
@@ -320,7 +320,7 @@ export function ClaudeEditOverlay() {
       >
         {expanded && hasMessages && (
           <div className="rounded-[var(--radius-lg)] bg-[var(--bg-surface)] border border-[var(--border-subtle)] shadow-lg flex flex-col max-h-[55vh] overflow-hidden">
-            <div className="h-10 shrink-0 px-3 flex items-center justify-between border-b border-[var(--border-subtle)] text-xs">
+            <div className="h-10 shrink-0 px-3 flex items-center justify-between border-b border-[var(--border-subtle)] body-xs">
               <div className="flex items-center gap-2">
                 <Icon name="auto_awesome" size={14} />
                 <span className="font-medium">Claude Code</span>
@@ -372,7 +372,7 @@ export function ClaudeEditOverlay() {
               ) : state.kind === "half" ? (
                 <OfflineHint reason={state.info.claude.reason} />
               ) : (
-                <div className="text-xs text-[var(--fg-tertiary)] flex items-center gap-2">
+                <div className="body-xs text-[var(--fg-tertiary)] flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-[var(--fg-tertiary)] animate-pulse" />
                   Procurando ponte em {BRIDGE_URL}…
                 </div>
@@ -384,7 +384,7 @@ export function ClaudeEditOverlay() {
               {pendingRefs.map((r) => (
                 <span
                   key={r.id}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--bg-raised)] text-[11px] font-mono text-[var(--fg-secondary)]"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[var(--bg-raised)] body-xs mono text-[var(--fg-secondary)]"
                   title={r.fileName ?? r.tagName}
                 >
                   <Icon name="ads_click" size={11} />
@@ -419,7 +419,7 @@ export function ClaudeEditOverlay() {
                     type="button"
                     onClick={() => removeAttachment(a.id)}
                     aria-label="Remover"
-                    className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] inline-flex items-center justify-center text-[10px] opacity-80 hover:opacity-100"
+                    className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] inline-flex items-center justify-center body-xs opacity-80 hover:opacity-100"
                   >
                     ×
                   </button>
@@ -428,7 +428,7 @@ export function ClaudeEditOverlay() {
             </div>
           )}
           {attachError && (
-            <div className="px-3 pt-1 text-[11px] text-[var(--aw-red-600)] flex items-center gap-1">
+            <div className="px-3 pt-1 body-xs text-[var(--aw-red-600)] flex items-center gap-1">
               <Icon name="error" size={11} />
               {attachError}
             </div>
@@ -498,7 +498,7 @@ export function ClaudeEditOverlay() {
               }
               rows={1}
               disabled={!ready || sending}
-              className="flex-1 min-h-[36px] max-h-[160px] py-2 px-1 bg-transparent text-sm text-[var(--fg-primary)] resize-none focus:outline-none disabled:opacity-50 placeholder:text-[var(--fg-tertiary)]"
+              className="flex-1 min-h-[36px] max-h-[160px] py-2 px-1 bg-transparent body-sm text-[var(--fg-primary)] resize-none focus:outline-none disabled:opacity-50 placeholder:text-[var(--fg-tertiary)]"
             />
             {hasMessages && !expanded && (
               <button
