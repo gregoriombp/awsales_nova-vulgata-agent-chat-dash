@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwButton } from "@/components/ui/AwButton"
-import AstralFlow from "@/components/astral-flow"
+import CortexSynthesis from "@/components/cortex-synthesis"
 
 // Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with
 // quadratic-Bézier rounded vertices. Encoded as an SVG mask so it scales
@@ -46,7 +46,7 @@ export function AwSpecialistsPair({
       {(title || description) && (
         <header>
           {title && (
-            <h2 className="m-0 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+            <h2 className="m-0 text-[14px] font-semibold text-[var(--fg-primary)]">
               {title}
             </h2>
           )}
@@ -97,13 +97,7 @@ function SpecialistCard({
             maskMode: "alpha",
           }}
         >
-          <AstralFlow
-            speed={0.35}
-            color1="#141416"
-            color2="#6B6E74"
-            color3="#DDE0E4"
-            className="!bg-[#141416]"
-          />
+          <CortexSynthesis backgroundColor="#000000" />
         </div>
       ) : (
         <AwAvatar
