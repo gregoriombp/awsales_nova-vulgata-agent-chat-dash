@@ -148,7 +148,7 @@ export default function ProfileSettingsPage() {
               "linear-gradient(180deg, var(--aw-blue-600) 0%, var(--aw-blue-400) 45%, var(--aw-blue-200) 78%, var(--aw-white) 100%)",
           }}
         />
-        <div className="mx-auto w-full max-w-[760px] px-10">
+        <div className="mx-auto w-full max-w-[1440px] px-10">
           <div className="-mt-[88px] flex items-end justify-between gap-4">
             <div
               className="rounded-full bg-[var(--bg-raised)] p-1.5 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
@@ -201,7 +201,7 @@ export default function ProfileSettingsPage() {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-[760px] px-10 pt-10">
+      <div className="mx-auto w-full max-w-[1440px] px-10 pt-10">
         <section aria-labelledby="settings-shortcuts-title">
           <header className="mb-4">
             <h6

@@ -7,7 +7,7 @@ import { SettingsPageHeader } from "../_components/shared";
 
 export default function DangerZoneSettingsPage() {
   return (
-    <div className="mx-auto w-full max-w-[760px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1440px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Zona de perigo"
         description="Ações irreversíveis. Confirmamos com você antes de aplicar."
