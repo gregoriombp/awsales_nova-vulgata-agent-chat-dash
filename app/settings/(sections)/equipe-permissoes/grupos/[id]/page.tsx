@@ -3,11 +3,15 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwPill } from "@/components/ui/AwPill";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
+import {
+  AwMembersTable,
+  AwMembersTablePersonCell,
+  AwMembersTableTextCell,
+} from "@/components/ui/AwMembersTable";
 import { GROUP_BACKGROUNDS, GROUPS, MEMBERS } from "../../_components/data";
 import { TeamTabs } from "../../_components/TeamTabs";
 
@@ -61,20 +65,6 @@ export default function GroupDetailPage() {
 
         <TeamTabs />
 
-        <nav
-          aria-label="Navegação contextual"
-          className="flex items-center gap-1 body-xs text-[var(--fg-tertiary)]"
-        >
-          <Link
-            href="/settings/equipe-permissoes/grupos"
-            className="hover:text-[var(--fg-primary)] hover:underline"
-          >
-            Equipes
-          </Link>
-          <Icon name="chevron_right" size={14} />
-          <span className="text-[var(--fg-secondary)]">{group.name}</span>
-        </nav>
-
         {/* Cover */}
         <div className="relative h-[220px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)]">
           <div
@@ -93,7 +83,7 @@ export default function GroupDetailPage() {
           <div className="absolute right-4 top-4">
             <AwButton
               size="sm"
-              variant="secondary"
+              variant="primary"
               iconLeft="image"
               onClick={() => setPickerOpen((v) => !v)}
             >
@@ -105,6 +95,19 @@ export default function GroupDetailPage() {
               <Icon name={group.icon} size={26} />
             </span>
             <div>
+              <nav
+                aria-label="Navegação contextual"
+                className="mb-1.5 flex items-center gap-1 body-xs text-white/70"
+              >
+                <Link
+                  href="/settings/equipe-permissoes/grupos"
+                  className="hover:text-white hover:underline"
+                >
+                  Equipes
+                </Link>
+                <Icon name="chevron_right" size={14} />
+                <span className="text-white">{group.name}</span>
+              </nav>
               <h2 className="m-0 text-white">{group.name}</h2>
               <p className="m-0 mt-1 max-w-[640px] body-xs text-white/80">
                 {group.description}
@@ -140,56 +143,77 @@ export default function GroupDetailPage() {
               </AwButton>
             </header>
 
-            <AwCard className="!p-0">
-              <ul className="m-0 divide-y divide-[var(--border-subtle)] p-0">
-                {members.length === 0 ? (
-                  <li className="m-0 px-5 py-6 text-center body-xs text-[var(--fg-secondary)]">
-                    Nenhum membro nessa equipe ainda.
-                  </li>
-                ) : (
-                  members.map((m) => (
-                    <li
-                      key={m.id}
-                      className="m-0 flex items-center gap-3 px-5 py-3"
-                    >
-                      <AwAvatar
-                        size="md"
-                        src={m.avatar}
-                        alt={m.name}
-                        initials={m.initials}
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="body-sm font-medium text-[var(--fg-primary)]">
-                          {m.name}
-                          {m.isYou && (
-                            <span className="ml-2 text-[var(--fg-tertiary)]">
+            {members.length === 0 ? (
+              <AwCard className="!px-5 !py-6">
+                <p className="m-0 text-center body-xs text-[var(--fg-secondary)]">
+                  Nenhum membro nessa equipe ainda.
+                </p>
+              </AwCard>
+            ) : (
+              <AwMembersTable
+                columns={[
+                  { label: "Pessoa", icon: "person" },
+                  { label: "Função" },
+                  { label: "", width: 56, align: "right" },
+                ]}
+              >
+                {members.map((m) => (
+                  <tr key={m.id}>
+                    <AwMembersTablePersonCell
+                      name={
+                        m.isYou ? (
+                          <>
+                            {m.name}{" "}
+                            <span className="text-[var(--fg-tertiary)]">
                               (você)
                             </span>
-                          )}
-                        </div>
-                        <div className="body-xs text-[var(--fg-tertiary)]">
-                          {m.email}
-                        </div>
-                      </div>
-                      <AwPill variant="neutral">{m.role}</AwPill>
-                      <AwButton
-                        size="sm"
-                        variant="ghost"
-                        iconOnly="more_horiz"
-                        aria-label={`Ações para ${m.name}`}
+                          </>
+                        ) : (
+                          m.name
+                        )
+                      }
+                      email={m.email}
+                      avatarSrc={m.avatar}
+                      initials={m.initials}
+                    />
+                    <AwMembersTableTextCell muted>
+                      {m.role}
+                    </AwMembersTableTextCell>
+                    <td className="text-right">
+                      <AwDropdownMenu
+                        align="end"
+                        trigger={
+                          <AwButton
+                            size="sm"
+                            variant="ghost"
+                            iconOnly="more_vert"
+                            aria-label={`Ações para ${m.name}`}
+                          />
+                        }
+                        items={[
+                          { id: "profile", label: "Ver perfil", icon: "person" },
+                          { id: "role", label: "Alterar função", icon: "badge" },
+                          { id: "sep", separator: true },
+                          {
+                            id: "remove",
+                            label: "Remover da equipe",
+                            icon: "person_remove",
+                            danger: true,
+                          },
+                        ]}
                       />
-                    </li>
-                  ))
-                )}
-              </ul>
-            </AwCard>
+                    </td>
+                  </tr>
+                ))}
+              </AwMembersTable>
+            )}
           </section>
 
           {/* Side panel */}
           <aside className="flex flex-col gap-4">
             <AwCard>
               <div className="flex flex-col gap-2">
-                <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+                <span className="body-sm font-medium text-[var(--fg-primary)]">
                   Resumo
                 </span>
                 <Stat label="Membros" value={String(members.length)} />
@@ -203,7 +227,7 @@ export default function GroupDetailPage() {
 
             <AwCard>
               <div className="flex flex-col gap-2">
-                <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+                <span className="body-sm font-medium text-[var(--fg-primary)]">
                   Atividade recente
                 </span>
                 <ul className="m-0 flex list-none flex-col gap-2 p-0">
