@@ -54,7 +54,7 @@ export const AwShortcutTile = React.forwardRef<
     >
       <span
         aria-hidden="true"
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)] transition-colors group-hover:bg-[var(--bg-raised)]"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] transition-colors"
       >
         <Icon name={icon} size={22} />
       </span>
