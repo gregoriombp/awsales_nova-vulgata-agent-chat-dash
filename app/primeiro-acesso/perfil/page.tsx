@@ -293,64 +293,60 @@ export default function PerfilPage() {
                     />
                   </div>
                 </div>
-
-                <div className="border-t border-border-subtle px-4 py-3.5">
-                  <div className="mb-2 flex items-center justify-between body-xs">
-                    <span className="font-medium text-fg-primary">
-                      E-mails extras pra receber as faturas
-                    </span>
-                    <span className="body-xs text-fg-tertiary">
-                      opcional
-                    </span>
-                  </div>
-                  {extraEmails.length > 0 && (
-                    <ul className="m-0 mb-2.5 flex flex-col gap-2 list-none p-0">
-                      {extraEmails.map((email, i) => (
-                        <li
-                          key={i}
-                          className="aw-fade-in flex items-center gap-2"
-                        >
-                          <span className="flex h-10 flex-1 items-center gap-2 rounded-md border border-border bg-bg-canvas px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
-                            <Icon
-                              name="mail"
-                              size={16}
-                              className="text-fg-tertiary"
-                            />
-                            <input
-                              value={email}
-                              onChange={(e) =>
-                                updateExtraEmail(i, e.target.value)
-                              }
-                              placeholder="email-extra@empresa.com"
-                              type="email"
-                              autoComplete="email"
-                              className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
-                            />
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeExtraEmail(i)}
-                            aria-label="Remover e-mail"
-                            className="flex h-10 w-10 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
-                          >
-                            <Icon name="delete" size={18} />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <button
-                    type="button"
-                    onClick={addExtraEmail}
-                    className="aw-btn aw-btn--ghost aw-btn--sm"
-                  >
-                    <Icon name="add" size={14} />
-                    <span className="aw-btn__label">Adicionar e-mail</span>
-                  </button>
-                </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <div className="mt-3 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised px-4 py-3.5">
+          <div className="mb-2 flex items-center justify-between body-xs">
+            <span className="font-medium text-fg-primary">
+              Encaminhar faturas pra mais pessoas da organização
+            </span>
+            <span className="body-xs text-fg-tertiary">opcional</span>
+          </div>
+          {extraEmails.length > 0 && (
+            <ul className="m-0 mb-2.5 flex flex-col gap-2 list-none p-0">
+              {extraEmails.map((email, i) => (
+                <li
+                  key={i}
+                  className="aw-fade-in flex items-center gap-2"
+                >
+                  <span className="flex h-10 flex-1 items-center gap-2 rounded-md border border-border bg-bg-canvas px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
+                    <Icon
+                      name="mail"
+                      size={16}
+                      className="text-fg-tertiary"
+                    />
+                    <input
+                      value={email}
+                      onChange={(e) => updateExtraEmail(i, e.target.value)}
+                      placeholder="email-extra@empresa.com"
+                      type="email"
+                      autoComplete="email"
+                      className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+                    />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeExtraEmail(i)}
+                    aria-label="Remover e-mail"
+                    className="flex h-10 w-10 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
+                  >
+                    <Icon name="delete" size={18} />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <button
+            type="button"
+            onClick={addExtraEmail}
+            className="aw-btn aw-btn--ghost aw-btn--sm"
+          >
+            <Icon name="add" size={14} />
+            <span className="aw-btn__label">Adicionar e-mail</span>
+          </button>
         </div>
 
         <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">

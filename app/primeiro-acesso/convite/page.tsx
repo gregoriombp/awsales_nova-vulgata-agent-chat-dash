@@ -135,8 +135,6 @@ export default function ConvitePage() {
       currentStep={0}
       org={ONBOARDING_ORG}
       showOrgCard={false}
-      brandTitle="Primeiro acesso"
-      brandSubtitle="Digite o código de segurança para que a gente possa reconhecer você e liberar o ambiente da sua organização."
     >
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">

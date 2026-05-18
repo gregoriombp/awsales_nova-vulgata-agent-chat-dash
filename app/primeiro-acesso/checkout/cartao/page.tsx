@@ -101,6 +101,8 @@ export default function CheckoutCartaoPage() {
               placeholder="Como está no cartão"
               value={name}
               onChange={(e) => setName(e.target.value.toUpperCase())}
+              autoComplete="cc-name"
+              lang="pt-BR"
               className="flex-1 border-0 bg-transparent body-sm outline-0"
             />
           </FieldText>
@@ -110,6 +112,8 @@ export default function CheckoutCartaoPage() {
                 placeholder="MM/AA"
                 value={exp}
                 onChange={(e) => setExp(fmtExp(e.target.value))}
+                autoComplete="cc-exp"
+                lang="pt-BR"
                 className="flex-1 border-0 bg-transparent body-sm outline-0"
               />
             </FieldText>
@@ -120,6 +124,8 @@ export default function CheckoutCartaoPage() {
                 onChange={(e) =>
                   setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
                 }
+                autoComplete="cc-csc"
+                lang="pt-BR"
                 className="flex-1 border-0 bg-transparent body-sm outline-0"
               />
             </FieldText>

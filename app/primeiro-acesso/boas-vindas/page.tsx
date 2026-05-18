@@ -1,5 +1,6 @@
 import Link from "next/link"
 import type { Metadata } from "next"
+import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
@@ -75,13 +76,9 @@ export default function BoasVindasPage() {
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
           <span className="flex-1" />
-          <Link
-            href="/primeiro-acesso/revisao"
-            className="aw-btn aw-btn--primary aw-btn--md"
-          >
-            <span className="aw-btn__label">Começar configuração</span>
-            <Icon name="arrow_forward" size={16} />
-          </Link>
+          <AwButton asChild size="md" variant="primary" iconRight="arrow_forward">
+            <Link href="/primeiro-acesso/revisao">Começar configuração</Link>
+          </AwButton>
         </footer>
       </section>
     </AwOnboardingShell>

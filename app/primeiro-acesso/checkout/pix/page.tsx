@@ -56,9 +56,29 @@ function FakeQR() {
   )
 }
 
+function parseBRL(s: string): number {
+  return Number(s.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", "."))
+}
+
+function fmtBRL(n: number): string {
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+
+const TOTAL_IMPLEMENTACAO = parseBRL(ONBOARDING_ORG.valorImplementacao)
+const MAX_PARCELAS = ONBOARDING_ORG.parcelamentoMaxImplementacao
+
 export default function CheckoutPixPage() {
   const router = useRouter()
   const [paid, setPaid] = React.useState(false)
+  const [parcelas, setParcelas] = React.useState<1 | typeof MAX_PARCELAS>(1)
+
+  const valorParcela = TOTAL_IMPLEMENTACAO / parcelas
+  const valorMostrado =
+    parcelas === 1 ? ONBOARDING_ORG.valorImplementacao : fmtBRL(valorParcela)
+  const subtitulo =
+    parcelas === 1
+      ? "Implementação · pagamento à vista"
+      : `Implementação · 1ª de ${parcelas} Pix mensais`
 
   React.useEffect(() => {
     const t = setTimeout(() => setPaid(true), 6000)
@@ -92,20 +112,68 @@ export default function CheckoutPixPage() {
           esta tela; o link do e-mail continua válido.
         </p>
 
+        <div
+          role="tablist"
+          aria-label="Forma de pagamento"
+          className="mb-3 grid grid-cols-2 gap-2"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={parcelas === 1}
+            onClick={() => setParcelas(1)}
+            className={[
+              "flex flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors duration-aw-fast",
+              parcelas === 1
+                ? "border-fg-primary bg-fg-primary text-white"
+                : "border-border bg-bg-raised hover:bg-bg-surface",
+            ].join(" ")}
+          >
+            <span className="aw-eyebrow opacity-70">À vista</span>
+            <span
+              className="body-md font-medium"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {ONBOARDING_ORG.valorImplementacao}
+            </span>
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={parcelas === MAX_PARCELAS}
+            onClick={() => setParcelas(MAX_PARCELAS)}
+            className={[
+              "flex flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors duration-aw-fast",
+              parcelas === MAX_PARCELAS
+                ? "border-fg-primary bg-fg-primary text-white"
+                : "border-border bg-bg-raised hover:bg-bg-surface",
+            ].join(" ")}
+          >
+            <span className="aw-eyebrow opacity-70">
+              {MAX_PARCELAS}x sem juros
+            </span>
+            <span
+              className="body-md font-medium"
+              style={{ fontVariantNumeric: "tabular-nums" }}
+            >
+              {fmtBRL(TOTAL_IMPLEMENTACAO / MAX_PARCELAS)}
+              <span className="ml-1 body-xs opacity-70">/mês</span>
+            </span>
+          </button>
+        </div>
+
         <div className="mb-3 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
           <div>
             <div className="aw-eyebrow text-fg-tertiary">
               Valor desta cobrança
             </div>
-            <div className="mt-0.5 body-xs text-fg-tertiary">
-              Implementação · pagamento à vista
-            </div>
+            <div className="mt-0.5 body-xs text-fg-tertiary">{subtitulo}</div>
           </div>
           <div
             className="body-xl font-medium text-fg-primary"
             style={{ fontVariantNumeric: "tabular-nums" }}
           >
-            {ONBOARDING_ORG.valorImplementacao}
+            {valorMostrado}
           </div>
         </div>
 

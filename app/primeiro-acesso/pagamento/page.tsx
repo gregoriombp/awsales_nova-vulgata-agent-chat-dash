@@ -19,7 +19,7 @@ const METHODS: Method[] = [
     id: "pix",
     brand: "pix",
     title: "Pix",
-    description: "Aprovação imediata · liberação automática",
+    description: `Aprovação imediata · à vista ou em até ${ONBOARDING_ORG.parcelamentoMaxImplementacao}x sem juros`,
   },
   {
     id: "cartao",

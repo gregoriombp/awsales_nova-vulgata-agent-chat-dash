@@ -2,12 +2,24 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../../_data"
 
 const BOLETO_LINHA = "23793.38128 60079.811604 41005.396305 1 99230000001200000"
+
+function parseBRL(s: string): number {
+  return Number(s.replace(/[R$\s]/g, "").replace(/\./g, "").replace(",", "."))
+}
+
+function fmtBRL(n: number): string {
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+}
+
+const TOTAL_IMPLEMENTACAO = parseBRL(ONBOARDING_ORG.valorImplementacao)
+const MAX_PARCELAS = ONBOARDING_ORG.parcelamentoMaxImplementacao
 
 function Barcode() {
   const bars = React.useMemo(() => {
@@ -36,7 +48,13 @@ function Barcode() {
 type EmailStatus = "idle" | "sending" | "sent"
 
 export default function CheckoutBoletoPage() {
+  const [parcelas, setParcelas] = React.useState<1 | typeof MAX_PARCELAS>(1)
+  const [generated, setGenerated] = React.useState(false)
   const [emailStatus, setEmailStatus] = React.useState<EmailStatus>("idle")
+
+  const valorParcela = TOTAL_IMPLEMENTACAO / parcelas
+  const valorMostrado =
+    parcelas === 1 ? ONBOARDING_ORG.valorImplementacao : fmtBRL(valorParcela)
 
   const sendEmail = () => {
     if (emailStatus !== "idle") return
@@ -56,135 +74,264 @@ export default function CheckoutBoletoPage() {
             Pagamento via boleto
           </span>
         </div>
-        <h3 className="mb-2 text-fg-primary text-balance">
-          Seu boleto está pronto.
-        </h3>
 
-        <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Pague no app do seu banco. Sua conta é liberada automaticamente
-          assim que o pagamento for compensado — em geral, 2 a 3 dias úteis.
-        </p>
-
-        <div className="rounded-xl border border-border-subtle bg-bg-raised p-5">
-          <div className="mb-4 flex items-start justify-between">
-            <div>
-              <div className="mb-1 aw-eyebrow text-fg-tertiary">
-                Valor
-              </div>
-              <h4 className="m-0">
-                {ONBOARDING_ORG.valorImplementacao}
-              </h4>
-            </div>
-            <div className="text-right">
-              <div className="mb-1 aw-eyebrow text-fg-tertiary">
-                Vencimento
-              </div>
-              <div className="body-sm font-medium">
-                14/05/2026
-              </div>
-            </div>
-          </div>
-
-          <Barcode />
-
-          <div className="mt-3 flex items-center gap-2 rounded-md border border-border bg-bg-canvas py-1.5 pl-3 pr-1.5">
-            <code
-              className="flex-1 self-center overflow-hidden body-xs text-fg-secondary"
-              style={{
-                whiteSpace: "nowrap",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {BOLETO_LINHA}
-            </code>
-            <button
-              type="button"
-              className="h-8 rounded-sm border border-border bg-bg-raised px-3 body-xs font-medium text-fg-primary hover:bg-bg-muted"
-            >
-              Copiar
-            </button>
-          </div>
-
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              className="aw-btn aw-btn--primary aw-btn--md flex-1"
-            >
-              <Icon name="picture_as_pdf" size={16} />
-              <span className="aw-btn__label">Baixar PDF</span>
-            </button>
-            <button
-              type="button"
-              onClick={sendEmail}
-              disabled={emailStatus !== "idle"}
-              className="aw-btn aw-btn--primary aw-btn--md flex-1"
-            >
-              {emailStatus === "idle" && (
-                <>
-                  <Icon name="mail" size={16} />
-                  <span className="aw-btn__label">Enviar por e-mail</span>
-                </>
-              )}
-              {emailStatus === "sending" && (
-                <>
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-[1.5px] border-current border-r-transparent"
-                  />
-                  <span className="aw-btn__label">Enviando…</span>
-                </>
-              )}
-              {emailStatus === "sent" && (
-                <>
-                  <Icon name="check" size={16} />
-                  <span className="aw-btn__label">Enviado</span>
-                </>
-              )}
-            </button>
-          </div>
-          {emailStatus === "sent" && (
-            <div className="mt-3 body-xs text-fg-tertiary">
-              Boleto enviado para{" "}
-              <span className="font-medium text-fg-secondary">
-                {ONBOARDING_USER.email}
-              </span>
-              .
-            </div>
-          )}
-        </div>
-
-        <div className="mt-5 flex items-center gap-3.5 rounded-lg bg-aw-amber-100 px-4 py-3.5 text-aw-amber-800">
-          <Icon name="schedule" size={18} />
-          <div className="flex-1">
-            <div className="body-xs font-medium">
-              Aguardando compensação bancária
-            </div>
-            <div className="body-xs" style={{ opacity: 0.85 }}>
-              Te notificaremos por e-mail em até 3 dias úteis após o pagamento.
-            </div>
-          </div>
-          <Link
-            href="/primeiro-acesso/confirmado?via=boleto"
-            className="aw-btn aw-btn--secondary aw-btn--sm"
-          >
-            <span className="aw-btn__label">Já paguei</span>
-          </Link>
-        </div>
-
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-          <Link
-            href="/primeiro-acesso/pagamento"
-            className="aw-btn aw-btn--ghost aw-btn--md"
-          >
-            <Icon name="arrow_back" size={16} />
-            <span className="aw-btn__label">Voltar</span>
-          </Link>
-          <span className="flex-1" />
-          <span className="body-xs text-fg-tertiary">
-            você pode fechar e voltar pelo e-mail
-          </span>
-        </footer>
+        {!generated ? (
+          <BoletoOptions
+            parcelas={parcelas}
+            onSelectParcelas={setParcelas}
+            valorMostrado={valorMostrado}
+            onGenerate={() => setGenerated(true)}
+          />
+        ) : (
+          <BoletoGerado
+            parcelas={parcelas}
+            valorMostrado={valorMostrado}
+            emailStatus={emailStatus}
+            onSendEmail={sendEmail}
+          />
+        )}
       </section>
     </AwOnboardingShell>
+  )
+}
+
+function BoletoOptions({
+  parcelas,
+  onSelectParcelas,
+  valorMostrado,
+  onGenerate,
+}: {
+  parcelas: 1 | typeof MAX_PARCELAS
+  onSelectParcelas: (n: 1 | typeof MAX_PARCELAS) => void
+  valorMostrado: string
+  onGenerate: () => void
+}) {
+  return (
+    <>
+      <h3 className="mb-2 text-fg-primary text-balance">
+        Como você quer pagar?
+      </h3>
+      <p className="mb-7 body-sm text-fg-secondary text-pretty">
+        Escolha como dividir o pagamento. O boleto é gerado depois com o valor
+        e vencimento corretos.
+      </p>
+
+      <div
+        role="radiogroup"
+        aria-label="Condição de pagamento"
+        className="mb-5 grid grid-cols-2 gap-2"
+      >
+        <button
+          type="button"
+          role="radio"
+          aria-checked={parcelas === 1}
+          onClick={() => onSelectParcelas(1)}
+          className={[
+            "flex flex-col items-start gap-1 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
+            parcelas === 1
+              ? "border-fg-primary bg-fg-primary text-white"
+              : "border-border bg-bg-raised hover:bg-bg-surface",
+          ].join(" ")}
+        >
+          <span className="aw-eyebrow opacity-70">À vista</span>
+          <span
+            className="body-md font-medium"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {ONBOARDING_ORG.valorImplementacao}
+          </span>
+          <span className="body-xs opacity-70">1 boleto · paga agora</span>
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={parcelas === MAX_PARCELAS}
+          onClick={() => onSelectParcelas(MAX_PARCELAS)}
+          className={[
+            "flex flex-col items-start gap-1 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
+            parcelas === MAX_PARCELAS
+              ? "border-fg-primary bg-fg-primary text-white"
+              : "border-border bg-bg-raised hover:bg-bg-surface",
+          ].join(" ")}
+        >
+          <span className="aw-eyebrow opacity-70">
+            {MAX_PARCELAS}x sem juros
+          </span>
+          <span
+            className="body-md font-medium"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {fmtBRL(TOTAL_IMPLEMENTACAO / MAX_PARCELAS)}
+            <span className="ml-1 body-xs opacity-70">/mês</span>
+          </span>
+          <span className="body-xs opacity-70">
+            {MAX_PARCELAS} boletos · 1 por mês
+          </span>
+        </button>
+      </div>
+
+      <div className="mb-5 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
+        <div>
+          <div className="aw-eyebrow text-fg-tertiary">
+            {parcelas === 1 ? "Valor do boleto" : "Valor da 1ª parcela"}
+          </div>
+          <div className="mt-0.5 body-xs text-fg-tertiary">
+            {parcelas === 1
+              ? "Implementação · pagamento à vista"
+              : `Implementação · 1ª de ${MAX_PARCELAS} parcelas mensais`}
+          </div>
+        </div>
+        <div
+          className="body-xl font-medium text-fg-primary"
+          style={{ fontVariantNumeric: "tabular-nums" }}
+        >
+          {valorMostrado}
+        </div>
+      </div>
+
+      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <AwButton
+          asChild
+          size="md"
+          variant="ghost"
+          iconLeft="arrow_back"
+        >
+          <Link href="/primeiro-acesso/pagamento">Voltar</Link>
+        </AwButton>
+        <span className="flex-1" />
+        <AwButton
+          size="md"
+          variant="primary"
+          iconRight="arrow_forward"
+          onClick={onGenerate}
+        >
+          Gerar boleto
+        </AwButton>
+      </footer>
+    </>
+  )
+}
+
+function BoletoGerado({
+  parcelas,
+  valorMostrado,
+  emailStatus,
+  onSendEmail,
+}: {
+  parcelas: 1 | typeof MAX_PARCELAS
+  valorMostrado: string
+  emailStatus: EmailStatus
+  onSendEmail: () => void
+}) {
+  return (
+    <>
+      <h3 className="mb-2 text-fg-primary text-balance">
+        Seu boleto está pronto.
+      </h3>
+
+      <p className="mb-7 body-sm text-fg-secondary text-pretty">
+        Pague no app do seu banco. Sua conta é liberada automaticamente
+        assim que o pagamento for compensado — em geral, 2 a 3 dias úteis.
+      </p>
+
+      <div className="rounded-xl border border-border-subtle bg-bg-raised p-5">
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <div className="mb-1 aw-eyebrow text-fg-tertiary">
+              {parcelas === 1 ? "Valor" : "1ª de " + parcelas + " parcelas"}
+            </div>
+            <h4 className="m-0">{valorMostrado}</h4>
+          </div>
+          <div className="text-right">
+            <div className="mb-1 aw-eyebrow text-fg-tertiary">Vencimento</div>
+            <div className="body-sm font-medium">14/05/2026</div>
+          </div>
+        </div>
+
+        <Barcode />
+
+        <div className="mt-3 flex items-center gap-2 rounded-md border border-border bg-bg-canvas py-1.5 pl-3 pr-1.5">
+          <code
+            className="flex-1 self-center overflow-hidden body-xs text-fg-secondary"
+            style={{
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+            }}
+          >
+            {BOLETO_LINHA}
+          </code>
+          <AwButton size="sm" variant="secondary">
+            Copiar
+          </AwButton>
+        </div>
+
+        <div className="mt-3 flex gap-2">
+          <AwButton
+            size="md"
+            variant="primary"
+            iconLeft="picture_as_pdf"
+            className="flex-1"
+          >
+            Baixar PDF
+          </AwButton>
+          <AwButton
+            size="md"
+            variant="primary"
+            iconLeft={
+              emailStatus === "idle"
+                ? "mail"
+                : emailStatus === "sent"
+                  ? "check"
+                  : undefined
+            }
+            loading={emailStatus === "sending"}
+            disabled={emailStatus !== "idle"}
+            onClick={onSendEmail}
+            className="flex-1"
+          >
+            {emailStatus === "idle"
+              ? "Enviar por e-mail"
+              : emailStatus === "sending"
+                ? "Enviando…"
+                : "Enviado"}
+          </AwButton>
+        </div>
+        {emailStatus === "sent" && (
+          <div className="mt-3 body-xs text-fg-tertiary">
+            Boleto enviado para{" "}
+            <span className="font-medium text-fg-secondary">
+              {ONBOARDING_USER.email}
+            </span>
+            .
+          </div>
+        )}
+      </div>
+
+      <div className="mt-5 flex items-center gap-3.5 rounded-lg bg-aw-amber-100 px-4 py-3.5 text-aw-amber-800">
+        <Icon name="schedule" size={18} />
+        <div className="flex-1">
+          <div className="body-xs font-medium">
+            Aguardando compensação bancária
+          </div>
+          <div className="body-xs" style={{ opacity: 0.85 }}>
+            Te notificaremos por e-mail em até 3 dias úteis após o pagamento.
+          </div>
+        </div>
+        <AwButton asChild size="sm" variant="secondary">
+          <Link href="/primeiro-acesso/confirmado?via=boleto">Já paguei</Link>
+        </AwButton>
+      </div>
+
+      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <AwButton
+          asChild
+          size="md"
+          variant="ghost"
+          iconLeft="arrow_back"
+        >
+          <Link href="/primeiro-acesso/pagamento">Voltar</Link>
+        </AwButton>
+      </footer>
+    </>
   )
 }
