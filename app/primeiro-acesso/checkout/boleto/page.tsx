@@ -48,7 +48,7 @@ function Barcode() {
 type EmailStatus = "idle" | "sending" | "sent"
 
 export default function CheckoutBoletoPage() {
-  const [parcelas, setParcelas] = React.useState<1 | typeof MAX_PARCELAS>(1)
+  const [parcelas, setParcelas] = React.useState(1)
   const [generated, setGenerated] = React.useState(false)
   const [emailStatus, setEmailStatus] = React.useState<EmailStatus>("idle")
 
@@ -101,8 +101,8 @@ function BoletoOptions({
   valorMostrado,
   onGenerate,
 }: {
-  parcelas: 1 | typeof MAX_PARCELAS
-  onSelectParcelas: (n: 1 | typeof MAX_PARCELAS) => void
+  parcelas: number
+  onSelectParcelas: (n: number) => void
   valorMostrado: string
   onGenerate: () => void
 }) {
@@ -121,53 +121,46 @@ function BoletoOptions({
         aria-label="Condição de pagamento"
         className="mb-5 grid grid-cols-2 gap-2"
       >
-        <button
-          type="button"
-          role="radio"
-          aria-checked={parcelas === 1}
-          onClick={() => onSelectParcelas(1)}
-          className={[
-            "flex flex-col items-start gap-1 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
-            parcelas === 1
-              ? "border-fg-primary bg-fg-primary text-white"
-              : "border-border bg-bg-raised hover:bg-bg-surface",
-          ].join(" ")}
-        >
-          <span className="aw-eyebrow opacity-70">À vista</span>
-          <span
-            className="body-md font-medium"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            {ONBOARDING_ORG.valorImplementacao}
-          </span>
-          <span className="body-xs opacity-70">1 boleto · paga agora</span>
-        </button>
-        <button
-          type="button"
-          role="radio"
-          aria-checked={parcelas === MAX_PARCELAS}
-          onClick={() => onSelectParcelas(MAX_PARCELAS)}
-          className={[
-            "flex flex-col items-start gap-1 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
-            parcelas === MAX_PARCELAS
-              ? "border-fg-primary bg-fg-primary text-white"
-              : "border-border bg-bg-raised hover:bg-bg-surface",
-          ].join(" ")}
-        >
-          <span className="aw-eyebrow opacity-70">
-            {MAX_PARCELAS}x sem juros
-          </span>
-          <span
-            className="body-md font-medium"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
-            {fmtBRL(TOTAL_IMPLEMENTACAO / MAX_PARCELAS)}
-            <span className="ml-1 body-xs opacity-70">/mês</span>
-          </span>
-          <span className="body-xs opacity-70">
-            {MAX_PARCELAS} boletos · 1 por mês
-          </span>
-        </button>
+        {Array.from({ length: MAX_PARCELAS }, (_, i) => i + 1).map((n) => {
+          const selected = parcelas === n
+          return (
+            <button
+              key={n}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onSelectParcelas(n)}
+              className={[
+                "flex flex-col items-start gap-1 rounded-lg border px-4 py-4 text-left transition-colors duration-aw-fast",
+                selected
+                  ? "border-fg-primary bg-fg-primary text-white"
+                  : "border-border bg-bg-raised hover:bg-bg-surface",
+              ].join(" ")}
+            >
+              <span className="aw-eyebrow opacity-70">
+                {n === 1 ? "À vista" : `${n}x sem juros`}
+              </span>
+              <span
+                className="body-md font-medium"
+                style={{ fontVariantNumeric: "tabular-nums" }}
+              >
+                {n === 1 ? (
+                  ONBOARDING_ORG.valorImplementacao
+                ) : (
+                  <>
+                    {fmtBRL(TOTAL_IMPLEMENTACAO / n)}
+                    <span className="ml-1 body-xs opacity-70">/mês</span>
+                  </>
+                )}
+              </span>
+              <span className="body-xs opacity-70">
+                {n === 1
+                  ? "1 boleto · paga agora"
+                  : `${n} boletos · 1 por mês`}
+              </span>
+            </button>
+          )
+        })}
       </div>
 
       <div className="mb-5 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
@@ -178,7 +171,7 @@ function BoletoOptions({
           <div className="mt-0.5 body-xs text-fg-tertiary">
             {parcelas === 1
               ? "Implementação · pagamento à vista"
-              : `Implementação · 1ª de ${MAX_PARCELAS} parcelas mensais`}
+              : `Implementação · 1ª de ${parcelas} parcelas mensais`}
           </div>
         </div>
         <div
@@ -218,7 +211,7 @@ function BoletoGerado({
   emailStatus,
   onSendEmail,
 }: {
-  parcelas: 1 | typeof MAX_PARCELAS
+  parcelas: number
   valorMostrado: string
   emailStatus: EmailStatus
   onSendEmail: () => void

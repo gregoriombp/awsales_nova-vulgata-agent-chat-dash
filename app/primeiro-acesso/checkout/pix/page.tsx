@@ -70,7 +70,7 @@ const MAX_PARCELAS = ONBOARDING_ORG.parcelamentoMaxImplementacao
 export default function CheckoutPixPage() {
   const router = useRouter()
   const [paid, setPaid] = React.useState(false)
-  const [parcelas, setParcelas] = React.useState<1 | typeof MAX_PARCELAS>(1)
+  const [parcelas, setParcelas] = React.useState(1)
 
   const valorParcela = TOTAL_IMPLEMENTACAO / parcelas
   const valorMostrado =
@@ -117,49 +117,41 @@ export default function CheckoutPixPage() {
           aria-label="Forma de pagamento"
           className="mb-3 grid grid-cols-2 gap-2"
         >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={parcelas === 1}
-            onClick={() => setParcelas(1)}
-            className={[
-              "flex flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors duration-aw-fast",
-              parcelas === 1
-                ? "border-fg-primary bg-fg-primary text-white"
-                : "border-border bg-bg-raised hover:bg-bg-surface",
-            ].join(" ")}
-          >
-            <span className="aw-eyebrow opacity-70">À vista</span>
-            <span
-              className="body-md font-medium"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {ONBOARDING_ORG.valorImplementacao}
-            </span>
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={parcelas === MAX_PARCELAS}
-            onClick={() => setParcelas(MAX_PARCELAS)}
-            className={[
-              "flex flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors duration-aw-fast",
-              parcelas === MAX_PARCELAS
-                ? "border-fg-primary bg-fg-primary text-white"
-                : "border-border bg-bg-raised hover:bg-bg-surface",
-            ].join(" ")}
-          >
-            <span className="aw-eyebrow opacity-70">
-              {MAX_PARCELAS}x sem juros
-            </span>
-            <span
-              className="body-md font-medium"
-              style={{ fontVariantNumeric: "tabular-nums" }}
-            >
-              {fmtBRL(TOTAL_IMPLEMENTACAO / MAX_PARCELAS)}
-              <span className="ml-1 body-xs opacity-70">/mês</span>
-            </span>
-          </button>
+          {Array.from({ length: MAX_PARCELAS }, (_, i) => i + 1).map((n) => {
+            const selected = parcelas === n
+            return (
+              <button
+                key={n}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                onClick={() => setParcelas(n)}
+                className={[
+                  "flex flex-col items-start gap-0.5 rounded-lg border px-4 py-3 text-left transition-colors duration-aw-fast",
+                  selected
+                    ? "border-fg-primary bg-fg-primary text-white"
+                    : "border-border bg-bg-raised hover:bg-bg-surface",
+                ].join(" ")}
+              >
+                <span className="aw-eyebrow opacity-70">
+                  {n === 1 ? "À vista" : `${n}x sem juros`}
+                </span>
+                <span
+                  className="body-md font-medium"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                >
+                  {n === 1 ? (
+                    ONBOARDING_ORG.valorImplementacao
+                  ) : (
+                    <>
+                      {fmtBRL(TOTAL_IMPLEMENTACAO / n)}
+                      <span className="ml-1 body-xs opacity-70">/mês</span>
+                    </>
+                  )}
+                </span>
+              </button>
+            )
+          })}
         </div>
 
         <div className="mb-3 flex items-baseline justify-between rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
