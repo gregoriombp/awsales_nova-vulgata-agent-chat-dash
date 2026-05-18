@@ -3,14 +3,21 @@
 import * as React from "react"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
+import {
+  cumulativeScrollFromElement,
+  elementBelowOverlayAt,
+  useCumulativeScrollOffset,
+} from "@/lib/bombardier-review/scrollOffset"
 import { OVERLAY_DATA_ATTR } from "./constants"
 import { ReviewPinMarker } from "./ReviewPinMarker"
 import type { ReviewDrawPath, ReviewPoint } from "./types"
 
 function pointFromEvent(e: PointerEvent | React.PointerEvent): ReviewPoint {
+  const below = elementBelowOverlayAt(e.clientX, e.clientY)
+  const scroll = cumulativeScrollFromElement(below)
   return {
-    x: e.clientX + window.scrollX,
-    y: e.clientY + window.scrollY,
+    x: e.clientX + scroll.x,
+    y: e.clientY + scroll.y,
   }
 }
 
@@ -39,29 +46,6 @@ function PathPolyline({
   )
 }
 
-function useScrollOffset() {
-  const [offset, setOffset] = React.useState({ x: 0, y: 0 })
-  React.useEffect(() => {
-    let raf: number | null = null
-    const update = () => {
-      raf = null
-      setOffset({ x: window.scrollX, y: window.scrollY })
-    }
-    update()
-    const onScroll = () => {
-      if (raf === null) raf = requestAnimationFrame(update)
-    }
-    window.addEventListener("scroll", onScroll, { passive: true })
-    window.addEventListener("resize", onScroll)
-    return () => {
-      window.removeEventListener("scroll", onScroll)
-      window.removeEventListener("resize", onScroll)
-      if (raf !== null) cancelAnimationFrame(raf)
-    }
-  }, [])
-  return offset
-}
-
 export function ReviewCanvas() {
   const active = useReviewStore((s) => s.active)
   const mode = useReviewStore((s) => s.mode)
@@ -83,7 +67,7 @@ export function ReviewCanvas() {
   const isDrawingRef = React.useRef(false)
   const rafRef = React.useRef<number | null>(null)
   const pendingPointRef = React.useRef<ReviewPoint | null>(null)
-  const scroll = useScrollOffset()
+  const scroll = useCumulativeScrollOffset()
 
   const captureMode =
     pendingAnchor === null && (mode === "draw" || mode === "pin")

@@ -6,6 +6,7 @@ import { AwPill } from "@/components/ui/AwPill"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCurrentUrl } from "@/lib/bombardier-review/hooks"
+import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
 import { STALE_DOCUMENT_HEIGHT_THRESHOLD } from "./constants"
 import type { ReviewComment } from "./types"
 
@@ -56,7 +57,12 @@ export function ReviewCommentCard({ comment }: Props) {
         ? comment.anchor.position.y
         : comment.anchor.centroid.y
     const targetY = Math.max(0, anchorY - 120)
-    window.scrollTo({ top: targetY, behavior: "smooth" })
+    const container = findPrimaryScrollContainer()
+    if (container) {
+      container.scrollTo({ top: targetY, behavior: "smooth" })
+    } else {
+      window.scrollTo({ top: targetY, behavior: "smooth" })
+    }
   }
 
   return (

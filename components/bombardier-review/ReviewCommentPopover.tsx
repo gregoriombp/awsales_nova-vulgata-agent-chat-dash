@@ -4,6 +4,7 @@ import * as React from "react"
 import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
+import { useCumulativeScrollOffset } from "@/lib/bombardier-review/scrollOffset"
 import { OVERLAY_DATA_ATTR } from "./constants"
 import type { ReviewPoint } from "./types"
 
@@ -19,6 +20,7 @@ export function ReviewCommentPopover() {
   const [text, setText] = React.useState("")
   const [submitting, setSubmitting] = React.useState(false)
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const scroll = useCumulativeScrollOffset()
 
   React.useEffect(() => {
     if (pendingAnchor) {
@@ -33,8 +35,8 @@ export function ReviewCommentPopover() {
   const point: ReviewPoint =
     pendingAnchor.kind === "pin" ? pendingAnchor.position : pendingAnchor.centroid
 
-  const pxX = point.x - window.scrollX
-  const pxY = point.y - window.scrollY
+  const pxX = point.x - scroll.x
+  const pxY = point.y - scroll.y
 
   const placeAbove = pxY > window.innerHeight * 0.55
   const top = placeAbove
