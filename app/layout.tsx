@@ -4,6 +4,7 @@ import { ToastProvider } from "@/lib/contexts/ToastContext";
 import { AwToastProvider } from "@/components/ui/AwToast";
 import { ClaudeEditOverlayProvider } from "@/components/claude-edit/ClaudeEditOverlayProvider";
 import { ReviewModeProvider } from "@/components/bombardier-review/ReviewModeProvider";
+import { DesktopOnlyBlocker } from "@/components/DesktopOnlyBlocker";
 
 const claudeEditEnabled =
   process.env.NEXT_PUBLIC_CLAUDE_EDIT_ENABLED === "true";
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <head>
         {/* AwSales Design System fonts — loaded via <link> because Turbopack
          * strips CSS @import. One typographic voice: Geist.
@@ -47,7 +48,7 @@ export default function RootLayout({
       <body>
         <ToastProvider>
           <AwToastProvider>
-            {children}
+            <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
             {claudeEditEnabled && <ClaudeEditOverlayProvider />}
             {reviewModeEnabled && <ReviewModeProvider />}
           </AwToastProvider>
