@@ -26,7 +26,7 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     subRoutes: {
       convites: "Convites",
       funcoes: "Funções",
-      grupos: "Grupos",
+      grupos: "Equipes",
     },
   },
   { href: "/settings/notificacoes", label: "Notificações", icon: "notifications" },
@@ -43,7 +43,7 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
       "saldo-creditos": "Saldo de créditos",
       "metodos-pagamento": "Métodos de pagamento",
       "historico-faturas": "Histórico de faturas",
-      auditoria: "Auditoria",
+      auditoria: "Atividade",
     },
   },
   { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },

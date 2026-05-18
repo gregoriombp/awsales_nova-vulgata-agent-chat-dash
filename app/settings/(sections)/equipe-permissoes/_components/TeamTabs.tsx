@@ -8,7 +8,7 @@ const BASE = "/settings/equipe-permissoes";
 
 const TABS = [
   { value: BASE, label: "Membros", count: MEMBERS.length },
-  { value: `${BASE}/grupos`, label: "Grupos" },
+  { value: `${BASE}/grupos`, label: "Equipes" },
   { value: `${BASE}/funcoes`, label: "Funções" },
 ] as const;
 

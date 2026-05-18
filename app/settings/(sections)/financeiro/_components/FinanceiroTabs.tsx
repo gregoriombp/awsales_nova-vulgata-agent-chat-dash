@@ -10,7 +10,7 @@ const TABS = [
   { value: `${BASE}/saldo-creditos`, label: "Saldo de créditos" },
   { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
   { value: `${BASE}/historico-faturas`, label: "Histórico de faturas" },
-  { value: `${BASE}/auditoria`, label: "Auditoria" },
+  { value: `${BASE}/auditoria`, label: "Atividade" },
 ] as const;
 
 export function FinanceiroTabs() {
