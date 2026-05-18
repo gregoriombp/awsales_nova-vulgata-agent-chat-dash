@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import {
   AwEmpty,
@@ -19,14 +20,14 @@ import {
   type Group,
 } from "../_components/data";
 import { CreateGroupModal } from "../_components/CreateGroupModal";
-import { ManageGroupSheet } from "../_components/ManageGroupSheet";
 import { TeamTabs } from "../_components/TeamTabs";
 
 export default function GroupsPage() {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [groups, setGroups] = useState<Group[]>(GROUPS);
   const [createOpen, setCreateOpen] = useState(false);
-  const [editing, setEditing] = useState<Group | null>(null);
+  const openGroup = (id: string) => router.push(`/settings/equipe-permissoes/grupos/${id}`);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -58,25 +59,6 @@ export default function GroupsPage() {
         backgroundImage: pickGroupBackground(id),
       },
     ]);
-  };
-
-  const handleSave = (
-    groupId: string,
-    next: { name: string; description: string; memberIds: string[] }
-  ) => {
-    setGroups((prev) =>
-      prev.map((g) =>
-        g.id === groupId
-          ? {
-              ...g,
-              name: next.name,
-              description: next.description,
-              members: next.memberIds,
-              memberCount: next.memberIds.length,
-            }
-          : g
-      )
-    );
   };
 
   const handleDelete = (groupId: string) => {
@@ -118,7 +100,7 @@ export default function GroupsPage() {
             className="mt-0.5 shrink-0 text-[var(--fg-secondary)]"
           />
           <p className="m-0 body-xs text-[var(--fg-secondary)]">
-            Pense em cada grupo como um <strong className="font-semibold text-[var(--fg-primary)]">departamento</strong> da empresa — uma forma de
+            Pense em cada equipe como um <strong className="font-semibold text-[var(--fg-primary)]">departamento</strong> da empresa — uma forma de
             agrupar pessoas que compartilham contexto e responsabilidades (ex.:
             Atendimento, Comercial, Operações).
           </p>
@@ -128,7 +110,7 @@ export default function GroupsPage() {
           <div className="w-full max-w-[320px]">
             <AwInput
               iconLeft="search"
-              placeholder="Buscar grupos…"
+              placeholder="Buscar equipes…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -139,7 +121,7 @@ export default function GroupsPage() {
             iconLeft="add"
             onClick={() => setCreateOpen(true)}
           >
-            Criar grupo
+            Criar equipe
           </AwButton>
         </div>
 
@@ -150,9 +132,9 @@ export default function GroupsPage() {
                 <AwEmptyMedia variant="icon">
                   <Icon name="groups" size={20} />
                 </AwEmptyMedia>
-                <AwEmptyTitle>Nenhum grupo encontrado</AwEmptyTitle>
+                <AwEmptyTitle>Nenhuma equipe encontrada</AwEmptyTitle>
                 <AwEmptyDescription>
-                  Use grupos para conceder acesso a vários membros de uma vez —
+                  Use equipes para conceder acesso a vários membros de uma vez —
                   por exemplo, time de Atendimento ou time Comercial.
                 </AwEmptyDescription>
               </AwEmptyHeader>
@@ -179,36 +161,30 @@ export default function GroupsPage() {
                     members={members}
                     icon={g.icon}
                     backgroundImage={g.backgroundImage}
-                    onManage={() => setEditing(g)}
+                    onManage={() => openGroup(g.id)}
                     menu={[
                       {
                         id: "manage",
-                        label: "Gerenciar equipe",
-                        icon: "settings",
-                        onSelect: () => setEditing(g),
+                        label: "Abrir equipe",
+                        icon: "open_in_new",
+                        onSelect: () => openGroup(g.id),
                       },
                       {
                         id: "add-members",
                         label: "Adicionar membros",
                         icon: "person_add",
-                        onSelect: () => setEditing(g),
-                      },
-                      {
-                        id: "rename",
-                        label: "Renomear grupo",
-                        icon: "edit",
-                        onSelect: () => setEditing(g),
+                        onSelect: () => openGroup(g.id),
                       },
                       {
                         id: "duplicate",
-                        label: "Duplicar grupo",
+                        label: "Duplicar equipe",
                         icon: "content_copy",
                         onSelect: () => handleDuplicate(g),
                       },
                       { id: "sep", separator: true },
                       {
                         id: "delete",
-                        label: "Excluir grupo",
+                        label: "Excluir equipe",
                         icon: "delete",
                         danger: true,
                         onSelect: () => handleDelete(g.id),
@@ -226,13 +202,6 @@ export default function GroupsPage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreate={handleCreate}
-      />
-
-      <ManageGroupSheet
-        group={editing}
-        onClose={() => setEditing(null)}
-        onSave={(next) => editing && handleSave(editing.id, next)}
-        onDelete={handleDelete}
       />
     </>
   );

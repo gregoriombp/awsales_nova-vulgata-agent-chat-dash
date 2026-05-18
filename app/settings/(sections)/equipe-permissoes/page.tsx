@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import { FaSlack, FaWhatsapp } from "react-icons/fa6";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
@@ -178,13 +179,7 @@ export default function MembersPage() {
       />
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 flex items-center gap-3 text-[var(--fg-primary)]">
-            <Icon
-              name="groups"
-              size={36}
-              weight={300}
-              className="text-[var(--fg-primary)]"
-            />
+          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
             Equipe &amp; permissões
           </h3>
           <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
@@ -308,6 +303,7 @@ function MembersTableState({
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
 }) {
+  const [contactOpen, setContactOpen] = useState(false);
   const managers = members.filter((m) => m.role === MANAGER_ROLE);
   const others = members.filter((m) => m.role !== MANAGER_ROLE);
 
@@ -332,84 +328,112 @@ function MembersTableState({
   const manager = managers[0];
 
   return (
-    <div className="flex flex-col gap-8">
-      {manager && (
-        <AwSpecialistsPair
-          title="Especialistas dedicados à sua conta"
-          human={{
-            name: manager.name,
-            role: "Gerente de contas",
-            avatarSrc: manager.avatar,
-            initials: manager.initials,
-            ctaLabel: "Agendar agora",
-            ctaIcon: "event",
-          }}
-          ai={CORTEX}
+    <>
+      <div className="flex flex-col gap-8">
+        {manager && (
+          <AwSpecialistsPair
+            title="Especialistas dedicados à sua conta"
+            human={{
+              name: manager.name,
+              role: "Gerente de contas",
+              avatarSrc: manager.avatar,
+              initials: manager.initials,
+              ctaLabel: "Conversar",
+              ctaIcon: "chat_bubble",
+              onCtaClick: () => setContactOpen(true),
+            }}
+            ai={CORTEX}
+          />
+        )}
+        <MemberSection
+          title="Membros do workspace"
+          members={others}
+          invitations={INVITATIONS}
+          managerAlreadyAssigned={managerAlreadyAssigned}
+          onSelect={onSelect}
+          onChangeRole={onChangeRole}
+          emptyHint="Sem membros nessa categoria."
         />
-      )}
-      <MemberSection
-        title="Membros do workspace"
-        members={others}
-        managerAlreadyAssigned={managerAlreadyAssigned}
-        onSelect={onSelect}
-        onChangeRole={onChangeRole}
-        emptyHint="Sem membros nessa categoria."
+      </div>
+      <ContactChannelModal
+        open={contactOpen}
+        onClose={() => setContactOpen(false)}
+        managerName={manager?.name}
       />
-      <InvitationsSection invitations={INVITATIONS} />
-    </div>
+    </>
   );
 }
 
-function InvitationsSection({ invitations }: { invitations: Invitation[] }) {
-  if (invitations.length === 0) return null;
+/* -----------------------------------------------------------------
+ * Contact channel modal — picks WhatsApp or Slack to reach the
+ * account manager. Opened from the human specialist card CTA.
+ * ----------------------------------------------------------------- */
+
+const CONTACT_CHANNELS = [
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    hint: "Resposta rápida no horário comercial.",
+    icon: <FaWhatsapp size={22} />,
+    color: "#25D366",
+  },
+  {
+    key: "slack",
+    label: "Slack",
+    hint: "Converse no canal compartilhado da sua conta.",
+    icon: <FaSlack size={22} />,
+    color: "#4A154B",
+  },
+] as const;
+
+function ContactChannelModal({
+  open,
+  onClose,
+  managerName,
+}: {
+  open: boolean;
+  onClose: () => void;
+  managerName?: string;
+}) {
   return (
-    <section>
-      <header className="mb-3">
-        <h2 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Convites pendentes
-        </h2>
-      </header>
-      <AwMembersTable
-        columns={[
-          { label: "Pessoa", icon: "person" },
-          { label: "Função", help: "Função atribuída no convite." },
-          { label: "Última atividade" },
-        ]}
-      >
-        {invitations.map((i) => (
-          <tr key={i.id}>
-            <AwMembersTablePersonCell
-              name={i.email}
-              email={`Convite enviado ${i.sentAt}`}
-              initials={i.initials.toUpperCase()}
-              tag="Pendente"
-              tagVariant="draft"
-            />
-            <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
-            <td>
-              <div className="flex items-center justify-between gap-3">
-                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
-                  <Icon
-                    name="mail"
-                    size={14}
-                    className="text-[var(--fg-tertiary)]"
-                  />
-                  Aguardando aceite
+    <AwModal open={open} onClose={onClose} title="Conversar com seu gerente">
+      <div className="flex flex-col gap-4">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          Escolha por onde falar com{" "}
+          {managerName ?? "seu gerente de contas"}.
+        </p>
+        <div className="flex flex-col gap-2">
+          {CONTACT_CHANNELS.map((channel) => (
+            <button
+              key={channel.key}
+              type="button"
+              onClick={onClose}
+              className="aw-card flex items-center gap-3 !px-4 !py-3 text-left transition-colors hover:bg-[var(--bg-surface)]"
+            >
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
+                style={{ backgroundColor: channel.color }}
+              >
+                {channel.icon}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="text-[14px] font-semibold text-[var(--fg-primary)]">
+                  {channel.label}
                 </span>
-                <div className="flex shrink-0 items-center gap-1">
-                  <AwButton size="sm" variant="secondary" iconLeft="send">
-                    Reenviar
-                  </AwButton>
-                  <AwButton size="sm" variant="ghost" iconLeft="close">
-                    Remover
-                  </AwButton>
-                </div>
-              </div>
-            </td>
-          </tr>
-        ))}
-      </AwMembersTable>
-    </section>
+                <span className="body-xs text-[var(--fg-secondary)]">
+                  {channel.hint}
+                </span>
+              </span>
+              <Icon
+                name="chevron_right"
+                size={18}
+                className="ml-auto text-[var(--fg-tertiary)]"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </AwModal>
   );
 }
 
@@ -417,6 +441,7 @@ function MemberSection({
   title,
   description,
   members,
+  invitations = [],
   managerAlreadyAssigned,
   onSelect,
   onChangeRole,
@@ -425,15 +450,17 @@ function MemberSection({
   title: string;
   description?: string;
   members: Member[];
+  invitations?: Invitation[];
   managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
   emptyHint: string;
 }) {
+  const total = members.length + invitations.length;
   return (
     <section>
       <header className="mb-3">
-        <h2 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+        <h2 className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
           {title}
         </h2>
         {description && (
@@ -443,7 +470,7 @@ function MemberSection({
         )}
       </header>
 
-      {members.length === 0 ? (
+      {total === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-6 py-8 text-center">
           <p className="m-0 body-xs text-[var(--fg-secondary)]">
             {emptyHint}
@@ -492,6 +519,37 @@ function MemberSection({
                   {m.lastActive}
                 </span>
               </AwMembersTableTextCell>
+            </tr>
+          ))}
+          {invitations.map((i) => (
+            <tr key={i.id}>
+              <AwMembersTablePersonCell
+                name={i.email}
+                initials={i.initials.toUpperCase()}
+                tag="Convite enviado"
+                tagVariant="draft"
+              />
+              <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
+              <td>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
+                    <Icon
+                      name="mail"
+                      size={14}
+                      className="text-[var(--fg-tertiary)]"
+                    />
+                    Aguardando aceite · enviado {i.sentAt}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-1">
+                    <AwButton size="sm" variant="ghost" iconLeft="send">
+                      Reenviar
+                    </AwButton>
+                    <AwButton size="sm" variant="ghost" iconLeft="close">
+                      Remover
+                    </AwButton>
+                  </div>
+                </div>
+              </td>
             </tr>
           ))}
         </AwMembersTable>
