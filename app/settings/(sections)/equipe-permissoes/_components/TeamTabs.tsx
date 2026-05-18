@@ -15,8 +15,13 @@ const TABS = [
 export function TeamTabs() {
   const pathname = usePathname();
   const router = useRouter();
-  const current =
-    TABS.find((t) => t.value === pathname)?.value ?? TABS[0].value;
+  // Membros é a aba-base; Equipes e Funções cobrem também as suas sub-rotas
+  // (ex.: /grupos/[id]) — sem isso o detalhe de uma equipe acende "Membros".
+  const current = pathname.startsWith(`${BASE}/grupos`)
+    ? `${BASE}/grupos`
+    : pathname.startsWith(`${BASE}/funcoes`)
+      ? `${BASE}/funcoes`
+      : BASE;
   return (
     <AwTabs
       aria-label="Seções de equipe e permissões"
