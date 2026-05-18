@@ -124,11 +124,14 @@ export default function Sidebar({
   const pathname = usePathname();
   const router = useRouter();
 
+  // The first render must match the server, which has no localStorage —
+  // reading the stored preference here would cause a hydration mismatch.
+  // It is restored in an effect after mount instead (see below).
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (forcedCollapsed) return true;
     if (floating) return true;
     if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) return true;
-    return readStoredCollapsed() ?? false;
+    return false;
   });
 
   /** Suppress the width transition until after the first paint. Each route
@@ -154,6 +157,15 @@ export default function Sidebar({
   useEffect(() => {
     if (floating) setIsCollapsed(true);
   }, [floating]);
+
+  // Restore the persisted collapse preference after mount. Skipped while a
+  // prop or route pins the rail collapsed (handled by the effects above).
+  useEffect(() => {
+    if (forcedCollapsed || floating) return;
+    if (pathname?.startsWith(FORCE_COLLAPSED_PREFIX)) return;
+    const stored = readStoredCollapsed();
+    if (stored != null) setIsCollapsed(stored);
+  }, [forcedCollapsed, floating, pathname]);
 
   const handleToggleCollapsed = () => {
     setIsCollapsed((v) => {
