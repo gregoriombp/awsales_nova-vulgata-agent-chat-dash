@@ -31,7 +31,7 @@ const STEPS = [
 
 export default function BoasVindasPage() {
   return (
-    <AwOnboardingShell currentStep={1} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={3} org={ONBOARDING_ORG}>
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
           Olá, {ONBOARDING_USER.firstName}. Vamos ativar o ambiente da {ONBOARDING_ORG.name}.

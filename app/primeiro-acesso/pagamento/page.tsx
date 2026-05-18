@@ -42,7 +42,7 @@ export default function PagamentoPage() {
     : "#"
 
   return (
-    <AwOnboardingShell currentStep={3} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={5} org={ONBOARDING_ORG}>
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
           Como você quer pagar a implementação?

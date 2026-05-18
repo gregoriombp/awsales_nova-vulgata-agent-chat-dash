@@ -19,7 +19,7 @@ export default async function ConfirmadoPage({
   const fromBoleto = via === "boleto"
 
   return (
-    <AwOnboardingShell currentStep={5} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={7} org={ONBOARDING_ORG}>
       <section className="text-center">
         <div className="flex flex-col items-center gap-4">
           {fromBoleto ? (

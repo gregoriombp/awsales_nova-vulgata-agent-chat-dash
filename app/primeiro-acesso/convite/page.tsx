@@ -107,7 +107,7 @@ export default function ConvitePage() {
         return
       }
       setStatus("success")
-      setTimeout(() => router.push("/primeiro-acesso/boas-vindas"), 600)
+      setTimeout(() => router.push("/primeiro-acesso/acesso"), 600)
     }, 900)
   }, [code, isComplete, router, status])
 

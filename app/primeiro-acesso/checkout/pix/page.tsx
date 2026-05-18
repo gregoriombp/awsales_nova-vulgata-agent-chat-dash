@@ -95,7 +95,7 @@ export default function CheckoutPixPage() {
   }, [paid, router])
 
   return (
-    <AwOnboardingShell currentStep={4} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
       <section>
         <div className="mb-5 flex items-center gap-3">
           <AwBrandLogo brand="pix" size="md" />

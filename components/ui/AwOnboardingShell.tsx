@@ -16,14 +16,14 @@ export type AwOnboardingStep = {
 
 export const AW_ONBOARDING_STEPS: readonly AwOnboardingStep[] = [
   { id: "convite",      label: "convite",      num: "01", brandTitle: "Confirme que é você",   shortLabel: "Convite",          icon: "mark_email_read" },
-  { id: "boas-vindas",  label: "boas-vindas",  num: "02", brandTitle: "Bem-vindo",             shortLabel: "Boas-vindas",      icon: "waving_hand" },
-  { id: "revisao",      label: "revisão",      num: "03", brandTitle: "Revise os dados",       shortLabel: "Revisar dados",    icon: "fact_check" },
-  { id: "pagamento",    label: "pagamento",    num: "04", brandTitle: "Forma de pagamento",    shortLabel: "Forma de pagto.",  icon: "credit_card" },
-  { id: "checkout",     label: "checkout",     num: "05", brandTitle: "Quase lá",              shortLabel: "Pagar implementação", icon: "payments" },
-  { id: "confirmado",   label: "confirmado",   num: "06", brandTitle: "Pagamento confirmado",  shortLabel: "Confirmado",       icon: "task_alt" },
-  { id: "mensalidade",  label: "mensalidade",  num: "07", brandTitle: "Primeira mensalidade",  shortLabel: "Mensalidade",      icon: "event_repeat" },
-  { id: "acesso",       label: "acesso",       num: "08", brandTitle: "Defina seu acesso",     shortLabel: "Acesso",           icon: "lock" },
-  { id: "perfil",       label: "perfil",       num: "09", brandTitle: "Personalize seu perfil", shortLabel: "Perfil",           icon: "manage_accounts" },
+  { id: "acesso",       label: "acesso",       num: "02", brandTitle: "Defina seu acesso",     shortLabel: "Acesso",           icon: "lock" },
+  { id: "perfil",       label: "perfil",       num: "03", brandTitle: "Personalize seu perfil", shortLabel: "Perfil",           icon: "manage_accounts" },
+  { id: "boas-vindas",  label: "boas-vindas",  num: "04", brandTitle: "Bem-vindo",             shortLabel: "Boas-vindas",      icon: "waving_hand" },
+  { id: "revisao",      label: "revisão",      num: "05", brandTitle: "Revise os dados",       shortLabel: "Revisar dados",    icon: "fact_check" },
+  { id: "pagamento",    label: "pagamento",    num: "06", brandTitle: "Forma de pagamento",    shortLabel: "Forma de pagto.",  icon: "credit_card" },
+  { id: "checkout",     label: "checkout",     num: "07", brandTitle: "Quase lá",              shortLabel: "Pagar implementação", icon: "payments" },
+  { id: "confirmado",   label: "confirmado",   num: "08", brandTitle: "Pagamento confirmado",  shortLabel: "Confirmado",       icon: "task_alt" },
+  { id: "mensalidade",  label: "mensalidade",  num: "09", brandTitle: "Primeira mensalidade",  shortLabel: "Mensalidade",      icon: "event_repeat" },
 ] as const
 
 export type AwOnboardingOrg = {

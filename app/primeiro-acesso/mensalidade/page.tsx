@@ -68,12 +68,12 @@ export default function MensalidadePage() {
     setStep("checkout")
   }
 
-  const goToAccess = () => {
-    router.push("/primeiro-acesso/acesso")
+  const finishOnboarding = () => {
+    router.push("/inicio?welcome=1")
   }
 
   return (
-    <AwOnboardingShell currentStep={6} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={8} org={ONBOARDING_ORG}>
       <section>
         {step === "select" ? (
           <SelectStep
@@ -88,7 +88,7 @@ export default function MensalidadePage() {
             method={selected ?? "pix"}
             voucher={voucher}
             onBack={() => setStep("select")}
-            onDone={goToAccess}
+            onDone={finishOnboarding}
           />
         )}
       </section>

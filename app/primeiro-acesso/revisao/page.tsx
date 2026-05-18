@@ -95,7 +95,7 @@ const SECTIONS: Section[] = [
 export default function RevisaoPage() {
   return (
     <AwOnboardingShell
-      currentStep={2}
+      currentStep={4}
       org={ONBOARDING_ORG}
       brandBackground={ONBOARDING_ORG.brandBackground}
     >

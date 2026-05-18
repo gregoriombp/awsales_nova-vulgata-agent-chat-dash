@@ -405,9 +405,11 @@ function MailIcon() {
 function LoginScreen({
   locale,
   goTo,
+  mode,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
+  mode: AuthFlowMode;
 }) {
   const c = COPY.login[locale];
 
@@ -423,6 +425,18 @@ function LoginScreen({
         <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} />
         <SsoButton icon={<MsIcon />} label={c.ssoMs} />
       </div>
+
+      {mode === "default" && (
+        <p className="mt-7 text-center body-xs text-aw-gray-700">
+          {c.noAccount}{" "}
+          <Link
+            href="/primeiro-acesso/convite"
+            className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+          >
+            {c.signUp}
+          </Link>
+        </p>
+      )}
     </div>
   );
 }
@@ -817,14 +831,14 @@ function WorkspaceScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScree
   );
 }
 
-function SuccessScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen) => void }) {
+function SuccessScreen({ locale, successHref }: { locale: Locale; successHref: string }) {
   const c = COPY.success[locale];
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => router.push("/dashboard"), 3000);
+    const timer = setTimeout(() => router.push(successHref), 3000);
     return () => clearTimeout(timer);
-  }, [router]);
+  }, [router, successHref]);
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
@@ -835,7 +849,7 @@ function SuccessScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen)
         {c.title}
       </h3>
       <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
-      <AwButton variant="primary" size="md" block onClick={() => router.push("/dashboard")}>
+      <AwButton variant="primary" size="md" block onClick={() => router.push(successHref)}>
         {c.cta} <ArrowOutIcon />
       </AwButton>
     </div>
@@ -846,17 +860,24 @@ function SuccessScreen({ locale, goTo }: { locale: Locale; goTo: (s: AuthScreen)
    Main AuthFlow Component
    ═══════════════════════════════════════════ */
 
-export default function AuthFlow() {
+export type AuthFlowMode = "default" | "primeiro-acesso";
+
+export default function AuthFlow({ mode = "default" }: { mode?: AuthFlowMode }) {
   const [screen, setScreen] = useState<AuthScreen>("login");
   const [locale, setLocale] = useState<Locale>("pt");
   const [email, setEmail] = useState("ana@awsales.com");
 
   const goTo = useCallback((s: AuthScreen) => setScreen(s), []);
 
+  // On a first-access login the flow continues into the onboarding (profile,
+  // terms, payments); a returning login lands on the dashboard.
+  const successHref =
+    mode === "primeiro-acesso" ? "/primeiro-acesso/perfil" : "/dashboard";
+
   const renderScreen = () => {
     switch (screen) {
       case "login":
-        return <LoginScreen locale={locale} goTo={goTo} />;
+        return <LoginScreen locale={locale} goTo={goTo} mode={mode} />;
       case "email":
         return <EmailLoginScreen locale={locale} goTo={goTo} />;
       case "forgot":
@@ -868,7 +889,7 @@ export default function AuthFlow() {
       case "workspace":
         return <WorkspaceScreen locale={locale} goTo={goTo} />;
       case "success":
-        return <SuccessScreen locale={locale} goTo={goTo} />;
+        return <SuccessScreen locale={locale} successHref={successHref} />;
     }
   };
 

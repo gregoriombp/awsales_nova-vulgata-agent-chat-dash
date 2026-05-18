@@ -108,7 +108,7 @@ export default function PerfilPage() {
     nameValid && phoneValid && recipientValid && extrasValid && termsAccepted
 
   return (
-    <AwOnboardingShell currentStep={8} org={ONBOARDING_ORG}>
+    <AwOnboardingShell currentStep={2} org={ONBOARDING_ORG}>
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
           Vamos personalizar seu perfil.
@@ -376,20 +376,13 @@ export default function PerfilPage() {
         </label>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-          <Link
-            href="/primeiro-acesso/acesso"
-            className="aw-btn aw-btn--ghost aw-btn--md"
-          >
-            <Icon name="arrow_back" size={16} />
-            <span className="aw-btn__label">Voltar</span>
-          </Link>
           <span className="flex-1" />
           {formValid ? (
             <Link
-              href="/inicio?welcome=1"
+              href="/primeiro-acesso/boas-vindas"
               className="aw-btn aw-btn--primary aw-btn--md"
             >
-              <span className="aw-btn__label">Continuar pra plataforma</span>
+              <span className="aw-btn__label">Continuar</span>
               <Icon name="arrow_forward" size={16} />
             </Link>
           ) : (
@@ -398,7 +391,7 @@ export default function PerfilPage() {
               disabled
               className="aw-btn aw-btn--primary aw-btn--md"
             >
-              <span className="aw-btn__label">Continuar pra plataforma</span>
+              <span className="aw-btn__label">Continuar</span>
               <Icon name="arrow_forward" size={16} />
             </button>
           )}
