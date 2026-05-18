@@ -41,7 +41,7 @@ const COPY = {
       ssoMs: "Continuar com Microsoft",
       ssoEmail: "Continuar com email",
       noAccount: "Ainda n\u00e3o tem conta?",
-      signUp: "Solicitar acesso",
+      signUp: "Primeiro acesso",
     },
     en: {
       kicker: "// access",
@@ -51,7 +51,7 @@ const COPY = {
       ssoMs: "Continue with Microsoft",
       ssoEmail: "Continue with email",
       noAccount: "Don\u2019t have an account?",
-      signUp: "Request access",
+      signUp: "First access",
     },
   },
   email: {
@@ -423,16 +423,6 @@ function LoginScreen({
         <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} />
         <SsoButton icon={<MsIcon />} label={c.ssoMs} />
       </div>
-
-      <p className="mt-7 text-center body-xs text-aw-gray-700">
-        {c.noAccount}{" "}
-        <a
-          href="#"
-          className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
-        >
-          {c.signUp}
-        </a>
-      </p>
     </div>
   );
 }
@@ -898,13 +888,6 @@ export default function AuthFlow() {
 
         {/* Footer */}
         <div className="flex flex-col items-end gap-1.5 pt-4 body-xs text-aw-gray-700">
-          <Link
-            href="/primeiro-acesso/convite"
-            className="inline-flex items-center gap-1 body-xs font-medium text-aw-gray-800 hover:text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
-          >
-            <span>{locale === "pt" ? "Primeiro acesso" : "First access"}</span>
-            <ArrowOutIcon />
-          </Link>
           <div className="flex gap-1">
             <a href="#" className="text-aw-gray-800 hover:text-aw-gray-1200 hover:underline">
               {locale === "pt" ? "Termos" : "Terms"}
