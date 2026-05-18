@@ -110,7 +110,7 @@ export default function ButtonsPage() {
             />
             <Spec
               k="ícone"
-              v="14 · 16 · 18 px"
+              v="12 · 14 · 16 px"
               d="Material Symbols Rounded via componente Icon. Antes do label por padrão."
             />
             <Spec

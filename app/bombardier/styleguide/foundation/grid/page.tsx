@@ -265,19 +265,21 @@ export default function GridPage() {
           title="12 colunas (quando)"
           lead="Grid de 12 colunas existe. Mas a maioria das telas precisa de 1, 2 ou 3 colunas — não 12. Use 12 só quando estiver empacotando dados densos."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-            <div className="grid grid-cols-12 gap-[var(--content-gutter)]">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="h-12 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-xs font-medium text-[var(--aw-blue-900)]"
-                >
-                  {i + 1}
-                </div>
-              ))}
-            </div>
+          <OverlayRow
+            title="As 12 colunas em diferentes resoluções"
+            caption="Padrão Figma — colunas tintadas, gutters em branco. Container fixo (1200px default); só o whitespace lateral muda."
+            frames={[
+              { viewport: 1280, contentMax: 1200, intent: "default" },
+              { viewport: 1536, contentMax: 1200, intent: "default" },
+              { viewport: 1920, contentMax: 1200, intent: "default" },
+            ]}
+          />
 
-            <div className="mt-6 flex flex-col gap-2">
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-6">
+            <p className="m-0 mb-4 aw-eyebrow text-[var(--fg-tertiary)]">
+              Layouts canônicos · col-span
+            </p>
+            <div className="flex flex-col gap-2">
               <ColumnExample spans={[12]}        label="Block único · col-span-12" />
               <ColumnExample spans={[6, 6]}      label="Dois iguais · col-span-6" />
               <ColumnExample spans={[8, 4]}      label="Content + side · col-span-8 + col-span-4" />
@@ -423,11 +425,12 @@ export default function GridPage() {
           </div>
 
           <div className="rounded-[var(--radius-md)] border border-[var(--aw-amber-300)] bg-[var(--aw-amber-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-amber-900)]">
-            <strong>Abaixo de 1024.</strong> Mostrar uma tela de bloqueio
-            pedindo pro usuário acessar via desktop ou tablet. Não é reflow,
-            não é "tela maior por favor" simpaticamente — é um state explícito
-            do app. Componente ainda não existe (TODO){" "}
-            <code className="mono">app/_components/DesktopOnlyBlocker</code>.
+            <strong>Abaixo de 1024.</strong> Quando a viewport encolhe pra menos
+            que <code className="mono">--breakpoint-lg</code>, o app monta um
+            blocker fullscreen pedindo pro usuário voltar num desktop ou tablet.
+            Não é reflow nem &ldquo;tela maior por favor&rdquo; simpaticamente —
+            é um state explícito do app, plugado no root layout via{" "}
+            <code className="mono">components/DesktopOnlyBlocker</code>.
           </div>
         </Section>
 

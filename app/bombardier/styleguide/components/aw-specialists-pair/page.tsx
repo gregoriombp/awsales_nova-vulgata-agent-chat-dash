@@ -144,7 +144,7 @@ export default function SpecialistsPairPage() {
               <PropRow
                 prop="avatarSrc"
                 type="string"
-                doc="Imagem. Humano: /assets/ui-faces/* (renderizado circular via AwAvatar). IA: ignorado — o lado AI sempre renderiza o AstralFlow recortado em hex."
+                doc="Imagem. Humano: /assets/ui-faces/* (renderizado circular via AwAvatar). IA: ignorado — o lado AI sempre renderiza o shader Synthesis (cromo líquido B&W) recortado em hex."
               />
               <PropRow
                 prop="initials"

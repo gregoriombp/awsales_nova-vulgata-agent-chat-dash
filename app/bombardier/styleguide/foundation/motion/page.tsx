@@ -52,7 +52,7 @@ export default function MotionPage() {
         <Section
           id="easing"
           title="Curvas de easing"
-          lead="ease-out domina. ease-in-out só em loops contínuos. Linear só em progress bars determinísticas."
+          lead="Ease-out domina. Ease-in-out só em loops contínuos. Linear só em progress bars determinísticas."
         >
           <EasingProbe />
 

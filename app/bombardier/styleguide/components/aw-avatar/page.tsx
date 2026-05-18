@@ -25,6 +25,10 @@ const PHOTO_RICARDO =
 const PHOTO_CAMILA =
   "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=192&h=192&fit=crop&crop=faces"
 
+const AGENT_ARIA = "/assets/agent_imgs/orbs/orb_model-a_01-1.png"
+const AGENT_ATLAS = "/assets/agent_imgs/orbs/orb_model-a_05-1.png"
+const AGENT_NOVA = "/assets/agent_imgs/orbs/orb_model-a_08-1.png"
+
 export default function AwAvatarPage() {
   return (
     <>
@@ -75,21 +79,9 @@ export default function AwAvatarPage() {
           </Stage>
 
           <Stage label="ai · 3 tamanhos" gridClassName="flex flex-wrap items-center gap-4 mt-4">
-            <AwAvatar size="sm" ai>
-              <span className="material-symbols-rounded" style={{ fontSize: 12 }}>
-                auto_awesome
-              </span>
-            </AwAvatar>
-            <AwAvatar size="md" ai>
-              <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
-                auto_awesome
-              </span>
-            </AwAvatar>
-            <AwAvatar size="lg" ai>
-              <span className="material-symbols-rounded" style={{ fontSize: 22 }}>
-                auto_awesome
-              </span>
-            </AwAvatar>
+            <AwAvatar size="sm" ai src={AGENT_ARIA} alt="Aria" />
+            <AwAvatar size="md" ai src={AGENT_ARIA} alt="Aria" />
+            <AwAvatar size="lg" ai src={AGENT_ARIA} alt="Aria" />
           </Stage>
         </Section>
 
@@ -171,16 +163,12 @@ export default function AwAvatarPage() {
           <Stage label="ai com status · agente disponível com pulse" gridClassName="flex flex-wrap items-center gap-6 mt-4">
             <div className="flex items-center gap-3">
               <span style={{ position: "relative", display: "inline-block" }}>
-                <AwAvatar size="md" ai>
-                  <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
-                    auto_awesome
-                  </span>
-                </AwAvatar>
+                <AwAvatar size="md" ai src={AGENT_ATLAS} alt="Atlas" />
                 <AwStatusDot variant="live" size="sm" ring absolute pulse />
               </span>
               <div>
                 <div className="text-[14px] font-medium text-[var(--fg-primary)]">
-                  Agente Suporte N1
+                  Atlas · Suporte N1
                 </div>
                 <div className="caption">Disponível · pulsa enquanto pensa</div>
               </div>
@@ -233,11 +221,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
             <AwAvatarGroup>
               <AwAvatar size="md" src={PHOTO_MARINA} alt="Marina" initials="MS" />
               <AwAvatar size="md" src={PHOTO_RICARDO} alt="Ricardo" initials="RL" />
-              <AwAvatar size="md" ai>
-                <span className="material-symbols-rounded" style={{ fontSize: 16 }}>
-                  auto_awesome
-                </span>
-              </AwAvatar>
+              <AwAvatar size="md" ai src={AGENT_NOVA} alt="Nova" />
             </AwAvatarGroup>
           </Stage>
 

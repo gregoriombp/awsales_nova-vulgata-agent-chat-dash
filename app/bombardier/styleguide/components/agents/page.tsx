@@ -1,9 +1,9 @@
 import Image from "next/image"
+import { CopilotOrb } from "@/components/CopilotDrawer"
 import {
-  CopilotOrb,
   CORTEX_STATE_PRESETS,
   type CortexState,
-} from "@/components/CopilotDrawer"
+} from "@/components/copilot-orb-presets"
 import {
   PageHero,
   Section,
@@ -42,31 +42,31 @@ const CORTEX_STATES: Array<{
     state: "idle",
     label: "Idle",
     trigger: "Nenhum input ativo — Cortex em repouso, vivendo no topbar.",
-    feel: "Prata + branco respirando lento sobre grafite. Quase imperceptível.",
+    feel: "Cromo líquido B&W respirando lento. O standard puro — só o que veio do print.",
   },
   {
     state: "listening",
     label: "Listening",
     trigger: "Usuário digitando, falando, ou anexando contexto.",
-    feel: "Tom levemente frio (índigo). Movimento um pouco mais presente, sem urgência.",
+    feel: "Mesmo cromo, color3 levemente frio (azul-grafite) e distortion 1.4. Sinaliza presença sem urgência.",
   },
   {
     state: "thinking",
     label: "Thinking",
     trigger: "Cortex coordenando Cores e raciocinando — pico de atividade.",
-    feel: "Prata acelerado, flow amplo (2–9). Comunica processamento sem virar ansiedade.",
+    feel: "Speed 3.5×, complexity 9, distortion 2.0, glow 0.08. O cromo acelera e ganha turbulência.",
   },
   {
     state: "responding",
     label: "Responding",
     trigger: "Output sendo gerado — Cortex compondo a resposta.",
-    feel: "Tom morno (âmbar). Mais calmo que thinking, sinaliza saída fluindo.",
+    feel: "Color3 morno (âmbar escuro) e color2 cremoso. Mesma estrutura do standard, paleta vira chrome dourado.",
   },
   {
     state: "error",
     label: "Error",
     trigger: "Falha de conexão, Core indisponível ou execução abortada.",
-    feel: "Vermelho profundo quase parado. Único estado com chroma alta — pede atenção.",
+    feel: "Speed 0.05, paleta vermelha completa, glow 0.2. Único estado que abandona o B&W — pede atenção.",
   },
 ]
 
@@ -107,8 +107,9 @@ export default function AgentsPage() {
         produto (orbs em grayscale, customizáveis). <strong>Cortex</strong> é
         o cérebro do sistema — hex de vértices sharp, animado em WebGL via{" "}
         <code className="mono">@react-three/fiber</code> + shader{" "}
-        <code className="mono">AstralFlow</code>, sempre presente no topbar e
-        respondendo ao ciclo de pensamento da conversa.
+        <code className="mono">Synthesis</code> (cromo líquido B&W como
+        standard), sempre presente no topbar e respondendo ao ciclo de
+        pensamento da conversa.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -209,11 +210,11 @@ export default function AgentsPage() {
           <Section
             id="cortex"
             title="Cortex"
-            lead="O cérebro central — camada de raciocínio que coordena tudo. Decide qual Agent Core acionar, em que ordem, com que contexto, e como compor as respostas do Agente do Usuário. Já vive no topbar do app, sempre ativo. Não é imagem: vem de uma lib WebGL (@react-three/fiber + shader AstralFlow) recortada por uma máscara hex flat-top de vértices sharp. Tudo escala via <CopilotOrb size />."
+            lead="O cérebro central — camada de raciocínio que coordena tudo. Decide qual Agent Core acionar, em que ordem, com que contexto, e como compor as respostas do Agente do Usuário. Já vive no topbar do app, sempre ativo. Não é imagem: vem de uma lib WebGL (@react-three/fiber + shader Synthesis) recortada por uma máscara hex flat-top de vértices sharp. O standard é o cromo líquido B&W — cada estado de pensamento parte dele e personaliza só o que faz sentido. Tudo escala via <CopilotOrb size />."
           >
             <Stage
               label="Cortex · idle, sempre ativo"
-              hint="Renderizado pelo componente CopilotOrb — máscara SVG sharp + AstralFlow."
+              hint="Renderizado pelo componente CopilotOrb — máscara SVG sharp + shader Synthesis."
               gridClassName="flex items-center justify-center gap-10 bg-[var(--bg-canvas)]"
             >
               <CopilotOrb size={56} />
@@ -268,12 +269,23 @@ export default function AgentsPage() {
             </Stage>
 
             <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+              <p className="caption m-0 mb-4">
+                <strong className="text-[var(--fg-secondary)]">Standard:</strong>{" "}
+                <code className="mono text-[11px] text-[var(--fg-tertiary)]">
+                  scale 2.8 · complexity 8 · distortion 1.6 · glow 0 · flow 2 · contrast 1.0
+                </code>
+                . Estados variam só o que precisa pra comunicar o ciclo — o
+                resto herda do idle.
+              </p>
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-[var(--border-subtle)]">
                     <th className="pb-2 aw-eyebrow">state</th>
                     <th className="pb-2 aw-eyebrow">speed</th>
+                    <th className="pb-2 aw-eyebrow">complex</th>
+                    <th className="pb-2 aw-eyebrow">distort</th>
                     <th className="pb-2 aw-eyebrow">flow</th>
+                    <th className="pb-2 aw-eyebrow">glow</th>
                     <th className="pb-2 aw-eyebrow">color1</th>
                     <th className="pb-2 aw-eyebrow">color2</th>
                     <th className="pb-2 aw-eyebrow">color3</th>
@@ -295,10 +307,19 @@ export default function AgentsPage() {
                           {p.speed}
                         </td>
                         <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
-                          {p.flowMin} – {p.flowMax}
+                          {p.complexity}
                         </td>
-                        {[p.color1, p.color2, p.color3, p.bg].map((c) => (
-                          <td key={c} className="py-3 pr-4 whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                          {p.distortion}
+                        </td>
+                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                          {p.flowFrequency}
+                        </td>
+                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                          {p.glowIntensity}
+                        </td>
+                        {[p.color1, p.color2, p.color3, p.bg].map((c, i) => (
+                          <td key={`${s.state}-c-${i}`} className="py-3 pr-4 whitespace-nowrap">
                             <span className="inline-flex items-center gap-2">
                               <span
                                 className="inline-block w-4 h-4 rounded-sm border border-[var(--border-subtle)]"
@@ -337,7 +358,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
           <Section
             id="cortex-controls"
             title="Controles do Cortex"
-            lead="CopilotOrb expõe o size e um state. Em casos avançados (debug, prototipagem, página de marca), você pode sobrescrever cada eixo do shader individualmente — speed, três cores, faixa de flow e bg. Sem override, tudo vem do preset."
+            lead="CopilotOrb expõe o size e um state. Em casos avançados (debug, prototipagem, página de marca), você pode sobrescrever cada eixo do shader Synthesis individualmente — speed, três cores, scale, complexity, distortion, glow, flow, contrast e bg. Sem override, tudo vem do preset (idle = standard do print)."
           >
             <ApiTable>
               <PropRow
@@ -350,56 +371,80 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 prop="state"
                 type='"idle" | "listening" | "thinking" | "responding" | "error"'
                 def='"idle"'
-                doc="Preset que dita speed, paleta e flow. Trocar a prop é o jeito canônico de animar o ciclo de pensamento."
+                doc="Preset que dita todos os eixos do shader. Trocar a prop é o jeito canônico de animar o ciclo de pensamento."
               />
               <PropRow
                 prop="speed"
                 type="number"
-                def="preset"
-                doc="Override do ritmo do shader (0.05 = quase parado · 1.0 = turbulento). Use só pra debug ou casos de marca."
+                def="preset · 0.1"
+                doc="Ritmo do shader. 0.05 = quase parado · 0.35 = turbulento · 1.0 = caótico. Standard do print é 0.1 (cromo respirando)."
               />
               <PropRow
                 prop="color1"
                 type="string (hex)"
-                def="preset"
-                doc="Base mais escura da malha — define o tom de fundo do fluxo."
+                def='preset · "#ffffff"'
+                doc="Primeira camada do mix. Standard B&W deixa em branco puro."
               />
               <PropRow
                 prop="color2"
                 type="string (hex)"
-                def="preset"
-                doc="Tom intermediário — onde a malha respira."
+                def='preset · "#ffffff"'
+                doc="Segunda camada — mistura no flow1. Standard idem branco para chrome líquido."
               />
               <PropRow
                 prop="color3"
                 type="string (hex)"
-                def="preset"
-                doc="Highlights — wisps brilhantes que cruzam a superfície."
+                def='preset · "#4f4f4f"'
+                doc="Terceira camada — mistura no flow2 e modula o glow. É a cor que mais carrega o mood do estado."
               />
               <PropRow
-                prop="flowMin"
+                prop="scale"
                 type="number"
-                def="preset"
-                doc="Limite inferior da respiração do fluxo. Quanto mais baixo, mais o fluxo encolhe no ciclo."
+                def="preset · 2.8"
+                doc="Zoom da malha. Maior = padrão mais largo / textura mais aberta. 2.8 é o standard do print."
               />
               <PropRow
-                prop="flowMax"
+                prop="complexity"
+                type="number (1–20)"
+                def="preset · 8"
+                doc="Quantas iterações de domain warping rodam. Maior = malha mais intrincada. Custa GPU acima de ~12."
+              />
+              <PropRow
+                prop="distortion"
                 type="number"
-                def="preset"
-                doc="Limite superior. Diferença flowMax − flowMin = amplitude do movimento. Maior = mais turbulento."
+                def="preset · 1.6"
+                doc="Amplitude do warp em cada iteração. Maior = curvas mais dramáticas, fluxo menos linear."
+              />
+              <PropRow
+                prop="glowIntensity"
+                type="number"
+                def="preset · 0"
+                doc="Brilho radial somado ao centro. 0 mantém o cromo plano (standard). Use só pra estados que pedem atenção."
+              />
+              <PropRow
+                prop="flowFrequency"
+                type="number"
+                def="preset · 2"
+                doc="Frequência das ondas senoidais que misturam as cores. Maior = mais bandas por frame, ritmo mais staccato."
+              />
+              <PropRow
+                prop="contrast"
+                type="number"
+                def="preset · 1.0"
+                doc="Edge superior do smoothstep final. Menor = transições mais duras entre claro/escuro. Mantenha em 1.0 salvo casos específicos."
               />
               <PropRow
                 prop="bg"
                 type="string (hex)"
-                def="preset"
-                doc="Cor do canvas atrás do shader. Define a sensação de profundidade do hex."
+                def='preset · "#000000"'
+                doc="Cor do canvas atrás do shader. Define a sensação de profundidade do hex — o standard é preto puro."
               />
             </ApiTable>
 
             <CodeExample label="usos canônicos" lang="tsx">
               {`import { CopilotOrb } from "@/components/CopilotDrawer"
 
-// 1. Topbar — sempre idle, sempre 20px.
+// 1. Topbar — sempre idle, sempre 20px. Standard B&W cromo líquido.
 <CopilotOrb size={20} />
 
 // 2. Painel do copilot — header em listening enquanto o usuário digita.
@@ -408,16 +453,20 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
 // 3. Hero da página do agente — thinking durante a execução.
 <CopilotOrb size={140} state="thinking" />
 
-// 4. Debug / página de marca — override total.
+// 4. Debug / página de marca — override total com a API do Synthesis.
 <CopilotOrb
   size={200}
-  speed={0.4}
-  color1="#0a0a14"
-  color2="#3a2f5a"
-  color3="#cfb8ff"
-  flowMin={2}
-  flowMax={9}
-  bg="#06060a"
+  speed={0.1}
+  color1="#ffffff"
+  color2="#ffffff"
+  color3="#4f4f4f"
+  scale={2.8}
+  complexity={8}
+  distortion={1.6}
+  glowIntensity={0}
+  flowFrequency={2}
+  contrast={1.0}
+  bg="#000000"
 />`}
             </CodeExample>
           </Section>
@@ -551,7 +600,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               <Spec
                 k="Cortex"
                 v="hex sharp · WebGL"
-                d="CopilotOrb (máscara SVG flat-top sharp + shader AstralFlow). Único, sempre ativo, com state controlando o pensamento."
+                d="CopilotOrb (máscara SVG flat-top sharp + shader Synthesis em cromo líquido B&W). Único, sempre ativo, com state controlando o pensamento."
               />
               <Spec
                 k="silhueta"
