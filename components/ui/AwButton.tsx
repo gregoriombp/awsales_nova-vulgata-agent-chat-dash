@@ -52,26 +52,60 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
           ? 22
           : 20
       : size === "sm"
-        ? 14
+        ? 12
         : size === "lg"
-          ? 18
-          : 16
-    const Comp = asChild ? Slot : "button"
+          ? 16
+          : 14
+    const className_ = cn(
+      "aw-btn",
+      `aw-btn--${variant}`,
+      `aw-btn--${size}`,
+      iconOnly && "aw-btn--icon",
+      block && "aw-btn--block",
+      loading && "aw-btn--loading",
+      className,
+    )
+
+    if (asChild) {
+      // Slot precisa de um único child. Clonamos o elemento passado
+      // (geralmente um <Link>) e injetamos o label dele DENTRO,
+      // cercado pelos ícones — assim o markup final tem 1 root só.
+      const child = React.Children.only(
+        children as React.ReactElement<{ children?: React.ReactNode }>,
+      )
+      const childLabel = child.props.children
+      const newChild = React.cloneElement(
+        child,
+        {},
+        iconOnly ? (
+          <Icon name={iconOnly} size={iconSize} />
+        ) : (
+          <>
+            {iconLeft && <Icon name={iconLeft} size={iconSize} />}
+            <span className="aw-btn__label">{childLabel}</span>
+            {iconRight && <Icon name={iconRight} size={iconSize} />}
+            {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
+          </>
+        ),
+      )
+      return (
+        <Slot
+          ref={ref}
+          aria-busy={loading || undefined}
+          className={className_}
+          {...rest}
+        >
+          {newChild}
+        </Slot>
+      )
+    }
 
     return (
-      <Comp
+      <button
         ref={ref}
-        disabled={asChild ? undefined : disabled || loading}
+        disabled={disabled || loading}
         aria-busy={loading || undefined}
-        className={cn(
-          "aw-btn",
-          `aw-btn--${variant}`,
-          `aw-btn--${size}`,
-          iconOnly && "aw-btn--icon",
-          block && "aw-btn--block",
-          loading && "aw-btn--loading",
-          className
-        )}
+        className={className_}
         {...rest}
       >
         {iconOnly ? (
@@ -84,7 +118,8 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
           </>
         )}
         {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
-      </Comp>
+      </button>
     )
   }
 )
+
