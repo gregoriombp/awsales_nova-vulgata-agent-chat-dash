@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
@@ -12,8 +13,8 @@ import {
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
-import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import {
   AUDIT_EVENTS,
@@ -32,14 +33,22 @@ const ALL_TYPES: AuditEventType[] = [
 
 const ALL_EXECUTORS: AuditExecutor[] = ["AwSales", "Cliente", "Sistema"];
 
-function executorVariant(e: AuditExecutor): AwPillVariant {
-  switch (e) {
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 0) return "?";
+  const first = parts[0]?.charAt(0) ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? "") : "";
+  return (first + last).toUpperCase();
+}
+
+function executorRole(executor: AuditExecutor): string {
+  switch (executor) {
     case "AwSales":
-      return "ai";
+      return "Account Manager";
     case "Cliente":
-      return "live";
+      return "Usuário";
     case "Sistema":
-      return "neutral";
+      return "Agente";
   }
 }
 
@@ -71,8 +80,6 @@ export default function AuditoriaPage() {
     });
   }, [selectedTypes, selectedExecutors, query]);
 
-  const grouped = React.useMemo(() => groupByDate(filtered), [filtered]);
-
   const clearAll = () => {
     setSelectedTypes([]);
     setSelectedExecutors([]);
@@ -88,7 +95,7 @@ export default function AuditoriaPage() {
     <div className="flex flex-col gap-6">
       <section>
         <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
-          Trilha de eventos
+          Histórico de atividades
         </h6>
         <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
           Eventos de plano, cartão, fatura, cupom e voucher — feitos por
@@ -107,7 +114,7 @@ export default function AuditoriaPage() {
         hasFilters={hasFilters}
       />
 
-      {grouped.length === 0 ? (
+      {filtered.length === 0 ? (
         <AwCard className="!p-0">
           <div className="px-6 py-10">
             <AwEmpty>
@@ -124,11 +131,23 @@ export default function AuditoriaPage() {
           </div>
         </AwCard>
       ) : (
-        <ol className="m-0 flex flex-col gap-5 p-0">
-          {grouped.map(([date, events]) => (
-            <DateGroup key={date} date={date} events={events} />
-          ))}
-        </ol>
+        <AwCard className="!p-0">
+          <AwTable>
+            <thead>
+              <tr>
+                <th>Quando</th>
+                <th>Tipo</th>
+                <th>Evento</th>
+                <th>Quem</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((event) => (
+                <EventRow key={event.id} event={event} />
+              ))}
+            </tbody>
+          </AwTable>
+        </AwCard>
       )}
     </div>
   );
@@ -156,52 +175,47 @@ function Toolbar({
   hasFilters: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-[240px] flex-1">
-          <AwInput
-            iconLeft="search"
-            placeholder="Buscar ator, ação ou referência…"
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-          />
-        </div>
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-[240px] flex-1">
+        <AwInput
+          iconLeft="search"
+          placeholder="Buscar ator, ação ou referência…"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
+        />
+      </div>
+      <MultiFilter
+        label="Tipo"
+        options={ALL_TYPES}
+        selected={selectedTypes}
+        onChange={onTypesChange}
+      />
+      <MultiFilter
+        label="Executor"
+        options={ALL_EXECUTORS}
+        selected={selectedExecutors}
+        onChange={onExecutorsChange}
+      />
+      {hasFilters && (
         <AwButton
-          size="md"
+          size="sm"
           variant="ghost"
-          iconLeft="download"
-          onClick={() =>
-            alert("Exportação iniciada — você receberá o CSV por e-mail.")
-          }
+          iconLeft="close"
+          onClick={onClearAll}
         >
-          Exportar CSV
+          Limpar
         </AwButton>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-2">
-        <MultiFilter
-          label="Tipo"
-          options={ALL_TYPES}
-          selected={selectedTypes}
-          onChange={onTypesChange}
-        />
-        <MultiFilter
-          label="Executor"
-          options={ALL_EXECUTORS}
-          selected={selectedExecutors}
-          onChange={onExecutorsChange}
-        />
-        {hasFilters && (
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconLeft="close"
-            onClick={onClearAll}
-          >
-            Limpar
-          </AwButton>
-        )}
-      </div>
+      )}
+      <AwButton
+        size="md"
+        variant="ghost"
+        iconLeft="download"
+        onClick={() =>
+          alert("Exportação iniciada — você receberá o CSV por e-mail.")
+        }
+      >
+        Exportar CSV
+      </AwButton>
     </div>
   );
 }
@@ -269,68 +283,56 @@ function MultiFilter<T extends string>({
   );
 }
 
-/* ---------- timeline ---------- */
-
-function groupByDate(events: AuditEvent[]): [string, AuditEvent[]][] {
-  const map = new Map<string, AuditEvent[]>();
-  for (const e of events) {
-    const list = map.get(e.date) ?? [];
-    list.push(e);
-    map.set(e.date, list);
-  }
-  return Array.from(map.entries());
-}
-
-function DateGroup({
-  date,
-  events,
-}: {
-  date: string;
-  events: AuditEvent[];
-}) {
-  return (
-    <li className="m-0 list-none p-0">
-      <p className="m-0 mb-2 aw-eyebrow text-[var(--fg-tertiary)]">{date}</p>
-      <AwCard className="!p-0">
-        <ul className="m-0 divide-y divide-[var(--border-subtle)] p-0">
-          {events.map((e) => (
-            <EventRow key={e.id} event={e} />
-          ))}
-        </ul>
-      </AwCard>
-    </li>
-  );
-}
+/* ---------- table row ---------- */
 
 function EventRow({ event }: { event: AuditEvent }) {
   return (
-    <li className="m-0 grid grid-cols-[56px_1fr_auto] items-start gap-3 px-5 py-3 hover:bg-[var(--bg-hover)]">
-      <span className="pt-0.5 body-xs font-medium tabular-nums text-[var(--fg-tertiary)]">
-        {event.time}
-      </span>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-baseline gap-2">
-          <span className="body-sm font-medium text-[var(--fg-primary)]">
-            {event.action}
+    <tr>
+      <td>
+        <div className="flex flex-col">
+          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
+            {event.date}
           </span>
-          <span className="body-xs text-[var(--fg-tertiary)]">
-            · {event.actor}
+          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {event.time}
           </span>
         </div>
-        {event.meta && (
-          <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
-            {event.meta}
-          </p>
-        )}
-      </div>
-      <div className="flex shrink-0 flex-col items-end gap-1">
-        <AwPill variant={executorVariant(event.executor)}>
-          {event.executor}
-        </AwPill>
+      </td>
+      <td>
         <span className="aw-eyebrow text-[var(--fg-tertiary)]">
           {event.type}
         </span>
-      </div>
-    </li>
+      </td>
+      <td>
+        <div className="flex flex-col gap-0.5">
+          <span className="body-sm font-medium text-[var(--fg-primary)]">
+            {event.action}
+          </span>
+          {event.meta && (
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+              {event.meta}
+            </p>
+          )}
+        </div>
+      </td>
+      <td>
+        <span className="inline-flex items-center gap-2">
+          <AwAvatar
+            size="md"
+            src={event.actorAvatar}
+            alt={event.actor}
+            initials={getInitials(event.actor)}
+          />
+          <span className="flex flex-col">
+            <span className="body-sm font-medium text-[var(--fg-primary)]">
+              {event.actor}
+            </span>
+            <span className="body-xs text-[var(--fg-tertiary)]">
+              {executorRole(event.executor)}
+            </span>
+          </span>
+        </span>
+      </td>
+    </tr>
   );
 }

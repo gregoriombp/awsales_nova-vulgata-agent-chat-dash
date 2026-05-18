@@ -31,76 +31,180 @@ import {
   type SpendingPeriod,
 } from "./data";
 
-type SortKey = "label" | "role" | "status" | "total";
+type SortKey =
+  | "label"
+  | "role"
+  | "status"
+  | "total"
+  | "quantity"
+  | "unitPrice";
 type SortDir = "asc" | "desc";
+
+function parseUnitPrice(label: string): number {
+  const m = label.match(/[\d.,]+/);
+  if (!m) return Number.NEGATIVE_INFINITY;
+  const n = parseFloat(m[0].replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY;
+}
+
+// Mapeia cada categoria do gráfico de serviços para as linhas equivalentes da
+// tabela. A linha "outros" não tem categoria correspondente e só aparece
+// quando todas as 4 categorias estão selecionadas (ver allowedRowIds abaixo).
+const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
+  disparos: ["disp"],
+  leads: ["leads"],
+  mensagens: ["msgs"],
+  tokens: ["tokens-in", "tokens-out"],
+};
 
 export function VariableSpendingBlock() {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
   const [periodId, setPeriodId] = React.useState<SpendingPeriod>("this-month");
+  const [filter, setFilter] = React.useState<
+    Record<SpendingGrouping, Set<string>>
+  >(() => ({
+    service: new Set(SPENDING_CATEGORIES.service.map((c) => c.id)),
+    agent: new Set(SPENDING_CATEGORIES.agent.map((c) => c.id)),
+  }));
 
   const period =
     SPENDING_PERIODS.find((p) => p.id === periodId) ?? SPENDING_PERIODS[1];
   const categories = SPENDING_CATEGORIES[grouping];
+  const visibleIds = filter[grouping];
+  const allIds = React.useMemo(() => categories.map((c) => c.id), [categories]);
+  const isAll = visibleIds.size === allIds.length;
 
   const daily = React.useMemo(
     () => getDailySpending(grouping, periodId),
     [grouping, periodId],
   );
 
-  const accumulated = React.useMemo(
-    () => daily.reduce((sum, day) => sum + day.reduce((s, v) => s + v, 0), 0),
-    [daily],
-  );
+  const accumulated = React.useMemo(() => {
+    let sum = 0;
+    daily.forEach((day) => {
+      categories.forEach((cat, c) => {
+        if (visibleIds.has(cat.id)) sum += day[c] ?? 0;
+      });
+    });
+    return sum;
+  }, [daily, categories, visibleIds]);
+
+  const toggleFilter = (id: string) => {
+    setFilter((f) => {
+      const next = new Set(f[grouping]);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return { ...f, [grouping]: next };
+    });
+  };
+
+  const selectAllFilter = () => {
+    setFilter((f) => ({ ...f, [grouping]: new Set(allIds) }));
+  };
+
+  const filterUnit = grouping === "service" ? "serviços" : "agentes";
+  const filterAllLabel = `Todos os ${filterUnit}`;
+  let filterLabel: string;
+  if (isAll) {
+    filterLabel = filterAllLabel;
+  } else if (visibleIds.size === 0) {
+    filterLabel = `Nenhum dos ${filterUnit}`;
+  } else if (visibleIds.size === 1) {
+    const id = Array.from(visibleIds)[0];
+    filterLabel = categories.find((c) => c.id === id)?.label ?? filterAllLabel;
+  } else {
+    filterLabel = `${visibleIds.size} ${filterUnit}`;
+  }
+
+  const allowedRowIds = React.useMemo(() => {
+    if (grouping === "agent") {
+      return new Set(visibleIds);
+    }
+    const set = new Set<string>();
+    visibleIds.forEach((catId) => {
+      (SERVICE_CAT_TO_ROW_IDS[catId] ?? []).forEach((rid) => set.add(rid));
+    });
+    if (isAll) set.add("outros");
+    return set;
+  }, [grouping, visibleIds, isAll]);
 
   return (
-    <AwCard className="!p-0">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border-subtle)] px-6 py-3">
-        <SegmentedToggle
-          options={[
-            { value: "service", label: "Serviço" },
-            { value: "agent", label: "Agente" },
-          ]}
-          value={grouping}
-          onChange={setGrouping}
-        />
-        <div className="flex items-center gap-3">
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
-            Acumulado:{" "}
-            <strong className="tabular-nums text-[var(--fg-primary)]">
-              {brl(accumulated)}
-            </strong>
-          </p>
-          <AwDropdownMenu
-            align="end"
-            trigger={<AwSelect>{period.label}</AwSelect>}
-            items={SPENDING_PERIODS.map((p) => ({
-              id: p.id,
-              label: p.label,
-              checked: p.id === periodId,
-              onSelect: () => setPeriodId(p.id),
-            }))}
-          />
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <SegmentedToggle
+              options={[
+                { value: "service", label: "Serviço" },
+                { value: "agent", label: "Agente" },
+              ]}
+              value={grouping}
+              onChange={setGrouping}
+            />
+            <AwDropdownMenu
+              align="start"
+              trigger={<AwSelect>{filterLabel}</AwSelect>}
+              items={[
+                {
+                  id: "__all__",
+                  label: filterAllLabel,
+                  checked: isAll,
+                  closeOnSelect: false,
+                  onSelect: selectAllFilter,
+                },
+                { id: "__sep__", separator: true },
+                ...categories.map((c) => ({
+                  id: c.id,
+                  label: c.label,
+                  checked: visibleIds.has(c.id),
+                  closeOnSelect: false,
+                  onSelect: () => toggleFilter(c.id),
+                })),
+              ]}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+              Acumulado:{" "}
+              <strong className="tabular-nums text-[var(--fg-primary)]">
+                {brl(accumulated)}
+              </strong>
+            </p>
+            <AwDropdownMenu
+              align="end"
+              trigger={<AwSelect>{period.label}</AwSelect>}
+              items={SPENDING_PERIODS.map((p) => ({
+                id: p.id,
+                label: p.label,
+                checked: p.id === periodId,
+                onSelect: () => setPeriodId(p.id),
+              }))}
+            />
+          </div>
         </div>
-      </div>
 
-      <div className="px-6 pb-3">
+        <Legend
+          categories={categories}
+          visibleIds={visibleIds}
+          grouping={grouping}
+        />
+
         <DailySpendingChart
           data={daily}
           categories={categories}
+          visibleIds={visibleIds}
           period={periodId}
         />
       </div>
 
-      <Legend categories={categories} grouping={grouping} />
-
-      <div className="border-t border-[var(--border-subtle)]">
+      <AwCard className="!p-0 !border-0">
         {grouping === "service" ? (
-          <ServiceTable period={periodId} />
+          <ServiceTable period={periodId} allowedRowIds={allowedRowIds} />
         ) : (
-          <AgentTable period={periodId} />
+          <AgentTable period={periodId} allowedRowIds={allowedRowIds} />
         )}
-      </div>
-    </AwCard>
+      </AwCard>
+    </div>
   );
 }
 
@@ -150,13 +254,20 @@ function SegmentedToggle<T extends string>({
 function DailySpendingChart({
   data,
   categories,
+  visibleIds,
   period,
 }: {
   data: number[][];
   categories: SpendingCategory[];
+  visibleIds: Set<string>;
   period: SpendingPeriod;
 }) {
   const totalDays = data.length;
+
+  const visibleCategories = React.useMemo(
+    () => categories.filter((c) => visibleIds.has(c.id)),
+    [categories, visibleIds],
+  );
 
   const chartData = React.useMemo(
     () =>
@@ -175,12 +286,12 @@ function DailySpendingChart({
   const chartConfig = React.useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        categories.map((cat) => [
+        visibleCategories.map((cat) => [
           cat.id,
           { label: cat.label, color: cat.colorVar },
         ]),
       ),
-    [categories],
+    [visibleCategories],
   );
 
   // Espaça os ticks do eixo X pra não amontoar quando há muitos dias.
@@ -190,7 +301,7 @@ function DailySpendingChart({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[220px] w-full"
+      className="aspect-auto h-[320px] w-full"
     >
       <LineChart
         accessibilityLayer
@@ -211,6 +322,7 @@ function DailySpendingChart({
           content={
             <ChartTooltipContent
               indicator="dot"
+              className="bg-[var(--bg-raised)]"
               formatter={(value, name) => {
                 const cat = categories.find((c) => c.id === name);
                 return (
@@ -218,7 +330,7 @@ function DailySpendingChart({
                     <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
                       <span
                         aria-hidden="true"
-                        className="inline-block h-2 w-2 rounded-[2px]"
+                        className="inline-block h-2 w-2 rounded-full"
                         style={{ background: cat?.colorVar }}
                       />
                       {cat?.label ?? String(name)}
@@ -232,7 +344,7 @@ function DailySpendingChart({
             />
           }
         />
-        {categories.map((cat) => (
+        {visibleCategories.map((cat) => (
           <Line
             key={cat.id}
             dataKey={cat.id}
@@ -265,25 +377,37 @@ function dayLabel(
 
 function Legend({
   categories,
+  visibleIds,
   grouping,
 }: {
   categories: SpendingCategory[];
+  visibleIds: Set<string>;
   grouping: SpendingGrouping;
 }) {
+  const visible = categories.filter((c) => visibleIds.has(c.id));
+  if (visible.length === 0) return null;
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[var(--border-subtle)] px-6 py-3">
-      {categories.map((c) => (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+      {visible.map((c) => (
         <span
           key={c.id}
           className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]"
         >
-          <span
-            aria-hidden="true"
-            className="inline-block h-2.5 w-2.5 rounded-[2px]"
-            style={{ background: c.colorVar }}
-          />
-          {grouping === "agent" && c.avatar && (
-            <AwAvatar size="sm" src={c.avatar} alt={c.label} />
+          {grouping === "agent" && c.avatar ? (
+            <span className="relative inline-block">
+              <AwAvatar size="sm" src={c.avatar} alt={c.label} />
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[var(--bg-canvas)]"
+                style={{ background: c.colorVar }}
+              />
+            </span>
+          ) : (
+            <span
+              aria-hidden="true"
+              className="inline-block h-2.5 w-2.5 rounded-full"
+              style={{ background: c.colorVar }}
+            />
           )}
           {c.label}
         </span>
@@ -294,31 +418,106 @@ function Legend({
 
 /* ---------- tables ---------- */
 
-function ServiceTable({ period }: { period: SpendingPeriod }) {
+function ServiceTable({
+  period,
+  allowedRowIds,
+}: {
+  period: SpendingPeriod;
+  allowedRowIds: Set<string>;
+}) {
+  const [sortKey, setSortKey] = React.useState<SortKey>("total");
+  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
+
   const scaled = React.useMemo(
-    () => scaleBreakdown(SERVICE_BREAKDOWN as ServiceBreakdownRow[], period),
-    [period],
+    () =>
+      scaleBreakdown(SERVICE_BREAKDOWN as ServiceBreakdownRow[], period).filter(
+        (r) => allowedRowIds.has(r.id),
+      ),
+    [period, allowedRowIds],
   );
+
+  const sorted = React.useMemo(() => {
+    const rows = [...scaled];
+    rows.sort((a, b) => {
+      let av: number | string;
+      let bv: number | string;
+      if (sortKey === "unitPrice") {
+        av = parseUnitPrice(a.unitPriceLabel);
+        bv = parseUnitPrice(b.unitPriceLabel);
+      } else if (sortKey === "quantity" || sortKey === "total") {
+        av = a[sortKey];
+        bv = b[sortKey];
+      } else if (sortKey === "label") {
+        av = a.label;
+        bv = b.label;
+      } else {
+        return 0;
+      }
+      if (typeof av === "number" && typeof bv === "number") {
+        return sortDir === "asc" ? av - bv : bv - av;
+      }
+      return sortDir === "asc"
+        ? String(av).localeCompare(String(bv))
+        : String(bv).localeCompare(String(av));
+    });
+    return rows;
+  }, [scaled, sortKey, sortDir]);
+
   const total = scaled.reduce((s, r) => s + r.total, 0);
+
+  const headerClick = (k: SortKey) => {
+    if (k === sortKey) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(k);
+      const numeric = k === "total" || k === "quantity" || k === "unitPrice";
+      setSortDir(numeric ? "desc" : "asc");
+    }
+  };
 
   return (
     <AwTable>
       <thead>
         <tr>
-          <th>Serviço</th>
-          <th>Quantidade</th>
-          <th>Unitário</th>
-          <th className="text-right">Total</th>
+          <SortableHeader
+            label="Serviço"
+            sortKey="label"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+          />
+          <SortableHeader
+            label="Quantidade"
+            sortKey="quantity"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+          />
+          <SortableHeader
+            label="Unitário"
+            sortKey="unitPrice"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+          />
+          <SortableHeader
+            label="Total"
+            sortKey="total"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+            align="right"
+          />
         </tr>
       </thead>
       <tbody>
-        {scaled.map((r) => (
+        {sorted.map((r) => (
           <tr key={r.id}>
             <td>
               <span className="inline-flex items-center gap-2">
                 <Icon
                   name={r.icon}
-                  size={14}
+                  size={18}
                   className="text-[var(--fg-tertiary)]"
                 />
                 {r.label}
@@ -359,18 +558,35 @@ function agentStatusVariant(status: AgentBreakdownRow["status"]): AwPillVariant 
   }
 }
 
-function AgentTable({ period }: { period: SpendingPeriod }) {
+function AgentTable({
+  period,
+  allowedRowIds,
+}: {
+  period: SpendingPeriod;
+  allowedRowIds: Set<string>;
+}) {
   const [sortKey, setSortKey] = React.useState<SortKey>("total");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
 
   const scaled = React.useMemo(
-    () => scaleBreakdown(AGENT_BREAKDOWN as AgentBreakdownRow[], period),
-    [period],
+    () =>
+      scaleBreakdown(AGENT_BREAKDOWN as AgentBreakdownRow[], period).filter(
+        (r) => allowedRowIds.has(r.id),
+      ),
+    [period, allowedRowIds],
   );
 
   const sorted = React.useMemo(() => {
     const rows = [...scaled];
     rows.sort((a, b) => {
+      if (
+        sortKey !== "label" &&
+        sortKey !== "role" &&
+        sortKey !== "status" &&
+        sortKey !== "total"
+      ) {
+        return 0;
+      }
       const av = a[sortKey];
       const bv = b[sortKey];
       if (typeof av === "number" && typeof bv === "number") {

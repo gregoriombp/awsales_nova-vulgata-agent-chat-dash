@@ -66,13 +66,16 @@ export default function MetodosPagamentoPage() {
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
         <>
-          {defaultMethod && (
-            <DefaultMethodHero
-              method={defaultMethod}
-              onRemoveRequest={() => setPendingRemoveId(defaultMethod.id)}
-              canRemove={methods.length > 1}
-            />
-          )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            {defaultMethod && (
+              <DefaultMethodHero
+                method={defaultMethod}
+                onRemoveRequest={() => setPendingRemoveId(defaultMethod.id)}
+                canRemove={methods.length > 1}
+              />
+            )}
+            <AddMethodCard onAdd={() => setAddOpen(true)} />
+          </div>
 
           {reserves.length > 0 && (
             <ReserveMethodsList
@@ -81,8 +84,6 @@ export default function MetodosPagamentoPage() {
               onRemoveRequest={setPendingRemoveId}
             />
           )}
-
-          <AddCardAction onAdd={() => setAddOpen(true)} />
         </>
       )}
 
@@ -115,10 +116,8 @@ function DefaultMethodHero({
   return (
     <section>
       <div className="mb-4">
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Cartão padrão
-        </p>
-        <p className="m-0 mt-0.5 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cartão padrão</h6>
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
           Faturas futuras vão ser cobradas aqui primeiro. Se falhar, tenta o
           próximo método disponível.
         </p>
@@ -221,23 +220,35 @@ function ReserveMethodsList({
   );
 }
 
-/* ---------- add action ---------- */
+/* ---------- add method card ---------- */
 
-function AddCardAction({ onAdd }: { onAdd: () => void }) {
+function AddMethodCard({ onAdd }: { onAdd: () => void }) {
   return (
-    <div>
-      <AwButton
-        size="md"
-        variant="secondary"
-        iconLeft="add"
+    <section>
+      <div className="mb-4">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Novo método</h6>
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          Adicione cartão, Pix automático ou boleto pra cobranças futuras.
+        </p>
+      </div>
+      <button
+        type="button"
         onClick={onAdd}
+        className="group flex w-full items-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-transparent px-5 py-5 text-left transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
       >
-        Adicionar método de pagamento
-      </AwButton>
-      <p className="m-0 mt-1.5 body-xs text-[var(--fg-tertiary)]">
-        Cartão, Pix automático ou boleto.
-      </p>
-    </div>
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]">
+          <Icon name="add" size={22} />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block body-md font-medium text-[var(--fg-primary)]">
+            Adicionar método
+          </span>
+          <span className="mt-0.5 block body-xs text-[var(--fg-secondary)]">
+            Cartão, Pix automático ou boleto
+          </span>
+        </span>
+      </button>
+    </section>
   );
 }
 
