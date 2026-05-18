@@ -76,6 +76,9 @@ const nodeTypes = {
 
 /* ─────────────────────────────────────────────────────────────────────
  * Flow data
+ *
+ * Ordem invertida: o cliente se autentica logo no início (etapa 02),
+ * antes de aceitar termos no perfil e antes de qualquer pagamento.
  * ──────────────────────────────────────────────────────────────────── */
 
 const COL_LEFT = 0
@@ -83,26 +86,94 @@ const COL_CENTER = 280
 const COL_RIGHT = 560
 
 const Y = {
-  boasVindas: 0,
-  revisao: 140,
-  pagamento: 280,
-  checkout: 460,
-  confirmado: 620,
-  mensalidade: 760,
-  acesso: 900,
-  perfil: 1080,
+  entrada: 0,
+  convite: 150,
+  acesso: 310,
+  perfil: 510,
+  boasVindas: 690,
+  revisao: 830,
+  pagamento: 980,
+  checkout: 1180,
+  confirmado: 1350,
+  mensalidade: 1490,
+  inicio: 1630,
 }
 
 const nodes: Node[] = [
+  {
+    id: "entrada",
+    type: "screen",
+    position: { x: COL_CENTER, y: Y.entrada },
+    data: {
+      step: "entrada",
+      title: "Login",
+      href: "/",
+      note: "Tela de login. O link “Primeiro acesso” inicia o fluxo.",
+    } satisfies ScreenData,
+  },
+  {
+    id: "convite",
+    type: "screen",
+    position: { x: COL_CENTER, y: Y.convite },
+    data: {
+      step: "01",
+      title: "Convite",
+      href: "/primeiro-acesso/convite",
+      note: "Valida o código de convite de 6 dígitos.",
+    } satisfies ScreenData,
+  },
+  {
+    id: "acesso",
+    type: "decision",
+    position: { x: COL_CENTER - 20, y: Y.acesso },
+    data: {
+      step: "02",
+      title: "Acesso",
+      question: "Cliente se autentica: Google, Microsoft ou senha.",
+    } satisfies DecisionData,
+  },
+  {
+    id: "perfil-google",
+    type: "screen",
+    position: { x: COL_LEFT, y: Y.perfil },
+    data: {
+      step: "03",
+      title: "Perfil (Google)",
+      href: "/primeiro-acesso/perfil?via=google",
+      note: "OAuth Google · nome e foto pré-preenchidos.",
+    } satisfies ScreenData,
+  },
+  {
+    id: "perfil-ms",
+    type: "screen",
+    position: { x: COL_CENTER, y: Y.perfil },
+    data: {
+      step: "03",
+      title: "Perfil (Microsoft)",
+      href: "/primeiro-acesso/perfil?via=ms",
+      note: "OAuth Microsoft · nome e foto pré-preenchidos.",
+    } satisfies ScreenData,
+  },
+  {
+    id: "perfil-pwd",
+    type: "screen",
+    position: { x: COL_RIGHT, y: Y.perfil },
+    data: {
+      step: "03",
+      title: "Perfil (senha)",
+      href: "/primeiro-acesso/perfil?via=password",
+      note: "Sem OAuth · cliente preenche tudo manualmente.",
+    } satisfies ScreenData,
+  },
   {
     id: "boas-vindas",
     type: "screen",
     position: { x: COL_CENTER, y: Y.boasVindas },
     data: {
-      step: "02",
+      step: "04",
       title: "Boas-vindas",
       href: "/primeiro-acesso/boas-vindas",
-      note: "Apresenta o produto e a próxima etapa.",
+      note: "Apresenta o produto e as próximas etapas.",
     } satisfies ScreenData,
   },
   {
@@ -110,7 +181,7 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_CENTER, y: Y.revisao },
     data: {
-      step: "03",
+      step: "05",
       title: "Revisão",
       href: "/primeiro-acesso/revisao",
       note: "Confere dados do plano antes do pagamento.",
@@ -121,7 +192,7 @@ const nodes: Node[] = [
     type: "decision",
     position: { x: COL_CENTER - 20, y: Y.pagamento },
     data: {
-      step: "04",
+      step: "06",
       title: "Pagamento",
       question: "Cliente escolhe forma: Pix, Cartão ou Boleto.",
     } satisfies DecisionData,
@@ -131,10 +202,10 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_LEFT, y: Y.checkout },
     data: {
-      step: "05",
+      step: "07",
       title: "Checkout · Pix",
       href: "/primeiro-acesso/checkout/pix",
-      note: "QR + copia-cola. Confirma ao detectar pagamento.",
+      note: "QR + copia-cola. À vista ou em até 4x.",
     } satisfies ScreenData,
   },
   {
@@ -142,10 +213,10 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_CENTER, y: Y.checkout },
     data: {
-      step: "05",
+      step: "07",
       title: "Checkout · Cartão",
       href: "/primeiro-acesso/checkout/cartao",
-      note: "Formulário de cartão + 3DS quando necessário.",
+      note: "Formulário de cartão. À vista ou em até 4x.",
     } satisfies ScreenData,
   },
   {
@@ -153,10 +224,10 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_RIGHT, y: Y.checkout },
     data: {
-      step: "05",
+      step: "07",
       title: "Checkout · Boleto",
       href: "/primeiro-acesso/checkout/boleto",
-      note: "Gera código e instrui pagamento até o vencimento.",
+      note: "Gera código. À vista ou em até 4x.",
     } satisfies ScreenData,
   },
   {
@@ -164,7 +235,7 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_CENTER, y: Y.confirmado },
     data: {
-      step: "06",
+      step: "08",
       title: "Confirmado",
       href: "/primeiro-acesso/confirmado",
       note: "Implementação confirmada. Falta a mensalidade.",
@@ -175,53 +246,21 @@ const nodes: Node[] = [
     type: "screen",
     position: { x: COL_CENTER, y: Y.mensalidade },
     data: {
-      step: "07",
+      step: "09",
       title: "Mensalidade",
       href: "/primeiro-acesso/mensalidade",
       note: "Cobrança da 1ª mensalidade na prorrata.",
     } satisfies ScreenData,
   },
   {
-    id: "acesso",
-    type: "decision",
-    position: { x: COL_CENTER - 20, y: Y.acesso },
-    data: {
-      step: "08",
-      title: "Acesso",
-      question: "Cliente escolhe método: Google, Microsoft ou senha.",
-    } satisfies DecisionData,
-  },
-  {
-    id: "perfil-google",
+    id: "inicio",
     type: "screen",
-    position: { x: COL_LEFT, y: Y.perfil },
+    position: { x: COL_CENTER, y: Y.inicio },
     data: {
-      step: "09",
-      title: "Perfil (Google)",
-      href: "/primeiro-acesso/perfil?via=google",
-      note: "OAuth Google · dados pré-preenchidos.",
-    } satisfies ScreenData,
-  },
-  {
-    id: "perfil-ms",
-    type: "screen",
-    position: { x: COL_CENTER, y: Y.perfil },
-    data: {
-      step: "09",
-      title: "Perfil (Microsoft)",
-      href: "/primeiro-acesso/perfil?via=ms",
-      note: "OAuth Microsoft · dados pré-preenchidos.",
-    } satisfies ScreenData,
-  },
-  {
-    id: "perfil-pwd",
-    type: "screen",
-    position: { x: COL_RIGHT, y: Y.perfil },
-    data: {
-      step: "09",
-      title: "Perfil (senha)",
-      href: "/primeiro-acesso/perfil?via=password",
-      note: "Sem OAuth · cliente preenche tudo manualmente.",
+      step: "fim",
+      title: "Início",
+      href: "/inicio?welcome=1",
+      note: "Home logada, com o modal de boas-vindas.",
     } satisfies ScreenData,
   },
 ]
@@ -233,7 +272,49 @@ const edgeBase = {
   style: { stroke: "var(--border-strong)", strokeWidth: 1.5 },
 }
 
+const branchLabel = {
+  labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
+  labelBgStyle: { fill: "var(--bg-canvas)" },
+  labelBgPadding: [6, 4] as [number, number],
+}
+
 const edges: Edge[] = [
+  {
+    ...edgeBase,
+    id: "e-entrada-convite",
+    source: "entrada",
+    target: "convite",
+    label: "Primeiro acesso",
+    ...branchLabel,
+  },
+  { ...edgeBase, id: "e-convite-acesso", source: "convite", target: "acesso" },
+  {
+    ...edgeBase,
+    id: "e-acesso-google",
+    source: "acesso",
+    target: "perfil-google",
+    label: "Google",
+    ...branchLabel,
+  },
+  {
+    ...edgeBase,
+    id: "e-acesso-ms",
+    source: "acesso",
+    target: "perfil-ms",
+    label: "Microsoft",
+    ...branchLabel,
+  },
+  {
+    ...edgeBase,
+    id: "e-acesso-pwd",
+    source: "acesso",
+    target: "perfil-pwd",
+    label: "Senha",
+    ...branchLabel,
+  },
+  { ...edgeBase, id: "e-google-boas", source: "perfil-google", target: "boas-vindas" },
+  { ...edgeBase, id: "e-ms-boas", source: "perfil-ms", target: "boas-vindas" },
+  { ...edgeBase, id: "e-pwd-boas", source: "perfil-pwd", target: "boas-vindas" },
   { ...edgeBase, id: "e-boas-revisao", source: "boas-vindas", target: "revisao" },
   { ...edgeBase, id: "e-revisao-pagamento", source: "revisao", target: "pagamento" },
   {
@@ -242,9 +323,7 @@ const edges: Edge[] = [
     source: "pagamento",
     target: "checkout-pix",
     label: "Pix",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
+    ...branchLabel,
   },
   {
     ...edgeBase,
@@ -252,9 +331,7 @@ const edges: Edge[] = [
     source: "pagamento",
     target: "checkout-cartao",
     label: "Cartão",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
+    ...branchLabel,
   },
   {
     ...edgeBase,
@@ -262,45 +339,13 @@ const edges: Edge[] = [
     source: "pagamento",
     target: "checkout-boleto",
     label: "Boleto",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
+    ...branchLabel,
   },
   { ...edgeBase, id: "e-pix-confirmado", source: "checkout-pix", target: "confirmado" },
   { ...edgeBase, id: "e-cartao-confirmado", source: "checkout-cartao", target: "confirmado" },
   { ...edgeBase, id: "e-boleto-confirmado", source: "checkout-boleto", target: "confirmado" },
   { ...edgeBase, id: "e-confirmado-mensalidade", source: "confirmado", target: "mensalidade" },
-  { ...edgeBase, id: "e-mensalidade-acesso", source: "mensalidade", target: "acesso" },
-  {
-    ...edgeBase,
-    id: "e-acesso-google",
-    source: "acesso",
-    target: "perfil-google",
-    label: "Google",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
-  },
-  {
-    ...edgeBase,
-    id: "e-acesso-ms",
-    source: "acesso",
-    target: "perfil-ms",
-    label: "Microsoft",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
-  },
-  {
-    ...edgeBase,
-    id: "e-acesso-pwd",
-    source: "acesso",
-    target: "perfil-pwd",
-    label: "Senha",
-    labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "var(--bg-canvas)" },
-    labelBgPadding: [6, 4],
-  },
+  { ...edgeBase, id: "e-mensalidade-inicio", source: "mensalidade", target: "inicio" },
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -309,60 +354,67 @@ const edges: Edge[] = [
 
 const screens = [
   {
+    step: "01",
+    title: "Convite",
+    href: "/primeiro-acesso/convite",
+    purpose: "Primeira tela do produto. Valida o código de 6 dígitos do convite (ou o magic link do e-mail) e confirma que aquela pessoa foi convidada.",
+    decisions: "Código válido → segue para a autenticação.",
+  },
+  {
     step: "02",
-    title: "Boas-vindas",
-    href: "/primeiro-acesso/boas-vindas",
-    purpose: "Primeira tela depois do convite. Confirma identidade da AwSales, apresenta a próxima etapa e cria contrato implícito de tempo (cliente entende quanto vai levar).",
-    decisions: "Nenhuma. Botão único de Continuar.",
+    title: "Acesso",
+    href: "/primeiro-acesso/acesso",
+    purpose: "Autenticação logo no início — antes de aceitar termos ou pagar. OAuth (Google/Microsoft) reduz fricção e é o caminho preferido; senha fica como terceira opção.",
+    decisions: "Escolher entre Google, Microsoft ou senha. Cada via leva ao perfil correspondente.",
   },
   {
     step: "03",
+    title: "Perfil (Google / Microsoft / senha)",
+    href: "/primeiro-acesso/perfil?via=google",
+    purpose: "Com OAuth, nome e foto vêm pré-preenchidos do provedor. Sem OAuth, o cliente preenche tudo. É aqui que ele revisa os dados pessoais, dados de fatura e aceita os Termos.",
+    decisions: "Continuar → boas-vindas.",
+  },
+  {
+    step: "04",
+    title: "Boas-vindas",
+    href: "/primeiro-acesso/boas-vindas",
+    purpose: "Já autenticado, o cliente vê o que vem a seguir: revisar o plano, pagar a implementação e a primeira mensalidade. Cria contrato implícito de tempo.",
+    decisions: "Nenhuma. Botão único de Continuar.",
+  },
+  {
+    step: "05",
     title: "Revisão",
     href: "/primeiro-acesso/revisao",
     purpose: "Cliente vê o plano contratado (preço, ciclo, itens) antes de pagar. Reduz fricção pós-pagamento e disputas.",
     decisions: "Voltar / Continuar para pagamento.",
   },
   {
-    step: "04",
+    step: "06",
     title: "Pagamento",
     href: "/primeiro-acesso/pagamento",
     purpose: "Decisão sobre forma de pagamento. Pix é padrão (default Brasil). Cartão pra quem precisa de comprovante imediato. Boleto pra quem prefere mais tempo.",
     decisions: "Escolher entre Pix, Cartão ou Boleto. Cada escolha leva a checkout próprio.",
   },
   {
-    step: "05",
+    step: "07",
     title: "Checkout · Pix / Cartão / Boleto",
     href: "/primeiro-acesso/checkout/pix",
-    purpose: "Telas dedicadas por método. Pix mostra QR + copia-cola e detecta confirmação. Cartão coleta dados + 3DS se necessário. Boleto gera código + instrução.",
-    decisions: "Sucesso → 06 Confirmado. Falha → manter na mesma tela com mensagem clara.",
+    purpose: "Telas dedicadas por método. Pix mostra QR + copia-cola; cartão coleta dados; boleto gera código. Em todos, a implementação pode ser paga à vista ou parcelada em até 4x.",
+    decisions: "Sucesso → 08 Confirmado. Falha → manter na mesma tela com mensagem clara.",
   },
   {
-    step: "06",
+    step: "08",
     title: "Confirmado",
     href: "/primeiro-acesso/confirmado",
     purpose: "Implementação confirmada e conta provisionada. Sinaliza que a primeira metade do pagamento foi concluída e que falta configurar a mensalidade.",
     decisions: "Continuar para a etapa de mensalidade.",
   },
   {
-    step: "07",
+    step: "09",
     title: "Mensalidade",
     href: "/primeiro-acesso/mensalidade",
-    purpose: "Cobrança da primeira mensalidade na prorrata (proporcional aos dias restantes do mês). Define o método recorrente que será usado nas mensalidades seguintes.",
-    decisions: "Escolher método (Pix, cartão ou boleto) e pagar → continua para criação de acesso.",
-  },
-  {
-    step: "08",
-    title: "Acesso",
-    href: "/primeiro-acesso/acesso",
-    purpose: "Decisão sobre método de autenticação. OAuth (Google/Microsoft) reduz fricção e é preferido. Senha pra quem não quer vincular conta corporativa.",
-    decisions: "Escolher entre Google, Microsoft ou senha.",
-  },
-  {
-    step: "09",
-    title: "Perfil (Google / Microsoft / senha)",
-    href: "/primeiro-acesso/perfil?via=google",
-    purpose: "Última etapa. Com OAuth, dados pré-preenchidos do provedor. Sem OAuth, cliente preenche tudo (nome, telefone, dados de invoice, aceite de termos). Salvar leva pro Início logado.",
-    decisions: "Salvar → /inicio (home logada).",
+    purpose: "Última etapa. Cobrança da primeira mensalidade na prorrata (proporcional aos dias restantes do mês) e define o método recorrente. Concluir leva pro Início logado.",
+    decisions: "Escolher método e pagar → /inicio (home logada).",
   },
 ]
 
@@ -370,20 +422,20 @@ export default function PrimeiroAcessoFlowPage() {
   return (
     <>
       <PageHero title="Primeiro acesso">
-        Fluxo completo de onboarding do novo cliente, da boas-vindas até a configuração do perfil. Use este mapa quando precisar entender pra onde uma decisão leva, ou ao iterar em qualquer tela do fluxo.
+        Fluxo completo de onboarding do novo cliente. A ordem foi invertida: o cliente se autentica logo no começo — antes de aceitar termos e de qualquer pagamento. Use este mapa quando precisar entender pra onde uma decisão leva, ou ao iterar em qualquer tela do fluxo.
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
         <Tldr
           use={[
-            <>Reta de onboarding pós-aquisição (convite ou compra direta).</>,
-            <>Cliente entra logado depois da última etapa (Perfil).</>,
+            <>Reta de onboarding pós-convite — autenticação acontece no início (etapa 02).</>,
+            <>Cliente aceita termos e paga já autenticado; entra logado no final.</>,
             <>Cada etapa tem rota dedicada — links abrem o protótipo.</>,
           ]}
           dontUse={[
             <>Fluxos pós-onboarding (assistente de criação de agente, etc.).</>,
             <>Reativação de conta expirada — esse fluxo é outro.</>,
-            <>Login recorrente — ver tela <code>/</code> (auth).</>,
+            <>Login recorrente — a tela <code>/</code> leva direto ao dashboard.</>,
           ]}
         />
 
@@ -456,9 +508,15 @@ export default function PrimeiroAcessoFlowPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Pagamento antes de acesso</div>
+              <div className="aw-eyebrow mb-2">Autenticar antes de tudo</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Cliente paga primeiro e só depois cria credencial. Reduz contas-fantasma e dá ao time de CS um sinal claro de cliente ativo no momento da confirmação.
+                O cliente se autentica na etapa 02 — antes de aceitar termos (no perfil) e antes de qualquer pagamento. Ninguém concorda com contrato ou paga sem uma identidade verificada por trás.
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">Convite é a etapa 01</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                A primeira tela do produto valida o código de convite (ou o magic link do e-mail). É o portão de entrada — só quem foi convidado segue para a autenticação.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
@@ -471,12 +529,6 @@ export default function PrimeiroAcessoFlowPage() {
               <div className="aw-eyebrow mb-2">OAuth como caminho preferido</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
                 Google/Microsoft no topo, senha como terceira opção. Usuário corporativo (público-alvo) prefere SSO. Reduz reset de senha no longo prazo.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Sem step 01 visível</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                A primeira etapa é o convite por email (fora da plataforma). Numeração começa em 02 dentro do produto pra alinhar com a comunicação que o cliente já recebeu.
               </p>
             </div>
           </div>
