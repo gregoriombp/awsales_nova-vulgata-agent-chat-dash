@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { FaSlack, FaWhatsapp } from "react-icons/fa6";
+import { useCopilotDrawer } from "@/lib/copilot/store";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
@@ -304,6 +305,7 @@ function MembersTableState({
   onChangeRole: (id: string, role: Role) => void;
 }) {
   const [contactOpen, setContactOpen] = useState(false);
+  const openCopilot = useCopilotDrawer((s) => s.setOpen);
   const managers = members.filter((m) => m.role === MANAGER_ROLE);
   const others = members.filter((m) => m.role !== MANAGER_ROLE);
 
@@ -342,7 +344,7 @@ function MembersTableState({
               ctaIcon: "chat_bubble",
               onCtaClick: () => setContactOpen(true),
             }}
-            ai={CORTEX}
+            ai={{ ...CORTEX, onCtaClick: () => openCopilot(true) }}
           />
         )}
         <MemberSection

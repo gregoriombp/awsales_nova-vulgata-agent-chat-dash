@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
 import KnowledgeOSSidebar from "./KnowledgeOSSidebar";
 import Header from "./Header";
 import CopilotDrawer from "./CopilotDrawer";
 import { BreadcrumbsBar, type BreadcrumbItem } from "./Breadcrumbs";
+import { useCopilotDrawer } from "@/lib/copilot/store";
 
 export default function DashboardLayout({
   children,
@@ -27,7 +27,8 @@ export default function DashboardLayout({
   /** Center/limit breadcrumb text to match a narrow main column (e.g. Agent Studio). */
   breadcrumbInnerClassName?: string;
 }) {
-  const [isCopilotOpen, setIsCopilotOpen] = useState(false);
+  const isCopilotOpen = useCopilotDrawer((s) => s.open);
+  const setIsCopilotOpen = useCopilotDrawer((s) => s.setOpen);
   const pathname = usePathname();
   const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
 
