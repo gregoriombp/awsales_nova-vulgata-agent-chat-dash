@@ -42,6 +42,8 @@ type ReviewState = {
   mode: ReviewMode
   sheetOpen: boolean
   exportOpen: boolean
+  /** When false, resolved comments are hidden from the canvas and sheet. */
+  showResolved: boolean
 
   identity: ReviewIdentity | null
   identityModalOpen: boolean
@@ -60,6 +62,7 @@ type ReviewState = {
   toggleSheet: () => void
   setSheetOpen: (open: boolean) => void
   setExportOpen: (open: boolean) => void
+  toggleShowResolved: () => void
 
   hydrateIdentity: () => Promise<void>
   setIdentity: (name: string, colorToken: string) => Promise<void>
@@ -96,6 +99,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   mode: "cursor",
   sheetOpen: false,
   exportOpen: false,
+  showResolved: false,
 
   identity: null,
   identityModalOpen: false,
@@ -148,6 +152,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   toggleSheet: () => set((s) => ({ sheetOpen: !s.sheetOpen })),
   setSheetOpen: (open) => set({ sheetOpen: open }),
   setExportOpen: (open) => set({ exportOpen: open }),
+  toggleShowResolved: () => set((s) => ({ showResolved: !s.showResolved })),
 
   hydrateIdentity: async () => {
     const identity = await get().storage.getIdentity()

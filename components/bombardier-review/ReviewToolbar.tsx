@@ -44,6 +44,8 @@ export function ReviewToolbar() {
   const toggleSheet = useReviewStore((s) => s.toggleSheet)
   const toggleActive = useReviewStore((s) => s.toggleActive)
   const setExportOpen = useReviewStore((s) => s.setExportOpen)
+  const showResolved = useReviewStore((s) => s.showResolved)
+  const toggleShowResolved = useReviewStore((s) => s.toggleShowResolved)
 
   const url = useCurrentUrl()
   const pageComments = useCommentsForUrl(url)
@@ -121,6 +123,28 @@ export function ReviewToolbar() {
               {openCount}
             </span>
           )}
+        </button>
+
+        <button
+          type="button"
+          onClick={toggleShowResolved}
+          aria-label={
+            showResolved ? "Ocultar resolvidos" : "Mostrar resolvidos"
+          }
+          aria-pressed={showResolved}
+          title={
+            showResolved
+              ? "Ocultar comentários resolvidos"
+              : "Mostrar comentários resolvidos"
+          }
+          className={[
+            "h-8 w-8 inline-flex items-center justify-center rounded-full transition-colors",
+            showResolved
+              ? "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]"
+              : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]",
+          ].join(" ")}
+        >
+          <Icon name="check_circle" size={16} />
         </button>
 
         <button

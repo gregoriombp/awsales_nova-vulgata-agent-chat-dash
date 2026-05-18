@@ -14,8 +14,12 @@ export function useCurrentUrl(): string {
 
 export function useCommentsForUrl(url: string): ReviewComment[] {
   const all = useReviewStore((s) => s.comments)
+  const showResolved = useReviewStore((s) => s.showResolved)
   return React.useMemo(
-    () => all.filter((c) => c.url === url),
-    [all, url]
+    () =>
+      all.filter(
+        (c) => c.url === url && (showResolved || c.status !== "resolved")
+      ),
+    [all, url, showResolved]
   )
 }
