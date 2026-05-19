@@ -1,176 +1,163 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
+import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
+import { SectionHeading } from "../_components/shared";
 import {
   GROUP_BACKGROUNDS,
   pickGroupBackground,
 } from "../equipe-permissoes/_components/data";
 
-type PillVariant = "ai" | "neutral" | "live" | "beta" | "error";
-type ButtonVariant = "primary" | "danger";
+/** Capa pré-definida deste usuário — determinística, do mesmo pool de Equipe. */
+const DEFAULT_COVER = pickGroupBackground("u-greg");
 
 type SettingsShortcut = {
   href: string;
   icon: string;
-  category: string;
-  updatedAt: string;
   title: string;
-  tags: [string, string];
-  metric: string;
-  detail: string;
-  cta: string;
-  ctaVariant?: ButtonVariant;
-  status: { label: string; variant: PillVariant };
+  description: string;
 };
 
 const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   {
     href: "/settings/organizacao",
     icon: "domain",
-    category: "Workspace",
-    updatedAt: "atualizada há 12 dias",
     title: "Organização",
-    tags: ["Verificada", "Slug público"],
-    metric: "artificial-concord",
-    detail: "Identidade pública do workspace",
-    cta: "Configurar",
-    status: { label: "Verificada", variant: "ai" },
+    description: "Verificada · slug artificial-concord",
   },
   {
     href: "/settings/equipe-permissoes",
     icon: "groups",
-    category: "Workspace",
-    updatedAt: "atualizada hoje",
     title: "Equipe & permissões",
-    tags: ["12 membros", "4 grupos"],
-    metric: "2 convites",
-    detail: "pendentes de aceitação",
-    cta: "Gerenciar",
-    status: { label: "2 pendências", variant: "beta" },
+    description: "12 membros · 4 grupos · 2 convites pendentes",
   },
   {
     href: "/settings/notificacoes",
     icon: "notifications",
-    category: "Conta",
-    updatedAt: "atualizada há 2 dias",
     title: "Notificações",
-    tags: ["Email", "In-app"],
-    metric: "5 regras ativas",
-    detail: "Digest semanal desativado",
-    cta: "Editar",
-    status: { label: "Ativas", variant: "live" },
+    description: "5 regras ativas · digest semanal desativado",
   },
   {
     href: "/settings/aparencia",
     icon: "palette",
-    category: "Conta",
-    updatedAt: "só neste navegador",
     title: "Aparência",
-    tags: ["Tema claro", "Densidade confortável"],
-    metric: "Português (Brasil)",
-    detail: "Tema, densidade e idioma",
-    cta: "Personalizar",
-    status: { label: "Pessoal", variant: "neutral" },
+    description: "Tema claro · Português (Brasil)",
   },
   {
     href: "/settings/seguranca",
     icon: "shield",
-    category: "Conta",
-    updatedAt: "última revisão há 1 mês",
     title: "Segurança",
-    tags: ["2FA ativo", "3 sessões"],
-    metric: "Senha alterada",
-    detail: "há 3 meses",
-    cta: "Revisar",
-    status: { label: "2FA ativo", variant: "live" },
+    description: "2FA ativo · 3 sessões · senha alterada há 3 meses",
   },
   {
     href: "/settings/api",
     icon: "key",
-    category: "Avançado",
-    updatedAt: "última uso há 4 min",
     title: "API & desenvolvedores",
-    tags: ["2 chaves ativas", "Auditoria on"],
-    metric: "aws_live_8f3a…",
-    detail: "Chave de produção",
-    cta: "Gerenciar",
-    status: { label: "Ativas", variant: "ai" },
+    description: "2 chaves ativas · produção aws_live_8f3a…",
   },
   {
-    href: "/settings/faturamento",
+    href: "/settings/financeiro",
     icon: "credit_card",
-    category: "Workspace",
-    updatedAt: "próxima cobrança 14 mai",
     title: "Faturamento & uso",
-    tags: ["Plano Pro", "Anual"],
-    metric: "R$ 1.890,00",
-    detail: "Próxima fatura",
-    cta: "Ver fatura",
-    status: { label: "Plano Pro", variant: "ai" },
+    description: "Plano Pro anual · próxima fatura R$ 1.890,00",
   },
   {
     href: "/settings/zona-de-perigo",
     icon: "warning",
-    category: "Avançado",
-    updatedAt: "apenas owner do workspace",
     title: "Zona de perigo",
-    tags: ["Transferir", "Excluir"],
-    metric: "Ações destrutivas",
-    detail: "Sem retorno após confirmação",
-    cta: "Abrir",
-    ctaVariant: "danger",
-    status: { label: "Restrita", variant: "error" },
+    description: "Ações destrutivas — transferir ou excluir o workspace",
   },
 ];
 
 export default function ProfileSettingsPage() {
-  const router = useRouter();
   const [fullName, setFullName] = useState("Gregório Pinheiro");
   const [email] = useState("greg@awsales.io");
   const [role, setRole] = useState("Super Administrador");
   const [editOpen, setEditOpen] = useState(false);
 
-  // Capa do perfil — mesmo pool de imagens usado nos grupos de Equipe &
-  // permissões. Começa com um pick determinístico (SSR estável) e sorteia
-  // uma imagem aleatória do pool depois da montagem.
-  const [cover, setCover] = useState(() => pickGroupBackground("u-greg"));
-  useEffect(() => {
-    setCover(
-      GROUP_BACKGROUNDS[Math.floor(Math.random() * GROUP_BACKGROUNDS.length)]
-    );
-  }, []);
+  // Capa do perfil — começa na capa pré-definida do usuário e pode ser
+  // trocada pelo seletor (galeria do banco, upload ou link).
+  const [cover, setCover] = useState(DEFAULT_COVER);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   return (
     <div className="w-full pb-32">
-      <section
-        aria-label="Resumo do perfil"
-        className="relative w-full overflow-hidden border-b border-[var(--border-subtle)]"
-      >
-        <div aria-hidden="true" className="relative h-[260px] w-full">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${cover})` }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
-            }}
-          />
-        </div>
-        <div className="mx-auto w-full max-w-[1440px] px-10">
-          <div className="-mt-[88px] flex items-end justify-between gap-4">
+      <section aria-label="Resumo do perfil" className="w-full">
+        <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
+          <div className="group/cover relative h-[260px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
             <div
-              className="rounded-full bg-[var(--bg-raised)] p-1.5 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
+              aria-hidden="true"
+              className="absolute inset-0 bg-cover bg-center"
+              style={{ backgroundImage: `url(${cover})` }}
+            />
+            <div
+              aria-hidden="true"
+              className="absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
+              }}
+            />
+            <div
+              className={
+                "absolute right-4 top-4 transition-opacity duration-aw-fast " +
+                (pickerOpen
+                  ? "opacity-100"
+                  : "opacity-0 group-hover/cover:opacity-100 focus-within:opacity-100")
+              }
+            >
+              <AwButton
+                size="sm"
+                variant="secondary"
+                iconLeft="image"
+                onClick={() => setPickerOpen((v) => !v)}
+                aria-expanded={pickerOpen}
+              >
+                Alterar capa
+              </AwButton>
+            </div>
+            <div className="absolute bottom-4 right-4">
+              <AwButton
+                size="sm"
+                variant="secondary"
+                iconLeft="edit"
+                onClick={() => setEditOpen(true)}
+              >
+                Editar perfil
+              </AwButton>
+            </div>
+          </div>
+
+          {pickerOpen && (
+            <>
+              <button
+                type="button"
+                aria-label="Fechar seletor de capa"
+                className="fixed inset-0 z-40 cursor-default"
+                onClick={() => setPickerOpen(false)}
+              />
+              <div className="absolute right-10 top-[88px] z-50 w-[440px] max-w-[calc(100%-5rem)]">
+                <CoverPicker
+                  value={cover}
+                  defaultCover={DEFAULT_COVER}
+                  onChange={setCover}
+                  onClose={() => setPickerOpen(false)}
+                />
+              </div>
+            </>
+          )}
+
+          <div className="relative z-10 -mt-[88px] flex items-end gap-4">
+            <div
+              className="ml-6 rounded-full bg-[var(--bg-raised)] p-1.5 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
               style={{ lineHeight: 0 }}
             >
               <AwAvatar
@@ -181,16 +168,8 @@ export default function ProfileSettingsPage() {
                 className="!h-[144px] !w-[144px] !text-[40px]"
               />
             </div>
-            <AwButton
-              size="sm"
-              variant="secondary"
-              iconLeft="edit"
-              onClick={() => setEditOpen(true)}
-            >
-              Editar perfil
-            </AwButton>
           </div>
-          <div className="mt-5 pb-10">
+          <div className="ml-6 mt-5 pb-10">
             <h3 className="m-0 text-[var(--fg-primary)]">
               {fullName}
             </h3>
@@ -365,6 +344,162 @@ export default function ProfileSettingsPage() {
           </AwField>
         </div>
       </AwModal>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Cover picker — popover estilo Notion: galeria do banco de imagens,
+ * upload de arquivo local ou link de uma imagem personalizada.
+ * ----------------------------------------------------------------- */
+
+type CoverTab = "gallery" | "upload" | "link";
+
+function CoverPicker({
+  value,
+  defaultCover,
+  onChange,
+  onClose,
+}: {
+  value: string;
+  defaultCover: string;
+  onChange: (v: string) => void;
+  onClose: () => void;
+}) {
+  const [tab, setTab] = useState<CoverTab>("gallery");
+  const [linkValue, setLinkValue] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleFile = (file: File | undefined) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") onChange(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  return (
+    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] shadow-[0_18px_50px_rgba(6,22,61,0.24)]">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] pl-3 pr-2">
+        <AwTabs
+          variant="underline"
+          aria-label="Origem da capa"
+          value={tab}
+          onChange={(v) => setTab(v as CoverTab)}
+          items={[
+            { value: "gallery", label: "Galeria" },
+            { value: "upload", label: "Upload" },
+            { value: "link", label: "Link" },
+          ]}
+        />
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconOnly="close"
+          aria-label="Fechar"
+          onClick={onClose}
+        />
+      </div>
+
+      <div className="p-3">
+        {tab === "gallery" && (
+          <ul className="m-0 grid max-h-[244px] grid-cols-3 gap-2 overflow-y-auto p-0">
+            {GROUP_BACKGROUNDS.map((bg) => {
+              const isActive = bg === value;
+              return (
+                <li key={bg} className="m-0 list-none">
+                  <button
+                    type="button"
+                    onClick={() => onChange(bg)}
+                    aria-pressed={isActive}
+                    className={
+                      "relative block aspect-[3/2] w-full overflow-hidden rounded-[var(--radius-md)] transition-shadow duration-aw-fast " +
+                      (isActive
+                        ? "ring-2 ring-[var(--fg-primary)] ring-offset-2 ring-offset-[var(--bg-raised)]"
+                        : "hover:ring-1 hover:ring-[var(--border-default)]")
+                    }
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="absolute inset-0 bg-cover bg-center"
+                      style={{ backgroundImage: `url(${bg})` }}
+                    />
+                    {isActive && (
+                      <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fg-primary)] text-[var(--bg-raised)]">
+                        <Icon name="check" size={12} weight={700} />
+                      </span>
+                    )}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {tab === "upload" && (
+          <div className="flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="flex flex-col items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-muted)] px-4 py-8 text-center transition-colors hover:bg-[var(--bg-hover)]"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-raised)] text-[var(--fg-primary)]">
+                <Icon name="upload" size={18} />
+              </span>
+              <span className="body-xs font-medium text-[var(--fg-primary)]">
+                Enviar uma imagem
+              </span>
+              <span className="body-xs text-[var(--fg-secondary)]">
+                PNG ou JPG, recomendado 1500×400 px.
+              </span>
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg"
+              className="hidden"
+              onChange={(e) => handleFile(e.target.files?.[0])}
+            />
+          </div>
+        )}
+
+        {tab === "link" && (
+          <div className="flex flex-col gap-3">
+            <AwInput
+              placeholder="Cole o link da imagem…"
+              value={linkValue}
+              onChange={(e) => setLinkValue(e.target.value)}
+            />
+            <AwButton
+              size="sm"
+              variant="primary"
+              disabled={!linkValue.trim()}
+              onClick={() => onChange(linkValue.trim())}
+            >
+              Aplicar imagem
+            </AwButton>
+            <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+              Use o endereço direto de uma imagem hospedada na web.
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2">
+        <span className="body-xs text-[var(--fg-tertiary)]">
+          A capa aparece no seu perfil para todo o time.
+        </span>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="restart_alt"
+          disabled={value === defaultCover}
+          onClick={() => onChange(defaultCover)}
+        >
+          Restaurar padrão
+        </AwButton>
+      </div>
     </div>
   );
 }
