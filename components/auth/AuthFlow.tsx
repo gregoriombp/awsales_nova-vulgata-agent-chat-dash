@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import Link from "next/link";
 import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -14,7 +13,6 @@ import {
   type ResetPasswordFormData,
 } from "@/lib/validations";
 import BrandPane from "./BrandPane";
-import { AwLogo } from "@/components/ui/AwLogo";
 import { AwButton } from "@/components/ui/AwButton";
 
 export type AuthScreen =
@@ -424,15 +422,6 @@ function LoginScreen({
         <SsoButton icon={<MsIcon />} label={c.ssoMs} />
       </div>
 
-      <p className="mt-7 text-center body-xs text-aw-gray-700">
-        {c.noAccount}{" "}
-        <Link
-          href="/primeiro-acesso/verificacao"
-          className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
-        >
-          {c.signUp}
-        </Link>
-      </p>
     </div>
   );
 }
@@ -888,7 +877,8 @@ export default function AuthFlow() {
       <aside className="flex flex-col bg-white px-8 py-8 xl:px-12 min-h-screen">
         {/* Brand */}
         <div className="mb-3">
-          <AwLogo variant="wordmark" height={20} className="text-aw-gray-1200" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/assets/brand/awsales-wordmark-brand.svg" alt="AwSales" style={{ height: 28, width: "auto" }} />
         </div>
 
         {/* Form host */}
