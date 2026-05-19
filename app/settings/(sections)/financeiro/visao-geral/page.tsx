@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -50,7 +51,7 @@ function BillingHero() {
 
   return (
     <section className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-      <AwCard className="flex flex-col gap-2 !px-6 !py-5">
+      <div className="flex flex-col gap-2">
         <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Próxima cobrança · {CURRENT_INVOICE.dueAt}
         </p>
@@ -76,8 +77,15 @@ function BillingHero() {
           <span className="body-xs text-[var(--fg-secondary)]">
             {brand} •••• {last4} · débito automático
           </span>
+          <span className="flex-1" />
+          <Link
+            href="/settings/financeiro/metodos-pagamento"
+            className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+          >
+            Alterar
+          </Link>
         </div>
-      </AwCard>
+      </div>
 
       <CreditBalanceCard
         balance={creditTotal - creditConsumed}
