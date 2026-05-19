@@ -108,13 +108,14 @@ export default function HistoricoFaturasPage() {
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <AwInput
-          iconLeft="search"
-          placeholder="Buscar ID, código de cupom…"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-[280px]"
-        />
+        <div className="min-w-[240px] flex-1">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar ID, código de cupom…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
         <StatusFilter selected={statuses} onChange={setStatuses} />
         <PeriodFilter value={period} onChange={setPeriod} />
       </div>
