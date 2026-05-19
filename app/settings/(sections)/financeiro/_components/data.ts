@@ -282,7 +282,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-04-PLN",
     refMonth: "Abr/26",
-    description: "Plano",
+    description: "Plano Enterprise",
     dueAt: "28/04/2026",
     paidAt: "28/04/2026",
     gross: 2497.98,
@@ -295,7 +295,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-03-PLN",
     refMonth: "Mar/26",
-    description: "Plano",
+    description: "Plano Enterprise",
     dueAt: "28/03/2026",
     paidAt: "28/03/2026",
     gross: 2497.98,
@@ -321,7 +321,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-02-PLN",
     refMonth: "Fev/26",
-    description: "Plano",
+    description: "Plano Enterprise",
     dueAt: "28/02/2026",
     paidAt: "28/02/2026",
     gross: 2497.98,
@@ -334,7 +334,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-01-PLN",
     refMonth: "Jan/26",
-    description: "Plano",
+    description: "Plano Enterprise",
     dueAt: "28/01/2026",
     paidAt: "28/01/2026",
     gross: 2497.98,
