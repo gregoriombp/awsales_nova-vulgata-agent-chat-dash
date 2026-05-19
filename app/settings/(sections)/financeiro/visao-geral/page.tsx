@@ -17,6 +17,7 @@ import {
   CURRENT_PLAN,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
+  PAYMENT_METHODS,
   VOUCHERS,
 } from "../_components/data";
 
@@ -153,23 +154,40 @@ function CreditBalanceCard({
 function ShortcutGrid() {
   const latestInvoice = INVOICE_HISTORY[0];
   const lastAudit = AUDIT_EVENTS[0];
+  const defaultMethod =
+    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
+  const activeVouchers = VOUCHERS.filter((v) => v.status === "Ativo");
+  const creditAvailable = activeVouchers.reduce(
+    (s, v) => s + (v.total - v.consumed),
+    0,
+  );
 
   return (
-    <AwCard className="!p-2 !border-0">
-      <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-        <AwShortcutTile
-          icon="receipt_long"
-          title="Histórico de faturas"
-          description={`Última: ${latestInvoice.refMonth} · ${brl(latestInvoice.net)}`}
-          href="/settings/financeiro/historico-faturas"
-        />
-        <AwShortcutTile
-          icon="history"
-          title="Atividade"
-          description={`Última atividade ${lastAudit.date} às ${lastAudit.time}`}
-          href="/settings/financeiro/auditoria"
-        />
-      </div>
-    </AwCard>
+    <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+      <AwShortcutTile
+        icon="redeem"
+        title="Saldo de créditos"
+        description={`Disponível: ${brl(creditAvailable)} · ${activeVouchers.length} ${activeVouchers.length === 1 ? "voucher" : "vouchers"}`}
+        href="/settings/financeiro/saldo-creditos"
+      />
+      <AwShortcutTile
+        icon="credit_card"
+        title="Métodos de pagamento"
+        description={`Padrão: ${defaultMethod.brand} •••• ${defaultMethod.last4}`}
+        href="/settings/financeiro/metodos-pagamento"
+      />
+      <AwShortcutTile
+        icon="receipt_long"
+        title="Histórico de faturas"
+        description={`Última: ${latestInvoice.refMonth} · ${brl(latestInvoice.net)}`}
+        href="/settings/financeiro/historico-faturas"
+      />
+      <AwShortcutTile
+        icon="history"
+        title="Atividade"
+        description={`Última atividade ${lastAudit.date} às ${lastAudit.time}`}
+        href="/settings/financeiro/auditoria"
+      />
+    </div>
   );
 }
