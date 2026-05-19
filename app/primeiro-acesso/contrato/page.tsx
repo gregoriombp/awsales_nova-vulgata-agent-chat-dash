@@ -10,7 +10,6 @@ import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import {
   ONBOARDING_ORG,
   ONBOARDING_USER,
-  authMethodLabel,
   fmtBRL,
   type OnboardingContact,
 } from "../_data"
@@ -29,7 +28,6 @@ export default function ContratoPage() {
 function ContratoContent() {
   const searchParams = useSearchParams()
   const metodo = searchParams.get("metodo")
-  const methodLabel = authMethodLabel(metodo)
   const nextHref = `/primeiro-acesso/pagamento${
     metodo ? `?metodo=${metodo}` : ""
   }`
@@ -38,22 +36,10 @@ function ContratoContent() {
   const fidelidadeMeses = ORG.contractTerm.replace(" meses", "")
 
   return (
-    <AwOnboardingShell
-      currentStep={3}
-      org={ORG}
-      authState={{ method: methodLabel, email: USER.email }}
-    >
+    <AwOnboardingShell org={ORG}>
       <section>
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-aw-emerald-200 bg-aw-emerald-100 px-3 py-1 body-xs text-aw-emerald-800">
-          <Icon name="verified_user" size={12} fill={1} />
-          <span>
-            Sessão autenticada ·{" "}
-            <b className="font-medium">{methodLabel}</b>
-          </span>
-        </div>
-
         <h3 className="mb-2 text-fg-primary text-balance">
-          Revise o contrato antes de pagar.
+          Revise o contrato antes de pagar
         </h3>
 
         <p className="mb-6 body-sm text-fg-secondary text-pretty">
@@ -62,7 +48,7 @@ function ContratoContent() {
           {ORG.accountManager.name} antes do pagamento.
         </p>
 
-        <Section num="01" title="Dados da empresa">
+        <Section title="Dados da empresa">
           <KV label="Razão social" value={ORG.razaoSocial} />
           <KV
             label="CNPJ"
@@ -86,7 +72,7 @@ function ContratoContent() {
           />
         </Section>
 
-        <Section num="02" title="Condições comerciais">
+        <Section title="Condições comerciais">
           <KV
             label="Plano"
             value={
@@ -153,7 +139,7 @@ function ContratoContent() {
         </div>
 
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">
-          <span className="flex h-11 w-9 flex-shrink-0 items-center justify-center rounded-xs bg-aw-red-100 text-[9px] font-semibold tracking-wide text-aw-red-700">
+          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xs bg-aw-red-100 text-[9px] font-semibold tracking-wide text-aw-red-700">
             PDF
           </span>
           <span className="min-w-0 flex-1">
@@ -221,7 +207,7 @@ function ContratoContent() {
           <span className="flex-1" />
           <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
             <Icon name="lock" size={12} />
-            conexão criptografada
+            Conexão criptografada
           </span>
           {accepted ? (
             <Link href={nextHref} className="aw-btn aw-btn--primary aw-btn--md">
@@ -245,18 +231,15 @@ function ContratoContent() {
 }
 
 function Section({
-  num,
   title,
   children,
 }: {
-  num: string
   title: string
   children: React.ReactNode
 }) {
   return (
     <article className="mt-3 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-      <header className="flex items-baseline gap-2.5 border-b border-border-subtle px-[18px] pb-3 pt-3.5">
-        <span className="aw-eyebrow tabular-nums text-fg-tertiary">{num}</span>
+      <header className="border-b border-border-subtle px-[18px] pb-3 pt-3.5">
         <h6 className="m-0 text-fg-primary">{title}</h6>
       </header>
       <dl className="m-0">{children}</dl>

@@ -131,7 +131,7 @@ export default function VerificacaoPage() {
   }
 
   return (
-    <AwOnboardingShell currentStep={0} org={ONBOARDING_ORG} showOrgCard={false}>
+    <AwOnboardingShell org={ONBOARDING_ORG} showOrgCard={false}>
       <section>
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-bg-surface px-2.5 py-1 body-xs text-fg-tertiary">
           <Icon name="mail" size={12} />
@@ -144,7 +144,7 @@ export default function VerificacaoPage() {
         </div>
 
         <h3 className="mb-2 text-fg-primary text-balance">
-          Insira seu código de primeiro acesso.
+          Insira seu código de primeiro acesso
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">

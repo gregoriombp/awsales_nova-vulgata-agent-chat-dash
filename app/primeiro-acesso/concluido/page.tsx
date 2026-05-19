@@ -5,13 +5,10 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwAvatar } from "@/components/ui/AwAvatar"
+import { AwModal } from "@/components/ui/AwModal"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import {
-  ONBOARDING_ORG,
-  ONBOARDING_USER,
-  authMethodLabel,
-  fmtBRL,
-} from "../_data"
+import { ONBOARDING_ORG, ONBOARDING_USER, fmtBRL } from "../_data"
+import { FaSlack, FaWhatsapp } from "react-icons/fa6"
 
 const ORG = ONBOARDING_ORG
 const USER = ONBOARDING_USER
@@ -38,7 +35,6 @@ export default function ConcluidoPage() {
 
 function ConcluidoContent() {
   const searchParams = useSearchParams()
-  const metodo = searchParams.get("metodo")
 
   const implMethod = searchParams.get("im") ?? "pix"
   const implParcelas = Number(searchParams.get("ip") ?? "1")
@@ -49,23 +45,17 @@ function ConcluidoContent() {
   const totalMens = ORG.valorMensalProrrata
   const proxima = ORG.proximosVencimentos[1]
   const amFirstName = ORG.accountManager.name.split(/\s+/)[0]
+  const [contactOpen, setContactOpen] = React.useState(false)
 
   return (
-    <AwOnboardingShell
-      currentStep={5}
-      org={ORG}
-      authState={{
-        method: authMethodLabel(metodo),
-        email: USER.email,
-      }}
-    >
+    <AwOnboardingShell org={ORG}>
       <section className="pt-4 text-center">
         <span className="mx-auto mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
           <Icon name="check_circle" size={40} fill={1} />
         </span>
 
         <h2 className="mb-2.5 text-fg-primary text-balance">
-          Seu ambiente está ativo, {USER.firstName}.
+          Seu ambiente está ativo, {USER.firstName}
         </h2>
 
         <p className="mx-auto mb-7 max-w-[460px] body-md text-fg-secondary text-pretty">
@@ -120,6 +110,7 @@ function ConcluidoContent() {
           </div>
           <button
             type="button"
+            onClick={() => setContactOpen(true)}
             className="aw-btn aw-btn--secondary aw-btn--sm flex-shrink-0"
           >
             <Icon name="chat" size={12} />
@@ -127,7 +118,81 @@ function ConcluidoContent() {
           </button>
         </div>
       </section>
+
+      <ContactChannelModal
+        open={contactOpen}
+        onClose={() => setContactOpen(false)}
+        managerName={ORG.accountManager.name}
+      />
     </AwOnboardingShell>
+  )
+}
+
+const CONTACT_CHANNELS = [
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    hint: "Resposta rápida no horário comercial.",
+    icon: <FaWhatsapp size={22} />,
+    color: "#25D366",
+  },
+  {
+    key: "slack",
+    label: "Slack",
+    hint: "Converse no canal compartilhado da sua conta.",
+    icon: <FaSlack size={22} />,
+    color: "#4A154B",
+  },
+] as const
+
+/** Modal de canal de contato — espelha o de settings/equipe. */
+function ContactChannelModal({
+  open,
+  onClose,
+  managerName,
+}: {
+  open: boolean
+  onClose: () => void
+  managerName: string
+}) {
+  return (
+    <AwModal open={open} onClose={onClose} title="Conversar com seu gerente">
+      <div className="flex flex-col gap-4">
+        <p className="m-0 body-xs text-fg-secondary">
+          Escolha por onde falar com {managerName}.
+        </p>
+        <div className="flex flex-col gap-2">
+          {CONTACT_CHANNELS.map((channel) => (
+            <button
+              key={channel.key}
+              type="button"
+              onClick={onClose}
+              className="flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3 text-left transition-colors duration-aw-fast hover:bg-bg-surface"
+            >
+              <span
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
+                style={{ backgroundColor: channel.color }}
+              >
+                {channel.icon}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="body-sm font-medium text-fg-primary">
+                  {channel.label}
+                </span>
+                <span className="body-xs text-fg-secondary">
+                  {channel.hint}
+                </span>
+              </span>
+              <Icon
+                name="chevron_right"
+                size={18}
+                className="ml-auto text-fg-tertiary"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+    </AwModal>
   )
 }
 

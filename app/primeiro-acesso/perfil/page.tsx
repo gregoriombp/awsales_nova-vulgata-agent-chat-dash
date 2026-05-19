@@ -7,9 +7,9 @@ import { Icon } from "@/components/ui/Icon"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import { ONBOARDING_ORG, ONBOARDING_USER, authMethodLabel } from "../_data"
+import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
-type Recipient = { name: string; role: string; email: string; phone: string }
+type ExtraEmail = { id: string; value: string }
 
 function fmtPhone(input: string): string {
   const d = input.replace(/\D/g, "").slice(0, 11)
@@ -18,6 +18,11 @@ function fmtPhone(input: string): string {
   if (d.length <= 10)
     return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`
+}
+
+const isEmailValid = (email: string) => {
+  const e = email.trim()
+  return e.length > 3 && e.includes("@") && e.includes(".")
 }
 
 export default function PerfilPage() {
@@ -39,8 +44,9 @@ function PerfilContent() {
   const [phone, setPhone] = React.useState("")
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
   const [invoiceSelf, setInvoiceSelf] = React.useState(true)
-  const [recipients, setRecipients] = React.useState<Recipient[]>([])
+  const [extraEmails, setExtraEmails] = React.useState<ExtraEmail[]>([])
   const fileInputRef = React.useRef<HTMLInputElement>(null)
+  const emailIdRef = React.useRef(0)
 
   const initials =
     name
@@ -58,47 +64,34 @@ function PerfilContent() {
     reader.readAsDataURL(file)
   }
 
-  const addRecipient = () =>
-    setRecipients((r) => [...r, { name: "", role: "", email: "", phone: "" }])
-  const updateRecipient = (i: number, key: keyof Recipient, value: string) =>
-    setRecipients((r) =>
-      r.map((x, idx) =>
-        idx === i
-          ? { ...x, [key]: key === "phone" ? fmtPhone(value) : value }
-          : x
-      )
+  const addEmail = () =>
+    setExtraEmails((list) => [
+      ...list,
+      { id: `e${emailIdRef.current++}`, value: "" },
+    ])
+  const updateEmail = (id: string, value: string) =>
+    setExtraEmails((list) =>
+      list.map((e) => (e.id === id ? { ...e, value } : e))
     )
-  const removeRecipient = (i: number) =>
-    setRecipients((r) => r.filter((_, idx) => idx !== i))
+  const removeEmail = (id: string) =>
+    setExtraEmails((list) => list.filter((e) => e.id !== id))
 
-  const isRecipientValid = (r: Recipient) =>
-    r.name.trim().length >= 2 &&
-    r.role.trim().length >= 2 &&
-    r.email.includes("@") &&
-    r.phone.replace(/\D/g, "").length >= 10
-  const allRecipientsValid = recipients.every(isRecipientValid)
+  const allEmailsValid = extraEmails.every((e) => isEmailValid(e.value))
   const needsRecipient = !invoiceSelf
   const recipientCoverageOk =
-    invoiceSelf || (recipients.length > 0 && allRecipientsValid)
+    invoiceSelf || (extraEmails.length > 0 && allEmailsValid)
 
   const valid =
     name.trim().length >= 2 &&
     phone.replace(/\D/g, "").length >= 10 &&
-    allRecipientsValid &&
+    allEmailsValid &&
     recipientCoverageOk
 
   return (
-    <AwOnboardingShell
-      currentStep={2}
-      org={ONBOARDING_ORG}
-      authState={{
-        method: authMethodLabel(metodo),
-        email: ONBOARDING_USER.email,
-      }}
-    >
+    <AwOnboardingShell org={ONBOARDING_ORG}>
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
-          Conte um pouco sobre você.
+          Conte um pouco sobre você
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
@@ -159,12 +152,12 @@ function PerfilContent() {
           />
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-          <div className="aw-eyebrow px-4 pt-3.5 text-fg-tertiary">
+        <div className="mt-6 rounded-xl border border-border-subtle bg-bg-raised p-4">
+          <div className="aw-eyebrow text-fg-tertiary">
             Quem recebe as faturas
           </div>
 
-          <label className="flex cursor-pointer gap-3 px-4 py-3">
+          <label className="mt-3 flex cursor-pointer gap-3">
             <AwCheckbox
               checked={invoiceSelf}
               onChange={setInvoiceSelf}
@@ -180,65 +173,32 @@ function PerfilContent() {
             </span>
           </label>
 
-          <div className="border-t border-border-subtle px-4 py-3.5">
-            <div
-              className={[
-                "flex items-start justify-between gap-3",
-                recipients.length > 0 || needsRecipient ? "mb-3" : "",
-              ].join(" ")}
-            >
-              <div className="min-w-0 flex-1">
-                <div className="body-xs font-medium text-fg-primary">
-                  Outras pessoas que recebem as faturas
-                </div>
-                <div
-                  className={[
-                    "mt-0.5 body-xs",
-                    needsRecipient && recipients.length === 0
-                      ? "text-aw-amber-800"
-                      : "text-fg-tertiary",
-                  ].join(" ")}
-                >
-                  {invoiceSelf
-                    ? "Opcional · adicione quem mais deve receber"
-                    : recipients.length === 0
-                      ? "Obrigatório · você desativou seu e-mail, então ao menos uma pessoa precisa receber"
-                      : "Obrigatório · preencha os 4 campos de cada pessoa"}
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={addRecipient}
-                className="aw-btn aw-btn--secondary aw-btn--sm flex-shrink-0"
-              >
-                <Icon name="add" size={12} />
-                <span className="aw-btn__label">Adicionar pessoa</span>
-              </button>
+          {extraEmails.map((e) => (
+            <EmailRow
+              key={e.id}
+              value={e.value}
+              onChange={(v) => updateEmail(e.id, v)}
+              onRemove={() => removeEmail(e.id)}
+            />
+          ))}
+
+          {needsRecipient && extraEmails.length === 0 && (
+            <div className="mt-3 flex items-center gap-2 rounded-md bg-aw-amber-100 px-3 py-2.5 body-xs text-aw-amber-800">
+              <Icon name="error" size={14} fill={1} />
+              <span>
+                Adicione ao menos um e-mail para receber as faturas.
+              </span>
             </div>
+          )}
 
-            {recipients.length === 0 && needsRecipient && (
-              <div className="flex items-center gap-2 rounded-md bg-aw-amber-100 px-3 py-2.5 body-xs text-aw-amber-800">
-                <Icon name="error" size={14} fill={1} />
-                <span>
-                  Adicione ao menos uma pessoa para receber as faturas.
-                </span>
-              </div>
-            )}
-
-            {recipients.length > 0 && (
-              <div className="flex flex-col gap-2.5">
-                {recipients.map((r, i) => (
-                  <RecipientCard
-                    key={i}
-                    index={i}
-                    recipient={r}
-                    onChange={(key, value) => updateRecipient(i, key, value)}
-                    onRemove={() => removeRecipient(i)}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <button
+            type="button"
+            onClick={addEmail}
+            className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
+          >
+            <Icon name="add" size={14} />
+            Adicionar e-mail
+          </button>
         </div>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
@@ -271,70 +231,52 @@ function PerfilContent() {
   )
 }
 
-function RecipientCard({
-  index,
-  recipient,
+/** Linha de e-mail extra — expande suavemente ao ser adicionada. */
+function EmailRow({
+  value,
   onChange,
   onRemove,
 }: {
-  index: number
-  recipient: Recipient
-  onChange: (key: keyof Recipient, value: string) => void
+  value: string
+  onChange: (v: string) => void
   onRemove: () => void
 }) {
+  const [shown, setShown] = React.useState(false)
+
+  React.useEffect(() => {
+    const raf = requestAnimationFrame(() => setShown(true))
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
-    <div className="rounded-lg border border-border-subtle bg-bg-surface p-3">
-      <div className="mb-2.5 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 aw-eyebrow text-fg-tertiary">
-          <span className="inline-flex h-[18px] w-[18px] items-center justify-center rounded-xs border border-border-subtle bg-bg-raised tabular-nums text-fg-secondary">
-            {index + 1}
+    <div
+      className="grid transition-[grid-template-rows,opacity] duration-aw-base ease-aw-out"
+      style={{
+        gridTemplateRows: shown ? "1fr" : "0fr",
+        opacity: shown ? 1 : 0,
+      }}
+    >
+      <div className="overflow-hidden">
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="flex h-[38px] flex-1 items-center gap-2 rounded-md border border-border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
+            <Icon name="mail" size={14} className="text-fg-tertiary" />
+            <input
+              type="email"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="financeiro@empresa.com"
+              className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+            />
           </span>
-          Destinatário
-        </span>
-        <button
-          type="button"
-          onClick={onRemove}
-          aria-label="Remover destinatário"
-          className="flex h-[26px] w-[26px] items-center justify-center rounded-sm text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
-        >
-          <Icon name="close" size={14} />
-        </button>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        <Field
-          compact
-          label="Nome"
-          icon="person"
-          value={recipient.name}
-          onChange={(v) => onChange("name", v)}
-          placeholder="Nome completo"
-        />
-        <Field
-          compact
-          label="Cargo"
-          icon="badge"
-          value={recipient.role}
-          onChange={(v) => onChange("role", v)}
-          placeholder="Ex: Analista financeiro"
-        />
-        <Field
-          compact
-          label="E-mail"
-          icon="mail"
-          type="email"
-          value={recipient.email}
-          onChange={(v) => onChange("email", v)}
-          placeholder="financeiro@empresa.com"
-        />
-        <Field
-          compact
-          label="Telefone"
-          icon="phone"
-          inputMode="tel"
-          value={recipient.phone}
-          onChange={(v) => onChange("phone", v)}
-          placeholder="(11) 99999-0000"
-        />
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label="Remover e-mail"
+            className="flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
+          >
+            <Icon name="close" size={14} />
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -348,7 +290,6 @@ function Field({
   placeholder,
   inputMode,
   type = "text",
-  compact = false,
 }: {
   label: string
   icon: string
@@ -357,32 +298,19 @@ function Field({
   placeholder?: string
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
   type?: string
-  compact?: boolean
 }) {
   return (
     <label className="flex flex-col gap-1.5">
       <span className="body-xs font-medium text-fg-secondary">{label}</span>
-      <span
-        className={[
-          "flex items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary",
-          compact ? "h-[38px]" : "h-[42px]",
-        ].join(" ")}
-      >
-        <Icon
-          name={icon}
-          size={compact ? 14 : 16}
-          className="text-fg-tertiary"
-        />
+      <span className="flex h-[42px] items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary">
+        <Icon name={icon} size={16} className="text-fg-tertiary" />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           inputMode={inputMode}
           type={type}
-          className={[
-            "flex-1 border-0 bg-transparent outline-none focus:outline-none focus-visible:outline-none",
-            compact ? "body-xs" : "body-sm",
-          ].join(" ")}
+          className="flex-1 border-0 bg-transparent body-sm outline-none focus:outline-none focus-visible:outline-none"
         />
       </span>
     </label>

@@ -31,7 +31,7 @@ function SecurityNote() {
   return (
     <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
       <Icon name="lock" size={12} />
-      conexão criptografada
+      Conexão criptografada
     </span>
   )
 }
@@ -54,7 +54,7 @@ export default function ContaPage() {
   }
 
   return (
-    <AwOnboardingShell currentStep={1} org={ONBOARDING_ORG}>
+    <AwOnboardingShell org={ONBOARDING_ORG}>
       <section>
         {mode === "password" ? (
           <PasswordSetup
@@ -74,7 +74,7 @@ export default function ContaPage() {
             </div>
 
             <h3 className="mb-2 text-fg-primary text-balance">
-              Crie sua conta para continuar.
+              Crie sua conta para continuar
             </h3>
 
             <p className="mb-7 body-sm text-fg-secondary text-pretty">
@@ -227,7 +227,7 @@ function PasswordSetup({
   return (
     <>
       <h3 className="mb-2 text-fg-primary text-balance">
-        Defina uma senha forte.
+        Defina uma senha forte
       </h3>
 
       <p className="mb-7 body-sm text-fg-secondary text-pretty">

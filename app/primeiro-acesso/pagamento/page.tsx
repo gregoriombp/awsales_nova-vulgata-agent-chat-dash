@@ -8,12 +8,7 @@ import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwCardBrand } from "@/components/ui/AwCardBrand"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import {
-  ONBOARDING_ORG,
-  ONBOARDING_USER,
-  authMethodLabel,
-  fmtBRL,
-} from "../_data"
+import { ONBOARDING_ORG, fmtBRL } from "../_data"
 
 const ORG = ONBOARDING_ORG
 const MAX_PARCELAS = ORG.parcelamentoMaxImplementacao
@@ -62,9 +57,6 @@ function PagamentoContent() {
   >("setup")
   const [impl, setImpl] = React.useState<Line>({ method: "pix", parcelas: 1 })
   const [mens, setMens] = React.useState<Line>({ method: "pix", parcelas: 1 })
-  const [mensMethodOverridden, setMensMethodOverridden] =
-    React.useState(false)
-  const [mensPickerOpen, setMensPickerOpen] = React.useState(false)
 
   const totalImpl = ORG.valorImplementacao
   const totalMens = ORG.valorMensalProrrata
@@ -81,14 +73,7 @@ function PagamentoContent() {
   }
 
   return (
-    <AwOnboardingShell
-      currentStep={4}
-      org={ORG}
-      authState={{
-        method: authMethodLabel(metodo),
-        email: ONBOARDING_USER.email,
-      }}
-    >
+    <AwOnboardingShell org={ORG}>
       {phase === "processing" ? (
         <ProcessingPhase totalImpl={totalImpl} totalMens={totalMens} />
       ) : phase === "checkout" ? (
@@ -103,7 +88,7 @@ function PagamentoContent() {
       ) : (
         <section>
           <h3 className="mb-2 text-fg-primary text-balance">
-            Configure seu pagamento.
+            Configure seu pagamento
           </h3>
           <p className="mb-6 body-sm text-fg-secondary text-pretty">
             Você vai pagar a{" "}
@@ -115,8 +100,6 @@ function PagamentoContent() {
           <HeroSummary
             totalImpl={totalImpl}
             totalMens={totalMens}
-            impl={impl}
-            mens={mens}
           />
 
           <div className="mt-5 flex flex-col gap-3.5">
@@ -127,13 +110,7 @@ function PagamentoContent() {
               total={totalImpl}
               value={impl}
               accent="primary"
-              onChange={(v) => {
-                const methodChanged = v.method !== impl.method
-                setImpl(v)
-                if (methodChanged && !mensMethodOverridden) {
-                  setMens((m) => ({ ...m, method: v.method }))
-                }
-              }}
+              onChange={setImpl}
             />
             <PaymentLine
               eyebrow="Item 02"
@@ -142,27 +119,7 @@ function PagamentoContent() {
               total={totalMens}
               value={mens}
               accent="recurring"
-              methodPickerVariant="linked"
-              pickerOpen={mensPickerOpen}
-              onTogglePicker={() => setMensPickerOpen((o) => !o)}
-              syncedToImpl={!mensMethodOverridden}
-              onResetSync={
-                mensMethodOverridden
-                  ? () => {
-                      setMensMethodOverridden(false)
-                      setMens((m) => ({ ...m, method: impl.method }))
-                      setMensPickerOpen(false)
-                    }
-                  : undefined
-              }
-              onChange={(v) => {
-                const methodChanged = v.method !== mens.method
-                setMens(v)
-                if (methodChanged) {
-                  setMensMethodOverridden(true)
-                  setMensPickerOpen(false)
-                }
-              }}
+              onChange={setMens}
             />
           </div>
 
@@ -189,7 +146,7 @@ function PagamentoContent() {
             <span className="flex-1" />
             <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
               <Icon name="lock" size={12} />
-              conexão criptografada
+              Conexão criptografada
             </span>
             <button
               type="button"
@@ -211,13 +168,9 @@ function PagamentoContent() {
 function HeroSummary({
   totalImpl,
   totalMens,
-  impl,
-  mens,
 }: {
   totalImpl: number
   totalMens: number
-  impl: Line
-  mens: Line
 }) {
   const total = totalImpl + totalMens
   return (
@@ -236,8 +189,8 @@ function HeroSummary({
           {fmtBRL(total)}
         </div>
         <div className="mt-4 grid grid-cols-2 gap-4">
-          <SummaryPart label="Implementação" amount={totalImpl} line={impl} />
-          <SummaryPart label="1ª mensalidade" amount={totalMens} line={mens} />
+          <SummaryPart label="Implementação" amount={totalImpl} />
+          <SummaryPart label="1ª mensalidade" amount={totalMens} />
         </div>
       </div>
     </div>
@@ -247,23 +200,15 @@ function HeroSummary({
 function SummaryPart({
   label,
   amount,
-  line,
 }: {
   label: string
   amount: number
-  line: Line
 }) {
   return (
     <div className="border-t border-white/[0.08] pt-3.5">
       <div className="text-[11px] text-aw-gray-500">{label}</div>
       <div className="mt-1 text-[17px] font-medium tabular-nums">
         {fmtBRL(amount)}
-      </div>
-      <div className="mt-1.5 inline-flex items-center gap-1.5 text-[11px] text-aw-gray-400">
-        <AwBrandLogo brand={methodBrand(line.method)} size="sm" bare />
-        {line.parcelas === 1
-          ? "à vista"
-          : `${line.parcelas}× ${fmtBRL(amount / line.parcelas)}`}
       </div>
     </div>
   )
@@ -279,11 +224,6 @@ function PaymentLine({
   value,
   onChange,
   accent,
-  methodPickerVariant = "open",
-  pickerOpen = true,
-  onTogglePicker,
-  syncedToImpl,
-  onResetSync,
 }: {
   eyebrow: string
   title: string
@@ -292,15 +232,7 @@ function PaymentLine({
   value: Line
   onChange: (v: Line) => void
   accent: "primary" | "recurring"
-  methodPickerVariant?: "open" | "linked"
-  pickerOpen?: boolean
-  onTogglePicker?: () => void
-  syncedToImpl?: boolean
-  onResetSync?: () => void
 }) {
-  const m = METHODS.find((x) => x.id === value.method)!
-  const showPicker = methodPickerVariant === "open" || pickerOpen
-
   return (
     <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
       <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
@@ -324,102 +256,49 @@ function PaymentLine({
       </header>
 
       <div className="p-[18px]">
-        {showPicker ? (
-          <>
-            <div className="mb-2.5 flex items-baseline justify-between">
-              <span className="aw-eyebrow text-fg-tertiary">Método</span>
-              {methodPickerVariant === "linked" && (
-                <button
-                  type="button"
-                  onClick={onTogglePicker}
-                  className="body-xs text-fg-tertiary hover:text-fg-secondary"
-                >
-                  Cancelar
-                </button>
-              )}
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {METHODS.map((opt) => {
-                const sel = value.method === opt.id
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => onChange({ ...value, method: opt.id })}
-                    className={[
-                      "relative rounded-lg border p-3 text-left transition-colors duration-aw-fast",
-                      sel
-                        ? "border-fg-primary bg-bg-surface shadow-[0_0_0_1px_var(--fg-primary)_inset]"
-                        : "border-border bg-bg-raised hover:border-border-strong",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <AwBrandLogo brand={opt.brand} size="sm" />
-                      <div className="min-w-0 flex-1">
-                        <div className="body-xs font-medium text-fg-primary">
-                          {opt.title}
-                        </div>
-                        <div className="mt-px text-[10px] text-fg-tertiary">
-                          {opt.shortDesc}
-                        </div>
-                      </div>
-                    </div>
-                    {sel && (
-                      <span className="absolute right-2 top-2 flex h-4 w-4 items-center justify-center rounded-full bg-fg-primary text-white">
-                        <Icon name="check" size={10} weight={700} />
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-            </div>
-            {onResetSync && (
+        <div className="mb-2.5">
+          <span className="aw-eyebrow text-fg-tertiary">Método</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {METHODS.map((opt) => {
+            const sel = value.method === opt.id
+            return (
               <button
+                key={opt.id}
                 type="button"
-                onClick={onResetSync}
-                className="mt-3 inline-flex items-center gap-1.5 body-xs text-fg-secondary underline decoration-dotted underline-offset-2 hover:no-underline"
+                onClick={() => onChange({ ...value, method: opt.id })}
+                className={[
+                  "rounded-lg border p-3 text-left transition-colors duration-aw-fast",
+                  sel
+                    ? "border-fg-primary bg-fg-primary"
+                    : "border-border bg-bg-raised hover:border-border-strong",
+                ].join(" ")}
               >
-                <Icon name="link" size={12} />
-                Voltar a usar o mesmo método da Implementação
+                <div className="flex items-center gap-2.5">
+                  <AwBrandLogo brand={opt.brand} size="sm" bare={sel} />
+                  <div className="min-w-0 flex-1">
+                    <div
+                      className={[
+                        "body-xs font-medium",
+                        sel ? "text-white" : "text-fg-primary",
+                      ].join(" ")}
+                    >
+                      {opt.title}
+                    </div>
+                    <div
+                      className={[
+                        "mt-px text-[10px]",
+                        sel ? "text-white/65" : "text-fg-tertiary",
+                      ].join(" ")}
+                    >
+                      {opt.shortDesc}
+                    </div>
+                  </div>
+                </div>
               </button>
-            )}
-          </>
-        ) : (
-          <div className="flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-surface px-3 py-2.5">
-            <AwBrandLogo brand={m.brand} size="sm" />
-            <div className="min-w-0 flex-1">
-              <div className="inline-flex items-center gap-1.5">
-                <span className="body-xs font-medium text-fg-primary">
-                  {m.title}
-                </span>
-                {syncedToImpl ? (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-border-subtle bg-bg-raised px-1.5 py-px text-[9px] uppercase tracking-wide text-fg-tertiary">
-                    <Icon name="link" size={9} />
-                    igual à implementação
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-aw-amber-200 bg-aw-amber-100 px-1.5 py-px text-[9px] uppercase tracking-wide text-aw-amber-800">
-                    <Icon name="edit" size={9} />
-                    personalizado
-                  </span>
-                )}
-              </div>
-              <div className="mt-0.5 body-xs text-fg-tertiary">
-                {syncedToImpl
-                  ? "Acompanha automaticamente a escolha da Implementação"
-                  : "Método independente da Implementação"}
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onTogglePicker}
-              className="inline-flex flex-shrink-0 items-center gap-1 rounded-sm border border-border bg-bg-raised px-3 py-1.5 body-xs font-medium text-fg-primary transition-colors duration-aw-fast hover:border-border-strong"
-            >
-              <Icon name="tune" size={12} />
-              Alterar
-            </button>
-          </div>
-        )}
+            )
+          })}
+        </div>
 
         <div className="mt-4">
           <div className="aw-eyebrow mb-2.5 text-fg-tertiary">
@@ -478,10 +357,16 @@ function PaymentLine({
 /* ---------- FUTURE MONTHS ---------- */
 
 function FutureMonths() {
+  const [open, setOpen] = React.useState(false)
   const meses = ORG.proximosVencimentos.slice(1, 4)
   return (
     <div className="mt-5">
-      <div className="mb-2.5 flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="flex w-full items-center gap-2 rounded-lg border border-border-subtle bg-bg-raised px-3.5 py-3 text-left transition-colors duration-aw-fast hover:border-border-strong"
+      >
         <Icon name="event_repeat" size={14} className="text-fg-tertiary" />
         <span className="aw-eyebrow text-fg-tertiary">
           Próximas mensalidades após hoje
@@ -493,49 +378,64 @@ function FutureMonths() {
             {ORG.diaVencimento.toString().padStart(2, "0")}
           </span>
         </span>
-      </div>
+        <Icon
+          name="expand_more"
+          size={18}
+          className={[
+            "text-fg-tertiary transition-transform duration-aw-base ease-aw-out",
+            open ? "rotate-180" : "",
+          ].join(" ")}
+        />
+      </button>
 
-      <div className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-        {meses.map((v, i) => (
-          <div
-            key={v.mes}
-            className={[
-              "flex items-center gap-3 px-4 py-3",
-              i < meses.length - 1 ? "border-b border-border-subtle" : "",
-            ].join(" ")}
-          >
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-surface">
-              <Icon
-                name="calendar_today"
-                size={14}
-                className="text-fg-secondary"
-              />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="body-sm font-medium text-fg-primary">
-                {v.mes}
+      <div
+        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="mt-2.5 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
+            {meses.map((v, i) => (
+              <div
+                key={v.mes}
+                className={[
+                  "flex items-center gap-3 px-4 py-3",
+                  i < meses.length - 1 ? "border-b border-border-subtle" : "",
+                ].join(" ")}
+              >
+                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-surface">
+                  <Icon
+                    name="calendar_today"
+                    size={14}
+                    className="text-fg-secondary"
+                  />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="body-sm font-medium text-fg-primary">
+                    {v.mes}
+                  </div>
+                  <div className="body-xs text-fg-tertiary">
+                    vence {v.vencimento}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="body-sm font-medium tabular-nums text-fg-primary">
+                    {fmtBRL(v.valor)}
+                  </div>
+                  <div className="text-[10px] text-fg-tertiary">
+                    mensalidade cheia
+                  </div>
+                </div>
               </div>
-              <div className="body-xs text-fg-tertiary">
-                vence {v.vencimento}
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="body-sm font-medium tabular-nums text-fg-primary">
-                {fmtBRL(v.valor)}
-              </div>
-              <div className="text-[10px] text-fg-tertiary">
-                mensalidade cheia
-              </div>
-            </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <div className="mt-2 flex items-center gap-2 px-3 py-2 body-xs text-fg-tertiary">
-        <Icon name="info" size={12} />
-        <span>
-          Custos variáveis de uso são cobrados no mês seguinte ao consumo,
-          somados à mensalidade.
-        </span>
+          <div className="mt-2 flex items-center gap-2 px-3 py-2 body-xs text-fg-tertiary">
+            <Icon name="info" size={12} />
+            <span>
+              Custos variáveis de uso são cobrados no mês seguinte ao consumo,
+              somados à mensalidade.
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -617,7 +517,7 @@ function CheckoutPhase({
   return (
     <section>
       <h3 className="mb-2 text-fg-primary text-balance">
-        Realize seu pagamento.
+        Realize seu pagamento
       </h3>
       <p className="mb-6 body-sm text-fg-secondary text-pretty">
         Sua sessão está autenticada. Os instrumentos abaixo foram gerados para
@@ -728,11 +628,41 @@ const PIX_CODE =
   "00020126360014BR.GOV.BCB.PIX0114+5511987654321520400005303986540512000.005802BR5925AWSALES TECNOLOGIA LTDA6009SAO PAULO62070503***6304D2A1"
 
 function PixInstrument() {
+  const [secondsLeft, setSecondsLeft] = React.useState(30 * 60)
+
+  React.useEffect(() => {
+    if (secondsLeft <= 0) return
+    const t = setInterval(
+      () => setSecondsLeft((s) => Math.max(0, s - 1)),
+      1000
+    )
+    return () => clearInterval(t)
+  }, [secondsLeft])
+
+  const expired = secondsLeft <= 0
+  const mm = Math.floor(secondsLeft / 60)
+    .toString()
+    .padStart(2, "0")
+  const ss = (secondsLeft % 60).toString().padStart(2, "0")
+
   return (
     <div className="flex items-center gap-4">
       <FakeQR />
       <div className="min-w-0 flex-1">
-        <div className="aw-eyebrow mb-1.5 text-fg-tertiary">QR Code Pix</div>
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
+          <span
+            className={[
+              "inline-flex items-center gap-1 rounded-full px-2 py-px text-[10px] font-medium tabular-nums",
+              expired
+                ? "bg-aw-red-100 text-aw-red-700"
+                : "bg-aw-amber-100 text-aw-amber-800",
+            ].join(" ")}
+          >
+            <Icon name="schedule" size={10} />
+            {expired ? "Pix expirado" : `Expira em ${mm}:${ss}`}
+          </span>
+        </div>
         <div className="mb-2.5 body-xs text-fg-secondary">
           Abra o app do seu banco e escaneie ou copie o código abaixo.
         </div>
@@ -848,24 +778,7 @@ function CartaoInstrument({
         </label>
       )}
 
-      {reuse ? (
-        <div className="flex items-center gap-3 rounded-md border border-aw-emerald-200 bg-aw-emerald-100 px-4 py-3.5">
-          <Icon
-            name="credit_card"
-            size={20}
-            className="text-aw-emerald-800"
-          />
-          <div className="min-w-0 flex-1">
-            <div className="body-xs font-medium text-aw-emerald-800">
-              Usaremos o mesmo cartão da implementação
-            </div>
-            <div className="mt-0.5 body-xs text-aw-emerald-800/85">
-              Você não precisa preencher os dados novamente. A cobrança da 1ª
-              mensalidade será feita no mesmo cartão informado acima.
-            </div>
-          </div>
-        </div>
-      ) : (
+      {!reuse && (
         <>
           <CardField label="Número do cartão">
             <AwCardBrand pan={number} size="sm" />
