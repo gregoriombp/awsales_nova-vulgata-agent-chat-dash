@@ -115,21 +115,7 @@ export default function ContaPage() {
               hint="Use e-mail e senha para entrar"
             />
 
-            <div className="mt-6 flex gap-3 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3.5">
-              <Icon
-                name="shield_person"
-                size={18}
-                className="mt-0.5 flex-shrink-0 text-fg-tertiary"
-              />
-              <p className="m-0 body-xs text-fg-secondary text-pretty">
-                <b className="font-medium text-fg-primary">
-                  Exigência de segurança.
-                </b>{" "}
-                Termos contratuais, dados financeiros e pagamentos só podem ser
-                visualizados por um usuário autenticado — não basta o código.
-                Sua sessão expira em 30 dias.
-              </p>
-            </div>
+            
 
             <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
               <Link
