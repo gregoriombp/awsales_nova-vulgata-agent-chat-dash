@@ -6,7 +6,7 @@ import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
-import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
+import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data";
 import { SaveBar, SectionHeading, SettingsPageHeader } from "../_components/shared";
 
 const COMPANY_ROWS: { label: string; value: string; tabular?: boolean }[] = [
@@ -16,7 +16,7 @@ const COMPANY_ROWS: { label: string; value: string; tabular?: boolean }[] = [
   { label: "Porte", value: ONBOARDING_ORG.porte },
   {
     label: "Plano contratado",
-    value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${ONBOARDING_ORG.valorMensal.replace(",00", "")}/mês`,
+    value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${fmtBRL(ONBOARDING_ORG.valorMensal).replace(",00", "")}/mês`,
   },
   { label: "Data de criação", value: "11 de mai. 2026" },
 ];

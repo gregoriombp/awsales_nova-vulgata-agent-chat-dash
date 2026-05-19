@@ -15,15 +15,12 @@ export type AwOnboardingStep = {
 }
 
 export const AW_ONBOARDING_STEPS: readonly AwOnboardingStep[] = [
-  { id: "convite",      label: "convite",      num: "01", brandTitle: "Confirme que é você",   shortLabel: "Convite",          icon: "mark_email_read" },
-  { id: "acesso",       label: "acesso",       num: "02", brandTitle: "Defina seu acesso",     shortLabel: "Acesso",           icon: "lock" },
-  { id: "perfil",       label: "perfil",       num: "03", brandTitle: "Personalize seu perfil", shortLabel: "Perfil",           icon: "manage_accounts" },
-  { id: "boas-vindas",  label: "boas-vindas",  num: "04", brandTitle: "Bem-vindo",             shortLabel: "Boas-vindas",      icon: "waving_hand" },
-  { id: "revisao",      label: "revisão",      num: "05", brandTitle: "Revise os dados",       shortLabel: "Revisar dados",    icon: "fact_check" },
-  { id: "pagamento",    label: "pagamento",    num: "06", brandTitle: "Forma de pagamento",    shortLabel: "Forma de pagto.",  icon: "credit_card" },
-  { id: "checkout",     label: "checkout",     num: "07", brandTitle: "Quase lá",              shortLabel: "Pagar implementação", icon: "payments" },
-  { id: "confirmado",   label: "confirmado",   num: "08", brandTitle: "Pagamento confirmado",  shortLabel: "Confirmado",       icon: "task_alt" },
-  { id: "mensalidade",  label: "mensalidade",  num: "09", brandTitle: "Primeira mensalidade",  shortLabel: "Mensalidade",      icon: "event_repeat" },
+  { id: "verificacao", label: "verificação", num: "01", brandTitle: "Confirme que é você",      shortLabel: "Verificação", icon: "mark_email_read" },
+  { id: "conta",       label: "conta",       num: "02", brandTitle: "Crie sua conta",           shortLabel: "Sua conta",   icon: "shield_person" },
+  { id: "perfil",      label: "perfil",      num: "03", brandTitle: "Personalize seu perfil",   shortLabel: "Seu perfil",  icon: "manage_accounts" },
+  { id: "contrato",    label: "contrato",    num: "04", brandTitle: "Revise o contrato",        shortLabel: "Contrato",    icon: "fact_check" },
+  { id: "pagamento",   label: "pagamento",   num: "05", brandTitle: "Configure o pagamento",    shortLabel: "Pagamento",   icon: "payments" },
+  { id: "concluido",   label: "concluído",   num: "06", brandTitle: "Tudo pronto",              shortLabel: "Concluído",   icon: "rocket_launch" },
 ] as const
 
 export type AwOnboardingOrg = {
@@ -31,6 +28,12 @@ export type AwOnboardingOrg = {
   cnpj: string
   plan: string
   contractTerm: string
+}
+
+/** Sessão autenticada — alimenta o selo de segurança no brand pane. */
+export type AwOnboardingAuthState = {
+  method: string
+  email: string
 }
 
 export const AW_ONBOARDING_BRAND_BACKGROUND =
@@ -43,6 +46,8 @@ export type AwOnboardingShellProps = {
   brandBackground?: string
   /** Hide the organization card in the brand pane (e.g. before user recognition). */
   showOrgCard?: boolean
+  /** When set, the brand pane shows a "secure session" badge above the org card. */
+  authState?: AwOnboardingAuthState
 }
 
 export function AwOnboardingShell({
@@ -51,6 +56,7 @@ export function AwOnboardingShell({
   children,
   brandBackground = AW_ONBOARDING_BRAND_BACKGROUND,
   showOrgCard = true,
+  authState,
 }: AwOnboardingShellProps) {
   return (
     <div className="flex h-screen overflow-hidden bg-bg-canvas text-fg-primary">
@@ -59,6 +65,7 @@ export function AwOnboardingShell({
         org={org}
         background={brandBackground}
         showOrgCard={showOrgCard}
+        authState={authState}
       />
       <main className="flex-1 overflow-auto bg-bg-canvas">
         <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
@@ -74,11 +81,13 @@ function OnboardingBrandPane({
   org,
   background,
   showOrgCard,
+  authState,
 }: {
   currentStep: number
   org: AwOnboardingOrg
   background?: string
   showOrgCard: boolean
+  authState?: AwOnboardingAuthState
 }) {
   const hasImage = Boolean(background)
 
@@ -121,43 +130,68 @@ function OnboardingBrandPane({
         <OnboardingTimeline currentStep={currentStep} />
       </div>
 
-      {showOrgCard ? (
-        <div className="relative z-10 mt-6 rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-4 backdrop-blur-md">
-          <div
-            className="mb-2 uppercase text-aw-gray-700"
-            style={{ fontSize: 10, letterSpacing: "0.06em" }}
-          >
-            organização
-          </div>
-          <div className="mb-0.5 body-sm font-medium text-white">
-            {org.name}
-          </div>
-          <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
-            {org.cnpj}
-          </div>
-          <div className="mt-3 flex gap-1.5">
+      <div className="relative z-10 mt-6 flex flex-col gap-3">
+        {authState ? (
+          <div className="flex items-center gap-2.5 rounded-lg border border-aw-emerald-500/25 bg-aw-emerald-500/[0.08] px-3 py-2.5">
             <span
-              className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
-              style={{ fontSize: 10 }}
+              aria-hidden="true"
+              className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-aw-emerald-500 shadow-[0_0_0_3px_rgba(91,223,158,0.16)]"
+            />
+            <div className="min-w-0 flex-1">
+              <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
+                Sessão segura · {authState.method}
+              </div>
+              <div className="truncate body-xs font-medium text-white">
+                {authState.email}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {showOrgCard ? (
+          <div className="rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-4 backdrop-blur-md">
+            <div
+              className="mb-2 uppercase text-aw-gray-700"
+              style={{ fontSize: 10, letterSpacing: "0.06em" }}
             >
-              Plano {org.plan}
+              organização
+            </div>
+            <div className="mb-0.5 body-sm font-medium text-white">
+              {org.name}
+            </div>
+            <div className="text-aw-gray-500" style={{ fontSize: 11 }}>
+              {org.cnpj}
+            </div>
+            <div className="mt-3 flex gap-1.5">
+              <span
+                className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
+                style={{ fontSize: 10 }}
+              >
+                Plano {org.plan}
+              </span>
+              <span
+                className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
+                style={{ fontSize: 10 }}
+              >
+                {org.contractTerm}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="flex items-center gap-2.5 text-aw-gray-500"
+            style={{ fontSize: 11, letterSpacing: "0.02em" }}
+          >
+            <span
+              aria-hidden="true"
+              className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500"
+            />
+            <span>
+              Estamos prontos para reconhecer você assim que inserir o código.
             </span>
           </div>
-        </div>
-      ) : (
-        <div
-          className="relative z-10 mt-6 flex items-center gap-2.5 text-aw-gray-500"
-          style={{ fontSize: 11, letterSpacing: "0.02em" }}
-        >
-          <span
-            aria-hidden="true"
-            className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500"
-          />
-          <span>
-            Estamos prontos para reconhecer você assim que inserir o código.
-          </span>
-        </div>
-      )}
+        )}
+      </div>
     </aside>
   )
 }
@@ -187,8 +221,7 @@ function OnboardingTimeline({ currentStep }: { currentStep: number }) {
         style={{
           top: 13,
           height: `calc((100% - 26px) * ${progress})`,
-          transition:
-            "height var(--dur-slow) var(--ease-out)",
+          transition: "height var(--dur-slow) var(--ease-out)",
         }}
       />
 

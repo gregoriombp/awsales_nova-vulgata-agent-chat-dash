@@ -427,7 +427,7 @@ function LoginScreen({
       <p className="mt-7 text-center body-xs text-aw-gray-700">
         {c.noAccount}{" "}
         <Link
-          href="/primeiro-acesso/convite"
+          href="/primeiro-acesso/verificacao"
           className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           {c.signUp}

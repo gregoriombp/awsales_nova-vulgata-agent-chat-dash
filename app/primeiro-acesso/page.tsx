@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
 
 export default function PrimeiroAcessoIndex() {
-  redirect("/primeiro-acesso/convite")
+  redirect("/primeiro-acesso/verificacao")
 }

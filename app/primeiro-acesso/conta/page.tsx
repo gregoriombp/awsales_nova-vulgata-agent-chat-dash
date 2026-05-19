@@ -7,7 +7,7 @@ import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
-type Pick = "google" | "ms" | "password"
+type Method = "google" | "microsoft" | "senha"
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" width={18} height={18} aria-hidden="true">
@@ -27,26 +27,30 @@ const MsIcon = () => (
   </svg>
 )
 
-export default function AcessoPage() {
-  const router = useRouter()
-  const [picked, setPicked] = React.useState<Pick | null>(null)
-  const [mode, setMode] = React.useState<"choose" | "password">("choose")
+function SecurityNote() {
+  return (
+    <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
+      <Icon name="lock" size={12} />
+      conexão criptografada
+    </span>
+  )
+}
 
-  const choose = (id: Pick) => {
+export default function ContaPage() {
+  const router = useRouter()
+  const [mode, setMode] = React.useState<"choose" | "password">("choose")
+  const [picked, setPicked] = React.useState<Method | null>(null)
+
+  const choose = (id: Method) => {
     setPicked(id)
-    if (id === "password") {
+    if (id === "senha") {
       setMode("password")
       return
     }
     setTimeout(
-      () => router.push(`/primeiro-acesso/perfil?via=${id}`),
-      900,
+      () => router.push(`/primeiro-acesso/perfil?metodo=${id}`),
+      1100
     )
-  }
-
-  const goBackToChoose = () => {
-    setMode("choose")
-    setPicked(null)
   }
 
   return (
@@ -54,34 +58,48 @@ export default function AcessoPage() {
       <section>
         {mode === "password" ? (
           <PasswordSetup
-            onBack={goBackToChoose}
+            onBack={() => {
+              setMode("choose")
+              setPicked(null)
+            }}
             onSubmit={() =>
-              router.push("/primeiro-acesso/perfil?via=password")
+              router.push("/primeiro-acesso/perfil?metodo=senha")
             }
           />
         ) : (
           <>
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-emerald-200 bg-aw-emerald-100 px-2.5 py-1 body-xs text-aw-emerald-800">
+              <Icon name="check_circle" size={12} fill={1} />
+              <span>E-mail verificado</span>
+            </div>
+
             <h3 className="mb-2 text-fg-primary text-balance">
-              Como você prefere entrar?
+              Crie sua conta para continuar.
             </h3>
 
             <p className="mb-7 body-sm text-fg-secondary text-pretty">
-              Você poderá alterar isso depois nas configurações da conta.
-              Recomendamos SSO para times com Google Workspace ou Microsoft 365.
+              O código confirmou que o e-mail é seu. Agora é preciso um{" "}
+              <b className="font-medium text-fg-primary">fator forte</b> para
+              autenticar sua sessão antes de revisar contratos e realizar
+              pagamentos. Você só precisa fazer isso uma vez.
             </p>
 
             <div className="flex flex-col gap-2.5">
               <AuthOption
                 disabled={!!picked && picked !== "google"}
+                loading={picked === "google"}
                 onClick={() => choose("google")}
                 icon={<GoogleIcon />}
                 label="Continuar com Google"
+                hint="Recomendado para times com Google Workspace"
               />
               <AuthOption
-                disabled={!!picked && picked !== "ms"}
-                onClick={() => choose("ms")}
+                disabled={!!picked && picked !== "microsoft"}
+                loading={picked === "microsoft"}
+                onClick={() => choose("microsoft")}
                 icon={<MsIcon />}
                 label="Continuar com Microsoft"
+                hint="Para times com Microsoft 365 / Entra ID"
               />
             </div>
 
@@ -89,45 +107,92 @@ export default function AcessoPage() {
               ou
             </div>
 
-            <div className="flex flex-col gap-2.5">
-              <AuthOption
-                disabled={!!picked && picked !== "password"}
-                onClick={() => choose("password")}
-                icon={<Icon name="lock" size={18} />}
-                label="Definir uma senha"
-              />
-            </div>
+            <AuthOption
+              disabled={!!picked && picked !== "senha"}
+              onClick={() => choose("senha")}
+              icon={<Icon name="key" size={18} />}
+              label="Definir uma senha"
+              hint="Use e-mail e senha para entrar"
+            />
 
-            {picked && picked !== "password" && (
-              <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
-                />
-                <div className="body-xs font-medium text-fg-primary">
-                  {picked === "google" && "Redirecionando para Google…"}
-                  {picked === "ms" && "Redirecionando para Microsoft…"}
-                </div>
-              </div>
-            )}
+            <div className="mt-6 flex gap-3 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3.5">
+              <Icon
+                name="shield_person"
+                size={18}
+                className="mt-0.5 flex-shrink-0 text-fg-tertiary"
+              />
+              <p className="m-0 body-xs text-fg-secondary text-pretty">
+                <b className="font-medium text-fg-primary">
+                  Exigência de segurança.
+                </b>{" "}
+                Termos contratuais, dados financeiros e pagamentos só podem ser
+                visualizados por um usuário autenticado — não basta o código.
+                Sua sessão expira em 30 dias.
+              </p>
+            </div>
 
             <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
               <Link
-                href="/primeiro-acesso/convite"
+                href="/primeiro-acesso/verificacao"
                 className="aw-btn aw-btn--ghost aw-btn--md"
               >
                 <Icon name="arrow_back" size={16} />
                 <span className="aw-btn__label">Voltar</span>
               </Link>
               <span className="flex-1" />
-              <span className="body-xs text-fg-tertiary">
-                autenticação via OAuth ou e-mail
-              </span>
+              <SecurityNote />
             </footer>
           </>
         )}
       </section>
     </AwOnboardingShell>
+  )
+}
+
+function AuthOption({
+  disabled,
+  loading,
+  onClick,
+  icon,
+  label,
+  hint,
+}: {
+  disabled?: boolean
+  loading?: boolean
+  onClick: () => void
+  icon: React.ReactNode
+  label: string
+  hint?: string
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="flex w-full items-center gap-3.5 rounded-lg border border-border bg-bg-raised px-4 py-3.5 text-left transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:bg-bg-raised"
+    >
+      <span className="flex-shrink-0">{icon}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block body-sm font-medium text-fg-primary">
+          {label}
+        </span>
+        {hint && (
+          <span className="mt-0.5 block body-xs text-fg-tertiary">{hint}</span>
+        )}
+      </span>
+      {loading ? (
+        <span
+          aria-hidden="true"
+          className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-fg-tertiary border-r-transparent"
+        />
+      ) : (
+        <Icon
+          name="arrow_forward"
+          size={16}
+          className="flex-shrink-0 text-fg-tertiary"
+        />
+      )}
+    </button>
   )
 }
 
@@ -145,12 +210,9 @@ function PasswordSetup({
 
   const rules = [
     { label: "Mínimo de 8 caracteres", ok: pwd.length >= 8 },
-    { label: "Pelo menos 1 letra maiúscula", ok: /[A-Z]/.test(pwd) },
-    { label: "Pelo menos 1 número", ok: /\d/.test(pwd) },
-    {
-      label: "Pelo menos 1 símbolo (!@#$…)",
-      ok: /[^A-Za-z0-9]/.test(pwd),
-    },
+    { label: "1 letra maiúscula", ok: /[A-Z]/.test(pwd) },
+    { label: "1 número", ok: /\d/.test(pwd) },
+    { label: "1 símbolo (!@#…)", ok: /[^A-Za-z0-9]/.test(pwd) },
   ]
   const allOk = rules.every((r) => r.ok)
   const matches = confirm.length > 0 && pwd === confirm
@@ -165,15 +227,15 @@ function PasswordSetup({
   return (
     <>
       <h3 className="mb-2 text-fg-primary text-balance">
-        Defina uma senha para o seu acesso.
+        Defina uma senha forte.
       </h3>
 
       <p className="mb-7 body-sm text-fg-secondary text-pretty">
-        Você usará seu e-mail{" "}
+        Você usará{" "}
         <span className="font-medium text-fg-primary">
           {ONBOARDING_USER.email}
         </span>{" "}
-        e esta senha para entrar na AwSales.
+        e essa senha para entrar na AwSales.
       </p>
 
       <div className="grid gap-3.5">
@@ -191,21 +253,14 @@ function PasswordSetup({
           show={show}
           onToggleShow={() => setShow((v) => !v)}
           status={
-            confirm.length === 0
-              ? "idle"
-              : matches
-              ? "match"
-              : "mismatch"
+            confirm.length === 0 ? "idle" : matches ? "match" : "mismatch"
           }
         />
       </div>
 
-      <ul className="mt-4 m-0 grid grid-cols-2 gap-x-4 gap-y-1.5 list-none p-0">
+      <ul className="m-0 mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 list-none p-0">
         {rules.map((rule) => (
-          <li
-            key={rule.label}
-            className="flex items-center gap-2 body-xs"
-          >
+          <li key={rule.label} className="flex items-center gap-2 body-xs">
             <span
               className={[
                 "flex h-4 w-4 items-center justify-center rounded-full",
@@ -216,9 +271,7 @@ function PasswordSetup({
             >
               <Icon name={rule.ok ? "check" : "remove"} size={12} />
             </span>
-            <span
-              className={rule.ok ? "text-fg-secondary" : "text-fg-tertiary"}
-            >
+            <span className={rule.ok ? "text-fg-secondary" : "text-fg-tertiary"}>
               {rule.label}
             </span>
           </li>
@@ -232,7 +285,7 @@ function PasswordSetup({
             className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
           />
           <div className="body-xs font-medium text-fg-primary">
-            Criando seu acesso…
+            Criando sua conta segura…
           </div>
         </div>
       )}
@@ -248,6 +301,7 @@ function PasswordSetup({
           <span className="aw-btn__label">Outro método</span>
         </button>
         <span className="flex-1" />
+        <SecurityNote />
         <button
           type="button"
           onClick={submit}
@@ -255,7 +309,7 @@ function PasswordSetup({
           className="aw-btn aw-btn--primary aw-btn--md"
         >
           <span className="aw-btn__label">
-            {submitting ? "Criando…" : "Criar acesso e entrar"}
+            {submitting ? "Criando…" : "Criar conta e entrar"}
           </span>
           <Icon name="arrow_forward" size={16} />
         </button>
@@ -283,14 +337,12 @@ function PasswordField({
     status === "mismatch"
       ? "border-aw-amber-500 focus-within:border-aw-amber-500"
       : status === "match"
-      ? "border-aw-emerald-500 focus-within:border-aw-emerald-500"
-      : "border-border focus-within:border-fg-primary"
+        ? "border-aw-emerald-500 focus-within:border-aw-emerald-500"
+        : "border-border focus-within:border-fg-primary"
 
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="body-xs font-medium text-fg-secondary">
-        {label}
-      </span>
+      <span className="body-xs font-medium text-fg-secondary">{label}</span>
       <span
         className={`flex h-11 items-center gap-2 rounded-md border ${borderClass} bg-bg-raised px-3.5`}
       >
@@ -312,12 +364,7 @@ function PasswordField({
           />
         )}
         {status === "mismatch" && (
-          <Icon
-            name="error"
-            size={16}
-            className="text-aw-amber-700"
-            fill={1}
-          />
+          <Icon name="error" size={16} className="text-aw-amber-700" fill={1} />
         )}
         <button
           type="button"
@@ -330,34 +377,5 @@ function PasswordField({
         </button>
       </span>
     </label>
-  )
-}
-
-function AuthOption({
-  disabled,
-  onClick,
-  icon,
-  label,
-}: {
-  disabled?: boolean
-  onClick: () => void
-  icon: React.ReactNode
-  label: string
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="flex w-full items-center gap-3 rounded-md border border-border bg-bg-raised px-4 py-3.5 text-left body-xs font-medium text-fg-primary transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-bg-raised"
-    >
-      <span className="flex-shrink-0">{icon}</span>
-      <span className="flex-1">{label}</span>
-      <Icon
-        name="arrow_forward"
-        size={16}
-        className="text-fg-tertiary"
-      />
-    </button>
   )
 }

@@ -4,12 +4,12 @@ import * as React from "react"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
-import { ONBOARDING_ORG } from "../_data"
+import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
 const CODE_LENGTH = 6
 const RESEND_COOLDOWN_SECONDS = 30
 
-export default function ConvitePage() {
+export default function VerificacaoPage() {
   const router = useRouter()
   const [digits, setDigits] = React.useState<string[]>(
     Array.from({ length: CODE_LENGTH }, () => "")
@@ -107,7 +107,7 @@ export default function ConvitePage() {
         return
       }
       setStatus("success")
-      setTimeout(() => router.push("/primeiro-acesso/acesso"), 600)
+      setTimeout(() => router.push("/primeiro-acesso/conta"), 600)
     }, 900)
   }, [code, isComplete, router, status])
 
@@ -131,20 +131,26 @@ export default function ConvitePage() {
   }
 
   return (
-    <AwOnboardingShell
-      currentStep={0}
-      org={ONBOARDING_ORG}
-      showOrgCard={false}
-    >
+    <AwOnboardingShell currentStep={0} org={ONBOARDING_ORG} showOrgCard={false}>
       <section>
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-bg-surface px-2.5 py-1 body-xs text-fg-tertiary">
+          <Icon name="mail" size={12} />
+          <span>
+            Convite enviado para{" "}
+            <b className="font-medium text-fg-primary">
+              {ONBOARDING_USER.email}
+            </b>
+          </span>
+        </div>
+
         <h3 className="mb-2 text-fg-primary text-balance">
           Insira seu código de primeiro acesso.
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Digite os 6 dígitos do código de segurança enviado no e-mail de
-          convite. Assim que reconhecermos você, abrimos o ambiente da sua
-          organização para concluir a ativação.
+          Digite os 6 dígitos enviados para o seu e-mail. Esse é o primeiro
+          passo — em seguida você criará uma conta segura para acessar a
+          plataforma.
         </p>
 
         <div className="flex flex-col gap-2.5">
@@ -179,9 +185,7 @@ export default function ConvitePage() {
         {status === "error" && (
           <div className="mt-4 flex items-center gap-2.5 rounded-md border border-aw-amber-500/40 bg-aw-amber-100 px-3.5 py-2.5 body-xs text-aw-amber-700">
             <Icon name="error" size={16} fill={1} />
-            <span>
-              Código inválido. Verifique no e-mail e tente novamente.
-            </span>
+            <span>Código inválido. Verifique no e-mail e tente novamente.</span>
           </div>
         )}
 
@@ -203,7 +207,7 @@ export default function ConvitePage() {
             <div className="body-xs font-medium text-fg-primary">
               {status === "verifying"
                 ? "Verificando código…"
-                : "Identidade confirmada. Vamos lá."}
+                : "Identidade pré-verificada. Vamos criar sua conta."}
             </div>
           </div>
         )}
@@ -217,7 +221,9 @@ export default function ConvitePage() {
           <button
             type="button"
             onClick={resend}
-            disabled={resendIn > 0 || status === "verifying" || status === "success"}
+            disabled={
+              resendIn > 0 || status === "verifying" || status === "success"
+            }
             className="aw-btn aw-btn--ghost aw-btn--md"
           >
             <Icon name="refresh" size={16} />
@@ -226,6 +232,10 @@ export default function ConvitePage() {
             </span>
           </button>
           <span className="flex-1" />
+          <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
+            <Icon name="lock" size={12} />
+            1/2 fatores
+          </span>
         </footer>
       </section>
     </AwOnboardingShell>
