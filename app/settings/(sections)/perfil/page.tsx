@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -9,6 +9,10 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
+import {
+  GROUP_BACKGROUNDS,
+  pickGroupBackground,
+} from "../equipe-permissoes/_components/data";
 
 type PillVariant = "ai" | "neutral" | "live" | "beta" | "error";
 type ButtonVariant = "primary" | "danger";
@@ -134,20 +138,35 @@ export default function ProfileSettingsPage() {
   const [role, setRole] = useState("Super Administrador");
   const [editOpen, setEditOpen] = useState(false);
 
+  // Capa do perfil — mesmo pool de imagens usado nos grupos de Equipe &
+  // permissões. Começa com um pick determinístico (SSR estável) e sorteia
+  // uma imagem aleatória do pool depois da montagem.
+  const [cover, setCover] = useState(() => pickGroupBackground("u-greg"));
+  useEffect(() => {
+    setCover(
+      GROUP_BACKGROUNDS[Math.floor(Math.random() * GROUP_BACKGROUNDS.length)]
+    );
+  }, []);
+
   return (
     <div className="w-full pb-32">
       <section
         aria-label="Resumo do perfil"
         className="relative w-full overflow-hidden border-b border-[var(--border-subtle)]"
       >
-        <div
-          aria-hidden="true"
-          className="h-[260px] w-full"
-          style={{
-            background:
-              "linear-gradient(180deg, var(--aw-blue-600) 0%, var(--aw-blue-400) 45%, var(--aw-blue-200) 78%, var(--aw-white) 100%)",
-          }}
-        />
+        <div aria-hidden="true" className="relative h-[260px] w-full">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${cover})` }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
+            }}
+          />
+        </div>
         <div className="mx-auto w-full max-w-[1440px] px-10">
           <div className="-mt-[88px] flex items-end justify-between gap-4">
             <div
