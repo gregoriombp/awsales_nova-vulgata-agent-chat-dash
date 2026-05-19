@@ -219,8 +219,11 @@ function PeriodSummary({
         <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Você economizou · últimos 6 meses
         </p>
-        <h1 className="m-0 mt-2 display-md tabular-nums text-[var(--accent-success)]">
-          {brl(totals.discount)}
+        <h1 className="m-0 mt-2 display-sm tabular-nums text-[var(--fg-primary)]">
+          <span className="mr-1 text-[0.5em] font-normal text-[var(--fg-tertiary)]">
+            R$
+          </span>
+          {brl(totals.discount).replace(/^R\$\s*/, "")}
         </h1>
         <p className="m-0 mt-2 max-w-[520px] body-xs text-[var(--fg-secondary)]">
           {count} fatura{count !== 1 ? "s" : ""} no período · pagou{" "}

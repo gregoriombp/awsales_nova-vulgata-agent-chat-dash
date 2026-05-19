@@ -24,7 +24,7 @@ import {
 
 export default function VisaoGeralPage() {
   return (
-    <div className="flex flex-col gap-10">
+    <div className="flex flex-col gap-12">
       <BillingHero />
       <ShortcutGrid />
 
@@ -50,7 +50,7 @@ function BillingHero() {
   const creditConsumed = activeVouchers.reduce((s, v) => s + v.consumed, 0);
 
   return (
-    <section className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+    <section className="grid grid-cols-1 items-stretch gap-14 lg:grid-cols-2">
       <div className="flex flex-col gap-2">
         <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Próxima cobrança · {CURRENT_INVOICE.dueAt}
@@ -72,7 +72,7 @@ function BillingHero() {
           </strong>
           .
         </p>
-        <div className="mt-auto flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
+        <div className="mt-3 flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
           <CardBrandLogo brand={brand} size={26} />
           <span className="body-xs text-[var(--fg-secondary)]">
             {brand} •••• {last4} · débito automático
@@ -117,43 +117,51 @@ function CreditBalanceCard({
   const consumedPct = total > 0 ? Math.round((consumed / total) * 100) : 0;
 
   return (
-    <AwCard className="flex flex-col gap-4 !px-6 !py-5">
-      <div className="flex items-start justify-between gap-3">
+    <div className="relative overflow-hidden rounded-xl bg-aw-gray-1200 flex flex-col gap-4 px-6 py-5">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(80% 60% at 100% 0%, rgba(71,138,255,0.15), transparent 60%)",
+        }}
+      />
+      <div className="relative flex items-start justify-between gap-3">
         <div className="flex flex-col gap-2">
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-            Saldo em créditos
-          </p>
-          <p className="m-0 display-sm tabular-nums text-[var(--fg-primary)]">
-            <span className="mr-1 text-[0.5em] font-normal text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-white/50">Saldo em créditos</p>
+          <p className="m-0 display-sm tabular-nums text-white">
+            <span className="mr-1 text-[0.5em] font-normal text-white/40">
               R$
             </span>
             {brl(balance).replace(/^R\$\s*/, "")}
           </p>
         </div>
-        <AwButton
-          size="sm"
-          variant="secondary"
-          iconLeft="add"
+        <button
+          type="button"
           onClick={() => router.push("/settings/financeiro/saldo-creditos")}
+          className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 body-xs font-medium text-white transition-colors duration-aw-fast hover:bg-white/[0.15]"
         >
+          <Icon name="add" size={13} />
           Adicionar saldo
-        </AwButton>
+        </button>
       </div>
-      <AwProgress
-        value={consumed}
-        max={total}
-        label="Consumo do saldo"
-        valueLabel={`${100 - consumedPct}% restante`}
-        className="[&_.aw-progress__fill]:!bg-[var(--aw-slate-700)]"
-      />
-      <div className="mt-auto flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
-        <Icon name="redeem" size={15} className="text-[var(--fg-tertiary)]" />
-        <span className="body-xs text-[var(--fg-secondary)]">
+      <div className="relative">
+        <AwProgress
+          value={consumed}
+          max={total}
+          label="Consumo do saldo"
+          valueLabel={`${brl(balance)} · ${100 - consumedPct}% restante`}
+          className="[&_.aw-progress-row__top_span]:!text-white/60 [&_.aw-progress-row__top_b]:!text-white/60 [&_.aw-progress]:!bg-white/15 [&_.aw-progress__fill]:!bg-white"
+        />
+      </div>
+      <div className="relative mt-auto flex items-center gap-2 border-t border-white/10 pt-3">
+        <Icon name="redeem" size={15} className="text-white/50" />
+        <span className="body-xs text-white/70">
           Acumulado de {vouchers} {vouchers === 1 ? "voucher" : "vouchers"} e{" "}
           {coupons} {coupons === 1 ? "cupom" : "cupons"}
         </span>
       </div>
-    </AwCard>
+    </div>
   );
 }
 
