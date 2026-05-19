@@ -16,12 +16,12 @@ import { NotificationRow } from "@/components/NotificationRow";
 import { NOTIFICATIONS } from "@/lib/notifications";
 import { SectionHeading } from "../_components/shared";
 import {
-  GROUP_BACKGROUNDS,
-  pickGroupBackground,
+  COVER_BACKGROUNDS,
+  pickCoverBackground,
 } from "../equipe-permissoes/_components/data";
 
-/** Capa pré-definida deste usuário — determinística, do mesmo pool de Equipe. */
-const DEFAULT_COVER = pickGroupBackground("u-greg");
+/** Capa pré-definida deste usuário — pool landscape, determinística por userId. */
+const DEFAULT_COVER = pickCoverBackground("u-greg");
 
 type SettingsShortcut = {
   href: string;
@@ -47,7 +47,7 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     href: "/settings/notificacoes",
     icon: "notifications",
     title: "Notificações",
-    description: "5 regras ativas · digest semanal desativado",
+    description: "5 regras ativas · resumo semanal desativado",
   },
   {
     href: "/settings/aparencia",
@@ -99,6 +99,8 @@ export default function ProfileSettingsPage() {
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
     { icon: "person", text: fullName },
     { icon: "mail", text: email },
+    { iconNode: <WhatsAppIcon />, text: "+55 11 98765-4321" },
+    { iconNode: <SlackIcon />, text: "@greg.pinheiro" },
     { icon: "badge", text: role },
     { icon: "schedule", text: "Brasília · GMT−03" },
     { icon: "translate", text: "Português (Brasil)" },
@@ -114,7 +116,7 @@ export default function ProfileSettingsPage() {
     <div className="w-full pb-32">
       <section aria-label="Resumo do perfil" className="w-full">
         <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
-          <div className="group/cover relative h-[340px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
+          <div className="group/cover relative h-[280px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-cover bg-center"
@@ -125,20 +127,9 @@ export default function ProfileSettingsPage() {
               className="absolute inset-0"
               style={{
                 background:
-                  "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
+                  "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.45) 100%)",
               }}
             />
-            <div className="absolute right-4 top-4">
-              <AwButton
-                size="sm"
-                iconLeft="image"
-                onClick={() => setPickerOpen((v) => !v)}
-                aria-expanded={pickerOpen}
-                className="!border-[rgba(255,255,255,0.18)] !bg-[rgba(18,18,22,0.78)] !text-white backdrop-blur-md hover:!bg-[rgba(18,18,22,0.92)]"
-              >
-                Alterar capa
-              </AwButton>
-            </div>
           </div>
 
           {pickerOpen && (
@@ -149,7 +140,7 @@ export default function ProfileSettingsPage() {
                 className="fixed inset-0 z-40 cursor-default"
                 onClick={() => setPickerOpen(false)}
               />
-              <div className="absolute right-10 top-[88px] z-50 w-[440px] max-w-[calc(100%-5rem)]">
+              <div className="absolute right-10 top-[196px] z-50 w-[440px] max-w-[calc(100%-5rem)]">
                 <CoverPicker
                   value={cover}
                   defaultCover={DEFAULT_COVER}
@@ -173,24 +164,35 @@ export default function ProfileSettingsPage() {
                 className="!h-[144px] !w-[144px] !text-[40px]"
               />
             </div>
-            <AwButton
-              size="sm"
-              variant="secondary"
-              iconLeft="edit"
-              onClick={() => setEditOpen(true)}
-            >
-              Editar perfil
-            </AwButton>
+            <div className="flex items-center gap-2">
+              <AwButton
+                size="sm"
+                variant="secondary"
+                iconLeft="image"
+                onClick={() => setPickerOpen((v) => !v)}
+                aria-expanded={pickerOpen}
+              >
+                Alterar capa
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="secondary"
+                iconLeft="edit"
+                onClick={() => setEditOpen(true)}
+              >
+                Editar perfil
+              </AwButton>
+            </div>
           </div>
           <div className="ml-6 mt-5 pb-10">
             <div className="flex flex-wrap items-center gap-2.5">
               <h3 className="m-0 text-[var(--fg-primary)]">
                 {fullName}
               </h3>
-              <AwPill variant="ai" dot={false} className="inline-flex items-center gap-1">
+              <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(47,118,230,0.08)] px-2.5 py-0.5 body-xs font-medium text-[var(--aw-blue-600)]">
                 <Icon name="workspace_premium" size={11} />
                 {role}
-              </AwPill>
+              </span>
             </div>
             <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
               <ContactChip href={`mailto:${email}`} iconName="mail" label={email} />
@@ -206,8 +208,7 @@ export default function ProfileSettingsPage() {
               </AwPill>
             </div>
             <p className="m-0 mt-3 max-w-[560px] body-xs text-[var(--fg-secondary)]">
-              Suas informações pessoais e como aparecem no produto para o
-              restante do time.
+              Como você aparece para o restante do time.
             </p>
           </div>
         </div>
@@ -234,37 +235,12 @@ export default function ProfileSettingsPage() {
             <InfoCard title="Sua conta" rows={accountRows} />
           </aside>
 
-          {/* Coluna direita — notificações + atalhos */}
+          {/* Coluna direita — atalhos + notificações */}
           <div className="flex flex-col gap-10">
-            <section aria-label="Últimas notificações">
-              <SectionHeading
-                title="Últimas notificações"
-                description="O que pediu sua atenção recentemente no workspace."
-                action={
-                  <Link
-                    href="/notifications"
-                    className="inline-flex items-center gap-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
-                  >
-                    Ver todas
-                    <Icon name="arrow_forward" size={14} />
-                  </Link>
-                }
-              />
-              <AwCard className="!p-0">
-                <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
-                  {latestNotifications.map((n) => (
-                    <li key={n.id} className="m-0">
-                      <NotificationRow notification={n} />
-                    </li>
-                  ))}
-                </ul>
-              </AwCard>
-            </section>
-
             <section aria-label="Outras configurações">
               <SectionHeading
                 title="Outras configurações"
-                description="Atalhos para o restante das áreas do workspace."
+                description="Acesse as demais áreas do workspace."
               />
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {SETTINGS_SHORTCUTS.map((item) => (
@@ -276,6 +252,31 @@ export default function ProfileSettingsPage() {
                     href={item.href}
                   />
                 ))}
+              </div>
+            </section>
+
+            <section aria-label="Últimas notificações">
+              <SectionHeading
+                title="Últimas notificações"
+                description="Atividades recentes que pediram sua atenção."
+                action={
+                  <Link
+                    href="/notifications"
+                    className="inline-flex items-center gap-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
+                  >
+                    Ver todas
+                    <Icon name="arrow_forward" size={14} />
+                  </Link>
+                }
+              />
+              <div className="overflow-hidden rounded-[var(--radius-md)]">
+                <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
+                  {latestNotifications.map((n) => (
+                    <li key={n.id} className="m-0">
+                      <NotificationRow notification={n} />
+                    </li>
+                  ))}
+                </ul>
               </div>
             </section>
           </div>
@@ -321,7 +322,7 @@ export default function ProfileSettingsPage() {
             </p>
           </div>
           <AwButton size="sm" variant="secondary" iconLeft="upload">
-            Trocar foto
+            Alterar foto
           </AwButton>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -512,7 +513,7 @@ function CoverPicker({
       <div className="p-3">
         {tab === "gallery" && (
           <ul className="m-0 grid max-h-[244px] grid-cols-3 gap-2 overflow-y-auto p-0">
-            {GROUP_BACKGROUNDS.map((bg) => {
+            {COVER_BACKGROUNDS.map((bg) => {
               const isActive = bg === value;
               return (
                 <li key={bg} className="m-0 list-none">
@@ -555,10 +556,10 @@ function CoverPicker({
                 <Icon name="upload" size={18} />
               </span>
               <span className="body-xs font-medium text-[var(--fg-primary)]">
-                Enviar uma imagem
+                Escolha uma imagem do computador
               </span>
               <span className="body-xs text-[var(--fg-secondary)]">
-                PNG ou JPG, recomendado 1500×400 px.
+                PNG ou JPG · recomendado 1500×400 px
               </span>
             </button>
             <input
@@ -584,10 +585,10 @@ function CoverPicker({
               disabled={!linkValue.trim()}
               onClick={() => onChange(linkValue.trim())}
             >
-              Aplicar imagem
+              Aplicar
             </AwButton>
             <p className="m-0 body-xs text-[var(--fg-tertiary)]">
-              Use o endereço direto de uma imagem hospedada na web.
+              Insira o URL direto de uma imagem pública.
             </p>
           </div>
         )}
@@ -595,7 +596,7 @@ function CoverPicker({
 
       <div className="flex items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2">
         <span className="body-xs text-[var(--fg-tertiary)]">
-          A capa aparece no seu perfil para todo o time.
+          Visível para todos os membros do workspace.
         </span>
         <AwButton
           size="sm"

@@ -450,6 +450,21 @@ export function pickGroupBackground(groupId: string): string {
   return GROUP_BACKGROUNDS[index];
 }
 
+/** Landscape-only subset — safe for wide cover banners (profile, workspace header). */
+export const COVER_BACKGROUNDS: string[] = [
+  11, 12, 13, 14, 15, 16, 17, 18, 23, 24, 30, 31, 32, 36,
+].map((n) => `/assets/group-backgrounds/group-bg-${String(n).padStart(2, "0")}.jpg`);
+
+/** Deterministic pick from the landscape cover pool. */
+export function pickCoverBackground(userId: string): string {
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = (hash * 31 + userId.charCodeAt(i)) | 0;
+  }
+  const index = Math.abs(hash) % COVER_BACKGROUNDS.length;
+  return COVER_BACKGROUNDS[index];
+}
+
 export type Group = {
   id: string;
   name: string;
