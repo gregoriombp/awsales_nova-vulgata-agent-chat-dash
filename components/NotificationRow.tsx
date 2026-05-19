@@ -55,12 +55,6 @@ export function NotificationRow({
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
-          {!notification.read && (
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--accent-brand)]"
-            />
-          )}
           <span
             className={
               "min-w-0 flex-1 truncate body-sm " +
