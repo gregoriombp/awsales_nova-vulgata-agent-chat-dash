@@ -14,7 +14,6 @@ import {
   ROLE_DEFINITIONS,
   SCOPES,
   getRoleColor,
-  type PermissionIntent,
   type RoleDefinition,
   type Scope,
   type ScopeGroup,
@@ -651,8 +650,13 @@ function ScopeBlock({
         </div>
       </header>
 
-      {open && (
-        <div className="mt-4 flex flex-col gap-4 pl-9">
+      <div
+        className={
+          "overflow-hidden transition-all duration-[220ms] ease-in-out " +
+          (open ? "mt-4 max-h-[2000px] opacity-100" : "max-h-0 opacity-0")
+        }
+      >
+        <div className="flex flex-col gap-4 pl-9 pb-1">
           {scope.groups.map((group) => (
             <PermissionGroupBlock
               key={group.id}
@@ -663,7 +667,7 @@ function ScopeBlock({
             />
           ))}
         </div>
-      )}
+      </div>
     </section>
   );
 }
@@ -680,86 +684,61 @@ function PermissionGroupBlock({
   onToggle: (id: string, next: boolean) => void;
 }) {
   return (
-    <div>
-      <div className="mb-2 flex items-center gap-2">
-        <span className="aw-eyebrow text-[var(--fg-secondary)]">
-          {group.label}
-        </span>
-        <IntentBadge intent={group.intent} />
-      </div>
-      <ul className="flex flex-col">
-        {group.permissions.map((p) => {
-          const has = granted.has(p.id);
-          return (
-            <li
-              key={p.id}
-              className="flex items-start gap-3 rounded-[var(--radius-sm)] px-2 py-2 hover:bg-[var(--bg-hover)]"
-            >
-              {editable ? (
-                <span className="mt-0.5">
-                  <AwCheckbox
-                    checked={has}
-                    onChange={(next) => onToggle(p.id, next)}
-                    label={p.label}
-                  />
-                </span>
-              ) : (
-                <span
-                  className={
-                    "mt-0.5 flex h-[18px] w-[18px] items-center justify-center rounded-[var(--radius-sm)] " +
-                    (has
-                      ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                      : "border border-[var(--border-default)] text-[var(--fg-tertiary)]")
-                  }
-                  aria-label={has ? "Permitido" : "Negado"}
-                >
-                  <Icon name={has ? "check" : "close"} size={12} />
+    <ul className="flex flex-col">
+      {group.permissions.map((p) => {
+        const has = granted.has(p.id);
+        return (
+          <li
+            key={p.id}
+            className="flex items-start gap-3 rounded-[var(--radius-sm)] px-2 py-2 hover:bg-[var(--bg-hover)]"
+            onClick={() => editable && onToggle(p.id, !has)}
+            style={{ cursor: editable ? "pointer" : "default" }}
+          >
+            {editable ? (
+              <span
+                className="mt-0.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <AwCheckbox
+                  checked={has}
+                  onChange={(next) => onToggle(p.id, next)}
+                  label={p.label}
+                />
+              </span>
+            ) : (
+              <span
+                className={
+                  "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] " +
+                  (has
+                    ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
+                    : "border border-[var(--border-default)] text-[var(--fg-tertiary)]")
+                }
+                aria-label={has ? "Permitido" : "Negado"}
+              >
+                <Icon name={has ? "check" : "close"} size={12} />
+              </span>
+            )}
+            <span className="min-w-0 flex-1 body-xs">
+              <span
+                className={
+                  "block " +
+                  (has
+                    ? "font-medium text-[var(--fg-primary)]"
+                    : "text-[var(--fg-secondary)]")
+                }
+              >
+                {p.label}
+              </span>
+              {p.description && (
+                <span className="block body-xs text-[var(--fg-tertiary)]">
+                  {p.description}
                 </span>
               )}
-              <label
-                className={
-                  "min-w-0 flex-1 cursor-pointer body-xs " +
-                  (editable ? "" : "cursor-default ")
-                }
-                onClick={() => editable && onToggle(p.id, !has)}
-              >
-                <span
-                  className={
-                    "block " +
-                    (has
-                      ? "font-medium text-[var(--fg-primary)]"
-                      : "text-[var(--fg-secondary)]")
-                  }
-                >
-                  {p.label}
-                </span>
-                {p.description && (
-                  <span className="block body-xs text-[var(--fg-tertiary)]">
-                    {p.description}
-                  </span>
-                )}
-              </label>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+            </span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
-function IntentBadge({ intent }: { intent: PermissionIntent }) {
-  const map: Record<
-    PermissionIntent,
-    { label: string; variant: "neutral" | "beta" | "ai" }
-  > = {
-    module: { label: "Acesso", variant: "neutral" },
-    operational: { label: "Operacional", variant: "beta" },
-    administrative: { label: "Administrativo", variant: "ai" },
-  };
-  const cfg = map[intent];
-  return (
-    <AwPill variant={cfg.variant} dot={false}>
-      {cfg.label}
-    </AwPill>
-  );
-}

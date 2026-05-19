@@ -79,7 +79,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
           }
           aria-hidden="true"
         >
-          <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-1/2 items-center">
+          <div className="absolute inset-0 flex items-center justify-center">
             {visible.map((m, i) => (
               <AwAvatar
                 key={`${m.name}-${i}`}
@@ -108,13 +108,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
           </div>
         </div>
 
-        <div className="flex flex-1 flex-col gap-3 px-5 pb-5 pt-10">
+        <div className="flex flex-1 flex-col gap-3 px-5 pb-5 pt-5">
           <header className="flex items-center gap-3">
-            <Icon
-              name={icon}
-              size={22}
-              className="shrink-0 text-[var(--fg-primary)]"
-            />
             <h3 className="m-0 flex-1 truncate text-[18px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
               {name}
             </h3>
