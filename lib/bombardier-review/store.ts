@@ -73,7 +73,7 @@ type ReviewState = {
   endDraw: () => void
   placePin: (point: ReviewPoint) => void
   cancelPending: () => void
-  saveComment: (text: string) => Promise<void>
+  saveComment: (text: string, images?: string[]) => Promise<void>
 
   selectComment: (id: string | null) => void
   resolveComment: (id: string) => Promise<void>
@@ -232,10 +232,10 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   cancelPending: () =>
     set({ drawingPath: null, pendingAnchor: null, mode: "cursor" }),
 
-  saveComment: async (text) => {
+  saveComment: async (text, images) => {
     const trimmed = text.trim()
     const { pendingAnchor, identity, storage } = get()
-    if (!trimmed || !pendingAnchor || !identity) return
+    if ((!trimmed && (!images || images.length === 0)) || !pendingAnchor || !identity) return
     if (typeof window === "undefined") return
     const now = Date.now()
     const comment: ReviewComment = {
@@ -253,6 +253,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       documentHeight: document.documentElement.scrollHeight,
       anchor: pendingAnchor,
       text: trimmed,
+      ...(images && images.length > 0 ? { images } : {}),
       status: "open",
     }
     await storage.saveComment(comment)

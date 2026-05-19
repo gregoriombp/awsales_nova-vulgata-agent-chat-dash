@@ -137,9 +137,35 @@ export function ReviewCommentCard({ comment }: Props) {
         </div>
       </header>
 
-      <p className="body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
-        {comment.text}
-      </p>
+      {comment.text.length > 0 && (
+        <p className="body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
+          {comment.text}
+        </p>
+      )}
+
+      {comment.images && comment.images.length > 0 && (
+        <div className={["flex flex-wrap gap-1.5", comment.text.length > 0 ? "mt-2" : ""].join(" ")}>
+          {comment.images.map((src, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                window.open(src, "_blank", "noopener")
+              }}
+              className="rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors focus:outline-none"
+              aria-label={`Ver imagem ${idx + 1}`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt=""
+                className="h-20 w-20 object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
 
       {!isOnThisPage && (
         <div className="mt-2 body-xs text-[var(--fg-tertiary)] flex items-center gap-1">

@@ -39,7 +39,16 @@ export class RemoteBridgeReview implements ReviewStorage {
   }
 
   private url(path: string): string {
-    return `${this.baseUrl}${path}`
+    let base = this.baseUrl
+    if (typeof window !== "undefined") {
+      try {
+        const parsed = new URL(this.baseUrl)
+        base = `${parsed.protocol}//${window.location.hostname}:${parsed.port}`
+      } catch {
+        // keep configured value
+      }
+    }
+    return `${base}${path}`
   }
 
   async getIdentity(): Promise<ReviewIdentity | null> {
@@ -132,7 +141,7 @@ export class RemoteBridgeReview implements ReviewStorage {
 
   subscribe(onChange: () => void): () => void {
     if (typeof window === "undefined") return () => {}
-    const url = this.url(`/events?token=${encodeURIComponent(this.token)}`)
+    const url = this.url(`/events`) + `?token=${encodeURIComponent(this.token)}`
     const source = new EventSource(url)
 
     const handler = () => onChange()
@@ -156,11 +165,21 @@ export interface BridgeStatus {
   subscribers?: number
 }
 
+function resolveBaseUrl(configuredUrl: string): string {
+  if (typeof window === "undefined") return configuredUrl
+  try {
+    const parsed = new URL(configuredUrl)
+    return `${parsed.protocol}//${window.location.hostname}:${parsed.port}`
+  } catch {
+    return configuredUrl
+  }
+}
+
 export async function checkBridgeStatus(
   config: BridgeConfig
 ): Promise<BridgeStatus> {
   try {
-    const res = await fetch(`${config.baseUrl.replace(/\/$/, "")}/health`, {
+    const res = await fetch(`${resolveBaseUrl(config.baseUrl)}/health`, {
       headers: { "X-Review-Token": config.token },
     })
     if (!res.ok) {

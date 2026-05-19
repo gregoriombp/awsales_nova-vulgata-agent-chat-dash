@@ -39,6 +39,7 @@ export interface ReviewComment {
   documentHeight: number
   anchor: ReviewAnchor
   text: string
+  images?: string[]
   status: ReviewCommentStatus
   resolvedBy?: string
   resolvedAt?: number
