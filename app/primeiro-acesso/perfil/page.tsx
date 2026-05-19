@@ -153,11 +153,13 @@ function PerfilContent() {
         </div>
 
         <div className="mt-6 rounded-xl border border-border-subtle bg-bg-raised p-4">
-          <div className="aw-eyebrow text-fg-tertiary">
-            Quem recebe as faturas
-          </div>
+          {!invoiceSelf && (
+            <div className="aw-eyebrow mb-3 text-fg-tertiary">
+              Quem recebe as faturas
+            </div>
+          )}
 
-          <label className="mt-3 flex cursor-pointer gap-3">
+          <label className="flex cursor-pointer gap-3">
             <AwCheckbox
               checked={invoiceSelf}
               onChange={setInvoiceSelf}
