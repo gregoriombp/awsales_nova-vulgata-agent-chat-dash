@@ -328,7 +328,7 @@ function SsoButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="flex w-full items-center justify-center gap-2.5 h-11 rounded-lg border border-aw-gray-300 bg-white body-sm font-medium text-aw-gray-1200 transition-colors duration-150 hover:border-aw-gray-400 hover:bg-aw-gray-150 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-2.5 h-11 rounded-full border border-aw-gray-300 bg-white body-sm font-medium text-aw-gray-1200 transition-colors duration-150 hover:border-aw-gray-400 hover:bg-aw-gray-150 disabled:cursor-not-allowed disabled:opacity-50"
     >
       <span className="flex-shrink-0">{icon}</span>
       <span>{label}</span>

@@ -10,10 +10,10 @@ interface BrandPaneProps {
   locale: Locale;
 }
 
-// Each step shows a different image — keeps the visual variety as the user
-// progresses through the auth flow.
-const SCREEN_IMAGE: Record<AuthScreen, string> = {
-  login: "/assets/group-backgrounds/group-bg-04.jpg",
+// Cada etapa do fluxo mostra uma imagem diferente — mantém a variedade
+// visual conforme o usuário avança. O login é a exceção: sorteia sempre
+// uma imagem aleatória do banco (ver `randomBackground`).
+const STEP_IMAGE: Record<Exclude<AuthScreen, "login">, string> = {
   email: "/assets/group-backgrounds/group-bg-11.jpg",
   forgot: "/assets/group-backgrounds/group-bg-09.jpg",
   reset: "/assets/group-backgrounds/group-bg-13.jpg",
@@ -22,14 +22,30 @@ const SCREEN_IMAGE: Record<AuthScreen, string> = {
   success: "/assets/group-backgrounds/group-bg-20.jpg",
 };
 
+// Banco de imagens em /public/assets/group-backgrounds (group-bg-01..40).
+const TOTAL_BACKGROUNDS = 40;
+const randomBackground = () => {
+  const n = Math.floor(Math.random() * TOTAL_BACKGROUNDS) + 1;
+  return `/assets/group-backgrounds/group-bg-${String(n).padStart(2, "0")}.jpg`;
+};
+
 export default function BrandPane({ screen }: BrandPaneProps) {
-  const target = SCREEN_IMAGE[screen];
-  const [currentSrc, setCurrentSrc] = useState(target);
+  // O login sempre exibe uma imagem aleatória do banco. O sorteio roda só
+  // no cliente, após montar, para não divergir do HTML renderizado no
+  // servidor (evita hydration mismatch).
+  const [loginImage, setLoginImage] = useState<string | null>(null);
+  useEffect(() => {
+    setLoginImage(randomBackground());
+  }, []);
+
+  const target = screen === "login" ? loginImage : STEP_IMAGE[screen];
+
+  const [currentSrc, setCurrentSrc] = useState<string | null>(target);
   const [prevSrc, setPrevSrc] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
   useEffect(() => {
-    if (target === currentSrc) return;
+    if (!target || target === currentSrc) return;
     setPrevSrc(currentSrc);
     setCurrentSrc(target);
     setTick((t) => t + 1);
@@ -54,16 +70,18 @@ export default function BrandPane({ screen }: BrandPaneProps) {
             }}
           />
         )}
-        <div
-          key={tick}
-          aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${currentSrc})`,
-            filter: "grayscale(100%) contrast(1.05)",
-            animation: "brandPaneFadeIn 800ms ease-out both",
-          }}
-        />
+        {currentSrc && (
+          <div
+            key={tick}
+            aria-hidden="true"
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${currentSrc})`,
+              filter: "grayscale(100%) contrast(1.05)",
+              animation: "brandPaneFadeIn 800ms ease-out both",
+            }}
+          />
+        )}
       </div>
     </section>
   );
