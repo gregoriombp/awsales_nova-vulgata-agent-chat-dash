@@ -872,13 +872,13 @@ export default function AuthFlow() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
       {/* Left rail */}
       <aside className="flex flex-col bg-white px-8 py-8 xl:px-12 min-h-screen">
         {/* Brand */}
         <div className="mb-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/brand/awsales-wordmark-brand.svg" alt="AwSales" style={{ height: 28, width: "auto" }} />
+          <img src="/assets/brand/awsales-wordmark-brand.svg" alt="AwSales" style={{ height: 20, width: "auto" }} />
         </div>
 
         {/* Form host */}
