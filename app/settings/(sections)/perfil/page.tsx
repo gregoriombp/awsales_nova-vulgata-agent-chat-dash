@@ -92,7 +92,7 @@ export default function ProfileSettingsPage() {
     <div className="w-full pb-32">
       <section aria-label="Resumo do perfil" className="w-full">
         <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
-          <div className="group/cover relative h-[260px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
+          <div className="group/cover relative h-[340px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-cover bg-center"
@@ -106,32 +106,15 @@ export default function ProfileSettingsPage() {
                   "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
               }}
             />
-            <div
-              className={
-                "absolute right-4 top-4 transition-opacity duration-aw-fast " +
-                (pickerOpen
-                  ? "opacity-100"
-                  : "opacity-0 group-hover/cover:opacity-100 focus-within:opacity-100")
-              }
-            >
+            <div className="absolute right-4 top-4">
               <AwButton
                 size="sm"
-                variant="secondary"
                 iconLeft="image"
                 onClick={() => setPickerOpen((v) => !v)}
                 aria-expanded={pickerOpen}
+                className="!border-[rgba(255,255,255,0.18)] !bg-[rgba(18,18,22,0.78)] !text-white backdrop-blur-md hover:!bg-[rgba(18,18,22,0.92)]"
               >
                 Alterar capa
-              </AwButton>
-            </div>
-            <div className="absolute bottom-4 right-4">
-              <AwButton
-                size="sm"
-                variant="secondary"
-                iconLeft="edit"
-                onClick={() => setEditOpen(true)}
-              >
-                Editar perfil
               </AwButton>
             </div>
           </div>
@@ -155,9 +138,9 @@ export default function ProfileSettingsPage() {
             </>
           )}
 
-          <div className="relative z-10 -mt-[88px] flex items-end gap-4">
+          <div className="relative z-10 -mt-[88px] flex items-end justify-between gap-4">
             <div
-              className="ml-6 rounded-full bg-[var(--bg-raised)] p-1.5 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
+              className="ml-6 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
               style={{ lineHeight: 0 }}
             >
               <AwAvatar
@@ -168,6 +151,14 @@ export default function ProfileSettingsPage() {
                 className="!h-[144px] !w-[144px] !text-[40px]"
               />
             </div>
+            <AwButton
+              size="sm"
+              variant="secondary"
+              iconLeft="edit"
+              onClick={() => setEditOpen(true)}
+            >
+              Editar perfil
+            </AwButton>
           </div>
           <div className="ml-6 mt-5 pb-10">
             <h3 className="m-0 text-[var(--fg-primary)]">
@@ -200,71 +191,20 @@ export default function ProfileSettingsPage() {
       </section>
 
       <div className="mx-auto w-full max-w-[1440px] px-10 pt-10">
-        <section aria-labelledby="settings-shortcuts-title">
-          <header className="mb-4">
-            <h6
-              id="settings-shortcuts-title"
-              className="m-0 mb-1 text-[var(--fg-primary)]"
-            >
-              Outras configurações
-            </h6>
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
-              Atalhos para o restante das áreas do workspace.
-            </p>
-          </header>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <section aria-label="Outras configurações">
+          <SectionHeading
+            title="Outras configurações"
+            description="Atalhos para o restante das áreas do workspace."
+          />
+          <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
             {SETTINGS_SHORTCUTS.map((item) => (
-              <article
+              <AwShortcutTile
                 key={item.href}
-                className="flex flex-col rounded-[14px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 transition-colors hover:border-[var(--border-default)]"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-primary)]">
-                    <Icon name={item.icon} size={20} />
-                  </span>
-                  <AwPill variant={item.status.variant} dot={false}>
-                    {item.status.label}
-                  </AwPill>
-                </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-0.5 body-xs text-[var(--fg-tertiary)]">
-                  <span className="font-medium text-[var(--fg-secondary)]">
-                    {item.category}
-                  </span>
-                  <span aria-hidden="true">·</span>
-                  <span>{item.updatedAt}</span>
-                </div>
-                <h6 className="m-0 mt-1.5 text-[var(--fg-primary)]">
-                  {item.title}
-                </h6>
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {item.tags.map((tag) => (
-                    <AwPill key={tag} variant="neutral" dot={false}>
-                      {tag}
-                    </AwPill>
-                  ))}
-                </div>
-
-                <div className="mt-auto pt-6">
-                  <div className="flex items-end justify-between gap-3 border-t border-[var(--border-subtle)] pt-4">
-                    <div className="min-w-0">
-                      <p className="m-0 truncate body-sm font-medium text-[var(--fg-primary)]">
-                        {item.metric}
-                      </p>
-                      <p className="m-0 mt-0.5 truncate body-xs text-[var(--fg-secondary)]">
-                        {item.detail}
-                      </p>
-                    </div>
-                    <AwButton
-                      size="sm"
-                      variant={item.ctaVariant ?? "primary"}
-                      onClick={() => router.push(item.href)}
-                    >
-                      {item.cta}
-                    </AwButton>
-                  </div>
-                </div>
-              </article>
+                icon={item.icon}
+                title={item.title}
+                description={item.description}
+                href={item.href}
+              />
             ))}
           </div>
         </section>
