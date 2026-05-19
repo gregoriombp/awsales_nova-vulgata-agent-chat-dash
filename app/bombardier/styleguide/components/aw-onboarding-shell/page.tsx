@@ -20,9 +20,9 @@ export default function AwOnboardingShellPlaygroundPage() {
     <>
       <PageHero title="AwOnboardingShell">
         Casca de tela inteira pro fluxo de Primeiro Acesso (6 etapas). Divide a
-        viewport em duas zonas: o brand pane escuro à esquerda — logo, timeline
-        vertical das etapas, selo de sessão e card da organização — e o work
-        pane scrollable à direita, onde o conteúdo da etapa entra via{" "}
+        viewport em duas zonas: o brand pane escuro à esquerda — logo e card da
+        organização — e o work pane scrollable à direita, onde o conteúdo da
+        etapa entra via{" "}
         <code className="font-mono text-[13px]">children</code>.
       </PageHero>
 
@@ -72,21 +72,9 @@ export default function AwOnboardingShellPlaygroundPage() {
                   topo do brand pane.
                 </li>
                 <li>
-                  <b className="text-fg-primary">Timeline</b> — stepper{" "}
-                  <i>vertical</i> de 6 etapas, com estados{" "}
-                  <code className="font-mono text-xs">done</code>,{" "}
-                  <code className="font-mono text-xs">current</code> e{" "}
-                  <code className="font-mono text-xs">upcoming</code>; a trilha
-                  branca anima a altura conforme a etapa avança.
-                </li>
-                <li>
-                  <b className="text-fg-primary">Selo de sessão</b> — chip
-                  emerald opcional (via <code className="font-mono text-xs">authState</code>)
-                  mostrando o método de autenticação e o e-mail.
-                </li>
-                <li>
-                  <b className="text-fg-primary">Card da organização</b> — nome,
-                  CNPJ e plano; some antes do reconhecimento do usuário via{" "}
+                  <b className="text-fg-primary">Card da organização</b> —
+                  logotipo, nome, CNPJ e plano; some antes do reconhecimento do
+                  usuário via{" "}
                   <code className="font-mono text-xs">showOrgCard</code>.
                 </li>
                 <li>
@@ -100,18 +88,13 @@ export default function AwOnboardingShellPlaygroundPage() {
           <Section
             id="api"
             title="Props"
-            lead="Configuração mínima — passe currentStep e org. O restante ajusta o brand pane."
+            lead="Configuração mínima — passe org. O restante ajusta o brand pane."
           >
             <ApiTable>
               <PropRow
-                prop="currentStep"
-                type="number (0–5)"
-                doc="Índice da etapa ativa. Define qual ponto da timeline fica destacado e quanto da trilha branca preenche."
-              />
-              <PropRow
                 prop="org"
-                type="{ name, cnpj, plan, contractTerm }"
-                doc="Dados da organização exibidos no card escuro do brand pane."
+                type="{ name, cnpj, plan, contractTerm, logo? }"
+                doc="Dados da organização exibidos no card escuro do brand pane. O logo aparece à esquerda do nome."
               />
               <PropRow
                 prop="children"
@@ -129,12 +112,6 @@ export default function AwOnboardingShellPlaygroundPage() {
                 type="boolean"
                 def="true"
                 doc="Esconde o card da organização — usado na etapa 01, antes de reconhecer o usuário."
-              />
-              <PropRow
-                prop="authState"
-                type="{ method, email }"
-                def="undefined"
-                doc="Quando definido, exibe o selo de sessão segura acima do card da organização."
               />
             </ApiTable>
           </Section>

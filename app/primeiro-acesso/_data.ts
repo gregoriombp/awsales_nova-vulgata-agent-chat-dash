@@ -32,6 +32,7 @@ export type OnboardingVencimento = {
 export const ONBOARDING_ORG = {
   name: "Fyntra Tecnologia",
   razaoSocial: "Fyntra Tecnologia LTDA",
+  logo: "/assets/icon_artificial_concord_organization.png",
   cnpj: "12.345.678/0001-90",
   segmento: "SaaS",
   porte: "Médio (50–500 FTE)",
