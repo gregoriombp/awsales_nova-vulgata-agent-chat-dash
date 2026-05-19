@@ -170,6 +170,14 @@ function StepIndicator({ step }: { step: Step }) {
 /* ---------- card step ---------- */
 
 function CardStep() {
+  const [number, setNumber] = React.useState("");
+  // Agrupa o número em blocos de 4 dígitos conforme o usuário digita.
+  const formatCardNumber = (v: string) =>
+    v
+      .replace(/\D/g, "")
+      .slice(0, 16)
+      .replace(/(\d{4})(?=\d)/g, "$1 ");
+
   return (
     <>
       <p className="m-0 body-xs text-[var(--fg-secondary)]">
@@ -181,9 +189,12 @@ function CardStep() {
         <AwField label="Número do cartão" htmlFor="card-number">
           <AwInput
             id="card-number"
-            placeholder="•••• •••• •••• ••••"
+            placeholder="0000 0000 0000 0000"
             iconLeft="credit_card"
             autoComplete="cc-number"
+            inputMode="numeric"
+            value={number}
+            onChange={(e) => setNumber(formatCardNumber(e.target.value))}
             autoFocus
           />
         </AwField>
