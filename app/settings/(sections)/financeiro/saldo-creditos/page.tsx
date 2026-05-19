@@ -10,7 +10,6 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwSelect } from "@/components/ui/AwSelect";
-import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import {
@@ -19,12 +18,9 @@ import {
   INVOICE_HISTORY,
   PAYMENT_METHODS,
   VOUCHERS,
-  type CouponRow,
   type VoucherRow,
 } from "../_components/data";
 
-// O mundo dos fixtures está ancorado em maio/2026 — usamos esta data como
-// "hoje" para os contadores de vencimento em vez do relógio real.
 const TODAY = new Date(2026, 4, 19);
 
 function daysUntil(br: string): number {
@@ -37,15 +33,15 @@ function daysUntil(br: string): number {
 function expiryLabel(br: string): string {
   const days = daysUntil(br);
   if (days < 0) return `expirou em ${br}`;
-  if (days === 0) return `vence hoje (${br})`;
-  return `vence ${br} · ${days} dia${days !== 1 ? "s" : ""}`;
+  if (days === 0) return `vence hoje`;
+  if (days <= 30) return `vence em ${days} dia${days !== 1 ? "s" : ""}`;
+  return `vence ${br}`;
 }
 
 export default function SaldoCreditosPage() {
   const [addOpen, setAddOpen] = React.useState(false);
   const [openInvoiceId, setOpenInvoiceId] = React.useState<string | null>(null);
 
-  // Saldo disponível = soma do que ainda resta em cada voucher ativo.
   const available = React.useMemo(
     () => VOUCHERS.reduce((acc, v) => acc + (v.total - v.consumed), 0),
     [],
@@ -60,12 +56,9 @@ export default function SaldoCreditosPage() {
         onAddCredits={() => setAddOpen(true)}
       />
 
-      <VouchersTable />
+      <VoucherGrid />
 
-      <section className="grid grid-cols-2 items-start gap-6">
-        <CouponsApplied onOpenInvoice={setOpenInvoiceId} />
-        <ApplyCoupon />
-      </section>
+      <CouponHistory onOpenInvoice={setOpenInvoiceId} />
 
       <AddCreditsModal open={addOpen} onClose={() => setAddOpen(false)} />
       <InvoiceDetailsSheet
@@ -77,202 +70,7 @@ export default function SaldoCreditosPage() {
   );
 }
 
-/* ---------- hero ---------- */
-
-function CreditsHero({
-  available,
-  onAddCredits,
-}: {
-  available: number;
-  onAddCredits: () => void;
-}) {
-  return (
-    <section className="flex items-start justify-between gap-6">
-      <div>
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Saldo disponível
-        </p>
-        <h1 className="m-0 mt-2 display-md tabular-nums text-[var(--fg-primary)]">
-          <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
-            R$
-          </span>
-          {brl(available).replace(/^R\$\s*/, "")}
-        </h1>
-        <p className="m-0 mt-2 max-w-[480px] body-xs text-[var(--fg-secondary)]">
-          Créditos disponíveis para esta organização. Cada voucher e cupom
-          abate produtos e taxas específicos.
-        </p>
-      </div>
-      <AwButton
-        variant="primary"
-        iconLeft="add"
-        className="shrink-0"
-        onClick={onAddCredits}
-      >
-        Adicionar saldo
-      </AwButton>
-    </section>
-  );
-}
-
-/* ---------- vouchers table ---------- */
-
-function VouchersTable() {
-  return (
-    <section>
-      <div className="mb-4">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Vouchers</h6>
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          Créditos emitidos pela AwSales para a organização. O saldo de cada
-          um cai conforme o uso.
-        </p>
-      </div>
-      <AwCard className="!p-0">
-        <AwTable>
-          <thead>
-            <tr>
-              <th className="w-[220px]">Voucher</th>
-              <th>Consumo</th>
-              <th className="w-[160px] text-right">Saldo restante</th>
-            </tr>
-          </thead>
-          <tbody>
-            {VOUCHERS.map((v) => (
-              <VoucherRowItem key={v.id} row={v} />
-            ))}
-          </tbody>
-        </AwTable>
-      </AwCard>
-    </section>
-  );
-}
-
-function VoucherRowItem({ row }: { row: VoucherRow }) {
-  const pct = row.total > 0 ? Math.round((row.consumed / row.total) * 100) : 0;
-  const remaining = row.total - row.consumed;
-  const variant = row.acceleratedConsumption ? "warning" : "default";
-
-  return (
-    <tr>
-      <td>
-        {/* Status fica ao lado do título, encostado à direita da célula. */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-0.5">
-            <span className="body-sm font-medium text-[var(--fg-primary)]">
-              {row.description}
-            </span>
-            <span className="line-clamp-1 body-xs text-[var(--fg-tertiary)]">
-              {row.applicableTo} · {expiryLabel(row.expiresAt)}
-            </span>
-          </div>
-          <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
-            {row.status}
-          </AwPill>
-        </div>
-      </td>
-      <td>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <AwProgress value={pct} variant={variant} className="flex-1" />
-            <span className="shrink-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
-              {pct}%
-            </span>
-          </div>
-          <span
-            className={
-              "body-xs tabular-nums " +
-              (row.acceleratedConsumption
-                ? "inline-flex items-center gap-1 text-[var(--accent-warning)]"
-                : "text-[var(--fg-tertiary)]")
-            }
-          >
-            {row.acceleratedConsumption && <Icon name="trending_up" size={12} />}
-            {brl(row.consumed)} usado
-          </span>
-        </div>
-      </td>
-      <td className="text-right">
-        <div className="flex flex-col">
-          <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(remaining)}
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            de {brl(row.total)}
-          </span>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-/* ---------- coupons applied (card list) ---------- */
-
-function CouponsApplied({
-  onOpenInvoice,
-}: {
-  onOpenInvoice: (invoiceId: string) => void;
-}) {
-  return (
-    <div>
-      <div className="mb-3">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cupons aplicados</h6>
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Códigos já resgatados — o desconto aparece na fatura correspondente.
-        </p>
-      </div>
-      <AwCard className="!p-0">
-        <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
-          {COUPONS_APPLIED.map((c) => (
-            <CouponRowItem key={c.id} row={c} onOpenInvoice={onOpenInvoice} />
-          ))}
-        </ul>
-      </AwCard>
-    </div>
-  );
-}
-
-function CouponRowItem({
-  row,
-  onOpenInvoice,
-}: {
-  row: CouponRow;
-  onOpenInvoice: (invoiceId: string) => void;
-}) {
-  const invoiceExists = INVOICE_HISTORY.some((r) => r.id === row.invoiceId);
-
-  return (
-    <li className="m-0 grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-4">
-      <span className="flex h-7 items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-2 aw-eyebrow text-[var(--fg-secondary)]">
-        {row.code}
-      </span>
-      <div className="min-w-0">
-        <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
-          {row.description}
-        </p>
-        <p className="m-0 mt-0.5 body-xs tabular-nums text-[var(--fg-secondary)]">
-          {row.application} ·{" "}
-          {invoiceExists ? (
-            <button
-              type="button"
-              onClick={() => onOpenInvoice(row.invoiceId)}
-              className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--accent-brand)] hover:no-underline"
-            >
-              {row.invoiceId}
-            </button>
-          ) : (
-            row.invoiceId
-          )}{" "}
-          ({row.appliedAt})
-        </p>
-      </div>
-      <span className="body-sm font-medium tabular-nums text-[var(--accent-success)]">
-        −{brl(row.discount)}
-      </span>
-    </li>
-  );
-}
-
-/* ---------- apply coupon ---------- */
+/* ---------- hero with inline coupon apply ---------- */
 
 type Feedback =
   | { kind: "idle" }
@@ -286,7 +84,13 @@ const ERRORS = [
   "Moeda incompatível com sua conta.",
 ];
 
-function ApplyCoupon() {
+function CreditsHero({
+  available,
+  onAddCredits,
+}: {
+  available: number;
+  onAddCredits: () => void;
+}) {
   const [code, setCode] = React.useState("");
   const [feedback, setFeedback] = React.useState<Feedback>({ kind: "idle" });
   const [submitting, setSubmitting] = React.useState(false);
@@ -310,28 +114,54 @@ function ApplyCoupon() {
   };
 
   return (
-    <div>
-      <div className="mb-3">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Aplicar cupom</h6>
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Cole o código para resgatar o desconto na sua próxima fatura.
-        </p>
+    <section className="flex flex-col gap-5 border-b border-[var(--border-subtle)] pb-8">
+      <div className="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Saldo disponível
+          </p>
+          <h1 className="m-0 mt-2 display-md tabular-nums text-[var(--fg-primary)]">
+            <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
+              R$
+            </span>
+            {brl(available).replace(/^R\$\s*/, "")}
+          </h1>
+          <p className="m-0 mt-2 max-w-[480px] body-xs text-[var(--fg-secondary)]">
+            Créditos disponíveis pra esta organização. Cada voucher e cupom
+            abate produtos e taxas específicos.
+          </p>
+        </div>
+        <AwButton
+          variant="primary"
+          iconLeft="add"
+          className="shrink-0"
+          onClick={onAddCredits}
+        >
+          Adicionar saldo
+        </AwButton>
       </div>
-      <AwCard className="flex flex-col gap-3">
+
+      <div className="flex flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
+        <label
+          htmlFor="apply-coupon"
+          className="aw-eyebrow text-[var(--fg-tertiary)]"
+        >
+          Aplicar cupom
+        </label>
         <div className="flex items-center gap-2">
           <AwInput
+            id="apply-coupon"
             className="flex-1"
-            placeholder="Ex.: BF2026"
+            placeholder="Cole um código (ex.: BF2026)"
             value={code}
             onChange={(e) => setCode(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") apply();
             }}
-            aria-label="Código de cupom"
           />
           <AwButton
             size="md"
-            variant="primary"
+            variant="secondary"
             loading={submitting}
             onClick={apply}
             disabled={!code.trim()}
@@ -345,8 +175,8 @@ function ApplyCoupon() {
             role="status"
           >
             <Icon name="check_circle" size={14} fill={1} />
-            Cupom <strong>{feedback.code}</strong> aplicado. O desconto vai
-            aparecer na sua próxima fatura.
+            Cupom <strong>{feedback.code}</strong> aplicado. Desconto entra na
+            próxima fatura.
           </p>
         )}
         {feedback.kind === "error" && (
@@ -358,16 +188,161 @@ function ApplyCoupon() {
             {feedback.reason}
           </p>
         )}
-        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
-          Cada cupom vale só na primeira aplicação. Cupons já consumidos
-          aparecem ao lado.
-        </p>
-      </AwCard>
-    </div>
+      </div>
+    </section>
   );
 }
 
-/* ---------- add credits modal (sequencial) ---------- */
+/* ---------- vouchers as visual card grid ---------- */
+
+function VoucherGrid() {
+  return (
+    <section>
+      <div className="mb-4">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Vouchers ativos</h6>
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          Créditos emitidos pela AwSales. O saldo cai conforme você usa o
+          serviço aplicável.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {VOUCHERS.map((v) => (
+          <VoucherCard key={v.id} row={v} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function VoucherCard({ row }: { row: VoucherRow }) {
+  const pct = row.total > 0 ? Math.round((row.consumed / row.total) * 100) : 0;
+  const remaining = row.total - row.consumed;
+  const variant = row.acceleratedConsumption ? "warning" : "default";
+
+  return (
+    <AwCard className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            {row.description}
+          </p>
+          <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+            {row.applicableTo}
+          </p>
+        </div>
+        {row.status === "Expirado" && (
+          <AwPill variant="neutral">Expirado</AwPill>
+        )}
+      </div>
+
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="display-sm tabular-nums text-[var(--fg-primary)]">
+          {brl(remaining)}
+        </span>
+        <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+          de {brl(row.total)}
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <AwProgress value={pct} variant={variant} />
+        <div className="flex items-center justify-between gap-2 body-xs text-[var(--fg-tertiary)]">
+          <span className="inline-flex items-center gap-1">
+            {row.acceleratedConsumption && (
+              <Icon
+                name="trending_up"
+                size={12}
+                className="text-[var(--accent-warning)]"
+              />
+            )}
+            <span
+              className={
+                row.acceleratedConsumption
+                  ? "text-[var(--accent-warning)]"
+                  : undefined
+              }
+            >
+              {pct}% usado
+            </span>
+          </span>
+          <span>{expiryLabel(row.expiresAt)}</span>
+        </div>
+      </div>
+    </AwCard>
+  );
+}
+
+/* ---------- coupon history ---------- */
+
+function CouponHistory({
+  onOpenInvoice,
+}: {
+  onOpenInvoice: (invoiceId: string) => void;
+}) {
+  if (COUPONS_APPLIED.length === 0) {
+    return null;
+  }
+  return (
+    <section>
+      <div className="mb-4">
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cupons usados</h6>
+        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          Cada cupom vale só na primeira aplicação. O desconto entra na fatura
+          correspondente.
+        </p>
+      </div>
+      <ul className="m-0 flex flex-col gap-2 p-0">
+        {COUPONS_APPLIED.map((c) => {
+          const invoiceExists = INVOICE_HISTORY.some(
+            (r) => r.id === c.invoiceId,
+          );
+          return (
+            <li
+              key={c.id}
+              className="m-0 flex items-center gap-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 list-none"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+                <Icon
+                  name="local_offer"
+                  size={16}
+                  className="text-[var(--fg-tertiary)]"
+                />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+                  {c.description}{" "}
+                  <span className="ml-1 aw-eyebrow text-[var(--fg-tertiary)]">
+                    {c.code}
+                  </span>
+                </p>
+                <p className="m-0 mt-0.5 body-xs tabular-nums text-[var(--fg-secondary)]">
+                  {c.application} ·{" "}
+                  {invoiceExists ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenInvoice(c.invoiceId)}
+                      className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--accent-brand)] hover:no-underline"
+                    >
+                      {c.invoiceId}
+                    </button>
+                  ) : (
+                    c.invoiceId
+                  )}{" "}
+                  · {c.appliedAt}
+                </p>
+              </div>
+              <span className="body-sm font-medium tabular-nums text-[var(--accent-success)]">
+                −{brl(c.discount)}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+/* ---------- add credits modal ---------- */
 
 type AddStep = "method" | "details";
 type AddMethod = "pix" | "cartao" | "boleto";
@@ -621,7 +596,7 @@ function DetailsStep({
       {method.id === "pix" && (
         <InfoLine
           icon="qr_code_2"
-          text="Você vai receber um QR Code Pix para concluir o pagamento. O saldo entra na hora."
+          text="Você vai receber um QR Code Pix pra concluir o pagamento. O saldo entra na hora."
         />
       )}
       {method.id === "boleto" && (

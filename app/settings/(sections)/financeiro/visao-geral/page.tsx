@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { AwButton } from "@/components/ui/AwButton";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
-import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
-import { SectionHeading } from "../../_components/shared";
+import { Icon } from "@/components/ui/Icon";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
@@ -17,198 +16,297 @@ import {
   CURRENT_PLAN,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
-  PAYMENT_METHODS,
   VOUCHERS,
 } from "../_components/data";
 
+const TODAY = new Date(2026, 4, 19);
+
+function daysUntil(br: string): number {
+  const [d, m, y] = br.split("/").map(Number);
+  return Math.round(
+    (new Date(y, m - 1, d).getTime() - TODAY.getTime()) / 86_400_000,
+  );
+}
+
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  const first = parts[0]?.charAt(0) ?? "";
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.charAt(0) ?? "") : "";
+  return (first + last).toUpperCase();
+}
+
 export default function VisaoGeralPage() {
   return (
-    <div className="flex flex-col gap-12">
-      <BillingHero />
-      <ShortcutGrid />
-
-      <section>
-        <SectionHeading
-          title="Gastos variáveis"
-          description="Distribuição do consumo no período. Alterne entre serviço e agente pra rastrear de onde vem o gasto."
-        />
-        <VariableSpendingBlock />
-      </section>
+    <div className="flex flex-col gap-10">
+      <StatusStrip />
+      <SpendingHero />
+      <SideBySideSummary />
     </div>
   );
 }
 
-/* ---------- hero ---------- */
+/* ---------- status strip (top, no card) ---------- */
 
-function BillingHero() {
+function StatusStrip() {
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated;
   const { brand, last4 } = CURRENT_INVOICE.paymentMethod;
-
-  const activeVouchers = VOUCHERS.filter((v) => v.status === "Ativo");
-  const creditTotal = activeVouchers.reduce((s, v) => s + v.total, 0);
-  const creditConsumed = activeVouchers.reduce((s, v) => s + v.consumed, 0);
+  const days = daysUntil(CURRENT_INVOICE.dueAt);
 
   return (
-    <section className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
-      <AwCard className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-              Próxima cobrança · {CURRENT_INVOICE.dueAt}
-            </p>
-            <h1 className="m-0 display-md tabular-nums text-[var(--fg-primary)]">
-              <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
-                R$
-              </span>
-              {brl(total).replace(/^R\$\s*/, "")}
-            </h1>
-            <p className="m-0 body-sm text-[var(--fg-secondary)]">
-              {CURRENT_PLAN.name}{" "}
-              <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-                {brl(CURRENT_PLAN.monthly)}
-              </strong>{" "}
-              + variáveis até agora{" "}
-              <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-                {brl(OVERVIEW_KPIS.accumulated)}
-              </strong>
-              .
-            </p>
-          </div>
-          <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] pt-4">
-            <AwProgress
-              value={OVERVIEW_KPIS.accumulated}
-              max={OVERVIEW_KPIS.partialChargeAt}
-              label={
-                <span className="flex flex-col gap-0.5">
-                  <span>Consumo de variáveis</span>
-                  <span className="text-[var(--fg-tertiary)]">
-                    Ao atingir o limite, uma cobrança parcial é feita automaticamente
-                  </span>
-                </span>
-              }
-              valueLabel={`${brl(OVERVIEW_KPIS.accumulated)} de ${brl(OVERVIEW_KPIS.partialChargeAt)}`}
-              className="[&_.aw-progress__fill]:!bg-[var(--fg-tertiary)]"
-            />
-          </div>
-          <div className="flex items-center gap-2 border-t border-[var(--border-subtle)] pt-1">
-            <CardBrandLogo brand={brand} size={26} />
-            <span className="body-xs text-[var(--fg-secondary)]">
-              {brand} •••• {last4} · débito automático
-            </span>
-            <span className="flex-1" />
-            <Link
-              href="/settings/financeiro/metodos-pagamento"
-              className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-            >
-              Alterar
-            </Link>
-          </div>
-        </AwCard>
+    <section className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4 border-b border-[var(--border-subtle)] pb-6">
+      <div className="flex flex-col">
+        <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+          Próxima cobrança · {CURRENT_INVOICE.dueAt}
+          {days > 0 && ` · em ${days} dia${days !== 1 ? "s" : ""}`}
+        </span>
+        <h1 className="m-0 mt-1 display-md tabular-nums text-[var(--fg-primary)]">
+          <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
+            R$
+          </span>
+          {brl(total).replace(/^R\$\s*/, "")}
+        </h1>
+        <p className="m-0 mt-1 body-sm text-[var(--fg-secondary)]">
+          {CURRENT_PLAN.name} {brl(CURRENT_PLAN.monthly)} + variáveis até agora{" "}
+          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+            {brl(OVERVIEW_KPIS.accumulated)}
+          </strong>
+        </p>
+      </div>
 
-      <CreditBalanceCard
-        balance={creditTotal - creditConsumed}
-        consumed={creditConsumed}
-        total={creditTotal}
-        vouchers={activeVouchers.length}
-        coupons={COUPONS_APPLIED.length}
-      />
+      <div className="flex flex-col items-end gap-2">
+        <Link
+          href="/settings/financeiro/metodos-pagamento"
+          className="group inline-flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2 transition-colors hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+        >
+          <CardBrandLogo brand={brand} size={22} />
+          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
+            {brand} •••• {last4}
+          </span>
+          <span className="body-xs text-[var(--fg-tertiary)]">·</span>
+          <span className="body-xs text-[var(--fg-tertiary)]">
+            débito automático
+          </span>
+          <Icon
+            name="arrow_forward"
+            size={14}
+            className="text-[var(--fg-tertiary)] transition-transform group-hover:translate-x-0.5"
+          />
+        </Link>
+      </div>
     </section>
   );
 }
 
-/* ---------- credit balance card ---------- */
+/* ---------- spending hero (main focus) ---------- */
 
-function CreditBalanceCard({
-  balance,
-  consumed,
-  total,
-  vouchers,
-  coupons,
-}: {
-  balance: number;
-  consumed: number;
-  total: number;
-  vouchers: number;
-  coupons: number;
-}) {
-  const router = useRouter();
+function SpendingHero() {
+  const pct = Math.round(
+    (OVERVIEW_KPIS.accumulated / OVERVIEW_KPIS.partialChargeAt) * 100,
+  );
 
   return (
-    <AwCard className="flex flex-col gap-5">
-      <div>
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Saldo em créditos
-        </p>
-        <p className="m-0 mt-2 display-sm tabular-nums text-[var(--fg-primary)]">
-          <span className="mr-1 text-[0.5em] font-normal text-[var(--fg-tertiary)]">
-            R$
-          </span>
-          {brl(balance).replace(/^R\$\s*/, "")}
-        </p>
-        <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
-          {vouchers} {vouchers === 1 ? "voucher ativo" : "vouchers ativos"} ·{" "}
-          {coupons} {coupons === 1 ? "cupom aplicado" : "cupons aplicados"}
-        </p>
+    <section className="flex flex-col gap-5">
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+            Consumo do ciclo
+          </h6>
+          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+            Gastos variáveis acumulados desde o início do mês. Quando bater{" "}
+            {brl(OVERVIEW_KPIS.partialChargeAt)} a gente cobra parcial
+            automaticamente.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="m-0 display-sm tabular-nums text-[var(--fg-primary)]">
+            <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
+              R$
+            </span>
+            {brl(OVERVIEW_KPIS.accumulated).replace(/^R\$\s*/, "")}
+          </p>
+          <p className="m-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {pct}% de {brl(OVERVIEW_KPIS.partialChargeAt)}
+          </p>
+        </div>
       </div>
-
       <AwProgress
-        value={consumed}
-        max={total}
-        label="Consumo de créditos"
-        valueLabel={`${brl(balance)} restante`}
+        value={OVERVIEW_KPIS.accumulated}
+        max={OVERVIEW_KPIS.partialChargeAt}
+        className="[&_.aw-progress__fill]:!bg-[var(--fg-primary)]"
       />
+      <VariableSpendingBlock />
+    </section>
+  );
+}
 
-      <div className="mt-auto">
-        <AwButton
-          variant="secondary"
-          iconLeft="add"
-          onClick={() => router.push("/settings/financeiro/saldo-creditos")}
+/* ---------- bottom side-by-side: credits | next invoice preview | activity ---------- */
+
+function SideBySideSummary() {
+  return (
+    <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <CreditsSummary />
+      <NextInvoicePreview />
+      <RecentActivity />
+    </section>
+  );
+}
+
+function CreditsSummary() {
+  const active = VOUCHERS.filter((v) => v.status === "Ativo");
+  const available = active.reduce((s, v) => s + (v.total - v.consumed), 0);
+
+  return (
+    <AwCard className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Saldo em créditos
+          </p>
+          <p className="m-0 mt-1 body-lg font-medium tabular-nums text-[var(--fg-primary)]">
+            {brl(available)}
+          </p>
+        </div>
+        <Link
+          href="/settings/financeiro/saldo-creditos"
+          className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
         >
-          Adicionar saldo
-        </AwButton>
+          Ver detalhes
+        </Link>
       </div>
+      <ul className="m-0 flex flex-col gap-2 p-0">
+        {active.slice(0, 2).map((v) => {
+          const remaining = v.total - v.consumed;
+          return (
+            <li
+              key={v.id}
+              className="m-0 flex items-center justify-between gap-3 list-none"
+            >
+              <span className="min-w-0 truncate body-xs text-[var(--fg-secondary)]">
+                {v.description}
+              </span>
+              <span className="shrink-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
+                {brl(remaining)}
+              </span>
+            </li>
+          );
+        })}
+        {COUPONS_APPLIED.length > 0 && (
+          <li className="m-0 flex items-center justify-between gap-3 list-none">
+            <span className="body-xs text-[var(--fg-secondary)]">
+              {COUPONS_APPLIED.length}{" "}
+              {COUPONS_APPLIED.length === 1
+                ? "cupom aplicado"
+                : "cupons aplicados"}
+            </span>
+            <Icon
+              name="local_offer"
+              size={14}
+              className="text-[var(--fg-tertiary)]"
+            />
+          </li>
+        )}
+      </ul>
     </AwCard>
   );
 }
 
-/* ---------- shortcut grid ---------- */
-
-function ShortcutGrid() {
-  const latestInvoice = INVOICE_HISTORY[0];
-  const lastAudit = AUDIT_EVENTS[0];
-  const defaultMethod =
-    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
-  const activeVouchers = VOUCHERS.filter((v) => v.status === "Ativo");
-  const creditAvailable = activeVouchers.reduce(
-    (s, v) => s + (v.total - v.consumed),
-    0,
-  );
-
+function NextInvoicePreview() {
+  const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated;
   return (
-    <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-      <AwShortcutTile
-        icon="redeem"
-        title="Saldo de créditos"
-        description={`Disponível: ${brl(creditAvailable)} · ${activeVouchers.length} ${activeVouchers.length === 1 ? "voucher" : "vouchers"}`}
-        href="/settings/financeiro/saldo-creditos"
-      />
-      <AwShortcutTile
-        icon="credit_card"
-        title="Métodos de pagamento"
-        description={`Padrão: ${defaultMethod.brand} •••• ${defaultMethod.last4}`}
-        href="/settings/financeiro/metodos-pagamento"
-      />
-      <AwShortcutTile
-        icon="receipt_long"
-        title="Histórico de faturas"
-        description={`Última: ${latestInvoice.refMonth} · ${brl(latestInvoice.net)}`}
-        href="/settings/financeiro/historico-faturas"
-      />
-      <AwShortcutTile
-        icon="history"
-        title="Atividade"
-        description={`Última atividade ${lastAudit.date} às ${lastAudit.time}`}
-        href="/settings/financeiro/auditoria"
-      />
-    </div>
+    <AwCard className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Fatura em formação
+          </p>
+          <p className="m-0 mt-1 body-lg font-medium tabular-nums text-[var(--fg-primary)]">
+            {brl(total)}
+          </p>
+        </div>
+        <AwPill variant="draft">Em aberto</AwPill>
+      </div>
+      <ul className="m-0 flex flex-col gap-2 p-0">
+        <li className="m-0 flex items-center justify-between gap-3 list-none">
+          <span className="body-xs text-[var(--fg-secondary)]">
+            Plano {CURRENT_PLAN.name.replace("Plano ", "")}
+          </span>
+          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {brl(CURRENT_PLAN.monthly)}
+          </span>
+        </li>
+        <li className="m-0 flex items-center justify-between gap-3 list-none">
+          <span className="body-xs text-[var(--fg-secondary)]">
+            Variáveis até agora
+          </span>
+          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {brl(OVERVIEW_KPIS.accumulated)}
+          </span>
+        </li>
+        <li className="m-0 flex items-center justify-between gap-3 list-none">
+          <span className="body-xs text-[var(--fg-secondary)]">
+            Fecha em {CURRENT_INVOICE.dueAt}
+          </span>
+          <Link
+            href="/settings/financeiro/historico-faturas"
+            className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+          >
+            Ver histórico
+          </Link>
+        </li>
+      </ul>
+    </AwCard>
+  );
+}
+
+function RecentActivity() {
+  const recent = AUDIT_EVENTS.slice(0, 3);
+  return (
+    <AwCard className="flex flex-col gap-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Atividade recente
+          </p>
+          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+            Últimos eventos do ciclo
+          </p>
+        </div>
+        <Link
+          href="/settings/financeiro/auditoria"
+          className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+        >
+          Ver tudo
+        </Link>
+      </div>
+      <ul className="m-0 flex flex-col gap-3 p-0">
+        {recent.map((event) => (
+          <li
+            key={event.id}
+            className="m-0 flex items-start gap-3 list-none"
+          >
+            <AwAvatar
+              size="sm"
+              src={event.actorAvatar}
+              alt={event.actor}
+              initials={getInitials(event.actor)}
+            />
+            <div className="min-w-0 flex-1">
+              <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+                {event.action}
+              </p>
+              <p className="m-0 line-clamp-1 body-xs text-[var(--fg-tertiary)]">
+                {event.actor} · {event.date}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+      {INVOICE_HISTORY[0] && (
+        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+          Última fatura: {INVOICE_HISTORY[0].refMonth} ·{" "}
+          {brl(INVOICE_HISTORY[0].net)}
+        </p>
+      )}
+    </AwCard>
   );
 }
