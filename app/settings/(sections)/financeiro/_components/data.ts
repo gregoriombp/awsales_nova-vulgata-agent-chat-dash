@@ -420,16 +420,6 @@ export const VOUCHERS: VoucherRow[] = [
     expiresAt: "30/06/2026",
   },
   {
-    id: "v-bf",
-    description: "Bônus Black Friday Setup",
-    applicableTo: "Todas as taxas",
-    status: "Ativo",
-    total: 3000,
-    consumed: 1860,
-    expiresAt: "15/06/2026",
-    acceleratedConsumption: true,
-  },
-  {
     id: "v-2025",
     description: "Bônus 2025",
     applicableTo: "Todas as taxas",
@@ -466,7 +456,7 @@ export const COUPONS_APPLIED: CouponRow[] = [
     description: "Bônus onboarding",
     discount: 482.3,
     application: "Uma única vez",
-    invoiceId: "INV-2026-01-1001",
+    invoiceId: "INV-2026-01-PLN",
     appliedAt: "11/01/2026",
   },
 ];

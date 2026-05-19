@@ -1,18 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { AwAlert } from "@/components/ui/AwAlert";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwInput } from "@/components/ui/AwInput";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
+import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import {
   brl,
   COUPONS_APPLIED,
+  INVOICE_HISTORY,
+  PAYMENT_METHODS,
   VOUCHERS,
   type CouponRow,
   type VoucherRow,
@@ -38,13 +43,15 @@ function expiryLabel(br: string): string {
 
 export default function SaldoCreditosPage() {
   const [addOpen, setAddOpen] = React.useState(false);
+  const [openInvoiceId, setOpenInvoiceId] = React.useState<string | null>(null);
 
   // Saldo disponível = soma do que ainda resta em cada voucher ativo.
   const available = React.useMemo(
     () => VOUCHERS.reduce((acc, v) => acc + (v.total - v.consumed), 0),
     [],
   );
-  const accelerated = VOUCHERS.find((v) => v.acceleratedConsumption);
+  const openInvoice =
+    INVOICE_HISTORY.find((r) => r.id === openInvoiceId) ?? null;
 
   return (
     <div className="flex flex-col gap-10">
@@ -53,34 +60,19 @@ export default function SaldoCreditosPage() {
         onAddCredits={() => setAddOpen(true)}
       />
 
-      {accelerated && (
-        <AwAlert variant="warning">
-          <div className="flex w-full flex-wrap items-center justify-between gap-3">
-            <div className="min-w-0">
-              <strong className="aw-alert__title">
-                {accelerated.description} está esgotando rápido
-              </strong>
-              <p className="m-0 body-xs text-[var(--fg-secondary)]">
-                Consumido 2,3× acima do previsto — pode acabar antes de{" "}
-                {accelerated.expiresAt} ({daysUntil(accelerated.expiresAt)}{" "}
-                dias restantes).
-              </p>
-            </div>
-            <AwButton size="sm" variant="ghost" iconRight="arrow_forward">
-              Revisar consumo
-            </AwButton>
-          </div>
-        </AwAlert>
-      )}
-
       <VouchersTable />
 
       <section className="grid grid-cols-2 items-start gap-6">
-        <CouponsApplied />
+        <CouponsApplied onOpenInvoice={setOpenInvoiceId} />
         <ApplyCoupon />
       </section>
 
       <AddCreditsModal open={addOpen} onClose={() => setAddOpen(false)} />
+      <InvoiceDetailsSheet
+        invoice={openInvoice}
+        open={openInvoice !== null}
+        onClose={() => setOpenInvoiceId(null)}
+      />
     </div>
   );
 }
@@ -117,7 +109,7 @@ function CreditsHero({
         className="shrink-0"
         onClick={onAddCredits}
       >
-        Adicionar créditos
+        Adicionar saldo
       </AwButton>
     </section>
   );
@@ -139,10 +131,9 @@ function VouchersTable() {
         <AwTable>
           <thead>
             <tr>
-              <th>Voucher</th>
-              <th>Status</th>
-              <th className="w-[260px]">Consumo</th>
-              <th className="text-right">Saldo restante</th>
+              <th className="w-[40%]">Voucher</th>
+              <th>Consumo</th>
+              <th className="w-[160px] text-right">Saldo restante</th>
             </tr>
           </thead>
           <tbody>
@@ -164,19 +155,20 @@ function VoucherRowItem({ row }: { row: VoucherRow }) {
   return (
     <tr>
       <td>
-        <div className="flex flex-col gap-0.5">
-          <span className="body-sm font-medium text-[var(--fg-primary)]">
-            {row.description}
-          </span>
-          <span className="body-xs text-[var(--fg-tertiary)]">
-            Aplica em {row.applicableTo} · {expiryLabel(row.expiresAt)}
-          </span>
+        {/* Status fica ao lado do título, encostado à direita da célula. */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="body-sm font-medium text-[var(--fg-primary)]">
+              {row.description}
+            </span>
+            <span className="body-xs text-[var(--fg-tertiary)]">
+              Aplica em {row.applicableTo} · {expiryLabel(row.expiresAt)}
+            </span>
+          </div>
+          <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
+            {row.status}
+          </AwPill>
         </div>
-      </td>
-      <td>
-        <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
-          {row.status}
-        </AwPill>
       </td>
       <td>
         <AwProgress
@@ -208,7 +200,11 @@ function VoucherRowItem({ row }: { row: VoucherRow }) {
 
 /* ---------- coupons applied (card list) ---------- */
 
-function CouponsApplied() {
+function CouponsApplied({
+  onOpenInvoice,
+}: {
+  onOpenInvoice: (invoiceId: string) => void;
+}) {
   return (
     <div>
       <div className="mb-3">
@@ -220,7 +216,7 @@ function CouponsApplied() {
       <AwCard className="!p-0">
         <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
           {COUPONS_APPLIED.map((c) => (
-            <CouponRowItem key={c.id} row={c} />
+            <CouponRowItem key={c.id} row={c} onOpenInvoice={onOpenInvoice} />
           ))}
         </ul>
       </AwCard>
@@ -228,7 +224,15 @@ function CouponsApplied() {
   );
 }
 
-function CouponRowItem({ row }: { row: CouponRow }) {
+function CouponRowItem({
+  row,
+  onOpenInvoice,
+}: {
+  row: CouponRow;
+  onOpenInvoice: (invoiceId: string) => void;
+}) {
+  const invoiceExists = INVOICE_HISTORY.some((r) => r.id === row.invoiceId);
+
   return (
     <li className="m-0 grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-4">
       <span className="flex h-7 items-center rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-2 aw-eyebrow text-[var(--fg-secondary)]">
@@ -239,7 +243,19 @@ function CouponRowItem({ row }: { row: CouponRow }) {
           {row.description}
         </p>
         <p className="m-0 mt-0.5 body-xs tabular-nums text-[var(--fg-secondary)]">
-          {row.application} · {row.invoiceId} ({row.appliedAt})
+          {row.application} ·{" "}
+          {invoiceExists ? (
+            <button
+              type="button"
+              onClick={() => onOpenInvoice(row.invoiceId)}
+              className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--accent-brand)] hover:no-underline"
+            >
+              {row.invoiceId}
+            </button>
+          ) : (
+            row.invoiceId
+          )}{" "}
+          ({row.appliedAt})
         </p>
       </div>
       <span className="body-sm font-medium tabular-nums text-[var(--accent-success)]">
@@ -344,7 +360,36 @@ function ApplyCoupon() {
   );
 }
 
-/* ---------- add credits modal ---------- */
+/* ---------- add credits modal (sequencial) ---------- */
+
+type AddStep = "method" | "details";
+type AddMethod = "pix" | "cartao" | "boleto";
+
+const ADD_STEPS: { id: AddStep; label: string }[] = [
+  { id: "method", label: "Método" },
+  { id: "details", label: "Detalhes" },
+];
+
+const ADD_METHODS: {
+  id: AddMethod;
+  brand: "pix" | "card" | "boleto";
+  title: string;
+  desc: string;
+}[] = [
+  { id: "pix", brand: "pix", title: "Pix", desc: "Crédito na hora" },
+  {
+    id: "cartao",
+    brand: "card",
+    title: "Cartão de crédito",
+    desc: "Aprovação imediata",
+  },
+  {
+    id: "boleto",
+    brand: "boleto",
+    title: "Boleto bancário",
+    desc: "Compensa em 2 a 3 dias úteis",
+  },
+];
 
 function AddCreditsModal({
   open,
@@ -353,33 +398,244 @@ function AddCreditsModal({
   open: boolean;
   onClose: () => void;
 }) {
+  const [step, setStep] = React.useState<AddStep>("method");
+  const [method, setMethod] = React.useState<AddMethod | null>(null);
+  const [amount, setAmount] = React.useState("");
+
+  const reset = () => {
+    setStep("method");
+    setMethod(null);
+    setAmount("");
+  };
+  const close = () => {
+    reset();
+    onClose();
+  };
+  const selected = ADD_METHODS.find((m) => m.id === method) ?? null;
+
   return (
     <AwModal
       open={open}
-      onClose={onClose}
-      title="Adicionar créditos"
+      onClose={close}
+      title="Adicionar saldo"
       footer={
-        <div className="flex justify-end gap-2">
-          <AwButton variant="secondary" onClick={onClose}>
+        step === "method" ? (
+          <AwButton size="sm" variant="ghost" onClick={close}>
             Cancelar
           </AwButton>
-          <AwButton variant="primary" onClick={onClose}>
-            Falar com a AwSales
-          </AwButton>
-        </div>
+        ) : (
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft="arrow_back"
+              onClick={() => setStep("method")}
+            >
+              Voltar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="add"
+              disabled={!amount.trim()}
+              onClick={close}
+            >
+              Adicionar saldo
+            </AwButton>
+          </>
+        )
       }
     >
-      <p className="m-0 body-sm text-[var(--fg-secondary)]">
-        Vouchers são emitidos pela AwSales para a sua organização. Para
-        liberar um novo crédito, fale com o seu gerente de conta.
-      </p>
-      <p className="m-0 mt-3 body-sm text-[var(--fg-secondary)]">
-        Tem um código de cupom? Resgate-o direto na seção{" "}
-        <strong className="font-medium text-[var(--fg-primary)]">
-          Aplicar cupom
-        </strong>
-        , logo abaixo.
-      </p>
+      <div className="flex flex-col gap-5">
+        <CreditsStepIndicator step={step} />
+
+        {step === "method" ? (
+          <MethodStep
+            onPick={(m) => {
+              setMethod(m);
+              setStep("details");
+            }}
+          />
+        ) : (
+          selected && (
+            <DetailsStep
+              method={selected}
+              amount={amount}
+              onAmount={setAmount}
+            />
+          )
+        )}
+      </div>
     </AwModal>
+  );
+}
+
+function CreditsStepIndicator({ step }: { step: AddStep }) {
+  const currentIndex = ADD_STEPS.findIndex((s) => s.id === step);
+  return (
+    <div
+      className="flex items-center gap-2"
+      role="progressbar"
+      aria-valuenow={currentIndex + 1}
+      aria-valuemin={1}
+      aria-valuemax={ADD_STEPS.length}
+      aria-label={`Passo ${currentIndex + 1} de ${ADD_STEPS.length}`}
+    >
+      {ADD_STEPS.map((s, i) => {
+        const active = i === currentIndex;
+        const done = i < currentIndex;
+        return (
+          <React.Fragment key={s.id}>
+            <span className="flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className={
+                  "flex h-5 w-5 shrink-0 items-center justify-center rounded-full body-xs font-semibold tabular-nums transition-colors duration-aw-fast " +
+                  (done || active
+                    ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
+                    : "bg-[var(--bg-muted)] text-[var(--fg-tertiary)]")
+                }
+              >
+                {i + 1}
+              </span>
+              <span
+                className={
+                  "body-xs font-medium " +
+                  (active
+                    ? "text-[var(--fg-primary)]"
+                    : "text-[var(--fg-tertiary)]")
+                }
+              >
+                {s.label}
+              </span>
+            </span>
+            {i < ADD_STEPS.length - 1 && (
+              <span
+                aria-hidden="true"
+                className="h-px w-6 shrink-0 bg-[var(--border-default)]"
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </div>
+  );
+}
+
+function MethodStep({ onPick }: { onPick: (m: AddMethod) => void }) {
+  return (
+    <>
+      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        Escolha como adicionar saldo à organização.
+      </p>
+      <div className="flex flex-col gap-2">
+        {ADD_METHODS.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            onClick={() => onPick(m.id)}
+            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-4 py-3 text-left transition-colors duration-aw-fast hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+          >
+            <AwBrandLogo brand={m.brand} size="sm" />
+            <span className="min-w-0 flex-1">
+              <span className="block body-sm font-medium text-[var(--fg-primary)]">
+                {m.title}
+              </span>
+              <span className="block body-xs text-[var(--fg-tertiary)]">
+                {m.desc}
+              </span>
+            </span>
+            <Icon
+              name="arrow_forward"
+              size={16}
+              className="text-[var(--fg-tertiary)]"
+            />
+          </button>
+        ))}
+      </div>
+    </>
+  );
+}
+
+function DetailsStep({
+  method,
+  amount,
+  onAmount,
+}: {
+  method: (typeof ADD_METHODS)[number];
+  amount: string;
+  onAmount: (v: string) => void;
+}) {
+  const [card, setCard] = React.useState(
+    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0],
+  );
+
+  return (
+    <>
+      <div className="flex items-center gap-2.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
+        <AwBrandLogo brand={method.brand} size="sm" />
+        <span className="body-xs text-[var(--fg-secondary)]">
+          Adicionando saldo via{" "}
+          <strong className="font-medium text-[var(--fg-primary)]">
+            {method.title}
+          </strong>
+        </span>
+      </div>
+
+      <AwField label="Valor a adicionar" htmlFor="credit-amount">
+        <AwInput
+          id="credit-amount"
+          placeholder="R$ 0,00"
+          inputMode="numeric"
+          value={amount}
+          onChange={(e) => onAmount(e.target.value)}
+          autoFocus
+        />
+      </AwField>
+
+      {method.id === "cartao" && (
+        <AwField label="Cobrar no cartão" htmlFor="credit-card">
+          <AwDropdownMenu
+            trigger={
+              <AwSelect id="credit-card" className="w-full justify-between">
+                {card.brand} •••• {card.last4}
+              </AwSelect>
+            }
+            items={PAYMENT_METHODS.map((m) => ({
+              id: m.id,
+              label: `${m.brand} •••• ${m.last4}`,
+              checked: m.id === card.id,
+              onSelect: () => setCard(m),
+            }))}
+          />
+        </AwField>
+      )}
+
+      {method.id === "pix" && (
+        <InfoLine
+          icon="qr_code_2"
+          text="Você vai receber um QR Code Pix para concluir o pagamento. O saldo entra na hora."
+        />
+      )}
+      {method.id === "boleto" && (
+        <InfoLine
+          icon="schedule"
+          text="O boleto é gerado na hora e vence em 3 dias úteis. O saldo entra após a compensação."
+        />
+      )}
+    </>
+  );
+}
+
+function InfoLine({ icon, text }: { icon: string; text: string }) {
+  return (
+    <div className="flex items-start gap-2.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 py-2.5">
+      <Icon
+        name={icon}
+        size={16}
+        className="mt-0.5 shrink-0 text-[var(--fg-tertiary)]"
+      />
+      <p className="m-0 body-xs text-[var(--fg-secondary)]">{text}</p>
+    </div>
   );
 }
