@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import Button from "@/components/Button";
+import { NOTIFICATIONS } from "@/lib/notifications";
 
 type NotificationItem = {
   id: string;
@@ -9,7 +11,7 @@ type NotificationItem = {
   description: string;
   dateLabel: string;
   isUnread?: boolean;
-  ctaLabel?: string;
+  href?: string;
 };
 
 export default function NotificationsPopover({
@@ -21,44 +23,14 @@ export default function NotificationsPopover({
 }) {
   const [tab, setTab] = useState<"all" | "unread">("all");
 
-  const items = useMemo<NotificationItem[]>(
-    () => [
-      {
-        id: "1",
-        title: "O cartão padrão expirou.",
-        description:
-          "O cartão definido como padrão para cobranças expirou e não há outra forma de pagamento ativa. Necessário atualizar o método de pagamento para evitar a interrupção de serviços.",
-        dateLabel: "12 de jan. 2026 às 16:27",
-        isUnread: true,
-        ctaLabel: "Acessar",
-      },
-      {
-        id: "2",
-        title: "O cartão padrão expirou.",
-        description:
-          "O cartão definido como padrão para cobranças expirou e não há outra forma de pagamento ativa. Necessário atualizar o método de pagamento para evitar a interrupção de serviços.",
-        dateLabel: "12 de jan. 2026 às 16:27",
-        isUnread: false,
-      },
-      {
-        id: "3",
-        title: "O cartão padrão expirou.",
-        description:
-          "O cartão definido como padrão para cobranças expirou e não há outra forma de pagamento ativa. Necessário atualizar o método de pagamento para evitar a interrupção de serviços.",
-        dateLabel: "12 de jan. 2026 às 16:27",
-        isUnread: false,
-      },
-      {
-        id: "4",
-        title: "O cartão padrão expirou.",
-        description:
-          "O cartão definido como padrão para cobranças expirou e não há outra forma de pagamento ativa. Necessário atualizar o método de pagamento para evitar a interrupção de serviços.",
-        dateLabel: "12 de jan. 2026 às 16:27",
-        isUnread: false,
-      },
-    ],
-    []
-  );
+  const items: NotificationItem[] = NOTIFICATIONS.map((n) => ({
+    id: n.id,
+    title: n.title,
+    description: n.description,
+    dateLabel: n.timeLabel,
+    isUnread: !n.read,
+    href: n.href,
+  }));
 
   const filtered = tab === "unread" ? items.filter((i) => i.isUnread) : items;
 
@@ -203,39 +175,31 @@ export default function NotificationsPopover({
                     {n.isUnread ? "Marcar como lida" : "Ignorar"}
                   </button>
 
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    className="w-auto"
-                    onClick={() => {
-                      onClose();
-                    }}
-                  >
-                    {n.ctaLabel ? (
-                      n.ctaLabel
-                    ) : (
-                      <span className="inline-flex items-center gap-2">
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 20 20"
-                          fill="none"
-                        >
-                          <path
-                            d="M10 4V16M4 10H16"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                          />
-                        </svg>
+                  {n.href && (
+                    <Link href={n.href} onClick={onClose}>
+                      <Button
+                        size="sm"
+                        variant="primary"
+                        className="w-auto"
+                      >
                         Ver
-                      </span>
-                    )}
-                  </Button>
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </div>
             ))
           )}
+        </div>
+
+        <div className="mt-4 border-t border-[#f2f2f2] pt-3 text-center">
+          <Link
+            href="/notifications"
+            onClick={onClose}
+            className="body-sm font-medium text-[#5e5e5e] hover:text-[#0d0d0d]"
+          >
+            Ver todas as notificações →
+          </Link>
         </div>
       </div>
     </div>
