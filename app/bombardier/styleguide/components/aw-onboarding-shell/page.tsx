@@ -6,15 +6,24 @@ import {
   Section,
 } from "../../_primitives"
 
+const ROUTES: { href: string; label: string }[] = [
+  { href: "/primeiro-acesso/verificacao", label: "Etapa 01 · verificação" },
+  { href: "/primeiro-acesso/conta", label: "Etapa 02 · sua conta" },
+  { href: "/primeiro-acesso/perfil", label: "Etapa 03 · seu perfil" },
+  { href: "/primeiro-acesso/contrato", label: "Etapa 04 · contrato" },
+  { href: "/primeiro-acesso/pagamento", label: "Etapa 05 · pagamento" },
+  { href: "/primeiro-acesso/concluido", label: "Etapa 06 · concluído" },
+]
+
 export default function AwOnboardingShellPlaygroundPage() {
   return (
     <>
       <PageHero title="AwOnboardingShell">
-        Casca de tela inteira pro fluxo de Primeiro Acesso (8 etapas). Cobre
-        a top bar com logo + breadcrumb, o stepper horizontal e o painel de
-        marca escuro à esquerda (Variação B — com brand). O conteúdo da
-        etapa entra via <code className="font-mono text-[13px]">children</code>{" "}
-        no work pane à direita.
+        Casca de tela inteira pro fluxo de Primeiro Acesso (6 etapas). Divide a
+        viewport em duas zonas: o brand pane escuro à esquerda — logo, timeline
+        vertical das etapas, selo de sessão e card da organização — e o work
+        pane scrollable à direita, onde o conteúdo da etapa entra via{" "}
+        <code className="font-mono text-[13px]">children</code>.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -22,7 +31,7 @@ export default function AwOnboardingShellPlaygroundPage() {
           <Section
             id="preview"
             title="Preview ao vivo"
-            lead="O shell ocupa a viewport inteira (h-screen) e não cabe inline no styleguide — abra em rota dedicada pra inspecionar o layout completo."
+            lead="O shell ocupa a viewport inteira (h-screen) e não cabe inline no styleguide — abra uma das rotas pra inspecionar o layout completo."
           >
             <div className="rounded-xl border border-border-subtle bg-bg-raised p-6">
               <div
@@ -32,15 +41,17 @@ export default function AwOnboardingShellPlaygroundPage() {
                 Rotas implementadas
               </div>
               <ul className="m-0 flex flex-col gap-2 p-0 list-none">
-                <li>
-                  <Link
-                    href="/primeiro-acesso/boas-vindas"
-                    className="inline-flex items-center gap-2 font-mono text-sm text-fg-primary underline decoration-border-strong underline-offset-4 hover:decoration-fg-primary"
-                  >
-                    /primeiro-acesso/boas-vindas
-                    <span className="text-fg-tertiary">→ Tela 02 · boas-vindas</span>
-                  </Link>
-                </li>
+                {ROUTES.map((r) => (
+                  <li key={r.href}>
+                    <Link
+                      href={r.href}
+                      className="inline-flex items-center gap-2 font-mono text-sm text-fg-primary underline decoration-border-strong underline-offset-4 hover:decoration-fg-primary"
+                    >
+                      {r.href}
+                      <span className="text-fg-tertiary">→ {r.label}</span>
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </Section>
@@ -48,28 +59,39 @@ export default function AwOnboardingShellPlaygroundPage() {
           <Section
             id="anatomy"
             title="Anatomia"
-            lead="O shell costura três zonas fixas e um slot de conteúdo. Os tokens visuais vêm todos do foundation; o painel escuro fixa fundo brand (aw-gray-1200) por intenção identitária."
+            lead="O shell costura duas zonas. Os tokens visuais vêm todos do foundation; o brand pane fixa o fundo escuro (aw-gray-1200) por intenção identitária."
           >
             <div className="rounded-xl border border-border-subtle bg-bg-raised p-6 text-sm text-fg-secondary leading-relaxed">
               <ul className="m-0 flex flex-col gap-2 p-0 list-disc pl-5">
                 <li>
-                  <b className="text-fg-primary">Top bar</b> — 56 px, logo AwSales{" "}
-                  <code className="font-mono text-xs">mark</code> + wordmark e
-                  breadcrumb mono à direita.
-                </li>
-                <li>
-                  <b className="text-fg-primary">Stepper</b> — 8 pips conectados,
-                  com estados <code className="font-mono text-xs">done</code>,{" "}
-                  <code className="font-mono text-xs">active</code> e pendente.
-                </li>
-                <li>
                   <b className="text-fg-primary">Brand pane</b> — 38% (320–480 px),
-                  fundo escuro fixo com neural pattern, h1 dinâmico por etapa,
-                  card de organização e rodapé mono com contador 0X/08.
+                  fundo escuro fixo com imagem de marca e overlay em gradiente.
+                </li>
+                <li>
+                  <b className="text-fg-primary">Logo</b> — wordmark AwSales no
+                  topo do brand pane.
+                </li>
+                <li>
+                  <b className="text-fg-primary">Timeline</b> — stepper{" "}
+                  <i>vertical</i> de 6 etapas, com estados{" "}
+                  <code className="font-mono text-xs">done</code>,{" "}
+                  <code className="font-mono text-xs">current</code> e{" "}
+                  <code className="font-mono text-xs">upcoming</code>; a trilha
+                  branca anima a altura conforme a etapa avança.
+                </li>
+                <li>
+                  <b className="text-fg-primary">Selo de sessão</b> — chip
+                  emerald opcional (via <code className="font-mono text-xs">authState</code>)
+                  mostrando o método de autenticação e o e-mail.
+                </li>
+                <li>
+                  <b className="text-fg-primary">Card da organização</b> — nome,
+                  CNPJ e plano; some antes do reconhecimento do usuário via{" "}
+                  <code className="font-mono text-xs">showOrgCard</code>.
                 </li>
                 <li>
                   <b className="text-fg-primary">Work pane</b> — slot scrollable
-                  centralizado (max-w 520 px), recebe o conteúdo da etapa.
+                  centralizado (max-w 640 px), recebe o conteúdo da etapa.
                 </li>
               </ul>
             </div>
@@ -78,13 +100,13 @@ export default function AwOnboardingShellPlaygroundPage() {
           <Section
             id="api"
             title="Props"
-            lead="Configuração mínima — passe currentStep e org; brandTitle/brandSubtitle só pra sobrescrever a copy padrão do passo."
+            lead="Configuração mínima — passe currentStep e org. O restante ajusta o brand pane."
           >
             <ApiTable>
               <PropRow
                 prop="currentStep"
-                type="number (0–7)"
-                doc="Índice da etapa ativa. Define qual pip fica destacado e o título exibido no brand pane."
+                type="number (0–5)"
+                doc="Índice da etapa ativa. Define qual ponto da timeline fica destacado e quanto da trilha branca preenche."
               />
               <PropRow
                 prop="org"
@@ -97,16 +119,22 @@ export default function AwOnboardingShellPlaygroundPage() {
                 doc="Conteúdo do work pane — o componente da tela (eyebrow, título, body, ações)."
               />
               <PropRow
-                prop="brandTitle"
+                prop="brandBackground"
                 type="string"
-                def="STEPS[currentStep].brandTitle"
-                doc="Sobrescreve o título do brand pane quando a copy padrão não cabe."
+                def="AW_ONBOARDING_BRAND_BACKGROUND"
+                doc="Imagem de fundo do brand pane. Sem imagem, cai no neural pattern."
               />
               <PropRow
-                prop="brandSubtitle"
-                type="string"
-                def='"Configuração inicial..."'
-                doc="Sobrescreve o subtítulo do brand pane."
+                prop="showOrgCard"
+                type="boolean"
+                def="true"
+                doc="Esconde o card da organização — usado na etapa 01, antes de reconhecer o usuário."
+              />
+              <PropRow
+                prop="authState"
+                type="{ method, email }"
+                def="undefined"
+                doc="Quando definido, exibe o selo de sessão segura acima do card da organização."
               />
             </ApiTable>
           </Section>
