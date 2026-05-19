@@ -6,7 +6,6 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
-import { Icon } from "@/components/ui/Icon";
 import { SectionHeading } from "../../_components/shared";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
@@ -50,42 +49,60 @@ function BillingHero() {
   const creditConsumed = activeVouchers.reduce((s, v) => s + v.consumed, 0);
 
   return (
-    <section className="grid grid-cols-1 items-stretch gap-14 lg:grid-cols-2">
-      <div className="flex flex-col gap-2">
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Próxima cobrança · {CURRENT_INVOICE.dueAt}
-        </p>
-        <h1 className="m-0 display-md tabular-nums text-[var(--fg-primary)]">
-          <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
-            R$
-          </span>
-          {brl(total).replace(/^R\$\s*/, "")}
-        </h1>
-        <p className="m-0 mt-1 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          {CURRENT_PLAN.name}{" "}
-          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(CURRENT_PLAN.monthly)}
-          </strong>{" "}
-          + variáveis até agora{" "}
-          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(OVERVIEW_KPIS.accumulated)}
-          </strong>
-          .
-        </p>
-        <div className="mt-3 flex items-center gap-2 border-t border-[var(--border-subtle)] pt-3">
-          <CardBrandLogo brand={brand} size={26} />
-          <span className="body-xs text-[var(--fg-secondary)]">
-            {brand} •••• {last4} · débito automático
-          </span>
-          <span className="flex-1" />
-          <Link
-            href="/settings/financeiro/metodos-pagamento"
-            className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-          >
-            Alterar
-          </Link>
-        </div>
-      </div>
+    <section className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
+      <AwCard className="flex flex-col gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+              Próxima cobrança · {CURRENT_INVOICE.dueAt}
+            </p>
+            <h1 className="m-0 display-md tabular-nums text-[var(--fg-primary)]">
+              <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
+                R$
+              </span>
+              {brl(total).replace(/^R\$\s*/, "")}
+            </h1>
+            <p className="m-0 body-sm text-[var(--fg-secondary)]">
+              {CURRENT_PLAN.name}{" "}
+              <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+                {brl(CURRENT_PLAN.monthly)}
+              </strong>{" "}
+              + variáveis até agora{" "}
+              <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+                {brl(OVERVIEW_KPIS.accumulated)}
+              </strong>
+              .
+            </p>
+          </div>
+          <div className="flex flex-col gap-4 border-t border-[var(--border-subtle)] pt-4">
+            <AwProgress
+              value={OVERVIEW_KPIS.accumulated}
+              max={OVERVIEW_KPIS.partialChargeAt}
+              label={
+                <span className="flex flex-col gap-0.5">
+                  <span>Consumo de variáveis</span>
+                  <span className="text-[var(--fg-tertiary)]">
+                    Ao atingir o limite, uma cobrança parcial é feita automaticamente
+                  </span>
+                </span>
+              }
+              valueLabel={`${brl(OVERVIEW_KPIS.accumulated)} de ${brl(OVERVIEW_KPIS.partialChargeAt)}`}
+              className="[&_.aw-progress__fill]:!bg-[var(--fg-tertiary)]"
+            />
+          </div>
+          <div className="flex items-center gap-2 border-t border-[var(--border-subtle)] pt-1">
+            <CardBrandLogo brand={brand} size={26} />
+            <span className="body-xs text-[var(--fg-secondary)]">
+              {brand} •••• {last4} · débito automático
+            </span>
+            <span className="flex-1" />
+            <Link
+              href="/settings/financeiro/metodos-pagamento"
+              className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+            >
+              Alterar
+            </Link>
+          </div>
+        </AwCard>
 
       <CreditBalanceCard
         balance={creditTotal - creditConsumed}
@@ -114,54 +131,42 @@ function CreditBalanceCard({
   coupons: number;
 }) {
   const router = useRouter();
-  const consumedPct = total > 0 ? Math.round((consumed / total) * 100) : 0;
 
   return (
-    <div className="relative overflow-hidden rounded-xl bg-aw-gray-1200 flex flex-col gap-4 px-6 py-5">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(80% 60% at 100% 0%, rgba(71,138,255,0.15), transparent 60%)",
-        }}
+    <AwCard className="flex flex-col gap-5">
+      <div>
+        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+          Saldo em créditos
+        </p>
+        <p className="m-0 mt-2 display-sm tabular-nums text-[var(--fg-primary)]">
+          <span className="mr-1 text-[0.5em] font-normal text-[var(--fg-tertiary)]">
+            R$
+          </span>
+          {brl(balance).replace(/^R\$\s*/, "")}
+        </p>
+        <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
+          {vouchers} {vouchers === 1 ? "voucher ativo" : "vouchers ativos"} ·{" "}
+          {coupons} {coupons === 1 ? "cupom aplicado" : "cupons aplicados"}
+        </p>
+      </div>
+
+      <AwProgress
+        value={consumed}
+        max={total}
+        label="Consumo de créditos"
+        valueLabel={`${brl(balance)} restante`}
       />
-      <div className="relative flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-2">
-          <p className="m-0 aw-eyebrow text-white/50">Saldo em créditos</p>
-          <p className="m-0 display-sm tabular-nums text-white">
-            <span className="mr-1 text-[0.5em] font-normal text-white/40">
-              R$
-            </span>
-            {brl(balance).replace(/^R\$\s*/, "")}
-          </p>
-        </div>
-        <button
-          type="button"
+
+      <div className="mt-auto">
+        <AwButton
+          variant="secondary"
+          iconLeft="add"
           onClick={() => router.push("/settings/financeiro/saldo-creditos")}
-          className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 body-xs font-medium text-white transition-colors duration-aw-fast hover:bg-white/[0.15]"
         >
-          <Icon name="add" size={13} />
           Adicionar saldo
-        </button>
+        </AwButton>
       </div>
-      <div className="relative">
-        <AwProgress
-          value={consumed}
-          max={total}
-          label="Consumo do saldo"
-          valueLabel={`${brl(balance)} · ${100 - consumedPct}% restante`}
-          className="[&_.aw-progress-row__top_span]:!text-white/60 [&_.aw-progress-row__top_b]:!text-white/60 [&_.aw-progress]:!bg-white/15 [&_.aw-progress__fill]:!bg-white"
-        />
-      </div>
-      <div className="relative mt-auto flex items-center gap-2 border-t border-white/10 pt-3">
-        <Icon name="redeem" size={15} className="text-white/50" />
-        <span className="body-xs text-white/70">
-          Acumulado de {vouchers} {vouchers === 1 ? "voucher" : "vouchers"} e{" "}
-          {coupons} {coupons === 1 ? "cupom" : "cupons"}
-        </span>
-      </div>
-    </div>
+    </AwCard>
   );
 }
 

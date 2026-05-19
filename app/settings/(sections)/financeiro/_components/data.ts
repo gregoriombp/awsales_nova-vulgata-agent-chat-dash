@@ -26,6 +26,10 @@ export const OVERVIEW_KPIS = {
   monthSavings: 132.4, // economia com créditos / cupons
 };
 
+// Limite mensal de gastos variáveis por usuário/organização.
+// Quando atingido, o montante acumulado é cobrado automaticamente.
+export const VARIABLE_SPENDING_LIMIT = 1500;
+
 // Gastos variáveis — agrupados por dia (1..31) e por categoria.
 // 4 categorias por agrupamento; cada valor é em BRL.
 export type SpendingGrouping = "service" | "agent";
@@ -441,15 +445,6 @@ export type CouponRow = {
 };
 
 export const COUPONS_APPLIED: CouponRow[] = [
-  {
-    id: "c-bf",
-    code: "BF2025",
-    description: "Black Friday 2025",
-    discount: 250.61,
-    application: "Em 3 ciclos",
-    invoiceId: "INV-2026-04-1234",
-    appliedAt: "28/04/2026",
-  },
   {
     id: "c-onboard",
     code: "ONBOARD",

@@ -3,7 +3,6 @@
 import * as React from "react";
 import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
 import { AwAvatar } from "@/components/ui/AwAvatar";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
@@ -197,13 +196,11 @@ export function VariableSpendingBlock() {
         />
       </div>
 
-      <AwCard className="!p-0 !border-0">
-        {grouping === "service" ? (
-          <ServiceTable period={periodId} allowedRowIds={allowedRowIds} />
-        ) : (
-          <AgentTable period={periodId} allowedRowIds={allowedRowIds} />
-        )}
-      </AwCard>
+      {grouping === "service" ? (
+        <ServiceTable period={periodId} allowedRowIds={allowedRowIds} />
+      ) : (
+        <AgentTable period={periodId} allowedRowIds={allowedRowIds} />
+      )}
     </div>
   );
 }

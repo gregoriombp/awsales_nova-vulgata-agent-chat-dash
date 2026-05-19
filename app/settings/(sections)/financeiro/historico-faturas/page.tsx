@@ -71,10 +71,6 @@ export default function HistoricoFaturasPage() {
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
-  // Header summary stays anchored to the full period; the table, its totals
-  // row, and the pagination react to the search + status controls.
-  const periodTotals = React.useMemo(() => sum(INVOICE_HISTORY), []);
-
   const rows = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return INVOICE_HISTORY.filter((r) => {
@@ -102,11 +98,6 @@ export default function HistoricoFaturasPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <PeriodSummary
-        totals={periodTotals}
-        count={INVOICE_HISTORY.length}
-      />
-
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-[240px] flex-1">
           <AwInput
@@ -201,51 +192,6 @@ export default function HistoricoFaturasPage() {
         onClose={() => setOpenId(null)}
       />
     </div>
-  );
-}
-
-/* ---------- header ---------- */
-
-function PeriodSummary({
-  totals,
-  count,
-}: {
-  totals: { gross: number; discount: number; net: number };
-  count: number;
-}) {
-  return (
-    <section className="flex items-start justify-between gap-6">
-      <div>
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-          Você economizou · últimos 6 meses
-        </p>
-        <h1 className="m-0 mt-2 display-sm tabular-nums text-[var(--fg-primary)]">
-          <span className="mr-1 text-[0.5em] font-normal text-[var(--fg-tertiary)]">
-            R$
-          </span>
-          {brl(totals.discount).replace(/^R\$\s*/, "")}
-        </h1>
-        <p className="m-0 mt-2 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          {count} fatura{count !== 1 ? "s" : ""} no período · pagou{" "}
-          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(totals.net)}
-          </strong>{" "}
-          de{" "}
-          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(totals.gross)}
-          </strong>
-          .
-        </p>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <AwButton size="sm" variant="secondary" iconLeft="download">
-          CSV
-        </AwButton>
-        <AwButton size="sm" variant="secondary" iconLeft="picture_as_pdf">
-          PDF
-        </AwButton>
-      </div>
-    </section>
   );
 }
 

@@ -131,7 +131,7 @@ function VouchersTable() {
         <AwTable>
           <thead>
             <tr>
-              <th className="w-[40%]">Voucher</th>
+              <th className="w-[220px]">Voucher</th>
               <th>Consumo</th>
               <th className="w-[160px] text-right">Saldo restante</th>
             </tr>
@@ -161,8 +161,8 @@ function VoucherRowItem({ row }: { row: VoucherRow }) {
             <span className="body-sm font-medium text-[var(--fg-primary)]">
               {row.description}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">
-              Aplica em {row.applicableTo} · {expiryLabel(row.expiresAt)}
+            <span className="line-clamp-1 body-xs text-[var(--fg-tertiary)]">
+              {row.applicableTo} · {expiryLabel(row.expiresAt)}
             </span>
           </div>
           <AwPill variant={row.status === "Ativo" ? "live" : "neutral"}>
@@ -171,18 +171,25 @@ function VoucherRowItem({ row }: { row: VoucherRow }) {
         </div>
       </td>
       <td>
-        <AwProgress
-          value={pct}
-          variant={variant}
-          label={`${brl(row.consumed)} usado`}
-          valueLabel={`${pct}%`}
-        />
-        {row.acceleratedConsumption && (
-          <span className="mt-1 inline-flex items-center gap-1 body-xs text-[var(--accent-warning)]">
-            <Icon name="trending_up" size={13} />
-            2,3× acima do previsto
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <AwProgress value={pct} variant={variant} className="flex-1" />
+            <span className="shrink-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
+              {pct}%
+            </span>
+          </div>
+          <span
+            className={
+              "body-xs tabular-nums " +
+              (row.acceleratedConsumption
+                ? "inline-flex items-center gap-1 text-[var(--accent-warning)]"
+                : "text-[var(--fg-tertiary)]")
+            }
+          >
+            {row.acceleratedConsumption && <Icon name="trending_up" size={12} />}
+            {brl(row.consumed)} usado
           </span>
-        )}
+        </div>
       </td>
       <td className="text-right">
         <div className="flex flex-col">
