@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
@@ -96,9 +96,8 @@ export default function ProfileSettingsPage() {
   // completo vive em /notifications.
   const latestNotifications = NOTIFICATIONS.slice(0, 4);
 
-  const publicRows = [
+  const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
     { icon: "person", text: fullName },
-    { icon: "alternate_email", text: "@greg" },
     { icon: "mail", text: email },
     { icon: "badge", text: role },
     { icon: "schedule", text: "Brasília · GMT−03" },
@@ -184,20 +183,21 @@ export default function ProfileSettingsPage() {
             </AwButton>
           </div>
           <div className="ml-6 mt-5 pb-10">
-            <h3 className="m-0 text-[var(--fg-primary)]">
-              {fullName}
-            </h3>
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-secondary)]">
-              <span>@greg</span>
-              <span aria-hidden="true" className="text-[var(--fg-muted)]">
-                ·
-              </span>
-              <span>{email}</span>
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <AwPill variant="ai" dot={false}>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <h3 className="m-0 text-[var(--fg-primary)]">
+                {fullName}
+              </h3>
+              <AwPill variant="ai" dot={false} className="inline-flex items-center gap-1">
+                <Icon name="workspace_premium" size={11} />
                 {role}
               </AwPill>
+            </div>
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+              <ContactChip href={`mailto:${email}`} iconName="mail" label={email} />
+              <ContactChip href="https://wa.me/5511987654321" iconNode={<WhatsAppIcon />} label="+55 11 98765-4321" />
+              <ContactChip href="https://slack.com/app_redirect?channel=greg.pinheiro" iconNode={<SlackIcon />} label="@greg.pinheiro" />
+            </div>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
               <AwPill variant="neutral" dot={false}>
                 Workspace Awsales
               </AwPill>
@@ -361,6 +361,58 @@ export default function ProfileSettingsPage() {
 }
 
 /* -----------------------------------------------------------------
+ * ContactChip — pill clicável para email / redes sociais no header
+ * ----------------------------------------------------------------- */
+
+function ContactChip({
+  href,
+  iconName,
+  iconNode,
+  label,
+}: {
+  href: string;
+  iconName?: string;
+  iconNode?: React.ReactNode;
+  label: string;
+}) {
+  return (
+    <a
+      href={href}
+      target={href.startsWith("mailto") ? undefined : "_blank"}
+      rel="noopener noreferrer"
+      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-2.5 py-1 body-xs text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+    >
+      {iconNode ?? (iconName ? <Icon name={iconName} size={13} className="shrink-0 text-[var(--fg-tertiary)]" /> : null)}
+      <span>{label}</span>
+    </a>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Brand icons for social rows
+ * ----------------------------------------------------------------- */
+
+function SlackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" className="shrink-0" aria-hidden="true">
+      <path d="M9.5 15.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 0V10" stroke="#E01E5A" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M14.5 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm0 0H10" stroke="#36C5F0" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M8.5 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0 0H14" stroke="#2EB67D" strokeWidth="1.8" strokeLinecap="round"/>
+      <path d="M15.5 14.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 0V10" stroke="#ECB22E" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" className="shrink-0" aria-hidden="true">
+      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.526 3.656 1.438 5.162L2 22l4.962-1.418A9.954 9.954 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="#25D366"/>
+      <path d="M8.5 9c.167-.5.667-1.5 1.5-1.5.5 0 .833.25 1 .75L11.5 10c.083.25 0 .583-.25.875L10.5 12c.5 1 1.5 2 2.5 2.5l1.125-.75c.292-.25.625-.333.875-.25l1.75.5c.5.167.75.5.75 1 0 .833-1 1.333-1.5 1.5-2.5.5-6.5-2-7.5-5.5-.25-.833-.167-1.583 0-2z" fill="white"/>
+    </svg>
+  );
+}
+
+/* -----------------------------------------------------------------
  * InfoCard — cartão da coluna esquerda: cabeçalho com ação opcional
  * e uma lista de linhas ícone + valor.
  * ----------------------------------------------------------------- */
@@ -371,7 +423,7 @@ function InfoCard({
   action,
 }: {
   title: string;
-  rows: { icon: string; text: string }[];
+  rows: { icon?: string; iconNode?: React.ReactNode; text: string }[];
   action?: React.ReactNode;
 }) {
   return (
@@ -383,14 +435,16 @@ function InfoCard({
       <ul className="m-0 flex list-none flex-col p-2">
         {rows.map((row) => (
           <li
-            key={row.icon + row.text}
+            key={(row.icon ?? "") + row.text}
             className="flex items-center gap-2.5 px-2 py-1.5"
           >
-            <Icon
-              name={row.icon}
-              size={16}
-              className="shrink-0 text-[var(--fg-tertiary)]"
-            />
+            {row.iconNode ?? (
+              <Icon
+                name={row.icon!}
+                size={16}
+                className="shrink-0 text-[var(--fg-tertiary)]"
+              />
+            )}
             <span className="min-w-0 truncate body-sm text-[var(--fg-primary)]">
               {row.text}
             </span>
