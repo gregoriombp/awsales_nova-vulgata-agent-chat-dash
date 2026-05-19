@@ -1,8 +1,10 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
@@ -10,6 +12,8 @@ import { AwSelect } from "@/components/ui/AwSelect";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
+import { NotificationRow } from "@/components/NotificationRow";
+import { NOTIFICATIONS } from "@/lib/notifications";
 import { SectionHeading } from "../_components/shared";
 import {
   GROUP_BACKGROUNDS,
@@ -87,6 +91,25 @@ export default function ProfileSettingsPage() {
   // trocada pelo seletor (galeria do banco, upload ou link).
   const [cover, setCover] = useState(DEFAULT_COVER);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // A seção do perfil mostra só as notificações mais recentes; o feed
+  // completo vive em /notifications.
+  const latestNotifications = NOTIFICATIONS.slice(0, 4);
+
+  const publicRows = [
+    { icon: "person", text: fullName },
+    { icon: "alternate_email", text: "@greg" },
+    { icon: "mail", text: email },
+    { icon: "badge", text: role },
+    { icon: "schedule", text: "Brasília · GMT−03" },
+    { icon: "translate", text: "Português (Brasil)" },
+  ];
+  const accountRows = [
+    { icon: "domain", text: "Workspace Awsales" },
+    { icon: "calendar_month", text: "Membro desde 12 jan 2026" },
+    { icon: "workspace_premium", text: "Plano Enterprise" },
+    { icon: "devices", text: "3 sessões ativas" },
+  ];
 
   return (
     <div className="w-full pb-32">
@@ -190,24 +213,73 @@ export default function ProfileSettingsPage() {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-[1440px] px-10 pt-10">
-        <section aria-label="Outras configurações">
-          <SectionHeading
-            title="Outras configurações"
-            description="Atalhos para o restante das áreas do workspace."
-          />
-          <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
-            {SETTINGS_SHORTCUTS.map((item) => (
-              <AwShortcutTile
-                key={item.href}
-                icon={item.icon}
-                title={item.title}
-                description={item.description}
-                href={item.href}
+      <div className="mx-auto w-full max-w-[1440px] px-10 pt-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
+          {/* Coluna esquerda — resumo do perfil */}
+          <aside className="flex flex-col gap-6 self-start">
+            <InfoCard
+              title="Perfil público"
+              rows={publicRows}
+              action={
+                <AwButton
+                  size="sm"
+                  variant="ghost"
+                  iconLeft="edit"
+                  onClick={() => setEditOpen(true)}
+                >
+                  Editar
+                </AwButton>
+              }
+            />
+            <InfoCard title="Sua conta" rows={accountRows} />
+          </aside>
+
+          {/* Coluna direita — notificações + atalhos */}
+          <div className="flex flex-col gap-10">
+            <section aria-label="Últimas notificações">
+              <SectionHeading
+                title="Últimas notificações"
+                description="O que pediu sua atenção recentemente no workspace."
+                action={
+                  <Link
+                    href="/notifications"
+                    className="inline-flex items-center gap-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
+                  >
+                    Ver todas
+                    <Icon name="arrow_forward" size={14} />
+                  </Link>
+                }
               />
-            ))}
+              <AwCard className="!p-0">
+                <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
+                  {latestNotifications.map((n) => (
+                    <li key={n.id} className="m-0">
+                      <NotificationRow notification={n} />
+                    </li>
+                  ))}
+                </ul>
+              </AwCard>
+            </section>
+
+            <section aria-label="Outras configurações">
+              <SectionHeading
+                title="Outras configurações"
+                description="Atalhos para o restante das áreas do workspace."
+              />
+              <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+                {SETTINGS_SHORTCUTS.map((item) => (
+                  <AwShortcutTile
+                    key={item.href}
+                    icon={item.icon}
+                    title={item.title}
+                    description={item.description}
+                    href={item.href}
+                  />
+                ))}
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </div>
 
       <AwModal
@@ -285,6 +357,47 @@ export default function ProfileSettingsPage() {
         </div>
       </AwModal>
     </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * InfoCard — cartão da coluna esquerda: cabeçalho com ação opcional
+ * e uma lista de linhas ícone + valor.
+ * ----------------------------------------------------------------- */
+
+function InfoCard({
+  title,
+  rows,
+  action,
+}: {
+  title: string;
+  rows: { icon: string; text: string }[];
+  action?: React.ReactNode;
+}) {
+  return (
+    <AwCard className="!p-0">
+      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-2.5">
+        <h6 className="m-0 text-[var(--fg-primary)]">{title}</h6>
+        {action}
+      </div>
+      <ul className="m-0 flex list-none flex-col p-2">
+        {rows.map((row) => (
+          <li
+            key={row.icon + row.text}
+            className="flex items-center gap-2.5 px-2 py-1.5"
+          >
+            <Icon
+              name={row.icon}
+              size={16}
+              className="shrink-0 text-[var(--fg-tertiary)]"
+            />
+            <span className="min-w-0 truncate body-sm text-[var(--fg-primary)]">
+              {row.text}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </AwCard>
   );
 }
 
