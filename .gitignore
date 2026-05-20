@@ -62,4 +62,7 @@ next-env.d.ts
 *.bak
 
 # review bridge runtime state (grows unbounded — not source code)
-review-bridge/data/comments.json
+review-bridge/data/*.json
+review-bridge/node_modules/
+bridge/
+bridge-edit/
