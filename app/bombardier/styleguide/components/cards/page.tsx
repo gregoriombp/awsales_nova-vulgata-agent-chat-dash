@@ -1,3 +1,5 @@
+"use client"
+
 import {
   AwCard,
   AwCardAction,
