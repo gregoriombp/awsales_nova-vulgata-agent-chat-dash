@@ -1138,8 +1138,11 @@
    AwSpecialistsPair, where the AI is a system co-pilot rather than a
    generative agent (which keeps using the blue/purple ai variant). */
 .aw-card--ai-cortex {
-
-  background: var(--bg-surface);
+  background:
+    radial-gradient(ellipse 80% 100% at 8%  50%, rgba(226, 232, 240, 0.55), transparent 65%),
+    radial-gradient(ellipse 60% 80%  at 92% 50%, rgba(100, 116, 139, 0.22), transparent 65%),
+    radial-gradient(ellipse 70% 90%  at 50% 10%, rgba(248, 250, 252, 0.18), transparent 60%),
+    var(--bg-raised);
 }
 .aw-card--interactive:focus-visible {
   outline: 0;

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -23,6 +24,7 @@ export default function GroupDetailPage() {
   const group = useMemo(() => GROUPS.find((g) => g.id === id), [id]);
   const [cover, setCover] = useState<string>(group?.backgroundImage ?? "");
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (!group) {
     return (
@@ -91,8 +93,8 @@ export default function GroupDetailPage() {
             </AwButton>
           </div>
           <div className="absolute bottom-5 left-5 flex items-end gap-4">
-            <span className="flex h-14 w-14 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
-              <Icon name={group.icon} size={26} />
+            <span className="flex h-20 w-20 items-center justify-center rounded-[var(--radius-lg)] bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+              <Icon name={group.icon} size={36} />
             </span>
             <div>
               <nav
@@ -125,6 +127,34 @@ export default function GroupDetailPage() {
             }}
           />
         )}
+
+        <AwModal
+          open={deleteOpen}
+          onClose={() => setDeleteOpen(false)}
+          title="Excluir equipe"
+          footer={
+            <div className="flex items-center justify-end gap-2">
+              <AwButton variant="ghost" onClick={() => setDeleteOpen(false)}>
+                Cancelar
+              </AwButton>
+              <AwButton
+                variant="danger"
+                iconLeft="delete"
+                onClick={() => router.push("/settings/equipe-permissoes/grupos")}
+              >
+                Excluir equipe
+              </AwButton>
+            </div>
+          }
+        >
+          <p className="m-0 body-xs text-[var(--fg-primary)]">
+            Você está prestes a excluir a equipe{" "}
+            <strong className="font-medium">{group.name}</strong>. Essa ação não pode ser desfeita.
+          </p>
+          <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
+            Os membros continuam com acesso individual ao workspace — apenas a equipe será removida.
+          </p>
+        </AwModal>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
           {/* Members */}
@@ -260,9 +290,7 @@ export default function GroupDetailPage() {
                     size="sm"
                     variant="danger"
                     iconLeft="delete"
-                    onClick={() => {
-                      router.push("/settings/equipe-permissoes/grupos");
-                    }}
+                    onClick={() => setDeleteOpen(true)}
                   >
                     Excluir
                   </AwButton>

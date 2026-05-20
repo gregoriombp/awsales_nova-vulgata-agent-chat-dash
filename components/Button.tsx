@@ -1,3 +1,4 @@
+// @deprecated — use AwButton from @/components/ui/AwButton
 import React from "react";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

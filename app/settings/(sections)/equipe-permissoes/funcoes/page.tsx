@@ -303,7 +303,7 @@ function RoleDetail({
         />
 
         <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-3">
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+          <p className="m-0 body-xs text-[var(--fg-tertiary)]">
             Permissões por escopo
           </p>
           {editable && (
@@ -617,8 +617,12 @@ function ScopeBlock({
           aria-expanded={open}
         >
           <Icon
-            name={open ? "expand_more" : "chevron_right"}
+            name="chevron_right"
             size={18}
+            className={
+              "transition-transform duration-[220ms] ease-in-out " +
+              (open ? "rotate-90" : "")
+            }
           />
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
             <Icon name={scope.icon} size={16} />
@@ -626,9 +630,6 @@ function ScopeBlock({
           <span className="min-w-0 flex-1">
             <span className="block truncate body-sm font-semibold text-[var(--fg-primary)]">
               {scope.name}
-            </span>
-            <span className="block truncate body-xs text-[var(--fg-secondary)]">
-              {scope.description}
             </span>
           </span>
         </button>
@@ -651,12 +652,11 @@ function ScopeBlock({
       </header>
 
       <div
-        className={
-          "overflow-hidden transition-all duration-[220ms] ease-in-out " +
-          (open ? "mt-4 max-h-[2000px] opacity-100" : "max-h-0 opacity-0")
-        }
+        className="grid transition-[grid-template-rows,opacity] duration-[220ms] ease-in-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
       >
-        <div className="flex flex-col gap-4 pl-9 pb-1">
+        <div className="overflow-hidden">
+        <div className={open ? "flex flex-col gap-4 pl-9 pb-1 pt-4" : "flex flex-col gap-4 pl-9 pb-1"}>
           {scope.groups.map((group) => (
             <PermissionGroupBlock
               key={group.id}
@@ -666,6 +666,7 @@ function ScopeBlock({
               onToggle={onToggle}
             />
           ))}
+        </div>
         </div>
       </div>
     </section>
@@ -691,14 +692,15 @@ function PermissionGroupBlock({
           <li
             key={p.id}
             className="flex items-start gap-3 rounded-[var(--radius-sm)] px-2 py-2 hover:bg-[var(--bg-hover)]"
-            onClick={() => editable && onToggle(p.id, !has)}
+            onClick={(e) => {
+              if (!editable) return;
+              if ((e.target as HTMLElement).closest('[role="checkbox"]')) return;
+              onToggle(p.id, !has);
+            }}
             style={{ cursor: editable ? "pointer" : "default" }}
           >
             {editable ? (
-              <span
-                className="mt-0.5"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <span className="mt-0.5 shrink-0">
                 <AwCheckbox
                   checked={has}
                   onChange={(next) => onToggle(p.id, next)}

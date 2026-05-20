@@ -119,8 +119,8 @@ export default function ProfileSettingsPage() {
           <div className="group/cover relative h-[280px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-cover bg-center"
-              style={{ backgroundImage: `url(${cover})` }}
+              className="absolute inset-0 bg-top"
+              style={{ backgroundImage: `url(${cover})`, backgroundSize: "100% auto", backgroundRepeat: "no-repeat" }}
             />
             <div
               aria-hidden="true"
@@ -168,19 +168,19 @@ export default function ProfileSettingsPage() {
               <AwButton
                 size="sm"
                 variant="secondary"
+                iconLeft="edit"
+                onClick={() => setEditOpen(true)}
+              >
+                Editar perfil
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="secondary"
                 iconLeft="image"
                 onClick={() => setPickerOpen((v) => !v)}
                 aria-expanded={pickerOpen}
               >
                 Alterar capa
-              </AwButton>
-              <AwButton
-                size="sm"
-                variant="secondary"
-                iconLeft="edit"
-                onClick={() => setEditOpen(true)}
-              >
-                Editar perfil
               </AwButton>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function ProfileSettingsPage() {
               <h3 className="m-0 text-[var(--fg-primary)]">
                 {fullName}
               </h3>
-              <span className="inline-flex items-center gap-1 rounded-full bg-[rgba(47,118,230,0.08)] px-2.5 py-0.5 body-xs font-medium text-[var(--aw-blue-600)]">
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 body-xs font-medium" style={{ background: "color-mix(in srgb, var(--accent-brand) 8%, transparent)", color: "var(--accent-brand)" }}>
                 <Icon name="workspace_premium" size={11} />
                 {role}
               </span>
@@ -269,15 +269,13 @@ export default function ProfileSettingsPage() {
                   </Link>
                 }
               />
-              <div className="overflow-hidden rounded-[var(--radius-md)]">
-                <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
-                  {latestNotifications.map((n) => (
-                    <li key={n.id} className="m-0">
-                      <NotificationRow notification={n} />
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
+                {latestNotifications.map((n) => (
+                  <li key={n.id} className="m-0">
+                    <NotificationRow notification={n} />
+                  </li>
+                ))}
+              </ul>
             </section>
           </div>
         </div>

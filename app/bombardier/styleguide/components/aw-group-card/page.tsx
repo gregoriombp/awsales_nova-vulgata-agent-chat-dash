@@ -1,3 +1,5 @@
+"use client"
+
 import { AwGroupCard } from "@/components/ui/AwGroupCard"
 import {
   ApiTable,

@@ -80,31 +80,33 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
           aria-hidden="true"
         >
           <div className="absolute inset-0 flex items-center justify-center">
-            {visible.map((m, i) => (
-              <AwAvatar
-                key={`${m.name}-${i}`}
-                size="lg"
-                src={m.avatar}
-                initials={m.initials}
-                alt={m.name}
-                className={cn(
-                  "!h-12 !w-12 !text-[14px]",
-                  "ring-2 ring-[var(--bg-raised)]",
-                  i > 0 && "-ml-3",
-                )}
-              />
-            ))}
-            {overflow > 0 && (
-              <span
-                className={cn(
-                  "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
-                  "ring-2 ring-[var(--bg-raised)]",
-                  "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
-                )}
-              >
-                +{overflow}
-              </span>
-            )}
+            <div className="flex items-center">
+              {visible.map((m, i) => (
+                <AwAvatar
+                  key={`${m.name}-${i}`}
+                  size="lg"
+                  src={m.avatar}
+                  initials={m.initials}
+                  alt={m.name}
+                  className={cn(
+                    "!h-12 !w-12 !text-[14px]",
+                    "ring-2 ring-[var(--bg-raised)]",
+                    i > 0 && "-ml-3",
+                  )}
+                />
+              ))}
+              {overflow > 0 && (
+                <span
+                  className={cn(
+                    "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
+                    "ring-2 ring-[var(--bg-raised)]",
+                    "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
+                  )}
+                >
+                  +{overflow}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -113,8 +115,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
             <h3 className="m-0 flex-1 truncate text-[18px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
               {name}
             </h3>
-            <span className="flex items-center gap-1.5 text-[12.5px] text-[var(--fg-secondary)]">
-              <Icon name="groups" size={16} />
+            <span className="text-[12.5px] text-[var(--fg-secondary)]">
               {memberCount} {memberCount === 1 ? "Membro" : "Membros"}
             </span>
             {menu && menu.length > 0 && (

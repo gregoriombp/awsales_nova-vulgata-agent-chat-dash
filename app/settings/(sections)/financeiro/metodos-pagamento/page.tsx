@@ -17,8 +17,13 @@ export default function MetodosPagamentoPage() {
     null,
   );
 
-  const defaultMethod = methods.find((m) => m.isDefault) ?? null;
-  const reserves = methods.filter((m) => !m.isDefault);
+  // A cascata começa pelo método marcado como padrão e segue na ordem em
+  // que os outros foram adicionados.
+  const ordered = React.useMemo(() => {
+    const def = methods.find((m) => m.isDefault);
+    const rest = methods.filter((m) => !m.isDefault);
+    return def ? [def, ...rest] : methods;
+  }, [methods]);
 
   const pendingRemove =
     pendingRemoveId === null
@@ -61,30 +66,25 @@ export default function MetodosPagamentoPage() {
   };
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
+      <header>
+        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cascata de cobrança</h6>
+        <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+          Faturas tentam cobrar do topo pra baixo. Quando um método falha, a
+          gente vai pro próximo automaticamente.
+        </p>
+      </header>
+
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {defaultMethod && (
-              <DefaultMethodHero
-                method={defaultMethod}
-                onRemoveRequest={() => setPendingRemoveId(defaultMethod.id)}
-                canRemove={methods.length > 1}
-              />
-            )}
-            <AddMethodCard onAdd={() => setAddOpen(true)} />
-          </div>
-
-          {reserves.length > 0 && (
-            <ReserveMethodsList
-              methods={reserves}
-              onSetDefault={setAsDefault}
-              onRemoveRequest={setPendingRemoveId}
-            />
-          )}
-        </>
+        <Cascade
+          methods={ordered}
+          canRemoveAny={methods.length > 1}
+          onSetDefault={setAsDefault}
+          onRemoveRequest={setPendingRemoveId}
+          onAdd={() => setAddOpen(true)}
+        />
       )}
 
       <AddPaymentMethodModal
@@ -102,153 +102,155 @@ export default function MetodosPagamentoPage() {
   );
 }
 
-/* ---------- default method hero ---------- */
+/* ---------- cascade ---------- */
 
-function DefaultMethodHero({
-  method,
+function Cascade({
+  methods,
+  canRemoveAny,
+  onSetDefault,
   onRemoveRequest,
-  canRemove,
+  onAdd,
 }: {
-  method: PaymentMethod;
-  onRemoveRequest: () => void;
-  canRemove: boolean;
+  methods: PaymentMethod[];
+  canRemoveAny: boolean;
+  onSetDefault: (id: string) => void;
+  onRemoveRequest: (id: string) => void;
+  onAdd: () => void;
 }) {
   return (
-    <section>
-      <div className="mb-4">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cartão padrão</h6>
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          Faturas futuras vão ser cobradas aqui primeiro. Se falhar, tenta o
-          próximo método disponível.
-        </p>
-      </div>
-      <AwCard className="!p-0">
-        <div className="flex flex-wrap items-center gap-4 px-5 py-5">
-          <span className="flex h-12 w-16 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
-            <CardBrandLogo brand={method.brand} size={36} />
+    <ol className="m-0 flex list-none flex-col gap-0 p-0">
+      {methods.map((m, i) => {
+        const isFirst = i === 0;
+        const isLast = i === methods.length - 1;
+        const role = isFirst
+          ? "Tenta primeiro"
+          : isLast
+            ? "Última tentativa"
+            : `Tentativa ${i + 1}`;
+
+        return (
+          <li key={m.id} className="m-0 p-0">
+            <CascadeStep
+              order={i + 1}
+              method={m}
+              role={role}
+              canDemote={!isFirst}
+              canRemove={canRemoveAny}
+              onSetDefault={() => onSetDefault(m.id)}
+              onRemoveRequest={() => onRemoveRequest(m.id)}
+            />
+            {!isLast && <CascadeConnector label="se falhar" />}
+          </li>
+        );
+      })}
+      <li className="m-0 p-0">
+        <CascadeConnector label="se todos falharem" />
+        <button
+          type="button"
+          onClick={onAdd}
+          className="group flex w-full items-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-transparent px-5 py-4 text-left transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]">
+            <Icon name="add" size={18} />
           </span>
-          <div className="min-w-0 flex-1">
-            <p className="m-0 body-md font-medium text-[var(--fg-primary)]">
-              {method.brand} •••• {method.last4}
-            </p>
-            <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
-              Expira em {method.expiresAt}
-            </p>
-          </div>
-          <AwButton
-            size="sm"
-            variant="ghost"
-            disabled={!canRemove}
-            onClick={onRemoveRequest}
-            className="!text-[var(--accent-danger)]"
-          >
-            Excluir
-          </AwButton>
-        </div>
-      </AwCard>
-    </section>
+          <span className="min-w-0 flex-1">
+            <span className="block body-sm font-medium text-[var(--fg-primary)]">
+              Adicionar próxima reserva
+            </span>
+            <span className="block body-xs text-[var(--fg-tertiary)]">
+              Cartão, Pix automático ou boleto
+            </span>
+          </span>
+        </button>
+      </li>
+    </ol>
   );
 }
 
-/* ---------- reserves list ---------- */
-
-function ReserveMethodsList({
-  methods,
+function CascadeStep({
+  order,
+  method,
+  role,
+  canDemote,
+  canRemove,
   onSetDefault,
   onRemoveRequest,
 }: {
-  methods: PaymentMethod[];
-  onSetDefault: (id: string) => void;
-  onRemoveRequest: (id: string) => void;
+  order: number;
+  method: PaymentMethod;
+  role: string;
+  canDemote: boolean;
+  canRemove: boolean;
+  onSetDefault: () => void;
+  onRemoveRequest: () => void;
 }) {
   return (
-    <section>
-      <div className="mb-4">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
-          Métodos reservas
-        </h6>
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          Acionados em ordem quando o cartão padrão falha.
-        </p>
+    <AwCard className="!p-0">
+      <div className="grid grid-cols-[40px_auto_1fr_auto] items-center gap-4 px-5 py-4">
+        <span
+          aria-label={`Posição ${order} na cascata`}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-muted)] body-sm font-semibold tabular-nums text-[var(--fg-primary)]"
+        >
+          {order}
+        </span>
+        <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+          <CardBrandLogo brand={method.brand} size={30} />
+        </span>
+        <div className="min-w-0">
+          <p className="m-0 body-md font-medium tabular-nums text-[var(--fg-primary)]">
+            {method.brand} •••• {method.last4}
+          </p>
+          <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
+            {role} · expira em {method.expiresAt}
+          </p>
+        </div>
+        <AwDropdownMenu
+          align="end"
+          trigger={
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconOnly="more_horiz"
+              aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
+            />
+          }
+          items={[
+            {
+              id: `${method.id}-promote`,
+              label: "Mover pro topo da cascata",
+              icon: "vertical_align_top",
+              disabled: !canDemote,
+              onSelect: onSetDefault,
+            },
+            {
+              id: `${method.id}-remove`,
+              label: "Excluir",
+              icon: "delete",
+              danger: true,
+              disabled: !canRemove,
+              onSelect: onRemoveRequest,
+            },
+          ]}
+        />
       </div>
-      <AwCard className="!p-0">
-        <ul className="m-0 divide-y divide-[var(--border-subtle)] p-0">
-          {methods.map((m) => (
-            <li key={m.id} className="m-0 p-0">
-              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-3 px-5 py-3">
-                <span className="flex h-9 w-12 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
-                  <CardBrandLogo brand={m.brand} size={26} />
-                </span>
-                <div className="min-w-0">
-                  <p className="m-0 body-sm font-medium tabular-nums text-[var(--fg-primary)]">
-                    {m.brand} •••• {m.last4}
-                  </p>
-                  <p className="m-0 body-xs text-[var(--fg-secondary)]">
-                    Expira em {m.expiresAt}
-                  </p>
-                </div>
-                <AwDropdownMenu
-                  align="end"
-                  trigger={
-                    <AwButton
-                      size="sm"
-                      variant="ghost"
-                      iconOnly="more_horiz"
-                      aria-label={`Opções de ${m.brand} •••• ${m.last4}`}
-                    />
-                  }
-                  items={[
-                    {
-                      id: `${m.id}-default`,
-                      label: "Definir como padrão",
-                      onSelect: () => onSetDefault(m.id),
-                    },
-                    {
-                      id: `${m.id}-remove`,
-                      label: "Excluir",
-                      danger: true,
-                      onSelect: () => onRemoveRequest(m.id),
-                    },
-                  ]}
-                />
-              </div>
-            </li>
-          ))}
-        </ul>
-      </AwCard>
-    </section>
+    </AwCard>
   );
 }
 
-/* ---------- add method card ---------- */
-
-function AddMethodCard({ onAdd }: { onAdd: () => void }) {
+function CascadeConnector({ label }: { label: string }) {
   return (
-    <section>
-      <div className="mb-4">
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Novo método</h6>
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          Adicione cartão, Pix automático ou boleto pra cobranças futuras.
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={onAdd}
-        className="group flex w-full items-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-transparent px-5 py-5 text-left transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
-      >
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]">
-          <Icon name="add" size={22} />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block body-md font-medium text-[var(--fg-primary)]">
-            Adicionar método
-          </span>
-          <span className="mt-0.5 block body-xs text-[var(--fg-secondary)]">
-            Cartão, Pix automático ou boleto
-          </span>
-        </span>
-      </button>
-    </section>
+    <div
+      aria-hidden="true"
+      className="flex items-center gap-2 py-2 pl-[28px]"
+    >
+      <span className="h-4 w-px bg-[var(--border-default)]" />
+      <Icon
+        name="arrow_downward"
+        size={12}
+        className="text-[var(--fg-tertiary)]"
+      />
+      <span className="body-xs italic text-[var(--fg-tertiary)]">{label}</span>
+    </div>
   );
 }
 
@@ -286,15 +288,15 @@ function RemovePaymentMethodModal({
             <strong className="font-medium">
               {method.brand} •••• {method.last4}
             </strong>{" "}
-            da sua conta.
+            da cascata.
           </>
         ) : (
-          "Você vai remover este método de pagamento da sua conta."
+          "Você vai remover este método de pagamento da cascata."
         )}
       </p>
       <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
-        Faturas futuras vão tentar cobrar no próximo método disponível. Você
-        pode reativar a qualquer momento adicionando o cartão de novo.
+        A próxima posição da cascata vira a nova tentativa anterior. Você pode
+        reativar a qualquer momento adicionando o cartão de novo.
       </p>
     </AwModal>
   );
@@ -312,7 +314,7 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
           className="text-[var(--fg-tertiary)]"
         />
         <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Você ainda não tem nenhum método de pagamento cadastrado.
+          A cascata está vazia — nenhum método pra cobrar.
         </p>
         <AwButton size="sm" variant="primary" iconLeft="add" onClick={onAdd}>
           Adicionar método de pagamento

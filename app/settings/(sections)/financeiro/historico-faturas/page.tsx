@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import {
   AwDropdownMenu,
   type AwDropdownItem,
@@ -10,7 +9,6 @@ import {
 import { AwInput } from "@/components/ui/AwInput";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
-import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import {
@@ -36,8 +34,6 @@ const PERIOD_OPTIONS = [
   "Todo o período",
 ] as const;
 
-const PAGE_SIZE = 5;
-
 function statusVariant(status: InvoiceStatus): AwPillVariant {
   switch (status) {
     case "Paga":
@@ -51,23 +47,38 @@ function statusVariant(status: InvoiceStatus): AwPillVariant {
   }
 }
 
-function sum(rows: InvoiceHistoryRow[]) {
-  return rows.reduce(
-    (acc, r) => ({
-      gross: acc.gross + r.gross,
-      discount: acc.discount + (r.discount ?? 0),
-      net: acc.net + r.net,
-    }),
-    { gross: 0, discount: 0, net: 0 },
-  );
+type MonthGroup = {
+  refMonth: string;
+  rows: InvoiceHistoryRow[];
+  total: number;
+  discount: number;
+};
+
+function groupByMonth(rows: InvoiceHistoryRow[]): MonthGroup[] {
+  const map = new Map<string, MonthGroup>();
+  rows.forEach((r) => {
+    const existing = map.get(r.refMonth);
+    if (existing) {
+      existing.rows.push(r);
+      existing.total += r.net;
+      existing.discount += r.discount ?? 0;
+    } else {
+      map.set(r.refMonth, {
+        refMonth: r.refMonth,
+        rows: [r],
+        total: r.net,
+        discount: r.discount ?? 0,
+      });
+    }
+  });
+  return Array.from(map.values());
 }
 
 export default function HistoricoFaturasPage() {
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
   const [statuses, setStatuses] = React.useState<InvoiceStatus[]>([]);
-  const [period, setPeriod] = React.useState<string>("Últimos 6 meses");
-  const [page, setPage] = React.useState(1);
+  const [period, setPeriod] = React.useState<string>("Todo o período");
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
@@ -83,18 +94,8 @@ export default function HistoricoFaturasPage() {
     });
   }, [query, statuses]);
 
-  const visibleTotals = React.useMemo(() => sum(rows), [rows]);
-
-  // Filtering can shrink the result set below the current page — keep the
-  // page index in range instead of rendering an empty slice.
-  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
-  const currentPage = Math.min(page, totalPages);
-  React.useEffect(() => {
-    setPage(1);
-  }, [query, statuses]);
-
-  const pageStart = (currentPage - 1) * PAGE_SIZE;
-  const pageRows = rows.slice(pageStart, pageStart + PAGE_SIZE);
+  const groups = React.useMemo(() => groupByMonth(rows), [rows]);
+  const totalCount = rows.length;
 
   return (
     <div className="flex flex-col gap-8">
@@ -109,82 +110,31 @@ export default function HistoricoFaturasPage() {
         </div>
         <StatusFilter selected={statuses} onChange={setStatuses} />
         <PeriodFilter value={period} onChange={setPeriod} />
+        <AwButton
+          size="md"
+          variant="ghost"
+          iconLeft="download"
+          onClick={() =>
+            alert("Exportação iniciada — você receberá o CSV por e-mail.")
+          }
+        >
+          Exportar CSV
+        </AwButton>
       </div>
 
-      <AwCard className="!p-0">
-        <AwTable>
-          <thead>
-            <tr>
-              <th>Mês</th>
-              <th>Descrição</th>
-              <th>Status</th>
-              <th>Método</th>
-              <th>Data</th>
-              <th className="text-right">Bruto</th>
-              <th className="text-right">Desconto</th>
-              <th className="text-right">Líquido</th>
-              <th aria-label="Abrir" />
-            </tr>
-          </thead>
-          <tbody>
-            {pageRows.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={9}
-                  className="body-sm text-center text-[var(--fg-tertiary)]"
-                >
-                  Nenhuma fatura corresponde aos filtros.
-                </td>
-              </tr>
-            ) : (
-              pageRows.map((row) => (
-                <InvoiceRow
-                  key={row.id}
-                  row={row}
-                  onOpen={() => setOpenId(row.id)}
-                />
-              ))
-            )}
-          </tbody>
-          {rows.length > 0 && (
-            <tfoot>
-              <tr className="bg-[var(--bg-surface)]">
-                <td
-                  colSpan={5}
-                  className="body-xs font-medium text-[var(--fg-secondary)]"
-                >
-                  Totais do período · {rows.length} fatura
-                  {rows.length !== 1 ? "s" : ""}
-                </td>
-                <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
-                  {brl(visibleTotals.gross)}
-                </td>
-                <td className="text-right font-medium tabular-nums text-[var(--accent-success)]">
-                  {visibleTotals.discount > 0
-                    ? `−${brl(visibleTotals.discount)}`
-                    : "—"}
-                </td>
-                <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
-                  {brl(visibleTotals.net)}
-                </td>
-                <td />
-              </tr>
-            </tfoot>
-          )}
-        </AwTable>
-
-        {rows.length > 0 && (
-          <Pagination
-            page={currentPage}
-            totalPages={totalPages}
-            rangeStart={pageStart + 1}
-            rangeEnd={pageStart + pageRows.length}
-            total={rows.length}
-            onPrev={() => setPage((p) => Math.max(1, p - 1))}
-            onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
-          />
-        )}
-      </AwCard>
+      {totalCount === 0 ? (
+        <EmptyResults />
+      ) : (
+        <div className="flex flex-col gap-8">
+          {groups.map((g) => (
+            <MonthSection
+              key={g.refMonth}
+              group={g}
+              onOpen={(id) => setOpenId(id)}
+            />
+          ))}
+        </div>
+      )}
 
       <InvoiceDetailsSheet
         invoice={openInvoice}
@@ -192,6 +142,80 @@ export default function HistoricoFaturasPage() {
         onClose={() => setOpenId(null)}
       />
     </div>
+  );
+}
+
+/* ---------- month section ---------- */
+
+function MonthSection({
+  group,
+  onOpen,
+}: {
+  group: MonthGroup;
+  onOpen: (id: string) => void;
+}) {
+  return (
+    <section>
+      <header className="mb-3 flex items-baseline justify-between gap-4 border-b border-[var(--border-subtle)] pb-2">
+        <div className="flex items-baseline gap-3">
+          <h6 className="m-0 text-[var(--fg-primary)]">{group.refMonth}</h6>
+          <span className="body-xs text-[var(--fg-tertiary)]">
+            {group.rows.length}{" "}
+            {group.rows.length === 1 ? "fatura" : "faturas"}
+          </span>
+        </div>
+        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          {brl(group.total)}
+        </span>
+      </header>
+      <ul className="m-0 flex flex-col gap-1 p-0">
+        {group.rows.map((row) => (
+          <InvoiceRow key={row.id} row={row} onOpen={() => onOpen(row.id)} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function InvoiceRow({
+  row,
+  onOpen,
+}: {
+  row: InvoiceHistoryRow;
+  onOpen: () => void;
+}) {
+  const dateLabel = row.paidAt
+    ? `Paga em ${row.paidAt}`
+    : `Vence em ${row.dueAt}`;
+
+  return (
+    <li className="m-0 list-none">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="group grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-[var(--radius-md)] px-3 py-3 text-left transition-colors hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
+      >
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="body-sm font-medium text-[var(--fg-primary)]">
+              {row.description}
+            </span>
+            <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
+          </div>
+          <p className="m-0 mt-0.5 body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {row.id} · {row.paymentMethod} · {dateLabel}
+          </p>
+        </div>
+        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          {brl(row.net)}
+        </span>
+        <Icon
+          name="chevron_right"
+          size={18}
+          className="text-[var(--fg-tertiary)] transition-transform group-hover:translate-x-0.5"
+        />
+      </button>
+    </li>
   );
 }
 
@@ -266,119 +290,28 @@ function PeriodFilter({
     <AwDropdownMenu
       align="end"
       aria-label="Selecionar período"
-      trigger={<AwSelect className="ml-auto">{value}</AwSelect>}
+      trigger={<AwSelect>{value}</AwSelect>}
       items={items}
     />
   );
 }
 
-/* ---------- pagination ---------- */
+/* ---------- empty ---------- */
 
-function Pagination({
-  page,
-  totalPages,
-  rangeStart,
-  rangeEnd,
-  total,
-  onPrev,
-  onNext,
-}: {
-  page: number;
-  totalPages: number;
-  rangeStart: number;
-  rangeEnd: number;
-  total: number;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
+function EmptyResults() {
   return (
-    <div className="flex items-center justify-between gap-4 border-t border-[var(--border-subtle)] px-5 py-3">
-      <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-        Mostrando {rangeStart}–{rangeEnd} de {total}
-      </span>
-      <div className="flex items-center gap-3">
-        <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
-          Página {page} de {totalPages}
-        </span>
-        <div className="flex items-center gap-1">
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconOnly="chevron_left"
-            aria-label="Página anterior"
-            disabled={page <= 1}
-            onClick={onPrev}
-          />
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconOnly="chevron_right"
-            aria-label="Próxima página"
-            disabled={page >= totalPages}
-            onClick={onNext}
-          />
-        </div>
-      </div>
+    <div className="flex flex-col items-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] px-6 py-12 text-center">
+      <Icon
+        name="search_off"
+        size={24}
+        className="text-[var(--fg-tertiary)]"
+      />
+      <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+        Nenhuma fatura corresponde aos filtros
+      </p>
+      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        Tente outro termo ou amplie o período.
+      </p>
     </div>
-  );
-}
-
-/* ---------- table row ---------- */
-
-function InvoiceRow({
-  row,
-  onOpen,
-}: {
-  row: InvoiceHistoryRow;
-  onOpen: () => void;
-}) {
-  return (
-    <tr
-      onClick={onOpen}
-      className="cursor-pointer hover:bg-[var(--bg-hover)]"
-    >
-      <td className="aw-eyebrow text-[var(--fg-tertiary)]">{row.refMonth}</td>
-      <td>
-        <div className="flex flex-col gap-0.5">
-          <span className="body-sm font-medium text-[var(--fg-primary)]">
-            {row.description}
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {row.id}
-          </span>
-        </div>
-      </td>
-      <td>
-        <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
-      </td>
-      <td className="body-xs text-[var(--fg-secondary)]">
-        {row.paymentMethod}
-      </td>
-      <td className="body-xs text-[var(--fg-secondary)]">
-        {row.paidAt ? `Paga ${row.paidAt}` : `Vence ${row.dueAt}`}
-      </td>
-      <td className="text-right tabular-nums text-[var(--fg-secondary)]">
-        {brl(row.gross)}
-      </td>
-      <td className="text-right tabular-nums">
-        {row.discount && row.discount > 0 ? (
-          <span className="text-[var(--accent-success)]">
-            −{brl(row.discount)}
-          </span>
-        ) : (
-          <span className="text-[var(--fg-tertiary)]">—</span>
-        )}
-      </td>
-      <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
-        {brl(row.net)}
-      </td>
-      <td className="text-right">
-        <Icon
-          name="chevron_right"
-          size={18}
-          className="text-[var(--fg-tertiary)]"
-        />
-      </td>
-    </tr>
   );
 }

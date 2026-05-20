@@ -1,3 +1,5 @@
+"use client"
+
 import {
   AwCard,
   AwCardAction,
@@ -233,7 +235,11 @@ export default function CardsPage() {
               label="interactive · hover para ver o lift · Tab para focus ring"
               gridClassName="grid grid-cols-1 md:grid-cols-3 gap-3"
             >
-              <AwCard interactive role="button" tabIndex={0}>
+              <AwCard
+                interactive
+                role="button"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") e.currentTarget.click() }}
+              >
                 <AwCardHeader>
                   <AwCardTitle>Suporte N1</AwCardTitle>
                   <AwCardDescription>
@@ -241,7 +247,11 @@ export default function CardsPage() {
                   </AwCardDescription>
                 </AwCardHeader>
               </AwCard>
-              <AwCard interactive role="button" tabIndex={0}>
+              <AwCard
+                interactive
+                role="button"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") e.currentTarget.click() }}
+              >
                 <AwCardHeader>
                   <AwCardTitle>Pré-venda SDR</AwCardTitle>
                   <AwCardDescription>
@@ -249,7 +259,11 @@ export default function CardsPage() {
                   </AwCardDescription>
                 </AwCardHeader>
               </AwCard>
-              <AwCard interactive role="button" tabIndex={0}>
+              <AwCard
+                interactive
+                role="button"
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") e.currentTarget.click() }}
+              >
                 <AwCardHeader>
                   <AwCardTitle>Qualificação</AwCardTitle>
                   <AwCardDescription>
@@ -531,9 +545,9 @@ export default function CardsPage() {
             <ApiTable>
               <PropRow
                 prop="variant"
-                type='"default" | "ai"'
+                type='"default" | "ai" | "ai-warm" | "ai-cortex"'
                 def='"default"'
-                doc="AI adiciona gradient-mesh sutil. Use só em áreas do agente."
+                doc='AI: gradient blue/purple. AI-warm: peach (especialista humano). AI-cortex: silver mesh (Cortex). Use só em áreas do agente.'
               />
               <PropRow
                 prop="interactive"

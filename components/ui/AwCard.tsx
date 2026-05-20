@@ -1,13 +1,5 @@
 import * as React from "react"
-
-/**
- * AwCard — surface primitive whose anatomy mirrors shadcn/ui's Card.
- *
- * Slots, in order: Header (Title + Description + optional Action) → Content
- * → Footer. All slots are optional — the root still accepts arbitrary
- * children, so existing call sites that drop nodes directly inside
- * <AwCard> keep working untouched.
- */
+import { cn } from "@/lib/utils"
 
 export type AwCardVariant = "default" | "ai" | "ai-warm" | "ai-cortex"
 
@@ -16,25 +8,22 @@ export type AwCardProps = React.HTMLAttributes<HTMLDivElement> & {
   interactive?: boolean
 }
 
-function cx(...parts: Array<string | false | null | undefined>) {
-  return parts.filter(Boolean).join(" ")
-}
-
 export const AwCard = React.forwardRef<HTMLDivElement, AwCardProps>(
   function AwCard(
-    { variant = "default", interactive, className, children, ...rest },
+    { variant = "default", interactive, className, children, tabIndex, ...rest },
     ref,
   ) {
     return (
       <div
         ref={ref}
         data-slot="card"
-        className={cx(
+        className={cn(
           "aw-card",
           `aw-card--${variant}`,
           interactive && "aw-card--interactive",
           className,
         )}
+        tabIndex={interactive && tabIndex === undefined ? 0 : tabIndex}
         {...rest}
       >
         {children}
@@ -51,7 +40,7 @@ export const AwCardHeader = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-header"
-      className={cx("aw-card__header", className)}
+      className={cn("aw-card__header", className)}
       {...rest}
     />
   )
@@ -65,7 +54,7 @@ export const AwCardTitle = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-title"
-      className={cx("aw-card__title", className)}
+      className={cn("aw-card__title", className)}
       {...rest}
     />
   )
@@ -79,7 +68,7 @@ export const AwCardDescription = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-description"
-      className={cx("aw-card__description", className)}
+      className={cn("aw-card__description", className)}
       {...rest}
     />
   )
@@ -93,7 +82,7 @@ export const AwCardAction = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-action"
-      className={cx("aw-card__action", className)}
+      className={cn("aw-card__action", className)}
       {...rest}
     />
   )
@@ -107,7 +96,7 @@ export const AwCardContent = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-content"
-      className={cx("aw-card__content", className)}
+      className={cn("aw-card__content", className)}
       {...rest}
     />
   )
@@ -121,7 +110,7 @@ export const AwCardFooter = React.forwardRef<
     <div
       ref={ref}
       data-slot="card-footer"
-      className={cx("aw-card__footer", className)}
+      className={cn("aw-card__footer", className)}
       {...rest}
     />
   )

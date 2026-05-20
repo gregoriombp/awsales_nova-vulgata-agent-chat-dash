@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
-import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
+import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import Button from "@/components/Button";
 import BaseModal from "@/components/modals/BaseModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -741,7 +741,7 @@ export default function KnowledgeOSDirectoryPage() {
       {
         label: "Knowledge OS",
         href: "/knowledge-os",
-        icon: <KnowledgeOSIcon />,
+        icon: <MemoryBaseIcon />,
       },
       {
         label: directoryName,

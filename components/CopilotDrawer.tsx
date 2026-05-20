@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import CortexSynthesis from "@/components/cortex-synthesis";
+import CortexSynthesis from "@/components/CortexSynthesis";
 import { Icon } from "@/components/ui/Icon";
 import {
   CORTEX_STATE_PRESETS,
   type CortexState,
-} from "@/components/copilot-orb-presets";
+} from "@/lib/copilot-orb-presets";
 
 // Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with sharp
 // vertices. Encoded as an SVG mask so it scales with any container size.

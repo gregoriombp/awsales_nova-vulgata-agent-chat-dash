@@ -1,3 +1,4 @@
+// @deprecated — use AwInput from @/components/ui/AwInput
 import React from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {

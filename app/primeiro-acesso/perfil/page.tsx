@@ -41,6 +41,8 @@ function PerfilContent() {
   }`
 
   const [name, setName] = React.useState(ONBOARDING_USER.name)
+  const [cargo, setCargo] = React.useState("")
+  const [email, setEmail] = React.useState(ONBOARDING_USER.email)
   const [phone, setPhone] = React.useState("")
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
   const [invoiceSelf, setInvoiceSelf] = React.useState(true)
@@ -83,6 +85,8 @@ function PerfilContent() {
 
   const valid =
     name.trim().length >= 2 &&
+    cargo.trim().length >= 2 &&
+    isEmailValid(email) &&
     phone.replace(/\D/g, "").length >= 10 &&
     allEmailsValid &&
     recipientCoverageOk
@@ -141,14 +145,34 @@ function PerfilContent() {
             value={name}
             onChange={setName}
             placeholder="Como você gosta de ser chamado"
+            required
           />
           <Field
-            label="Telefone"
+            label="Cargo"
+            icon="badge"
+            value={cargo}
+            onChange={setCargo}
+            placeholder="Ex.: Gerente Comercial"
+            required
+          />
+          <Field
+            label="E-mail"
+            icon="mail"
+            value={email}
+            onChange={setEmail}
+            placeholder="seu@email.com"
+            type="email"
+            inputMode="email"
+            required
+          />
+          <Field
+            label="Celular"
             icon="phone"
             value={phone}
             onChange={(v) => setPhone(fmtPhone(v))}
             placeholder="(11) 99999-0000"
             inputMode="tel"
+            required
           />
         </div>
 
@@ -292,6 +316,7 @@ function Field({
   placeholder,
   inputMode,
   type = "text",
+  required,
 }: {
   label: string
   icon: string
@@ -300,10 +325,14 @@ function Field({
   placeholder?: string
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
   type?: string
+  required?: boolean
 }) {
   return (
     <label className="flex flex-col gap-1.5">
-      <span className="body-xs font-medium text-fg-secondary">{label}</span>
+      <span className="flex items-center gap-1 body-xs font-medium text-fg-secondary">
+        {label}
+        {required && <span className="text-[var(--accent-danger)]">*</span>}
+      </span>
       <span className="flex h-[42px] items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary">
         <Icon name={icon} size={16} className="text-fg-tertiary" />
         <input
@@ -312,6 +341,7 @@ function Field({
           placeholder={placeholder}
           inputMode={inputMode}
           type={type}
+          required={required}
           className="flex-1 border-0 bg-transparent body-sm outline-none focus:outline-none focus-visible:outline-none"
         />
       </span>

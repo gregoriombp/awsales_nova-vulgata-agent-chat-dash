@@ -1,3 +1,4 @@
+// @deprecated — use AwSkeleton from @/components/ui/AwSkeleton
 "use client";
 
 import React from "react";

@@ -8,13 +8,13 @@ const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
 const MEMORY_BASE_SOURCES_KEY_PREFIX = "memory-base-sources-";
 const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
 
-interface KnowledgeOSItem {
+interface MemoryBaseItem {
   id: string;
   name: string;
   documentCount?: number;
 }
 
-function loadBasesFromStorage(): KnowledgeOSItem[] {
+function loadBasesFromStorage(): MemoryBaseItem[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
@@ -93,11 +93,11 @@ function SettingsIcon() {
   );
 }
 
-export default function KnowledgeOSSidebar() {
+export default function MemoryBaseSidebar() {
   const pathname = usePathname();
   const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [bases, setBases] = useState<KnowledgeOSItem[]>([]);
+  const [bases, setBases] = useState<MemoryBaseItem[]>([]);
 
   const isFolderView = pathname === "/knowledge-os";
   const baseId = typeof params?.id === "string" ? params.id : null;

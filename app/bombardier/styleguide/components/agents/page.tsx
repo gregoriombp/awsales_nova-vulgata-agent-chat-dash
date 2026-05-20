@@ -3,7 +3,7 @@ import { CopilotOrb } from "@/components/CopilotDrawer"
 import {
   CORTEX_STATE_PRESETS,
   type CortexState,
-} from "@/components/copilot-orb-presets"
+} from "@/lib/copilot-orb-presets"
 import {
   PageHero,
   Section,

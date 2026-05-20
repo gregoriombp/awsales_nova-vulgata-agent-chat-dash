@@ -1,3 +1,4 @@
+// @deprecated — use AwStatCard from @/components/ui/AwStatCard
 interface MetricCardProps {
   title: string;
   children: React.ReactNode;

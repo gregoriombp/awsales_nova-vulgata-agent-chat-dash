@@ -7,13 +7,13 @@ import NotificationsPopover from "@/components/NotificationsPopover";
 import { CopilotOrb } from "@/components/CopilotDrawer";
 import Sidebar from "@/components/Sidebar";
 
-interface KnowledgeOSOnboardingProps {
+interface MemoryBaseOnboardingProps {
   onComplete: (baseName: string, baseId: string) => void;
 }
 
 type OnboardingStep = 1 | 2 | 3 | 4;
 
-export default function KnowledgeOSOnboarding({ onComplete }: KnowledgeOSOnboardingProps) {
+export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardingProps) {
   const router = useRouter();
   const [step, setStep] = useState<OnboardingStep>(1);
   const [baseName, setBaseName] = useState("");
