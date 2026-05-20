@@ -22,11 +22,39 @@ export type ReviewAnchor =
   | { kind: "pin"; position: ReviewPoint }
   | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint }
 
-export type ReviewCommentStatus = "open" | "resolved"
+export type ReviewCommentStatus = "open" | "in_review" | "resolved"
+
+export type ReviewActorKind = "agent" | "user"
+
+export interface ReviewActor {
+  kind: ReviewActorKind
+  id: string
+  name: string
+}
+
+export interface ReviewResolution {
+  actor: ReviewActor
+  at: number
+  summary: string
+  approvedAt?: number
+  approvedBy?: { id: string; name: string }
+}
+
+export interface ReviewReply {
+  id: string
+  authorKind: ReviewActorKind
+  authorId: string
+  authorName: string
+  authorColorToken: string
+  text: string
+  createdAt: number
+}
+
+export const REVIEW_SCHEMA_VERSION = 3
 
 export interface ReviewComment {
   id: string
-  schemaVersion: 2
+  schemaVersion: 3
   authorId: string
   authorName: string
   authorColorToken: string
@@ -41,18 +69,41 @@ export interface ReviewComment {
   text: string
   images?: string[]
   status: ReviewCommentStatus
-  resolvedBy?: string
-  resolvedAt?: number
+  resolution?: ReviewResolution
+  replies?: ReviewReply[]
 }
 
 export interface ReviewExportPayload {
-  schemaVersion: 2
+  schemaVersion: 3
   exportedAt: number
   exportedBy: ReviewIdentity
   comments: ReviewComment[]
+  archivedComments?: ReviewComment[]
 }
 
 export type BridgeEvent =
   | { kind: "comment.upserted"; comment: ReviewComment }
   | { kind: "comment.deleted"; id: string }
+  | { kind: "comment.archived"; comment: ReviewComment }
+  | { kind: "comment.unarchived"; comment: ReviewComment }
+  | { kind: "reply.added"; commentId: string; reply: ReviewReply }
   | { kind: "hello"; serverStartedAt: number }
+
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : String(n)
+}
+
+/**
+ * Server timezone. The summary string is meant to be human-readable inside
+ * the team — DD/MM/YYYY, hour-of-day from server clock. Documented in README.
+ */
+export function formatResolutionSummary(actor: ReviewActor, at: number): string {
+  const d = new Date(at)
+  const day = pad2(d.getDate())
+  const month = pad2(d.getMonth() + 1)
+  const year = d.getFullYear()
+  const hours = pad2(d.getHours())
+  const minutes = pad2(d.getMinutes())
+  const seconds = pad2(d.getSeconds())
+  return `Resolvido por ${actor.name} em ${day}/${month}/${year} às ${hours}:${minutes}:${seconds}.`
+}

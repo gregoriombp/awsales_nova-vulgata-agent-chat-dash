@@ -1,6 +1,6 @@
 {
   "name": "bombardier-review-bridge",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Servidor local pra sincronizar comentários do Bombardier Review Mode entre revisores na mesma LAN. SSE + POST, lowdb em arquivo, auth por token compartilhado.",
   "type": "module",

@@ -1,13 +1,22 @@
 import cors from "cors"
 import express from "express"
 import {
+  addReply,
+  approve,
+  archiveDirect,
   deleteComment,
   exportAll,
+  getArchiveFilePath,
+  getArchivedComment,
   getComment,
   getDataFilePath,
   importMerge,
   initDb,
+  listArchive,
   listComments,
+  reject,
+  reopenFromArchive,
+  transitionToInReview,
   upsertComment,
   upsertIdentity,
 } from "./store.js"
@@ -18,11 +27,17 @@ import {
   broadcastHeartbeat,
   subscriberCount,
 } from "./sse.js"
-import type { ReviewComment, ReviewIdentity } from "./types.js"
+import {
+  REVIEW_SCHEMA_VERSION,
+  type ReviewActor,
+  type ReviewComment,
+  type ReviewCommentStatus,
+  type ReviewIdentity,
+} from "./types.js"
 
 const PORT = Number(process.env.BOMBARDIER_REVIEW_PORT ?? 9878)
 const HOST = process.env.BOMBARDIER_REVIEW_HOST ?? "0.0.0.0"
-const VERSION = "0.1.0"
+const VERSION = "0.2.0"
 const HEARTBEAT_INTERVAL_MS = 15_000
 
 await initDb()
@@ -53,37 +68,35 @@ app.get("/health", (_req, res) => {
     tokenRequired: tokenConfigured(),
     subscribers: subscriberCount(),
     dataFile: getDataFilePath(),
+    archiveFile: getArchiveFilePath(),
+    schemaVersion: REVIEW_SCHEMA_VERSION,
     timestamp: new Date().toISOString(),
     port: PORT,
   })
 })
 
-app.get("/comments", requireToken, async (req, res) => {
-  const url =
-    typeof req.query.url === "string" ? req.query.url : undefined
-  const status =
-    req.query.status === "open" || req.query.status === "resolved"
-      ? req.query.status
-      : undefined
-  const comments = await listComments({ url, status })
-  res.json({ comments })
-})
+function parseStatus(value: unknown): ReviewCommentStatus | undefined {
+  if (value === "open" || value === "in_review" || value === "resolved") return value
+  return undefined
+}
 
-app.get("/comments/:id", requireToken, async (req, res) => {
-  const comment = await getComment(String(req.params.id))
-  if (!comment) {
-    res.status(404).json({ error: "not_found" })
-    return
-  }
-  res.json({ comment })
-})
+function isValidActor(value: unknown): value is ReviewActor {
+  if (!value || typeof value !== "object") return false
+  const v = value as Record<string, unknown>
+  return (
+    (v.kind === "agent" || v.kind === "user") &&
+    typeof v.id === "string" &&
+    typeof v.name === "string" &&
+    v.name.length > 0
+  )
+}
 
 function isValidComment(value: unknown): value is ReviewComment {
   if (!value || typeof value !== "object") return false
   const v = value as Record<string, unknown>
   return (
     typeof v.id === "string" &&
-    v.schemaVersion === 2 &&
+    (v.schemaVersion === REVIEW_SCHEMA_VERSION || v.schemaVersion === 2) &&
     typeof v.authorId === "string" &&
     typeof v.text === "string" &&
     typeof v.url === "string" &&
@@ -92,19 +105,167 @@ function isValidComment(value: unknown): value is ReviewComment {
   )
 }
 
+app.get("/comments", requireToken, async (req, res) => {
+  const url = typeof req.query.url === "string" ? req.query.url : undefined
+  const status = parseStatus(req.query.status)
+  const comments = await listComments({ url, status })
+  res.json({ comments })
+})
+
+app.get("/comments/archive", requireToken, async (req, res) => {
+  const url = typeof req.query.url === "string" ? req.query.url : undefined
+  const beforeRaw = typeof req.query.before === "string" ? Number(req.query.before) : undefined
+  const limitRaw = typeof req.query.limit === "string" ? Number(req.query.limit) : undefined
+  const before = Number.isFinite(beforeRaw) ? Number(beforeRaw) : undefined
+  const limit = Number.isFinite(limitRaw) ? Number(limitRaw) : undefined
+  const page = await listArchive({ url, before, limit })
+  res.json(page)
+})
+
+app.get("/comments/:id", requireToken, async (req, res) => {
+  const id = String(req.params.id)
+  const main = await getComment(id)
+  if (main) {
+    res.json({ comment: main, location: "main" })
+    return
+  }
+  const archived = await getArchivedComment(id)
+  if (archived) {
+    res.json({ comment: archived, location: "archive" })
+    return
+  }
+  res.status(404).json({ error: "not_found" })
+})
+
 app.put("/comments/:id", requireToken, async (req, res) => {
-  const body = req.body as unknown
+  const id = String(req.params.id)
+  const body = req.body as Record<string, unknown> | null
+  if (!body) {
+    res.status(400).json({ error: "invalid_payload" })
+    return
+  }
+
+  // Transition path: { transition, actor } takes precedence over upsert.
+  const transition = body.transition
+  if (typeof transition === "string") {
+    const actor = body.actor
+    if (transition === "in_review") {
+      if (!isValidActor(actor)) {
+        res.status(400).json({ error: "invalid_actor" })
+        return
+      }
+      const result = await transitionToInReview(id, actor)
+      if (!result) {
+        res.status(404).json({ error: "not_found" })
+        return
+      }
+      broadcast({ kind: "comment.upserted", comment: result.comment })
+      res.json({ ok: true, comment: result.comment, location: result.location })
+      return
+    }
+    if (transition === "approve") {
+      if (!isValidActor(actor)) {
+        res.status(400).json({ error: "invalid_actor" })
+        return
+      }
+      const result = await approve(id, { id: actor.id, name: actor.name })
+      if (!result) {
+        res.status(404).json({ error: "not_found" })
+        return
+      }
+      broadcast({ kind: "comment.archived", comment: result.comment })
+      res.json({ ok: true, comment: result.comment, location: result.location })
+      return
+    }
+    if (transition === "reject") {
+      const result = await reject(id)
+      if (!result) {
+        res.status(404).json({ error: "not_found" })
+        return
+      }
+      broadcast({ kind: "comment.upserted", comment: result.comment })
+      res.json({ ok: true, comment: result.comment, location: result.location })
+      return
+    }
+    if (transition === "resolve_direct") {
+      if (!isValidActor(actor)) {
+        res.status(400).json({ error: "invalid_actor" })
+        return
+      }
+      const result = await archiveDirect(id, actor)
+      if (!result) {
+        res.status(404).json({ error: "not_found" })
+        return
+      }
+      broadcast({ kind: "comment.archived", comment: result.comment })
+      res.json({ ok: true, comment: result.comment, location: result.location })
+      return
+    }
+    if (transition === "reopen_from_archive") {
+      const result = await reopenFromArchive(id)
+      if (!result) {
+        res.status(404).json({ error: "not_found" })
+        return
+      }
+      broadcast({ kind: "comment.unarchived", comment: result.comment })
+      res.json({ ok: true, comment: result.comment, location: result.location })
+      return
+    }
+    res.status(400).json({ error: "unknown_transition" })
+    return
+  }
+
+  // Default upsert path
   if (!isValidComment(body)) {
     res.status(400).json({ error: "invalid_comment" })
     return
   }
-  if (body.id !== String(req.params.id)) {
+  if (body.id !== id) {
     res.status(400).json({ error: "id_mismatch" })
     return
   }
-  await upsertComment(body)
-  broadcast({ kind: "comment.upserted", comment: body })
+  // Normalize older payloads to v3
+  const comment: ReviewComment = { ...body, schemaVersion: REVIEW_SCHEMA_VERSION }
+  await upsertComment(comment)
+  broadcast({ kind: "comment.upserted", comment })
   res.json({ ok: true })
+})
+
+app.post("/comments/:id/replies", requireToken, async (req, res) => {
+  const id = String(req.params.id)
+  const body = req.body as Record<string, unknown> | null
+  if (!body) {
+    res.status(400).json({ error: "invalid_payload" })
+    return
+  }
+  const authorKind = body.authorKind
+  const authorId = body.authorId
+  const authorName = body.authorName
+  const authorColorToken = body.authorColorToken
+  const text = body.text
+  if (
+    (authorKind !== "agent" && authorKind !== "user") ||
+    typeof authorId !== "string" ||
+    typeof authorName !== "string" ||
+    typeof text !== "string" ||
+    text.trim().length === 0
+  ) {
+    res.status(400).json({ error: "invalid_reply" })
+    return
+  }
+  const result = await addReply(id, {
+    authorKind,
+    authorId,
+    authorName,
+    authorColorToken: typeof authorColorToken === "string" ? authorColorToken : undefined,
+    text: text.trim(),
+  })
+  if (!result) {
+    res.status(404).json({ error: "not_found" })
+    return
+  }
+  broadcast({ kind: "reply.added", commentId: id, reply: result.reply })
+  res.json({ reply: result.reply, location: result.location })
 })
 
 app.delete("/comments/:id", requireToken, async (req, res) => {
@@ -148,7 +309,6 @@ app.post("/import", requireToken, async (req, res) => {
   if (
     !body ||
     typeof body !== "object" ||
-    (body as { schemaVersion?: number }).schemaVersion !== 2 ||
     !Array.isArray((body as { comments?: unknown[] }).comments)
   ) {
     res.status(400).json({ error: "invalid_payload" })
@@ -156,9 +316,24 @@ app.post("/import", requireToken, async (req, res) => {
   }
   const payload = body as Parameters<typeof importMerge>[0]
   const validComments = payload.comments.filter(isValidComment)
-  const result = await importMerge({ ...payload, comments: validComments })
+  const validArchive = Array.isArray(payload.archivedComments)
+    ? payload.archivedComments.filter(isValidComment)
+    : []
+  const result = await importMerge({
+    ...payload,
+    schemaVersion: REVIEW_SCHEMA_VERSION,
+    comments: validComments,
+    archivedComments: validArchive,
+  })
   for (const c of validComments) {
-    broadcast({ kind: "comment.upserted", comment: c })
+    if (c.status === "resolved") {
+      broadcast({ kind: "comment.archived", comment: c })
+    } else {
+      broadcast({ kind: "comment.upserted", comment: c })
+    }
+  }
+  for (const c of validArchive) {
+    broadcast({ kind: "comment.archived", comment: c })
   }
   res.json(result)
 })
@@ -185,6 +360,8 @@ app.listen(PORT, HOST, () => {
       `bombardier-review-bridge ${VERSION}`,
       `→ ouvindo em http://${HOST}:${PORT}`,
       `→ data file: ${getDataFilePath()}`,
+      `→ archive file: ${getArchiveFilePath()}`,
+      `→ schema: v${REVIEW_SCHEMA_VERSION}`,
       `→ ${tokenMsg}`,
     ].join("\n")
   )
