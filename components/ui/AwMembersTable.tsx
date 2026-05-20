@@ -4,8 +4,15 @@ import * as React from "react"
 import { AwAvatar, type AwAvatarSize } from "@/components/ui/AwAvatar"
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill"
 import { AwSelect } from "@/components/ui/AwSelect"
+import { AwStatusDot } from "@/components/ui/AwStatusDot"
 import { AwTable } from "@/components/ui/AwTable"
 import { Icon } from "@/components/ui/Icon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 
 /* -----------------------------------------------------------------
@@ -101,7 +108,6 @@ export function AwMembersTable({
                 {col.help && (
                   <span
                     className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--fg-tertiary)]"
-                    title={col.help}
                     aria-label={col.help}
                   >
                     <Icon name="help" size={13} />
@@ -116,24 +122,35 @@ export function AwMembersTable({
               </>
             )
 
+            const headInner = sortable ? (
+              <button
+                type="button"
+                className="aw-th-sort"
+                onClick={() => onSort?.(col.sortKey!)}
+              >
+                {inner}
+              </button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5">
+                {inner}
+              </span>
+            )
+
             return (
               <th
                 key={i}
                 style={{ width: col.width, textAlign: col.align ?? "left" }}
                 aria-sort={ariaSort}
               >
-                {sortable ? (
-                  <button
-                    type="button"
-                    className="aw-th-sort"
-                    onClick={() => onSort?.(col.sortKey!)}
-                  >
-                    {inner}
-                  </button>
+                {col.help ? (
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>{headInner}</TooltipTrigger>
+                      <TooltipContent side="top">{col.help}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5">
-                    {inner}
-                  </span>
+                  headInner
                 )}
               </th>
             )
@@ -163,6 +180,8 @@ export type AwMembersTablePersonCellProps =
     /** Pill content rendered inline next to the name (e.g. "ADMIN"). */
     tag?: React.ReactNode
     tagVariant?: AwPillVariant
+    /** Render a presence dot in the bottom-right of the avatar. */
+    presence?: "live" | "attention" | "offline"
   }
 
 export function AwMembersTablePersonCell({
@@ -174,6 +193,7 @@ export function AwMembersTablePersonCell({
   avatarSize = "md",
   tag,
   tagVariant = "neutral",
+  presence,
   className,
   ...rest
 }: AwMembersTablePersonCellProps) {
@@ -191,12 +211,17 @@ export function AwMembersTablePersonCell({
   return (
     <td className={className} {...rest}>
       <span className="flex items-center gap-3">
-        <AwAvatar
-          size={avatarSize}
-          src={avatarSrc}
-          initials={fallbackInitials}
-          alt={typeof name === "string" ? name : undefined}
-        />
+        <span className="relative inline-block">
+          <AwAvatar
+            size={avatarSize}
+            src={avatarSrc}
+            initials={fallbackInitials}
+            alt={typeof name === "string" ? name : undefined}
+          />
+          {presence && (
+            <AwStatusDot variant={presence} size="sm" ring absolute />
+          )}
+        </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="flex items-center gap-2">
             <span className="truncate text-[14px] font-medium text-[var(--fg-primary)]">

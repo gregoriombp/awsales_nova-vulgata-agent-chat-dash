@@ -190,25 +190,6 @@ export default function MembersPage() {
 
         <TeamTabs />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <AwInput
-              iconLeft="search"
-              placeholder="Buscar membros…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <AwButton
-            size="md"
-            variant="primary"
-            iconLeft="person_add"
-            onClick={() => setInviteOpen(true)}
-          >
-            Adicionar membro
-          </AwButton>
-        </div>
-
         <div className="flex w-full gap-4">
           <div
             className="min-w-0 shrink-0 transition-[width] duration-300 ease-out"
@@ -217,6 +198,9 @@ export default function MembersPage() {
             {!isExpanded ? (
               <MembersTableState
                 members={filteredMembers}
+                search={search}
+                onSearchChange={setSearch}
+                onOpenInvite={() => setInviteOpen(true)}
                 managerAlreadyAssigned={managerAlreadyAssigned}
                 onSelect={setSelectedMemberId}
                 onChangeRole={requestRoleChange}
@@ -286,7 +270,7 @@ const MANAGER_ROLE: Role = "Gerente da conta";
 
 const CORTEX = {
   name: "Cortex",
-  role: "Gerente de contas",
+  role: "Agente de IA Frontier",
   avatarSrc: "/assets/Cortex.png",
   ctaLabel: "Iniciar conversa",
   ctaIcon: "chat_bubble",
@@ -294,11 +278,17 @@ const CORTEX = {
 
 function MembersTableState({
   members,
+  search,
+  onSearchChange,
+  onOpenInvite,
   managerAlreadyAssigned,
   onSelect,
   onChangeRole,
 }: {
   members: Member[];
+  search: string;
+  onSearchChange: (v: string) => void;
+  onOpenInvite: () => void;
   managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
@@ -308,7 +298,7 @@ function MembersTableState({
   const managers = members.filter((m) => m.role === MANAGER_ROLE);
   const others = members.filter((m) => m.role !== MANAGER_ROLE);
 
-  if (members.length === 0) {
+  if (members.length === 0 && search.trim() !== "") {
     return (
       <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10">
         <AwEmpty>
@@ -334,6 +324,7 @@ function MembersTableState({
         {manager && (
           <AwSpecialistsPair
             title="Especialistas dedicados à sua conta"
+            description="O time humano e o agente de IA que acompanham sua operação dia a dia — fale com eles pra tirar dúvidas, abrir solicitações ou pedir ajustes."
             human={{
               name: manager.name,
               role: "Gerente de contas",
@@ -347,13 +338,17 @@ function MembersTableState({
           />
         )}
         <MemberSection
-          title="Membros do workspace"
+          title="Membros da organização"
+          description="Todas as pessoas com acesso direto a este workspace. Convide novos membros, ajuste função ou abra o painel pra revisar permissões."
           members={others}
           invitations={INVITATIONS}
           managerAlreadyAssigned={managerAlreadyAssigned}
           onSelect={onSelect}
           onChangeRole={onChangeRole}
           emptyHint="Sem membros nessa categoria."
+          search={search}
+          onSearchChange={onSearchChange}
+          onOpenInvite={onOpenInvite}
         />
       </div>
       <ContactChannelModal
@@ -447,6 +442,9 @@ function MemberSection({
   onSelect,
   onChangeRole,
   emptyHint,
+  search,
+  onSearchChange,
+  onOpenInvite,
 }: {
   title: string;
   description?: string;
@@ -456,20 +454,51 @@ function MemberSection({
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
   emptyHint: string;
+  search?: string;
+  onSearchChange?: (v: string) => void;
+  onOpenInvite?: () => void;
 }) {
   const total = members.length + invitations.length;
+  const hasToolbar = onSearchChange !== undefined || onOpenInvite !== undefined;
   return (
     <section>
-      <header className="mb-3">
-        <h2 className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
-          {title}
-        </h2>
-        {description && (
-          <p className="m-0 mt-2 max-w-[760px] body-xs text-[var(--fg-secondary)]">
-            {description}
-          </p>
-        )}
+      <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <h2 className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
+            {title}
+          </h2>
+          {description && (
+            <p className="m-0 mt-2 max-w-[760px] body-xs text-[var(--fg-secondary)]">
+              {description}
+            </p>
+          )}
+        </div>
       </header>
+
+      {hasToolbar && (
+        <div className="mb-3 flex flex-wrap items-center gap-3">
+          {onSearchChange !== undefined && (
+            <div className="flex-1 min-w-0">
+              <AwInput
+                iconLeft="search"
+                placeholder="Buscar membros…"
+                value={search ?? ""}
+                onChange={(e) => onSearchChange(e.target.value)}
+              />
+            </div>
+          )}
+          {onOpenInvite !== undefined && (
+            <AwButton
+              size="md"
+              variant="primary"
+              iconLeft="person_add"
+              onClick={onOpenInvite}
+            >
+              Adicionar membro
+            </AwButton>
+          )}
+        </div>
+      )}
 
       {total === 0 ? (
         <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-6 py-8 text-center">
@@ -483,7 +512,7 @@ function MemberSection({
             { label: "Pessoa", icon: "person" },
             { label: "Função", help: "Define o conjunto de permissões." },
             { label: "Última atividade" },
-            { label: "", width: 48 },
+            { label: "", width: 88 },
           ]}
         >
           {members.map((m) => (
@@ -499,6 +528,7 @@ function MemberSection({
                 initials={m.initials}
                 tag={m.isYou ? "Você" : undefined}
                 tagVariant="live"
+                presence={m.online ? "live" : undefined}
               />
               <td onClick={(e) => e.stopPropagation()}>
                 <AwDropdownMenu
@@ -518,24 +548,34 @@ function MemberSection({
               <AwMembersTableTextCell muted>
                 {m.lastActive}
               </AwMembersTableTextCell>
-              <td onClick={(e) => e.stopPropagation()}>
-                <AwDropdownMenu
-                  trigger={
-                    <button
-                      type="button"
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
-                      aria-label="Ações"
-                    >
-                      <Icon name="more_vert" size={16} />
-                    </button>
-                  }
-                  items={[
-                    { id: "profile",    label: "Ver perfil",           onSelect: () => onSelect(m.id) },
-                    { id: "copy-email", label: "Copiar e-mail",        onSelect: () => navigator.clipboard.writeText(m.email) },
-                    { id: "sep-member", separator: true },
-                    { id: "remove",     label: "Remover do workspace", danger: true, onSelect: () => {} },
-                  ]}
-                />
+              <td>
+                <div className="flex items-center justify-end gap-1">
+                  <span onClick={(e) => e.stopPropagation()}>
+                    <AwDropdownMenu
+                      align="end"
+                      trigger={
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                          aria-label="Ações"
+                        >
+                          <Icon name="more_vert" size={20} />
+                        </button>
+                      }
+                      items={[
+                        { id: "profile",    label: "Ver perfil",           onSelect: () => onSelect(m.id) },
+                        { id: "copy-email", label: "Copiar e-mail",        onSelect: () => navigator.clipboard.writeText(m.email) },
+                        { id: "sep-member", separator: true },
+                        { id: "remove",     label: "Remover do workspace", danger: true, onSelect: () => {} },
+                      ]}
+                    />
+                  </span>
+                  <Icon
+                    name="chevron_right"
+                    size={16}
+                    className="shrink-0 text-[var(--fg-tertiary)]"
+                  />
+                </div>
               </td>
             </tr>
           ))}
@@ -554,23 +594,29 @@ function MemberSection({
                   Aguardando aceite · enviado {i.sentAt}
                 </span>
               </td>
-              <td onClick={(e) => e.stopPropagation()}>
-                <AwDropdownMenu
-                  trigger={
-                    <button
-                      type="button"
-                      className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
-                      aria-label="Ações do convite"
-                    >
-                      <Icon name="more_vert" size={16} />
-                    </button>
-                  }
-                  items={[
-                    { id: "resend",     label: "Reenviar convite", onSelect: () => {} },
-                    { id: "sep-invite", separator: true },
-                    { id: "cancel",     label: "Cancelar convite", danger: true, onSelect: () => {} },
-                  ]}
-                />
+              <td>
+                <div className="flex items-center justify-end gap-1">
+                  <span onClick={(e) => e.stopPropagation()}>
+                    <AwDropdownMenu
+                      align="end"
+                      trigger={
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                          aria-label="Ações do convite"
+                        >
+                          <Icon name="more_vert" size={20} />
+                        </button>
+                      }
+                      items={[
+                        { id: "resend",     label: "Reenviar convite", onSelect: () => {} },
+                        { id: "sep-invite", separator: true },
+                        { id: "cancel",     label: "Cancelar convite", danger: true, onSelect: () => {} },
+                      ]}
+                    />
+                  </span>
+                  <span className="inline-block h-4 w-4 shrink-0" aria-hidden="true" />
+                </div>
               </td>
             </tr>
           ))}

@@ -421,6 +421,8 @@ export type Member = {
   initials: string;
   avatar?: string;
   isYou?: boolean;
+  /** Sinaliza presença em tempo real — usado pelo dot verde no avatar. */
+  online?: boolean;
   status: MemberStatus;
   lastActive: string;
   joinedAt: string;
@@ -701,6 +703,7 @@ export const MEMBERS: Member[] = [
     initials: "GP",
     avatar: "/assets/users/greg.jpg",
     isYou: true,
+    online: true,
     status: "active",
     lastActive: "agora mesmo",
     joinedAt: "12/01/2026",
@@ -720,6 +723,7 @@ export const MEMBERS: Member[] = [
     role: "Gerente da conta",
     initials: "GR",
     avatar: "/assets/ui-faces/male-1.jpg",
+    online: true,
     status: "active",
     lastActive: "há 12 minutos",
     joinedAt: "11/04/2023",
@@ -792,6 +796,7 @@ export const MEMBERS: Member[] = [
     role: "Gerente de Operações",
     initials: "AS",
     avatar: "/assets/ui-faces/female-3.jpg",
+    online: true,
     status: "active",
     lastActive: "há 14 minutos",
     joinedAt: "14/01/2023",
@@ -829,6 +834,7 @@ export const MEMBERS: Member[] = [
     role: "Analista Sênior",
     initials: "HT",
     avatar: "/assets/ui-faces/male-4.jpg",
+    online: true,
     status: "active",
     lastActive: "há 25 minutos",
     joinedAt: "08/05/2022",
@@ -865,6 +871,7 @@ export const MEMBERS: Member[] = [
     role: "Analista Pleno",
     initials: "DF",
     avatar: "/assets/ui-faces/male-5.jpg",
+    online: true,
     status: "active",
     lastActive: "há 30 minutos",
     joinedAt: "04/06/2023",
@@ -936,6 +943,7 @@ export const MEMBERS: Member[] = [
     role: "Operador",
     initials: "TO",
     avatar: "/assets/ui-faces/male-7.jpg",
+    online: true,
     status: "active",
     lastActive: "há 8 minutos",
     joinedAt: "27/07/2023",
