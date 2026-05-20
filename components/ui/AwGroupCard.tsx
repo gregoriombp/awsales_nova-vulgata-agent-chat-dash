@@ -31,7 +31,6 @@ export type AwGroupCardProps = React.HTMLAttributes<HTMLElement> & {
   onManage?: () => void
   /** Items for the overflow dropdown. When omitted, the 3-dot button is hidden. */
   menu?: AwDropdownItem[]
-  manageLabel?: string
 }
 
 export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
@@ -46,7 +45,6 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
       maxAvatars = 5,
       onManage,
       menu,
-      manageLabel = "Gerenciar equipe",
       className,
       ...rest
     },
@@ -58,10 +56,12 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
     return (
       <article
         ref={ref}
+        onClick={onManage}
         className={cn(
           "flex flex-col overflow-hidden rounded-[var(--radius-lg)]",
           "border border-[var(--border-subtle)] bg-[var(--bg-raised)]",
           "transition-colors duration-aw-fast hover:border-[var(--border-default)]",
+          onManage && "cursor-pointer",
           className,
         )}
         {...rest}
@@ -138,17 +138,6 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
             {description}
           </p>
 
-          <div className="mt-auto flex justify-end pt-2">
-            <AwButton
-              size="sm"
-              variant="secondary"
-              iconLeft="add"
-              onClick={onManage}
-              className="!rounded-full"
-            >
-              {manageLabel}
-            </AwButton>
-          </div>
         </div>
       </article>
     )
