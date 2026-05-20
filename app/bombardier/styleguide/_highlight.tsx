@@ -111,7 +111,7 @@ function highlightJSX(source: string): React.ReactNode[] {
         {tag}
       </span>
     )
-    if (attrs) out.push(...highlightAttrs(attrs))
+    if (attrs) out.push(...highlightAttrs(attrs, i))
     out.push(
       <span key={`jsx-end-${i++}`} className="tok-punct">
         {end}
@@ -132,7 +132,7 @@ function highlightJSX(source: string): React.ReactNode[] {
 const ATTR_RE =
   /\b([a-zA-Z_][a-zA-Z0-9_-]*)(=)?|("(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(\{(?:[^{}]|\{[^{}]*\})*\})|(\s+|[^\s])/g
 
-function highlightAttrs(attrs: string): React.ReactNode[] {
+function highlightAttrs(attrs: string, parentI: number): React.ReactNode[] {
   const out: React.ReactNode[] = []
   let m: RegExpExecArray | null
   ATTR_RE.lastIndex = 0
@@ -141,20 +141,20 @@ function highlightAttrs(attrs: string): React.ReactNode[] {
     const [, name, eq, str, braced, rest] = m
     if (name) {
       out.push(
-        <span key={`a-${i++}`} className="tok-attr">
+        <span key={`a-${parentI}-${i++}`} className="tok-attr">
           {name}
         </span>
       )
       if (eq) out.push("=")
     } else if (str) {
       out.push(
-        <span key={`as-${i++}`} className="tok-string">
+        <span key={`as-${parentI}-${i++}`} className="tok-string">
           {str}
         </span>
       )
     } else if (braced) {
       out.push(
-        <span key={`ab-${i++}`} className="tok-punct">
+        <span key={`ab-${parentI}-${i++}`} className="tok-punct">
           {"{"}
         </span>
       )
@@ -165,7 +165,7 @@ function highlightAttrs(attrs: string): React.ReactNode[] {
         else out.push(...tokenizeLine(seg))
       })
       out.push(
-        <span key={`ab-end-${i++}`} className="tok-punct">
+        <span key={`ab-end-${parentI}-${i++}`} className="tok-punct">
           {"}"}
         </span>
       )
