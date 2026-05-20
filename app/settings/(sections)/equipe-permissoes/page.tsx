@@ -24,7 +24,6 @@ import {
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwSpecialistsPair } from "@/components/ui/AwSpecialistsPair";
-import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import {
   ALL_PERMISSION_IDS,
@@ -484,6 +483,7 @@ function MemberSection({
             { label: "Pessoa", icon: "person" },
             { label: "Função", help: "Define o conjunto de permissões." },
             { label: "Última atividade" },
+            { label: "", width: 48 },
           ]}
         >
           {members.map((m) => (
@@ -516,11 +516,27 @@ function MemberSection({
                 />
               </td>
               <AwMembersTableTextCell muted>
-                <span className="inline-flex items-center gap-2">
-                  <AwStatusDot variant="live" size="xs" />
-                  {m.lastActive}
-                </span>
+                {m.lastActive}
               </AwMembersTableTextCell>
+              <td onClick={(e) => e.stopPropagation()}>
+                <AwDropdownMenu
+                  trigger={
+                    <button
+                      type="button"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                      aria-label="Ações"
+                    >
+                      <Icon name="more_vert" size={16} />
+                    </button>
+                  }
+                  items={[
+                    { id: "profile",    label: "Ver perfil",           onSelect: () => onSelect(m.id) },
+                    { id: "copy-email", label: "Copiar e-mail",        onSelect: () => navigator.clipboard.writeText(m.email) },
+                    { id: "sep-member", separator: true },
+                    { id: "remove",     label: "Remover do workspace", danger: true, onSelect: () => {} },
+                  ]}
+                />
+              </td>
             </tr>
           ))}
           {invitations.map((i) => (
@@ -533,24 +549,28 @@ function MemberSection({
               />
               <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
               <td>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
-                    <Icon
-                      name="mail"
-                      size={14}
-                      className="text-[var(--fg-tertiary)]"
-                    />
-                    Aguardando aceite · enviado {i.sentAt}
-                  </span>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <AwButton size="sm" variant="ghost" iconLeft="send">
-                      Reenviar
-                    </AwButton>
-                    <AwButton size="sm" variant="ghost" iconLeft="close">
-                      Remover
-                    </AwButton>
-                  </div>
-                </div>
+                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
+                  <Icon name="mail" size={14} className="text-[var(--fg-tertiary)]" />
+                  Aguardando aceite · enviado {i.sentAt}
+                </span>
+              </td>
+              <td onClick={(e) => e.stopPropagation()}>
+                <AwDropdownMenu
+                  trigger={
+                    <button
+                      type="button"
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                      aria-label="Ações do convite"
+                    >
+                      <Icon name="more_vert" size={16} />
+                    </button>
+                  }
+                  items={[
+                    { id: "resend",     label: "Reenviar convite", onSelect: () => {} },
+                    { id: "sep-invite", separator: true },
+                    { id: "cancel",     label: "Cancelar convite", danger: true, onSelect: () => {} },
+                  ]}
+                />
               </td>
             </tr>
           ))}

@@ -154,6 +154,8 @@ export type AwMembersTablePersonCellProps =
     /** Rendered name. ReactNode supported — pass e.g. <>Greg <span>(você)</span></>. */
     name: React.ReactNode
     email?: string
+    /** Optional third line below email (e.g. organization name). */
+    subtitle?: string
     avatarSrc?: string
     /** Required when `name` is not a string. */
     initials?: string
@@ -166,6 +168,7 @@ export type AwMembersTablePersonCellProps =
 export function AwMembersTablePersonCell({
   name,
   email,
+  subtitle,
   avatarSrc,
   initials,
   avatarSize = "md",
@@ -208,6 +211,11 @@ export function AwMembersTablePersonCell({
           {email && (
             <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
               {email}
+            </span>
+          )}
+          {subtitle && (
+            <span className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+              {subtitle}
             </span>
           )}
         </span>

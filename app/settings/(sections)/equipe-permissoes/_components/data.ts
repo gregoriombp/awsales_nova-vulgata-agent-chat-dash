@@ -696,6 +696,7 @@ export const MEMBERS: Member[] = [
     id: "u-greg",
     name: "Gregório Pinheiro",
     email: "greg@awsales.io",
+
     role: "Administrador",
     initials: "GP",
     avatar: "/assets/users/greg.jpg",
@@ -715,6 +716,7 @@ export const MEMBERS: Member[] = [
     id: "u-gabriel-rocha",
     name: "Gabriel Rocha",
     email: "gabriel.rocha@awsales.io",
+
     role: "Gerente da conta",
     initials: "GR",
     avatar: "/assets/ui-faces/male-1.jpg",
@@ -732,6 +734,7 @@ export const MEMBERS: Member[] = [
     id: "u-larissa-pinto",
     name: "Larissa Pinto",
     email: "larissa.pinto@awsales.io",
+
     role: "Gerente de Operações",
     initials: "LP",
     avatar: "/assets/ui-faces/female-1.jpg",
@@ -749,6 +752,7 @@ export const MEMBERS: Member[] = [
     id: "u-rafael-andrade",
     name: "Rafael Andrade",
     email: "rafael.andrade@awsales.io",
+
     role: "Analista Sênior",
     initials: "RA",
     avatar: "/assets/ui-faces/male-2.jpg",
@@ -766,6 +770,7 @@ export const MEMBERS: Member[] = [
     id: "u-camila-nogueira",
     name: "Camila Nogueira",
     email: "camila.nogueira@awsales.io",
+
     role: "Analista Pleno",
     initials: "CN",
     avatar: "/assets/ui-faces/female-2.jpg",
@@ -783,6 +788,7 @@ export const MEMBERS: Member[] = [
     id: "u-ana-souza",
     name: "Ana Souza",
     email: "ana.souza@awsales.io",
+
     role: "Gerente de Operações",
     initials: "AS",
     avatar: "/assets/ui-faces/female-3.jpg",
@@ -801,6 +807,7 @@ export const MEMBERS: Member[] = [
     id: "u-carlos-lima",
     name: "Carlos Lima",
     email: "carlos.lima@awsales.io",
+
     role: "Gerente de Operações",
     initials: "CL",
     avatar: "/assets/ui-faces/male-3.jpg",
@@ -818,6 +825,7 @@ export const MEMBERS: Member[] = [
     id: "u-henrique-tavares",
     name: "Henrique Tavares",
     email: "henrique.tavares@awsales.io",
+
     role: "Analista Sênior",
     initials: "HT",
     avatar: "/assets/ui-faces/male-4.jpg",
@@ -835,6 +843,7 @@ export const MEMBERS: Member[] = [
     id: "u-juliana-barreto",
     name: "Juliana Barreto",
     email: "juliana.barreto@awsales.io",
+
     role: "Analista Sênior",
     initials: "JB",
     avatar: "/assets/ui-faces/female-4.jpg",
@@ -852,6 +861,7 @@ export const MEMBERS: Member[] = [
     id: "u-diego-ferreira",
     name: "Diego Ferreira",
     email: "diego.ferreira@awsales.io",
+
     role: "Analista Pleno",
     initials: "DF",
     avatar: "/assets/ui-faces/male-5.jpg",
@@ -869,6 +879,7 @@ export const MEMBERS: Member[] = [
     id: "u-pedro-vasconcelos",
     name: "Pedro Vasconcelos",
     email: "pedro.vasconcelos@awsales.io",
+
     role: "Analista Pleno",
     initials: "PV",
     avatar: "/assets/ui-faces/male-6.jpg",
@@ -886,6 +897,7 @@ export const MEMBERS: Member[] = [
     id: "u-marina-cavalcanti",
     name: "Marina Cavalcanti",
     email: "marina.cavalcanti@partner.io",
+
     role: "Colaborador Externo",
     initials: "MC",
     avatar: "/assets/ui-faces/female-5.jpg",
@@ -903,6 +915,7 @@ export const MEMBERS: Member[] = [
     id: "u-beatriz-mendes",
     name: "Beatriz Mendes",
     email: "beatriz@awsales.io",
+
     role: "Operador",
     initials: "BM",
     avatar: "/assets/ui-faces/female-6.jpg",
@@ -919,6 +932,7 @@ export const MEMBERS: Member[] = [
     id: "u-thiago-oliveira",
     name: "Thiago Oliveira",
     email: "thiago.oliveira@awsales.io",
+
     role: "Operador",
     initials: "TO",
     avatar: "/assets/ui-faces/male-7.jpg",
@@ -936,6 +950,7 @@ export const MEMBERS: Member[] = [
     id: "u-bianca-rezende",
     name: "Bianca Rezende",
     email: "bianca.rezende@awsales.io",
+
     role: "Operador",
     initials: "BR",
     avatar: "/assets/ui-faces/female-7.jpg",
@@ -953,6 +968,7 @@ export const MEMBERS: Member[] = [
     id: "u-fernanda-costa",
     name: "Fernanda Costa",
     email: "fernanda@awsales.io",
+
     role: "Operador",
     initials: "FC",
     avatar: "/assets/ui-faces/female-8.jpg",
