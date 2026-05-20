@@ -640,7 +640,7 @@ function OverviewTab({
             icon="auto_awesome"
             title="Conectar agente"
             desc="Atender via IA"
-            href="/agent-studio-v2"
+            href="/agent-studio"
           />
         </div>
       </section>

@@ -632,7 +632,7 @@ function OverviewTab({
             icon="auto_awesome"
             title="Roteiros & agentes"
             desc="Conecte um agente a esta página"
-            href="/agent-studio-v2"
+            href="/agent-studio"
           />
         </div>
       </section>
