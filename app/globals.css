@@ -1274,8 +1274,8 @@
 }
 .aw-input input::placeholder { color: var(--fg-tertiary); }
 .aw-input:focus-within {
-  border-color: var(--aw-blue-500);
-  box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.18);
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-primary) 12%, transparent);
 }
 .aw-input--invalid { border-color: var(--aw-red-700); }
 .aw-input--invalid:focus-within {
@@ -1298,10 +1298,10 @@
  * follows the semantic tokens straight through to dark mode. */
 .aw-input--search {
   border-radius: var(--radius-full);
-  border-color: var(--border-subtle);
+  border-color: var(--border-default);
 }
 .aw-input--search:focus-within {
-  border-color: var(--aw-blue-500);
+  border-color: var(--fg-primary);
 }
 
 /* Clear button — sits inside the input, stays inside the rounded boundary
