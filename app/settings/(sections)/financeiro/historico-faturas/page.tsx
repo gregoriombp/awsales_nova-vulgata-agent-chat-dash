@@ -164,16 +164,9 @@ function MonthSection({
             {group.rows.length === 1 ? "fatura" : "faturas"}
           </span>
         </div>
-        <div className="text-right">
-          <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(group.total)}
-          </span>
-          {group.discount > 0 && (
-            <span className="ml-2 body-xs tabular-nums text-[var(--accent-success)]">
-              −{brl(group.discount)} desconto
-            </span>
-          )}
-        </div>
+        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          {brl(group.total)}
+        </span>
       </header>
       <ul className="m-0 flex flex-col gap-1 p-0">
         {group.rows.map((row) => (
@@ -213,17 +206,9 @@ function InvoiceRow({
             {row.id} · {row.paymentMethod} · {dateLabel}
           </p>
         </div>
-        <div className="text-right">
-          <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(row.net)}
-          </span>
-          {row.discount && row.discount > 0 && (
-            <p className="m-0 body-xs tabular-nums text-[var(--accent-success)]">
-              −{brl(row.discount)}
-              {row.discountCode ? ` · ${row.discountCode}` : ""}
-            </p>
-          )}
-        </div>
+        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          {brl(row.net)}
+        </span>
         <Icon
           name="chevron_right"
           size={18}
