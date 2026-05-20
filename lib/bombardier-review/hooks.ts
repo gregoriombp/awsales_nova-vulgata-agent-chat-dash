@@ -1,0 +1,25 @@
+"use client"
+
+import * as React from "react"
+import { usePathname, useSearchParams } from "next/navigation"
+import type { ReviewComment } from "@/components/bombardier-review/types"
+import { useReviewStore } from "./store"
+
+export function useCurrentUrl(): string {
+  const pathname = usePathname() ?? ""
+  const searchParams = useSearchParams()
+  const search = searchParams?.toString() ?? ""
+  return search ? `${pathname}?${search}` : pathname
+}
+
+export function useCommentsForUrl(url: string): ReviewComment[] {
+  const all = useReviewStore((s) => s.comments)
+  const showResolved = useReviewStore((s) => s.showResolved)
+  return React.useMemo(
+    () =>
+      all.filter(
+        (c) => c.url === url && (showResolved || c.status !== "resolved")
+      ),
+    [all, url, showResolved]
+  )
+}

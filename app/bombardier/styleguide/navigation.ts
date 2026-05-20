@@ -46,6 +46,7 @@ export const navigation: NavSection[] = [
       { name: "Breadcrumb", href: "/bombardier/styleguide/components/aw-breadcrumb" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
+      { name: "Checkbox", href: "/bombardier/styleguide/components/aw-checkbox" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
       { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
