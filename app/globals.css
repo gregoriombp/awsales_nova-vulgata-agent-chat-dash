@@ -2341,14 +2341,14 @@
   gap: 12px;
   padding: 8px 12px;
   border-radius: var(--radius-md);
-  color: var(--fg-secondary);
+  color: var(--aw-gray-900);
   cursor: pointer;
   text-decoration: none;
   border: 0;
   background: transparent;
   font-family: var(--font-body);
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.2;
   transition:
     background var(--dur-base) var(--ease-out),
@@ -2365,7 +2365,7 @@
 .aw-nav-rail__item--active {
   background: var(--bg-inverse);
   color: var(--fg-on-inverse);
-  font-weight: 500;
+  font-weight: 600;
 }
 .aw-nav-rail__item--active:hover {
   background: var(--bg-inverse);
@@ -2375,7 +2375,7 @@
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
 }
-.aw-nav-rail--dark .aw-nav-rail__item { color: var(--dark-fg-secondary); }
+.aw-nav-rail--dark .aw-nav-rail__item { color: var(--aw-gray-400); }
 .aw-nav-rail--dark .aw-nav-rail__item:hover {
   background: var(--dark-bg-hover);
   color: var(--dark-fg-primary);
