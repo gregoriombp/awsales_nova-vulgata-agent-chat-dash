@@ -109,7 +109,7 @@ function SpecialistCard({
         />
       )}
 
-      <div className="min-w-0 flex-1 flex items-baseline gap-2">
+      <div className="min-w-0 flex-1 flex flex-col gap-0.5">
         <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
           {data.name}
         </span>

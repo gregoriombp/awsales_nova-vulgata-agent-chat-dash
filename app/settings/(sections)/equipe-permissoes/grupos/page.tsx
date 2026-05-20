@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import {
   AwEmpty,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/AwEmpty";
 import { AwGroupCard } from "@/components/ui/AwGroupCard";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { Icon } from "@/components/ui/Icon";
 import {
   GROUPS,
@@ -27,7 +29,17 @@ export default function GroupsPage() {
   const [search, setSearch] = useState("");
   const [groups, setGroups] = useState<Group[]>(GROUPS);
   const [createOpen, setCreateOpen] = useState(false);
+  const [membersGroupId, setMembersGroupId] = useState<string | null>(null);
   const openGroup = (id: string) => router.push(`/settings/equipe-permissoes/grupos/${id}`);
+
+  const membersGroup = membersGroupId
+    ? groups.find((g) => g.id === membersGroupId)
+    : null;
+  const membersGroupMembers = membersGroup
+    ? membersGroup.members
+        .map((id) => MEMBERS.find((m) => m.id === id))
+        .filter((m): m is NonNullable<typeof m> => Boolean(m))
+    : [];
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -93,8 +105,8 @@ export default function GroupsPage() {
 
         <TeamTabs />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="w-full max-w-[320px]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex-1 min-w-0">
             <AwInput
               iconLeft="search"
               placeholder="Buscar equipes…"
@@ -103,7 +115,7 @@ export default function GroupsPage() {
             />
           </div>
           <AwButton
-            size="sm"
+            size="md"
             variant="primary"
             iconLeft="add"
             onClick={() => setCreateOpen(true)}
@@ -149,6 +161,8 @@ export default function GroupsPage() {
                     icon={g.icon}
                     backgroundImage={g.backgroundImage}
                     onManage={() => openGroup(g.id)}
+                    onOpenMembers={() => setMembersGroupId(g.id)}
+                    openMembersThreshold={3}
                     menu={[
                       {
                         id: "manage",
@@ -190,6 +204,47 @@ export default function GroupsPage() {
         onClose={() => setCreateOpen(false)}
         onCreate={handleCreate}
       />
+
+      <AwModal
+        open={membersGroup !== null}
+        onClose={() => setMembersGroupId(null)}
+        title={membersGroup ? `Membros · ${membersGroup.name}` : "Membros"}
+      >
+        {membersGroup && (
+          <div className="flex flex-col gap-2">
+            {membersGroupMembers.length === 0 ? (
+              <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                Nenhum membro nessa equipe ainda.
+              </p>
+            ) : (
+              membersGroupMembers.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+                >
+                  <AwAvatar
+                    size="sm"
+                    src={m.avatar}
+                    alt={m.name}
+                    initials={m.initials}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                      {m.name}
+                    </p>
+                    <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                      {m.email}
+                    </p>
+                  </div>
+                  <span className="body-xs text-[var(--fg-tertiary)]">
+                    {m.role}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+      </AwModal>
     </>
   );
 }

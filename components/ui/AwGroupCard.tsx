@@ -9,6 +9,12 @@ import {
   type AwDropdownItem,
 } from "@/components/ui/AwDropdownMenu"
 import { Icon } from "@/components/ui/Icon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export type AwGroupCardMember = {
   name: string
@@ -31,6 +37,10 @@ export type AwGroupCardProps = React.HTMLAttributes<HTMLElement> & {
   onManage?: () => void
   /** Items for the overflow dropdown. When omitted, the 3-dot button is hidden. */
   menu?: AwDropdownItem[]
+  /** Opens a "ver todos" modal — wired to the +N overflow chip. */
+  onOpenMembers?: () => void
+  /** Threshold above which the +N chip becomes a clickable "ver todos" entry point. Default 3. */
+  openMembersThreshold?: number
 }
 
 export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
@@ -45,6 +55,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
       maxAvatars = 5,
       onManage,
       menu,
+      onOpenMembers,
+      openMembersThreshold = 3,
       className,
       ...rest
     },
@@ -52,14 +64,16 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
   ) {
     const visible = members.slice(0, maxAvatars)
     const overflow = Math.max(memberCount - visible.length, 0)
+    const overflowClickable =
+      onOpenMembers !== undefined && memberCount > openMembersThreshold
 
     return (
       <article
         ref={ref}
         onClick={onManage}
         className={cn(
-          "flex flex-col overflow-hidden rounded-[var(--radius-lg)]",
-          "border border-[var(--border-subtle)] bg-[var(--bg-raised)]",
+          "flex flex-col overflow-hidden rounded-[var(--radius-xl)]",
+          "border border-[var(--border-subtle)] bg-[var(--bg-muted)]",
           "transition-colors duration-aw-fast hover:border-[var(--border-default)]",
           onManage && "cursor-pointer",
           className,
@@ -80,33 +94,67 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
           aria-hidden="true"
         >
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex items-center">
-              {visible.map((m, i) => (
-                <AwAvatar
-                  key={`${m.name}-${i}`}
-                  size="lg"
-                  src={m.avatar}
-                  initials={m.initials}
-                  alt={m.name}
-                  className={cn(
-                    "!h-12 !w-12 !text-[14px]",
-                    "ring-2 ring-[var(--bg-raised)]",
-                    i > 0 && "-ml-3",
-                  )}
-                />
-              ))}
-              {overflow > 0 && (
-                <span
-                  className={cn(
-                    "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
-                    "ring-2 ring-[var(--bg-raised)]",
-                    "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
-                  )}
-                >
-                  +{overflow}
-                </span>
-              )}
-            </div>
+            <TooltipProvider delayDuration={120}>
+              <div className="flex items-center">
+                {visible.map((m, i) => (
+                  <Tooltip key={`${m.name}-${i}`}>
+                    <TooltipTrigger asChild>
+                      <span
+                        className={cn(
+                          "inline-block",
+                          i > 0 && "-ml-3",
+                        )}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <AwAvatar
+                          size="lg"
+                          src={m.avatar}
+                          initials={m.initials}
+                          alt={m.name}
+                          className={cn(
+                            "!h-12 !w-12 !text-[14px]",
+                            "ring-2 ring-[var(--bg-raised)]",
+                          )}
+                        />
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">
+                      <span className="body-xs">{m.name}</span>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+                {overflow > 0 && (
+                  overflowClickable ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        onOpenMembers?.()
+                      }}
+                      aria-label="Ver todos os membros"
+                      className={cn(
+                        "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
+                        "ring-2 ring-[var(--bg-raised)]",
+                        "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
+                        "transition-colors hover:!bg-[var(--bg-hover)] hover:!text-[var(--fg-primary)]",
+                      )}
+                    >
+                      +{overflow}
+                    </button>
+                  ) : (
+                    <span
+                      className={cn(
+                        "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
+                        "ring-2 ring-[var(--bg-raised)]",
+                        "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
+                      )}
+                    >
+                      +{overflow}
+                    </span>
+                  )
+                )}
+              </div>
+            </TooltipProvider>
           </div>
         </div>
 
