@@ -90,6 +90,7 @@ export const navigation: NavSection[] = [
     title: "UX Flows",
     items: [
       { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
+      { name: "Login e autenticação", href: "/bombardier/styleguide/ux-flows/login-auth" },
     ],
   },
 ]
