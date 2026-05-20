@@ -60,7 +60,7 @@ export function DeltaValue({ value, options, locale }: DeltaValueProps) {
     ? "text-green-700 dark:text-green-500"
     : isBad
       ? "text-destructive"
-      : "text-muted-foreground";
+      : "text-fg-secondary";
 
   const absValue = Math.abs(value);
   const formatted = new Intl.NumberFormat(locale, {
@@ -178,7 +178,7 @@ export function DateValue({ value, options, locale }: DateValueProps) {
   const date = new Date(value);
 
   if (isNaN(date.getTime())) {
-    return <span className="text-muted-foreground">{value}</span>;
+    return <span className="text-fg-secondary">{value}</span>;
   }
 
   let formatted: string;
@@ -384,7 +384,7 @@ export function ArrayValue({ value, options }: ArrayValueProps) {
       {visible.map((item, i) => (
         <span
           key={i}
-          className="bg-muted text-muted-foreground inline-flex items-center rounded-md px-2 py-0.5"
+          className="bg-bg-muted text-fg-secondary inline-flex items-center rounded-md px-2 py-0.5"
         >
           {item === null ? "null" : String(item)}
         </span>
@@ -392,7 +392,7 @@ export function ArrayValue({ value, options }: ArrayValueProps) {
       {remaining > 0 && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <span className="text-muted-foreground cursor-default">
+            <span className="text-fg-secondary cursor-default">
               +{remaining} more
             </span>
           </TooltipTrigger>
