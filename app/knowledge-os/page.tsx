@@ -3,8 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
 import EmptyState from "@/components/EmptyState";
-import KnowledgeOSOnboarding from "@/components/KnowledgeOSOnboarding";
-import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
+import MemoryBaseOnboarding from "@/components/memory-base/MemoryBaseOnboarding";
+import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import FormModal from "@/components/modals/FormModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import BaseModal from "@/components/modals/BaseModal";
@@ -257,7 +257,7 @@ export default function KnowledgeOSPage() {
   const breadcrumbs = [
     {
 label: "Knowledge OS",
-    icon: <KnowledgeOSIcon />,
+    icon: <MemoryBaseIcon />,
     },
   ];
 
@@ -272,9 +272,9 @@ label: "Knowledge OS",
     );
   }
 
-  // Onboarding flow (first use) - renders its own layout without KnowledgeOSSidebar
+  // Onboarding flow (first use) - renders its own layout without MemoryBaseSidebar
   if (shouldShowOnboarding) {
-    return <KnowledgeOSOnboarding onComplete={handleOnboardingComplete} />;
+    return <MemoryBaseOnboarding onComplete={handleOnboardingComplete} />;
   }
 
   return (

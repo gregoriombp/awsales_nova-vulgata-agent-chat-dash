@@ -3,13 +3,13 @@
 import React from "react";
 import Image from "next/image";
 
-interface KnowledgeOSEmptyStateProps {
+interface MemoryBaseEmptyStateProps {
   onCreateBase: () => void;
 }
 
-export default function KnowledgeOSEmptyState({
+export default function MemoryBaseEmptyState({
   onCreateBase,
-}: KnowledgeOSEmptyStateProps) {
+}: MemoryBaseEmptyStateProps) {
   return (
     <div className="relative w-full rounded-2xl bg-[#0c1421] overflow-hidden" style={{ minHeight: "427px" }}>
       {/* Pattern Background */}

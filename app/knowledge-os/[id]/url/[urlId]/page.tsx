@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
-import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
+import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { TbRefresh, TbFile, TbCircleCheck, TbCircleX, TbCloudDataConnection } from "react-icons/tb";
 
 type UrlPageRow = {
@@ -219,7 +219,7 @@ export default function UrlResultsPage() {
       {
         label: "Knowledge OS",
         href: "/knowledge-os",
-        icon: <KnowledgeOSIcon />,
+        icon: <MemoryBaseIcon />,
       },
       {
         label: directoryName,

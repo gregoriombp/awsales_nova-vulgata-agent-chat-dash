@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Sidebar from "./Sidebar";
-import KnowledgeOSSidebar from "./KnowledgeOSSidebar";
+import MemoryBaseSidebar from "@/components/memory-base/MemoryBaseSidebar";
 import Header from "./Header";
 import CopilotDrawer from "./CopilotDrawer";
 import { BreadcrumbsBar, type BreadcrumbItem } from "./Breadcrumbs";
@@ -43,7 +43,7 @@ export default function DashboardLayout({
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         <div className="flex flex-1 min-w-0 overflow-hidden">
-          {isInKnowledgeOS && <KnowledgeOSSidebar />}
+          {isInKnowledgeOS && <MemoryBaseSidebar />}
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
           <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">

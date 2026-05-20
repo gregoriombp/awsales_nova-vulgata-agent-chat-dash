@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
-import KnowledgeOSIcon from "@/components/KnowledgeOSIcon";
+import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 
 const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
@@ -108,7 +108,7 @@ export default function SemanticSearchPage() {
     : chunks;
 
   const breadcrumbs = [
-    { label: "Knowledge OS", href: "/knowledge-os", icon: <KnowledgeOSIcon /> },
+    { label: "Knowledge OS", href: "/knowledge-os", icon: <MemoryBaseIcon /> },
     {
       label: baseName,
       href: `/knowledge-os/${baseId}`,
