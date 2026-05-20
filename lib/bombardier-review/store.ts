@@ -6,14 +6,19 @@ import { RemoteBridgeReview } from "@/components/bombardier-review/storage/remot
 import type { ReviewStorage } from "@/components/bombardier-review/storage/types"
 import { makeId } from "@/components/bombardier-review/storage/utils"
 import type {
+  ReviewActor,
   ReviewAnchor,
   ReviewComment,
   ReviewDrawPath,
   ReviewIdentity,
   ReviewMode,
   ReviewPoint,
+  ReviewReply,
 } from "@/components/bombardier-review/types"
-import { DEFAULT_STROKE_WIDTH, SCHEMA_VERSION } from "@/components/bombardier-review/constants"
+import {
+  DEFAULT_STROKE_WIDTH,
+  SCHEMA_VERSION,
+} from "@/components/bombardier-review/constants"
 
 export type StorageBackend = "local" | "bridge"
 
@@ -34,6 +39,11 @@ function pickStorage(): { storage: ReviewStorage; backend: StorageBackend } {
 
 const initial = pickStorage()
 
+function identityToActor(identity: ReviewIdentity | null): ReviewActor | null {
+  if (!identity) return null
+  return { kind: "user", id: identity.id, name: identity.name }
+}
+
 type ReviewState = {
   storage: ReviewStorage
   backend: StorageBackend
@@ -42,7 +52,7 @@ type ReviewState = {
   mode: ReviewMode
   sheetOpen: boolean
   exportOpen: boolean
-  /** When false, resolved comments are hidden from the canvas and sheet. */
+  /** When false, in_review comments are hidden from the canvas. (Always hidden in default sheet view.) */
   showResolved: boolean
 
   identity: ReviewIdentity | null
@@ -53,6 +63,9 @@ type ReviewState = {
   pendingAnchor: ReviewAnchor | null
 
   comments: ReviewComment[]
+  archivedComments: ReviewComment[]
+  archiveCursor?: number
+  archiveLoaded: boolean
   selectedCommentId: string | null
 
   toggleActive: () => void
@@ -76,10 +89,18 @@ type ReviewState = {
   saveComment: (text: string, images?: string[]) => Promise<void>
 
   selectComment: (id: string | null) => void
-  resolveComment: (id: string) => Promise<void>
-  reopenComment: (id: string) => Promise<void>
+
+  /** User marks something as resolved without going through in_review — moves straight to archive. */
+  archiveDirect: (id: string) => Promise<void>
+  /** Agent path. Called via API from outside; surfaced here for completeness/testing. */
+  markInReview: (id: string, actor: ReviewActor) => Promise<void>
+  approveComment: (id: string) => Promise<void>
+  rejectComment: (id: string) => Promise<void>
+  reopenFromArchive: (id: string) => Promise<void>
+  addReply: (id: string, text: string) => Promise<ReviewReply | null>
   deleteComment: (id: string) => Promise<void>
   refreshFromStorage: () => Promise<void>
+  loadArchivePage: (reset?: boolean) => Promise<void>
 }
 
 function centroidOf(points: ReviewPoint[]): ReviewPoint {
@@ -109,6 +130,9 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   pendingAnchor: null,
 
   comments: [],
+  archivedComments: [],
+  archiveCursor: undefined,
+  archiveLoaded: false,
   selectedCommentId: null,
 
   toggleActive: () => {
@@ -238,15 +262,20 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     if ((!trimmed && (!images || images.length === 0)) || !pendingAnchor || !identity) return
     if (typeof window === "undefined") return
     const now = Date.now()
+    const params = new URLSearchParams(window.location.search)
+    params.delete("reviewCommentId")
+    const cleanSearch = params.toString()
     const comment: ReviewComment = {
       id: makeId("cmt"),
-      schemaVersion: SCHEMA_VERSION,
+      schemaVersion: SCHEMA_VERSION as 3,
       authorId: identity.id,
       authorName: identity.name,
       authorColorToken: identity.colorToken,
       createdAt: now,
       updatedAt: now,
-      url: window.location.pathname + window.location.search,
+      url: cleanSearch
+        ? `${window.location.pathname}?${cleanSearch}`
+        : window.location.pathname,
       viewportWidth: window.innerWidth,
       viewportHeight: window.innerHeight,
       scrollY: window.scrollY,
@@ -263,32 +292,74 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
 
   selectComment: (id) => set({ selectedCommentId: id }),
 
-  resolveComment: async (id) => {
+  archiveDirect: async (id) => {
     const { storage, identity } = get()
-    const existing = await storage.getComment(id)
-    if (!existing) return
-    await storage.saveComment({
-      ...existing,
-      status: "resolved",
-      resolvedBy: identity?.name,
-      resolvedAt: Date.now(),
-      updatedAt: Date.now(),
-    })
+    const actor = identityToActor(identity) ?? { kind: "user", id: "anonymous", name: "Anônimo" }
+    if (storage.transitionComment) {
+      await storage.transitionComment(id, "resolve_direct", actor)
+    } else {
+      // legacy fallback: mark resolved via saveComment
+      const existing = await storage.getComment(id)
+      if (!existing) return
+      await storage.saveComment({
+        ...existing,
+        status: "resolved",
+        updatedAt: Date.now(),
+      })
+    }
+    if (get().selectedCommentId === id) set({ selectedCommentId: null })
     await get().refreshFromStorage()
   },
 
-  reopenComment: async (id) => {
+  markInReview: async (id, actor) => {
     const { storage } = get()
-    const existing = await storage.getComment(id)
-    if (!existing) return
-    await storage.saveComment({
-      ...existing,
-      status: "open",
-      resolvedBy: undefined,
-      resolvedAt: undefined,
-      updatedAt: Date.now(),
+    if (storage.transitionComment) {
+      await storage.transitionComment(id, "in_review", actor)
+    }
+    await get().refreshFromStorage()
+  },
+
+  approveComment: async (id) => {
+    const { storage, identity } = get()
+    const actor = identityToActor(identity) ?? { kind: "user", id: "anonymous", name: "Anônimo" }
+    if (storage.transitionComment) {
+      await storage.transitionComment(id, "approve", actor)
+    }
+    if (get().selectedCommentId === id) set({ selectedCommentId: null })
+    await get().refreshFromStorage()
+  },
+
+  rejectComment: async (id) => {
+    const { storage } = get()
+    if (storage.transitionComment) {
+      await storage.transitionComment(id, "reject")
+    }
+    await get().refreshFromStorage()
+  },
+
+  reopenFromArchive: async (id) => {
+    const { storage } = get()
+    if (storage.transitionComment) {
+      await storage.transitionComment(id, "reopen_from_archive")
+    }
+    await get().refreshFromStorage()
+    await get().loadArchivePage(true)
+  },
+
+  addReply: async (id, text) => {
+    const trimmed = text.trim()
+    if (!trimmed) return null
+    const { storage, identity } = get()
+    if (!storage.addReply || !identity) return null
+    const reply = await storage.addReply(id, {
+      authorKind: "user",
+      authorId: identity.id,
+      authorName: identity.name,
+      authorColorToken: identity.colorToken,
+      text: trimmed,
     })
     await get().refreshFromStorage()
+    return reply
   },
 
   deleteComment: async (id) => {
@@ -300,5 +371,23 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   refreshFromStorage: async () => {
     const comments = await get().storage.listComments()
     set({ comments })
+  },
+
+  loadArchivePage: async (reset = true) => {
+    const { storage, archiveCursor, archivedComments } = get()
+    if (!storage.listArchive) {
+      set({ archivedComments: [], archiveCursor: undefined, archiveLoaded: true })
+      return
+    }
+    const filter = reset
+      ? { limit: 50 }
+      : { limit: 50, ...(archiveCursor ? { before: archiveCursor } : {}) }
+    const page = await storage.listArchive(filter)
+    const merged = reset ? page.comments : [...archivedComments, ...page.comments]
+    set({
+      archivedComments: merged,
+      archiveCursor: page.nextCursor,
+      archiveLoaded: true,
+    })
   },
 }))

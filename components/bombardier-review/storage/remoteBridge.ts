@@ -1,12 +1,21 @@
 "use client"
 
 import type {
+  ReviewActor,
   ReviewComment,
   ReviewExportPayload,
   ReviewIdentity,
+  ReviewReply,
 } from "../types"
 import { STORAGE_KEYS } from "../constants"
-import type { ReviewStorage, ReviewStorageFilter } from "./types"
+import type {
+  ReviewArchiveFilter,
+  ReviewArchivePage,
+  ReviewReplyInput,
+  ReviewStorage,
+  ReviewStorageFilter,
+  ReviewTransition,
+} from "./types"
 
 interface BridgeConfig {
   baseUrl: string
@@ -90,6 +99,19 @@ export class RemoteBridgeReview implements ReviewStorage {
     return data.comments
   }
 
+  async listArchive(filter?: ReviewArchiveFilter): Promise<ReviewArchivePage> {
+    const params = new URLSearchParams()
+    if (filter?.url) params.set("url", filter.url)
+    if (filter?.before) params.set("before", String(filter.before))
+    if (filter?.limit) params.set("limit", String(filter.limit))
+    const qs = params.toString()
+    const res = await fetch(this.url(`/comments/archive${qs ? `?${qs}` : ""}`), {
+      headers: authHeaders(this.token),
+    })
+    if (!res.ok) throw new Error(await readBodyError(res))
+    return (await res.json()) as ReviewArchivePage
+  }
+
   async getComment(id: string): Promise<ReviewComment | null> {
     const res = await fetch(this.url(`/comments/${encodeURIComponent(id)}`), {
       headers: authHeaders(this.token),
@@ -107,6 +129,36 @@ export class RemoteBridgeReview implements ReviewStorage {
       body: JSON.stringify(comment),
     })
     if (!res.ok) throw new Error(await readBodyError(res))
+  }
+
+  async transitionComment(
+    id: string,
+    transition: ReviewTransition,
+    actor?: ReviewActor
+  ): Promise<ReviewComment | null> {
+    const body: Record<string, unknown> = { transition }
+    if (actor) body.actor = actor
+    const res = await fetch(this.url(`/comments/${encodeURIComponent(id)}`), {
+      method: "PUT",
+      headers: authHeaders(this.token),
+      body: JSON.stringify(body),
+    })
+    if (res.status === 404) return null
+    if (!res.ok) throw new Error(await readBodyError(res))
+    const data = (await res.json()) as { comment?: ReviewComment }
+    return data.comment ?? null
+  }
+
+  async addReply(commentId: string, reply: ReviewReplyInput): Promise<ReviewReply | null> {
+    const res = await fetch(this.url(`/comments/${encodeURIComponent(commentId)}/replies`), {
+      method: "POST",
+      headers: authHeaders(this.token),
+      body: JSON.stringify(reply),
+    })
+    if (res.status === 404) return null
+    if (!res.ok) throw new Error(await readBodyError(res))
+    const data = (await res.json()) as { reply: ReviewReply }
+    return data.reply
   }
 
   async deleteComment(id: string): Promise<void> {
@@ -147,6 +199,9 @@ export class RemoteBridgeReview implements ReviewStorage {
     const handler = () => onChange()
     source.addEventListener("comment.upserted", handler)
     source.addEventListener("comment.deleted", handler)
+    source.addEventListener("comment.archived", handler)
+    source.addEventListener("comment.unarchived", handler)
+    source.addEventListener("reply.added", handler)
     source.onerror = () => {
       // EventSource auto-reconnects; surface no-op.
     }
@@ -154,6 +209,9 @@ export class RemoteBridgeReview implements ReviewStorage {
     return () => {
       source.removeEventListener("comment.upserted", handler)
       source.removeEventListener("comment.deleted", handler)
+      source.removeEventListener("comment.archived", handler)
+      source.removeEventListener("comment.unarchived", handler)
+      source.removeEventListener("reply.added", handler)
       source.close()
     }
   }

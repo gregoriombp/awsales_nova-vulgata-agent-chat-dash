@@ -46,10 +46,12 @@ export function ReviewToolbar() {
   const setExportOpen = useReviewStore((s) => s.setExportOpen)
   const showResolved = useReviewStore((s) => s.showResolved)
   const toggleShowResolved = useReviewStore((s) => s.toggleShowResolved)
+  const allComments = useReviewStore((s) => s.comments)
 
   const url = useCurrentUrl()
   const pageComments = useCommentsForUrl(url)
   const openCount = pageComments.filter((c) => c.status === "open").length
+  const inReviewCount = allComments.filter((c) => c.status === "in_review").length
 
   if (!active) {
     return (
@@ -107,11 +109,19 @@ export function ReviewToolbar() {
         <button
           type="button"
           onClick={toggleSheet}
-          aria-label="Comentários desta tela"
+          aria-label={
+            inReviewCount > 0
+              ? `Comentários · ${inReviewCount} em revisão`
+              : "Comentários desta tela"
+          }
           aria-pressed={sheetOpen}
-          title="Comentários desta tela"
+          title={
+            inReviewCount > 0
+              ? `Comentários · ${inReviewCount} em revisão`
+              : "Comentários desta tela"
+          }
           className={[
-            "h-8 inline-flex items-center gap-1 px-2 rounded-full transition-colors",
+            "relative h-8 inline-flex items-center gap-1 px-2 rounded-full transition-colors",
             sheetOpen
               ? "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]"
               : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]",
@@ -121,6 +131,14 @@ export function ReviewToolbar() {
           {openCount > 0 && (
             <span className="body-xs font-semibold tabular-nums">
               {openCount}
+            </span>
+          )}
+          {inReviewCount > 0 && (
+            <span
+              className="absolute -top-1 -right-1 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full body-xs font-semibold tabular-nums bg-[var(--aw-amber-500)] text-[var(--fg-on-inverse)] ring-2 ring-[var(--bg-raised)]"
+              aria-hidden="true"
+            >
+              {inReviewCount}
             </span>
           )}
         </button>

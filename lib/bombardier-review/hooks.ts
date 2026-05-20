@@ -8,7 +8,9 @@ import { useReviewStore } from "./store"
 export function useCurrentUrl(): string {
   const pathname = usePathname() ?? ""
   const searchParams = useSearchParams()
-  const search = searchParams?.toString() ?? ""
+  const params = new URLSearchParams(searchParams?.toString() ?? "")
+  params.delete("reviewCommentId")
+  const search = params.toString()
   return search ? `${pathname}?${search}` : pathname
 }
 

@@ -22,11 +22,37 @@ export type ReviewAnchor =
   | { kind: "pin"; position: ReviewPoint }
   | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint }
 
-export type ReviewCommentStatus = "open" | "resolved"
+export type ReviewCommentStatus = "open" | "in_review" | "resolved"
+
+export type ReviewActorKind = "agent" | "user"
+
+export interface ReviewActor {
+  kind: ReviewActorKind
+  id: string
+  name: string
+}
+
+export interface ReviewResolution {
+  actor: ReviewActor
+  at: number
+  summary: string
+  approvedAt?: number
+  approvedBy?: { id: string; name: string }
+}
+
+export interface ReviewReply {
+  id: string
+  authorKind: ReviewActorKind
+  authorId: string
+  authorName: string
+  authorColorToken: string
+  text: string
+  createdAt: number
+}
 
 export interface ReviewComment {
   id: string
-  schemaVersion: 2
+  schemaVersion: 3
   authorId: string
   authorName: string
   authorColorToken: string
@@ -41,13 +67,14 @@ export interface ReviewComment {
   text: string
   images?: string[]
   status: ReviewCommentStatus
-  resolvedBy?: string
-  resolvedAt?: number
+  resolution?: ReviewResolution
+  replies?: ReviewReply[]
 }
 
 export interface ReviewExportPayload {
-  schemaVersion: 2
+  schemaVersion: 3
   exportedAt: number
   exportedBy: ReviewIdentity
   comments: ReviewComment[]
+  archivedComments?: ReviewComment[]
 }

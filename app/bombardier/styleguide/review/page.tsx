@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { AwButton } from "@/components/ui/AwButton"
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu"
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu"
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -19,18 +19,19 @@ import { useReviewStore } from "@/lib/bombardier-review/store"
 import type { ReviewComment } from "@/components/bombardier-review/types"
 import { PageHero } from "../_primitives"
 
-type StatusFilter = "all" | "open" | "resolved"
+type Tab = "open" | "in_review" | "archive"
 type SortKey = "createdAt" | "author" | "url" | "status"
 type SortDir = "asc" | "desc"
 
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : String(n)
+}
+
 function formatTimestamp(ts: number): string {
   const d = new Date(ts)
-  return d.toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
+  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} · ${pad2(
+    d.getHours()
+  )}:${pad2(d.getMinutes())}`
 }
 
 function relative(ts: number): string {
@@ -82,29 +83,107 @@ function SortHeader({
 }
 
 function StatusPill({ status }: { status: ReviewComment["status"] }) {
-  return status === "resolved" ? (
-    <AwPill variant="live">Resolvido</AwPill>
-  ) : (
-    <AwPill variant="draft">Aberto</AwPill>
-  )
+  if (status === "in_review") return <AwPill variant="beta">Em revisão</AwPill>
+  if (status === "resolved") return <AwPill variant="live">Resolvido</AwPill>
+  return <AwPill variant="draft">Aberto</AwPill>
 }
 
-function CommentRow({ comment }: { comment: ReviewComment }) {
-  const resolveComment = useReviewStore((s) => s.resolveComment)
-  const reopenComment = useReviewStore((s) => s.reopenComment)
+function CommentRow({
+  comment,
+  archived,
+  selectable,
+  selected,
+  onToggleSelected,
+}: {
+  comment: ReviewComment
+  archived: boolean
+  selectable: boolean
+  selected: boolean
+  onToggleSelected?: () => void
+}) {
+  const archiveDirect = useReviewStore((s) => s.archiveDirect)
+  const approveComment = useReviewStore((s) => s.approveComment)
+  const rejectComment = useReviewStore((s) => s.rejectComment)
+  const reopenFromArchive = useReviewStore((s) => s.reopenFromArchive)
   const deleteComment = useReviewStore((s) => s.deleteComment)
   const selectComment = useReviewStore((s) => s.selectComment)
   const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
 
+  const dropdownItems: AwDropdownItem[] = [
+    {
+      id: "open",
+      label: "Abrir tela",
+      icon: "open_in_new",
+      onSelect: () => {
+        selectComment(comment.id)
+        setSheetOpen(true)
+        window.location.href = comment.url
+      },
+    },
+  ]
+
+  if (archived) {
+    dropdownItems.push({
+      id: "reopen",
+      label: "Reabrir",
+      icon: "refresh",
+      onSelect: () => void reopenFromArchive(comment.id),
+    })
+  } else if (comment.status === "in_review") {
+    dropdownItems.push(
+      {
+        id: "approve",
+        label: "Aprovar",
+        icon: "check_circle",
+        onSelect: () => void approveComment(comment.id),
+      },
+      {
+        id: "reject",
+        label: "Rejeitar",
+        icon: "undo",
+        onSelect: () => void rejectComment(comment.id),
+      }
+    )
+  } else {
+    dropdownItems.push({
+      id: "archive",
+      label: "Marcar como resolvido",
+      icon: "check_circle",
+      onSelect: () => void archiveDirect(comment.id),
+    })
+  }
+
+  dropdownItems.push(
+    { id: "sep", separator: true },
+    {
+      id: "delete",
+      label: "Excluir",
+      icon: "delete",
+      danger: true,
+      onSelect: () => void deleteComment(comment.id),
+    }
+  )
+
   return (
     <tr className="border-b border-[var(--border-subtle)] hover:bg-[var(--bg-hover)]">
+      {selectable && (
+        <td className="px-3 py-3 align-top w-8">
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelected?.()}
+            aria-label="Selecionar"
+            className="accent-[var(--accent-brand)]"
+          />
+        </td>
+      )}
       <td className="px-3 py-3 align-top">
         <StatusPill status={comment.status} />
       </td>
       <td className="px-3 py-3 align-top">
         <Link
           href={comment.url}
-          className="inline-flex items-center gap-1 font-mono text-[11px] text-[var(--fg-secondary)] hover:text-[var(--accent-brand)]"
+          className="inline-flex items-center gap-1 text-[11px] text-[var(--fg-secondary)] hover:text-[var(--accent-brand)]"
           title={comment.url}
         >
           <Icon name="open_in_new" size={11} />
@@ -128,12 +207,20 @@ function CommentRow({ comment }: { comment: ReviewComment }) {
         <p className="m-0 text-sm text-[var(--fg-primary)] line-clamp-3 whitespace-pre-wrap">
           {comment.text}
         </p>
+        {comment.resolution?.summary && (
+          <p className="m-0 mt-1 text-[11px] text-[var(--fg-tertiary)] italic">
+            {comment.resolution.summary}
+          </p>
+        )}
       </td>
       <td className="px-3 py-3 align-top">
         <div
           className="text-xs text-[var(--fg-tertiary)] tabular-nums"
           title={formatTimestamp(comment.createdAt)}
         >
+          {formatTimestamp(comment.createdAt)}
+        </div>
+        <div className="text-[11px] text-[var(--fg-tertiary)]">
           {relative(comment.createdAt)}
         </div>
       </td>
@@ -148,39 +235,7 @@ function CommentRow({ comment }: { comment: ReviewComment }) {
               <Icon name="more_horiz" size={14} />
             </button>
           }
-          items={[
-            {
-              id: "open",
-              label: "Abrir tela",
-              icon: "open_in_new",
-              onSelect: () => {
-                selectComment(comment.id)
-                setSheetOpen(true)
-                window.location.href = comment.url
-              },
-            },
-            comment.status === "open"
-              ? {
-                  id: "resolve",
-                  label: "Marcar como resolvido",
-                  icon: "check_circle",
-                  onSelect: () => void resolveComment(comment.id),
-                }
-              : {
-                  id: "reopen",
-                  label: "Reabrir",
-                  icon: "refresh",
-                  onSelect: () => void reopenComment(comment.id),
-                },
-            { id: "sep", separator: true },
-            {
-              id: "delete",
-              label: "Excluir",
-              icon: "delete",
-              danger: true,
-              onSelect: () => void deleteComment(comment.id),
-            },
-          ]}
+          items={dropdownItems}
         />
       </td>
     </tr>
@@ -189,42 +244,70 @@ function CommentRow({ comment }: { comment: ReviewComment }) {
 
 export default function ReviewInboxPage() {
   const comments = useReviewStore((s) => s.comments)
+  const archivedComments = useReviewStore((s) => s.archivedComments)
+  const archiveLoaded = useReviewStore((s) => s.archiveLoaded)
+  const archiveCursor = useReviewStore((s) => s.archiveCursor)
   const refresh = useReviewStore((s) => s.refreshFromStorage)
+  const loadArchivePage = useReviewStore((s) => s.loadArchivePage)
+  const approveComment = useReviewStore((s) => s.approveComment)
+  const rejectComment = useReviewStore((s) => s.rejectComment)
   const backend = useReviewStore((s) => s.backend)
   const storage = useReviewStore((s) => s.storage)
 
   React.useEffect(() => {
     void refresh()
+    void loadArchivePage(true)
     const unsubscribe = storage.subscribe?.(() => {
       void refresh()
+      void loadArchivePage(true)
     })
     return unsubscribe
-  }, [refresh, storage])
+  }, [refresh, loadArchivePage, storage])
 
-  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all")
+  const [tab, setTab] = React.useState<Tab>("open")
   const [authorId, setAuthorId] = React.useState<string>("all")
   const [search, setSearch] = React.useState("")
   const [sortKey, setSortKey] = React.useState<SortKey>("createdAt")
   const [sortDir, setSortDir] = React.useState<SortDir>("desc")
   const [groupByUrl, setGroupByUrl] = React.useState(true)
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [bulkBusy, setBulkBusy] = React.useState(false)
+
+  React.useEffect(() => {
+    setSelectedIds(new Set())
+  }, [tab])
+
+  const openCount = comments.filter((c) => c.status === "open").length
+  const inReviewCount = comments.filter((c) => c.status === "in_review").length
+  const archivedCount = archivedComments.length
+
+  const allForAuthors = React.useMemo(
+    () => [...comments, ...archivedComments],
+    [comments, archivedComments]
+  )
 
   const authors = React.useMemo(() => {
     const seen = new Map<string, string>()
-    for (const c of comments) {
+    for (const c of allForAuthors) {
       if (!seen.has(c.authorId)) seen.set(c.authorId, c.authorName)
     }
     return Array.from(seen.entries())
-  }, [comments])
+  }, [allForAuthors])
+
+  const source: ReviewComment[] = React.useMemo(() => {
+    if (tab === "open") return comments.filter((c) => c.status === "open")
+    if (tab === "in_review") return comments.filter((c) => c.status === "in_review")
+    return archivedComments
+  }, [tab, comments, archivedComments])
 
   const filtered = React.useMemo(() => {
     const q = search.trim().toLowerCase()
-    return comments.filter((c) => {
-      if (statusFilter !== "all" && c.status !== statusFilter) return false
+    return source.filter((c) => {
       if (authorId !== "all" && c.authorId !== authorId) return false
       if (q && !c.text.toLowerCase().includes(q)) return false
       return true
     })
-  }, [comments, statusFilter, authorId, search])
+  }, [source, authorId, search])
 
   const sorted = React.useMemo(() => {
     const arr = [...filtered]
@@ -269,14 +352,77 @@ export default function ReviewInboxPage() {
     }
   }
 
-  const openCount = comments.filter((c) => c.status === "open").length
-  const resolvedCount = comments.filter((c) => c.status === "resolved").length
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const selectAllVisible = () => {
+    setSelectedIds(new Set(sorted.map((c) => c.id)))
+  }
+
+  const clearSelection = () => setSelectedIds(new Set())
+
+  const bulkApprove = async () => {
+    setBulkBusy(true)
+    try {
+      for (const id of Array.from(selectedIds)) {
+        await approveComment(id)
+      }
+      setSelectedIds(new Set())
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const bulkReject = async () => {
+    setBulkBusy(true)
+    try {
+      for (const id of Array.from(selectedIds)) {
+        await rejectComment(id)
+      }
+      setSelectedIds(new Set())
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const selectableTab = tab === "in_review"
 
   const renderTable = (items: ReviewComment[]) => (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
       <table className="w-full text-sm" style={{ borderCollapse: "collapse" }}>
         <thead className="bg-[var(--bg-surface)] border-b border-[var(--border-subtle)]">
           <tr>
+            {selectableTab && (
+              <th className="px-3 py-2 text-left w-8">
+                <input
+                  type="checkbox"
+                  checked={items.length > 0 && items.every((c) => selectedIds.has(c.id))}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedIds((prev) => {
+                        const next = new Set(prev)
+                        items.forEach((c) => next.add(c.id))
+                        return next
+                      })
+                    } else {
+                      setSelectedIds((prev) => {
+                        const next = new Set(prev)
+                        items.forEach((c) => next.delete(c.id))
+                        return next
+                      })
+                    }
+                  }}
+                  aria-label="Selecionar tudo"
+                  className="accent-[var(--accent-brand)]"
+                />
+              </th>
+            )}
             <th className="px-3 py-2 text-left">
               <SortHeader
                 label="Status"
@@ -323,7 +469,14 @@ export default function ReviewInboxPage() {
         </thead>
         <tbody>
           {items.map((c) => (
-            <CommentRow key={c.id} comment={c} />
+            <CommentRow
+              key={c.id}
+              comment={c}
+              archived={tab === "archive"}
+              selectable={selectableTab}
+              selected={selectedIds.has(c.id)}
+              onToggleSelected={() => toggleSelected(c.id)}
+            />
           ))}
         </tbody>
       </table>
@@ -334,12 +487,16 @@ export default function ReviewInboxPage() {
     <div className="flex flex-col gap-8">
       <PageHero title="Review · Inbox">
         Painel completo dos comentários do Review Mode. Filtra por autor,
-        status ou texto, agrupa por tela, resolve em massa. Lê do mesmo
-        storage que o overlay (localStorage ou bridge LAN).
+        status ou texto, agrupa por tela, aprova/rejeita em lote os que estão
+        em revisão. Lê do mesmo storage que o overlay (localStorage ou bridge LAN).
       </PageHero>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <AwStatCard icon="forum" label="Total" value={comments.length} />
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+        <AwStatCard
+          icon="forum"
+          label="Total ativos"
+          value={comments.length}
+        />
         <AwStatCard
           icon="pending"
           label="Abertos"
@@ -351,14 +508,14 @@ export default function ReviewInboxPage() {
           }
         />
         <AwStatCard
-          icon="check_circle"
-          label="Resolvidos"
-          value={resolvedCount}
-          hint={
-            comments.length > 0
-              ? `${Math.round((resolvedCount / comments.length) * 100)}%`
-              : "—"
-          }
+          icon="hourglass_top"
+          label="Em revisão"
+          value={inReviewCount}
+        />
+        <AwStatCard
+          icon="archive"
+          label="Arquivados"
+          value={archivedCount}
         />
       </div>
 
@@ -373,19 +530,24 @@ export default function ReviewInboxPage() {
         </div>
 
         <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] text-[11px] font-medium">
-          {(["all", "open", "resolved"] as StatusFilter[]).map((f) => (
+          {(["open", "in_review", "archive"] as Tab[]).map((t) => (
             <button
-              key={f}
+              key={t}
               type="button"
-              onClick={() => setStatusFilter(f)}
+              onClick={() => setTab(t)}
               className={[
-                "px-3 py-1 rounded-full transition-colors",
-                statusFilter === f
+                "px-3 py-1 rounded-full transition-colors inline-flex items-center gap-1.5",
+                tab === t
                   ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-sm"
                   : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]",
               ].join(" ")}
             >
-              {f === "all" ? "Todos" : f === "open" ? "Abertos" : "Resolvidos"}
+              {t === "open" ? "Abertos" : t === "in_review" ? "Em revisão" : "Arquivados"}
+              {t === "in_review" && inReviewCount > 0 && (
+                <span className="min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full text-[10px] font-semibold bg-[var(--aw-amber-100)] text-[var(--aw-amber-700)] tabular-nums">
+                  {inReviewCount}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -427,11 +589,49 @@ export default function ReviewInboxPage() {
           variant="ghost"
           size="sm"
           iconLeft="refresh"
-          onClick={() => void refresh()}
+          onClick={() => {
+            void refresh()
+            void loadArchivePage(true)
+          }}
         >
           Atualizar
         </AwButton>
       </div>
+
+      {selectableTab && selectedIds.size > 0 && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-muted)] border border-[var(--border-subtle)]">
+          <span className="text-sm text-[var(--fg-secondary)]">
+            {selectedIds.size} selecionado{selectedIds.size === 1 ? "" : "s"}
+          </span>
+          <div className="flex items-center gap-2">
+            <AwButton variant="ghost" size="sm" onClick={selectAllVisible}>
+              Selecionar visíveis
+            </AwButton>
+            <AwButton variant="ghost" size="sm" onClick={clearSelection}>
+              Limpar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="sm"
+              iconLeft="check_circle"
+              loading={bulkBusy}
+              disabled={bulkBusy}
+              onClick={() => void bulkApprove()}
+            >
+              Aprovar selecionados
+            </AwButton>
+            <AwButton
+              variant="secondary"
+              size="sm"
+              iconLeft="undo"
+              disabled={bulkBusy}
+              onClick={() => void bulkReject()}
+            >
+              Rejeitar selecionados
+            </AwButton>
+          </div>
+        </div>
+      )}
 
       {sorted.length === 0 ? (
         <AwEmpty>
@@ -440,13 +640,21 @@ export default function ReviewInboxPage() {
               <Icon name="forum" size={20} />
             </AwEmptyMedia>
             <AwEmptyTitle>
-              {comments.length === 0
+              {tab === "archive" && !archiveLoaded
+                ? "Carregando arquivados…"
+                : tab === "in_review"
+                ? "Nada esperando revisão"
+                : tab === "archive"
+                ? "Nenhum arquivado ainda"
+                : comments.length === 0
                 ? "Nenhum comentário ainda"
                 : "Nada com esses filtros"}
             </AwEmptyTitle>
             <AwEmptyDescription>
-              {comments.length === 0
+              {tab === "open" && comments.length === 0
                 ? "Ative o Review Mode (⌘⇧Y) em qualquer tela e desenhe o primeiro comentário."
+                : tab === "in_review"
+                ? "Quando um agente marcar algo como resolvido, ele aparece aqui pra você aprovar ou rejeitar."
                 : "Tente afrouxar os filtros ou trocar o autor."}
             </AwEmptyDescription>
           </AwEmptyHeader>
@@ -466,13 +674,13 @@ export default function ReviewInboxPage() {
                     />
                     <Link
                       href={url}
-                      className="font-mono text-sm text-[var(--fg-primary)] hover:text-[var(--accent-brand)] truncate"
+                      className="text-sm text-[var(--fg-primary)] hover:text-[var(--accent-brand)] truncate"
                     >
                       {url}
                     </Link>
                     <span className="text-xs text-[var(--fg-tertiary)] shrink-0">
-                      {items.length} no total · {groupOpen} aberto
-                      {groupOpen === 1 ? "" : "s"}
+                      {items.length} no total
+                      {tab === "open" ? ` · ${groupOpen} aberto${groupOpen === 1 ? "" : "s"}` : ""}
                     </span>
                   </div>
                 </header>
@@ -483,6 +691,19 @@ export default function ReviewInboxPage() {
         </div>
       ) : (
         renderTable(sorted)
+      )}
+
+      {tab === "archive" && archiveCursor && (
+        <div className="flex justify-center">
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconLeft="expand_more"
+            onClick={() => void loadArchivePage(false)}
+          >
+            Carregar mais arquivados
+          </AwButton>
+        </div>
       )}
     </div>
   )

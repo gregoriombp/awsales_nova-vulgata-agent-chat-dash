@@ -6,7 +6,7 @@ export const STORAGE_KEYS = {
   schemaVersion: "bombardier-review:schema-version",
 } as const
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export const STALE_DOCUMENT_HEIGHT_THRESHOLD = 0.2
 

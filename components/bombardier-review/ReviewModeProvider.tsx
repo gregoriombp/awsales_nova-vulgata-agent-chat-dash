@@ -4,13 +4,14 @@ import * as React from "react"
 import { useToast } from "@/components/ui/AwToast"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
+import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
 import { ReviewCanvas } from "./ReviewCanvas"
 import { ReviewCommentPopover } from "./ReviewCommentPopover"
 import { ReviewCommentSheet } from "./ReviewCommentSheet"
 import { ReviewExportModal } from "./ReviewExportModal"
 import { ReviewIdentityModal } from "./ReviewIdentityModal"
 import { ReviewToolbar } from "./ReviewToolbar"
-import { STORAGE_KEYS } from "./constants"
+import { SCHEMA_VERSION, STORAGE_KEYS } from "./constants"
 import { safeParseComments } from "./storage/utils"
 import type { ReviewExportPayload } from "./types"
 
@@ -26,7 +27,11 @@ export function ReviewModeProvider() {
   const setMode = useReviewStore((s) => s.setMode)
   const cancelPending = useReviewStore((s) => s.cancelPending)
   const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
+  const setActive = useReviewStore((s) => s.setActive)
+  const selectComment = useReviewStore((s) => s.selectComment)
+  const comments = useReviewStore((s) => s.comments)
   const sheetOpen = useReviewStore((s) => s.sheetOpen)
+  const permalinkHandledRef = React.useRef<string | null>(null)
 
   const { push } = useToast()
   const migrationPromptedRef = React.useRef(false)
@@ -63,7 +68,7 @@ export function ReviewModeProvider() {
         label: "Importar",
         onClick: () => {
           const payload: ReviewExportPayload = {
-            schemaVersion: 2,
+            schemaVersion: SCHEMA_VERSION as 3,
             exportedAt: Date.now(),
             exportedBy: useReviewStore.getState().identity ?? {
               id: "local",
@@ -94,6 +99,37 @@ export function ReviewModeProvider() {
       },
     })
   }, [backend, push, refreshFromStorage, storage])
+
+  // Permalink: open the review overlay and focus the pin when ?reviewCommentId=… is present.
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+    const params = new URLSearchParams(window.location.search)
+    const id = params.get("reviewCommentId")
+    if (!id) return
+    if (permalinkHandledRef.current === id) return
+    if (comments.length === 0) return
+    const match = comments.find((c) => c.id === id)
+    if (!match) return
+    permalinkHandledRef.current = id
+    setActive(true)
+    setSheetOpen(true)
+    selectComment(id)
+    const anchorY =
+      match.anchor.kind === "pin"
+        ? match.anchor.position.y
+        : match.anchor.centroid.y
+    const targetY = Math.max(0, anchorY - 120)
+    const scroll = () => {
+      const container = findPrimaryScrollContainer()
+      if (container) {
+        container.scrollTo({ top: targetY, behavior: "smooth" })
+      } else {
+        window.scrollTo({ top: targetY, behavior: "smooth" })
+      }
+    }
+    // Defer scroll until after the overlay mounts.
+    requestAnimationFrame(scroll)
+  }, [comments, setActive, setSheetOpen, selectComment])
 
   useGlobalHotkey({ key: "y", meta: true, shift: true }, () => toggleActive())
 
