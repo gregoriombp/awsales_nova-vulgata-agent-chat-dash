@@ -8,7 +8,6 @@
 
 # testing
 /coverage
-/.playwright-cli
 
 # local claude code settings (personal — do not share)
 .claude/settings.json
@@ -17,6 +16,7 @@
 
 # local cursor settings (personal)
 .cursor/settings.json
+.cursor/rules/
 
 # local agent context docs (personal — do not share)
 AGENTS.md
