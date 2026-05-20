@@ -8,7 +8,6 @@
 
 # testing
 /coverage
-/.playwright-cli
 
 # local claude code settings (personal — do not share)
 .claude/settings.json
@@ -51,22 +50,9 @@ yarn-error.log*
 # local uploads (max 1GB for preview testing)
 /storage
 
-# changelog (generated artifact — not source of truth)
-CHANGELOG.md
-
-# bridge servers (local dev tools, not product code)
-/bridge/
-/bridge-edit/
-/review-bridge/
-
-# bombardier tooling (page-builder, projects, API, review infra — not product)
-/bombardier/
-/app/bombardier/page-builder/
-/app/bombardier/projects/
-/app/api/bombardier/
-/components/bombardier-review/
-/lib/bombardier/
-/lib/bombardier-review/
+# bombardier project storage (filesystem-saved projects are user data)
+/bombardier/projects/*
+!/bombardier/projects/.gitkeep
 
 # typescript
 *.tsbuildinfo
@@ -74,3 +60,6 @@ next-env.d.ts
 
 # local backups
 *.bak
+
+# review bridge runtime state (grows unbounded — not source code)
+review-bridge/data/comments.json

@@ -6,6 +6,7 @@ import { navigation } from "./navigation"
 import ThemeToggle from "./ThemeToggle"
 import { AwLogo } from "@/components/ui/AwLogo"
 import { AwToastProvider } from "@/components/ui/AwToast"
+import { SidebarSearch } from "./_SidebarSearch"
 
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ")
@@ -31,6 +32,8 @@ export default function StyleguideLayout({
           <AwLogo variant="wordmark" height={22} />
           <span className="aw-sg-sidebar__subtitle">Design System | 2026</span>
         </Link>
+
+        <SidebarSearch />
 
         <nav className="flex flex-col gap-6">
           {navigation.map((section) => (

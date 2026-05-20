@@ -110,7 +110,7 @@ export default function ButtonsPage() {
             />
             <Spec
               k="ícone"
-              v="12 · 14 · 16 px"
+              v="16 · 20 · 22 px"
               d="Material Symbols Rounded via componente Icon. Antes do label por padrão."
             />
             <Spec
@@ -287,11 +287,11 @@ export default function ButtonsPage() {
 
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)]">
             <strong className="text-[var(--fg-primary)]">Ícone com label.</strong>{" "}
-            14 px em <code className="mono">sm</code>, 16 px em{" "}
-            <code className="mono">md</code>, 18 px em{" "}
+            16 px em <code className="mono">sm</code>, 20 px em{" "}
+            <code className="mono">md</code>, 22 px em{" "}
             <code className="mono">lg</code>.{" "}
             <strong className="text-[var(--fg-primary)]">Icon-only</strong> sobe
-            de 18 / 20 / 22 px — o glyph carrega todo o sinal sem o auxílio do
+            de 20 / 22 / 24 px — o glyph carrega todo o sinal sem o auxílio do
             label, então respira um pouco mais. Calculado automaticamente — não
             passe <code className="mono">style</code>.
           </div>

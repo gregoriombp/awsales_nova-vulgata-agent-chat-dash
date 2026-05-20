@@ -47,15 +47,15 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
   ) {
     const iconSize = iconOnly
       ? size === "sm"
-        ? 18
+        ? 20
+        : size === "lg"
+          ? 24
+          : 22
+      : size === "sm"
+        ? 16
         : size === "lg"
           ? 22
           : 20
-      : size === "sm"
-        ? 12
-        : size === "lg"
-          ? 16
-          : 14
     const className_ = cn(
       "aw-btn",
       `aw-btn--${variant}`,

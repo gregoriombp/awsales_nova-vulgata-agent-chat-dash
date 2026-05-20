@@ -192,7 +192,7 @@ export default function MembersPage() {
         <TeamTabs />
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="w-full max-w-[320px]">
+          <div className="flex-1 min-w-0">
             <AwInput
               iconLeft="search"
               placeholder="Buscar membros…"

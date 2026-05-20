@@ -222,7 +222,7 @@ function DataTableLayout({
         <div className="relative">
           <div
             className={cn(
-              "bg-card relative w-full overflow-clip overflow-y-auto rounded-lg border",
+              "bg-bg-raised relative w-full overflow-clip overflow-y-auto rounded-lg border border-border",
               "touch-pan-x",
               maxHeight && "max-h-[--max-height]",
             )}
@@ -272,11 +272,11 @@ function DataTableLayout({
         </div>
 
         {data.length === 0 ? (
-          <div className="text-muted-foreground py-8 text-center">
+          <div className="text-fg-secondary py-8 text-center">
             {emptyMessage}
           </div>
         ) : (
-          <div className="bg-card flex flex-col overflow-hidden rounded-2xl border shadow-xs">
+          <div className="bg-bg-raised flex flex-col overflow-hidden rounded-xl border border-border">
             {data.map((row, i) => {
               const rowKey = rowKeys[i];
               return (
@@ -380,7 +380,7 @@ function DataTableEmpty({ message }: { message: string }) {
 
   return (
     <TableBody>
-      <TableRow className="bg-card h-24 text-center">
+      <TableRow className="bg-bg-raised h-24 text-center">
         <TableCell colSpan={columns.length} role="status" aria-live="polite">
           {message}
         </TableCell>
@@ -743,7 +743,7 @@ function DataTableAccordionCard({
     >
       <AccordionItem value={accordionItemId} className="group border-0">
         <AccordionTrigger
-          className="group-data-[state=closed]:hover:bg-accent/50 active:bg-accent/50 group-data-[state=open]:bg-muted w-full rounded-none px-4 py-3 hover:no-underline"
+          className="group-data-[state=closed]:hover:bg-bg-surface active:bg-bg-surface group-data-[state=open]:bg-bg-surface w-full rounded-none px-4 py-3 hover:no-underline"
           aria-controls={detailsId}
           aria-label={`${rowLabel}. ${secondary.length > 0 ? "Expand for details" : ""}`}
         >
@@ -767,7 +767,7 @@ function DataTableAccordionCard({
 
             {remainingPrimaryColumns.length > 0 && (
               <div
-                className="text-muted-foreground flex w-full flex-wrap gap-x-4 gap-y-0.5"
+                className="text-fg-secondary flex w-full flex-wrap gap-x-4 gap-y-0.5"
                 role="group"
                 aria-label="Summary information"
               >
@@ -822,14 +822,14 @@ function DataTableAccordionCard({
                   role="listitem"
                 >
                   <dt
-                    className="text-muted-foreground shrink-0"
+                    className="text-fg-secondary shrink-0"
                     id={`row-${stableRowId}-${String(col.key)}-label`}
                   >
                     {col.label}
                   </dt>
                   <dd
                     className={cn(
-                      "text-foreground min-w-0 text-pretty wrap-break-word",
+                      "text-fg-primary min-w-0 text-pretty wrap-break-word",
                       col.align === "right" && "text-right",
                       col.align === "center" && "text-center",
                     )}
@@ -908,7 +908,7 @@ function SimpleCard({
           role="group"
         >
           <span
-            className="text-muted-foreground"
+            className="text-fg-secondary"
             id={`row-${stableRowId}-${String(col.key)}-label`}
           >
             {col.label}:
