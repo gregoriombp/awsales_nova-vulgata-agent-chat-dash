@@ -1,19 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ALL_PERMISSION_IDS,
   DEFAULT_CUSTOM_ROLE_ICON,
+  MEMBERS,
   ROLE_COLORS,
   ROLE_DEFINITIONS,
   SCOPES,
   getRoleColor,
+  type Member,
   type RoleDefinition,
   type Scope,
   type ScopeGroup,
@@ -27,8 +37,10 @@ import { TeamTabs } from "../_components/TeamTabs";
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
   const [newRoleId, setNewRoleId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [memberModalRoleId, setMemberModalRoleId] = useState<string | null>(null);
 
   const selected = useMemo(
     () => (selectedId ? roles.find((r) => r.id === selectedId) ?? null : null),
@@ -86,6 +98,27 @@ export default function RolesPage() {
 
   const isExpanded = selected !== null;
 
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const membersByRole = useMemo(() => {
+    const map = new Map<string, Member[]>();
+    for (const r of ROLE_DEFINITIONS) {
+      map.set(r.name, MEMBERS.filter((m) => m.role === r.name));
+    }
+    return map;
+  }, []);
+
+  const memberModalRole = memberModalRoleId
+    ? roles.find((r) => r.id === memberModalRoleId)
+    : null;
+
   return (
     <>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
@@ -106,8 +139,12 @@ export default function RolesPage() {
             roles={filteredRoles}
             search={search}
             onSearchChange={setSearch}
-            onSelect={setSelectedId}
+            expandedIds={expandedIds}
+            onToggle={toggleExpand}
+            onEdit={setSelectedId}
             onCreate={handleCreateRole}
+            membersByRole={membersByRole}
+            onOpenMembers={(id) => setMemberModalRoleId(id)}
           />
         ) : (
           <RoleDetail
@@ -119,7 +156,65 @@ export default function RolesPage() {
           />
         )}
       </div>
+
+      <RoleMembersModal
+        role={memberModalRole ?? null}
+        members={
+          memberModalRole ? membersByRole.get(memberModalRole.name) ?? [] : []
+        }
+        onClose={() => setMemberModalRoleId(null)}
+      />
     </>
+  );
+}
+
+function RoleMembersModal({
+  role,
+  members,
+  onClose,
+}: {
+  role: RoleDefinition | null;
+  members: Member[];
+  onClose: () => void;
+}) {
+  return (
+    <AwModal
+      open={role !== null}
+      onClose={onClose}
+      title={role ? `Membros · ${role.name}` : "Membros"}
+    >
+      {role && (
+        <div className="flex flex-col gap-2">
+          {members.length === 0 ? (
+            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+              Nenhum membro com essa função ainda.
+            </p>
+          ) : (
+            members.map((m) => (
+              <div
+                key={m.id}
+                className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+              >
+                <AwAvatar
+                  size="sm"
+                  src={m.avatar}
+                  alt={m.name}
+                  initials={m.initials}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                    {m.name}
+                  </p>
+                  <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                    {m.email}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </AwModal>
   );
 }
 
@@ -131,21 +226,29 @@ function RoleTable({
   roles,
   search,
   onSearchChange,
-  onSelect,
+  expandedIds,
+  onToggle,
+  onEdit,
   onCreate,
+  membersByRole,
+  onOpenMembers,
 }: {
   roles: RoleDefinition[];
   search: string;
   onSearchChange: (v: string) => void;
-  onSelect: (id: string) => void;
+  expandedIds: Set<string>;
+  onToggle: (id: string) => void;
+  onEdit: (id: string) => void;
   onCreate: () => void;
+  membersByRole: Map<string, Member[]>;
+  onOpenMembers: (id: string) => void;
 }) {
   const total = ALL_PERMISSION_IDS.length;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="w-full max-w-[320px]">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-0">
           <AwInput
             iconLeft="search"
             placeholder="Buscar funções…"
@@ -154,7 +257,7 @@ function RoleTable({
           />
         </div>
         <AwButton
-          size="sm"
+          size="md"
           variant="primary"
           iconLeft="add"
           onClick={onCreate}
@@ -168,7 +271,7 @@ function RoleTable({
           <tr>
             <th>Função</th>
             <th>Descrição</th>
-            <th style={{ width: 140 }}>Membros</th>
+            <th style={{ width: 180 }}>Membros</th>
             <th style={{ width: 160 }}>Permissões</th>
             <th aria-label="Ações" style={{ width: 56 }} />
           </tr>
@@ -186,64 +289,243 @@ function RoleTable({
               </td>
             </tr>
           ) : (
-            roles.map((r) => (
-              <tr
-                key={r.id}
-                className="aw-row-clickable"
-                onClick={() => onSelect(r.id)}
-              >
-                <td>
-                  <div className="flex items-center gap-3">
-                    <RoleIconTile role={r} size="sm" />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="body-xs font-medium text-[var(--fg-primary)]">
-                          {r.name}
-                        </span>
-                        {r.isSystem && (
-                          <AwPill variant="neutral" dot={false}>
-                            Padrão
-                          </AwPill>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td>
-                  <p className="m-0 line-clamp-1 max-w-[420px] body-xs text-[var(--fg-secondary)]">
-                    {r.description}
-                  </p>
-                </td>
-                <td>
-                  <span className="body-xs text-[var(--fg-primary)]">
-                    {r.memberCount}{" "}
-                    <span className="text-[var(--fg-secondary)]">
-                      {r.memberCount === 1 ? "pessoa" : "pessoas"}
-                    </span>
-                  </span>
-                </td>
-                <td>
-                  <span className="body-xs text-[var(--fg-primary)]">
-                    {r.capabilities.length}
-                    <span className="text-[var(--fg-secondary)]">
-                      {" "}
-                      / {total}
-                    </span>
-                  </span>
-                </td>
-                <td>
-                  <span
-                    className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)]"
-                    aria-hidden="true"
-                  >
-                    <Icon name="chevron_right" size={16} />
-                  </span>
-                </td>
-              </tr>
-            ))
+            roles.map((r) => {
+              const expanded = expandedIds.has(r.id);
+              const members = membersByRole.get(r.name) ?? [];
+              return (
+                <RoleTableRow
+                  key={r.id}
+                  role={r}
+                  total={total}
+                  expanded={expanded}
+                  onToggle={() => onToggle(r.id)}
+                  onEdit={() => onEdit(r.id)}
+                  members={members}
+                  onOpenMembers={() => onOpenMembers(r.id)}
+                />
+              );
+            })
           )}
         </tbody>
       </AwTable>
+    </div>
+  );
+}
+
+function RoleTableRow({
+  role,
+  total,
+  expanded,
+  onToggle,
+  onEdit,
+  members,
+  onOpenMembers,
+}: {
+  role: RoleDefinition;
+  total: number;
+  expanded: boolean;
+  onToggle: () => void;
+  onEdit: () => void;
+  members: Member[];
+  onOpenMembers: () => void;
+}) {
+  return (
+    <>
+      <tr className="aw-row-clickable" onClick={onToggle}>
+        <td>
+          <div className="flex items-center gap-3">
+            <RoleIconTile role={role} size="sm" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="body-xs font-medium text-[var(--fg-primary)]">
+                  {role.name}
+                </span>
+                {role.isSystem && (
+                  <AwPill variant="neutral" dot={false}>
+                    Padrão
+                  </AwPill>
+                )}
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <p className="m-0 line-clamp-1 max-w-[420px] body-xs text-[var(--fg-secondary)]">
+            {role.description}
+          </p>
+        </td>
+        <td onClick={(e) => e.stopPropagation()}>
+          <RoleMemberStack
+            members={members}
+            memberCount={role.memberCount}
+            onOpenAll={onOpenMembers}
+          />
+        </td>
+        <td>
+          <span className="body-xs text-[var(--fg-primary)]">
+            {role.capabilities.length}
+            <span className="text-[var(--fg-secondary)]">
+              {" "}
+              / {total}
+            </span>
+          </span>
+        </td>
+        <td>
+          <span
+            className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)]"
+            aria-hidden="true"
+          >
+            <Icon
+              name="chevron_right"
+              size={16}
+              className={
+                "transition-transform duration-[220ms] ease-in-out " +
+                (expanded ? "rotate-90" : "")
+              }
+            />
+          </span>
+        </td>
+      </tr>
+      <tr className="aw-row-expanded">
+        <td colSpan={5} className="!p-0">
+          <div
+            className="grid transition-[grid-template-rows,opacity] duration-[260ms] ease-in-out"
+            style={{
+              gridTemplateRows: expanded ? "1fr" : "0fr",
+              opacity: expanded ? 1 : 0,
+            }}
+          >
+            <div className="overflow-hidden">
+              <div className="border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-5">
+                <RoleInlinePreview role={role} onEdit={onEdit} />
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </>
+  );
+}
+
+function RoleMemberStack({
+  members,
+  memberCount,
+  onOpenAll,
+}: {
+  members: Member[];
+  memberCount: number;
+  onOpenAll: () => void;
+}) {
+  const visible = members.slice(0, 4);
+  const overflow = Math.max(memberCount - visible.length, 0);
+
+  if (memberCount === 0) {
+    return (
+      <span className="body-xs text-[var(--fg-tertiary)]">Ninguém ainda</span>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-3">
+      <TooltipProvider delayDuration={120}>
+        <div className="flex items-center">
+          {visible.map((m, i) => (
+            <Tooltip key={m.id}>
+              <TooltipTrigger asChild>
+                <span
+                  className={
+                    "inline-block " +
+                    (i > 0 ? "-ml-2" : "")
+                  }
+                >
+                  <AwAvatar
+                    size="sm"
+                    src={m.avatar}
+                    initials={m.initials}
+                    alt={m.name}
+                    className="ring-2 ring-[var(--bg-raised)]"
+                  />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <span className="body-xs">{m.name}</span>
+              </TooltipContent>
+            </Tooltip>
+          ))}
+          {overflow > 0 && (
+            <span
+              className="aw-avatar aw-avatar--sm -ml-2 ring-2 ring-[var(--bg-raised)] !bg-[var(--bg-muted)] !text-[var(--fg-secondary)]"
+              aria-label={`Mais ${overflow}`}
+            >
+              +{overflow}
+            </span>
+          )}
+        </div>
+      </TooltipProvider>
+      <button
+        type="button"
+        onClick={onOpenAll}
+        className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+      >
+        Ver todos
+      </button>
+    </div>
+  );
+}
+
+function RoleInlinePreview({
+  role,
+  onEdit,
+}: {
+  role: RoleDefinition;
+  onEdit: () => void;
+}) {
+  const granted = useMemo(() => new Set(role.capabilities), [role.capabilities]);
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="m-0 max-w-[680px] body-xs text-[var(--fg-secondary)]">
+          {role.description}
+        </p>
+        <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={onEdit}>
+          Abrir e editar
+        </AwButton>
+      </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+        {SCOPES.map((scope) => {
+          const ids = scope.groups.flatMap((g) =>
+            g.permissions.map((p) => p.id)
+          );
+          const grantedCount = ids.filter((id) => granted.has(id)).length;
+          const totalScope = ids.length;
+          const allOn = grantedCount === totalScope;
+          const someOn = grantedCount > 0 && !allOn;
+          return (
+            <div
+              key={scope.id}
+              className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+            >
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+                <Icon name={scope.icon} size={16} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+                  {scope.name}
+                </span>
+                <span className="block body-xs text-[var(--fg-tertiary)]">
+                  {grantedCount}/{totalScope} permiss{totalScope === 1 ? "ão" : "ões"}
+                </span>
+              </span>
+              <AwPill
+                variant={allOn ? "live" : someOn ? "beta" : "neutral"}
+                dot={false}
+              >
+                {allOn ? "Completo" : someOn ? "Parcial" : "Sem"}
+              </AwPill>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
