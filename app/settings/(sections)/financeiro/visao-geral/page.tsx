@@ -1,8 +1,12 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { Icon } from "@/components/ui/Icon";
@@ -16,6 +20,7 @@ import {
   CURRENT_PLAN,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
+  VARIABLE_SPENDING_LIMIT,
   VOUCHERS,
 } from "../_components/data";
 
@@ -36,12 +41,91 @@ function getInitials(name: string): string {
 }
 
 export default function VisaoGeralPage() {
+  const [limit, setLimit] = React.useState(VARIABLE_SPENDING_LIMIT);
+  const [limitOpen, setLimitOpen] = React.useState(false);
+
   return (
     <div className="flex flex-col gap-10">
       <StatusStrip />
-      <SpendingHero />
+      <SpendingHero limit={limit} onChangeLimit={() => setLimitOpen(true)} />
       <SideBySideSummary />
+
+      <ChangeLimitModal
+        open={limitOpen}
+        onClose={() => setLimitOpen(false)}
+        currentLimit={limit}
+        onSave={(v) => {
+          setLimit(v);
+          setLimitOpen(false);
+        }}
+      />
     </div>
+  );
+}
+
+function ChangeLimitModal({
+  open,
+  onClose,
+  currentLimit,
+  onSave,
+}: {
+  open: boolean;
+  onClose: () => void;
+  currentLimit: number;
+  onSave: (v: number) => void;
+}) {
+  const [draft, setDraft] = React.useState(String(currentLimit));
+  React.useEffect(() => {
+    if (open) setDraft(String(currentLimit));
+  }, [open, currentLimit]);
+
+  const parsed = Number(draft.replace(/\./g, "").replace(",", "."));
+  const valid = Number.isFinite(parsed) && parsed > 0;
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title="Alterar limite por usuário"
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <AwButton variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            variant="primary"
+            iconLeft="check"
+            disabled={!valid}
+            onClick={() => onSave(parsed)}
+          >
+            Salvar
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-2">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          Cada usuário tem esse teto de gastos variáveis por ciclo. Quando o
+          montante é atingido, a gente cobra automaticamente.
+        </p>
+        <label
+          htmlFor="spending-limit"
+          className="aw-eyebrow text-[var(--fg-tertiary)]"
+        >
+          Limite mensal por usuário
+        </label>
+        <AwInput
+          id="spending-limit"
+          inputMode="numeric"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          autoFocus
+        />
+        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+          Atualmente: <span className="tabular-nums">{brl(currentLimit)}</span>
+        </p>
+      </div>
+    </AwModal>
   );
 }
 
@@ -99,10 +183,14 @@ function StatusStrip() {
 
 /* ---------- spending hero (main focus) ---------- */
 
-function SpendingHero() {
-  const pct = Math.round(
-    (OVERVIEW_KPIS.accumulated / OVERVIEW_KPIS.partialChargeAt) * 100,
-  );
+function SpendingHero({
+  limit,
+  onChangeLimit,
+}: {
+  limit: number;
+  onChangeLimit: () => void;
+}) {
+  const pct = Math.round((OVERVIEW_KPIS.accumulated / limit) * 100);
 
   return (
     <section className="flex flex-col gap-5">
@@ -112,9 +200,19 @@ function SpendingHero() {
             Consumo do ciclo
           </h6>
           <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
-            Gastos variáveis acumulados desde o início do mês. Quando bater{" "}
-            {brl(OVERVIEW_KPIS.partialChargeAt)} a gente cobra parcial
-            automaticamente.
+            Cada usuário tem um limite de{" "}
+            <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+              {brl(limit)}
+            </strong>{" "}
+            em gastos variáveis por ciclo. Quando o montante é atingido, a
+            gente cobra automaticamente.{" "}
+            <button
+              type="button"
+              onClick={onChangeLimit}
+              className="font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+            >
+              Alterar limite
+            </button>
           </p>
         </div>
         <div className="text-right">
@@ -125,13 +223,13 @@ function SpendingHero() {
             {brl(OVERVIEW_KPIS.accumulated).replace(/^R\$\s*/, "")}
           </p>
           <p className="m-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {pct}% de {brl(OVERVIEW_KPIS.partialChargeAt)}
+            {pct}% de {brl(limit)}
           </p>
         </div>
       </div>
       <AwProgress
         value={OVERVIEW_KPIS.accumulated}
-        max={OVERVIEW_KPIS.partialChargeAt}
+        max={limit}
         className="[&_.aw-progress__fill]:!bg-[var(--fg-primary)]"
       />
       <VariableSpendingBlock />
