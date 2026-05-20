@@ -60,3 +60,6 @@ next-env.d.ts
 
 # local backups
 *.bak
+
+# review bridge runtime state (grows unbounded — not source code)
+review-bridge/data/comments.json
