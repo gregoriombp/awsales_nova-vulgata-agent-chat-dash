@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -74,7 +74,29 @@ export default function ProfileSettingsPage() {
   const [role, setRole] = useState("Super Administrador");
   const [editOpen, setEditOpen] = useState(false);
   const [cover, setCover] = useState(DEFAULT_COVER);
+  const [coverPosY, setCoverPosY] = useState(50);
+  const [savedPosY, setSavedPosY] = useState(50);
+  const [repositioning, setRepositioning] = useState(false);
+  const dragRef = useRef<{ startY: number; startPos: number } | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+
+  // Reset position when a new cover is picked
+  useEffect(() => { setCoverPosY(50); setSavedPosY(50); }, [cover]);
+
+  const handleRepoDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    dragRef.current = { startY: e.clientY, startPos: coverPosY };
+  };
+  const handleRepoDragMove = (e: React.MouseEvent) => {
+    if (!dragRef.current) return;
+    const delta = e.clientY - dragRef.current.startY;
+    setCoverPosY(Math.max(0, Math.min(100, dragRef.current.startPos - delta * 0.28)));
+  };
+  const handleRepoDragEnd = () => { dragRef.current = null; };
+
+  const startRepositioning = () => { setSavedPosY(coverPosY); setRepositioning(true); setPickerOpen(false); };
+  const saveReposition = () => { setSavedPosY(coverPosY); setRepositioning(false); };
+  const cancelReposition = () => { setCoverPosY(savedPosY); setRepositioning(false); };
   const latestNotifications = NOTIFICATIONS.slice(0, 4);
 
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
@@ -97,20 +119,56 @@ export default function ProfileSettingsPage() {
     <div className="w-full pb-32">
       <section aria-label="Resumo do perfil" className="w-full">
         <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
-          <div className="group/cover relative h-[280px] w-full overflow-hidden rounded-t-[var(--radius-lg)]">
+          <div
+            className={[
+              "group/cover relative h-[280px] w-full overflow-hidden rounded-t-[var(--radius-lg)]",
+              repositioning ? "cursor-ns-resize select-none" : "",
+            ].join(" ")}
+            onMouseDown={repositioning ? handleRepoDragStart : undefined}
+            onMouseMove={repositioning ? handleRepoDragMove : undefined}
+            onMouseUp={repositioning ? handleRepoDragEnd : undefined}
+            onMouseLeave={repositioning ? handleRepoDragEnd : undefined}
+          >
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-top"
-              style={{ backgroundImage: `url(${cover})`, backgroundSize: "100% auto", backgroundRepeat: "no-repeat" }}
+              className="absolute inset-0 transition-[background-position] duration-75"
+              style={{
+                backgroundImage: `url(${cover})`,
+                backgroundSize: "100% auto",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: `center ${coverPosY}%`,
+              }}
             />
             <div
               aria-hidden="true"
               className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.45) 100%)",
-              }}
+              style={{ background: "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.45) 100%)" }}
             />
+
+            {repositioning && (
+              <div className="absolute inset-0 flex flex-col items-center justify-between py-3 pointer-events-none">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm">
+                  <Icon name="swap_vert" size={14} aria-hidden="true" />
+                  Arraste para reposicionar
+                </div>
+                <div className="flex items-center gap-2 pointer-events-auto">
+                  <button
+                    type="button"
+                    onClick={cancelReposition}
+                    className="rounded-[var(--radius-md)] bg-black/50 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveReposition}
+                    className="rounded-[var(--radius-md)] bg-white px-3 py-1.5 text-[13px] font-medium text-[var(--fg-primary)] hover:bg-white/90 transition-colors"
+                  >
+                    Salvar posição
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
 
           {pickerOpen && (
@@ -166,12 +224,30 @@ export default function ProfileSettingsPage() {
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 pb-1">
-              <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
-                Editar perfil
-              </AwButton>
-              <AwButton size="sm" variant="secondary" iconLeft="image" onClick={() => setPickerOpen((v) => !v)} aria-expanded={pickerOpen}>
-                Alterar capa
-              </AwButton>
+              {!repositioning && (
+                <>
+                  <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
+                    Editar perfil
+                  </AwButton>
+                  <AwButton
+                    size="sm"
+                    variant="secondary"
+                    iconLeft="image"
+                    onClick={() => setPickerOpen((v) => !v)}
+                    aria-expanded={pickerOpen}
+                  >
+                    Alterar capa
+                  </AwButton>
+                  <AwButton
+                    size="sm"
+                    variant="secondary"
+                    iconLeft="open_with"
+                    onClick={startRepositioning}
+                  >
+                    Reposicionar
+                  </AwButton>
+                </>
+              )}
             </div>
           </div>
         </div>
