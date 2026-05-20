@@ -1,0 +1,144 @@
+"use client"
+
+import { useState, useRef, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { Icon } from "@/components/ui/Icon"
+import { navigation } from "./navigation"
+
+type Hit = {
+  name: string
+  href: string
+  section: string
+}
+
+const ALL_ITEMS: Hit[] = navigation.flatMap((section) =>
+  section.items.map((item) => ({
+    name: item.name,
+    href: item.href,
+    section: section.title,
+  }))
+)
+
+function normalize(s: string) {
+  return s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+}
+
+export function SidebarSearch() {
+  const router = useRouter()
+  const [query, setQuery] = useState("")
+  const [open, setOpen] = useState(false)
+  const [cursor, setCursor] = useState(0)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const listRef = useRef<HTMLUListElement>(null)
+
+  const q = normalize(query.trim())
+  const hits: Hit[] = q.length < 1 ? [] : ALL_ITEMS.filter((item) =>
+    normalize(item.name).includes(q) || normalize(item.section).includes(q)
+  )
+
+  const navigate = useCallback((href: string) => {
+    setQuery("")
+    setOpen(false)
+    router.push(href)
+  }, [router])
+
+  useEffect(() => {
+    setCursor(0)
+  }, [query])
+
+  useEffect(() => {
+    if (!open) return
+    const hit = listRef.current?.children[cursor] as HTMLElement | undefined
+    hit?.scrollIntoView({ block: "nearest" })
+  }, [cursor, open])
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!hits.length) return
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      setCursor((c) => Math.min(c + 1, hits.length - 1))
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault()
+      setCursor((c) => Math.max(c - 1, 0))
+    } else if (e.key === "Enter") {
+      e.preventDefault()
+      navigate(hits[cursor].href)
+    } else if (e.key === "Escape") {
+      setQuery("")
+      setOpen(false)
+      inputRef.current?.blur()
+    }
+  }
+
+  return (
+    <div className="relative">
+      <div className={cn(
+        "flex items-center gap-2 h-8 px-2.5 rounded-md border transition-colors duration-150",
+        open && hits.length > 0
+          ? "border-[var(--aw-blue-500)] bg-[var(--bg-canvas)]"
+          : "border-[var(--border-default)] bg-[var(--bg-surface)] hover:border-[var(--border-hover)]"
+      )}>
+        <Icon name="search" size={14} className="text-[var(--fg-tertiary)] shrink-0" />
+        <input
+          ref={inputRef}
+          type="text"
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onKeyDown={handleKeyDown}
+          placeholder="Buscar…"
+          className="flex-1 min-w-0 bg-transparent outline-none border-0 text-[13px] text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)]"
+        />
+        {query && (
+          <button
+            type="button"
+            onMouseDown={(e) => { e.preventDefault(); setQuery(""); inputRef.current?.focus() }}
+            className="flex items-center justify-center text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)] transition-colors"
+          >
+            <Icon name="cancel" size={14} />
+          </button>
+        )}
+      </div>
+
+      {open && hits.length > 0 && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-md)] overflow-hidden">
+          <ul ref={listRef} role="listbox" className="max-h-64 overflow-y-auto py-1">
+            {hits.map((hit, i) => (
+              <li key={hit.href} role="option" aria-selected={i === cursor}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => { e.preventDefault(); navigate(hit.href) }}
+                  onMouseEnter={() => setCursor(i)}
+                  className={cn(
+                    "w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors",
+                    i === cursor
+                      ? "bg-[var(--bg-surface)]"
+                      : "hover:bg-[var(--bg-surface)]"
+                  )}
+                >
+                  <Icon name="article" size={14} className="mt-0.5 shrink-0 text-[var(--fg-tertiary)]" />
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[13px] font-medium text-[var(--fg-primary)] truncate">
+                      {hit.name}
+                    </span>
+                    <span className="block text-[11px] text-[var(--fg-tertiary)] mt-0.5">
+                      {hit.section}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {open && query.trim().length > 0 && hits.length === 0 && (
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-md)] px-3 py-4 text-center">
+          <p className="text-[12px] text-[var(--fg-tertiary)]">Nenhum resultado para &ldquo;{query}&rdquo;</p>
+        </div>
+      )}
+    </div>
+  )
+}
