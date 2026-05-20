@@ -126,14 +126,17 @@ export const SCOPES: Scope[] = [
           {
             id: "atendimento.transfer.operator",
             label: "Transferir para operador",
+            description: "Passa a conversa para outro agente humano específico.",
           },
           {
             id: "atendimento.transfer.team",
             label: "Transferir para equipe",
+            description: "Move o ticket para a fila de uma equipe diferente.",
           },
           {
             id: "atendimento.transfer.queue",
             label: "Retornar para fila geral",
+            description: "Devolve o ticket à fila sem atribuição específica.",
           },
         ],
       },
@@ -150,10 +153,12 @@ export const SCOPES: Scope[] = [
           {
             id: "atendimento.admin.tags",
             label: "Gerenciar tags",
+            description: "Cria, edita e remove etiquetas usadas nos tickets.",
           },
           {
             id: "atendimento.admin.config",
             label: "Editar configurações de atendimento",
+            description: "Altera horários de operação, SLAs e preferências do módulo.",
           },
         ],
       },
@@ -173,6 +178,7 @@ export const SCOPES: Scope[] = [
           {
             id: "agentes.access",
             label: "Acessar área de agentes",
+            description: "Vê o módulo na navegação e abre a lista de agentes.",
           },
         ],
       },
@@ -181,8 +187,8 @@ export const SCOPES: Scope[] = [
         label: "Edição",
         intent: "operational",
         permissions: [
-          { id: "agentes.create", label: "Criar agente" },
-          { id: "agentes.edit", label: "Editar agente" },
+          { id: "agentes.create", label: "Criar agente", description: "Inicia um novo agente a partir de zero ou de um template." },
+          { id: "agentes.edit", label: "Editar agente", description: "Altera instruções, fluxo e configurações de agentes existentes." },
           {
             id: "agentes.publish",
             label: "Publicar mudanças",
@@ -195,7 +201,7 @@ export const SCOPES: Scope[] = [
         label: "Administração",
         intent: "administrative",
         permissions: [
-          { id: "agentes.delete", label: "Excluir agentes" },
+          { id: "agentes.delete", label: "Excluir agentes", description: "Remove permanentemente agentes do workspace." },
           {
             id: "agentes.types",
             label: "Gerenciar tipos de agentes",
@@ -215,15 +221,15 @@ export const SCOPES: Scope[] = [
         id: "access",
         label: "Acesso",
         intent: "module",
-        permissions: [{ id: "campanhas.access", label: "Acessar campanhas" }],
+        permissions: [{ id: "campanhas.access", label: "Acessar campanhas", description: "Vê o módulo na navegação e abre o painel de campanhas." }],
       },
       {
         id: "edit",
         label: "Edição",
         intent: "operational",
         permissions: [
-          { id: "campanhas.create", label: "Criar campanha" },
-          { id: "campanhas.edit", label: "Editar campanha" },
+          { id: "campanhas.create", label: "Criar campanha", description: "Abre o criador e salva uma nova campanha em rascunho." },
+          { id: "campanhas.edit", label: "Editar campanha", description: "Modifica texto, segmentação e agendamento de campanhas existentes." },
         ],
       },
       {
@@ -236,7 +242,7 @@ export const SCOPES: Scope[] = [
             label: "Publicar campanha",
             description: "Inicia o disparo após aprovação.",
           },
-          { id: "campanhas.pause", label: "Pausar campanha" },
+          { id: "campanhas.pause", label: "Pausar campanha", description: "Interrompe temporariamente um disparo ativo." },
         ],
       },
       {
@@ -263,7 +269,7 @@ export const SCOPES: Scope[] = [
         id: "access",
         label: "Acesso",
         intent: "module",
-        permissions: [{ id: "conversas.access", label: "Acessar conversas" }],
+        permissions: [{ id: "conversas.access", label: "Acessar conversas", description: "Vê o módulo na navegação e abre o histórico de conversas." }],
       },
       {
         id: "view",
@@ -287,7 +293,7 @@ export const SCOPES: Scope[] = [
         label: "Dados sensíveis",
         intent: "administrative",
         permissions: [
-          { id: "conversas.export", label: "Exportar transcripts" },
+          { id: "conversas.export", label: "Exportar transcripts", description: "Baixa conversas em CSV ou PDF para uso externo." },
           {
             id: "conversas.financial",
             label: "Ver dados financeiros do cliente",
@@ -308,7 +314,7 @@ export const SCOPES: Scope[] = [
         label: "Acesso",
         intent: "module",
         permissions: [
-          { id: "integracoes.access", label: "Acessar integrações" },
+          { id: "integracoes.access", label: "Acessar integrações", description: "Vê o módulo na navegação e abre o painel de integrações." },
         ],
       },
       {
@@ -316,8 +322,8 @@ export const SCOPES: Scope[] = [
         label: "Canais",
         intent: "operational",
         permissions: [
-          { id: "integracoes.connect", label: "Conectar canais" },
-          { id: "integracoes.disconnect", label: "Desconectar canais" },
+          { id: "integracoes.connect", label: "Conectar canais", description: "Autoriza e vincula novos canais (WhatsApp, Instagram etc.)." },
+          { id: "integracoes.disconnect", label: "Desconectar canais", description: "Remove a autorização de um canal já conectado." },
         ],
       },
       {
@@ -345,8 +351,8 @@ export const SCOPES: Scope[] = [
         label: "Membros",
         intent: "administrative",
         permissions: [
-          { id: "workspace.members.invite", label: "Convidar membros" },
-          { id: "workspace.members.remove", label: "Remover membros" },
+          { id: "workspace.members.invite", label: "Convidar membros", description: "Envia e-mail de convite para novos usuários entrarem no workspace." },
+          { id: "workspace.members.remove", label: "Remover membros", description: "Revoga o acesso de um usuário ativo." },
           {
             id: "workspace.members.roles",
             label: "Atribuir funções",
@@ -359,12 +365,9 @@ export const SCOPES: Scope[] = [
         label: "Faturamento",
         intent: "administrative",
         permissions: [
-          { id: "workspace.billing.view", label: "Ver faturas" },
-          { id: "workspace.billing.plan", label: "Atualizar plano" },
-          {
-            id: "workspace.billing.payment",
-            label: "Atualizar método de pagamento",
-          },
+          { id: "workspace.billing.view", label: "Ver faturas", description: "Acessa o histórico de cobranças e notas fiscais." },
+          { id: "workspace.billing.plan", label: "Atualizar plano", description: "Faz upgrade, downgrade ou cancelamento da assinatura." },
+          { id: "workspace.billing.payment", label: "Atualizar método de pagamento", description: "Troca o cartão ou dados bancários associados ao plano." },
         ],
       },
     ],
