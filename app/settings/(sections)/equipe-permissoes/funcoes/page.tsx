@@ -27,6 +27,7 @@ import { TeamTabs } from "../_components/TeamTabs";
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [newRoleId, setNewRoleId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
   const selected = useMemo(
@@ -61,6 +62,7 @@ export default function RolesPage() {
     };
     setRoles((prev) => [...prev, role]);
     setSelectedId(id);
+    setNewRoleId(id);
   }, [roles]);
 
   const handlePatchRole = useCallback(
@@ -110,7 +112,8 @@ export default function RolesPage() {
         ) : (
           <RoleDetail
             role={selected!}
-            onBack={() => setSelectedId(null)}
+            isNew={selected?.id === newRoleId}
+            onBack={() => { setSelectedId(null); setNewRoleId(null); }}
             onPatch={(patch) => handlePatchRole(selected!.id, patch)}
             onDelete={() => handleDeleteRole(selected!.id)}
           />
@@ -251,11 +254,13 @@ function RoleTable({
 
 function RoleDetail({
   role,
+  isNew,
   onBack,
   onPatch,
   onDelete,
 }: {
   role: RoleDefinition;
+  isNew?: boolean;
   onBack: () => void;
   onPatch: (patch: Partial<RoleDefinition>) => void;
   onDelete: () => void;
@@ -341,29 +346,20 @@ function RoleDetail({
           ))}
         </div>
 
-        <footer className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
-          <div className="flex min-w-0 items-center gap-2">
-            <Icon name="info" size={14} />
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
-              Em breve: permissões condicionais (ex.: ver apenas conversas da
-              própria equipe, visualizar campanhas sem publicar).
-            </p>
-          </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <AwButton size="sm" variant="ghost" onClick={onBack}>
-              Cancelar
+        <footer className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
+          <AwButton size="sm" variant="ghost" onClick={onBack}>
+            Cancelar
+          </AwButton>
+          {editable && (
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft={isNew ? "add" : "check"}
+              onClick={onBack}
+            >
+              {isNew ? "Criar função" : "Salvar alterações"}
             </AwButton>
-            {editable && (
-              <AwButton
-                size="sm"
-                variant="primary"
-                iconLeft="check"
-                onClick={onBack}
-              >
-                Salvar alterações
-              </AwButton>
-            )}
-          </div>
+          )}
         </footer>
       </section>
     </div>
@@ -685,7 +681,7 @@ function PermissionGroupBlock({
   onToggle: (id: string, next: boolean) => void;
 }) {
   return (
-    <ul className="flex flex-col">
+    <ul className="grid grid-cols-2 gap-x-3">
       {group.permissions.map((p) => {
         const has = granted.has(p.id);
         return (
