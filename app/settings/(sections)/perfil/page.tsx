@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -50,12 +49,6 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     description: "5 regras ativas · resumo semanal desativado",
   },
   {
-    href: "/settings/aparencia",
-    icon: "palette",
-    title: "Aparência",
-    description: "Tema claro · Português (Brasil)",
-  },
-  {
     href: "/settings/seguranca",
     icon: "shield",
     title: "Segurança",
@@ -73,12 +66,6 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     title: "Faturamento & uso",
     description: "Plano Pro anual · próxima fatura R$ 1.890,00",
   },
-  {
-    href: "/settings/zona-de-perigo",
-    icon: "warning",
-    title: "Zona de perigo",
-    description: "Ações destrutivas — transferir ou excluir o workspace",
-  },
 ];
 
 export default function ProfileSettingsPage() {
@@ -86,14 +73,8 @@ export default function ProfileSettingsPage() {
   const [email] = useState("greg@awsales.io");
   const [role, setRole] = useState("Super Administrador");
   const [editOpen, setEditOpen] = useState(false);
-
-  // Capa do perfil — começa na capa pré-definida do usuário e pode ser
-  // trocada pelo seletor (galeria do banco, upload ou link).
   const [cover, setCover] = useState(DEFAULT_COVER);
   const [pickerOpen, setPickerOpen] = useState(false);
-
-  // A seção do perfil mostra só as notificações mais recentes; o feed
-  // completo vive em /notifications.
   const latestNotifications = NOTIFICATIONS.slice(0, 4);
 
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
@@ -151,65 +132,47 @@ export default function ProfileSettingsPage() {
             </>
           )}
 
-          <div className="relative z-10 -mt-[88px] flex items-end justify-between gap-4">
-            <div
-              className="ml-6 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
-              style={{ lineHeight: 0 }}
-            >
-              <AwAvatar
-                size="lg"
-                src="/assets/users/greg.jpg"
-                alt={fullName}
-                initials="GP"
-                className="!h-[144px] !w-[144px] !text-[40px]"
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              <AwButton
-                size="sm"
-                variant="secondary"
-                iconLeft="edit"
-                onClick={() => setEditOpen(true)}
+          <div className="relative z-10 -mt-[88px] flex items-end justify-between gap-4 pb-8">
+            <div className="flex items-end gap-4">
+              <div
+                className="ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
+                style={{ lineHeight: 0 }}
               >
+                <AwAvatar
+                  size="lg"
+                  src="/assets/users/greg.jpg"
+                  alt={fullName}
+                  initials="GP"
+                  className="!h-[144px] !w-[144px] !text-[40px]"
+                />
+              </div>
+              <div className="flex flex-col gap-2 pb-1">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h3 className="m-0 text-[var(--fg-primary)]">{fullName}</h3>
+                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 body-xs font-medium" style={{ background: "color-mix(in srgb, var(--accent-brand) 8%, transparent)", color: "var(--accent-brand)" }}>
+                    <Icon name="workspace_premium" size={11} />
+                    {role}
+                  </span>
+                </div>
+                <p className="m-0 body-xs text-[var(--fg-secondary)]">Head of Sales · RevOps</p>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <ContactChip href="https://wa.me/5511987654321" iconNode={<WhatsAppIcon />} label="+55 11 98765-4321" />
+                  <ContactChip href="https://slack.com/app_redirect?channel=greg.pinheiro" iconNode={<SlackIcon />} label="@greg.pinheiro" />
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <AwPill variant="neutral" dot={false}>Workspace Awsales</AwPill>
+                  <AwPill variant="neutral" dot={false}>Brasília · GMT−03</AwPill>
+                </div>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 pb-1">
+              <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
                 Editar perfil
               </AwButton>
-              <AwButton
-                size="sm"
-                variant="secondary"
-                iconLeft="image"
-                onClick={() => setPickerOpen((v) => !v)}
-                aria-expanded={pickerOpen}
-              >
+              <AwButton size="sm" variant="secondary" iconLeft="image" onClick={() => setPickerOpen((v) => !v)} aria-expanded={pickerOpen}>
                 Alterar capa
               </AwButton>
             </div>
-          </div>
-          <div className="ml-6 mt-5 pb-10">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <h3 className="m-0 text-[var(--fg-primary)]">
-                {fullName}
-              </h3>
-              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 body-xs font-medium" style={{ background: "color-mix(in srgb, var(--accent-brand) 8%, transparent)", color: "var(--accent-brand)" }}>
-                <Icon name="workspace_premium" size={11} />
-                {role}
-              </span>
-            </div>
-            <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-              <ContactChip href={`mailto:${email}`} iconName="mail" label={email} />
-              <ContactChip href="https://wa.me/5511987654321" iconNode={<WhatsAppIcon />} label="+55 11 98765-4321" />
-              <ContactChip href="https://slack.com/app_redirect?channel=greg.pinheiro" iconNode={<SlackIcon />} label="@greg.pinheiro" />
-            </div>
-            <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <AwPill variant="neutral" dot={false}>
-                Workspace Awsales
-              </AwPill>
-              <AwPill variant="neutral" dot={false}>
-                Brasília · GMT−03
-              </AwPill>
-            </div>
-            <p className="m-0 mt-3 max-w-[560px] body-xs text-[var(--fg-secondary)]">
-              Como você aparece para o restante do time.
-            </p>
           </div>
         </div>
       </section>
@@ -237,10 +200,10 @@ export default function ProfileSettingsPage() {
 
           {/* Coluna direita — atalhos + notificações */}
           <div className="flex flex-col gap-10">
-            <section aria-label="Outras configurações">
+            <section aria-label="Atalhos">
               <SectionHeading
-                title="Outras configurações"
-                description="Acesse as demais áreas do workspace."
+                title="Atalhos"
+                description="Acesse rapidamente as demais áreas de configuração."
               />
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {SETTINGS_SHORTCUTS.map((item) => (
@@ -259,15 +222,6 @@ export default function ProfileSettingsPage() {
               <SectionHeading
                 title="Últimas notificações"
                 description="Atividades recentes que pediram sua atenção."
-                action={
-                  <Link
-                    href="/notifications"
-                    className="inline-flex items-center gap-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
-                  >
-                    Ver todas
-                    <Icon name="arrow_forward" size={14} />
-                  </Link>
-                }
               />
               <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
                 {latestNotifications.map((n) => (
