@@ -1,12 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   ChartContainer,
   ChartTooltip,
@@ -18,8 +21,10 @@ import {
   AGENT_BREAKDOWN,
   brl,
   formatQuantity,
+  getCustomDailySpending,
   getDailySpending,
   scaleBreakdown,
+  scaleCustomBreakdown,
   SERVICE_BREAKDOWN,
   SPENDING_CATEGORIES,
   SPENDING_PERIODS,
@@ -29,6 +34,30 @@ import {
   type SpendingGrouping,
   type SpendingPeriod,
 } from "./data";
+
+type PeriodSelection =
+  | { kind: "preset"; id: SpendingPeriod }
+  | { kind: "custom"; from: Date; to: Date };
+
+function diffInDaysInclusive(from: Date, to: Date): number {
+  const a = new Date(from.getFullYear(), from.getMonth(), from.getDate());
+  const b = new Date(to.getFullYear(), to.getMonth(), to.getDate());
+  return Math.max(1, Math.round((b.getTime() - a.getTime()) / 86_400_000) + 1);
+}
+
+function formatRangeShort(from: Date, to: Date): string {
+  const sameMonth =
+    from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  const fromStr = from.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: sameMonth ? undefined : "short",
+  });
+  const toStr = to.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "short",
+  });
+  return `${fromStr} – ${toStr}`;
+}
 
 type SortKey =
   | "label"
@@ -58,7 +87,10 @@ const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
 
 export function VariableSpendingBlock() {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
-  const [periodId, setPeriodId] = React.useState<SpendingPeriod>("this-month");
+  const [selection, setSelection] = React.useState<PeriodSelection>({
+    kind: "preset",
+    id: "this-month",
+  });
   const [filter, setFilter] = React.useState<
     Record<SpendingGrouping, Set<string>>
   >(() => ({
@@ -66,17 +98,24 @@ export function VariableSpendingBlock() {
     agent: new Set(SPENDING_CATEGORIES.agent.map((c) => c.id)),
   }));
 
-  const period =
-    SPENDING_PERIODS.find((p) => p.id === periodId) ?? SPENDING_PERIODS[1];
+  const customDays =
+    selection.kind === "custom"
+      ? diffInDaysInclusive(selection.from, selection.to)
+      : 0;
   const categories = SPENDING_CATEGORIES[grouping];
   const visibleIds = filter[grouping];
   const allIds = React.useMemo(() => categories.map((c) => c.id), [categories]);
   const isAll = visibleIds.size === allIds.length;
 
-  const daily = React.useMemo(
-    () => getDailySpending(grouping, periodId),
-    [grouping, periodId],
-  );
+  const daily = React.useMemo(() => {
+    if (selection.kind === "custom") {
+      return getCustomDailySpending(grouping, customDays);
+    }
+    return getDailySpending(grouping, selection.id);
+  }, [grouping, selection, customDays]);
+
+  const chartPeriod: SpendingPeriod =
+    selection.kind === "preset" ? selection.id : "last-30";
 
   const accumulated = React.useMemo(() => {
     let sum = 0;
@@ -169,16 +208,7 @@ export function VariableSpendingBlock() {
                 {brl(accumulated)}
               </strong>
             </p>
-            <AwDropdownMenu
-              align="end"
-              trigger={<AwSelect>{period.label}</AwSelect>}
-              items={SPENDING_PERIODS.map((p) => ({
-                id: p.id,
-                label: p.label,
-                checked: p.id === periodId,
-                onSelect: () => setPeriodId(p.id),
-              }))}
-            />
+            <PeriodPicker selection={selection} onChange={setSelection} />
           </div>
         </div>
 
@@ -192,16 +222,161 @@ export function VariableSpendingBlock() {
           data={daily}
           categories={categories}
           visibleIds={visibleIds}
-          period={periodId}
+          period={chartPeriod}
         />
       </div>
 
-      {grouping === "service" ? (
-        <ServiceTable period={periodId} allowedRowIds={allowedRowIds} />
+      {selection.kind === "custom" ? (
+        grouping === "service" ? (
+          <ServiceTableCustom
+            dayCount={customDays}
+            allowedRowIds={allowedRowIds}
+          />
+        ) : (
+          <AgentTableCustom
+            dayCount={customDays}
+            allowedRowIds={allowedRowIds}
+          />
+        )
+      ) : grouping === "service" ? (
+        <ServiceTable period={selection.id} allowedRowIds={allowedRowIds} />
       ) : (
-        <AgentTable period={periodId} allowedRowIds={allowedRowIds} />
+        <AgentTable period={selection.id} allowedRowIds={allowedRowIds} />
       )}
     </div>
+  );
+}
+
+/* ---------- period picker (presets + custom range) ---------- */
+
+function PeriodPicker({
+  selection,
+  onChange,
+}: {
+  selection: PeriodSelection;
+  onChange: (sel: PeriodSelection) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [range, setRange] = React.useState<{ from?: Date; to?: Date }>(
+    selection.kind === "custom"
+      ? { from: selection.from, to: selection.to }
+      : {},
+  );
+
+  const triggerLabel =
+    selection.kind === "preset"
+      ? SPENDING_PERIODS.find((p) => p.id === selection.id)?.label ?? "Período"
+      : `Personalizado · ${formatRangeShort(selection.from, selection.to)}`;
+
+  const applyRange = () => {
+    if (range.from && range.to) {
+      onChange({ kind: "custom", from: range.from, to: range.to });
+      setOpen(false);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Selecionar período"
+          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-1.5 body-xs font-medium text-[var(--fg-primary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+        >
+          <Icon
+            name="calendar_month"
+            size={14}
+            className="text-[var(--fg-tertiary)]"
+          />
+          {triggerLabel}
+          <Icon
+            name="expand_more"
+            size={14}
+            className="text-[var(--fg-tertiary)]"
+          />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        sideOffset={6}
+        className="flex w-auto gap-0 p-0"
+      >
+        <div className="flex w-44 flex-col border-r border-[var(--border-subtle)] py-1.5">
+          {SPENDING_PERIODS.map((p) => {
+            const active = selection.kind === "preset" && selection.id === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  onChange({ kind: "preset", id: p.id });
+                  setRange({});
+                  setOpen(false);
+                }}
+                className={
+                  "flex items-center justify-between gap-2 px-3 py-2 text-left body-xs transition-colors duration-aw-fast " +
+                  (active
+                    ? "bg-[var(--bg-muted)] font-medium text-[var(--fg-primary)]"
+                    : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]")
+                }
+              >
+                {p.label}
+                {active && (
+                  <Icon
+                    name="check"
+                    size={14}
+                    className="text-[var(--fg-primary)]"
+                  />
+                )}
+              </button>
+            );
+          })}
+          <div className="my-1 mx-3 h-px bg-[var(--border-subtle)]" />
+          <span className="px-3 pt-1 aw-eyebrow text-[var(--fg-tertiary)]">
+            Personalizado
+          </span>
+        </div>
+        <div className="flex flex-col gap-3 p-3">
+          <Calendar
+            mode="range"
+            selected={
+              range.from
+                ? { from: range.from, to: range.to ?? range.from }
+                : undefined
+            }
+            onSelect={(r) =>
+              setRange({ from: r?.from, to: r?.to ?? r?.from })
+            }
+            numberOfMonths={2}
+            captionLayout="dropdown"
+          />
+          <div className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-3">
+            <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+              {range.from && range.to
+                ? formatRangeShort(range.from, range.to)
+                : "Selecione início e fim"}
+            </p>
+            <div className="flex items-center gap-2">
+              <AwButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setOpen(false)}
+              >
+                Cancelar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                disabled={!range.from || !range.to}
+                onClick={applyRange}
+              >
+                Aplicar
+              </AwButton>
+            </div>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -300,11 +475,34 @@ function DailySpendingChart({
       config={chartConfig}
       className="aspect-auto h-[320px] w-full"
     >
-      <LineChart
+      <AreaChart
         accessibilityLayer
         data={chartData}
         margin={{ left: 12, right: 12, top: 8 }}
       >
+        <defs>
+          {visibleCategories.map((cat) => (
+            <linearGradient
+              key={`grad-${cat.id}`}
+              id={`spending-gradient-${cat.id}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={`var(--color-${cat.id})`}
+                stopOpacity={0.32}
+              />
+              <stop
+                offset="100%"
+                stopColor={`var(--color-${cat.id})`}
+                stopOpacity={0}
+              />
+            </linearGradient>
+          ))}
+        </defs>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="day"
@@ -342,17 +540,20 @@ function DailySpendingChart({
           }
         />
         {visibleCategories.map((cat) => (
-          <Line
+          <Area
             key={cat.id}
             dataKey={cat.id}
             type="monotone"
             stroke={`var(--color-${cat.id})`}
             strokeWidth={2}
+            fill={`url(#spending-gradient-${cat.id})`}
+            fillOpacity={1}
             dot={false}
             activeDot={{ r: 4 }}
+            isAnimationActive={false}
           />
         ))}
-      </LineChart>
+      </AreaChart>
     </ChartContainer>
   );
 }
@@ -422,9 +623,6 @@ function ServiceTable({
   period: SpendingPeriod;
   allowedRowIds: Set<string>;
 }) {
-  const [sortKey, setSortKey] = React.useState<SortKey>("total");
-  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
-
   const scaled = React.useMemo(
     () =>
       scaleBreakdown(SERVICE_BREAKDOWN as ServiceBreakdownRow[], period).filter(
@@ -432,6 +630,30 @@ function ServiceTable({
       ),
     [period, allowedRowIds],
   );
+  return <ServiceTableBody rows={scaled} />;
+}
+
+function ServiceTableCustom({
+  dayCount,
+  allowedRowIds,
+}: {
+  dayCount: number;
+  allowedRowIds: Set<string>;
+}) {
+  const scaled = React.useMemo(
+    () =>
+      scaleCustomBreakdown(
+        SERVICE_BREAKDOWN as ServiceBreakdownRow[],
+        dayCount,
+      ).filter((r) => allowedRowIds.has(r.id)),
+    [dayCount, allowedRowIds],
+  );
+  return <ServiceTableBody rows={scaled} />;
+}
+
+function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
+  const [sortKey, setSortKey] = React.useState<SortKey>("total");
+  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
 
   const sorted = React.useMemo(() => {
     const rows = [...scaled];
@@ -562,9 +784,6 @@ function AgentTable({
   period: SpendingPeriod;
   allowedRowIds: Set<string>;
 }) {
-  const [sortKey, setSortKey] = React.useState<SortKey>("total");
-  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
-
   const scaled = React.useMemo(
     () =>
       scaleBreakdown(AGENT_BREAKDOWN as AgentBreakdownRow[], period).filter(
@@ -572,6 +791,30 @@ function AgentTable({
       ),
     [period, allowedRowIds],
   );
+  return <AgentTableBody rows={scaled} />;
+}
+
+function AgentTableCustom({
+  dayCount,
+  allowedRowIds,
+}: {
+  dayCount: number;
+  allowedRowIds: Set<string>;
+}) {
+  const scaled = React.useMemo(
+    () =>
+      scaleCustomBreakdown(
+        AGENT_BREAKDOWN as AgentBreakdownRow[],
+        dayCount,
+      ).filter((r) => allowedRowIds.has(r.id)),
+    [dayCount, allowedRowIds],
+  );
+  return <AgentTableBody rows={scaled} />;
+}
+
+function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
+  const [sortKey, setSortKey] = React.useState<SortKey>("total");
+  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
 
   const sorted = React.useMemo(() => {
     const rows = [...scaled];

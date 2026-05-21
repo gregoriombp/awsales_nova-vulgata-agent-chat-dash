@@ -82,10 +82,18 @@ export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> =
 // (em barras visuais) e um total alvo. O gerador determinístico produz daily
 // values que são re-escalados pra somar exatamente o total alvo — assim o
 // gráfico e a tabela de breakdown sempre batem.
-export type SpendingPeriod = "today" | "this-month" | "last-30" | "last-90";
+export type SpendingPeriod =
+  | "today"
+  | "yesterday"
+  | "last-7"
+  | "this-month"
+  | "last-30"
+  | "last-90";
 
 export const SPENDING_PERIODS: { id: SpendingPeriod; label: string }[] = [
   { id: "today", label: "Hoje" },
+  { id: "yesterday", label: "Ontem" },
+  { id: "last-7", label: "Últimos 7 dias" },
   { id: "this-month", label: "Este mês" },
   { id: "last-30", label: "Últimos 30 dias" },
   { id: "last-90", label: "Últimos 90 dias" },
@@ -93,6 +101,8 @@ export const SPENDING_PERIODS: { id: SpendingPeriod; label: string }[] = [
 
 const PERIOD_BARS: Record<SpendingPeriod, number> = {
   today: 1,
+  yesterday: 1,
+  "last-7": 7,
   "this-month": 15, // até hoje (15/05)
   "last-30": 30,
   "last-90": 30, // 30 buckets representando ~3 dias cada
@@ -101,6 +111,8 @@ const PERIOD_BARS: Record<SpendingPeriod, number> = {
 // Total alvo de cada período. `this-month` casa com o baseline da tabela.
 const PERIOD_TOTAL: Record<SpendingPeriod, number> = {
   today: 62.4, // ~uma fatia diária do baseline mensal
+  yesterday: 58.9,
+  "last-7": 412.5,
   "this-month": 891.63,
   "last-30": 1850,
   "last-90": 5400,
@@ -166,6 +178,53 @@ export function periodTotal(period: SpendingPeriod): number {
 
 export function periodBars(period: SpendingPeriod): number {
   return PERIOD_BARS[period];
+}
+
+/** Gera daily values para um período custom — buckets = nº de dias entre as
+ *  datas, total proporcional ao baseline mensal. */
+export function getCustomDailySpending(
+  grouping: SpendingGrouping,
+  dayCount: number,
+): number[][] {
+  const bars = Math.max(1, Math.min(dayCount, 90));
+  const seed = grouping === "service" ? 7 : 13;
+  const raw = genDaily(seed, bars);
+  const target = customPeriodTotal(bars);
+  const rawTotal = raw.reduce(
+    (s, day) => s + day.reduce((s2, v) => s2 + v, 0),
+    0,
+  );
+  if (rawTotal === 0) return raw;
+  const factor = target / rawTotal;
+  return raw.map((day) =>
+    day.map((v) => Math.round(v * factor * 100) / 100),
+  );
+}
+
+/** Total esperado para um custom range — escala linear a partir do baseline
+ *  mensal (891.63 em 30 dias). */
+export function customPeriodTotal(dayCount: number): number {
+  return Math.round((PERIOD_TOTAL["last-30"] / 30) * dayCount * 100) / 100;
+}
+
+export function scaleCustomBreakdown<
+  T extends { total: number; quantity?: number },
+>(rows: T[], dayCount: number): T[] {
+  const baseline = rows.reduce((s, r) => s + r.total, 0);
+  const target = customPeriodTotal(dayCount);
+  if (baseline === 0) return rows;
+  const ratio = target / baseline;
+  if (Math.abs(ratio - 1) < 0.001) return rows;
+  return rows.map((r) => {
+    const scaled: T = {
+      ...r,
+      total: Math.round(r.total * ratio * 100) / 100,
+    };
+    if (typeof r.quantity === "number" && r.quantity >= 0) {
+      scaled.quantity = r.quantity * ratio;
+    }
+    return scaled;
+  });
 }
 
 export type ServiceBreakdownRow = {
