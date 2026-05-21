@@ -36,31 +36,45 @@ const KIND_META: Record<
   },
 };
 
+export type NotificationRowProps = {
+  notification: AppNotification;
+  /** Quando definido, o clique chama o handler em vez de navegar direto. */
+  onActivate?: (n: AppNotification) => void;
+};
+
 export function NotificationRow({
   notification,
-}: {
-  notification: AppNotification;
-}) {
+  onActivate,
+}: NotificationRowProps) {
   const meta = KIND_META[notification.kind];
-  const base = "flex gap-3 px-4 py-3.5 transition-colors duration-aw-fast";
+  const base =
+    "flex w-full gap-3 px-4 py-3.5 text-left transition-colors duration-aw-fast";
+  const isNew = !notification.read;
 
   const inner = (
     <>
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)]"
+        className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: meta.bg, color: meta.fg }}
       >
         <Icon name={meta.icon} size={20} />
+        {isNew && (
+          <span
+            aria-hidden="true"
+            className="absolute right-0 top-0 inline-block h-2.5 w-2.5 rounded-full bg-[var(--accent-brand)]"
+            style={{ boxShadow: "0 0 0 2px var(--bg-raised)" }}
+          />
+        )}
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span
             className={
               "min-w-0 flex-1 truncate body-sm " +
-              (notification.read
-                ? "font-normal text-[var(--fg-secondary)]"
-                : "font-medium text-[var(--fg-primary)]")
+              (isNew
+                ? "font-medium text-[var(--fg-primary)]"
+                : "font-normal text-[var(--fg-secondary)]")
             }
           >
             {notification.title}
@@ -73,15 +87,28 @@ export function NotificationRow({
           {notification.description}
         </span>
       </span>
-      {notification.href && (
-        <Icon
-          name="chevron_right"
-          size={18}
-          className="mt-0.5 shrink-0 self-start text-[var(--fg-tertiary)]"
-        />
-      )}
+      <Icon
+        name="chevron_right"
+        size={18}
+        className="mt-0.5 shrink-0 self-start text-[var(--fg-tertiary)]"
+      />
     </>
   );
+
+  // Se o pai passou onActivate, ele controla a navegação (geralmente via modal
+  // de confirmação). Caso contrário, mantém o comportamento legado de Link.
+  if (onActivate) {
+    return (
+      <button
+        type="button"
+        onClick={() => onActivate(notification)}
+        aria-label={`Abrir notificação: ${notification.title}`}
+        className={`${base} hover:bg-[var(--bg-muted)]`}
+      >
+        {inner}
+      </button>
+    );
+  }
 
   if (notification.href) {
     return (
