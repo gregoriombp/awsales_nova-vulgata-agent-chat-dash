@@ -104,8 +104,8 @@ function OnboardingBrandPane({
               organização
             </div>
             <div className="flex items-center gap-3">
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-aw-gray-1000 bg-white/[0.06] body-sm font-medium text-aw-gray-400">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-aw-gray-1000 bg-white/[0.06] body-md font-medium text-aw-gray-400">
                   {org.logo ? (
                     <img
                       src={org.logo}
@@ -128,7 +128,7 @@ function OnboardingBrandPane({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-shrink-0 flex-col items-end gap-1">
+              <div className="flex flex-shrink-0 items-center gap-1.5">
                 <span
                   className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
                   style={{ fontSize: 10 }}
