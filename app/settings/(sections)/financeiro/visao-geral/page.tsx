@@ -9,17 +9,19 @@ import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
+import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
-import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   AUDIT_EVENTS,
   brl,
   COUPONS_APPLIED,
+  CREDITS_KPIS,
   CURRENT_INVOICE,
   CURRENT_PLAN,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
+  PAYMENT_METHODS,
   VARIABLE_SPENDING_LIMIT,
   VOUCHERS,
 } from "../_components/data";
@@ -48,6 +50,7 @@ export default function VisaoGeralPage() {
     <div className="flex flex-col gap-10">
       <StatusStrip />
       <SpendingHero limit={limit} onChangeLimit={() => setLimitOpen(true)} />
+      <ShortcutGrid />
       <SideBySideSummary />
 
       <ChangeLimitModal
@@ -232,8 +235,59 @@ function SpendingHero({
         max={limit}
         className="[&_.aw-progress__fill]:!bg-[var(--fg-primary)]"
       />
-      <VariableSpendingBlock />
     </section>
+  );
+}
+
+/* ---------- shortcut grid (atalhos para as subpáginas) ---------- */
+
+function ShortcutGrid() {
+  const defaultMethod =
+    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
+  const latestInvoice = INVOICE_HISTORY[0];
+  const lastAudit = AUDIT_EVENTS[0];
+
+  return (
+    <AwCard className="!p-2">
+      <ul className="m-0 grid grid-cols-1 list-none p-0 sm:grid-cols-2">
+        <li className="m-0">
+          <AwShortcutTile
+            icon="redeem"
+            title="Saldo de créditos"
+            description={`${brl(CREDITS_KPIS.availableDiscount)} disponível · ${CREDITS_KPIS.activeVouchers} vouchers ativos`}
+            href="/settings/financeiro/saldo-creditos"
+          />
+        </li>
+        <li className="m-0">
+          <AwShortcutTile
+            icon="credit_card"
+            title="Métodos de pagamento"
+            description={
+              defaultMethod
+                ? `${defaultMethod.brand} •••• ${defaultMethod.last4} como padrão · ${PAYMENT_METHODS.length} cadastrados`
+                : `${PAYMENT_METHODS.length} cadastrados`
+            }
+            href="/settings/financeiro/metodos-pagamento"
+          />
+        </li>
+        <li className="m-0">
+          <AwShortcutTile
+            icon="receipt_long"
+            title="Histórico de faturas"
+            description={`Última: ${latestInvoice.refMonth} · ${brl(latestInvoice.net)}`}
+            href="/settings/financeiro/historico-faturas"
+          />
+        </li>
+        <li className="m-0">
+          <AwShortcutTile
+            icon="history"
+            title="Atividade"
+            description={`Última: ${lastAudit.date} às ${lastAudit.time}`}
+            href="/settings/financeiro/auditoria"
+          />
+        </li>
+      </ul>
+    </AwCard>
   );
 }
 
