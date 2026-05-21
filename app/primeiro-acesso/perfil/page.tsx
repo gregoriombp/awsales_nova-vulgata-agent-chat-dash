@@ -199,6 +199,15 @@ function PerfilContent() {
             </span>
           </label>
 
+          <button
+            type="button"
+            onClick={addEmail}
+            className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
+          >
+            <Icon name="add" size={14} />
+            Adicionar e-mail
+          </button>
+
           {extraEmails.map((e) => (
             <EmailRow
               key={e.id}
@@ -217,15 +226,6 @@ function PerfilContent() {
             </div>
           )}
         </div>
-
-        <button
-          type="button"
-          onClick={addEmail}
-          className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
-        >
-          <Icon name="add" size={14} />
-          Adicionar e-mail
-        </button>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
           <Link
