@@ -1006,34 +1006,186 @@
  * give it the iridescent foil feel. Text sits in deep navy so the
  * gradient carries the luminosity, not the type.
  */
+/* Animated shiny — adapted from eldoraui/animated-shiny-button.
+ * Pill (radius-full) preserved. Monochrome surface via bg-canvas/bg-surface,
+ * cyan-ish highlight uses aw-blue-400/700 (closest in the AwSales ramp).
+ * Three layered effects:
+ *   1. Conic-gradient border that rotates around the pill
+ *   2. Dot pattern overlay masked to a moving arc
+ *   3. Inner shimmer + breathing inner glow on hover
+ */
+@property --aw-btn-ai-gradient-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --aw-btn-ai-gradient-angle-offset {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@property --aw-btn-ai-gradient-percent {
+  syntax: "<percentage>";
+  initial-value: 5%;
+  inherits: false;
+}
+@property --aw-btn-ai-gradient-shine {
+  syntax: "<color>";
+  initial-value: #ffffff;
+  inherits: false;
+}
+
 .aw-btn--ai {
-  background:
-    radial-gradient(ellipse 55% 130% at 50% 50%, var(--aw-amber-200) 0%, rgba(253, 230, 204, 0.55) 30%, transparent 60%),
-    radial-gradient(ellipse 90% 140% at 8% 50%, var(--aw-blue-500) 0%, transparent 65%),
-    radial-gradient(ellipse 90% 140% at 92% 50%, var(--aw-blue-500) 0%, transparent 65%),
-    linear-gradient(110deg, var(--aw-blue-400) 0%, var(--aw-blue-300) 35%, var(--aw-amber-200) 55%, var(--aw-blue-300) 75%, var(--aw-blue-500) 100%);
-  color: var(--aw-blue-1100);
+  --aw-btn-ai-bg: var(--bg-canvas);
+  --aw-btn-ai-bg-subtle: var(--bg-surface);
+  --aw-btn-ai-highlight: var(--aw-blue-400);
+  --aw-btn-ai-highlight-subtle: var(--aw-blue-700);
+  --aw-btn-ai-duration: 3s;
+  --aw-btn-ai-shadow-size: 2px;
+  --aw-btn-ai-easing: cubic-bezier(0.25, 1, 0.5, 1);
+
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  color: var(--fg-primary);
   border-color: transparent;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
-    inset 0 -1px 0 rgba(13, 49, 122, 0.20),
-    0 6px 18px -6px rgba(71, 138, 255, 0.40);
+  background:
+    linear-gradient(var(--aw-btn-ai-bg), var(--aw-btn-ai-bg)) padding-box,
+    conic-gradient(
+      from calc(var(--aw-btn-ai-gradient-angle) - var(--aw-btn-ai-gradient-angle-offset)),
+      transparent,
+      var(--aw-btn-ai-highlight) var(--aw-btn-ai-gradient-percent),
+      var(--aw-btn-ai-gradient-shine) calc(var(--aw-btn-ai-gradient-percent) * 2),
+      var(--aw-btn-ai-highlight) calc(var(--aw-btn-ai-gradient-percent) * 3),
+      transparent calc(var(--aw-btn-ai-gradient-percent) * 4)
+    ) border-box;
+  box-shadow: inset 0 0 0 1px var(--aw-btn-ai-bg-subtle);
+  transition-property: --aw-btn-ai-gradient-angle-offset, --aw-btn-ai-gradient-percent, --aw-btn-ai-gradient-shine;
+  transition-duration: 800ms;
+  transition-timing-function: var(--aw-btn-ai-easing);
+  animation:
+    aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite,
+    aw-btn-ai-angle linear calc(var(--aw-btn-ai-duration) / 0.4) reverse infinite paused;
+  animation-composition: add;
 }
-.aw-btn--ai:hover:not(:disabled) {
-  filter: brightness(1.04) saturate(1.10);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
-    inset 0 -1px 0 rgba(13, 49, 122, 0.24),
-    0 10px 28px -8px rgba(71, 138, 255, 0.50);
+
+.aw-btn--ai::before,
+.aw-btn--ai::after,
+.aw-btn--ai .aw-btn__label::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -50%;
+  z-index: -1;
 }
+
+/* Dots pattern */
+.aw-btn--ai::before {
+  --size: calc(100% - var(--aw-btn-ai-shadow-size) * 3);
+  --position: 2px;
+  --space: calc(var(--position) * 2);
+  width: var(--size);
+  height: var(--size);
+  background: radial-gradient(
+      circle at var(--position) var(--position),
+      currentColor calc(var(--position) / 4),
+      transparent 0
+    ) padding-box;
+  background-size: var(--space) var(--space);
+  background-repeat: space;
+  mask-image: conic-gradient(
+    from calc(var(--aw-btn-ai-gradient-angle) + 45deg),
+    black, transparent 10% 90%, black
+  );
+  border-radius: var(--radius-full);
+  opacity: 0.32;
+  animation:
+    aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite,
+    aw-btn-ai-angle linear calc(var(--aw-btn-ai-duration) / 0.4) reverse infinite paused;
+  animation-composition: add;
+}
+
+/* Inner shimmer */
+.aw-btn--ai::after {
+  width: 100%;
+  aspect-ratio: 1;
+  background: linear-gradient(
+    -50deg,
+    transparent,
+    var(--aw-btn-ai-highlight),
+    transparent
+  );
+  mask-image: radial-gradient(circle at bottom, transparent 40%, black);
+  opacity: 0.55;
+  animation:
+    aw-btn-ai-shimmer linear var(--aw-btn-ai-duration) infinite,
+    aw-btn-ai-shimmer linear calc(var(--aw-btn-ai-duration) / 0.4) reverse infinite paused;
+  animation-composition: add;
+}
+
+/* Breathing inner glow on hover (sits behind the label) */
+.aw-btn--ai .aw-btn__label {
+  position: relative;
+  z-index: 1;
+}
+.aw-btn--ai .aw-btn__label::before {
+  --size: calc(100% + 1rem);
+  width: var(--size);
+  height: var(--size);
+  box-shadow: inset 0 -1ex 2rem 4px var(--aw-btn-ai-highlight);
+  opacity: 0;
+  border-radius: var(--radius-full);
+  transition: opacity 800ms var(--aw-btn-ai-easing);
+  animation: aw-btn-ai-breathe linear calc(var(--aw-btn-ai-duration) * 1.5) infinite;
+}
+
+.aw-btn--ai:hover:not(:disabled),
+.aw-btn--ai:focus-visible:not(:disabled) {
+  --aw-btn-ai-gradient-percent: 20%;
+  --aw-btn-ai-gradient-angle-offset: 95deg;
+  --aw-btn-ai-gradient-shine: var(--aw-btn-ai-highlight-subtle);
+}
+.aw-btn--ai:hover:not(:disabled),
+.aw-btn--ai:hover:not(:disabled)::before,
+.aw-btn--ai:hover:not(:disabled)::after,
+.aw-btn--ai:focus-visible:not(:disabled),
+.aw-btn--ai:focus-visible:not(:disabled)::before,
+.aw-btn--ai:focus-visible:not(:disabled)::after {
+  animation-play-state: running;
+}
+.aw-btn--ai:hover:not(:disabled) .aw-btn__label::before,
+.aw-btn--ai:focus-visible:not(:disabled) .aw-btn__label::before {
+  opacity: 1;
+}
+.aw-btn--ai:active:not(:disabled) {
+  translate: 0 1px;
+}
+
+@keyframes aw-btn-ai-angle {
+  to { --aw-btn-ai-gradient-angle: 360deg; }
+}
+@keyframes aw-btn-ai-shimmer {
+  to { rotate: 360deg; }
+}
+@keyframes aw-btn-ai-breathe {
+  from, to { scale: 1; }
+  50% { scale: 1.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-btn--ai,
+  .aw-btn--ai::before,
+  .aw-btn--ai::after,
+  .aw-btn--ai .aw-btn__label::before {
+    animation: none;
+  }
+}
+
 .dark .aw-btn--ai {
-  color: var(--aw-blue-1100);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.40),
-    0 0 36px rgba(143, 184, 255, 0.28);
+  --aw-btn-ai-highlight: var(--aw-blue-300);
+  --aw-btn-ai-highlight-subtle: var(--aw-blue-500);
 }
 
 /* Loading */
