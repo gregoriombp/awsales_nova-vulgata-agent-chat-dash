@@ -135,10 +135,9 @@ export default function AuditoriaPage() {
           <AwTable>
             <thead>
               <tr>
-                <th>Quando</th>
-                <th>Tipo</th>
                 <th>Evento</th>
-                <th>Quem</th>
+                <th>Quando</th>
+                <th>Usuário</th>
               </tr>
             </thead>
             <tbody>
@@ -289,21 +288,6 @@ function EventRow({ event }: { event: AuditEvent }) {
   return (
     <tr>
       <td>
-        <div className="flex flex-col">
-          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
-            {event.date}
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {event.time}
-          </span>
-        </div>
-      </td>
-      <td>
-        <span className="aw-eyebrow text-[var(--fg-tertiary)]">
-          {event.type}
-        </span>
-      </td>
-      <td>
         <div className="flex flex-col gap-0.5">
           <span className="body-sm font-medium text-[var(--fg-primary)]">
             {event.action}
@@ -313,6 +297,16 @@ function EventRow({ event }: { event: AuditEvent }) {
               {event.meta}
             </p>
           )}
+        </div>
+      </td>
+      <td>
+        <div className="flex flex-col">
+          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
+            {event.date}
+          </span>
+          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+            {event.time}
+          </span>
         </div>
       </td>
       <td>
