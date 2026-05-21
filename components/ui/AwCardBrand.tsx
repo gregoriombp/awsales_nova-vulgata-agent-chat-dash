@@ -211,12 +211,13 @@ export function detectCardBrand(input: string | null | undefined): AwCardBrandId
  * Sizes
  * --------------------------------------------------------------------------*/
 
-export type AwCardBrandSize = "sm" | "md" | "lg"
+export type AwCardBrandSize = "sm" | "md" | "lg" | "xl"
 
 const SIZE_PX: Record<AwCardBrandSize, { w: number; h: number; r: number }> = {
   sm: { w: 28, h: 18, r: 3 },
   md: { w: 36, h: 24, r: 4 },
   lg: { w: 48, h: 32, r: 5 },
+  xl: { w: 88, h: 88, r: 14 },
 }
 
 /* ----------------------------------------------------------------------------
