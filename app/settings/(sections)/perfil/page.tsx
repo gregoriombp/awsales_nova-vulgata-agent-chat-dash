@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
@@ -226,13 +225,13 @@ export default function ProfileSettingsPage() {
             </>
           )}
 
-          <div className="relative z-10 -mt-[56px] flex items-end justify-between gap-4 pb-8">
-            <div className="flex items-end gap-4">
+          <div className="relative z-10 mt-4 flex flex-wrap items-start justify-between gap-4 pb-2">
+            <div className="flex items-start gap-4">
               <button
                 type="button"
                 onClick={() => setPhotoOpen(true)}
                 aria-label="Editar foto de perfil"
-                className="group/avatar relative ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
+                className="group/avatar relative -mt-[96px] ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
                 style={{ lineHeight: 0 }}
               >
                 <AwAvatar
@@ -252,7 +251,7 @@ export default function ProfileSettingsPage() {
                   </span>
                 </span>
               </button>
-              <div className="flex flex-col gap-2 pb-1">
+              <div className="flex flex-col gap-2 pt-1">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h3 className="m-0 text-[var(--fg-primary)]">{fullName}</h3>
                   <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 body-xs font-medium" style={{ background: "color-mix(in srgb, var(--accent-brand) 8%, transparent)", color: "var(--accent-brand)" }}>
@@ -271,7 +270,7 @@ export default function ProfileSettingsPage() {
                 </div>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2 pb-1">
+            <div className="flex shrink-0 items-center gap-2 pt-1">
               {!repositioning && (
                 <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
                   Editar perfil
@@ -701,7 +700,10 @@ function InfoCard({
   action?: React.ReactNode;
 }) {
   return (
-    <AwCard className="!rounded-[var(--radius-xl)] !bg-[var(--bg-muted)] !p-0">
+    <div
+      className="overflow-hidden rounded-[var(--radius-xl)]"
+      style={{ background: "var(--aw-gray-150)" }}
+    >
       <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-1">
         <h6 className="m-0 text-[var(--fg-primary)]">{title}</h6>
         {action}
@@ -716,7 +718,7 @@ function InfoCard({
               <Icon
                 name={row.icon!}
                 size={16}
-                className="shrink-0 text-[var(--fg-tertiary)]"
+                className="shrink-0 text-[var(--fg-secondary)]"
               />
             )}
             <span className="min-w-0 truncate body-sm text-[var(--fg-primary)]">
@@ -725,7 +727,7 @@ function InfoCard({
           </li>
         ))}
       </ul>
-    </AwCard>
+    </div>
   );
 }
 
