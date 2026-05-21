@@ -42,7 +42,7 @@ export default function CardsPage() {
         {" / "}
         <code className="mono">CardFooter</code>
         {" "}— sob tokens AwSales. Borda 1 px, radius{" "}
-        <code className="mono">--radius-lg</code>, sem drop shadow por padrão.
+        <code className="mono">--radius-xl</code>, sem drop shadow por padrão.
         A variante <strong>ai</strong> aplica gradient-mesh sutil em superfícies
         ligadas ao agente.
       </PageHero>
@@ -186,7 +186,7 @@ export default function CardsPage() {
             </Stage>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
                 <div className="aw-eyebrow mb-2">default</div>
                 <p className="body-sm m-0">
                   Fundo <code className="mono">--bg-raised</code>, borda{" "}
@@ -194,7 +194,7 @@ export default function CardsPage() {
                   qualquer agrupamento — KPIs, listas, formulários, conteúdo.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
                 <div className="aw-eyebrow mb-2">ai</div>
                 <p className="body-sm m-0">
                   Gradient-mesh radial blue → purple a 8–10% de opacidade.
@@ -202,7 +202,7 @@ export default function CardsPage() {
                   insights. Nunca em KPI estático.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
                 <div className="aw-eyebrow mb-2">ai-warm</div>
                 <p className="body-sm m-0">
                   Gradient-mesh peach a ~14% sobre{" "}
@@ -212,7 +212,7 @@ export default function CardsPage() {
                   CTA.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
                 <div className="aw-eyebrow mb-2">ai-cortex</div>
                 <p className="body-sm m-0">
                   Silver mesh inspirado no cubo de mármore da marca — base
@@ -472,7 +472,7 @@ export default function CardsPage() {
             title="Tokens"
             lead="Todos os valores saem de tokens em globals.css. Nunca hardcodar — ajuste o token, nunca o componente."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="padding"
                 v="20 px · 24 px"
@@ -480,8 +480,8 @@ export default function CardsPage() {
               />
               <Spec
                 k="radius"
-                v="--radius-lg · 12 px"
-                d="Fixo. Não trocar por md ou xl."
+                v="--radius-xl · 16 px"
+                d="Fixo. Não trocar por md ou 2xl."
               />
               <Spec
                 k="border"
@@ -562,7 +562,7 @@ export default function CardsPage() {
               />
             </ApiTable>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4 body-sm">
+            <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4 body-sm">
               <div className="aw-eyebrow mb-2">Subcomponentes</div>
               <ul className="m-0 pl-4 list-disc flex flex-col gap-1">
                 <li>

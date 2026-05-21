@@ -1125,15 +1125,16 @@
   animation-composition: add;
 }
 
-/* Breathing inner glow on hover (sits behind the label) */
+/* Breathing inner glow on hover — anchored to the BUTTON, not the label,
+ * so the glow spans the full button width instead of clamping to text
+ * width (which produced a small disproportionate "blob" on wide buttons).
+ * Label keeps z-index via flex-item stacking; no `position` needed. */
 .aw-btn--ai .aw-btn__label {
-  position: relative;
   z-index: 1;
 }
 .aw-btn--ai .aw-btn__label::before {
-  --size: calc(100% + 1rem);
-  width: var(--size);
-  height: var(--size);
+  width: calc(100% + 1rem);
+  height: calc(100% + 1rem);
   box-shadow: inset 0 -1ex 2rem 4px var(--aw-btn-ai-highlight);
   opacity: 0;
   border-radius: var(--radius-full);
@@ -1171,7 +1172,7 @@
 }
 @keyframes aw-btn-ai-breathe {
   from, to { scale: 1; }
-  50% { scale: 1.2; }
+  50% { scale: 1.06; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1186,6 +1187,186 @@
 .dark .aw-btn--ai {
   --aw-btn-ai-highlight: var(--aw-blue-300);
   --aw-btn-ai-highlight-subtle: var(--aw-blue-500);
+}
+
+/* -----------------------------------------------------------------
+ * AI Spectrum — multi-color cousin of `ai` (blue → purple → amber).
+ * Keeps the dots / shimmer / breathing-glow choreography, just swaps
+ * the monochromatic highlight for a tri-color ring that rotates.
+ * ----------------------------------------------------------------- */
+.aw-btn--ai-spectrum {
+  --aw-btn-ai-bg: var(--bg-canvas);
+  --aw-btn-ai-bg-subtle: var(--bg-surface);
+  --aw-btn-ai-c1: var(--aw-blue-400);
+  --aw-btn-ai-c2: var(--aw-purple-400);
+  --aw-btn-ai-c3: var(--aw-amber-400);
+  --aw-btn-ai-duration: 5s;
+  --aw-btn-ai-shadow-size: 2px;
+  --aw-btn-ai-easing: cubic-bezier(0.25, 1, 0.5, 1);
+
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  color: var(--fg-primary);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--aw-btn-ai-bg), var(--aw-btn-ai-bg)) padding-box,
+    conic-gradient(
+      from var(--aw-btn-ai-gradient-angle),
+      var(--aw-btn-ai-c1),
+      var(--aw-btn-ai-c2),
+      var(--aw-btn-ai-c3),
+      var(--aw-btn-ai-c1)
+    ) border-box;
+  box-shadow: inset 0 0 0 1px var(--aw-btn-ai-bg-subtle);
+  animation: aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite;
+}
+
+/* Dots pattern — softened, masked by the rotating angle */
+.aw-btn--ai-spectrum::before,
+.aw-btn--ai-spectrum::after,
+.aw-btn--ai-spectrum .aw-btn__label::before {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  translate: -50% -50%;
+  z-index: -1;
+}
+
+.aw-btn--ai-spectrum::before {
+  --size: calc(100% - var(--aw-btn-ai-shadow-size) * 3);
+  --position: 2px;
+  --space: calc(var(--position) * 2);
+  width: var(--size);
+  height: var(--size);
+  background: radial-gradient(
+      circle at var(--position) var(--position),
+      currentColor calc(var(--position) / 4),
+      transparent 0
+    ) padding-box;
+  background-size: var(--space) var(--space);
+  background-repeat: space;
+  mask-image: conic-gradient(
+    from calc(var(--aw-btn-ai-gradient-angle) + 45deg),
+    black, transparent 10% 90%, black
+  );
+  border-radius: var(--radius-full);
+  opacity: 0.22;
+  animation: aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite;
+}
+
+/* Soft tri-color shimmer */
+.aw-btn--ai-spectrum::after {
+  width: 100%;
+  aspect-ratio: 1;
+  background: conic-gradient(
+    from calc(var(--aw-btn-ai-gradient-angle) + 180deg),
+    transparent 0%,
+    var(--aw-btn-ai-c1) 20%,
+    var(--aw-btn-ai-c2) 35%,
+    var(--aw-btn-ai-c3) 50%,
+    transparent 70%
+  );
+  mask-image: radial-gradient(circle at bottom, transparent 35%, black);
+  opacity: 0.42;
+  animation: aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite;
+}
+
+/* Breathing inner glow on hover — anchored to button width */
+.aw-btn--ai-spectrum .aw-btn__label {
+  z-index: 1;
+}
+.aw-btn--ai-spectrum .aw-btn__label::before {
+  width: calc(100% + 1rem);
+  height: calc(100% + 1rem);
+  background: radial-gradient(
+    ellipse at center,
+    var(--aw-btn-ai-c2),
+    transparent 70%
+  );
+  opacity: 0;
+  border-radius: var(--radius-full);
+  transition: opacity 800ms var(--aw-btn-ai-easing);
+  animation: aw-btn-ai-breathe linear calc(var(--aw-btn-ai-duration) * 1.5) infinite;
+}
+
+.aw-btn--ai-spectrum:hover:not(:disabled) .aw-btn__label::before,
+.aw-btn--ai-spectrum:focus-visible:not(:disabled) .aw-btn__label::before {
+  opacity: 0.55;
+}
+.aw-btn--ai-spectrum:active:not(:disabled) {
+  translate: 0 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-btn--ai-spectrum,
+  .aw-btn--ai-spectrum::before,
+  .aw-btn--ai-spectrum::after,
+  .aw-btn--ai-spectrum .aw-btn__label::before {
+    animation: none;
+  }
+}
+
+.dark .aw-btn--ai-spectrum {
+  --aw-btn-ai-c1: var(--aw-blue-300);
+  --aw-btn-ai-c2: var(--aw-purple-300);
+  --aw-btn-ai-c3: var(--aw-amber-300);
+}
+
+/* -----------------------------------------------------------------
+ * AI Outline — the same tri-color ring, no interior choreography.
+ * For secondary AI actions where the gradient should *frame* the
+ * button instead of fill it. No dots, no shimmer, no breath.
+ * ----------------------------------------------------------------- */
+.aw-btn--ai-outline {
+  --aw-btn-ai-bg: var(--bg-canvas);
+  --aw-btn-ai-c1: var(--aw-blue-300);
+  --aw-btn-ai-c2: var(--aw-purple-300);
+  --aw-btn-ai-c3: var(--aw-amber-300);
+  --aw-btn-ai-duration: 6s;
+
+  position: relative;
+  color: var(--fg-primary);
+  border-color: transparent;
+  background:
+    linear-gradient(var(--aw-btn-ai-bg), var(--aw-btn-ai-bg)) padding-box,
+    conic-gradient(
+      from var(--aw-btn-ai-gradient-angle),
+      var(--aw-btn-ai-c1),
+      var(--aw-btn-ai-c2),
+      var(--aw-btn-ai-c3),
+      var(--aw-btn-ai-c1)
+    ) border-box;
+  animation: aw-btn-ai-angle linear var(--aw-btn-ai-duration) infinite;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+
+.aw-btn--ai-outline:hover:not(:disabled) {
+  --aw-btn-ai-c1: var(--aw-blue-400);
+  --aw-btn-ai-c2: var(--aw-purple-400);
+  --aw-btn-ai-c3: var(--aw-amber-400);
+}
+.aw-btn--ai-outline:active:not(:disabled) {
+  translate: 0 1px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aw-btn--ai-outline {
+    animation: none;
+  }
+}
+
+.dark .aw-btn--ai-outline {
+  --aw-btn-ai-c1: var(--aw-blue-400);
+  --aw-btn-ai-c2: var(--aw-purple-400);
+  --aw-btn-ai-c3: var(--aw-amber-400);
+}
+.dark .aw-btn--ai-outline:hover:not(:disabled) {
+  --aw-btn-ai-c1: var(--aw-blue-300);
+  --aw-btn-ai-c2: var(--aw-purple-300);
+  --aw-btn-ai-c3: var(--aw-amber-300);
 }
 
 /* Loading */
@@ -1209,7 +1390,7 @@
   position: relative;
   background: var(--bg-raised);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   padding: 20px 24px;
   color: var(--fg-primary);
 }
@@ -4290,4 +4471,79 @@
   color: var(--fg-tertiary);
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);
+}
+
+/* ============================================================
+ * AwCardShiny — conic-gradient holographic border for "hero" cards.
+ * Cousin of `.aw-btn--ai` (eldoraui/animated-shiny-button), adapted
+ * from pill (radius-full) to rectangle (radius-xl). Skips the dot
+ * overlay and breathing inner glow that suit a button; keeps the
+ * rotating conic ring + soft inner shimmer pass to read as "shiny
+ * premium card" rather than "blinking ad".
+ * ============================================================ */
+@property --aw-card-shiny-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.aw-card--shiny {
+  --aw-card-shiny-bg: #ffffff;
+  --aw-card-shiny-highlight: var(--aw-blue-400);
+  --aw-card-shiny-shine: #ffffff;
+  --aw-card-shiny-duration: 6s;
+  --aw-card-shiny-percent: 8%;
+
+  isolation: isolate;
+  position: relative;
+  overflow: hidden;
+  border-color: transparent;
+  background:
+    linear-gradient(var(--aw-card-shiny-bg), var(--aw-card-shiny-bg)) padding-box,
+    conic-gradient(
+      from var(--aw-card-shiny-angle),
+      transparent,
+      var(--aw-card-shiny-highlight) var(--aw-card-shiny-percent),
+      var(--aw-card-shiny-shine) calc(var(--aw-card-shiny-percent) * 2),
+      var(--aw-card-shiny-highlight) calc(var(--aw-card-shiny-percent) * 3),
+      transparent calc(var(--aw-card-shiny-percent) * 4)
+    ) border-box;
+  box-shadow: inset 0 0 0 1px var(--bg-surface);
+  animation: aw-card-shiny-angle linear var(--aw-card-shiny-duration) infinite;
+}
+.aw-card--shiny::after {
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: linear-gradient(
+    -50deg,
+    transparent 30%,
+    color-mix(in srgb, var(--aw-card-shiny-highlight) 22%, transparent) 50%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  animation: aw-card-shiny-sweep linear calc(var(--aw-card-shiny-duration) * 1.3) infinite;
+}
+.aw-card--shiny > * {
+  position: relative;
+  z-index: 1;
+}
+@keyframes aw-card-shiny-angle {
+  to { --aw-card-shiny-angle: 360deg; }
+}
+@keyframes aw-card-shiny-sweep {
+  0%   { transform: translateX(-30%); }
+  100% { transform: translateX(30%); }
+}
+.dark .aw-card--shiny {
+  --aw-card-shiny-bg: var(--bg-raised);
+  --aw-card-shiny-highlight: var(--aw-blue-300);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-card--shiny,
+  .aw-card--shiny::after {
+    animation: none;
+  }
 }

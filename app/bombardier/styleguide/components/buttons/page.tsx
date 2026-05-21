@@ -41,7 +41,15 @@ const TOC = [
 ]
 
 const ALL_VARIANTS: Array<{
-  value: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai"
+  value:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "subtle"
+    | "danger"
+    | "ai"
+    | "ai-spectrum"
+    | "ai-outline"
   label: string
 }> = [
   { value: "primary", label: "primary" },
@@ -50,6 +58,8 @@ const ALL_VARIANTS: Array<{
   { value: "subtle", label: "subtle" },
   { value: "danger", label: "danger" },
   { value: "ai", label: "ai" },
+  { value: "ai-spectrum", label: "ai-spectrum" },
+  { value: "ai-outline", label: "ai-outline" },
 ]
 
 const ALL_SIZES: Array<{ value: "sm" | "md" | "lg"; label: string; h: number }> = [
@@ -140,7 +150,7 @@ export default function ButtonsPage() {
         <Section
           id="variants"
           title="Variantes"
-          lead="Seis variantes, cada uma com papel definido na hierarquia. Não mixar arbitrariamente — a variante carrega a intenção."
+          lead="Oito variantes, cada uma com papel definido na hierarquia. Não mixar arbitrariamente — a variante carrega a intenção. A família AI (ai, ai-spectrum, ai-outline) é reservada para gestos do agente; cores quentes nunca aparecem fora dela."
         >
           <Stage
             label="primary · secondary · ghost · subtle · danger · ai"
@@ -163,6 +173,39 @@ export default function ButtonsPage() {
               Gerar sugestão
             </AwButton>
           </Stage>
+
+          <Stage
+            label="Família AI · ai · ai-spectrum · ai-outline"
+            hint="Mesma escala de intenção, gradients diferentes. Ai monocromático para o gesto principal; spectrum para um momento mais carregado de marca; outline pra ação secundária ou link de descoberta."
+          >
+            <AwButton variant="ai" iconLeft="auto_awesome">
+              Gerar sugestão
+            </AwButton>
+            <AwButton variant="ai-spectrum" iconLeft="auto_awesome">
+              Gerar sugestão
+            </AwButton>
+            <AwButton variant="ai-outline" iconRight="arrow_forward">
+              Saiba como funciona
+            </AwButton>
+          </Stage>
+
+          <div className="dark">
+            <Stage
+              label="Família AI · sobre shell escuro"
+              hint="Cores claras dos tokens (--aw-blue-300, --aw-purple-300, --aw-amber-300) sobem para preservar o contraste."
+              dark
+            >
+              <AwButton variant="ai" iconLeft="auto_awesome">
+                Learn more
+              </AwButton>
+              <AwButton variant="ai-spectrum" iconLeft="auto_awesome">
+                Learn more
+              </AwButton>
+              <AwButton variant="ai-outline" iconRight="arrow_outward">
+                Schedule a Call
+              </AwButton>
+            </Stage>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
             <VariantCard
@@ -251,9 +294,49 @@ export default function ButtonsPage() {
               title="ai"
               body={
                 <>
-                  Reservada a ações do agente. Gradient{" "}
-                  <code className="mono">--aw-blue-600 → --aw-purple-500</code>.
-                  Nunca iniciar em cor quente.
+                  Reservada a ações do agente. Gradient azul monocromático com
+                  dots + shimmer + glow respirante. CTA principal de IA.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
+                <AwButton
+                  variant="ai-spectrum"
+                  size="sm"
+                  iconLeft="auto_awesome"
+                >
+                  Gerar sugestão
+                </AwButton>
+              }
+              title="ai-spectrum"
+              body={
+                <>
+                  Prima do <code className="mono">ai</code> com gradient
+                  tri-color (<code className="mono">aw-blue-400</code> →{" "}
+                  <code className="mono">aw-purple-400</code> →{" "}
+                  <code className="mono">aw-amber-400</code>). Mantém o teatro
+                  (dots, shimmer, glow). Reserve para gestos de IA com forte
+                  presença de marca.
+                </>
+              }
+            />
+            <VariantCard
+              demo={
+                <AwButton
+                  variant="ai-outline"
+                  size="sm"
+                  iconLeft="auto_awesome"
+                >
+                  Saiba como funciona
+                </AwButton>
+              }
+              title="ai-outline"
+              body={
+                <>
+                  Mesmo anel tri-color, interior limpo — sem dots, sem shimmer,
+                  sem glow. Para ações secundárias de IA (saiba mais, abrir
+                  doc) onde o gradient deve só <em>emoldurar</em>.
                 </>
               }
               wide
@@ -1002,7 +1085,15 @@ function MatrixRow({
   iconOnly,
 }: {
   label: string
-  variant: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai"
+  variant:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "subtle"
+    | "danger"
+    | "ai"
+    | "ai-spectrum"
+    | "ai-outline"
   autoFocus?: boolean
   loading?: boolean
   disabled?: boolean
@@ -1035,7 +1126,13 @@ function MatrixRow({
               loading={loading}
               disabled={disabled}
               iconLeft={
-                variant === "ai" ? "auto_awesome" : variant === "danger" ? "delete" : "add"
+                variant === "ai" ||
+                variant === "ai-spectrum" ||
+                variant === "ai-outline"
+                  ? "auto_awesome"
+                  : variant === "danger"
+                    ? "delete"
+                    : "add"
               }
             >
               {labelFor(variant, loading)}
@@ -1048,7 +1145,15 @@ function MatrixRow({
 }
 
 function labelFor(
-  variant: "primary" | "secondary" | "ghost" | "subtle" | "danger" | "ai",
+  variant:
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "subtle"
+    | "danger"
+    | "ai"
+    | "ai-spectrum"
+    | "ai-outline",
   loading?: boolean,
 ): string {
   if (loading) return "Carregando"
@@ -1065,5 +1170,9 @@ function labelFor(
       return "Arquivar"
     case "ai":
       return "Gerar"
+    case "ai-spectrum":
+      return "Gerar"
+    case "ai-outline":
+      return "Saiba mais"
   }
 }

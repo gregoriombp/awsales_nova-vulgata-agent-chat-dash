@@ -10,6 +10,8 @@ export type AwButtonVariant =
   | "subtle"
   | "danger"
   | "ai"
+  | "ai-spectrum"
+  | "ai-outline"
 
 export type AwButtonSize = "sm" | "md" | "lg"
 
