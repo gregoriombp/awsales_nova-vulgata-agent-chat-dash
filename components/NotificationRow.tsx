@@ -12,27 +12,27 @@ const KIND_META: Record<
   billing: {
     icon: "credit_card",
     bg: "var(--aw-amber-100)",
-    fg: "var(--aw-amber-600)",
+    fg: "var(--aw-amber-500)",
   },
   agent: {
     icon: "smart_toy",
     bg: "var(--aw-emerald-100)",
-    fg: "var(--aw-emerald-600)",
+    fg: "var(--aw-emerald-500)",
   },
   team: {
     icon: "group",
     bg: "var(--aw-blue-100)",
-    fg: "var(--aw-blue-600)",
+    fg: "var(--aw-blue-500)",
   },
   security: {
     icon: "shield",
     bg: "var(--aw-red-100)",
-    fg: "var(--aw-red-600)",
+    fg: "var(--aw-red-500)",
   },
   system: {
     icon: "info",
     bg: "var(--bg-muted)",
-    fg: "var(--fg-secondary)",
+    fg: "var(--fg-tertiary)",
   },
 };
 
@@ -58,7 +58,7 @@ export function NotificationRow({
         className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
         style={{ backgroundColor: meta.bg, color: meta.fg }}
       >
-        <Icon name={meta.icon} size={20} />
+        <Icon name={meta.icon} size={24} fill={1} />
         {isNew && (
           <span
             aria-hidden="true"

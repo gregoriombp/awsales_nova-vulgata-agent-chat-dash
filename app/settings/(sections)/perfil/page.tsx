@@ -35,37 +35,37 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     href: "/settings/organizacao",
     icon: "domain",
     title: "Organização",
-    description: "Verificada · slug artificial-concord",
+    description: "Razão social, marca e dados públicos",
   },
   {
     href: "/settings/equipe-permissoes",
     icon: "groups",
     title: "Equipe & permissões",
-    description: "12 membros · 4 grupos · 2 convites pendentes",
+    description: "Membros, grupos e convites",
   },
   {
     href: "/settings/notificacoes",
     icon: "notifications",
     title: "Notificações",
-    description: "5 regras ativas · resumo semanal desativado",
+    description: "Canais, regras e silenciamento",
   },
   {
     href: "/settings/seguranca",
     icon: "shield",
     title: "Segurança",
-    description: "2FA ativo · 3 sessões · senha alterada há 3 meses",
+    description: "Senha, 2FA e sessões ativas",
   },
   {
     href: "/settings/api",
     icon: "key",
     title: "API & desenvolvedores",
-    description: "2 chaves ativas · produção aws_live_8f3a…",
+    description: "Chaves, webhooks e ambientes",
   },
   {
     href: "/settings/financeiro",
     icon: "credit_card",
     title: "Faturamento & uso",
-    description: "Plano Pro anual · próxima fatura R$ 1.890,00",
+    description: "Plano, pagamento e faturas",
   },
 ];
 
@@ -182,9 +182,10 @@ export default function ProfileSettingsPage() {
                     <button
                       type="button"
                       aria-label="Mais opções da capa"
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-colors hover:bg-black/75"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-md text-white transition-colors hover:bg-white/15"
+                      style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.45))" }}
                     >
-                      <Icon name="more_vert" size={18} />
+                      <Icon name="more_vert" size={22} weight={600} />
                     </button>
                   }
                   items={[
@@ -252,22 +253,28 @@ export default function ProfileSettingsPage() {
                 </span>
               </button>
               <div className="flex flex-col gap-2 pt-1">
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="flex flex-wrap items-center gap-2">
                   <h3 className="m-0 text-[var(--fg-primary)]">{fullName}</h3>
-                  <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 body-xs font-medium" style={{ background: "color-mix(in srgb, var(--accent-brand) 8%, transparent)", color: "var(--accent-brand)" }}>
-                    <Icon name="workspace_premium" size={11} />
-                    {role}
-                  </span>
+                  <a
+                    href="https://wa.me/5511987654321"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full bg-[var(--aw-gray-100)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:bg-[var(--aw-gray-150)] hover:text-[var(--fg-primary)]"
+                  >
+                    <WhatsAppIcon size={12} />
+                    <span>+55 11 98765-4321</span>
+                  </a>
+                  <a
+                    href="https://slack.com/app_redirect?channel=greg.pinheiro"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 rounded-full bg-[var(--aw-gray-100)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:bg-[var(--aw-gray-150)] hover:text-[var(--fg-primary)]"
+                  >
+                    <SlackIcon size={12} />
+                    <span>@greg.pinheiro</span>
+                  </a>
                 </div>
                 <p className="m-0 body-xs text-[var(--fg-secondary)]">Head of Sales · RevOps</p>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <ContactChip href="https://wa.me/5511987654321" iconNode={<WhatsAppIcon />} label="+55 11 98765-4321" />
-                  <ContactChip href="https://slack.com/app_redirect?channel=greg.pinheiro" iconNode={<SlackIcon />} label="@greg.pinheiro" />
-                </div>
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <AwPill variant="neutral" dot={false}>Workspace Awsales</AwPill>
-                  <AwPill variant="neutral" dot={false}>Brasília · GMT−03</AwPill>
-                </div>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 pt-1">
@@ -634,40 +641,12 @@ function NotificationConfirmModal({
 }
 
 /* -----------------------------------------------------------------
- * ContactChip — pill clicável para email / redes sociais no header
- * ----------------------------------------------------------------- */
-
-function ContactChip({
-  href,
-  iconName,
-  iconNode,
-  label,
-}: {
-  href: string;
-  iconName?: string;
-  iconNode?: React.ReactNode;
-  label: string;
-}) {
-  return (
-    <a
-      href={href}
-      target={href.startsWith("mailto") ? undefined : "_blank"}
-      rel="noopener noreferrer"
-      className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-2.5 py-1 body-xs text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
-    >
-      {iconNode ?? (iconName ? <Icon name={iconName} size={13} className="shrink-0 text-[var(--fg-tertiary)]" /> : null)}
-      <span>{label}</span>
-    </a>
-  );
-}
-
-/* -----------------------------------------------------------------
  * Brand icons for social rows
  * ----------------------------------------------------------------- */
 
-function SlackIcon() {
+function SlackIcon({ size = 16 }: { size?: number } = {}) {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" className="shrink-0" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" className="shrink-0" aria-hidden="true">
       <path d="M9.5 15.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 0V10" stroke="#E01E5A" strokeWidth="1.8" strokeLinecap="round"/>
       <path d="M14.5 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm0 0H10" stroke="#36C5F0" strokeWidth="1.8" strokeLinecap="round"/>
       <path d="M8.5 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0 0H14" stroke="#2EB67D" strokeWidth="1.8" strokeLinecap="round"/>
@@ -676,9 +655,9 @@ function SlackIcon() {
   );
 }
 
-function WhatsAppIcon() {
+function WhatsAppIcon({ size = 16 }: { size?: number } = {}) {
   return (
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" className="shrink-0" aria-hidden="true">
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" className="shrink-0" aria-hidden="true">
       <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.526 3.656 1.438 5.162L2 22l4.962-1.418A9.954 9.954 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="#25D366"/>
       <path d="M8.5 9c.167-.5.667-1.5 1.5-1.5.5 0 .833.25 1 .75L11.5 10c.083.25 0 .583-.25.875L10.5 12c.5 1 1.5 2 2.5 2.5l1.125-.75c.292-.25.625-.333.875-.25l1.75.5c.5.167.75.5.75 1 0 .833-1 1.333-1.5 1.5-2.5.5-6.5-2-7.5-5.5-.25-.833-.167-1.583 0-2z" fill="white"/>
     </svg>
@@ -702,7 +681,7 @@ function InfoCard({
   return (
     <div
       className="overflow-hidden rounded-[var(--radius-xl)]"
-      style={{ background: "var(--aw-gray-150)" }}
+      style={{ background: "var(--aw-gray-100)" }}
     >
       <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-1">
         <h6 className="m-0 text-[var(--fg-primary)]">{title}</h6>
