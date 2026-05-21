@@ -8,6 +8,7 @@ import { AwEmpty, AwEmptyDescription, AwEmptyHeader, AwEmptyMedia, AwEmptyTitle 
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { PaymentMethodCard } from "@/components/playground/PaymentMethodCard";
 import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
 import {
   PAYMENT_METHODS,
@@ -238,71 +239,15 @@ function PrimaryCard({
   canRemove: boolean;
   onRemoveRequest: () => void;
 }) {
-  const expiringSoon = isExpiringSoon(method.expiresAt);
-  const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
-
   return (
-    <article className="relative flex flex-col gap-6 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-3">
-          <AwPill variant="live" dot={false}>
-            Padrão
-          </AwPill>
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-            Método principal
-          </p>
-        </div>
-        <AwDropdownMenu
-          align="end"
-          trigger={
-            <AwButton
-              size="sm"
-              variant="ghost"
-              iconOnly="more_horiz"
-              aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
-            />
-          }
-          items={[
-            {
-              id: `${method.id}-edit`,
-              label: "Editar dados",
-              icon: "edit",
-              onSelect: () => {},
-            },
-            { id: `${method.id}-sep`, separator: true },
-            {
-              id: `${method.id}-remove`,
-              label: "Remover método",
-              icon: "delete",
-              danger: true,
-              disabled: !canRemove,
-              onSelect: onRemoveRequest,
-            },
-          ]}
-        />
-      </div>
-
-      <div className="flex items-center gap-4">
-        <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="lg" />
-        <div className="min-w-0 flex-1">
-          <p className="m-0 body-md font-medium tabular-nums text-[var(--fg-primary)]">
-            {method.brand} •••• {method.last4}
-          </p>
-          <p className="m-0 mt-1 body-xs text-[var(--fg-tertiary)]">
-            Expira em {method.expiresAt}
-          </p>
-        </div>
-        {expired ? (
-          <AwPill variant="error" dot={false}>
-            Expirado
-          </AwPill>
-        ) : expiringSoon ? (
-          <AwPill variant="warning" dot={false}>
-            Expira em breve
-          </AwPill>
-        ) : null}
-      </div>
-    </article>
+    <PaymentMethodCard
+      brand={BRAND_TO_AW[method.brand]}
+      last4={method.last4}
+      isDefault={method.isDefault}
+      onEdit={() => {}}
+      onRemove={onRemoveRequest}
+      removeDisabled={!canRemove}
+    />
   );
 }
 

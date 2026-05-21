@@ -1,0 +1,7 @@
+{
+  "description": "Principal payment method card. 88×88 brand tile + masked PAN with last 4 emphasized + '<Brand> Card' subtitle + edit/delete row + dark 'Default' pill at top-right. No shadow. Built for the primary slot on settings/financeiro/metodos-pagamento.",
+  "sourcePrompt": "Adapt Creative Tim payment-method-01 (default card variant only) — use Visa flag, drop the shadow, keep the Default badge. Replace the principal card pattern on metodos-pagamento.",
+  "reference": "https://www.creative-tim.com/ui/block/payment-method-01",
+  "createdAt": "2026-05-21T00:00:00.000Z",
+  "approval": "pending"
+}
