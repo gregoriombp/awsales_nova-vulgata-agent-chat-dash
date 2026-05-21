@@ -70,19 +70,7 @@ export default function SaldoCreditosPage() {
   );
 }
 
-/* ---------- hero with inline coupon apply ---------- */
-
-type Feedback =
-  | { kind: "idle" }
-  | { kind: "success"; code: string }
-  | { kind: "error"; reason: string };
-
-const ERRORS = [
-  "Código não encontrado.",
-  "Código expirado.",
-  "Limite de uso já atingido.",
-  "Moeda incompatível com sua conta.",
-];
+/* ---------- hero ---------- */
 
 function CreditsHero({
   available,
@@ -91,28 +79,6 @@ function CreditsHero({
   available: number;
   onAddCredits: () => void;
 }) {
-  const [code, setCode] = React.useState("");
-  const [feedback, setFeedback] = React.useState<Feedback>({ kind: "idle" });
-  const [submitting, setSubmitting] = React.useState(false);
-
-  const apply = () => {
-    const trimmed = code.trim();
-    if (!trimmed) return;
-    setSubmitting(true);
-    setTimeout(() => {
-      if (Math.random() < 0.5) {
-        setFeedback({ kind: "success", code: trimmed.toUpperCase() });
-        setCode("");
-      } else {
-        setFeedback({
-          kind: "error",
-          reason: ERRORS[Math.floor(Math.random() * ERRORS.length)],
-        });
-      }
-      setSubmitting(false);
-    }, 350);
-  };
-
   return (
     <section className="flex flex-col gap-5 border-b border-[var(--border-subtle)] pb-8">
       <div className="flex flex-wrap items-end justify-between gap-6">
@@ -139,55 +105,6 @@ function CreditsHero({
         >
           Adicionar saldo
         </AwButton>
-      </div>
-
-      <div className="flex flex-col gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3">
-        <label
-          htmlFor="apply-coupon"
-          className="aw-eyebrow text-[var(--fg-tertiary)]"
-        >
-          Aplicar cupom
-        </label>
-        <div className="flex items-center gap-2">
-          <AwInput
-            id="apply-coupon"
-            className="flex-1"
-            placeholder="Cole um código (ex.: BF2026)"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") apply();
-            }}
-          />
-          <AwButton
-            size="md"
-            variant="secondary"
-            loading={submitting}
-            onClick={apply}
-            disabled={!code.trim()}
-          >
-            Aplicar
-          </AwButton>
-        </div>
-        {feedback.kind === "success" && (
-          <p
-            className="m-0 inline-flex items-center gap-1.5 body-xs text-[var(--accent-success)]"
-            role="status"
-          >
-            <Icon name="check_circle" size={14} fill={1} />
-            Cupom <strong>{feedback.code}</strong> aplicado. Desconto entra na
-            próxima fatura.
-          </p>
-        )}
-        {feedback.kind === "error" && (
-          <p
-            className="m-0 inline-flex items-center gap-1.5 body-xs text-[var(--accent-danger)]"
-            role="alert"
-          >
-            <Icon name="error" size={14} fill={1} />
-            {feedback.reason}
-          </p>
-        )}
       </div>
     </section>
   );
