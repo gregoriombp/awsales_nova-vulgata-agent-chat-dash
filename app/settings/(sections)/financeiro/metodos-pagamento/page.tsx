@@ -2,13 +2,38 @@
 
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
+import { AwCardBrand, type AwCardBrandId } from "@/components/ui/AwCardBrand";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwEmpty, AwEmptyDescription, AwEmptyHeader, AwEmptyMedia, AwEmptyTitle } from "@/components/ui/AwEmpty";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
-import { CardBrandLogo } from "../_components/CardBrandLogo";
-import { PAYMENT_METHODS, type PaymentMethod } from "../_components/data";
+import {
+  PAYMENT_METHODS,
+  type CardBrand,
+  type PaymentMethod,
+} from "../_components/data";
+
+const BRAND_TO_AW: Record<CardBrand, AwCardBrandId> = {
+  Visa: "visa",
+  Mastercard: "mastercard",
+  Amex: "amex",
+};
+
+function expiryYear(expiresAt: string): number {
+  const [, y] = expiresAt.split("/").map(Number);
+  return y;
+}
+
+function isExpiringSoon(expiresAt: string): boolean {
+  const [m, y] = expiresAt.split("/").map(Number);
+  if (!m || !y) return false;
+  const expiry = new Date(y, m - 1, 1);
+  const horizon = new Date();
+  horizon.setMonth(horizon.getMonth() + 3);
+  return expiry.getTime() <= horizon.getTime();
+}
 
 export default function MetodosPagamentoPage() {
   const [methods, setMethods] = React.useState<PaymentMethod[]>(PAYMENT_METHODS);
@@ -17,8 +42,6 @@ export default function MetodosPagamentoPage() {
     null,
   );
 
-  // A cascata começa pelo método marcado como padrão e segue na ordem em
-  // que os outros foram adicionados.
   const ordered = React.useMemo(() => {
     const def = methods.find((m) => m.isDefault);
     const rest = methods.filter((m) => !m.isDefault);
@@ -31,9 +54,7 @@ export default function MetodosPagamentoPage() {
       : (methods.find((m) => m.id === pendingRemoveId) ?? null);
 
   const setAsDefault = (id: string) => {
-    setMethods((prev) =>
-      prev.map((m) => ({ ...m, isDefault: m.id === id })),
-    );
+    setMethods((prev) => prev.map((m) => ({ ...m, isDefault: m.id === id })));
   };
 
   const confirmRemove = () => {
@@ -41,7 +62,9 @@ export default function MetodosPagamentoPage() {
     setMethods((prev) => {
       const next = prev.filter((m) => m.id !== pendingRemoveId);
       const hadDefault = prev.find((m) => m.id === pendingRemoveId)?.isDefault;
-      if (hadDefault && next.length > 0) next[0] = { ...next[0], isDefault: true };
+      if (hadDefault && next.length > 0) {
+        next[0] = { ...next[0], isDefault: true };
+      }
       return next;
     });
     setPendingRemoveId(null);
@@ -66,24 +89,35 @@ export default function MetodosPagamentoPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <header>
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cascata de cobrança</h6>
-        <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
-          Faturas tentam cobrar do topo pra baixo. Quando um método falha, a
-          gente vai pro próximo automaticamente.
-        </p>
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+            Métodos de pagamento
+          </h6>
+          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+            Cartões e formas de cobrança aceitos por esta organização. As
+            cobranças tentam primeiro o método marcado como padrão.
+          </p>
+        </div>
+        <AwButton
+          size="md"
+          variant="primary"
+          iconLeft="add"
+          onClick={() => setAddOpen(true)}
+        >
+          Adicionar método
+        </AwButton>
       </header>
 
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <Cascade
+        <MethodList
           methods={ordered}
           canRemoveAny={methods.length > 1}
           onSetDefault={setAsDefault}
           onRemoveRequest={setPendingRemoveId}
-          onAdd={() => setAddOpen(true)}
         />
       )}
 
@@ -102,159 +136,155 @@ export default function MetodosPagamentoPage() {
   );
 }
 
-/* ---------- cascade ---------- */
+/* -----------------------------------------------------------------
+ * Method list — Stripe-style flat list with hairlines
+ * ----------------------------------------------------------------- */
 
-function Cascade({
+function MethodList({
   methods,
   canRemoveAny,
   onSetDefault,
   onRemoveRequest,
-  onAdd,
 }: {
   methods: PaymentMethod[];
   canRemoveAny: boolean;
   onSetDefault: (id: string) => void;
   onRemoveRequest: (id: string) => void;
-  onAdd: () => void;
 }) {
   return (
-    <ol className="m-0 flex list-none flex-col gap-0 p-0">
-      {methods.map((m, i) => {
-        const isFirst = i === 0;
-        const isLast = i === methods.length - 1;
-        const role = isFirst
-          ? "Tenta primeiro"
-          : isLast
-            ? "Última tentativa"
-            : `Tentativa ${i + 1}`;
-
-        return (
-          <li key={m.id} className="m-0 p-0">
-            <CascadeStep
-              order={i + 1}
-              method={m}
-              role={role}
-              canDemote={!isFirst}
-              canRemove={canRemoveAny}
-              onSetDefault={() => onSetDefault(m.id)}
-              onRemoveRequest={() => onRemoveRequest(m.id)}
-            />
-            {!isLast && <CascadeConnector label="se falhar" />}
-          </li>
-        );
-      })}
-      <li className="m-0 p-0">
-        <CascadeConnector label="se todos falharem" />
-        <button
-          type="button"
-          onClick={onAdd}
-          className="group flex w-full items-center gap-4 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-transparent px-5 py-4 text-left transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
+    <ul className="m-0 flex flex-col p-0">
+      {methods.map((m, i) => (
+        <li
+          key={m.id}
+          className={
+            "m-0 list-none border-[var(--border-subtle)] " +
+            (i === 0 ? "border-y" : "border-b")
+          }
         >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]">
-            <Icon name="add" size={18} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block body-sm font-medium text-[var(--fg-primary)]">
-              Adicionar próxima reserva
-            </span>
-            <span className="block body-xs text-[var(--fg-tertiary)]">
-              Cartão, Pix automático ou boleto
-            </span>
-          </span>
-        </button>
-      </li>
-    </ol>
+          <MethodRow
+            method={m}
+            canRemove={canRemoveAny}
+            onSetDefault={() => onSetDefault(m.id)}
+            onRemoveRequest={() => onRemoveRequest(m.id)}
+          />
+        </li>
+      ))}
+    </ul>
   );
 }
 
-function CascadeStep({
-  order,
+function MethodRow({
   method,
-  role,
-  canDemote,
   canRemove,
   onSetDefault,
   onRemoveRequest,
 }: {
-  order: number;
   method: PaymentMethod;
-  role: string;
-  canDemote: boolean;
   canRemove: boolean;
   onSetDefault: () => void;
   onRemoveRequest: () => void;
 }) {
+  const expiringSoon = isExpiringSoon(method.expiresAt);
+  const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
+
   return (
-    <AwCard className="!p-0">
-      <div className="grid grid-cols-[40px_auto_1fr_auto] items-center gap-4 px-5 py-4">
-        <span
-          aria-label={`Posição ${order} na cascata`}
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-muted)] body-sm font-semibold tabular-nums text-[var(--fg-primary)]"
-        >
-          {order}
-        </span>
-        <span className="flex h-10 w-14 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
-          <CardBrandLogo brand={method.brand} size={30} />
-        </span>
-        <div className="min-w-0">
-          <p className="m-0 body-md font-medium tabular-nums text-[var(--fg-primary)]">
+    <div className="flex items-center gap-4 py-4">
+      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="lg" />
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 body-sm font-medium tabular-nums text-[var(--fg-primary)]">
             {method.brand} •••• {method.last4}
           </p>
-          <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
-            {role} · expira em {method.expiresAt}
-          </p>
+          {method.isDefault && (
+            <AwPill variant="live" dot={false}>
+              Padrão
+            </AwPill>
+          )}
+          {expired ? (
+            <AwPill variant="danger" dot={false}>
+              Expirado
+            </AwPill>
+          ) : expiringSoon ? (
+            <AwPill variant="warning" dot={false}>
+              Expira em breve
+            </AwPill>
+          ) : null}
         </div>
-        <AwDropdownMenu
-          align="end"
-          trigger={
-            <AwButton
-              size="sm"
-              variant="ghost"
-              iconOnly="more_horiz"
-              aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
-            />
-          }
-          items={[
-            {
-              id: `${method.id}-promote`,
-              label: "Mover pro topo da cascata",
-              icon: "vertical_align_top",
-              disabled: !canDemote,
-              onSelect: onSetDefault,
-            },
-            {
-              id: `${method.id}-remove`,
-              label: "Excluir",
-              icon: "delete",
-              danger: true,
-              disabled: !canRemove,
-              onSelect: onRemoveRequest,
-            },
-          ]}
-        />
+        <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+          Expira em {method.expiresAt}
+        </p>
       </div>
-    </AwCard>
-  );
-}
 
-function CascadeConnector({ label }: { label: string }) {
-  return (
-    <div
-      aria-hidden="true"
-      className="flex items-center gap-2 py-2 pl-[28px]"
-    >
-      <span className="h-4 w-px bg-[var(--border-default)]" />
-      <Icon
-        name="arrow_downward"
-        size={12}
-        className="text-[var(--fg-tertiary)]"
+      <AwDropdownMenu
+        align="end"
+        trigger={
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconOnly="more_horiz"
+            aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
+          />
+        }
+        items={[
+          {
+            id: `${method.id}-default`,
+            label: "Definir como padrão",
+            icon: "check_circle",
+            disabled: method.isDefault,
+            onSelect: onSetDefault,
+          },
+          {
+            id: `${method.id}-edit`,
+            label: "Editar dados",
+            icon: "edit",
+            onSelect: () => {},
+          },
+          { id: `${method.id}-sep`, separator: true },
+          {
+            id: `${method.id}-remove`,
+            label: "Remover método",
+            icon: "delete",
+            danger: true,
+            disabled: !canRemove,
+            onSelect: onRemoveRequest,
+          },
+        ]}
       />
-      <span className="body-xs italic text-[var(--fg-tertiary)]">{label}</span>
     </div>
   );
 }
 
-/* ---------- remove modal ---------- */
+/* -----------------------------------------------------------------
+ * Empty state
+ * ----------------------------------------------------------------- */
+
+function EmptyState({ onAdd }: { onAdd: () => void }) {
+  return (
+    <div className="border-y border-[var(--border-subtle)] py-12">
+      <AwEmpty>
+        <AwEmptyHeader>
+          <AwEmptyMedia variant="icon">
+            <Icon name="credit_card_off" size={22} />
+          </AwEmptyMedia>
+          <AwEmptyTitle>Nenhum método cadastrado</AwEmptyTitle>
+          <AwEmptyDescription>
+            Adicione um cartão ou outra forma de cobrança pra começar.
+          </AwEmptyDescription>
+        </AwEmptyHeader>
+        <div className="mt-3">
+          <AwButton size="sm" variant="primary" iconLeft="add" onClick={onAdd}>
+            Adicionar método
+          </AwButton>
+        </div>
+      </AwEmpty>
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Remove confirmation modal
+ * ----------------------------------------------------------------- */
 
 function RemovePaymentMethodModal({
   method,
@@ -269,57 +299,48 @@ function RemovePaymentMethodModal({
     <AwModal
       open={method !== null}
       onClose={onClose}
-      title="Excluir método de pagamento"
+      title="Remover método de pagamento"
       footer={
         <div className="flex flex-wrap items-center justify-end gap-2">
           <AwButton variant="ghost" onClick={onClose}>
             Cancelar
           </AwButton>
-          <AwButton variant="danger" onClick={onConfirm}>
-            Excluir
+          <AwButton variant="danger" iconLeft="delete" onClick={onConfirm}>
+            Remover
           </AwButton>
         </div>
       }
     >
-      <p className="m-0 body-xs text-[var(--fg-primary)]">
-        {method ? (
-          <>
-            Você vai remover{" "}
-            <strong className="font-medium">
-              {method.brand} •••• {method.last4}
-            </strong>{" "}
-            da cascata.
-          </>
-        ) : (
-          "Você vai remover este método de pagamento da cascata."
-        )}
-      </p>
-      <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
-        A próxima posição da cascata vira a nova tentativa anterior. Você pode
-        reativar a qualquer momento adicionando o cartão de novo.
-      </p>
+      {method && (
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2">
+            <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+            <div className="min-w-0 flex-1">
+              <p className="m-0 body-xs font-medium tabular-nums text-[var(--fg-primary)]">
+                {method.brand} •••• {method.last4}
+              </p>
+              <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+                Expira em {method.expiresAt}
+              </p>
+            </div>
+            {method.isDefault && (
+              <AwPill variant="live" dot={false}>
+                Padrão
+              </AwPill>
+            )}
+          </div>
+          <p className="m-0 body-xs text-[var(--fg-primary)]">
+            Você está prestes a remover este método das formas de cobrança da
+            organização.
+          </p>
+          {method.isDefault && (
+            <p className="m-0 body-xs text-[var(--accent-warning)]">
+              Este é o método padrão. Depois da remoção, o próximo da lista
+              vira o padrão automaticamente.
+            </p>
+          )}
+        </div>
+      )}
     </AwModal>
-  );
-}
-
-/* ---------- empty state ---------- */
-
-function EmptyState({ onAdd }: { onAdd: () => void }) {
-  return (
-    <AwCard className="!p-0">
-      <div className="flex flex-col items-center gap-3 px-5 py-10 text-center">
-        <Icon
-          name="credit_card_off"
-          size={28}
-          className="text-[var(--fg-tertiary)]"
-        />
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          A cascata está vazia — nenhum método pra cobrar.
-        </p>
-        <AwButton size="sm" variant="primary" iconLeft="add" onClick={onAdd}>
-          Adicionar método de pagamento
-        </AwButton>
-      </div>
-    </AwCard>
   );
 }
