@@ -62,8 +62,11 @@ export function NotificationRow({
         {isNew && (
           <span
             aria-hidden="true"
-            className="absolute right-0 top-0 inline-block h-2.5 w-2.5 rounded-full bg-[var(--accent-brand)]"
-            style={{ boxShadow: "0 0 0 2px var(--bg-raised)" }}
+            className="absolute right-0 top-0 inline-block h-2.5 w-2.5 rounded-full"
+            style={{
+              background: "var(--aw-blue-500)",
+              boxShadow: "0 0 0 2px var(--bg-raised)",
+            }}
           />
         )}
       </span>
