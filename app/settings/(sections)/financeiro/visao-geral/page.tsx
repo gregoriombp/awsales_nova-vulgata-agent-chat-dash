@@ -2,12 +2,10 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
@@ -15,7 +13,6 @@ import { CardBrandLogo } from "../_components/CardBrandLogo";
 import {
   AUDIT_EVENTS,
   brl,
-  COUPONS_APPLIED,
   CREDITS_KPIS,
   CURRENT_INVOICE,
   CURRENT_PLAN,
@@ -23,7 +20,6 @@ import {
   OVERVIEW_KPIS,
   PAYMENT_METHODS,
   VARIABLE_SPENDING_LIMIT,
-  VOUCHERS,
 } from "../_components/data";
 
 const TODAY = new Date(2026, 4, 19);
@@ -51,7 +47,6 @@ export default function VisaoGeralPage() {
       <StatusStrip />
       <SpendingHero limit={limit} onChangeLimit={() => setLimitOpen(true)} />
       <ShortcutGrid />
-      <SideBySideSummary />
 
       <ChangeLimitModal
         open={limitOpen}
@@ -291,174 +286,3 @@ function ShortcutGrid() {
   );
 }
 
-/* ---------- bottom side-by-side: credits | next invoice preview | activity ---------- */
-
-function SideBySideSummary() {
-  return (
-    <section className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <CreditsSummary />
-      <NextInvoicePreview />
-      <RecentActivity />
-    </section>
-  );
-}
-
-function CreditsSummary() {
-  const active = VOUCHERS.filter((v) => v.status === "Ativo");
-  const available = active.reduce((s, v) => s + (v.total - v.consumed), 0);
-
-  return (
-    <AwCard className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-            Saldo em créditos
-          </p>
-          <p className="m-0 mt-1 body-lg font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(available)}
-          </p>
-        </div>
-        <Link
-          href="/settings/financeiro/saldo-creditos"
-          className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-        >
-          Ver detalhes
-        </Link>
-      </div>
-      <ul className="m-0 flex flex-col gap-2 p-0">
-        {active.slice(0, 2).map((v) => {
-          const remaining = v.total - v.consumed;
-          return (
-            <li
-              key={v.id}
-              className="m-0 flex items-center justify-between gap-3 list-none"
-            >
-              <span className="min-w-0 truncate body-xs text-[var(--fg-secondary)]">
-                {v.description}
-              </span>
-              <span className="shrink-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
-                {brl(remaining)}
-              </span>
-            </li>
-          );
-        })}
-        {COUPONS_APPLIED.length > 0 && (
-          <li className="m-0 flex items-center justify-between gap-3 list-none">
-            <span className="body-xs text-[var(--fg-secondary)]">
-              {COUPONS_APPLIED.length}{" "}
-              {COUPONS_APPLIED.length === 1
-                ? "cupom aplicado"
-                : "cupons aplicados"}
-            </span>
-            <Icon
-              name="local_offer"
-              size={14}
-              className="text-[var(--fg-tertiary)]"
-            />
-          </li>
-        )}
-      </ul>
-    </AwCard>
-  );
-}
-
-function NextInvoicePreview() {
-  const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated;
-  return (
-    <AwCard className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-            Fatura em formação
-          </p>
-          <p className="m-0 mt-1 body-lg font-medium tabular-nums text-[var(--fg-primary)]">
-            {brl(total)}
-          </p>
-        </div>
-        <AwPill variant="draft">Em aberto</AwPill>
-      </div>
-      <ul className="m-0 flex flex-col gap-2 p-0">
-        <li className="m-0 flex items-center justify-between gap-3 list-none">
-          <span className="body-xs text-[var(--fg-secondary)]">
-            Plano {CURRENT_PLAN.name.replace("Plano ", "")}
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {brl(CURRENT_PLAN.monthly)}
-          </span>
-        </li>
-        <li className="m-0 flex items-center justify-between gap-3 list-none">
-          <span className="body-xs text-[var(--fg-secondary)]">
-            Variáveis até agora
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {brl(OVERVIEW_KPIS.accumulated)}
-          </span>
-        </li>
-        <li className="m-0 flex items-center justify-between gap-3 list-none">
-          <span className="body-xs text-[var(--fg-secondary)]">
-            Fecha em {CURRENT_INVOICE.dueAt}
-          </span>
-          <Link
-            href="/settings/financeiro/historico-faturas"
-            className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-          >
-            Ver histórico
-          </Link>
-        </li>
-      </ul>
-    </AwCard>
-  );
-}
-
-function RecentActivity() {
-  const recent = AUDIT_EVENTS.slice(0, 3);
-  return (
-    <AwCard className="flex flex-col gap-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-            Atividade recente
-          </p>
-          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
-            Últimos eventos do ciclo
-          </p>
-        </div>
-        <Link
-          href="/settings/financeiro/auditoria"
-          className="shrink-0 body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-        >
-          Ver tudo
-        </Link>
-      </div>
-      <ul className="m-0 flex flex-col gap-3 p-0">
-        {recent.map((event) => (
-          <li
-            key={event.id}
-            className="m-0 flex items-start gap-3 list-none"
-          >
-            <AwAvatar
-              size="sm"
-              src={event.actorAvatar}
-              alt={event.actor}
-              initials={getInitials(event.actor)}
-            />
-            <div className="min-w-0 flex-1">
-              <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
-                {event.action}
-              </p>
-              <p className="m-0 line-clamp-1 body-xs text-[var(--fg-tertiary)]">
-                {event.actor} · {event.date}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {INVOICE_HISTORY[0] && (
-        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
-          Última fatura: {INVOICE_HISTORY[0].refMonth} ·{" "}
-          {brl(INVOICE_HISTORY[0].net)}
-        </p>
-      )}
-    </AwCard>
-  );
-}

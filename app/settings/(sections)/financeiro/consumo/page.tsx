@@ -7,6 +7,12 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { Icon } from "@/components/ui/Icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
@@ -230,39 +236,77 @@ function ConsumptionBar({
   const hasBonus = extendedLimit > baseLimit;
   const fullBar = fillPct >= 100;
   const overExtended = consumed > extendedLimit;
+  const bonus = extendedLimit - baseLimit;
 
   return (
-    <div className="relative h-2.5 w-full" aria-label="Consumo do ciclo">
-      <div className="absolute inset-0 rounded-full bg-[var(--bg-muted)]" />
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="relative h-2.5 w-full" aria-label="Consumo do ciclo">
+            <div className="absolute inset-0 rounded-full bg-[var(--bg-muted)]" />
 
-      <div
-        className={
-          "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
-          (fullBar ? "rounded-full" : "rounded-l-full") +
-          (overExtended
-            ? " bg-[var(--aw-red-600)]"
-            : " bg-[var(--aw-emerald-600)]")
-        }
-        style={{ width: `${Math.min(fillPct, 100)}%` }}
-      />
+            <div
+              className={
+                "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
+                (fullBar ? "rounded-full" : "rounded-l-full") +
+                (overExtended
+                  ? " bg-[var(--aw-red-600)]"
+                  : " bg-[var(--aw-emerald-600)]")
+              }
+              style={{ width: `${Math.min(fillPct, 100)}%` }}
+            />
 
-      {basePct > 0 && basePct < 100 && (
-        <ConsumptionNeedle
-          leftPct={basePct}
-          color="var(--aw-emerald-700)"
-          label={`Limite base · ${brl(baseLimit)}`}
-        />
-      )}
+            {basePct > 0 && basePct < 100 && (
+              <ConsumptionNeedle
+                leftPct={basePct}
+                color="var(--aw-emerald-700)"
+                label={`Limite base · ${brl(baseLimit)}`}
+              />
+            )}
 
-      {hasBonus && extPct > 0 && extPct < 100 && (
-        <ConsumptionNeedle
-          leftPct={extPct}
-          color="var(--fg-tertiary)"
-          dashed
-          label={`Limite + cupons · ${brl(extendedLimit)}`}
-        />
-      )}
-    </div>
+            {hasBonus && extPct > 0 && extPct < 100 && (
+              <ConsumptionNeedle
+                leftPct={extPct}
+                color="var(--fg-tertiary)"
+                dashed
+                label={`Limite + cupons · ${brl(extendedLimit)}`}
+              />
+            )}
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-primary)]"
+        >
+          <div className="flex flex-col gap-1.5 py-0.5 text-xs">
+            <div className="flex items-center justify-between gap-6">
+              <span className="text-[var(--fg-secondary)]">
+                Limite concedido
+              </span>
+              <span className="tabular-nums">{brl(baseLimit)}</span>
+            </div>
+            {hasBonus && (
+              <div className="flex items-center justify-between gap-6">
+                <span className="text-[var(--fg-secondary)]">
+                  Estendido por cupons
+                </span>
+                <span className="tabular-nums text-[var(--accent-success)]">
+                  +{brl(bonus)}
+                </span>
+              </div>
+            )}
+            <div className="mt-1 flex items-center justify-between gap-6 border-t border-[var(--border-subtle)] pt-1.5 font-medium">
+              <span>Limite de uso</span>
+              <span className="tabular-nums">{brl(extendedLimit)}</span>
+            </div>
+            <div className="flex items-center justify-between gap-6 text-[var(--fg-secondary)]">
+              <span>Consumido até agora</span>
+              <span className="tabular-nums">{brl(consumed)}</span>
+            </div>
+          </div>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -366,22 +410,30 @@ function UnifiedCreditsTable({
             Vouchers ativos e cupons aplicados — tudo que reduz a fatura desta
             organização em um só lugar.
           </p>
-        </div>
-        <div className="flex flex-col items-end body-xs tabular-nums text-[var(--fg-tertiary)]">
-          <span>
-            <span className="font-medium text-[var(--fg-primary)]">
-              {brl(totalAvailable)}
-            </span>
-            {" "}em vouchers · de {brl(totalGranted)}
-          </span>
-          {totalDiscount > 0 && (
+          <div className="mt-2 flex flex-col body-xs tabular-nums text-[var(--fg-tertiary)]">
             <span>
-              <span className="font-medium text-[var(--accent-success)]">
-                −{brl(totalDiscount)}
+              <span className="font-medium text-[var(--fg-primary)]">
+                {brl(totalAvailable)}
               </span>
-              {" "}em cupons aplicados
+              {" "}em vouchers · de {brl(totalGranted)}
             </span>
-          )}
+            {totalDiscount > 0 && (
+              <span>
+                <span className="font-medium text-[var(--accent-success)]">
+                  −{brl(totalDiscount)}
+                </span>
+                {" "}em cupons aplicados
+              </span>
+            )}
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <AwButton size="md" variant="primary" iconLeft="add">
+            Adicionar voucher
+          </AwButton>
+          <AwButton size="md" variant="secondary" iconLeft="add">
+            Adicionar saldo
+          </AwButton>
         </div>
       </header>
 
@@ -398,7 +450,6 @@ function UnifiedCreditsTable({
                 <Th>Valor</Th>
                 <Th>Status</Th>
                 <Th>Recebido</Th>
-                <Th>Validade</Th>
               </tr>
             </thead>
             <tbody>
@@ -422,7 +473,6 @@ function UnifiedCreditsTable({
 }
 
 function VoucherRowEl({ row }: { row: VoucherRow }) {
-  const remaining = row.total - row.consumed;
   const isExpired = row.status === "Expirado";
   const days = daysUntil(row.expiresAt);
   const expiringSoon = days <= 30 && !isExpired;
@@ -433,31 +483,33 @@ function VoucherRowEl({ row }: { row: VoucherRow }) {
         <CreditCell
           kind="voucher"
           title={row.description}
-          subtitle={row.applicableTo}
+          subtitle={`Voucher · ${row.applicableTo}`}
         />
       </Td>
       <Td>
-        <span className="tabular-nums text-[var(--fg-primary)]">
-          {brl(remaining)}
+        <span className="block tabular-nums text-[var(--fg-primary)]">
+          {brl(row.total)}
         </span>
-        <span className="ml-1 body-xs tabular-nums text-[var(--fg-tertiary)]">
-          / {brl(row.total)}
+        <span className="block body-xs tabular-nums text-[var(--fg-tertiary)]">
+          Consumido {brl(row.consumed)}
         </span>
       </Td>
       <Td>
-        <AwPill variant={isExpired ? "neutral" : "live"} dot={false}>
-          {isExpired ? "Expirado" : "Ativo"}
-        </AwPill>
+        <div className="flex flex-col items-start gap-1">
+          <AwPill variant={isExpired ? "neutral" : "live"} dot={false}>
+            {isExpired ? "Expirado" : "Ativo"}
+          </AwPill>
+          <span className="body-xs text-[var(--fg-tertiary)]">
+            Vence {formatExpiry(row.expiresAt)}
+            {expiringSoon && (
+              <span className="ml-1 text-[var(--accent-warning)]">
+                · em {days} dia{days !== 1 ? "s" : ""}
+              </span>
+            )}
+          </span>
+        </div>
       </Td>
       <Td muted>{inferReceivedDate(row)}</Td>
-      <Td muted>
-        {formatExpiry(row.expiresAt)}
-        {expiringSoon && (
-          <span className="ml-1.5 body-xs text-[var(--accent-warning)]">
-            (em {days} dia{days !== 1 ? "s" : ""})
-          </span>
-        )}
-      </Td>
     </tr>
   );
 }
@@ -476,13 +528,15 @@ function CouponRowEl({
         <CreditCell
           kind="coupon"
           title={row.description}
-          subtitle={row.code}
-          subtitleVariant="code"
+          subtitle={`Cupom · ${row.code}`}
         />
       </Td>
       <Td>
-        <span className="font-medium tabular-nums text-[var(--accent-success)]">
+        <span className="block font-medium tabular-nums text-[var(--accent-success)]">
           −{brl(row.discount)}
+        </span>
+        <span className="block body-xs text-[var(--fg-tertiary)]">
+          Uso único
         </span>
       </Td>
       <Td>
@@ -510,7 +564,6 @@ function CouponRowEl({
         </span>
       </Td>
       <Td muted>{formatShort(parseBR(row.appliedAt))}</Td>
-      <Td muted>{row.application}</Td>
     </tr>
   );
 }
@@ -519,46 +572,33 @@ function CreditCell({
   kind,
   title,
   subtitle,
-  subtitleVariant = "muted",
 }: {
   kind: "voucher" | "coupon";
   title: string;
   subtitle?: string;
-  subtitleVariant?: "muted" | "code";
 }) {
   const isVoucher = kind === "voucher";
   return (
     <span className="flex items-center gap-3">
       <span
         aria-hidden="true"
-        className={
-          "flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] " +
-          (isVoucher
-            ? "bg-[var(--aw-emerald-500)]/12 text-[var(--aw-emerald-700)]"
-            : "bg-[var(--aw-purple-500)]/12 text-[var(--aw-purple-700)]")
-        }
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]"
       >
-        <Icon name={isVoucher ? "card_giftcard" : "local_offer"} size={20} />
+        <Icon
+          name={isVoucher ? "card_giftcard" : "local_offer"}
+          size={20}
+          fill={0}
+        />
       </span>
       <span className="flex min-w-0 flex-col">
         <span className="truncate body-sm font-medium text-[var(--fg-primary)]">
           {title}
         </span>
         {subtitle && (
-          <span
-            className={
-              "truncate body-xs " +
-              (subtitleVariant === "code"
-                ? "aw-eyebrow text-[var(--fg-tertiary)]"
-                : "text-[var(--fg-tertiary)]")
-            }
-          >
+          <span className="truncate body-xs text-[var(--fg-tertiary)]">
             {subtitle}
           </span>
         )}
-        <span className="body-xs text-[var(--fg-tertiary)]">
-          {isVoucher ? "Voucher" : "Cupom"}
-        </span>
       </span>
     </span>
   );

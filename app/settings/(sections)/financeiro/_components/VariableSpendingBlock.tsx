@@ -299,7 +299,7 @@ function PeriodPicker({
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="flex w-auto gap-0 p-0"
+        className="flex w-auto gap-0 border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-0 shadow-lg"
       >
         <div className="flex w-44 flex-col border-r border-[var(--border-subtle)] py-1.5">
           {SPENDING_PERIODS.map((p) => {
