@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
@@ -12,7 +14,7 @@ import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
 import { NotificationRow } from "@/components/NotificationRow";
-import { NOTIFICATIONS } from "@/lib/notifications";
+import { NOTIFICATIONS, type AppNotification } from "@/lib/notifications";
 import { SectionHeading } from "../_components/shared";
 import {
   COVER_BACKGROUNDS,
@@ -79,6 +81,9 @@ export default function ProfileSettingsPage() {
   const [repositioning, setRepositioning] = useState(false);
   const dragRef = useRef<{ startY: number; startPos: number } | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
+  const [pendingNotification, setPendingNotification] =
+    useState<AppNotification | null>(null);
 
   // Reset position when a new cover is picked
   useEffect(() => { setCoverPosY(50); setSavedPosY(50); }, [cover]);
@@ -169,6 +174,37 @@ export default function ProfileSettingsPage() {
                 </div>
               </div>
             )}
+
+            {!repositioning && (
+              <div className="absolute right-4 top-4">
+                <AwDropdownMenu
+                  align="end"
+                  trigger={
+                    <button
+                      type="button"
+                      aria-label="Mais opções da capa"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white backdrop-blur-sm transition-colors hover:bg-black/75"
+                    >
+                      <Icon name="more_vert" size={18} />
+                    </button>
+                  }
+                  items={[
+                    {
+                      id: "cover-change",
+                      label: "Alterar capa",
+                      icon: "image",
+                      onSelect: () => setPickerOpen(true),
+                    },
+                    {
+                      id: "cover-reposition",
+                      label: "Reposicionar",
+                      icon: "open_with",
+                      onSelect: startRepositioning,
+                    },
+                  ]}
+                />
+              </div>
+            )}
           </div>
 
           {pickerOpen && (
@@ -190,10 +226,13 @@ export default function ProfileSettingsPage() {
             </>
           )}
 
-          <div className="relative z-10 -mt-[88px] flex items-end justify-between gap-4 pb-8">
+          <div className="relative z-10 -mt-[56px] flex items-end justify-between gap-4 pb-8">
             <div className="flex items-end gap-4">
-              <div
-                className="ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)]"
+              <button
+                type="button"
+                onClick={() => setPhotoOpen(true)}
+                aria-label="Editar foto de perfil"
+                className="group/avatar relative ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
                 style={{ lineHeight: 0 }}
               >
                 <AwAvatar
@@ -203,7 +242,16 @@ export default function ProfileSettingsPage() {
                   initials="GP"
                   className="!h-[144px] !w-[144px] !text-[40px]"
                 />
-              </div>
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-1 flex items-center justify-center rounded-full bg-black/55 text-white opacity-0 transition-opacity duration-aw-fast group-hover/avatar:opacity-100 group-focus-visible/avatar:opacity-100"
+                >
+                  <span className="inline-flex flex-col items-center gap-1">
+                    <Icon name="photo_camera" size={22} />
+                    <span className="body-xs font-medium">Editar foto</span>
+                  </span>
+                </span>
+              </button>
               <div className="flex flex-col gap-2 pb-1">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h3 className="m-0 text-[var(--fg-primary)]">{fullName}</h3>
@@ -225,28 +273,9 @@ export default function ProfileSettingsPage() {
             </div>
             <div className="flex shrink-0 items-center gap-2 pb-1">
               {!repositioning && (
-                <>
-                  <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
-                    Editar perfil
-                  </AwButton>
-                  <AwButton
-                    size="sm"
-                    variant="secondary"
-                    iconLeft="image"
-                    onClick={() => setPickerOpen((v) => !v)}
-                    aria-expanded={pickerOpen}
-                  >
-                    Alterar capa
-                  </AwButton>
-                  <AwButton
-                    size="sm"
-                    variant="secondary"
-                    iconLeft="open_with"
-                    onClick={startRepositioning}
-                  >
-                    Reposicionar
-                  </AwButton>
-                </>
+                <AwButton size="sm" variant="secondary" iconLeft="edit" onClick={() => setEditOpen(true)}>
+                  Editar perfil
+                </AwButton>
               )}
             </div>
           </div>
@@ -302,10 +331,25 @@ export default function ProfileSettingsPage() {
               <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
                 {latestNotifications.map((n) => (
                   <li key={n.id} className="m-0">
-                    <NotificationRow notification={n} />
+                    <NotificationRow
+                      notification={n}
+                      onActivate={setPendingNotification}
+                    />
                   </li>
                 ))}
               </ul>
+              <div className="mt-3 flex justify-end">
+                <AwButton
+                  size="sm"
+                  variant="ghost"
+                  iconRight="arrow_forward"
+                  asChild
+                >
+                  <Link href="/settings/notificacoes">
+                    Ver todas as notificações
+                  </Link>
+                </AwButton>
+              </div>
             </section>
           </div>
         </div>
@@ -385,7 +429,208 @@ export default function ProfileSettingsPage() {
           </AwField>
         </div>
       </AwModal>
+
+      <PhotoEditModal
+        open={photoOpen}
+        onClose={() => setPhotoOpen(false)}
+        currentSrc="/assets/users/greg.jpg"
+        fullName={fullName}
+        initials="GP"
+      />
+
+      <NotificationConfirmModal
+        notification={pendingNotification}
+        onClose={() => setPendingNotification(null)}
+      />
     </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * PhotoEditModal — modal dedicado pra trocar a foto de perfil
+ * ----------------------------------------------------------------- */
+
+function PhotoEditModal({
+  open,
+  onClose,
+  currentSrc,
+  fullName,
+  initials,
+}: {
+  open: boolean;
+  onClose: () => void;
+  currentSrc: string;
+  fullName: string;
+  initials: string;
+}) {
+  const [preview, setPreview] = useState<string>(currentSrc);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (open) setPreview(currentSrc);
+  }, [open, currentSrc]);
+
+  const handleFile = (file: File | undefined) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") setPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removed = preview === "";
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title="Editar foto de perfil"
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton size="sm" variant="primary" onClick={onClose}>
+            Salvar foto
+          </AwButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <div className="flex justify-center">
+          <div
+            className="rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_4px_18px_rgba(6,22,61,0.14)]"
+            style={{ lineHeight: 0 }}
+          >
+            <AwAvatar
+              size="lg"
+              src={removed ? undefined : preview}
+              alt={fullName}
+              initials={initials}
+              className="!h-[120px] !w-[120px] !text-[36px]"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-center gap-2">
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="upload"
+            onClick={() => fileRef.current?.click()}
+          >
+            Enviar foto
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="delete"
+            disabled={removed}
+            onClick={() => setPreview("")}
+          >
+            Remover
+          </AwButton>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/png,image/jpeg"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+
+        <div className="rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5">
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            PNG ou JPG, mínimo 200×200 px. A foto aparece pra todos os membros
+            do workspace e na barra de navegação.
+          </p>
+        </div>
+      </div>
+    </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * NotificationConfirmModal — confirma navegação ao clicar numa notif.
+ * UX writing contextualizado por kind/title.
+ * ----------------------------------------------------------------- */
+
+const NOTIF_KIND_DESTINATION: Record<
+  NotificationKindLike,
+  { label: string; verb: string }
+> = {
+  billing: { label: "Faturamento", verb: "revisar a cobrança" },
+  agent: { label: "Painel do agente", verb: "tratar a solicitação" },
+  team: { label: "Equipe & permissões", verb: "verificar a alteração" },
+  security: { label: "Segurança", verb: "revisar este acesso" },
+  system: { label: "Detalhes do aviso", verb: "ver o aviso completo" },
+};
+
+type NotificationKindLike =
+  | "billing"
+  | "agent"
+  | "team"
+  | "security"
+  | "system";
+
+function NotificationConfirmModal({
+  notification,
+  onClose,
+}: {
+  notification: AppNotification | null;
+  onClose: () => void;
+}) {
+  const dest = notification ? NOTIF_KIND_DESTINATION[notification.kind] : null;
+  const hasHref = Boolean(notification?.href);
+
+  return (
+    <AwModal
+      open={notification !== null}
+      onClose={onClose}
+      title={hasHref ? "Abrir notificação" : "Detalhes da notificação"}
+      footer={
+        notification && (
+          <>
+            <AwButton size="sm" variant="ghost" onClick={onClose}>
+              {hasHref ? "Cancelar" : "Fechar"}
+            </AwButton>
+            {hasHref && notification.href && (
+              <AwButton size="sm" variant="primary" iconLeft="open_in_new" asChild>
+                <Link href={notification.href} onClick={onClose}>
+                  Ir para {dest?.label}
+                </Link>
+              </AwButton>
+            )}
+          </>
+        )
+      }
+    >
+      {notification && (
+        <div className="flex flex-col gap-3">
+          <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            {notification.title}
+          </p>
+          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            {notification.description}
+          </p>
+          {hasHref ? (
+            <p className="m-0 rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5 body-xs text-[var(--fg-secondary)]">
+              Você vai para{" "}
+              <strong className="font-medium text-[var(--fg-primary)]">
+                {dest?.label}
+              </strong>{" "}
+              para {dest?.verb}.
+            </p>
+          ) : (
+            <p className="m-0 rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5 body-xs text-[var(--fg-secondary)]">
+              Esta notificação é informativa — não tem ação associada. Use
+              como referência ou marque como lida.
+            </p>
+          )}
+        </div>
+      )}
+    </AwModal>
   );
 }
 
@@ -456,12 +701,12 @@ function InfoCard({
   action?: React.ReactNode;
 }) {
   return (
-    <AwCard className="!p-0">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-2.5">
+    <AwCard className="!rounded-[var(--radius-xl)] !bg-[var(--bg-muted)] !p-0">
+      <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-1">
         <h6 className="m-0 text-[var(--fg-primary)]">{title}</h6>
         {action}
       </div>
-      <ul className="m-0 flex list-none flex-col p-2">
+      <ul className="m-0 flex list-none flex-col px-2 pb-3 pt-1">
         {rows.map((row) => (
           <li
             key={(row.icon ?? "") + row.text}
