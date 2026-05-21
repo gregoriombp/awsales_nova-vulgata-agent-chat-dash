@@ -2,9 +2,10 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
-import ComingSoon from "@/components/ComingSoon";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwOnboardingTimeline } from "@/components/ui/AwOnboardingTimeline";
+import type { AwOnboardingStep } from "@/components/ui/AwOnboardingTimeline";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_USER, ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 
@@ -33,9 +34,127 @@ export default function Inicio() {
     router.push("/settings/equipe-permissoes");
   };
 
+  const steps: AwOnboardingStep[] = [
+    {
+      id: "canais",
+      title: "Conecte seus canais de atendimento",
+      status: "current",
+      description: (
+        <>
+          Centralize WhatsApp, e-mail, voz e webchat numa caixa só. Seu agente
+          IA passa a responder de onde o cliente preferir, sem trocar de
+          ferramenta.
+        </>
+      ),
+      helpLink: {
+        label: "Como funcionam os canais",
+        href: "/integrations",
+      },
+      cta: {
+        label: "Conectar canais",
+        href: "/canais",
+      },
+    },
+    {
+      id: "equipe",
+      title: "Convide sua equipe pra colaborar",
+      description: (
+        <>
+          Defina papéis, permissões e times. Os agentes humanos assumem quando o
+          agente IA precisa de uma mão.
+        </>
+      ),
+      cta: {
+        label: "Convidar membros",
+        iconLeft: "person_add",
+        href: "/settings/equipe-permissoes",
+      },
+    },
+    {
+      id: "conhecimento",
+      title: "Alimente o agente IA com sua base de conhecimento",
+      description: (
+        <>
+          Suba documentos, FAQs e tutoriais. Quanto mais rico o contexto, mais
+          preciso o agente fica nas primeiras conversas.
+        </>
+      ),
+      cta: {
+        label: "Adicionar conhecimento",
+        href: "/knowledge-os",
+      },
+    },
+    {
+      id: "ativar-agente",
+      title: "Ative o agente IA pra resolver atendimentos",
+      description: (
+        <>
+          Coloque o agente em produção com confiança — defina o tom de voz, os
+          limites e quando escalar pra um humano.
+        </>
+      ),
+      cta: {
+        label: "Configurar agente",
+        href: "/agent-studio",
+      },
+    },
+    {
+      id: "copilot",
+      title: "Use o Copilot pra acelerar respostas humanas",
+      description: (
+        <>
+          O Copilot sugere respostas, encontra o histórico do cliente e
+          rascunha mensagens — fica do lado do agente humano nas conversas.
+        </>
+      ),
+      cta: {
+        label: "Abrir Copilot",
+        href: "/conversations",
+      },
+    },
+    {
+      id: "fluxos",
+      title: "Crie fluxos automáticos pra tarefas comuns",
+      description: (
+        <>
+          Automatize cobranças, triagem, follow-ups e qualquer rotina que se
+          repete. Configure uma vez, dispare em escala.
+        </>
+      ),
+      cta: {
+        label: "Criar fluxo",
+        href: "/triggers",
+      },
+    },
+  ];
+
   return (
     <DashboardLayout title="Início" breadcrumbs={breadcrumbs}>
-      <ComingSoon />
+      <div className="mx-auto w-full max-w-[1120px] px-6 py-10 md:px-10">
+        <AwOnboardingTimeline
+          title={`Bem-vindo, ${ONBOARDING_USER.firstName}. Vamos colocar a ${ONBOARDING_ORG.name} pra rodar.`}
+          eyebrow="Pra começar"
+          steps={steps}
+          preview={
+            <div className="relative aspect-[4/5] w-full">
+              {/* Soft gradient placeholder using existing tokens. Swap for a
+                  product still / video when assets are ready. */}
+              <div className="absolute inset-0 aw-gradient-iridescent-soft" />
+              <div className="absolute inset-0 flex flex-col justify-end gap-2 p-6">
+                <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[var(--bg-raised)] px-2.5 py-1 body-xs font-medium text-[var(--fg-primary)] shadow-sm">
+                  <Icon name="play_arrow" size={14} fill={1} />
+                  Tour em 60s
+                </span>
+                <p className="m-0 max-w-[240px] body-sm text-[var(--fg-primary)]">
+                  Veja como uma conversa percorre canais, agente IA e humano em
+                  menos de um minuto.
+                </p>
+              </div>
+            </div>
+          }
+        />
+      </div>
+
       <AwModal open={showWelcome} onClose={dismiss} dismissible>
         <div className="flex flex-col items-center gap-4 px-2 py-4 text-center">
           <AwAvatar
