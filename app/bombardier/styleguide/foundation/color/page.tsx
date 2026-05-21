@@ -36,6 +36,9 @@ type Scale = {
 }
 
 const graySteps: Swatch[] = [
+  { name: "25", token: "--aw-gray-25", hex: "#FEFEFE" },
+  { name: "50", token: "--aw-gray-50", hex: "#FDFDFD" },
+  { name: "100", token: "--aw-gray-100", hex: "#FBFBFB" },
   { name: "150", token: "--aw-gray-150", hex: "#F9F9F9" },
   { name: "200", token: "--aw-gray-200", hex: "#F2F2F2" },
   { name: "300", token: "--aw-gray-300", hex: "#E5E5E5" },

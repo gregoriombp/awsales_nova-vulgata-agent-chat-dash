@@ -22,6 +22,9 @@ const config: Config = {
   	extend: {
   		colors: {
   			'aw-gray': {
+  				'25': '#FEFEFE',
+  				'50': '#FDFDFD',
+  				'100': '#FBFBFB',
   				'150': '#F9F9F9',
   				'200': '#F2F2F2',
   				'300': '#E5E5E5',

@@ -19,6 +19,9 @@
   --aw-white: #FFFFFF;
 
   /* Gray scale — the "structure" / hardware of the system */
+  --aw-gray-25: #FEFEFE;
+  --aw-gray-50: #FDFDFD;
+  --aw-gray-100: #FBFBFB;
   --aw-gray-150: #F9F9F9;
   --aw-gray-200: #F2F2F2;
   --aw-gray-300: #E5E5E5;
@@ -1435,6 +1438,11 @@
   color: var(--aw-gray-800);
 }
 .aw-pill--draft .aw-pill__dot { background: var(--aw-gray-600); }
+.aw-pill--warning {
+  background: var(--aw-amber-150);
+  color: var(--aw-amber-700);
+}
+.aw-pill--warning .aw-pill__dot { background: var(--aw-amber-500); }
 .aw-pill--beta {
   background: var(--aw-amber-100);
   color: var(--aw-amber-700);

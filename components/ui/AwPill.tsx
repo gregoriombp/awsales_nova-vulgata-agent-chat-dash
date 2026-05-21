@@ -4,6 +4,7 @@ export type AwPillVariant =
   | "live"
   | "draft"
   | "beta"
+  | "warning"
   | "error"
   | "neutral"
   | "ai"
