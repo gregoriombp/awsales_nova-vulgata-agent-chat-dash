@@ -12,6 +12,8 @@ function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
       return "live";
     case "Em aberto":
       return "draft";
+    case "Em atraso":
+      return "warning";
     case "Falhou":
       return "error";
     case "Disputada":

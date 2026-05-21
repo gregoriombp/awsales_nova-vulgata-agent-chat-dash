@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import {
   AwDropdownMenu,
@@ -22,6 +23,7 @@ type InvoiceStatus = InvoiceHistoryRow["status"];
 const ALL_STATUSES: InvoiceStatus[] = [
   "Paga",
   "Em aberto",
+  "Em atraso",
   "Falhou",
   "Disputada",
 ];
@@ -40,6 +42,8 @@ function statusVariant(status: InvoiceStatus): AwPillVariant {
       return "live";
     case "Em aberto":
       return "draft";
+    case "Em atraso":
+      return "warning";
     case "Falhou":
       return "error";
     case "Disputada":
@@ -97,8 +101,37 @@ export default function HistoricoFaturasPage() {
   const groups = React.useMemo(() => groupByMonth(rows), [rows]);
   const totalCount = rows.length;
 
+  const overdueCount = INVOICE_HISTORY.filter((r) => r.status === "Falhou").length;
+  const lateCount = INVOICE_HISTORY.filter((r) => r.status === "Em atraso").length;
+  const showPaymentAlert = overdueCount + lateCount > 0;
+
   return (
     <div className="flex flex-col gap-8">
+      {showPaymentAlert && (
+        <AwAlert variant="warning" title="Regularize seu pagamento">
+          <p className="m-0 body-xs text-[var(--fg-primary)]">
+            {overdueCount > 0 && (
+              <>
+                {overdueCount === 1
+                  ? "1 fatura está vencida"
+                  : `${overdueCount} faturas estão vencidas`}
+                {lateCount > 0 ? " e " : "."}
+              </>
+            )}
+            {lateCount > 0 && (
+              <>
+                {lateCount === 1
+                  ? "1 fatura está em atraso"
+                  : `${lateCount} faturas estão em atraso`}
+                .
+              </>
+            )}
+            {" "}
+            Quite os pagamentos pendentes para evitar o congelamento da conta.
+          </p>
+        </AwAlert>
+      )}
+
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-[240px] flex-1">
           <AwInput
@@ -184,9 +217,12 @@ function InvoiceRow({
   row: InvoiceHistoryRow;
   onOpen: () => void;
 }) {
+  const overdue = row.status === "Em atraso" || row.status === "Falhou";
   const dateLabel = row.paidAt
     ? `Paga em ${row.paidAt}`
-    : `Vence em ${row.dueAt}`;
+    : overdue
+      ? `Venceu em ${row.dueAt}`
+      : `Vence em ${row.dueAt}`;
 
   return (
     <li className="m-0 list-none">

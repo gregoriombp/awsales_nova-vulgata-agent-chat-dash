@@ -325,7 +325,7 @@ export type InvoiceHistoryRow = {
   discountCode: string | null;
   net: number;
   paymentMethod: string;
-  status: "Paga" | "Em aberto" | "Falhou" | "Disputada";
+  status: "Paga" | "Em aberto" | "Em atraso" | "Falhou" | "Disputada";
 };
 
 export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
@@ -334,26 +334,26 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
     refMonth: "Abr/26",
     description: "Custos variáveis",
     dueAt: "28/04/2026",
-    paidAt: "28/04/2026",
+    paidAt: null,
     gross: 1253.04,
     discount: 250.61,
     discountCode: "BF2025",
     net: 1002.43,
     paymentMethod: "Visa •••• 3012",
-    status: "Paga",
+    status: "Em atraso",
   },
   {
     id: "INV-2026-04-PLN",
     refMonth: "Abr/26",
     description: "Plano Enterprise",
     dueAt: "28/04/2026",
-    paidAt: "28/04/2026",
+    paidAt: null,
     gross: 2497.98,
     discount: null,
     discountCode: null,
     net: 2497.98,
     paymentMethod: "Visa •••• 3012",
-    status: "Paga",
+    status: "Falhou",
   },
   {
     id: "INV-2026-03-PLN",

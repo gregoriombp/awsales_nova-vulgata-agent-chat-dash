@@ -2,28 +2,44 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { AwTabs } from "@/components/ui/AwTabs";
+import { INVOICE_HISTORY } from "./data";
 
 const BASE = "/settings/financeiro";
 
-const TABS = [
-  { value: `${BASE}/visao-geral`, label: "Visão geral" },
-  { value: `${BASE}/consumo`, label: "Consumo" },
-  { value: `${BASE}/saldo-creditos`, label: "Saldo de créditos" },
-  { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
-  { value: `${BASE}/historico-faturas`, label: "Histórico de faturas" },
-  { value: `${BASE}/auditoria`, label: "Atividade" },
-] as const;
+type Tab = {
+  value: string;
+  label: string;
+  count?: number;
+};
 
 export function FinanceiroTabs() {
   const pathname = usePathname();
   const router = useRouter();
-  const current =
-    TABS.find((t) => t.value === pathname)?.value ?? TABS[0].value;
+
+  const hasPaymentAlerts = INVOICE_HISTORY.some(
+    (r) => r.status === "Em atraso" || r.status === "Falhou",
+  );
+
+  const tabs: Tab[] = [
+    { value: `${BASE}/visao-geral`, label: "Visão geral" },
+    { value: `${BASE}/consumo`, label: "Consumo" },
+    { value: `${BASE}/saldo-creditos`, label: "Saldo de créditos" },
+    { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
+    {
+      value: `${BASE}/historico-faturas`,
+      label: "Histórico de faturas",
+      count: hasPaymentAlerts ? 1 : undefined,
+    },
+    { value: `${BASE}/auditoria`, label: "Atividade" },
+  ];
+
+  const current = tabs.find((t) => t.value === pathname)?.value ?? tabs[0].value;
+
   return (
     <AwTabs
       aria-label="Seções financeiras"
       variant="underline"
-      items={TABS.map((t) => ({ value: t.value, label: t.label }))}
+      items={tabs.map((t) => ({ value: t.value, label: t.label, count: t.count }))}
       value={current}
       onChange={(v) => router.push(v)}
     />
