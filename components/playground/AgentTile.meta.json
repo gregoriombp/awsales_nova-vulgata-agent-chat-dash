@@ -1,0 +1,6 @@
+{
+  "description": "Two-column row item for an agent in Browse agents: 88px colored icon tile + title + 2-line description + author with avatar + add/count indicator. Whole tile becomes a link when href is set.",
+  "sourcePrompt": "Layout cell for the Browse agents grid — agent listing inside /agent-studio/browse with My agents / All agents sections.",
+  "createdAt": "2026-05-21T00:00:00.000Z",
+  "approval": "pending"
+}
