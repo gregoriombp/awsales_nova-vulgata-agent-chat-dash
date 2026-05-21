@@ -138,7 +138,7 @@ function PerfilContent() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
           <Field
             label="Seu nome"
             icon="person"
@@ -216,16 +216,16 @@ function PerfilContent() {
               </span>
             </div>
           )}
-
-          <button
-            type="button"
-            onClick={addEmail}
-            className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
-          >
-            <Icon name="add" size={14} />
-            Adicionar e-mail
-          </button>
         </div>
+
+        <button
+          type="button"
+          onClick={addEmail}
+          className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
+        >
+          <Icon name="add" size={14} />
+          Adicionar e-mail
+        </button>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
           <Link
