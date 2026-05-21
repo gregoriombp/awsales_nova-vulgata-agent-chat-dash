@@ -52,6 +52,7 @@ export const navigation: NavSection[] = [
       { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
+      { name: "Dot tunnel", href: "/bombardier/styleguide/components/aw-dot-tunnel" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },

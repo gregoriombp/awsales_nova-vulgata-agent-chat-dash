@@ -471,17 +471,19 @@
   }
 }
 
-/* Agent Studio entrance – dot tunnel */
-.agent-studio-tunnel-wrap {
-  animation: agentStudioTunnelZoom 8s ease-in-out infinite;
+/* AwDotTunnel – radial dot tunnel with zoom + per-dot pulse */
+.aw-dot-tunnel {
+  position: relative;
+  flex-shrink: 0;
+  animation: aw-dot-tunnel-zoom 8s ease-in-out infinite;
 }
 
-.agent-studio-tunnel-dot {
-  animation: agentStudioDotPulse 3s ease-in-out infinite;
+.aw-dot-tunnel__dot {
+  animation: aw-dot-tunnel-pulse 3s ease-in-out infinite;
   transform-origin: center;
 }
 
-@keyframes agentStudioTunnelZoom {
+@keyframes aw-dot-tunnel-zoom {
   0%, 100% {
     transform: scale(1);
     opacity: 0.95;
@@ -492,7 +494,7 @@
   }
 }
 
-@keyframes agentStudioDotPulse {
+@keyframes aw-dot-tunnel-pulse {
   0%, 100% {
     opacity: 0.3;
     transform: scale(1);
@@ -504,8 +506,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .agent-studio-tunnel-wrap,
-  .agent-studio-tunnel-dot {
+  .aw-dot-tunnel,
+  .aw-dot-tunnel__dot {
     animation: none;
   }
 }
