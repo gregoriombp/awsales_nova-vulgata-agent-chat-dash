@@ -92,7 +92,7 @@ export function SettingsNav() {
     <aside
       aria-label="Seções de configurações"
       data-collapsed={collapsed ? "true" : "false"}
-      className={`hidden shrink-0 border-r border-[var(--border-subtle)] transition-[width] duration-200 ease-out lg:block ${
+      className={`hidden h-full shrink-0 self-stretch border-r border-[var(--border-subtle)] bg-[var(--aw-gray-50)] transition-[width] duration-200 ease-out lg:block ${
         collapsed ? "w-[72px]" : "w-[260px]"
       }`}
       style={hydrated ? undefined : { visibility: "hidden" }}

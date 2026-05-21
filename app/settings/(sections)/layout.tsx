@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { usePathname } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
+import { BreadcrumbsBar } from "@/components/Breadcrumbs";
 import { Icon } from "@/components/ui/Icon";
 import {
   SETTINGS_NAV_ITEMS,
@@ -42,13 +43,13 @@ export default function SettingsLayout({
   }, [pathname]);
 
   return (
-    <DashboardLayout
-      breadcrumbs={breadcrumbs}
-      mainClassName="!p-0 !overflow-hidden"
-    >
+    <DashboardLayout mainClassName="!p-0 !overflow-hidden">
       <div className="flex h-full min-h-0 bg-[var(--bg-canvas)]">
         <SettingsNav />
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <BreadcrumbsBar items={breadcrumbs} />
+          <div className="flex-1 overflow-y-auto">{children}</div>
+        </div>
       </div>
     </DashboardLayout>
   );
