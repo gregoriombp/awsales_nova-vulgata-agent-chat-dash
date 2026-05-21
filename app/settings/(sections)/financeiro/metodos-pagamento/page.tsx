@@ -35,6 +35,20 @@ function isExpiringSoon(expiresAt: string): boolean {
   return expiry.getTime() <= horizon.getTime();
 }
 
+type FiscalProfile = {
+  legalName: string;
+  taxId: string;
+  email: string;
+  address: string;
+};
+
+const FISCAL_PROFILE: FiscalProfile = {
+  legalName: "AwSales Tecnologia Ltda.",
+  taxId: "52.314.987/0001-04",
+  email: "financeiro@awsales.io",
+  address: "Av. Brigadeiro Faria Lima, 3477 — 14º — São Paulo / SP — 04538-133",
+};
+
 export default function MetodosPagamentoPage() {
   const [methods, setMethods] = React.useState<PaymentMethod[]>(PAYMENT_METHODS);
   const [addOpen, setAddOpen] = React.useState(false);
@@ -42,11 +56,8 @@ export default function MetodosPagamentoPage() {
     null,
   );
 
-  const ordered = React.useMemo(() => {
-    const def = methods.find((m) => m.isDefault);
-    const rest = methods.filter((m) => !m.isDefault);
-    return def ? [def, ...rest] : methods;
-  }, [methods]);
+  const primary = methods.find((m) => m.isDefault) ?? methods[0] ?? null;
+  const alternates = methods.filter((m) => m.id !== primary?.id);
 
   const pendingRemove =
     pendingRemoveId === null
@@ -113,12 +124,17 @@ export default function MetodosPagamentoPage() {
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <MethodList
-          methods={ordered}
-          canRemoveAny={methods.length > 1}
-          onSetDefault={setAsDefault}
-          onRemoveRequest={setPendingRemoveId}
-        />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+          <PaymentMethodsColumn
+            primary={primary}
+            alternates={alternates}
+            canRemoveAny={methods.length > 1}
+            onSetDefault={setAsDefault}
+            onRemoveRequest={setPendingRemoveId}
+            onAdd={() => setAddOpen(true)}
+          />
+          <FiscalDataCard profile={FISCAL_PROFILE} />
+        </div>
       )}
 
       <AddPaymentMethodModal
@@ -137,43 +153,164 @@ export default function MetodosPagamentoPage() {
 }
 
 /* -----------------------------------------------------------------
- * Method list — Stripe-style flat list with hairlines
+ * Left column — primary hero + alternates + add row
  * ----------------------------------------------------------------- */
 
-function MethodList({
-  methods,
+function PaymentMethodsColumn({
+  primary,
+  alternates,
   canRemoveAny,
   onSetDefault,
   onRemoveRequest,
+  onAdd,
 }: {
-  methods: PaymentMethod[];
+  primary: PaymentMethod | null;
+  alternates: PaymentMethod[];
   canRemoveAny: boolean;
   onSetDefault: (id: string) => void;
   onRemoveRequest: (id: string) => void;
+  onAdd: () => void;
 }) {
   return (
-    <ul className="m-0 flex flex-col p-0">
-      {methods.map((m, i) => (
-        <li
-          key={m.id}
-          className={
-            "m-0 list-none border-[var(--border-subtle)] " +
-            (i === 0 ? "border-y" : "border-b")
-          }
-        >
-          <MethodRow
-            method={m}
-            canRemove={canRemoveAny}
-            onSetDefault={() => onSetDefault(m.id)}
-            onRemoveRequest={() => onRemoveRequest(m.id)}
-          />
-        </li>
-      ))}
-    </ul>
+    <section className="flex flex-col gap-5">
+      {primary && (
+        <PrimaryCard
+          method={primary}
+          canRemove={canRemoveAny}
+          onRemoveRequest={() => onRemoveRequest(primary.id)}
+        />
+      )}
+
+      {alternates.length > 0 && (
+        <div>
+          <header className="mb-2">
+            <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+              Métodos alternativos
+            </p>
+            <p className="m-0 mt-0.5 body-xs text-[var(--fg-secondary)]">
+              Usados como fallback se o método padrão falhar.
+            </p>
+          </header>
+          <ul className="m-0 flex flex-col p-0">
+            {alternates.map((m, i) => (
+              <li
+                key={m.id}
+                className={
+                  "m-0 list-none border-[var(--border-subtle)] " +
+                  (i === 0 ? "border-y" : "border-b")
+                }
+              >
+                <AlternateRow
+                  method={m}
+                  canRemove={canRemoveAny}
+                  onSetDefault={() => onSetDefault(m.id)}
+                  onRemoveRequest={() => onRemoveRequest(m.id)}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <AwButton
+        size="md"
+        variant="ghost"
+        iconLeft="add"
+        onClick={onAdd}
+        className="self-start"
+      >
+        Adicionar novo método
+      </AwButton>
+    </section>
   );
 }
 
-function MethodRow({
+/* -----------------------------------------------------------------
+ * Primary card — hero treatment for the default method
+ * ----------------------------------------------------------------- */
+
+function PrimaryCard({
+  method,
+  canRemove,
+  onRemoveRequest,
+}: {
+  method: PaymentMethod;
+  canRemove: boolean;
+  onRemoveRequest: () => void;
+}) {
+  const expiringSoon = isExpiringSoon(method.expiresAt);
+  const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
+
+  return (
+    <article className="relative flex flex-col gap-6 overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-3">
+          <AwPill variant="live" dot={false}>
+            Padrão
+          </AwPill>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Método principal
+          </p>
+        </div>
+        <AwDropdownMenu
+          align="end"
+          trigger={
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconOnly="more_horiz"
+              aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
+            />
+          }
+          items={[
+            {
+              id: `${method.id}-edit`,
+              label: "Editar dados",
+              icon: "edit",
+              onSelect: () => {},
+            },
+            { id: `${method.id}-sep`, separator: true },
+            {
+              id: `${method.id}-remove`,
+              label: "Remover método",
+              icon: "delete",
+              danger: true,
+              disabled: !canRemove,
+              onSelect: onRemoveRequest,
+            },
+          ]}
+        />
+      </div>
+
+      <div className="flex items-center gap-4">
+        <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="lg" />
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-md font-medium tabular-nums text-[var(--fg-primary)]">
+            {method.brand} •••• {method.last4}
+          </p>
+          <p className="m-0 mt-1 body-xs text-[var(--fg-tertiary)]">
+            Expira em {method.expiresAt}
+          </p>
+        </div>
+        {expired ? (
+          <AwPill variant="error" dot={false}>
+            Expirado
+          </AwPill>
+        ) : expiringSoon ? (
+          <AwPill variant="warning" dot={false}>
+            Expira em breve
+          </AwPill>
+        ) : null}
+      </div>
+    </article>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Alternate row — compact, flat list item
+ * ----------------------------------------------------------------- */
+
+function AlternateRow({
   method,
   canRemove,
   onSetDefault,
@@ -188,21 +325,16 @@ function MethodRow({
   const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
 
   return (
-    <div className="flex items-center gap-4 py-4">
-      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="lg" />
+    <div className="flex items-center gap-4 py-3">
+      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <p className="m-0 body-sm font-medium tabular-nums text-[var(--fg-primary)]">
             {method.brand} •••• {method.last4}
           </p>
-          {method.isDefault && (
-            <AwPill variant="live" dot={false}>
-              Padrão
-            </AwPill>
-          )}
           {expired ? (
-            <AwPill variant="danger" dot={false}>
+            <AwPill variant="error" dot={false}>
               Expirado
             </AwPill>
           ) : expiringSoon ? (
@@ -231,7 +363,6 @@ function MethodRow({
             id: `${method.id}-default`,
             label: "Definir como padrão",
             icon: "check_circle",
-            disabled: method.isDefault,
             onSelect: onSetDefault,
           },
           {
@@ -251,6 +382,76 @@ function MethodRow({
           },
         ]}
       />
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Right column — fiscal billing data
+ * ----------------------------------------------------------------- */
+
+function FiscalDataCard({ profile }: { profile: FiscalProfile }) {
+  return (
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6">
+      <header className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            Dados fiscais
+          </p>
+          <p className="m-0 mt-1 body-sm font-medium text-[var(--fg-primary)]">
+            Faturamento
+          </p>
+          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+            Aparecem em todas as notas fiscais e recibos emitidos.
+          </p>
+        </div>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="edit"
+          onClick={() => {}}
+        >
+          Alterar
+        </AwButton>
+      </header>
+
+      <dl className="m-0 flex flex-col">
+        <FiscalField label="Razão social" value={profile.legalName} />
+        <FiscalField label="CNPJ" value={profile.taxId} mono />
+        <FiscalField label="E-mail financeiro" value={profile.email} />
+        <FiscalField label="Endereço" value={profile.address} last />
+      </dl>
+    </section>
+  );
+}
+
+function FiscalField({
+  label,
+  value,
+  mono,
+  last,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+  last?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "grid grid-cols-[140px_minmax(0,1fr)] gap-4 py-2.5 " +
+        (last ? "" : "border-b border-[var(--border-subtle)]")
+      }
+    >
+      <dt className="m-0 body-xs text-[var(--fg-tertiary)]">{label}</dt>
+      <dd
+        className={
+          "m-0 body-sm text-[var(--fg-primary)] " +
+          (mono ? "tabular-nums" : "")
+        }
+      >
+        {value}
+      </dd>
     </div>
   );
 }
