@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwProgress } from "@/components/ui/AwProgress";
 import { Icon } from "@/components/ui/Icon";
+import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import {
   Tooltip,
   TooltipContent,
@@ -75,8 +75,8 @@ export default function ConsumoPage() {
   const [openInvoiceId, setOpenInvoiceId] = React.useState<string | null>(
     null,
   );
-  const [limit, setLimit] = React.useState(VARIABLE_SPENDING_LIMIT);
-  const [limitOpen, setLimitOpen] = React.useState(false);
+  const [limit] = React.useState(VARIABLE_SPENDING_LIMIT);
+  const [requestOpen, setRequestOpen] = React.useState(false);
 
   const accumulated = OVERVIEW_KPIS.accumulated;
   const couponBonus = React.useMemo(
@@ -92,11 +92,12 @@ export default function ConsumoPage() {
         accumulated={accumulated}
         limit={limit}
         couponBonus={couponBonus}
-        onChangeLimit={() => setLimitOpen(true)}
+        onRequestIncrease={() => setRequestOpen(true)}
       />
 
-      <UnifiedCreditsTable
-        vouchers={VOUCHERS}
+      <VouchersTable vouchers={VOUCHERS} />
+
+      <CouponsTable
         coupons={COUPONS_APPLIED}
         onOpenInvoice={setOpenInvoiceId}
       />
@@ -109,14 +110,10 @@ export default function ConsumoPage() {
         onClose={() => setOpenInvoiceId(null)}
       />
 
-      <ChangeLimitModal
-        open={limitOpen}
-        onClose={() => setLimitOpen(false)}
+      <RequestLimitIncreaseModal
+        open={requestOpen}
+        onClose={() => setRequestOpen(false)}
         currentLimit={limit}
-        onSave={(v) => {
-          setLimit(v);
-          setLimitOpen(false);
-        }}
       />
     </div>
   );
@@ -130,12 +127,12 @@ function ConsumptionHero({
   accumulated,
   limit,
   couponBonus,
-  onChangeLimit,
+  onRequestIncrease,
 }: {
   accumulated: number;
   limit: number;
   couponBonus: number;
-  onChangeLimit: () => void;
+  onRequestIncrease: () => void;
 }) {
   const extended = limit + couponBonus;
   const pct =
@@ -174,10 +171,10 @@ function ConsumptionHero({
           automaticamente.{" "}
           <button
             type="button"
-            onClick={onChangeLimit}
+            onClick={onRequestIncrease}
             className="font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
           >
-            Alterar limite
+            Solicitar aumento de limite
           </button>
         </p>
       </div>
@@ -343,127 +340,137 @@ function ConsumptionNeedle({
 }
 
 /* -----------------------------------------------------------------
- * Unified credits & coupons table
+ * Vouchers — abatem gastos variáveis. Tabela própria, separada dos
+ * cupons (que mexem no valor fixo).
  * ----------------------------------------------------------------- */
 
-type UnifiedRow =
-  | {
-      kind: "voucher";
-      id: string;
-      received: Date;
-      data: VoucherRow;
-    }
-  | {
-      kind: "coupon";
-      id: string;
-      received: Date;
-      data: CouponRow;
-    };
-
-function UnifiedCreditsTable({
-  vouchers,
-  coupons,
-  onOpenInvoice,
-}: {
-  vouchers: VoucherRow[];
-  coupons: CouponRow[];
-  onOpenInvoice: (id: string) => void;
-}) {
-  const rows: UnifiedRow[] = React.useMemo(() => {
-    const v: UnifiedRow[] = vouchers.map((voucher) => {
-      const expires = parseBR(voucher.expiresAt);
-      const received = new Date(expires);
-      received.setMonth(received.getMonth() - 12);
-      return {
-        kind: "voucher" as const,
-        id: voucher.id,
-        received,
-        data: voucher,
-      };
-    });
-    const c: UnifiedRow[] = coupons.map((coupon) => ({
-      kind: "coupon" as const,
-      id: coupon.id,
-      received: parseBR(coupon.appliedAt),
-      data: coupon,
-    }));
-    return [...v, ...c].sort(
-      (a, b) => b.received.getTime() - a.received.getTime(),
-    );
-  }, [vouchers, coupons]);
-
+function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
   const totalGranted = vouchers.reduce((s, v) => s + v.total, 0);
   const totalAvailable = vouchers.reduce(
     (s, v) => s + (v.total - v.consumed),
     0,
   );
-  const totalDiscount = coupons.reduce((s, c) => s + c.discount, 0);
 
   return (
     <section className="flex flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
-            Créditos &amp; cupons
-          </h6>
+          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Vouchers</h6>
           <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
-            Vouchers ativos e cupons aplicados — tudo que reduz a fatura desta
-            organização em um só lugar.
+            Créditos emitidos pela AwSales que descontam dos{" "}
+            <strong className="font-medium text-[var(--fg-primary)]">
+              gastos variáveis
+            </strong>{" "}
+            do ciclo — disparos, tokens, telefonia.
           </p>
-          <div className="mt-2 flex flex-col body-xs tabular-nums text-[var(--fg-tertiary)]">
-            <span>
+          {vouchers.length > 0 && (
+            <p className="m-0 mt-2 body-xs tabular-nums text-[var(--fg-tertiary)]">
               <span className="font-medium text-[var(--fg-primary)]">
                 {brl(totalAvailable)}
-              </span>
-              {" "}em vouchers · de {brl(totalGranted)}
-            </span>
-            {totalDiscount > 0 && (
-              <span>
-                <span className="font-medium text-[var(--accent-success)]">
-                  −{brl(totalDiscount)}
-                </span>
-                {" "}em cupons aplicados
-              </span>
-            )}
-          </div>
+              </span>{" "}
+              disponíveis · de {brl(totalGranted)}
+            </p>
+          )}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <AwButton size="md" variant="primary" iconLeft="add">
-            Adicionar voucher
-          </AwButton>
-          <AwButton size="md" variant="secondary" iconLeft="add">
-            Adicionar saldo
-          </AwButton>
-        </div>
+        <AwButton size="md" variant="primary" iconLeft="add">
+          Adicionar voucher
+        </AwButton>
       </header>
 
-      {rows.length === 0 ? (
+      {vouchers.length === 0 ? (
         <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Nenhum crédito ou cupom ativo no momento.
+          Nenhum voucher ativo no momento.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b border-[var(--border-subtle)]">
-                <Th>Crédito</Th>
+                <Th>Voucher</Th>
                 <Th>Valor</Th>
                 <Th>Status</Th>
                 <Th>Recebido</Th>
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) =>
-                row.kind === "voucher" ? (
-                  <VoucherRowEl key={row.id} row={row.data} />
-                ) : (
-                  <CouponRowEl
-                    key={row.id}
-                    row={row.data}
-                    onOpenInvoice={onOpenInvoice}
-                  />
-                ),
-              )}
+              {vouchers.map((v) => (
+                <VoucherRowEl key={v.id} row={v} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Cupons — impactam o valor fixo (plano/implementação). Tabela
+ * separada dos vouchers.
+ * ----------------------------------------------------------------- */
+
+function CouponsTable({
+  coupons,
+  onOpenInvoice,
+}: {
+  coupons: CouponRow[];
+  onOpenInvoice: (id: string) => void;
+}) {
+  const totalDiscount = coupons.reduce((s, c) => s + c.discount, 0);
+  const sorted = React.useMemo(
+    () =>
+      [...coupons].sort(
+        (a, b) => parseBR(b.appliedAt).getTime() - parseBR(a.appliedAt).getTime(),
+      ),
+    [coupons],
+  );
+
+  return (
+    <section className="flex flex-col gap-5">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cupons</h6>
+          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+            Códigos aplicados que descontam no{" "}
+            <strong className="font-medium text-[var(--fg-primary)]">
+              valor fixo
+            </strong>{" "}
+            da próxima fatura — plano, implementação, taxas.
+          </p>
+          {totalDiscount > 0 && (
+            <p className="m-0 mt-2 body-xs tabular-nums text-[var(--fg-tertiary)]">
+              <span className="font-medium text-[var(--accent-success)]">
+                −{brl(totalDiscount)}
+              </span>{" "}
+              em cupons aplicados
+            </p>
+          )}
+        </div>
+      </header>
+
+      {sorted.length === 0 ? (
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          Nenhum cupom aplicado.
+        </p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-[var(--border-subtle)]">
+                <Th>Cupom</Th>
+                <Th>Desconto</Th>
+                <Th>Status</Th>
+                <Th>Aplicado</Th>
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((c) => (
+                <CouponRowEl
+                  key={c.id}
+                  row={c}
+                  onOpenInvoice={onOpenInvoice}
+                />
+              ))}
             </tbody>
           </table>
         </div>
@@ -656,70 +663,111 @@ function DetailsSection() {
 }
 
 /* -----------------------------------------------------------------
- * Limit modal
+ * Request limit increase — opens a contact form with the account manager
  * ----------------------------------------------------------------- */
 
-function ChangeLimitModal({
+function RequestLimitIncreaseModal({
   open,
   onClose,
   currentLimit,
-  onSave,
 }: {
   open: boolean;
   onClose: () => void;
   currentLimit: number;
-  onSave: (v: number) => void;
 }) {
-  const [draft, setDraft] = React.useState(String(currentLimit));
-  React.useEffect(() => {
-    if (open) setDraft(String(currentLimit));
-  }, [open, currentLimit]);
-
-  const parsed = Number(draft.replace(/\./g, "").replace(",", "."));
-  const valid = Number.isFinite(parsed) && parsed > 0;
+  const am = ONBOARDING_ORG.accountManager;
+  const amFirstName = am.name.split(/\s+/)[0];
+  const phoneDigits = am.phone.replace(/\D/g, "");
+  const waText = encodeURIComponent(
+    `Oi ${amFirstName}, queria pedir aumento do limite variável (atual: ${brl(currentLimit)}).`,
+  );
+  const whatsappUrl = `https://wa.me/${phoneDigits}?text=${waText}`;
+  const slackUrl = `https://slack.com/app_redirect?channel=@${am.email.split("@")[0]}`;
 
   return (
     <AwModal
       open={open}
       onClose={onClose}
-      title="Alterar limite por usuário"
+      title="Solicitar aumento de limite"
       footer={
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end">
           <AwButton variant="ghost" onClick={onClose}>
-            Cancelar
-          </AwButton>
-          <AwButton
-            variant="primary"
-            iconLeft="check"
-            disabled={!valid}
-            onClick={() => onSave(parsed)}
-          >
-            Salvar
+            Fechar
           </AwButton>
         </div>
       }
     >
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Cada usuário tem esse teto de gastos variáveis por ciclo. Quando o
-          montante é atingido, a gente cobra automaticamente.
+          Limites são ajustados direto pelo seu account manager. Manda um
+          recado pro {amFirstName} pelo canal que preferir — ele avalia e
+          devolve a próxima faixa disponível.
         </p>
-        <label
-          htmlFor="consumo-limit"
-          className="aw-eyebrow text-[var(--fg-tertiary)]"
-        >
-          Limite mensal por usuário
-        </label>
-        <AwInput
-          id="consumo-limit"
-          inputMode="numeric"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          autoFocus
-        />
-        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
-          Atualmente: <span className="tabular-nums">{brl(currentLimit)}</span>
-        </p>
+
+        <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 py-2.5">
+          <AwAvatar
+            size="md"
+            src={am.photo}
+            alt={am.name}
+            initials={am.initials}
+          />
+          <div className="min-w-0 flex-1">
+            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+              {am.name}
+            </p>
+            <p className="m-0 body-xs text-[var(--fg-tertiary)]">{am.role}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-3 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--aw-emerald-500)] text-[var(--aw-white)]">
+              <Icon name="chat" size={18} fill={1} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block body-sm font-medium text-[var(--fg-primary)]">
+                Falar no WhatsApp
+              </span>
+              <span className="block body-xs tabular-nums text-[var(--fg-tertiary)]">
+                {am.phone}
+              </span>
+            </span>
+            <Icon
+              name="arrow_outward"
+              size={16}
+              className="text-[var(--fg-tertiary)]"
+            />
+          </a>
+
+          <a
+            href={slackUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-3 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+          >
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--aw-purple-600)] text-[var(--aw-white)]">
+              <Icon name="tag" size={18} fill={1} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block body-sm font-medium text-[var(--fg-primary)]">
+                Falar no Slack
+              </span>
+              <span className="block body-xs text-[var(--fg-tertiary)]">
+                @{am.email.split("@")[0]}
+              </span>
+            </span>
+            <Icon
+              name="arrow_outward"
+              size={16}
+              className="text-[var(--fg-tertiary)]"
+            />
+          </a>
+        </div>
       </div>
     </AwModal>
   );
