@@ -9,12 +9,16 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { PaymentMethodCard } from "@/components/playground/PaymentMethodCard";
+import { pickCoverBackground } from "../../equipe-permissoes/_components/data";
+import { ONBOARDING_USER } from "@/app/primeiro-acesso/_data";
 import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
 import {
   PAYMENT_METHODS,
   type CardBrand,
   type PaymentMethod,
 } from "../_components/data";
+
+const PROFILE_COVER = pickCoverBackground("u-greg");
 
 const BRAND_TO_AW: Record<CardBrand, AwCardBrandId> = {
   Visa: "visa",
@@ -125,7 +129,7 @@ export default function MetodosPagamentoPage() {
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
           <PaymentMethodsColumn
             primary={primary}
             alternates={alternates}
@@ -239,15 +243,52 @@ function PrimaryCard({
   canRemove: boolean;
   onRemoveRequest: () => void;
 }) {
+  const expiringSoon = isExpiringSoon(method.expiresAt);
+  const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
+
   return (
-    <PaymentMethodCard
-      brand={BRAND_TO_AW[method.brand]}
-      last4={method.last4}
-      isDefault={method.isDefault}
-      onEdit={() => {}}
-      onRemove={onRemoveRequest}
-      removeDisabled={!canRemove}
-    />
+    <div className="flex flex-col gap-3">
+      <PaymentMethodCard
+        brand={BRAND_TO_AW[method.brand]}
+        last4={method.last4}
+        isDefault={method.isDefault}
+        coverImage={PROFILE_COVER}
+        holderName={ONBOARDING_USER.name}
+        expiresAt={method.expiresAt}
+      />
+
+      <div className="flex max-w-[360px] flex-wrap items-center gap-2">
+        <AwButton
+          size="sm"
+          variant="secondary"
+          iconLeft="edit"
+          onClick={() => {}}
+        >
+          Alterar método de pagamento
+        </AwButton>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="delete"
+          onClick={onRemoveRequest}
+          disabled={!canRemove}
+          className="text-[var(--accent-danger)] hover:!bg-[var(--aw-red-100)] disabled:!text-[var(--fg-muted)]"
+        >
+          Excluir
+        </AwButton>
+        {(expired || expiringSoon) && (
+          <AwPill
+            variant={expired ? "error" : "warning"}
+            dot={false}
+            className="ml-auto"
+          >
+            {expired
+              ? `Expirado em ${method.expiresAt}`
+              : `Expira em ${method.expiresAt}`}
+          </AwPill>
+        )}
+      </div>
+    </div>
   );
 }
 
@@ -337,7 +378,7 @@ function AlternateRow({
 
 function FiscalDataCard({ profile }: { profile: FiscalProfile }) {
   return (
-    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6">
+    <section className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--aw-white)] p-6">
       <header className="mb-5 flex items-start justify-between gap-3">
         <div>
           <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">

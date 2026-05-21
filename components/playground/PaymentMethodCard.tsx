@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { AwButton } from "@/components/ui/AwButton"
 import { AwCardBrand, type AwCardBrandId } from "@/components/ui/AwCardBrand"
 import { Icon } from "@/components/ui/Icon"
 import { cn } from "@/lib/utils"
@@ -18,101 +17,121 @@ const BRAND_LABEL: Record<AwCardBrandId, string> = {
 }
 
 export type PaymentMethodCardProps = {
-  /** Card brand. Drives the flag tile and the "<Brand> Card" subtitle. */
   brand: AwCardBrandId
-  /** Last 4 digits of the PAN. Rendered emphasized after the mask. */
   last4: string
-  /** Shows the dark "Default" pill at the top-right when true. */
+  /** Toggles the small "Pagamento principal" badge in the corner. */
   isDefault?: boolean
-  onEdit?: () => void
-  onRemove?: () => void
-  /** Disables the remove action (e.g. when it's the only method on file). */
-  removeDisabled?: boolean
-  /** Override the "<Brand> Card" subtitle. */
-  subtitle?: React.ReactNode
+  /** Background cover image (e.g. the user's profile cover). Drives the
+   *  glassmorphism look. Without it, falls back to a soft tinted gradient. */
+  coverImage?: string
+  /** Optional cardholder name printed at the bottom of the card. */
+  holderName?: string
+  /** Expiry in MM/YYYY (or MM/YY) — shown next to the brand logo. */
+  expiresAt?: string
   className?: string
 }
 
 /**
- * Payment method card (default/primary variant).
+ * Glassmorphism-style payment method card.
  *
- * Adapted from the Creative Tim payment-method-01 block: prominent brand tile
- * (88×88) on the left, masked PAN with the last four emphasized to the right,
- * a thin "<Brand> Card" subtitle below, and a quiet edit/delete row at the
- * bottom. The "Default" pill sits at the top-right corner. No shadow.
+ * Built to look like a real credit card: ~1.586:1 aspect, masked PAN in
+ * the middle, brand logo + expiry on the right, optional holder name at
+ * the bottom. The background is the caller-provided cover image with a
+ * translucent dark wash + backdrop blur on top.
  *
- * Variants beyond "default" (extra cards / fallback rows) are intentionally
- * out of scope here — this card replaces the principal payment method block
- * only. Other rows on the page use a flatter list layout.
+ * Actions (edit / delete / set-default) live *outside* this component —
+ * compose them alongside the card on the page.
  */
 export function PaymentMethodCard({
   brand,
   last4,
   isDefault = false,
-  onEdit,
-  onRemove,
-  removeDisabled = false,
-  subtitle,
+  coverImage,
+  holderName,
+  expiresAt,
   className,
 }: PaymentMethodCardProps) {
   const brandLabel = BRAND_LABEL[brand]
   return (
     <article
       className={cn(
-        "relative flex flex-col gap-5 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6",
+        "relative isolate aspect-[1.586/1] w-full max-w-[360px] overflow-hidden rounded-[var(--radius-xl)] text-white shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)]",
         className
       )}
       aria-label={`${brandLabel} •••• ${last4}`}
+      style={
+        coverImage
+          ? {
+              backgroundImage: `url(${coverImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }
+          : undefined
+      }
     >
-      {isDefault && (
-        <span
-          className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-[var(--radius-md)] bg-[var(--bg-inverse)] px-3 py-1.5 body-xs font-medium text-[var(--fg-on-inverse)]"
-          aria-label="Método padrão"
-        >
-          <Icon name="check" size={14} weight={500} />
-          Default
-        </span>
-      )}
+      <div
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-0 -z-10",
+          coverImage
+            ? "bg-gradient-to-br from-black/45 via-black/30 to-black/55 backdrop-blur-[2px]"
+            : "bg-gradient-to-br from-[var(--aw-blue-700)] via-[var(--aw-purple-700)] to-[var(--aw-blue-1100)]"
+        )}
+      />
 
-      <div className="flex items-center gap-5">
-        <AwCardBrand brand={brand} size="xl" />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 rounded-[var(--radius-xl)] ring-1 ring-inset ring-white/20"
+      />
 
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-baseline gap-2 tabular-nums">
-            <span className="body-md font-medium tracking-[0.18em] text-[var(--fg-tertiary)]">
-              ••••&nbsp;••••&nbsp;••••
+      <div className="flex h-full flex-col justify-between p-5">
+        <div className="flex items-start justify-between gap-3">
+          {isDefault ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-white/85 backdrop-blur-sm"
+              aria-label="Método principal"
+            >
+              <Icon name="check" size={11} weight={500} />
+              Pagamento principal
             </span>
-            <span className="text-[24px] font-semibold leading-none text-[var(--fg-primary)]">
-              {last4}
-            </span>
-          </div>
-          <p className="m-0 mt-1.5 body-sm text-[var(--fg-secondary)]">
-            {subtitle ?? `${brandLabel} Card`}
-          </p>
+          ) : (
+            <span aria-hidden="true" />
+          )}
+          <AwCardBrand brand={brand} size="md" />
         </div>
-      </div>
 
-      <div className="flex items-center gap-1">
-        {onEdit && (
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconOnly="edit"
-            onClick={onEdit}
-            aria-label={`Editar ${brandLabel} •••• ${last4}`}
-          />
-        )}
-        {onRemove && (
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconOnly="delete"
-            onClick={onRemove}
-            disabled={removeDisabled}
-            aria-label={`Remover ${brandLabel} •••• ${last4}`}
-            className="text-[var(--accent-danger)] hover:!bg-[var(--aw-red-100)] disabled:!text-[var(--fg-muted)]"
-          />
-        )}
+        <div className="flex flex-col gap-1">
+          <p className="m-0 font-medium tabular-nums tracking-[0.16em] text-white drop-shadow-sm">
+            <span className="text-white/55">••••&nbsp;••••&nbsp;••••</span>
+            <span className="ml-2 text-[18px]">{last4}</span>
+          </p>
+          <div className="mt-1 flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              {holderName && (
+                <>
+                  <p className="m-0 text-[9px] font-medium uppercase tracking-[0.1em] text-white/55">
+                    Titular
+                  </p>
+                  <p className="m-0 truncate body-xs font-medium text-white">
+                    {holderName}
+                  </p>
+                </>
+              )}
+            </div>
+            <div className="text-right">
+              {expiresAt && (
+                <>
+                  <p className="m-0 text-[9px] font-medium uppercase tracking-[0.1em] text-white/55">
+                    Validade
+                  </p>
+                  <p className="m-0 body-xs font-medium tabular-nums text-white">
+                    {expiresAt}
+                  </p>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </article>
   )
