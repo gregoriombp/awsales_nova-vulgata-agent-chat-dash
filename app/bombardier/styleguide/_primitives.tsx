@@ -3,15 +3,25 @@ import { CodeHighlight } from "./_highlight"
 
 export function PageHero({
   title,
+  trailing,
   children,
 }: {
   title: React.ReactNode
+  /** Optional slot rendered to the right of the title (e.g. status badge). */
+  trailing?: React.ReactNode
   children?: React.ReactNode
 }) {
   return (
     <header className="aw-hero">
       <div className="aw-hero__inner">
-        <h1 className="aw-hero__title">{title}</h1>
+        {trailing ? (
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1 className="aw-hero__title">{title}</h1>
+            {trailing}
+          </div>
+        ) : (
+          <h1 className="aw-hero__title">{title}</h1>
+        )}
         {children && <p className="aw-hero__lead">{children}</p>}
       </div>
     </header>
