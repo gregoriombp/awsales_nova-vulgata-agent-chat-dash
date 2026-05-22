@@ -531,19 +531,34 @@ function MemberSection({
                 presence={m.online ? "live" : undefined}
               />
               <td onClick={(e) => e.stopPropagation()}>
-                <AwDropdownMenu
-                  trigger={<AwSelect>{m.role}</AwSelect>}
-                  items={ROLE_OPTIONS.map((r) => ({
-                    id: r,
-                    label: r,
-                    checked: r === m.role,
-                    disabled:
-                      r === MANAGER_ROLE &&
-                      managerAlreadyAssigned &&
-                      m.role !== MANAGER_ROLE,
-                    onSelect: () => onChangeRole(m.id, r),
-                  }))}
-                />
+                <span className="inline-flex items-center gap-2">
+                  <span className="body-xs text-[var(--fg-primary)]">
+                    {m.role}
+                  </span>
+                  <AwDropdownMenu
+                    align="start"
+                    trigger={
+                      <button
+                        type="button"
+                        aria-label={`Alterar função de ${m.name}`}
+                        title="Alterar função"
+                        className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+                      >
+                        <Icon name="edit" size={14} />
+                      </button>
+                    }
+                    items={ROLE_OPTIONS.map((r) => ({
+                      id: r,
+                      label: r,
+                      checked: r === m.role,
+                      disabled:
+                        r === MANAGER_ROLE &&
+                        managerAlreadyAssigned &&
+                        m.role !== MANAGER_ROLE,
+                      onSelect: () => onChangeRole(m.id, r),
+                    }))}
+                  />
+                </span>
               </td>
               <AwMembersTableTextCell muted>
                 {m.lastActive}
