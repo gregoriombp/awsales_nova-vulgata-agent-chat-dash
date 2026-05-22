@@ -112,7 +112,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                           initials={m.initials}
                           alt={m.name}
                           className={cn(
-                            "!h-12 !w-12 !text-[14px]",
+                            "!h-12 !w-12 !text-[length:var(--body-sm-size)]",
                             "ring-2 ring-[var(--bg-raised)]",
                           )}
                         />
@@ -133,7 +133,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                       }}
                       aria-label="Ver todos os membros"
                       className={cn(
-                        "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
+                        "aw-avatar -ml-3 !h-12 !w-12 !text-[length:var(--body-xs-size)]",
                         "ring-2 ring-[var(--bg-raised)]",
                         "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
                         "transition-colors hover:!bg-[var(--bg-hover)] hover:!text-[var(--fg-primary)]",
@@ -144,7 +144,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                   ) : (
                     <span
                       className={cn(
-                        "aw-avatar -ml-3 !h-12 !w-12 !text-[12px]",
+                        "aw-avatar -ml-3 !h-12 !w-12 !text-[length:var(--body-xs-size)]",
                         "ring-2 ring-[var(--bg-raised)]",
                         "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
                       )}
@@ -160,7 +160,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
 
         <div className="flex flex-1 flex-col gap-3 px-5 pb-5 pt-5">
           <header className="flex items-center gap-3">
-            <h3 className="m-0 flex-1 truncate text-[18px] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+            <h3 className="m-0 flex-1 truncate text-[length:var(--body-lg-size)] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
               {name}
             </h3>
             <span className="text-[12.5px] text-[var(--fg-secondary)]">

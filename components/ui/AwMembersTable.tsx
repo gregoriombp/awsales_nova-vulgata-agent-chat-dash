@@ -224,7 +224,7 @@ export function AwMembersTablePersonCell({
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="flex items-center gap-2">
-            <span className="truncate text-[14px] font-medium text-[var(--fg-primary)]">
+            <span className="truncate text-[length:var(--body-sm-size)] font-medium text-[var(--fg-primary)]">
               {name}
             </span>
             {tag && (
