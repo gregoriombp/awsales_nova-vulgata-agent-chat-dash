@@ -260,7 +260,7 @@ function ShortcutGrid() {
         <li className="m-0">
           <AwShortcutTile
             icon="receipt_long"
-            title="Histórico de faturas"
+            title="Faturas"
             description={`Última: ${latestInvoice.refMonth} · ${brl(latestInvoice.net)}`}
             href="/settings/financeiro/historico-faturas"
           />

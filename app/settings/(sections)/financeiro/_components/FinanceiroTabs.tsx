@@ -26,7 +26,7 @@ export function FinanceiroTabs() {
     { value: `${BASE}/metodos-pagamento`, label: "Métodos de pagamento" },
     {
       value: `${BASE}/historico-faturas`,
-      label: "Histórico de faturas",
+      label: "Faturas",
       count: hasPaymentAlerts ? 1 : undefined,
     },
     { value: `${BASE}/auditoria`, label: "Atividade" },
