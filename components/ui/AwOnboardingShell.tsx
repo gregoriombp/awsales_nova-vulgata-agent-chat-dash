@@ -74,7 +74,7 @@ function OnboardingBrandPane({
             className="pointer-events-none absolute inset-0 z-0"
             style={{
               background:
-                "linear-gradient(180deg, rgba(13,13,15,0.78) 0%, rgba(13,13,15,0.85) 45%, rgba(13,13,15,0.95) 100%)",
+                "linear-gradient(180deg, color-mix(in srgb, var(--aw-gray-1200) 78%, transparent) 0%, color-mix(in srgb, var(--aw-gray-1200) 85%, transparent) 45%, color-mix(in srgb, var(--aw-gray-1200) 95%, transparent) 100%)",
             }}
           />
         </>
