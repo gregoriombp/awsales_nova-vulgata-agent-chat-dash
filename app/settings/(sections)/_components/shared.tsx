@@ -92,11 +92,11 @@ export function NotifGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-[var(--border-subtle)] last:border-b-0">
-      <p className="m-0 px-6 pb-1 pt-5 aw-eyebrow text-[var(--fg-tertiary)]">
+    <div className="border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0">
+      <h4 className="m-0 mb-3 mt-6 first:mt-0 text-[var(--fg-primary)] text-base font-medium">
         {label}
-      </p>
-      <div className="px-6 py-2">{children}</div>
+      </h4>
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 }

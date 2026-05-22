@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwToggleRow } from "@/components/ui/AwToggle";
 import { NotifGroup, SettingsPageHeader } from "../_components/shared";
 
@@ -23,7 +22,7 @@ export default function NotificationsSettingsPage() {
         title="Notificações"
         description="Escolha quando o produto interrompe seu fluxo. Eventos críticos de agente sempre aparecem em /aprovações."
       />
-      <AwCard className="!p-0">
+      <div>
         <NotifGroup label="Agentes">
           <AwToggleRow
             title="Aprovação pendente"
@@ -79,7 +78,7 @@ export default function NotificationsSettingsPage() {
             onChange={(v) => setNotif((n) => ({ ...n, weeklyDigest: v }))}
           />
         </NotifGroup>
-      </AwCard>
+      </div>
     </div>
   );
 }
