@@ -86,6 +86,7 @@ export const navigation: NavSection[] = [
       { name: "Toast", href: "/bombardier/styleguide/components/toast" },
       { name: "Transition", href: "/bombardier/styleguide/components/aw-transition" },
       { name: "Visual dos agentes", href: "/bombardier/styleguide/components/agents" },
+      { name: "Welcome modal", href: "/bombardier/styleguide/components/aw-welcome-modal" },
       { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
     ],
   },
@@ -94,6 +95,7 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
       { name: "Login e autenticação", href: "/bombardier/styleguide/ux-flows/login-auth" },
+      { name: "Convite de membro", href: "/bombardier/styleguide/ux-flows/convite-membro" },
     ],
   },
 ]
