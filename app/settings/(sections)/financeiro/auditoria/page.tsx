@@ -4,7 +4,6 @@ import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -13,11 +12,12 @@ import {
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
-import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
+import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import {
   AUDIT_EVENTS,
+  INVOICE_HISTORY,
   type AuditEvent,
   type AuditEventType,
   type AuditExecutor,
@@ -31,7 +31,7 @@ const ALL_TYPES: AuditEventType[] = [
   "Voucher",
 ];
 
-const ALL_EXECUTORS: AuditExecutor[] = ["AwSales", "Cliente", "Sistema"];
+const INV_PATTERN = /\bINV-\d{4}-\d{2}-\d{4}\b/;
 
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -52,24 +52,47 @@ function executorRole(executor: AuditExecutor): string {
   }
 }
 
+type Person = {
+  actor: string;
+  avatar?: string;
+  executor: AuditExecutor;
+};
+
+/** Unique people who appear as actors in the audit log — used to populate
+ *  the executor filter as a list of real people instead of abstract
+ *  category buckets. Order: AwSales first, then Cliente, then Sistema. */
+function buildPeople(events: AuditEvent[]): Person[] {
+  const seen = new Map<string, Person>();
+  for (const e of events) {
+    if (!seen.has(e.actor)) {
+      seen.set(e.actor, { actor: e.actor, avatar: e.actorAvatar, executor: e.executor });
+    }
+  }
+  const order: AuditExecutor[] = ["AwSales", "Cliente", "Sistema"];
+  return Array.from(seen.values()).sort((a, b) => {
+    const ai = order.indexOf(a.executor);
+    const bi = order.indexOf(b.executor);
+    if (ai !== bi) return ai - bi;
+    return a.actor.localeCompare(b.actor, "pt-BR");
+  });
+}
+
+const ALL_PEOPLE: Person[] = buildPeople(AUDIT_EVENTS);
+
 export default function AuditoriaPage() {
   const [selectedTypes, setSelectedTypes] = React.useState<AuditEventType[]>(
     [],
   );
-  const [selectedExecutors, setSelectedExecutors] = React.useState<
-    AuditExecutor[]
-  >([]);
+  const [selectedActors, setSelectedActors] = React.useState<string[]>([]);
   const [query, setQuery] = React.useState("");
+  const [openInvoiceId, setOpenInvoiceId] = React.useState<string | null>(null);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return AUDIT_EVENTS.filter((e) => {
       if (selectedTypes.length > 0 && !selectedTypes.includes(e.type))
         return false;
-      if (
-        selectedExecutors.length > 0 &&
-        !selectedExecutors.includes(e.executor)
-      )
+      if (selectedActors.length > 0 && !selectedActors.includes(e.actor))
         return false;
       if (
         q &&
@@ -78,17 +101,25 @@ export default function AuditoriaPage() {
         return false;
       return true;
     });
-  }, [selectedTypes, selectedExecutors, query]);
+  }, [selectedTypes, selectedActors, query]);
+
+  const openInvoice = React.useMemo(
+    () =>
+      openInvoiceId
+        ? (INVOICE_HISTORY.find((r) => r.id === openInvoiceId) ?? null)
+        : null,
+    [openInvoiceId],
+  );
 
   const clearAll = () => {
     setSelectedTypes([]);
-    setSelectedExecutors([]);
+    setSelectedActors([]);
     setQuery("");
   };
 
   const hasFilters =
     selectedTypes.length > 0 ||
-    selectedExecutors.length > 0 ||
+    selectedActors.length > 0 ||
     query.trim().length > 0;
 
   return (
@@ -106,8 +137,8 @@ export default function AuditoriaPage() {
       <Toolbar
         selectedTypes={selectedTypes}
         onTypesChange={setSelectedTypes}
-        selectedExecutors={selectedExecutors}
-        onExecutorsChange={setSelectedExecutors}
+        selectedActors={selectedActors}
+        onActorsChange={setSelectedActors}
         query={query}
         onQueryChange={setQuery}
         onClearAll={clearAll}
@@ -142,12 +173,22 @@ export default function AuditoriaPage() {
             </thead>
             <tbody>
               {filtered.map((event) => (
-                <EventRow key={event.id} event={event} />
+                <EventRow
+                  key={event.id}
+                  event={event}
+                  onOpenInvoice={setOpenInvoiceId}
+                />
               ))}
             </tbody>
           </AwTable>
         </AwCard>
       )}
+
+      <InvoiceDetailsSheet
+        invoice={openInvoice}
+        open={openInvoice !== null}
+        onClose={() => setOpenInvoiceId(null)}
+      />
     </div>
   );
 }
@@ -157,8 +198,8 @@ export default function AuditoriaPage() {
 function Toolbar({
   selectedTypes,
   onTypesChange,
-  selectedExecutors,
-  onExecutorsChange,
+  selectedActors,
+  onActorsChange,
   query,
   onQueryChange,
   onClearAll,
@@ -166,125 +207,170 @@ function Toolbar({
 }: {
   selectedTypes: AuditEventType[];
   onTypesChange: (v: AuditEventType[]) => void;
-  selectedExecutors: AuditExecutor[];
-  onExecutorsChange: (v: AuditExecutor[]) => void;
+  selectedActors: string[];
+  onActorsChange: (v: string[]) => void;
   query: string;
   onQueryChange: (v: string) => void;
   onClearAll: () => void;
   hasFilters: boolean;
 }) {
+  const toggleType = (t: AuditEventType) => {
+    onTypesChange(
+      selectedTypes.includes(t)
+        ? selectedTypes.filter((x) => x !== t)
+        : [...selectedTypes, t],
+    );
+  };
+
+  const toggleActor = (a: string) => {
+    onActorsChange(
+      selectedActors.includes(a)
+        ? selectedActors.filter((x) => x !== a)
+        : [...selectedActors, a],
+    );
+  };
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <div className="min-w-[240px] flex-1">
-        <AwInput
-          iconLeft="search"
-          placeholder="Buscar ator, ação ou referência…"
-          value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-        />
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="min-w-[240px] flex-1">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar ator, ação ou referência…"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+          />
+        </div>
+        {hasFilters && (
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="close"
+            onClick={onClearAll}
+          >
+            Limpar
+          </AwButton>
+        )}
+        <AwButton
+          size="md"
+          variant="ghost"
+          iconLeft="download"
+          onClick={() =>
+            alert("Exportação iniciada — você receberá o CSV por e-mail.")
+          }
+        >
+          Exportar CSV
+        </AwButton>
       </div>
-      <MultiFilter
-        label="Tipo"
+
+      <TypeChips
         options={ALL_TYPES}
         selected={selectedTypes}
-        onChange={onTypesChange}
+        onToggle={toggleType}
       />
-      <MultiFilter
-        label="Executor"
-        options={ALL_EXECUTORS}
-        selected={selectedExecutors}
-        onChange={onExecutorsChange}
+
+      <ActorFilter
+        people={ALL_PEOPLE}
+        selected={selectedActors}
+        onToggle={toggleActor}
       />
-      {hasFilters && (
-        <AwButton
-          size="sm"
-          variant="ghost"
-          iconLeft="close"
-          onClick={onClearAll}
-        >
-          Limpar
-        </AwButton>
-      )}
-      <AwButton
-        size="md"
-        variant="ghost"
-        iconLeft="download"
-        onClick={() =>
-          alert("Exportação iniciada — você receberá o CSV por e-mail.")
-        }
-      >
-        Exportar CSV
-      </AwButton>
     </div>
   );
 }
 
-function MultiFilter<T extends string>({
-  label,
+function TypeChips({
   options,
   selected,
-  onChange,
+  onToggle,
 }: {
-  label: string;
-  options: T[];
-  selected: T[];
-  onChange: (v: T[]) => void;
+  options: AuditEventType[];
+  selected: AuditEventType[];
+  onToggle: (t: AuditEventType) => void;
 }) {
-  const toggle = (id: T) => {
-    if (selected.includes(id)) {
-      onChange(selected.filter((s) => s !== id));
-    } else {
-      onChange([...selected, id]);
-    }
-  };
-
-  const triggerLabel =
-    selected.length === 0
-      ? label
-      : selected.length === 1
-        ? `${label} · ${selected[0]}`
-        : `${label} · ${selected.length}`;
-
-  const items: AwDropdownItem[] = [
-    {
-      id: "all",
-      label: "Selecionar tudo",
-      icon: "done_all",
-      closeOnSelect: false,
-      onSelect: () => onChange([]),
-      disabled: selected.length === 0,
-    },
-    { id: "sep", separator: true },
-    ...options.map((opt) => ({
-      id: opt,
-      label: opt,
-      checked: selected.includes(opt),
-      closeOnSelect: false,
-      onSelect: () => toggle(opt),
-    })),
-  ];
-
   return (
-    <AwDropdownMenu
-      align="start"
-      trigger={
-        <AwSelect>
-          {triggerLabel}
-          {selected.length > 1 && (
-            <span className="ml-1.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[var(--fg-primary)] px-1 body-xs font-semibold text-[var(--bg-raised)]">
-              {selected.length}
-            </span>
-          )}
-        </AwSelect>
-      }
-      items={items}
-    />
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="mr-1 body-xs font-medium text-[var(--fg-tertiary)]">
+        Tipo
+      </span>
+      {options.map((t) => {
+        const on = selected.includes(t);
+        return (
+          <button
+            key={t}
+            type="button"
+            onClick={() => onToggle(t)}
+            aria-pressed={on}
+            className={
+              "inline-flex items-center gap-1 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-none " +
+              (on
+                ? "bg-[var(--fg-primary)] text-[var(--bg-raised)] hover:bg-[var(--fg-secondary)]"
+                : "border border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
+            }
+          >
+            {on && <Icon name="check" size={12} />}
+            {t}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ActorFilter({
+  people,
+  selected,
+  onToggle,
+}: {
+  people: Person[];
+  selected: string[];
+  onToggle: (a: string) => void;
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="mr-1 body-xs font-medium text-[var(--fg-tertiary)]">
+        Executor
+      </span>
+      {people.map((p) => {
+        const on = selected.includes(p.actor);
+        const isCortex = p.actor === "Cortex";
+        return (
+          <button
+            key={p.actor}
+            type="button"
+            onClick={() => onToggle(p.actor)}
+            aria-pressed={on}
+            className={
+              "inline-flex items-center gap-2 rounded-full pr-3 py-1 pl-1 body-xs font-medium transition-colors duration-aw-fast outline-none " +
+              (on
+                ? "bg-[var(--bg-selected)] text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
+                : "border border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
+            }
+          >
+            <AwAvatar
+              size="sm"
+              src={p.avatar}
+              alt={p.actor}
+              initials={getInitials(p.actor)}
+              className={isCortex ? "!border-0" : undefined}
+            />
+            {p.actor}
+          </button>
+        );
+      })}
+    </div>
   );
 }
 
 /* ---------- table row ---------- */
 
-function EventRow({ event }: { event: AuditEvent }) {
+function EventRow({
+  event,
+  onOpenInvoice,
+}: {
+  event: AuditEvent;
+  onOpenInvoice: (id: string) => void;
+}) {
+  const isCortex = event.actor === "Cortex";
   return (
     <tr>
       <td>
@@ -294,7 +380,10 @@ function EventRow({ event }: { event: AuditEvent }) {
           </span>
           {event.meta && (
             <p className="m-0 body-xs text-[var(--fg-secondary)]">
-              {event.meta}
+              <MetaWithInvoiceLink
+                meta={event.meta}
+                onOpenInvoice={onOpenInvoice}
+              />
             </p>
           )}
         </div>
@@ -316,6 +405,7 @@ function EventRow({ event }: { event: AuditEvent }) {
             src={event.actorAvatar}
             alt={event.actor}
             initials={getInitials(event.actor)}
+            className={isCortex ? "!border-0" : undefined}
           />
           <span className="flex flex-col">
             <span className="body-sm font-medium text-[var(--fg-primary)]">
@@ -328,5 +418,37 @@ function EventRow({ event }: { event: AuditEvent }) {
         </span>
       </td>
     </tr>
+  );
+}
+
+/** Renders the event meta string with any "INV-YYYY-MM-NNNN" reference
+ *  upgraded to a clickable link that opens the invoice details sheet —
+ *  but only when the invoice id exists in INVOICE_HISTORY. Unknown ids
+ *  fall back to plain text so we never offer a dead link. */
+function MetaWithInvoiceLink({
+  meta,
+  onOpenInvoice,
+}: {
+  meta: string;
+  onOpenInvoice: (id: string) => void;
+}) {
+  const match = meta.match(INV_PATTERN);
+  if (!match) return <>{meta}</>;
+  const invId = match[0];
+  const exists = INVOICE_HISTORY.some((r) => r.id === invId);
+  if (!exists) return <>{meta}</>;
+  const [before, after] = meta.split(invId);
+  return (
+    <>
+      {before}
+      <button
+        type="button"
+        onClick={() => onOpenInvoice(invId)}
+        className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-[var(--accent-brand)] hover:no-underline"
+      >
+        {invId}
+      </button>
+      {after}
+    </>
   );
 }
