@@ -46,7 +46,7 @@ export function AwSpecialistsPair({
       {(title || description) && (
         <header>
           {title && (
-            <h2 className="m-0 text-[14px] font-semibold text-[var(--fg-primary)]">
+            <h2 className="m-0 text-[length:var(--body-sm-size)] font-semibold text-[var(--fg-primary)]">
               {title}
             </h2>
           )}
@@ -97,7 +97,7 @@ function SpecialistCard({
             maskMode: "alpha",
           }}
         >
-          <CortexSynthesis backgroundColor="#000000" />
+          <CortexSynthesis backgroundColor="var(--bg-inverse)" />
         </div>
       ) : (
         <AwAvatar
@@ -105,12 +105,12 @@ function SpecialistCard({
           src={data.avatarSrc}
           alt={data.name}
           initials={data.initials}
-          className="!h-12 !w-12 !text-[16px]"
+          className="!h-12 !w-12 !text-[length:var(--body-md-size)]"
         />
       )}
 
       <div className="min-w-0 flex-1 flex flex-col gap-0.5">
-        <span className="truncate text-[14px] font-semibold text-[var(--fg-primary)]">
+        <span className="truncate text-[length:var(--body-sm-size)] font-semibold text-[var(--fg-primary)]">
           {data.name}
         </span>
         <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
