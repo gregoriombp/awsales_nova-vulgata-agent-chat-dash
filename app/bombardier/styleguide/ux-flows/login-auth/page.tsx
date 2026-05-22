@@ -440,8 +440,7 @@ export default function LoginAuthFlowPage() {
 
             <div
               className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
-              style={{ backgroundColor: "#fafafa" }}
-              style={{ height: 800 }}
+              style={{ backgroundColor: "var(--bg-muted)", height: 800 }}
             >
               <ReactFlow
                 nodes={displayNodes}
