@@ -121,15 +121,20 @@ function StepRow({
 
       <div
         className={cn(
-          "grid transition-[grid-template-rows,opacity] duration-200 ease-out",
-          isExpanded
-            ? "grid-rows-[1fr] opacity-100"
-            : "grid-rows-[0fr] opacity-0",
+          "grid transition-[grid-template-rows] duration-[var(--dur-slow)] ease-[var(--ease-out)]",
+          isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
         aria-hidden={!isExpanded}
       >
         <div className="overflow-hidden">
-          <div className="space-y-4 pt-2">
+          <div
+            className={cn(
+              "space-y-4 pt-2 transition-[opacity,transform] duration-[var(--dur-slow)] ease-[var(--ease-out)]",
+              isExpanded
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-1",
+            )}
+          >
             {step.description && (
               <p className="m-0 max-w-[520px] body-sm text-[var(--fg-secondary)]">
                 {step.description}
@@ -201,7 +206,7 @@ export function AwOnboardingTimeline({
 
   return (
     <section className={cn("flex flex-col gap-6", className)}>
-      <h2 className="m-0 text-[32px] font-semibold leading-[1.15] tracking-[-0.02em] text-[var(--fg-primary)]">
+      <h2 className="m-0 text-[length:var(--h2-size)] font-semibold leading-[1.15] tracking-[-0.02em] text-[var(--fg-primary)]">
         {title}
       </h2>
 
