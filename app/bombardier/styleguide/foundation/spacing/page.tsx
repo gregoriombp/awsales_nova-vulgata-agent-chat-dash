@@ -417,8 +417,8 @@ function Rule({
 }) {
   return (
     <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <div className="aw-eyebrow text-[var(--aw-blue-800)]">{tier}</div>
-      <div className="text-sm font-medium text-[var(--fg-primary)]">
+      <div className="body-xs font-medium text-[var(--aw-blue-800)]">{tier}</div>
+      <div className="text-base font-medium text-[var(--fg-primary)]">
         {title}
       </div>
       <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
