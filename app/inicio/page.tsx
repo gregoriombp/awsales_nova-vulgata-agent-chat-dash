@@ -125,7 +125,15 @@ export default function Inicio() {
     <DashboardLayout>
       <div className="mx-auto w-full max-w-[1120px] px-6 py-10 md:px-10">
         <AwOnboardingTimeline
-          title={`Bem-vindo, ${ONBOARDING_USER.firstName}. Vamos colocar a ${ONBOARDING_ORG.name} pra rodar.`}
+          title={
+            <>
+              Bem-vindo, {ONBOARDING_USER.firstName}.
+              <br />
+              <span className="font-light text-[var(--fg-secondary)]">
+                Vamos colocar a {ONBOARDING_ORG.name} pra rodar.
+              </span>
+            </>
+          }
           steps={steps}
           preview={
             <div className="relative h-full min-h-[360px] w-full">
