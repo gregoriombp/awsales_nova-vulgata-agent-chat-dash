@@ -84,7 +84,7 @@ function ConcluidoContent() {
         </div>
 
         <div className="flex justify-center">
-          <Link href="/inicio" className="aw-btn aw-btn--primary aw-btn--md">
+          <Link href="/inicio?welcome=1" className="aw-btn aw-btn--primary aw-btn--md">
             <span className="aw-btn__label">Acessar a plataforma</span>
             <Icon name="arrow_forward" size={16} />
           </Link>
