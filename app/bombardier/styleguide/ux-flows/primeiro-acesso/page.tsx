@@ -20,6 +20,11 @@ import {
 import "@xyflow/react/dist/style.css"
 
 import { PageHero, Section } from "../../_primitives"
+import {
+  FlowUpdatesBadge,
+  FlowUpdatesHistorySection,
+  type FlowUpdate,
+} from "../_components/flow-updates"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Custom nodes
@@ -321,6 +326,20 @@ const screens = [
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
+ * Updates log — structural changes only. Add new entries at the top.
+ * Managed by the `bombardier-update-ux-flow` skill.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-21",
+    summary:
+      "Branch condicional 'link expirado' adicionado quando o e-mail de primeiro acesso passa de 10 dias.",
+    tags: ["new-page", "new-branch"],
+  },
+]
+
+/* ─────────────────────────────────────────────────────────────────────
  * Page
  * ──────────────────────────────────────────────────────────────────── */
 
@@ -394,7 +413,10 @@ export default function PrimeiroAcessoFlowPage() {
 
   return (
     <>
-      <PageHero title="Primeiro acesso">
+      <PageHero
+        title="Primeiro acesso"
+        trailing={<FlowUpdatesBadge updates={updates} />}
+      >
         Fluxo completo de onboarding do novo cliente, em 6 etapas. O cliente se
         autentica logo no começo — antes de aceitar o contrato e de qualquer
         pagamento. Use este mapa quando precisar entender pra onde uma decisão
@@ -584,6 +606,8 @@ export default function PrimeiroAcessoFlowPage() {
             </div>
           </div>
         </Section>
+
+        <FlowUpdatesHistorySection updates={updates} />
       </div>
 
       {/* ── Save suggestion dialog ──────────────────────────────────────── */}
