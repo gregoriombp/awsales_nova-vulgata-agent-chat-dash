@@ -445,7 +445,7 @@ export function AwFileIcon({
 }: AwFileIconProps) {
   const resolved: AwFileIconType = ext ? awFileIconTypeFromExt(ext) : type
   const def: FileTypeDef = TYPES[resolved] ?? TYPES.generic
-  const fg = def.fg ?? "#fff"
+  const fg = def.fg ?? "var(--fg-on-inverse)"
   const { tile, bare: bareSize } = SIZE_PX[size]
   const wrapperSize = bare ? bareSize : tile
   const radius = bare ? Math.round(wrapperSize * 0.26) : 10

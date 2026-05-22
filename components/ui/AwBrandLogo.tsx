@@ -379,7 +379,7 @@ export function AwBrandLogo({
 }: AwBrandLogoProps) {
   const def: Brand | undefined = BRANDS[brand]
   const known = !!def
-  const fg = def?.fg ?? "#fff"
+  const fg = def?.fg ?? "var(--fg-on-inverse)"
   const { tile, bare: bareSize } = SIZE_PX[size]
   const wrapperSize = bare ? bareSize : tile
   const radius = bare ? Math.round(wrapperSize * 0.26) : 10
@@ -405,7 +405,7 @@ export function AwBrandLogo({
       style={{
         fontSize: Math.round(wrapperSize * 0.42),
         fontWeight: 700,
-        color: "#fff",
+        color: "var(--fg-on-inverse)",
         fontFamily: "var(--font-sans)",
         letterSpacing: "-0.02em",
       }}

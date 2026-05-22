@@ -288,7 +288,7 @@ export function AwCardBrand({
   }
 
   const def = BRANDS[resolved]
-  const fg = "#fff"
+  const fg = "var(--fg-on-inverse)"
 
   return (
     <div
