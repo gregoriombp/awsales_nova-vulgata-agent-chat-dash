@@ -95,17 +95,20 @@ const BOLETO_X = 520
 const ACESSAR_X   = 80
 const CONSULTOR_X = 480
 
+const EXPIRADO_X  = 560
+
 const Y = {
   entrada:        0,
-  verificacao:  160,
-  conta:        320,
-  perfil:       490,
-  contrato:     640,
-  pagamento:    800,
-  methods:     1000,
-  concluido:   1200,
-  finalDecision: 1360,
-  finalOptions:  1520,
+  linkValido:   160,
+  verificacao:  360,
+  conta:        520,
+  perfil:       690,
+  contrato:     840,
+  pagamento:   1000,
+  methods:     1200,
+  concluido:   1400,
+  finalDecision: 1560,
+  finalOptions:  1720,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -120,10 +123,22 @@ const NODES: Node[] = [
     data: { step: "entrada", title: "Login", href: "/", note: "Tela de login. Clique em Primeiro acesso para iniciar o fluxo." },
   },
   {
+    id: "linkValido",
+    type: "decision",
+    position: { x: COL_D, y: Y.linkValido },
+    data: { step: "link", title: "Link ainda válido?", question: "Usuário clicou no link do e-mail em até 10 dias?" },
+  },
+  {
     id: "verificacao",
     type: "screen",
     position: { x: COL, y: Y.verificacao },
     data: { step: "01", title: "Verificação", href: "/primeiro-acesso/verificacao", note: "Valida o código de primeiro acesso de 6 dígitos." },
+  },
+  {
+    id: "linkExpirado",
+    type: "screen",
+    position: { x: EXPIRADO_X, y: Y.verificacao },
+    data: { step: "01b", title: "Link expirado", href: "/primeiro-acesso/link-expirado", note: "Fora do fluxo demo. Mostra o aviso e oferece reenvio." },
   },
   {
     id: "conta",
@@ -217,7 +232,9 @@ const labelProps = {
 }
 
 const EDGES: Edge[] = [
-  { ...edgeBase, id: "e-entrada-verificacao", source: "entrada", target: "verificacao", label: "Primeiro acesso", ...labelProps },
+  { ...edgeBase, id: "e-entrada-linkValido", source: "entrada", target: "linkValido", label: "Primeiro acesso", ...labelProps },
+  { ...branchEdge, id: "e-linkValido-verificacao", source: "linkValido", target: "verificacao", sourceHandle: "bottom", label: "Sim · até 10 dias", ...labelProps },
+  { ...branchEdge, id: "e-linkValido-expirado",   source: "linkValido", target: "linkExpirado", sourceHandle: "right",  label: "Não · expirado",   ...labelProps },
   { ...edgeBase, id: "e-verificacao-conta", source: "verificacao", target: "conta" },
   { ...edgeBase, id: "e-conta-perfil", source: "conta", target: "perfil", sourceHandle: "bottom" },
   { ...edgeBase, id: "e-perfil-contrato", source: "perfil", target: "contrato" },
@@ -258,6 +275,13 @@ const screens = [
     href: "/primeiro-acesso/verificacao",
     purpose: "Primeira tela do produto. Valida o código de primeiro acesso de 6 dígitos enviado no e-mail de convite e confirma que aquela pessoa foi convidada.",
     decisions: "Código válido → segue para a criação da conta.",
+  },
+  {
+    step: "01b",
+    title: "Link expirado",
+    href: "/primeiro-acesso/link-expirado",
+    purpose: "Tela condicional fora do fluxo demo. Aparece quando o usuário clica no e-mail de primeiro acesso depois do prazo de 10 dias. Apresenta o motivo (link expirado) e a ação única de solicitar um novo link.",
+    decisions: 'Solicitar novo link → novo e-mail é enviado; "Voltar para o login" volta pra "/".',
   },
   {
     step: "02",
@@ -382,8 +406,10 @@ export default function PrimeiroAcessoFlowPage() {
           Seis etapas lineares do convite ao ambiente ativo: verificação do código,
           criação de conta, perfil, contrato, pagamento (com 3 métodos disponíveis) e
           confirmação. A autenticação acontece na etapa 02 — antes do contrato e de
-          qualquer cobrança. No final, o cliente escolhe acessar a plataforma direto ou
-          conversar com o consultor.
+          qualquer cobrança. Há um ramo condicional logo no início: se o link de e-mail
+          expirar (10 dias), o usuário cai numa tela de reenvio fora do fluxo demo. No
+          final, o cliente escolhe acessar a plataforma direto ou conversar com o
+          consultor.
         </p>
 
         <Section
@@ -418,7 +444,7 @@ export default function PrimeiroAcessoFlowPage() {
 
             <div
               className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-subtle)] overflow-hidden"
-              style={{ height: 1440 }}
+              style={{ height: 1960 }}
             >
               <ReactFlow
                 nodes={displayNodes}
@@ -548,6 +574,12 @@ export default function PrimeiroAcessoFlowPage() {
               <div className="aw-eyebrow mb-2">OAuth como caminho preferido</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
                 Google/Microsoft no topo, senha como terceira opção. Usuário corporativo (público-alvo) prefere SSO. Reduz reset de senha no longo prazo.
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">Link expira em 10 dias</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                Links de primeiro acesso são one-time e expiram após 10 dias. Quem clica depois cai numa tela explícita com reemissão imediata — evita o silêncio frustrante de um link que simplesmente não funciona, sem explicar por quê.
               </p>
             </div>
           </div>
