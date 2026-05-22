@@ -55,7 +55,7 @@ export function PaymentMethodCard({
   return (
     <article
       className={cn(
-        "relative isolate aspect-[1.586/1] w-full max-w-[360px] overflow-hidden rounded-[var(--radius-xl)] text-white shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)]",
+        "relative isolate aspect-[1.586/1] w-full max-w-[440px] overflow-hidden rounded-[var(--radius-xl)] text-white shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)]",
         className
       )}
       aria-label={`${brandLabel} •••• ${last4}`}
@@ -88,10 +88,9 @@ export function PaymentMethodCard({
         <div className="flex items-start justify-between gap-3">
           {isDefault ? (
             <span
-              className="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.08em] text-white/85 backdrop-blur-sm"
-              aria-label="Método principal"
+              className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-normal text-white/70 backdrop-blur-sm"
+              aria-label="Pagamento principal"
             >
-              <Icon name="check" size={11} weight={500} />
               Pagamento principal
             </span>
           ) : (

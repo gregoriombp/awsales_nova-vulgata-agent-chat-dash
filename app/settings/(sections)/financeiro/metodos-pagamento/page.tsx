@@ -247,7 +247,7 @@ function PrimaryCard({
   const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-wrap items-start gap-5">
       <PaymentMethodCard
         brand={BRAND_TO_AW[method.brand]}
         last4={method.last4}
@@ -257,14 +257,14 @@ function PrimaryCard({
         expiresAt={method.expiresAt}
       />
 
-      <div className="flex max-w-[360px] flex-wrap items-center gap-2">
+      <div className="flex flex-col items-start gap-2 pt-1">
         <AwButton
           size="sm"
           variant="secondary"
           iconLeft="edit"
           onClick={() => {}}
         >
-          Alterar método de pagamento
+          Alterar método
         </AwButton>
         <AwButton
           size="sm"
@@ -280,7 +280,7 @@ function PrimaryCard({
           <AwPill
             variant={expired ? "error" : "warning"}
             dot={false}
-            className="ml-auto"
+            className="mt-1"
           >
             {expired
               ? `Expirado em ${method.expiresAt}`
