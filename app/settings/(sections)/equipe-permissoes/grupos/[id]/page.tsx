@@ -17,6 +17,7 @@ import {
   AwMembersTableTextCell,
 } from "@/components/ui/AwMembersTable";
 import { GROUP_BACKGROUNDS, GROUPS, MEMBERS, type Member } from "../../_components/data";
+import { InviteModal } from "../../_components/InviteModal";
 import { TeamTabs } from "../../_components/TeamTabs";
 
 type ActivityKind = "join" | "leave" | "role" | "permission" | "cover" | "rename";
@@ -60,10 +61,17 @@ export default function GroupDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [groupName, setGroupName] = useState<string>(group?.name ?? "");
   const [groupIcon, setGroupIcon] = useState<string>(group?.icon ?? "groups");
+  const [groupIconColor, setGroupIconColor] = useState<string>("var(--bg-raised)");
   const [renameOpen, setRenameOpen] = useState(false);
   const [iconOpen, setIconOpen] = useState(false);
   const [activityView, setActivityView] = useState<"summary" | "all">("summary");
   const [removeMember, setRemoveMember] = useState<Member | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [groupMemberIds, setGroupMemberIds] = useState<string[]>([]);
+  React.useEffect(() => {
+    if (group) setGroupMemberIds(group.members);
+  }, [group]);
 
   if (!group) {
     return (
@@ -87,9 +95,21 @@ export default function GroupDetailPage() {
     );
   }
 
-  const members = group.members
+  const members = groupMemberIds
     .map((mid) => MEMBERS.find((m) => m.id === mid))
     .filter((m): m is NonNullable<typeof m> => Boolean(m));
+
+  const candidateMembers = MEMBERS.filter(
+    (m) => !groupMemberIds.includes(m.id),
+  );
+
+  const addMembers = (ids: string[]) => {
+    setGroupMemberIds((current) => [
+      ...current,
+      ...ids.filter((id) => !current.includes(id)),
+    ]);
+    setAddOpen(false);
+  };
 
   return (
     <>
@@ -143,8 +163,8 @@ export default function GroupDetailPage() {
                 },
                 {
                   id: "icon",
-                  label: "Alterar ícone",
-                  icon: "category",
+                  label: "Alterar ícone e cor",
+                  icon: "palette",
                   onSelect: () => setIconOpen(true),
                 },
                 {
@@ -165,7 +185,10 @@ export default function GroupDetailPage() {
             />
           </div>
           <div className="absolute bottom-5 left-5 flex items-end gap-4">
-            <span className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]">
+            <span
+              className="flex h-20 w-20 items-center justify-center rounded-full text-[var(--fg-primary)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+              style={{ background: groupIconColor }}
+            >
               <Icon name={groupIcon} size={36} />
             </span>
             <div>
@@ -234,7 +257,7 @@ export default function GroupDetailPage() {
             onBack={() => setActivityView("summary")}
           />
         ) : (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-8">
           {/* Members */}
           <section>
             <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
@@ -246,7 +269,12 @@ export default function GroupDetailPage() {
                   Pessoas que herdam as permissões dessa equipe automaticamente.
                 </p>
               </div>
-              <AwButton size="sm" variant="primary" iconLeft="person_add">
+              <AwButton
+                size="sm"
+                variant="primary"
+                iconLeft="person_add"
+                onClick={() => setAddOpen(true)}
+              >
                 Adicionar membros
               </AwButton>
             </header>
@@ -318,59 +346,55 @@ export default function GroupDetailPage() {
             )}
           </section>
 
-          {/* Side panel */}
-          <aside className="flex flex-col gap-4">
-            <AwCard className="!rounded-[var(--radius-xl)]">
-              <div className="flex flex-col gap-2">
-                <span className="body-md font-semibold text-[var(--fg-primary)]">
-                  Resumo
-                </span>
-                <Stat label="Membros" value={String(members.length)} />
-                <Stat label="ID da equipe" value={group.id} mono />
-              </div>
-            </AwCard>
-
-            <AwCard className="!rounded-[var(--radius-xl)]">
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="body-md font-semibold text-[var(--fg-primary)]">
-                    Atividade recente
-                  </span>
-                </div>
-                <ActivityTimeline
-                  events={ACTIVITY_EVENTS.slice(0, 6)}
-                />
-                <button
-                  type="button"
-                  onClick={() => setActivityView("all")}
-                  className="self-start body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-                >
-                  Ver todas as atividades
-                </button>
-              </div>
-            </AwCard>
-
-            <AwCard className="!rounded-[var(--radius-xl)] !border-[var(--accent-danger)]/30 !bg-[var(--accent-danger)]/5">
-              <div className="flex flex-col gap-2">
-                <span className="body-md font-semibold text-[var(--fg-primary)]">
-                  Excluir equipe
-                </span>
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">
-                  Remove a equipe — os membros continuam com acesso individual.
+          {/* Activity — full width, no card chrome */}
+          <section>
+            <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+                  Atividade recente
+                </h6>
+                <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+                  Eventos mais recentes da equipe — entradas, saídas, mudanças
+                  de função e personalizações.
                 </p>
-                <div>
-                  <AwButton
-                    size="sm"
-                    variant="danger"
-                    iconLeft="delete"
-                    onClick={() => setDeleteOpen(true)}
-                  >
-                    Excluir
-                  </AwButton>
-                </div>
               </div>
-            </AwCard>
-          </aside>
+              <button
+                type="button"
+                onClick={() => setActivityView("all")}
+                className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+              >
+                Ver todas as atividades
+              </button>
+            </header>
+            <ActivityTimeline events={ACTIVITY_EVENTS.slice(0, 6)} />
+          </section>
+
+          {/* Footer meta — resumo + danger inline */}
+          <section className="flex flex-wrap items-center justify-between gap-6 border-t border-[var(--border-subtle)] pt-6">
+            <dl className="m-0 flex flex-wrap items-center gap-x-8 gap-y-2 body-xs">
+              <div className="flex items-center gap-2">
+                <dt className="m-0 text-[var(--fg-tertiary)]">Membros</dt>
+                <dd className="m-0 font-medium text-[var(--fg-primary)]">
+                  {members.length}
+                </dd>
+              </div>
+              <div className="flex items-center gap-2">
+                <dt className="m-0 text-[var(--fg-tertiary)]">ID</dt>
+                <dd className="m-0 mono text-[11px] text-[var(--fg-primary)]">
+                  {group.id}
+                </dd>
+              </div>
+            </dl>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft="delete"
+              onClick={() => setDeleteOpen(true)}
+              className="text-[var(--accent-danger)] hover:!bg-[var(--aw-red-100)]"
+            >
+              Excluir equipe
+            </AwButton>
+          </section>
         </div>
         )}
       </div>
@@ -388,12 +412,28 @@ export default function GroupDetailPage() {
       <ChangeIconModal
         open={iconOpen}
         onClose={() => setIconOpen(false)}
-        current={groupIcon}
-        onSelect={(v) => {
-          setGroupIcon(v);
+        currentIcon={groupIcon}
+        currentColor={groupIconColor}
+        onSelect={(icon, color) => {
+          setGroupIcon(icon);
+          setGroupIconColor(color);
           setIconOpen(false);
         }}
       />
+
+      <AddMembersToGroupModal
+        open={addOpen}
+        onClose={() => setAddOpen(false)}
+        candidates={candidateMembers}
+        groupName={groupName}
+        onAddExisting={addMembers}
+        onInviteNew={() => {
+          setAddOpen(false);
+          setInviteOpen(true);
+        }}
+      />
+
+      <InviteModal open={inviteOpen} onClose={() => setInviteOpen(false)} />
 
       <AwModal
         open={removeMember !== null}
@@ -464,24 +504,24 @@ function CoverEditButton({ onClick }: { onClick: () => void }) {
 
 function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
   return (
-    <ol className="relative m-0 flex list-none flex-col gap-3 p-0">
+    <ol className="relative m-0 flex list-none flex-col gap-4 p-0">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-1 left-[11px] top-1 w-px bg-[var(--border-subtle)]"
+        className="pointer-events-none absolute bottom-2 left-[15px] top-2 w-px bg-[var(--border-subtle)]"
       />
       {events.map((event) => (
-        <li key={event.id} className="m-0 flex items-start gap-3">
+        <li key={event.id} className="m-0 flex items-start gap-4">
           <span
             aria-hidden="true"
-            className="relative z-[1] flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-secondary)]"
+            className="relative z-[1] flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)]"
           >
-            <Icon name={activityIcon(event.kind)} size={13} />
+            <Icon name={activityIcon(event.kind)} size={16} />
           </span>
-          <span className="min-w-0 flex-1">
-            <span className="block body-xs text-[var(--fg-primary)]">
+          <span className="min-w-0 flex-1 pt-0.5">
+            <span className="block body-sm text-[var(--fg-primary)]">
               {event.text}
             </span>
-            <span className="block aw-eyebrow text-[var(--fg-tertiary)]">
+            <span className="mt-0.5 block body-xs text-[var(--fg-tertiary)]">
               {event.when}
             </span>
           </span>
@@ -596,65 +636,278 @@ const ICON_OPTIONS = [
   "school",
 ] as const;
 
+const COLOR_OPTIONS: { id: string; label: string; value: string }[] = [
+  { id: "neutral", label: "Neutro", value: "var(--bg-raised)" },
+  { id: "blue", label: "Azul", value: "var(--aw-blue-100)" },
+  { id: "emerald", label: "Verde", value: "var(--aw-emerald-100)" },
+  { id: "amber", label: "Âmbar", value: "var(--aw-amber-100)" },
+  { id: "red", label: "Vermelho", value: "var(--aw-red-100)" },
+  { id: "purple", label: "Roxo", value: "var(--aw-purple-100)" },
+  { id: "pink", label: "Rosa", value: "var(--aw-pink-100)" },
+  { id: "teal", label: "Teal", value: "var(--aw-teal-100)" },
+  { id: "lime", label: "Lima", value: "var(--aw-lime-100)" },
+];
+
 function ChangeIconModal({
   open,
   onClose,
-  current,
+  currentIcon,
+  currentColor,
   onSelect,
 }: {
   open: boolean;
   onClose: () => void;
-  current: string;
-  onSelect: (icon: string) => void;
+  currentIcon: string;
+  currentColor: string;
+  onSelect: (icon: string, color: string) => void;
 }) {
+  const [icon, setIcon] = useState(currentIcon);
+  const [color, setColor] = useState(currentColor);
+
+  React.useEffect(() => {
+    if (open) {
+      setIcon(currentIcon);
+      setColor(currentColor);
+    }
+  }, [open, currentIcon, currentColor]);
+
   return (
-    <AwModal open={open} onClose={onClose} title="Alterar ícone">
-      <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-        {ICON_OPTIONS.map((iconName) => {
-          const active = iconName === current;
-          return (
-            <button
-              key={iconName}
-              type="button"
-              onClick={() => onSelect(iconName)}
-              aria-pressed={active}
-              className={
-                "flex aspect-square items-center justify-center rounded-[var(--radius-md)] border transition-colors duration-aw-fast " +
-                (active
-                  ? "border-[var(--fg-primary)] bg-[var(--bg-muted)] text-[var(--fg-primary)]"
-                  : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
-              }
-            >
-              <Icon name={iconName} size={22} />
-            </button>
-          );
-        })}
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title="Alterar ícone e cor"
+      footer={
+        <div className="flex items-center justify-end gap-2">
+          <AwButton size="sm" variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="primary"
+            iconLeft="check"
+            onClick={() => onSelect(icon, color)}
+          >
+            Aplicar
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        {/* Live preview */}
+        <div className="flex items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] py-6">
+          <span
+            className="flex h-16 w-16 items-center justify-center rounded-full text-[var(--fg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+            style={{ background: color }}
+          >
+            <Icon name={icon} size={28} />
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="m-0 body-xs font-medium text-[var(--fg-secondary)]">
+            Ícone
+          </p>
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {ICON_OPTIONS.map((iconName) => {
+              const active = iconName === icon;
+              return (
+                <button
+                  key={iconName}
+                  type="button"
+                  onClick={() => setIcon(iconName)}
+                  aria-pressed={active}
+                  className={
+                    "flex aspect-square items-center justify-center rounded-[var(--radius-md)] border transition-colors duration-aw-fast " +
+                    (active
+                      ? "border-[var(--fg-primary)] bg-[var(--bg-muted)] text-[var(--fg-primary)]"
+                      : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
+                  }
+                >
+                  <Icon name={iconName} size={22} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <p className="m-0 body-xs font-medium text-[var(--fg-secondary)]">
+            Cor
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {COLOR_OPTIONS.map((c) => {
+              const active = c.value === color;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => setColor(c.value)}
+                  aria-pressed={active}
+                  title={c.label}
+                  className={
+                    "flex h-9 w-9 items-center justify-center rounded-full border-2 transition-colors duration-aw-fast " +
+                    (active
+                      ? "border-[var(--fg-primary)]"
+                      : "border-transparent hover:border-[var(--border-default)]")
+                  }
+                >
+                  <span
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-subtle)]"
+                    style={{ background: c.value }}
+                  >
+                    {active && <Icon name="check" size={14} />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </AwModal>
   );
 }
 
-function Stat({
-  label,
-  value,
-  mono,
+function AddMembersToGroupModal({
+  open,
+  onClose,
+  candidates,
+  groupName,
+  onAddExisting,
+  onInviteNew,
 }: {
-  label: string;
-  value: string;
-  mono?: boolean;
+  open: boolean;
+  onClose: () => void;
+  candidates: Member[];
+  groupName: string;
+  onAddExisting: (ids: string[]) => void;
+  onInviteNew: () => void;
 }) {
+  const [picked, setPicked] = useState<string[]>([]);
+  const [search, setSearch] = useState("");
+
+  React.useEffect(() => {
+    if (open) {
+      setPicked([]);
+      setSearch("");
+    }
+  }, [open]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return candidates;
+    return candidates.filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        m.email.toLowerCase().includes(q),
+    );
+  }, [candidates, search]);
+
+  const toggle = (id: string) =>
+    setPicked((cur) =>
+      cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id],
+    );
+
   return (
-    <div className="flex items-baseline justify-between gap-3 body-xs">
-      <span className="text-[var(--fg-tertiary)]">{label}</span>
-      <span
-        className={[
-          "font-medium text-[var(--fg-primary)]",
-          mono ? "font-mono text-[10px]" : "",
-        ].join(" ")}
-      >
-        {value}
-      </span>
-    </div>
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title={`Adicionar membros a ${groupName}`}
+      footer={
+        <div className="flex items-center justify-between gap-2">
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="mail"
+            onClick={onInviteNew}
+          >
+            Convidar novo membro
+          </AwButton>
+          <div className="flex items-center gap-2">
+            <AwButton size="sm" variant="ghost" onClick={onClose}>
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="person_add"
+              disabled={picked.length === 0}
+              onClick={() => onAddExisting(picked)}
+            >
+              Adicionar {picked.length > 0 ? `(${picked.length})` : ""}
+            </AwButton>
+          </div>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          Escolha pessoas da organização ou convide alguém novo. Membros já
+          parte da equipe não aparecem na lista.
+        </p>
+        <AwInput
+          iconLeft="search"
+          placeholder="Buscar pelo nome ou e-mail…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+        {candidates.length === 0 ? (
+          <p className="m-0 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 py-4 text-center body-xs text-[var(--fg-secondary)]">
+            Todas as pessoas da organização já estão nessa equipe. Convide
+            alguém novo pra adicionar.
+          </p>
+        ) : (
+          <ul className="m-0 max-h-[320px] overflow-y-auto p-0">
+            {filtered.length === 0 && (
+              <li className="m-0 list-none px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
+                Nenhuma pessoa encontrada.
+              </li>
+            )}
+            {filtered.map((m) => {
+              const on = picked.includes(m.id);
+              return (
+                <li
+                  key={m.id}
+                  className="m-0 list-none border-b border-[var(--border-subtle)] last:border-b-0"
+                >
+                  <button
+                    type="button"
+                    onClick={() => toggle(m.id)}
+                    aria-pressed={on}
+                    className="flex w-full items-center gap-3 px-1 py-2.5 text-left outline-none transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] focus-visible:bg-[var(--bg-hover)]"
+                  >
+                    <AwAvatar
+                      size="sm"
+                      src={m.avatar}
+                      alt={m.name}
+                      initials={m.initials}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+                        {m.name}
+                      </span>
+                      <span className="block truncate body-xs text-[var(--fg-tertiary)]">
+                        {m.email} · {m.role}
+                      </span>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={
+                        "flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border transition-colors duration-aw-fast " +
+                        (on
+                          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
+                          : "border-[var(--border-default)] bg-[var(--bg-raised)]")
+                      }
+                    >
+                      {on && <Icon name="check" size={12} />}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </AwModal>
   );
 }
 
