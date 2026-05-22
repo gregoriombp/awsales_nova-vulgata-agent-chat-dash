@@ -817,7 +817,7 @@ function ContrastCard({
           minHeight: 96,
         }}
       >
-        <span className="text-xl font-medium">Aa · texto exemplar</span>
+        <span className="text-xl font-medium">Aa · Texto Exemplar</span>
       </div>
       <div className="px-4 py-3 bg-[var(--bg-raised)] border-t border-[var(--border-subtle)] flex flex-col gap-1">
         <span className="text-sm font-medium text-[var(--fg-primary)]">
