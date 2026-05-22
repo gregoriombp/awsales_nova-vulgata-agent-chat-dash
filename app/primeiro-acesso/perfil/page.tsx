@@ -177,12 +177,6 @@ function PerfilContent() {
         </div>
 
         <div className="mt-6 rounded-xl border border-border-subtle bg-bg-raised p-4">
-          {!invoiceSelf && (
-            <div className="aw-eyebrow mb-3 text-fg-tertiary">
-              Quem recebe as faturas
-            </div>
-          )}
-
           <label className="flex cursor-pointer gap-3">
             <AwCheckbox
               checked={invoiceSelf}
@@ -198,11 +192,13 @@ function PerfilContent() {
               </span>
             </span>
           </label>
+        </div>
 
+        <div className="mt-3">
           <button
             type="button"
             onClick={addEmail}
-            className="mt-3 inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
+            className="inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
           >
             <Icon name="add" size={14} />
             Adicionar e-mail

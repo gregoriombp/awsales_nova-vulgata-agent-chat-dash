@@ -163,10 +163,6 @@ function PagamentoContent() {
               <span className="aw-btn__label">Voltar</span>
             </Link>
             <span className="flex-1" />
-            <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-              <Icon name="lock" size={12} />
-              Conexão criptografada
-            </span>
             <div
               className={[
                 "transition-[opacity,transform] duration-aw-base ease-aw-out",
@@ -619,10 +615,6 @@ function CheckoutPhase({
           <span className="aw-btn__label">Ajustar pagamento</span>
         </button>
         <span className="flex-1" />
-        <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-          <Icon name="lock" size={12} />
-          conexão criptografada
-        </span>
         <button
           type="button"
           onClick={onSubmit}

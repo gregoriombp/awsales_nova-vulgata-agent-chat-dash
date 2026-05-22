@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
+import { AwFileIcon } from "@/components/ui/AwFileIcon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import {
   ONBOARDING_ORG,
@@ -127,7 +128,7 @@ function ContratoContent() {
         </Section>
 
         <div className="mt-4 flex flex-wrap items-center gap-4 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3">
-          <span className="aw-eyebrow flex-shrink-0 text-fg-tertiary">
+          <span className="body-xs font-medium flex-shrink-0 text-fg-secondary">
             Seu time AwSales
           </span>
           <span
@@ -139,9 +140,7 @@ function ContratoContent() {
         </div>
 
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">
-          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xs bg-aw-red-100 text-[9px] font-semibold tracking-wide text-aw-red-700">
-            PDF
-          </span>
+          <AwFileIcon type="pdf" size="sm" />
           <span className="min-w-0 flex-1">
             <span className="block body-xs font-medium text-fg-primary">
               Contrato_{ORG.razaoSocial.replace(/\s+/g, "_")}.pdf
@@ -205,10 +204,6 @@ function ContratoContent() {
             <span className="aw-btn__label">Voltar</span>
           </Link>
           <span className="flex-1" />
-          <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-            <Icon name="lock" size={12} />
-            Conexão criptografada
-          </span>
           {accepted ? (
             <Link href={nextHref} className="aw-btn aw-btn--primary aw-btn--md">
               <span className="aw-btn__label">Aceitar e ir para pagamento</span>
