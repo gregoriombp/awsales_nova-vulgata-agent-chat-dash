@@ -40,7 +40,6 @@ export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
     matchPrefixes: ["/settings/financeiro"],
     subRoutes: {
       "visao-geral": "Visão geral",
-      "saldo-creditos": "Saldo de créditos",
       "metodos-pagamento": "Métodos de pagamento",
       "historico-faturas": "Histórico de faturas",
       auditoria: "Atividade",

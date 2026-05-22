@@ -247,14 +247,6 @@ function ShortcutGrid() {
       <ul className="m-0 grid grid-cols-1 list-none p-0 sm:grid-cols-2">
         <li className="m-0">
           <AwShortcutTile
-            icon="redeem"
-            title="Saldo de créditos"
-            description={`${brl(CREDITS_KPIS.availableDiscount)} disponível · ${CREDITS_KPIS.activeVouchers} vouchers ativos`}
-            href="/settings/financeiro/saldo-creditos"
-          />
-        </li>
-        <li className="m-0">
-          <AwShortcutTile
             icon="credit_card"
             title="Métodos de pagamento"
             description={
