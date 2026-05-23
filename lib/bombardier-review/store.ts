@@ -179,8 +179,13 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   toggleShowResolved: () => set((s) => ({ showResolved: !s.showResolved })),
 
   hydrateIdentity: async () => {
-    const identity = await get().storage.getIdentity()
-    set({ identity, identityHydrated: true })
+    try {
+      const identity = await get().storage.getIdentity()
+      set({ identity, identityHydrated: true })
+    } catch (e) {
+      console.warn("[review] failed to hydrate identity:", e)
+      set({ identityHydrated: true })
+    }
   },
 
   setIdentity: async (name, colorToken) => {
@@ -369,8 +374,12 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   },
 
   refreshFromStorage: async () => {
-    const comments = await get().storage.listComments()
-    set({ comments })
+    try {
+      const comments = await get().storage.listComments()
+      set({ comments })
+    } catch (e) {
+      console.warn("[review] failed to load comments:", e)
+    }
   },
 
   loadArchivePage: async (reset = true) => {
