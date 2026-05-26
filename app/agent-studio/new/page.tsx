@@ -511,9 +511,21 @@ const IntegrationIcon = ({ type }: { type: string }) => {
 const ModuleTag = ({ module }: { module: PromptModule }) => {
   const colors: Record<string, { bg: string; text: string; border: string }> = {
     variable: { bg: "bg-bg-surface", text: "text-fg-primary", border: "border-border" },
-    action: { bg: "bg-[#e8f5e9]", text: "text-[#1b5e20]", border: "border-[#c8e6c9]" },
-    condition: { bg: "bg-[#fff3e0]", text: "text-[#e65100]", border: "border-[#ffe0b2]" },
-    loop: { bg: "bg-[#e3f2fd]", text: "text-[#0d47a1]", border: "border-[#bbdefb]" },
+    action: {
+      bg: "bg-[var(--aw-emerald-150)]",
+      text: "text-[var(--aw-emerald-900)]",
+      border: "border-[var(--aw-emerald-300)]",
+    },
+    condition: {
+      bg: "bg-[var(--aw-amber-150)]",
+      text: "text-[var(--aw-amber-900)]",
+      border: "border-[var(--aw-amber-300)]",
+    },
+    loop: {
+      bg: "bg-[var(--aw-blue-150)]",
+      text: "text-[var(--aw-blue-900)]",
+      border: "border-[var(--aw-blue-300)]",
+    },
   };
 
   const style = colors[module.type] || colors.variable;
@@ -521,7 +533,7 @@ const ModuleTag = ({ module }: { module: PromptModule }) => {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md ${style.bg} ${style.text} border ${style.border} font-mono text-xs`}>
       {module.type === "action" && (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[#1b5e20]">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[var(--aw-emerald-900)]">
           <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       )}
@@ -635,9 +647,9 @@ const FlowNodeComponent = ({
     switch (type) {
       case "trigger":
         return {
-          bg: "bg-black",
-          border: "border-black",
-          text: "text-white",
+          bg: "bg-[var(--bg-inverse)]",
+          border: "border-[var(--bg-inverse)]",
+          text: "text-[var(--fg-on-inverse)]",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
@@ -647,9 +659,9 @@ const FlowNodeComponent = ({
       case "greeting":
       case "message":
         return {
-          bg: "bg-white",
-          border: "border-border",
-          text: "text-fg-primary",
+          bg: "bg-[var(--bg-raised)]",
+          border: "border-[var(--border-default)]",
+          text: "text-[var(--fg-primary)]",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -658,9 +670,9 @@ const FlowNodeComponent = ({
         };
       case "action":
         return {
-          bg: "bg-white",
-          border: "border-border",
-          text: "text-fg-primary",
+          bg: "bg-[var(--bg-raised)]",
+          border: "border-[var(--border-default)]",
+          text: "text-[var(--fg-primary)]",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -670,9 +682,9 @@ const FlowNodeComponent = ({
       case "condition":
       case "decision":
         return {
-          bg: "bg-amber-50",
-          border: "border-amber-200",
-          text: "text-amber-900",
+          bg: "bg-[var(--aw-amber-100)]",
+          border: "border-[var(--aw-amber-300)]",
+          text: "text-[var(--aw-amber-900)]",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L2 12l10 10 10-10L12 2z"/>
@@ -681,9 +693,9 @@ const FlowNodeComponent = ({
         };
       case "loop":
         return {
-          bg: "bg-blue-50",
-          border: "border-blue-200",
-          text: "text-blue-900",
+          bg: "bg-[var(--aw-blue-100)]",
+          border: "border-[var(--aw-blue-300)]",
+          text: "text-[var(--aw-blue-900)]",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -692,9 +704,9 @@ const FlowNodeComponent = ({
         };
       default:
         return {
-          bg: "bg-white",
-          border: "border-border",
-          text: "text-fg-primary",
+          bg: "bg-[var(--bg-raised)]",
+          border: "border-[var(--border-default)]",
+          text: "text-[var(--fg-primary)]",
           icon: null,
         };
     }
@@ -726,7 +738,7 @@ const FlowNodeComponent = ({
         `}
       >
         <div className="flex items-start gap-2">
-          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-white" : "text-fg-tertiary"}`}>
+          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-[var(--fg-on-inverse)]" : "text-fg-tertiary"}`}>
             {style.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -734,7 +746,7 @@ const FlowNodeComponent = ({
               {node.label}
             </div>
             {node.description && (
-              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-gray-300" : "text-fg-tertiary"}`}>
+              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-[var(--aw-gray-400)]" : "text-fg-tertiary"}`}>
                 {node.description}
               </div>
             )}
@@ -743,7 +755,7 @@ const FlowNodeComponent = ({
       </div>
 
       {/* Connection point (bottom) */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-aw-gray-300 rounded-full border-2 border-white" />
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-aw-gray-300 rounded-full border-2 border-[var(--bg-raised)]" />
     </div>
   );
 };
@@ -1940,14 +1952,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     {
       label: "Agent Studio",
       href: "/agent-studio",
-      icon: <Icon name="agent_studio" size={20} />,
     },
     agentName || "Agente",
   ] : [
     {
       label: "Agent Studio",
       href: "/agent-studio",
-      icon: <Icon name="agent_studio" size={20} />,
     },
     "Configurar",
   ];
@@ -2190,7 +2200,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       </button>
                       <button
                         type="button"
-                        className="w-full px-4 py-2 text-left text-sm text-aw-red-600 hover:bg-[#fef2f2] transition-colors"
+                        className="w-full px-4 py-2 text-left text-sm text-aw-red-600 hover:bg-[var(--aw-red-100)] transition-colors"
                         onClick={() => { setHeaderMenuOpen(false); /* Excluir */ }}
                       >
                         Excluir agente
@@ -2513,8 +2523,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   <p className="text-xs text-fg-tertiary mt-0.5 line-clamp-2">{tool.description}</p>
                                   <div className="flex flex-wrap gap-1.5 mt-2">
                                     {tool.activeCount > 0 && (
-                                      <span className="inline-flex items-center gap-1 text-xs text-fg-primary bg-[#f0fdf4] text-[#166534] px-1.5 py-0.5 rounded">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" />
+                                      <span className="inline-flex items-center gap-1 text-xs bg-[var(--aw-emerald-150)] text-[var(--aw-emerald-900)] px-1.5 py-0.5 rounded">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--aw-emerald-600)]" />
                                         {tool.activeCount} Ativas
                                       </span>
                                     )}
