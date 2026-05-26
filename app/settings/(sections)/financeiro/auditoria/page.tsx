@@ -4,6 +4,7 @@ import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -241,6 +242,11 @@ function Toolbar({
             onChange={(e) => onQueryChange(e.target.value)}
           />
         </div>
+        <ActorFilterMenu
+          people={ALL_PEOPLE}
+          selected={selectedActors}
+          onToggle={toggleActor}
+        />
         {hasFilters && (
           <AwButton
             size="sm"
@@ -267,12 +273,6 @@ function Toolbar({
         options={ALL_TYPES}
         selected={selectedTypes}
         onToggle={toggleType}
-      />
-
-      <ActorFilter
-        people={ALL_PEOPLE}
-        selected={selectedActors}
-        onToggle={toggleActor}
       />
     </div>
   );
@@ -316,7 +316,7 @@ function TypeChips({
   );
 }
 
-function ActorFilter({
+function ActorFilterMenu({
   people,
   selected,
   onToggle,
@@ -325,39 +325,39 @@ function ActorFilter({
   selected: string[];
   onToggle: (a: string) => void;
 }) {
+  const count = selected.length;
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <span className="mr-1 body-xs font-medium text-[var(--fg-tertiary)]">
-        Executor
-      </span>
-      {people.map((p) => {
-        const on = selected.includes(p.actor);
-        const isCortex = p.actor === "Cortex";
-        return (
-          <button
-            key={p.actor}
-            type="button"
-            onClick={() => onToggle(p.actor)}
-            aria-pressed={on}
-            className={
-              "inline-flex items-center gap-2 rounded-full pr-3 py-1 pl-1 body-xs font-medium transition-colors duration-aw-fast outline-none " +
-              (on
-                ? "bg-[var(--bg-selected)] text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
-                : "border border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
-            }
-          >
+    <AwDropdownMenu
+      align="start"
+      trigger={
+        <button
+          type="button"
+          className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 body-xs font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]"
+        >
+          <Icon name="person" size={16} />
+          <span>Executor{count > 0 ? ` · ${count}` : ""}</span>
+          <Icon name="expand_more" size={16} />
+        </button>
+      }
+      items={people.map((p) => ({
+        id: p.actor,
+        label: (
+          <span className="inline-flex items-center gap-2">
             <AwAvatar
               size="sm"
               src={p.avatar}
               alt={p.actor}
               initials={getInitials(p.actor)}
-              className={isCortex ? "!border-0" : undefined}
+              className={p.actor === "Cortex" ? "!border-0" : undefined}
             />
-            {p.actor}
-          </button>
-        );
-      })}
-    </div>
+            <span>{p.actor}</span>
+          </span>
+        ),
+        checked: selected.includes(p.actor),
+        closeOnSelect: false,
+        onSelect: () => onToggle(p.actor),
+      }))}
+    />
   );
 }
 
