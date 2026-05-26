@@ -484,13 +484,14 @@ export default function ReviewInboxPage() {
   )
 
   return (
-    <div className="flex flex-col gap-8">
+    <>
       <PageHero title="Review · Inbox">
         Painel completo dos comentários do Review Mode. Filtra por autor,
         status ou texto, agrupa por tela, aprova/rejeita em lote os que estão
         em revisão. Lê do mesmo storage que o overlay (localStorage ou bridge LAN).
       </PageHero>
 
+      <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-8">
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
         <AwStatCard
           icon="forum"
@@ -705,6 +706,7 @@ export default function ReviewInboxPage() {
           </AwButton>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
