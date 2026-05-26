@@ -5,6 +5,11 @@ import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
 import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
+import {
+  FlowUpdatesBadge,
+  FlowUpdatesHistorySection,
+  type FlowUpdate,
+} from "../_components/flow-updates"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Layout constants
@@ -26,6 +31,7 @@ const MFA_X        = 500   // MFA screen    (right of centre, no crossing with "
 const ERRO_X       = 720   // Error + recovery chain
 const MS_X         = 1000  // OAuth Microsoft (far-right corridor)
 const PRIMO_TERM_X = -200  // "Primeiro acesso" terminal (below Google)
+const NOVA_ORG_X   = 540   // "Configurar org adicional" terminal (right of platform)
 
 const Y = {
   entrada:           0,
@@ -38,9 +44,11 @@ const Y = {
   primeiroAcessoDec: 1060,
   recSent:        1000,
   novaSenha:      1160,
-  senhaRedef:     1320,
-  platform:       1240,
   primeiroAcesso: 1240,
+  novaOrgDec:     1240,
+  senhaRedef:     1320,
+  platform:       1440,
+  novaOrgConfig:  1440,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -92,10 +100,22 @@ const NODES: Node[] = [
     data: { step: "06", title: "Primeiro acesso?", question: "Backend verifica se o usuário já tem conta ativa na organização." },
   },
   {
+    id: "novaOrgDec",
+    type: "decision",
+    position: { x: COL_D, y: Y.novaOrgDec },
+    data: { step: "07", title: "Nova organização para configurar?", question: "Backend verifica se o usuário comprou um plano novo sem organização configurada." },
+  },
+  {
     id: "platform",
     type: "screen",
     position: { x: COL, y: Y.platform },
-    data: { step: "→ plataforma", title: "Entrou na plataforma", href: "/inicio", note: "Home logada. Sessão autenticada com acesso completo." },
+    data: { step: "→ plataforma", title: "Entrou na plataforma", href: "/inicio", note: "Home logada. Se houver org pendente, banner no topo do /inicio lembra de configurar." },
+  },
+  {
+    id: "novaOrgConfig",
+    type: "screen",
+    position: { x: NOVA_ORG_X, y: Y.novaOrgConfig },
+    data: { step: "→ org adicional", title: "Configurar plano adicional", href: "/organizacao-adicional", note: "Contrato + pagamento (sem perfil — já existe)." },
   },
   // ── Left corridor — OAuth Google + primeiro-acesso terminal ────────
   {
@@ -185,9 +205,11 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-mfa-primacesso",    source: "mfa",        target: "primeiroAcessoDec" },
   { ...edgeBase,   id: "e-ms-primacesso",     source: "oauthMs",    target: "primeiroAcessoDec" },
 
-  // ── Post-auth decision ────────────────────────────────────────────
+  // ── Post-auth decisions (D6 → onboarding | D7 → configurar org adicional ou plataforma) ──
   { ...branchEdge, id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
-  { ...branchEdge, id: "e-primacesso-platform",   source: "primeiroAcessoDec", target: "platform",       sourceHandle: "bottom", label: "Já cadastrado",   ...labelProps },
+  { ...branchEdge, id: "e-primacesso-novaorgdec", source: "primeiroAcessoDec", target: "novaOrgDec",     sourceHandle: "bottom", label: "Já cadastrado",   ...labelProps },
+  { ...branchEdge, id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
+  { ...branchEdge, id: "e-novaorgdec-platform",   source: "novaOrgDec",        target: "platform",       sourceHandle: "bottom", label: "Mais tarde",      ...labelProps },
 
   // ── Recovery chain (ERRO_X corridor, fully self-contained) ─────────
   { ...branchEdge, id: "e-erro-recemail",     source: "erro",       target: "recEmail",         label: "Esqueci a senha", ...labelProps },
@@ -249,7 +271,14 @@ const screens = [
     title: "Primeiro acesso? (backend)",
     href: "#",
     purpose: "Após qualquer autenticação válida (OAuth ou e-mail+senha), o backend verifica se o usuário já tem conta ativa. Decisão transparente — o usuário não vê nenhuma tela extra.",
-    decisions: "Primeiro acesso → redireciona para onboarding completo. Já cadastrado → plataforma.",
+    decisions: "Primeiro acesso → redireciona para onboarding completo. Já cadastrado → segue para a checagem de organização adicional.",
+  },
+  {
+    step: "07",
+    title: "Nova organização para configurar? (backend + escolha)",
+    href: "/organizacao-adicional",
+    purpose: "Após confirmar que o usuário já é cadastrado, o backend checa se ele comprou um plano novo sem organização configurada (ex.: segunda licença pra outro time). Se houver, oferece configurar agora ou adiar — escolher uma org existente e seguir pra plataforma com um lembrete persistente.",
+    decisions: "Configurar agora → /organizacao-adicional (contrato + pagamento, sem perfil). Mais tarde → /inicio com banner persistente até configurar.",
   },
   {
     step: "B1–B4",
@@ -261,16 +290,33 @@ const screens = [
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
+ * Updates log — structural changes only. Add new entries at the top.
+ * Managed by the `bombardier-update-ux-flow` skill.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-26",
+    summary:
+      "Adicionada decisão D7 após o 'Já cadastrado': se o usuário comprou um plano novo sem organização configurada, oferece configurar agora (→ /organizacao-adicional) ou adiar (entra na plataforma com banner persistente).",
+    tags: ["new-page", "new-branch"],
+  },
+]
+
+/* ─────────────────────────────────────────────────────────────────────
  * Page
  * ──────────────────────────────────────────────────────────────────── */
 
 export default function LoginAuthFlowPage() {
   return (
     <>
-      <PageHero title="Login e autenticação">
+      <PageHero
+        title="Login e autenticação"
+        trailing={<FlowUpdatesBadge updates={updates} />}
+      >
         Fluxo completo de acesso à plataforma, cobrindo todos os cenários: OAuth via Google
-        e Microsoft, e-mail com senha, verificação MFA, recuperação de senha, e detecção
-        automática de primeiro acesso pelo backend.
+        e Microsoft, e-mail com senha, verificação MFA, recuperação de senha, detecção
+        automática de primeiro acesso e checagem de plano novo sem organização configurada.
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
@@ -278,9 +324,11 @@ export default function LoginAuthFlowPage() {
           Três caminhos de autenticação partem da tela de Login: OAuth Google (corredor
           esquerdo), e-mail&nbsp;+&nbsp;senha com validação e MFA (espinha central), e OAuth
           Microsoft (corredor direito). Todos convergem na decisão de primeiro acesso — se
-          for a primeira vez, o backend redireciona para o onboarding; caso contrário, entra
-          direto na plataforma. A cadeia de recuperação de senha (B1–B4) corre de forma
-          independente no corredor direito.
+          for a primeira vez, o backend redireciona para o onboarding completo; caso
+          contrário, o backend ainda checa se o usuário comprou um plano novo sem
+          organização configurada e oferece configurá-la agora ou adiar pra mais tarde
+          (banner persistente no /inicio). A cadeia de recuperação de senha (B1–B4) corre
+          de forma independente no corredor direito.
         </p>
 
         <Section
@@ -288,7 +336,7 @@ export default function LoginAuthFlowPage() {
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. OAuth Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
         >
-          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} />
+          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={1640} />
         </Section>
 
         <Section id="screens" title="Cada tela" lead="Propósito, decisões e link direto pro protótipo de cada uma.">
@@ -342,8 +390,16 @@ export default function LoginAuthFlowPage() {
                 Após redefinir a senha, o usuário é redirecionado para Login — não entra direto na plataforma. Garante que a nova credencial funciona antes de criar a sessão.
               </p>
             </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">Configurar nova org pode ser adiado</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                Comprar um plano novo não força o usuário a reconfigurar imediatamente. Ele pode entrar na plataforma escolhendo uma organização existente e o /inicio mostra um banner persistente lembrando da pendência. Reduz pressão no cenário comum de compra apressada de plano em nome do time.
+              </p>
+            </div>
           </div>
         </Section>
+
+        <FlowUpdatesHistorySection updates={updates} />
       </div>
     </>
   )
