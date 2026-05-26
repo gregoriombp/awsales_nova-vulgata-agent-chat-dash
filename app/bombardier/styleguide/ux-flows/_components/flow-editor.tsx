@@ -1,7 +1,6 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
-import Link from "next/link"
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react"
 import {
   addEdge,
   Background,
@@ -118,45 +117,15 @@ function EditPencil({ id }: { id: string }) {
   )
 }
 
-function PreviewEye({ data }: { data: ScreenData }) {
-  const { onPreviewScreen } = useContext(FlowEditorContext)
-  const href = data.href || "#"
-  return (
-    <Link
-      href={href}
-      onClick={(e) => {
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return
-        e.preventDefault()
-        e.stopPropagation()
-        onPreviewScreen(data)
-      }}
-      onPointerDown={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      title="Pré-visualizar"
-      className="absolute top-1.5 right-1.5 w-6 h-6 inline-flex items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-[var(--fg-tertiary)] opacity-0 group-hover:opacity-100 hover:text-[var(--aw-blue-700)] hover:border-[var(--aw-blue-400)] transition shadow-[var(--shadow-sm)] no-underline"
-    >
-      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-        <path
-          d="M1.5 8s2.2-4.5 6.5-4.5S14.5 8 14.5 8s-2.2 4.5-6.5 4.5S1.5 8 1.5 8z"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
-      </svg>
-    </Link>
-  )
-}
-
 /* ─────────────────────────────────────────────────────────────────────
  * Node renderers
  * ──────────────────────────────────────────────────────────────────── */
 
 export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
   const { mode } = useContext(FlowEditorContext)
+  const cursor = mode === "view" ? "cursor-pointer" : ""
   return (
-    <div className="group relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition">
+    <div className={`relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition ${cursor}`}>
       <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
       <div className="px-4 py-3 flex flex-col gap-1">
         <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
@@ -164,7 +133,7 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
         {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
       </div>
       <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      {mode === "edit" ? <EditPencil id={id} /> : <PreviewEye data={data} />}
+      {mode === "edit" && <EditPencil id={id} />}
     </div>
   )
 }
@@ -500,6 +469,21 @@ export function FlowDiagram({
     [editMode, onEditNode, onPreviewScreen],
   )
 
+  const onNodeClick = useCallback(
+    (event: ReactMouseEvent, node: Node) => {
+      if (editMode || previewSugg) return
+      if (node.type !== "screen") return
+      const data = node.data as ScreenData
+      const href = data.href || ""
+      if ((event.metaKey || event.ctrlKey) && href && href !== "#" && !/^https?:/i.test(href)) {
+        window.open(href, "_blank")
+        return
+      }
+      setPreviewScreen(data)
+    },
+    [editMode, previewSugg],
+  )
+
   function enterEdit() {
     setEditNodes(canonicalNodes.map((n) => ({ ...n })))
     setEditEdges(canonicalEdges.map((e) => ({ ...e })))
@@ -619,6 +603,7 @@ export function FlowDiagram({
             onNodesChange={editMode ? onEditNodesChange : undefined}
             onEdgesChange={editMode ? onEditEdgesChange : undefined}
             onConnect={editMode ? onConnect : undefined}
+            onNodeClick={onNodeClick}
             nodesDraggable={editMode}
             nodesConnectable={editMode}
             elementsSelectable={editMode}
