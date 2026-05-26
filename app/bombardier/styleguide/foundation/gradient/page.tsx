@@ -1,5 +1,4 @@
 import { AwButton } from "@/components/ui/AwButton"
-import { Icon } from "@/components/ui/Icon"
 import {
   PageHero,
   Section,
@@ -234,41 +233,9 @@ export default function GradientPage() {
               }
             />
 
-            {/* Soft mesh */}
-            <PatternBlock
-              n="02"
-              title="Iridescent soft mesh"
-              utility=".aw-gradient-iridescent-soft / .aw-card--ai"
-              description="Background sutil em superfícies passivas: card de insight, banner de boas-vindas. Mantém o conteúdo legível."
-              demos={
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="aw-card aw-card--ai p-5 flex flex-col gap-2">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">
-                      insight do agente
-                    </span>
-                    <h4 className="m-0">3 leads aquecidos esperando resposta</h4>
-                    <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                      Detectei tom positivo nas últimas 2h. Quer que eu sugira
-                      respostas?
-                    </p>
-                  </div>
-                  <div className="aw-card aw-card--ai-warm p-5 flex flex-col gap-2">
-                    <span className="aw-eyebrow text-[var(--aw-amber-800)]">
-                      resposta gerada
-                    </span>
-                    <h4 className="m-0">Tom captado: caloroso, urgente</h4>
-                    <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                      Aproveitei as primeiras palavras pra calibrar o tom da
-                      sugestão.
-                    </p>
-                  </div>
-                </div>
-              }
-            />
-
             {/* Border */}
             <PatternBlock
-              n="03"
+              n="02"
               title="Iridescent border"
               utility=".aw-gradient-iridescent-border"
               description="Stroke 1px sobre fill plano (escuro ou claro). Use em ação secundária da IA, cards opt-in, hero outline."
@@ -373,18 +340,13 @@ export default function GradientPage() {
                 insight banner
               </div>
               <div className="p-5">
-                <div className="aw-card aw-card--ai p-5 flex items-start gap-4">
-                  <div className="aw-gradient-iridescent w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center text-[var(--aw-gray-1200)] shrink-0">
-                    <Icon name="auto_awesome" size={18} aria-hidden="true" />
+                <div className="aw-card aw-card--ai p-5 flex flex-col gap-1">
+                  <div className="text-sm font-medium">
+                    Sugestão pronta pra revisar
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="text-sm font-medium">
-                      Sugestão pronta pra revisar
-                    </div>
-                    <p className="body-sm m-0 text-[var(--fg-secondary)]">
-                      Capturei o tom das primeiras palavras do lead. Confere?
-                    </p>
-                  </div>
+                  <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                    Capturei o tom das primeiras palavras do lead. Confere?
+                  </p>
                 </div>
               </div>
             </div>
