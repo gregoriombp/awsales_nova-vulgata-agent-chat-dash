@@ -11,7 +11,7 @@ import {
 
 export default function ApiSettingsPage() {
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="API & desenvolvedores"
         description="Conecte seus sistemas internos aos agentes via API. Cada chave é auditada."

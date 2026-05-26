@@ -111,7 +111,7 @@ export default function RolesPage() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
+      <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
           <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
             Equipe &amp; permissões

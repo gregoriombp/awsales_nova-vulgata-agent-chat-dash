@@ -53,7 +53,7 @@ export default function OrganizationSettingsPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Organização"
         description="Como sua empresa aparece nos agentes, conversas e exportações."

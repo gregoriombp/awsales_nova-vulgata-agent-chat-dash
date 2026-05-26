@@ -12,7 +12,7 @@ export default function SecuritySettingsPage() {
   const [twoFactor, setTwoFactor] = useState(true);
 
   return (
-    <div className="mx-auto w-full max-w-[1440px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Segurança"
         description="Acesso à sua conta e auditoria de sessões."
