@@ -1,4 +1,5 @@
 import { AwButton } from "@/components/ui/AwButton"
+import { Icon } from "@/components/ui/Icon"
 import {
   PageHero,
   Section,
@@ -226,7 +227,6 @@ export default function GradientPage() {
                   </div>
                   <div className="flex flex-wrap gap-3">
                     <span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium text-[var(--aw-gray-1200)]">
-                      <span aria-hidden="true">⚡</span>
                       Capture o Tom das Primeiras Palavras do Lead
                     </span>
                   </div>
@@ -284,7 +284,6 @@ export default function GradientPage() {
                         } as React.CSSProperties
                       }
                     >
-                      <span aria-hidden="true">●</span>
                       Learn more
                     </button>
                     <button
@@ -305,7 +304,6 @@ export default function GradientPage() {
                         } as React.CSSProperties
                       }
                     >
-                      <span aria-hidden="true">●</span>
                       Learn more
                     </button>
                     <button
@@ -377,7 +375,7 @@ export default function GradientPage() {
               <div className="p-5">
                 <div className="aw-card aw-card--ai p-5 flex items-start gap-4">
                   <div className="aw-gradient-iridescent w-10 h-10 rounded-[var(--radius-full)] flex items-center justify-center text-[var(--aw-gray-1200)] shrink-0">
-                    <span aria-hidden="true">⚡</span>
+                    <Icon name="auto_awesome" size={18} aria-hidden="true" />
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="text-sm font-medium">
@@ -444,7 +442,6 @@ export default function GradientPage() {
 </AwCard>`}</CodeExample>
 
           <CodeExample label="badge inline com fill iridescente">{`<span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium text-[var(--aw-gray-1200)]">
-  <span aria-hidden="true">⚡</span>
   Capture o Tom das Primeiras Palavras do Lead
 </span>`}</CodeExample>
 
