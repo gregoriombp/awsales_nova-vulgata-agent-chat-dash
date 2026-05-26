@@ -74,7 +74,7 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
       .join(" ")
     return (
       <div className={wrapperClasses}>
-        {iconLeft && <Icon name={iconLeft} size={16} />}
+        {iconLeft && <Icon name={iconLeft} size={isSearch ? 18 : 16} />}
         <input
           ref={innerRef}
           disabled={disabled}

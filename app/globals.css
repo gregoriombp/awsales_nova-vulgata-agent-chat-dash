@@ -1637,9 +1637,11 @@
 .aw-input--search {
   border-radius: var(--radius-full);
   border-color: var(--border-default);
+  background: color-mix(in srgb, var(--aw-gray-100) 60%, transparent);
 }
 .aw-input--search:focus-within {
   border-color: var(--fg-primary);
+  background: var(--bg-canvas);
 }
 
 /* Clear button — sits inside the input, stays inside the rounded boundary
