@@ -6,13 +6,16 @@ import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
-const CODE_LENGTH = 6
+const CHUNKS = 4
+const CHUNK_LENGTH = 4
+const CODE_LENGTH = CHUNKS * CHUNK_LENGTH
 const RESEND_COOLDOWN_SECONDS = 30
+const ALLOWED = /[^A-Z0-9]/g
 
 export default function VerificacaoPage() {
   const router = useRouter()
-  const [digits, setDigits] = React.useState<string[]>(
-    Array.from({ length: CODE_LENGTH }, () => "")
+  const [chunks, setChunks] = React.useState<string[]>(
+    Array.from({ length: CHUNKS }, () => "")
   )
   const [status, setStatus] = React.useState<
     "idle" | "verifying" | "error" | "success"
@@ -30,48 +33,60 @@ export default function VerificacaoPage() {
     return () => clearInterval(t)
   }, [resendIn])
 
-  const code = digits.join("")
-  const isComplete = code.length === CODE_LENGTH && digits.every((d) => d !== "")
+  const code = chunks.join("")
+  const isComplete =
+    code.length === CODE_LENGTH && chunks.every((c) => c.length === CHUNK_LENGTH)
 
-  const setDigit = (i: number, value: string) => {
-    setDigits((prev) => {
+  const distribute = (raw: string, startIndex: number) => {
+    const clean = raw.toUpperCase().replace(ALLOWED, "")
+    if (!clean) {
+      setChunks((prev) => {
+        const next = [...prev]
+        next[startIndex] = ""
+        return next
+      })
+      if (status === "error") setStatus("idle")
+      return
+    }
+    setChunks((prev) => {
       const next = [...prev]
-      next[i] = value
+      let cursor = 0
+      for (let i = startIndex; i < CHUNKS && cursor < clean.length; i++) {
+        next[i] = clean.slice(cursor, cursor + CHUNK_LENGTH)
+        cursor += CHUNK_LENGTH
+      }
       return next
     })
     if (status === "error") setStatus("idle")
+
+    const consumedChars = Math.min(clean.length, (CHUNKS - startIndex) * CHUNK_LENGTH)
+    const lastFilledIndex = Math.min(
+      startIndex + Math.ceil(consumedChars / CHUNK_LENGTH) - 1,
+      CHUNKS - 1
+    )
+    const lastChunkFull =
+      consumedChars >= (lastFilledIndex - startIndex + 1) * CHUNK_LENGTH
+    const focusIndex = lastChunkFull
+      ? Math.min(lastFilledIndex + 1, CHUNKS - 1)
+      : lastFilledIndex
+    requestAnimationFrame(() => inputsRef.current[focusIndex]?.focus())
   }
 
   const handleChange = (i: number, raw: string) => {
-    const value = raw.replace(/\D/g, "")
-    if (!value) {
-      setDigit(i, "")
-      return
-    }
-    if (value.length === 1) {
-      setDigit(i, value)
-      inputsRef.current[i + 1]?.focus()
-      return
-    }
-    const chars = value.slice(0, CODE_LENGTH - i).split("")
-    setDigits((prev) => {
-      const next = [...prev]
-      chars.forEach((c, idx) => {
-        next[i + idx] = c
-      })
-      return next
-    })
-    const lastIndex = Math.min(i + chars.length, CODE_LENGTH - 1)
-    inputsRef.current[lastIndex]?.focus()
+    distribute(raw, i)
   }
 
   const handleKeyDown = (
     i: number,
     e: React.KeyboardEvent<HTMLInputElement>
   ) => {
-    if (e.key === "Backspace" && !digits[i] && i > 0) {
+    if (e.key === "Backspace" && !chunks[i] && i > 0) {
       e.preventDefault()
-      setDigit(i - 1, "")
+      setChunks((prev) => {
+        const next = [...prev]
+        next[i - 1] = ""
+        return next
+      })
       inputsRef.current[i - 1]?.focus()
       return
     }
@@ -80,7 +95,7 @@ export default function VerificacaoPage() {
       inputsRef.current[i - 1]?.focus()
       return
     }
-    if (e.key === "ArrowRight" && i < CODE_LENGTH - 1) {
+    if (e.key === "ArrowRight" && i < CHUNKS - 1) {
       e.preventDefault()
       inputsRef.current[i + 1]?.focus()
     }
@@ -90,19 +105,19 @@ export default function VerificacaoPage() {
     i: number,
     e: React.ClipboardEvent<HTMLInputElement>
   ) => {
-    const text = e.clipboardData.getData("text").replace(/\D/g, "")
+    const text = e.clipboardData.getData("text")
     if (!text) return
     e.preventDefault()
-    handleChange(i, text)
+    distribute(text, i)
   }
 
   const verify = React.useCallback(() => {
     if (!isComplete || status === "verifying" || status === "success") return
     setStatus("verifying")
     setTimeout(() => {
-      if (code === "000000") {
+      if (code === "0000000000000000") {
         setStatus("error")
-        setDigits(Array.from({ length: CODE_LENGTH }, () => ""))
+        setChunks(Array.from({ length: CHUNKS }, () => ""))
         inputsRef.current[0]?.focus()
         return
       }
@@ -118,7 +133,7 @@ export default function VerificacaoPage() {
   const resend = () => {
     if (resendIn > 0) return
     setResendIn(RESEND_COOLDOWN_SECONDS)
-    setDigits(Array.from({ length: CODE_LENGTH }, () => ""))
+    setChunks(Array.from({ length: CHUNKS }, () => ""))
     setStatus("idle")
     inputsRef.current[0]?.focus()
   }
@@ -126,7 +141,7 @@ export default function VerificacaoPage() {
   const borderForBox = (i: number) => {
     if (status === "error") return "border-aw-amber-500"
     if (status === "success") return "border-aw-emerald-500"
-    if (digits[i]) return "border-fg-primary"
+    if (chunks[i]) return "border-fg-primary"
     return "border-border"
   }
 
@@ -148,36 +163,48 @@ export default function VerificacaoPage() {
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Digite os 6 dígitos enviados para o seu e-mail. Esse é o primeiro
-          passo — em seguida você criará uma conta segura para acessar a
-          plataforma.
+          Digite o serial de 16 caracteres enviado para o seu e-mail. Esse é o
+          primeiro passo — em seguida você criará uma conta segura para acessar
+          a plataforma.
         </p>
 
         <div className="flex flex-col gap-2.5">
           <span className="body-xs font-medium text-fg-secondary">
-            Código de segurança
+            Serial de segurança
           </span>
-          <div className="flex gap-2">
-            {digits.map((digit, i) => (
-              <input
-                key={i}
-                ref={(el) => {
-                  inputsRef.current[i] = el
-                }}
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={CODE_LENGTH}
-                value={digit}
-                onChange={(e) => handleChange(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                onPaste={(e) => handlePaste(i, e)}
-                disabled={status === "verifying" || status === "success"}
-                aria-label={`Dígito ${i + 1} de ${CODE_LENGTH}`}
-                className={`h-14 w-12 rounded-md border bg-bg-raised text-center tabular-nums body-xl font-medium text-fg-primary outline-0 transition-colors duration-aw-fast focus:border-fg-primary disabled:opacity-60 ${borderForBox(
-                  i
-                )}`}
-              />
+          <div className="flex items-center gap-2">
+            {chunks.map((chunk, i) => (
+              <React.Fragment key={i}>
+                <input
+                  ref={(el) => {
+                    inputsRef.current[i] = el
+                  }}
+                  type="text"
+                  inputMode="text"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  maxLength={CHUNK_LENGTH}
+                  value={chunk}
+                  onChange={(e) => handleChange(i, e.target.value)}
+                  onKeyDown={(e) => handleKeyDown(i, e)}
+                  onPaste={(e) => handlePaste(i, e)}
+                  disabled={status === "verifying" || status === "success"}
+                  aria-label={`Bloco ${i + 1} de ${CHUNKS} — 4 caracteres`}
+                  placeholder="XXXX"
+                  className={`h-14 w-[112px] rounded-md border bg-bg-raised text-center body-xl font-medium uppercase tracking-[0.18em] text-fg-primary outline-0 transition-colors duration-aw-fast placeholder:text-fg-tertiary/40 focus:border-fg-primary disabled:opacity-60 ${borderForBox(
+                    i
+                  )}`}
+                />
+                {i < CHUNKS - 1 && (
+                  <span
+                    aria-hidden="true"
+                    className="text-fg-tertiary body-lg"
+                  >
+                    —
+                  </span>
+                )}
+              </React.Fragment>
             ))}
           </div>
         </div>
