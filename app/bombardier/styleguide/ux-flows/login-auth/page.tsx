@@ -40,14 +40,12 @@ const Y = {
   valid:           520,
   verifyRow:       680,   // verify (centre) | erro (ERRO_X) | magicLink (MAGIC_X)
   oauthRow:        840,   // oauthGoogle | workspaceDec (centre) | oauthMs
-  recEmail:        840,
+  recEmail:        840,   // tela "Esqueci a senha" (ERRO_X)
   workspace:      1000,
-  recSent:        1000,
+  resetSenha:     1000,   // tela "Definir nova senha" — fora do flow demo (ERRO_X)
   primeiroAcessoDec: 1160,
-  novaSenha:      1160,
   primeiroAcesso: 1320,
   novaOrgDec:     1320,
-  senhaRedef:     1320,
   platform:       1480,
   novaOrgConfig:  1480,
 }
@@ -150,36 +148,24 @@ const NODES: Node[] = [
     position: { x: MS_X, y: Y.oauthRow },
     data: { step: "02c", title: "Continuar com Microsoft", href: "/", note: "OAuth 2.0 via Microsoft. Provedor autentica e o usuário volta autenticado." },
   },
-  // ── Error + recovery chain (ERRO_X column) ────────────────────────
+  // ── Error inline + recovery (ERRO_X column) ───────────────────────
   {
     id: "erro",
     type: "screen",
     position: { x: ERRO_X, y: Y.verifyRow },
-    data: { step: "→ erro", title: "Erro de login", href: "/", note: 'Credenciais inválidas. Clique em "Esqueci a senha" ou tente novamente.' },
+    data: { step: "→ inline", title: "Erro de senha (inline)", href: "/", note: 'Mensagem "Senha incorreta" aparece embaixo do campo de senha, na própria tela de credenciais. Não é tela separada. Usuário pode tentar de novo, clicar em "Esqueci minha senha" ou usar magic link.' },
   },
   {
     id: "recEmail",
     type: "screen",
     position: { x: ERRO_X, y: Y.recEmail },
-    data: { step: "B1", title: "Inserir e-mail", href: "/", note: "Usuário informa o e-mail cadastrado para receber o link." },
+    data: { step: "B1", title: "Esqueci a senha", href: "/", note: "Usuário informa o e-mail cadastrado. Submeta envia código de 6 dígitos por e-mail e reusa a tela de verificação do login." },
   },
   {
-    id: "recSent",
+    id: "resetSenha",
     type: "screen",
-    position: { x: ERRO_X, y: Y.recSent },
-    data: { step: "B2", title: "E-mail enviado", href: "/", note: "Link de redefinição enviado. Usuário acessa o e-mail externamente." },
-  },
-  {
-    id: "novaSenha",
-    type: "screen",
-    position: { x: ERRO_X, y: Y.novaSenha },
-    data: { step: "B3", title: "Nova senha", href: "/", note: "Tela aberta pelo link. Usuário define e confirma a nova senha." },
-  },
-  {
-    id: "senhaRedef",
-    type: "screen",
-    position: { x: ERRO_X, y: Y.senhaRedef },
-    data: { step: "B4", title: "Senha redefinida", href: "/", note: "Sucesso. Redireciona automaticamente para a tela de Login." },
+    position: { x: ERRO_X, y: Y.resetSenha },
+    data: { step: "B2 (fora do demo)", title: "Definir nova senha", href: "/", note: "Tela com campos nova senha + confirmar, validação de força (8 caracteres, maiúscula, número). Não é alcançada pelo flow demo — só via link real de redefinição enviado por e-mail." },
   },
 ]
 
@@ -227,12 +213,10 @@ const EDGES: Edge[] = [
   { ...branchEdge, id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
   { ...branchEdge, id: "e-novaorgdec-platform",   source: "novaOrgDec",        target: "platform",       sourceHandle: "bottom", label: "Mais tarde",      ...labelProps },
 
-  // ── Recovery chain (ERRO_X corridor, fully self-contained) ─────────
+  // ── Recovery: erro inline → "Esqueci a senha" → reusa verify do login ──
   { ...branchEdge, id: "e-erro-recemail",     source: "erro",       target: "recEmail",         label: "Esqueci a senha", ...labelProps },
-  { ...edgeBase,   id: "e-recemail-recsent",  source: "recEmail",   target: "recSent" },
-  { ...edgeBase,   id: "e-recsent-novasenha", source: "recSent",    target: "novaSenha",        label: "Clica no link",   ...labelProps },
-  { ...edgeBase,   id: "e-novasenha-redef",   source: "novaSenha",  target: "senhaRedef" },
-  // senhaRedef is a terminal — redirect to Login is documented in text, not drawn
+  { ...edgeBase,   id: "e-recemail-verify",   source: "recEmail",   target: "verify",           label: "Enviado",          ...labelProps },
+  // resetSenha is out-of-flow — not connected to the main path
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -290,11 +274,11 @@ const screens = [
     decisions: "Selecionar org → primeiro acesso?.",
   },
   {
-    step: "→ erro",
-    title: "Erro de login",
+    step: "→ inline",
+    title: "Erro de senha (inline)",
     href: "/",
-    purpose: "Mensagem genérica sem revelar se o e-mail existe. Múltiplas tentativas podem bloquear temporariamente a conta.",
-    decisions: "Tentar novamente → volta ao formulário. Esqueci a senha → fluxo de recuperação.",
+    purpose: "Estado da tela de e-mail+senha quando as credenciais estão inválidas. Não é tela separada — uma mensagem 'Senha incorreta' aparece embaixo do campo de senha. Mensagem é genérica, não revela se o e-mail existe.",
+    decisions: "Tentar novamente → volta ao formulário. Esqueci a senha → tela 'Esqueci a senha'. Magic link → tela de link enviado.",
   },
   {
     step: "07",
@@ -311,11 +295,18 @@ const screens = [
     decisions: "Configurar agora → /organizacao-adicional (contrato + pagamento, sem perfil). Mais tarde → /inicio com banner persistente até configurar.",
   },
   {
-    step: "B1–B4",
-    title: "Recuperação de senha",
+    step: "B1",
+    title: "Esqueci a senha",
     href: "/",
-    purpose: "Inserir e-mail → confirmação de envio → link no e-mail (ação externa) → nova senha → sucesso. Link expira em 30 minutos. Após redefinir, redireciona para Login.",
-    decisions: "Senha definida → Senha redefinida (terminal) → redirect automático para Login.",
+    purpose: "Usuário informa o e-mail cadastrado. Ao submeter, um código de 6 dígitos é enviado e a tela de verificação por e-mail abre — a MESMA do login. Ou seja, recuperar senha = entrar via OTP, sem precisar passar pela tela de senha. Quem esqueceu a senha entra normalmente; redefinir senha em si é uma ação separada disponível depois.",
+    decisions: "Enviar → verificação por e-mail (compartilhada com login).",
+  },
+  {
+    step: "B2 (fora do demo)",
+    title: "Definir nova senha",
+    href: "/",
+    purpose: "Tela de redefinição com 2 campos (nova senha + confirmar) e validação de força em 3 regras: 8 caracteres, uma maiúscula, um número. Não é alcançada pelo flow demo — só via link real enviado por e-mail (futuro).",
+    decisions: "Salvar → tela de sucesso.",
   },
 ]
 
@@ -325,6 +316,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-26",
+    summary:
+      "Recuperação de senha sincronizada com o código real: o que era uma cadeia de 4 telas (B1→B4) virou uma tela só ('Esqueci a senha'), que reusa a verificação por e-mail do login. Telas 'E-mail enviado' e 'Senha redefinida' removidas — não existem no produto. 'Definir nova senha' fica como ramo fora do flow demo (só alcançada via link real de redefinição). Nó 'Erro de login' renomeado pra 'Erro de senha (inline)' porque é estado inline da tela credenciais, não tela separada.",
+    tags: ["flow-rework", "removed-page"],
+  },
   {
     date: "2026-05-26",
     summary:
@@ -371,8 +368,9 @@ export default function LoginAuthFlowPage() {
           passa pela verificação por código de 6 dígitos. OAuth e magic link pulam essa etapa —
           o próprio provedor ou o link já autenticam. Todos convergem no seletor de organização:
           se o usuário pertence a mais de uma org, escolhe uma; se não, passa direto. Em seguida
-          vêm as decisões de primeiro acesso e plano novo pendente. A cadeia de recuperação de
-          senha (B1–B4) corre de forma independente no corredor direito.
+          vêm as decisões de primeiro acesso e plano novo pendente. "Esqueci a senha" reusa a
+          verificação por e-mail do login — quem esqueceu entra via OTP, sem precisar redefinir
+          a senha primeiro.
         </p>
 
         <Section
@@ -435,9 +433,9 @@ export default function LoginAuthFlowPage() {
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Recuperação retorna ao login</div>
+              <div className="aw-eyebrow mb-2">Recuperação reusa o OTP do login</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Após redefinir a senha, o usuário volta pra tela de Login — não entra direto na plataforma. Garante que a nova credencial funciona antes de criar a sessão.
+                Quem esqueceu a senha não precisa redefinir antes de entrar: o "Esqueci a senha" abre a mesma tela de verificação por e-mail que o login. Recuperar = entrar via OTP. Redefinir a senha em si vira uma ação opcional que o usuário pode fazer depois, dentro da plataforma.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
