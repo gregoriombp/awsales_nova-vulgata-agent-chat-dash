@@ -334,7 +334,7 @@ export default function LoginAuthFlowPage() {
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. OAuth Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
+          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. OAuth Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
         >
           <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={1640} />
         </Section>
