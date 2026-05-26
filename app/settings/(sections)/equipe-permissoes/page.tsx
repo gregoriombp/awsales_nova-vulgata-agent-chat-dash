@@ -816,7 +816,7 @@ function MemberDetail({
           </div>
         </DetailSection>
 
-        <DetailSection title="Logs de atividade">
+        <DetailSection title="Atividade">
           {member.activity.length === 0 ? (
             <p className="m-0 body-xs text-[var(--fg-secondary)]">
               Sem eventos registrados para este membro.
@@ -843,36 +843,6 @@ function MemberDetail({
               ))}
             </ul>
           )}
-        </DetailSection>
-
-        <DetailSection title="Histórico recente">
-          <div className="-mx-6 overflow-x-auto px-6">
-            <ol className="relative flex min-w-min items-start gap-0">
-              <span
-                className="pointer-events-none absolute left-3 right-3 top-[6px] h-px bg-[var(--border-subtle)]"
-                aria-hidden="true"
-              />
-              {member.activity.map((entry, i) => (
-                <li
-                  key={i}
-                  className="relative flex w-[220px] shrink-0 flex-col gap-1.5 pr-4"
-                >
-                  <span
-                    className="relative z-[1] flex h-3 w-3 items-center justify-center rounded-full border border-[var(--border-default)] bg-[var(--bg-raised)]"
-                    aria-hidden="true"
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--fg-primary)]" />
-                  </span>
-                  <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
-                    {entry.time}
-                  </p>
-                  <p className="m-0 body-xs text-[var(--fg-primary)]">
-                    {entry.description}
-                  </p>
-                </li>
-              ))}
-            </ol>
-          </div>
         </DetailSection>
       </div>
     </section>
@@ -967,11 +937,11 @@ function ScopeRow({
 
   return (
     <li>
-      <div className="flex w-full items-center gap-3 px-1 py-2.5">
+      <div className="flex w-full items-center gap-3 rounded-[var(--radius-sm)] px-2 py-3.5 transition-colors duration-aw-fast hover:bg-[var(--bg-hover)]">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left transition-colors duration-aw-fast outline-none rounded-[var(--radius-sm)] hover:bg-[var(--bg-hover)] focus-visible:bg-[var(--bg-hover)]"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none rounded-[var(--radius-sm)] focus-visible:bg-[var(--bg-hover)]"
           aria-expanded={open}
         >
           <Icon name={open ? "expand_more" : "chevron_right"} size={16} />
