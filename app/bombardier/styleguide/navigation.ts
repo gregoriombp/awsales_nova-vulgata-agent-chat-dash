@@ -65,7 +65,6 @@ export const navigation: NavSection[] = [
       { name: "Modais", href: "/bombardier/styleguide/components/modals" },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
-      { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
@@ -95,6 +94,7 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
       { name: "Login e autenticação", href: "/bombardier/styleguide/ux-flows/login-auth" },
+      { name: "Configurar organização adicional", href: "/bombardier/styleguide/ux-flows/organizacao-adicional" },
       { name: "Convite de membro", href: "/bombardier/styleguide/ux-flows/convite-membro" },
     ],
   },
