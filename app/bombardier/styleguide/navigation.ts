@@ -41,6 +41,7 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Alertas", href: "/bombardier/styleguide/components/alerts" },
       { name: "Avatar", href: "/bombardier/styleguide/components/aw-avatar" },
+      { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Botões", href: "/bombardier/styleguide/components/buttons" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
       { name: "Breadcrumb", href: "/bombardier/styleguide/components/aw-breadcrumb" },
