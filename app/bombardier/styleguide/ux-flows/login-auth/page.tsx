@@ -60,7 +60,7 @@ const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Mostra três botões lado a lado: e-mail, Google e Microsoft. Link 'Esqueci a senha' aparece depois, na tela de e-mail." },
+    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Três botões lado a lado: e-mail, Google e Microsoft. No rodapé, link 'Ainda não tem conta? Primeiro acesso' leva pra /primeiro-acesso." },
   },
   {
     id: "metodo",
@@ -228,8 +228,8 @@ const screens = [
     step: "entrada",
     title: "Login",
     href: "/",
-    purpose: "Ponto de entrada da plataforma em /. Três botões lado a lado: e-mail (primeiro), Google e Microsoft. Nenhuma sessão existe ainda.",
-    decisions: "Escolher entre e-mail+senha, Google ou Microsoft.",
+    purpose: "Ponto de entrada da plataforma em /. Três botões lado a lado: e-mail (primeiro), Google e Microsoft. No rodapé, um link discreto 'Ainda não tem conta? Primeiro acesso' direciona quem foi convidado pra /primeiro-acesso. Nenhuma sessão existe ainda.",
+    decisions: "Escolher entre e-mail+senha, Google ou Microsoft. Convidado novo → Primeiro acesso → /primeiro-acesso.",
   },
   {
     step: "02a / 02c",
@@ -316,6 +316,18 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-26",
+    summary:
+      "Link 'Ainda não tem conta? Primeiro acesso' aparece agora no rodapé da tela inicial e leva pra /primeiro-acesso. A cópia já existia em _copy.ts mas estava órfã. Fecha o ciclo com o flow de primeiro-acesso, que sempre apontou pra esse link a partir da tela de Login.",
+    tags: ["integration"],
+  },
+  {
+    date: "2026-05-26",
+    summary:
+      "Botões 'Continuar com Google' e 'Continuar com Microsoft' agora funcionam (clicar leva pro seletor de organização). Antes eram só decorativos.",
+    tags: ["integration"],
+  },
   {
     date: "2026-05-26",
     summary:
@@ -411,7 +423,7 @@ export default function LoginAuthFlowPage() {
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Três caminhos equivalentes na entrada</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Tela inicial mostra e-mail, Google e Microsoft lado a lado, sem hierarquia. E-mail vem primeiro porque cobre quem ainda não configurou OAuth. Os botões de OAuth são corporativos (Google Workspace, Microsoft Azure) — não aparecem rotulados como tal, é só "Continuar com Google" e "Continuar com Microsoft".
+                Tela inicial mostra e-mail, Google e Microsoft lado a lado, sem hierarquia. E-mail vem primeiro porque cobre quem ainda não configurou OAuth. Os botões de OAuth são corporativos (Google Workspace, Microsoft Azure) — não aparecem rotulados como tal, é só "Continuar com Google" e "Continuar com Microsoft". No rodapé, um link discreto 'Primeiro acesso' atende quem foi convidado e ainda não criou conta.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
