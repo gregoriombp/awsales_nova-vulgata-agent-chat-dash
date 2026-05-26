@@ -189,7 +189,7 @@ function ActionTile({ action }: { action: AwWelcomeModalAction }) {
         <span
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-            "bg-[var(--bg-surface)] text-[var(--fg-primary)]",
+            "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]",
             "group-data-[primary=true]:bg-[var(--bg-raised)]/15 group-data-[primary=true]:text-[var(--bg-raised)]",
           )}
         >
