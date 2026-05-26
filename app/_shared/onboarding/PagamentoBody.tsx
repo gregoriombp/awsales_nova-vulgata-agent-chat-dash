@@ -1,0 +1,1113 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { Icon } from "@/components/ui/Icon"
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
+import { AwCardBrand } from "@/components/ui/AwCardBrand"
+import { AwCheckbox } from "@/components/ui/AwCheckbox"
+import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
+import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data"
+
+type Org = typeof ONBOARDING_ORG
+
+type MethodId = "pix" | "cartao" | "boleto"
+type Line = { method: MethodId; parcelas: number }
+
+const METHODS: {
+  id: MethodId
+  brand: "pix" | "card" | "boleto"
+  title: string
+  shortDesc: string
+}[] = [
+  { id: "pix", brand: "pix", title: "Pix", shortDesc: "imediato" },
+  { id: "cartao", brand: "card", title: "Cartão de crédito", shortDesc: "imediato" },
+  { id: "boleto", brand: "boleto", title: "Boleto bancário", shortDesc: "2–3 dias úteis" },
+]
+
+const methodTitle = (id: MethodId) =>
+  METHODS.find((m) => m.id === id)?.title ?? id
+const methodBrand = (id: MethodId) =>
+  METHODS.find((m) => m.id === id)?.brand ?? "card"
+
+function parcelaLabel(line: Line, total: number) {
+  if (line.parcelas === 1) return `${methodTitle(line.method)} · à vista`
+  return `${methodTitle(line.method)} · ${line.parcelas}× ${fmtBRL(
+    total / line.parcelas
+  )}`
+}
+
+export function PagamentoBody({
+  org,
+  backHref,
+  concluidoHrefBase,
+  concluidoExtraParams,
+  heading = "Configure seu pagamento",
+  intro,
+}: {
+  org: Org
+  backHref: string
+  concluidoHrefBase: string
+  concluidoExtraParams?: Record<string, string | null | undefined>
+  heading?: string
+  intro?: React.ReactNode
+}) {
+  const router = useRouter()
+  const maxParcelas = org.parcelamentoMaxImplementacao
+
+  const [phase, setPhase] = React.useState<
+    "setup" | "checkout" | "processing"
+  >("setup")
+  const [step, setStep] = React.useState<"impl" | "mens" | "done">("impl")
+  const [impl, setImpl] = React.useState<Line>({ method: "pix", parcelas: 1 })
+  const [mens, setMens] = React.useState<Line>({ method: "pix", parcelas: 1 })
+
+  const totalImpl = org.valorImplementacao
+  const totalMens = org.valorMensalProrrata
+  const totalGeral = totalImpl + totalMens
+
+  const concluidoHref = React.useMemo(() => {
+    const params = new URLSearchParams()
+    params.set("im", impl.method)
+    params.set("ip", String(impl.parcelas))
+    params.set("mm", mens.method)
+    params.set("mp", String(mens.parcelas))
+    if (concluidoExtraParams) {
+      for (const [k, v] of Object.entries(concluidoExtraParams)) {
+        if (v != null && v !== "") params.set(k, v)
+      }
+    }
+    return `${concluidoHrefBase}?${params.toString()}`
+  }, [impl, mens, concluidoHrefBase, concluidoExtraParams])
+
+  const goProcessing = () => {
+    setPhase("processing")
+    setTimeout(() => router.push(concluidoHref), 1800)
+  }
+
+  return (
+    <AwOnboardingShell org={org}>
+      {phase === "processing" ? (
+        <ProcessingPhase totalImpl={totalImpl} totalMens={totalMens} />
+      ) : phase === "checkout" ? (
+        <CheckoutPhase
+          impl={impl}
+          mens={mens}
+          totalImpl={totalImpl}
+          totalMens={totalMens}
+          onBack={() => setPhase("setup")}
+          onSubmit={goProcessing}
+        />
+      ) : (
+        <section>
+          <h3 className="mb-2 text-fg-primary text-balance">{heading}</h3>
+          <p className="mb-6 body-sm text-fg-secondary text-pretty">
+            {intro ?? (
+              <>
+                Você vai pagar a{" "}
+                <b className="font-medium text-fg-primary">implementação</b> e a{" "}
+                <b className="font-medium text-fg-primary">1ª mensalidade</b> agora.
+                Pode escolher o método e dividir cada um em até {maxParcelas}×.
+              </>
+            )}
+          </p>
+
+          <HeroSummary totalImpl={totalImpl} totalMens={totalMens} />
+
+          <div className="mt-5">
+            <PaymentLine
+              eyebrow="Item 01"
+              title="Implementação"
+              desc="Cobrança única · setup e onboarding"
+              total={totalImpl}
+              value={impl}
+              accent="primary"
+              valorMensal={org.valorMensal}
+              maxParcelas={maxParcelas}
+              onChange={setImpl}
+              expanded={step === "impl"}
+              onContinue={() => setStep("mens")}
+            />
+
+            <div
+              className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+              style={{ gridTemplateRows: step !== "impl" ? "1fr" : "0fr" }}
+            >
+              <div className="overflow-hidden">
+                <div className="mt-3.5">
+                  <PaymentLine
+                    eyebrow="Item 02"
+                    title="1ª Mensalidade"
+                    desc={`Valor prorrata · referente aos ${org.diasRestantesMesAtual} dias restantes de Maio/2026`}
+                    total={totalMens}
+                    value={mens}
+                    accent="recurring"
+                    valorMensal={org.valorMensal}
+                    maxParcelas={maxParcelas}
+                    onChange={setMens}
+                    expanded={step === "mens"}
+                    onContinue={() => setStep("done")}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+            style={{ gridTemplateRows: step === "done" ? "1fr" : "0fr" }}
+          >
+            <div className="overflow-hidden">
+              <div className="mt-5">
+                <GrandTotalBar
+                  totalGeral={totalGeral}
+                  impl={impl}
+                  totalImpl={totalImpl}
+                  mens={mens}
+                  totalMens={totalMens}
+                />
+              </div>
+            </div>
+          </div>
+
+          <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+            <Link
+              href={backHref}
+              className="aw-btn aw-btn--ghost aw-btn--md"
+            >
+              <Icon name="arrow_back" size={16} />
+              <span className="aw-btn__label">Voltar</span>
+            </Link>
+            <span className="flex-1" />
+            <div
+              className={[
+                "transition-[opacity,transform] duration-aw-base ease-aw-out",
+                step === "done"
+                  ? "opacity-100 translate-x-0"
+                  : "opacity-0 translate-x-3 pointer-events-none",
+              ].join(" ")}
+            >
+              <button
+                type="button"
+                onClick={() => setPhase("checkout")}
+                className="aw-btn aw-btn--primary aw-btn--sm"
+              >
+                <span className="aw-btn__label">Continuar para pagamento</span>
+                <Icon name="arrow_forward" size={16} />
+              </button>
+            </div>
+          </footer>
+        </section>
+      )}
+    </AwOnboardingShell>
+  )
+}
+
+/* ---------- HERO SUMMARY ---------- */
+
+function HeroSummary({
+  totalImpl,
+  totalMens,
+}: {
+  totalImpl: number
+  totalMens: number
+}) {
+  const total = totalImpl + totalMens
+  return (
+    <div className="relative overflow-hidden rounded-xl bg-aw-gray-1200 p-[22px] text-white">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(80% 60% at 100% 0%, rgba(71,138,255,0.18), transparent 60%)",
+        }}
+      />
+      <div className="relative">
+        <div className="aw-eyebrow text-aw-gray-500">A pagar hoje</div>
+        <div className="mt-1.5 text-[36px] font-medium tabular-nums tracking-tight">
+          {fmtBRL(total)}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-4">
+          <SummaryPart label="Implementação" amount={totalImpl} />
+          <SummaryPart label="1ª mensalidade" amount={totalMens} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SummaryPart({
+  label,
+  amount,
+}: {
+  label: string
+  amount: number
+}) {
+  return (
+    <div className="border-t border-white/[0.08] pt-3.5">
+      <div className="text-[11px] text-aw-gray-500">{label}</div>
+      <div className="mt-1 text-[17px] font-medium tabular-nums">
+        {fmtBRL(amount)}
+      </div>
+    </div>
+  )
+}
+
+/* ---------- PAYMENT LINE ---------- */
+
+function PaymentLine({
+  eyebrow,
+  title,
+  desc,
+  total,
+  value,
+  onChange,
+  accent,
+  expanded,
+  onContinue,
+  valorMensal,
+  maxParcelas,
+}: {
+  eyebrow: string
+  title: string
+  desc: string
+  total: number
+  value: Line
+  onChange: (v: Line) => void
+  accent: "primary" | "recurring"
+  expanded: boolean
+  onContinue: () => void
+  valorMensal: number
+  maxParcelas: number
+}) {
+  return (
+    <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
+      <header
+        className={[
+          "flex items-center gap-3 px-[18px] py-3.5",
+          expanded ? "border-b border-border-subtle" : "",
+        ].join(" ")}
+      >
+        <div className="min-w-0 flex-1">
+          <div className="aw-eyebrow text-fg-tertiary">{eyebrow}</div>
+          <div className="mt-0.5 body-sm font-medium text-fg-primary">
+            {title}
+          </div>
+          <div className="mt-0.5 body-xs text-fg-tertiary">
+            {expanded ? desc : parcelaLabel(value, total)}
+          </div>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="body-lg font-medium tabular-nums text-fg-primary">
+            {fmtBRL(total)}
+          </div>
+          {expanded && accent === "recurring" && (
+            <div className="text-[10px] text-fg-tertiary">
+              próximas {fmtBRL(valorMensal)}/mês
+            </div>
+          )}
+          {!expanded && (
+            <Icon
+              name="check_circle"
+              size={15}
+              fill={1}
+              className="text-aw-emerald-700"
+            />
+          )}
+        </div>
+      </header>
+
+      <div
+        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="p-[18px]">
+            <div className="mb-2.5">
+              <span className="aw-eyebrow text-fg-tertiary">Método</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {METHODS.map((opt) => {
+                const sel = value.method === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() =>
+                      onChange({
+                        method: opt.id,
+                        parcelas: opt.id === "cartao" ? value.parcelas : 1,
+                      })
+                    }
+                    className={[
+                      "rounded-lg border p-3 text-left transition-colors duration-aw-fast",
+                      sel
+                        ? "border-fg-primary bg-fg-primary"
+                        : "border-border bg-bg-raised hover:border-border-strong",
+                    ].join(" ")}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <AwBrandLogo brand={opt.brand} size="sm" bare={sel} />
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={[
+                            "body-xs font-medium",
+                            sel ? "text-white" : "text-fg-primary",
+                          ].join(" ")}
+                        >
+                          {opt.title}
+                        </div>
+                        <div
+                          className={[
+                            "mt-px text-[10px]",
+                            sel ? "text-white/65" : "text-fg-tertiary",
+                          ].join(" ")}
+                        >
+                          {opt.shortDesc}
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {value.method === "cartao" ? (
+              <div className="mt-4">
+                <div className="aw-eyebrow mb-2.5 text-fg-tertiary">
+                  Parcelamento
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {Array.from({ length: maxParcelas }, (_, i) => i + 1).map(
+                    (p) => {
+                      const sel = value.parcelas === p
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => onChange({ ...value, parcelas: p })}
+                          className={[
+                            "rounded-md border px-1 py-2.5 text-center transition-colors duration-aw-fast",
+                            sel
+                              ? "border-fg-primary bg-fg-primary text-white"
+                              : "border-border bg-bg-raised text-fg-primary hover:border-border-strong",
+                          ].join(" ")}
+                        >
+                          <div className="body-xs font-medium">{p}×</div>
+                          <div
+                            className={[
+                              "mt-0.5 text-[10px] tabular-nums",
+                              sel ? "text-white/70" : "text-fg-tertiary",
+                            ].join(" ")}
+                          >
+                            {fmtBRL(total / p)}
+                          </div>
+                        </button>
+                      )
+                    }
+                  )}
+                </div>
+                <div className="mt-2.5 body-xs text-fg-tertiary">
+                  {value.parcelas === 1
+                    ? `Pagamento à vista de ${fmtBRL(total)}`
+                    : `${value.parcelas} parcelas mensais de ${fmtBRL(
+                        total / value.parcelas
+                      )} · sem juros`}
+                </div>
+              </div>
+            ) : (
+              <div className="mt-4 flex items-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-3 py-2.5 body-xs text-fg-secondary">
+                <Icon name="info" size={14} className="text-fg-tertiary" />
+                <span>
+                  Pagamento à vista de{" "}
+                  <b className="font-medium tabular-nums text-fg-primary">
+                    {fmtBRL(total)}
+                  </b>
+                  {value.method === "boleto"
+                    ? " · boleto único enviado por e-mail"
+                    : " · QR Pix único"}
+                </span>
+              </div>
+            )}
+
+            <div className="mt-5 flex justify-end">
+              <button
+                type="button"
+                onClick={onContinue}
+                className="aw-btn aw-btn--primary aw-btn--sm"
+              >
+                <span className="aw-btn__label">Continuar</span>
+                <Icon name="arrow_forward" size={14} />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+/* ---------- GRAND TOTAL BAR ---------- */
+
+function GrandTotalBar({
+  totalGeral,
+  impl,
+  totalImpl,
+  mens,
+  totalMens,
+}: {
+  totalGeral: number
+  impl: Line
+  totalImpl: number
+  mens: Line
+  totalMens: number
+}) {
+  return (
+    <div className="mt-5 rounded-xl border border-border bg-bg-canvas p-4">
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <div className="body-xs text-fg-tertiary">Implementação</div>
+          <div className="body-sm font-medium tabular-nums text-fg-primary">
+            {fmtBRL(totalImpl)}
+          </div>
+          <div className="text-[10px] text-fg-tertiary">
+            {impl.parcelas === 1
+              ? "à vista"
+              : `${impl.parcelas}× ${fmtBRL(totalImpl / impl.parcelas)}`}
+          </div>
+        </div>
+        <div>
+          <div className="body-xs text-fg-tertiary">1ª mensalidade</div>
+          <div className="body-sm font-medium tabular-nums text-fg-primary">
+            {fmtBRL(totalMens)}
+          </div>
+          <div className="text-[10px] text-fg-tertiary">
+            {mens.parcelas === 1
+              ? "à vista"
+              : `${mens.parcelas}× ${fmtBRL(totalMens / mens.parcelas)}`}
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex items-baseline justify-between border-t border-border-subtle pt-3">
+        <span className="body-sm font-medium text-fg-primary">
+          Total a pagar agora
+        </span>
+        <span className="body-xl font-medium tabular-nums text-fg-primary">
+          {fmtBRL(totalGeral)}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/* ---------- CHECKOUT PHASE ---------- */
+
+function CheckoutPhase({
+  impl,
+  mens,
+  totalImpl,
+  totalMens,
+  onBack,
+  onSubmit,
+}: {
+  impl: Line
+  mens: Line
+  totalImpl: number
+  totalMens: number
+  onBack: () => void
+  onSubmit: () => void
+}) {
+  const bothCartao = impl.method === "cartao" && mens.method === "cartao"
+  const [reuseCard, setReuseCard] = React.useState(true)
+  const [implPaid, setImplPaid] = React.useState(false)
+  const [mensPaid, setMensPaid] = React.useState(false)
+  const allPaid = implPaid && mensPaid
+
+  React.useEffect(() => {
+    if (!allPaid) return
+    const t = setTimeout(onSubmit, 450)
+    return () => clearTimeout(t)
+  }, [allPaid, onSubmit])
+
+  return (
+    <section>
+      <h3 className="mb-2 text-fg-primary text-balance">
+        Realize seu pagamento
+      </h3>
+      <p className="mb-6 body-sm text-fg-secondary text-pretty">
+        Sua sessão está autenticada. Os instrumentos abaixo foram gerados para
+        os pagamentos configurados.
+      </p>
+
+      <div className="flex flex-col gap-4">
+        <PaymentInstrument
+          method={impl.method}
+          parcelas={impl.parcelas}
+          total={totalImpl}
+          label="Implementação"
+          paid={implPaid}
+          onMarkPaid={() => setImplPaid(true)}
+        />
+        <PaymentInstrument
+          method={mens.method}
+          parcelas={mens.parcelas}
+          total={totalMens}
+          label="1ª mensalidade"
+          offerReuseCard={bothCartao}
+          reuseCard={bothCartao && reuseCard}
+          onToggleReuseCard={() => setReuseCard((o) => !o)}
+          paid={mensPaid}
+          onMarkPaid={() => setMensPaid(true)}
+        />
+      </div>
+
+      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <button
+          type="button"
+          onClick={onBack}
+          className="aw-btn aw-btn--ghost aw-btn--md"
+          disabled={allPaid}
+        >
+          <Icon name="arrow_back" size={16} />
+          <span className="aw-btn__label">Ajustar pagamento</span>
+        </button>
+        <span className="flex-1" />
+        <span className="body-xs text-fg-tertiary">
+          {allPaid
+            ? "Tudo confirmado · seguindo para a conclusão…"
+            : `${[implPaid, mensPaid].filter(Boolean).length} de 2 pagamentos confirmados`}
+        </span>
+      </footer>
+    </section>
+  )
+}
+
+function PaymentInstrument({
+  method,
+  parcelas,
+  total,
+  label,
+  offerReuseCard,
+  reuseCard,
+  onToggleReuseCard,
+  paid,
+  onMarkPaid,
+}: {
+  method: MethodId
+  parcelas: number
+  total: number
+  label: string
+  offerReuseCard?: boolean
+  reuseCard?: boolean
+  onToggleReuseCard?: () => void
+  paid: boolean
+  onMarkPaid: () => void
+}) {
+  const parcelaLine =
+    parcelas === 1
+      ? `à vista · ${fmtBRL(total)}`
+      : `${parcelas}× ${fmtBRL(total / parcelas)} sem juros`
+
+  return (
+    <article
+      className={[
+        "overflow-hidden rounded-xl border bg-bg-raised transition-colors duration-aw-base",
+        paid ? "border-aw-emerald-700/40" : "border-border-subtle",
+      ].join(" ")}
+    >
+      <header
+        className={[
+          "flex items-center gap-3 px-4 py-3",
+          paid ? "" : "border-b border-border-subtle",
+        ].join(" ")}
+      >
+        <AwBrandLogo brand={methodBrand(method)} size="sm" />
+        <div className="min-w-0 flex-1">
+          <div className="body-xs font-medium text-fg-primary">{label}</div>
+          <div className="body-xs text-fg-tertiary">
+            {methodTitle(method)} · {parcelaLine}
+          </div>
+        </div>
+        {paid ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-aw-emerald-100 px-2 py-0.5 text-[11px] font-medium text-aw-emerald-700">
+            <Icon name="check_circle" size={12} fill={1} />
+            Pago
+          </span>
+        ) : (
+          <div className="body-sm font-medium tabular-nums text-fg-primary">
+            {fmtBRL(total)}
+          </div>
+        )}
+      </header>
+      <div
+        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+        style={{ gridTemplateRows: paid ? "0fr" : "1fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="p-4">
+            {method === "pix" && <PixInstrument onConfirmPaid={onMarkPaid} />}
+            {method === "cartao" && (
+              <CartaoInstrument
+                parcelas={parcelas}
+                total={total}
+                offerReuse={offerReuseCard}
+                reuse={reuseCard}
+                onToggleReuse={onToggleReuseCard}
+                onConfirmPaid={onMarkPaid}
+              />
+            )}
+            {method === "boleto" && (
+              <BoletoInstrument
+                parcelas={parcelas}
+                onConfirmPaid={onMarkPaid}
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+/* ---------- PIX ---------- */
+
+const PIX_CODE =
+  "00020126360014BR.GOV.BCB.PIX0114+5511987654321520400005303986540512000.005802BR5925AWSALES TECNOLOGIA LTDA6009SAO PAULO62070503***6304D2A1"
+
+function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
+  const [secondsLeft, setSecondsLeft] = React.useState(30 * 60)
+
+  React.useEffect(() => {
+    if (secondsLeft <= 0) return
+    const t = setInterval(
+      () => setSecondsLeft((s) => Math.max(0, s - 1)),
+      1000
+    )
+    return () => clearInterval(t)
+  }, [secondsLeft])
+
+  const expired = secondsLeft <= 0
+  const mm = Math.floor(secondsLeft / 60)
+    .toString()
+    .padStart(2, "0")
+  const ss = (secondsLeft % 60).toString().padStart(2, "0")
+
+  return (
+    <div className="flex flex-col gap-3.5">
+      <div className="flex items-center gap-4">
+        <FakeQR />
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
+            <span
+              className={[
+                "inline-flex items-center gap-1 rounded-full px-2 py-px text-[10px] font-medium tabular-nums",
+                expired
+                  ? "bg-aw-red-100 text-aw-red-700"
+                  : "bg-aw-amber-100 text-aw-amber-800",
+              ].join(" ")}
+            >
+              <Icon name="schedule" size={10} />
+              {expired ? "Pix expirado" : `Expira em ${mm}:${ss}`}
+            </span>
+          </div>
+          <div className="mb-2.5 body-xs text-fg-secondary">
+            Abra o app do seu banco e escaneie ou copie o código abaixo.
+          </div>
+          <div className="flex items-center gap-1.5 rounded-md border border-border py-1.5 pl-2.5 pr-1.5">
+            <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[10px] text-fg-tertiary">
+              {PIX_CODE}
+            </code>
+            <button
+              type="button"
+              className="aw-btn aw-btn--secondary aw-btn--sm"
+            >
+              <Icon name="content_copy" size={12} />
+              <span className="aw-btn__label">Copiar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end border-t border-border-subtle pt-3">
+        <button
+          type="button"
+          onClick={onConfirmPaid}
+          className="aw-btn aw-btn--primary aw-btn--sm"
+        >
+          <Icon name="check" size={14} />
+          <span className="aw-btn__label">Já paguei o Pix</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function FakeQR() {
+  const size = 19
+  const cells = React.useMemo(() => {
+    const arr: boolean[] = []
+    let s = 13
+    for (let i = 0; i < size * size; i++) {
+      s = (s * 9301 + 49297) % 233280
+      arr.push(s / 233280 > 0.5)
+    }
+    return arr
+  }, [])
+  const isFinder = (x: number, y: number) =>
+    (x < 7 && y < 7) ||
+    (x >= size - 7 && y < 7) ||
+    (x < 7 && y >= size - 7)
+  return (
+    <div
+      className="grid h-[140px] w-[140px] flex-shrink-0 rounded-md border border-border-subtle bg-white p-2"
+      style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
+    >
+      {cells.map((on, i) => {
+        const x = i % size
+        const y = Math.floor(i / size)
+        let fill: string
+        if (isFinder(x, y)) {
+          const fx = x < 7 ? x : x - (size - 7)
+          const fy = y < 7 ? y : y - (size - 7)
+          const onOuter = fx === 0 || fx === 6 || fy === 0 || fy === 6
+          const onInner = fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4
+          fill = onOuter || onInner ? "#0D0D0D" : "#FFFFFF"
+        } else {
+          fill = on ? "#0D0D0D" : "#FFFFFF"
+        }
+        return (
+          <div key={i} style={{ background: fill, aspectRatio: "1 / 1" }} />
+        )
+      })}
+    </div>
+  )
+}
+
+/* ---------- CARTÃO ---------- */
+
+function CartaoInstrument({
+  parcelas,
+  total,
+  offerReuse,
+  reuse,
+  onToggleReuse,
+  onConfirmPaid,
+}: {
+  parcelas: number
+  total: number
+  offerReuse?: boolean
+  reuse?: boolean
+  onToggleReuse?: () => void
+  onConfirmPaid: () => void
+}) {
+  const [number, setNumber] = React.useState("")
+  const [name, setName] = React.useState("")
+  const [exp, setExp] = React.useState("")
+  const [cvv, setCvv] = React.useState("")
+
+  const fmtCard = (v: string) =>
+    v
+      .replace(/\D/g, "")
+      .slice(0, 16)
+      .replace(/(\d{4})(?=\d)/g, "$1 ")
+  const fmtExp = (v: string) => {
+    const n = v.replace(/\D/g, "").slice(0, 4)
+    return n.length > 2 ? n.slice(0, 2) + "/" + n.slice(2) : n
+  }
+
+  return (
+    <div className="grid gap-3">
+      {offerReuse && (
+        <label
+          className={[
+            "flex cursor-pointer items-center gap-2.5 rounded-md border px-3 py-2.5 transition-colors duration-aw-fast",
+            reuse
+              ? "border-fg-primary bg-bg-surface"
+              : "border-border bg-bg-raised",
+          ].join(" ")}
+        >
+          <AwCheckbox checked={!!reuse} onChange={() => onToggleReuse?.()} />
+          <span className="min-w-0 flex-1">
+            <span className="block body-xs font-medium text-fg-primary">
+              Usar o mesmo cartão da implementação
+            </span>
+            <span className="mt-px block body-xs text-fg-tertiary">
+              Evita preencher os dados duas vezes · a cobrança vai pro mesmo
+              cartão
+            </span>
+          </span>
+        </label>
+      )}
+
+      {!reuse && (
+        <>
+          <CardField label="Número do cartão">
+            <AwCardBrand pan={number} size="sm" />
+            <input
+              placeholder="0000 0000 0000 0000"
+              value={number}
+              onChange={(e) => setNumber(fmtCard(e.target.value))}
+              inputMode="numeric"
+              autoComplete="cc-number"
+              className="flex-1 border-0 bg-transparent body-xs tabular-nums outline-0"
+            />
+          </CardField>
+          <CardField label="Nome impresso">
+            <Icon name="person" size={14} className="text-fg-tertiary" />
+            <input
+              placeholder="Como está no cartão"
+              value={name}
+              onChange={(e) => setName(e.target.value.toUpperCase())}
+              autoComplete="cc-name"
+              className="flex-1 border-0 bg-transparent body-xs outline-0"
+            />
+          </CardField>
+          <div className="grid grid-cols-2 gap-3">
+            <CardField label="Validade">
+              <Icon name="event" size={14} className="text-fg-tertiary" />
+              <input
+                placeholder="MM/AA"
+                value={exp}
+                onChange={(e) => setExp(fmtExp(e.target.value))}
+                autoComplete="cc-exp"
+                className="flex-1 border-0 bg-transparent body-xs outline-0"
+              />
+            </CardField>
+            <CardField label="CVV">
+              <Icon name="lock" size={14} className="text-fg-tertiary" />
+              <input
+                placeholder="000"
+                value={cvv}
+                onChange={(e) =>
+                  setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))
+                }
+                autoComplete="cc-csc"
+                className="flex-1 border-0 bg-transparent body-xs outline-0"
+              />
+            </CardField>
+          </div>
+          <div className="mt-1 flex items-center gap-2.5 rounded-md bg-bg-surface p-2.5">
+            <Icon name="lock" size={14} className="text-fg-tertiary" />
+            <span className="body-xs text-fg-secondary">
+              Cobrado agora:{" "}
+              <b className="font-medium tabular-nums text-fg-primary">
+                {parcelas === 1
+                  ? fmtBRL(total)
+                  : `${parcelas}× ${fmtBRL(total / parcelas)}`}
+              </b>{" "}
+              · cartão salvo de forma criptografada para próximas mensalidades.
+            </span>
+          </div>
+        </>
+      )}
+      <div className="flex justify-end border-t border-border-subtle pt-3">
+        <button
+          type="button"
+          onClick={onConfirmPaid}
+          className="aw-btn aw-btn--primary aw-btn--sm"
+        >
+          <Icon name="lock" size={14} />
+          <span className="aw-btn__label">Cobrar cartão</span>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function CardField({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className="flex flex-col gap-1.5">
+      <span className="body-xs font-medium text-fg-secondary">{label}</span>
+      <span className="flex h-[38px] items-center gap-2 rounded-md border border-border bg-bg-raised px-3 focus-within:border-fg-primary">
+        {children}
+      </span>
+    </label>
+  )
+}
+
+/* ---------- BOLETO ---------- */
+
+const BOLETO_CODE = "23793.38128 60079.811604 41005.396305 1 99230000000158333"
+
+function BoletoInstrument({
+  parcelas,
+  onConfirmPaid,
+}: {
+  parcelas: number
+  onConfirmPaid: () => void
+}) {
+  const [showDelayNotice, setShowDelayNotice] = React.useState(false)
+
+  return (
+    <>
+      <FakeBarcode />
+      <div className="mt-2.5 flex items-center gap-1.5 rounded-md border border-border py-1.5 pl-2.5 pr-1.5">
+        <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis body-xs text-fg-tertiary">
+          {BOLETO_CODE}
+        </code>
+        <button type="button" className="aw-btn aw-btn--secondary aw-btn--sm">
+          <Icon name="content_copy" size={12} />
+          <span className="aw-btn__label">Copiar</span>
+        </button>
+      </div>
+      <div className="mt-2.5 flex gap-2">
+        <button
+          type="button"
+          className="aw-btn aw-btn--secondary aw-btn--sm flex-1"
+        >
+          <Icon name="picture_as_pdf" size={12} />
+          <span className="aw-btn__label">Baixar PDF</span>
+        </button>
+        <button
+          type="button"
+          className="aw-btn aw-btn--secondary aw-btn--sm flex-1"
+        >
+          <Icon name="mail" size={12} />
+          <span className="aw-btn__label">Enviar por e-mail</span>
+        </button>
+      </div>
+      {parcelas > 1 && (
+        <div className="mt-2.5 flex items-center gap-2 rounded-md bg-aw-amber-100 p-2.5 body-xs text-aw-amber-800">
+          <Icon name="info" size={14} />
+          <span>{parcelas} boletos serão enviados — um por parcela.</span>
+        </div>
+      )}
+
+      <div className="mt-3 border-t border-border-subtle pt-3">
+        {showDelayNotice ? (
+          <div className="flex flex-col gap-2.5 rounded-md bg-aw-amber-100 p-3 body-xs text-aw-amber-800">
+            <div className="flex items-start gap-2">
+              <Icon name="info" size={14} fill={1} className="mt-px" />
+              <span>
+                A compensação bancária pode levar até{" "}
+                <b className="font-medium">48h</b> para ser contabilizada. Você
+                pode seguir para a próxima etapa enquanto isso — avisaremos por
+                e-mail assim que confirmarmos.
+              </span>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDelayNotice(false)}
+                className="aw-btn aw-btn--ghost aw-btn--sm"
+              >
+                <span className="aw-btn__label">Voltar</span>
+              </button>
+              <button
+                type="button"
+                onClick={onConfirmPaid}
+                className="aw-btn aw-btn--primary aw-btn--sm"
+              >
+                <Icon name="arrow_forward" size={14} />
+                <span className="aw-btn__label">Entendi, seguir</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowDelayNotice(true)}
+              className="aw-btn aw-btn--primary aw-btn--sm"
+            >
+              <Icon name="check" size={14} />
+              <span className="aw-btn__label">Já paguei o boleto</span>
+            </button>
+          </div>
+        )}
+      </div>
+    </>
+  )
+}
+
+function FakeBarcode() {
+  const bars = React.useMemo(() => {
+    let s = 17
+    const out: { w: number; space: number }[] = []
+    for (let i = 0; i < 88; i++) {
+      s = (s * 9301 + 49297) % 233280
+      const w = 1 + Math.floor((s / 233280) * 3)
+      const space = 1 + Math.floor(((s * 7) % 5000) / 1700)
+      out.push({ w, space })
+    }
+    return out
+  }, [])
+  return (
+    <div className="flex h-[52px] items-stretch gap-px rounded-md border border-border-subtle bg-white p-2">
+      {bars.map((b, i) => (
+        <React.Fragment key={i}>
+          <i className="block bg-aw-gray-1200" style={{ width: b.w }} />
+          <div style={{ width: b.space }} />
+        </React.Fragment>
+      ))}
+    </div>
+  )
+}
+
+/* ---------- PROCESSING ---------- */
+
+function ProcessingPhase({
+  totalImpl,
+  totalMens,
+}: {
+  totalImpl: number
+  totalMens: number
+}) {
+  return (
+    <section className="flex flex-col items-center pt-10">
+      <span
+        aria-hidden="true"
+        className="h-9 w-9 animate-spin rounded-full border-2 border-brand border-r-transparent"
+      />
+      <h4 className="mt-6 text-fg-primary">Processando pagamento…</h4>
+      <p className="m-0 mt-2.5 max-w-[380px] text-center body-sm text-fg-secondary">
+        Estamos confirmando a cobrança da implementação e da 1ª mensalidade.
+        Isso leva alguns segundos.
+      </p>
+      <div className="mt-7 w-full max-w-[380px] rounded-lg border border-border-subtle bg-bg-surface p-3.5">
+        <ProcessingRow label="Implementação" amount={totalImpl} done />
+        <ProcessingRow label="1ª mensalidade" amount={totalMens} />
+      </div>
+    </section>
+  )
+}
+
+function ProcessingRow({
+  label,
+  amount,
+  done,
+}: {
+  label: string
+  amount: number
+  done?: boolean
+}) {
+  return (
+    <div className="flex items-center gap-2.5 py-1.5">
+      {done ? (
+        <Icon
+          name="check_circle"
+          size={16}
+          fill={1}
+          className="text-aw-emerald-700"
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="h-3.5 w-3.5 animate-spin rounded-full border-[1.5px] border-fg-tertiary border-r-transparent"
+        />
+      )}
+      <span className="flex-1 body-xs text-fg-primary">{label}</span>
+      <span className="body-xs font-medium tabular-nums text-fg-primary">
+        {fmtBRL(amount)}
+      </span>
+    </div>
+  )
+}
