@@ -51,8 +51,8 @@ export function LoginScreen({
 
       <div className="flex flex-col gap-2.5">
         <SsoButton icon={<MailIcon />} label={c.ssoEmail} onClick={() => goTo("email")} />
-        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} />
-        <SsoButton icon={<MsIcon />} label={c.ssoMs} />
+        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => goTo("workspace")} />
+        <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => goTo("workspace")} />
       </div>
     </div>
   );
