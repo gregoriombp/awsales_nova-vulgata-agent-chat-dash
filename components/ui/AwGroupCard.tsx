@@ -73,7 +73,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
         onClick={onManage}
         className={cn(
           "flex flex-col overflow-hidden rounded-[var(--radius-xl)]",
-          "border border-[var(--border-subtle)] bg-[var(--bg-muted)]",
+          "border border-[var(--border-subtle)] bg-[var(--aw-gray-100)]",
           "transition-colors duration-aw-fast hover:border-[var(--border-default)]",
           onManage && "cursor-pointer",
           className,
@@ -81,7 +81,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
         {...rest}
       >
         <div
-          className="relative h-[180px] w-full bg-[var(--bg-muted)]"
+          className="relative h-[180px] w-full bg-[var(--aw-gray-100)]"
           style={
             backgroundImage
               ? {
