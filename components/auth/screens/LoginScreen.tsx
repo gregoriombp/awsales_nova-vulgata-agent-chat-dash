@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 import { SsoButton } from "../_atoms";
@@ -54,6 +55,16 @@ export function LoginScreen({
         <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => goTo("workspace")} />
         <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => goTo("workspace")} />
       </div>
+
+      <p className="mt-7 text-center body-xs text-aw-gray-700">
+        {c.noAccount}{" "}
+        <Link
+          href="/primeiro-acesso"
+          className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+        >
+          {c.signUp}
+        </Link>
+      </p>
     </div>
   );
 }
