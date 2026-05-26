@@ -4,6 +4,7 @@ export type AuthScreen =
   | "forgot"
   | "reset"
   | "verify"
+  | "magicSent"
   | "workspace"
   | "success";
 

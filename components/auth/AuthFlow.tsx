@@ -7,6 +7,7 @@ import { EmailLoginScreen } from "./screens/EmailLoginScreen";
 import { ForgotScreen } from "./screens/ForgotScreen";
 import { ResetScreen } from "./screens/ResetScreen";
 import { VerifyScreen } from "./screens/VerifyScreen";
+import { MagicSentScreen } from "./screens/MagicSentScreen";
 import { WorkspaceScreen } from "./screens/WorkspaceScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
 import type { AuthScreen, Locale } from "./_types";
@@ -27,6 +28,7 @@ export function AuthFlow() {
       case "forgot":    return <ForgotScreen locale={locale} goTo={goTo} />;
       case "reset":     return <ResetScreen locale={locale} goTo={goTo} />;
       case "verify":    return <VerifyScreen locale={locale} goTo={goTo} email={email} />;
+      case "magicSent": return <MagicSentScreen locale={locale} goTo={goTo} email={email} />;
       case "workspace": return <WorkspaceScreen locale={locale} goTo={goTo} />;
       case "success":   return <SuccessScreen locale={locale} />;
     }

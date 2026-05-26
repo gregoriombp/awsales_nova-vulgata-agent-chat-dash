@@ -18,6 +18,7 @@ const STEP_IMAGE: Record<Exclude<AuthScreen, "login">, string> = {
   forgot: "/assets/group-backgrounds/group-bg-09.jpg",
   reset: "/assets/group-backgrounds/group-bg-13.jpg",
   verify: "/assets/group-backgrounds/group-bg-07.jpg",
+  magicSent: "/assets/group-backgrounds/group-bg-23.jpg",
   workspace: "/assets/group-backgrounds/group-bg-17.jpg",
   success: "/assets/group-backgrounds/group-bg-20.jpg",
 };
