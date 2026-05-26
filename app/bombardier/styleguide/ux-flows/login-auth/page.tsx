@@ -14,41 +14,42 @@ import {
 /* ─────────────────────────────────────────────────────────────────────
  * Layout constants
  *
- * Centre spine: COL / COL_D (centered at x=380)
+ * Centre spine: COL / COL_D
  * Left corridor:  GOOGLE_X / PRIMO_TERM_X  (x < 0)
- * Right corridor: MFA_X, ERRO_X, MS_X      (x > 500)
+ * Right corridor: ERRO_X, MS_X             (x > 500)
  *
- * Google and Microsoft are placed at the SAME ROW as primeiroAcessoDec
- * (oauthMfaRow), then metodo connects them via long corridor edges that
- * stay outside the centre spine — no diagonal crossings.
+ * Google and Microsoft sit on the SAME ROW as workspaceDec — their
+ * convergence edges stay horizontal and never cross the centre spine.
  * ──────────────────────────────────────────────────────────────────── */
 
 const COL   = 280    // ScreenNode  centre x
 const COL_D = 260    // DecisionNode centre x
 
 const GOOGLE_X     = -200  // OAuth Google  (far-left corridor)
-const MFA_X        = 500   // MFA screen    (right of centre, no crossing with "Sem MFA" vertical)
-const ERRO_X       = 720   // Error + recovery chain
+const ERRO_X       = 720   // Error + recovery chain (right corridor)
 const MS_X         = 1000  // OAuth Microsoft (far-right corridor)
 const PRIMO_TERM_X = -200  // "Primeiro acesso" terminal (below Google)
 const NOVA_ORG_X   = 540   // "Configurar org adicional" terminal (right of platform)
+
+const MAGIC_X = -200  // Magic link screen (left corridor, level with verify)
 
 const Y = {
   entrada:           0,
   metodo:          160,
   credenciais:     360,
   valid:           520,
-  errMfaRow:       680,   // mfaDec (centre) | erro (ERRO_X)
-  oauthMfaRow:     880,   // oauthGoogle | mfa (MFA_X) | oauthMs
-  recEmail:        840,   // recovery chain starts just below erro
-  primeiroAcessoDec: 1060,
+  verifyRow:       680,   // verify (centre) | erro (ERRO_X) | magicLink (MAGIC_X)
+  oauthRow:        840,   // oauthGoogle | workspaceDec (centre) | oauthMs
+  recEmail:        840,
+  workspace:      1000,
   recSent:        1000,
+  primeiroAcessoDec: 1160,
   novaSenha:      1160,
-  primeiroAcesso: 1240,
-  novaOrgDec:     1240,
+  primeiroAcesso: 1320,
+  novaOrgDec:     1320,
   senhaRedef:     1320,
-  platform:       1440,
-  novaOrgConfig:  1440,
+  platform:       1480,
+  novaOrgConfig:  1480,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -61,19 +62,19 @@ const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Login", href: "#", note: "Tela inicial. Escolher método ou recuperar senha." },
+    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Mostra três botões lado a lado: e-mail, Google e Microsoft. Link 'Esqueci a senha' aparece depois, na tela de e-mail." },
   },
   {
     id: "metodo",
     type: "decision",
     position: { x: COL_D, y: Y.metodo },
-    data: { step: "01", title: "Método de acesso", question: "Como o usuário quer entrar na plataforma?" },
+    data: { step: "01", title: "Qual botão?", question: "O usuário clicou em qual dos três botões da tela inicial?" },
   },
   {
     id: "credenciais",
     type: "screen",
     position: { x: COL, y: Y.credenciais },
-    data: { step: "02", title: "E-mail + senha", href: "#", note: "Inserir e-mail e senha cadastrados na plataforma." },
+    data: { step: "02", title: "E-mail + senha", href: "/", note: "Formulário com e-mail, senha (com mostrar/ocultar), 'Manter conectado' e 'Esqueci a senha'." },
   },
   {
     id: "valid",
@@ -82,28 +83,40 @@ const NODES: Node[] = [
     data: { step: "03", title: "Credenciais válidas?", question: "E-mail e senha conferem com os dados cadastrados?" },
   },
   {
-    id: "mfaDec",
-    type: "decision",
-    position: { x: COL_D, y: Y.errMfaRow },
-    data: { step: "04", title: "MFA ativo?", question: "A conta tem autenticação de dois fatores habilitada?" },
+    id: "verify",
+    type: "screen",
+    position: { x: COL, y: Y.verifyRow },
+    data: { step: "04", title: "Verificação por e-mail", href: "/", note: "Código de 6 dígitos enviado ao e-mail informado. Countdown de reenvio. Cola direto via clipboard." },
   },
   {
-    id: "mfa",
+    id: "magicLink",
     type: "screen",
-    position: { x: MFA_X, y: Y.oauthMfaRow },
-    data: { step: "05", title: "Verificação MFA", href: "#", note: "Código de 6 dígitos via app autenticador ou SMS." },
+    position: { x: MAGIC_X, y: Y.verifyRow },
+    data: { step: "04b", title: "Link de acesso enviado", href: "/", note: "Tela de confirmação após pedir magic link. Mostra o e-mail destinatário, tempo de expiração (15min) e reenvio com countdown." },
+  },
+  {
+    id: "workspaceDec",
+    type: "decision",
+    position: { x: COL_D, y: Y.oauthRow },
+    data: { step: "05", title: "Pertence a mais de uma organização?", question: "O usuário tem acesso a mais de uma organização?" },
+  },
+  {
+    id: "workspace",
+    type: "screen",
+    position: { x: COL, y: Y.workspace },
+    data: { step: "06", title: "Seletor de organização", href: "/", note: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano). Escolher uma e continuar." },
   },
   {
     id: "primeiroAcessoDec",
     type: "decision",
     position: { x: COL_D, y: Y.primeiroAcessoDec },
-    data: { step: "06", title: "Primeiro acesso?", question: "Backend verifica se o usuário já tem conta ativa na organização." },
+    data: { step: "07", title: "Primeiro acesso?", question: "Backend verifica se o usuário já tem conta ativa na organização." },
   },
   {
     id: "novaOrgDec",
     type: "decision",
     position: { x: COL_D, y: Y.novaOrgDec },
-    data: { step: "07", title: "Nova organização para configurar?", question: "Backend verifica se o usuário comprou um plano novo sem organização configurada." },
+    data: { step: "08", title: "Nova organização para configurar?", question: "Backend verifica se o usuário comprou um plano novo sem organização configurada." },
   },
   {
     id: "platform",
@@ -121,8 +134,8 @@ const NODES: Node[] = [
   {
     id: "oauthGoogle",
     type: "screen",
-    position: { x: GOOGLE_X, y: Y.oauthMfaRow },
-    data: { step: "02a", title: "OAuth Google", href: "#", note: "OAuth 2.0 via conta Google corporativa." },
+    position: { x: GOOGLE_X, y: Y.oauthRow },
+    data: { step: "02a", title: "Continuar com Google", href: "/", note: "OAuth 2.0 via Google. Provedor autentica e o usuário volta autenticado." },
   },
   {
     id: "primeiroAcesso",
@@ -134,39 +147,39 @@ const NODES: Node[] = [
   {
     id: "oauthMs",
     type: "screen",
-    position: { x: MS_X, y: Y.oauthMfaRow },
-    data: { step: "02c", title: "OAuth Microsoft", href: "#", note: "OAuth 2.0 via conta Microsoft / Azure AD." },
+    position: { x: MS_X, y: Y.oauthRow },
+    data: { step: "02c", title: "Continuar com Microsoft", href: "/", note: "OAuth 2.0 via Microsoft. Provedor autentica e o usuário volta autenticado." },
   },
   // ── Error + recovery chain (ERRO_X column) ────────────────────────
   {
     id: "erro",
     type: "screen",
-    position: { x: ERRO_X, y: Y.errMfaRow },
-    data: { step: "→ erro", title: "Erro de login", href: "#", note: 'Credenciais inválidas. Clique em "Esqueci a senha" ou tente novamente.' },
+    position: { x: ERRO_X, y: Y.verifyRow },
+    data: { step: "→ erro", title: "Erro de login", href: "/", note: 'Credenciais inválidas. Clique em "Esqueci a senha" ou tente novamente.' },
   },
   {
     id: "recEmail",
     type: "screen",
     position: { x: ERRO_X, y: Y.recEmail },
-    data: { step: "B1", title: "Inserir e-mail", href: "#", note: "Usuário informa o e-mail cadastrado para receber o link." },
+    data: { step: "B1", title: "Inserir e-mail", href: "/", note: "Usuário informa o e-mail cadastrado para receber o link." },
   },
   {
     id: "recSent",
     type: "screen",
     position: { x: ERRO_X, y: Y.recSent },
-    data: { step: "B2", title: "E-mail enviado", href: "#", note: "Link de redefinição enviado. Usuário acessa o e-mail externamente." },
+    data: { step: "B2", title: "E-mail enviado", href: "/", note: "Link de redefinição enviado. Usuário acessa o e-mail externamente." },
   },
   {
     id: "novaSenha",
     type: "screen",
     position: { x: ERRO_X, y: Y.novaSenha },
-    data: { step: "B3", title: "Nova senha", href: "#", note: "Tela aberta pelo link. Usuário define e confirma a nova senha." },
+    data: { step: "B3", title: "Nova senha", href: "/", note: "Tela aberta pelo link. Usuário define e confirma a nova senha." },
   },
   {
     id: "senhaRedef",
     type: "screen",
     position: { x: ERRO_X, y: Y.senhaRedef },
-    data: { step: "B4", title: "Senha redefinida", href: "#", note: "Sucesso. Redireciona automaticamente para a tela de Login." },
+    data: { step: "B4", title: "Senha redefinida", href: "/", note: "Sucesso. Redireciona automaticamente para a tela de Login." },
   },
 ]
 
@@ -185,27 +198,30 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-entrada-metodo",    source: "entrada",    target: "metodo",           label: "Acessar",          ...labelProps },
 
   // ── Auth method branches (metodo → each method) ────────────────────
-  // left/right corridor edges stay outside the centre spine (x<260 and x>500)
   { ...branchEdge, id: "e-metodo-google",     source: "metodo",     target: "oauthGoogle",      sourceHandle: "left",   label: "Google",         ...labelProps },
   { ...branchEdge, id: "e-metodo-cred",       source: "metodo",     target: "credenciais",      sourceHandle: "bottom", label: "E-mail + senha", ...labelProps },
   { ...branchEdge, id: "e-metodo-ms",         source: "metodo",     target: "oauthMs",          sourceHandle: "right",  label: "Microsoft",      ...labelProps },
 
   // ── Email+senha path ───────────────────────────────────────────────
   { ...edgeBase,   id: "e-cred-valid",        source: "credenciais",target: "valid" },
-  { ...branchEdge, id: "e-valid-mfadec",      source: "valid",      target: "mfaDec",           sourceHandle: "bottom", label: "Corretas",   ...labelProps },
+  { ...branchEdge, id: "e-valid-verify",      source: "valid",      target: "verify",           sourceHandle: "bottom", label: "Corretas",   ...labelProps },
   { ...branchEdge, id: "e-valid-erro",        source: "valid",      target: "erro",             sourceHandle: "right",  label: "Inválidas",  ...labelProps },
 
-  // ── MFA branch — right exits avoid the "Sem MFA" vertical line ─────
-  { ...branchEdge, id: "e-mfadec-mfa",        source: "mfaDec",     target: "mfa",              sourceHandle: "right",  label: "MFA ativo",  ...labelProps },
-  // "Sem MFA" goes straight down the centre spine (x=380), never crossing mfa at x=500-700
-  { ...branchEdge, id: "e-mfadec-primacesso", source: "mfaDec",     target: "primeiroAcessoDec",sourceHandle: "bottom", label: "Sem MFA",    ...labelProps },
+  // ── Magic link branch — sai da tela de credenciais como alternativa à senha ──
+  { ...branchEdge, id: "e-cred-magiclink",     source: "credenciais", target: "magicLink", label: "Receber link no email", ...labelProps },
 
-  // ── Convergence at primeiroAcessoDec ──────────────────────────────
-  { ...edgeBase,   id: "e-google-primacesso", source: "oauthGoogle",target: "primeiroAcessoDec" },
-  { ...edgeBase,   id: "e-mfa-primacesso",    source: "mfa",        target: "primeiroAcessoDec" },
-  { ...edgeBase,   id: "e-ms-primacesso",     source: "oauthMs",    target: "primeiroAcessoDec" },
+  // ── Convergence at workspaceDec (OAuth e magic link pulam verify; e-mail+senha passa por verify) ──
+  { ...edgeBase,   id: "e-verify-workspacedec",   source:"verify",      target: "workspaceDec" },
+  { ...edgeBase,   id: "e-magiclink-workspacedec",source:"magicLink",   target: "workspaceDec" },
+  { ...edgeBase,   id: "e-google-workspacedec",   source:"oauthGoogle", target: "workspaceDec" },
+  { ...edgeBase,   id: "e-ms-workspacedec",       source:"oauthMs",     target: "workspaceDec" },
 
-  // ── Post-auth decisions (D6 → onboarding | D7 → configurar org adicional ou plataforma) ──
+  // ── Workspace decision: >1 org passa pelo seletor; 1 só pula direto ──
+  { ...branchEdge, id: "e-workspacedec-workspace", source: "workspaceDec", target: "workspace",          sourceHandle: "bottom", label: "Mais de 1 org", ...labelProps },
+  { ...branchEdge, id: "e-workspacedec-primacesso",source: "workspaceDec", target: "primeiroAcessoDec",  sourceHandle: "left",   label: "Só 1 org",      ...labelProps },
+  { ...edgeBase,   id: "e-workspace-primacesso",   source: "workspace",    target: "primeiroAcessoDec" },
+
+  // ── Post-auth decisions (D7 onboarding | D8 nova org adicional) ──
   { ...branchEdge, id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
   { ...branchEdge, id: "e-primacesso-novaorgdec", source: "primeiroAcessoDec", target: "novaOrgDec",     sourceHandle: "bottom", label: "Já cadastrado",   ...labelProps },
   { ...branchEdge, id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
@@ -227,63 +243,77 @@ const screens = [
   {
     step: "entrada",
     title: "Login",
-    href: "#",
-    purpose: "Ponto de entrada da plataforma. Apresenta as opções de autenticação e o link de recuperação de senha. Nenhuma sessão existe ainda.",
-    decisions: "Escolher método: Google, Microsoft ou e-mail + senha. Ou acessar recuperação de senha.",
+    href: "/",
+    purpose: "Ponto de entrada da plataforma em /. Três botões lado a lado: e-mail (primeiro), Google e Microsoft. Nenhuma sessão existe ainda.",
+    decisions: "Escolher entre e-mail+senha, Google ou Microsoft.",
   },
   {
     step: "02a / 02c",
-    title: "OAuth Google / Microsoft",
-    href: "#",
-    purpose: "Fluxo OAuth 2.0 gerenciado pelo provedor. O usuário é redirecionado, autentica e retorna com token. Nenhuma senha é digitada na plataforma.",
-    decisions: "Autenticação bem-sucedida → verificação de primeiro acesso.",
+    title: "Continuar com Google / Microsoft",
+    href: "/",
+    purpose: "Redireciona para o provedor OAuth, que autentica o usuário e o devolve com sessão. Nenhuma senha é digitada na plataforma e o passo de verificação por e-mail é pulado — o próprio provedor já autenticou.",
+    decisions: "Autenticação bem-sucedida → seletor de organização ou /inicio (depende de multi-org).",
   },
   {
     step: "02",
     title: "E-mail + senha",
-    href: "#",
-    purpose: "Formulário de credenciais nativas. Usuários convidados recebem uma senha temporária no e-mail de convite e a usam aqui.",
-    decisions: "Credenciais corretas → verificar MFA. Inválidas → tela de erro.",
+    href: "/",
+    purpose: "Formulário com e-mail, senha (mostrar/ocultar), 'Manter conectado' e link 'Esqueci a senha'. Abaixo do botão Entrar, um link secundário 'Receba um link de acesso no email' permite pular a senha. Validação via zod.",
+    decisions: "Credenciais corretas → verificação por e-mail. Inválidas → tela de erro. Pedir magic link → tela de link enviado.",
   },
   {
     step: "04",
-    title: "MFA ativo?",
-    href: "#",
-    purpose: "Verificação server-side se a conta tem 2FA habilitado. Acontece de forma transparente após validação das credenciais.",
-    decisions: "MFA ativo → código de verificação. Sem MFA → verificação de primeiro acesso.",
+    title: "Verificação por e-mail",
+    href: "/",
+    purpose: "Código de 6 dígitos enviado ao e-mail informado, com countdown de reenvio. Aceita colar o código direto do clipboard. Aplica-se sempre após e-mail+senha; OAuth e magic link pulam esse passo.",
+    decisions: "Código válido → seletor de organização ou /inicio. Trocar e-mail → volta para 'Esqueci a senha'.",
+  },
+  {
+    step: "04b",
+    title: "Link de acesso enviado",
+    href: "/",
+    purpose: "Confirma que o link de acesso foi enviado pro e-mail do usuário. Mostra o endereço destinatário em destaque, dica de tempo de expiração (15min) e botão de reenvio com countdown. O usuário sai dessa tela ao clicar no link recebido no e-mail.",
+    decisions: "Clica no link no e-mail → seletor de organização (pula verificação por código). Trocar e-mail → volta pra tela de e-mail.",
   },
   {
     step: "05",
-    title: "Verificação MFA",
-    href: "#",
-    purpose: "Código de 6 dígitos via app autenticador ou SMS. Só aparece quando 2FA está configurado na conta.",
-    decisions: "Código válido → verificação de primeiro acesso. Inválido → erro inline na mesma tela.",
+    title: "Pertence a mais de uma organização?",
+    href: "/",
+    purpose: "Decisão server-side: o usuário tem acesso a mais de uma org? Transparente — não é uma tela. Quando há só uma org, o seletor é pulado.",
+    decisions: "Mais de 1 → seletor de organização. Só 1 → primeiro acesso?.",
+  },
+  {
+    step: "06",
+    title: "Seletor de organização",
+    href: "/",
+    purpose: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano). User escolhe uma e segue. Só aparece quando o usuário pertence a mais de uma.",
+    decisions: "Selecionar org → primeiro acesso?.",
   },
   {
     step: "→ erro",
     title: "Erro de login",
-    href: "#",
+    href: "/",
     purpose: "Mensagem genérica sem revelar se o e-mail existe. Múltiplas tentativas podem bloquear temporariamente a conta.",
     decisions: "Tentar novamente → volta ao formulário. Esqueci a senha → fluxo de recuperação.",
   },
   {
-    step: "06",
+    step: "07",
     title: "Primeiro acesso? (backend)",
-    href: "#",
-    purpose: "Após qualquer autenticação válida (OAuth ou e-mail+senha), o backend verifica se o usuário já tem conta ativa. Decisão transparente — o usuário não vê nenhuma tela extra.",
-    decisions: "Primeiro acesso → redireciona para onboarding completo. Já cadastrado → segue para a checagem de organização adicional.",
+    href: "/",
+    purpose: "Após autenticação válida e seleção de org, o backend verifica se o usuário já tem conta ativa nessa org. Decisão transparente.",
+    decisions: "Primeiro acesso → redireciona para onboarding completo. Já cadastrado → checagem de organização adicional.",
   },
   {
-    step: "07",
+    step: "08",
     title: "Nova organização para configurar? (backend + escolha)",
     href: "/organizacao-adicional",
-    purpose: "Após confirmar que o usuário já é cadastrado, o backend checa se ele comprou um plano novo sem organização configurada (ex.: segunda licença pra outro time). Se houver, oferece configurar agora ou adiar — escolher uma org existente e seguir pra plataforma com um lembrete persistente.",
+    purpose: "Backend checa se o usuário comprou um plano novo sem organização configurada (ex.: segunda licença pra outro time). Se houver, oferece configurar agora ou adiar — escolher uma org existente e seguir pra plataforma com um lembrete persistente.",
     decisions: "Configurar agora → /organizacao-adicional (contrato + pagamento, sem perfil). Mais tarde → /inicio com banner persistente até configurar.",
   },
   {
     step: "B1–B4",
     title: "Recuperação de senha",
-    href: "#",
+    href: "/",
     purpose: "Inserir e-mail → confirmação de envio → link no e-mail (ação externa) → nova senha → sucesso. Link expira em 30 minutos. Após redefinir, redireciona para Login.",
     decisions: "Senha definida → Senha redefinida (terminal) → redirect automático para Login.",
   },
@@ -295,6 +325,18 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-26",
+    summary:
+      "Magic link adicionado como alternativa à senha. Abaixo do botão 'Entrar' na tela de e-mail, um link 'Receba um link de acesso no email' manda um link de acesso pro e-mail do usuário e abre a tela 'Link de acesso enviado'. Ao clicar no link recebido, o usuário entra direto no seletor de organização — pula a verificação por código. Implementado em components/auth/screens/MagicSentScreen.tsx.",
+    tags: ["new-page", "new-branch"],
+  },
+  {
+    date: "2026-05-26",
+    summary:
+      "Flow sincronizado com a auth real do produto: a decisão 'MFA ativo?' foi removida (verificação por e-mail é sempre forçada após senha) e o nó 'Verificação MFA' virou 'Verificação por e-mail' (código de 6 dígitos, não app autenticador). Adicionados o seletor de organização e a decisão 'Pertence a mais de uma organização?' — que já existem no produto. OAuth Google/Microsoft pula a verificação por e-mail porque o próprio provedor autentica. Todos os href apontam pra '/' (todas as subscreens vivem em /).",
+    tags: ["flow-rework", "new-page", "new-branch"],
+  },
   {
     date: "2026-05-26",
     summary:
@@ -314,32 +356,34 @@ export default function LoginAuthFlowPage() {
         title="Login e autenticação"
         trailing={<FlowUpdatesBadge updates={updates} />}
       >
-        Fluxo completo de acesso à plataforma, cobrindo todos os cenários: OAuth via Google
-        e Microsoft, e-mail com senha, verificação MFA, recuperação de senha, detecção
-        automática de primeiro acesso e checagem de plano novo sem organização configurada.
+        Fluxo completo de acesso à plataforma, cobrindo todos os cenários: e-mail&nbsp;+&nbsp;senha
+        com verificação por e-mail, OAuth via Google e Microsoft, seletor de organização para quem
+        pertence a mais de uma, recuperação de senha, detecção de primeiro acesso e checagem de
+        plano novo sem organização configurada.
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
         <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
-          Três caminhos de autenticação partem da tela de Login: OAuth Google (corredor
-          esquerdo), e-mail&nbsp;+&nbsp;senha com validação e MFA (espinha central), e OAuth
-          Microsoft (corredor direito). Todos convergem na decisão de primeiro acesso — se
-          for a primeira vez, o backend redireciona para o onboarding completo; caso
-          contrário, o backend ainda checa se o usuário comprou um plano novo sem
-          organização configurada e oferece configurá-la agora ou adiar pra mais tarde
-          (banner persistente no /inicio). A cadeia de recuperação de senha (B1–B4) corre
-          de forma independente no corredor direito.
+          A tela inicial em <code className="text-[var(--fg-primary)]">/</code> oferece três
+          caminhos: Google (corredor esquerdo), e-mail&nbsp;+&nbsp;senha (espinha central) e
+          Microsoft (corredor direito). Na tela de e-mail+senha, abaixo do botão Entrar, ainda há
+          a opção de pedir um magic link no e-mail em vez de digitar a senha. Quem usa senha sempre
+          passa pela verificação por código de 6 dígitos. OAuth e magic link pulam essa etapa —
+          o próprio provedor ou o link já autenticam. Todos convergem no seletor de organização:
+          se o usuário pertence a mais de uma org, escolhe uma; se não, passa direto. Em seguida
+          vêm as decisões de primeiro acesso e plano novo pendente. A cadeia de recuperação de
+          senha (B1–B4) corre de forma independente no corredor direito.
         </p>
 
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. OAuth Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
+          lead="Todas as telas vivem em /. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
         >
-          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={1640} />
+          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={1680} />
         </Section>
 
-        <Section id="screens" title="Cada tela" lead="Propósito, decisões e link direto pro protótipo de cada uma.">
+        <Section id="screens" title="Cada tela" lead="Propósito e decisões de cada uma. Todas vivem em /.">
           <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
             <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
               {screens.map((s) => (
@@ -355,7 +399,7 @@ export default function LoginAuthFlowPage() {
                       {s.decisions}
                     </span>
                     <Link href={s.href} className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline">
-                      Abrir protótipo →
+                      Abrir em / →
                     </Link>
                   </div>
                 </li>
@@ -367,33 +411,39 @@ export default function LoginAuthFlowPage() {
         <Section id="design-notes" title="Decisões de design" lead="Por que o fluxo está estruturado desse jeito.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">OAuth como caminho preferido</div>
+              <div className="aw-eyebrow mb-2">Três caminhos equivalentes na entrada</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Google e Microsoft aparecem como primeiras opções. O público-alvo (times de vendas B2B) já usa SSO corporativo. Menos fricção de entrada, zero reuso de senha fraca.
+                Tela inicial mostra e-mail, Google e Microsoft lado a lado, sem hierarquia. E-mail vem primeiro porque cobre quem ainda não configurou OAuth. Os botões de OAuth são corporativos (Google Workspace, Microsoft Azure) — não aparecem rotulados como tal, é só "Continuar com Google" e "Continuar com Microsoft".
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Primeiro acesso detectado pelo backend</div>
+              <div className="aw-eyebrow mb-2">Verificação por e-mail acontece sempre após senha</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Após qualquer autenticação válida o backend verifica se o usuário já tem conta ativa. Funciona igual para OAuth e e-mail+senha — o usuário convidado recebe uma senha temporária no convite.
+                Após validar e-mail+senha, um código de 6 dígitos é enviado ao e-mail e a tela de verificação aparece. Não é condicional. OAuth e magic link pulam essa etapa porque o provedor (ou o próprio link) já autentica.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">MFA é verificação server-side</div>
+              <div className="aw-eyebrow mb-2">Magic link como alternativa à senha</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                O nó de decisão MFA representa uma checagem automática do servidor, não uma escolha do usuário. A tela de código só aparece quando 2FA está configurado na conta.
+                Abaixo do botão Entrar, na tela de e-mail+senha, um link discreto 'Receba um link de acesso no email' permite pular a senha. O link clicado no e-mail entra direto — sem verificação adicional. Reduz fricção pra quem não quer digitar senha, e cobre quem esqueceu a senha mas não quer passar pelo fluxo completo de redefinição.
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">Seletor de organização só com mais de uma</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                Quem pertence a mais de uma org escolhe qual usar antes de entrar. Quem tem só uma vai direto — o seletor não aparece. Em ambos os casos a decisão de primeiro acesso vem depois.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Recuperação retorna ao login</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Após redefinir a senha, o usuário é redirecionado para Login — não entra direto na plataforma. Garante que a nova credencial funciona antes de criar a sessão.
+                Após redefinir a senha, o usuário volta pra tela de Login — não entra direto na plataforma. Garante que a nova credencial funciona antes de criar a sessão.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Configurar nova org pode ser adiado</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Comprar um plano novo não força o usuário a reconfigurar imediatamente. Ele pode entrar na plataforma escolhendo uma organização existente e o /inicio mostra um banner persistente lembrando da pendência. Reduz pressão no cenário comum de compra apressada de plano em nome do time.
+                Comprar um plano novo não força a configurar imediatamente. O usuário pode entrar na plataforma escolhendo uma organização existente, e o /inicio mostra um banner persistente lembrando da pendência. Reduz pressão no cenário comum de compra apressada de plano em nome do time.
               </p>
             </div>
           </div>
