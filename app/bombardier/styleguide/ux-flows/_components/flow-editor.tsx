@@ -118,33 +118,8 @@ function EditPencil({ id }: { id: string }) {
   )
 }
 
-/* ─────────────────────────────────────────────────────────────────────
- * Node renderers
- * ──────────────────────────────────────────────────────────────────── */
-
-export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
-  const { mode, onPreviewScreen } = useContext(FlowEditorContext)
-  const inner = (
-    <>
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      <div className="px-4 py-3 flex flex-col gap-1">
-        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
-        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">{data.title}</span>
-        {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
-      </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      {mode === "edit" && <EditPencil id={id} />}
-    </>
-  )
-
-  if (mode === "edit") {
-    return (
-      <div className="relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)]">
-        {inner}
-      </div>
-    )
-  }
-
+function PreviewEye({ data }: { data: ScreenData }) {
+  const { onPreviewScreen } = useContext(FlowEditorContext)
   const href = data.href || "#"
   return (
     <Link
@@ -152,12 +127,45 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
       onClick={(e) => {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return
         e.preventDefault()
+        e.stopPropagation()
         onPreviewScreen(data)
       }}
-      className="relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] no-underline shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition"
+      onPointerDown={(e) => e.stopPropagation()}
+      onMouseDown={(e) => e.stopPropagation()}
+      title="Pré-visualizar"
+      className="absolute top-1.5 right-1.5 w-6 h-6 inline-flex items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-[var(--fg-tertiary)] opacity-0 group-hover:opacity-100 hover:text-[var(--aw-blue-700)] hover:border-[var(--aw-blue-400)] transition shadow-[var(--shadow-sm)] no-underline"
     >
-      {inner}
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <path
+          d="M1.5 8s2.2-4.5 6.5-4.5S14.5 8 14.5 8s-2.2 4.5-6.5 4.5S1.5 8 1.5 8z"
+          stroke="currentColor"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.4" />
+      </svg>
     </Link>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * Node renderers
+ * ──────────────────────────────────────────────────────────────────── */
+
+export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
+  const { mode } = useContext(FlowEditorContext)
+  return (
+    <div className="group relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition">
+      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
+      <div className="px-4 py-3 flex flex-col gap-1">
+        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
+        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">{data.title}</span>
+        {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
+      </div>
+      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
+      {mode === "edit" ? <EditPencil id={id} /> : <PreviewEye data={data} />}
+    </div>
   )
 }
 
