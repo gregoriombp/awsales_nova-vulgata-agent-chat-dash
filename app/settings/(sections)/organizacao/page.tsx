@@ -1,29 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data";
+import { ADDITIONAL_ORG } from "@/app/organizacao-adicional/_data";
 import { SaveBar, SectionHeading, SettingsPageHeader } from "../_components/shared";
 
-const COMPANY_ROWS: { label: string; value: string; tabular?: boolean }[] = [
-  { label: "Razão social", value: ONBOARDING_ORG.razaoSocial },
-  { label: "CNPJ", value: ONBOARDING_ORG.cnpj, tabular: true },
-  { label: "Segmento", value: ONBOARDING_ORG.segmento },
-  { label: "Porte", value: ONBOARDING_ORG.porte },
-  {
-    label: "Plano contratado",
-    value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${fmtBRL(ONBOARDING_ORG.valorMensal).replace(",00", "")}/mês`,
-  },
-  { label: "Data de criação", value: "11 de mai. 2026" },
-];
+const ORGS = [
+  { id: "fyntra", slug: "artificial-concord", data: ONBOARDING_ORG },
+  { id: "nucleo", slug: "nucleo-performance", data: ADDITIONAL_ORG },
+] as const;
+
+type OrgId = (typeof ORGS)[number]["id"];
+
+function buildCompanyRows(data: (typeof ORGS)[number]["data"]) {
+  return [
+    { label: "Razão social", value: data.razaoSocial },
+    { label: "CNPJ", value: data.cnpj, tabular: true },
+    { label: "Segmento", value: data.segmento },
+    { label: "Porte", value: data.porte },
+    {
+      label: "Plano contratado",
+      value: `${data.plan} · ${data.intervaloPlano} · ${fmtBRL(data.valorMensal).replace(",00", "")}/mês`,
+    },
+    { label: "Data de criação", value: "11 de mai. 2026" },
+  ];
+}
 
 export default function OrganizationSettingsPage() {
-  const [orgName, setOrgName] = useState("Nome da organização");
-  const [orgSlug, setOrgSlug] = useState("artificial-concord");
+  const [selectedOrgId, setSelectedOrgId] = useState<OrgId>("fyntra");
+  const currentOrg = useMemo(
+    () => ORGS.find((o) => o.id === selectedOrgId) ?? ORGS[0],
+    [selectedOrgId],
+  );
+
+  const [orgName, setOrgName] = useState(currentOrg.data.name);
+  const [orgSlug, setOrgSlug] = useState(currentOrg.slug);
+
+  useEffect(() => {
+    setOrgName(currentOrg.data.name);
+    setOrgSlug(currentOrg.slug);
+  }, [currentOrg]);
+
+  const companyRows = useMemo(
+    () => buildCompanyRows(currentOrg.data),
+    [currentOrg],
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1440px] px-10 pt-14 pb-32">
@@ -31,11 +58,51 @@ export default function OrganizationSettingsPage() {
         title="Organização"
         description="Como sua empresa aparece nos agentes, conversas e exportações."
       />
+
+      <AwDropdownMenu
+        align="start"
+        trigger={
+          <button
+            type="button"
+            className="mb-6 inline-flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+          >
+            <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+              <img
+                src={currentOrg.data.logo}
+                alt=""
+                width={32}
+                height={32}
+                style={{ objectFit: "cover" }}
+              />
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+                Organização
+              </span>
+              <span className="body-sm font-medium text-[var(--fg-primary)]">
+                {currentOrg.data.name}
+              </span>
+            </span>
+            <Icon
+              name="expand_more"
+              size={18}
+              className="text-[var(--fg-tertiary)]"
+            />
+          </button>
+        }
+        items={ORGS.map((o) => ({
+          id: o.id,
+          label: o.data.name,
+          checked: o.id === selectedOrgId,
+          onSelect: () => setSelectedOrgId(o.id),
+        }))}
+      />
+
       <AwCard className="!p-0">
         <div className="flex items-center gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
           <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-[var(--bg-muted)]">
             <img
-              src="/assets/icon_artificial_concord_organization.png"
+              src={currentOrg.data.logo}
               alt={orgName}
               width={48}
               height={48}
@@ -97,12 +164,12 @@ export default function OrganizationSettingsPage() {
         />
         <AwCard className="!p-0">
           <dl className="m-0">
-            {COMPANY_ROWS.map((row, i) => (
+            {companyRows.map((row, i) => (
               <div
                 key={row.label}
                 className={
                   "grid grid-cols-[200px_1fr_auto] items-center gap-4 px-6 py-3.5" +
-                  (i < COMPANY_ROWS.length - 1
+                  (i < companyRows.length - 1
                     ? " border-b border-[var(--border-subtle)]"
                     : "")
                 }
