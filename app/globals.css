@@ -946,14 +946,16 @@
   background: var(--bg-surface);
 }
 
-/* Ghost — transparent, becomes a soft fill on hover */
+/* Ghost — soft fill at rest, darker on hover. (The "transparent at rest"
+   role is now covered by aw-btn--subtle's lighter cousin or by leaving the
+   variant off entirely.) */
 .aw-btn--ghost {
-  background: transparent;
+  background: var(--bg-surface);
   color: var(--fg-primary);
   border-color: transparent;
 }
 .aw-btn--ghost:hover:not(:disabled) {
-  background: var(--bg-surface);
+  background: var(--bg-muted);
 }
 
 /* Subtle — tonal fill, sits between ghost (invisible at rest) and
