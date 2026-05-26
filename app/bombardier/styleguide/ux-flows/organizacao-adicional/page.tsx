@@ -194,7 +194,7 @@ export default function OrganizacaoAdicionalFlowPage() {
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações."
+          lead="Passe o mouse em qualquer tela e clique no olho pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações."
         >
           <FlowDiagram flow="organizacao-adicional" nodes={NODES} edges={EDGES} height={1200} />
         </Section>

@@ -304,7 +304,7 @@ export default function PrimeiroAcessoFlowPage() {
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões — pontos em que o cliente faz uma escolha. Setas âmbar indicam os caminhos de bifurcação."
+          lead="Passe o mouse em qualquer tela e clique no olho pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões — pontos em que o cliente faz uma escolha. Setas âmbar indicam os caminhos de bifurcação."
         >
           <FlowDiagram flow="primeiro-acesso" nodes={NODES} edges={EDGES} height={1960} />
         </Section>
