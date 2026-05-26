@@ -2,10 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwInput } from "@/components/ui/AwInput";
-import { AwModal } from "@/components/ui/AwModal";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
@@ -39,91 +36,12 @@ function getInitials(name: string): string {
 }
 
 export default function VisaoGeralPage() {
-  const [limit, setLimit] = React.useState(VARIABLE_SPENDING_LIMIT);
-  const [limitOpen, setLimitOpen] = React.useState(false);
-
   return (
     <div className="flex flex-col gap-10">
       <StatusStrip />
-      <SpendingHero limit={limit} onChangeLimit={() => setLimitOpen(true)} />
+      <SpendingHero limit={VARIABLE_SPENDING_LIMIT} />
       <ShortcutGrid />
-
-      <ChangeLimitModal
-        open={limitOpen}
-        onClose={() => setLimitOpen(false)}
-        currentLimit={limit}
-        onSave={(v) => {
-          setLimit(v);
-          setLimitOpen(false);
-        }}
-      />
     </div>
-  );
-}
-
-function ChangeLimitModal({
-  open,
-  onClose,
-  currentLimit,
-  onSave,
-}: {
-  open: boolean;
-  onClose: () => void;
-  currentLimit: number;
-  onSave: (v: number) => void;
-}) {
-  const [draft, setDraft] = React.useState(String(currentLimit));
-  React.useEffect(() => {
-    if (open) setDraft(String(currentLimit));
-  }, [open, currentLimit]);
-
-  const parsed = Number(draft.replace(/\./g, "").replace(",", "."));
-  const valid = Number.isFinite(parsed) && parsed > 0;
-
-  return (
-    <AwModal
-      open={open}
-      onClose={onClose}
-      title="Alterar limite por usuário"
-      footer={
-        <div className="flex items-center justify-end gap-2">
-          <AwButton variant="ghost" onClick={onClose}>
-            Cancelar
-          </AwButton>
-          <AwButton
-            variant="primary"
-            iconLeft="check"
-            disabled={!valid}
-            onClick={() => onSave(parsed)}
-          >
-            Salvar
-          </AwButton>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-2">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
-          Cada usuário tem esse teto de gastos variáveis por ciclo. Quando o
-          montante é atingido, a gente cobra automaticamente.
-        </p>
-        <label
-          htmlFor="spending-limit"
-          className="aw-eyebrow text-[var(--fg-tertiary)]"
-        >
-          Limite mensal por usuário
-        </label>
-        <AwInput
-          id="spending-limit"
-          inputMode="numeric"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          autoFocus
-        />
-        <p className="m-0 body-xs text-[var(--fg-tertiary)]">
-          Atualmente: <span className="tabular-nums">{brl(currentLimit)}</span>
-        </p>
-      </div>
-    </AwModal>
   );
 }
 
@@ -181,13 +99,7 @@ function StatusStrip() {
 
 /* ---------- spending hero (main focus) ---------- */
 
-function SpendingHero({
-  limit,
-  onChangeLimit,
-}: {
-  limit: number;
-  onChangeLimit: () => void;
-}) {
+function SpendingHero({ limit }: { limit: number }) {
   const pct = Math.round((OVERVIEW_KPIS.accumulated / limit) * 100);
 
   return (
@@ -203,14 +115,7 @@ function SpendingHero({
               {brl(limit)}
             </strong>{" "}
             em gastos variáveis por ciclo. Quando o montante é atingido, a
-            gente cobra automaticamente.{" "}
-            <button
-              type="button"
-              onClick={onChangeLimit}
-              className="font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
-            >
-              Alterar limite
-            </button>
+            gente cobra automaticamente.
           </p>
         </div>
         <div className="text-right">
