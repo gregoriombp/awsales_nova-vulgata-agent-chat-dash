@@ -944,7 +944,14 @@ function ScopeRow({
           className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none rounded-[var(--radius-sm)] focus-visible:bg-[var(--bg-hover)]"
           aria-expanded={open}
         >
-          <Icon name={open ? "expand_more" : "chevron_right"} size={16} />
+          <Icon
+            name="chevron_right"
+            size={16}
+            className={
+              "transition-transform duration-[220ms] ease-in-out " +
+              (open ? "rotate-90" : "")
+            }
+          />
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
             <Icon name={scope.icon} size={14} />
           </span>
@@ -967,56 +974,61 @@ function ScopeRow({
         />
       </div>
 
-      {open && (
-        <div className="flex flex-col gap-3 px-1 pb-3 pl-10">
-          {scope.groups.map((g) => (
-            <div key={g.id}>
-              <p className="m-0 mb-1.5 aw-eyebrow text-[var(--fg-tertiary)]">
-                {g.label}
-              </p>
-              <ul className="flex flex-col gap-1">
-                {g.permissions.map((p) => {
-                  const has = memberPermissions.has(p.id);
-                  return (
-                    <li
-                      key={p.id}
-                      className="flex items-start gap-2 rounded-[var(--radius-sm)] px-1 py-1 hover:bg-[var(--bg-hover)]"
-                    >
-                      <span className="mt-0.5">
-                        <AwCheckbox
-                          checked={has}
-                          onChange={(next) => onTogglePermission(p.id, next)}
-                          label={p.label}
-                        />
-                      </span>
-                      <label
-                        className="min-w-0 flex-1 cursor-pointer body-xs"
-                        onClick={() => onTogglePermission(p.id, !has)}
+      <div
+        className="grid transition-[grid-template-rows,opacity] duration-[220ms] ease-in-out"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+      >
+        <div className="overflow-hidden">
+          <div className="flex flex-col gap-3 px-1 pb-3 pl-10 pt-1">
+            {scope.groups.map((g) => (
+              <div key={g.id}>
+                <p className="m-0 mb-1.5 aw-eyebrow text-[var(--fg-tertiary)]">
+                  {g.label}
+                </p>
+                <ul className="flex flex-col gap-1">
+                  {g.permissions.map((p) => {
+                    const has = memberPermissions.has(p.id);
+                    return (
+                      <li
+                        key={p.id}
+                        className="flex items-start gap-2 rounded-[var(--radius-sm)] px-1 py-1 hover:bg-[var(--bg-hover)]"
                       >
-                        <span
-                          className={
-                            "block " +
-                            (has
-                              ? "font-medium text-[var(--fg-primary)]"
-                              : "text-[var(--fg-secondary)]")
-                          }
-                        >
-                          {p.label}
+                        <span className="mt-0.5">
+                          <AwCheckbox
+                            checked={has}
+                            onChange={(next) => onTogglePermission(p.id, next)}
+                            label={p.label}
+                          />
                         </span>
-                        {p.description && (
-                          <span className="block body-xs text-[var(--fg-tertiary)]">
-                            {p.description}
+                        <label
+                          className="min-w-0 flex-1 cursor-pointer body-xs"
+                          onClick={() => onTogglePermission(p.id, !has)}
+                        >
+                          <span
+                            className={
+                              "block " +
+                              (has
+                                ? "font-medium text-[var(--fg-primary)]"
+                                : "text-[var(--fg-secondary)]")
+                            }
+                          >
+                            {p.label}
                           </span>
-                        )}
-                      </label>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
+                          {p.description && (
+                            <span className="block body-xs text-[var(--fg-tertiary)]">
+                              {p.description}
+                            </span>
+                          )}
+                        </label>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </li>
   );
 }
