@@ -1,90 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
-import {
-  Background,
-  BackgroundVariant,
-  Controls,
-  Handle,
-  MarkerType,
-  Panel,
-  Position,
-  ReactFlow,
-  useEdgesState,
-  useNodesState,
-  type Edge,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
+import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
+import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
 import {
   FlowUpdatesBadge,
   FlowUpdatesHistorySection,
   type FlowUpdate,
 } from "../_components/flow-updates"
-
-/* ─────────────────────────────────────────────────────────────────────
- * Custom nodes
- * ──────────────────────────────────────────────────────────────────── */
-
-type ScreenData = {
-  step: string
-  title: string
-  href: string
-  note?: string
-}
-
-function ScreenNode({ data }: NodeProps<Node<ScreenData>>) {
-  return (
-    <Link
-      href={data.href}
-      className="block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] no-underline shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition"
-    >
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      <div className="px-4 py-3 flex flex-col gap-1">
-        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
-        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">
-          {data.title}
-        </span>
-        {data.note && (
-          <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>
-        )}
-      </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-    </Link>
-  )
-}
-
-type DecisionData = {
-  step: string
-  title: string
-  question: string
-}
-
-function DecisionNode({ data }: NodeProps<Node<DecisionData>>) {
-  const hCls = "!bg-[var(--aw-amber-500)] !border-0 !w-2 !h-2"
-  return (
-    <div className="w-[240px] rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-amber-400)] bg-[var(--aw-amber-100)] px-4 py-3 flex flex-col gap-1">
-      <Handle type="target" position={Position.Top} className={hCls} />
-      <span className="aw-eyebrow text-[var(--aw-amber-800)]">decisão · {data.step}</span>
-      <span className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight">
-        {data.title}
-      </span>
-      <span className="text-xs text-[var(--aw-amber-800)] leading-snug">{data.question}</span>
-      <Handle id="left"   type="source" position={Position.Left}   className={hCls} />
-      <Handle id="bottom" type="source" position={Position.Bottom} className={hCls} />
-      <Handle id="right"  type="source" position={Position.Right}  className={hCls} />
-    </div>
-  )
-}
-
-const nodeTypes = {
-  screen: ScreenNode,
-  decision: DecisionNode,
-}
 
 /* ─────────────────────────────────────────────────────────────────────
  * Layout constants
@@ -100,7 +25,9 @@ const BOLETO_X = 520
 const ACESSAR_X   = 80
 const CONSULTOR_X = 480
 
-const EXPIRADO_X  = 560
+const EXPIRADO_X   = 560
+const UTILIZADO_X  = 820
+const CANCELADO_X  = 1080
 
 const Y = {
   entrada:        0,
@@ -131,7 +58,7 @@ const NODES: Node[] = [
     id: "linkValido",
     type: "decision",
     position: { x: COL_D, y: Y.linkValido },
-    data: { step: "link", title: "Link ainda válido?", question: "Usuário clicou no link do e-mail em até 10 dias?" },
+    data: { step: "link", title: "Status do link?", question: "O link do e-mail ainda é válido? (até 10 dias, primeira utilização e não cancelado pela organização)" },
   },
   {
     id: "verificacao",
@@ -143,7 +70,19 @@ const NODES: Node[] = [
     id: "linkExpirado",
     type: "screen",
     position: { x: EXPIRADO_X, y: Y.verificacao },
-    data: { step: "01b", title: "Link expirado", href: "/primeiro-acesso/link-expirado", note: "Fora do fluxo demo. Mostra o aviso e oferece reenvio." },
+    data: { step: "01b", title: "Link expirado", href: "/primeiro-acesso/link-expirado", note: "Fora do fluxo demo. Passou de 10 dias — oferece reenvio." },
+  },
+  {
+    id: "linkUtilizado",
+    type: "screen",
+    position: { x: UTILIZADO_X, y: Y.verificacao },
+    data: { step: "01c", title: "Link já utilizado", href: "/primeiro-acesso/link-utilizado", note: "Fora do fluxo demo. Link é one-time — direciona pro suporte." },
+  },
+  {
+    id: "linkCancelado",
+    type: "screen",
+    position: { x: CANCELADO_X, y: Y.verificacao },
+    data: { step: "01d", title: "Link cancelado", href: "/primeiro-acesso/link-cancelado", note: "Fora do fluxo demo. Convite removido pela organização — pro suporte." },
   },
   {
     id: "conta",
@@ -217,19 +156,6 @@ const NODES: Node[] = [
  * Edges
  * ──────────────────────────────────────────────────────────────────── */
 
-const edgeBase = {
-  type: "smoothstep" as const,
-  animated: false,
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 },
-  style: { stroke: "var(--border-strong)", strokeWidth: 1.5 },
-}
-
-const branchEdge = {
-  ...edgeBase,
-  style: { stroke: "var(--aw-amber-500)", strokeWidth: 1.5 },
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: "var(--aw-amber-500)" },
-}
-
 const labelProps = {
   labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
   labelBgStyle: { fill: "var(--bg-canvas)" },
@@ -238,8 +164,10 @@ const labelProps = {
 
 const EDGES: Edge[] = [
   { ...edgeBase, id: "e-entrada-linkValido", source: "entrada", target: "linkValido", label: "Primeiro acesso", ...labelProps },
-  { ...branchEdge, id: "e-linkValido-verificacao", source: "linkValido", target: "verificacao", sourceHandle: "bottom", label: "Sim · até 10 dias", ...labelProps },
-  { ...branchEdge, id: "e-linkValido-expirado",   source: "linkValido", target: "linkExpirado", sourceHandle: "right",  label: "Não · expirado",   ...labelProps },
+  { ...branchEdge, id: "e-linkValido-verificacao", source: "linkValido", target: "verificacao", sourceHandle: "bottom", label: "Válido", ...labelProps },
+  { ...branchEdge, id: "e-linkValido-expirado",    source: "linkValido", target: "linkExpirado",  sourceHandle: "right", label: "Expirado (10d)", ...labelProps },
+  { ...branchEdge, id: "e-linkValido-utilizado",   source: "linkValido", target: "linkUtilizado", sourceHandle: "right", label: "Já utilizado",   ...labelProps },
+  { ...branchEdge, id: "e-linkValido-cancelado",   source: "linkValido", target: "linkCancelado", sourceHandle: "right", label: "Cancelado",      ...labelProps },
   { ...edgeBase, id: "e-verificacao-conta", source: "verificacao", target: "conta" },
   { ...edgeBase, id: "e-conta-perfil", source: "conta", target: "perfil", sourceHandle: "bottom" },
   { ...edgeBase, id: "e-perfil-contrato", source: "perfil", target: "contrato" },
@@ -254,20 +182,6 @@ const EDGES: Edge[] = [
   { ...branchEdge, id: "e-final-acessar",   source: "finalDecision", target: "acessar",   sourceHandle: "left",  label: "Acessar plataforma",   ...labelProps },
   { ...branchEdge, id: "e-final-consultor", source: "finalDecision", target: "consultor", sourceHandle: "right", label: "Falar com consultor", ...labelProps },
 ]
-
-/* ─────────────────────────────────────────────────────────────────────
- * Suggestion system
- * ──────────────────────────────────────────────────────────────────── */
-
-type Suggestion = {
-  id: string
-  description: string
-  createdAt: string
-  nodes: Node[]
-  edges: Edge[]
-}
-
-const STORAGE_KEY = "ux-flow-suggestions-primeiro-acesso"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Screen docs
@@ -287,6 +201,20 @@ const screens = [
     href: "/primeiro-acesso/link-expirado",
     purpose: "Tela condicional fora do fluxo demo. Aparece quando o usuário clica no e-mail de primeiro acesso depois do prazo de 10 dias. Apresenta o motivo (link expirado) e a ação única de solicitar um novo link.",
     decisions: 'Solicitar novo link → novo e-mail é enviado; "Voltar para o login" volta pra "/".',
+  },
+  {
+    step: "01c",
+    title: "Link já utilizado",
+    href: "/primeiro-acesso/link-utilizado",
+    purpose: "Tela condicional fora do fluxo demo. Aparece quando o link de primeiro acesso já foi consumido — links são one-time. Pode indicar que a conta já foi criada (e o usuário deveria fazer login) ou que alguém abriu o e-mail no lugar dele. Direciona pro suporte pra revogar e reemitir o acesso se necessário.",
+    decisions: 'Falar com suporte → abre canal de suporte; "Voltar para o login" volta pra "/".',
+  },
+  {
+    step: "01d",
+    title: "Link cancelado",
+    href: "/primeiro-acesso/link-cancelado",
+    purpose: "Tela condicional fora do fluxo demo. Aparece quando o convite de primeiro acesso foi cancelado ou removido pela organização (reemissão, troca de destinatário, cadastro pausado). O usuário não consegue prosseguir sem ajuda — o suporte verifica o status do convite com a organização.",
+    decisions: 'Falar com suporte → abre canal de suporte; "Voltar para o login" volta pra "/".',
   },
   {
     step: "02",
@@ -332,6 +260,12 @@ const screens = [
 
 const updates: FlowUpdate[] = [
   {
+    date: "2026-05-26",
+    summary:
+      "Decisão de link expandida em três estados de falha — expirado, já utilizado e cancelado. Cada um abre uma tela condicional dedicada com CTA pro suporte (exceto 'expirado', que ainda permite reenvio).",
+    tags: ["new-page", "new-branch"],
+  },
+  {
     date: "2026-05-21",
     summary:
       "Branch condicional 'link expirado' adicionado quando o e-mail de primeiro acesso passa de 10 dias.",
@@ -344,73 +278,6 @@ const updates: FlowUpdate[] = [
  * ──────────────────────────────────────────────────────────────────── */
 
 export default function PrimeiroAcessoFlowPage() {
-  const [editNodes, setEditNodes, onEditNodesChange] = useNodesState(NODES)
-  const [editEdges, setEditEdges, onEditEdgesChange] = useEdgesState(EDGES)
-
-  const [editMode,    setEditMode]    = useState(false)
-  const [previewSugg, setPreviewSugg] = useState<Suggestion | null>(null)
-  const [showSave,    setShowSave]    = useState(false)
-  const [desc,        setDesc]        = useState("")
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [showReview,  setShowReview]  = useState(false)
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try { setSuggestions(JSON.parse(stored)) } catch { /* invalid JSON */ }
-    }
-  }, [])
-
-  function enterEdit() {
-    setEditNodes([...NODES])
-    setEditEdges([...EDGES])
-    setPreviewSugg(null)
-    setEditMode(true)
-  }
-
-  function cancelEdit() {
-    setEditNodes([...NODES])
-    setEditEdges([...EDGES])
-    setEditMode(false)
-  }
-
-  function openSave() { setShowSave(true) }
-
-  function confirmSave() {
-    if (!desc.trim()) return
-    const s: Suggestion = {
-      id: Math.random().toString(36).slice(2),
-      description: desc.trim(),
-      createdAt: new Date().toISOString(),
-      nodes: editNodes,
-      edges: editEdges,
-    }
-    const updated = [...suggestions, s]
-    setSuggestions(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    setDesc("")
-    setShowSave(false)
-    setEditMode(false)
-    setEditNodes([...NODES])
-    setEditEdges([...EDGES])
-  }
-
-  function viewSugg(s: Suggestion) {
-    setPreviewSugg(s)
-    setEditMode(false)
-    setShowReview(false)
-  }
-
-  function discardSugg(id: string) {
-    const updated = suggestions.filter((s) => s.id !== id)
-    setSuggestions(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    if (previewSugg?.id === id) setPreviewSugg(null)
-  }
-
-  const displayNodes = editMode ? editNodes : previewSugg ? (previewSugg.nodes as Node[]) : NODES
-  const displayEdges = editMode ? editEdges : previewSugg ? (previewSugg.edges as Edge[]) : EDGES
-
   return (
     <>
       <PageHero
@@ -428,10 +295,10 @@ export default function PrimeiroAcessoFlowPage() {
           Seis etapas lineares do convite ao ambiente ativo: verificação do código,
           criação de conta, perfil, contrato, pagamento (com 3 métodos disponíveis) e
           confirmação. A autenticação acontece na etapa 02 — antes do contrato e de
-          qualquer cobrança. Há um ramo condicional logo no início: se o link de e-mail
-          expirar (10 dias), o usuário cai numa tela de reenvio fora do fluxo demo. No
-          final, o cliente escolhe acessar a plataforma direto ou conversar com o
-          consultor.
+          qualquer cobrança. Logo no início há três ramos condicionais fora do fluxo
+          demo, um para cada motivo de link inválido: expirado (reenvia), já utilizado
+          (suporte) ou cancelado pela organização (suporte). No final, o cliente
+          escolhe acessar a plataforma direto ou conversar com o consultor.
         </p>
 
         <Section
@@ -439,101 +306,7 @@ export default function PrimeiroAcessoFlowPage() {
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo. Caixas tracejadas em âmbar são decisões — pontos em que o cliente faz uma escolha. Setas âmbar indicam os caminhos de bifurcação."
         >
-          {/* Canvas wrapper — relative so we can layer the action buttons */}
-          <div className="relative">
-            {/* Top-right: suggest + suggestions badge */}
-            <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-              {suggestions.length > 0 && !editMode && (
-                <button
-                  onClick={() => setShowReview(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-xs font-medium text-[var(--aw-amber-800)] hover:bg-[var(--aw-amber-200)] transition"
-                >
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold">
-                    {suggestions.length}
-                  </span>
-                  {suggestions.length === 1 ? "sugestão" : "sugestões"}
-                </button>
-              )}
-              {!editMode && !previewSugg && (
-                <button
-                  onClick={enterEdit}
-                  className="px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:border-[var(--aw-blue-400)] hover:text-[var(--aw-blue-700)] transition"
-                >
-                  Sugerir edição
-                </button>
-              )}
-            </div>
-
-            <div
-              className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-subtle)] overflow-hidden"
-              style={{ height: 1960 }}
-            >
-              <ReactFlow
-                nodes={displayNodes}
-                edges={displayEdges}
-                nodeTypes={nodeTypes}
-                onNodesChange={editMode ? onEditNodesChange : undefined}
-                onEdgesChange={editMode ? onEditEdgesChange : undefined}
-                nodesDraggable={editMode}
-                nodesConnectable={editMode}
-                elementsSelectable={editMode}
-                fitView
-                fitViewOptions={{ padding: 0.12 }}
-                proOptions={{ hideAttribution: true }}
-                minZoom={0.3}
-                maxZoom={1.5}
-                style={{ background: "var(--bg-subtle)" }}
-              >
-                <Background
-                  variant={BackgroundVariant.Dots}
-                  gap={24}
-                  size={1.5}
-                  color="var(--border-default)"
-                />
-                <Controls showInteractive={false} />
-
-                {/* Edit mode floating bar */}
-                {editMode && (
-                  <Panel position="top-center">
-                    <div className="flex items-center gap-3 bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                      <span className="text-[var(--aw-amber-800)] font-medium">Modo sugestão ativo</span>
-                      <span className="text-[var(--aw-amber-500)]">·</span>
-                      <button
-                        onClick={openSave}
-                        className="text-[var(--aw-amber-900)] font-semibold hover:underline"
-                      >
-                        Salvar sugestão
-                      </button>
-                      <span className="text-[var(--aw-amber-500)]">·</span>
-                      <button
-                        onClick={cancelEdit}
-                        className="text-[var(--aw-amber-700)] hover:text-[var(--aw-amber-900)]"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </Panel>
-                )}
-
-                {/* Preview mode floating bar */}
-                {previewSugg && (
-                  <Panel position="top-center">
-                    <div className="flex items-center gap-3 bg-[var(--bg-raised)] border border-[var(--border-default)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                      <span className="text-[var(--fg-tertiary)] text-xs uppercase tracking-wide font-medium">Sugestão</span>
-                      <span className="text-[var(--fg-primary)] font-medium max-w-xs truncate">{previewSugg.description}</span>
-                      <span className="text-[var(--fg-tertiary)]">·</span>
-                      <button
-                        onClick={() => setPreviewSugg(null)}
-                        className="text-[var(--aw-blue-700)] font-medium hover:text-[var(--aw-blue-800)] hover:underline whitespace-nowrap"
-                      >
-                        Voltar ao fluxo oficial
-                      </button>
-                    </div>
-                  </Panel>
-                )}
-              </ReactFlow>
-            </div>
-          </div>
+          <FlowDiagram flow="primeiro-acesso" nodes={NODES} edges={EDGES} height={1960} />
         </Section>
 
         <Section
@@ -599,9 +372,9 @@ export default function PrimeiroAcessoFlowPage() {
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Link expira em 10 dias</div>
+              <div className="aw-eyebrow mb-2">Três motivos pra um link falhar</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Links de primeiro acesso são one-time e expiram após 10 dias. Quem clica depois cai numa tela explícita com reemissão imediata — evita o silêncio frustrante de um link que simplesmente não funciona, sem explicar por quê.
+                Links de primeiro acesso são one-time e expiram após 10 dias. Em vez de cair numa única tela genérica de erro, cada motivo tem sua própria tela explicativa: <b className="font-medium text-[var(--fg-primary)]">expirado</b> oferece reenvio direto, <b className="font-medium text-[var(--fg-primary)]">já utilizado</b> e <b className="font-medium text-[var(--fg-primary)]">cancelado</b> direcionam pro suporte — porque exigem verificação de identidade ou contato com a organização.
               </p>
             </div>
           </div>
@@ -609,103 +382,6 @@ export default function PrimeiroAcessoFlowPage() {
 
         <FlowUpdatesHistorySection updates={updates} />
       </div>
-
-      {/* ── Save suggestion dialog ──────────────────────────────────────── */}
-      {showSave && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setShowSave(false)}
-        >
-          <div
-            className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div>
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Salvar sugestão</h2>
-              <p className="text-sm text-[var(--fg-secondary)] mt-1 m-0">Descreva brevemente o que você alterou no fluxo.</p>
-            </div>
-            <textarea
-              className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)] resize-none"
-              placeholder="Ex: movi o nó de pagamento para antes do contrato..."
-              rows={3}
-              value={desc}
-              onChange={(e) => setDesc(e.target.value)}
-              autoFocus
-            />
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowSave(false)}
-                className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-subtle)] transition"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={confirmSave}
-                disabled={!desc.trim()}
-                className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                Salvar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Review suggestions panel ────────────────────────────────────── */}
-      {showReview && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setShowReview(false)}
-        >
-          <div
-            className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-lg mx-4 p-6 flex flex-col gap-4 max-h-[80vh]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">
-                Sugestões
-                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold align-middle">
-                  {suggestions.length}
-                </span>
-              </h2>
-              <button
-                onClick={() => setShowReview(false)}
-                className="text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] text-lg leading-none"
-              >
-                ×
-              </button>
-            </div>
-
-            <ul className="flex flex-col gap-3 overflow-y-auto m-0 p-0 list-none">
-              {suggestions.map((s) => (
-                <li
-                  key={s.id}
-                  className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 flex flex-col gap-2"
-                >
-                  <p className="m-0 text-sm font-medium text-[var(--fg-primary)] leading-snug">{s.description}</p>
-                  <span className="caption text-[var(--fg-tertiary)]">
-                    {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                  <div className="flex gap-2 mt-1">
-                    <button
-                      onClick={() => viewSugg(s)}
-                      className="px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--aw-blue-600)] text-white text-xs font-medium hover:bg-[var(--aw-blue-700)] transition"
-                    >
-                      Visualizar
-                    </button>
-                    <button
-                      onClick={() => discardSugg(s.id)}
-                      className="px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-subtle)] transition"
-                    >
-                      Descartar
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </>
   )
 }

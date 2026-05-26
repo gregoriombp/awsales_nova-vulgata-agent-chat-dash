@@ -1,63 +1,10 @@
 "use client"
 
 import Link from "next/link"
-import {
-  Background,
-  BackgroundVariant,
-  Controls,
-  Handle,
-  MarkerType,
-  Position,
-  ReactFlow,
-  type Edge,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
+import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
-
-/* ─────────────────────────────────────────────────────────────────────
- * Custom nodes
- * ──────────────────────────────────────────────────────────────────── */
-
-type ScreenData = { step: string; title: string; href: string; note?: string }
-
-function ScreenNode({ data }: NodeProps<Node<ScreenData>>) {
-  return (
-    <Link
-      href={data.href}
-      className="block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] no-underline shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition"
-    >
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      <div className="px-4 py-3 flex flex-col gap-1">
-        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
-        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">{data.title}</span>
-        {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
-      </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-    </Link>
-  )
-}
-
-type DecisionData = { step: string; title: string; question: string }
-
-function DecisionNode({ data }: NodeProps<Node<DecisionData>>) {
-  const hCls = "!bg-[var(--aw-amber-500)] !border-0 !w-2 !h-2"
-  return (
-    <div className="w-[240px] rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-amber-400)] bg-[var(--aw-amber-100)] px-4 py-3 flex flex-col gap-1">
-      <Handle type="target" position={Position.Top} className={hCls} />
-      <span className="aw-eyebrow text-[var(--aw-amber-800)]">decisão · {data.step}</span>
-      <span className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight">{data.title}</span>
-      <span className="text-xs text-[var(--aw-amber-800)] leading-snug">{data.question}</span>
-      <Handle id="left"   type="source" position={Position.Left}   className={hCls} />
-      <Handle id="bottom" type="source" position={Position.Bottom} className={hCls} />
-      <Handle id="right"  type="source" position={Position.Right}  className={hCls} />
-    </div>
-  )
-}
-
-const nodeTypes = { screen: ScreenNode, decision: DecisionNode }
+import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Layout constants
@@ -192,19 +139,6 @@ const NODES: Node[] = [
  * Edges
  * ──────────────────────────────────────────────────────────────────── */
 
-const edgeBase = {
-  type: "smoothstep" as const,
-  animated: false,
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 },
-  style: { stroke: "var(--border-strong)", strokeWidth: 1.5 },
-}
-
-const branchEdge = {
-  ...edgeBase,
-  style: { stroke: "var(--aw-amber-500)", strokeWidth: 1.5 },
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: "var(--aw-amber-500)" },
-}
-
 const labelProps = {
   labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
   labelBgStyle: { fill: "var(--bg-canvas)" },
@@ -292,32 +226,7 @@ export default function ConviteMembroFlowPage() {
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo. Caixa tracejada em âmbar é decisão. Setas âmbar indicam os caminhos de bifurcação."
         >
-          <div
-            className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
-            style={{ height: 1300 }}
-          >
-            <ReactFlow
-              nodes={NODES}
-              edges={EDGES}
-              nodeTypes={nodeTypes}
-              fitView
-              fitViewOptions={{ padding: 0.12 }}
-              nodesDraggable={false}
-              nodesConnectable={false}
-              elementsSelectable={false}
-              proOptions={{ hideAttribution: true }}
-              minZoom={0.3}
-              maxZoom={1.5}
-            >
-              <Background
-                variant={BackgroundVariant.Dots}
-                gap={24}
-                size={1.5}
-                color="var(--border-default)"
-              />
-              <Controls showInteractive={false} />
-            </ReactFlow>
-          </div>
+          <FlowDiagram flow="convite-membro" nodes={NODES} edges={EDGES} height={1300} />
         </Section>
 
         <Section
