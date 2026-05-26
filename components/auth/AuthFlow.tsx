@@ -8,6 +8,7 @@ import { ForgotScreen } from "./screens/ForgotScreen";
 import { ResetScreen } from "./screens/ResetScreen";
 import { VerifyScreen } from "./screens/VerifyScreen";
 import { MagicSentScreen } from "./screens/MagicSentScreen";
+import { SsoConnectingScreen } from "./screens/SsoConnectingScreen";
 import { WorkspaceScreen } from "./screens/WorkspaceScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
 import type { AuthScreen, Locale } from "./_types";
@@ -17,20 +18,22 @@ export type { AuthScreen };
 export function AuthFlow() {
   const [screen, setScreen] = useState<AuthScreen>("login");
   const [locale] = useState<Locale>("pt");
-  const [email] = useState("ana@awsales.com");
+  const [email, setEmail] = useState("");
+  const [ssoOrg, setSsoOrg] = useState("");
 
   const goTo = useCallback((s: AuthScreen) => setScreen(s), []);
 
   const renderScreen = () => {
     switch (screen) {
-      case "login":     return <LoginScreen locale={locale} goTo={goTo} />;
-      case "email":     return <EmailLoginScreen locale={locale} goTo={goTo} />;
-      case "forgot":    return <ForgotScreen locale={locale} goTo={goTo} />;
-      case "reset":     return <ResetScreen locale={locale} goTo={goTo} />;
-      case "verify":    return <VerifyScreen locale={locale} goTo={goTo} email={email} />;
-      case "magicSent": return <MagicSentScreen locale={locale} goTo={goTo} email={email} />;
-      case "workspace": return <WorkspaceScreen locale={locale} goTo={goTo} />;
-      case "success":   return <SuccessScreen locale={locale} />;
+      case "login":         return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} />;
+      case "email":         return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} />;
+      case "forgot":        return <ForgotScreen locale={locale} goTo={goTo} />;
+      case "reset":         return <ResetScreen locale={locale} goTo={goTo} />;
+      case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
+      case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
+      case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg} />;
+      case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} />;
+      case "success":       return <SuccessScreen locale={locale} />;
     }
   };
 

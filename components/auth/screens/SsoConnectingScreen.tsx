@@ -1,0 +1,36 @@
+"use client";
+
+import { useEffect } from "react";
+import type { Locale, AuthScreen } from "../_types";
+import { COPY } from "../_copy";
+
+export function SsoConnectingScreen({
+  locale,
+  goTo,
+  orgName,
+}: {
+  locale: Locale;
+  goTo: (s: AuthScreen) => void;
+  orgName: string;
+}) {
+  const c = COPY.ssoConnecting[locale];
+
+  useEffect(() => {
+    const id = setTimeout(() => goTo("workspace"), 2200);
+    return () => clearTimeout(id);
+  }, [goTo]);
+
+  return (
+    <div className="w-full max-w-[340px] animate-fadeInUp flex flex-col items-center text-center">
+      <span
+        aria-hidden="true"
+        className="block w-9 h-9 rounded-full border-2 border-aw-gray-300 border-t-aw-gray-1200 animate-spin mb-6"
+      />
+
+      <h3 className="text-aw-gray-1200 mb-2.5">
+        {c.title} <b>{orgName}</b>
+      </h3>
+      <p className="body-sm text-aw-gray-800">{c.sub}</p>
+    </div>
+  );
+}

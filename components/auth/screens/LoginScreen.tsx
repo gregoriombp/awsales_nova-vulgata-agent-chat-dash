@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { AwInput, AwField } from "@/components/ui/AwInput";
+import { AwButton } from "@/components/ui/AwButton";
 import type { Locale, AuthScreen } from "../_types";
+import { detectSso } from "../_types";
 import { COPY } from "../_copy";
 import { SsoButton } from "../_atoms";
 
@@ -27,31 +31,64 @@ function MsIcon() {
   );
 }
 
-function MailIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" aria-hidden="true">
-      <rect x="3.25" y="5.25" width="17.5" height="13.5" rx="2" stroke="currentColor" strokeWidth="1.5" />
-      <path d="M4 7.5l8 6 8-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 export function LoginScreen({
   locale,
   goTo,
+  setEmail,
+  setSsoOrg,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
+  setEmail: (e: string) => void;
+  setSsoOrg: (org: string) => void;
 }) {
   const c = COPY.login[locale];
+  const [emailInput, setEmailInput] = useState("");
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = emailInput.trim();
+    if (!trimmed.includes("@")) return;
+    setEmail(trimmed);
+    const ssoOrg = detectSso(trimmed);
+    if (ssoOrg) {
+      setSsoOrg(ssoOrg);
+      goTo("ssoConnecting");
+    } else {
+      goTo("email");
+    }
+  };
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp">
+    <form onSubmit={handleSubmit} className="w-full max-w-[340px] animate-fadeInUp">
       <h3 className="text-aw-gray-1200 mb-2.5 text-center">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-7 text-center">{c.sub}</p>
 
-      <div className="flex flex-col gap-2.5">
-        <SsoButton icon={<MailIcon />} label={c.ssoEmail} onClick={() => goTo("email")} />
+      <div className="mb-3">
+        <AwField label={c.email} htmlFor="loginEmail">
+          <AwInput
+            id="loginEmail"
+            type="email"
+            placeholder={c.emailPh}
+            autoComplete="email"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            autoFocus
+          />
+        </AwField>
+      </div>
+
+      <AwButton variant="primary" size="md" block type="submit" disabled={!emailInput.includes("@")}>
+        {c.cta}
+      </AwButton>
+
+      <div className="mt-5 flex items-center gap-3" aria-hidden="true">
+        <span className="flex-1 h-px bg-aw-gray-200" />
+        <span className="body-xs text-aw-gray-700">{c.or}</span>
+        <span className="flex-1 h-px bg-aw-gray-200" />
+      </div>
+
+      <div className="mt-4 flex flex-col gap-2.5">
         <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => goTo("workspace")} />
         <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => goTo("workspace")} />
       </div>
@@ -65,6 +102,6 @@ export function LoginScreen({
           {c.signUp}
         </Link>
       </p>
-    </div>
+    </form>
   );
 }

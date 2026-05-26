@@ -14,9 +14,11 @@ import { PasswordInput, BackButton } from "../_atoms";
 export function EmailLoginScreen({
   locale,
   goTo,
+  defaultEmail,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
+  defaultEmail?: string;
 }) {
   const c = COPY.email[locale];
   const [isLoading, setIsLoading] = useState(false);
@@ -27,7 +29,10 @@ export function EmailLoginScreen({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({ resolver: zodResolver(loginSchema) });
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: defaultEmail ?? "" },
+  });
 
   const onSubmit = async (data: LoginFormData) => {
     setServerError(false);
