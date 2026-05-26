@@ -314,7 +314,12 @@ function PaymentLine({
                   <button
                     key={opt.id}
                     type="button"
-                    onClick={() => onChange({ ...value, method: opt.id })}
+                    onClick={() =>
+                      onChange({
+                        method: opt.id,
+                        parcelas: opt.id === "cartao" ? value.parcelas : 1,
+                      })
+                    }
                     className={[
                       "rounded-lg border p-3 text-left transition-colors duration-aw-fast",
                       sel
@@ -348,57 +353,63 @@ function PaymentLine({
               })}
             </div>
 
-            <div className="mt-4">
-              <div className="aw-eyebrow mb-2.5 text-fg-tertiary">
-                Parcelamento
-              </div>
-              <div className="grid grid-cols-4 gap-1.5">
-                {Array.from({ length: MAX_PARCELAS }, (_, i) => i + 1).map(
-                  (p) => {
-                    const sel = value.parcelas === p
-                    return (
-                      <button
-                        key={p}
-                        type="button"
-                        onClick={() => onChange({ ...value, parcelas: p })}
-                        className={[
-                          "rounded-md border px-1 py-2.5 text-center transition-colors duration-aw-fast",
-                          sel
-                            ? "border-fg-primary bg-fg-primary text-white"
-                            : "border-border bg-bg-raised text-fg-primary hover:border-border-strong",
-                        ].join(" ")}
-                      >
-                        <div className="body-xs font-medium">{p}×</div>
-                        <div
+            {value.method === "cartao" ? (
+              <div className="mt-4">
+                <div className="aw-eyebrow mb-2.5 text-fg-tertiary">
+                  Parcelamento
+                </div>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {Array.from({ length: MAX_PARCELAS }, (_, i) => i + 1).map(
+                    (p) => {
+                      const sel = value.parcelas === p
+                      return (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => onChange({ ...value, parcelas: p })}
                           className={[
-                            "mt-0.5 text-[10px] tabular-nums",
-                            sel ? "text-white/70" : "text-fg-tertiary",
+                            "rounded-md border px-1 py-2.5 text-center transition-colors duration-aw-fast",
+                            sel
+                              ? "border-fg-primary bg-fg-primary text-white"
+                              : "border-border bg-bg-raised text-fg-primary hover:border-border-strong",
                           ].join(" ")}
                         >
-                          {fmtBRL(total / p)}
-                        </div>
-                      </button>
-                    )
-                  }
-                )}
+                          <div className="body-xs font-medium">{p}×</div>
+                          <div
+                            className={[
+                              "mt-0.5 text-[10px] tabular-nums",
+                              sel ? "text-white/70" : "text-fg-tertiary",
+                            ].join(" ")}
+                          >
+                            {fmtBRL(total / p)}
+                          </div>
+                        </button>
+                      )
+                    }
+                  )}
+                </div>
+                <div className="mt-2.5 body-xs text-fg-tertiary">
+                  {value.parcelas === 1
+                    ? `Pagamento à vista de ${fmtBRL(total)}`
+                    : `${value.parcelas} parcelas mensais de ${fmtBRL(
+                        total / value.parcelas
+                      )} · sem juros`}
+                </div>
               </div>
-              <div className="mt-2.5 body-xs text-fg-tertiary">
-                {value.parcelas === 1
-                  ? `Pagamento à vista de ${fmtBRL(total)}`
-                  : `${value.parcelas} parcelas mensais de ${fmtBRL(
-                      total / value.parcelas
-                    )} · sem juros`}
-                {value.method === "boleto" && value.parcelas > 1 && (
-                  <span> · um boleto por parcela enviado por e-mail</span>
-                )}
-                {value.method === "pix" && value.parcelas > 1 && (
-                  <span>
-                    {" "}
-                    · Pix recorrente · debitado todo dia {ORG.diaVencimento}
-                  </span>
-                )}
+            ) : (
+              <div className="mt-4 flex items-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-3 py-2.5 body-xs text-fg-secondary">
+                <Icon name="info" size={14} className="text-fg-tertiary" />
+                <span>
+                  Pagamento à vista de{" "}
+                  <b className="font-medium tabular-nums text-fg-primary">
+                    {fmtBRL(total)}
+                  </b>
+                  {value.method === "boleto"
+                    ? " · boleto único enviado por e-mail"
+                    : " · QR Pix único"}
+                </span>
               </div>
-            </div>
+            )}
 
             <div className="mt-5 flex justify-end">
               <button
@@ -576,6 +587,15 @@ function CheckoutPhase({
 }) {
   const bothCartao = impl.method === "cartao" && mens.method === "cartao"
   const [reuseCard, setReuseCard] = React.useState(true)
+  const [implPaid, setImplPaid] = React.useState(false)
+  const [mensPaid, setMensPaid] = React.useState(false)
+  const allPaid = implPaid && mensPaid
+
+  React.useEffect(() => {
+    if (!allPaid) return
+    const t = setTimeout(onSubmit, 450)
+    return () => clearTimeout(t)
+  }, [allPaid, onSubmit])
 
   return (
     <section>
@@ -593,6 +613,8 @@ function CheckoutPhase({
           parcelas={impl.parcelas}
           total={totalImpl}
           label="Implementação"
+          paid={implPaid}
+          onMarkPaid={() => setImplPaid(true)}
         />
         <PaymentInstrument
           method={mens.method}
@@ -602,6 +624,8 @@ function CheckoutPhase({
           offerReuseCard={bothCartao}
           reuseCard={bothCartao && reuseCard}
           onToggleReuseCard={() => setReuseCard((o) => !o)}
+          paid={mensPaid}
+          onMarkPaid={() => setMensPaid(true)}
         />
       </div>
 
@@ -610,19 +634,17 @@ function CheckoutPhase({
           type="button"
           onClick={onBack}
           className="aw-btn aw-btn--ghost aw-btn--md"
+          disabled={allPaid}
         >
           <Icon name="arrow_back" size={16} />
           <span className="aw-btn__label">Ajustar pagamento</span>
         </button>
         <span className="flex-1" />
-        <button
-          type="button"
-          onClick={onSubmit}
-          className="aw-btn aw-btn--primary aw-btn--md"
-        >
-          <span className="aw-btn__label">Confirmar pagamento</span>
-          <Icon name="arrow_forward" size={16} />
-        </button>
+        <span className="body-xs text-fg-tertiary">
+          {allPaid
+            ? "Tudo confirmado · seguindo para a conclusão…"
+            : `${[implPaid, mensPaid].filter(Boolean).length} de 2 pagamentos confirmados`}
+        </span>
       </footer>
     </section>
   )
@@ -636,6 +658,8 @@ function PaymentInstrument({
   offerReuseCard,
   reuseCard,
   onToggleReuseCard,
+  paid,
+  onMarkPaid,
 }: {
   method: MethodId
   parcelas: number
@@ -644,6 +668,8 @@ function PaymentInstrument({
   offerReuseCard?: boolean
   reuseCard?: boolean
   onToggleReuseCard?: () => void
+  paid: boolean
+  onMarkPaid: () => void
 }) {
   const parcelaLine =
     parcelas === 1
@@ -651,8 +677,18 @@ function PaymentInstrument({
       : `${parcelas}× ${fmtBRL(total / parcelas)} sem juros`
 
   return (
-    <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-      <header className="flex items-center gap-3 border-b border-border-subtle px-4 py-3">
+    <article
+      className={[
+        "overflow-hidden rounded-xl border bg-bg-raised transition-colors duration-aw-base",
+        paid ? "border-aw-emerald-700/40" : "border-border-subtle",
+      ].join(" ")}
+    >
+      <header
+        className={[
+          "flex items-center gap-3 px-4 py-3",
+          paid ? "" : "border-b border-border-subtle",
+        ].join(" ")}
+      >
         <AwBrandLogo brand={methodBrand(method)} size="sm" />
         <div className="min-w-0 flex-1">
           <div className="body-xs font-medium text-fg-primary">{label}</div>
@@ -660,22 +696,42 @@ function PaymentInstrument({
             {methodTitle(method)} · {parcelaLine}
           </div>
         </div>
-        <div className="body-sm font-medium tabular-nums text-fg-primary">
-          {fmtBRL(total)}
-        </div>
-      </header>
-      <div className="p-4">
-        {method === "pix" && <PixInstrument />}
-        {method === "cartao" && (
-          <CartaoInstrument
-            parcelas={parcelas}
-            total={total}
-            offerReuse={offerReuseCard}
-            reuse={reuseCard}
-            onToggleReuse={onToggleReuseCard}
-          />
+        {paid ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-aw-emerald-100 px-2 py-0.5 text-[11px] font-medium text-aw-emerald-700">
+            <Icon name="check_circle" size={12} fill={1} />
+            Pago
+          </span>
+        ) : (
+          <div className="body-sm font-medium tabular-nums text-fg-primary">
+            {fmtBRL(total)}
+          </div>
         )}
-        {method === "boleto" && <BoletoInstrument parcelas={parcelas} />}
+      </header>
+      <div
+        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
+        style={{ gridTemplateRows: paid ? "0fr" : "1fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className="p-4">
+            {method === "pix" && <PixInstrument onConfirmPaid={onMarkPaid} />}
+            {method === "cartao" && (
+              <CartaoInstrument
+                parcelas={parcelas}
+                total={total}
+                offerReuse={offerReuseCard}
+                reuse={reuseCard}
+                onToggleReuse={onToggleReuseCard}
+                onConfirmPaid={onMarkPaid}
+              />
+            )}
+            {method === "boleto" && (
+              <BoletoInstrument
+                parcelas={parcelas}
+                onConfirmPaid={onMarkPaid}
+              />
+            )}
+          </div>
+        </div>
       </div>
     </article>
   )
@@ -686,7 +742,7 @@ function PaymentInstrument({
 const PIX_CODE =
   "00020126360014BR.GOV.BCB.PIX0114+5511987654321520400005303986540512000.005802BR5925AWSALES TECNOLOGIA LTDA6009SAO PAULO62070503***6304D2A1"
 
-function PixInstrument() {
+function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
   const [secondsLeft, setSecondsLeft] = React.useState(30 * 60)
 
   React.useEffect(() => {
@@ -705,38 +761,50 @@ function PixInstrument() {
   const ss = (secondsLeft % 60).toString().padStart(2, "0")
 
   return (
-    <div className="flex items-center gap-4">
-      <FakeQR />
-      <div className="min-w-0 flex-1">
-        <div className="mb-1.5 flex items-center gap-2">
-          <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
-          <span
-            className={[
-              "inline-flex items-center gap-1 rounded-full px-2 py-px text-[10px] font-medium tabular-nums",
-              expired
-                ? "bg-aw-red-100 text-aw-red-700"
-                : "bg-aw-amber-100 text-aw-amber-800",
-            ].join(" ")}
-          >
-            <Icon name="schedule" size={10} />
-            {expired ? "Pix expirado" : `Expira em ${mm}:${ss}`}
-          </span>
+    <div className="flex flex-col gap-3.5">
+      <div className="flex items-center gap-4">
+        <FakeQR />
+        <div className="min-w-0 flex-1">
+          <div className="mb-1.5 flex items-center gap-2">
+            <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
+            <span
+              className={[
+                "inline-flex items-center gap-1 rounded-full px-2 py-px text-[10px] font-medium tabular-nums",
+                expired
+                  ? "bg-aw-red-100 text-aw-red-700"
+                  : "bg-aw-amber-100 text-aw-amber-800",
+              ].join(" ")}
+            >
+              <Icon name="schedule" size={10} />
+              {expired ? "Pix expirado" : `Expira em ${mm}:${ss}`}
+            </span>
+          </div>
+          <div className="mb-2.5 body-xs text-fg-secondary">
+            Abra o app do seu banco e escaneie ou copie o código abaixo.
+          </div>
+          <div className="flex items-center gap-1.5 rounded-md border border-border py-1.5 pl-2.5 pr-1.5">
+            <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[10px] text-fg-tertiary">
+              {PIX_CODE}
+            </code>
+            <button
+              type="button"
+              className="aw-btn aw-btn--secondary aw-btn--sm"
+            >
+              <Icon name="content_copy" size={12} />
+              <span className="aw-btn__label">Copiar</span>
+            </button>
+          </div>
         </div>
-        <div className="mb-2.5 body-xs text-fg-secondary">
-          Abra o app do seu banco e escaneie ou copie o código abaixo.
-        </div>
-        <div className="flex items-center gap-1.5 rounded-md border border-border py-1.5 pl-2.5 pr-1.5">
-          <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[10px] text-fg-tertiary">
-            {PIX_CODE}
-          </code>
-          <button
-            type="button"
-            className="aw-btn aw-btn--secondary aw-btn--sm"
-          >
-            <Icon name="content_copy" size={12} />
-            <span className="aw-btn__label">Copiar</span>
-          </button>
-        </div>
+      </div>
+      <div className="flex justify-end border-t border-border-subtle pt-3">
+        <button
+          type="button"
+          onClick={onConfirmPaid}
+          className="aw-btn aw-btn--primary aw-btn--sm"
+        >
+          <Icon name="check" size={14} />
+          <span className="aw-btn__label">Já paguei o Pix</span>
+        </button>
       </div>
     </div>
   )
@@ -791,12 +859,14 @@ function CartaoInstrument({
   offerReuse,
   reuse,
   onToggleReuse,
+  onConfirmPaid,
 }: {
   parcelas: number
   total: number
   offerReuse?: boolean
   reuse?: boolean
   onToggleReuse?: () => void
+  onConfirmPaid: () => void
 }) {
   const [number, setNumber] = React.useState("")
   const [name, setName] = React.useState("")
@@ -898,6 +968,16 @@ function CartaoInstrument({
           </div>
         </>
       )}
+      <div className="flex justify-end border-t border-border-subtle pt-3">
+        <button
+          type="button"
+          onClick={onConfirmPaid}
+          className="aw-btn aw-btn--primary aw-btn--sm"
+        >
+          <Icon name="lock" size={14} />
+          <span className="aw-btn__label">Cobrar cartão</span>
+        </button>
+      </div>
     </div>
   )
 }
@@ -923,7 +1003,15 @@ function CardField({
 
 const BOLETO_CODE = "23793.38128 60079.811604 41005.396305 1 99230000000158333"
 
-function BoletoInstrument({ parcelas }: { parcelas: number }) {
+function BoletoInstrument({
+  parcelas,
+  onConfirmPaid,
+}: {
+  parcelas: number
+  onConfirmPaid: () => void
+}) {
+  const [showDelayNotice, setShowDelayNotice] = React.useState(false)
+
   return (
     <>
       <FakeBarcode />
@@ -958,6 +1046,50 @@ function BoletoInstrument({ parcelas }: { parcelas: number }) {
           <span>{parcelas} boletos serão enviados — um por parcela.</span>
         </div>
       )}
+
+      <div className="mt-3 border-t border-border-subtle pt-3">
+        {showDelayNotice ? (
+          <div className="flex flex-col gap-2.5 rounded-md bg-aw-amber-100 p-3 body-xs text-aw-amber-800">
+            <div className="flex items-start gap-2">
+              <Icon name="info" size={14} fill={1} className="mt-px" />
+              <span>
+                A compensação bancária pode levar até{" "}
+                <b className="font-medium">48h</b> para ser contabilizada. Você
+                pode seguir para a próxima etapa enquanto isso — avisaremos por
+                e-mail assim que confirmarmos.
+              </span>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowDelayNotice(false)}
+                className="aw-btn aw-btn--ghost aw-btn--sm"
+              >
+                <span className="aw-btn__label">Voltar</span>
+              </button>
+              <button
+                type="button"
+                onClick={onConfirmPaid}
+                className="aw-btn aw-btn--primary aw-btn--sm"
+              >
+                <Icon name="arrow_forward" size={14} />
+                <span className="aw-btn__label">Entendi, seguir</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowDelayNotice(true)}
+              className="aw-btn aw-btn--primary aw-btn--sm"
+            >
+              <Icon name="check" size={14} />
+              <span className="aw-btn__label">Já paguei o boleto</span>
+            </button>
+          </div>
+        )}
+      </div>
     </>
   )
 }

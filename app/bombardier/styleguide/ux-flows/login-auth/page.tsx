@@ -1,67 +1,10 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import Link from "next/link"
-import {
-  Background,
-  BackgroundVariant,
-  Controls,
-  Handle,
-  MarkerType,
-  Panel,
-  Position,
-  ReactFlow,
-  useEdgesState,
-  useNodesState,
-  type Edge,
-  type Node,
-  type NodeProps,
-} from "@xyflow/react"
-import "@xyflow/react/dist/style.css"
+import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
-
-/* ─────────────────────────────────────────────────────────────────────
- * Custom nodes
- * ──────────────────────────────────────────────────────────────────── */
-
-type ScreenData = { step: string; title: string; href: string; note?: string }
-
-function ScreenNode({ data }: NodeProps<Node<ScreenData>>) {
-  return (
-    <Link
-      href={data.href}
-      className="block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] no-underline shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition"
-    >
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      <div className="px-4 py-3 flex flex-col gap-1">
-        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
-        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">{data.title}</span>
-        {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
-      </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-    </Link>
-  )
-}
-
-type DecisionData = { step: string; title: string; question: string }
-
-function DecisionNode({ data }: NodeProps<Node<DecisionData>>) {
-  const hCls = "!bg-[var(--aw-amber-500)] !border-0 !w-2 !h-2"
-  return (
-    <div className="w-[240px] rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-amber-400)] bg-[var(--aw-amber-100)] px-4 py-3 flex flex-col gap-1">
-      <Handle type="target" position={Position.Top} className={hCls} />
-      <span className="aw-eyebrow text-[var(--aw-amber-800)]">decisão · {data.step}</span>
-      <span className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight">{data.title}</span>
-      <span className="text-xs text-[var(--aw-amber-800)] leading-snug">{data.question}</span>
-      <Handle id="left"   type="source" position={Position.Left}   className={hCls} />
-      <Handle id="bottom" type="source" position={Position.Bottom} className={hCls} />
-      <Handle id="right"  type="source" position={Position.Right}  className={hCls} />
-    </div>
-  )
-}
-
-const nodeTypes = { screen: ScreenNode, decision: DecisionNode }
+import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Layout constants
@@ -211,19 +154,6 @@ const NODES: Node[] = [
  * Edges
  * ──────────────────────────────────────────────────────────────────── */
 
-const edgeBase = {
-  type: "smoothstep" as const,
-  animated: false,
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18 },
-  style: { stroke: "var(--border-strong)", strokeWidth: 1.5 },
-}
-
-const branchEdge = {
-  ...edgeBase,
-  style: { stroke: "var(--aw-amber-500)", strokeWidth: 1.5 },
-  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: "var(--aw-amber-500)" },
-}
-
 const labelProps = {
   labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
   labelBgStyle: { fill: "var(--bg-canvas)" },
@@ -266,20 +196,6 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-novasenha-redef",   source: "novaSenha",  target: "senhaRedef" },
   // senhaRedef is a terminal — redirect to Login is documented in text, not drawn
 ]
-
-/* ─────────────────────────────────────────────────────────────────────
- * Suggestion system
- * ──────────────────────────────────────────────────────────────────── */
-
-type Suggestion = {
-  id: string
-  description: string
-  createdAt: string
-  nodes: Node[]
-  edges: Edge[]
-}
-
-const STORAGE_KEY = "ux-flow-suggestions-login-auth"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Screen docs
@@ -349,51 +265,6 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 export default function LoginAuthFlowPage() {
-  const [editNodes, setEditNodes, onEditNodesChange] = useNodesState(NODES)
-  const [editEdges, setEditEdges, onEditEdgesChange] = useEdgesState(EDGES)
-
-  const [editMode,    setEditMode]    = useState(false)
-  const [previewSugg, setPreviewSugg] = useState<Suggestion | null>(null)
-  const [showSave,    setShowSave]    = useState(false)
-  const [desc,        setDesc]        = useState("")
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-  const [showReview,  setShowReview]  = useState(false)
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored) {
-      try { setSuggestions(JSON.parse(stored)) } catch { /* invalid JSON */ }
-    }
-  }, [])
-
-  function enterEdit() {
-    setEditNodes([...NODES]); setEditEdges([...EDGES])
-    setPreviewSugg(null); setEditMode(true)
-  }
-  function cancelEdit() {
-    setEditNodes([...NODES]); setEditEdges([...EDGES]); setEditMode(false)
-  }
-  function openSave() { setShowSave(true) }
-  function confirmSave() {
-    if (!desc.trim()) return
-    const s: Suggestion = { id: Math.random().toString(36).slice(2), description: desc.trim(), createdAt: new Date().toISOString(), nodes: editNodes, edges: editEdges }
-    const updated = [...suggestions, s]
-    setSuggestions(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    setDesc(""); setShowSave(false); setEditMode(false)
-    setEditNodes([...NODES]); setEditEdges([...EDGES])
-  }
-  function viewSugg(s: Suggestion) { setPreviewSugg(s); setEditMode(false); setShowReview(false) }
-  function discardSugg(id: string) {
-    const updated = suggestions.filter((s) => s.id !== id)
-    setSuggestions(updated)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    if (previewSugg?.id === id) setPreviewSugg(null)
-  }
-
-  const displayNodes = editMode ? editNodes : previewSugg ? (previewSugg.nodes as Node[]) : NODES
-  const displayEdges = editMode ? editEdges : previewSugg ? (previewSugg.edges as Edge[]) : EDGES
-
   return (
     <>
       <PageHero title="Login e autenticação">
@@ -417,75 +288,7 @@ export default function LoginAuthFlowPage() {
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. OAuth Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
         >
-          <div className="relative">
-            <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-              {suggestions.length > 0 && !editMode && (
-                <button
-                  onClick={() => setShowReview(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-xs font-medium text-[var(--aw-amber-800)] hover:bg-[var(--aw-amber-200)] transition"
-                >
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold">{suggestions.length}</span>
-                  {suggestions.length === 1 ? "sugestão" : "sugestões"}
-                </button>
-              )}
-              {!editMode && !previewSugg && (
-                <button
-                  onClick={enterEdit}
-                  className="px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:border-[var(--aw-blue-400)] hover:text-[var(--aw-blue-700)] transition"
-                >
-                  Sugerir edição
-                </button>
-              )}
-            </div>
-
-            <div
-              className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
-              style={{ backgroundColor: "var(--bg-muted)", height: 800 }}
-            >
-              <ReactFlow
-                nodes={displayNodes}
-                edges={displayEdges}
-                nodeTypes={nodeTypes}
-                onNodesChange={editMode ? onEditNodesChange : undefined}
-                onEdgesChange={editMode ? onEditEdgesChange : undefined}
-                nodesDraggable={editMode}
-                nodesConnectable={editMode}
-                elementsSelectable={editMode}
-                fitView
-                fitViewOptions={{ padding: 0.12 }}
-                proOptions={{ hideAttribution: true }}
-                minZoom={0.3}
-                maxZoom={1.5}
-                style={{ background: "#fafafa" }}
-              >
-                <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="var(--border-default)" />
-                <Controls showInteractive={false} />
-
-                {editMode && (
-                  <Panel position="top-center">
-                    <div className="flex items-center gap-3 bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                      <span className="text-[var(--aw-amber-800)] font-medium">Modo sugestão ativo</span>
-                      <span className="text-[var(--aw-amber-500)]">·</span>
-                      <button onClick={openSave} className="text-[var(--aw-amber-900)] font-semibold hover:underline">Salvar sugestão</button>
-                      <span className="text-[var(--aw-amber-500)]">·</span>
-                      <button onClick={cancelEdit} className="text-[var(--aw-amber-700)] hover:text-[var(--aw-amber-900)]">Cancelar</button>
-                    </div>
-                  </Panel>
-                )}
-
-                {previewSugg && (
-                  <Panel position="top-center">
-                    <div className="flex items-center gap-3 bg-[var(--bg-raised)] border border-[var(--border-default)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                      <span className="text-[var(--fg-tertiary)] text-xs uppercase tracking-wide font-medium">Sugestão</span>
-                      <span className="text-[var(--fg-primary)] font-medium max-w-xs truncate">{previewSugg.description}</span>
-                      <span className="text-[var(--fg-tertiary)]">·</span>
-                      <button onClick={() => setPreviewSugg(null)} className="text-[var(--aw-blue-700)] font-medium hover:underline whitespace-nowrap">Voltar ao fluxo oficial</button>
-                    </div>
-                  </Panel>
-                )}
-              </ReactFlow>
-            </div>
-          </div>
+          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} />
         </Section>
 
         <Section id="screens" title="Cada tela" lead="Propósito, decisões e link direto pro protótipo de cada uma.">
@@ -542,54 +345,6 @@ export default function LoginAuthFlowPage() {
           </div>
         </Section>
       </div>
-
-      {showSave && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowSave(false)}>
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
-            <div>
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Salvar sugestão</h2>
-              <p className="text-sm text-[var(--fg-secondary)] mt-1 m-0">Descreva brevemente o que você alterou no fluxo.</p>
-            </div>
-            <textarea
-              className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)] resize-none"
-              placeholder="Ex: adicionei bloqueio de conta após 5 tentativas..."
-              rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} autoFocus
-            />
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowSave(false)} className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-subtle)] transition">Cancelar</button>
-              <button onClick={confirmSave} disabled={!desc.trim()} className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition">Salvar</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {showReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowReview(false)}>
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-lg mx-4 p-6 flex flex-col gap-4 max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">
-                Sugestões
-                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold align-middle">{suggestions.length}</span>
-              </h2>
-              <button onClick={() => setShowReview(false)} className="text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] text-lg leading-none">×</button>
-            </div>
-            <ul className="flex flex-col gap-3 overflow-y-auto m-0 p-0 list-none">
-              {suggestions.map((s) => (
-                <li key={s.id} className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 flex flex-col gap-2">
-                  <p className="m-0 text-sm font-medium text-[var(--fg-primary)] leading-snug">{s.description}</p>
-                  <span className="caption text-[var(--fg-tertiary)]">
-                    {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </span>
-                  <div className="flex gap-2 mt-1">
-                    <button onClick={() => viewSugg(s)} className="px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--aw-blue-600)] text-white text-xs font-medium hover:bg-[var(--aw-blue-700)] transition">Visualizar</button>
-                    <button onClick={() => discardSugg(s.id)} className="px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-subtle)] transition">Descartar</button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      )}
     </>
   )
 }

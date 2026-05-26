@@ -47,6 +47,7 @@ function PerfilContent() {
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
   const [invoiceSelf, setInvoiceSelf] = React.useState(true)
   const [extraEmails, setExtraEmails] = React.useState<ExtraEmail[]>([])
+  const [pendingEmail, setPendingEmail] = React.useState("")
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const emailIdRef = React.useRef(0)
 
@@ -66,29 +67,28 @@ function PerfilContent() {
     reader.readAsDataURL(file)
   }
 
-  const addEmail = () =>
+  const canAddPending = isEmailValid(pendingEmail) &&
+    !extraEmails.some((e) => e.value.toLowerCase() === pendingEmail.trim().toLowerCase())
+
+  const commitPendingEmail = () => {
+    if (!canAddPending) return
     setExtraEmails((list) => [
       ...list,
-      { id: `e${emailIdRef.current++}`, value: "" },
+      { id: `e${emailIdRef.current++}`, value: pendingEmail.trim() },
     ])
-  const updateEmail = (id: string, value: string) =>
-    setExtraEmails((list) =>
-      list.map((e) => (e.id === id ? { ...e, value } : e))
-    )
+    setPendingEmail("")
+  }
   const removeEmail = (id: string) =>
     setExtraEmails((list) => list.filter((e) => e.id !== id))
 
-  const allEmailsValid = extraEmails.every((e) => isEmailValid(e.value))
   const needsRecipient = !invoiceSelf
-  const recipientCoverageOk =
-    invoiceSelf || (extraEmails.length > 0 && allEmailsValid)
+  const recipientCoverageOk = invoiceSelf || extraEmails.length > 0
 
   const valid =
     name.trim().length >= 2 &&
     cargo.trim().length >= 2 &&
     isEmailValid(email) &&
     phone.replace(/\D/g, "").length >= 10 &&
-    allEmailsValid &&
     recipientCoverageOk
 
   return (
@@ -195,23 +195,59 @@ function PerfilContent() {
         </div>
 
         <div className="mt-3">
-          <button
-            type="button"
-            onClick={addEmail}
-            className="inline-flex items-center gap-1.5 body-xs font-medium text-fg-secondary transition-colors duration-aw-fast hover:text-fg-primary"
-          >
-            <Icon name="add" size={14} />
-            Adicionar e-mail
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="flex h-[38px] flex-1 items-center gap-2 rounded-md border border-border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
+              <Icon name="mail" size={14} className="text-fg-tertiary" />
+              <input
+                type="email"
+                inputMode="email"
+                value={pendingEmail}
+                onChange={(e) => setPendingEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    commitPendingEmail()
+                  }
+                }}
+                placeholder="financeiro@empresa.com"
+                className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+              />
+            </span>
+            <button
+              type="button"
+              onClick={commitPendingEmail}
+              disabled={!canAddPending}
+              aria-label="Adicionar e-mail"
+              className={[
+                "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
+                canAddPending
+                  ? "bg-fg-primary text-white hover:opacity-90"
+                  : "bg-bg-muted text-fg-tertiary",
+              ].join(" ")}
+            >
+              <Icon name="add" size={16} />
+            </button>
+          </div>
 
-          {extraEmails.map((e) => (
-            <EmailRow
-              key={e.id}
-              value={e.value}
-              onChange={(v) => updateEmail(e.id, v)}
-              onRemove={() => removeEmail(e.id)}
-            />
-          ))}
+          <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
+            <Icon name="info" size={12} className="mt-px flex-shrink-0" />
+            <span>
+              Cada e-mail recebe um convite para entrar na organização. A pessoa
+              precisa confirmar o convite para começar a receber as faturas.
+            </span>
+          </p>
+
+          {extraEmails.length > 0 && (
+            <ul className="mt-3 flex flex-col gap-1.5">
+              {extraEmails.map((e) => (
+                <InvitedEmailRow
+                  key={e.id}
+                  value={e.value}
+                  onRemove={() => removeEmail(e.id)}
+                />
+              ))}
+            </ul>
+          )}
 
           {needsRecipient && extraEmails.length === 0 && (
             <div className="mt-3 flex items-center gap-2 rounded-md bg-aw-amber-100 px-3 py-2.5 body-xs text-aw-amber-800">
@@ -253,14 +289,12 @@ function PerfilContent() {
   )
 }
 
-/** Linha de e-mail extra — expande suavemente ao ser adicionada. */
-function EmailRow({
+/** Chip com e-mail convidado — apresentado em lista após confirmar o "+". */
+function InvitedEmailRow({
   value,
-  onChange,
   onRemove,
 }: {
   value: string
-  onChange: (v: string) => void
   onRemove: () => void
 }) {
   const [shown, setShown] = React.useState(false)
@@ -271,7 +305,7 @@ function EmailRow({
   }, [])
 
   return (
-    <div
+    <li
       className="grid transition-[grid-template-rows,opacity] duration-aw-base ease-aw-out"
       style={{
         gridTemplateRows: shown ? "1fr" : "0fr",
@@ -279,28 +313,26 @@ function EmailRow({
       }}
     >
       <div className="overflow-hidden">
-        <div className="mt-2.5 flex items-center gap-2">
-          <span className="flex h-[38px] flex-1 items-center gap-2 rounded-md border border-border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
-            <Icon name="mail" size={14} className="text-fg-tertiary" />
-            <input
-              type="email"
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="financeiro@empresa.com"
-              className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
-            />
+        <div className="flex items-center gap-2 rounded-md border border-border-subtle bg-bg-raised px-3 py-2">
+          <Icon name="mail" size={14} className="text-fg-tertiary" />
+          <span className="flex-1 truncate body-xs text-fg-primary">
+            {value}
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-px text-[10px] font-medium text-aw-amber-800">
+            <Icon name="schedule" size={10} />
+            convite pendente
           </span>
           <button
             type="button"
             onClick={onRemove}
-            aria-label="Remover e-mail"
-            className="flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
+            aria-label={`Remover ${value}`}
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
           >
             <Icon name="close" size={14} />
           </button>
         </div>
       </div>
-    </div>
+    </li>
   )
 }
 
