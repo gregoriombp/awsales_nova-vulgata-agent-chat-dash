@@ -21,6 +21,8 @@ import {
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
+import { AwSheet } from "@/components/ui/AwSheet"
+
 /* ─────────────────────────────────────────────────────────────────────
  * Bridge config — read from env at module load. Both are required.
  * If missing, the UI shows a setup hint instead of attempting fetches.
@@ -84,11 +86,13 @@ const USER_ACTOR: SuggestionActor = { kind: "user", id: "user", name: "Usuário"
 type EditorCtx = {
   mode: "view" | "edit"
   onEditNode: (id: string) => void
+  onPreviewScreen: (data: ScreenData) => void
 }
 
 const FlowEditorContext = createContext<EditorCtx>({
   mode: "view",
   onEditNode: () => {},
+  onPreviewScreen: () => {},
 })
 
 function EditPencil({ id }: { id: string }) {
@@ -119,7 +123,7 @@ function EditPencil({ id }: { id: string }) {
  * ──────────────────────────────────────────────────────────────────── */
 
 export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
-  const { mode } = useContext(FlowEditorContext)
+  const { mode, onPreviewScreen } = useContext(FlowEditorContext)
   const inner = (
     <>
       <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
@@ -141,9 +145,15 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
     )
   }
 
+  const href = data.href || "#"
   return (
     <Link
-      href={data.href || "#"}
+      href={href}
+      onClick={(e) => {
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button === 1) return
+        e.preventDefault()
+        onPreviewScreen(data)
+      }}
       className="relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] no-underline shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition"
     >
       {inner}
@@ -471,13 +481,15 @@ export function FlowDiagram({
   const [desc, setDesc] = useState("")
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [previewScreen, setPreviewScreen] = useState<ScreenData | null>(null)
 
   const { suggestions, error, create, transition } = useFlowSuggestions(flow)
 
   const onEditNode = useCallback((id: string) => setEditingNodeId(id), [])
+  const onPreviewScreen = useCallback((data: ScreenData) => setPreviewScreen(data), [])
   const ctxValue = useMemo<EditorCtx>(
-    () => ({ mode: editMode ? "edit" : "view", onEditNode }),
-    [editMode, onEditNode],
+    () => ({ mode: editMode ? "edit" : "view", onEditNode, onPreviewScreen }),
+    [editMode, onEditNode, onPreviewScreen],
   )
 
   function enterEdit() {
@@ -757,6 +769,93 @@ export function FlowDiagram({
           onSave={saveEditedNode}
         />
       )}
+
+      <ScreenPreviewDrawer
+        screen={previewScreen}
+        onClose={() => setPreviewScreen(null)}
+      />
     </FlowEditorContext.Provider>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * ScreenPreviewDrawer — opens the screen's href in an iframe inside an
+ * AwSheet (wide). Clicking a screen card in the diagram opens this. For
+ * empty hrefs ("#" or "") shows a "sem protótipo" message. External
+ * URLs open in a new tab instead of the iframe.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function isExternal(href: string): boolean {
+  return /^https?:\/\//i.test(href)
+}
+
+function ScreenPreviewDrawer({
+  screen,
+  onClose,
+}: {
+  screen: ScreenData | null
+  onClose: () => void
+}) {
+  const open = !!screen
+  const href = screen?.href ?? ""
+  const hasPrototype = href.length > 0 && href !== "#"
+  const external = hasPrototype && isExternal(href)
+
+  return (
+    <AwSheet
+      open={open}
+      onClose={onClose}
+      size="wide"
+      title={screen?.title ?? ""}
+      meta={
+        screen ? (
+          <span className="flex items-baseline gap-2">
+            <span className="aw-eyebrow text-[var(--aw-blue-700)]">{screen.step}</span>
+            {hasPrototype && !external && (
+              <a
+                href={href}
+                className="text-xs font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+              >
+                Abrir em página inteira →
+              </a>
+            )}
+          </span>
+        ) : undefined
+      }
+    >
+      {!hasPrototype ? (
+        <div className="flex flex-col items-center justify-center text-center gap-2 py-12">
+          <p className="m-0 text-sm font-medium text-[var(--fg-primary)]">Sem protótipo ainda</p>
+          <p className="m-0 text-sm text-[var(--fg-secondary)] max-w-sm leading-relaxed">
+            Essa tela ainda não tem link pra um protótipo navegável. Adicione um href na
+            sugestão de edição quando o protótipo existir.
+          </p>
+        </div>
+      ) : external ? (
+        <div className="flex flex-col items-center justify-center text-center gap-3 py-12">
+          <p className="m-0 text-sm font-medium text-[var(--fg-primary)]">Link externo</p>
+          <p className="m-0 text-sm text-[var(--fg-secondary)] max-w-sm leading-relaxed">
+            Esse passo aponta pra um endereço fora da plataforma. Abra em uma nova aba pra ver.
+          </p>
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-xs font-medium hover:bg-[var(--aw-blue-700)] transition no-underline"
+          >
+            Abrir em nova aba ↗
+          </a>
+        </div>
+      ) : (
+        <div className="w-full h-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-canvas)]">
+          <iframe
+            key={href}
+            src={href}
+            title={screen?.title ?? "Pré-visualização"}
+            className="block w-full h-full border-0"
+          />
+        </div>
+      )}
+    </AwSheet>
   )
 }
