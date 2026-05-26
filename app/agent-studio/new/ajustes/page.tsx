@@ -43,11 +43,7 @@ export default function AgentSettingsPage() {
   const canAdvance = agentName.trim().length > 0 && selectedBase !== null;
 
   const breadcrumbs = [
-    {
-      label: "Agent Studio",
-      href: "/agent-studio",
-      icon: <Icon name="agent_studio" size={20} />,
-    },
+    { label: "Agent Studio", href: "/agent-studio" },
     { label: "Novo Agente", href: "/agent-studio/new" },
     { label: "Ajustes" },
   ];

@@ -5,7 +5,6 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwAgentTile } from "@/components/ui/AwAgentTile";
-import { Icon } from "@/components/ui/Icon";
 import { getOrbForAgent } from "@/lib/agentOrbs";
 
 type Agent = {
@@ -87,13 +86,7 @@ const TODOS_OS_AGENTES: Agent[] = [
 ];
 
 export default function AgentStudioPage() {
-  const breadcrumbs = [
-    { label: "Início", href: "/inicio" },
-    {
-      label: "Agent Studio",
-      icon: <Icon name="agent_studio" size={20} />,
-    },
-  ];
+  const breadcrumbs = [{ label: "Agent Studio" }];
 
   return (
     <DashboardLayout breadcrumbs={breadcrumbs}>
