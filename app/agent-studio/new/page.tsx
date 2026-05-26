@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -424,7 +425,7 @@ interface PromptModule {
 const MOCK_INTEGRATIONS: Integration[] = [
   { id: "whatsapp", name: "WhatsApp", description: "Conecte seu WhatsApp Business", icon: "whatsapp", configured: true, enabled: true },
   { id: "instagram", name: "Instagram", description: "Integre com Instagram Direct", icon: "instagram", configured: true, enabled: false },
-  { id: "messenger", name: "Messenger", description: "Facebook Messenger", icon: "messenger", configured: false, enabled: false },
+  { id: "messenger", name: "Messenger", description: "Facebook Messenger", icon: "messenger", configured: true, enabled: false },
   { id: "telegram", name: "Telegram", description: "Bot do Telegram", icon: "telegram", configured: false, enabled: false },
   { id: "email", name: "E-mail", description: "Integração com e-mail", icon: "email", configured: false, enabled: false },
   { id: "slack", name: "Slack", description: "Workspace do Slack", icon: "slack", configured: false, enabled: false },
@@ -1620,6 +1621,7 @@ export default function AgentStudioNewPage() {
 
   // Step 3 state
   const [integrations, setIntegrations] = useState<Integration[]>(MOCK_INTEGRATIONS);
+  const [addIntegrationOpen, setAddIntegrationOpen] = useState(false);
 
   // Step 4 (Loading) state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -1949,17 +1951,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   }, []);
 
   const breadcrumbs = currentStep === 5 ? [
-    {
-      label: "Agent Studio",
-      href: "/agent-studio",
-    },
+    { label: "Agent Studio", href: "/agent-studio" },
     agentName || "Agente",
+    "Configuração geral",
   ] : [
-    {
-      label: "Agent Studio",
-      href: "/agent-studio",
-    },
-    "Configurar",
+    { label: "Agent Studio", href: "/agent-studio" },
+    "Novo agente",
   ];
 
   // Validation
@@ -1973,6 +1970,18 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   // Configured and unconfigured integrations
   const configuredIntegrations = integrations.filter(i => i.configured);
   const unconfiguredIntegrations = integrations.filter(i => !i.configured);
+  const integrationCategories = [
+    { id: "channels", label: "Canais de mensageria" },
+    { id: "crms", label: "CRMs" },
+    { id: "meetings", label: "Reuniões" },
+  ];
+  const integrationItems = unconfiguredIntegrations.map(i => ({
+    id: i.id,
+    brand: i.id,
+    name: i.name,
+    description: i.description,
+    category: "channels",
+  }));
 
   const handleGoalSelect = (goalId: string) => {
     setSelectedGoal(goalId);
@@ -2163,9 +2172,20 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     className="relative w-12 h-12 rounded-full object-cover ring-2 ring-white shadow-none"
                   />
                 </div>
-                <h1 className="font-heading text-[32px] font-medium text-fg-primary tracking-[-0.5px]">
-                  {agentName || "Agente"}
-                </h1>
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-heading text-[32px] font-medium text-fg-primary tracking-[-0.5px]">
+                      {agentName || "Agente"}
+                    </h1>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--aw-amber-300)] bg-[var(--aw-amber-150)] px-2.5 py-0.5 text-xs font-medium text-[var(--aw-amber-900)]">
+                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--aw-amber-600)]" />
+                      Rascunho · não publicado
+                    </span>
+                  </div>
+                  <p className="text-sm text-fg-tertiary">
+                    Configuração geral do agente
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <AwButton variant="secondary" size="md">
@@ -2702,6 +2722,19 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           </div>
         )}
         </div>
+        <AwAddIntegrationModal
+          open={addIntegrationOpen}
+          onClose={() => setAddIntegrationOpen(false)}
+          categories={integrationCategories}
+          items={integrationItems}
+          onSelect={(id) => {
+            setAddIntegrationOpen(false);
+            handleToggleIntegration(id);
+            setIntegrations((prev) =>
+              prev.map((i) => (i.id === id ? { ...i, configured: true, enabled: true } : i)),
+            );
+          }}
+        />
       </DashboardLayout>
     );
   }
@@ -3019,41 +3052,29 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 </div>
               )}
 
-              {/* Unconfigured Integrations */}
-              {unconfiguredIntegrations.length > 0 && (
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-fg-primary">
-                    Adicionar nova integração
-                  </label>
-                  <p className="text-sm text-fg-tertiary">
-                    Configure integrações com aplicações de terceiros
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {unconfiguredIntegrations.map((integration) => (
-                      <button
-                        key={integration.id}
-                        onClick={() => router.push("/integrations")}
-                        className="flex items-center gap-3 p-4 bg-white border border-dashed border-aw-gray-400 rounded-xl hover:border-aw-gray-600 transition-colors text-left"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-bg-muted flex items-center justify-center opacity-50">
-                          <IntegrationIcon type={integration.icon} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-heading font-medium text-sm text-fg-primary">
-                            {integration.name}
-                          </h4>
-                          <p className="text-xs text-fg-tertiary">
-                            {integration.description}
-                          </p>
-                        </div>
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="text-fg-tertiary">
-                          <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                        </svg>
-                      </button>
-                    ))}
+              {/* Add new integration trigger — opens AwAddIntegrationModal */}
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setAddIntegrationOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-xl border border-dashed border-aw-gray-400 bg-white p-4 text-left transition-colors hover:border-aw-gray-600 hover:bg-bg-surface"
+                >
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
+                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="text-fg-primary">
+                      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
                   </div>
-                </div>
-              )}
+                  <div className="min-w-0 flex-1">
+                    <h4 className="font-heading text-sm font-medium text-fg-primary">
+                      Adicionar nova integração
+                    </h4>
+                    <p className="text-xs text-fg-tertiary">
+                      Conecte aplicações de terceiros para expandir o que o agente faz
+                    </p>
+                  </div>
+                  <Icon name="chevron_right" size={16} className="text-fg-tertiary" />
+                </button>
+              </div>
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
