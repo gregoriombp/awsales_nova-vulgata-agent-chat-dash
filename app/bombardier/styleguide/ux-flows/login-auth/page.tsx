@@ -32,22 +32,25 @@ const PRIMO_TERM_X = -200  // "Primeiro acesso" terminal (below Google)
 const NOVA_ORG_X   = 540   // "Configurar org adicional" terminal (right of platform)
 
 const MAGIC_X = -200  // Magic link screen (left corridor, level with verify)
+const SSO_X   = 540   // SSO connecting screen (right of credenciais, level with credenciais)
 
 const Y = {
   entrada:           0,
   metodo:          160,
-  credenciais:     360,
-  valid:           520,
-  verifyRow:       680,   // verify (centre) | erro (ERRO_X) | magicLink (MAGIC_X)
-  oauthRow:        840,   // oauthGoogle | workspaceDec (centre) | oauthMs
-  recEmail:        840,   // tela "Esqueci a senha" (ERRO_X)
-  workspace:      1000,
-  resetSenha:     1000,   // tela "Definir nova senha" — fora do flow demo (ERRO_X)
-  primeiroAcessoDec: 1160,
-  primeiroAcesso: 1320,
-  novaOrgDec:     1320,
-  platform:       1480,
-  novaOrgConfig:  1480,
+  decDiscover:     360,   // HRD: domínio tem SSO?
+  credenciais:     520,
+  ssoConnectingRow: 520,  // mesma row de credenciais, em SSO_X
+  valid:           680,
+  verifyRow:       840,   // verify (centre) | erro (ERRO_X) | magicLink (MAGIC_X)
+  oauthRow:       1000,   // oauthGoogle | workspaceDec (centre) | oauthMs
+  recEmail:       1000,   // tela "Esqueci a senha" (ERRO_X)
+  workspace:      1160,
+  resetSenha:     1160,   // tela "Definir nova senha" — fora do flow demo (ERRO_X)
+  primeiroAcessoDec: 1320,
+  primeiroAcesso: 1480,
+  novaOrgDec:     1480,
+  platform:       1640,
+  novaOrgConfig:  1640,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -60,19 +63,31 @@ const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Três botões lado a lado: e-mail, Google e Microsoft. No rodapé, link 'Ainda não tem conta? Primeiro acesso' leva pra /primeiro-acesso." },
+    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Input de email + botão 'Continuar'. Abaixo do separador 'ou', Google e Microsoft como opções secundárias. No rodapé, link 'Ainda não tem conta? Primeiro acesso' leva pra /primeiro-acesso." },
   },
   {
     id: "metodo",
     type: "decision",
     position: { x: COL_D, y: Y.metodo },
-    data: { step: "01", title: "Qual botão?", question: "O usuário clicou em qual dos três botões da tela inicial?" },
+    data: { step: "01", title: "Que ação fez?", question: "Digitou email + Continuar, ou clicou em Google/Microsoft?" },
+  },
+  {
+    id: "decDiscover",
+    type: "decision",
+    position: { x: COL_D, y: Y.decDiscover },
+    data: { step: "01b", title: "Domínio tem SSO empresarial?", question: "O domínio do email digitado está na lista de orgs com SSO obrigatório? (mock no front: @awsales.com, @fyntra.com.br)" },
+  },
+  {
+    id: "ssoConnecting",
+    type: "screen",
+    position: { x: SSO_X, y: Y.ssoConnectingRow },
+    data: { step: "01c", title: "Conectando ao SSO", href: "/", note: "Loader 'Te direcionando pro acesso da [Empresa]'. Mock: 2 segundos e vai pro workspace selector. Em produção, redirect pro IdP corporativo." },
   },
   {
     id: "credenciais",
     type: "screen",
     position: { x: COL, y: Y.credenciais },
-    data: { step: "02", title: "E-mail + senha", href: "/", note: "Formulário com e-mail, senha (com mostrar/ocultar), 'Manter conectado' e 'Esqueci a senha'." },
+    data: { step: "02", title: "E-mail + senha", href: "/", note: "Email pré-preenchido a partir do HRD. Senha (com mostrar/ocultar), 'Manter conectado' e 'Esqueci a senha'. Abaixo do botão Entrar, link 'Receba um link de acesso no email'." },
   },
   {
     id: "valid",
@@ -184,9 +199,14 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-entrada-metodo",    source: "entrada",    target: "metodo",           label: "Acessar",          ...labelProps },
 
   // ── Auth method branches (metodo → each method) ────────────────────
-  { ...branchEdge, id: "e-metodo-google",     source: "metodo",     target: "oauthGoogle",      sourceHandle: "left",   label: "Google",         ...labelProps },
-  { ...branchEdge, id: "e-metodo-cred",       source: "metodo",     target: "credenciais",      sourceHandle: "bottom", label: "E-mail + senha", ...labelProps },
-  { ...branchEdge, id: "e-metodo-ms",         source: "metodo",     target: "oauthMs",          sourceHandle: "right",  label: "Microsoft",      ...labelProps },
+  { ...branchEdge, id: "e-metodo-google",     source: "metodo",     target: "oauthGoogle",      sourceHandle: "left",   label: "Google",      ...labelProps },
+  { ...branchEdge, id: "e-metodo-discover",   source: "metodo",     target: "decDiscover",      sourceHandle: "bottom", label: "Continuar",   ...labelProps },
+  { ...branchEdge, id: "e-metodo-ms",         source: "metodo",     target: "oauthMs",          sourceHandle: "right",  label: "Microsoft",   ...labelProps },
+
+  // ── HRD branch — domínio decide se vai pra SSO ou pra senha ────────
+  { ...branchEdge, id: "e-discover-sso",      source: "decDiscover", target: "ssoConnecting",   sourceHandle: "right",  label: "Domínio com SSO",  ...labelProps },
+  { ...branchEdge, id: "e-discover-cred",     source: "decDiscover", target: "credenciais",     sourceHandle: "bottom", label: "Domínio livre",    ...labelProps },
+  { ...edgeBase,   id: "e-sso-workspacedec",  source: "ssoConnecting", target: "workspaceDec" },
 
   // ── Email+senha path ───────────────────────────────────────────────
   { ...edgeBase,   id: "e-cred-valid",        source: "credenciais",target: "valid" },
@@ -228,8 +248,22 @@ const screens = [
     step: "entrada",
     title: "Login",
     href: "/",
-    purpose: "Ponto de entrada da plataforma em /. Três botões lado a lado: e-mail (primeiro), Google e Microsoft. No rodapé, um link discreto 'Ainda não tem conta? Primeiro acesso' direciona quem foi convidado pra /primeiro-acesso. Nenhuma sessão existe ainda.",
-    decisions: "Escolher entre e-mail+senha, Google ou Microsoft. Convidado novo → Primeiro acesso → /primeiro-acesso.",
+    purpose: "Ponto de entrada da plataforma em /. Input de email + 'Continuar' como ação principal. Abaixo do separador 'ou', Google e Microsoft como secundários. No rodapé, link discreto 'Ainda não tem conta? Primeiro acesso' direciona quem foi convidado pra /primeiro-acesso.",
+    decisions: "Digitar email + Continuar → backend (mockado) detecta se o domínio usa SSO empresarial. Senão, vai pra tela de senha com email pré-preenchido. Google ou Microsoft → workspace direto.",
+  },
+  {
+    step: "01b",
+    title: "Domínio tem SSO empresarial?",
+    href: "/",
+    purpose: "Decisão server-side (mockada no front): o domínio do email digitado pertence a uma org com SSO obrigatório? Mockado: @awsales.com e @fyntra.com.br disparam SSO. Qualquer outro domínio segue pra senha.",
+    decisions: "Com SSO → tela 'Conectando ao SSO da [Empresa]'. Sem SSO → tela de senha (email já preenchido).",
+  },
+  {
+    step: "01c",
+    title: "Conectando ao SSO",
+    href: "/",
+    purpose: "Tela de transição com spinner e texto 'Te direcionando pro acesso da [Empresa]'. No mockup, 2 segundos depois pula pro workspace. Em produção, redirect pro IdP corporativo (Okta, Azure AD, etc).",
+    decisions: "Automático após ~2s → seletor de organização.",
   },
   {
     step: "02a / 02c",
@@ -319,6 +353,12 @@ const updates: FlowUpdate[] = [
   {
     date: "2026-05-26",
     summary:
+      "HRD (detecção por domínio) na tela inicial. Os 3 botões viraram: input de email + Continuar como ação principal; Google e Microsoft ficam abaixo do separador 'ou' como secundários. Quando o usuário continua, o domínio do email decide o caminho: @awsales.com ou @fyntra.com.br dispara a tela 'Conectando ao SSO da [Empresa]' (loader 2s → workspace); qualquer outro domínio vai pra tela de senha com email já preenchido. Mockup no front (lista de domínios em components/auth/_types.ts); em produção, o backend resolveria por DNS.",
+    tags: ["flow-rework", "new-page", "new-branch"],
+  },
+  {
+    date: "2026-05-26",
+    summary:
       "Link 'Ainda não tem conta? Primeiro acesso' aparece agora no rodapé da tela inicial e leva pra /primeiro-acesso. A cópia já existia em _copy.ts mas estava órfã. Fecha o ciclo com o flow de primeiro-acesso, que sempre apontou pra esse link a partir da tela de Login.",
     tags: ["integration"],
   },
@@ -373,16 +413,15 @@ export default function LoginAuthFlowPage() {
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
         <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
-          A tela inicial em <code className="text-[var(--fg-primary)]">/</code> oferece três
-          caminhos: Google (corredor esquerdo), e-mail&nbsp;+&nbsp;senha (espinha central) e
-          Microsoft (corredor direito). Na tela de e-mail+senha, abaixo do botão Entrar, ainda há
-          a opção de pedir um magic link no e-mail em vez de digitar a senha. Quem usa senha sempre
-          passa pela verificação por código de 6 dígitos. OAuth e magic link pulam essa etapa —
-          o próprio provedor ou o link já autenticam. Todos convergem no seletor de organização:
-          se o usuário pertence a mais de uma org, escolhe uma; se não, passa direto. Em seguida
-          vêm as decisões de primeiro acesso e plano novo pendente. "Esqueci a senha" reusa a
-          verificação por e-mail do login — quem esqueceu entra via OTP, sem precisar redefinir
-          a senha primeiro.
+          A tela inicial em <code className="text-[var(--fg-primary)]">/</code> agora começa por um
+          input de email + Continuar (HRD). Quando o usuário continua, o domínio decide o caminho:
+          se for uma empresa com SSO obrigatório (mock: @awsales.com, @fyntra.com.br) o usuário
+          vê uma tela curta 'Conectando ao SSO da [Empresa]' e cai no seletor de organização. Caso
+          contrário, vai pra tela de senha com email já preenchido. Google e Microsoft seguem como
+          opções secundárias abaixo do separador 'ou'. Quem usa senha passa pela verificação por
+          código de 6 dígitos; OAuth, SSO e magic link pulam essa etapa. Todos convergem no seletor
+          de organização. "Esqueci a senha" reusa a verificação por e-mail do login — quem esqueceu
+          entra via OTP, sem precisar redefinir a senha primeiro.
         </p>
 
         <Section
@@ -421,9 +460,15 @@ export default function LoginAuthFlowPage() {
         <Section id="design-notes" title="Decisões de design" lead="Por que o fluxo está estruturado desse jeito.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Três caminhos equivalentes na entrada</div>
+              <div className="aw-eyebrow mb-2">Entrada por email + HRD</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Tela inicial mostra e-mail, Google e Microsoft lado a lado, sem hierarquia. E-mail vem primeiro porque cobre quem ainda não configurou OAuth. Os botões de OAuth são corporativos (Google Workspace, Microsoft Azure) — não aparecem rotulados como tal, é só "Continuar com Google" e "Continuar com Microsoft". No rodapé, um link discreto 'Primeiro acesso' atende quem foi convidado e ainda não criou conta.
+                Tela inicial é input de email + Continuar (não 3 botões). O domínio decide o caminho: empresa com SSO obrigatório dispara tela rápida 'Conectando ao SSO da [Empresa]'; domínio livre vai pra tela de senha. Google e Microsoft ficam abaixo do 'ou' como opções secundárias. Link 'Primeiro acesso' no rodapé pra quem foi convidado e ainda não criou conta.
+              </p>
+            </div>
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">SSO empresarial sem fricção</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                Quem usa email corporativo de uma org com SSO obrigatório pula a tela de senha e a verificação por código. O usuário vê apenas uma tela curta 'Te direcionando pro acesso da [Empresa]' antes de cair no workspace. No mockup, 2 domínios disparam SSO (awsales.com, fyntra.com.br) — em produção, é o backend que resolve por DNS.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
