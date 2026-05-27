@@ -4551,3 +4551,93 @@
     animation: none;
   }
 }
+
+/* ============================================================
+ * Bombardier login — title-card landing with centered login box.
+ * Page background and wordmark switch via prefers-color-scheme;
+ * inner Aw components inherit theme from .dark on the wrapper.
+ * ============================================================ */
+.bombardier-login-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  overflow-x: hidden;
+  background: var(--bg-canvas);
+  color: var(--fg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7rem 1.5rem 4rem;
+}
+
+.bombardier-login-wordmark {
+  position: absolute;
+  top: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130vw;
+  aspect-ratio: 2331 / 172;
+  background-color: rgba(0, 0, 0, 0.55);
+  -webkit-mask-image: url("/assets/brand/bombardier-wordmark.svg");
+  mask-image: url("/assets/brand/bombardier-wordmark.svg");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+  user-select: none;
+}
+
+.bombardier-login-page.dark .bombardier-login-wordmark {
+  background-color: rgba(255, 255, 255, 0.76);
+}
+
+.bombardier-login-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.bombardier-login-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bombardier-login-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 0;
+  color: var(--fg-primary);
+}
+
+.bombardier-login-subtitle {
+  font-size: 0.875rem;
+  color: var(--fg-secondary);
+  margin: 0;
+}
+
+.bombardier-login-foot {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--fg-secondary);
+  margin: 0;
+}
+
+.bombardier-login-foot-link {
+  color: var(--fg-primary);
+  text-decoration: none;
+}
+
+.bombardier-login-foot-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

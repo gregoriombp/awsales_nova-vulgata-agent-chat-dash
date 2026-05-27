@@ -33,9 +33,11 @@ export default function BombardierLogin() {
       className={`bombardier-login-page${isDark ? " dark" : ""}`}
       data-theme={isDark ? "dark" : "light"}
     >
-      <div className="bombardier-login-wordmark" aria-hidden="true">
-        BOMBARDIER
-      </div>
+      <div
+        className="bombardier-login-wordmark"
+        role="img"
+        aria-label="Bombardier"
+      />
 
       <div className="bombardier-login-content">
         <header className="bombardier-login-header">
@@ -108,8 +110,8 @@ export default function BombardierLogin() {
 
         <p className="bombardier-login-foot">
           Não tem acesso?{" "}
-          <Link href="#" className="bombardier-login-foot-link">
-            Solicitar conta
+          <Link href="/primeiro-acesso" className="bombardier-login-foot-link">
+            Criar conta
           </Link>
         </p>
       </div>
