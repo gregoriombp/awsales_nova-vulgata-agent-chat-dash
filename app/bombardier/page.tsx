@@ -84,7 +84,7 @@ export default function BombardierHub() {
               <AwPill variant="live">Ativo</AwPill>
             </div>
             <div className="mt-2">
-              <Link href="/inicio" className="no-underline">
+              <Link href="/awsales/login" className="no-underline">
                 <AwButton variant="primary" iconRight="arrow_forward">
                   Abrir projeto
                 </AwButton>
