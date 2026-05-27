@@ -81,7 +81,7 @@ function groupByMonth(rows: InvoiceHistoryRow[]): MonthGroup[] {
 export default function HistoricoFaturasPage() {
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [query, setQuery] = React.useState("");
-  const [statuses, setStatuses] = React.useState<InvoiceStatus[]>([]);
+  const [statuses, setStatuses] = React.useState<InvoiceStatus[]>(ALL_STATUSES);
   const [period, setPeriod] = React.useState<string>("Todo o período");
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
@@ -89,7 +89,7 @@ export default function HistoricoFaturasPage() {
   const rows = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return INVOICE_HISTORY.filter((r) => {
-      if (statuses.length > 0 && !statuses.includes(r.status)) return false;
+      if (!statuses.includes(r.status)) return false;
       if (!q) return true;
       return (
         r.id.toLowerCase().includes(q) ||
@@ -272,21 +272,23 @@ function StatusFilter({
     );
   };
 
-  const triggerLabel =
-    selected.length === 0
-      ? "Todos os status"
-      : selected.length === 1
-        ? selected[0]
+  const allSelected = selected.length === ALL_STATUSES.length;
+  const triggerLabel = allSelected
+    ? "Todos os status"
+    : selected.length === 1
+      ? selected[0]
+      : selected.length === 0
+        ? "Nenhum status"
         : `Status · ${selected.length}`;
 
   const items: AwDropdownItem[] = [
     {
       id: "all",
-      label: "Todos os status",
+      label: "Selecionar todos",
       icon: "done_all",
       closeOnSelect: false,
-      onSelect: () => onChange([]),
-      disabled: selected.length === 0,
+      onSelect: () => onChange(ALL_STATUSES),
+      disabled: allSelected,
     },
     { id: "sep", separator: true },
     ...ALL_STATUSES.map((s) => ({
