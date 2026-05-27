@@ -152,11 +152,12 @@ export default function ReviewModeFoundationPage() {
                 (escutando a LAN).
               </li>
               <li>
-                Descubra seu IP local (ex.:{" "}
+                Pegue seu hostname mDNS (ex.:{" "}
                 <code className="font-mono text-xs">
-                  ipconfig getifaddr en0
+                  echo "$(hostname -s).local"
                 </code>{" "}
-                no macOS) e compartilhe com o time.
+                no macOS) e compartilhe com o time — sobrevive a troca de
+                WiFi sem reconfigurar.
               </li>
             </ol>
           </div>
@@ -175,7 +176,7 @@ export default function ReviewModeFoundationPage() {
               localStorage pro bridge. Apague pra voltar pro modo local.
             </p>
             <pre className="m-0 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] p-3 text-[12px] font-mono whitespace-pre-wrap">
-              {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://192.168.0.10:9878
+              {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://<hostname>.local:9878
 NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
             </pre>
             <p className="m-0 text-xs text-[var(--fg-tertiary)] flex items-start gap-1.5">
