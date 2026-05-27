@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type MouseEvent as ReactMouseEvent } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react"
 import {
   addEdge,
   Background,
@@ -437,6 +437,98 @@ const NEW_DECISION_DATA: DecisionData = {
   question: "Qual condição o fluxo está avaliando aqui?",
 }
 
+/* ─────────────────────────────────────────────────────────────────────
+ * History snapshot + auto-layout helpers
+ * ──────────────────────────────────────────────────────────────────── */
+
+type FlowSnapshot = { nodes: Node[]; edges: Edge[] }
+
+function cloneSnapshot(s: FlowSnapshot): FlowSnapshot {
+  return {
+    nodes: s.nodes.map((n) => structuredClone(n)),
+    edges: s.edges.map((e) => structuredClone(e)),
+  }
+}
+
+// Simple top-to-bottom BFS layout. Roots (no incoming edges) sit at y=0;
+// each child sits one level below its parent. Siblings spread horizontally.
+function autoLayout(nodes: Node[], edges: Edge[]): Node[] {
+  if (nodes.length === 0) return nodes
+
+  const children = new Map<string, string[]>()
+  const incoming = new Map<string, number>()
+  for (const n of nodes) {
+    children.set(n.id, [])
+    incoming.set(n.id, 0)
+  }
+  for (const e of edges) {
+    children.get(e.source)?.push(e.target)
+    incoming.set(e.target, (incoming.get(e.target) ?? 0) + 1)
+  }
+
+  const level = new Map<string, number>()
+  const roots = nodes.filter((n) => (incoming.get(n.id) ?? 0) === 0)
+  const seeds = roots.length > 0 ? roots : [nodes[0]]
+  const queue: { id: string; lvl: number }[] = seeds.map((n) => ({ id: n.id, lvl: 0 }))
+  while (queue.length > 0) {
+    const { id, lvl } = queue.shift()!
+    const cur = level.get(id)
+    if (cur !== undefined && cur >= lvl) continue
+    level.set(id, lvl)
+    for (const child of children.get(id) ?? []) {
+      queue.push({ id: child, lvl: lvl + 1 })
+    }
+  }
+
+  // Isolated nodes (no path from any root) → park them below the deepest level.
+  const maxLvl = level.size > 0 ? Math.max(...Array.from(level.values())) : 0
+  for (const n of nodes) {
+    if (!level.has(n.id)) level.set(n.id, maxLvl + 2)
+  }
+
+  const byLevel = new Map<number, string[]>()
+  for (const [id, lvl] of level) {
+    if (!byLevel.has(lvl)) byLevel.set(lvl, [])
+    byLevel.get(lvl)!.push(id)
+  }
+
+  const GAP_X = 280
+  const GAP_Y = 180
+  const CX = 400
+  const positions = new Map<string, { x: number; y: number }>()
+  for (const [lvl, ids] of byLevel) {
+    const count = ids.length
+    ids.forEach((id, i) => {
+      positions.set(id, {
+        x: CX + (i - (count - 1) / 2) * GAP_X,
+        y: lvl * GAP_Y,
+      })
+    })
+  }
+
+  return nodes.map((n) => ({ ...n, position: positions.get(n.id) ?? n.position }))
+}
+
+// Strips ReactFlow-internal flags (selected, dragging, etc.) so the prompt
+// JSON stays focused on the structural fields Claude needs.
+function cleanForPrompt(nodes: Node[], edges: Edge[]) {
+  const cleanNodes = nodes.map((n) => ({
+    id: n.id,
+    type: n.type,
+    position: { x: Math.round(n.position.x), y: Math.round(n.position.y) },
+    data: n.data,
+  }))
+  const cleanEdges = edges.map((e) => ({
+    id: e.id,
+    source: e.source,
+    target: e.target,
+    ...(e.sourceHandle ? { sourceHandle: e.sourceHandle } : {}),
+    ...(e.targetHandle ? { targetHandle: e.targetHandle } : {}),
+    ...(e.label ? { label: e.label } : {}),
+  }))
+  return { nodes: cleanNodes, edges: cleanEdges }
+}
+
 export function FlowDiagram({
   flow,
   nodes: canonicalNodes,
@@ -455,10 +547,18 @@ export function FlowDiagram({
   const [previewSugg, setPreviewSugg] = useState<Suggestion | null>(null)
   const [showSave, setShowSave] = useState(false)
   const [showReview, setShowReview] = useState(false)
+  const [showPromptModal, setShowPromptModal] = useState(false)
   const [desc, setDesc] = useState("")
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [previewScreen, setPreviewScreen] = useState<ScreenData | null>(null)
+  const [snapEnabled, setSnapEnabled] = useState(true)
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [historyLength, setHistoryLength] = useState(0)
+
+  const historyRef = useRef<FlowSnapshot[]>([])
+  const skipPushRef = useRef(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { suggestions, error, create, transition } = useFlowSuggestions(flow)
 
@@ -484,11 +584,29 @@ export function FlowDiagram({
     [editMode, previewSugg],
   )
 
+  const resetHistory = useCallback((snap: FlowSnapshot) => {
+    historyRef.current = [cloneSnapshot(snap)]
+    setHistoryIndex(0)
+    setHistoryLength(1)
+  }, [])
+
+  const pushHistory = useCallback((snap: FlowSnapshot) => {
+    setHistoryIndex((idx) => {
+      const truncated = historyRef.current.slice(0, idx + 1)
+      const next = [...truncated, cloneSnapshot(snap)].slice(-50)
+      historyRef.current = next
+      setHistoryLength(next.length)
+      return next.length - 1
+    })
+  }, [])
+
   function enterEdit() {
+    skipPushRef.current = true
     setEditNodes(canonicalNodes.map((n) => ({ ...n })))
     setEditEdges(canonicalEdges.map((e) => ({ ...e })))
     setPreviewSugg(null)
     setEditMode(true)
+    resetHistory({ nodes: canonicalNodes, edges: canonicalEdges })
   }
 
   function cancelEdit() {
@@ -496,6 +614,9 @@ export function FlowDiagram({
     setEditEdges(canonicalEdges.map((e) => ({ ...e })))
     setEditingNodeId(null)
     setEditMode(false)
+    historyRef.current = []
+    setHistoryIndex(-1)
+    setHistoryLength(0)
   }
 
   function addNode(kind: "screen" | "decision") {
@@ -550,6 +671,89 @@ export function FlowDiagram({
     setEditMode(false)
     setShowReview(false)
   }
+
+  const undo = useCallback(() => {
+    if (historyIndex <= 0) return
+    const prev = historyRef.current[historyIndex - 1]
+    skipPushRef.current = true
+    setEditNodes(prev.nodes.map((n) => structuredClone(n)))
+    setEditEdges(prev.edges.map((e) => structuredClone(e)))
+    setHistoryIndex(historyIndex - 1)
+  }, [historyIndex, setEditNodes, setEditEdges])
+
+  const redo = useCallback(() => {
+    if (historyIndex >= historyLength - 1) return
+    const next = historyRef.current[historyIndex + 1]
+    skipPushRef.current = true
+    setEditNodes(next.nodes.map((n) => structuredClone(n)))
+    setEditEdges(next.edges.map((e) => structuredClone(e)))
+    setHistoryIndex(historyIndex + 1)
+  }, [historyIndex, historyLength, setEditNodes, setEditEdges])
+
+  const applyAutoLayout = useCallback(() => {
+    setEditNodes((prev) => autoLayout(prev, editEdges))
+  }, [editEdges, setEditNodes])
+
+  const duplicateSelected = useCallback(() => {
+    const selected = editNodes.filter((n) => n.selected)
+    if (selected.length === 0) return
+    const dupes = selected.map((n) => ({
+      ...structuredClone(n),
+      id: nextNodeId(),
+      position: { x: n.position.x + 40, y: n.position.y + 40 },
+      selected: true,
+    }))
+    setEditNodes((prev) => [
+      ...prev.map((n) => ({ ...n, selected: false })),
+      ...dupes,
+    ])
+  }, [editNodes, setEditNodes])
+
+  const canUndo = editMode && historyIndex > 0
+  const canRedo = editMode && historyIndex >= 0 && historyIndex < historyLength - 1
+
+  // Debounced history push — captures the latest editNodes/editEdges 250ms
+  // after the last change. skipPushRef short-circuits the push triggered by
+  // an undo/redo (which itself called setEditNodes/setEditEdges).
+  useEffect(() => {
+    if (!editMode) return
+    if (skipPushRef.current) {
+      skipPushRef.current = false
+      return
+    }
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      pushHistory({ nodes: editNodes, edges: editEdges })
+    }, 250)
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
+  }, [editNodes, editEdges, editMode, pushHistory])
+
+  // Keyboard shortcuts — only active in edit mode and when not typing.
+  useEffect(() => {
+    if (!editMode) return
+    function onKeyDown(e: KeyboardEvent) {
+      const target = e.target as HTMLElement | null
+      if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable)) {
+        return
+      }
+      const cmd = e.metaKey || e.ctrlKey
+      const key = e.key.toLowerCase()
+      if (cmd && !e.shiftKey && key === "z") {
+        e.preventDefault()
+        undo()
+      } else if (cmd && ((e.shiftKey && key === "z") || key === "y")) {
+        e.preventDefault()
+        redo()
+      } else if (cmd && key === "d") {
+        e.preventDefault()
+        duplicateSelected()
+      }
+    }
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [editMode, undo, redo, duplicateSelected])
 
   const editingNode = editingNodeId ? editNodes.find((n) => n.id === editingNodeId) ?? null : null
 
@@ -608,6 +812,10 @@ export function FlowDiagram({
             nodesConnectable={editMode}
             elementsSelectable={editMode}
             deleteKeyCode={editMode ? ["Backspace", "Delete"] : null}
+            multiSelectionKeyCode={editMode ? ["Meta", "Control"] : null}
+            selectionKeyCode={editMode ? "Shift" : null}
+            snapToGrid={editMode && snapEnabled}
+            snapGrid={[20, 20]}
             fitView
             fitViewOptions={{ padding: 0.12 }}
             proOptions={{ hideAttribution: true }}
@@ -626,6 +834,8 @@ export function FlowDiagram({
                     <span className="text-[var(--aw-amber-500)]">·</span>
                     <button onClick={() => setShowSave(true)} className="text-[var(--aw-amber-900)] font-semibold hover:underline">Salvar</button>
                     <span className="text-[var(--aw-amber-500)]">·</span>
+                    <button onClick={() => setShowPromptModal(true)} className="text-[var(--aw-amber-900)] font-semibold hover:underline">Copiar prompt</button>
+                    <span className="text-[var(--aw-amber-500)]">·</span>
                     <button onClick={cancelEdit} className="text-[var(--aw-amber-700)] hover:text-[var(--aw-amber-900)]">Cancelar</button>
                   </div>
                 </Panel>
@@ -639,7 +849,50 @@ export function FlowDiagram({
                     <button onClick={() => addNode("decision")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-[var(--aw-amber-900)] font-medium hover:bg-[var(--aw-amber-200)] transition">
                       + Decisão
                     </button>
-                    <span className="text-[var(--fg-tertiary)] ml-1">·  arraste das bolinhas pra conectar  ·  selecione + Delete pra remover</span>
+
+                    <span className="w-px h-4 bg-[var(--border-default)] mx-1" />
+
+                    <button
+                      onClick={undo}
+                      disabled={!canUndo}
+                      title="Desfazer (⌘Z)"
+                      aria-label="Desfazer"
+                      className="px-2 py-1 rounded-[var(--radius-sm)] text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--fg-secondary)] transition"
+                    >
+                      ↶
+                    </button>
+                    <button
+                      onClick={redo}
+                      disabled={!canRedo}
+                      title="Refazer (⌘⇧Z)"
+                      aria-label="Refazer"
+                      className="px-2 py-1 rounded-[var(--radius-sm)] text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--fg-secondary)] transition"
+                    >
+                      ↷
+                    </button>
+
+                    <span className="w-px h-4 bg-[var(--border-default)] mx-1" />
+
+                    <button
+                      onClick={() => setSnapEnabled((v) => !v)}
+                      title={snapEnabled ? "Snap ligado — desligar" : "Snap desligado — ligar"}
+                      className={
+                        snapEnabled
+                          ? "px-2 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] text-[var(--aw-blue-800)] font-medium transition"
+                          : "px-2 py-1 rounded-[var(--radius-sm)] border border-transparent text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                      }
+                    >
+                      Snap
+                    </button>
+                    <button
+                      onClick={applyAutoLayout}
+                      title="Reorganizar nós em colunas top-to-bottom"
+                      className="px-2 py-1 rounded-[var(--radius-sm)] border border-transparent text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] transition"
+                    >
+                      Auto-layout
+                    </button>
+
+                    <span className="text-[var(--fg-tertiary)] ml-1">· ⇧+arraste seleciona · ⌘D duplica · Delete remove</span>
                   </div>
                 </Panel>
               </>
@@ -763,11 +1016,189 @@ export function FlowDiagram({
         />
       )}
 
+      {showPromptModal && (
+        <CopyPromptModal
+          flow={flow}
+          nodes={editMode ? editNodes : canonicalNodes}
+          edges={editMode ? editEdges : canonicalEdges}
+          onClose={() => setShowPromptModal(false)}
+        />
+      )}
+
       <ScreenPreviewDrawer
         screen={previewScreen}
         onClose={() => setPreviewScreen(null)}
       />
     </FlowEditorContext.Provider>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * CopyPromptModal — produces a copy-pasteable prompt with the flow's
+ * NODES/EDGES embedded as JSON. Two modes: ask Claude to apply the
+ * edit to this flow's page.tsx, or to scaffold the product routes
+ * from the flow's screen nodes.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function CopyPromptModal({
+  flow,
+  nodes,
+  edges,
+  onClose,
+}: {
+  flow: string
+  nodes: Node[]
+  edges: Edge[]
+  onClose: () => void
+}) {
+  const [mode, setMode] = useState<"flow-update" | "product-routes">("flow-update")
+  const [copied, setCopied] = useState(false)
+
+  const prompt = useMemo(() => {
+    const clean = cleanForPrompt(nodes, edges)
+    if (mode === "flow-update") {
+      return [
+        `Por favor, atualize o flow \`${flow}\` no styleguide com a estrutura abaixo.`,
+        ``,
+        `Arquivo: \`app/bombardier/styleguide/ux-flows/${flow}/page.tsx\``,
+        `- Substitua os arrays \`NODES\` e \`EDGES\` pelos JSONs abaixo`,
+        `- Mantenha o resto da página (PageHero, Section, lista de screens, decisões de design)`,
+        `- Para arestas, decida entre \`edgeBase\` (linha cinza) e \`branchEdge\` (linha âmbar) pelo contexto — saídas de nó \`decision\` viram \`branchEdge\``,
+        `- Adicione uma entrada no topo do array \`updates\` descrevendo a mudança`,
+        ``,
+        `NODES:`,
+        "```json",
+        JSON.stringify(clean.nodes, null, 2),
+        "```",
+        ``,
+        `EDGES:`,
+        "```json",
+        JSON.stringify(clean.edges, null, 2),
+        "```",
+      ].join("\n")
+    }
+
+    const screens = clean.nodes.filter((n) => n.type === "screen")
+    const screenList = screens
+      .map((s) => {
+        const data = s.data as ScreenData
+        return `- \`${data.href}\` — ${data.title}${data.note ? ` — ${data.note}` : ""}`
+      })
+      .join("\n")
+
+    return [
+      `Por favor, scaffold as rotas reais do produto baseadas no flow \`${flow}\`.`,
+      ``,
+      `Para cada nó "screen" com href começando com \`/\` (rota interna do produto):`,
+      `- Crie \`app/<href>/page.tsx\` com layout do app e título da tela`,
+      `- Reuse componentes existentes do styleguide; só crie componentes novos como último recurso`,
+      `- Não crie páginas para nós "decision" — são só pontos lógicos`,
+      ``,
+      `Screens a criar:`,
+      screenList || "(nenhuma screen com href interno encontrada)",
+      ``,
+      `Flow completo (JSON pra contexto):`,
+      "```json",
+      JSON.stringify({ flow, ...clean }, null, 2),
+      "```",
+    ].join("\n")
+  }, [flow, nodes, edges, mode])
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(prompt)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    } catch {
+      // clipboard blocked — silently ignore
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
+      <div
+        className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-xl mx-4 flex flex-col max-h-[85vh] overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-6 pb-0 flex flex-col gap-1.5">
+          <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Copiar prompt pro Claude</h2>
+          <p className="text-sm text-[var(--fg-secondary)] m-0 leading-relaxed">
+            Cola no chat com o Claude. O JSON dos nós e arestas vai dentro do prompt.
+          </p>
+        </div>
+
+        <div className="px-6 pt-4 flex flex-col gap-2">
+          <span className="text-xs font-medium text-[var(--fg-secondary)] uppercase tracking-wide">O que o Claude deve fazer?</span>
+          <div className="flex flex-col gap-1.5">
+            <label
+              className={
+                mode === "flow-update"
+                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--aw-blue-400)] bg-[var(--aw-blue-100)] transition"
+                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--border-default)] hover:bg-[var(--bg-muted)] transition"
+              }
+            >
+              <input
+                type="radio"
+                checked={mode === "flow-update"}
+                onChange={() => setMode("flow-update")}
+                className="mt-0.5"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium text-[var(--fg-primary)]">Atualizar este flow no styleguide</span>
+                <span className="text-xs text-[var(--fg-secondary)] leading-snug">
+                  Substitui <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">NODES</code> e <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">EDGES</code> no <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">page.tsx</code> deste flow e adiciona entrada em <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">updates</code>.
+                </span>
+              </span>
+            </label>
+
+            <label
+              className={
+                mode === "product-routes"
+                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--aw-blue-400)] bg-[var(--aw-blue-100)] transition"
+                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--border-default)] hover:bg-[var(--bg-muted)] transition"
+              }
+            >
+              <input
+                type="radio"
+                checked={mode === "product-routes"}
+                onChange={() => setMode("product-routes")}
+                className="mt-0.5"
+              />
+              <span className="flex flex-col gap-0.5">
+                <span className="text-sm font-medium text-[var(--fg-primary)]">Criar rotas do produto</span>
+                <span className="text-xs text-[var(--fg-secondary)] leading-snug">
+                  Scaffold <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">app/&lt;href&gt;/page.tsx</code> pra cada screen. Decisões não viram página.
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <details className="px-6 pt-4">
+          <summary className="cursor-pointer text-xs font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] select-none">
+            Preview do prompt
+          </summary>
+          <pre className="mt-2 text-[10px] leading-relaxed bg-[var(--bg-canvas)] border border-[var(--border-subtle)] rounded-[var(--radius-sm)] p-3 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono text-[var(--fg-secondary)]">
+            {prompt}
+          </pre>
+        </details>
+
+        <div className="mt-4 p-4 px-6 flex justify-end gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+          >
+            Fechar
+          </button>
+          <button
+            onClick={copy}
+            className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] transition"
+          >
+            {copied ? "Copiado!" : "Copiar prompt"}
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
