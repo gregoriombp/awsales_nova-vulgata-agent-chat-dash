@@ -1,11 +1,20 @@
 "use client";
 
+import { Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import DashboardLayout from "@/components/DashboardLayout";
 import { AwWhatsAppPanel } from "@/components/integrations/AwWhatsAppPanel";
 import { Icon } from "@/components/ui/Icon";
 
 export default function WhatsAppConfigPage() {
+  return (
+    <Suspense fallback={null}>
+      <WhatsAppConfigContent />
+    </Suspense>
+  );
+}
+
+function WhatsAppConfigContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const openNewTemplate = searchParams.get("new-template") === "1";
