@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { AwLogo } from "./AwLogo"
-import { NeuralPattern } from "@/components/playground/NeuralPattern"
+import { AwNeuralPattern } from "@/components/ui/AwNeuralPattern"
 
 export type AwOnboardingOrg = {
   name: string
@@ -84,7 +84,7 @@ function OnboardingBrandPane({
           className="pointer-events-none absolute left-1/2 top-1/2 z-0 opacity-[0.38]"
           style={{ transform: "translate(-50%, -52%)" }}
         >
-          <NeuralPattern size={720} />
+          <AwNeuralPattern size={720} />
         </div>
       )}
 

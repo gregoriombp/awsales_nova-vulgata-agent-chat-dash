@@ -1,6 +1,6 @@
 import * as React from "react"
 
-export type NeuralPatternProps = {
+export type AwNeuralPatternProps = {
   size?: number
   pulse?: boolean
   className?: string
@@ -14,13 +14,13 @@ const RINGS = [
   { r: 160, count: 68, dot: 2.4 },
 ]
 
-/** Signature "sunburst / neural core" illustration used on Agent Studio V2 home. */
-export function NeuralPattern({
+/** Signature "sunburst / neural core" illustration used on the onboarding shell. */
+export function AwNeuralPattern({
   size = 320,
   pulse = false,
   className,
   style,
-}: NeuralPatternProps) {
+}: AwNeuralPatternProps) {
   const center = size / 2
   const uid = React.useId()
   const coreGradientId = `neural-core-${uid}`
