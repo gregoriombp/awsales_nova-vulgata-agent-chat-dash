@@ -33,6 +33,8 @@ const NOVA_ORG_X   = 540   // "Configurar org adicional" terminal (right of plat
 
 const MAGIC_X = -200  // Magic link screen (left corridor, level with verify)
 const SSO_X   = 540   // SSO connecting screen (right of credenciais, level with credenciais)
+const MFA_SETUP_X  = -200  // Cadeia "Trava → setup TOTP → backup codes" (left corridor)
+const MFA_VERIFY_X = 540   // Tela "Verificação MFA" (right corridor)
 
 const Y = {
   entrada:           0,
@@ -46,11 +48,15 @@ const Y = {
   recEmail:       1000,   // tela "Esqueci a senha" (ERRO_X)
   workspace:      1160,
   resetSenha:     1160,   // tela "Definir nova senha" — fora do flow demo (ERRO_X)
-  primeiroAcessoDec: 1320,
-  primeiroAcesso: 1480,
-  novaOrgDec:     1480,
-  platform:       1640,
-  novaOrgConfig:  1640,
+  policyDec:      1320,   // decisão "Policy da org?" — checa 2FA per-org
+  mfaBranchRow:   1480,   // mfaGate (MFA_SETUP_X) | mfaVerify (MFA_VERIFY_X)
+  mfaSetupApp:    1640,
+  mfaBackupCodes: 1800,
+  primeiroAcessoDec: 1960,
+  primeiroAcesso: 2120,
+  novaOrgDec:     2120,
+  platform:       2280,
+  novaOrgConfig:  2280,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -93,7 +99,7 @@ const NODES: Node[] = [
     id: "valid",
     type: "decision",
     position: { x: COL_D, y: Y.valid },
-    data: { step: "03", title: "Credenciais válidas?", question: "E-mail e senha conferem com os dados cadastrados?" },
+    data: { step: "03", title: "Credenciais válidas?", question: "A senha está correta? (E-mail já foi validado no HRD.)" },
   },
   {
     id: "verify",
@@ -118,6 +124,37 @@ const NODES: Node[] = [
     type: "screen",
     position: { x: COL, y: Y.workspace },
     data: { step: "06", title: "Seletor de organização", href: "/", note: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano). Escolher uma e continuar." },
+  },
+  {
+    id: "policyDec",
+    type: "decision",
+    position: { x: COL_D, y: Y.policyDec },
+    data: { step: "06b", title: "Policy da org?", question: "A organização escolhida exige SSO ou 2FA? O token é cunhado pela própria org neste ponto." },
+  },
+  // ── MFA branch — setup chain (left) e verify (right) ───────────────
+  {
+    id: "mfaGate",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaBranchRow },
+    data: { step: "06c", title: "Trava de 2FA", href: "/awsales/login", note: "Gate quando a org exige 2FA e o usuário ainda não configurou. Método único por enquanto: app autenticador (TOTP). Botões 'Configurar agora' e 'Já tenho o app configurado'. Não há opção de pular." },
+  },
+  {
+    id: "mfaVerify",
+    type: "screen",
+    position: { x: MFA_VERIFY_X, y: Y.mfaBranchRow },
+    data: { step: "06f", title: "Verificação MFA", href: "/awsales/login", note: "Para usuários que já têm TOTP configurado. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback." },
+  },
+  {
+    id: "mfaSetupApp",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaSetupApp },
+    data: { step: "06d", title: "Configurar app autenticador", href: "/awsales/login", note: "Passo 1 de 2 do setup TOTP. QR code pra escanear no Google Authenticator / 1Password / Authy + segredo em texto pra copiar manualmente. Input de 6 dígitos pra confirmar." },
+  },
+  {
+    id: "mfaBackupCodes",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
+    data: { step: "06e", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em um lugar seguro' antes de continuar." },
   },
   {
     id: "primeiroAcessoDec",
@@ -224,8 +261,20 @@ const EDGES: Edge[] = [
 
   // ── Workspace decision: >1 org passa pelo seletor; 1 só pula direto ──
   { ...branchEdge, id: "e-workspacedec-workspace", source: "workspaceDec", target: "workspace",          sourceHandle: "bottom", label: "Mais de 1 org", ...labelProps },
-  { ...branchEdge, id: "e-workspacedec-primacesso",source: "workspaceDec", target: "primeiroAcessoDec",  sourceHandle: "left",   label: "Só 1 org",      ...labelProps },
-  { ...edgeBase,   id: "e-workspace-primacesso",   source: "workspace",    target: "primeiroAcessoDec" },
+  { ...branchEdge, id: "e-workspacedec-policy",    source: "workspaceDec", target: "policyDec",          sourceHandle: "left",   label: "Só 1 org",      ...labelProps },
+  { ...edgeBase,   id: "e-workspace-policy",       source: "workspace",    target: "policyDec" },
+
+  // ── Policy da org? — 2FA per-org ─────────────────────────────────
+  { ...branchEdge, id: "e-policy-mfaGate",         source: "policyDec",    target: "mfaGate",            sourceHandle: "left",   label: "Org exige 2FA · user sem TOTP", ...labelProps },
+  { ...branchEdge, id: "e-policy-mfaVerify",       source: "policyDec",    target: "mfaVerify",          sourceHandle: "right",  label: "User tem TOTP",                 ...labelProps },
+  { ...branchEdge, id: "e-policy-primacesso",      source: "policyDec",    target: "primeiroAcessoDec",  sourceHandle: "bottom", label: "Sem policy adicional",          ...labelProps },
+
+  // ── Setup chain: gate → app → backup → fim ───────────────────────
+  { ...branchEdge, id: "e-mfaGate-already",        source: "mfaGate",      target: "mfaVerify",          label: "Já tenho o app", ...labelProps },
+  { ...edgeBase,   id: "e-mfaGate-setup",          source: "mfaGate",      target: "mfaSetupApp",        label: "Configurar",     ...labelProps },
+  { ...edgeBase,   id: "e-mfaSetup-backup",        source: "mfaSetupApp",  target: "mfaBackupCodes" },
+  { ...edgeBase,   id: "e-mfaBackup-primacesso",   source: "mfaBackupCodes", target: "primeiroAcessoDec" },
+  { ...edgeBase,   id: "e-mfaVerify-primacesso",   source: "mfaVerify",    target: "primeiroAcessoDec" },
 
   // ── Post-auth decisions (D7 onboarding | D8 nova org adicional) ──
   { ...branchEdge, id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
@@ -305,7 +354,42 @@ const screens = [
     title: "Seletor de organização",
     href: "/",
     purpose: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano). User escolhe uma e segue. Só aparece quando o usuário pertence a mais de uma.",
-    decisions: "Selecionar org → primeiro acesso?.",
+    decisions: "Selecionar org → policy da org?.",
+  },
+  {
+    step: "06b",
+    title: "Policy da org?",
+    href: "/",
+    purpose: "Decisão server-side após a escolha de organização: a org exige 2FA? O usuário já tem TOTP configurado? O token de sessão é cunhado por org neste ponto, com as exigências de segurança daquela org específica.",
+    decisions: "Org exige 2FA + user sem TOTP → 'Trava de 2FA'. User tem TOTP → 'Verificação MFA'. Sem policy adicional → primeiro acesso?.",
+  },
+  {
+    step: "06c",
+    title: "Trava de 2FA",
+    href: "/awsales/login",
+    purpose: "Gate explicando que a organização exige 2FA e o usuário precisa configurar agora pra continuar. Método único por enquanto: app autenticador (TOTP) — Google Authenticator, 1Password, Authy, similar. Pré-selecionado por padrão.",
+    decisions: "Configurar agora → tela de setup do app. Já tenho o app configurado → vai pra 'Verificação MFA' (caso raro de quem importou TOTP de outro lugar). Sair → volta pro login.",
+  },
+  {
+    step: "06d",
+    title: "Configurar app autenticador (TOTP)",
+    href: "/awsales/login",
+    purpose: "Passo 1 de 2. QR code grande no centro pra escanear no app autenticador, com o segredo em texto logo abaixo (copy-to-clipboard) pra quem não consegue escanear. Embaixo, input de 6 dígitos pra confirmar que o app foi configurado corretamente.",
+    decisions: "Código correto → códigos de backup. Voltar → trava de 2FA.",
+  },
+  {
+    step: "06e",
+    title: "Códigos de backup",
+    href: "/awsales/login",
+    purpose: "Passo 2 de 2. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    decisions: "Marcar checkbox + Concluir → fim do setup, continua o flow pra primeiro acesso?.",
+  },
+  {
+    step: "06f",
+    title: "Verificação MFA",
+    href: "/awsales/login",
+    purpose: "Para usuários que já configuraram TOTP em sessão anterior. Input de 6 dígitos do app autenticador, centralizado. Link 'Usar código de backup' como fallback quando o usuário perdeu acesso ao app.",
+    decisions: "Código correto → primeiro acesso?. Usar código de backup → tela de entrada de código de backup (não modelada no flow ainda). Sair → volta pro login.",
   },
   {
     step: "→ inline",
@@ -350,6 +434,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-27",
+    summary:
+      "Branch de 2FA por organização após o seletor: decisão 'Policy da org?' com 3 saídas — setup TOTP (gate → app autenticador → códigos de backup), verificação pra quem já tem app, e bypass quando a org não exige.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-26",
     summary:
@@ -429,7 +519,7 @@ export default function LoginAuthFlowPage() {
           title="Fluxograma"
           lead="Todas as telas vivem em /. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
         >
-          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={1680} />
+          <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={2440} />
         </Section>
 
         <Section id="screens" title="Cada tela" lead="Propósito e decisões de cada uma. Todas vivem em /.">
