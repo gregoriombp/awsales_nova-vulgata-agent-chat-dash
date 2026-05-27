@@ -79,22 +79,22 @@ function buildPeople(events: AuditEvent[]): Person[] {
 }
 
 const ALL_PEOPLE: Person[] = buildPeople(AUDIT_EVENTS);
+const ALL_ACTOR_NAMES: string[] = ALL_PEOPLE.map((p) => p.actor);
 
 export default function AuditoriaPage() {
   const [selectedTypes, setSelectedTypes] = React.useState<AuditEventType[]>(
-    [],
+    ALL_TYPES,
   );
-  const [selectedActors, setSelectedActors] = React.useState<string[]>([]);
+  const [selectedActors, setSelectedActors] =
+    React.useState<string[]>(ALL_ACTOR_NAMES);
   const [query, setQuery] = React.useState("");
   const [openInvoiceId, setOpenInvoiceId] = React.useState<string | null>(null);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     return AUDIT_EVENTS.filter((e) => {
-      if (selectedTypes.length > 0 && !selectedTypes.includes(e.type))
-        return false;
-      if (selectedActors.length > 0 && !selectedActors.includes(e.actor))
-        return false;
+      if (!selectedTypes.includes(e.type)) return false;
+      if (!selectedActors.includes(e.actor)) return false;
       if (
         q &&
         !`${e.actor} ${e.action} ${e.meta ?? ""}`.toLowerCase().includes(q)
@@ -113,14 +113,14 @@ export default function AuditoriaPage() {
   );
 
   const clearAll = () => {
-    setSelectedTypes([]);
-    setSelectedActors([]);
+    setSelectedTypes(ALL_TYPES);
+    setSelectedActors(ALL_ACTOR_NAMES);
     setQuery("");
   };
 
   const hasFilters =
-    selectedTypes.length > 0 ||
-    selectedActors.length > 0 ||
+    selectedTypes.length !== ALL_TYPES.length ||
+    selectedActors.length !== ALL_ACTOR_NAMES.length ||
     query.trim().length > 0;
 
   return (
@@ -165,13 +165,6 @@ export default function AuditoriaPage() {
       ) : (
         <AwCard className="!p-0">
           <AwTable>
-            <thead>
-              <tr>
-                <th>Evento</th>
-                <th>Quando</th>
-                <th>Usuário</th>
-              </tr>
-            </thead>
             <tbody>
               {filtered.map((event) => (
                 <EventRow
@@ -374,32 +367,7 @@ function EventRow({
   return (
     <tr>
       <td>
-        <div className="flex flex-col gap-0.5">
-          <span className="body-sm font-medium text-[var(--fg-primary)]">
-            {event.action}
-          </span>
-          {event.meta && (
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
-              <MetaWithInvoiceLink
-                meta={event.meta}
-                onOpenInvoice={onOpenInvoice}
-              />
-            </p>
-          )}
-        </div>
-      </td>
-      <td>
-        <div className="flex flex-col">
-          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
-            {event.date}
-          </span>
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
-            {event.time}
-          </span>
-        </div>
-      </td>
-      <td>
-        <span className="inline-flex items-center gap-2">
+        <span className="inline-flex items-start gap-3">
           <AwAvatar
             size="md"
             src={event.actorAvatar}
@@ -407,15 +375,33 @@ function EventRow({
             initials={getInitials(event.actor)}
             className={isCortex ? "!border-0" : undefined}
           />
-          <span className="flex flex-col">
-            <span className="body-sm font-medium text-[var(--fg-primary)]">
-              {event.actor}
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="body-sm text-[var(--fg-secondary)]">
+              <span className="font-medium text-[var(--fg-primary)]">
+                {event.actor}
+              </span>{" "}
+              {event.action}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">
-              {executorRole(event.executor)}
-            </span>
+            {event.meta && (
+              <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+                <MetaWithInvoiceLink
+                  meta={event.meta}
+                  onOpenInvoice={onOpenInvoice}
+                />
+              </p>
+            )}
           </span>
         </span>
+      </td>
+      <td className="text-right align-top">
+        <div className="flex flex-col items-end">
+          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
+            {event.date}
+          </span>
+          <span className="body-xs text-[var(--fg-tertiary)]">
+            {executorRole(event.executor)}
+          </span>
+        </div>
       </td>
     </tr>
   );
