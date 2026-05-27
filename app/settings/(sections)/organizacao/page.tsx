@@ -39,8 +39,8 @@ export default function OrganizationSettingsPage() {
     [selectedOrgId],
   );
 
-  const [orgName, setOrgName] = useState(currentOrg.data.name);
-  const [orgSlug, setOrgSlug] = useState(currentOrg.slug);
+  const [orgName, setOrgName] = useState<string>(currentOrg.data.name);
+  const [orgSlug, setOrgSlug] = useState<string>(currentOrg.slug);
 
   useEffect(() => {
     setOrgName(currentOrg.data.name);
