@@ -14,6 +14,10 @@
 .claude/settings.local.json
 .claude/skills/
 
+# local agent skill cache (personal — do not share)
+.agents/
+skills-lock.json
+
 # local cursor settings (personal)
 .cursor/settings.json
 .cursor/rules/
