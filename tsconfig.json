@@ -39,6 +39,7 @@
     "node_modules",
     "bridge",
     "bridge-edit",
-    "review-bridge"
+    "review-bridge",
+    "flow-bridge"
   ]
 }
