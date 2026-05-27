@@ -19,6 +19,21 @@ export const CURRENT_INVOICE = {
   },
 };
 
+export const BILLING_PROFILE = {
+  legalName: "AwSales Tecnologia Ltda.",
+  taxId: "47.382.519/0001-04",
+  stateRegistration: "Isento",
+  email: "financeiro@awsales.com.br",
+  address: {
+    line1: "Av. Brigadeiro Faria Lima, 3477",
+    line2: "12º andar · Itaim Bibi",
+    city: "São Paulo",
+    state: "SP",
+    zip: "04538-133",
+    country: "Brasil",
+  },
+};
+
 export const OVERVIEW_KPIS = {
   partialChargeAt: 5229.5,
   accumulated: 891.63,

@@ -10,6 +10,7 @@ import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
 import {
+  BILLING_PROFILE,
   PAYMENT_METHODS,
   type CardBrand,
   type PaymentMethod,
@@ -136,6 +137,8 @@ export default function MetodosPagamentoPage() {
         </ul>
       )}
 
+      <BillingInfoSection />
+
       <AddPaymentMethodModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
@@ -233,6 +236,80 @@ function MethodRow({
           },
         ]}
       />
+    </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Billing info — dados de faturamento usados na nota fiscal
+ * ----------------------------------------------------------------- */
+
+function BillingInfoSection() {
+  const { legalName, taxId, stateRegistration, email, address } =
+    BILLING_PROFILE;
+  const fullAddress = [
+    address.line1,
+    address.line2,
+    `${address.city} · ${address.state} · ${address.zip}`,
+    address.country,
+  ].filter(Boolean);
+
+  return (
+    <section className="flex flex-col gap-5 border-t border-[var(--border-subtle)] pt-8">
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+            Informações de faturamento
+          </h6>
+          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+            Dados usados na emissão da nota fiscal e no envio das cobranças.
+          </p>
+        </div>
+        <AwButton size="sm" variant="secondary" iconLeft="edit">
+          Editar dados
+        </AwButton>
+      </header>
+
+      <dl className="m-0 grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+        <BillingField label="Razão social" value={legalName} />
+        <BillingField label="CNPJ" value={taxId} tabular />
+        <BillingField label="Inscrição estadual" value={stateRegistration} />
+        <BillingField label="E-mail de faturamento" value={email} />
+        <div className="sm:col-span-2">
+          <dt className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
+            Endereço
+          </dt>
+          <dd className="m-0 flex flex-col gap-0.5 body-sm text-[var(--fg-primary)]">
+            {fullAddress.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </dd>
+        </div>
+      </dl>
+    </section>
+  );
+}
+
+function BillingField({
+  label,
+  value,
+  tabular = false,
+}: {
+  label: string;
+  value: string;
+  tabular?: boolean;
+}) {
+  return (
+    <div className="min-w-0">
+      <dt className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">{label}</dt>
+      <dd
+        className={
+          "m-0 body-sm text-[var(--fg-primary)] " +
+          (tabular ? "tabular-nums" : "")
+        }
+      >
+        {value}
+      </dd>
     </div>
   );
 }
