@@ -4,6 +4,7 @@ import { ToastProvider } from "@/lib/contexts/ToastContext";
 import { AwToastProvider } from "@/components/ui/AwToast";
 import { ClaudeEditOverlayProvider } from "@/components/claude-edit/ClaudeEditOverlayProvider";
 import { ReviewModeProvider } from "@/components/bombardier-review/ReviewModeProvider";
+import { BombardierDot } from "@/components/bombardier/BombardierDot";
 import { DesktopOnlyBlocker } from "@/components/DesktopOnlyBlocker";
 
 const claudeEditEnabled =
@@ -11,6 +12,9 @@ const claudeEditEnabled =
 
 const reviewModeEnabled =
   process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_ENABLED === "true";
+
+const bombardierDotEnabled =
+  process.env.NEXT_PUBLIC_BOMBARDIER_DOT_DISABLED !== "true";
 
 export const metadata: Metadata = {
   title: "AwSales",
@@ -51,6 +55,7 @@ export default function RootLayout({
             <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
             {claudeEditEnabled && <ClaudeEditOverlayProvider />}
             {reviewModeEnabled && <ReviewModeProvider />}
+            {bombardierDotEnabled && <BombardierDot />}
           </AwToastProvider>
         </ToastProvider>
       </body>
