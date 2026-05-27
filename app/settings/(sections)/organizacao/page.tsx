@@ -57,45 +57,41 @@ export default function OrganizationSettingsPage() {
       <SettingsPageHeader
         title="Organização"
         description="Como sua empresa aparece nos agentes, conversas e exportações."
-      />
-
-      <AwDropdownMenu
-        align="start"
-        trigger={
-          <button
-            type="button"
-            className="mb-6 inline-flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
-          >
-            <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
-              <img
-                src={currentOrg.data.logo}
-                alt=""
-                width={32}
-                height={32}
-                style={{ objectFit: "cover" }}
-              />
-            </span>
-            <span className="flex min-w-0 flex-col">
-              <span className="aw-eyebrow text-[var(--fg-tertiary)]">
-                Organização
-              </span>
-              <span className="body-sm font-medium text-[var(--fg-primary)]">
-                {currentOrg.data.name}
-              </span>
-            </span>
-            <Icon
-              name="expand_more"
-              size={18}
-              className="text-[var(--fg-tertiary)]"
-            />
-          </button>
+        trailing={
+          <AwDropdownMenu
+            align="end"
+            trigger={
+              <button
+                type="button"
+                className="inline-flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+              >
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+                  <img
+                    src={currentOrg.data.logo}
+                    alt=""
+                    width={32}
+                    height={32}
+                    style={{ objectFit: "cover" }}
+                  />
+                </span>
+                <span className="body-sm font-medium text-[var(--fg-primary)]">
+                  {currentOrg.data.name}
+                </span>
+                <Icon
+                  name="expand_more"
+                  size={18}
+                  className="text-[var(--fg-tertiary)]"
+                />
+              </button>
+            }
+            items={ORGS.map((o) => ({
+              id: o.id,
+              label: o.data.name,
+              checked: o.id === selectedOrgId,
+              onSelect: () => setSelectedOrgId(o.id),
+            }))}
+          />
         }
-        items={ORGS.map((o) => ({
-          id: o.id,
-          label: o.data.name,
-          checked: o.id === selectedOrgId,
-          onSelect: () => setSelectedOrgId(o.id),
-        }))}
       />
 
       <AwCard className="!p-0">
