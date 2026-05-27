@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
+import { MoneyHeading } from "../_components/MoneyHeading";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   brl,
@@ -147,12 +148,7 @@ function ConsumptionHero({
         <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
           Consumo variável · ciclo atual
         </p>
-        <h1 className="m-0 display-md tabular-nums text-[var(--fg-primary)]">
-          <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
-            R$
-          </span>
-          {brl(accumulated).replace(/^R\$\s*/, "")}
-        </h1>
+        <MoneyHeading value={accumulated} size="md" as="h1" />
         <p className="m-0 max-w-[600px] body-xs text-[var(--fg-secondary)]">
           Seu limite é de{" "}
           <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
