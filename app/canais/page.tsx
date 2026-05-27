@@ -327,7 +327,6 @@ export default function CanaisPage() {
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
             <AwPageHeader
-              icon="forum"
               title="Canais"
               description="Conecte os canais por onde seus agentes vão conversar com clientes — WhatsApp, Instagram, Messenger e mais."
               actions={

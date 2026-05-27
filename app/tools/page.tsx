@@ -968,8 +968,7 @@ export default function ToolsPage() {
           {/* ---------------- Header ---------------- */}
           <header className="mb-8 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
             <div>
-              <h3 className="m-0 mb-1.5 flex items-center gap-2.5 text-[var(--fg-primary)]">
-                <Icon name="handyman" size={28} />
+              <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
                 Habilidades
               </h3>
               <p className="m-0 max-w-[600px] body-sm text-[var(--fg-secondary)]">

@@ -1187,8 +1187,7 @@ export default function IntegrationsPage() {
             {/* Header */}
             <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
               <div>
-                <h3 className="m-0 mb-1.5 flex items-center gap-2.5 text-[var(--fg-primary)]">
-                  <Icon name="extension" size={28} />
+                <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
                   Integrações
                 </h3>
                 <p className="m-0 max-w-[560px] body-sm text-[var(--fg-secondary)]">
