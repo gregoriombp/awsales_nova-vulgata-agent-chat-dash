@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { PaymentMethodCard } from "@/components/playground/PaymentMethodCard"
+import { AwPaymentMethodCard } from "@/components/ui/AwPaymentMethodCard"
 import { pickCoverBackground } from "@/app/settings/(sections)/equipe-permissoes/_components/data"
 import { AwButton } from "@/components/ui/AwButton"
 import {
@@ -19,7 +19,7 @@ const COVER_A = pickCoverBackground("u-greg")
 const COVER_B = pickCoverBackground("u-bia")
 const COVER_C = pickCoverBackground("u-luca")
 
-export default function PaymentMethodCardPage() {
+export default function AwPaymentMethodCardPage() {
   return (
     <>
       <PageHero title="Payment method card">
@@ -60,7 +60,7 @@ export default function PaymentMethodCardPage() {
             hint="O caso real do /metodos-pagamento. Capa do perfil por trás, badge 'Pagamento principal' no canto, ações abaixo do card."
           >
             <div className="flex flex-col gap-3 py-6">
-              <PaymentMethodCard
+              <AwPaymentMethodCard
                 brand="visa"
                 last4="7852"
                 isDefault
@@ -89,7 +89,7 @@ export default function PaymentMethodCardPage() {
             hint="Quando não houver imagem disponível, o card cai num gradient blue → purple → blue-1100."
           >
             <div className="max-w-[360px] py-6">
-              <PaymentMethodCard
+              <AwPaymentMethodCard
                 brand="mastercard"
                 last4="4242"
                 isDefault
@@ -104,14 +104,14 @@ export default function PaymentMethodCardPage() {
             hint="A bandeira é renderizada em size='md' no canto superior direito."
           >
             <div className="grid grid-cols-1 gap-6 py-6 lg:grid-cols-2">
-              <PaymentMethodCard
+              <AwPaymentMethodCard
                 brand="amex"
                 last4="0005"
                 coverImage={COVER_B}
                 holderName="Lucas Vieira"
                 expiresAt="11/2026"
               />
-              <PaymentMethodCard
+              <AwPaymentMethodCard
                 brand="elo"
                 last4="1234"
                 coverImage={COVER_C}
@@ -127,7 +127,7 @@ export default function PaymentMethodCardPage() {
             hint="Holder e validade são opcionais — o card colapsa o rodapé quando ambos faltam."
           >
             <div className="max-w-[360px] py-6">
-              <PaymentMethodCard brand="visa" last4="7852" coverImage={COVER_A} />
+              <AwPaymentMethodCard brand="visa" last4="7852" coverImage={COVER_A} />
             </div>
           </Stage>
         </Section>
@@ -204,13 +204,13 @@ export default function PaymentMethodCardPage() {
         </Section>
 
         <Section id="example" title="Exemplo">
-          <CodeExample>{`import { PaymentMethodCard } from "@/components/playground/PaymentMethodCard"
+          <CodeExample>{`import { AwPaymentMethodCard } from "@/components/ui/AwPaymentMethodCard"
 import { AwButton } from "@/components/ui/AwButton"
 
 export function PrimaryCard({ method, cover, holderName, onRemove }) {
   return (
     <div className="flex flex-col gap-3">
-      <PaymentMethodCard
+      <AwPaymentMethodCard
         brand={method.brand}
         last4={method.last4}
         isDefault={method.isDefault}

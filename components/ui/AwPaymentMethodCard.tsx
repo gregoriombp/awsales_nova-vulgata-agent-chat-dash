@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { AwCardBrand, type AwCardBrandId } from "@/components/ui/AwCardBrand"
-import { Icon } from "@/components/ui/Icon"
 import { cn } from "@/lib/utils"
 
 const BRAND_LABEL: Record<AwCardBrandId, string> = {
@@ -16,7 +15,7 @@ const BRAND_LABEL: Record<AwCardBrandId, string> = {
   unknown: "Card",
 }
 
-export type PaymentMethodCardProps = {
+export type AwPaymentMethodCardProps = {
   brand: AwCardBrandId
   last4: string
   /** Toggles the small "Pagamento principal" badge in the corner. */
@@ -42,7 +41,7 @@ export type PaymentMethodCardProps = {
  * Actions (edit / delete / set-default) live *outside* this component —
  * compose them alongside the card on the page.
  */
-export function PaymentMethodCard({
+export function AwPaymentMethodCard({
   brand,
   last4,
   isDefault = false,
@@ -50,7 +49,7 @@ export function PaymentMethodCard({
   holderName,
   expiresAt,
   className,
-}: PaymentMethodCardProps) {
+}: AwPaymentMethodCardProps) {
   const brandLabel = BRAND_LABEL[brand]
   return (
     <article
