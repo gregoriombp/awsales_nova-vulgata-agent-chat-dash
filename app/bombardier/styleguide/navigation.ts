@@ -67,6 +67,7 @@ export const navigation: NavSection[] = [
       { name: "Modais", href: "/bombardier/styleguide/components/modals" },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
+      { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
@@ -77,6 +78,7 @@ export const navigation: NavSection[] = [
       { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
       { name: "Shortcut tile", href: "/bombardier/styleguide/components/aw-shortcut-tile" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
+      { name: "Slider", href: "/bombardier/styleguide/components/aw-slider" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
       { name: "Stats display", href: "/bombardier/styleguide/components/stats-display" },
@@ -89,6 +91,12 @@ export const navigation: NavSection[] = [
       { name: "Visual dos agentes", href: "/bombardier/styleguide/components/agents" },
       { name: "Welcome modal", href: "/bombardier/styleguide/components/aw-welcome-modal" },
       { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
+    ],
+  },
+  {
+    title: "Playground",
+    items: [
+      { name: "Componentes em quarentena", href: "/bombardier/styleguide/components/playground" },
     ],
   },
   {
