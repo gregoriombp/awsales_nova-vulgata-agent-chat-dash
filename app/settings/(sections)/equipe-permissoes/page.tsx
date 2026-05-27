@@ -521,8 +521,7 @@ function MemberSection({
             >
               <AwMembersTablePersonCell
                 name={m.name}
-                email={m.email}
-                subtitle={m.role}
+                email={m.role}
                 avatarSrc={m.avatar}
                 initials={m.initials}
                 tag={m.isYou ? "Você" : undefined}
