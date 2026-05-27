@@ -161,13 +161,13 @@ export function ReviewModeProvider() {
   }, [active, cancelPending, setMode, setSheetOpen, sheetOpen])
 
   return (
-    <>
+    <React.Suspense fallback={null}>
       <ReviewCanvas />
       <ReviewCommentPopover />
       <ReviewToolbar />
       <ReviewCommentSheet />
       <ReviewIdentityModal />
       <ReviewExportModal />
-    </>
+    </React.Suspense>
   )
 }
