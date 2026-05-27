@@ -12,6 +12,14 @@ import { ONBOARDING_USER, ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import { ADDITIONAL_ORG } from "@/app/organizacao-adicional/_data";
 
 export default function Inicio() {
+  return (
+    <React.Suspense fallback={null}>
+      <InicioContent />
+    </React.Suspense>
+  );
+}
+
+function InicioContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showWelcome = searchParams.get("welcome") === "1";

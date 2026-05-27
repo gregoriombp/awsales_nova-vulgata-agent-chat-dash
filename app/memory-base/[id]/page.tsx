@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -488,6 +488,14 @@ function getFallbackNameFromId(id: string): string {
 type BreadcrumbItem = { label: string; href: string; icon: React.ReactNode };
 
 export default function MemoryBaseDirectoryPage() {
+  return (
+    <Suspense fallback={null}>
+      <MemoryBaseDirectoryContent />
+    </Suspense>
+  );
+}
+
+function MemoryBaseDirectoryContent() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
