@@ -29,6 +29,9 @@ const EXPIRADO_X   = 560
 const UTILIZADO_X  = 820
 const CANCELADO_X  = 1080
 
+const MFA_SETUP_X  = 40   // Cadeia "Trava → setup TOTP → backup codes" (left corridor, alinhado com Pix)
+const MFA_VERIFY_X = 520  // Tela "Verificação MFA" (right corridor, alinhado com Boleto)
+
 const Y = {
   entrada:        0,
   linkValido:   160,
@@ -38,9 +41,13 @@ const Y = {
   contrato:     840,
   pagamento:   1000,
   methods:     1200,
-  concluido:   1400,
-  finalDecision: 1560,
-  finalOptions:  1720,
+  policyDec:   1360,   // decisão "Policy da org?" — checa 2FA per-org
+  mfaBranchRow: 1520,  // mfaGate (MFA_SETUP_X) | mfaVerify (MFA_VERIFY_X)
+  mfaSetupApp: 1680,
+  mfaBackupCodes: 1840,
+  concluido:   2000,
+  finalDecision: 2160,
+  finalOptions:  2320,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -118,13 +125,44 @@ const NODES: Node[] = [
     id: "cartao",
     type: "screen",
     position: { x: CARTAO_X, y: Y.methods },
-    data: { step: "05b", title: "Cartão de crédito", href: "/primeiro-acesso/pagamento", note: "Crédito em até 12×. Confirmação imediata." },
+    data: { step: "05b", title: "Cartão de crédito", href: "/primeiro-acesso/pagamento", note: "Crédito em até 12×. Confirmação imediata. Recusa do banco abre modal inline com o motivo + opção de tentar outro cartão ou mudar de método — sem sair da etapa de pagamento." },
   },
   {
     id: "boleto",
     type: "screen",
     position: { x: BOLETO_X, y: Y.methods },
     data: { step: "05c", title: "Boleto bancário", href: "/primeiro-acesso/pagamento", note: "Vencimento em 3 dias úteis. Compensação em 1 dia útil." },
+  },
+  {
+    id: "policyDec",
+    type: "decision",
+    position: { x: COL_D, y: Y.policyDec },
+    data: { step: "05d", title: "Policy da org?", question: "A organização que convidou esse membro exige 2FA? O token de sessão é cunhado pela org neste ponto." },
+  },
+  // ── MFA branch — espelha o flow de login. Vale tanto pra signup quanto pra login. ──
+  {
+    id: "mfaGate",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaBranchRow },
+    data: { step: "05e", title: "Trava de 2FA", href: "/awsales/login", note: "Gate quando a org exige 2FA e o novo membro precisa configurar antes de acessar. Método único: app autenticador (TOTP). Botões 'Configurar agora' e 'Já tenho o app configurado'." },
+  },
+  {
+    id: "mfaVerify",
+    type: "screen",
+    position: { x: MFA_VERIFY_X, y: Y.mfaBranchRow },
+    data: { step: "05h", title: "Verificação MFA", href: "/awsales/login", note: "Para membros que já tinham TOTP configurado em outro contexto (raro num primeiro acesso, mas possível se o usuário já existia em outra org). Input de 6 dígitos." },
+  },
+  {
+    id: "mfaSetupApp",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaSetupApp },
+    data: { step: "05f", title: "Configurar app autenticador", href: "/awsales/login", note: "Passo 1 de 2 do setup TOTP. QR code + segredo em texto pra copiar. Input de 6 dígitos pra confirmar." },
+  },
+  {
+    id: "mfaBackupCodes",
+    type: "screen",
+    position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
+    data: { step: "05g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
   },
   {
     id: "concluido",
@@ -175,9 +213,22 @@ const EDGES: Edge[] = [
   { ...branchEdge, id: "e-pagamento-pix",    source: "pagamento", target: "pix",    sourceHandle: "left",   label: "Pix",    ...labelProps },
   { ...branchEdge, id: "e-pagamento-cartao", source: "pagamento", target: "cartao", sourceHandle: "bottom", label: "Cartão", ...labelProps },
   { ...branchEdge, id: "e-pagamento-boleto", source: "pagamento", target: "boleto", sourceHandle: "right",  label: "Boleto", ...labelProps },
-  { ...edgeBase, id: "e-pix-concluido",    source: "pix",    target: "concluido" },
-  { ...edgeBase, id: "e-cartao-concluido", source: "cartao", target: "concluido" },
-  { ...edgeBase, id: "e-boleto-concluido", source: "boleto", target: "concluido" },
+  { ...edgeBase, id: "e-pix-policy",    source: "pix",    target: "policyDec" },
+  { ...edgeBase, id: "e-cartao-policy", source: "cartao", target: "policyDec" },
+  { ...edgeBase, id: "e-boleto-policy", source: "boleto", target: "policyDec" },
+
+  // ── Policy da org? — 2FA per-org ─────────────────────────────────
+  { ...branchEdge, id: "e-policy-mfaGate",    source: "policyDec", target: "mfaGate",    sourceHandle: "left",   label: "Org exige 2FA · membro sem TOTP", ...labelProps },
+  { ...branchEdge, id: "e-policy-mfaVerify",  source: "policyDec", target: "mfaVerify",  sourceHandle: "right",  label: "Membro já tem TOTP",              ...labelProps },
+  { ...branchEdge, id: "e-policy-concluido",  source: "policyDec", target: "concluido",  sourceHandle: "bottom", label: "Sem policy adicional",            ...labelProps },
+
+  // ── Setup chain: gate → app → backup → concluido ─────────────────
+  { ...branchEdge, id: "e-mfaGate-already",      source: "mfaGate",        target: "mfaVerify",       label: "Já tenho o app", ...labelProps },
+  { ...edgeBase,   id: "e-mfaGate-setup",        source: "mfaGate",        target: "mfaSetupApp",     label: "Configurar",     ...labelProps },
+  { ...edgeBase,   id: "e-mfaSetup-backup",      source: "mfaSetupApp",    target: "mfaBackupCodes" },
+  { ...edgeBase,   id: "e-mfaBackup-concluido",  source: "mfaBackupCodes", target: "concluido" },
+  { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",      target: "concluido" },
+
   { ...edgeBase, id: "e-concluido-final",  source: "concluido", target: "finalDecision" },
   { ...branchEdge, id: "e-final-acessar",   source: "finalDecision", target: "acessar",   sourceHandle: "left",  label: "Acessar plataforma",   ...labelProps },
   { ...branchEdge, id: "e-final-consultor", source: "finalDecision", target: "consultor", sourceHandle: "right", label: "Falar com consultor", ...labelProps },
@@ -241,8 +292,43 @@ const screens = [
     step: "05",
     title: "Pagamento",
     href: "/primeiro-acesso/pagamento",
-    purpose: "Etapa única que cobra a implementação e a 1ª mensalidade. Três métodos disponíveis: Pix (confirmação instantânea), Cartão de crédito (em até 12×) ou Boleto bancário (compensação em 1 dia útil).",
-    decisions: "Pix → QR Code; Cartão → crédito parcelado; Boleto → gerado na hora → concluído.",
+    purpose: "Etapa única que cobra a implementação e a 1ª mensalidade. Três métodos disponíveis: Pix (confirmação instantânea), Cartão de crédito (em até 12×) ou Boleto bancário (compensação em 1 dia útil). Recusa do banco no cartão abre modal inline com o motivo — o usuário decide entre tentar outro cartão ou trocar de método sem sair da etapa.",
+    decisions: "Pix → QR Code; Cartão → crédito parcelado; Boleto → gerado na hora → policy da org?.",
+  },
+  {
+    step: "05d",
+    title: "Policy da org?",
+    href: "/awsales/login",
+    purpose: "Decisão server-side após pagamento confirmado: a organização que convidou esse membro exige 2FA? O token de sessão é cunhado pela org neste ponto, com as exigências de segurança daquela org específica. Mesma decisão usada no flow de login.",
+    decisions: "Org exige 2FA + membro sem TOTP → 'Trava de 2FA'. Membro tem TOTP → 'Verificação MFA'. Sem policy adicional → concluído.",
+  },
+  {
+    step: "05e",
+    title: "Trava de 2FA",
+    href: "/awsales/login",
+    purpose: "Gate explicando que a organização exige 2FA e o novo membro precisa configurar agora pra continuar. Método único por enquanto: app autenticador (TOTP) — Google Authenticator, 1Password, Authy, similar. Mesmo componente do flow de login.",
+    decisions: "Configurar agora → tela de setup do app. Já tenho o app → vai pra 'Verificação MFA'. Sair → volta pro login.",
+  },
+  {
+    step: "05f",
+    title: "Configurar app autenticador (TOTP)",
+    href: "/awsales/login",
+    purpose: "Passo 1 de 2 do setup TOTP. QR code grande no centro pra escanear no app autenticador, com o segredo em texto logo abaixo (copy-to-clipboard) pra quem não consegue escanear. Embaixo, input de 6 dígitos pra confirmar.",
+    decisions: "Código correto → códigos de backup. Voltar → trava de 2FA.",
+  },
+  {
+    step: "05g",
+    title: "Códigos de backup",
+    href: "/awsales/login",
+    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    decisions: "Marcar checkbox + Concluir → segue pro 'Concluído' (provisão do ambiente).",
+  },
+  {
+    step: "05h",
+    title: "Verificação MFA",
+    href: "/awsales/login",
+    purpose: "Caso raro no primeiro acesso: membro já tinha TOTP configurado em outra org/contexto. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback.",
+    decisions: "Código correto → concluído. Usar código de backup → tela de entrada de código de backup (não modelada). Sair → volta pro login.",
   },
   {
     step: "06",
@@ -259,6 +345,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-27",
+    summary:
+      "Branch de 2FA por organização entre pagamento e concluído, espelhando login-auth: gate, setup TOTP, códigos de backup, verificação MFA.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-26",
     summary:
@@ -306,7 +398,7 @@ export default function PrimeiroAcessoFlowPage() {
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões — pontos em que o cliente faz uma escolha. Setas âmbar indicam os caminhos de bifurcação."
         >
-          <FlowDiagram flow="primeiro-acesso" nodes={NODES} edges={EDGES} height={1960} />
+          <FlowDiagram flow="primeiro-acesso" nodes={NODES} edges={EDGES} height={2480} />
         </Section>
 
         <Section
