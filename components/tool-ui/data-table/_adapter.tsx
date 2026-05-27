@@ -19,6 +19,8 @@ export {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 export { Badge } from "@/components/ui/badge";
+export { AwInput } from "@/components/ui/AwInput";
+export { Icon } from "@/components/ui/Icon";
 export {
   Table,
   TableHeader,

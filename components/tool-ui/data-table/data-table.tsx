@@ -18,8 +18,11 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
+  AwInput,
+  Icon,
 } from "./_adapter";
 import {
+  filterData,
   sortData,
   createDataTableRowKeys,
   getDataTableMobileDescriptionId,
@@ -86,6 +89,14 @@ type DataTableProviderProps<T extends object = RowData> = Pick<
   | "onSortChange"
   | "id"
   | "locale"
+  | "filter"
+  | "defaultFilterValue"
+  | "filterValue"
+  | "onFilterChange"
+  | "pagination"
+  | "defaultPageIndex"
+  | "pageIndex"
+  | "onPageChange"
 > & {
   children: React.ReactNode;
 };
@@ -99,6 +110,14 @@ function DataTableProvider<T extends object = RowData>({
   id,
   onSortChange,
   locale,
+  filter,
+  defaultFilterValue,
+  filterValue: controlledFilterValue,
+  onFilterChange,
+  pagination,
+  defaultPageIndex,
+  pageIndex: controlledPageIndex,
+  onPageChange,
   children,
 }: DataTableProviderProps<T>) {
   // Default locale avoids SSR/client formatting mismatches.
@@ -114,10 +133,66 @@ function DataTableProvider<T extends object = RowData>({
   const sortBy = controlledSort?.by ?? internalSortBy;
   const sortDirection = controlledSort?.direction ?? internalSortDirection;
 
-  const data = React.useMemo(() => {
-    if (!sortBy || !sortDirection) return rawData;
-    return sortData(rawData, sortBy, sortDirection, resolvedLocale);
-  }, [rawData, sortBy, sortDirection, resolvedLocale]);
+  const filterEnabled = filter !== undefined;
+  const [internalFilterValue, setInternalFilterValue] = React.useState<string>(
+    defaultFilterValue ?? "",
+  );
+  const filterValue =
+    controlledFilterValue !== undefined
+      ? controlledFilterValue
+      : filterEnabled
+        ? internalFilterValue
+        : "";
+
+  const paginationEnabled = pagination !== undefined;
+  const initialPageSize = pagination?.pageSize ?? (rawData.length || 1);
+  const [pageSize, setPageSize] = React.useState<number>(initialPageSize);
+  const [internalPageIndex, setInternalPageIndex] = React.useState<number>(
+    defaultPageIndex ?? 0,
+  );
+  const pageIndex =
+    controlledPageIndex !== undefined
+      ? controlledPageIndex
+      : paginationEnabled
+        ? internalPageIndex
+        : 0;
+
+  const filterKeys = React.useMemo<Array<ColumnKey<T>>>(() => {
+    if (!filterEnabled) return [];
+    const explicit = filter?.columns;
+    if (explicit && explicit.length > 0) return explicit;
+    return columns.map((col) => col.key as ColumnKey<T>);
+  }, [filterEnabled, filter, columns]);
+
+  const filteredData = React.useMemo(() => {
+    if (!filterEnabled || !filterValue) return rawData;
+    return filterData(rawData, filterValue, filterKeys as Array<Extract<keyof T, string>>);
+  }, [rawData, filterEnabled, filterValue, filterKeys]);
+
+  const sortedData = React.useMemo(() => {
+    if (!sortBy || !sortDirection) return filteredData;
+    return sortData(filteredData, sortBy, sortDirection, resolvedLocale);
+  }, [filteredData, sortBy, sortDirection, resolvedLocale]);
+
+  const pageCount = paginationEnabled
+    ? Math.max(1, Math.ceil(sortedData.length / Math.max(1, pageSize)))
+    : 1;
+
+  // Clamp page index when filter shrinks data below the current page.
+  React.useEffect(() => {
+    if (!paginationEnabled) return;
+    if (controlledPageIndex !== undefined) return;
+    if (internalPageIndex >= pageCount) {
+      setInternalPageIndex(Math.max(0, pageCount - 1));
+    }
+  }, [paginationEnabled, controlledPageIndex, internalPageIndex, pageCount]);
+
+  const pagedData = React.useMemo(() => {
+    if (!paginationEnabled) return sortedData;
+    const clamped = Math.min(pageIndex, pageCount - 1);
+    const start = Math.max(0, clamped) * pageSize;
+    return sortedData.slice(start, start + pageSize);
+  }, [paginationEnabled, sortedData, pageIndex, pageCount, pageSize]);
 
   const handleSort = React.useCallback(
     (key: ColumnKey<T>) => {
@@ -150,15 +225,77 @@ function DataTableProvider<T extends object = RowData>({
     [sortBy, sortDirection, controlledSort, onSortChange],
   );
 
+  const handleFilterChange = React.useCallback(
+    (next: string) => {
+      if (controlledFilterValue !== undefined) {
+        onFilterChange?.(next);
+      } else {
+        setInternalFilterValue(next);
+      }
+      // Reset to first page when filter narrows the result.
+      if (paginationEnabled) {
+        if (controlledPageIndex !== undefined) {
+          onPageChange?.(0);
+        } else {
+          setInternalPageIndex(0);
+        }
+      }
+    },
+    [
+      controlledFilterValue,
+      onFilterChange,
+      paginationEnabled,
+      controlledPageIndex,
+      onPageChange,
+    ],
+  );
+
+  const handlePageIndexChange = React.useCallback(
+    (next: number) => {
+      const clamped = Math.max(0, Math.min(next, pageCount - 1));
+      if (controlledPageIndex !== undefined) {
+        onPageChange?.(clamped);
+      } else {
+        setInternalPageIndex(clamped);
+      }
+    },
+    [controlledPageIndex, onPageChange, pageCount],
+  );
+
+  const handlePageSizeChange = React.useCallback(
+    (next: number) => {
+      const sane = Math.max(1, Math.floor(next));
+      setPageSize(sane);
+      if (controlledPageIndex !== undefined) {
+        onPageChange?.(0);
+      } else {
+        setInternalPageIndex(0);
+      }
+    },
+    [controlledPageIndex, onPageChange],
+  );
+
   const contextValue: DataTableContextValue<T> = {
     columns,
-    data,
+    data: pagedData,
+    totalRows: sortedData.length,
     rowIdKey,
     sortBy,
     sortDirection,
     toggleSort: handleSort,
     id,
     locale: resolvedLocale,
+    filterEnabled,
+    filterValue,
+    filterPlaceholder: filter?.placeholder,
+    setFilterValue: handleFilterChange,
+    paginationEnabled,
+    pageIndex,
+    pageSize,
+    pageCount,
+    pageSizeOptions: pagination?.pageSizeOptions,
+    setPageIndex: handlePageIndexChange,
+    setPageSize: handlePageSizeChange,
   };
 
   return (
@@ -181,7 +318,16 @@ function DataTableLayout({
   maxHeight,
   className,
 }: DataTableLayoutProps) {
-  const { columns, data, rowIdKey, sortBy, sortDirection, id } = useDataTable();
+  const {
+    columns,
+    data,
+    rowIdKey,
+    sortBy,
+    sortDirection,
+    id,
+    filterEnabled,
+    paginationEnabled,
+  } = useDataTable();
   const rowKeys = React.useMemo(
     () =>
       createDataTableRowKeys(
@@ -205,11 +351,12 @@ function DataTableLayout({
 
   return (
     <div
-      className={cn("@container w-full min-w-80", className)}
+      className={cn("@container flex w-full min-w-80 flex-col gap-3", className)}
       data-tool-ui-id={id}
       data-slot="data-table"
       data-layout={layout}
     >
+      {filterEnabled && <DataTableToolbar />}
       <div
         className={cn(
           layout === "table"
@@ -293,11 +440,124 @@ function DataTableLayout({
         )}
       </div>
 
+      {paginationEnabled && <DataTablePagination />}
+
       {sortAnnouncement && (
         <div className="sr-only" aria-live="polite">
           {sortAnnouncement}
         </div>
       )}
+    </div>
+  );
+}
+
+function DataTableToolbar() {
+  const { filterValue, filterPlaceholder, setFilterValue, id } = useDataTable();
+  const inputId = `${String(id ?? "data-table")}-search`;
+
+  return (
+    <div className="flex w-full items-center gap-2">
+      <label htmlFor={inputId} className="sr-only">
+        Buscar
+      </label>
+      <AwInput
+        id={inputId}
+        type="search"
+        iconLeft="search"
+        placeholder={filterPlaceholder ?? "Buscar…"}
+        value={filterValue}
+        onChange={(e) => setFilterValue(e.target.value)}
+        className="w-full max-w-xs"
+      />
+    </div>
+  );
+}
+
+function DataTablePagination() {
+  const {
+    pageIndex,
+    pageSize,
+    pageCount,
+    pageSizeOptions,
+    totalRows,
+    setPageIndex,
+    setPageSize,
+    id,
+  } = useDataTable();
+
+  const start = totalRows === 0 ? 0 : pageIndex * pageSize + 1;
+  const end = Math.min(totalRows, (pageIndex + 1) * pageSize);
+  const canPrev = pageIndex > 0;
+  const canNext = pageIndex < pageCount - 1;
+  const selectId = `${String(id ?? "data-table")}-page-size`;
+
+  return (
+    <div
+      className="text-fg-secondary flex w-full flex-wrap items-center justify-between gap-3 text-sm"
+      role="navigation"
+      aria-label="Paginação da tabela"
+    >
+      <div aria-live="polite">
+        {totalRows === 0 ? (
+          "Sem resultados"
+        ) : (
+          <>
+            <span className="text-fg-primary tabular-nums">{start}</span>
+            {"–"}
+            <span className="text-fg-primary tabular-nums">{end}</span>
+            {" de "}
+            <span className="text-fg-primary tabular-nums">{totalRows}</span>
+          </>
+        )}
+      </div>
+
+      <div className="flex items-center gap-3">
+        {pageSizeOptions && pageSizeOptions.length > 0 && (
+          <div className="flex items-center gap-2">
+            <label htmlFor={selectId}>Linhas:</label>
+            <select
+              id={selectId}
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="border-border bg-bg-raised text-fg-primary h-8 rounded-md border px-2 text-sm"
+            >
+              {pageSizeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setPageIndex(pageIndex - 1)}
+            disabled={!canPrev}
+            aria-label="Página anterior"
+          >
+            <Icon name="chevron_left" size={16} />
+          </Button>
+          <span className="px-2 tabular-nums" aria-live="polite">
+            <span className="text-fg-primary">{pageIndex + 1}</span>
+            {" / "}
+            <span>{pageCount}</span>
+          </span>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() => setPageIndex(pageIndex + 1)}
+            disabled={!canNext}
+            aria-label="Próxima página"
+          >
+            <Icon name="chevron_right" size={16} />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -318,6 +578,14 @@ function DataTableBase<T extends object = RowData>(
     emptyMessage = "No data available",
     maxHeight,
     className,
+    filter,
+    defaultFilterValue,
+    filterValue,
+    onFilterChange,
+    pagination,
+    defaultPageIndex,
+    pageIndex,
+    onPageChange,
   } = props;
 
   return (
@@ -330,6 +598,14 @@ function DataTableBase<T extends object = RowData>(
       onSortChange={onSortChange}
       id={id}
       locale={locale}
+      filter={filter}
+      defaultFilterValue={defaultFilterValue}
+      filterValue={filterValue}
+      onFilterChange={onFilterChange}
+      pagination={pagination}
+      defaultPageIndex={defaultPageIndex}
+      pageIndex={pageIndex}
+      onPageChange={onPageChange}
     >
       <DataTableLayout
         layout={layout}

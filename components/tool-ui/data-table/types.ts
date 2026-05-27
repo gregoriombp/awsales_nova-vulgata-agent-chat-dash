@@ -162,6 +162,35 @@ export interface DataTableSerializableProps<T extends object = RowData> {
   /** Max table height with vertical scroll (CSS value) */
   maxHeight?: string;
   /**
+   * Global text-search filter config. Presence enables the toolbar above the table.
+   *
+   * Matches the query against each row by stringifying the values of the listed
+   * columns (or every column when omitted) and checking for a case-insensitive
+   * substring. Number/boolean/date values are stringified via the same locale
+   * used for sort.
+   */
+  filter?: {
+    placeholder?: string;
+    columns?: ColumnKey<T>[];
+  };
+  /** Uncontrolled initial filter query. Ignored if `filterValue` is provided. */
+  defaultFilterValue?: string;
+  /** Controlled filter query (pair with `onFilterChange`). */
+  filterValue?: string;
+  /**
+   * Pagination config. Presence enables the pagination controls below the table.
+   * `pageSize` is the initial / fixed page size; `pageSizeOptions` makes it
+   * user-changeable via a select.
+   */
+  pagination?: {
+    pageSize: number;
+    pageSizeOptions?: number[];
+  };
+  /** Uncontrolled initial page index (0-based). Ignored if `pageIndex` is provided. */
+  defaultPageIndex?: number;
+  /** Controlled current page index (pair with `onPageChange`). */
+  pageIndex?: number;
+  /**
    * BCP47 locale for formatting and sorting (e.g., 'en-US', 'de-DE', 'ja-JP')
    *
    * Defaults to 'en-US' to ensure consistent server/client rendering.
@@ -221,6 +250,10 @@ export interface DataTableClientProps<T extends object = RowData> {
     by?: ColumnKey<T>;
     direction?: "asc" | "desc";
   }) => void;
+  /** Filter change handler for controlled mode (required if `filterValue` is provided). */
+  onFilterChange?: (next: string) => void;
+  /** Page change handler for controlled mode (required if `pageIndex` is provided). */
+  onPageChange?: (next: number) => void;
 }
 
 /**
@@ -252,11 +285,25 @@ export interface DataTableProps<T extends object = RowData>
 
 export interface DataTableContextValue<T extends object = RowData> {
   columns: Column<T>[];
+  /** Rows visible in the current view (after filter + sort + pagination slice). */
   data: T[];
+  /** Total rows after filter, before pagination — used by the pagination footer. */
+  totalRows: number;
   rowIdKey?: ColumnKey<T>;
   sortBy?: ColumnKey<T>;
   sortDirection?: "asc" | "desc";
   toggleSort?: (key: ColumnKey<T>) => void;
   id?: string;
   locale?: string;
+  filterEnabled: boolean;
+  filterValue: string;
+  filterPlaceholder?: string;
+  setFilterValue: (next: string) => void;
+  paginationEnabled: boolean;
+  pageIndex: number;
+  pageSize: number;
+  pageCount: number;
+  pageSizeOptions?: number[];
+  setPageIndex: (next: number) => void;
+  setPageSize: (next: number) => void;
 }

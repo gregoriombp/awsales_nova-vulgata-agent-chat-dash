@@ -1,3 +1,30 @@
+/**
+ * Filter rows by a case-insensitive substring match on the listed column keys.
+ *
+ * Stringifies primitive and array values; non-primitive types are coerced via
+ * `String(value)`. Returns the original array reference when the query is empty
+ * to skip unnecessary allocations.
+ */
+export function filterData<T extends object>(
+  data: T[],
+  query: string,
+  keys: Array<Extract<keyof T, string>>,
+): T[] {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed || keys.length === 0) return data;
+
+  const matches = (value: unknown): boolean => {
+    if (value == null) return false;
+    if (Array.isArray(value)) return value.some((item) => matches(item));
+    return String(value).toLowerCase().includes(trimmed);
+  };
+
+  return data.filter((row) => {
+    const record = row as Record<string, unknown>;
+    return keys.some((key) => matches(record[key]));
+  });
+}
+
 export function sortData<T, K extends Extract<keyof T, string>>(
   data: T[],
   key: K,

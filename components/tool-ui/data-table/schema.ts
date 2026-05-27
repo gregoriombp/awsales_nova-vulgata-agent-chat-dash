@@ -172,6 +172,22 @@ export const SerializableDataTableSchema = z.object({
   emptyMessage: z.string().optional(),
   maxHeight: z.string().optional(),
   locale: z.string().optional(),
+  filter: z
+    .object({
+      placeholder: z.string().optional(),
+      columns: z.array(z.string()).optional(),
+    })
+    .optional(),
+  defaultFilterValue: z.string().optional(),
+  filterValue: z.string().optional(),
+  pagination: z
+    .object({
+      pageSize: z.number().int().positive(),
+      pageSizeOptions: z.array(z.number().int().positive()).optional(),
+    })
+    .optional(),
+  defaultPageIndex: z.number().int().min(0).optional(),
+  pageIndex: z.number().int().min(0).optional(),
 });
 
 const SerializableDataTableSchemaContract = defineToolUiContract(
@@ -234,9 +250,7 @@ export type SerializableDataTable = z.infer<typeof SerializableDataTableSchema>;
  * }
  * ```
  */
-export function parseSerializableDataTable(
-  input: unknown,
-): Pick<
+type ParsedSerializableDataTable = Pick<
   DataTableProps<RowData>,
   | "id"
   | "role"
@@ -249,7 +263,17 @@ export function parseSerializableDataTable(
   | "emptyMessage"
   | "maxHeight"
   | "locale"
-> {
+  | "filter"
+  | "defaultFilterValue"
+  | "filterValue"
+  | "pagination"
+  | "defaultPageIndex"
+  | "pageIndex"
+>;
+
+function projectSerializableDataTable(
+  parsed: z.infer<typeof SerializableDataTableSchema>,
+): ParsedSerializableDataTable {
   const {
     id,
     role,
@@ -262,7 +286,13 @@ export function parseSerializableDataTable(
     emptyMessage,
     maxHeight,
     locale,
-  } = SerializableDataTableSchemaContract.parse(input);
+    filter,
+    defaultFilterValue,
+    filterValue,
+    pagination,
+    defaultPageIndex,
+    pageIndex,
+  } = parsed;
   return {
     id,
     role,
@@ -285,61 +315,34 @@ export function parseSerializableDataTable(
     emptyMessage,
     maxHeight,
     locale,
+    filter: filter
+      ? {
+          placeholder: filter.placeholder,
+          columns: filter.columns as
+            | Array<keyof RowData & string>
+            | undefined,
+        }
+      : undefined,
+    defaultFilterValue,
+    filterValue,
+    pagination,
+    defaultPageIndex,
+    pageIndex,
   };
+}
+
+export function parseSerializableDataTable(
+  input: unknown,
+): ParsedSerializableDataTable {
+  return projectSerializableDataTable(
+    SerializableDataTableSchemaContract.parse(input),
+  );
 }
 
 export function safeParseSerializableDataTable(
   input: unknown,
-): Pick<
-  DataTableProps<RowData>,
-  | "id"
-  | "role"
-  | "receipt"
-  | "columns"
-  | "data"
-  | "rowIdKey"
-  | "defaultSort"
-  | "sort"
-  | "emptyMessage"
-  | "maxHeight"
-  | "locale"
-> | null {
+): ParsedSerializableDataTable | null {
   const res = SerializableDataTableSchemaContract.safeParse(input);
   if (!res) return null;
-  const {
-    id,
-    role,
-    receipt,
-    columns,
-    data,
-    rowIdKey,
-    defaultSort,
-    sort,
-    emptyMessage,
-    maxHeight,
-    locale,
-  } = res;
-  return {
-    id,
-    role,
-    receipt,
-    columns: columns as unknown as Column<RowData>[],
-    data: data as RowData[],
-    rowIdKey: rowIdKey as keyof RowData | undefined,
-    defaultSort: defaultSort
-      ? {
-          by: defaultSort.by as keyof RowData | undefined,
-          direction: defaultSort.direction,
-        }
-      : undefined,
-    sort: sort
-      ? {
-          by: sort.by as keyof RowData | undefined,
-          direction: sort.direction,
-        }
-      : undefined,
-    emptyMessage,
-    maxHeight,
-    locale,
-  };
+  return projectSerializableDataTable(res);
 }
