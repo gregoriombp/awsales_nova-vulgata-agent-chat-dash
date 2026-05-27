@@ -143,20 +143,25 @@ export function UsageMetric({
 export function SettingsPageHeader({
   title,
   description,
+  trailing,
 }: {
   title: string;
   description?: string;
+  trailing?: React.ReactNode;
 }) {
   return (
-    <header className="mb-10">
-      <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
-        {title}
-      </h3>
-      {description && (
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
-          {description}
-        </p>
-      )}
+    <header className="mb-10 flex items-start justify-between gap-6">
+      <div className="min-w-0">
+        <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          {title}
+        </h3>
+        {description && (
+          <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+            {description}
+          </p>
+        )}
+      </div>
+      {trailing && <div className="shrink-0">{trailing}</div>}
     </header>
   );
 }
