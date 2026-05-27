@@ -20,7 +20,7 @@
  * both surfaces when the real API lands.
  * ---------------------------------------------------------------- */
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import DashboardLayout from "@/components/DashboardLayout";
@@ -73,6 +73,14 @@ const METHOD_OPTIONS: CustomToolMethod[] = [
 ];
 
 export default function NewToolPage() {
+  return (
+    <Suspense fallback={null}>
+      <NewToolPageContent />
+    </Suspense>
+  );
+}
+
+function NewToolPageContent() {
   const router = useRouter();
   const params = useSearchParams();
   const conn = params.get("conn") ?? "";
