@@ -62,6 +62,38 @@ export default function BombardierHub() {
           </p>
         </header>
 
+        <section className="mb-10">
+          <p className="aw-eyebrow mb-3">Seus projetos</p>
+          <AwCard interactive className="p-6 flex flex-col gap-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-4">
+                <span
+                  className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)]"
+                  style={{ width: 52, height: 52 }}
+                >
+                  <Icon name="hub" size={28} />
+                </span>
+                <div className="flex flex-col gap-1">
+                  <h2 className="text-2xl font-semibold tracking-tight">AwSales</h2>
+                  <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-xl">
+                    Plataforma de vendas com agentes — abra o produto para explorar
+                    dashboard, conversas, canais e configurações.
+                  </p>
+                </div>
+              </div>
+              <AwPill variant="live">Ativo</AwPill>
+            </div>
+            <div className="mt-2">
+              <Link href="/inicio" className="no-underline">
+                <AwButton variant="primary" iconRight="arrow_forward">
+                  Abrir projeto
+                </AwButton>
+              </Link>
+            </div>
+          </AwCard>
+        </section>
+
+        <p className="aw-eyebrow mb-3">Ferramentas Bombardier</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sections.map((s) => {
             const ready = s.status === "ready"
