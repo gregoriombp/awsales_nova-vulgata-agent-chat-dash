@@ -180,6 +180,94 @@ const formatterColumns: Column<FormatterRow>[] = [
   },
 ]
 
+type ConversaRow = {
+  id: string
+  cliente: string
+  agente: string
+  status: string
+  mensagens: number
+  ultimoContato: string
+}
+
+const conversaStatusMap = {
+  resolvida: { tone: "success", label: "Resolvida" },
+  aguardando: { tone: "warning", label: "Aguardando cliente" },
+  escalada: { tone: "danger", label: "Escalada p/ humano" },
+  ativa: { tone: "info", label: "Em andamento" },
+} as const
+
+const conversaAgents = [
+  "Atendimento FAQ",
+  "Pré-venda B2B",
+  "Onboarding SDK",
+  "Retenção pós-venda",
+  "Qualificação inbound",
+]
+
+const conversaClientes = [
+  "Avante Logística",
+  "Bonsai Studio",
+  "Casa Faroeste",
+  "Drago Café",
+  "Estúdio Quintal",
+  "Flux Engenharia",
+  "Garagem 47",
+  "Helena & Filhos",
+  "Iguá Solar",
+  "Jambo Saúde",
+  "Kibon Mercearia",
+  "Lume Arquitetura",
+  "Maré Náutica",
+  "Norte Têxtil",
+  "Ovo Frito Bar",
+  "Pilar Imóveis",
+  "Quartzo Joias",
+  "Rampa Skate",
+  "Sol & Sal Pousada",
+  "Taberna do Porto",
+  "Útero Cerâmica",
+  "Vértice Arquitetos",
+  "Whisky Cellars",
+  "Xeque-mate Chess",
+]
+
+const conversaRows: ConversaRow[] = conversaClientes.map((cliente, i) => {
+  const statuses = ["resolvida", "aguardando", "escalada", "ativa"] as const
+  const status = statuses[i % statuses.length]
+  const minutesAgo = (i + 1) * 17
+  return {
+    id: `conv-${String(i + 1).padStart(3, "0")}`,
+    cliente,
+    agente: conversaAgents[i % conversaAgents.length],
+    status,
+    mensagens: 3 + ((i * 7) % 42),
+    ultimoContato: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
+  }
+})
+
+const conversaColumns: Column<ConversaRow>[] = [
+  { key: "cliente", label: "Cliente", priority: "primary" },
+  { key: "agente", label: "Agente" },
+  {
+    key: "status",
+    label: "Status",
+    sortable: false,
+    format: { kind: "status", statusMap: conversaStatusMap },
+  },
+  {
+    key: "mensagens",
+    label: "Mensagens",
+    align: "right",
+    format: { kind: "number" },
+  },
+  {
+    key: "ultimoContato",
+    label: "Último contato",
+    format: { kind: "date", dateFormat: "relative" },
+    hideOnMobile: true,
+  },
+]
+
 export default function DataTablePage() {
   return (
     <>
@@ -197,12 +285,12 @@ export default function DataTablePage() {
         <Tldr
           use={[
             <>Output de tool de agente que devolve uma lista (registros, métricas, resultados de busca).</>,
-            <>Tabela com sort + responsive auto sem montar células na mão.</>,
+            <>Tabela com sort + filter global + paginação + reflow mobile, tudo declarativo.</>,
             <>Dados já vêm com tipo conhecido (number, currency, date) e o formatador resolve a apresentação.</>,
           ]}
           dontUse={[
             <>Listas curtas de UI de produto com células customizadas — use <code className="mono">AwTable</code>, controle total da estrutura.</>,
-            <>Quando precisar de filtros, paginação ou seleção — esse componente não cobre (ainda).</>,
+            <>Quando precisar de seleção de linha, column visibility toggle ou row actions menu — não tem (ainda).</>,
             <>Datasets grandes (1k+ linhas) — não tem virtualização.</>,
           ]}
         />
@@ -235,6 +323,62 @@ export default function DataTablePage() {
               rowIdKey="id"
               columns={formatterColumns}
               data={formatterRows}
+              locale="pt-BR"
+            />
+          </Stage>
+        </Section>
+
+        <Section
+          id="filter"
+          title="Filter · busca global"
+          lead="Passe a prop filter pra ligar a busca acima da tabela. O input é case-insensitive e bate em todas as colunas por padrão; restrinja com filter.columns se quiser limitar (ex.: só cliente). Quando o filter narrow zera resultado, o estado vazio aparece automaticamente."
+        >
+          <Stage label="filter habilitado · busca em todas as colunas" gridClassName="flex w-full">
+            <DataTable
+              id="data-table-filter"
+              rowIdKey="id"
+              columns={conversaColumns}
+              data={conversaRows}
+              filter={{ placeholder: "Buscar cliente, agente ou status…" }}
+              locale="pt-BR"
+            />
+          </Stage>
+        </Section>
+
+        <Section
+          id="pagination"
+          title="Paginação"
+          lead="Passe pagination.pageSize pra fatiar o dataset em páginas. pageSizeOptions é opcional — se informado, vira um select de linhas por página. A footer mostra range (X–Y de Z) + prev/next; reset automático pra página 1 quando o filter narrow estoura o pageCount."
+        >
+          <Stage label="pageSize 8 · pageSizeOptions [8, 16, 24]" gridClassName="flex w-full">
+            <DataTable
+              id="data-table-pagination"
+              rowIdKey="id"
+              columns={conversaColumns}
+              data={conversaRows}
+              pagination={{ pageSize: 8, pageSizeOptions: [8, 16, 24] }}
+              locale="pt-BR"
+            />
+          </Stage>
+        </Section>
+
+        <Section
+          id="filter-pagination-sort"
+          title="Combinado · filter + paginação + sort"
+          lead="As três features funcionam juntas: o filter narrowa, o sort reordena o resultado filtrado, e a paginação fatia o resultado ordenado. Mudar o filter reseta a página pra 1."
+        >
+          <Stage label="todas ligadas · pageSize 6" gridClassName="flex w-full">
+            <DataTable
+              id="data-table-combined"
+              rowIdKey="id"
+              columns={conversaColumns}
+              data={conversaRows}
+              defaultSort={{ by: "mensagens", direction: "desc" }}
+              filter={{
+                placeholder: "Filtrar conversas…",
+                columns: ["cliente", "agente"],
+              }}
+              pagination={{ pageSize: 6, pageSizeOptions: [6, 12, 24] }}
               locale="pt-BR"
             />
           </Stage>
@@ -314,7 +458,7 @@ export default function DataTablePage() {
             <PropRow
               prop="emptyMessage"
               type="string?"
-              doc="Texto exibido quando data.length === 0."
+              doc="Texto exibido quando data.length === 0 (ou quando filter narrow zera o resultado)."
             />
             <PropRow
               prop="maxHeight"
@@ -326,6 +470,36 @@ export default function DataTablePage() {
               type="string?"
               def="'en-US'"
               doc="BCP-47 — pt-BR pra moeda/data em português."
+            />
+            <PropRow
+              prop="filter"
+              type="{ placeholder?, columns? }?"
+              doc="Presença liga a busca global acima da tabela. columns restringe quais keys são matchadas (default: todas)."
+            />
+            <PropRow
+              prop="defaultFilterValue"
+              type="string?"
+              doc="Query inicial (uncontrolled)."
+            />
+            <PropRow
+              prop="filterValue / onFilterChange"
+              type="controlled"
+              doc="Modo controlado da busca — você guarda a query em state e recebe updates."
+            />
+            <PropRow
+              prop="pagination"
+              type="{ pageSize, pageSizeOptions? }?"
+              doc="Presença liga a footer de paginação. pageSizeOptions habilita o select de linhas por página."
+            />
+            <PropRow
+              prop="defaultPageIndex"
+              type="number?"
+              doc="Página inicial 0-based (uncontrolled)."
+            />
+            <PropRow
+              prop="pageIndex / onPageChange"
+              type="controlled"
+              doc="Modo controlado da paginação — você guarda o índice e recebe updates."
             />
           </ApiTable>
         </Section>
