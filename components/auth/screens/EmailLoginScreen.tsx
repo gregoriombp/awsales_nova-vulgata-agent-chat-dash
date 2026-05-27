@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema, type LoginFormData } from "@/lib/validations";
-import { AwInput, AwField } from "@/components/ui/AwInput";
+import { AwField } from "@/components/ui/AwInput";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwButton } from "@/components/ui/AwButton";
 import type { Locale, AuthScreen } from "../_types";
@@ -57,17 +57,19 @@ export function EmailLoginScreen({
       <h3 className="text-aw-gray-1200 mb-2.5 text-center">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-6 text-center">{c.sub}</p>
 
-      <div className="mb-4">
-        <AwField label={c.email} htmlFor="loginEmail" error={errors.email?.message}>
-          <AwInput
-            id="loginEmail"
-            type="email"
-            placeholder={c.emailPh}
-            autoComplete="email"
-            invalid={!!errors.email}
-            {...register("email")}
-          />
-        </AwField>
+      <input type="hidden" autoComplete="email" {...register("email")} />
+
+      <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-aw-gray-300 bg-aw-gray-150 px-3 py-2">
+        <span className="min-w-0 truncate body-sm text-aw-gray-1200">
+          {defaultEmail || "—"}
+        </span>
+        <button
+          type="button"
+          onClick={() => goTo("login")}
+          className="shrink-0 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+        >
+          {c.changeEmail}
+        </button>
       </div>
 
       <div className="mb-4">

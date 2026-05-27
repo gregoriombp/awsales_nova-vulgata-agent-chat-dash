@@ -46,6 +46,7 @@ export const COPY = {
       back: "Outras opções",
       or: "ou",
       magicLink: "Receba um link de acesso no email",
+      changeEmail: "Usar outro e-mail",
     },
     en: {
       kicker: "// email",
@@ -63,6 +64,7 @@ export const COPY = {
       back: "Other options",
       or: "or",
       magicLink: "Get a sign-in link in your email",
+      changeEmail: "Use another email",
     },
   },
   forgot: {
