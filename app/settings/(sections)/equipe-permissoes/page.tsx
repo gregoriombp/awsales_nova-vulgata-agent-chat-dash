@@ -510,8 +510,6 @@ function MemberSection({
         <AwMembersTable
           columns={[
             { label: "Pessoa", icon: "person" },
-            { label: "Função", help: "Define o conjunto de permissões." },
-            { label: "Última atividade" },
             { label: "", width: 88 },
           ]}
         >
@@ -530,39 +528,6 @@ function MemberSection({
                 tagVariant="live"
                 presence={m.online ? "live" : undefined}
               />
-              <td onClick={(e) => e.stopPropagation()}>
-                <span className="inline-flex items-center gap-2">
-                  <span className="body-xs text-[var(--fg-primary)]">
-                    {m.role}
-                  </span>
-                  <AwDropdownMenu
-                    align="start"
-                    trigger={
-                      <button
-                        type="button"
-                        aria-label={`Alterar função de ${m.name}`}
-                        title="Alterar função"
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
-                      >
-                        <Icon name="edit" size={14} />
-                      </button>
-                    }
-                    items={ROLE_OPTIONS.map((r) => ({
-                      id: r,
-                      label: r,
-                      checked: r === m.role,
-                      disabled:
-                        r === MANAGER_ROLE &&
-                        managerAlreadyAssigned &&
-                        m.role !== MANAGER_ROLE,
-                      onSelect: () => onChangeRole(m.id, r),
-                    }))}
-                  />
-                </span>
-              </td>
-              <AwMembersTableTextCell muted>
-                {m.lastActive}
-              </AwMembersTableTextCell>
               <td>
                 <div className="flex items-center justify-end gap-1">
                   <span onClick={(e) => e.stopPropagation()}>
@@ -602,13 +567,6 @@ function MemberSection({
                 tag="Convite enviado"
                 tagVariant="draft"
               />
-              <AwMembersTableTextCell muted>{i.role}</AwMembersTableTextCell>
-              <td>
-                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
-                  <Icon name="mail" size={14} className="text-[var(--fg-tertiary)]" />
-                  Aguardando aceite · enviado {i.sentAt}
-                </span>
-              </td>
               <td>
                 <div className="flex items-center justify-end gap-1">
                   <span onClick={(e) => e.stopPropagation()}>
