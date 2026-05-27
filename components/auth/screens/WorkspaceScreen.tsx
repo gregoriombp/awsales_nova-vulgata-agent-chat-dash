@@ -90,7 +90,20 @@ export function WorkspaceScreen({
         })}
       </div>
 
-      <AwButton variant="primary" size="md" block onClick={() => goTo("success")}>
+      <AwButton
+        variant="primary"
+        size="md"
+        block
+        onClick={() => {
+          const next: AuthScreen =
+            selected === 0
+              ? "mfaVerify"
+              : selected === 1
+                ? "mfaGate"
+                : "success";
+          goTo(next);
+        }}
+      >
         {c.cta}
       </AwButton>
 

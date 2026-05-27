@@ -21,6 +21,10 @@ const STEP_IMAGE: Record<Exclude<AuthScreen, "login">, string> = {
   magicSent: "/assets/group-backgrounds/group-bg-23.jpg",
   ssoConnecting: "/assets/group-backgrounds/group-bg-05.jpg",
   workspace: "/assets/group-backgrounds/group-bg-17.jpg",
+  mfaGate: "/assets/group-backgrounds/group-bg-03.jpg",
+  mfaSetupApp: "/assets/group-backgrounds/group-bg-15.jpg",
+  mfaBackupCodes: "/assets/group-backgrounds/group-bg-29.jpg",
+  mfaVerify: "/assets/group-backgrounds/group-bg-25.jpg",
   success: "/assets/group-backgrounds/group-bg-20.jpg",
 };
 

@@ -10,6 +10,10 @@ import { VerifyScreen } from "./screens/VerifyScreen";
 import { MagicSentScreen } from "./screens/MagicSentScreen";
 import { SsoConnectingScreen } from "./screens/SsoConnectingScreen";
 import { WorkspaceScreen } from "./screens/WorkspaceScreen";
+import { MfaGateScreen } from "./screens/MfaGateScreen";
+import { MfaSetupAppScreen } from "./screens/MfaSetupAppScreen";
+import { MfaBackupCodesScreen } from "./screens/MfaBackupCodesScreen";
+import { MfaVerifyScreen } from "./screens/MfaVerifyScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
 import type { AuthScreen, Locale } from "./_types";
 
@@ -33,6 +37,10 @@ export function AuthFlow() {
       case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
       case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg} />;
       case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} />;
+      case "mfaGate":        return <MfaGateScreen locale={locale} goTo={goTo} />;
+      case "mfaSetupApp":    return <MfaSetupAppScreen locale={locale} goTo={goTo} />;
+      case "mfaBackupCodes": return <MfaBackupCodesScreen locale={locale} goTo={goTo} />;
+      case "mfaVerify":      return <MfaVerifyScreen locale={locale} goTo={goTo} />;
       case "success":       return <SuccessScreen locale={locale} />;
     }
   };

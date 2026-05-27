@@ -7,6 +7,10 @@ export type AuthScreen =
   | "magicSent"
   | "ssoConnecting"
   | "workspace"
+  | "mfaGate"
+  | "mfaSetupApp"
+  | "mfaBackupCodes"
+  | "mfaVerify"
   | "success";
 
 /** Domínios mockados que disparam SSO empresarial no HRD do front.
