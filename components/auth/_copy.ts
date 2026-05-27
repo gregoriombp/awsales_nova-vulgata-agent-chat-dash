@@ -204,20 +204,20 @@ export const COPY = {
 export const ORGS: Record<Locale, Org[]> = {
   pt: [
     {
-      name: "Nome da organização",
-      meta: "12 membros · admin",
+      name: "Artificial Concord",
+      meta: "12 membros",
       avatar: "/assets/icon_artificial_concord_organization.png",
     },
-    { name: "Fyntra Tecnologia", meta: "8 membros · operador" },
-    { name: "AwSales Labs", meta: "1 membro · dono" },
+    { name: "Fyntra Tecnologia", meta: "8 membros" },
+    { name: "AwSales Labs", meta: "Não configurada", pending: true },
   ],
   en: [
     {
-      name: "Organization name",
-      meta: "12 members · admin",
+      name: "Artificial Concord",
+      meta: "12 members",
       avatar: "/assets/icon_artificial_concord_organization.png",
     },
-    { name: "Fyntra Tecnologia", meta: "8 members · operator" },
-    { name: "AwSales Labs", meta: "1 member · owner" },
+    { name: "Fyntra Tecnologia", meta: "8 members" },
+    { name: "AwSales Labs", meta: "Not set up yet", pending: true },
   ],
 };
