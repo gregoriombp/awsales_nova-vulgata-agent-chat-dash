@@ -19,6 +19,7 @@
     "hooks": "@/lib/hooks"
   },
   "registries": {
-    "@tool-ui": "https://www.tool-ui.com/r/{name}.json"
+    "@tool-ui": "https://www.tool-ui.com/r/{name}.json",
+    "@acme": "https://acme.com/r/{name}.json"
   }
 }
