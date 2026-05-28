@@ -121,6 +121,12 @@ const NODES: Node[] = [
     data: { step: "02g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
   },
   {
+    id: "mfaRecovery",
+    type: "screen",
+    position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
+    data: { step: "02i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
+  },
+  {
     id: "concluido",
     type: "screen",
     position: { x: COL, y: Y.concluido },
@@ -165,6 +171,8 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-mfaSetup-backup",      source: "mfaSetupApp",    target: "mfaBackupCodes" },
   { ...edgeBase,   id: "e-mfaBackup-concluido",  source: "mfaBackupCodes", target: "concluido" },
   { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",      target: "concluido" },
+  { ...branchEdge, id: "e-mfaVerify-recovery",    source: "mfaVerify",      target: "mfaRecovery",     label: "Usar backup", ...labelProps },
+  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery",    target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-retorno", source: "concluido", target: "retorno", label: "Acessar plataforma", ...labelProps },
 ]
@@ -220,8 +228,15 @@ const screens = [
     step: "02h",
     title: "Verificação MFA",
     href: "/awsales/login",
-    purpose: "Caminho mais comum aqui: o usuário já tinha TOTP configurado na org principal e a nova org também exige 2FA. Input de 6 dígitos do app autenticador.",
-    decisions: "Código correto → concluído. Usar código de backup → tela de entrada de código de backup (não modelada). Sair → volta pro login.",
+    purpose: "Caminho mais comum aqui: o usuário já tinha TOTP configurado na org principal e a nova org também exige 2FA. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback se perdeu o app.",
+    decisions: "Código correto → concluído. Usar código de backup → 'Usar código de backup'. Sair → volta pro login.",
+  },
+  {
+    step: "02i",
+    title: "Usar código de backup",
+    href: "/awsales/login",
+    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    decisions: "Código válido → concluído. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
     step: "03",
@@ -238,6 +253,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-28",
+    summary:
+      "Nova tela 'Usar código de backup' como fallback do 'Verificação MFA' — pro usuário que perdeu acesso ao app autenticador. Converge no mesmo 'Concluído'.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-27",
     summary:

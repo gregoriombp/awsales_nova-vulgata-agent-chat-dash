@@ -227,6 +227,17 @@ const NODES: Node[] = [
     },
   },
   {
+    id: "mfaRecovery",
+    type: "screen",
+    position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
+    data: {
+      step: "03g",
+      title: "Usar código de backup",
+      href: "/awsales/login",
+      note: "Fallback quando o membro já tinha TOTP de outra org mas perdeu acesso ao app. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez.",
+    },
+  },
+  {
     id: "concluido",
     type: "screen",
     position: { x: COL, y: Y.concluido },
@@ -286,6 +297,8 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-mfaSetup-backup",      source: "mfaSetupApp",    target: "mfaBackupCodes" },
   { ...edgeBase,   id: "e-mfaBackup-concluido",  source: "mfaBackupCodes", target: "concluido" },
   { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",      target: "concluido" },
+  { ...branchEdge, id: "e-mfaVerify-recovery",    source: "mfaVerify",      target: "mfaRecovery",      label: "Usar backup", ...labelProps },
+  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery",    target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-plataforma", source: "concluido", target: "plataforma" },
 ]
@@ -375,8 +388,15 @@ const screens = [
     step: "03f",
     title: "Verificação MFA",
     href: "/awsales/login",
-    purpose: "Caso raro num convite: o membro já tinha TOTP configurado em outra org/contexto. Input de 6 dígitos do app autenticador.",
-    decisions: "Código correto → conta criada. Sair → volta pro login.",
+    purpose: "Caso raro num convite: o membro já tinha TOTP configurado em outra org/contexto. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback quando o membro perdeu o app.",
+    decisions: "Código correto → conta criada. Usar código de backup → 'Usar código de backup'. Sair → volta pro login.",
+  },
+  {
+    step: "03g",
+    title: "Usar código de backup",
+    href: "/awsales/login",
+    purpose: "Fallback de MFA quando o membro perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    decisions: "Código válido → conta criada. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
     step: "04",
@@ -394,6 +414,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-28",
+    summary:
+      "Nova tela 'Usar código de backup' como fallback do 'Verificação MFA' — pro membro que já tinha TOTP de outra org mas perdeu o app. Converge no mesmo 'Conta criada'.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-27",
     summary:
