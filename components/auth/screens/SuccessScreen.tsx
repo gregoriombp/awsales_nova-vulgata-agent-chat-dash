@@ -12,7 +12,7 @@ export function SuccessScreen({ locale }: { locale: Locale }) {
   const router = useRouter();
 
   useEffect(() => {
-    const timer = setTimeout(() => router.push("/dashboard"), 3000);
+    const timer = setTimeout(() => router.push("/inicio"), 3000);
     return () => clearTimeout(timer);
   }, [router]);
 
@@ -23,7 +23,7 @@ export function SuccessScreen({ locale }: { locale: Locale }) {
       </div>
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
-      <AwButton variant="primary" size="md" block onClick={() => router.push("/dashboard")} iconRight="arrow_outward">
+      <AwButton variant="primary" size="md" block onClick={() => router.push("/inicio")} iconRight="arrow_outward">
         {c.cta}
       </AwButton>
     </div>
