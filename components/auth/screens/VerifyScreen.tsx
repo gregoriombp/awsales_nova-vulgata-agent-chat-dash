@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { cn } from "@/lib/utils";
-import type { Locale, AuthScreen } from "../_types";
+import type { Locale, AuthScreen, VerifyMode } from "../_types";
 import { COPY } from "../_copy";
 import { BackButton } from "../_atoms";
 
@@ -11,10 +11,12 @@ export function VerifyScreen({
   locale,
   goTo,
   email,
+  mode,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
   email: string;
+  mode: VerifyMode;
 }) {
   const c = COPY.verify[locale];
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
@@ -55,7 +57,7 @@ export function VerifyScreen({
 
   return (
     <div className="w-full max-w-[340px] animate-fadeInUp">
-      <BackButton onClick={() => goTo("email")} label={c.back} />
+      <BackButton onClick={() => goTo(mode === "reset" ? "forgot" : "email")} label={c.back} />
 
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-6">
@@ -87,7 +89,7 @@ export function VerifyScreen({
         </div>
       </div>
 
-      <AwButton variant="primary" size="md" block onClick={() => goTo("workspace")} disabled={!isComplete}>
+      <AwButton variant="primary" size="md" block onClick={() => goTo(mode === "reset" ? "reset" : "workspace")} disabled={!isComplete}>
         {c.cta}
       </AwButton>
 
@@ -107,7 +109,7 @@ export function VerifyScreen({
         </span>
         <button
           type="button"
-          onClick={() => goTo("forgot")}
+          onClick={() => goTo(mode === "reset" ? "forgot" : "login")}
           className="body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           {c.change}

@@ -5,16 +5,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/lib/validations";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
-import type { Locale, AuthScreen } from "../_types";
+import type { Locale, AuthScreen, VerifyMode } from "../_types";
 import { COPY } from "../_copy";
 import { BackButton } from "../_atoms";
 
 export function ForgotScreen({
   locale,
   goTo,
+  defaultEmail,
+  setVerifyMode,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
+  defaultEmail?: string;
+  setVerifyMode: (m: VerifyMode) => void;
 }) {
   const c = COPY.forgot[locale];
 
@@ -22,10 +26,14 @@ export function ForgotScreen({
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordFormData>({ resolver: zodResolver(forgotPasswordSchema) });
+  } = useForm<ForgotPasswordFormData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: defaultEmail ?? "" },
+  });
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     console.log("Forgot:", data);
+    setVerifyMode("reset");
     goTo("verify");
   };
 

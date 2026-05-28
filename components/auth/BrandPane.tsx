@@ -25,6 +25,7 @@ const STEP_IMAGE: Record<Exclude<AuthScreen, "login">, string> = {
   mfaSetupApp: "/assets/group-backgrounds/group-bg-15.jpg",
   mfaBackupCodes: "/assets/group-backgrounds/group-bg-29.jpg",
   mfaVerify: "/assets/group-backgrounds/group-bg-25.jpg",
+  mfaRecovery: "/assets/group-backgrounds/group-bg-31.jpg",
   success: "/assets/group-backgrounds/group-bg-20.jpg",
 };
 

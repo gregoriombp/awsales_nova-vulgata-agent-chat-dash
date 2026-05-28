@@ -11,7 +11,12 @@ export type AuthScreen =
   | "mfaSetupApp"
   | "mfaBackupCodes"
   | "mfaVerify"
+  | "mfaRecovery"
   | "success";
+
+/** De onde a tela de código (`verify`) foi aberta: login normal ou recuperação
+ *  de senha. Decide pra onde continuar e pra onde o "usar outro email" volta. */
+export type VerifyMode = "login" | "reset";
 
 /** Domínios mockados que disparam SSO empresarial no HRD do front.
  *  Em produção essa decisão é do backend via /auth/discover por DNS. */

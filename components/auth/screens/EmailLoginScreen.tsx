@@ -7,7 +7,7 @@ import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { AwField } from "@/components/ui/AwInput";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwButton } from "@/components/ui/AwButton";
-import type { Locale, AuthScreen } from "../_types";
+import type { Locale, AuthScreen, VerifyMode } from "../_types";
 import { COPY } from "../_copy";
 import { PasswordInput, BackButton } from "../_atoms";
 
@@ -15,10 +15,12 @@ export function EmailLoginScreen({
   locale,
   goTo,
   defaultEmail,
+  setVerifyMode,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
   defaultEmail?: string;
+  setVerifyMode: (m: VerifyMode) => void;
 }) {
   const c = COPY.email[locale];
   const [isLoading, setIsLoading] = useState(false);
@@ -40,6 +42,7 @@ export function EmailLoginScreen({
     try {
       await new Promise((r) => setTimeout(r, 1500));
       console.log("Login:", data);
+      setVerifyMode("login");
       goTo("verify");
     } catch {
       setServerError(true);

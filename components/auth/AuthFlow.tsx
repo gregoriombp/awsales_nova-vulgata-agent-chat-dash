@@ -14,8 +14,9 @@ import { MfaGateScreen } from "./screens/MfaGateScreen";
 import { MfaSetupAppScreen } from "./screens/MfaSetupAppScreen";
 import { MfaBackupCodesScreen } from "./screens/MfaBackupCodesScreen";
 import { MfaVerifyScreen } from "./screens/MfaVerifyScreen";
+import { MfaRecoveryScreen } from "./screens/MfaRecoveryScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
-import type { AuthScreen, Locale } from "./_types";
+import type { AuthScreen, Locale, VerifyMode } from "./_types";
 
 export type { AuthScreen };
 
@@ -24,16 +25,17 @@ export function AuthFlow() {
   const [locale] = useState<Locale>("pt");
   const [email, setEmail] = useState("");
   const [ssoOrg, setSsoOrg] = useState("");
+  const [verifyMode, setVerifyMode] = useState<VerifyMode>("login");
 
   const goTo = useCallback((s: AuthScreen) => setScreen(s), []);
 
   const renderScreen = () => {
     switch (screen) {
       case "login":         return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} />;
-      case "email":         return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} />;
-      case "forgot":        return <ForgotScreen locale={locale} goTo={goTo} />;
+      case "email":         return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
+      case "forgot":        return <ForgotScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
       case "reset":         return <ResetScreen locale={locale} goTo={goTo} />;
-      case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
+      case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} mode={verifyMode} />;
       case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
       case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg} />;
       case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} />;
@@ -41,6 +43,7 @@ export function AuthFlow() {
       case "mfaSetupApp":    return <MfaSetupAppScreen locale={locale} goTo={goTo} />;
       case "mfaBackupCodes": return <MfaBackupCodesScreen locale={locale} goTo={goTo} />;
       case "mfaVerify":      return <MfaVerifyScreen locale={locale} goTo={goTo} />;
+      case "mfaRecovery":    return <MfaRecoveryScreen locale={locale} goTo={goTo} />;
       case "success":       return <SuccessScreen locale={locale} />;
     }
   };

@@ -100,6 +100,7 @@ export function MfaVerifyScreen({
       <p className="body-xs text-center mt-4">
         <button
           type="button"
+          onClick={() => goTo("mfaRecovery")}
           className="font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           {c.useBackup}

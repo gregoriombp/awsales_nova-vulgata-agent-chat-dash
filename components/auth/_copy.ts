@@ -281,6 +281,26 @@ export const COPY = {
       logout: "Sign out",
     },
   },
+  mfaRecovery: {
+    pt: {
+      kicker: "// código de backup",
+      title: "Use um código de backup",
+      sub: "Digite um dos códigos de recuperação que você guardou ao configurar o 2FA.",
+      code: "Código de backup",
+      codePh: "XXXXX-XXXXX",
+      cta: "Verificar e continuar",
+      back: "Voltar para o app autenticador",
+    },
+    en: {
+      kicker: "// backup code",
+      title: "Use a backup code",
+      sub: "Enter one of the recovery codes you saved when setting up 2FA.",
+      code: "Backup code",
+      codePh: "XXXXX-XXXXX",
+      cta: "Verify and continue",
+      back: "Back to authenticator app",
+    },
+  },
   success: {
     pt: {
       title: "Tudo certo!",
