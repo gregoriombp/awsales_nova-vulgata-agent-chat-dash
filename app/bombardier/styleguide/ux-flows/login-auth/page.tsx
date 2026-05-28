@@ -69,7 +69,7 @@ const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial em /. Input de email + botão 'Continuar'. Abaixo do separador 'ou', Google e Microsoft como opções secundárias. No rodapé, link 'Ainda não tem conta? Primeiro acesso' leva pra /primeiro-acesso." },
+    data: { step: "entrada", title: "Login", href: "/", note: "Tela inicial. Input de email + botão 'Continuar'. Abaixo do separador 'ou', Google e Microsoft como opções secundárias." },
   },
   {
     id: "metodo",
@@ -157,6 +157,12 @@ const NODES: Node[] = [
     data: { step: "06e", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em um lugar seguro' antes de continuar." },
   },
   {
+    id: "mfaRecovery",
+    type: "screen",
+    position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
+    data: { step: "06g", title: "Usar código de backup", href: "/awsales/login", note: "Fallback quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
+  },
+  {
     id: "primeiroAcessoDec",
     type: "decision",
     position: { x: COL_D, y: Y.primeiroAcessoDec },
@@ -217,7 +223,7 @@ const NODES: Node[] = [
     id: "resetSenha",
     type: "screen",
     position: { x: ERRO_X, y: Y.resetSenha },
-    data: { step: "B2 (fora do demo)", title: "Definir nova senha", href: "/", note: "Tela com campos nova senha + confirmar, validação de força (8 caracteres, maiúscula, número). Não é alcançada pelo flow demo — só via link real de redefinição enviado por e-mail." },
+    data: { step: "B2", title: "Definir nova senha", href: "/", note: "Tela com campos nova senha + confirmar, validação de força (8 caracteres, maiúscula, número). Alcançada quando o usuário entra no fluxo 'Esqueci a senha' e valida o código de 6 dígitos — verify identifica o modo reset e vem pra cá." },
   },
 ]
 
@@ -275,6 +281,11 @@ const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-mfaSetup-backup",        source: "mfaSetupApp",  target: "mfaBackupCodes" },
   { ...edgeBase,   id: "e-mfaBackup-primacesso",   source: "mfaBackupCodes", target: "primeiroAcessoDec" },
   { ...edgeBase,   id: "e-mfaVerify-primacesso",   source: "mfaVerify",    target: "primeiroAcessoDec" },
+  { ...branchEdge, id: "e-mfaVerify-recovery",     source: "mfaVerify",    target: "mfaRecovery",        label: "Usar backup",  ...labelProps },
+  { ...edgeBase,   id: "e-mfaRecovery-primacesso", source: "mfaRecovery",  target: "primeiroAcessoDec" },
+
+  // ── Recuperação de senha: verify bifurca por modo (login → workspace, reset → resetSenha) ──
+  { ...branchEdge, id: "e-verify-reset",            source: "verify",       target: "resetSenha",         sourceHandle: "right", label: "Recuperação", ...labelProps },
 
   // ── Post-auth decisions (D7 onboarding | D8 nova org adicional) ──
   { ...branchEdge, id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
@@ -282,10 +293,9 @@ const EDGES: Edge[] = [
   { ...branchEdge, id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
   { ...branchEdge, id: "e-novaorgdec-platform",   source: "novaOrgDec",        target: "platform",       sourceHandle: "bottom", label: "Mais tarde",      ...labelProps },
 
-  // ── Recovery: erro inline → "Esqueci a senha" → reusa verify do login ──
+  // ── Recovery: erro inline → "Esqueci a senha" → verify (em modo reset) → resetSenha ──
   { ...branchEdge, id: "e-erro-recemail",     source: "erro",       target: "recEmail",         label: "Esqueci a senha", ...labelProps },
   { ...edgeBase,   id: "e-recemail-verify",   source: "recEmail",   target: "verify",           label: "Enviado",          ...labelProps },
-  // resetSenha is out-of-flow — not connected to the main path
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -297,7 +307,7 @@ const screens = [
     step: "entrada",
     title: "Login",
     href: "/",
-    purpose: "Ponto de entrada da plataforma em /. Input de email + 'Continuar' como ação principal. Abaixo do separador 'ou', Google e Microsoft como secundários. No rodapé, link discreto 'Ainda não tem conta? Primeiro acesso' direciona quem foi convidado pra /primeiro-acesso.",
+    purpose: "Ponto de entrada da plataforma. Input de email + 'Continuar' como ação principal. Abaixo do separador 'ou', Google e Microsoft como secundários. Sem affordance de signup direto na tela — quem foi convidado entra pelo link de e-mail do primeiro acesso.",
     decisions: "Digitar email + Continuar → backend (mockado) detecta se o domínio usa SSO empresarial. Senão, vai pra tela de senha com email pré-preenchido. Google ou Microsoft → workspace direto.",
   },
   {
@@ -332,8 +342,8 @@ const screens = [
     step: "04",
     title: "Verificação por e-mail",
     href: "/",
-    purpose: "Código de 6 dígitos enviado ao e-mail informado, com countdown de reenvio. Aceita colar o código direto do clipboard. Aplica-se sempre após e-mail+senha; OAuth e magic link pulam esse passo.",
-    decisions: "Código válido → seletor de organização ou /inicio. Trocar e-mail → volta para 'Esqueci a senha'.",
+    purpose: "Código de 6 dígitos enviado ao e-mail informado, com countdown de reenvio. Aceita colar o código direto do clipboard. Aplica-se sempre após e-mail+senha; OAuth e magic link pulam esse passo. A tela é usada tanto pelo login normal quanto pelo 'Esqueci a senha' — o modo (login/recuperação) é passado pelo contexto e decide pra onde o código válido leva.",
+    decisions: "Código válido (modo login) → seletor de organização. Código válido (modo recuperação) → 'Definir nova senha'. Trocar e-mail → volta para o ponto de origem (login ou 'Esqueci a senha').",
   },
   {
     step: "04b",
@@ -389,7 +399,14 @@ const screens = [
     title: "Verificação MFA",
     href: "/awsales/login",
     purpose: "Para usuários que já configuraram TOTP em sessão anterior. Input de 6 dígitos do app autenticador, centralizado. Link 'Usar código de backup' como fallback quando o usuário perdeu acesso ao app.",
-    decisions: "Código correto → primeiro acesso?. Usar código de backup → tela de entrada de código de backup (não modelada no flow ainda). Sair → volta pro login.",
+    decisions: "Código correto → primeiro acesso?. Usar código de backup → 'Usar código de backup' (fallback com 8 códigos one-shot). Sair → volta pro login.",
+  },
+  {
+    step: "06g",
+    title: "Usar código de backup",
+    href: "/awsales/login",
+    purpose: "Fallback do MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup gerados no setup TOTP. Cada código é one-shot — uma vez usado, é invalidado.",
+    decisions: "Código válido → primeiro acesso?. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
     step: "→ inline",
@@ -420,10 +437,10 @@ const screens = [
     decisions: "Enviar → verificação por e-mail (compartilhada com login).",
   },
   {
-    step: "B2 (fora do demo)",
+    step: "B2",
     title: "Definir nova senha",
     href: "/",
-    purpose: "Tela de redefinição com 2 campos (nova senha + confirmar) e validação de força em 3 regras: 8 caracteres, uma maiúscula, um número. Não é alcançada pelo flow demo — só via link real enviado por e-mail (futuro).",
+    purpose: "Tela de redefinição com 2 campos (nova senha + confirmar) e validação de força em 3 regras: 8 caracteres, uma maiúscula, um número. Alcançada quando o usuário entra no 'Esqueci a senha' e valida o OTP — verify identifica o modo recuperação e direciona pra cá.",
     decisions: "Salvar → tela de sucesso.",
   },
 ]
@@ -434,6 +451,24 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-28",
+    summary:
+      "Nova tela 'Usar código de backup' como fallback do MFA — sai do 'Verificação MFA' quando o usuário perdeu acesso ao app autenticador, converge no mesmo 'primeiro acesso?' do caminho normal.",
+    tags: ["new-page", "new-branch"],
+  },
+  {
+    date: "2026-05-28",
+    summary:
+      "Verificação por e-mail agora bifurca por contexto: vinda do login segue pro seletor de organização, vinda de 'Esqueci a senha' segue pra 'Definir nova senha' (resetSenha entra no fluxo, antes estava órfã).",
+    tags: ["flow-rework", "new-branch"],
+  },
+  {
+    date: "2026-05-28",
+    summary:
+      "Link 'Ainda não tem conta? Primeiro acesso' removido do rodapé da tela inicial. Convidado entra apenas pelo link recebido por e-mail.",
+    tags: ["integration"],
+  },
   {
     date: "2026-05-27",
     summary:
@@ -552,7 +587,7 @@ export default function LoginAuthFlowPage() {
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Entrada por email + HRD</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Tela inicial é input de email + Continuar (não 3 botões). O domínio decide o caminho: empresa com SSO obrigatório dispara tela rápida 'Conectando ao SSO da [Empresa]'; domínio livre vai pra tela de senha. Google e Microsoft ficam abaixo do 'ou' como opções secundárias. Link 'Primeiro acesso' no rodapé pra quem foi convidado e ainda não criou conta.
+                Tela inicial é input de email + Continuar (não 3 botões). O domínio decide o caminho: empresa com SSO obrigatório dispara tela rápida 'Conectando ao SSO da [Empresa]'; domínio livre vai pra tela de senha. Google e Microsoft ficam abaixo do 'ou' como opções secundárias. Sem signup direto na tela — primeiro acesso entra pelo link recebido no e-mail de convite.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
@@ -582,7 +617,7 @@ export default function LoginAuthFlowPage() {
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Recuperação reusa o OTP do login</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Quem esqueceu a senha não precisa redefinir antes de entrar: o "Esqueci a senha" abre a mesma tela de verificação por e-mail que o login. Recuperar = entrar via OTP. Redefinir a senha em si vira uma ação opcional que o usuário pode fazer depois, dentro da plataforma.
+                "Esqueci a senha" abre a mesma tela de verificação por e-mail do login. A diferença é o contexto: a tela carrega em modo recuperação e, depois do OTP válido, direciona pra "Definir nova senha" em vez do seletor de organização. Uma tela só, dois destinos.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
