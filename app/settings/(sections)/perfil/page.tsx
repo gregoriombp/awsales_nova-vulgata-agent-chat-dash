@@ -113,7 +113,7 @@ export default function ProfileSettingsPage() {
     { icon: "translate", text: "Português (Brasil)" },
   ];
   const accountRows = [
-    { icon: "domain", text: "Workspace Awsales" },
+    { icon: "domain", text: "Workspace AwSales" },
     { icon: "calendar_month", text: "Membro desde 12 jan 2026" },
     { icon: "workspace_premium", text: "Plano Enterprise" },
     { icon: "devices", text: "3 sessões ativas" },

@@ -667,7 +667,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     description:
       "Responsável pelo relacionamento com clientes. Gerencia conversas, disparos e acompanha métricas de atendimento.",
     idealFor:
-      "Especialistas Awsales designados pra acompanhar a sua organização.",
+      "Especialistas AwSales designados pra acompanhar a sua organização.",
     memberCount: 1,
     capabilities: GERENTE_DA_CONTA_PERMISSIONS,
     isSystem: true,
