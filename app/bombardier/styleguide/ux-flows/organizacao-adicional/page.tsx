@@ -254,6 +254,13 @@ const screens = [
 
 const updates: FlowUpdate[] = [
   {
+    date: "2026-05-29",
+    time: "15:58 BRT",
+    summary:
+      "Pagamento ganhou caminho de cartão recusado e bloqueio (mesmo PagamentoBody do primeiro acesso): recusa com motivo do banco + 3 saídas e bloqueio após 3 tentativas. Antes só existia o caminho feliz.",
+    tags: ["new-page", "new-branch"],
+  },
+  {
     date: "2026-05-28",
     summary:
       "Nova tela 'Usar código de backup' como fallback do 'Verificação MFA' — pro usuário que perdeu acesso ao app autenticador. Converge no mesmo 'Concluído'.",

@@ -362,9 +362,17 @@ const screens = [
 const updates: FlowUpdate[] = [
   {
     date: "2026-05-29",
+    time: "16:37 BRT",
     summary:
       "Entrada do responsável agora é magic link: o clique no link do e-mail já autentica (sem código nem serial). Substitui a verificação por código.",
     tags: ["flow-rework", "integration"],
+  },
+  {
+    date: "2026-05-29",
+    time: "15:58 BRT",
+    summary:
+      "Pagamento ganhou caminho de cartão recusado e bloqueio: a recusa mostra o motivo do banco e 3 saídas (outro cartão / Pix-boleto / falar com o AM); após 3 tentativas, bloqueia e abre chamado. Antes só existia o caminho feliz.",
+    tags: ["new-page", "new-branch"],
   },
   {
     date: "2026-05-28",

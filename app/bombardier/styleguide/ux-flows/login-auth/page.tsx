@@ -452,6 +452,13 @@ const screens = [
 
 const updates: FlowUpdate[] = [
   {
+    date: "2026-05-29",
+    time: "17:02 BRT",
+    summary:
+      "SSO empresarial agora pula o 2FA do app: o IdP já fez o MFA, então o login via SSO vai direto ao workspace sem challenge extra. Social pessoal e senha mantêm o 2FA.",
+    tags: ["flow-rework"],
+  },
+  {
     date: "2026-05-28",
     summary:
       "Nova tela 'Usar código de backup' como fallback do MFA — sai do 'Verificação MFA' quando o usuário perdeu acesso ao app autenticador, converge no mesmo 'primeiro acesso?' do caminho normal.",

@@ -11,6 +11,8 @@ export type FlowUpdateTag =
 export type FlowUpdate = {
   /** ISO date `YYYY-MM-DD`. Local timezone — never parsed as UTC. */
   date: string
+  /** Optional time-of-day label shown next to the date (e.g. "16:37 BRT"). */
+  time?: string
   /** One sentence in PT-BR describing the structural change. */
   summary: string
   tags: FlowUpdateTag[]
@@ -125,6 +127,7 @@ export function FlowUpdatesHistorySection({ updates }: { updates: FlowUpdate[] }
             <div className="flex items-baseline gap-3 flex-wrap">
               <span className="aw-eyebrow text-[var(--fg-tertiary)]">
                 {formatLong(u.date)}
+                {u.time ? ` · ${u.time}` : ""}
               </span>
               {u.tags.map((t) => {
                 const s = TAG_STYLE[t]

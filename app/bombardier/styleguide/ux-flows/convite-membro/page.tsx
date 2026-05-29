@@ -415,6 +415,13 @@ const screens = [
 
 const updates: FlowUpdate[] = [
   {
+    date: "2026-05-29",
+    time: "17:14 BRT",
+    summary:
+      "Braço de 2FA e os 3 erros de link saíram do diagrama pro protótipo clicável: nova rota /convite/seguranca (setup TOTP + códigos de backup) e as telas de link expirado / já utilizado / cancelado agora existem de verdade.",
+    tags: ["new-page", "flow-rework"],
+  },
+  {
     date: "2026-05-28",
     summary:
       "Nova tela 'Usar código de backup' como fallback do 'Verificação MFA' — pro membro que já tinha TOTP de outra org mas perdeu o app. Converge no mesmo 'Conta criada'.",
