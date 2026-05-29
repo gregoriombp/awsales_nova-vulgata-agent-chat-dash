@@ -71,7 +71,7 @@ const NODES: Node[] = [
     id: "verificacao",
     type: "screen",
     position: { x: COL, y: Y.verificacao },
-    data: { step: "01", title: "Verificação", href: "/primeiro-acesso/verificacao", note: "Valida o código de primeiro acesso de 6 dígitos." },
+    data: { step: "01", title: "Acesso por link", href: "/primeiro-acesso/verificacao", note: "Magic link: o clique no link enviado por e-mail já autentica — sem código nem senha. Segue direto pra criação de conta." },
   },
   {
     id: "linkExpirado",
@@ -249,10 +249,10 @@ const EDGES: Edge[] = [
 const screens = [
   {
     step: "01",
-    title: "Verificação",
+    title: "Acesso por link",
     href: "/primeiro-acesso/verificacao",
-    purpose: "Primeira tela do produto. Valida o código de primeiro acesso de 6 dígitos enviado no e-mail de convite e confirma que aquela pessoa foi convidada.",
-    decisions: "Código válido → segue para a criação da conta.",
+    purpose: "Primeira tela do produto. Entrada por magic link (WorkOS): o link enviado no convite carrega um token assinado e o clique já autentica o e-mail — sem código nem senha. Confirma que a pessoa foi convidada e segue pra criação de conta.",
+    decisions: "Clique no link válido → acesso validado → criação da conta. Link expirado / já usado / cancelado → telas próprias.",
   },
   {
     step: "01b",
@@ -360,6 +360,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-29",
+    summary:
+      "Entrada do responsável agora é magic link: o clique no link do e-mail já autentica (sem código nem serial). Substitui a verificação por código.",
+    tags: ["flow-rework", "integration"],
+  },
   {
     date: "2026-05-28",
     summary:
