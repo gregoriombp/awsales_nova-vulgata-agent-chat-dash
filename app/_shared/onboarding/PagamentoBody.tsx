@@ -57,9 +57,10 @@ export function PagamentoBody({
   const maxParcelas = org.parcelamentoMaxImplementacao
 
   const [phase, setPhase] = React.useState<
-    "setup" | "checkout" | "processing"
+    "setup" | "checkout" | "processing" | "declined" | "blocked"
   >("setup")
   const [step, setStep] = React.useState<"impl" | "mens" | "done">("impl")
+  const [attempts, setAttempts] = React.useState(0)
   const [impl, setImpl] = React.useState<Line>({ method: "pix", parcelas: 1 })
   const [mens, setMens] = React.useState<Line>({ method: "pix", parcelas: 1 })
 
@@ -86,10 +87,31 @@ export function PagamentoBody({
     setTimeout(() => router.push(concluidoHref), 1800)
   }
 
+  const handleDeclined = () => {
+    const next = attempts + 1
+    setAttempts(next)
+    setPhase(next >= 3 ? "blocked" : "declined")
+  }
+
+  const resetToSetup = () => {
+    setAttempts(0)
+    setStep("impl")
+    setPhase("setup")
+  }
+
   return (
     <AwOnboardingShell org={org}>
       {phase === "processing" ? (
         <ProcessingPhase totalImpl={totalImpl} totalMens={totalMens} />
+      ) : phase === "blocked" ? (
+        <BlockedPhase org={org} onBack={resetToSetup} />
+      ) : phase === "declined" ? (
+        <DeclinedPhase
+          org={org}
+          attempt={attempts}
+          onRetryCard={() => setPhase("checkout")}
+          onSwitchMethod={resetToSetup}
+        />
       ) : phase === "checkout" ? (
         <CheckoutPhase
           impl={impl}
@@ -98,6 +120,7 @@ export function PagamentoBody({
           totalMens={totalMens}
           onBack={() => setPhase("setup")}
           onSubmit={goProcessing}
+          onDecline={handleDeclined}
         />
       ) : (
         <section>
@@ -511,6 +534,7 @@ function CheckoutPhase({
   totalMens,
   onBack,
   onSubmit,
+  onDecline,
 }: {
   impl: Line
   mens: Line
@@ -518,6 +542,7 @@ function CheckoutPhase({
   totalMens: number
   onBack: () => void
   onSubmit: () => void
+  onDecline: () => void
 }) {
   const bothCartao = impl.method === "cartao" && mens.method === "cartao"
   const [reuseCard, setReuseCard] = React.useState(true)
@@ -549,6 +574,7 @@ function CheckoutPhase({
           label="Implementação"
           paid={implPaid}
           onMarkPaid={() => setImplPaid(true)}
+          onDecline={onDecline}
         />
         <PaymentInstrument
           method={mens.method}
@@ -560,6 +586,7 @@ function CheckoutPhase({
           onToggleReuseCard={() => setReuseCard((o) => !o)}
           paid={mensPaid}
           onMarkPaid={() => setMensPaid(true)}
+          onDecline={onDecline}
         />
       </div>
 
@@ -594,6 +621,7 @@ function PaymentInstrument({
   onToggleReuseCard,
   paid,
   onMarkPaid,
+  onDecline,
 }: {
   method: MethodId
   parcelas: number
@@ -604,6 +632,7 @@ function PaymentInstrument({
   onToggleReuseCard?: () => void
   paid: boolean
   onMarkPaid: () => void
+  onDecline?: () => void
 }) {
   const parcelaLine =
     parcelas === 1
@@ -656,6 +685,7 @@ function PaymentInstrument({
                 reuse={reuseCard}
                 onToggleReuse={onToggleReuseCard}
                 onConfirmPaid={onMarkPaid}
+                onDecline={onDecline}
               />
             )}
             {method === "boleto" && (
@@ -794,6 +824,7 @@ function CartaoInstrument({
   reuse,
   onToggleReuse,
   onConfirmPaid,
+  onDecline,
 }: {
   parcelas: number
   total: number
@@ -801,6 +832,7 @@ function CartaoInstrument({
   reuse?: boolean
   onToggleReuse?: () => void
   onConfirmPaid: () => void
+  onDecline?: () => void
 }) {
   const [number, setNumber] = React.useState("")
   const [name, setName] = React.useState("")
@@ -900,12 +932,23 @@ function CartaoInstrument({
               · cartão salvo de forma criptografada para próximas mensalidades.
             </span>
           </div>
+          <p className="m-0 text-[11px] text-fg-tertiary">
+            Protótipo: use um cartão terminado em{" "}
+            <b className="font-medium">0002</b> para simular uma recusa.
+          </p>
         </>
       )}
       <div className="flex justify-end border-t border-border-subtle pt-3">
         <button
           type="button"
-          onClick={onConfirmPaid}
+          onClick={() => {
+            const digits = number.replace(/\D/g, "")
+            if (!reuse && digits.endsWith("0002")) {
+              onDecline?.()
+              return
+            }
+            onConfirmPaid()
+          }}
           className="aw-btn aw-btn--primary aw-btn--sm"
         >
           <Icon name="lock" size={14} />
@@ -1049,6 +1092,145 @@ function FakeBarcode() {
         </React.Fragment>
       ))}
     </div>
+  )
+}
+
+/* ---------- DECLINED / BLOCKED (caminho infeliz do cartão) ---------- */
+
+function DeclinedPhase({
+  org,
+  attempt,
+  onRetryCard,
+  onSwitchMethod,
+}: {
+  org: Org
+  attempt: number
+  onRetryCard: () => void
+  onSwitchMethod: () => void
+}) {
+  const amFirst = org.accountManager.name.split(" ")[0]
+  return (
+    <section>
+      <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-red-200 bg-aw-red-100 px-2.5 py-1 body-xs font-medium text-aw-red-700">
+        <Icon name="credit_card_off" size={12} fill={1} />
+        Tentativa {attempt} de 3
+      </div>
+
+      <h3 className="mb-2 text-fg-primary text-balance">
+        Não conseguimos cobrar seu cartão
+      </h3>
+      <p className="mb-5 body-sm text-fg-secondary text-pretty">
+        Nenhum valor foi cobrado. Você pode tentar outro cartão, trocar de
+        método ou falar com {amFirst} se preferir resolver junto.
+      </p>
+
+      <div className="mb-6 flex items-start gap-3 rounded-lg border border-aw-red-200 bg-aw-red-100 px-4 py-3.5">
+        <Icon
+          name="info"
+          size={16}
+          fill={1}
+          className="mt-0.5 shrink-0 text-aw-red-700"
+        />
+        <div className="min-w-0">
+          <div className="body-xs font-medium text-aw-red-900">
+            Recusado pelo emissor do cartão
+          </div>
+          <div className="mt-0.5 body-xs text-aw-red-700">
+            Código 51 · saldo insuficiente. Esta é a resposta do banco emissor —
+            confira os dados ou use outro cartão.
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2.5">
+        <button
+          type="button"
+          onClick={onRetryCard}
+          className="aw-btn aw-btn--primary aw-btn--md aw-btn--block"
+        >
+          <Icon name="credit_card" size={16} />
+          <span className="aw-btn__label">Tentar outro cartão</span>
+        </button>
+        <button
+          type="button"
+          onClick={onSwitchMethod}
+          className="aw-btn aw-btn--secondary aw-btn--md aw-btn--block"
+        >
+          <Icon name="swap_horiz" size={16} />
+          <span className="aw-btn__label">Pagar com Pix ou boleto</span>
+        </button>
+        <button
+          type="button"
+          className="aw-btn aw-btn--ghost aw-btn--md aw-btn--block"
+        >
+          <Icon name="headset_mic" size={16} />
+          <span className="aw-btn__label">Falar com {amFirst}</span>
+        </button>
+      </div>
+    </section>
+  )
+}
+
+function BlockedPhase({
+  org,
+  onBack,
+}: {
+  org: Org
+  onBack: () => void
+}) {
+  const amFirst = org.accountManager.name.split(" ")[0]
+  return (
+    <section>
+      <span className="mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-aw-amber-100 text-aw-amber-700">
+        <Icon name="lock" size={36} fill={1} />
+      </span>
+
+      <h3 className="mb-2 text-fg-primary text-balance">
+        Pagamento bloqueado por segurança
+      </h3>
+      <p className="mb-6 body-sm text-fg-secondary text-pretty">
+        Após 3 tentativas recusadas, pausamos novas cobranças por segurança. Já{" "}
+        <b className="font-medium text-fg-primary">abrimos um chamado</b> e{" "}
+        {amFirst} foi avisado — vai te chamar para resolver junto. Seu progresso
+        está salvo.
+      </p>
+
+      <div className="mb-6 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3">
+        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-bg-muted text-fg-secondary">
+          <Icon name="support_agent" size={18} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="body-xs font-medium text-fg-primary">
+            {org.accountManager.name}
+          </div>
+          <div className="body-xs text-fg-tertiary">
+            {org.accountManager.role} · AwSales
+          </div>
+        </div>
+        <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-0.5 text-[11px] font-medium text-aw-amber-800">
+          <Icon name="confirmation_number" size={12} />
+          Chamado aberto
+        </span>
+      </div>
+
+      <div className="flex flex-col gap-2.5">
+        <button
+          type="button"
+          className="aw-btn aw-btn--primary aw-btn--md aw-btn--block"
+        >
+          <Icon name="headset_mic" size={16} />
+          <span className="aw-btn__label">Falar com {amFirst}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onBack}
+          className="aw-btn aw-btn--ghost aw-btn--md aw-btn--block"
+        >
+          <Icon name="arrow_back" size={16} />
+          <span className="aw-btn__label">Voltar ao pagamento</span>
+        </button>
+      </div>
+    </section>
   )
 }
 
