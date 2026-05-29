@@ -8,6 +8,7 @@ import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwCardBrand } from "@/components/ui/AwCardBrand"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
+import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder"
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data"
 
 type Org = typeof ONBOARDING_ORG
@@ -727,7 +728,7 @@ function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
   return (
     <div className="flex flex-col gap-3.5">
       <div className="flex items-center gap-4">
-        <FakeQR />
+        <AwQrPlaceholder px={140} ariaLabel="QR code Pix" />
         <div className="min-w-0 flex-1">
           <div className="mb-1.5 flex items-center gap-2">
             <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
@@ -770,47 +771,6 @@ function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
           <span className="aw-btn__label">Já paguei o Pix</span>
         </button>
       </div>
-    </div>
-  )
-}
-
-function FakeQR() {
-  const size = 19
-  const cells = React.useMemo(() => {
-    const arr: boolean[] = []
-    let s = 13
-    for (let i = 0; i < size * size; i++) {
-      s = (s * 9301 + 49297) % 233280
-      arr.push(s / 233280 > 0.5)
-    }
-    return arr
-  }, [])
-  const isFinder = (x: number, y: number) =>
-    (x < 7 && y < 7) ||
-    (x >= size - 7 && y < 7) ||
-    (x < 7 && y >= size - 7)
-  return (
-    <div
-      className="grid h-[140px] w-[140px] flex-shrink-0 rounded-md border border-border-subtle bg-white p-2"
-      style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
-    >
-      {cells.map((on, i) => {
-        const x = i % size
-        const y = Math.floor(i / size)
-        let fill: string
-        if (isFinder(x, y)) {
-          const fx = x < 7 ? x : x - (size - 7)
-          const fy = y < 7 ? y : y - (size - 7)
-          const onOuter = fx === 0 || fx === 6 || fy === 0 || fy === 6
-          const onInner = fx >= 2 && fx <= 4 && fy >= 2 && fy <= 4
-          fill = onOuter || onInner ? "#0D0D0D" : "#FFFFFF"
-        } else {
-          fill = on ? "#0D0D0D" : "#FFFFFF"
-        }
-        return (
-          <div key={i} style={{ background: fill, aspectRatio: "1 / 1" }} />
-        )
-      })}
     </div>
   )
 }
