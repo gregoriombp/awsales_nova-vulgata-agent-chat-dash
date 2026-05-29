@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
+import { AwPasswordSetup } from "@/components/ui/AwPasswordSetup"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
 type Method = "google" | "microsoft" | "senha"
@@ -48,7 +49,9 @@ export default function ContaPage() {
     <AwOnboardingShell org={ONBOARDING_ORG}>
       <section>
         {mode === "password" ? (
-          <PasswordSetup
+          <AwPasswordSetup
+            email={ONBOARDING_USER.email}
+            submitLabel="Criar conta e entrar"
             onBack={() => {
               setMode("choose")
               setPicked(null)
@@ -105,8 +108,6 @@ export default function ContaPage() {
               label="Definir uma senha"
               hint="Use e-mail e senha para entrar"
             />
-
-            
 
             <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
               <Link
@@ -169,188 +170,5 @@ function AuthOption({
         />
       )}
     </button>
-  )
-}
-
-function PasswordSetup({
-  onBack,
-  onSubmit,
-}: {
-  onBack: () => void
-  onSubmit: () => void
-}) {
-  const [pwd, setPwd] = React.useState("")
-  const [confirm, setConfirm] = React.useState("")
-  const [show, setShow] = React.useState(false)
-  const [submitting, setSubmitting] = React.useState(false)
-
-  const rules = [
-    { label: "Mínimo de 8 caracteres", ok: pwd.length >= 8 },
-    { label: "1 letra maiúscula", ok: /[A-Z]/.test(pwd) },
-    { label: "1 número", ok: /\d/.test(pwd) },
-    { label: "1 símbolo (!@#…)", ok: /[^A-Za-z0-9]/.test(pwd) },
-  ]
-  const allOk = rules.every((r) => r.ok)
-  const matches = confirm.length > 0 && pwd === confirm
-  const valid = allOk && matches
-
-  const submit = () => {
-    if (!valid || submitting) return
-    setSubmitting(true)
-    setTimeout(onSubmit, 1100)
-  }
-
-  return (
-    <>
-      <h3 className="mb-2 text-fg-primary text-balance">
-        Defina uma senha forte
-      </h3>
-
-      <p className="mb-7 body-sm text-fg-secondary text-pretty">
-        Você usará{" "}
-        <span className="font-medium text-fg-primary">
-          {ONBOARDING_USER.email}
-        </span>{" "}
-        e essa senha para entrar na AwSales.
-      </p>
-
-      <div className="grid gap-3.5">
-        <PasswordField
-          label="Nova senha"
-          value={pwd}
-          onChange={setPwd}
-          show={show}
-          onToggleShow={() => setShow((v) => !v)}
-        />
-        <PasswordField
-          label="Confirmar senha"
-          value={confirm}
-          onChange={setConfirm}
-          show={show}
-          onToggleShow={() => setShow((v) => !v)}
-          status={
-            confirm.length === 0 ? "idle" : matches ? "match" : "mismatch"
-          }
-        />
-      </div>
-
-      <ul className="m-0 mt-4 grid grid-cols-2 gap-x-4 gap-y-1.5 list-none p-0">
-        {rules.map((rule) => (
-          <li key={rule.label} className="flex items-center gap-2 body-xs">
-            <span
-              className={[
-                "flex h-4 w-4 items-center justify-center rounded-full",
-                rule.ok
-                  ? "bg-aw-emerald-100 text-aw-emerald-700"
-                  : "bg-bg-muted text-fg-tertiary",
-              ].join(" ")}
-            >
-              <Icon name={rule.ok ? "check" : "remove"} size={12} />
-            </span>
-            <span className={rule.ok ? "text-fg-secondary" : "text-fg-tertiary"}>
-              {rule.label}
-            </span>
-          </li>
-        ))}
-      </ul>
-
-      {submitting && (
-        <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
-          <span
-            aria-hidden="true"
-            className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
-          />
-          <div className="body-xs font-medium text-fg-primary">
-            Criando sua conta segura…
-          </div>
-        </div>
-      )}
-
-      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-        <button
-          type="button"
-          onClick={onBack}
-          disabled={submitting}
-          className="aw-btn aw-btn--ghost aw-btn--md"
-        >
-          <Icon name="arrow_back" size={16} />
-          <span className="aw-btn__label">Outro método</span>
-        </button>
-        <span className="flex-1" />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!valid || submitting}
-          className="aw-btn aw-btn--primary aw-btn--md"
-        >
-          <span className="aw-btn__label">
-            {submitting ? "Criando…" : "Criar conta e entrar"}
-          </span>
-          <Icon name="arrow_forward" size={16} />
-        </button>
-      </footer>
-    </>
-  )
-}
-
-function PasswordField({
-  label,
-  value,
-  onChange,
-  show,
-  onToggleShow,
-  status = "idle",
-}: {
-  label: string
-  value: string
-  onChange: (v: string) => void
-  show: boolean
-  onToggleShow: () => void
-  status?: "idle" | "match" | "mismatch"
-}) {
-  const borderClass =
-    status === "mismatch"
-      ? "border-aw-amber-500 focus-within:border-aw-amber-500"
-      : status === "match"
-        ? "border-aw-emerald-500 focus-within:border-aw-emerald-500"
-        : "border-border focus-within:border-fg-primary"
-
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="body-xs font-medium text-fg-secondary">{label}</span>
-      <span
-        className={`flex h-11 items-center gap-2 rounded-md border ${borderClass} bg-bg-raised px-3.5`}
-      >
-        <Icon name="lock" size={16} className="text-fg-tertiary" />
-        <input
-          type={show ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="••••••••"
-          className="flex-1 border-0 bg-transparent body-sm outline-0"
-          style={{ letterSpacing: show ? "0" : "0.1em" }}
-        />
-        {status === "match" && (
-          <Icon
-            name="check_circle"
-            size={16}
-            className="text-aw-emerald-700"
-            fill={1}
-          />
-        )}
-        {status === "mismatch" && (
-          <Icon name="error" size={16} className="text-aw-amber-700" fill={1} />
-        )}
-        <button
-          type="button"
-          onClick={onToggleShow}
-          tabIndex={-1}
-          aria-label={show ? "Ocultar senha" : "Mostrar senha"}
-          className="flex h-7 w-7 items-center justify-center rounded-sm text-fg-tertiary hover:bg-bg-muted hover:text-fg-secondary"
-        >
-          <Icon name={show ? "visibility_off" : "visibility"} size={18} />
-        </button>
-      </span>
-    </label>
   )
 }

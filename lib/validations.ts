@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PASSWORD_MIN_LENGTH } from "./password-policy";
 
 export const loginSchema = z.object({
   email: z
@@ -24,12 +25,10 @@ export type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export const resetPasswordSchema = z.object({
   password: z
     .string()
-    .min(8, "At least 8 characters")
-    .regex(/[A-Z]/, "One capital letter")
-    .regex(/[0-9]/, "One number"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
+    .min(PASSWORD_MIN_LENGTH, `Mínimo de ${PASSWORD_MIN_LENGTH} caracteres`),
+  confirmPassword: z.string().min(1, "Confirme sua senha"),
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords do not match",
+  message: "As senhas não coincidem",
   path: ["confirmPassword"],
 });
 
