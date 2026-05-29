@@ -16,7 +16,7 @@ import { MfaBackupCodesScreen } from "./screens/MfaBackupCodesScreen";
 import { MfaVerifyScreen } from "./screens/MfaVerifyScreen";
 import { MfaRecoveryScreen } from "./screens/MfaRecoveryScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
-import type { AuthScreen, Locale, VerifyMode } from "./_types";
+import type { AuthScreen, Locale, VerifyMode, AuthMethod } from "./_types";
 
 export type { AuthScreen };
 
@@ -26,19 +26,20 @@ export function AuthFlow() {
   const [email, setEmail] = useState("");
   const [ssoOrg, setSsoOrg] = useState("");
   const [verifyMode, setVerifyMode] = useState<VerifyMode>("login");
+  const [authMethod, setAuthMethod] = useState<AuthMethod>("password");
 
   const goTo = useCallback((s: AuthScreen) => setScreen(s), []);
 
   const renderScreen = () => {
     switch (screen) {
-      case "login":         return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} />;
+      case "login":         return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} setAuthMethod={setAuthMethod} />;
       case "email":         return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
       case "forgot":        return <ForgotScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
       case "reset":         return <ResetScreen locale={locale} goTo={goTo} />;
       case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} mode={verifyMode} />;
       case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
       case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg} />;
-      case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} />;
+      case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} skipMfa={authMethod === "sso"} />;
       case "mfaGate":        return <MfaGateScreen locale={locale} goTo={goTo} />;
       case "mfaSetupApp":    return <MfaSetupAppScreen locale={locale} goTo={goTo} />;
       case "mfaBackupCodes": return <MfaBackupCodesScreen locale={locale} goTo={goTo} />;

@@ -118,13 +118,13 @@ const NODES: Node[] = [
     id: "mfaBackupCodes",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
-    data: { step: "02g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
+    data: { step: "02g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
   },
   {
     id: "mfaRecovery",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
-    data: { step: "02i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
+    data: { step: "02i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
   },
   {
     id: "concluido",
@@ -221,7 +221,7 @@ const screens = [
     step: "02g",
     title: "Códigos de backup",
     href: "/awsales/login",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → segue pro 'Concluído'.",
   },
   {
@@ -235,7 +235,7 @@ const screens = [
     step: "02i",
     title: "Usar código de backup",
     href: "/awsales/login",
-    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
     decisions: "Código válido → concluído. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
@@ -253,6 +253,13 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-29",
+    time: "15:58 BRT",
+    summary:
+      "Pagamento ganhou caminho de cartão recusado e bloqueio (mesmo PagamentoBody do primeiro acesso): recusa com motivo do banco + 3 saídas e bloqueio após 3 tentativas. Antes só existia o caminho feliz.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-28",
     summary:

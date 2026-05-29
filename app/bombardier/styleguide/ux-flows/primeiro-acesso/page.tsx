@@ -71,7 +71,7 @@ const NODES: Node[] = [
     id: "verificacao",
     type: "screen",
     position: { x: COL, y: Y.verificacao },
-    data: { step: "01", title: "Verificação", href: "/primeiro-acesso/verificacao", note: "Valida o código de primeiro acesso de 6 dígitos." },
+    data: { step: "01", title: "Acesso por link", href: "/primeiro-acesso/verificacao", note: "Magic link: o clique no link enviado por e-mail já autentica — sem código nem senha. Segue direto pra criação de conta." },
   },
   {
     id: "linkExpirado",
@@ -162,13 +162,13 @@ const NODES: Node[] = [
     id: "mfaBackupCodes",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
-    data: { step: "05g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
+    data: { step: "05g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
   },
   {
     id: "mfaRecovery",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
-    data: { step: "05i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback raro num primeiro acesso, mas relevante quando o usuário já tinha TOTP de outra org e perdeu o app. Entra um dos 8 códigos de backup salvos. Cada código vale uma vez." },
+    data: { step: "05i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback raro num primeiro acesso, mas relevante quando o usuário já tinha TOTP de outra org e perdeu o app. Entra um dos 10 códigos de backup salvos. Cada código vale uma vez." },
   },
   {
     id: "concluido",
@@ -249,10 +249,10 @@ const EDGES: Edge[] = [
 const screens = [
   {
     step: "01",
-    title: "Verificação",
+    title: "Acesso por link",
     href: "/primeiro-acesso/verificacao",
-    purpose: "Primeira tela do produto. Valida o código de primeiro acesso de 6 dígitos enviado no e-mail de convite e confirma que aquela pessoa foi convidada.",
-    decisions: "Código válido → segue para a criação da conta.",
+    purpose: "Primeira tela do produto. Entrada por magic link (WorkOS): o link enviado no convite carrega um token assinado e o clique já autentica o e-mail — sem código nem senha. Confirma que a pessoa foi convidada e segue pra criação de conta.",
+    decisions: "Clique no link válido → acesso validado → criação da conta. Link expirado / já usado / cancelado → telas próprias.",
   },
   {
     step: "01b",
@@ -328,7 +328,7 @@ const screens = [
     step: "05g",
     title: "Códigos de backup",
     href: "/awsales/login",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → segue pro 'Concluído' (provisão do ambiente).",
   },
   {
@@ -342,7 +342,7 @@ const screens = [
     step: "05i",
     title: "Usar código de backup",
     href: "/awsales/login",
-    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
     decisions: "Código válido → concluído. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
@@ -360,6 +360,20 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-29",
+    time: "16:37 BRT",
+    summary:
+      "Entrada do responsável agora é magic link: o clique no link do e-mail já autentica (sem código nem serial). Substitui a verificação por código.",
+    tags: ["flow-rework", "integration"],
+  },
+  {
+    date: "2026-05-29",
+    time: "15:58 BRT",
+    summary:
+      "Pagamento ganhou caminho de cartão recusado e bloqueio: a recusa mostra o motivo do banco e 3 saídas (outro cartão / Pix-boleto / falar com o AM); após 3 tentativas, bloqueia e abre chamado. Antes só existia o caminho feliz.",
+    tags: ["new-page", "new-branch"],
+  },
   {
     date: "2026-05-28",
     summary:

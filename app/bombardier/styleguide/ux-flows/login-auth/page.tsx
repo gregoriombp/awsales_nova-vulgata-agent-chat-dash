@@ -154,13 +154,13 @@ const NODES: Node[] = [
     id: "mfaBackupCodes",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
-    data: { step: "06e", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em um lugar seguro' antes de continuar." },
+    data: { step: "06e", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em um lugar seguro' antes de continuar." },
   },
   {
     id: "mfaRecovery",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
-    data: { step: "06g", title: "Usar código de backup", href: "/awsales/login", note: "Fallback quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
+    data: { step: "06g", title: "Usar código de backup", href: "/awsales/login", note: "Fallback quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
   },
   {
     id: "primeiroAcessoDec",
@@ -391,7 +391,7 @@ const screens = [
     step: "06e",
     title: "Códigos de backup",
     href: "/awsales/login",
-    purpose: "Passo 2 de 2. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Passo 2 de 2. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → fim do setup, continua o flow pra primeiro acesso?.",
   },
   {
@@ -399,13 +399,13 @@ const screens = [
     title: "Verificação MFA",
     href: "/awsales/login",
     purpose: "Para usuários que já configuraram TOTP em sessão anterior. Input de 6 dígitos do app autenticador, centralizado. Link 'Usar código de backup' como fallback quando o usuário perdeu acesso ao app.",
-    decisions: "Código correto → primeiro acesso?. Usar código de backup → 'Usar código de backup' (fallback com 8 códigos one-shot). Sair → volta pro login.",
+    decisions: "Código correto → primeiro acesso?. Usar código de backup → 'Usar código de backup' (fallback com 10 códigos one-shot). Sair → volta pro login.",
   },
   {
     step: "06g",
     title: "Usar código de backup",
     href: "/awsales/login",
-    purpose: "Fallback do MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup gerados no setup TOTP. Cada código é one-shot — uma vez usado, é invalidado.",
+    purpose: "Fallback do MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup gerados no setup TOTP. Cada código é one-shot — uma vez usado, é invalidado.",
     decisions: "Código válido → primeiro acesso?. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
@@ -451,6 +451,13 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-05-29",
+    time: "17:02 BRT",
+    summary:
+      "SSO empresarial agora pula o 2FA do app: o IdP já fez o MFA, então o login via SSO vai direto ao workspace sem challenge extra. Social pessoal e senha mantêm o 2FA.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-05-28",
     summary:

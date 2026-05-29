@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
-import type { Locale, AuthScreen } from "../_types";
+import type { Locale, AuthScreen, AuthMethod } from "../_types";
 import { detectSso } from "../_types";
 import { COPY } from "../_copy";
 import { SsoButton } from "../_atoms";
@@ -35,11 +35,13 @@ export function LoginScreen({
   goTo,
   setEmail,
   setSsoOrg,
+  setAuthMethod,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
   setEmail: (e: string) => void;
   setSsoOrg: (org: string) => void;
+  setAuthMethod: (m: AuthMethod) => void;
 }) {
   const c = COPY.login[locale];
   const [emailInput, setEmailInput] = useState("");
@@ -52,8 +54,10 @@ export function LoginScreen({
     const ssoOrg = detectSso(trimmed);
     if (ssoOrg) {
       setSsoOrg(ssoOrg);
+      setAuthMethod("sso");
       goTo("ssoConnecting");
     } else {
+      setAuthMethod("password");
       goTo("email");
     }
   };
@@ -88,8 +92,8 @@ export function LoginScreen({
       </div>
 
       <div className="mt-4 flex flex-col gap-2.5">
-        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => goTo("workspace")} />
-        <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => goTo("workspace")} />
+        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
+        <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
       </div>
     </form>
   );

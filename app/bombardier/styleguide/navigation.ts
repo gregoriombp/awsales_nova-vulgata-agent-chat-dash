@@ -71,6 +71,7 @@ export const navigation: NavSection[] = [
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
+      { name: "Password setup", href: "/bombardier/styleguide/components/aw-password-setup" },
       { name: "Payment method card", href: "/bombardier/styleguide/components/payment-method-card" },
       { name: "Pills", href: "/bombardier/styleguide/components/pills" },
       { name: "Progress", href: "/bombardier/styleguide/components/aw-progress" },

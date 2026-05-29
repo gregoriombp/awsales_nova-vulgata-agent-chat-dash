@@ -28,7 +28,7 @@ export default function ConvitePerfilPage() {
 function PerfilContent() {
   const searchParams = useSearchParams()
   const metodo = searchParams.get("metodo")
-  const nextHref = `/convite/concluido${metodo ? `?metodo=${metodo}` : ""}`
+  const nextHref = `/convite/seguranca${metodo ? `?metodo=${metodo}` : ""}`
 
   const [name, setName] = React.useState(CONVITE_INVITEE.name)
   const [cargo, setCargo] = React.useState("")

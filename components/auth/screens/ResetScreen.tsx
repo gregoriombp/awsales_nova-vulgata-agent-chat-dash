@@ -3,6 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/lib/validations";
+import { evaluatePassword } from "@/lib/password-policy";
 import { AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
 import { Icon } from "@/components/ui/Icon";
@@ -28,10 +29,8 @@ export function ResetScreen({
   } = useForm<ResetPasswordFormData>({ resolver: zodResolver(resetPasswordSchema) });
 
   const pw = watch("password", "");
-  const has8 = pw.length >= 8;
-  const hasUpper = /[A-Z]/.test(pw);
-  const hasNumber = /[0-9]/.test(pw);
-  const strength = [has8, hasUpper, hasNumber].filter(Boolean).length;
+  const ev = evaluatePassword(pw);
+  const strength = ev.score;
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     console.log("Reset:", data);
@@ -77,14 +76,14 @@ export function ResetScreen({
       </div>
 
       <div className="flex flex-col gap-1.5 body-xs mb-4">
-        <span className={cn("flex items-center gap-2", has8 ? "text-aw-emerald-700" : "text-aw-gray-800")}>
+        <span className={cn("flex items-center gap-2", ev.longEnough ? "text-aw-emerald-700" : "text-aw-gray-800")}>
           <Icon name="check" size={14} /> {c.rule1}
         </span>
-        <span className={cn("flex items-center gap-2", hasUpper ? "text-aw-emerald-700" : "text-aw-gray-800")}>
-          <Icon name="check" size={14} /> {c.rule2}
+        <span className="flex items-center gap-2 text-aw-gray-700">
+          <Icon name="key" size={14} /> {c.rule2}
         </span>
-        <span className={cn("flex items-center gap-2", hasNumber ? "text-aw-emerald-700" : "text-aw-gray-800")}>
-          <Icon name="check" size={14} /> {c.rule3}
+        <span className="flex items-center gap-2 text-aw-gray-700">
+          <Icon name="shield" size={14} /> {c.rule3}
         </span>
       </div>
 

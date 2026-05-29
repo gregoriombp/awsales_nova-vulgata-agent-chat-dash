@@ -8,14 +8,16 @@ import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 
 const BACKUP_CODES = [
-  "A3F9X-K2L7M",
-  "B8H4P-N6Q1R",
-  "C2J7V-W3D5T",
-  "D9K1Z-Y4E8U",
-  "E6L3B-X7F2H",
-  "F4M8N-P1G9J",
-  "G7N2C-Q5H6K",
-  "H1P5V-R8J3L",
+  "DEMO-A3F9X-K2L7M",
+  "DEMO-B8H4P-N6Q1R",
+  "DEMO-C2J7V-W3D5T",
+  "DEMO-D9K1Z-Y4E8U",
+  "DEMO-E6L3B-X7F2H",
+  "DEMO-F4M8N-P1G9J",
+  "DEMO-G7N2C-Q5H6K",
+  "DEMO-H1P5V-R8J3L",
+  "DEMO-J5R8D-T2M4W",
+  "DEMO-K9T3F-V6N1X",
 ];
 
 export function MfaBackupCodesScreen({

@@ -154,7 +154,7 @@ function OnboardingBrandPane({
               className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500"
             />
             <span>
-              Estamos prontos para reconhecer você assim que inserir o código.
+              Estamos prontos para reconhecer você assim que você abrir o link de acesso.
             </span>
           </div>
         )}

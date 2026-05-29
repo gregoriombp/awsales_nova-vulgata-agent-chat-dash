@@ -10,9 +10,11 @@ import { COPY, ORGS } from "../_copy";
 export function WorkspaceScreen({
   locale,
   goTo,
+  skipMfa,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
+  skipMfa?: boolean;
 }) {
   const c = COPY.workspace[locale];
   const orgs = ORGS[locale];
@@ -95,6 +97,12 @@ export function WorkspaceScreen({
         size="md"
         block
         onClick={() => {
+          // SSO empresarial: o IdP da org já fez o MFA — o app não repete o
+          // challenge de 2FA (evita o double-prompt). Vai direto pro sucesso.
+          if (skipMfa) {
+            goTo("success");
+            return;
+          }
           const next: AuthScreen =
             selected === 0
               ? "mfaVerify"

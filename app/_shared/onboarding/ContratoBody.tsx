@@ -8,6 +8,12 @@ import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwFileIcon } from "@/components/ui/AwFileIcon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   ONBOARDING_ORG,
   ONBOARDING_USER,
   fmtBRL,
@@ -78,13 +84,16 @@ export function ContratoBody({
           <KV
             label="Plano"
             value={
-              <>
-                <b className="font-medium">{org.plan}</b>
-                <span className="font-normal text-fg-tertiary">
-                  {" "}
-                  · {org.contractTerm} · {org.fidelidade}
+              <span className="inline-flex flex-wrap items-center gap-1.5">
+                <span>
+                  <b className="font-medium">{org.plan}</b>
+                  <span className="font-normal text-fg-tertiary">
+                    {" "}
+                    · {org.contractTerm} · {org.fidelidade}
+                  </span>
                 </span>
-              </>
+                <MultaInfo />
+              </span>
             }
           />
           <KV label="Implementação" value={fmtBRL(org.valorImplementacao)} emph />
@@ -173,7 +182,7 @@ export function ContratoBody({
             className="mt-px"
           />
           <span className="flex-1 body-xs text-fg-secondary text-pretty">
-            Li e concordo com os{" "}
+            Li e aceito os{" "}
             <a
               href="#"
               onClick={(e) => e.stopPropagation()}
@@ -189,8 +198,11 @@ export function ContratoBody({
             >
               Política de Privacidade
             </a>{" "}
-            e as condições comerciais acima. Estou ciente do prazo de
-            fidelidade de {fidelidadeMeses} meses.
+            e as condições comerciais acima — incluindo a{" "}
+            <b className="font-medium text-fg-primary">
+              cobrança recorrente mensal
+            </b>{" "}
+            e a fidelidade de {fidelidadeMeses} meses.
           </span>
         </label>
 
@@ -262,6 +274,29 @@ function KV({
         {value}
       </dd>
     </div>
+  )
+}
+
+function MultaInfo() {
+  return (
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Como a multa de fidelidade é calculada"
+            className="inline-flex h-4 w-4 items-center justify-center rounded-full text-fg-tertiary transition-colors hover:text-fg-secondary"
+          >
+            <Icon name="info" size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent className="max-w-[260px]">
+          Multa de 50% sobre o saldo das mensalidades restantes até o fim da
+          fidelidade, em caso de cancelamento antecipado. Detalhes completos no
+          contrato.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 
