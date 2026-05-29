@@ -365,7 +365,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 prop="size"
                 type="number"
                 def="36"
-                doc="Lado do bounding box em pixels. O hex flat-top ocupa 100% × 86.6% desse box."
+                doc="Lado do bounding box em pixels. O hex flat-top ocupa 100% × 86.6% desse box. Também controla a densidade: abaixo de ~96px o componente acalma a textura automaticamente (menos complexity, scale mais aberta) pra não virar ruído no topbar/inline — orbs grandes mantêm o standard cheio."
               />
               <PropRow
                 prop="state"
@@ -400,14 +400,14 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               <PropRow
                 prop="scale"
                 type="number"
-                def="preset · 2.8"
-                doc="Zoom da malha. Maior = padrão mais largo / textura mais aberta. 2.8 é o standard do print."
+                def="preset · 2.8 (eased ↓ p/ size pequeno)"
+                doc="Zoom da malha. Maior = padrão mais largo / textura mais aberta. 2.8 é o standard do print; em orbs pequenos abre automaticamente pra textura ficar legível. Passar a prop sobrescreve o auto."
               />
               <PropRow
                 prop="complexity"
                 type="number (1–20)"
-                def="preset · 8"
-                doc="Quantas iterações de domain warping rodam. Maior = malha mais intrincada. Custa GPU acima de ~12."
+                def="preset · 8 (eased ↓ p/ size pequeno)"
+                doc="Quantas iterações de domain warping rodam. Maior = malha mais intrincada. Custa GPU acima de ~12. Em orbs pequenos cai automaticamente (até ~4) pra não virar ruído; passar a prop sobrescreve o auto."
               />
               <PropRow
                 prop="distortion"
@@ -444,8 +444,8 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             <CodeExample label="usos canônicos" lang="tsx">
               {`import { CopilotOrb } from "@/components/CopilotDrawer"
 
-// 1. Topbar — sempre idle, sempre 20px. Standard B&W cromo líquido.
-<CopilotOrb size={20} />
+// 1. Topbar — sempre idle, 28px. Textura acalma sozinha nesse tamanho.
+<CopilotOrb size={28} />
 
 // 2. Painel do copilot — header em listening enquanto o usuário digita.
 <CopilotOrb size={46} state="listening" />

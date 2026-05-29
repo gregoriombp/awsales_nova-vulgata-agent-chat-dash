@@ -61,6 +61,18 @@ export function CopilotOrb({
   bg?: string;
 }) {
   const preset = CORTEX_STATE_PRESETS[state];
+
+  // Size-aware density. The presets are tuned for large orbs (hero/panel).
+  // At small pixel sizes that same complexity/scale crams too many swirls
+  // into a few pixels and reads as dense noise — exactly the topbar problem.
+  // We ease the warp iterations and open up the scale as the orb shrinks, so
+  // small orbs (28px topbar, 20px inline) stay legible while large orbs
+  // (≥96px) keep the full standard look. Explicit prop overrides always win.
+  const calm = Math.min(1, Math.max(0, (96 - size) / (96 - 22)));
+  const autoScale = preset.scale - calm * 1.3;
+  const autoComplexity = preset.complexity - calm * 4;
+  const autoDistortion = preset.distortion - calm * 0.4;
+
   return (
     <div
       className="relative shrink-0 overflow-hidden"
@@ -82,9 +94,9 @@ export function CopilotOrb({
         color1={color1 ?? preset.color1}
         color2={color2 ?? preset.color2}
         color3={color3 ?? preset.color3}
-        scale={scale ?? preset.scale}
-        complexity={complexity ?? preset.complexity}
-        distortion={distortion ?? preset.distortion}
+        scale={scale ?? autoScale}
+        complexity={complexity ?? autoComplexity}
+        distortion={distortion ?? autoDistortion}
         glowIntensity={glowIntensity ?? preset.glowIntensity}
         flowFrequency={flowFrequency ?? preset.flowFrequency}
         contrast={contrast ?? preset.contrast}
@@ -179,23 +191,23 @@ export default function CopilotDrawer({
   const panel = (
     <aside
       ref={panelRef}
-      className={`h-full bg-[#f9f9f9] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
+      className={`h-full bg-[var(--bg-surface)] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
         isOpen ? "w-[405px]" : "w-0"
       }`}
       role="dialog"
       aria-label="Cortex"
     >
-      <div className="h-full w-[405px] min-w-[405px] bg-white flex flex-col">
+      <div className="h-full w-[405px] min-w-[405px] bg-[var(--bg-raised)] flex flex-col">
         {/* Top bar */}
-        <div className="h-[79px] w-full border-b border-[#f3f4f6] px-4 flex items-center justify-between shrink-0">
+        <div className="h-[79px] w-full border-b border-[var(--border-subtle)] px-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <CopilotOrb size={46} />
             <div className="flex flex-col">
-              <div className="body-xl font-semibold text-[#252b33]">
+              <div className="body-xl font-semibold text-[var(--fg-primary)]">
                 Cortex
               </div>
-              <div className="flex items-center gap-2 body-xs leading-4 text-[#00a63e]">
-                <span className="h-[6px] w-[6px] rounded-full bg-[#00c950] opacity-50" />
+              <div className="flex items-center gap-2 body-xs leading-4 text-[var(--accent-success)]">
+                <span className="h-[6px] w-[6px] rounded-full bg-[var(--accent-success)] opacity-50" />
                 <span>Online</span>
               </div>
             </div>
@@ -203,7 +215,7 @@ export default function CopilotDrawer({
 
           <button
             type="button"
-            className="rounded-full p-2 text-[#64748b] hover:bg-[#f2f2f2] hover:text-[#0d0d0d] transition-colors"
+            className="rounded-full p-2 text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors"
             onClick={onClose}
             aria-label="Fechar"
           >
@@ -218,7 +230,7 @@ export default function CopilotDrawer({
               <div className="mb-10">
                 <CopilotOrb size={119} />
               </div>
-              <div className="body-xl font-semibold text-[#252b33]">
+              <div className="body-xl font-semibold text-[var(--fg-primary)]">
                 Olá! Como posso te ajudar?
               </div>
             </div>
@@ -232,8 +244,8 @@ export default function CopilotDrawer({
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 body-sm ${
                       m.role === "user"
-                        ? "bg-[#1e2939] text-white rounded-br-md"
-                        : "bg-[#f4f4f4] text-[#252b33] rounded-bl-md"
+                        ? "bg-[var(--fg-primary)] text-[var(--bg-canvas)] rounded-br-md"
+                        : "bg-[var(--bg-surface)] text-[var(--fg-primary)] border border-[var(--border-subtle)] rounded-bl-md"
                     }`}
                   >
                     {m.role === "bot" ? (
@@ -249,11 +261,11 @@ export default function CopilotDrawer({
                             code: ({ children, className }) => {
                               const isInline = !className;
                               return isInline ? (
-                                <code className="bg-[#e5e5e5] px-1.5 py-0.5 rounded body-xs mono">
+                                <code className="bg-[var(--bg-muted)] px-1.5 py-0.5 rounded body-xs mono">
                                   {children}
                                 </code>
                               ) : (
-                                <code className="block bg-[#e5e5e5] p-2 rounded body-xs mono overflow-x-auto my-2">
+                                <code className="block bg-[var(--bg-muted)] p-2 rounded body-xs mono overflow-x-auto my-2">
                                   {children}
                                 </code>
                               );
@@ -263,7 +275,7 @@ export default function CopilotDrawer({
                             h2: ({ children }) => <h2 className="body-sm font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
                             h3: ({ children }) => <h3 className="body-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
                             blockquote: ({ children }) => (
-                              <blockquote className="border-l-2 border-[#99a1af] pl-3 my-2 italic text-[#64748b]">
+                              <blockquote className="border-l-2 border-[var(--border-default)] pl-3 my-2 italic text-[var(--fg-secondary)]">
                                 {children}
                               </blockquote>
                             ),
@@ -272,7 +284,7 @@ export default function CopilotDrawer({
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[#1fb6ff] underline hover:text-[#0d8fd9]"
+                                className="text-[var(--aw-blue-600)] underline hover:text-[var(--aw-blue-700)]"
                               >
                                 {children}
                               </a>
@@ -290,10 +302,10 @@ export default function CopilotDrawer({
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-md bg-[#f4f4f4] px-4 py-2.5 flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#99a1af] animate-bounce [animation-delay:0ms]" />
-                    <span className="w-2 h-2 rounded-full bg-[#99a1af] animate-bounce [animation-delay:150ms]" />
-                    <span className="w-2 h-2 rounded-full bg-[#99a1af] animate-bounce [animation-delay:300ms]" />
+                  <div className="rounded-2xl rounded-bl-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-4 py-2.5 flex gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:0ms]" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:150ms]" />
+                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:300ms]" />
                   </div>
                 </div>
               )}
@@ -303,34 +315,34 @@ export default function CopilotDrawer({
         </div>
 
         {/* Composer */}
-        <div className="w-full border-t border-[#f3f4f6] px-4 pt-3 pb-3 flex flex-col gap-2 shrink-0">
-          <div className="w-full rounded-[24px] bg-[#f4f4f4] pl-4 pr-2 py-2 flex items-center justify-between">
+        <div className="w-full border-t border-[var(--border-subtle)] px-4 pt-3 pb-3 flex flex-col gap-2 shrink-0">
+          <div className="w-full rounded-[var(--radius-2xl)] bg-[var(--bg-surface)] pl-4 pr-2 py-2 flex items-center justify-between">
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              className="w-full bg-transparent body-sm text-[#111827] placeholder:text-[#99a1af] focus:outline-none"
+              className="w-full bg-transparent body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none"
               placeholder="Pergunte qualquer coisa..."
             />
 
             <div className="ml-2 flex items-center gap-1">
               <button
                 type="button"
-                className="h-7 w-7 rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
+                className="h-7 w-7 rounded-full grid place-items-center text-[var(--fg-tertiary)] hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)] transition-colors"
                 aria-label="Anexar"
               >
                 <Icon name="attach_file" size={18} />
               </button>
               <button
                 type="button"
-                className="h-7 w-7 rounded-full grid place-items-center text-[#64748b] hover:bg-white/60"
+                className="h-7 w-7 rounded-full grid place-items-center text-[var(--fg-tertiary)] hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)] transition-colors"
                 aria-label="Emoji"
               >
                 <Icon name="mood" size={18} />
               </button>
               <button
                 type="button"
-                className="h-7 w-7 rounded-full bg-[#1e2939] text-white grid place-items-center disabled:opacity-50 ml-0.5"
+                className="h-7 w-7 rounded-full bg-[var(--fg-primary)] text-[var(--fg-on-inverse)] grid place-items-center disabled:opacity-50 ml-0.5"
                 aria-label="Enviar"
                 onClick={sendMessage}
                 disabled={!message.trim() || isTyping}
@@ -340,7 +352,7 @@ export default function CopilotDrawer({
             </div>
           </div>
 
-          <div className="body-xs text-[#99a1af] text-center">
+          <div className="body-xs text-[var(--fg-tertiary)] text-center">
             Cortex pode cometer erros. Verifique informações importantes.
           </div>
         </div>
@@ -367,15 +379,14 @@ export default function CopilotDrawer({
       />
       <aside
         ref={panelRef}
-        className={`fixed right-0 top-0 h-screen w-[405px] max-w-[100vw] border-l border-[#e5e5e5] bg-[#f9f9f9] transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 h-screen w-[405px] max-w-[100vw] border-l border-[var(--border-subtle)] bg-[var(--bg-surface)] transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-label="Cortex"
       >
-        <div className="h-full w-full bg-white">{/* content reused from panel */}</div>
+        <div className="h-full w-full bg-[var(--bg-raised)]">{/* content reused from panel */}</div>
       </aside>
     </div>
   );
 }
-
