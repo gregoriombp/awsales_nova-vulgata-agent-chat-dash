@@ -191,10 +191,10 @@ function ChatPreview({
 }) {
   return (
     <section
-      className="flex h-full min-w-0 flex-1 flex-col items-stretch"
+      className="flex h-full min-w-0 flex-1 flex-col items-stretch bg-[var(--dark-bg)]"
       style={{
         backgroundImage:
-          "radial-gradient(circle, var(--border-default) 1px, transparent 1px)",
+          "radial-gradient(circle, var(--dark-border) 1px, transparent 1px)",
         backgroundSize: "16px 16px",
         backgroundPosition: "8px 8px",
       }}
