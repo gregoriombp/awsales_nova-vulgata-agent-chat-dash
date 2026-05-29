@@ -138,7 +138,7 @@ export function AwPasswordSetup({
             <span>Força: {pwd.length === 0 ? "—" : ev.label}</span>
             <span className="inline-flex items-center gap-1">
               <Icon name="shield" size={12} />
-              Bloqueamos senhas vazadas (HIBP)
+              Bloqueamos senhas que já vazaram
             </span>
           </div>
         </div>

@@ -95,7 +95,7 @@ export const COPY = {
       cta: "Salvar nova senha",
       rule1: "Mínimo de 10 caracteres",
       rule2: "Frase secreta vale — pode usar espaços",
-      rule3: "Bloqueamos senhas vazadas (HIBP)",
+      rule3: "Bloqueamos senhas que já vazaram",
     },
     en: {
       kicker: "// new password",
@@ -108,7 +108,7 @@ export const COPY = {
       cta: "Save new password",
       rule1: "At least 10 characters",
       rule2: "A passphrase works — spaces allowed",
-      rule3: "We block leaked passwords (HIBP)",
+      rule3: "We block leaked passwords",
     },
   },
   verify: {

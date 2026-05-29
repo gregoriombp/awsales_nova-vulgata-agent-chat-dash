@@ -113,8 +113,7 @@ export default function VerificacaoPage() {
           )}
 
           <p className="m-0 mt-2.5 text-[11px] text-fg-tertiary">
-            Protótipo: este bloco simula o e-mail. Em produção, o link chega na
-            caixa de entrada de {ONBOARDING_USER.firstName}.
+            Não encontrou? Confira a caixa de spam ou reenvie o link abaixo.
           </p>
         </div>
 

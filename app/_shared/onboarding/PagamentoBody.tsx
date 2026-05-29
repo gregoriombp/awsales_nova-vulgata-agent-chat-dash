@@ -932,10 +932,6 @@ function CartaoInstrument({
               · cartão salvo de forma criptografada para próximas mensalidades.
             </span>
           </div>
-          <p className="m-0 text-[11px] text-fg-tertiary">
-            Protótipo: use um cartão terminado em{" "}
-            <b className="font-medium">0002</b> para simular uma recusa.
-          </p>
         </>
       )}
       <div className="flex justify-end border-t border-border-subtle pt-3">
