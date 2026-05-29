@@ -12,8 +12,6 @@ export const COPY = {
       or: "ou",
       ssoGoogle: "Continuar com Google",
       ssoMs: "Continuar com Microsoft",
-      noAccount: "Ainda não tem conta?",
-      signUp: "Primeiro acesso",
     },
     en: {
       kicker: "// access",
@@ -25,8 +23,6 @@ export const COPY = {
       or: "or",
       ssoGoogle: "Continue with Google",
       ssoMs: "Continue with Microsoft",
-      noAccount: "Don’t have an account?",
-      signUp: "First access",
     },
   },
   email: {

@@ -223,7 +223,7 @@ const NODES: Node[] = [
       step: "03e",
       title: "Códigos de backup",
       href: "/awsales/login",
-      note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'.",
+      note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'.",
     },
   },
   {
@@ -234,7 +234,7 @@ const NODES: Node[] = [
       step: "03g",
       title: "Usar código de backup",
       href: "/awsales/login",
-      note: "Fallback quando o membro já tinha TOTP de outra org mas perdeu acesso ao app. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código vale uma vez.",
+      note: "Fallback quando o membro já tinha TOTP de outra org mas perdeu acesso ao app. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código vale uma vez.",
     },
   },
   {
@@ -381,7 +381,7 @@ const screens = [
     step: "03e",
     title: "Códigos de backup",
     href: "/awsales/login",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → segue pra 'Conta criada'.",
   },
   {
@@ -395,7 +395,7 @@ const screens = [
     step: "03g",
     title: "Usar código de backup",
     href: "/awsales/login",
-    purpose: "Fallback de MFA quando o membro perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    purpose: "Fallback de MFA quando o membro perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
     decisions: "Código válido → conta criada. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {

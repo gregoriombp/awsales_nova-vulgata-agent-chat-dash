@@ -162,13 +162,13 @@ const NODES: Node[] = [
     id: "mfaBackupCodes",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
-    data: { step: "05g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 8 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
+    data: { step: "05g", title: "Códigos de backup", href: "/awsales/login", note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
   },
   {
     id: "mfaRecovery",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
-    data: { step: "05i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback raro num primeiro acesso, mas relevante quando o usuário já tinha TOTP de outra org e perdeu o app. Entra um dos 8 códigos de backup salvos. Cada código vale uma vez." },
+    data: { step: "05i", title: "Usar código de backup", href: "/awsales/login", note: "Fallback raro num primeiro acesso, mas relevante quando o usuário já tinha TOTP de outra org e perdeu o app. Entra um dos 10 códigos de backup salvos. Cada código vale uma vez." },
   },
   {
     id: "concluido",
@@ -328,7 +328,7 @@ const screens = [
     step: "05g",
     title: "Códigos de backup",
     href: "/awsales/login",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 8 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → segue pro 'Concluído' (provisão do ambiente).",
   },
   {
@@ -342,7 +342,7 @@ const screens = [
     step: "05i",
     title: "Usar código de backup",
     href: "/awsales/login",
-    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 8 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
+    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
     decisions: "Código válido → concluído. Voltar pro app autenticador → 'Verificação MFA'.",
   },
   {
