@@ -562,8 +562,8 @@ function CheckoutPhase({
         Realize seu pagamento
       </h3>
       <p className="mb-6 body-sm text-fg-secondary text-pretty">
-        Sua sessão está autenticada. Os instrumentos abaixo foram gerados para
-        os pagamentos configurados.
+        Preparamos as formas de pagamento que você escolheu. Conclua cada uma
+        abaixo para finalizar.
       </p>
 
       <div className="flex flex-col gap-4">

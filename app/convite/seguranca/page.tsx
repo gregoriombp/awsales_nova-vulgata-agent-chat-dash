@@ -11,16 +11,16 @@ import { CONVITE_ORG, CONVITE_INVITEE } from "../_data"
 const SECRET = "JBSW Y3DP EHPK 3PXP"
 
 const BACKUP_CODES = [
-  "DEMO-A3F9X-K2L7M",
-  "DEMO-B8H4P-N6Q1R",
-  "DEMO-C2J7V-W3D5T",
-  "DEMO-D9K1Z-Y4E8U",
-  "DEMO-E6L3B-X7F2H",
-  "DEMO-F4M8N-P1G9J",
-  "DEMO-G7N2C-Q5H6K",
-  "DEMO-H1P5V-R8J3L",
-  "DEMO-J5R8D-T2M4W",
-  "DEMO-K9T3F-V6N1X",
+  "A3F9X-K2L7M",
+  "B8H4P-N6Q1R",
+  "C2J7V-W3D5T",
+  "D9K1Z-Y4E8U",
+  "E6L3B-X7F2H",
+  "F4M8N-P1G9J",
+  "G7N2C-Q5H6K",
+  "H1P5V-R8J3L",
+  "J5R8D-T2M4W",
+  "K9T3F-V6N1X",
 ]
 
 export default function ConviteSegurancaPage() {
@@ -84,7 +84,7 @@ function SegurancaContent() {
                 <p className="m-0 mb-3 body-xs text-fg-secondary">
                   Adicione a conta manualmente com esta chave:
                 </p>
-                <code className="block rounded-md border border-border bg-bg-surface px-3 py-2 font-mono text-sm tracking-wide text-fg-primary">
+                <code className="block rounded-md border border-border bg-bg-surface px-3 py-2 text-sm tracking-wide tabular-nums text-fg-primary">
                   {SECRET}
                 </code>
               </div>
@@ -151,7 +151,7 @@ function SegurancaContent() {
             </p>
 
             <div className="mb-4 rounded-lg border border-border bg-bg-surface p-4">
-              <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-[13px] tabular-nums text-fg-primary">
+              <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] tabular-nums tracking-wide text-fg-primary">
                 {BACKUP_CODES.map((c) => (
                   <code key={c} className="block">
                     {c}

@@ -8,16 +8,16 @@ import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 
 const BACKUP_CODES = [
-  "DEMO-A3F9X-K2L7M",
-  "DEMO-B8H4P-N6Q1R",
-  "DEMO-C2J7V-W3D5T",
-  "DEMO-D9K1Z-Y4E8U",
-  "DEMO-E6L3B-X7F2H",
-  "DEMO-F4M8N-P1G9J",
-  "DEMO-G7N2C-Q5H6K",
-  "DEMO-H1P5V-R8J3L",
-  "DEMO-J5R8D-T2M4W",
-  "DEMO-K9T3F-V6N1X",
+  "A3F9X-K2L7M",
+  "B8H4P-N6Q1R",
+  "C2J7V-W3D5T",
+  "D9K1Z-Y4E8U",
+  "E6L3B-X7F2H",
+  "F4M8N-P1G9J",
+  "G7N2C-Q5H6K",
+  "H1P5V-R8J3L",
+  "J5R8D-T2M4W",
+  "K9T3F-V6N1X",
 ];
 
 export function MfaBackupCodesScreen({
@@ -66,7 +66,7 @@ export function MfaBackupCodesScreen({
       <p className="body-sm text-aw-gray-800 mb-5">{c.sub}</p>
 
       <div className="mb-4 p-4 rounded-lg border border-aw-gray-300 bg-aw-gray-150">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-2 font-mono text-[13px] tabular-nums text-aw-gray-1200">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] tabular-nums tracking-wide text-aw-gray-1200">
           {BACKUP_CODES.map((code) => (
             <code key={code} className="block">
               {code}

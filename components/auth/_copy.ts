@@ -3,10 +3,10 @@ import type { Locale, Org } from "./_types";
 export const COPY = {
   login: {
     pt: {
-      kicker: "// acesso",
+      kicker: "Acesso",
       title: "Bem-vindo de volta",
-      sub: "Entre com seu email de trabalho.",
-      email: "Email",
+      sub: "Entre com seu e-mail de trabalho.",
+      email: "E-mail",
       emailPh: "voce@empresa.com",
       cta: "Continuar",
       or: "ou",
@@ -14,7 +14,7 @@ export const COPY = {
       ssoMs: "Continuar com Microsoft",
     },
     en: {
-      kicker: "// access",
+      kicker: "Access",
       title: "Welcome back",
       sub: "Enter your work email.",
       email: "Email",
@@ -27,10 +27,10 @@ export const COPY = {
   },
   email: {
     pt: {
-      kicker: "// email",
-      title: "Entre com seu email",
-      sub: "Use o email e a senha da sua conta AwSales.",
-      email: "Email",
+      kicker: "E-mail",
+      title: "Entre com seu e-mail",
+      sub: "Use o e-mail e a senha da sua conta AwSales.",
+      email: "E-mail",
       emailPh: "voce@empresa.com",
       password: "Senha",
       passwordPh: "Digite sua senha",
@@ -41,11 +41,11 @@ export const COPY = {
       errPw: "Senha incorreta. Tente novamente ou recupere sua senha.",
       back: "Outras opções",
       or: "ou",
-      magicLink: "Receba um link de acesso no email",
+      magicLink: "Receba um link de acesso por e-mail",
       changeEmail: "Usar outro e-mail",
     },
     en: {
-      kicker: "// email",
+      kicker: "Email",
       title: "Sign in with email",
       sub: "Use your AwSales account email and password.",
       email: "Email",
@@ -66,12 +66,12 @@ export const COPY = {
   forgot: {
     pt: {
       title: "Esqueceu sua senha?",
-      sub: "Informe o email da sua conta. Enviaremos um link seguro para redefinir.",
-      email: "Email",
+      sub: "Informe o e-mail da sua conta. Enviaremos um link seguro para redefinir.",
+      email: "E-mail",
       emailPh: "voce@empresa.com",
       cta: "Enviar link de redefinição",
       back: "Voltar ao login",
-      kicker: "// recuperação",
+      kicker: "Recuperação",
     },
     en: {
       title: "Forgot your password?",
@@ -80,12 +80,12 @@ export const COPY = {
       emailPh: "you@company.com",
       cta: "Send reset link",
       back: "Back to sign in",
-      kicker: "// recovery",
+      kicker: "Recovery",
     },
   },
   reset: {
     pt: {
-      kicker: "// nova senha",
+      kicker: "Nova senha",
       title: "Defina uma nova senha",
       sub: "Escolha uma senha forte. Quanto mais longa, melhor — pode usar uma frase secreta com espaços.",
       newPw: "Nova senha",
@@ -98,7 +98,7 @@ export const COPY = {
       rule3: "Bloqueamos senhas que já vazaram",
     },
     en: {
-      kicker: "// new password",
+      kicker: "New password",
       title: "Set a new password",
       sub: "Pick a strong password. Longer is stronger — a passphrase with spaces works great.",
       newPw: "New password",
@@ -113,18 +113,18 @@ export const COPY = {
   },
   verify: {
     pt: {
-      kicker: "// verificação",
-      title: "Verifique seu email",
+      kicker: "Verificação",
+      title: "Verifique seu e-mail",
       sub: "Enviamos um código de 6 dígitos para",
       code: "Código de verificação",
       cta: "Verificar e continuar",
       resend: "Reenviar em",
       resendReady: "Reenviar código",
-      change: "Usar outro email",
+      change: "Usar outro e-mail",
       back: "Voltar ao login",
     },
     en: {
-      kicker: "// verify",
+      kicker: "Verification",
       title: "Verify your email",
       sub: "We sent a 6-digit code to",
       code: "Verification code",
@@ -137,29 +137,29 @@ export const COPY = {
   },
   ssoConnecting: {
     pt: {
-      kicker: "// conectando",
+      kicker: "Conectando",
       title: "Te direcionando pro acesso da",
       sub: "Aguarde alguns segundos enquanto preparamos sua entrada.",
     },
     en: {
-      kicker: "// connecting",
+      kicker: "Connecting",
       title: "Sending you to",
       sub: "Hang on for a moment while we set things up.",
     },
   },
   magicSent: {
     pt: {
-      kicker: "// link enviado",
-      title: "Verifique seu email",
+      kicker: "Link enviado",
+      title: "Verifique seu e-mail",
       sub: "Enviamos um link de acesso para",
-      hint: "Abra o email e clique no link pra entrar. Ele expira em 15 minutos.",
+      hint: "Abra o e-mail e clique no link para entrar. Ele expira em 15 minutos.",
       resend: "Reenviar em",
       resendReady: "Reenviar link",
-      change: "Usar outro email",
+      change: "Usar outro e-mail",
       back: "Voltar ao login",
     },
     en: {
-      kicker: "// link sent",
+      kicker: "Link sent",
       title: "Check your email",
       sub: "We sent a sign-in link to",
       hint: "Open the email and click the link to enter. It expires in 15 minutes.",
@@ -171,14 +171,14 @@ export const COPY = {
   },
   workspace: {
     pt: {
-      kicker: "// organização",
+      kicker: "Organização",
       title: "Selecione uma organização",
       sub: "Você faz parte de 3 organizações. Escolha em qual quer entrar agora.",
       cta: "Continuar",
       change: "Trocar de conta",
     },
     en: {
-      kicker: "// organization",
+      kicker: "Organization",
       title: "Select an organization",
       sub: "You belong to 3 organizations. Pick the one you want to access now.",
       cta: "Continue",
@@ -187,7 +187,7 @@ export const COPY = {
   },
   mfaGate: {
     pt: {
-      kicker: "// segurança",
+      kicker: "Segurança",
       title: "Sua organização exige 2FA",
       sub: "Configure agora a autenticação de dois fatores no seu app autenticador pra continuar acessando.",
       method: "Método",
@@ -198,7 +198,7 @@ export const COPY = {
       logout: "Sair desta organização",
     },
     en: {
-      kicker: "// security",
+      kicker: "Security",
       title: "Your organization requires 2FA",
       sub: "Set up two-factor authentication in your authenticator app now to keep access.",
       method: "Method",
@@ -211,7 +211,7 @@ export const COPY = {
   },
   mfaSetupApp: {
     pt: {
-      kicker: "// passo 1 de 2",
+      kicker: "Passo 1 de 2",
       title: "Configure o app autenticador",
       sub: "Escaneie o QR code no seu app ou copie o segredo manualmente.",
       secretLabel: "Segredo (se não conseguir escanear)",
@@ -222,7 +222,7 @@ export const COPY = {
       back: "Voltar",
     },
     en: {
-      kicker: "// step 1 of 2",
+      kicker: "Step 1 of 2",
       title: "Set up your authenticator app",
       sub: "Scan the QR code in your app or copy the secret manually.",
       secretLabel: "Secret (if you can’t scan)",
@@ -235,7 +235,7 @@ export const COPY = {
   },
   mfaBackupCodes: {
     pt: {
-      kicker: "// passo 2 de 2",
+      kicker: "Passo 2 de 2",
       title: "Guarde seus códigos de backup",
       sub: "Esses códigos te dão acesso caso você perca o app autenticador. Cada código só pode ser usado uma vez.",
       copy: "Copiar todos",
@@ -246,7 +246,7 @@ export const COPY = {
       warn: "Sem o app e sem os códigos, você perde o acesso à organização.",
     },
     en: {
-      kicker: "// step 2 of 2",
+      kicker: "Step 2 of 2",
       title: "Save your backup codes",
       sub: "These codes grant access if you lose your authenticator app. Each code can be used only once.",
       copy: "Copy all",
@@ -259,7 +259,7 @@ export const COPY = {
   },
   mfaVerify: {
     pt: {
-      kicker: "// verificação",
+      kicker: "Verificação",
       title: "Confirme sua identidade",
       sub: "Abra seu app autenticador e digite o código de 6 dígitos.",
       code: "Código de verificação",
@@ -268,7 +268,7 @@ export const COPY = {
       logout: "Sair",
     },
     en: {
-      kicker: "// verify",
+      kicker: "Verification",
       title: "Confirm your identity",
       sub: "Open your authenticator app and enter the 6-digit code.",
       code: "Verification code",
@@ -279,7 +279,7 @@ export const COPY = {
   },
   mfaRecovery: {
     pt: {
-      kicker: "// código de backup",
+      kicker: "Código de backup",
       title: "Use um código de backup",
       sub: "Digite um dos códigos de recuperação que você guardou ao configurar o 2FA.",
       code: "Código de backup",
@@ -288,7 +288,7 @@ export const COPY = {
       back: "Voltar para o app autenticador",
     },
     en: {
-      kicker: "// backup code",
+      kicker: "Backup code",
       title: "Use a backup code",
       sub: "Enter one of the recovery codes you saved when setting up 2FA.",
       code: "Backup code",
