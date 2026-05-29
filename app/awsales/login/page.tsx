@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import AuthFlow from "@/components/auth/AuthFlow";
 
 export const metadata = {
@@ -5,5 +6,9 @@ export const metadata = {
 };
 
 export default function AwSalesLoginPage() {
-  return <AuthFlow />;
+  return (
+    <Suspense>
+      <AuthFlow />
+    </Suspense>
+  );
 }

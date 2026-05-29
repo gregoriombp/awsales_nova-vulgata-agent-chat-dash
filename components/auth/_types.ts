@@ -1,18 +1,24 @@
-export type AuthScreen =
-  | "login"
-  | "email"
-  | "forgot"
-  | "reset"
-  | "verify"
-  | "magicSent"
-  | "ssoConnecting"
-  | "workspace"
-  | "mfaGate"
-  | "mfaSetupApp"
-  | "mfaBackupCodes"
-  | "mfaVerify"
-  | "mfaRecovery"
-  | "success";
+/** Todas as telas do AuthFlow, em ordem. Array runtime para validar o
+ *  deep-link `?screen=` (a union de tipo sozinha só existe em tempo de
+ *  compilação). */
+export const AUTH_SCREENS = [
+  "login",
+  "email",
+  "forgot",
+  "reset",
+  "verify",
+  "magicSent",
+  "ssoConnecting",
+  "workspace",
+  "mfaGate",
+  "mfaSetupApp",
+  "mfaBackupCodes",
+  "mfaVerify",
+  "mfaRecovery",
+  "success",
+] as const;
+
+export type AuthScreen = (typeof AUTH_SCREENS)[number];
 
 /** De onde a tela de código (`verify`) foi aberta: login normal ou recuperação
  *  de senha. Decide pra onde continuar e pra onde o "usar outro email" volta. */

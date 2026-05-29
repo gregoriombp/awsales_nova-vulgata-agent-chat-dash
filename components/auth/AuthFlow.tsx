@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import BrandPane from "./BrandPane";
 import { LoginScreen } from "./screens/LoginScreen";
 import { EmailLoginScreen } from "./screens/EmailLoginScreen";
@@ -16,12 +17,21 @@ import { MfaBackupCodesScreen } from "./screens/MfaBackupCodesScreen";
 import { MfaVerifyScreen } from "./screens/MfaVerifyScreen";
 import { MfaRecoveryScreen } from "./screens/MfaRecoveryScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
+import { AUTH_SCREENS } from "./_types";
 import type { AuthScreen, Locale, VerifyMode, AuthMethod } from "./_types";
 
 export type { AuthScreen };
 
 export function AuthFlow() {
-  const [screen, setScreen] = useState<AuthScreen>("login");
+  // Deep-link opcional: `?screen=mfaVerify` etc. abre direto numa tela
+  // específica (usado pelos cards dos fluxogramas do styleguide). Valores
+  // inválidos caem no padrão "login".
+  const searchParams = useSearchParams();
+  const screenParam = searchParams.get("screen") as AuthScreen | null;
+  const initialScreen: AuthScreen =
+    screenParam && AUTH_SCREENS.includes(screenParam) ? screenParam : "login";
+
+  const [screen, setScreen] = useState<AuthScreen>(initialScreen);
   const [locale] = useState<Locale>("pt");
   const [email, setEmail] = useState("");
   const [ssoOrg, setSsoOrg] = useState("");
@@ -38,7 +48,7 @@ export function AuthFlow() {
       case "reset":         return <ResetScreen locale={locale} goTo={goTo} />;
       case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} mode={verifyMode} />;
       case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
-      case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg} />;
+      case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg || "sua organização"} />;
       case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} skipMfa={authMethod === "sso"} />;
       case "mfaGate":        return <MfaGateScreen locale={locale} goTo={goTo} />;
       case "mfaSetupApp":    return <MfaSetupAppScreen locale={locale} goTo={goTo} />;
