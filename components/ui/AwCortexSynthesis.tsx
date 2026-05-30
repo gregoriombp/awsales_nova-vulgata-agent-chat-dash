@@ -63,7 +63,7 @@ const fragmentShader = `
   }
 `;
 
-export interface CortexSynthesisProps {
+export interface AwCortexSynthesisProps {
   className?: string;
   style?: React.CSSProperties;
   speed?: number;
@@ -90,7 +90,7 @@ const Effect = ({
   glowIntensity,
   flowFrequency,
   contrast,
-}: Required<Omit<CortexSynthesisProps, "className" | "style" | "backgroundColor">>) => {
+}: Required<Omit<AwCortexSynthesisProps, "className" | "style" | "backgroundColor">>) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
   const uniforms = useMemo(
@@ -156,7 +156,7 @@ const Effect = ({
   );
 };
 
-export default function CortexSynthesis({
+export function AwCortexSynthesis({
   className,
   style,
   speed = 0.1,
@@ -170,7 +170,7 @@ export default function CortexSynthesis({
   flowFrequency = 2,
   contrast = 1.0,
   backgroundColor = "#000000",
-}: CortexSynthesisProps) {
+}: AwCortexSynthesisProps) {
   return (
     <div
       className={cn(

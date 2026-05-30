@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
-import CortexSynthesis from "@/components/CortexSynthesis";
+import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis";
 import { Icon } from "@/components/ui/Icon";
 import {
   CORTEX_STATE_PRESETS,
@@ -89,7 +89,7 @@ export function CopilotOrb({
       }}
       aria-hidden="true"
     >
-      <CortexSynthesis
+      <AwCortexSynthesis
         speed={speed ?? preset.speed}
         color1={color1 ?? preset.color1}
         color2={color2 ?? preset.color2}

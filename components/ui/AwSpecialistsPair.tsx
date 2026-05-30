@@ -4,7 +4,7 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwButton } from "@/components/ui/AwButton"
-import CortexSynthesis from "@/components/CortexSynthesis"
+import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis"
 
 // Flat-top regular hex inscribed in a 1:1 box (height ≈ 86.6%) with
 // quadratic-Bézier rounded vertices. Encoded as an SVG mask so it scales
@@ -97,7 +97,7 @@ function SpecialistCard({
             maskMode: "alpha",
           }}
         >
-          <CortexSynthesis backgroundColor="var(--bg-inverse)" />
+          <AwCortexSynthesis backgroundColor="var(--bg-inverse)" />
         </div>
       ) : (
         <AwAvatar
