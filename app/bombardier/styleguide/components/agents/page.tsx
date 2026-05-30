@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { CopilotOrb } from "@/components/CopilotDrawer"
+import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer"
 import {
   CORTEX_STATE_PRESETS,
   type CortexState,
@@ -210,17 +210,17 @@ export default function AgentsPage() {
           <Section
             id="cortex"
             title="Cortex"
-            lead="O cérebro central — camada de raciocínio que coordena tudo. Decide qual Agent Core acionar, em que ordem, com que contexto, e como compor as respostas do Agente do Usuário. Já vive no topbar do app, sempre ativo. Não é imagem: vem de uma lib WebGL (@react-three/fiber + shader Synthesis) recortada por uma máscara hex flat-top de vértices sharp. O standard é o cromo líquido B&W — cada estado de pensamento parte dele e personaliza só o que faz sentido. Tudo escala via <CopilotOrb size />."
+            lead="O cérebro central — camada de raciocínio que coordena tudo. Decide qual Agent Core acionar, em que ordem, com que contexto, e como compor as respostas do Agente do Usuário. Já vive no topbar do app, sempre ativo. Não é imagem: vem de uma lib WebGL (@react-three/fiber + shader Synthesis) recortada por uma máscara hex flat-top de vértices sharp. O standard é o cromo líquido B&W — cada estado de pensamento parte dele e personaliza só o que faz sentido. Tudo escala via <AwCopilotOrb size />."
           >
             <Stage
               label="Cortex · idle, sempre ativo"
-              hint="Renderizado pelo componente CopilotOrb — máscara SVG sharp + shader Synthesis."
+              hint="Renderizado pelo componente AwCopilotOrb — máscara SVG sharp + shader Synthesis."
               gridClassName="flex items-center justify-center gap-10 bg-[var(--bg-canvas)]"
             >
-              <CopilotOrb size={56} />
-              <CopilotOrb size={88} />
-              <CopilotOrb size={140} />
-              <CopilotOrb size={200} />
+              <AwCopilotOrb size={56} />
+              <AwCopilotOrb size={88} />
+              <AwCopilotOrb size={140} />
+              <AwCopilotOrb size={200} />
             </Stage>
           </Section>
 
@@ -240,7 +240,7 @@ export default function AgentsPage() {
                   className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4"
                 >
                   <div className="flex items-center justify-center py-2">
-                    <CopilotOrb size={120} state={s.state} />
+                    <AwCopilotOrb size={120} state={s.state} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
@@ -350,7 +350,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
     phase === "streaming" ? "responding" :
     phase === "fault" ? "error" : "idle"
 
-  return <CopilotOrb size={32} state={state} />
+  return <AwCopilotOrb size={32} state={state} />
 }`}
             </CodeExample>
           </Section>
@@ -358,7 +358,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
           <Section
             id="cortex-controls"
             title="Controles do Cortex"
-            lead="CopilotOrb expõe o size e um state. Em casos avançados (debug, prototipagem, página de marca), você pode sobrescrever cada eixo do shader Synthesis individualmente — speed, três cores, scale, complexity, distortion, glow, flow, contrast e bg. Sem override, tudo vem do preset (idle = standard do print)."
+            lead="AwCopilotOrb expõe o size e um state. Em casos avançados (debug, prototipagem, página de marca), você pode sobrescrever cada eixo do shader Synthesis individualmente — speed, três cores, scale, complexity, distortion, glow, flow, contrast e bg. Sem override, tudo vem do preset (idle = standard do print)."
           >
             <ApiTable>
               <PropRow
@@ -442,19 +442,19 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             </ApiTable>
 
             <CodeExample label="usos canônicos" lang="tsx">
-              {`import { CopilotOrb } from "@/components/CopilotDrawer"
+              {`import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer"
 
 // 1. Topbar — sempre idle, 28px. Textura acalma sozinha nesse tamanho.
-<CopilotOrb size={28} />
+<AwCopilotOrb size={28} />
 
 // 2. Painel do copilot — header em listening enquanto o usuário digita.
-<CopilotOrb size={46} state="listening" />
+<AwCopilotOrb size={46} state="listening" />
 
 // 3. Hero da página do agente — thinking durante a execução.
-<CopilotOrb size={140} state="thinking" />
+<AwCopilotOrb size={140} state="thinking" />
 
 // 4. Debug / página de marca — override total com a API do Synthesis.
-<CopilotOrb
+<AwCopilotOrb
   size={200}
   speed={0.1}
   color1="#ffffff"
@@ -510,7 +510,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
                     <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
-                      <CopilotOrb size={s.px} />
+                      <AwCopilotOrb size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
                   ))}
@@ -565,7 +565,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <CopilotOrb size={48} />
+                  <AwCopilotOrb size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Cortex</div>
                     <div className="caption">Cérebro do sistema</div>
@@ -600,7 +600,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               <Spec
                 k="Cortex"
                 v="hex sharp · WebGL"
-                d="CopilotOrb (máscara SVG flat-top sharp + shader Synthesis em cromo líquido B&W). Único, sempre ativo, com state controlando o pensamento."
+                d="AwCopilotOrb (máscara SVG flat-top sharp + shader Synthesis em cromo líquido B&W). Único, sempre ativo, com state controlando o pensamento."
               />
               <Spec
                 k="silhueta"
@@ -625,7 +625,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               dos={[
                 <>
                   Renderize Cortex sempre via{" "}
-                  <code className="mono">CopilotOrb</code> — assim a animação e
+                  <code className="mono">AwCopilotOrb</code> — assim a animação e
                   a máscara hex ficam consistentes em qualquer tamanho.
                 </>,
                 <>

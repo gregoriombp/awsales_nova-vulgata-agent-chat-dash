@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { Icon } from "@/components/ui/Icon";
@@ -49,7 +49,7 @@ export default function AgentSettingsPage() {
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="flex flex-col items-center justify-center w-full min-h-full bg-white">
         <div className="flex flex-col gap-8 w-full max-w-[796px] py-12">
           {/* Title */}
@@ -215,6 +215,6 @@ export default function AgentSettingsPage() {
           </div>
         </div>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

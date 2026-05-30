@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { NotificationRow } from "@/components/NotificationRow";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -28,7 +28,7 @@ export default function NotificationsPage() {
     setReadIds(new Set(NOTIFICATIONS.map((n) => n.id)));
 
   return (
-    <DashboardLayout
+    <AwDashboardLayout
       breadcrumbs={[
         { label: "Notificações", icon: <Icon name="notifications" size={18} /> },
       ]}
@@ -95,6 +95,6 @@ export default function NotificationsPage() {
           )}
         </AwCard>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

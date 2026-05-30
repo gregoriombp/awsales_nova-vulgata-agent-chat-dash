@@ -2,7 +2,7 @@
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill } from "@/components/ui/AwPill";
@@ -157,15 +157,15 @@ export default function IntegrationDetailPage({
 
   if (!hydrated) {
     return (
-      <DashboardLayout breadcrumbs={[{ label: "Integrações", href: "/integrations" }]}>
+      <AwDashboardLayout breadcrumbs={[{ label: "Integrações", href: "/integrations" }]}>
         <div className="min-h-full" />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
   if (!instance || !integration) {
     return (
-      <DashboardLayout
+      <AwDashboardLayout
         breadcrumbs={[
           {
             label: "Integrações",
@@ -194,7 +194,7 @@ export default function IntegrationDetailPage({
             </div>
           </AwAlert>
         </div>
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
@@ -220,7 +220,7 @@ export default function IntegrationDetailPage({
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="w-full px-10 pt-8 pb-24">
           <div className="flex gap-6">
@@ -388,7 +388,7 @@ export default function IntegrationDetailPage({
           depois a qualquer momento.
         </p>
       </AwModal>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

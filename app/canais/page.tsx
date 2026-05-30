@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
@@ -315,14 +315,14 @@ export default function CanaisPage() {
 
   if (!hydrated) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
+      <AwDashboardLayout breadcrumbs={breadcrumbs}>
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       {variant !== "first-run" ? (
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
@@ -548,6 +548,6 @@ export default function CanaisPage() {
         }}
       />
 
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

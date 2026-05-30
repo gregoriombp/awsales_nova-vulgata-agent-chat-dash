@@ -17,7 +17,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -940,9 +940,9 @@ export default function ToolsPage() {
 
   if (!hydrated) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
+      <AwDashboardLayout breadcrumbs={breadcrumbs}>
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
@@ -962,7 +962,7 @@ export default function ToolsPage() {
     (!showCustom || filteredCustom.length === 0);
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="w-full px-10 pt-12 pb-24">
           {/* ---------------- Header ---------------- */}
@@ -1497,7 +1497,7 @@ export default function ToolsPage() {
           imediatamente. Essa ação não pode ser desfeita.
         </p>
       </AwModal>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

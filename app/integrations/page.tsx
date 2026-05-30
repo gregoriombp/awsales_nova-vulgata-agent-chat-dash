@@ -2,7 +2,7 @@
 
 import { useMemo, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
@@ -1173,14 +1173,14 @@ export default function IntegrationsPage() {
 
   if (!hydrated) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
+      <AwDashboardLayout breadcrumbs={breadcrumbs}>
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       {variant !== "first-run" ? (
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
           <div className="w-full px-10 pt-12 pb-24">
@@ -1592,6 +1592,6 @@ export default function IntegrationsPage() {
           ferramenta. Você pode reconectar depois a qualquer momento.
         </p>
       </AwModal>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

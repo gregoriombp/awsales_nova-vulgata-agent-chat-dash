@@ -113,7 +113,7 @@ function readStoredCollapsed(): boolean | undefined {
   return undefined;
 }
 
-export default function Sidebar({
+export function AwSidebar({
   forcedCollapsed,
   floating,
 }: {

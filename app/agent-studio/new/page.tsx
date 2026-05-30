@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
@@ -2066,7 +2066,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   // Step 4: Loading Screen
   if (currentStep === 4) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
+      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
           {/* Subtle gradient background */}
           <div className="absolute inset-0 bg-gradient-to-br from-white via-[#fdf4ff] to-[#faf5ff] opacity-50" />
@@ -2085,7 +2085,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </div>
           </div>
         </div>
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
@@ -2096,7 +2096,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     const goalTitle = GOAL_OPTIONS.find(g => g.id === selectedGoal)?.title || customGoal;
 
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
         <div className="min-h-full w-full flex">
           {/* Left sidebar - light card style (Insert a Simple Poll style) */}
           <aside className="w-[260px] flex-shrink-0 bg-bg-surface rounded-l-2xl flex flex-col min-h-0">
@@ -2735,12 +2735,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             );
           }}
         />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
+    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
         <div className="w-full max-w-[900px] bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11 flex flex-col gap-8">
           
@@ -3124,6 +3124,6 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           </div>
         </div>
       )}
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

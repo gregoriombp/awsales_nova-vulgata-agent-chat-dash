@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -628,7 +628,7 @@ export default function CustomCheckoutIntegrationPage() {
   const charLimit = 50;
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="w-full px-10 pt-10 pb-32">
           {/* Header */}
@@ -809,6 +809,6 @@ export default function CustomCheckoutIntegrationPage() {
           </footer>
         </div>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

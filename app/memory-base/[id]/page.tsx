@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { AwButton } from "@/components/ui/AwButton";
 import BaseModal from "@/components/modals/BaseModal";
@@ -886,7 +886,7 @@ function MemoryBaseDirectoryContent() {
   };
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <OnboardingTour
         steps={KB_ONBOARDING_STEPS}
         isActive={showTour}
@@ -2075,7 +2075,7 @@ function MemoryBaseDirectoryContent() {
           setRows((prev) => [...newRows, ...prev]);
         }}
       />
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

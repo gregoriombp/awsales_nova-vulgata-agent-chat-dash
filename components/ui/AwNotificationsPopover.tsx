@@ -14,7 +14,7 @@ type NotificationItem = {
   href?: string;
 };
 
-export default function NotificationsPopover({
+export function AwNotificationsPopover({
   isOpen,
   onClose,
 }: {

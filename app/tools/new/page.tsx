@@ -23,7 +23,7 @@
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -225,9 +225,9 @@ function NewToolPageContent() {
 
   if (!hydrated || !parent) {
     return (
-      <DashboardLayout breadcrumbs={breadcrumbs}>
+      <AwDashboardLayout breadcrumbs={breadcrumbs}>
         <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
-      </DashboardLayout>
+      </AwDashboardLayout>
     );
   }
 
@@ -252,7 +252,7 @@ function NewToolPageContent() {
         : parent.custom.name;
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
         <div className="mx-auto w-full max-w-[1280px] px-10 pt-12 pb-32">
           {/* ---------------- Header ---------------- */}
@@ -538,7 +538,7 @@ function NewToolPageContent() {
           </footer>
         </div>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

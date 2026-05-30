@@ -6,7 +6,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { useToast } from "@/components/ui/AwToast";
@@ -147,7 +147,7 @@ export default function WhatsAppSetupPage() {
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 flex min-h-full flex-col bg-[var(--bg-canvas)]">
         <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-10 py-6">
           <div className="flex items-center gap-3.5">
@@ -273,6 +273,6 @@ export default function WhatsAppSetupPage() {
           </div>
         </footer>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

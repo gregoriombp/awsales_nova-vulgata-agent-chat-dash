@@ -31,7 +31,7 @@ function Close24() {
 }
 
 
-export function CopilotOrb({
+export function AwCopilotOrb({
   size = 36,
   state = "idle",
   speed,
@@ -138,7 +138,7 @@ async function fetchGeminiReply(
   return { error: "Resposta inválida da API." };
 }
 
-export default function CopilotDrawer({
+export function AwCopilotDrawer({
   isOpen,
   onClose,
   embedded = false,
@@ -201,7 +201,7 @@ export default function CopilotDrawer({
         {/* Top bar */}
         <div className="h-[79px] w-full border-b border-[var(--border-subtle)] px-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
-            <CopilotOrb size={46} />
+            <AwCopilotOrb size={46} />
             <div className="flex flex-col">
               <div className="body-xl font-semibold text-[var(--fg-primary)]">
                 Cortex
@@ -228,7 +228,7 @@ export default function CopilotDrawer({
           {!hasMessages ? (
             <div className="flex flex-1 flex-col items-center justify-center px-6 text-center py-8">
               <div className="mb-10">
-                <CopilotOrb size={119} />
+                <AwCopilotOrb size={119} />
               </div>
               <div className="body-xl font-semibold text-[var(--fg-primary)]">
                 Olá! Como posso te ajudar?

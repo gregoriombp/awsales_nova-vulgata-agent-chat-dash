@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwAgentTile } from "@/components/ui/AwAgentTile";
@@ -89,7 +89,7 @@ export default function AgentStudioPage() {
   const breadcrumbs = [{ label: "Agent Studio" }];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="mx-auto w-full max-w-[1200px] px-6 pb-16 pt-8 sm:px-10">
         <AwPageHeader
           size="hero"
@@ -113,7 +113,7 @@ export default function AgentStudioPage() {
           <AgentGrid agents={TODOS_OS_AGENTES} />
         </Section>
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

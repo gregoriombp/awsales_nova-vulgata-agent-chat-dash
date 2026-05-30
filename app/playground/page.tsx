@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwChatBubble } from "@/components/ui/AwChatBubble";
 import { AwSelect } from "@/components/ui/AwSelect";
@@ -39,7 +39,7 @@ export default function PlaygroundPage() {
   const [draft, setDraft] = useState("");
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
       <div className="flex h-full min-h-0 w-full">
         <ConfigPanel
           instructions={instructions}
@@ -48,7 +48,7 @@ export default function PlaygroundPage() {
         />
         <ChatPreview draft={draft} onDraftChange={setDraft} />
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }
 

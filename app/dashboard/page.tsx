@@ -1,11 +1,11 @@
 "use client";
 
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 
 export default function Dashboard() {
   return (
-    <DashboardLayout title="Dashboard">
+    <AwDashboardLayout title="Dashboard">
       <></>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import NotificationsPopover from "@/components/NotificationsPopover";
-import { CopilotOrb } from "@/components/CopilotDrawer";
+import { AwNotificationsPopover } from "@/components/ui/AwNotificationsPopover";
+import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
 
@@ -13,7 +13,7 @@ interface BreadcrumbItem {
   icon?: React.ReactNode;
 }
 
-export default function Header({
+export function AwHeader({
   breadcrumbs,
   showDateSelector,
   isCopilotOpen,
@@ -165,7 +165,7 @@ export default function Header({
       />
 
       <div ref={notificationsPanelRef}>
-        <NotificationsPopover
+        <AwNotificationsPopover
           isOpen={isNotificationsOpen}
           onClose={() => setIsNotificationsOpen(false)}
         />
@@ -177,7 +177,7 @@ export default function Header({
         className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full ml-1"
         onClick={() => onCopilotOpen?.(!isCopilotOpen)}
       >
-        <CopilotOrb size={28} />
+        <AwCopilotOrb size={28} />
       </button>
     </div>
   );

@@ -1,14 +1,14 @@
 "use client";
 
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import ComingSoon from "@/components/ComingSoon";
 
 const breadcrumbs = [{ label: "Knowledge OS" }];
 
 export default function KnowledgeOsSettingsPage() {
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <ComingSoon />
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

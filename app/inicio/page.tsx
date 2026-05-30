@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwWelcomeModal } from "@/components/ui/AwWelcomeModal";
 import { AwOnboardingTimeline } from "@/components/ui/AwOnboardingTimeline";
 import type { AwOnboardingStep } from "@/components/ui/AwOnboardingTimeline";
@@ -134,7 +134,7 @@ function InicioContent() {
   ];
 
   return (
-    <DashboardLayout>
+    <AwDashboardLayout>
       <div className="mx-auto w-full max-w-[1120px] px-6 py-10 md:px-10">
         {!pendingOrgDismissed && (
           <div className="mb-6">
@@ -213,6 +213,6 @@ function InicioContent() {
           },
         ]}
       />
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

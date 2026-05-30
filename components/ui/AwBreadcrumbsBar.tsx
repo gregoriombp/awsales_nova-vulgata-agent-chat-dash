@@ -67,7 +67,7 @@ function renderItem(
   );
 }
 
-export function Breadcrumbs({ items }: { items: BreadcrumbsItems }) {
+export function AwBreadcrumbs({ items }: { items: BreadcrumbsItems }) {
   if (!items || items.length === 0) return null;
   return (
     <nav
@@ -79,7 +79,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbsItems }) {
   );
 }
 
-export function BreadcrumbsBar({
+export function AwBreadcrumbsBar({
   items,
   innerClassName,
 }: {
@@ -93,7 +93,7 @@ export function BreadcrumbsBar({
   return (
     <div className="flex h-11 shrink-0 items-center bg-white">
       <div className={innerClassName ?? "w-full px-8"}>
-        <Breadcrumbs items={items} />
+        <AwBreadcrumbs items={items} />
       </div>
     </div>
   );

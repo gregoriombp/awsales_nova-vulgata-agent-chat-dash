@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwInstagramPanel } from "@/components/integrations/AwInstagramPanel";
 import { Icon } from "@/components/ui/Icon";
 
@@ -14,7 +14,7 @@ export default function InstagramConfigPage() {
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <div className="-m-8 h-full min-h-full bg-[var(--bg-canvas)]">
         <AwInstagramPanel
           onAddAccount={() => router.push("/canais")}
@@ -22,6 +22,6 @@ export default function InstagramConfigPage() {
           onSave={() => router.push("/canais")}
         />
       </div>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

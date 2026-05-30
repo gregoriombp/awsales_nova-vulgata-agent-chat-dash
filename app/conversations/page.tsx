@@ -1,4 +1,4 @@
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import {
   AwEmpty,
   AwEmptyHeader,
@@ -7,12 +7,12 @@ import {
 
 export default function ConversationsPage() {
   return (
-    <DashboardLayout>
+    <AwDashboardLayout>
       <AwEmpty className="min-h-[60vh]">
         <AwEmptyHeader>
           <AwEmptyTitle>Em breve</AwEmptyTitle>
         </AwEmptyHeader>
       </AwEmpty>
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

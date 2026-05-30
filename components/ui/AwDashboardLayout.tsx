@@ -1,14 +1,14 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Sidebar from "./Sidebar";
+import { AwSidebar } from "@/components/ui/AwSidebar";
 import MemoryBaseSidebar from "@/components/memory-base/MemoryBaseSidebar";
-import Header from "./Header";
-import CopilotDrawer from "./CopilotDrawer";
-import { BreadcrumbsBar, type BreadcrumbItem } from "./Breadcrumbs";
+import { AwHeader } from "@/components/ui/AwHeader";
+import { AwCopilotDrawer } from "@/components/ui/AwCopilotDrawer";
+import { AwBreadcrumbsBar, type BreadcrumbItem } from "@/components/ui/AwBreadcrumbsBar";
 import { useCopilotDrawer } from "@/lib/copilot/store";
 
-export default function DashboardLayout({
+export function AwDashboardLayout({
   children,
   title,
   breadcrumbs,
@@ -36,10 +36,10 @@ export default function DashboardLayout({
     <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)] relative">
       {floatingSidebar ? (
         <div className="absolute inset-y-0 left-0 z-[32]">
-          <Sidebar floating />
+          <AwSidebar floating />
         </div>
       ) : (
-        <Sidebar forcedCollapsed={isInKnowledgeOS} />
+        <AwSidebar forcedCollapsed={isInKnowledgeOS} />
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         <div className="flex flex-1 min-w-0 overflow-hidden">
@@ -48,14 +48,14 @@ export default function DashboardLayout({
               treatment so the surface tone shows around the edges. */}
           <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
             <div className="absolute right-3 top-2 z-30">
-              <Header
+              <AwHeader
                 minimal
                 isCopilotOpen={isCopilotOpen}
                 onCopilotOpen={setIsCopilotOpen}
               />
             </div>
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <BreadcrumbsBar
+              <AwBreadcrumbsBar
                 items={breadcrumbs}
                 innerClassName={breadcrumbInnerClassName}
               />
@@ -79,7 +79,7 @@ export default function DashboardLayout({
             }}
             aria-hidden={!isCopilotOpen}
           >
-            <CopilotDrawer
+            <AwCopilotDrawer
               isOpen={isCopilotOpen}
               onClose={() => setIsCopilotOpen(false)}
               embedded

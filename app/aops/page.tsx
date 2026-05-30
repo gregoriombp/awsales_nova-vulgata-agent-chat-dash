@@ -1,6 +1,6 @@
 "use client";
 
-import DashboardLayout from "@/components/DashboardLayout";
+import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import ComingSoon from "@/components/ComingSoon";
 
 export default function AOPsPage() {
@@ -17,8 +17,8 @@ export default function AOPsPage() {
   ];
 
   return (
-    <DashboardLayout breadcrumbs={breadcrumbs}>
+    <AwDashboardLayout breadcrumbs={breadcrumbs}>
       <ComingSoon />
-    </DashboardLayout>
+    </AwDashboardLayout>
   );
 }

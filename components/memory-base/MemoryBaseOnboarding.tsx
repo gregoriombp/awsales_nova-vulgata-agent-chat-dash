@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import NotificationsPopover from "@/components/NotificationsPopover";
-import { CopilotOrb } from "@/components/CopilotDrawer";
-import Sidebar from "@/components/Sidebar";
+import { AwNotificationsPopover } from "@/components/ui/AwNotificationsPopover";
+import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer";
+import { AwSidebar } from "@/components/ui/AwSidebar";
 
 interface MemoryBaseOnboardingProps {
   onComplete: (baseName: string, baseId: string) => void;
@@ -116,7 +116,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Main Sidebar (collapsed) */}
-      <Sidebar forcedCollapsed={true} />
+      <AwSidebar forcedCollapsed={true} />
 
       {/* Main Content Area */}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
@@ -143,7 +143,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
           </button>
 
           <div ref={notificationsPanelRef}>
-            <NotificationsPopover
+            <AwNotificationsPopover
               isOpen={isNotificationsOpen}
               onClose={() => setIsNotificationsOpen(false)}
             />
@@ -154,7 +154,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
             aria-label="Abrir AwSales Copilot"
             className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full"
           >
-            <CopilotOrb size={20} />
+            <AwCopilotOrb size={20} />
           </button>
         </div>
 
