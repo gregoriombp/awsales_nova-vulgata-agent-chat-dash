@@ -2,7 +2,7 @@
 
 import React from "react";
 import BaseModal from "./BaseModal";
-import Button from "../Button";
+import { AwButton } from "@/components/ui/AwButton";
 
 interface FormModalProps {
   isOpen: boolean;
@@ -69,7 +69,7 @@ export default function FormModal({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-4 p-6 border-t border-gray-200">
-          <Button
+          <AwButton
             type="button"
             variant="secondary"
             onClick={onClose}
@@ -77,15 +77,16 @@ export default function FormModal({
             className="w-auto px-6"
           >
             {cancelText}
-          </Button>
-          <Button
+          </AwButton>
+          <AwButton
             type="submit"
-            isLoading={isLoading}
+            variant="primary"
+            loading={isLoading}
             disabled={isLoading}
             className="w-auto px-6"
           >
             {saveText}
-          </Button>
+          </AwButton>
         </div>
       </form>
     </BaseModal>

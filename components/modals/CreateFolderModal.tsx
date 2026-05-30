@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BaseModal from "./BaseModal";
-import Button from "@/components/Button";
+import { AwButton } from "@/components/ui/AwButton";
 import { TbFolder, TbFolderPlus } from "react-icons/tb";
 
 interface CreateFolderModalProps {
@@ -109,16 +109,17 @@ export default function CreateFolderModal({
 
         {/* Footer */}
         <div className="flex items-center justify-end gap-3 p-6 border-t border-[#f2f2f2]">
-          <Button
+          <AwButton
             type="button"
             variant="secondary"
             onClick={handleClose}
             className="w-auto px-5"
           >
             Cancelar
-          </Button>
-          <Button
+          </AwButton>
+          <AwButton
             type="submit"
+            variant="primary"
             disabled={!folderName.trim() || isSubmitting}
             className={`w-auto px-5 ${
               !folderName.trim() || isSubmitting
@@ -134,7 +135,7 @@ export default function CreateFolderModal({
             ) : (
               "Criar pasta"
             )}
-          </Button>
+          </AwButton>
         </div>
       </form>
     </BaseModal>

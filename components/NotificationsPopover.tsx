@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Button from "@/components/Button";
+import { AwButton } from "@/components/ui/AwButton";
 import { NOTIFICATIONS } from "@/lib/notifications";
 
 type NotificationItem = {
@@ -177,13 +177,13 @@ export default function NotificationsPopover({
 
                   {n.href && (
                     <Link href={n.href} onClick={onClose}>
-                      <Button
+                      <AwButton
                         size="sm"
                         variant="primary"
                         className="w-auto"
                       >
                         Ver
-                      </Button>
+                      </AwButton>
                     </Link>
                   )}
                 </div>

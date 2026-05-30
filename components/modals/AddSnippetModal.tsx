@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BaseModal from "./BaseModal";
-import Button from "../Button";
+import { AwButton } from "@/components/ui/AwButton";
 
 interface AddSnippetModalProps {
   isOpen: boolean;
@@ -82,12 +82,12 @@ export default function AddSnippetModal({
         </div>
 
         <div className="p-6 border-t border-[#f2f2f2] flex justify-end gap-2">
-          <Button type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
+          <AwButton type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
             Cancelar
-          </Button>
-          <Button type="submit" size="sm" className="w-auto" disabled={!isValid}>
+          </AwButton>
+          <AwButton type="submit" variant="primary" size="sm" className="w-auto" disabled={!isValid}>
             Adicionar
-          </Button>
+          </AwButton>
         </div>
       </form>
     </BaseModal>

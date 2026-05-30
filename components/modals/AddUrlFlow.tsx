@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import BaseModal from "./BaseModal";
-import Button from "../Button";
+import { AwButton } from "@/components/ui/AwButton";
 
 type PageItem = {
   id: string;
@@ -137,7 +137,8 @@ export default function AddUrlFlow({
             </div>
 
             <div className="flex justify-end">
-              <Button
+              <AwButton
+                variant="primary"
                 onClick={() => {
                   if (url.trim()) {
                     setStep(2);
@@ -147,7 +148,7 @@ export default function AddUrlFlow({
                 className="w-auto"
               >
                 Avançar
-              </Button>
+              </AwButton>
             </div>
           </div>
         </BaseModal>
@@ -200,9 +201,9 @@ export default function AddUrlFlow({
             </div>
 
             <div className="flex justify-end">
-              <Button onClick={handleUrlSubmit} className="w-auto">
+              <AwButton variant="primary" onClick={handleUrlSubmit} className="w-auto">
                 Avançar
-              </Button>
+              </AwButton>
             </div>
           </div>
         </BaseModal>
@@ -354,12 +355,12 @@ export default function AddUrlFlow({
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={handleClose} className="w-auto">
+              <AwButton variant="secondary" onClick={handleClose} className="w-auto">
                 Cancelar
-              </Button>
-              <Button onClick={() => setStep(4)} className="w-auto">
+              </AwButton>
+              <AwButton variant="primary" onClick={() => setStep(4)} className="w-auto">
                 Avançar
-              </Button>
+              </AwButton>
             </div>
           </div>
         </BaseModal>
@@ -506,8 +507,8 @@ export default function AddUrlFlow({
                       <p className="body-sm text-text-primary mb-2">
                         Adicione páginas para sincronizar que não estejam vinculadas como subpáginas das seções acima.
                       </p>
-                      <Button
-                        variant="tertiary"
+                      <AwButton
+                        variant="ghost"
                         size="sm"
                         onClick={() => setAdditionalUrls([...additionalUrls, ""])}
                         className="w-auto"
@@ -516,7 +517,7 @@ export default function AddUrlFlow({
                           <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         Adicionar
-                      </Button>
+                      </AwButton>
                     </div>
                   </div>
                 </div>
@@ -538,8 +539,8 @@ export default function AddUrlFlow({
                       <p className="body-sm text-text-primary mb-2">
                         Especifique todas as páginas que não quiser sincronizar.
                       </p>
-                      <Button
-                        variant="tertiary"
+                      <AwButton
+                        variant="ghost"
                         size="sm"
                         onClick={() => setExcludedUrls([...excludedUrls, ""])}
                         className="w-auto"
@@ -548,7 +549,7 @@ export default function AddUrlFlow({
                           <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         Adicionar
-                      </Button>
+                      </AwButton>
                     </div>
                   </div>
                 </div>
@@ -614,12 +615,12 @@ export default function AddUrlFlow({
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={handleClose} className="w-auto">
+              <AwButton variant="secondary" onClick={handleClose} className="w-auto">
                 Cancelar
-              </Button>
-              <Button onClick={() => setStep(5)} className="w-auto">
+              </AwButton>
+              <AwButton variant="primary" onClick={() => setStep(5)} className="w-auto">
                 Avançar
-              </Button>
+              </AwButton>
             </div>
           </div>
         </BaseModal>
@@ -681,12 +682,12 @@ export default function AddUrlFlow({
             )}
 
             <div className="flex justify-end gap-3">
-              <Button variant="secondary" onClick={() => setStep(4)} className="w-auto">
+              <AwButton variant="secondary" onClick={() => setStep(4)} className="w-auto">
                 Voltar
-              </Button>
-              <Button onClick={handleSave} className="w-auto">
+              </AwButton>
+              <AwButton variant="primary" onClick={handleSave} className="w-auto">
                 Salvar URL
-              </Button>
+              </AwButton>
             </div>
           </div>
         </BaseModal>

@@ -5,7 +5,7 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import DashboardLayout from "@/components/DashboardLayout";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
-import Button from "@/components/Button";
+import { AwButton } from "@/components/ui/AwButton";
 import BaseModal from "@/components/modals/BaseModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import AddUrlFlow from "@/components/modals/AddUrlFlow";
@@ -1303,7 +1303,7 @@ function MemoryBaseDirectoryContent() {
                     {selectedIds.length} selecionado{selectedIds.length > 1 ? "s" : ""}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button
+                    <AwButton
                       size="sm"
                       variant="secondary"
                       className="w-auto"
@@ -1314,15 +1314,15 @@ function MemoryBaseDirectoryContent() {
                       }}
                     >
                       Visualizar
-                    </Button>
-                    <Button
+                    </AwButton>
+                    <AwButton
                       size="sm"
                       variant="danger"
                       className="w-auto"
                       onClick={() => openDeleteSelected(selectedIds)}
                     >
                       Excluir
-                    </Button>
+                    </AwButton>
                   </div>
                 </div>
               )}
@@ -1849,7 +1849,7 @@ function MemoryBaseDirectoryContent() {
                   })()}
                 </div>
                 <div className="p-6 border-t border-[#f2f2f2] flex justify-end flex-shrink-0">
-                  <Button
+                  <AwButton
                     size="sm"
                     variant="primary"
                     className="w-auto gap-2"
@@ -1857,7 +1857,7 @@ function MemoryBaseDirectoryContent() {
                   >
                     <TbDownload className="w-4 h-4" />
                     Download arquivos
-                  </Button>
+                  </AwButton>
                 </div>
               </div>
             </div>
@@ -1896,9 +1896,9 @@ function MemoryBaseDirectoryContent() {
             </div>
           </div>
           <div className="mt-6 flex justify-end">
-            <Button size="sm" variant="secondary" className="w-auto" onClick={() => setViewRow(null)}>
+            <AwButton size="sm" variant="secondary" className="w-auto" onClick={() => setViewRow(null)}>
               Fechar
-            </Button>
+            </AwButton>
           </div>
         </div>
       </BaseModal>
@@ -1955,9 +1955,9 @@ function MemoryBaseDirectoryContent() {
             </>
           )}
           <div className="mt-6 flex justify-end">
-            <Button size="sm" variant="secondary" className="w-auto" onClick={() => setAgentSettingsModalAgent(null)}>
+            <AwButton size="sm" variant="secondary" className="w-auto" onClick={() => setAgentSettingsModalAgent(null)}>
               Fechar
-            </Button>
+            </AwButton>
           </div>
         </div>
       </BaseModal>

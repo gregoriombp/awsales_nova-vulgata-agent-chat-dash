@@ -2,7 +2,7 @@
 
 import React from "react";
 import BaseModal from "./BaseModal";
-import Button from "../Button";
+import { AwButton } from "@/components/ui/AwButton";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -40,7 +40,7 @@ export default function ConfirmationModal({
         <p className="text-text-secondary mb-6">{message}</p>
         
         <div className="flex gap-4 justify-end">
-          <Button
+          <AwButton
             variant="secondary"
             size="sm"
             onClick={onClose}
@@ -48,16 +48,16 @@ export default function ConfirmationModal({
             className="w-auto"
           >
             {cancelText}
-          </Button>
-          <Button
+          </AwButton>
+          <AwButton
             variant={confirmVariant}
             size="sm"
             onClick={handleConfirm}
-            isLoading={isLoading}
+            loading={isLoading}
             className="w-auto"
           >
             {confirmText}
-          </Button>
+          </AwButton>
         </div>
       </div>
     </BaseModal>
