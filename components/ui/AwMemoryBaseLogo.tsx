@@ -25,7 +25,8 @@ export function AwMemoryBaseLogo({
       style={{ width, height: size }}
       aria-hidden
     >
-      <MemoryBaseIcon width={width} height={size} className="h-full w-full text-white" />
+      {/* cor herdada via currentColor — quem monta define text-white / text-[#0d0d0d] */}
+      <MemoryBaseIcon width={width} height={size} className="h-full w-full" />
     </div>
   );
 }
