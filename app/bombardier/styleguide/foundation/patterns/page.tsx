@@ -136,7 +136,7 @@ export default function PatternsPage() {
           title="Shell de produto"
           lead="Sidebar primária light à esquerda (320 px expandida, 88 px colapsada), content panel com gutters de 8 px à direita, e cortex flutuando sobre o canto direito quando aberto. O header de ações globais flutua no canto superior direito — sem topbar de largura total. Breadcrumbs vivem dentro do content panel."
           dos={[
-            <>Sidebar primária sempre visível em desktop (≥ 1024 px). Colapsa pra 88 px nas rotas que exigem foco (knowledge-os, agent-studio).</>,
+            <>Sidebar primária sempre visível em desktop (≥ 1024 px). Colapsa pra 88 px nas rotas que exigem foco (memory-base, agent-studio).</>,
             <>Content panel respira com <code className="mono">my-2 mr-2</code> (8 px). À esquerda abuta a sidebar — sem gutter ali.</>,
             <>Header flutuante (botões 40 × 40) mora em <code className="mono">top-4 right-5</code>, z-30. Não ocupa altura no fluxo.</>,
             <>Breadcrumbs em uma barra fina (44 px) no topo do content panel. Tabs vão dentro do canvas, não acima.</>,

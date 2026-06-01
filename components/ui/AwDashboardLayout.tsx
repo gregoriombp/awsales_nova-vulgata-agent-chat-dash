@@ -30,7 +30,7 @@ export function AwDashboardLayout({
   const isCopilotOpen = useCopilotDrawer((s) => s.open);
   const setIsCopilotOpen = useCopilotDrawer((s) => s.setOpen);
   const pathname = usePathname();
-  const isInKnowledgeOS = pathname?.startsWith("/knowledge-os") ?? false;
+  const isInMemoryBase = pathname?.startsWith("/memory-base") ?? false;
 
   return (
     <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)] relative">
@@ -39,11 +39,11 @@ export function AwDashboardLayout({
           <AwSidebar floating />
         </div>
       ) : (
-        <AwSidebar forcedCollapsed={isInKnowledgeOS} />
+        <AwSidebar forcedCollapsed={isInMemoryBase} />
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         <div className="flex flex-1 min-w-0 overflow-hidden">
-          {isInKnowledgeOS && <MemoryBaseSidebar />}
+          {isInMemoryBase && <MemoryBaseSidebar />}
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
           <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">

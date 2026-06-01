@@ -85,7 +85,7 @@ function InicioContent() {
       ),
       cta: {
         label: "Abrir Memory Base",
-        href: "/knowledge-os",
+        href: "/memory-base",
       },
     },
     {

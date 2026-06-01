@@ -2036,7 +2036,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   };
 
   const handleConfirmExit = () => {
-    router.push("/knowledge-os");
+    router.push("/memory-base");
   };
 
   // Publish handlers
@@ -3103,7 +3103,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               Você está prestes a sair
             </h2>
             <p className="text-sm text-fg-tertiary mb-6">
-              Você será redirecionado para o Knowledge OS para criar uma nova base de conhecimento. O progresso atual não será perdido.
+              Você será redirecionado para a Memory Base para criar uma nova base de conhecimento. O progresso atual não será perdido.
             </p>
             <div className="flex items-center justify-end gap-3">
               <AwButton
@@ -3118,7 +3118,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 size="md"
                 onClick={handleConfirmExit}
               >
-                Ir para Knowledge OS
+                Ir para Memory Base
               </AwButton>
             </div>
           </div>

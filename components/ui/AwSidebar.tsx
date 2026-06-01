@@ -78,7 +78,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Fontes",
     items: [
-      { label: "Memory base", href: "/knowledge-os", icon: "hub" },
+      { label: "Memory base", href: "/memory-base", icon: "hub" },
       { label: "AOPs", href: "/aops", icon: "description" },
       { label: "Biblioteca", href: "/library", icon: "bookmark" },
       { label: "Habilidades", href: "/tools", icon: "build" },
@@ -195,7 +195,7 @@ export function AwSidebar({
       return;
     }
     event.preventDefault();
-    if (href === "/knowledge-os") setIsCollapsed(true);
+    if (href === "/memory-base") setIsCollapsed(true);
     router.push(href);
   };
 
