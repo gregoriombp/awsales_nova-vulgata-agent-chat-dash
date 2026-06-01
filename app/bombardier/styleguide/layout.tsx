@@ -37,7 +37,7 @@ export default function StyleguideLayout({
 
         <SidebarSearch />
 
-        <nav className="flex flex-col gap-6">
+        <nav className="flex flex-col gap-3">
           {navigation.map((section) => (
             <Collapsible.Root key={section.title} defaultOpen>
               <h3 className="aw-eyebrow m-0 mb-2">
@@ -50,7 +50,7 @@ export default function StyleguideLayout({
                   />
                 </Collapsible.Trigger>
               </h3>
-              <Collapsible.Content>
+              <Collapsible.Content className="aw-sg-collapsible-content">
                 <ul className="flex flex-col gap-1">
                   {section.items.length === 0 && (
                     <li className="text-xs text-[var(--fg-tertiary)] italic px-3 py-2">
