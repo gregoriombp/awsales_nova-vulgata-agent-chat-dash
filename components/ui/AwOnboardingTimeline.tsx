@@ -121,19 +121,27 @@ function StepRow({
 
       <div
         className={cn(
-          "grid transition-[grid-template-rows] duration-[var(--dur-slow)] ease-[var(--ease-out)]",
+          "grid transition-[grid-template-rows]",
           isExpanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
         )}
+        style={{
+          transitionDuration: "var(--dur-slow)",
+          transitionTimingFunction: "var(--ease-out)",
+        }}
         aria-hidden={!isExpanded}
       >
         <div className="overflow-hidden">
           <div
             className={cn(
-              "space-y-4 pt-2 transition-[opacity,transform] duration-[var(--dur-slow)] ease-[var(--ease-out)]",
+              "space-y-4 pt-2 transition-[opacity,transform]",
               isExpanded
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-1",
             )}
+            style={{
+              transitionDuration: "var(--dur-slow)",
+              transitionTimingFunction: "var(--ease-out)",
+            }}
           >
             {step.description && (
               <p className="m-0 max-w-[520px] body-sm text-[var(--fg-secondary)]">

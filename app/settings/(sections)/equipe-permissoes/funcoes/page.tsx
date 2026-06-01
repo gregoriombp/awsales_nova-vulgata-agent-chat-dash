@@ -878,10 +878,11 @@ function ScopeBlock({
           <Icon
             name="chevron_right"
             size={18}
-            className={
-              "transition-transform duration-[220ms] ease-in-out " +
-              (open ? "rotate-90" : "")
-            }
+            className={"transition-transform " + (open ? "rotate-90" : "")}
+            style={{
+              transitionDuration: "var(--dur-base)",
+              transitionTimingFunction: "var(--ease-in-out)",
+            }}
           />
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
             <Icon name={scope.icon} size={16} />
@@ -911,8 +912,13 @@ function ScopeBlock({
       </header>
 
       <div
-        className="grid transition-[grid-template-rows,opacity] duration-[220ms] ease-in-out"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+        className="grid transition-[grid-template-rows,opacity]"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          opacity: open ? 1 : 0,
+          transitionDuration: "var(--dur-slow)",
+          transitionTimingFunction: "var(--ease-in-out)",
+        }}
       >
         <div className="overflow-hidden">
         <div className={open ? "flex flex-col gap-4 pl-9 pb-1 pt-4" : "flex flex-col gap-4 pl-9 pb-1"}>

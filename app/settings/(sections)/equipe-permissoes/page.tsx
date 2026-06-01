@@ -905,10 +905,11 @@ function ScopeRow({
           <Icon
             name="chevron_right"
             size={16}
-            className={
-              "transition-transform duration-[220ms] ease-in-out " +
-              (open ? "rotate-90" : "")
-            }
+            className={"transition-transform " + (open ? "rotate-90" : "")}
+            style={{
+              transitionDuration: "var(--dur-base)",
+              transitionTimingFunction: "var(--ease-in-out)",
+            }}
           />
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
             <Icon name={scope.icon} size={14} />
@@ -933,8 +934,13 @@ function ScopeRow({
       </div>
 
       <div
-        className="grid transition-[grid-template-rows,opacity] duration-[220ms] ease-in-out"
-        style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+        className="grid transition-[grid-template-rows,opacity]"
+        style={{
+          gridTemplateRows: open ? "1fr" : "0fr",
+          opacity: open ? 1 : 0,
+          transitionDuration: "var(--dur-slow)",
+          transitionTimingFunction: "var(--ease-in-out)",
+        }}
       >
         <div className="overflow-hidden">
           <div className="flex flex-col gap-3 px-1 pb-3 pl-10 pt-1">
