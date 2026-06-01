@@ -312,6 +312,7 @@
   body {
     @apply font-sans text-text-primary antialiased;
     font-family: var(--font-body);
+    background: var(--bg-canvas);
     text-rendering: optimizeLegibility;
   }
 

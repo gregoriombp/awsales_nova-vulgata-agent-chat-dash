@@ -186,8 +186,8 @@ const config: Config = {
   				'1200': '#0d0d0d'
   			},
   			text: {
-  				primary: '#0c1421',
-  				secondary: '#8897ad'
+  				primary: 'var(--fg-primary)',
+  				secondary: 'var(--fg-secondary)'
   			},
   			input: {
   				bg: '#f5f5f5',

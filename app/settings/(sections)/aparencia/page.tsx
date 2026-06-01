@@ -6,13 +6,13 @@ import { AwField } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwToggleRow } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
+import { useAwTheme, type ThemePreference } from "@/components/ui/AwThemeProvider";
 import { SettingsPageHeader } from "../_components/shared";
 
-type Theme = "system" | "light" | "dark";
 type Density = "comfortable" | "compact";
 
 export default function AppearanceSettingsPage() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const { theme, setTheme } = useAwTheme();
   const [density] = useState<Density>("comfortable");
   const [reduceMotion, setReduceMotion] = useState(false);
 
@@ -33,7 +33,7 @@ export default function AppearanceSettingsPage() {
                 { id: "system", label: "Sistema", icon: "computer" },
                 { id: "light", label: "Claro", icon: "light_mode" },
                 { id: "dark", label: "Escuro", icon: "dark_mode" },
-              ] as { id: Theme; label: string; icon: string }[]
+              ] as { id: ThemePreference; label: string; icon: string }[]
             ).map((t) => {
               const isActive = theme === t.id;
               return (

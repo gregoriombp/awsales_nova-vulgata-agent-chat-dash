@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AwToastProvider } from "@/components/ui/AwToast";
+import { AwThemeProvider } from "@/components/ui/AwThemeProvider";
 import { ReviewModeProvider } from "@/components/bombardier-review/ReviewModeProvider";
 import { BombardierDot } from "@/components/bombardier/BombardierDot";
 import { DesktopOnlyBlocker } from "@/components/DesktopOnlyBlocker";
+
+// Aplica o tema (.dark no <html>) ANTES do primeiro paint, lendo a preferência
+// salva (default: light). Evita flash de tema errado e mismatch de hidratação.
+const themeNoFlashScript = `(function(){try{var t=localStorage.getItem('aw-theme')||'light';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var e=document.documentElement;e.classList.toggle('dark',d);e.style.colorScheme=d?'dark':'light';}catch(e){}})();`;
 
 // Review Mode is always mounted: it self-gates on the review store's `active`
 // flag (renders nothing until you enter review via the Bombardier dot or
@@ -22,8 +27,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
         {/* AwSales Design System fonts — loaded via <link> because Turbopack
          * strips CSS @import. One typographic voice: Geist.
          * Geist Mono for code. Material Symbols Rounded for iconography. */}
@@ -45,11 +51,13 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <AwToastProvider>
-          <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
-          <ReviewModeProvider />
-          {bombardierDotEnabled && <BombardierDot />}
-        </AwToastProvider>
+        <AwThemeProvider>
+          <AwToastProvider>
+            <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
+            <ReviewModeProvider />
+            {bombardierDotEnabled && <BombardierDot />}
+          </AwToastProvider>
+        </AwThemeProvider>
       </body>
     </html>
   );
