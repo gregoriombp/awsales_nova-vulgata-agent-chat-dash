@@ -1,5 +1,6 @@
 import * as React from "react"
 import { CodeHighlight } from "./_highlight"
+import { LayerBadge } from "./_LayerBadge"
 
 export function PageHero({
   title,
@@ -14,14 +15,11 @@ export function PageHero({
   return (
     <header className="aw-hero">
       <div className="aw-hero__inner">
-        {trailing ? (
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1 className="aw-hero__title">{title}</h1>
-            {trailing}
-          </div>
-        ) : (
+        <div className="flex items-baseline gap-3 flex-wrap">
           <h1 className="aw-hero__title">{title}</h1>
-        )}
+          <LayerBadge />
+          {trailing}
+        </div>
         {children && <p className="aw-hero__lead">{children}</p>}
       </div>
     </header>
