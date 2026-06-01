@@ -50,11 +50,14 @@ export default function MemoryBaseWelcomePage() {
   }, [creating, router]);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#05070d]">
+    <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)]">
       <AwSidebar forcedCollapsed />
 
-      <main className="relative flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden">
-        {/* Fundo azul animado — shader Synthesis (@react-three/fiber) */}
+      {/* Mesmo container arredondado que toda página usa (espelha AwDashboardLayout):
+          painel flutuante com cantos --radius-xl + borda; a surface aparece nas bordas. */}
+      <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
+        <main className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[#05070d]">
+          {/* Fundo azul animado — shader Synthesis (@react-three/fiber) */}
         <AwCortexSynthesis
           backgroundColor="#000000"
           color1="#020207"
@@ -68,6 +71,8 @@ export default function MemoryBaseWelcomePage() {
           flowFrequency={1.6}
           contrast={1.15}
         />
+        {/* Overlay preto de baixa opacidade — escurece o shader e dá legibilidade ao texto */}
+        <div className="pointer-events-none absolute inset-0 bg-black/40" />
         {/* Vinheta: escurece as bordas e concentra o brilho ao centro,
             aproximando do gradiente radial da referência. */}
         <div
@@ -111,7 +116,8 @@ export default function MemoryBaseWelcomePage() {
             </button>
           </div>
         </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
