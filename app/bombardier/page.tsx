@@ -19,7 +19,7 @@ const sections: HubSection[] = [
       "Lista dos seus projetos salvos em disco. Crie novos, abra, duplique ou delete.",
     icon: "folder_open",
     href: "/bombardier/projects",
-    status: "ready",
+    status: "soon",
   },
   {
     title: "Page Builder",
@@ -27,7 +27,7 @@ const sections: HubSection[] = [
       "Abre o rascunho atual (guardado no navegador). Ideal para experimentar sem criar projeto.",
     icon: "draw",
     href: "/bombardier/page-builder",
-    status: "ready",
+    status: "soon",
   },
   {
     title: "Styleguide",
