@@ -547,17 +547,17 @@
   }
 }
 
-/* Knowledge OS Onboarding Animations */
+/* Memory Base Onboarding Animations */
 
 /* Welcome icon: fade-in de entrada */
-@keyframes knowledge-os-fade-in {
+@keyframes memory-base-fade-in {
   to {
     opacity: 1;
   }
 }
 
 /* Cada dot: pulsação suave (opacidade + escala) – efeito partículas */
-@keyframes knowledge-os-dot-pulse {
+@keyframes memory-base-dot-pulse {
   0%, 100% {
     opacity: 0.65;
     transform: scale(0.92);
@@ -568,24 +568,24 @@
   }
 }
 
-.knowledge-os-welcome-icon {
+.memory-base-welcome-icon {
   opacity: 0;
-  animation: knowledge-os-fade-in 0.7s ease-out forwards;
+  animation: memory-base-fade-in 0.7s ease-out forwards;
 }
 
-.knowledge-os-welcome-icon path {
+.memory-base-welcome-icon path {
   transform-box: fill-box;
   transform-origin: center;
-  animation: knowledge-os-dot-pulse 2.6s ease-in-out infinite;
+  animation: memory-base-dot-pulse 2.6s ease-in-out infinite;
 }
 
 /* Stagger nos dots para efeito de onda/partículas (4 grupos de fase) */
-.knowledge-os-welcome-icon path:nth-child(4n + 1) { animation-delay: 0s; }
-.knowledge-os-welcome-icon path:nth-child(4n + 2) { animation-delay: 0.32s; }
-.knowledge-os-welcome-icon path:nth-child(4n + 3) { animation-delay: 0.65s; }
-.knowledge-os-welcome-icon path:nth-child(4n + 4) { animation-delay: 0.98s; }
+.memory-base-welcome-icon path:nth-child(4n + 1) { animation-delay: 0s; }
+.memory-base-welcome-icon path:nth-child(4n + 2) { animation-delay: 0.32s; }
+.memory-base-welcome-icon path:nth-child(4n + 3) { animation-delay: 0.65s; }
+.memory-base-welcome-icon path:nth-child(4n + 4) { animation-delay: 0.98s; }
 
-/* Pulse animation for the Knowledge OS icon container */
+/* Pulse animation for the Memory Base icon container */
 @keyframes onboarding-pulse {
   0%, 100% {
     box-shadow: 0 0 0 0 rgba(13, 13, 13, 0.1);
@@ -772,7 +772,7 @@
 
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  .knowledge-os-welcome-icon,
+  .memory-base-welcome-icon,
   .animate-onboarding-pulse,
   .step4-timeline-spine,
   .step4-timeline-branch,
@@ -784,10 +784,10 @@
   .step4-cube-dot {
     animation: none;
   }
-  .knowledge-os-welcome-icon {
+  .memory-base-welcome-icon {
     opacity: 1;
   }
-  .knowledge-os-welcome-icon path {
+  .memory-base-welcome-icon path {
     animation: none;
     opacity: 1;
     transform: none;
@@ -4650,4 +4650,40 @@
 .bombardier-login-foot-link:hover {
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ============================================================
+ * AwUserAgentOrb — `thinking` shape morph. The orb gently rotates a full
+ * turn while morphing rounded-square (radius 30%) ↔ circle (radius 50%)
+ * and back, looping until the state changes. A rounded square's corners
+ * always reach past its edge midpoints, so the squarest keyframe
+ * (rotate 0/360°, radius 30%) is the MAX overflow of the inscribed circle —
+ * ~5% per side — and the scale 0.94 dip there is what keeps it bounded,
+ * well inside the grid gap. The 30% radius floor + 0.94 scale are the
+ * knobs that cap the overflow (raising radius toward 50% or scale toward
+ * 1.0 increases it); the full circle forms at rotate 180°. The WebGL flow
+ * + hue rainbow are driven separately (shader).
+ * ============================================================ */
+@keyframes aw-agent-think-morph {
+  0% {
+    border-radius: 30%;
+    transform: rotate(0deg) scale(0.94);
+  }
+  50% {
+    border-radius: 50%;
+    transform: rotate(180deg) scale(1);
+  }
+  100% {
+    border-radius: 30%;
+    transform: rotate(360deg) scale(0.94);
+  }
+}
+.aw-agent-think {
+  animation: aw-agent-think-morph 4s ease-in-out infinite;
+  will-change: border-radius, transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-agent-think {
+    animation: none;
+  }
 }
