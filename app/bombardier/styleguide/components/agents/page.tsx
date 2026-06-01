@@ -1,4 +1,5 @@
-import Image from "next/image"
+import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore"
+import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb"
 import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer"
 import {
   CORTEX_STATE_PRESETS,
@@ -18,18 +19,14 @@ import {
   CodeExample,
 } from "../../_primitives"
 
-const AGENT_CORES = Array.from({ length: 20 }, (_, i) => {
-  const n = String(i + 1).padStart(2, "0")
-  return { id: `core-${n}`, label: `Core ${n}`, src: `/assets/agent_imgs/orbs/orb_model-a_${n}.png` }
-})
+const AGENT_CORES = Array.from({ length: 20 }, (_, i) => ({
+  n: i + 1,
+  label: `Core ${String(i + 1).padStart(2, "0")}`,
+}))
 
 const USER_AGENTS = Array.from({ length: 12 }, (_, i) => {
   const n = String(i + 1).padStart(2, "0")
-  return {
-    id: `user-${n}`,
-    label: `Modelo ${n}`,
-    src: `/assets/agent_imgs/orbs/orb_model-a_${n}-1.png`,
-  }
+  return { seed: `agent-${n}`, label: `Agente ${n}` }
 })
 
 const CORTEX_STATES: Array<{
@@ -78,38 +75,22 @@ const SIZE_SCALE: Array<{ key: string; label: string; px: number; note: string }
   { key: "xl", label: "xl", px: 120, note: "Hero da página do agente, onboarding." },
 ]
 
-function OrbThumb({ src, alt, size = 96 }: { src: string; alt: string; size?: number }) {
-  return (
-    <div
-      className="relative shrink-0 rounded-full overflow-hidden border border-[var(--border-subtle)] bg-[var(--bg-surface)]"
-      style={{ width: size, height: size }}
-    >
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        sizes={`${size}px`}
-        className="object-cover"
-        unoptimized
-      />
-    </div>
-  )
-}
-
 export default function AgentsPage() {
   return (
     <>
       <PageHero title="Visual dos agentes">
         A AwSales tem três peças distintas de IA na interface — cada uma com
         identidade visual própria. <strong>Agent Core</strong> são os
-        frameworks proprietários da plataforma (orbs coloridos, fixos).{" "}
-        <strong>Agente do Usuário</strong> é qualquer agente criado dentro do
-        produto (orbs em grayscale, customizáveis). <strong>Cortex</strong> é
-        o cérebro do sistema — hex de vértices sharp, animado em WebGL via{" "}
-        <code className="mono">@react-three/fiber</code> + shader{" "}
-        <code className="mono">Synthesis</code> (cromo líquido B&W como
-        standard), sempre presente no topbar e respondendo ao ciclo de
-        pensamento da conversa.
+        frameworks proprietários da plataforma — <strong>diamantes estáticos</strong>{" "}
+        (quadrado 45°), orbs coloridos (PNG). O usuário não cria um Core: ele{" "}
+        <em>seleciona</em> um ao criar o agente. <strong>Agente do Usuário</strong>{" "}
+        é o agente que o usuário cria — um <strong>círculo com textura animada</strong>{" "}
+        (shader <code className="mono">Synthesis</code> via{" "}
+        <code className="mono">@react-three/fiber</code>), colorido por uma paleta
+        seeded (cada agente uma hue própria). <strong>Cortex</strong> é o cérebro
+        do sistema — hex de vértices sharp, animado no mesmo shader (cromo líquido
+        B&W), sempre no topbar e respondendo ao ciclo de pensamento. Agente e Core
+        trabalham juntos: o círculo vivo roda em cima do framework que escolheu.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -117,33 +98,30 @@ export default function AgentsPage() {
           <Tldr
             use={[
               <>
-                Use o orb <strong>colorido</strong> sempre que estiver
-                representando um Agent Core da AwSales.
+                Use o <strong>diamante estático</strong> (PNG) para representar
+                um Agent Core — o framework proprietário.
               </>,
               <>
-                Use o orb em <strong>grayscale</strong> para qualquer agente
-                criado pelo usuário — neutro, sem competir visualmente com os
-                Cores.
+                Use o <strong>círculo animado</strong> (Synthesis) para o agente
+                que o usuário cria — é o avatar vivo dele.
               </>,
               <>
                 Use o <strong>Cortex hex</strong> apenas para o cérebro do
-                sistema. Ele é singular: existe um Cortex, e ele aparece no
-                topbar e no painel do copilot.
+                sistema. Ele é singular: existe um Cortex, sempre no topbar.
               </>,
             ]}
             dontUse={[
               <>
-                Não troque a paleta entre as categorias — colorido para Cores,
-                cinza para Usuário. A diferença codifica hierarquia.
+                Não anime o Agent Core — ele é estático (PNG). O movimento é a
+                assinatura do agente vivo e do Cortex.
               </>,
               <>
-                Não renderize um Agent Core como hexágono nem o Cortex como
-                orb redondo. As silhuetas (circular × hexagonal) também
-                comunicam categoria.
+                Não troque as silhuetas — Agent Core é diamante, Agente é
+                círculo, Cortex é hex. A forma comunica categoria.
               </>,
               <>
                 Não use ícones genéricos de robô/sparkle para representar
-                agentes — sempre o orb da categoria correta.
+                agentes — sempre o visual da categoria correta.
               </>,
             ]}
           />
@@ -166,44 +144,72 @@ export default function AgentsPage() {
           <Section
             id="agent-core"
             title="Agent Core"
-            lead="Frameworks de agentes proprietários da AwSales — peças fixas do sistema, mantidas pela própria AwSales, que rodam em conjunto com o agente do usuário. Funcionam como camada de infraestrutura: cuidam de capacidades transversais (memória, contexto, orquestração, integrações internas) que qualquer Agente do Usuário herda automaticamente. O usuário não cria nem edita um Core — ele apenas se conecta."
+            lead="Frameworks de agentes proprietários da AwSales — peças fixas do sistema que rodam em conjunto com o agente do usuário (memória, contexto, orquestração, integrações internas). O usuário não cria nem edita um Core; ele seleciona um ao criar o agente. Visualmente é um selo estático: orb colorido (PNG) recortado no diamante."
           >
             <Stage
-              label="Biblioteca de Cores"
-              hint="20 orbs coloridos. Cada Core tem identidade visual única; juntos formam a família proprietária."
-              gridClassName="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-5"
+              label="Biblioteca de Cores · estático"
+              hint="20 frameworks proprietários — orbs coloridos (PNG) recortados no diamante. Sem animação: o Core é um selo, não o agente vivo."
+              gridClassName="flex flex-col gap-5"
             >
-              {AGENT_CORES.map((c) => (
-                <div
-                  key={c.id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-5">
+                {AGENT_CORES.map((c) => (
+                  <div
+                    key={c.n}
+                    className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  >
+                    <AwAgentCore src={agentCoreSrc(c.n)} alt={c.label} size={88} />
+                    <span className="mono">{c.label}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="caption m-0">
+                Anatomia, tamanhos e API em{" "}
+                <a
+                  className="underline text-[var(--aw-blue-700)]"
+                  href="/bombardier/styleguide/components/agent-core"
                 >
-                  <OrbThumb src={c.src} alt={c.label} size={88} />
-                  <span className="mono">{c.label}</span>
-                </div>
-              ))}
+                  Agent Core →
+                </a>
+                .
+              </p>
             </Stage>
           </Section>
 
           <Section
             id="user-agent"
             title="Agente do Usuário"
-            lead="Qualquer agente criado pelo próprio usuário dentro da plataforma — objetivo, instruções, ferramentas e personalidade definidos por ele. Ao ser instanciado, opera acoplado aos Agent Cores (recebendo capacidades base) e ao Cortex (recebendo raciocínio e decisão). É a peça customizável da arquitetura — por isso o orb vem em grayscale: serve de tela neutra que o usuário pode reconhecer como seu sem competir com os Cores."
+            lead="O agente que o usuário cria — objetivo, instruções, ferramentas e personalidade definidos por ele. É a peça viva da arquitetura: um círculo com textura animada (shader Synthesis). Ao criar, o usuário escolhe um Agent Core; o agente opera acoplado a ele (capacidades base) e ao Cortex (raciocínio). A cor vem de uma paleta seeded pelo id do agente — cada um uma hue própria."
           >
             <Stage
-              label="Biblioteca grayscale"
-              hint="12 modelos neutros. O usuário escolhe um na criação e ele passa a representar o agente em toda a plataforma."
-              gridClassName="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-5"
+              label="Agentes do usuário · círculo animado"
+              hint="color1 branco; cada agente uma hue própria. Previews estáticos (gradient mesh) por densidade — cada um anima ao vivo na página dedicada."
+              gridClassName="flex flex-col gap-6"
             >
-              {USER_AGENTS.map((u) => (
-                <div
-                  key={u.id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
-                >
-                  <OrbThumb src={u.src} alt={u.label} size={88} />
-                  <span className="mono">{u.label}</span>
-                </div>
-              ))}
+              <div className="flex items-center gap-4 flex-wrap">
+                <AwUserAgentOrbStatic seed="agent-01" size={96} />
+                <p className="caption m-0 max-w-md">
+                  Cada agente é um círculo animado. Veja ao vivo, os estados e a
+                  regra de cor em{" "}
+                  <a
+                    className="underline text-[var(--aw-blue-700)]"
+                    href="/bombardier/styleguide/components/user-agent"
+                  >
+                    Agente do Usuário →
+                  </a>
+                  .
+                </p>
+              </div>
+              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-5">
+                {USER_AGENTS.map((u) => (
+                  <div
+                    key={u.seed}
+                    className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  >
+                    <AwUserAgentOrbStatic seed={u.seed} size={88} />
+                    <span className="mono">{u.label}</span>
+                  </div>
+                ))}
+              </div>
             </Stage>
           </Section>
 
@@ -486,7 +492,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
                     <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
-                      <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_01.png" alt={`Core xs`} size={s.px} />
+                      <AwAgentCore src={agentCoreSrc(1)} alt={`Core ${s.label}`} size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
                   ))}
@@ -498,7 +504,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
                     <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
-                      <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_01-1.png" alt={`User ${s.label}`} size={s.px} />
+                      <AwUserAgentOrbStatic seed="agent-01" size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
                   ))}
@@ -533,7 +539,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_03.png" alt="Agent Core" size={48} />
+                  <AwAgentCore src={agentCoreSrc(3)} alt="Agent Core" size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Agent Core</div>
                     <div className="caption">Infraestrutura proprietária</div>
@@ -549,7 +555,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
 
               <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <OrbThumb src="/assets/agent_imgs/orbs/orb_model-a_03-1.png" alt="Agente do Usuário" size={48} />
+                  <AwUserAgentOrbStatic seed="agent-03" size={48} />
                   <div>
                     <div className="text-sm font-medium text-[var(--fg-primary)]">Agente do Usuário</div>
                     <div className="caption">Customizável pelo usuário</div>
@@ -558,7 +564,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
                   <li>Avatar do agente na lista de agentes do workspace.</li>
                   <li>Identidade no header da conversa com o agente.</li>
-                  <li>Picker de modelo na criação do agente.</li>
+                  <li>No fluxo de criação — ao lado do Agent Core escolhido.</li>
                   <li>Card do agente em compartilhamentos e logs.</li>
                 </ul>
               </div>
@@ -575,7 +581,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                   <li>Sempre presente no canto direito do topbar.</li>
                   <li>Header do drawer / painel do copilot.</li>
                   <li>Estado de raciocínio durante uma execução do agente.</li>
-                  <li>Páginas que falam do "sistema nervoso" da plataforma.</li>
+                  <li>Páginas que falam do “sistema nervoso” da plataforma.</li>
                 </ul>
               </div>
             </div>
@@ -584,18 +590,18 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
           <Section
             id="anatomy"
             title="Anatomia"
-            lead="As três peças coexistem na mesma tela. A combinação shape + paleta é a regra que separa cada categoria."
+            lead="As três peças coexistem na mesma tela. A combinação shape + tratamento (estático × animado) é a regra que separa cada categoria."
           >
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="Agent Core"
-                v="círculo · colorido"
-                d="PNG do registry. 20 variantes proprietárias da AwSales."
+                v="diamante · colorido · estático"
+                d="AwAgentCore — orb (PNG) recortado no diamante. 20 variantes proprietárias; a cor vem da arte, não de paleta gerada."
               />
               <Spec
                 k="Agente do Usuário"
-                v="círculo · grayscale"
-                d="PNG do registry. 12 variantes neutras escolhidas pelo usuário."
+                v="círculo · colorido · animado"
+                d="AwUserAgentOrb — círculo preenchido pelo shader Synthesis. Paleta seeded pelo id (uma hue própria; branco + 2 saturações)."
               />
               <Spec
                 k="Cortex"
@@ -604,18 +610,18 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               />
               <Spec
                 k="silhueta"
-                v="circle ↔ hex"
-                d="Shape codifica categoria: agentes são círculos, Cortex é hex."
+                v="diamante · círculo · hex"
+                d="Shape codifica categoria: Core é diamante, Agente é círculo, Cortex é hex."
               />
               <Spec
-                k="paleta"
-                v="color ↔ gray"
-                d="Cor distingue origem: Core é AwSales, Usuário é neutro."
+                k="cor"
+                v="arte · seeded · B&W"
+                d="Core: cor da arte (PNG). Agente: paleta seeded pelo id. Cortex: cromo líquido B&W."
               />
               <Spec
                 k="movimento"
                 v="estático ↔ animado"
-                d="Orbs são imagens estáticas. Cortex sempre tem fluxo animado."
+                d="Agent Core é PNG estático (selo). Agente do usuário e Cortex animam em WebGL (Synthesis)."
               />
             </div>
           </Section>
@@ -629,9 +635,10 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                   a máscara hex ficam consistentes em qualquer tamanho.
                 </>,
                 <>
-                  Importe as PNGs dos orbs de{" "}
-                  <code className="mono">/assets/agent_imgs/orbs/</code> e
-                  mantenha o mapeamento Core → colorido, Usuário → grayscale.
+                  Renderize Core via <code className="mono">AwAgentCore</code>
+                  {" "}(PNG, diamante) e o agente do usuário via{" "}
+                  <code className="mono">AwUserAgentOrb</code> (círculo animado,
+                  seed = id do agente).
                 </>,
                 <>
                   Combine orb + nome do agente quando o usuário precisar
@@ -644,16 +651,16 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               ]}
               donts={[
                 <>
-                  Não inverta paletas (Core em grayscale, Usuário colorido) —
-                  você quebra a hierarquia inteira do sistema.
+                  Não anime o Agent Core nem deixe o agente do usuário estático
+                  — o movimento separa o framework (selo) do agente vivo.
                 </>,
                 <>
                   Não use o Cortex hex para representar um agente individual.
                   Ele é o cérebro, não um agente.
                 </>,
                 <>
-                  Não recolorize um orb do Usuário com brand do workspace —
-                  use os 12 modelos neutros como estão.
+                  Não escolha as cores do agente na mão fora da regra — deixe o
+                  seed gerar (hue própria, contraste de saturação).
                 </>,
                 <>
                   Não substitua o orb por iniciais, emoji ou ícone genérico.
