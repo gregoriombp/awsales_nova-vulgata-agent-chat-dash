@@ -1,0 +1,412 @@
+---
+name: bombardier-create-ux-flow
+description: >
+  Builds a UX flow diagram page in the Bombardier styleguide
+  (/bombardier/styleguide/ux-flows/[name]) from a flow description, steps list,
+  or any written brief. Maps all screens, decision points, branches, and
+  convergences into a ReactFlow diagram using the established AwSales UX flow
+  format. Registers the new page in navigation.ts. Use when the user says
+  "criar flow", "mapear fluxo", "build ux flow", "criar diagrama de fluxo",
+  "montar fluxograma", or hands over a list of steps/screens asking for a
+  styleguide UX flow page.
+---
+
+# Bombardier — UX Flow Page Builder
+
+Build a UX flow diagram page under `/app/bombardier/styleguide/ux-flows/[flow-slug]/page.tsx`
+from a written description of the flow.
+
+## Reference implementation
+
+The canonical example lives at:
+```
+app/bombardier/styleguide/ux-flows/primeiro-acesso/page.tsx
+```
+Read it **before starting**. It is the source of truth for node types, edge
+styles, layout constants, and page structure. All new flow pages must follow
+the same pattern — no deviations without a reason.
+
+---
+
+## Input expected from the user
+
+```txt
+Flow name:  [e.g. "Login", "Criação de agente", "Recuperação de senha"]
+Slug:       [e.g. "login", "criacao-agente", "recuperacao-senha"]
+Steps:      [numbered list of screens / states]
+Decision points: [where the user chooses between paths]
+Branches:   [what each path contains and how they converge]
+Intro text: [1–2 sentences summarising what this flow is about]
+Prototype links: [optional — href for each screen node]
+```
+
+If the user doesn't supply all fields, **infer from context** — never ask for
+more than necessary. For prototype links not provided, use `#` as href.
+
+---
+
+## Step 1 — Analyse the flow
+
+Before writing any code, map the entire flow:
+
+1. List every **screen** (step node) and **decision point** in order.
+2. Identify every **branch** (where the flow splits into 2–3 paths).
+3. Identify every **convergence** (where branches rejoin to a single node).
+4. Note the **terminal nodes** (last states: success, redirect, dead-end).
+5. Note the **entry point** (the screen before the flow starts, e.g. Login page).
+
+Produce a mental tree like this before touching code:
+
+```
+[Entry] → [Step 01] → [Decision A]
+                          ├─ path-1 → [Step 02a] → [Step 03] (converge)
+                          └─ path-2 → [Step 02b] → [Step 03] (converge)
+                      [Step 03] → [Decision B]
+                          ├─ left  → [Terminal 1]
+                          └─ right → [Terminal 2]
+```
+
+---
+
+## Step 2 — Plan the layout geometry
+
+### Column constants
+
+The main column is centred at **x = 380px** (screen-relative):
+
+| Node type | Width | x position | Centre |
+|---|---|---|---|
+| `ScreenNode` (200 px) | 200 px | `COL = 280` | 380 |
+| `DecisionNode` (240 px) | 240 px | `COL_D = 260` | 380 |
+
+### Branch column formulas
+
+**2-branch layout** (left / right symmetric around 380):
+```
+LEFT_X  = 80    centre = 180
+RIGHT_X = 480   centre = 580
+avg centre = 380 ✓
+```
+
+**3-branch layout** (pix / cartão / boleto style):
+```
+LEFT_X   = 40   centre = 140
+CENTER_X = 280  centre = 380   (same as COL)
+RIGHT_X  = 520  centre = 620
+avg centre = 380 ✓
+```
+
+If a branch section has **more than 3 paths**, use two separate rows of
+branches or widen the layout — document the choice.
+
+### Y spacing
+
+Use **160 px** between sequential main-flow nodes.  
+Use **200 px** between a decision node and its branch nodes (extra room for
+edge labels).  
+Use **180 px** between branch nodes and their convergence node.
+
+Start Y at 0. Increment for each new row. Example:
+
+```ts
+const Y = {
+  entry:           0,
+  step01:        160,
+  decisionA:     320,
+  branchRow:     520,   // +200 (branch below decision)
+  converge:      700,   // +180
+  step02:        860,
+  decisionB:    1020,
+  terminals:    1220,   // +200
+}
+```
+
+### Container height
+
+```
+containerHeight = Y[lastRow] + 200   // 200px padding below last nodes
+```
+
+Round up to the nearest 100 for cleanliness. Minimum 800 px.
+
+---
+
+## Step 3 — Node types
+
+The two node types — `screen` and `decision` — are already implemented in
+`../_components/flow-editor.tsx` and registered inside `FlowDiagram`. **Do
+not redefine them in your page.** A flow page only authors the `NODES` and
+`EDGES` arrays and hands them to `<FlowDiagram>`. Do not invent new node
+types.
+
+### `screen` — a tela/estado
+
+Data shape: `{ step: string; title: string; href: string; note?: string }`
+
+- `step`: label shown as eyebrow — use `"entrada"`, `"01"`, `"02a"`, `"→ plataforma"`, etc.
+- `title`: short screen name (≤ 4 words)
+- `href`: route to the prototype screen, or `#` if no prototype yet.
+- `note`: one short sentence about the screen's purpose (optional but recommended)
+
+**Preview behavior (drawer):** in view mode, clicking anywhere on a
+screen card opens the screen's `href` inside a side drawer — an `AwSheet`
+(wide variant) carrying an iframe. `FlowDiagram` wires this through
+ReactFlow's `onNodeClick` (not via a `<Link>` wrapping the card, which
+ReactFlow's pointer handling tends to swallow); flow pages don't need
+to do anything beyond filling `href` correctly.
+
+- Internal route (`/inicio`, `/primeiro-acesso/perfil`, …) → loaded in the iframe.
+- `#` or empty string → drawer shows a "Sem protótipo ainda" placeholder.
+- External URL (`https://…`) → drawer offers an "Abrir em nova aba" button instead of the iframe.
+- `cmd/ctrl-click` on an internal route opens it in a new tab — plain click opens the drawer.
+
+So: **prefer real internal routes over `#`** whenever a prototype exists.
+The drawer makes them previewable in-place from the diagram.
+
+### `decision` — ponto de decisão
+
+Data shape: `{ step: string; title: string; question: string }`
+
+- `step`: decision identifier (`"02"`, `"fim"`, etc.)
+- `title`: the decision name (e.g. `"Método de autenticação"`)
+- `question`: the question the user faces at this point (≤ 15 words)
+
+**Handle rules for decision nodes:**
+- `id="left"` → used when the left branch exits from the left side
+- `id="bottom"` → used for the center/straight-down branch
+- `id="right"` → used when the right branch exits from the right side
+- Always specify `sourceHandle` on edges leaving a decision node
+
+---
+
+## Step 4 — Edge styles
+
+The two edge bases — `edgeBase` (grey, main flow) and `branchEdge` (amber,
+exit from a decision) — are exported from `../_components/flow-editor.tsx`.
+Import them in the page instead of redeclaring:
+
+```ts
+import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
+```
+
+Define `labelProps` inline in the page (it's small and the props vary per
+page):
+
+```ts
+const labelProps = {
+  labelStyle: { fill: "var(--fg-secondary)", fontSize: 11, fontWeight: 500 },
+  labelBgStyle: { fill: "var(--bg-canvas)" },
+  labelBgPadding: [6, 4] as [number, number],
+}
+```
+
+**When to use each:**
+- `edgeBase` — entry → step, step → step, step → decision, convergence → next step
+- `branchEdge` — decision → any branch node (always amber, always labelled with the branch choice)
+
+**Edge labelling:**
+- Decision → branch: label with the branch choice (e.g. `"Pix"`, `"Google"`, `"Sim"`, `"Não"`)
+- Entry → first step: label with the action that starts the flow (e.g. `"Primeiro acesso"`)
+- Other edges: no label unless they carry important context
+
+---
+
+## Step 5 — Strings inside node data
+
+**Never use ASCII double-quotes inside a string value** — the JS parser will
+break. Use one of these approaches:
+
+```ts
+// ✅ Use single-quoted outer string for notes with quotes inside
+note: 'Clique em "Primeiro acesso" para iniciar.',
+
+// ✅ Use a template literal
+note: `Clique em "Primeiro acesso" para iniciar.`,
+
+// ✅ Rephrase to avoid inner quotes
+note: "Clique em Primeiro acesso para iniciar o fluxo.",
+
+// ❌ NEVER — breaks the parser
+note: "Clique em "Primeiro acesso" para iniciar.",
+```
+
+---
+
+## Step 6 — Page structure
+
+The page has **four sections** in this order. The `Tldr` component is **not
+used** in UX flow pages — replace it with a brief introductory paragraph.
+
+```tsx
+export default function [FlowName]FlowPage() {
+  return (
+    <>
+      <PageHero title="[Flow name]">
+        [1–2 sentence description of the flow. What it covers, who goes
+        through it, when to use this map.]
+      </PageHero>
+
+      <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
+
+        {/* SECTION 1 — intro text (replaces Tldr) */}
+        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
+          [2–4 sentences. Overview of the flow structure: how many steps,
+          where decision points are, what the terminal states are. This is
+          the "orientation" paragraph a reader needs before diving into the
+          diagram.]
+        </p>
+
+        {/* SECTION 2 — the diagram */}
+        <Section
+          id="flow"
+          title="Fluxograma"
+          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões — pontos em que o usuário faz uma escolha. Setas âmbar indicam os caminhos de bifurcação."
+        >
+          <FlowDiagram
+            flow="[flow-slug]"
+            nodes={NODES}
+            edges={EDGES}
+            height={[CALCULATED_HEIGHT]}
+          />
+        </Section>
+
+        {/* SECTION 3 — each screen documented */}
+        <Section
+          id="screens"
+          title="Cada tela"
+          lead="Propósito, decisões e link direto pro protótipo de cada uma."
+        >
+          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+              {screens.map((s) => (
+                <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
+                  <div className="flex items-baseline gap-3">
+                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                  </div>
+                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
+                    <span className="caption">
+                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      {s.decisions}
+                    </span>
+                    <Link href={s.href} className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline">
+                      Abrir protótipo →
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </Section>
+
+        {/* SECTION 4 — design decisions (2–4 cards) */}
+        <Section
+          id="design-notes"
+          title="Decisões de design"
+          lead="Por que o fluxo está estruturado desse jeito."
+        >
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* One card per key design decision. Use the info from the flow
+                description to fill these. Each card: eyebrow + paragraph. */}
+            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="aw-eyebrow mb-2">[Decision title]</div>
+              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+                [Why the flow is structured this way.]
+              </p>
+            </div>
+          </div>
+        </Section>
+
+      </div>
+    </>
+  )
+}
+```
+
+The `screens` array drives Section 3. It mirrors the main screens in the flow
+(skip sub-branches that are just variants of the same screen):
+
+```ts
+const screens = [
+  {
+    step: "01",
+    title: "Screen name",
+    href: "/route/to/prototype",
+    purpose: "What this screen does and why it exists here.",
+    decisions: "What happens after → where it leads.",
+  },
+  // ...
+]
+```
+
+---
+
+## Step 7 — Register in navigation.ts
+
+Add the new flow to the `"UX Flows"` section in
+`app/bombardier/styleguide/navigation.ts`:
+
+```ts
+{
+  title: "UX Flows",
+  items: [
+    { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
+    { name: "[New flow title]", href: "/bombardier/styleguide/ux-flows/[flow-slug]" },
+  ],
+},
+```
+
+Never create a new section — always append to the existing `"UX Flows"` array.
+
+---
+
+## Step 8 — Validate
+
+```bash
+npm run typecheck    # must pass — no TS errors
+```
+
+If the dev server is running, open the page and confirm the diagram renders,
+nodes are clickable, and the dots background is visible.
+
+---
+
+## Quick checklist before submitting
+
+- [ ] Read `primeiro-acesso/page.tsx` as reference
+- [ ] Page imports `branchEdge`, `edgeBase`, `FlowDiagram` from `../_components/flow-editor` — never redefines node or edge primitives
+- [ ] Mapped all screens + decision points + branches + convergences
+- [ ] Layout geometry calculated (COL, COL_D, branch X positions, Y table)
+- [ ] Container height passed via `<FlowDiagram height={…} />` = Y[last row] + 200, rounded to nearest 100
+- [ ] Every `screen` node's `href` is either a real internal route (so the drawer can preview it) or `#` when no prototype exists
+- [ ] `sourceHandle` specified on all edges leaving a decision node
+- [ ] No ASCII double-quotes inside JS string values
+- [ ] `Tldr` component NOT used — replaced with intro `<p>` paragraph
+- [ ] Section `lead` mentions "clique" + "painel lateral" so readers know the card opens a preview drawer
+- [ ] `screens` array covers all main steps (not sub-branch variants)
+- [ ] `navigation.ts` updated under `"UX Flows"` section
+- [ ] `npm run typecheck` passes
+
+---
+
+## Output to return
+
+```md
+Built UX flow: [Flow name]
+
+Route: /bombardier/styleguide/ux-flows/[flow-slug]
+
+Flow structure:
+- [N] screen nodes
+- [N] decision nodes  
+- [N] branches
+- Terminal states: [list]
+
+Changed:
+- app/bombardier/styleguide/ux-flows/[flow-slug]/page.tsx — created
+- app/bombardier/styleguide/navigation.ts — added entry under UX Flows
+
+Validation:
+- typecheck — passed / failed
+```

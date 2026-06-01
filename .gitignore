@@ -9,10 +9,11 @@
 # testing
 /coverage
 
-# local claude code settings (personal — do not share)
-.claude/settings.json
+# claude code: .claude/settings.json e .claude/skills/ agora são RASTREADOS no origin
+# (pros agentes cloud enxergarem as skills do Bombardier) e removidos do mirror design2
+# por scripts/sync-design2.sh. Aqui ficam só os arquivos de máquina:
 .claude/settings.local.json
-.claude/skills/
+.claude/worktrees/
 
 # local agent skill cache (personal — do not share)
 .agents/
@@ -22,11 +23,9 @@ skills-lock.json
 .cursor/settings.json
 .cursor/rules/
 
-# local agent context docs (personal — do not share)
-AGENTS.md
-CLAUDE.md
-BOMBARDIER.md
-AWSALES_CONTEXT.md
+# Docs de contexto do agente (AGENTS.md, CLAUDE.md, BOMBARDIER.md, AWSALES_CONTEXT.md) e
+# scripts/sync-design2.sh são RASTREADOS no origin e removidos do mirror design2 pelo script
+# de sync — NÃO ignore aqui. A STRIP list canônica vive em scripts/sync-design2.sh:PRIVATE_PATHS.
 
 # next.js
 /.next/

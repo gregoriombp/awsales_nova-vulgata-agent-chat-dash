@@ -1,0 +1,243 @@
+---
+name: bombardier-flow-bridge-solve
+description: >
+  Lê e aplica sugestões de edição de UX flow guardadas no flow-bridge
+  (`/bombardier/styleguide/ux-flows/<flow>`). Puxa do bridge com filtro
+  escolhido pelo usuário (todas, só de um flow, só abertas, ID específico,
+  etc.), faz UM PLANO ANTES de mexer em código, espera aprovação do
+  usuário, edita os `NODES`/`EDGES` canônicos da página do flow, e marca
+  cada sugestão como `in_review` no bridge com
+  `actor: { kind: "agent", id: "claude", name: "Claude" }` — o usuário
+  aprova (apply) ou rejeita pelo inbox da página. Use sempre que o
+  usuário pedir "/bombardier-flow-bridge-solve", "avalia a sugestão X do
+  flow Y", "aplica as sugestões abertas do login-auth", "pega as
+  sugestões de hoje e resolve", "olha o que tem no flow-bridge", ou
+  variações. Não usar pra subir o servidor — pra isso, ver
+  `bombardier-flow-bridge`.
+---
+
+# Bombardier Flow Bridge — Resolver sugestões em lote
+
+Esta skill é o **agente que aplica** as sugestões de edição dos UX flows.
+Lê o flow-bridge, planeja as mudanças no código canônico da página do
+flow, implementa, e devolve cada sugestão como `in_review` pro usuário
+aprovar pelo inbox da página.
+
+> Pré-requisito: o servidor já está rodando. Se não estiver, invocar
+> `bombardier-flow-bridge` primeiro.
+>
+> Arquitetura, endpoints e payloads completos: `flow-bridge/README.md`.
+
+## Regra de ouro
+
+**Você NÃO arquiva direto.** Sempre transiciona para `in_review` e deixa
+o usuário aprovar (apply) pelo inbox. A única exceção é quando o usuário
+pedir explicitamente "aplica e arquiva direto".
+
+```
+status atual → o que você faz
+─────────────────────────────────
+open         → in_review  (após editar o page.tsx do flow)
+open         → reply       (skill atual não tem reply — caia pra pular + perguntar no chat)
+in_review    → não tocar  (já está com você ou outro agente; só user pode aprovar/rejeitar)
+applied/discarded → ignorar (já arquivado; outra fila)
+```
+
+## Identidade do actor
+
+Em TODAS as chamadas que escrevem no bridge:
+
+```json
+{ "kind": "agent", "id": "claude", "name": "Claude" }
+```
+
+Se for outro modelo rodando em paralelo, use id estável diferente
+(`claude-haiku`, `cursor`, etc.).
+
+---
+
+## Fluxo
+
+### 0. Setup — ler env e validar bridge
+
+```bash
+TOKEN=$(grep BOMBARDIER_FLOW_TOKEN flow-bridge/.env | cut -d= -f2-)
+BRIDGE_URL=$(grep NEXT_PUBLIC_BOMBARDIER_FLOW_BRIDGE_URL .env.local | cut -d= -f2-)
+BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:9879}
+curl -s "$BRIDGE_URL/health" \
+  | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==1, d"
+```
+
+Se falhar, parar e pedir pra rodar `bombardier-flow-bridge` primeiro.
+
+### 1. Parsear o filtro da request do usuário
+
+| User disse | Filtro |
+|---|---|
+| "tudo" / sem filtro | `status=open` (default — não puxa in_review nem archive) |
+| "as abertas" / "open" | `status=open` |
+| "as em revisão" / "in_review" | `status=in_review` (mas NÃO mexa nelas — só lista) |
+| "as de hoje" | `status=open` + filtrar `createdAt >= meia-noite local de hoje` |
+| "as do flow login-auth" | `status=open&flow=login-auth` |
+| "sugestão `abc12345`" / "id `abc12345`" | GET direto por id |
+
+### 2. Buscar e priorizar
+
+```bash
+curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open" \
+  | python3 -m json.tool > /tmp/flow-bridge-open.json
+```
+
+Ordem padrão: mais antigas primeiro (FIFO). Empate: mesmo `flow` em bloco
+contínuo (você lê o `page.tsx` daquele flow uma vez só).
+
+### 3. Plano — SEMPRE antes de tocar em código
+
+Pra cada sugestão no escopo, monte uma linha:
+
+```
+- abc12345 · flow:login-auth · "primeiras 60 chars da descrição..."
+  diff vs canônico: <N nodes adicionados, M edges, K nodes editados>
+  proposta: <o que você vai aplicar no page.tsx, em 1 linha>
+  arquivos: app/bombardier/styleguide/ux-flows/login-auth/page.tsx
+  confiança: alta | média | baixa
+  ação: aplicar | pular (motivo)
+```
+
+> Pra calcular o diff: compare os `nodes` e `edges` da sugestão com o
+> `NODES`/`EDGES` exportados pelo `page.tsx` do flow. IDs novos = nodes
+> adicionados. IDs sumidos = removidos. Mesma id com `data` diferente =
+> editado. Mesma id com `position` diferente = reposicionado (raramente
+> precisa codificar — o layout é matemático em `Y` e colunas).
+
+Apresente plano consolidado pro user. **Espere aprovação explícita**
+(AskUserQuestion com "aplicar tudo", "só os de confiança alta",
+"cancelar"). Em auto mode, prossiga com "aplicar tudo" e avise no resumo
+final.
+
+### 4. Executar item por item
+
+Pra cada sugestão marcada como **aplicar**:
+
+1. Ler o `page.tsx` do flow (`/app/bombardier/styleguide/ux-flows/<flow>/page.tsx`).
+2. Atualizar os arrays `NODES` e `EDGES`:
+   - **Nó adicionado**: criar uma entrada nova com `type`, `data`, `position`. Se
+     a posição parecer caótica (random do paleta), ajustar pra cair numa coluna
+     coerente com `COL`/`COL_D` ou no corredor mais próximo.
+   - **Nó editado**: alterar só os campos do `data` que mudaram (step, title,
+     note, href / question).
+   - **Nó removido**: tirar do array (e tirar edges órfãs).
+   - **Edge nova**: criar com `edgeBase` ou `branchEdge` (sempre prefira esses
+     dois — não escreva markup de edge cru).
+   - **Edge removida**: tirar do array.
+3. Se a sugestão também alterou nodes existentes que têm uma seção
+   `screens = [...]` documentando elas no mesmo arquivo, **atualize também
+   esse array** se a mudança for de propósito/título (deixa o documento
+   coerente com o diagrama).
+4. Marcar a sugestão como `in_review` no bridge:
+
+```bash
+curl -s -X PUT "$BRIDGE_URL/suggestions/$ID" \
+  -H "X-Flow-Token: $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transition": "in_review",
+    "actor": { "kind": "agent", "id": "claude", "name": "Claude" }
+  }' | python3 -m json.tool
+```
+
+A resposta inclui `resolution.summary` no formato:
+`Em revisão por Claude em DD/MM/YYYY às HH:MM:SS.`
+
+### 5. Resumo final
+
+```
+✅ N aplicadas (em revisão no inbox de cada flow):
+   - abc12345 · login-auth · 1 linha do que foi feito
+   ...
+
+⏭️ K puladas:
+   - abc12345 · primeiro-acesso · motivo
+
+▶ Abra /bombardier/styleguide/ux-flows/<flow> e clique no badge âmbar
+  ("N sugestões") pra aprovar (apply) ou rejeitar (volta pra open).
+```
+
+---
+
+## Decisões de "aplicar vs pular"
+
+| Sinal | Decisão |
+|---|---|
+| Descrição clara + diff coerente com o flow | aplicar |
+| Diff lógico mas posição estranha (random do paleta) | aplicar, mas reposicionar pra coluna/Y coerente |
+| Descrição vaga ("melhorias") + diff grande | pular, pedir pro user clarificar |
+| Sugestão muda jargão pra termo proibido (mobile, backend interno) | pular (memória: produto não tem mobile; repo é UI/UX) |
+| Sugestão adiciona node com `href` apontando pra rota que não existe | aplicar mas substituir por `"#"` e avisar no resumo |
+
+## Restrições
+
+- ❌ Não use `transition: "apply"` nem `transition: "discard"` — só o user
+  humano aprova/descarta pelo inbox da página.
+- ❌ Não delete sugestões direto (`DELETE /suggestions/:id`).
+- ❌ Não toque em sugestões com `status: "in_review"` (já estão na fila do user).
+- ❌ Não toque em sugestões do arquivo (`/suggestions/archive`) a menos que
+  o user pergunte explicitamente.
+- ❌ Não introduza novos tokens de cor / spacing / etc. — sempre use os
+  já definidos em `globals.css`.
+- ❌ Não reorganize componentes/imports do `page.tsx` que não foram
+  alterados pela sugestão (mantém diff limpo).
+- ✅ Sempre rodar `tsc --noEmit` no fim do lote (filtre por arquivo do
+  flow). Se erro, NÃO marque `in_review` — fix primeiro.
+- ✅ Se cair conexão no meio do lote, retomar do próximo id pendente.
+
+## Filtros úteis
+
+### Sugestões de hoje, abertas
+
+```bash
+TODAY_MS=$(python3 -c "import datetime;t=datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0);print(int(t.timestamp()*1000))")
+curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open" \
+  | TODAY_MS=$TODAY_MS python3 -c "
+import sys, json, os
+d = json.load(sys.stdin)
+today_ms = int(os.environ['TODAY_MS'])
+hoje = [s for s in d['suggestions'] if s['createdAt'] >= today_ms]
+print(json.dumps({'count': len(hoje), 'ids': [s['id'] for s in hoje]}, indent=2))
+"
+```
+
+### Tudo aberto de um flow
+
+```bash
+curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open&flow=login-auth"
+```
+
+### Uma sugestão específica
+
+```bash
+curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions/abc12345"
+```
+
+### Sugestões que ficaram pendentes pra você revisar (pós-execução)
+
+```bash
+curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=in_review" \
+  | python3 -c "
+import sys, json
+d = json.load(sys.stdin)
+for s in d['suggestions']:
+    summary = s.get('resolution', {}).get('summary', '?')
+    print(s['id'], '·', s['flow'], '·', summary)
+"
+```
+
+## Troubleshooting
+
+| Sintoma | Causa | Como contornar |
+|---|---|---|
+| `401` | token errado | reler `flow-bridge/.env` (linha pode ter espaço extra) |
+| `404` numa transition | sugestão já arquivada/deletada | pular do lote |
+| `400 invalid_actor` | esqueci `actor` no body | sempre incluir `{kind,id,name}` |
+| 0 sugestões retornadas | filtro restritivo demais | tirar `flow=` e ver listagem cheia primeiro |
+| Diff complicado demais pra um lote | abortar o lote, fatiar por flow, pedir confirmação | "vou aplicar só o do flow X primeiro, ok?" |
