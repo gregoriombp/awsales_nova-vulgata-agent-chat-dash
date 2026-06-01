@@ -167,6 +167,9 @@ export default function FooPage() {
 - **Linguagem:** PT-BR principal, código e nomes técnicos em inglês quando fazem sentido. Não traduza nomes de tokens nem componentes.
 - **Tokens:** **nunca** hardcode cores, paddings, radius. Sempre `var(--*)`.
 - **Acessibilidade do <kbd>:** `KeyboardTable` já cuida do styling — só passe a lista.
+- **Camada do componente:** a *estrutura* da página é definida aqui; a *camada*
+  (Primitivos / Componentes / Padrões / Domínio) onde ele entra na sidebar é
+  definida em [`component-layers.md`](./component-layers.md). Os dois andam juntos.
 
 ## Exemplo vivo
 
