@@ -25,10 +25,26 @@ const fragmentShader = `
   uniform float uGlowIntensity;
   uniform float uFlowFrequency;
   uniform float uContrast;
+  uniform float uHueShift;
 
   mat2 rot(float a) {
       float s = sin(a), c = cos(a);
       return mat2(c, -s, s, c);
+  }
+
+  vec3 rgb2hsv(vec3 c) {
+      vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+      vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+      vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+      float d = q.x - min(q.w, q.y);
+      float e = 1.0e-10;
+      return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+  }
+
+  vec3 hsv2rgb(vec3 c) {
+      vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+      vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+      return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
   }
 
   void main() {
@@ -59,6 +75,12 @@ const fragmentShader = `
 
     color = smoothstep(0.0, uContrast, color);
 
+    if (uHueShift != 0.0) {
+        vec3 hsv = rgb2hsv(color);
+        hsv.x = fract(hsv.x + uHueShift);
+        color = hsv2rgb(hsv);
+    }
+
     gl_FragColor = vec4(color, 1.0);
   }
 `;
@@ -76,6 +98,8 @@ export interface AwCortexSynthesisProps {
   glowIntensity?: number;
   flowFrequency?: number;
   contrast?: number;
+  /** Hue rotation speed (cycles of raw time). 0 = off (the standard). >0 = rainbow sweep. */
+  hueSpeed?: number;
   backgroundColor?: string;
 }
 
@@ -90,10 +114,15 @@ const Effect = ({
   glowIntensity,
   flowFrequency,
   contrast,
+  hueSpeed,
 }: Required<Omit<AwCortexSynthesisProps, "className" | "style" | "backgroundColor">>) => {
   const materialRef = useRef<THREE.ShaderMaterial>(null);
 
+  // Uniforms are created ONCE, then mutated by ref (useEffect on prop change +
+  // useFrame per frame) — the ShaderMaterial binds to these stable cells. Empty
+  // deps are intentional; recreating would detach the binding and reset time.
   const uniforms = useMemo(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization
     () => ({
       uTime: { value: 0 },
       uResolution: { value: new THREE.Vector2() },
@@ -106,6 +135,7 @@ const Effect = ({
       uGlowIntensity: { value: glowIntensity },
       uFlowFrequency: { value: flowFrequency },
       uContrast: { value: contrast },
+      uHueShift: { value: 0 },
     }),
     [],
   );
@@ -137,6 +167,9 @@ const Effect = ({
     if (!materialRef.current) return;
     materialRef.current.uniforms.uTime.value =
       state.clock.getElapsedTime() * speed;
+    // Hue rotation runs off raw time so it's independent of flow `speed`.
+    materialRef.current.uniforms.uHueShift.value =
+      state.clock.getElapsedTime() * hueSpeed;
     materialRef.current.uniforms.uResolution.value.set(
       state.size.width,
       state.size.height,
@@ -169,6 +202,7 @@ export function AwCortexSynthesis({
   glowIntensity = 0,
   flowFrequency = 2,
   contrast = 1.0,
+  hueSpeed = 0,
   backgroundColor = "#000000",
 }: AwCortexSynthesisProps) {
   return (
@@ -195,6 +229,7 @@ export function AwCortexSynthesis({
           glowIntensity={glowIntensity}
           flowFrequency={flowFrequency}
           contrast={contrast}
+          hueSpeed={hueSpeed}
         />
       </Canvas>
     </div>
