@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { ToastProvider } from "@/lib/contexts/ToastContext";
 import { AwToastProvider } from "@/components/ui/AwToast";
-import { ClaudeEditOverlayProvider } from "@/components/claude-edit/ClaudeEditOverlayProvider";
 import { ReviewModeProvider } from "@/components/bombardier-review/ReviewModeProvider";
 import { BombardierDot } from "@/components/bombardier/BombardierDot";
 import { DesktopOnlyBlocker } from "@/components/DesktopOnlyBlocker";
 
-const claudeEditEnabled =
-  process.env.NEXT_PUBLIC_CLAUDE_EDIT_ENABLED === "true";
-
-const reviewModeEnabled =
-  process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_ENABLED === "true";
-
+// Review Mode is always mounted: it self-gates on the review store's `active`
+// flag (renders nothing until you enter review via the Bombardier dot or
+// Cmd+Shift+Y), so reviewers can always toggle commenting on.
 const bombardierDotEnabled =
   process.env.NEXT_PUBLIC_BOMBARDIER_DOT_DISABLED !== "true";
 
@@ -50,14 +45,11 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <ToastProvider>
-          <AwToastProvider>
-            <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
-            {claudeEditEnabled && <ClaudeEditOverlayProvider />}
-            {reviewModeEnabled && <ReviewModeProvider />}
-            {bombardierDotEnabled && <BombardierDot />}
-          </AwToastProvider>
-        </ToastProvider>
+        <AwToastProvider>
+          <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
+          <ReviewModeProvider />
+          {bombardierDotEnabled && <BombardierDot />}
+        </AwToastProvider>
       </body>
     </html>
   );
