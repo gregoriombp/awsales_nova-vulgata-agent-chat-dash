@@ -37,8 +37,6 @@
   ],
   "exclude": [
     "node_modules",
-    "bridge",
-    "bridge-edit",
     "review-bridge",
     "flow-bridge"
   ]
