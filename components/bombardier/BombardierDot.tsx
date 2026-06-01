@@ -8,15 +8,48 @@ import {
 } from "@/components/ui/AwDropdownMenu";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { useReviewStore } from "@/lib/bombardier-review/store";
+import { useToast } from "@/components/ui/AwToast";
 
-const reviewModeEnabled =
-  process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_ENABLED === "true";
+// Inlined at build time (NEXT_PUBLIC_*). When the review-bridge skill wrote a
+// LAN address here, "Copiar link pra LAN" rebuilds the current page URL on that
+// host so the team can open the exact screen you're reviewing.
+const reviewBridgeUrl = process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL;
 
 export function BombardierDot() {
   const router = useRouter();
   const [visible, setVisible] = React.useState(true);
   const reviewActive = useReviewStore((s) => s.active);
   const toggleReview = useReviewStore((s) => s.toggleActive);
+  const backend = useReviewStore((s) => s.backend);
+  const { push } = useToast();
+
+  const copyLanLink = React.useCallback(() => {
+    if (typeof window === "undefined") return;
+    let host = window.location.hostname;
+    if (reviewBridgeUrl) {
+      try {
+        host = new URL(reviewBridgeUrl).hostname;
+      } catch {
+        /* fall back to the window host */
+      }
+    }
+    const port = window.location.port || "3000";
+    const url = `${window.location.protocol}//${host}:${port}${window.location.pathname}${window.location.search}`;
+    const done = (ok: boolean) =>
+      push({
+        title: ok ? "Link copiado" : "Não consegui copiar",
+        description: url,
+        variant: ok ? "success" : "error",
+      });
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => done(true),
+        () => done(false)
+      );
+    } else {
+      done(false);
+    }
+  }, [push]);
 
   if (!visible) return null;
 
@@ -40,26 +73,30 @@ export function BombardierDot() {
       id: "ux-flows",
       label: "UX Flows",
       icon: "account_tree",
-      onSelect: () => go("/bombardier/styleguide/ux-flows"),
+      onSelect: () => go("/bombardier/styleguide/ux-flows/primeiro-acesso"),
+    },
+    { id: "sep-review", separator: true },
+    {
+      id: "review-status",
+      isLabel: true,
+      label:
+        backend === "bridge"
+          ? "Review · sincronizando na LAN"
+          : "Review · local (este navegador)",
     },
     {
-      id: "page-builder",
-      label: "Page Builder",
-      icon: "draw",
-      onSelect: () => go("/bombardier/page-builder"),
+      id: "review",
+      label: reviewActive ? "Sair do Review Mode" : "Entrar no Review Mode",
+      icon: reviewActive ? "rate_review" : "comment",
+      checked: reviewActive,
+      onSelect: () => toggleReview(),
     },
-    ...(reviewModeEnabled
-      ? ([
-          { id: "sep-review", separator: true as const },
-          {
-            id: "review",
-            label: reviewActive ? "Sair do Review Mode" : "Entrar no Review Mode",
-            icon: reviewActive ? "rate_review" : "comment",
-            checked: reviewActive,
-            onSelect: () => toggleReview(),
-          },
-        ] satisfies AwDropdownItem[])
-      : []),
+    {
+      id: "review-copy-link",
+      label: "Copiar link pra LAN",
+      icon: "link",
+      onSelect: () => copyLanLink(),
+    },
     { id: "sep-hide", separator: true },
     {
       id: "hide",
