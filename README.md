@@ -11,8 +11,7 @@ Plataforma de agentes de IA para vendas. Construída com o método **Bombardier*
 - **Forms:** react-hook-form + zod
 - **Charts:** recharts
 - **Graphs / Flow:** @xyflow/react
-- **Drag & drop:** dnd-kit
-- **AI SDKs:** @anthropic-ai/sdk, @google/genai
+- **AI SDK:** @google/genai
 
 ## Como rodar
 
@@ -29,30 +28,14 @@ Foundations: Design Tokens, Iconografia, Logos, Animação, Acessibilidade, Escr
 Componentes: 23 registrados oficialmente — entre eles `integration-catalog`, `integration-card`, `connect-modal`, `whatsapp-panel`, `chrome`, `nav-rail`, `nav-list`, `template-builder-sheet`, `chat`, `pills`, `toast`.
 Playground: componentes propostos em `/bombardier/styleguide/components/playground`.
 
-## Claude Code edit overlay (dev-only)
+## Review Mode (anotação colaborativa)
 
-Um copilot flutuante que aparece sobre qualquer tela do app, conversa com Claude Code via bridge local e suporta um "cursor seletor" estilo Cursor — clica num elemento da UI, ele vira referência no chat e o Claude pode editar o arquivo correspondente diretamente no repo.
-
-```bash
-# Em outro terminal — sobe o bridge local que executa Claude Code:
-npm run edit-bridge:install   # primeira vez
-npm run edit-bridge:dev
-```
-
-Ative o overlay no `.env.local`:
-
-```
-NEXT_PUBLIC_CLAUDE_EDIT_ENABLED=true
-NEXT_PUBLIC_CLAUDE_EDIT_BRIDGE_URL=http://localhost:9877
-```
-
-Atalhos:
-- `⌘⇧L` abre/fecha o overlay
-- Botão de alvo (ou `Esc`) ativa/desativa o seletor de elementos
-
-O overlay é gated por env flag — em build de produção sem a var, ele não renderiza nem faz nenhuma chamada ao bridge. O bridge ouve apenas em `127.0.0.1` e usa as tools built-in do Claude Agent SDK (Read, Edit, Write, Glob, Grep, Bash) com `cwd` apontando pro root do repo.
-
-> Já existia um bridge irmão em `bridge/` dedicado ao page-builder do Bombardier (`npm run bridge:dev`, porta 9876). O `bridge-edit/` é separado para não misturar a lógica de "gerar nodes pro canvas" com "editar arquivos do repo".
+Overlay de comentários (free-draw + pin) **sempre montado**. Ligue/desligue o modo de
+comentar pela **bolota do Bombardier** (canto inferior direito) ou `Cmd+Shift+Y` — não
+precisa de env flag. Sincroniza entre revisores na LAN via `review-bridge` quando
+`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL` + `NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN` estão
+setados no `.env.local` (senão grava no `localStorage`). Servidor: `npm run review-bridge`
+(porta 9878). Skills: `/bombardier-review-bridge` e `/bombardier-review-bridge-solve`.
 
 ## Estrutura
 
@@ -76,20 +59,21 @@ app/
 └── page.tsx                  # AuthFlow (login)
 
 components/
-├── ui/                       # Primitivos novos (em construção, ex: AwLogo, AwToast)
-├── forms/                    # DatePicker, FileUpload, Checkbox, Select, Textarea
-├── modals/                   # BaseModal, FormModal
-├── notifications/            # Toast, ToastContainer
-├── claude-edit/              # Overlay do Claude Code (ver acima)
-└── *.tsx                     # Componentes legados (Button, Input, KPICard, etc.) — migram pra ui/
+├── ui/                       # Componentes Aw* do design system (58+) + primitivos shadcn lowercase
+├── modals/                   # Modais legados (BaseModal + família) — migram pra AwModal
+├── integrations/             # Painéis de canal (Aw*Panel) + template builder
+├── bombardier-review/        # Review Mode (overlay de comentários)
+├── bombardier/               # BombardierDot (bolota de atalhos + toggle de review)
+├── auth/  memory-base/       # Feature modules — fora do escopo do DS Aw*
+└── *.tsx                     # Legados na raiz (ComingSoon, NotificationRow, etc.) — migram pra ui/
 
 lib/
-├── contexts/                 # ToastContext
-└── hooks/                    # useToast
+├── hooks/                    # useGlobalHotkey, useTableSort, use-toast
+└── bombardier-review/        # Store + storage do Review Mode
 
 public/assets/integrations/   # Logos das integrações, categorizadas (Agenda, Ações, Checkout, etc.)
-bridge/                       # Bridge do page-builder (porta 9876)
-bridge-edit/                  # Bridge do edit overlay (porta 9877)
+review-bridge/                # Servidor LAN de comentários (porta 9878)
+flow-bridge/                  # Servidor LAN de sugestões de UX flow (porta 9879)
 ```
 
 ## Como agentes de IA trabalham nesse repo
@@ -98,7 +82,7 @@ Ver [`CLAUDE.md`](./CLAUDE.md).
 
 ## Histórico de decisões
 
-Ver [`CHANGELOG.md`](./CHANGELOG.md). Não é release notes — é registro pra quem entrar no projeto entender por que as coisas estão como estão.
+Use `git log` para o histórico — não há `CHANGELOG.md` neste repo. Os porquês das decisões maiores de produto/UX ficam em [`AWSALES_CONTEXT.md`](./AWSALES_CONTEXT.md).
 
 ## Método de design
 
@@ -111,6 +95,5 @@ npm run dev              # dev server localhost:3000 + acessível na LAN (0.0.0.
 npm run build            # build de produção
 npm start                # production server
 npm run lint             # ESLint
-npm run bridge:dev       # page-builder bridge (porta 9876)
-npm run edit-bridge:dev  # edit overlay bridge (porta 9877)
+npm run review-bridge    # servidor LAN de comentários (porta 9878)
 ```

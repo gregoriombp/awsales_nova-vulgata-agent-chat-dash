@@ -71,7 +71,7 @@ governança de navegação.
 
 ## Mapeamento atual (auditoria)
 
-Espelha `app/bombardier/styleguide/navigation.ts`. Total: 55 componentes.
+Espelha `app/bombardier/styleguide/navigation.ts` — consulte a nav para o inventário vivo (a contagem muda; não fixamos número aqui).
 
 **Primitivos (19)** — Alertas · Avatar · Botões · Breadcrumb · Checkbox ·
 Controles · Dropdown menu · Empty · File icon · Inputs · Pills · Progress ·
