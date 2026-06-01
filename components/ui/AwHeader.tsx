@@ -68,9 +68,9 @@ export function AwHeader({
     const content = (
       <span className="inline-flex items-center gap-2">
         {breadcrumbItem.icon && (
-          <span className="flex-shrink-0 text-[#0a0a0a]">{breadcrumbItem.icon}</span>
+          <span className="flex-shrink-0 text-[var(--fg-primary)]">{breadcrumbItem.icon}</span>
         )}
-        <span className={isLast ? 'text-[#737373]' : 'text-[#0a0a0a]'}>
+        <span className={isLast ? 'text-[var(--fg-tertiary)]' : 'text-[var(--fg-primary)]'}>
           {breadcrumbItem.label}
         </span>
       </span>
@@ -82,7 +82,7 @@ export function AwHeader({
           {hasLink ? (
             <Link
               href={breadcrumbItem.href!}
-              className="body-sm leading-5 hover:underline hover:text-[#0a0a0a] focus:outline-none focus:underline"
+              className="body-sm leading-5 hover:underline hover:text-[var(--fg-primary)] focus:outline-none focus:underline"
             >
               {content}
             </Link>
@@ -91,7 +91,7 @@ export function AwHeader({
           )}
         </div>
         {!isLast && (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-gray-400 flex-shrink-0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[var(--fg-tertiary)] flex-shrink-0">
             <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         )}
@@ -185,7 +185,7 @@ export function AwHeader({
   if (minimal) return threeItems;
 
   return (
-    <div className="bg-white border-b border-[#e5e5e5] px-5 py-3">
+    <div className="bg-[var(--bg-raised)] border-b border-[var(--border-default)] px-5 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {breadcrumbs && breadcrumbs.length > 0 && breadcrumbs.map((item, index) =>

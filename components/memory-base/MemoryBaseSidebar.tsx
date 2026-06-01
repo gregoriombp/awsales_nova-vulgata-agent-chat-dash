@@ -114,16 +114,16 @@ export default function MemoryBaseSidebar() {
 
   return (
     <aside
-      className="w-[280px] h-full bg-white border-r border-[#f2f2f2] flex flex-col flex-shrink-0 overflow-hidden"
+      className="w-[280px] h-full bg-[var(--bg-raised)] border-r border-[var(--border-subtle)] flex flex-col flex-shrink-0 overflow-hidden"
       data-tour="kb-sidebar"
     >
       <div className="flex-1 min-h-0 overflow-y-auto py-4">
         {isFolderView ? (
           /* Navegação em árvore: pastas = Bases de Conhecimento */
           <div className="px-3">
-            <div className="border-b border-[#f2f2f2] px-4 pb-4 mb-2 flex items-center gap-2">
-              <FolderIcon className="flex-shrink-0 text-[#1a1a1a]" />
-              <span className="body-md font-semibold text-[#1a1a1a]">Bases de Conhecimento</span>
+            <div className="border-b border-[var(--border-subtle)] px-4 pb-4 mb-2 flex items-center gap-2">
+              <FolderIcon className="flex-shrink-0 text-[var(--fg-primary)]" />
+              <span className="body-md font-semibold text-[var(--fg-primary)]">Bases de Conhecimento</span>
             </div>
             {bases.map((base) => {
               const count = getSourceCount(base.id) || (base.documentCount ?? 0);
@@ -132,11 +132,11 @@ export default function MemoryBaseSidebar() {
                   key={base.id}
                   type="button"
                   onClick={() => router.push(`/memory-base/${base.id}`)}
-                  className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
+                  className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                 >
-                  <FolderIcon className="text-[#5e5e5e] flex-shrink-0" />
+                  <FolderIcon className="text-[var(--fg-secondary)] flex-shrink-0" />
                   <span className="flex-1 body-sm font-medium truncate">{base.name}</span>
-                  <span className="body-xs text-[#737373] flex-shrink-0">{count}</span>
+                  <span className="body-xs text-[var(--fg-tertiary)] flex-shrink-0">{count}</span>
                 </button>
               );
             })}
@@ -145,16 +145,16 @@ export default function MemoryBaseSidebar() {
           /* Menu contextual da Base de Conhecimento */
           <div className="px-3 space-y-4">
             {/* Card da base selecionada */}
-            <div className="rounded-xl border border-[#f2f2f2] bg-[#fbfcfd] p-4">
+            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4">
               <div className="flex items-start gap-3">
-                <div className="text-[#2f2f2f] flex-shrink-0">
+                <div className="text-[var(--fg-primary)] flex-shrink-0">
                   <FolderIcon className="w-10 h-10" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="body-sm font-medium text-[#1a1a1a] truncate">{currentBaseName}</p>
+                  <p className="body-sm font-medium text-[var(--fg-primary)] truncate">{currentBaseName}</p>
                   <div className="mt-2 flex items-center gap-1.5">
                     <span className="inline-flex gap-1 items-center">
-                      <span className="w-5 h-5 rounded bg-[#e5e5e5]" title="Notion" />
+                      <span className="w-5 h-5 rounded bg-[var(--bg-muted)]" title="Notion" />
                       <span className="w-5 h-5 rounded overflow-hidden flex items-center justify-center" title="Google Drive">
                         <img src="/assets/integrations/Logotipo/Tool/Tamanho=104px.png" alt="" className="w-full h-full object-contain" />
                       </span>
@@ -162,12 +162,12 @@ export default function MemoryBaseSidebar() {
                         <img src="/assets/integrations/Tipo=Canais, Tamanho=Slack.png" alt="" className="w-full h-full object-contain" />
                       </span>
                     </span>
-                    <span className="body-xs text-[#5e5e5e]">{currentBaseDocCount} {currentBaseDocCount === 1 ? "fonte" : "fontes"}</span>
+                    <span className="body-xs text-[var(--fg-secondary)]">{currentBaseDocCount} {currentBaseDocCount === 1 ? "fonte" : "fontes"}</span>
                   </div>
                 </div>
                 <button
                   type="button"
-                  className="p-1 rounded-lg text-[#5e5e5e] hover:bg-[#f2f2f2] hover:text-[#1a1a1a]"
+                  className="p-1 rounded-lg text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
                   aria-label="Opções da base"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -182,17 +182,17 @@ export default function MemoryBaseSidebar() {
               <Link
                 href={`/memory-base/${baseId}`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
-                  isDocumentsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                  isDocumentsActive ? "bg-[var(--bg-selected)] text-[var(--fg-primary)]" : "text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
                 }`}
               >
                 <DocumentIcon />
                 <span className="flex-1">Documentos</span>
-                <span className="body-xs text-[#737373] font-normal">{currentBaseDocCount}</span>
+                <span className="body-xs text-[var(--fg-tertiary)] font-normal">{currentBaseDocCount}</span>
               </Link>
               <Link
                 href={`/memory-base/${baseId}/semantic-search`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
-                  isSemanticSearchActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                  isSemanticSearchActive ? "bg-[var(--bg-selected)] text-[var(--fg-primary)]" : "text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
                 }`}
               >
                 <SearchIcon />
@@ -201,7 +201,7 @@ export default function MemoryBaseSidebar() {
               <Link
                 href={`/memory-base/${baseId}/settings`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
-                  isSettingsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
+                  isSettingsActive ? "bg-[var(--bg-selected)] text-[var(--fg-primary)]" : "text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
                 }`}
               >
                 <SettingsIcon />

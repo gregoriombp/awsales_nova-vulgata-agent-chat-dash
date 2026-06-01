@@ -96,7 +96,7 @@ function Checkbox({
         onChange(!checked);
       }}
       className={`h-4 w-4 rounded-[4px] border flex items-center justify-center transition-colors ${
-        checked ? "bg-gray-1200 border-gray-1200" : "bg-white border-[#e5e5e5]"
+        checked ? "bg-gray-1200 border-gray-1200" : "bg-[var(--bg-raised)] border-[var(--border-default)]"
       }`}
     >
       {checked ? (
@@ -242,7 +242,7 @@ function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) 
   if (typeLabel === "URL") {
     const s = FILE_TYPE_STYLES.url;
     return (
-      <div className={`h-8 w-8 rounded-[8px] border border-[#f2f2f2] flex items-center justify-center ${s.bg} ${s.icon}`}>
+      <div className={`h-8 w-8 rounded-[8px] border border-[var(--border-subtle)] flex items-center justify-center ${s.bg} ${s.icon}`}>
         <TbLink size={size} strokeWidth={1.5} />
       </div>
     );
@@ -250,7 +250,7 @@ function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) 
   if (typeLabel === "Snippet") {
     const s = FILE_TYPE_STYLES.snippet;
     return (
-      <div className={`h-8 w-8 rounded-[8px] border border-[#f2f2f2] flex items-center justify-center ${s.bg} ${s.icon}`}>
+      <div className={`h-8 w-8 rounded-[8px] border border-[var(--border-subtle)] flex items-center justify-center ${s.bg} ${s.icon}`}>
         <TbCode size={size} strokeWidth={1.5} />
       </div>
     );
@@ -315,7 +315,7 @@ function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) 
   }
 
   return (
-    <div className={`h-8 w-8 rounded-[8px] border border-[#f2f2f2] flex items-center justify-center ${style.bg} ${style.icon}`}>
+    <div className={`h-8 w-8 rounded-[8px] border border-[var(--border-subtle)] flex items-center justify-center ${style.bg} ${style.icon}`}>
       <Icon size={size} strokeWidth={1.5} />
     </div>
   );
@@ -336,17 +336,17 @@ function ActionCard({
     <button
       type="button"
       onClick={onClick}
-      className="group bg-[#fbfcfd] border border-[#f9f9f9] rounded-[20px] h-[108px] p-[21px] flex flex-col justify-between w-full text-left transition-colors hover:bg-gray-1200 hover:border-gray-1200"
+      className="group bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-[20px] h-[108px] p-[21px] flex flex-col justify-between w-full text-left transition-colors hover:bg-gray-1200 hover:border-gray-1200"
     >
       <div className="flex items-center justify-between">
-        <div className="text-[#2f2f2f] group-hover:text-[#f9f9f9]">
+        <div className="text-[var(--fg-primary)] group-hover:text-[#f9f9f9]">
           {icon}
         </div>
-        <div className="text-[#0d0d0d] group-hover:text-[#f9f9f9]">
+        <div className="text-[var(--fg-primary)] group-hover:text-[#f9f9f9]">
           {right ?? <Plus24 />}
         </div>
       </div>
-      <div className="text-[14px] font-medium text-[#2f2f2f] group-hover:text-[#f9f9f9]">
+      <div className="text-[14px] font-medium text-[var(--fg-primary)] group-hover:text-[#f9f9f9]">
         {label}
       </div>
     </button>
@@ -928,11 +928,11 @@ function MemoryBaseDirectoryContent() {
               {isDirMenuOpen && (
                 <div
                   ref={dirMenuRef}
-                  className="absolute right-0 top-[calc(100%+8px)] z-20 w-[220px] rounded-[12px] border border-[#f2f2f2] bg-white p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
+                  className="absolute right-0 top-[calc(100%+8px)] z-20 w-[220px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
                 >
                   <button
                     type="button"
-                    className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                    className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                     onClick={() => {
                       setIsDirectoryActive((v) => !v);
                       setIsDirMenuOpen(false);
@@ -983,8 +983,8 @@ function MemoryBaseDirectoryContent() {
                   <span>Utilizado por {connectedAgents.length} Agente{connectedAgents.length !== 1 ? "s" : ""}</span>
                 </button>
                 {isAgentsPopoverOpen && connectedAgents.length > 0 && (
-                  <div className="absolute left-0 top-full mt-2 z-30 w-[320px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-3">Agentes conectados</div>
+                  <div className="absolute left-0 top-full mt-2 z-30 w-[320px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
+                    <div className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-3">Agentes conectados</div>
                     <ul className="space-y-1">
                       {connectedAgents.map((agent, index) => (
                         <li key={agent.id}>
@@ -994,7 +994,7 @@ function MemoryBaseDirectoryContent() {
                               setAgentSettingsModalAgent(agent);
                               setIsAgentsPopoverOpen(false);
                             }}
-                            className="w-full flex items-center gap-3 text-[13px] text-[#2f2f2f] rounded-lg px-2 py-2 text-left transition-colors hover:bg-[#f2f2f2]"
+                            className="w-full flex items-center gap-3 text-[13px] text-[var(--fg-primary)] rounded-lg px-2 py-2 text-left transition-colors hover:bg-[var(--bg-muted)]"
                           >
                             <img
                               src={getOrbForAgent(agent.id)}
@@ -1006,7 +1006,7 @@ function MemoryBaseDirectoryContent() {
                             <span className="truncate flex-1 min-w-0 font-medium">{agent.name}</span>
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <span
-                                className="flex items-center gap-1 rounded-md bg-[#f2f2f2] px-2 py-0.5 text-[11px] font-medium text-[#5e5e5e]"
+                                className="flex items-center gap-1 rounded-md bg-[var(--bg-muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)]"
                                 title="Objective-Bound Knowledge Layers"
                               >
                                 <img
@@ -1019,7 +1019,7 @@ function MemoryBaseDirectoryContent() {
                                 {agent.objectiveBoundLayers}
                               </span>
                               <span
-                                className="p-1 text-[#5e5e5e] rounded-lg pointer-events-none"
+                                className="p-1 text-[var(--fg-secondary)] rounded-lg pointer-events-none"
                                 aria-hidden
                               >
                                 <TbSettings className="w-4 h-4" />
@@ -1061,9 +1061,9 @@ function MemoryBaseDirectoryContent() {
                   <span>{rows.length} Fonte{rows.length !== 1 ? "s" : ""}</span>
                 </button>
                 {isSourcesPopoverOpen && rows.length > 0 && (
-                  <div className="absolute left-0 top-full mt-2 z-30 w-[220px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-2">Resumo de Fontes</div>
-                    <div className="space-y-1.5 text-[13px] text-[#2f2f2f]">
+                  <div className="absolute left-0 top-full mt-2 z-30 w-[220px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
+                    <div className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-2">Resumo de Fontes</div>
+                    <div className="space-y-1.5 text-[13px] text-[var(--fg-primary)]">
                       <div className="flex items-center justify-between">
                         <span>Arquivos</span>
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Arquivo").length}</span>
@@ -1081,7 +1081,7 @@ function MemoryBaseDirectoryContent() {
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Integração").length}</span>
                       </div>
                     </div>
-                    <div className="mt-3 pt-2 border-t border-[#f2f2f2] text-[12px] text-[#5e5e5e]">
+                    <div className="mt-3 pt-2 border-t border-[var(--border-subtle)] text-[12px] text-[var(--fg-secondary)]">
                       Clique em uma fonte abaixo para ver detalhes
                     </div>
                   </div>
@@ -1109,12 +1109,12 @@ function MemoryBaseDirectoryContent() {
                   <span>{totalKnowledgeLayers} Knowledge Layers</span>
                 </button>
                 {isLayersPopoverOpen && (
-                  <div className="absolute left-0 top-full mt-2 z-30 w-[280px] rounded-[12px] border border-[#f2f2f2] bg-white p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-2">Knowledge Layers</div>
-                    <p className="text-[12px] text-[#5e5e5e] mb-3">
+                  <div className="absolute left-0 top-full mt-2 z-30 w-[280px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
+                    <div className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-2">Knowledge Layers</div>
+                    <p className="text-[12px] text-[var(--fg-secondary)] mb-3">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
-                    <div className="space-y-1.5 text-[13px] text-[#2f2f2f]">
+                    <div className="space-y-1.5 text-[13px] text-[var(--fg-primary)]">
                       <div className="flex items-center justify-between">
                         <span>Entidades extraídas</span>
                         <span className="font-medium">{Math.floor(totalKnowledgeLayers * 0.4)}</span>
@@ -1146,11 +1146,11 @@ function MemoryBaseDirectoryContent() {
         </div>
 
         {/* Content */}
-        <div className="bg-white">
+        <div className="bg-[var(--bg-raised)]">
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
             <div className="space-y-4" data-tour="add-sources">
-              <div className="text-[18px] font-bold text-[#1a1a1a]">
+              <div className="text-[18px] font-bold text-[var(--fg-primary)]">
                 Adicione Fontes
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
@@ -1218,7 +1218,7 @@ function MemoryBaseDirectoryContent() {
                     icon={
                       <div className="flex items-center gap-1">
                         {DEFAULT_INTEGRATIONS.slice(0, 4).map((int) => (
-                          <div key={int.id} className="h-8 w-8 rounded-[8px] border border-[#f2f2f2] bg-white flex items-center justify-center overflow-hidden">
+                          <div key={int.id} className="h-8 w-8 rounded-[8px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] flex items-center justify-center overflow-hidden">
                             {int.icon ? (
                               <img src={int.icon} alt="" className="w-full h-full object-contain" />
                             ) : (
@@ -1235,7 +1235,7 @@ function MemoryBaseDirectoryContent() {
             </div>
 
             {/* Lista de arquivos e pastas – full width */}
-            <div className="w-full overflow-hidden bg-white">
+            <div className="w-full overflow-hidden bg-[var(--bg-raised)]">
               {/* Navegação de pastas e ações */}
               <div className="px-8 pb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -1244,7 +1244,7 @@ function MemoryBaseDirectoryContent() {
                     <button
                       type="button"
                       onClick={() => navigateToFolder(currentFolder?.parentId ?? null)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)] rounded-lg transition-colors"
                     >
                       <TbArrowLeft className="w-4 h-4" />
                       Voltar
@@ -1258,8 +1258,8 @@ function MemoryBaseDirectoryContent() {
                       onClick={() => navigateToFolder(null)}
                       className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
                         !currentFolderId
-                          ? "text-[#1a1a1a] font-medium"
-                          : "text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2]"
+                          ? "text-[var(--fg-primary)] font-medium"
+                          : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                       }`}
                     >
                       <TbFolder className="w-4 h-4" />
@@ -1267,14 +1267,14 @@ function MemoryBaseDirectoryContent() {
                     </button>
                     {currentFolderPath.map((folder, index) => (
                       <div key={folder.id} className="flex items-center gap-1">
-                        <TbChevronRight className="w-4 h-4 text-[#999]" />
+                        <TbChevronRight className="w-4 h-4 text-[var(--fg-tertiary)]" />
                         <button
                           type="button"
                           onClick={() => navigateToFolder(folder.id)}
                           className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
                             index === currentFolderPath.length - 1
-                              ? "text-[#1a1a1a] font-medium"
-                              : "text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2]"
+                              ? "text-[var(--fg-primary)] font-medium"
+                              : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                           }`}
                         >
                           <TbFolder className="w-4 h-4" />
@@ -1289,7 +1289,7 @@ function MemoryBaseDirectoryContent() {
                 <button
                   type="button"
                   onClick={() => setIsCreateFolderOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-[#2f2f2f] border border-[#e5e5e5] rounded-lg hover:bg-[#f9f9f9] transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-[var(--fg-primary)] border border-[var(--border-default)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
                 >
                   <TbFolderPlus className="w-4 h-4" />
                   Nova pasta
@@ -1299,7 +1299,7 @@ function MemoryBaseDirectoryContent() {
               {/* selection actions */}
               {selectedIds.length > 0 && (
                 <div className="px-8 pb-4 flex items-center justify-between">
-                  <div className="text-sm text-[#5e5e5e]">
+                  <div className="text-sm text-[var(--fg-secondary)]">
                     {selectedIds.length} selecionado{selectedIds.length > 1 ? "s" : ""}
                   </div>
                   <div className="flex items-center gap-2">
@@ -1328,7 +1328,7 @@ function MemoryBaseDirectoryContent() {
               )}
 
               {/* header row */}
-              <div className="border-b border-[#f2f2f2] px-8 pb-3 flex items-center gap-x-12">
+              <div className="border-b border-[var(--border-subtle)] px-8 pb-3 flex items-center gap-x-12">
                 <div className="flex flex-1 min-w-0 items-center gap-3 py-2">
                   <div className="flex-shrink-0">
                     <Checkbox
@@ -1348,8 +1348,8 @@ function MemoryBaseDirectoryContent() {
                     />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <div className="text-[12px] text-[#999999]">Nome do Arquivo</div>
-                  <span className="text-[#999999]">
+                  <div className="text-[12px] text-[var(--fg-tertiary)]">Nome do Arquivo</div>
+                  <span className="text-[var(--fg-tertiary)]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M8 6h10M8 10h6M8 14h10M8 18h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                       <path d="M6 8l-2 2-2-2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.0"/>
@@ -1358,11 +1358,11 @@ function MemoryBaseDirectoryContent() {
                   </div>
                 </div>
 
-                <div className="min-w-[88px] py-2 text-[12px] text-[#999999]">Status</div>
-                <div className="min-w-[140px] py-2 text-[12px] text-[#999999]">Knowledge Layers</div>
-                <div className="min-w-[140px] flex items-center gap-2 py-2 text-[12px] text-[#999999]">
+                <div className="min-w-[88px] py-2 text-[12px] text-[var(--fg-tertiary)]">Status</div>
+                <div className="min-w-[140px] py-2 text-[12px] text-[var(--fg-tertiary)]">Knowledge Layers</div>
+                <div className="min-w-[140px] flex items-center gap-2 py-2 text-[12px] text-[var(--fg-tertiary)]">
                   Data de adição
-                  <span className="text-[#999999]">
+                  <span className="text-[var(--fg-tertiary)]">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M7 15l5 5 5-5M7 9l5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
@@ -1376,8 +1376,8 @@ function MemoryBaseDirectoryContent() {
                 {filteredRows.map((r) => (
                   <div
                     key={r.id}
-                    className={`border-b border-[#f2f2f2] px-8 py-3 flex items-center gap-x-12 transition-colors cursor-pointer ${
-                      selectedIds.includes(r.id) ? "bg-[#f2f2f2]" : "hover:bg-[#fbfcfd]"
+                    className={`border-b border-[var(--border-subtle)] px-8 py-3 flex items-center gap-x-12 transition-colors cursor-pointer ${
+                      selectedIds.includes(r.id) ? "bg-[var(--bg-selected)]" : "hover:bg-[var(--bg-hover)]"
                     }`}
                     onClick={() => setDrawerRow(r)}
                   >
@@ -1391,10 +1391,10 @@ function MemoryBaseDirectoryContent() {
                       </div>
                       <FileTypeIcon name={r.name} typeLabel={r.typeLabel} />
                       <div className="flex min-w-0 flex-1 flex-col leading-normal">
-                        <div className="text-[12px] font-medium text-[#0d0d0d] truncate">
+                        <div className="text-[12px] font-medium text-[var(--fg-primary)] truncate">
                           {r.name}
                         </div>
-                        <div className="text-[10px] text-[#38404a]">{r.typeLabel}</div>
+                        <div className="text-[10px] text-[var(--fg-secondary)]">{r.typeLabel}</div>
                       </div>
                     </div>
 
@@ -1415,17 +1415,17 @@ function MemoryBaseDirectoryContent() {
                           Erro
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#5e5e5e]">
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[var(--fg-secondary)]">
                           <span className="w-2 h-2 rounded-full bg-[#9ca3af] flex-shrink-0" />
                           Inativo
                         </span>
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-[var(--fg-secondary)]">
                       {r.status === "Analisando" ? (
                         <>
-                          <span className="w-4 h-4 border-2 border-[#999999] border-t-transparent rounded-full animate-spin flex-shrink-0" />
+                          <span className="w-4 h-4 border-2 border-[var(--fg-tertiary)] border-t-transparent rounded-full animate-spin flex-shrink-0" />
                           Extraindo Knowledge Layers…
                         </>
                       ) : (
@@ -1436,14 +1436,14 @@ function MemoryBaseDirectoryContent() {
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 text-[12px] text-[#5e5e5e]">
+                    <div className="min-w-[140px] py-1 text-[12px] text-[var(--fg-secondary)]">
                       {r.createdAt}
                     </div>
 
                     <div className="w-8 flex-shrink-0 flex justify-end">
                       <button
                         type="button"
-                        className="text-[#5e5e5e] hover:text-[#0d0d0d]"
+                        className="text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
                         aria-label="Ações"
                         onClick={(e) => {
                           e.preventDefault();
@@ -1456,11 +1456,11 @@ function MemoryBaseDirectoryContent() {
                       {rowMenuOpenId === r.id && (
                         <div
                           ref={rowMenuRef}
-                          className="absolute z-30 mt-2 -translate-x-[170px] w-[190px] rounded-[12px] border border-[#f2f2f2] bg-white p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
+                          className="absolute z-30 mt-2 -translate-x-[170px] w-[190px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]"
                         >
                           <button
                             type="button"
-                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                            className="w-full rounded-[8px] px-3 py-2 text-left text-sm text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                             onClick={() => {
                               setRowMenuOpenId(null);
                               setDrawerRow(r);
@@ -1499,7 +1499,7 @@ function MemoryBaseDirectoryContent() {
             onClick={() => setDrawerRow(null)}
           />
           <div
-            className={`fixed right-0 top-0 bottom-0 z-50 w-full max-w-[min(640px,66.666vw)] bg-white shadow-2xl flex flex-col transition-transform duration-200 ease-out ${
+            className={`fixed right-0 top-0 bottom-0 z-50 w-full max-w-[min(640px,66.666vw)] bg-[var(--bg-raised)] shadow-2xl flex flex-col transition-transform duration-200 ease-out ${
                 drawerVisible ? "translate-x-0" : "translate-x-full"
               }`}
             role="dialog"
@@ -1507,20 +1507,20 @@ function MemoryBaseDirectoryContent() {
             aria-labelledby="drawer-title"
           >
             {/* Header */}
-            <div className="flex items-start justify-between gap-4 p-6 border-b border-[#f2f2f2] flex-shrink-0">
+            <div className="flex items-start justify-between gap-4 p-6 border-b border-[var(--border-subtle)] flex-shrink-0">
               <div className="flex items-start gap-3 min-w-0">
                 <FileTypeIcon name={drawerRow.name} typeLabel={drawerRow.typeLabel} />
                 <div className="min-w-0">
-                  <h2 id="drawer-title" className="text-[18px] font-semibold text-[#1a1a1a] truncate">
+                  <h2 id="drawer-title" className="text-[18px] font-semibold text-[var(--fg-primary)] truncate">
                     {drawerRow.name}
                   </h2>
-                  <p className="text-[13px] text-[#5e5e5e] mt-0.5">{drawerRow.typeLabel}</p>
+                  <p className="text-[13px] text-[var(--fg-secondary)] mt-0.5">{drawerRow.typeLabel}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setDrawerRow(null)}
-                className="flex-shrink-0 p-2 text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
+                className="flex-shrink-0 p-2 text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)] rounded-lg transition-colors"
                 aria-label="Fechar"
               >
                 <TbX className="w-5 h-5" />
@@ -1530,17 +1530,17 @@ function MemoryBaseDirectoryContent() {
             {/* Two columns: metadata (left) + content (right) */}
             <div className="flex flex-1 min-h-0 overflow-hidden">
               {/* Left: metadata */}
-              <div className="w-[220px] flex-shrink-0 border-r border-[#f2f2f2] p-6 flex flex-col gap-5 overflow-y-auto">
+              <div className="w-[220px] flex-shrink-0 border-r border-[var(--border-subtle)] p-6 flex flex-col gap-5 overflow-y-auto">
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">ID do arquivo</p>
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1.5">ID do arquivo</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-mono text-[#2f2f2f] truncate" title={idToFileUuid(drawerRow.id)}>
+                    <span className="text-[13px] font-mono text-[var(--fg-primary)] truncate" title={idToFileUuid(drawerRow.id)}>
                       {idToFileUuid(drawerRow.id)}
                     </span>
                     <button
                       type="button"
                       onClick={() => navigator.clipboard.writeText(idToFileUuid(drawerRow.id))}
-                      className="p-1.5 text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded transition-colors"
+                      className="p-1.5 text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)] rounded transition-colors"
                       aria-label="Copiar ID"
                     >
                       <TbCopy className="w-4 h-4" />
@@ -1548,7 +1548,7 @@ function MemoryBaseDirectoryContent() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Status</p>
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1.5">Status</p>
                   <span
                     className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md ${
                       drawerRow.status === "Ativo"
@@ -1568,18 +1568,18 @@ function MemoryBaseDirectoryContent() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Knowledge Layers</p>
-                  <p className="text-[13px] text-[#2f2f2f]">{drawerRow.layersLabel}</p>
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1.5">Knowledge Layers</p>
+                  <p className="text-[13px] text-[var(--fg-primary)]">{drawerRow.layersLabel}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Adicionado em</p>
-                  <p className="text-[13px] text-[#2f2f2f]">{drawerRow.createdAt}</p>
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1.5">Adicionado em</p>
+                  <p className="text-[13px] text-[var(--fg-primary)]">{drawerRow.createdAt}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1.5">Atualizado em</p>
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1.5">Atualizado em</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] text-[#2f2f2f]">{drawerRow.createdAt}</span>
-                    <span className="text-[#999]" title="Última atualização">
+                    <span className="text-[13px] text-[var(--fg-primary)]">{drawerRow.createdAt}</span>
+                    <span className="text-[var(--fg-tertiary)]" title="Última atualização">
                       <TbRefresh className="w-4 h-4" />
                     </span>
                   </div>
@@ -1588,14 +1588,14 @@ function MemoryBaseDirectoryContent() {
 
               {/* Right: tabs + content */}
               <div className="flex-1 flex flex-col min-w-0">
-                <div className="border-b border-[#f2f2f2] px-6 flex gap-6 flex-shrink-0">
+                <div className="border-b border-[var(--border-subtle)] px-6 flex gap-6 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => setDrawerTab("conteudo")}
                     className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
                       drawerTab === "conteudo"
-                        ? "border-[#1a1a1a] text-[#1a1a1a]"
-                        : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
+                        ? "border-[var(--fg-primary)] text-[var(--fg-primary)]"
+                        : "border-transparent text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
                     }`}
                   >
                     Conteúdo do Arquivo
@@ -1605,8 +1605,8 @@ function MemoryBaseDirectoryContent() {
                     onClick={() => setDrawerTab("layers")}
                     className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
                       drawerTab === "layers"
-                        ? "border-[#1a1a1a] text-[#1a1a1a]"
-                        : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
+                        ? "border-[var(--fg-primary)] text-[var(--fg-primary)]"
+                        : "border-transparent text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
                     }`}
                   >
                     Knowledge Layers
@@ -1616,8 +1616,8 @@ function MemoryBaseDirectoryContent() {
                     onClick={() => setDrawerTab("visualizar")}
                     className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
                       drawerTab === "visualizar"
-                        ? "border-[#1a1a1a] text-[#1a1a1a]"
-                        : "border-transparent text-[#5e5e5e] hover:text-[#1a1a1a]"
+                        ? "border-[var(--fg-primary)] text-[var(--fg-primary)]"
+                        : "border-transparent text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
                     }`}
                   >
                     Visualizar arquivo
@@ -1625,7 +1625,7 @@ function MemoryBaseDirectoryContent() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-6">
                   {drawerTab === "conteudo" && (
-                    <div className="text-[14px] text-[#2f2f2f] leading-relaxed space-y-4">
+                    <div className="text-[14px] text-[var(--fg-primary)] leading-relaxed space-y-4">
                       <p>
                         Este é um exemplo de conteúdo extraído e processado pela plataforma. O texto abaixo simula o que seria exibido após a ingestão do documento.
                       </p>
@@ -1641,7 +1641,7 @@ function MemoryBaseDirectoryContent() {
                         <strong>3. Conteúdo principal</strong><br />
                         A plataforma extrai automaticamente o texto do documento, identifica seções e entidades relevantes e enriquece o conteúdo com metadados para buscas e recomendações. Este bloco ilustra como um trecho processado seria apresentado ao usuário.
                       </p>
-                      <p className="text-[13px] text-[#5e5e5e]">
+                      <p className="text-[13px] text-[var(--fg-secondary)]">
                         [Exemplo de demonstração — conteúdo real virá da extração automática.]
                       </p>
                     </div>
@@ -1654,27 +1654,27 @@ function MemoryBaseDirectoryContent() {
                           <input
                             type="text"
                             placeholder="Pesquisar arquivo"
-                            className="w-full rounded-lg border border-[#e5e5e5] bg-white py-2 pl-3 pr-9 text-[13px] text-[#2f2f2f] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a]"
+                            className="w-full rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] py-2 pl-3 pr-9 text-[13px] text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--fg-primary)]"
                             readOnly
                             aria-label="Pesquisar arquivo"
                           />
-                          <TbSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#999] pointer-events-none" />
+                          <TbSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--fg-tertiary)] pointer-events-none" />
                         </div>
                         <button
                           type="button"
-                          className="flex items-center gap-2 rounded-lg border border-[#e5e5e5] bg-white px-3 py-2 text-[13px] text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
+                          className="flex items-center gap-2 rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 text-[13px] text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
                         >
-                          <TbFilter className="w-4 h-4 text-[#5e5e5e]" />
+                          <TbFilter className="w-4 h-4 text-[var(--fg-secondary)]" />
                           <span>Status</span>
-                          <TbChevronDown className="w-4 h-4 text-[#5e5e5e]" />
+                          <TbChevronDown className="w-4 h-4 text-[var(--fg-secondary)]" />
                         </button>
                       </div>
 
                       {/* Cabeçalho da tabela */}
-                      <div className="flex items-center gap-4 py-2 border-b border-[#f2f2f2] text-[12px] text-[#999] flex-shrink-0">
+                      <div className="flex items-center gap-4 py-2 border-b border-[var(--border-subtle)] text-[12px] text-[var(--fg-tertiary)] flex-shrink-0">
                         <div className="flex flex-1 min-w-0 items-center gap-1">
                           <span>Título</span>
-                          <span className="text-[#999]" aria-hidden>
+                          <span className="text-[var(--fg-tertiary)]" aria-hidden>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
                               <path d="M7 15l5 5 5-5M7 9l5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
@@ -1685,12 +1685,12 @@ function MemoryBaseDirectoryContent() {
                       </div>
 
                       {/* Lista de perguntas e respostas geradas – conforme Figma */}
-                      <ul className="flex-1 overflow-y-auto min-h-0 divide-y divide-[#f2f2f2] -mx-6 px-6">
+                      <ul className="flex-1 overflow-y-auto min-h-0 divide-y divide-[var(--border-subtle)] -mx-6 px-6">
                         {drawerLayersQA.map((item, index) => (
                           <li key={item.id} className="py-3 flex items-start gap-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-semibold text-[#1a1a1a] leading-snug">{item.question}</p>
-                              <p className="text-[13px] text-[#5e5e5e] leading-snug mt-0.5">{item.answer}</p>
+                              <p className="text-[13px] font-semibold text-[var(--fg-primary)] leading-snug">{item.question}</p>
+                              <p className="text-[13px] text-[var(--fg-secondary)] leading-snug mt-0.5">{item.answer}</p>
                             </div>
                             <span
                               className={`flex-shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium ${
@@ -1708,17 +1708,17 @@ function MemoryBaseDirectoryContent() {
                               <button
                                 type="button"
                                 onClick={() => setLayersRowMenuIndex((prev) => (prev === index ? null : index))}
-                                className="p-1 text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded transition-colors"
+                                className="p-1 text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)] rounded transition-colors"
                                 aria-label="Mais opções"
                                 aria-expanded={layersRowMenuIndex === index}
                               >
                                 <Ellipsis16 />
                               </button>
                               {layersRowMenuIndex === index && (
-                                <div className="absolute right-0 top-full mt-1 z-20 w-[180px] rounded-[12px] border border-[#f2f2f2] bg-white p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
+                                <div className="absolute right-0 top-full mt-1 z-20 w-[180px] rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) =>
                                         prev.map((q, i) =>
@@ -1734,14 +1734,14 @@ function MemoryBaseDirectoryContent() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                                     onClick={() => setLayersRowMenuIndex(null)}
                                   >
                                     Editar
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[#2f2f2f] hover:bg-[#f2f2f2]"
+                                    className="w-full rounded-[8px] px-3 py-2 text-left text-[13px] text-[var(--fg-primary)] hover:bg-[var(--bg-muted)]"
                                     onClick={() => {
                                       setLayersRowMenuIndex(null);
                                       // Reanalisar: a IA fará uma análise nova (integração futura)
@@ -1766,7 +1766,7 @@ function MemoryBaseDirectoryContent() {
                         ))}
                       </ul>
 
-                      <p className="text-[12px] text-[#999] mt-3 flex-shrink-0">
+                      <p className="text-[12px] text-[var(--fg-tertiary)] mt-3 flex-shrink-0">
                         Exemplo de demonstração — perguntas e respostas reais virão do pipeline de Knowledge Layers.
                       </p>
                     </div>
@@ -1776,18 +1776,18 @@ function MemoryBaseDirectoryContent() {
                     if (isUrl) {
                       return (
                         <div className="flex flex-col h-full min-h-[400px]">
-                          <p className="text-[13px] text-[#5e5e5e] mb-3">
+                          <p className="text-[13px] text-[var(--fg-secondary)] mb-3">
                             Visualização da página em nova aba:{" "}
                             <a
                               href={drawerRow.name}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#1a1a1a] underline hover:no-underline"
+                              className="text-[var(--fg-primary)] underline hover:no-underline"
                             >
                               {drawerRow.name}
                             </a>
                           </p>
-                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-white">
+                          <div className="flex-1 min-h-0 rounded-lg border border-[var(--border-default)] overflow-hidden bg-[var(--bg-raised)]">
                             <iframe
                               title={`Visualização: ${drawerRow.name}`}
                               src={drawerRow.name}
@@ -1799,18 +1799,18 @@ function MemoryBaseDirectoryContent() {
                       );
                     }
                     return (
-                      <div className="text-[14px] text-[#2f2f2f] leading-relaxed">
+                      <div className="text-[14px] text-[var(--fg-primary)] leading-relaxed">
                         <p>
                           Pré-visualização indisponível para <strong>{drawerRow.typeLabel}</strong> nesta demonstração.
                         </p>
-                        <p className="mt-2 text-[#5e5e5e]">
+                        <p className="mt-2 text-[var(--fg-secondary)]">
                           O conteúdo dos arquivos não é armazenado neste protótipo de UI.
                         </p>
                       </div>
                     );
                   })()}
                 </div>
-                <div className="p-6 border-t border-[#f2f2f2] flex justify-end flex-shrink-0">
+                <div className="p-6 border-t border-[var(--border-subtle)] flex justify-end flex-shrink-0">
                   <AwButton
                     size="sm"
                     variant="primary"
@@ -1837,23 +1837,23 @@ function MemoryBaseDirectoryContent() {
           <h2 className="text-xl font-heading font-bold text-text-primary mb-4">
             Visualizar
           </h2>
-          <div className="space-y-2 text-sm text-[#2f2f2f]">
+          <div className="space-y-2 text-sm text-[var(--fg-primary)]">
             <div>
-              <span className="text-[#7a7a7a]">Nome:</span>{" "}
+              <span className="text-[var(--fg-tertiary)]">Nome:</span>{" "}
               <span className="font-medium">{viewRow?.name}</span>
             </div>
             <div>
-              <span className="text-[#7a7a7a]">Tipo:</span> {viewRow?.typeLabel}
+              <span className="text-[var(--fg-tertiary)]">Tipo:</span> {viewRow?.typeLabel}
             </div>
             <div>
-              <span className="text-[#7a7a7a]">Status:</span> {viewRow?.status}
+              <span className="text-[var(--fg-tertiary)]">Status:</span> {viewRow?.status}
             </div>
             <div>
-              <span className="text-[#7a7a7a]">Knowledge Layers:</span>{" "}
+              <span className="text-[var(--fg-tertiary)]">Knowledge Layers:</span>{" "}
               {viewRow?.layersLabel}
             </div>
             <div>
-              <span className="text-[#7a7a7a]">Data de adição:</span>{" "}
+              <span className="text-[var(--fg-tertiary)]">Data de adição:</span>{" "}
               {viewRow?.createdAt}
             </div>
           </div>
@@ -1872,12 +1872,12 @@ function MemoryBaseDirectoryContent() {
         size="md"
       >
         <div className="p-6">
-          <h2 className="text-xl font-heading font-bold text-[#1a1a1a] mb-4">
+          <h2 className="text-xl font-heading font-bold text-[var(--fg-primary)] mb-4">
             Configurações do agente
           </h2>
           {agentSettingsModalAgent && (
             <>
-              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[#f2f2f2]">
+              <div className="flex items-center gap-4 mb-6 pb-4 border-b border-[var(--border-subtle)]">
                 <img
                   src={getOrbForAgent(agentSettingsModalAgent.id)}
                   alt=""
@@ -1886,16 +1886,16 @@ function MemoryBaseDirectoryContent() {
                   className="rounded-full w-14 h-14 object-cover flex-shrink-0"
                 />
                 <div>
-                  <p className="font-semibold text-[#1a1a1a] text-lg">{agentSettingsModalAgent.name}</p>
-                  <p className="text-sm text-[#5e5e5e]">Agente conectado a esta base</p>
+                  <p className="font-semibold text-[var(--fg-primary)] text-lg">{agentSettingsModalAgent.name}</p>
+                  <p className="text-sm text-[var(--fg-secondary)]">Agente conectado a esta base</p>
                 </div>
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1">
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1">
                     Objective-Bound Knowledge Layers
                   </p>
-                  <p className="text-[#2f2f2f] flex items-center gap-2">
+                  <p className="text-[var(--fg-primary)] flex items-center gap-2">
                     <img
                       src="/assets/icons/knowledge-layers_icon.svg"
                       alt=""
@@ -1904,14 +1904,14 @@ function MemoryBaseDirectoryContent() {
                       className="opacity-80"
                     />
                     <span className="font-medium">{agentSettingsModalAgent.objectiveBoundLayers}</span>
-                    <span className="text-[#5e5e5e] text-sm">layers gerados por este agente</span>
+                    <span className="text-[var(--fg-secondary)] text-sm">layers gerados por este agente</span>
                   </p>
                 </div>
                 <div className="pt-2">
-                  <p className="text-[11px] font-semibold text-[#999] uppercase tracking-wide mb-1">
+                  <p className="text-[11px] font-semibold text-[var(--fg-tertiary)] uppercase tracking-wide mb-1">
                     Outras configurações
                   </p>
-                  <p className="text-sm text-[#5e5e5e]">Em breve. Você poderá ajustar permissões e opções específicas do agente aqui.</p>
+                  <p className="text-sm text-[var(--fg-secondary)]">Em breve. Você poderá ajustar permissões e opções específicas do agente aqui.</p>
                 </div>
               </div>
             </>
