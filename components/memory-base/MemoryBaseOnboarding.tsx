@@ -109,7 +109,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
   const handleConfigure = useCallback(() => {
     if (createdBaseId) {
       onComplete(baseName, createdBaseId);
-      router.push(`/knowledge-os/${createdBaseId}?name=${encodeURIComponent(baseName)}&new=1`);
+      router.push(`/memory-base/${createdBaseId}?name=${encodeURIComponent(baseName)}&new=1`);
     }
   }, [createdBaseId, baseName, onComplete, router]);
 
@@ -167,8 +167,8 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
         }`}
       >
         <div className="flex flex-col items-center text-center max-w-2xl px-8">
-          {/* Knowledge OS Icon – dots com pulsação (opacidade + escala) e stagger */}
-          <div className="mb-8 knowledge-os-welcome-icon" style={{ width: 122, height: 128 }}>
+          {/* Memory Base Icon – dots com pulsação (opacidade + escala) e stagger */}
+          <div className="mb-8 memory-base-welcome-icon" style={{ width: 122, height: 128 }}>
             <svg
               width={122}
               height={128}
@@ -210,12 +210,12 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
 
           {/* Title */}
           <h1 className=" font-heading font-regular text-text-primary mb-6 leading-tight">
-            Bem-vindo ao Knowledge OS
+            Bem-vindo à Memory Base
           </h1>
 
           {/* Description */}
           <p className="text-gray-600 text-md mb-10 max-w-xl leading-relaxed">
-            O Knowledge OS é onde você organiza todo o conhecimento dos seus agentes. 
+            O Memory Base é onde você organiza todo o conhecimento dos seus agentes. 
             Crie bases de conhecimento para armazenar documentos, URLs, snippets e 
             integrações que alimentarão suas conversas inteligentes.
           </p>
@@ -240,12 +240,12 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
         <div className="flex flex-col items-center w-full max-w-3xl px-8">
           {/* Branching Animation Container */}
           <div className="relative flex items-center justify-center gap-8 mb-12 h-[200px]">
-            {/* Knowledge OS Icon (left) */}
+            {/* Memory Base Icon (left) */}
             <div className="relative flex items-center justify-center">
               <div className="w-[110px] h-[110px] rounded-full bg-[#f5f5f5] flex items-center justify-center animate-onboarding-pulse">
                 <Image
-                  src="/assets/knowledge-os-icon.svg"
-                  alt="Knowledge OS"
+                  src="/assets/Memory-base-icon.svg"
+                  alt="Memory Base"
                   width={56}
                   height={58}
                 />

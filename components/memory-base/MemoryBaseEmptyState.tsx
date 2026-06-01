@@ -15,7 +15,7 @@ export default function MemoryBaseEmptyState({
       {/* Pattern Background */}
       <div className="absolute right-0 top-0 bottom-0 w-[60%] opacity-80">
         <Image
-          src="/assets/knowledge-os-pattern.svg"
+          src="/assets/memory-base-pattern.svg"
           alt=""
           fill
           className="object-cover object-left"

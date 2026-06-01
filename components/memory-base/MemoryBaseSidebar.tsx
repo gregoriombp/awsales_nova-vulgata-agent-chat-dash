@@ -99,9 +99,9 @@ export default function MemoryBaseSidebar() {
   const router = useRouter();
   const [bases, setBases] = useState<MemoryBaseItem[]>([]);
 
-  const isFolderView = pathname === "/knowledge-os";
+  const isFolderView = pathname === "/memory-base";
   const baseId = typeof params?.id === "string" ? params.id : null;
-  const isDocumentsActive = baseId && pathname === `/knowledge-os/${baseId}` && !pathname.includes("/semantic-search") && !pathname.includes("/settings");
+  const isDocumentsActive = baseId && pathname === `/memory-base/${baseId}` && !pathname.includes("/semantic-search") && !pathname.includes("/settings");
   const isSemanticSearchActive = baseId && pathname?.includes("/semantic-search");
   const isSettingsActive = baseId && pathname?.includes("/settings");
 
@@ -131,7 +131,7 @@ export default function MemoryBaseSidebar() {
                 <button
                   key={base.id}
                   type="button"
-                  onClick={() => router.push(`/knowledge-os/${base.id}`)}
+                  onClick={() => router.push(`/memory-base/${base.id}`)}
                   className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[#2f2f2f] hover:bg-[#f9f9f9] transition-colors"
                 >
                   <FolderIcon className="text-[#5e5e5e] flex-shrink-0" />
@@ -180,7 +180,7 @@ export default function MemoryBaseSidebar() {
             {/* Menu: Documents, Semantic Search, Settings */}
             <nav className="space-y-0.5">
               <Link
-                href={`/knowledge-os/${baseId}`}
+                href={`/memory-base/${baseId}`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isDocumentsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}
@@ -190,7 +190,7 @@ export default function MemoryBaseSidebar() {
                 <span className="body-xs text-[#737373] font-normal">{currentBaseDocCount}</span>
               </Link>
               <Link
-                href={`/knowledge-os/${baseId}/semantic-search`}
+                href={`/memory-base/${baseId}/semantic-search`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isSemanticSearchActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}
@@ -199,7 +199,7 @@ export default function MemoryBaseSidebar() {
                 <span>Busca semântica</span>
               </Link>
               <Link
-                href={`/knowledge-os/${baseId}/settings`}
+                href={`/memory-base/${baseId}/settings`}
                 className={`flex items-center gap-2 py-2.5 px-3 rounded-lg body-sm font-medium transition-colors ${
                   isSettingsActive ? "bg-[#f2f2f2] text-[#1a1a1a]" : "text-[#2f2f2f] hover:bg-[#f9f9f9]"
                 }`}

@@ -900,8 +900,8 @@ function MemoryBaseDirectoryContent() {
         <div className="bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
           <div className="mx-auto max-w-[1544px] px-12 py-8">
             <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4" aria-label="Breadcrumb">
-              <Link href="/knowledge-os" className="hover:text-white transition-colors">
-                Knowledge OS
+              <Link href="/memory-base" className="hover:text-white transition-colors">
+                Memory Base
               </Link>
               <span aria-hidden="true">|</span>
               <span className="text-white">{directoryName}</span>
@@ -1772,13 +1772,7 @@ function MemoryBaseDirectoryContent() {
                     </div>
                   )}
                   {drawerTab === "visualizar" && (() => {
-                    const ext = getFileExtension(drawerRow.name);
-                    const isPdf = ext === "pdf";
-                    const isImage = ["jpg", "jpeg", "png", "gif", "webp", "svg", "bmp"].includes(ext);
                     const isUrl = drawerRow.typeLabel === "URL";
-                    const previewUrl = isUrl
-                      ? drawerRow.name
-                      : `/api/memory-base/bases/${params?.id ?? ""}/files/${drawerRow.id}/preview`;
                     if (isUrl) {
                       return (
                         <div className="flex flex-col h-full min-h-[400px]">
@@ -1804,45 +1798,13 @@ function MemoryBaseDirectoryContent() {
                         </div>
                       );
                     }
-                    if (isPdf) {
-                      return (
-                        <div className="flex flex-col h-full min-h-[400px]">
-                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-[#525659]">
-                            <iframe
-                              title={`Visualização: ${drawerRow.name}`}
-                              src={previewUrl}
-                              className="w-full h-full min-h-[400px]"
-                            />
-                          </div>
-                          <p className="text-[12px] text-[#999] mt-2">
-                            Se o PDF não carregar, use o botão &quot;Download arquivos&quot; abaixo.
-                          </p>
-                        </div>
-                      );
-                    }
-                    if (isImage) {
-                      return (
-                        <div className="flex flex-col h-full min-h-[200px]">
-                          <div className="flex-1 min-h-0 rounded-lg border border-[#e5e5e5] overflow-hidden bg-[#f9f9f9] flex items-center justify-center">
-                            <img
-                              src={previewUrl}
-                              alt={drawerRow.name}
-                              className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
-                            />
-                          </div>
-                          <p className="text-[12px] text-[#999] mt-2">
-                            Se a imagem não carregar, use o botão &quot;Download arquivos&quot; abaixo.
-                          </p>
-                        </div>
-                      );
-                    }
                     return (
                       <div className="text-[14px] text-[#2f2f2f] leading-relaxed">
                         <p>
-                          Este tipo de arquivo (<strong>{drawerRow.typeLabel}</strong>) não pode ser visualizado no navegador.
+                          Pré-visualização indisponível para <strong>{drawerRow.typeLabel}</strong> nesta demonstração.
                         </p>
                         <p className="mt-2 text-[#5e5e5e]">
-                          Use o botão &quot;Download arquivos&quot; abaixo para abrir o arquivo no seu computador.
+                          O conteúdo dos arquivos não é armazenado neste protótipo de UI.
                         </p>
                       </div>
                     );
