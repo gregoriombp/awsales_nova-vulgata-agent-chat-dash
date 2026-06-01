@@ -12,7 +12,7 @@ import containerQueries from "@tailwindcss/container-queries";
  * component tree keeps rendering during the rollout.
  */
 const config: Config = {
-  darkMode: ["class", "class"],
+  darkMode: "class",
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -185,10 +185,6 @@ const config: Config = {
   			gray: {
   				'1200': '#0d0d0d'
   			},
-  			primary: {
-  				default: '#252b33',
-  				dark: '#162d3a'
-  			},
   			text: {
   				primary: '#0c1421',
   				secondary: '#8897ad'
@@ -196,23 +192,6 @@ const config: Config = {
   			input: {
   				bg: '#f5f5f5',
   				border: '#e5e5e5'
-  			},
-  			sidebar: {
-  				bg: '#0d0d0d',
-  				border: '#1a1a1a',
-  				hover: '#1a1a1a',
-  				active: '#2f2f2f'
-  			},
-  			success: {
-  				DEFAULT: '#22A871',
-  				light: '#40C987'
-  			},
-  			accent: {
-  				green: '#A1D136'
-  			},
-  			chart: {
-  				blue: '#478AFF',
-  				red: '#DF5B5B'
   			}
   		},
   		fontFamily: {

@@ -688,32 +688,6 @@
   }
 }
 
-/* Ray pulse animation for step 4 background (legacy) */
-@keyframes onboarding-rayPulse {
-  0%, 100% {
-    opacity: 0.15;
-    stroke-width: 1;
-  }
-  50% {
-    opacity: 0.4;
-    stroke-width: 2.5;
-  }
-}
-
-/* Linhas onduladas – step 4 (legacy, mantido para fallback) */
-.onboarding-waveLine {
-  animation: onboarding-waveFlow 3.5s ease-in-out infinite;
-}
-
-@keyframes onboarding-waveFlow {
-  0%, 100% {
-    opacity: 0.75;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
 /* Step 4 – Timeline com ramificações (eixo principal + ramos + nós) */
 .step4-timeline-spine {
   stroke-dasharray: 420;
@@ -800,7 +774,6 @@
 @media (prefers-reduced-motion: reduce) {
   .knowledge-os-welcome-icon,
   .animate-onboarding-pulse,
-  .onboarding-waveLine,
   .step4-timeline-spine,
   .step4-timeline-branch,
   .step4-timeline-ramif,
@@ -3696,6 +3669,43 @@
   color: var(--fg-tertiary);
   letter-spacing: 0.02em;
   margin-top: 6px;
+}
+
+/* Section labels in the styleguide sidebar read a notch larger + tighter
+ * tracking than the default eyebrow used elsewhere, so the camadas register
+ * as proper section headings. Scoped to the sidebar nav on purpose. */
+.aw-sg-sidebar nav .aw-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+/* Smooth height animation for the collapsible nav sections. Radix exposes
+ * --radix-collapsible-content-height + data-state on the content node, and
+ * keeps it mounted through the exit animation (same mechanism as accordion). */
+.aw-sg-collapsible-content {
+  overflow: hidden;
+}
+.aw-sg-collapsible-content[data-state="open"] {
+  animation: aw-collapsible-down 0.2s ease-out;
+}
+.aw-sg-collapsible-content[data-state="closed"] {
+  animation: aw-collapsible-up 0.2s ease-out;
+}
+@keyframes aw-collapsible-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+@keyframes aw-collapsible-up {
+  from {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 .aw-theme-toggle {
