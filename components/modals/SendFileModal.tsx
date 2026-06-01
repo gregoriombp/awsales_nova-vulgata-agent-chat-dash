@@ -12,14 +12,12 @@ export type UploadedFileItem = {
   status: "uploading" | "completed";
   progress: number;
   startedAt: number;
-  /** Id retornado pelo servidor após upload; usar como id da linha para preview */
-  serverId?: string;
 };
 
 interface SendFileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  /** Id da base (ex.: knowledge-os/[id]); quando informado, faz upload real para storage local */
+  /** Id da base — aceito por compatibilidade; o envio é decorativo (sem backend). */
   baseId?: string;
   onComplete?: (files: UploadedFileItem[]) => void;
 }
@@ -43,80 +41,32 @@ function formatSize(bytes: number): string {
 export default function SendFileModal({
   isOpen,
   onClose,
-  baseId,
   onComplete,
 }: SendFileModalProps) {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFileItem[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadStartedRef = useRef(false);
 
-  // Com baseId: só avança progresso (até 95%); completed vem do retorno da API. Sem baseId: simula até 100%
+  // Envio decorativo (sem backend): simula o progresso até 100% no cliente.
   useEffect(() => {
     const id = setInterval(() => {
       setUploadedFiles((prev) => {
         const hasUploading = prev.some((f) => f.status === "uploading");
         if (!hasUploading) return prev;
-        const cap = baseId ? 95 : 100;
         const next = prev.map((item) => {
           if (item.status !== "uploading") return item;
           const elapsed = Date.now() - item.startedAt;
-          const p = Math.min(cap, Math.round((elapsed / UPLOAD_DURATION_MS) * 100));
-          const completed = !baseId && p >= 100;
-          return completed ? { ...item, status: "completed" as const, progress: 100 } : { ...item, progress: p };
+          const p = Math.min(100, Math.round((elapsed / UPLOAD_DURATION_MS) * 100));
+          return p >= 100
+            ? { ...item, status: "completed" as const, progress: 100 }
+            : { ...item, progress: p };
         });
         const changed = next.some((item, i) => item !== prev[i]);
         return changed ? next : prev;
       });
     }, 80);
     return () => clearInterval(id);
-  }, [baseId]);
-
-  // Upload real quando baseId está definido e há itens com file
-  useEffect(() => {
-    if (!baseId?.trim() || uploadedFiles.length === 0) return;
-    const uploading = uploadedFiles.filter((f) => f.status === "uploading" && f.file);
-    if (uploading.length === 0) return;
-    if (uploadStartedRef.current) return;
-    uploadStartedRef.current = true;
-    setUploadError(null);
-
-    const formData = new FormData();
-    formData.set("baseId", baseId);
-    uploading.forEach((f) => formData.append("file", f.file!));
-
-    fetch("/api/knowledge-os/upload", { method: "POST", body: formData })
-      .then(async (res) => {
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          throw new Error(data?.error ?? "Falha no upload");
-        }
-        const serverFiles = (data.files ?? []) as { id: string; name: string }[];
-        let idx = 0;
-        setUploadedFiles((prev) =>
-          prev.map((item) => {
-            if (item.status !== "uploading") return item;
-            const server = serverFiles[idx++];
-            return {
-              ...item,
-              status: "completed" as const,
-              progress: 100,
-              serverId: server?.id,
-            };
-          })
-        );
-      })
-      .catch((err) => {
-        setUploadError(err?.message ?? "Erro ao enviar arquivos");
-        setUploadedFiles((prev) =>
-          prev.map((item) => (item.status === "uploading" ? { ...item, progress: 0 } : item))
-        );
-      })
-      .finally(() => {
-        uploadStartedRef.current = false;
-      });
-  }, [baseId, uploadedFiles.length]);
+  }, []);
 
   const addFiles = useCallback((fileList: FileList | File[]) => {
     const files = Array.from(fileList);
@@ -215,11 +165,6 @@ export default function SendFileModal({
         <p className="text-text-secondary body-sm mb-6 flex-shrink-0">
           Arraste os arquivos para esta área ou clique para selecionar. Formatos aceitos: PDF, DOC, DOCX, TXT, MD, XLSX, XLS, CSV, JPG, PNG. Tamanho máximo por arquivo: {MAX_SIZE_MB}MB.
         </p>
-        {uploadError && (
-          <p className="text-red-600 body-sm mb-4 flex-shrink-0" role="alert">
-            {uploadError}
-          </p>
-        )}
 
         <input
           ref={fileInputRef}
