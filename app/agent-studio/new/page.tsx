@@ -297,7 +297,7 @@ function VariableChip({
 }
 
 // Icon components for each goal
-const SalesIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const SalesIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2Z" stroke={color} strokeWidth="1.5" fill="none"/>
     <path d="M12 8V12L15 15" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
@@ -305,7 +305,7 @@ const SalesIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const RecoveryIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const RecoveryIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M3 12C3 7.02944 7.02944 3 12 3C14.8273 3 17.35 4.30367 19 6.34267V4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M21 12C21 16.9706 16.9706 21 12 21C9.17273 21 6.65 19.6963 5 17.6573V20" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -314,14 +314,14 @@ const RecoveryIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const OnboardingIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const OnboardingIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 6H20M4 6V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V6M4 6L6 4H18L20 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M8 14L11 17L16 10" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
-const LeadCaptureIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const LeadCaptureIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L12 22" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
     <path d="M2 12L22 12" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
@@ -332,7 +332,7 @@ const LeadCaptureIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const CSLaunchIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const CSLaunchIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
     <circle cx="16" cy="6" r="1.5" fill={color}/>
@@ -340,7 +340,7 @@ const CSLaunchIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const SchedulingIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const SchedulingIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M8 2V6" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
     <path d="M16 2V6" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
@@ -354,7 +354,7 @@ const SchedulingIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const SupportIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const SupportIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M21 11.5C21 16.75 16.75 21 11.5 21C6.25 21 2 16.75 2 11.5C2 6.25 6.25 2 11.5 2" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
     <path d="M22 22L18 18" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
@@ -362,7 +362,7 @@ const SupportIcon = ({ color = "#0d1013" }: { color?: string }) => (
   </svg>
 );
 
-const OtherIcon = ({ color = "#0d1013" }: { color?: string }) => (
+const OtherIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="12" cy="12" r="10" stroke={color} strokeWidth="1.5" fill="none"/>
     <path d="M9 9C9 7.34315 10.3431 6 12 6C13.6569 6 15 7.34315 15 9C15 10.3062 14.1652 11.4174 13 11.8293V13" stroke={color} strokeWidth="1.5" strokeLinecap="round"/>
@@ -373,9 +373,9 @@ const OtherIcon = ({ color = "#0d1013" }: { color?: string }) => (
 // Animated sparkle icon for loading
 const SparkleIcon = () => (
   <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" className="animate-pulse">
-    <path d="M24 4L27.5 16.5L40 20L27.5 23.5L24 36L20.5 23.5L8 20L20.5 16.5L24 4Z" fill="#0d1013"/>
-    <path d="M36 28L38 33L43 35L38 37L36 42L34 37L29 35L34 33L36 28Z" fill="#0d1013" className="animate-ping"/>
-    <path d="M12 28L14 33L19 35L14 37L12 42L10 37L5 35L10 33L12 28Z" fill="#0d1013" className="animate-ping" style={{ animationDelay: "0.5s" }}/>
+    <path d="M24 4L27.5 16.5L40 20L27.5 23.5L24 36L20.5 23.5L8 20L20.5 16.5L24 4Z" fill="var(--aw-gray-1200)"/>
+    <path d="M36 28L38 33L43 35L38 37L36 42L34 37L29 35L34 33L36 28Z" fill="var(--aw-gray-1200)" className="animate-ping"/>
+    <path d="M12 28L14 33L19 35L14 37L12 42L10 37L5 35L10 33L12 28Z" fill="var(--aw-gray-1200)" className="animate-ping" style={{ animationDelay: "0.5s" }}/>
   </svg>
 );
 
@@ -501,8 +501,8 @@ const IntegrationIcon = ({ type }: { type: string }) => {
     default:
       return (
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="18" height="18" rx="2" stroke="#9d9d9d" strokeWidth="1.5"/>
-          <path d="M8 12h8M12 8v8" stroke="#9d9d9d" strokeWidth="1.5" strokeLinecap="round"/>
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--aw-gray-600)" strokeWidth="1.5"/>
+          <path d="M8 12h8M12 8v8" stroke="var(--aw-gray-600)" strokeWidth="1.5" strokeLinecap="round"/>
         </svg>
       );
   }
@@ -788,7 +788,7 @@ const FlowConnectionComponent = ({
     <g>
       <path
         d={`M ${x1} ${y1} L ${x1} ${midY} L ${x2} ${midY} L ${x2} ${y2}`}
-        stroke="#e5e5e5"
+        stroke="var(--aw-gray-300)"
         strokeWidth="2"
         fill="none"
       />
@@ -800,7 +800,7 @@ const FlowConnectionComponent = ({
             width={label.length * 6 + 12}
             height="20"
             fill="white"
-            stroke="#e5e5e5"
+            stroke="var(--aw-gray-300)"
             strokeWidth="1"
             rx="4"
           />
@@ -808,7 +808,7 @@ const FlowConnectionComponent = ({
             x={x2 + 14}
             y={midY + 4}
             fontSize="11"
-            fill="#9d9d9d"
+            fill="var(--aw-gray-600)"
             fontWeight="500"
           >
             {label}
@@ -818,7 +818,7 @@ const FlowConnectionComponent = ({
       {/* Arrow */}
       <path
         d={`M ${x2} ${y2} l -4 -8 l 4 2 l 4 -2 Z`}
-        fill="#e5e5e5"
+        fill="var(--aw-gray-300)"
       />
     </g>
   );
@@ -1169,7 +1169,7 @@ const KnowledgeBaseManagement = () => {
 
   const KnowledgeLayerIcon = () => (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M1.3335 8.00089C1.33318 8.1284 1.36944 8.25333 1.43798 8.36086C1.50651 8.46838 1.60444 8.554 1.72016 8.60756L7.4535 11.2142C7.6263 11.2925 7.81381 11.3329 8.0035 11.3329C8.19319 11.3329 8.3807 11.2925 8.5535 11.2142L14.2735 8.61422C14.3915 8.56118 14.4915 8.47495 14.5614 8.36604C14.6312 8.25714 14.6679 8.13026 14.6668 8.00089M1.3335 11.3342C1.33318 11.4617 1.36944 11.5867 1.43798 11.6942C1.50651 11.8017 1.60444 11.8873 1.72016 11.9409L7.4535 14.5476C7.6263 14.6258 7.81381 14.6663 8.0035 14.6663C8.19319 14.6663 8.3807 14.6258 8.5535 14.5476L14.2735 11.9476C14.3915 11.8945 14.4915 11.8083 14.5614 11.6994C14.6312 11.5905 14.6679 11.4636 14.6668 11.3342M8.5535 1.45422C8.37979 1.37499 8.19109 1.33398 8.00016 1.33398C7.80924 1.33398 7.62054 1.37499 7.44683 1.45422L1.7335 4.05422C1.6152 4.10639 1.51462 4.19182 1.44401 4.30013C1.3734 4.40843 1.3358 4.53493 1.3358 4.66422C1.3358 4.79351 1.3734 4.92001 1.44401 5.02832C1.51462 5.13662 1.6152 5.22206 1.7335 5.27422L7.4535 7.88089C7.62721 7.96012 7.81591 8.00113 8.00683 8.00113C8.19776 8.00113 8.38646 7.96012 8.56016 7.88089L14.2802 5.28089C14.3985 5.22873 14.499 5.14329 14.5697 5.03499C14.6403 4.92668 14.6779 4.80018 14.6779 4.67089C14.6779 4.5416 14.6403 4.4151 14.5697 4.30679C14.499 4.19849 14.3985 4.11305 14.2802 4.06089L8.5535 1.45422Z" stroke="#5E5E5E" strokeWidth="0.666667" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M1.3335 8.00089C1.33318 8.1284 1.36944 8.25333 1.43798 8.36086C1.50651 8.46838 1.60444 8.554 1.72016 8.60756L7.4535 11.2142C7.6263 11.2925 7.81381 11.3329 8.0035 11.3329C8.19319 11.3329 8.3807 11.2925 8.5535 11.2142L14.2735 8.61422C14.3915 8.56118 14.4915 8.47495 14.5614 8.36604C14.6312 8.25714 14.6679 8.13026 14.6668 8.00089M1.3335 11.3342C1.33318 11.4617 1.36944 11.5867 1.43798 11.6942C1.50651 11.8017 1.60444 11.8873 1.72016 11.9409L7.4535 14.5476C7.6263 14.6258 7.81381 14.6663 8.0035 14.6663C8.19319 14.6663 8.3807 14.6258 8.5535 14.5476L14.2735 11.9476C14.3915 11.8945 14.4915 11.8083 14.5614 11.6994C14.6312 11.5905 14.6679 11.4636 14.6668 11.3342M8.5535 1.45422C8.37979 1.37499 8.19109 1.33398 8.00016 1.33398C7.80924 1.33398 7.62054 1.37499 7.44683 1.45422L1.7335 4.05422C1.6152 4.10639 1.51462 4.19182 1.44401 4.30013C1.3734 4.40843 1.3358 4.53493 1.3358 4.66422C1.3358 4.79351 1.3734 4.92001 1.44401 5.02832C1.51462 5.13662 1.6152 5.22206 1.7335 5.27422L7.4535 7.88089C7.62721 7.96012 7.81591 8.00113 8.00683 8.00113C8.19776 8.00113 8.38646 7.96012 8.56016 7.88089L14.2802 5.28089C14.3985 5.22873 14.499 5.14329 14.5697 5.03499C14.6403 4.92668 14.6779 4.80018 14.6779 4.67089C14.6779 4.5416 14.6403 4.4151 14.5697 4.30679C14.499 4.19849 14.3985 4.11305 14.2802 4.06089L8.5535 1.45422Z" stroke="var(--aw-gray-800)" strokeWidth="0.666667" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   );
 
@@ -1438,7 +1438,7 @@ const ModularFlowVisualization = () => {
         <div
           className="absolute inset-0 overflow-auto"
           style={{
-            backgroundImage: "radial-gradient(circle, #e5e5e5 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(circle, var(--aw-gray-300) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         >
@@ -2069,7 +2069,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
       <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
           {/* Subtle gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white via-[#fdf4ff] to-[#faf5ff] opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-fuchsia-50 to-purple-50 opacity-50" />
           <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 animate-pulse" />
           <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
           
@@ -2771,7 +2771,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           : "bg-white border-border hover:border-aw-gray-400 hover:bg-bg-surface"
                       }`}
                     >
-                      <IconComponent color={isSelected ? "#ffffff" : "#9d9d9d"} />
+                      <IconComponent color={isSelected ? "var(--aw-white)" : "var(--aw-gray-600)"} />
                       <h3 className={`font-heading font-medium text-sm leading-5 ${
                         isSelected ? "text-white" : "text-fg-primary"
                       }`}>
@@ -2789,7 +2789,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       : "bg-white border-dashed border-aw-gray-400 hover:border-aw-gray-600"
                   }`}
                 >
-                  <OtherIcon color={isOtherSelected ? "#0d1013" : "#9d9d9d"} />
+                  <OtherIcon color={isOtherSelected ? "var(--aw-gray-1200)" : "var(--aw-gray-600)"} />
                   <h3 className="font-heading font-medium text-sm leading-5 text-fg-primary">
                     Outro
                   </h3>
@@ -2907,7 +2907,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                                 <path 
                                   d="M3 7C3 5.89543 3.89543 5 5 5H9L11 7H19C20.1046 7 21 7.89543 21 9V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" 
-                                  stroke={isSelected ? "#ffffff" : "#9d9d9d"} 
+                                  stroke={isSelected ? "var(--aw-white)" : "var(--aw-gray-600)"}
                                   strokeWidth="1.5" 
                                   fill="none"
                                 />
@@ -2933,7 +2933,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             }`}>
                               {isSelected && (
                                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                  <path d="M2 6L5 9L10 3" stroke="#0d1013" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                  <path d="M2 6L5 9L10 3" stroke="var(--aw-gray-1200)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                 </svg>
                               )}
                             </div>
