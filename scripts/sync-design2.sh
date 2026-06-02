@@ -18,6 +18,11 @@ PRIVATE_PATHS=(
   ".claude/skills" ".claude/settings.json"
   "AGENTS.md" "CLAUDE.md" "AWSALES_CONTEXT.md" "BOMBARDIER.md"
   "scripts/sync-design2.sh"
+  # Artefatos privados migrados do meu Cursor (rules, MCP de projeto, memória destilada do
+  # agente, cache de skills .agents, e o staging temporário do harvest). Rastreados no origin
+  # pros agentes cloud enxergarem — mas NUNCA vão pro design2/awsales:
+  ".mcp.json" "docs/cursor-rules" "docs/agent-memory.md"
+  ".cursor" ".agents" "cursor-import"
 )
 DESIGN2_URL_BASE="github.com/awsales/awsales-nova-vulgata-design.git"
 SOURCE_REF="HEAD"
