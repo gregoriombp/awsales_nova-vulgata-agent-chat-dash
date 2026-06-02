@@ -3,7 +3,7 @@
 import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
 
-const DESKTOP_FLOOR = 1024
+const DESKTOP_FLOOR = 512
 
 export function DesktopOnlyBlocker({ children }: { children: React.ReactNode }) {
   const [tooSmall, setTooSmall] = React.useState(false)
