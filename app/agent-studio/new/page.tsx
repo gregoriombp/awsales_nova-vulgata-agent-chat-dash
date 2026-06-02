@@ -1696,6 +1696,14 @@ export default function AgentStudioNewPage() {
     setKnowledgeBases(loadBasesFromStorage());
   }, []);
 
+  // Espelha o passo atual na URL (?step=N). O Bombardier Review Bridge ancora
+  // comentário por pathname+query, então isso faz ele separar os comentários
+  // por etapa mesmo o wizard inteiro vivendo em /agent-studio/new. router.replace
+  // é navegação soft: não remonta o wizard nem reseta o estado dos passos.
+  useEffect(() => {
+    router.replace(`/agent-studio/new?step=${currentStep}`, { scroll: false });
+  }, [currentStep, router]);
+
   // Loading message rotation
   useEffect(() => {
     if (currentStep === 4) {
@@ -2841,7 +2849,15 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 </p>
               </div>
 
-              <AwField label="Nome do agente" htmlFor="agent-name">
+              {/* Label manual em text-sm pra casar com o tamanho do título
+                  "Base de conhecimento" abaixo (review cmt-55957). */}
+              <div className="space-y-1.5">
+                <label
+                  htmlFor="agent-name"
+                  className="block text-sm font-medium text-fg-primary"
+                >
+                  Nome do agente
+                </label>
                 <AwInput
                   id="agent-name"
                   type="text"
@@ -2850,7 +2866,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   placeholder="Ex: Assistente de Vendas"
                   autoFocus
                 />
-              </AwField>
+              </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -2904,27 +2920,57 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
                               isSelected ? "bg-white/10" : "bg-bg-muted"
                             }`}>
-                              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                                <path 
-                                  d="M3 7C3 5.89543 3.89543 5 5 5H9L11 7H19C20.1046 7 21 7.89543 21 9V17C21 18.1046 20.1046 19 19 19H5C3.89543 19 3 18.1046 3 17V7Z" 
-                                  stroke={isSelected ? "var(--aw-white)" : "var(--aw-gray-600)"}
-                                  strokeWidth="1.5" 
-                                  fill="none"
-                                />
-                              </svg>
+                              {/* Ícone "library" (prédio de colunas) p/ base de conhecimento — review cmt-091c */}
+                              <Icon
+                                name="account_balance"
+                                fill={1}
+                                size={20}
+                                style={{ color: isSelected ? "var(--aw-white)" : "var(--aw-gray-600)" }}
+                              />
                             </div>
                             
                             <div className="flex-1 min-w-0">
-                              <h4 className={`font-heading font-medium text-sm truncate ${
-                                isSelected ? "text-white" : "text-fg-primary"
-                              }`}>
-                                {base.name}
-                              </h4>
+                              {/* Hover no título → tooltip: avatar group + nº de agentes + resumo.
+                                  O resumo real é gerado por IA no backend — aqui fica o placeholder. (review cmt-d477) */}
+                              <div className="group/base relative inline-block max-w-full">
+                                <h4 className={`font-heading font-medium text-sm truncate ${
+                                  isSelected ? "text-white" : "text-fg-primary"
+                                }`}>
+                                  {base.name}
+                                </h4>
+                                <div className="pointer-events-none absolute left-0 top-full z-50 mt-2 hidden w-64 rounded-xl border border-border bg-bg-raised p-3 text-left shadow-lg group-hover/base:block">
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex -space-x-1.5">
+                                      {["sales", "customer-support"].map((id) => (
+                                        <img
+                                          key={id}
+                                          src={getOrbForAgent(id)}
+                                          alt=""
+                                          className="h-5 w-5 rounded-full ring-2 ring-bg-raised"
+                                        />
+                                      ))}
+                                    </div>
+                                    <span className="text-xs font-medium text-fg-secondary">
+                                      Utilizado por 2 agentes
+                                    </span>
+                                  </div>
+                                  <p className="mt-2 text-xs leading-relaxed text-fg-tertiary">
+                                    Resumo gerado por IA a partir das fontes desta base aparece aqui.
+                                  </p>
+                                </div>
+                              </div>
+                              {/* Ícones Material Symbols nos counts — stacks (layers) + file_copy (fontes). (review cmt-3017 / cmt-cd14) */}
                               <div className={`flex items-center gap-3 mt-1 text-xs ${
                                 isSelected ? "text-white/70" : "text-fg-tertiary"
                               }`}>
-                                <span>{layers} Knowledge Layer{layers !== 1 ? "s" : ""}</span>
-                                <span>{sources} Fonte{sources !== 1 ? "s" : ""}</span>
+                                <span className="inline-flex items-center gap-1">
+                                  <Icon name="stacks" fill={1} size={13} />
+                                  {layers} Knowledge Layer{layers !== 1 ? "s" : ""}
+                                </span>
+                                <span className="inline-flex items-center gap-1">
+                                  <Icon name="file_copy" fill={1} size={13} />
+                                  {sources} Fonte{sources !== 1 ? "s" : ""}
+                                </span>
                               </div>
                             </div>
 
