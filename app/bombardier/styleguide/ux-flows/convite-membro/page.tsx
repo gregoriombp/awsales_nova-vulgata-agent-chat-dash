@@ -16,6 +16,7 @@ import {
  *
  * Centre spine: COL / COL_D (centered at x=380)
  * 3-branch row: GOOGLE_X (40) / MICROSOFT_X (280) / SENHA_X (520)
+ * 2FA branches: SETUP_X (40, esquerda) / VERIFY_X (520, direita)
  * ──────────────────────────────────────────────────────────────────── */
 
 const COL    = 280
@@ -25,26 +26,27 @@ const GOOGLE_X    = 40
 const MICROSOFT_X = 280
 const SENHA_X     = 520
 
+const SETUP_X  = 40    // ramo de setup do 2FA (gate → app → backup), à esquerda
+const VERIFY_X = 520   // ramo de verificação do 2FA (verify → recovery), à direita
+
 const EXPIRADO_X  = 560   // Link errors corridor — alinhado com a row de "landing"
 const UTILIZADO_X = 820
 const CANCELADO_X = 1080
 
-const MFA_SETUP_X  = 40   // Cadeia "Trava → setup TOTP → backup codes" (alinhado com Google)
-const MFA_VERIFY_X = 520  // Tela "Verificação MFA" (alinhado com Senha)
-
 const Y = {
   entrada:         0,
-  linkValido:    160,   // decisão "Status do link?" — antes das boas-vindas
+  linkValido:    160,   // decisão "O link do e-mail ainda funciona?" — antes das boas-vindas
   landing:       320,
   decisao:       480,
-  methods:       680,
-  perfil:        860,
-  policyDec:    1020,   // decisão "Policy da org?" — checa 2FA per-org
-  mfaBranchRow: 1180,   // mfaGate (MFA_SETUP_X) | mfaVerify (MFA_VERIFY_X)
-  mfaSetupApp:  1340,
-  mfaBackupCodes: 1500,
-  concluido:    1660,
-  plataforma:   1820,
+  methods:       660,
+  perfil:        840,
+  policyDec:    1020,   // decisão "A organização exige verificação extra?" — checa 2FA per-org
+  mfaGate:      1200,   // gate (esquerda) | verify (direita) — mesma linha
+  mfaSetup:     1380,
+  mfaBackup:    1560,
+  mfaRecovery:  1380,   // fallback do verify, alinhado com o setup
+  concluido:    1740,
+  plataforma:   1920,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -59,7 +61,7 @@ const NODES: Node[] = [
     data: {
       step: "entrada",
       title: "E-mail de convite",
-      href: "#",
+      href: "/convite",
       note: "Pessoa recebe o e-mail do admin e clica no magic link.",
     },
   },
@@ -69,7 +71,7 @@ const NODES: Node[] = [
     position: { x: COL_D, y: Y.linkValido },
     data: {
       step: "link",
-      title: "Status do link?",
+      title: "O link do e-mail ainda funciona?",
       question: "Convite dentro de 7 dias, não foi usado e não foi cancelado pelo admin?",
     },
   },
@@ -92,7 +94,7 @@ const NODES: Node[] = [
       step: "01b",
       title: "Link expirado",
       href: "/convite/link-expirado",
-      note: "Fora do fluxo demo. Passou de 7 dias — orienta contatar o admin pra reemitir. Sem auto-reenvio: quem reemite é o admin da org pelo painel de Acesso e Permissões.",
+      note: "Fora do fluxo demo. Convite passou de 7 dias — orienta contatar o admin.",
     },
   },
   {
@@ -103,7 +105,7 @@ const NODES: Node[] = [
       step: "01c",
       title: "Link já utilizado",
       href: "/convite/link-utilizado",
-      note: "Fora do fluxo demo. Magic link é one-time — se já foi consumido, a conta provavelmente existe. Direciona pra conversar com o admin da org.",
+      note: "Fora do fluxo demo. Link one-time já consumido — direciona pro admin da org.",
     },
   },
   {
@@ -114,7 +116,7 @@ const NODES: Node[] = [
       step: "01d",
       title: "Link cancelado",
       href: "/convite/link-cancelado",
-      note: "Fora do fluxo demo. Admin removeu o convite. Não revela motivo do cancelamento (decisão interna do admin). Direciona pra conversar com sua organização.",
+      note: "Fora do fluxo demo. Admin removeu o convite — direciona pra conversar com a organização.",
     },
   },
   {
@@ -177,64 +179,64 @@ const NODES: Node[] = [
     position: { x: COL_D, y: Y.policyDec },
     data: {
       step: "03b",
-      title: "Policy da org?",
-      question: "A organização que convidou exige 2FA? O token é cunhado pela org neste ponto.",
+      title: "A organização exige verificação extra?",
+      question: "A organização exige uma segunda etapa de verificação antes de liberar o acesso? Cada organização tem suas próprias regras de segurança.",
     },
   },
-  // ── MFA branch — espelha login-auth e primeiro-acesso. Vale pra todo onboarding. ──
+  // ── 2FA inline (per-org) — gate → setup → backup | verify → recovery ──
   {
     id: "mfaGate",
     type: "screen",
-    position: { x: MFA_SETUP_X, y: Y.mfaBranchRow },
+    position: { x: SETUP_X, y: Y.mfaGate },
     data: {
       step: "03c",
-      title: "Trava de 2FA",
-      href: "/awsales/login?screen=mfaGate",
-      note: "Gate quando a org exige 2FA e o novo membro precisa configurar antes de entrar. Método único: app autenticador (TOTP).",
-    },
-  },
-  {
-    id: "mfaVerify",
-    type: "screen",
-    position: { x: MFA_VERIFY_X, y: Y.mfaBranchRow },
-    data: {
-      step: "03f",
-      title: "Verificação MFA",
-      href: "/awsales/login?screen=mfaVerify",
-      note: "Caso raro num convite: o membro já tinha TOTP de outra org. Input de 6 dígitos do app autenticador.",
+      title: "Ativar verificação em duas etapas",
+      href: "/convite/seguranca",
+      note: "Gate: a org exige 2FA, configure agora. Botões 'Configurar agora' e 'Já tenho o app'.",
     },
   },
   {
     id: "mfaSetupApp",
     type: "screen",
-    position: { x: MFA_SETUP_X, y: Y.mfaSetupApp },
+    position: { x: SETUP_X, y: Y.mfaSetup },
     data: {
       step: "03d",
-      title: "Configurar app autenticador",
-      href: "/awsales/login?screen=mfaSetupApp",
-      note: "Passo 1 de 2 do setup TOTP. QR code + segredo em texto pra copiar. Input de 6 dígitos pra confirmar.",
+      title: "Configurar app de verificação",
+      href: "/convite/seguranca",
+      note: "QR code pra parear o app + campo de 6 dígitos pra confirmar.",
     },
   },
   {
     id: "mfaBackupCodes",
     type: "screen",
-    position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
+    position: { x: SETUP_X, y: Y.mfaBackup },
     data: {
       step: "03e",
       title: "Códigos de backup",
-      href: "/awsales/login?screen=mfaBackupCodes",
-      note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'.",
+      href: "/convite/seguranca",
+      note: "10 códigos de uso único pra guardar.",
+    },
+  },
+  {
+    id: "mfaVerify",
+    type: "screen",
+    position: { x: VERIFY_X, y: Y.mfaGate },
+    data: {
+      step: "03f",
+      title: "Confirmar código",
+      href: "#",
+      note: "Campo de 6 dígitos do app de verificação.",
     },
   },
   {
     id: "mfaRecovery",
     type: "screen",
-    position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
+    position: { x: VERIFY_X, y: Y.mfaRecovery },
     data: {
       step: "03g",
       title: "Usar código de backup",
-      href: "/awsales/login?screen=mfaRecovery",
-      note: "Fallback quando o membro já tinha TOTP de outra org mas perdeu acesso ao app. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código vale uma vez.",
+      href: "#",
+      note: "Fallback de quem perdeu o app: um dos códigos salvos.",
     },
   },
   {
@@ -286,19 +288,21 @@ const EDGES: Edge[] = [
   { ...edgeBase, id: "e-senha-perfil",     source: "senha",     target: "perfil" },
   { ...edgeBase, id: "e-perfil-policy",   source: "perfil",    target: "policyDec" },
 
-  // ── Policy da org? — 2FA per-org ─────────────────────────────────
-  { ...branchEdge, id: "e-policy-mfaGate",    source: "policyDec", target: "mfaGate",    sourceHandle: "left",   label: "Org exige 2FA · membro sem TOTP", ...labelProps },
-  { ...branchEdge, id: "e-policy-mfaVerify",  source: "policyDec", target: "mfaVerify",  sourceHandle: "right",  label: "Membro já tem TOTP",              ...labelProps },
-  { ...branchEdge, id: "e-policy-concluido",  source: "policyDec", target: "concluido",  sourceHandle: "bottom", label: "Sem policy adicional",            ...labelProps },
+  // ── A organização exige verificação extra? — 2FA per-org ─────────
+  { ...branchEdge, id: "e-policy-mfaGate",   source: "policyDec", target: "mfaGate",   sourceHandle: "left",   label: "Exige 2FA · ainda não configurou", ...labelProps },
+  { ...branchEdge, id: "e-policy-mfaVerify", source: "policyDec", target: "mfaVerify", sourceHandle: "right",  label: "Já tem o app de verificação",       ...labelProps },
+  { ...branchEdge, id: "e-policy-concluido", source: "policyDec", target: "concluido", sourceHandle: "bottom", label: "Sem verificação extra",             ...labelProps },
 
-  // ── Setup chain: gate → app → backup → concluido ─────────────────
-  { ...branchEdge, id: "e-mfaGate-already",      source: "mfaGate",        target: "mfaVerify",       label: "Já tenho o app", ...labelProps },
-  { ...edgeBase,   id: "e-mfaGate-setup",        source: "mfaGate",        target: "mfaSetupApp",     label: "Configurar",     ...labelProps },
-  { ...edgeBase,   id: "e-mfaSetup-backup",      source: "mfaSetupApp",    target: "mfaBackupCodes" },
-  { ...edgeBase,   id: "e-mfaBackup-concluido",  source: "mfaBackupCodes", target: "concluido" },
-  { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",      target: "concluido" },
-  { ...branchEdge, id: "e-mfaVerify-recovery",    source: "mfaVerify",      target: "mfaRecovery",      label: "Usar backup", ...labelProps },
-  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery",    target: "concluido" },
+  // ── Ramo de setup: gate → app → backup → concluído ───────────────
+  { ...branchEdge, id: "e-mfaGate-mfaVerify",  source: "mfaGate",       target: "mfaVerify",     sourceHandle: "right", label: "Já tenho o app", ...labelProps },
+  { ...edgeBase,   id: "e-mfaGate-mfaSetup",   source: "mfaGate",       target: "mfaSetupApp",   label: "Configurar", ...labelProps },
+  { ...edgeBase,   id: "e-mfaSetup-mfaBackup", source: "mfaSetupApp",   target: "mfaBackupCodes" },
+  { ...edgeBase,   id: "e-mfaBackup-concluido", source: "mfaBackupCodes", target: "concluido" },
+
+  // ── Ramo de verificação: verify → concluído, com fallback de backup ──
+  { ...edgeBase,   id: "e-mfaVerify-concluido",   source: "mfaVerify",   target: "concluido" },
+  { ...branchEdge, id: "e-mfaVerify-mfaRecovery", source: "mfaVerify",   target: "mfaRecovery", sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery", target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-plataforma", source: "concluido", target: "plataforma" },
 ]
@@ -313,7 +317,7 @@ const screens = [
     title: "Boas-vindas",
     href: "/convite",
     purpose:
-      "Primeira tela depois do clique no magic link. Mostra a organização, quem convidou (com avatar), a função pré-atribuída e os grupos em que o membro já entra. O link já verificou o e-mail — não há código de 6 dígitos.",
+      "Primeira tela depois do clique no link. Mostra a organização, quem convidou (com avatar), a função pré-atribuída e os grupos em que o membro já entra.",
     decisions: "Aceitar e continuar → criação da conta.",
   },
   {
@@ -321,7 +325,7 @@ const screens = [
     title: "Link expirado",
     href: "/convite/link-expirado",
     purpose:
-      "Tela condicional fora do fluxo demo. Aparece quando o convite passa de 7 dias sem uso. Diferente do primeiro-acesso (convite comercial), aqui o ponto de contato é o admin da própria organização — quem dispara convite de membro é o admin do cliente. Sem auto-reenvio: o admin reemite manualmente pelo painel de Acesso e Permissões.",
+      "Aparece quando o convite passa de 7 dias sem uso. Diferente do primeiro-acesso (convite comercial), o ponto de contato é o admin da própria organização — sem auto-reenvio, ele reemite manualmente pelo painel de Acesso e Permissões.",
     decisions: 'Falar com o admin → orientação de contato; "Voltar para o login" volta pra "/".',
   },
   {
@@ -329,7 +333,7 @@ const screens = [
     title: "Link já utilizado",
     href: "/convite/link-utilizado",
     purpose:
-      "Tela condicional fora do fluxo demo. Magic link é one-time — se já foi consumido, é provável que a conta tenha sido criada e o membro deva fazer login normal, ou que alguém abriu o e-mail no lugar dele. Direciona pra conversar com o admin da organização.",
+      "O link one-time já foi consumido: ou a conta já existe e o membro faz login normal, ou alguém abriu o e-mail no lugar dele. Direciona pra conversar com o admin da organização.",
     decisions: 'Falar com o admin → orientação de contato; "Ir para o login" leva pra "/".',
   },
   {
@@ -337,7 +341,7 @@ const screens = [
     title: "Link cancelado",
     href: "/convite/link-cancelado",
     purpose:
-      "Tela condicional fora do fluxo demo. Admin removeu o convite antes do uso. A mensagem NÃO revela o motivo do cancelamento — é decisão interna do admin (privacidade da organização). O membro é orientado a conversar com a própria organização, sem detalhes técnicos.",
+      "Admin removeu o convite antes do uso. A mensagem NÃO revela o motivo do cancelamento — é decisão interna do admin. O membro é orientado a conversar com a própria organização, sem detalhes técnicos.",
     decisions: 'Falar com sua organização → orientação genérica; "Voltar para o login" volta pra "/".',
   },
   {
@@ -354,49 +358,49 @@ const screens = [
     href: "/convite/perfil",
     purpose:
       "Nome, cargo, foto e celular. O e-mail vem travado do convite — só o admin pode trocar. Diferente do onboarding de comprador, NÃO há campos de fatura: quem convidou cuida do financeiro.",
-    decisions: "Continuar → policy da org?.",
+    decisions: "Continuar → a organização exige verificação extra?.",
   },
   {
     step: "03b",
-    title: "Policy da org?",
-    href: "/awsales/login",
-    purpose: "Decisão server-side após o perfil: a organização que convidou exige 2FA? O token de sessão é cunhado pela org neste ponto. Mesma decisão usada nos flows de login, primeiro-acesso e organizacao-adicional.",
-    decisions: "Org exige 2FA + membro sem TOTP → 'Trava de 2FA'. Membro tem TOTP → 'Verificação MFA'. Sem policy adicional → conta criada.",
+    title: "A organização exige verificação extra?",
+    href: "#",
+    purpose: "Antes de a pessoa entrar na plataforma pela primeira vez, o produto verifica se a organização exige uma segunda etapa de verificação. Cada organização define suas próprias regras de segurança — quem decide é o admin da org.",
+    decisions: "Org exige 2FA + ainda não configurou → 'Ativar verificação em duas etapas'. Já tem o app → 'Confirmar código'. Sem verificação extra → conta criada.",
   },
   {
     step: "03c",
-    title: "Trava de 2FA",
-    href: "/awsales/login?screen=mfaGate",
-    purpose: "Gate explicando que a organização exige 2FA e o novo membro precisa configurar agora pra continuar. Método único: app autenticador (TOTP). Mesmo componente dos demais flows.",
-    decisions: "Configurar agora → tela de setup do app. Já tenho o app → vai pra 'Verificação MFA'. Sair → volta pro login.",
+    title: "Ativar verificação em duas etapas",
+    href: "/convite/seguranca",
+    purpose: "Gate de 2FA: a organização exige verificação extra e a pessoa ainda não configurou. Explica que ela precisa configurar agora pra continuar. Método: app de verificação no celular — Google Authenticator, 1Password, Authy, similar.",
+    decisions: "Configurar agora → 'Configurar app de verificação'. Já tenho o app → 'Confirmar código'.",
   },
   {
     step: "03d",
-    title: "Configurar app autenticador (TOTP)",
-    href: "/awsales/login?screen=mfaSetupApp",
-    purpose: "Passo 1 de 2 do setup TOTP. QR code grande no centro pra escanear no app autenticador, com o segredo em texto logo abaixo (copy-to-clipboard) pra quem não consegue escanear. Embaixo, input de 6 dígitos pra confirmar.",
-    decisions: "Código correto → códigos de backup. Voltar → trava de 2FA.",
+    title: "Configurar app de verificação",
+    href: "/convite/seguranca",
+    purpose: "QR code pra escanear no app de verificação do celular, com o código em texto pra copiar. Campo de 6 dígitos pra confirmar que o app foi pareado.",
+    decisions: "Código correto → códigos de backup. Voltar → 'Ativar verificação em duas etapas'.",
   },
   {
     step: "03e",
     title: "Códigos de backup",
-    href: "/awsales/login?screen=mfaBackupCodes",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
-    decisions: "Marcar checkbox + Concluir → segue pra 'Conta criada'.",
+    href: "/convite/seguranca",
+    purpose: "Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    decisions: "Marcar checkbox + Concluir → conta criada.",
   },
   {
     step: "03f",
-    title: "Verificação MFA",
-    href: "/awsales/login?screen=mfaVerify",
-    purpose: "Caso raro num convite: o membro já tinha TOTP configurado em outra org/contexto. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback quando o membro perdeu o app.",
-    decisions: "Código correto → conta criada. Usar código de backup → 'Usar código de backup'. Sair → volta pro login.",
+    title: "Confirmar código",
+    href: "#",
+    purpose: "Pra quem já tem o app de verificação configurado em outra organização. Campo de 6 dígitos do app. Link 'Usar código de backup' como fallback. Não tem tela dedicada no convite — cai no honesto 'Sem protótipo'.",
+    decisions: "Código correto → conta criada. Usar código de backup → 'Usar código de backup'.",
   },
   {
     step: "03g",
     title: "Usar código de backup",
-    href: "/awsales/login?screen=mfaRecovery",
-    purpose: "Fallback de MFA quando o membro perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
-    decisions: "Código válido → conta criada. Voltar pro app autenticador → 'Verificação MFA'.",
+    href: "#",
+    purpose: "Fallback de quem perdeu acesso ao app de verificação. Entra um dos 10 códigos de backup salvos no setup. Cada código é one-shot. Não tem tela dedicada no convite — cai no honesto 'Sem protótipo'.",
+    decisions: "Código válido → conta criada. Voltar pro app de verificação → 'Confirmar código'.",
   },
   {
     step: "04",
@@ -414,6 +418,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-01",
+    summary:
+      "Telas de verificação em duas etapas agora abrem o protótipo do convite (/convite/seguranca); entrada abre as boas-vindas no clique.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-05-29",
     time: "17:14 BRT",
@@ -459,22 +469,12 @@ export default function ConviteMembroFlowPage() {
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
-        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
-          O magic link serve como verificação — não há código de 6 dígitos.
-          Antes das boas-vindas, três ramos condicionais cobrem estados de
-          falha do link (expirado, já utilizado, cancelado pelo admin). Após
-          o perfil, se a organização que convidou exige 2FA, o membro passa
-          pelo setup do TOTP antes de entrar na plataforma. Função e grupos
-          vêm pré-definidos pelo inviter; o membro não escolhe seu nível de
-          acesso.
-        </p>
-
         <Section
           id="flow"
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam os caminhos de bifurcação."
         >
-          <FlowDiagram flow="convite-membro" nodes={NODES} edges={EDGES} height={2080} />
+          <FlowDiagram flow="convite-membro" nodes={NODES} edges={EDGES} height={1780} />
         </Section>
 
         <Section
@@ -551,13 +551,11 @@ export default function ConviteMembroFlowPage() {
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Três motivos pra um link falhar</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Magic links de convite são one-time e expiram em 7 dias. Cada
-                motivo tem sua própria tela: <b className="font-medium text-[var(--fg-primary)]">expirado</b> orienta
-                pedir reenvio ao admin (sem auto-reenvio aqui — quem reemite é
-                o admin pelo painel da org), <b className="font-medium text-[var(--fg-primary)]">já utilizado</b> também
-                direciona pro admin, e <b className="font-medium text-[var(--fg-primary)]">cancelado</b> não revela
-                o motivo do cancelamento (decisão interna do admin) — só
-                orienta a conversar com a organização.
+                Magic links de convite são one-time e expiram em 7 dias. Em vez
+                de uma mensagem de erro genérica, cada motivo tem tela própria
+                — expirado, já utilizado e cancelado — porque a saída é
+                diferente em cada caso e o contato certo é sempre o admin da
+                org, nunca o suporte da AwSales.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
@@ -565,11 +563,12 @@ export default function ConviteMembroFlowPage() {
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
                 Quem decide se 2FA é obrigatório é o super admin da
                 organização. A regra pega pros dois lados: se a org exige
-                TOTP no login dos membros existentes, também exige no
-                onboarding dos recém-convidados — caso contrário, o convite
-                viraria uma porta de entrada que escapa da policy. Membro sem
-                TOTP cai no setup; membro multi-org que já tem TOTP só
-                verifica.
+                verificação em duas etapas no login dos membros existentes,
+                também exige no onboarding dos recém-convidados — caso
+                contrário, o convite viraria uma porta de entrada que escapa
+                da regra. Quem ainda não configurou o app de verificação cai
+                na configuração; quem já tem de outra org só confirma o
+                código.
               </p>
             </div>
           </div>

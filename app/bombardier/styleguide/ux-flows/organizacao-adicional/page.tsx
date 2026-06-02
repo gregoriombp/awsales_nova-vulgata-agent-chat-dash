@@ -22,20 +22,20 @@ const PIX_X    = 40
 const CARTAO_X = 280
 const BOLETO_X = 520
 
-const MFA_SETUP_X  = 40   // Cadeia "Trava → setup TOTP → backup codes" (alinhado com Pix)
-const MFA_VERIFY_X = 520  // Tela "Verificação MFA" (alinhado com Boleto)
+const MFA_SETUP_X  = 40    // ramo de setup (gate → app → backup), alinhado com Pix
+const MFA_VERIFY_X = 520   // ramo de verificação (verify → recovery), alinhado com Boleto
 
 const Y = {
   entrada:        0,
-  contrato:     180,
-  pagamento:    360,
-  methods:      560,
-  policyDec:    720,    // decisão "Policy da org?" — checa 2FA per-org
-  mfaBranchRow: 880,    // mfaGate (MFA_SETUP_X) | mfaVerify (MFA_VERIFY_X)
-  mfaSetupApp:  1040,
-  mfaBackupCodes: 1200,
-  concluido:    1360,
-  retorno:      1540,
+  contrato:     170,
+  pagamento:    340,
+  methods:      520,
+  policyDec:    700,    // decisão "A organização exige verificação extra?" — 2FA por org
+  mfaBranchRow: 880,    // mfaGate (esquerda) | mfaVerify (direita) — mesma linha
+  mfaSetupApp: 1060,    // setup (esquerda) | recovery (direita) — mesma linha
+  mfaBackupCodes: 1240,
+  concluido:   1420,
+  retorno:     1600,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -49,9 +49,9 @@ const NODES: Node[] = [
     position: { x: COL, y: Y.entrada },
     data: {
       step: "entrada",
-      title: "Login (já cadastrado, plano novo)",
+      title: "Vindo do login (usuário já tem conta)",
       href: "/bombardier/styleguide/ux-flows/login-auth",
-      note: "Vindo do login: decisão D7 detectou um plano comprado sem org configurada e o usuário escolheu 'Configurar agora'.",
+      note: "Entrada vinda do login: plano comprado, organização ainda não configurada.",
     },
   },
   {
@@ -62,75 +62,75 @@ const NODES: Node[] = [
       step: "01",
       title: "Contrato",
       href: "/organizacao-adicional/contrato",
-      note: "Revisa condições comerciais da nova organização e aceita os termos. Perfil pessoal não aparece — já existe.",
+      note: "Revisa condições comerciais e aceita os termos.",
     },
   },
   {
     id: "pagamento",
     type: "decision",
     position: { x: COL_D, y: Y.pagamento },
-    data: { step: "02", title: "Pagamento", question: "Implementação + 1ª mensalidade da nova organização. Qual o método?" },
+    data: { step: "02", title: "Pagamento", question: "Implementação + 1ª mensalidade. Qual o método?" },
   },
   {
     id: "pix",
     type: "screen",
     position: { x: PIX_X, y: Y.methods },
-    data: { step: "02a", title: "Pix", href: "/organizacao-adicional/pagamento", note: "QR Code instantâneo. Confirmação em segundos." },
+    data: { step: "02a", title: "Pix", href: "/organizacao-adicional/pagamento", note: "QR Code instantâneo." },
   },
   {
     id: "cartao",
     type: "screen",
     position: { x: CARTAO_X, y: Y.methods },
-    data: { step: "02b", title: "Cartão de crédito", href: "/organizacao-adicional/pagamento", note: "Crédito em até 12×. Confirmação imediata. Recusa do banco abre modal inline com o motivo + opção de tentar outro cartão ou mudar de método — sem sair da etapa de pagamento." },
+    data: { step: "02b", title: "Cartão de crédito", href: "/organizacao-adicional/pagamento", note: "Crédito em até 4×. Confirmação imediata. Recusa do banco abre modal inline com o motivo + opção de tentar outro cartão ou trocar de método, sem sair da etapa." },
   },
   {
     id: "boleto",
     type: "screen",
     position: { x: BOLETO_X, y: Y.methods },
-    data: { step: "02c", title: "Boleto bancário", href: "/organizacao-adicional/pagamento", note: "Vencimento em 3 dias úteis. Compensação em 1 dia útil." },
+    data: { step: "02c", title: "Boleto bancário", href: "/organizacao-adicional/pagamento", note: "Vencimento em 3 dias úteis." },
   },
   {
     id: "policyDec",
     type: "decision",
     position: { x: COL_D, y: Y.policyDec },
-    data: { step: "02d", title: "Policy da org?", question: "A nova organização exige SSO ou 2FA? O token é cunhado pela nova org neste ponto — pode exigir 2FA mesmo que a org principal do usuário não exija." },
+    data: { step: "02d", title: "A organização exige verificação extra?", question: "A organização exige uma segunda etapa de verificação antes de liberar o acesso? Cada organização tem suas próprias regras de segurança." },
   },
-  // ── MFA branch — espelha login-auth. Vale tanto pra signup quanto pra login. ──
+  // ── Cadeia de 2FA — espelha o primeiro acesso. Gate, setup, backup, verificação e recuperação. ──
   {
     id: "mfaGate",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBranchRow },
-    data: { step: "02e", title: "Trava de 2FA", href: "/awsales/login?screen=mfaGate", note: "Gate quando a nova org exige 2FA e o usuário ainda não configurou. Método único: app autenticador (TOTP)." },
+    data: { step: "02e", title: "Ativar verificação em duas etapas", href: "/awsales/login?screen=mfaGate", note: "Gate: a org exige 2FA, configure agora. Botões 'Configurar agora' e 'Já tenho o app'." },
   },
   {
     id: "mfaVerify",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaBranchRow },
-    data: { step: "02h", title: "Verificação MFA", href: "/awsales/login?screen=mfaVerify", note: "Para usuários que já têm TOTP configurado em sessão anterior (caso comum se a org principal também exige 2FA). Input de 6 dígitos." },
+    data: { step: "02h", title: "Confirmar código", href: "/awsales/login?screen=mfaVerify", note: "Campo de 6 dígitos do app de verificação." },
   },
   {
     id: "mfaSetupApp",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaSetupApp },
-    data: { step: "02f", title: "Configurar app autenticador", href: "/awsales/login?screen=mfaSetupApp", note: "Passo 1 de 2 do setup TOTP. QR code + segredo em texto pra copiar. Input de 6 dígitos pra confirmar." },
+    data: { step: "02f", title: "Configurar app de verificação", href: "/awsales/login?screen=mfaSetupApp", note: "QR code pra parear o app + campo de 6 dígitos pra confirmar." },
   },
   {
     id: "mfaBackupCodes",
     type: "screen",
     position: { x: MFA_SETUP_X, y: Y.mfaBackupCodes },
-    data: { step: "02g", title: "Códigos de backup", href: "/awsales/login?screen=mfaBackupCodes", note: "Passo 2 de 2 do setup TOTP. 10 códigos de uso único. Copiar todos ou baixar .txt. Checkbox obrigatório 'salvei em lugar seguro'." },
+    data: { step: "02g", title: "Códigos de backup", href: "/awsales/login?screen=mfaBackupCodes", note: "10 códigos de uso único pra guardar." },
   },
   {
     id: "mfaRecovery",
     type: "screen",
     position: { x: MFA_VERIFY_X, y: Y.mfaSetupApp },
-    data: { step: "02i", title: "Usar código de backup", href: "/awsales/login?screen=mfaRecovery", note: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código vale uma vez." },
+    data: { step: "02i", title: "Usar código de backup", href: "/awsales/login?screen=mfaRecovery", note: "Fallback de quem perdeu o app: um dos códigos salvos." },
   },
   {
     id: "concluido",
     type: "screen",
     position: { x: COL, y: Y.concluido },
-    data: { step: "03", title: "Concluído", href: "/organizacao-adicional/concluido", note: "Nova organização provisionada. Resumo do que foi pago e próxima cobrança." },
+    data: { step: "03", title: "Concluído", href: "/organizacao-adicional/concluido", note: "Nova organização provisionada e pronta." },
   },
   {
     id: "retorno",
@@ -153,26 +153,32 @@ const labelProps = {
 const EDGES: Edge[] = [
   { ...edgeBase, id: "e-entrada-contrato", source: "entrada", target: "contrato", label: "Configurar agora", ...labelProps },
   { ...edgeBase, id: "e-contrato-pagamento", source: "contrato", target: "pagamento" },
+
+  // ── Pagamento → métodos ──────────────────────────────────────────
   { ...branchEdge, id: "e-pagamento-pix",    source: "pagamento", target: "pix",    sourceHandle: "left",   label: "Pix",    ...labelProps },
   { ...branchEdge, id: "e-pagamento-cartao", source: "pagamento", target: "cartao", sourceHandle: "bottom", label: "Cartão", ...labelProps },
   { ...branchEdge, id: "e-pagamento-boleto", source: "pagamento", target: "boleto", sourceHandle: "right",  label: "Boleto", ...labelProps },
+
+  // ── Métodos confirmam e convergem na decisão de verificação extra ──
   { ...edgeBase, id: "e-pix-policy",    source: "pix",    target: "policyDec" },
   { ...edgeBase, id: "e-cartao-policy", source: "cartao", target: "policyDec" },
   { ...edgeBase, id: "e-boleto-policy", source: "boleto", target: "policyDec" },
 
-  // ── Policy da org? — 2FA per-org ─────────────────────────────────
-  { ...branchEdge, id: "e-policy-mfaGate",    source: "policyDec", target: "mfaGate",    sourceHandle: "left",   label: "Org exige 2FA · user sem TOTP", ...labelProps },
-  { ...branchEdge, id: "e-policy-mfaVerify",  source: "policyDec", target: "mfaVerify",  sourceHandle: "right",  label: "User tem TOTP",                 ...labelProps },
-  { ...branchEdge, id: "e-policy-concluido",  source: "policyDec", target: "concluido",  sourceHandle: "bottom", label: "Sem policy adicional",          ...labelProps },
+  // ── A organização exige verificação extra? — 2FA por org ─────────
+  { ...branchEdge, id: "e-policy-mfaGate",   source: "policyDec", target: "mfaGate",   sourceHandle: "left",   label: "Exige 2FA · sem app",  ...labelProps },
+  { ...branchEdge, id: "e-policy-mfaVerify", source: "policyDec", target: "mfaVerify", sourceHandle: "right",  label: "Já tem o app",          ...labelProps },
+  { ...branchEdge, id: "e-policy-concluido", source: "policyDec", target: "concluido", sourceHandle: "bottom", label: "Não exige",             ...labelProps },
 
-  // ── Setup chain: gate → app → backup → concluido ─────────────────
-  { ...branchEdge, id: "e-mfaGate-already",      source: "mfaGate",        target: "mfaVerify",       label: "Já tenho o app", ...labelProps },
-  { ...edgeBase,   id: "e-mfaGate-setup",        source: "mfaGate",        target: "mfaSetupApp",     label: "Configurar",     ...labelProps },
-  { ...edgeBase,   id: "e-mfaSetup-backup",      source: "mfaSetupApp",    target: "mfaBackupCodes" },
-  { ...edgeBase,   id: "e-mfaBackup-concluido",  source: "mfaBackupCodes", target: "concluido" },
-  { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",      target: "concluido" },
-  { ...branchEdge, id: "e-mfaVerify-recovery",    source: "mfaVerify",      target: "mfaRecovery",     label: "Usar backup", ...labelProps },
-  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery",    target: "concluido" },
+  // ── Ramo de setup: gate → app → backup → concluído ───────────────
+  { ...branchEdge, id: "e-mfaGate-already",     source: "mfaGate",        target: "mfaVerify",     label: "Já tenho o app",   ...labelProps },
+  { ...edgeBase,   id: "e-mfaGate-setup",       source: "mfaGate",        target: "mfaSetupApp",   label: "Configurar agora", ...labelProps },
+  { ...edgeBase,   id: "e-mfaSetup-backup",     source: "mfaSetupApp",    target: "mfaBackupCodes" },
+  { ...edgeBase,   id: "e-mfaBackup-concluido", source: "mfaBackupCodes", target: "concluido" },
+
+  // ── Ramo de verificação: verify → concluído, com fallback de backup ──
+  { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",   target: "concluido" },
+  { ...branchEdge, id: "e-mfaVerify-recovery",   source: "mfaVerify",   target: "mfaRecovery", sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery", target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-retorno", source: "concluido", target: "retorno", label: "Acessar plataforma", ...labelProps },
 ]
@@ -186,57 +192,78 @@ const screens = [
     step: "01",
     title: "Contrato",
     href: "/organizacao-adicional/contrato",
-    purpose: "Cliente revisa dados da nova organização e condições comerciais do plano comprado (implementação, mensalidade cheia, 1ª mensalidade prorrata) antes de pagar. Não pede dados pessoais — o perfil já existe.",
+    purpose: "Cliente revisa as condições comerciais da nova organização (implementação, mensalidade cheia, 1ª mensalidade prorrata) e aceita os termos antes de pagar. Não pede dados pessoais — o perfil já existe.",
     decisions: "Aceitar os termos → pagamento. Voltar / Adiar → /inicio (banner persistente segue ativo).",
   },
   {
     step: "02",
     title: "Pagamento",
     href: "/organizacao-adicional/pagamento",
-    purpose: "Mesma etapa de pagamento do primeiro acesso, aplicada à nova organização. Cobra implementação e 1ª mensalidade via Pix, Cartão ou Boleto. Confirmação automática. Recusa do banco no cartão abre modal inline com o motivo — sem sair da etapa.",
-    decisions: "Pix → QR Code; Cartão → crédito parcelado; Boleto → gerado na hora → policy da org?.",
+    purpose: "Etapa única que cobra a implementação e a 1ª mensalidade da nova organização. Três métodos: Pix (confirmação instantânea), Cartão de crédito (em até 4×) ou Boleto bancário (vencimento em 3 dias úteis). Recusa do banco no cartão abre modal inline com o motivo, sem sair da etapa.",
+    decisions: "Pix → QR Code; Boleto → gerado na hora; Cartão → crédito parcelado → a organização exige verificação extra?.",
+  },
+  {
+    step: "02a",
+    title: "Pix",
+    href: "/organizacao-adicional/pagamento",
+    purpose: "QR Code Pix instantâneo, com código copia-e-cola e contador de expiração. Confirmação em segundos — sem passo de aprovação do banco.",
+    decisions: "Já paguei o Pix → a organização exige verificação extra?.",
+  },
+  {
+    step: "02b",
+    title: "Cartão de crédito",
+    href: "/organizacao-adicional/pagamento",
+    purpose: "Formulário de cartão com parcelamento em até 4×. Confirmação imediata, mas sujeita à resposta do banco emissor — se recusar, abre um modal inline com o motivo e a opção de tentar outro cartão ou trocar de método, sem sair da etapa.",
+    decisions: "Cartão aprovado → a organização exige verificação extra?. Recusado → modal inline (outro cartão / trocar método).",
+  },
+  {
+    step: "02c",
+    title: "Boleto bancário",
+    href: "/organizacao-adicional/pagamento",
+    purpose: "Boleto único com código de barras, linha digitável e ações de baixar PDF / enviar por e-mail. Vencimento em 3 dias úteis; o cliente pode seguir enquanto a compensação não cai.",
+    decisions: "Já paguei o boleto → a organização exige verificação extra?.",
   },
   {
     step: "02d",
-    title: "Policy da org?",
+    title: "A organização exige verificação extra?",
     href: "/awsales/login",
-    purpose: "Decisão server-side após pagamento confirmado: a NOVA organização exige 2FA? O token de sessão é cunhado pela nova org neste ponto, com suas próprias exigências — pode exigir 2FA mesmo que a org principal do usuário não exija. Mesma decisão usada nos flows de login e primeiro acesso.",
-    decisions: "Org exige 2FA + user sem TOTP → 'Trava de 2FA'. User tem TOTP → 'Verificação MFA'. Sem policy adicional → concluído.",
+    purpose: "Antes de a pessoa entrar na plataforma na nova organização, o produto verifica se a org exige uma segunda etapa de verificação. Cada organização define suas próprias regras de segurança — quem decide é o admin da org. A nova org pode exigir 2FA mesmo que a org principal não exija.",
+    decisions: "Exige 2FA, sem app → 'Ativar verificação em duas etapas'. Já tem o app → 'Confirmar código'. Não exige → concluído.",
   },
   {
     step: "02e",
-    title: "Trava de 2FA",
+    title: "Ativar verificação em duas etapas",
     href: "/awsales/login?screen=mfaGate",
-    purpose: "Gate explicando que a nova organização exige 2FA e o usuário precisa configurar agora pra continuar. Método único por enquanto: app autenticador (TOTP). Mesmo componente dos demais flows.",
-    decisions: "Configurar agora → tela de setup do app. Já tenho o app → vai pra 'Verificação MFA'. Sair → volta pro login.",
+    purpose: "Gate de 2FA: a organização exige verificação extra e a pessoa ainda não configurou. Explica que ela precisa configurar agora pra continuar. Método: app de verificação no celular — Google Authenticator, 1Password, Authy, similar.",
+    decisions: "Configurar agora → 'Configurar app de verificação'. Já tenho o app → 'Confirmar código'.",
   },
   {
     step: "02f",
-    title: "Configurar app autenticador (TOTP)",
+    title: "Configurar app de verificação",
     href: "/awsales/login?screen=mfaSetupApp",
-    purpose: "Passo 1 de 2 do setup TOTP. QR code grande no centro pra escanear no app autenticador, com o segredo em texto logo abaixo (copy-to-clipboard) pra quem não consegue escanear. Embaixo, input de 6 dígitos pra confirmar.",
-    decisions: "Código correto → códigos de backup. Voltar → trava de 2FA.",
+    purpose: "QR code pra escanear no app de verificação do celular, com o código em texto pra copiar. Campo de 6 dígitos pra confirmar que o app foi pareado.",
+    decisions: "Código correto → códigos de backup. Voltar → 'Ativar verificação em duas etapas'.",
   },
   {
     step: "02g",
     title: "Códigos de backup",
     href: "/awsales/login?screen=mfaBackupCodes",
-    purpose: "Passo 2 de 2 do setup TOTP. Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
-    decisions: "Marcar checkbox + Concluir → segue pro 'Concluído'.",
+    purpose: "Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    decisions: "Marcar checkbox + Concluir → concluído.",
   },
   {
     step: "02h",
-    title: "Verificação MFA",
+    title: "Confirmar código",
     href: "/awsales/login?screen=mfaVerify",
-    purpose: "Caminho mais comum aqui: o usuário já tinha TOTP configurado na org principal e a nova org também exige 2FA. Input de 6 dígitos do app autenticador. Link 'Usar código de backup' como fallback se perdeu o app.",
-    decisions: "Código correto → concluído. Usar código de backup → 'Usar código de backup'. Sair → volta pro login.",
+    purpose: "Pra quem já tem o app de verificação configurado em outra organização. Campo de 6 dígitos do app. Link 'Usar código de backup' como fallback.",
+    decisions: "Código correto → concluído. Usar código de backup → 'Usar código de backup'.",
   },
   {
     step: "02i",
     title: "Usar código de backup",
     href: "/awsales/login?screen=mfaRecovery",
-    purpose: "Fallback de MFA quando o usuário perdeu acesso ao app autenticador. Entra um dos 10 códigos de backup salvos no setup TOTP. Cada código é one-shot.",
-    decisions: "Código válido → concluído. Voltar pro app autenticador → 'Verificação MFA'.",
+    purpose: "Fallback de quem perdeu acesso ao app de verificação. Entra um dos 10 códigos de backup salvos no setup. Cada código é one-shot.",
+    decisions: "Código válido → concluído. Voltar pro app de verificação → 'Confirmar código'.",
   },
   {
     step: "03",
@@ -288,10 +315,10 @@ export default function OrganizacaoAdicionalFlowPage() {
   return (
     <>
       <PageHero
-        title="Configurar organização adicional"
+        title="Organização adicional"
         trailing={<FlowUpdatesBadge updates={updates} />}
       >
-        Subflow disparado a partir da decisão D7 do{" "}
+        Subflow disparado a partir do{" "}
         <Link
           href="/bombardier/styleguide/ux-flows/login-auth"
           className="text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
@@ -304,19 +331,12 @@ export default function OrganizacaoAdicionalFlowPage() {
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
-        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
-          Três etapas lineares: contrato da nova organização → pagamento (Pix, Cartão ou
-          Boleto) → confirmação. Quando o usuário escolhe adiar no login, ele cai direto
-          em /inicio com um banner persistente lembrando da pendência — esse banner some
-          assim que a configuração é concluída.
-        </p>
-
         <Section
           id="flow"
           title="Fluxograma"
           lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações."
         >
-          <FlowDiagram flow="organizacao-adicional" nodes={NODES} edges={EDGES} height={1820} />
+          <FlowDiagram flow="organizacao-adicional" nodes={NODES} edges={EDGES} height={1180} />
         </Section>
 
         <Section
@@ -364,28 +384,9 @@ export default function OrganizacaoAdicionalFlowPage() {
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Disparado por D7 do login</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Não existe entrada direta para esse fluxo — o usuário chega aqui sempre pela decisão D7 do{" "}
-                <Link
-                  href="/bombardier/styleguide/ux-flows/login-auth"
-                  className="text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
-                >
-                  login
-                </Link>
-                {" "}ou pelo banner persistente no /inicio quando adiou.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Adiar é uma opção, não uma pendência ignorada</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
                 Quem comprou o plano correndo pode entrar na plataforma usando outra organização. O banner persistente em /inicio garante que a pendência fique visível até ser resolvida — sem bloquear o trabalho.
-              </p>
-            </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
-              <div className="aw-eyebrow mb-2">Mesmos componentes de pagamento</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                A etapa de pagamento reusa o seletor de método e instrumentos do primeiro acesso. Cliente já conhece a tela — menos surpresa, menos chance de erro.
               </p>
             </div>
           </div>
