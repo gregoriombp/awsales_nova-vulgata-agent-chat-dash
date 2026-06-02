@@ -27,6 +27,7 @@ skills-lock.json
 # Docs de contexto do agente (AGENTS.md, CLAUDE.md, BOMBARDIER.md, AWSALES_CONTEXT.md) e
 # scripts/sync-design2.sh são RASTREADOS no origin e removidos do mirror design2 pelo script
 # de sync — NÃO ignore aqui. A STRIP list canônica vive em scripts/sync-design2.sh:PRIVATE_PATHS.
+# .mcp.json também é RASTREADO no origin como config MCP sem segredos e removido do design2.
 
 # next.js
 /.next/

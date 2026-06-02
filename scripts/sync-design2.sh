@@ -15,7 +15,7 @@ set -euo pipefail
 # Cobre o diretório .claude/skills/ INTEIRO — qualquer skill ali (incl. globais copiadas) é
 # removida do design2 automaticamente. Mantida em sincronia com o comentário-âncora no .gitignore.
 PRIVATE_PATHS=(
-  ".claude/skills" ".claude/settings.json"
+  ".claude/skills" ".claude/settings.json" ".mcp.json"
   "AGENTS.md" "CLAUDE.md" "AWSALES_CONTEXT.md" "BOMBARDIER.md"
   "scripts/sync-design2.sh"
 )
