@@ -1,6 +1,6 @@
 # AwSales
 
-Plataforma de agentes de IA para vendas. Construída com o método **Bombardier** (design-as-product) — design system, telas e fluxos compõem um produto único, prototipado direto em código.
+Plataforma de agentes de IA para vendas, atendimento e CX para empresas Enterprise.. Construída com o método **Bombardier** (design-as-product) — design system, telas e fluxos compõem um produto único, prototipado direto em código.
 
 ## Stack
 
