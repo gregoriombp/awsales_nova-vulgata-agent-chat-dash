@@ -123,12 +123,17 @@ export const navigation: NavSection[] = [
     ],
   },
   {
-    title: "UX Flows",
+    title: "Onboarding",
     items: [
       { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
-      { name: "Login e autenticação", href: "/bombardier/styleguide/ux-flows/login-auth" },
-      { name: "Configurar organização adicional", href: "/bombardier/styleguide/ux-flows/organizacao-adicional" },
       { name: "Convite de membro", href: "/bombardier/styleguide/ux-flows/convite-membro" },
+      { name: "Organização adicional", href: "/bombardier/styleguide/ux-flows/organizacao-adicional" },
+    ],
+  },
+  {
+    title: "Acesso",
+    items: [
+      { name: "Login", href: "/bombardier/styleguide/ux-flows/login-auth" },
     ],
   },
 ]
