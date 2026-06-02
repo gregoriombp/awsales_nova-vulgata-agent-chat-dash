@@ -4153,6 +4153,7 @@
   overflow: hidden;
 }
 .aw-sheet--wide { width: 1080px; }
+.aw-sheet--xwide { width: 1440px; }
 @keyframes aw-sheet-in {
   from { transform: translateX(100%); }
   to   { transform: none; }

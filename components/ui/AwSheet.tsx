@@ -5,7 +5,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog"
 import { cn } from "@/lib/utils"
 import { Icon } from "./Icon"
 
-export type AwSheetSize = "default" | "wide"
+export type AwSheetSize = "default" | "wide" | "xwide"
 
 export type AwSheetProps = {
   open: boolean
@@ -16,7 +16,7 @@ export type AwSheetProps = {
   footer?: React.ReactNode
   children: React.ReactNode
   dismissible?: boolean
-  /** "default" (520px) for detail views, "wide" (1080px) for two-pane editors. */
+  /** "default" (520px) for detail views, "wide" (1080px) for two-pane editors, "xwide" (1440px) for full prototype previews. */
   size?: AwSheetSize
   /** Hotkeys to navigate between items in the parent list (↑/↓). */
   onPrev?: () => void

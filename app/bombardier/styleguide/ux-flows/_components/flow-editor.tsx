@@ -543,6 +543,10 @@ export function FlowDiagram({
   const [editNodes, setEditNodes, onEditNodesChange] = useNodesState(canonicalNodes)
   const [editEdges, setEditEdges, onEditEdgesChange] = useEdgesState(canonicalEdges)
 
+  // View-mode dragging: estado separado pra qualquer um reorganizar os cards
+  // sem persistir — um refresh re-inicia dos nós canônicos (layout padrão).
+  const [viewNodes, , onViewNodesChange] = useNodesState(canonicalNodes)
+
   const [editMode, setEditMode] = useState(false)
   const [previewSugg, setPreviewSugg] = useState<Suggestion | null>(null)
   const [showSave, setShowSave] = useState(false)
@@ -757,7 +761,7 @@ export function FlowDiagram({
 
   const editingNode = editingNodeId ? editNodes.find((n) => n.id === editingNodeId) ?? null : null
 
-  const displayNodes = editMode ? editNodes : previewSugg ? previewSugg.nodes : canonicalNodes
+  const displayNodes = editMode ? editNodes : previewSugg ? previewSugg.nodes : viewNodes
   const displayEdges = editMode ? editEdges : previewSugg ? previewSugg.edges : canonicalEdges
 
   const errorMessage =
@@ -798,17 +802,17 @@ export function FlowDiagram({
 
         <div
           className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
-          style={{ backgroundColor: "var(--bg-muted)", height }}
+          style={{ backgroundColor: "var(--bg-muted)", height: 800 }}
         >
           <ReactFlow
             nodes={displayNodes}
             edges={displayEdges}
             nodeTypes={nodeTypes}
-            onNodesChange={editMode ? onEditNodesChange : undefined}
+            onNodesChange={editMode ? onEditNodesChange : previewSugg ? undefined : onViewNodesChange}
             onEdgesChange={editMode ? onEditEdgesChange : undefined}
             onConnect={editMode ? onConnect : undefined}
             onNodeClick={onNodeClick}
-            nodesDraggable={editMode}
+            nodesDraggable={editMode || !previewSugg}
             nodesConnectable={editMode}
             elementsSelectable={editMode}
             deleteKeyCode={editMode ? ["Backspace", "Delete"] : null}
@@ -1229,12 +1233,15 @@ function ScreenPreviewDrawer({
     <AwSheet
       open={open}
       onClose={onClose}
-      size="wide"
+      size="xwide"
       title={screen?.title ?? ""}
       meta={
         screen ? (
-          <span className="flex items-baseline gap-2">
+          <span className="flex items-baseline gap-2 flex-wrap">
             <span className="aw-eyebrow text-[var(--aw-blue-700)]">{screen.step}</span>
+            {hasPrototype && (
+              <span className="text-xs text-[var(--fg-tertiary)]">{href}</span>
+            )}
             {hasPrototype && !external && (
               <a
                 href={href}
