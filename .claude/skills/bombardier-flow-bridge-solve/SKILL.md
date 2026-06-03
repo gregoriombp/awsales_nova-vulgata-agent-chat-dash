@@ -23,10 +23,11 @@ Lê o flow-bridge, planeja as mudanças no código canônico da página do
 flow, implementa, e devolve cada sugestão como `in_review` pro usuário
 aprovar pelo inbox da página.
 
-> Pré-requisito: o servidor já está rodando. Se não estiver, invocar
-> `bombardier-flow-bridge` primeiro.
+> Pré-requisito: o dev server do Next (`npm run dev`) está no ar — é onde
+> vive a rota same-origin `/api/flow-suggestions`. **Não há servidor
+> separado nem token** (cutover serverless feito).
 >
-> Arquitetura, endpoints e payloads completos: `flow-bridge/README.md`.
+> Persistência: `flow-bridge/data/suggestions.json` (+ `.archive.json`).
 
 ## Regra de ouro
 
@@ -58,17 +59,23 @@ Se for outro modelo rodando em paralelo, use id estável diferente
 
 ## Fluxo
 
-### 0. Setup — ler env e validar bridge
+### 0. Setup — ler as sugestões
+
+Não há token nem servidor separado. Leia direto o arquivo do repo (mais
+robusto) ou via a rota same-origin se o dev server estiver no ar:
 
 ```bash
-TOKEN=$(grep BOMBARDIER_FLOW_TOKEN flow-bridge/.env | cut -d= -f2-)
-BRIDGE_URL=$(grep NEXT_PUBLIC_BOMBARDIER_FLOW_BRIDGE_URL .env.local | cut -d= -f2-)
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:9879}
-curl -s "$BRIDGE_URL/health" \
-  | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==1, d"
+# Opção A (preferida): ler o arquivo direto com a Read tool
+#   flow-bridge/data/suggestions.json   (abertas + in_review)
+#   flow-bridge/data/suggestions.archive.json   (applied/discarded)
+
+# Opção B: via rota (dev server no ar) — sem token
+curl -s "http://localhost:3000/api/flow-suggestions?status=open" | python3 -m json.tool
 ```
 
-Se falhar, parar e pedir pra rodar `bombardier-flow-bridge` primeiro.
+Pra **marcar `in_review`** no fim você precisa do dev server no ar (a rota faz
+a transição). Se ele estiver fora, edite o JSON direto (mude `status` pra
+`"in_review"` e adicione `resolution`) — mesmo efeito.
 
 ### 1. Parsear o filtro da request do usuário
 
@@ -84,8 +91,9 @@ Se falhar, parar e pedir pra rodar `bombardier-flow-bridge` primeiro.
 ### 2. Buscar e priorizar
 
 ```bash
-curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open" \
-  | python3 -m json.tool > /tmp/flow-bridge-open.json
+curl -s "http://localhost:3000/api/flow-suggestions?status=open" \
+  | python3 -m json.tool > /tmp/flow-suggestions-open.json
+# (ou leia flow-bridge/data/suggestions.json direto e filtre status == "open")
 ```
 
 Ordem padrão: mais antigas primeiro (FIFO). Empate: mesmo `flow` em bloco
@@ -137,8 +145,7 @@ Pra cada sugestão marcada como **aplicar**:
 4. Marcar a sugestão como `in_review` no bridge:
 
 ```bash
-curl -s -X PUT "$BRIDGE_URL/suggestions/$ID" \
-  -H "X-Flow-Token: $TOKEN" \
+curl -s -X PUT "http://localhost:3000/api/flow-suggestions/$ID" \
   -H "Content-Type: application/json" \
   -d '{
     "transition": "in_review",
@@ -179,10 +186,10 @@ A resposta inclui `resolution.summary` no formato:
 
 - ❌ Não use `transition: "apply"` nem `transition: "discard"` — só o user
   humano aprova/descarta pelo inbox da página.
-- ❌ Não delete sugestões direto (`DELETE /suggestions/:id`).
+- ❌ Não delete sugestões direto (`DELETE /api/flow-suggestions/:id`).
 - ❌ Não toque em sugestões com `status: "in_review"` (já estão na fila do user).
-- ❌ Não toque em sugestões do arquivo (`/suggestions/archive`) a menos que
-  o user pergunte explicitamente.
+- ❌ Não toque em sugestões do arquivo (`flow-bridge/data/suggestions.archive.json`)
+  a menos que o user pergunte explicitamente.
 - ❌ Não introduza novos tokens de cor / spacing / etc. — sempre use os
   já definidos em `globals.css`.
 - ❌ Não reorganize componentes/imports do `page.tsx` que não foram
@@ -197,7 +204,7 @@ A resposta inclui `resolution.summary` no formato:
 
 ```bash
 TODAY_MS=$(python3 -c "import datetime;t=datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0);print(int(t.timestamp()*1000))")
-curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open" \
+curl -s "http://localhost:3000/api/flow-suggestions?status=open" \
   | TODAY_MS=$TODAY_MS python3 -c "
 import sys, json, os
 d = json.load(sys.stdin)
@@ -210,19 +217,21 @@ print(json.dumps({'count': len(hoje), 'ids': [s['id'] for s in hoje]}, indent=2)
 ### Tudo aberto de um flow
 
 ```bash
-curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=open&flow=login-auth"
+curl -s "http://localhost:3000/api/flow-suggestions?status=open&flow=login-auth"
 ```
 
 ### Uma sugestão específica
 
 ```bash
-curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions/abc12345"
+# A rota não tem GET por id; pegue da listagem e filtre, ou leia o JSON direto.
+curl -s "http://localhost:3000/api/flow-suggestions" \
+  | python3 -c "import sys,json;print([s for s in json.load(sys.stdin)['suggestions'] if s['id']=='abc12345'])"
 ```
 
 ### Sugestões que ficaram pendentes pra você revisar (pós-execução)
 
 ```bash
-curl -s -H "X-Flow-Token: $TOKEN" "$BRIDGE_URL/suggestions?status=in_review" \
+curl -s "http://localhost:3000/api/flow-suggestions?status=in_review" \
   | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
@@ -236,8 +245,8 @@ for s in d['suggestions']:
 
 | Sintoma | Causa | Como contornar |
 |---|---|---|
-| `401` | token errado | reler `flow-bridge/.env` (linha pode ter espaço extra) |
+| rota não responde / `ECONNREFUSED` | dev server (`npm run dev`) fora do ar | subir o dev server, ou editar `flow-bridge/data/suggestions.json` direto |
 | `404` numa transition | sugestão já arquivada/deletada | pular do lote |
-| `400 invalid_actor` | esqueci `actor` no body | sempre incluir `{kind,id,name}` |
+| `400 transition inválida` | `transition` faltando/errada no body | usar só `in_review` \| `apply` \| `discard` \| `reject` |
 | 0 sugestões retornadas | filtro restritivo demais | tirar `flow=` e ver listagem cheia primeiro |
 | Diff complicado demais pra um lote | abortar o lote, fatiar por flow, pedir confirmação | "vou aplicar só o do flow X primeiro, ok?" |

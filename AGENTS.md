@@ -125,7 +125,8 @@ Each lives in `.claude/skills/<name>/SKILL.md` (except `bombardier-generate.md`,
 | Skill | When to use |
 |---|---|
 | `bombardier-review-bridge` / `bombardier-review-bridge-solve` | Start the Review Mode comment server / batch-resolve comments. |
-| `bombardier-flow-bridge` / `bombardier-flow-bridge-solve` | Start the UX-flow suggestion server / apply suggestions. |
+| `bombardier-flow-bridge-solve` | Apply UX-flow suggestions (read from `flow-bridge/data/suggestions.json` via the same-origin `/api/flow-suggestions` route). |
+| `bombardier-flow-bridge` | **Obsolete** — the flow editor is serverless now (no server to start); the skill just explains the cutover. |
 
 The DS skills are **generic and Aw-prefix-blind** — they emit `components/CustomWidget.tsx`-style output (root zone, no prefix, showcase at `components/[name]/`). So you MUST apply this file's convention on top of their output: rename → `Aw[Name]`, move to `components/ui/`, showcase at `aw-[name]/`, import only `Aw*`.
 

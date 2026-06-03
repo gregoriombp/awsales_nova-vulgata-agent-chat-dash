@@ -139,6 +139,13 @@ Pra cada comentário marcado como **implementar**:
 1. Ler o arquivo da página (`comment.url` → mapear pra `app/.../page.tsx`
    ou o componente correspondente). Anchor tem `viewportWidth/Height` e
    `scrollY` — use só pra contexto, não pra precisão pixel-perfect.
+   - **Comentário de UX flow** (`comment.origin === "ux-flow"`): foi deixado
+     no diagrama de um flow do styleguide. Tem `flowRef: { flow, nodeId,
+     nodeLabel }` — a correção vai nos arrays `NODES`/`EDGES` de
+     `app/bombardier/styleguide/ux-flows/<flow>/page.tsx` (o nó é `flowRef.nodeId`).
+     Trate como uma edição de fluxo (mesma lógica de `bombardier-update-ux-flow`)
+     e registre changelog se for mudança estrutural. Depois marque o comment
+     `in_review` igual aos demais.
 2. Implementar a correção no código com Edit/Write.
 3. Marcar o comment como `in_review`:
 
