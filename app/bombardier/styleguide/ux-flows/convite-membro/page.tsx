@@ -301,7 +301,7 @@ const EDGES: Edge[] = [
 
   // ── Ramo de verificação: verify → concluído, com fallback de backup ──
   { ...edgeBase,   id: "e-mfaVerify-concluido",   source: "mfaVerify",   target: "concluido" },
-  { ...branchEdge, id: "e-mfaVerify-mfaRecovery", source: "mfaVerify",   target: "mfaRecovery", sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...branchEdge, id: "e-mfaVerify-mfaRecovery", source: "mfaVerify",   target: "mfaRecovery", label: "Usar backup", ...labelProps },
   { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery", target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-plataforma", source: "concluido", target: "plataforma" },
@@ -418,6 +418,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-03",
+    summary:
+      "Bug de aresta solta corrigido: o ramo de 2FA (confirmar código → usar backup) aparecia desconectado porque a saída da tela apontava pra uma âncora que só existe em decisões.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-06-01",
     summary:

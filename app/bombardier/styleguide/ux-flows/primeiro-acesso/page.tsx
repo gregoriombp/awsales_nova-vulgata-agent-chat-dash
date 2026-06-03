@@ -218,7 +218,7 @@ const EDGES: Edge[] = [
   { ...branchEdge, id: "e-linkValido-utilizado",   source: "linkValido", target: "linkUtilizado", sourceHandle: "right", label: "Já utilizado",   ...labelProps },
   { ...branchEdge, id: "e-linkValido-cancelado",   source: "linkValido", target: "linkCancelado", sourceHandle: "right", label: "Cancelado",      ...labelProps },
   { ...edgeBase, id: "e-verificacao-conta", source: "verificacao", target: "conta" },
-  { ...edgeBase, id: "e-conta-perfil", source: "conta", target: "perfil", sourceHandle: "bottom" },
+  { ...edgeBase, id: "e-conta-perfil", source: "conta", target: "perfil" },
 
   // ── Pagamento inline: perfil → contrato → método → Pix/Cartão/Boleto ──
   { ...edgeBase, id: "e-perfil-contrato", source: "perfil", target: "contrato" },
@@ -243,7 +243,7 @@ const EDGES: Edge[] = [
 
   // ── 2FA · ramo de verificação: verify → concluído, com fallback de backup ──
   { ...edgeBase,   id: "e-mfaVerify-concluido",   source: "mfaVerify",   target: "concluido" },
-  { ...branchEdge, id: "e-mfaVerify-mfaRecovery", source: "mfaVerify",   target: "mfaRecovery", sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...branchEdge, id: "e-mfaVerify-mfaRecovery", source: "mfaVerify",   target: "mfaRecovery", label: "Usar backup", ...labelProps },
   { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery", target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-final",  source: "concluido", target: "finalDecision" },
@@ -390,6 +390,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-03",
+    summary:
+      "Bug de arestas soltas corrigido: 'Sua conta → Seu perfil' e o ramo de 2FA (confirmar código → usar backup) apareciam desconectados porque saíam por âncoras laterais que só existiam em decisões. Agora reconectados.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-06-01",
     summary:

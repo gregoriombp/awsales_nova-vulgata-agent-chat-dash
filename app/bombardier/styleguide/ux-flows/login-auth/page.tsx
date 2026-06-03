@@ -4,7 +4,7 @@ import Link from "next/link"
 import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
-import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
+import { branchEdge, crossEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
 import {
   FlowUpdatesBadge,
   FlowUpdatesHistorySection,
@@ -185,9 +185,9 @@ const NODES: Node[] = [
   },
   {
     id: "novaOrgConfig",
-    type: "screen",
+    type: "crossflow",
     position: { x: NOVA_ORG_X, y: Y.novaOrgConfig },
-    data: { step: "→ org adicional", title: "Configurar plano adicional", href: "/organizacao-adicional", note: "Contrato + pagamento (sem perfil — já existe)." },
+    data: { step: "→ org adicional", title: "Organização adicional", href: "/bombardier/styleguide/ux-flows/organizacao-adicional", note: "Contrato + pagamento da nova organização (sem perfil — já existe)." },
   },
   // ── Left corridor — OAuth Google + primeiro-acesso terminal ────────
   {
@@ -198,9 +198,9 @@ const NODES: Node[] = [
   },
   {
     id: "primeiroAcesso",
-    type: "screen",
+    type: "crossflow",
     position: { x: PRIMO_TERM_X, y: Y.primeiroAcesso },
-    data: { step: "→ onboarding", title: "Fluxo de primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso", note: "Backend redireciona para onboarding (perfil, contrato, pagamento)." },
+    data: { step: "→ onboarding", title: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso", note: "Backend redireciona para onboarding (perfil, contrato, pagamento)." },
   },
   // ── Right corridor — OAuth Microsoft ──────────────────────────────
   {
@@ -287,16 +287,16 @@ const EDGES: Edge[] = [
 
   // ── Ramo de verificação: verify → convergência, com fallback de backup ──
   { ...edgeBase,   id: "e-mfaverify-primacesso",  source: "mfaVerify",   target: "primeiroAcessoDec" },
-  { ...branchEdge, id: "e-mfaverify-mfarecovery", source: "mfaVerify",   target: "mfaRecovery",       sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...branchEdge, id: "e-mfaverify-mfarecovery", source: "mfaVerify",   target: "mfaRecovery",       label: "Usar backup", ...labelProps },
   { ...edgeBase,   id: "e-mfarecovery-primacesso", source: "mfaRecovery", target: "primeiroAcessoDec" },
 
   // ── Recuperação de senha: verify bifurca por modo (login → workspace, reset → resetSenha) ──
   { ...branchEdge, id: "e-verify-reset",            source: "verify",       target: "resetSenha",         sourceHandle: "right", label: "Recuperação", ...labelProps },
 
   // ── Post-auth decisions (D7 onboarding | D8 nova org adicional) ──
-  { ...branchEdge, id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
+  { ...crossEdge,  id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
   { ...branchEdge, id: "e-primacesso-novaorgdec", source: "primeiroAcessoDec", target: "novaOrgDec",     sourceHandle: "bottom", label: "Já cadastrado",   ...labelProps },
-  { ...branchEdge, id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
+  { ...crossEdge,  id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
   { ...branchEdge, id: "e-novaorgdec-platform",   source: "novaOrgDec",        target: "platform",       sourceHandle: "bottom", label: "Mais tarde",      ...labelProps },
 
   // ── Recovery: erro inline → "Esqueci a senha" → verify (em modo reset) → resetSenha ──
@@ -457,6 +457,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-03",
+    summary:
+      "Saltos pra outros fluxos ('Primeiro acesso' e 'Organização adicional') viraram nós de outro fluxo — losango roxo com modal de confirmação ao clicar. Antes eram cards comuns; o de org adicional ainda apontava pra rota de produto incompleta. Aresta solta do 2FA (confirmar código → usar backup) reconectada.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-06-01",
     summary:

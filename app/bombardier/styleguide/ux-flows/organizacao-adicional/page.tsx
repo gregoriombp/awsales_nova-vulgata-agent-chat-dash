@@ -4,7 +4,7 @@ import Link from "next/link"
 import type { Edge, Node } from "@xyflow/react"
 
 import { PageHero, Section } from "../../_primitives"
-import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
+import { branchEdge, crossEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
 import {
   FlowUpdatesBadge,
   FlowUpdatesHistorySection,
@@ -45,11 +45,11 @@ const Y = {
 const NODES: Node[] = [
   {
     id: "entrada",
-    type: "screen",
+    type: "crossflow",
     position: { x: COL, y: Y.entrada },
     data: {
-      step: "entrada",
-      title: "Vindo do login (usuário já tem conta)",
+      step: "← login",
+      title: "Login",
       href: "/bombardier/styleguide/ux-flows/login-auth",
       note: "Entrada vinda do login: plano comprado, organização ainda não configurada.",
     },
@@ -151,7 +151,7 @@ const labelProps = {
 }
 
 const EDGES: Edge[] = [
-  { ...edgeBase, id: "e-entrada-contrato", source: "entrada", target: "contrato", label: "Configurar agora", ...labelProps },
+  { ...crossEdge, id: "e-entrada-contrato", source: "entrada", target: "contrato", label: "Configurar agora", ...labelProps },
   { ...edgeBase, id: "e-contrato-pagamento", source: "contrato", target: "pagamento" },
 
   // ── Pagamento → métodos ──────────────────────────────────────────
@@ -177,7 +177,7 @@ const EDGES: Edge[] = [
 
   // ── Ramo de verificação: verify → concluído, com fallback de backup ──
   { ...edgeBase,   id: "e-mfaVerify-concluido",  source: "mfaVerify",   target: "concluido" },
-  { ...branchEdge, id: "e-mfaVerify-recovery",   source: "mfaVerify",   target: "mfaRecovery", sourceHandle: "bottom", label: "Usar backup", ...labelProps },
+  { ...branchEdge, id: "e-mfaVerify-recovery",   source: "mfaVerify",   target: "mfaRecovery", label: "Usar backup", ...labelProps },
   { ...edgeBase,   id: "e-mfaRecovery-concluido", source: "mfaRecovery", target: "concluido" },
 
   { ...edgeBase, id: "e-concluido-retorno", source: "concluido", target: "retorno", label: "Acessar plataforma", ...labelProps },
@@ -280,6 +280,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-03",
+    summary:
+      "Entrada do subflow ('vem do Login') virou nó de outro fluxo — losango roxo que abre o fluxo de Login com modal de confirmação. Aresta solta do 2FA (confirmar código → usar backup) reconectada.",
+    tags: ["flow-rework"],
+  },
   {
     date: "2026-05-29",
     time: "15:58 BRT",

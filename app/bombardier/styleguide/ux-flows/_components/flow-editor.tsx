@@ -20,6 +20,8 @@ import {
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
+import { useRouter } from "next/navigation"
+
 import { AwSheet } from "@/components/ui/AwSheet"
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -133,6 +135,10 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
         {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
       </div>
       <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
+      {/* Saídas laterais — anclam arestas que precisam sair pro lado (mesma
+          linha ou coluna vizinha). Invisíveis: só servem de âncora pra linha. */}
+      <Handle id="left"  type="source" position={Position.Left}  style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
+      <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
       {mode === "edit" && <EditPencil id={id} />}
     </div>
   )
@@ -155,7 +161,38 @@ export function DecisionNode({ id, data }: NodeProps<Node<DecisionData>>) {
   )
 }
 
-export const nodeTypes = { screen: ScreenNode, decision: DecisionNode }
+/**
+ * CrossFlowNode — marca o ponto onde o caminho sai DESTE fluxo e entra em
+ * OUTRO fluxo do styleguide. Forma e cor diferentes de propósito: losango
+ * (quadrado girado 45°) roxo, pra não se confundir com tela (card azul) nem
+ * decisão (caixa âmbar). Clicar abre um modal confirmatório antes de navegar.
+ * Reusa o shape de ScreenData — `href` é a rota do outro fluxo, `title` o nome.
+ */
+export function CrossFlowNode({ id, data }: NodeProps<Node<ScreenData>>) {
+  const { mode } = useContext(FlowEditorContext)
+  const cursor = mode === "view" ? "cursor-pointer" : ""
+  return (
+    <div className={`group relative w-[184px] h-[150px] ${cursor}`}>
+      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
+      {/* O losango em si — quadrado girado 45°. */}
+      <div className="absolute left-1/2 top-1/2 h-[106px] w-[106px] -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[var(--radius-md)] border-2 border-[var(--aw-purple-400)] bg-[var(--aw-purple-100)] shadow-[var(--shadow-sm)] transition group-hover:border-[var(--aw-purple-500)] group-hover:bg-[var(--aw-purple-150)] group-hover:shadow-[var(--shadow-md)]" />
+      {/* Conteúdo na horizontal, centralizado sobre o losango. */}
+      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6 text-center">
+        <span className="aw-eyebrow inline-flex items-center gap-1 text-[var(--aw-purple-700)]">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          outro fluxo
+        </span>
+        <span className="text-[13px] font-semibold leading-tight text-[var(--aw-purple-900)]">{data.title}</span>
+      </div>
+      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
+      {mode === "edit" && <EditPencil id={id} />}
+    </div>
+  )
+}
+
+export const nodeTypes = { screen: ScreenNode, decision: DecisionNode, crossflow: CrossFlowNode }
 
 /* ─────────────────────────────────────────────────────────────────────
  * Edge styling — exported so flow pages can keep using the same look
@@ -173,6 +210,13 @@ export const branchEdge: Partial<Edge> = {
   ...edgeBase,
   style: { stroke: "var(--aw-amber-500)", strokeWidth: 1.5 },
   markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: "var(--aw-amber-500)" },
+}
+
+// Aresta roxa, tracejada — sinaliza a transição pra outro fluxo (liga a/de um CrossFlowNode).
+export const crossEdge: Partial<Edge> = {
+  ...edgeBase,
+  style: { stroke: "var(--aw-purple-500)", strokeWidth: 1.5, strokeDasharray: "5 3" },
+  markerEnd: { type: MarkerType.ArrowClosed, width: 18, height: 18, color: "var(--aw-purple-500)" },
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -270,12 +314,17 @@ function useFlowSuggestions(flow: string) {
 
 type NodeDraft =
   | { kind: "screen"; step: string; title: string; href: string; note: string }
+  | { kind: "crossflow"; step: string; title: string; href: string; note: string }
   | { kind: "decision"; step: string; title: string; question: string }
 
 function toDraft(node: Node): NodeDraft {
   if (node.type === "decision") {
     const d = node.data as DecisionData
     return { kind: "decision", step: d.step ?? "", title: d.title ?? "", question: d.question ?? "" }
+  }
+  if (node.type === "crossflow") {
+    const d = node.data as ScreenData
+    return { kind: "crossflow", step: d.step ?? "", title: d.title ?? "", href: d.href ?? "#", note: d.note ?? "" }
   }
   const d = node.data as ScreenData
   return { kind: "screen", step: d.step ?? "", title: d.title ?? "", href: d.href ?? "#", note: d.note ?? "" }
@@ -293,17 +342,17 @@ function NodeEditModal({
   const [draft, setDraft] = useState<NodeDraft>(() => toDraft(target))
 
   function commit() {
-    if (draft.kind === "screen") {
-      onSave({
-        ...target,
-        type: "screen",
-        data: { step: draft.step, title: draft.title, href: draft.href || "#", note: draft.note || undefined },
-      })
-    } else {
+    if (draft.kind === "decision") {
       onSave({
         ...target,
         type: "decision",
         data: { step: draft.step, title: draft.title, question: draft.question },
+      })
+    } else {
+      onSave({
+        ...target,
+        type: draft.kind, // "screen" | "crossflow"
+        data: { step: draft.step, title: draft.title, href: draft.href || "#", note: draft.note || undefined },
       })
     }
   }
@@ -316,12 +365,14 @@ function NodeEditModal({
       >
         <div>
           <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">
-            Editar {draft.kind === "screen" ? "tela" : "decisão"}
+            Editar {draft.kind === "decision" ? "decisão" : draft.kind === "crossflow" ? "salto de fluxo" : "tela"}
           </h2>
           <p className="text-sm text-[var(--fg-secondary)] mt-1 m-0">
-            {draft.kind === "screen"
-              ? "Título aparece no card. A descrição explica pra que essa tela serve. Link aponta pro protótipo."
-              : "Título aparece no card. A pergunta deixa clara qual decisão o fluxo está tomando."}
+            {draft.kind === "decision"
+              ? "Título aparece no card. A pergunta deixa clara qual decisão o fluxo está tomando."
+              : draft.kind === "crossflow"
+                ? "Título é o nome do outro fluxo. O link aponta pra rota desse fluxo no styleguide."
+                : "Título aparece no card. A descrição explica pra que essa tela serve. Link aponta pro protótipo."}
           </p>
         </div>
 
@@ -340,13 +391,13 @@ function NodeEditModal({
             <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Título</label>
             <input
               type="text" value={draft.title}
-              placeholder={draft.kind === "screen" ? "ex: Login" : "ex: Credenciais válidas?"}
+              placeholder={draft.kind === "decision" ? "ex: Credenciais válidas?" : "ex: Login"}
               onChange={(e) => setDraft({ ...draft, title: e.target.value })}
               className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)]"
             />
           </div>
 
-          {draft.kind === "screen" ? (
+          {draft.kind !== "decision" ? (
             <>
               <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
                 <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Descrição</label>
@@ -435,6 +486,13 @@ const NEW_DECISION_DATA: DecisionData = {
   step: "?",
   title: "Nova decisão",
   question: "Qual condição o fluxo está avaliando aqui?",
+}
+
+const NEW_CROSSFLOW_DATA: ScreenData = {
+  step: "→ fluxo",
+  title: "Outro fluxo",
+  href: "/bombardier/styleguide/ux-flows/",
+  note: "Salto pra outro fluxo do styleguide.",
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -540,6 +598,7 @@ export function FlowDiagram({
   edges: Edge[]
   height?: number
 }) {
+  const router = useRouter()
   const [editNodes, setEditNodes, onEditNodesChange] = useNodesState(canonicalNodes)
   const [editEdges, setEditEdges, onEditEdgesChange] = useEdgesState(canonicalEdges)
 
@@ -556,6 +615,7 @@ export function FlowDiagram({
   const [editingNodeId, setEditingNodeId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [previewScreen, setPreviewScreen] = useState<ScreenData | null>(null)
+  const [confirmFlow, setConfirmFlow] = useState<{ title: string; href: string } | null>(null)
   const [snapEnabled, setSnapEnabled] = useState(true)
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [historyLength, setHistoryLength] = useState(0)
@@ -576,6 +636,11 @@ export function FlowDiagram({
   const onNodeClick = useCallback(
     (event: ReactMouseEvent, node: Node) => {
       if (editMode || previewSugg) return
+      if (node.type === "crossflow") {
+        const data = node.data as ScreenData
+        if (data.href && data.href !== "#") setConfirmFlow({ title: data.title, href: data.href })
+        return
+      }
       if (node.type !== "screen") return
       const data = node.data as ScreenData
       const href = data.href || ""
@@ -623,13 +688,14 @@ export function FlowDiagram({
     setHistoryLength(0)
   }
 
-  function addNode(kind: "screen" | "decision") {
+  function addNode(kind: "screen" | "decision" | "crossflow") {
     const baseX = 200 + Math.random() * 200
     const baseY = 200 + Math.random() * 200
-    const node: Node =
-      kind === "screen"
-        ? { id: nextNodeId(), type: "screen", position: { x: baseX, y: baseY }, data: { ...NEW_SCREEN_DATA } }
-        : { id: nextNodeId(), type: "decision", position: { x: baseX, y: baseY }, data: { ...NEW_DECISION_DATA } }
+    const data =
+      kind === "decision" ? { ...NEW_DECISION_DATA }
+      : kind === "crossflow" ? { ...NEW_CROSSFLOW_DATA }
+      : { ...NEW_SCREEN_DATA }
+    const node: Node = { id: nextNodeId(), type: kind, position: { x: baseX, y: baseY }, data }
     setEditNodes((nodes) => [...nodes, node])
     setEditingNodeId(node.id)
   }
@@ -853,6 +919,9 @@ export function FlowDiagram({
                     <button onClick={() => addNode("decision")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-[var(--aw-amber-900)] font-medium hover:bg-[var(--aw-amber-200)] transition">
                       + Decisão
                     </button>
+                    <button onClick={() => addNode("crossflow")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-purple-100)] border border-[var(--aw-purple-200)] text-[var(--aw-purple-800)] font-medium hover:bg-[var(--aw-purple-150)] transition">
+                      + Outro fluxo
+                    </button>
 
                     <span className="w-px h-4 bg-[var(--border-default)] mx-1" />
 
@@ -1029,11 +1098,79 @@ export function FlowDiagram({
         />
       )}
 
+      {confirmFlow && (
+        <FlowConfirmModal
+          target={confirmFlow}
+          onCancel={() => setConfirmFlow(null)}
+          onConfirm={() => {
+            const href = confirmFlow.href
+            setConfirmFlow(null)
+            router.push(href)
+          }}
+        />
+      )}
+
       <ScreenPreviewDrawer
         screen={previewScreen}
         onClose={() => setPreviewScreen(null)}
       />
     </FlowEditorContext.Provider>
+  )
+}
+
+/* ─────────────────────────────────────────────────────────────────────
+ * FlowConfirmModal — confirmação antes de pular pra outro fluxo. Abre ao
+ * clicar num CrossFlowNode (losango roxo); confirmar navega pro outro fluxo.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function FlowConfirmModal({
+  target,
+  onCancel,
+  onConfirm,
+}: {
+  target: { title: string; href: string }
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onCancel}>
+      <div
+        className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start gap-3.5">
+          <span className="flex-shrink-0 mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] bg-[var(--aw-purple-100)] text-[var(--aw-purple-700)]">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          <div className="flex flex-col gap-1">
+            <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Ir para outro fluxo?</h2>
+            <p className="text-sm text-[var(--fg-secondary)] m-0 leading-relaxed">
+              Você vai sair deste fluxo e abrir o fluxo{" "}
+              <b className="font-medium text-[var(--fg-primary)]">{target.title}</b>. Dá pra voltar a qualquer momento.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-purple-600)] text-white text-sm font-medium hover:bg-[var(--aw-purple-700)] transition"
+          >
+            Ir para {target.title}
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
   )
 }
 
