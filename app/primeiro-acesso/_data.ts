@@ -44,6 +44,8 @@ export const ONBOARDING_ORG = {
   // Valores brutos — números, para o cálculo de parcelas no pagamento.
   valorImplementacao: 12000,
   valorMensal: 2500,
+  // Desconto recorrente opcional — impacta só a mensalidade. `null` = sem desconto (adaptável).
+  descontoMensal: { label: "Desconto de boas-vindas", valor: 250 } as { label: string; valor: number } | null,
   valorMensalProrrata: 1583.33,
   diasRestantesMesAtual: 19,
   diaVencimento: 10,

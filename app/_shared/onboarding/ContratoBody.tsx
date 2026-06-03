@@ -123,6 +123,21 @@ export function ContratoBody({
               </>
             }
           />
+          {org.descontoMensal && (
+            <KV
+              label="Desconto"
+              value={
+                <span className="inline-flex flex-wrap items-center gap-1.5 text-aw-emerald-700">
+                  <span className="tabular-nums">
+                    -{fmtBRL(org.descontoMensal.valor)}
+                  </span>
+                  <span className="font-normal text-fg-tertiary">
+                    /mês · {org.descontoMensal.label}
+                  </span>
+                </span>
+              }
+            />
+          )}
           <KV
             label="Custos variáveis de uso"
             value={
@@ -137,16 +152,14 @@ export function ContratoBody({
           />
         </ContratoSection>
 
-        <div className="mt-4 flex flex-wrap items-center gap-4 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3">
-          <span className="body-xs font-medium flex-shrink-0 text-fg-secondary">
+        <div className="mt-4 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3">
+          <span className="block body-xs font-medium text-fg-secondary">
             Seu time AwSales
           </span>
-          <span
-            aria-hidden="true"
-            className="h-5 w-px bg-border-subtle"
-          />
-          <TeamMember person={org.accountManager} />
-          <TeamMember person={org.representanteComercial} />
+          <div className="mt-3 flex flex-wrap items-center gap-4">
+            <TeamMember person={org.accountManager} />
+            <TeamMember person={org.representanteComercial} />
+          </div>
         </div>
 
         <div className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">

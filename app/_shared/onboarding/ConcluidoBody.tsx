@@ -88,6 +88,19 @@ export function ConcluidoBody({
             sub={parcelaLabel(mensMethod, mensParcelas, totalMens)}
             value={totalMens}
           />
+          {org.descontoMensal && (
+            <div className="mb-2.5 flex items-baseline justify-between">
+              <div>
+                <div className="body-sm font-medium text-aw-emerald-700">Desconto</div>
+                <div className="mt-px body-xs text-fg-tertiary">
+                  {org.descontoMensal.label} · recorrente
+                </div>
+              </div>
+              <div className="body-sm font-medium tabular-nums text-aw-emerald-700">
+                -{fmtBRL(org.descontoMensal.valor)}/mês
+              </div>
+            </div>
+          )}
           <div className="mt-3.5 flex items-baseline justify-between border-t border-border pt-3.5">
             <span className="body-xs text-fg-tertiary">Próxima cobrança</span>
             <span className="body-sm font-medium tabular-nums text-fg-primary">

@@ -19,6 +19,8 @@ export const ADDITIONAL_ORG = {
   limiteUsoVariavel: "R$ 150/mês",
   valorImplementacao: 6000,
   valorMensal: 1200,
+  // Sem desconto de boas-vindas nesta org adicional (campo compartilhado com o primeiro acesso).
+  descontoMensal: null as { label: string; valor: number } | null,
   valorMensalProrrata: 760,
   diasRestantesMesAtual: 19,
   diaVencimento: 10,
