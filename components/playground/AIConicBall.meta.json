@@ -1,6 +1,0 @@
-{
-  "description": "Small rotating AI orb used as a toolbar ornament on Agent Studio V2. Conic-gradient surface plus radial highlight; independent spin duration prop.",
-  "sourcePrompt": "Pull the toolbar AI ball from Agent Studio V2 into a reusable component.",
-  "createdAt": "2026-04-20T00:00:00.000Z",
-  "approval": "pending"
-}

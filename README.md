@@ -26,7 +26,6 @@ Toda a documentação de tokens, foundations, patterns e componentes vive em `/b
 
 Foundations: Design Tokens, Iconografia, Logos, Animação, Acessibilidade, Escrita, Padrões de UI.
 Componentes: 23 registrados oficialmente — entre eles `integration-catalog`, `integration-card`, `connect-modal`, `whatsapp-panel`, `chrome`, `nav-rail`, `nav-list`, `template-builder-sheet`, `chat`, `pills`, `toast`.
-Playground: componentes propostos em `/bombardier/styleguide/components/playground`.
 
 ## Review Mode (anotação colaborativa)
 
