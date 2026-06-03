@@ -15,6 +15,9 @@ export type AwModalProps = {
   footer?: React.ReactNode
   dismissible?: boolean
   size?: AwModalSize
+  /** Override the default stacking (content `1001`, scrim `1000`). The scrim
+   * is placed one below. Used by Review Mode to sit above app-level modals. */
+  zIndex?: number
 }
 
 export function AwModal({
@@ -25,6 +28,7 @@ export function AwModal({
   footer,
   dismissible = true,
   size = "md",
+  zIndex,
 }: AwModalProps) {
   return (
     <DialogPrimitive.Root
@@ -34,11 +38,17 @@ export function AwModal({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="aw-modal-scrim" />
+        <DialogPrimitive.Overlay
+          className="aw-modal-scrim"
+          style={zIndex !== undefined ? { zIndex: zIndex - 1 } : undefined}
+        />
         {/* Radix Portal renders Overlay and Content as siblings; the original
          * .aw-modal-scrim relied on flex centering of its child .aw-modal.
          * This wrapper recreates that centering layer without touching globals.css. */}
-        <div className="fixed inset-0 z-[1001] flex items-center justify-center p-6 pointer-events-none">
+        <div
+          className="fixed inset-0 z-[1001] flex items-center justify-center p-6 pointer-events-none"
+          style={zIndex !== undefined ? { zIndex } : undefined}
+        >
           <DialogPrimitive.Content
             className={cn(
               "aw-modal pointer-events-auto",

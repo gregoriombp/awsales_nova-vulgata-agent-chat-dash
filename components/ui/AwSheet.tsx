@@ -21,6 +21,9 @@ export type AwSheetProps = {
   /** Hotkeys to navigate between items in the parent list (↑/↓). */
   onPrev?: () => void
   onNext?: () => void
+  /** Override the default stacking (content `1001`, scrim `1000`). The scrim
+   * is placed one below. Used by Review Mode to sit above app-level modals. */
+  zIndex?: number
 }
 
 export function AwSheet({
@@ -35,6 +38,7 @@ export function AwSheet({
   size = "default",
   onPrev,
   onNext,
+  zIndex,
 }: AwSheetProps) {
   React.useEffect(() => {
     if (!open) return
@@ -59,12 +63,18 @@ export function AwSheet({
       }}
     >
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="aw-sheet-scrim" />
+        <DialogPrimitive.Overlay
+          className="aw-sheet-scrim"
+          style={zIndex !== undefined ? { zIndex: zIndex - 1 } : undefined}
+        />
         {/* Radix Portal renders Overlay and Content as siblings; the original
          * .aw-sheet-scrim used flex justify-end to dock its child .aw-sheet
          * to the right edge. This wrapper recreates that dock without
          * touching globals.css. */}
-        <div className="fixed inset-0 z-[1001] flex justify-end pointer-events-none">
+        <div
+          className="fixed inset-0 z-[1001] flex justify-end pointer-events-none"
+          style={zIndex !== undefined ? { zIndex } : undefined}
+        >
           <DialogPrimitive.Content
             aria-label={typeof title === "string" ? title : "Painel lateral"}
             className={cn(
