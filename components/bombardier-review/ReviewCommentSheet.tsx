@@ -13,7 +13,7 @@ import { AwSheet } from "@/components/ui/AwSheet"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCurrentUrl } from "@/lib/bombardier-review/hooks"
-import { OVERLAY_DATA_ATTR } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewCommentCard } from "./ReviewCommentCard"
 import type { ReviewComment } from "./types"
 
@@ -110,6 +110,7 @@ export function ReviewCommentSheet() {
     <AwSheet
       open={open}
       onClose={() => setSheetOpen(false)}
+      zIndex={REVIEW_Z.sheet}
       title="Comentários"
       meta={
         <span className="body-xs text-[var(--fg-tertiary)]">

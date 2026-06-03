@@ -5,7 +5,7 @@ import { AwButton } from "@/components/ui/AwButton"
 import { AwInput } from "@/components/ui/AwInput"
 import { AwModal } from "@/components/ui/AwModal"
 import { useReviewStore } from "@/lib/bombardier-review/store"
-import { OVERLAY_DATA_ATTR, REVIEW_PALETTE } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_PALETTE, REVIEW_Z } from "./constants"
 
 export function ReviewIdentityModal() {
   const open = useReviewStore((s) => s.identityModalOpen)
@@ -35,6 +35,7 @@ export function ReviewIdentityModal() {
     <AwModal
       open={open}
       onClose={closeIdentityModal}
+      zIndex={REVIEW_Z.modal}
       title={identity ? "Editar revisor" : "Quem está revisando?"}
       footer={
         <div

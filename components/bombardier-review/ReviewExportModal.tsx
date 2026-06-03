@@ -6,7 +6,7 @@ import { AwModal } from "@/components/ui/AwModal"
 import { Icon } from "@/components/ui/Icon"
 import { useToast } from "@/components/ui/AwToast"
 import { useReviewStore } from "@/lib/bombardier-review/store"
-import { OVERLAY_DATA_ATTR } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import type { ReviewExportPayload } from "./types"
 
 export function ReviewExportModal() {
@@ -73,6 +73,7 @@ export function ReviewExportModal() {
     <AwModal
       open={open}
       onClose={() => setExportOpen(false)}
+      zIndex={REVIEW_Z.modal}
       title="Exportar comentários"
       footer={
         <div

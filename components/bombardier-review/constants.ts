@@ -1,5 +1,22 @@
 export const OVERLAY_DATA_ATTR = "data-bombardier-review"
 
+/**
+ * Review Mode sits ABOVE every product surface a reviewer might want to
+ * annotate — modals and drawers top out at `z-index: 1001` (AwModal/AwSheet
+ * content) — while staying BELOW shared dropdowns and toasts (`1100`). Keeping
+ * the whole band inside the (1001, 1100) gap means the `⋯` menus and toasts
+ * that open *inside* the review surfaces still float above them without
+ * touching those shared components. Internal order mirrors the old
+ * 40/50/55/1001 ladder.
+ */
+export const REVIEW_Z = {
+  canvas: 1050,
+  toolbar: 1055,
+  popover: 1060,
+  sheet: 1065,
+  modal: 1070,
+} as const
+
 export const STORAGE_KEYS = {
   identity: "bombardier-review:identity",
   comments: "bombardier-review:comments",

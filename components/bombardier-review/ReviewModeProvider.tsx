@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useToast } from "@/components/ui/AwToast"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
@@ -10,16 +9,13 @@ import { ReviewCommentPopover } from "./ReviewCommentPopover"
 import { ReviewCommentSheet } from "./ReviewCommentSheet"
 import { ReviewExportModal } from "./ReviewExportModal"
 import { ReviewIdentityModal } from "./ReviewIdentityModal"
+import { ReviewThreadPopover } from "./ReviewThreadPopover"
 import { ReviewToolbar } from "./ReviewToolbar"
-import { SCHEMA_VERSION, STORAGE_KEYS } from "./constants"
-import { safeParseComments } from "./storage/utils"
-import type { ReviewExportPayload } from "./types"
 
 export function ReviewModeProvider() {
   const hydrateIdentity = useReviewStore((s) => s.hydrateIdentity)
   const refreshFromStorage = useReviewStore((s) => s.refreshFromStorage)
   const storage = useReviewStore((s) => s.storage)
-  const backend = useReviewStore((s) => s.backend)
 
   const active = useReviewStore((s) => s.active)
   const toggleActive = useReviewStore((s) => s.toggleActive)
@@ -27,14 +23,12 @@ export function ReviewModeProvider() {
   const setMode = useReviewStore((s) => s.setMode)
   const cancelPending = useReviewStore((s) => s.cancelPending)
   const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
+  const closeThread = useReviewStore((s) => s.closeThread)
   const setActive = useReviewStore((s) => s.setActive)
   const selectComment = useReviewStore((s) => s.selectComment)
   const comments = useReviewStore((s) => s.comments)
   const sheetOpen = useReviewStore((s) => s.sheetOpen)
   const permalinkHandledRef = React.useRef<string | null>(null)
-
-  const { push } = useToast()
-  const migrationPromptedRef = React.useRef(false)
 
   React.useEffect(() => {
     void hydrateIdentity()
@@ -44,61 +38,6 @@ export function ReviewModeProvider() {
     })
     return unsubscribe
   }, [hydrateIdentity, refreshFromStorage, storage])
-
-  React.useEffect(() => {
-    if (backend !== "bridge") return
-    if (migrationPromptedRef.current) return
-    if (typeof window === "undefined") return
-
-    const localComments = safeParseComments(
-      window.localStorage.getItem(STORAGE_KEYS.comments)
-    )
-    if (localComments.length === 0) return
-
-    migrationPromptedRef.current = true
-    push({
-      title: `${localComments.length} comentário${
-        localComments.length === 1 ? "" : "s"
-      } no localStorage`,
-      description:
-        "Quer subir pro review-bridge agora? Os locais ficam preservados até você apagar manualmente.",
-      variant: "info",
-      duration: 0,
-      action: {
-        label: "Importar",
-        onClick: () => {
-          const payload: ReviewExportPayload = {
-            schemaVersion: SCHEMA_VERSION as 3,
-            exportedAt: Date.now(),
-            exportedBy: useReviewStore.getState().identity ?? {
-              id: "local",
-              name: "Local",
-              colorToken: "var(--fg-tertiary)",
-              createdAt: 0,
-            },
-            comments: localComments,
-          }
-          void storage
-            .importMerge(payload)
-            .then((result) => {
-              push({
-                title: "Importado",
-                description: `${result.added} novos · ${result.skipped} já existiam.`,
-                variant: "success",
-              })
-              void refreshFromStorage()
-            })
-            .catch((e) => {
-              push({
-                title: "Falha ao importar",
-                description: e instanceof Error ? e.message : String(e),
-                variant: "error",
-              })
-            })
-        },
-      },
-    })
-  }, [backend, push, refreshFromStorage, storage])
 
   // Permalink: open the review overlay and focus the pin when ?reviewCommentId=… is present.
   React.useEffect(() => {
@@ -151,6 +90,10 @@ export function ReviewModeProvider() {
         setMode("cursor")
         return
       }
+      if (state.threadCommentId) {
+        closeThread()
+        return
+      }
       if (sheetOpen) {
         setSheetOpen(false)
         return
@@ -158,12 +101,13 @@ export function ReviewModeProvider() {
     }
     window.addEventListener("keydown", onKey)
     return () => window.removeEventListener("keydown", onKey)
-  }, [active, cancelPending, setMode, setSheetOpen, sheetOpen])
+  }, [active, cancelPending, setMode, setSheetOpen, closeThread, sheetOpen])
 
   return (
     <React.Suspense fallback={null}>
       <ReviewCanvas />
       <ReviewCommentPopover />
+      <ReviewThreadPopover />
       <ReviewToolbar />
       <ReviewCommentSheet />
       <ReviewIdentityModal />

@@ -67,6 +67,8 @@ type ReviewState = {
   archiveCursor?: number
   archiveLoaded: boolean
   selectedCommentId: string | null
+  /** Comment whose anchored thread popover is open. Mutually exclusive with the sheet. */
+  threadCommentId: string | null
 
   toggleActive: () => void
   setActive: (active: boolean) => void
@@ -76,6 +78,10 @@ type ReviewState = {
   setSheetOpen: (open: boolean) => void
   setExportOpen: (open: boolean) => void
   toggleShowResolved: () => void
+
+  /** Open the Figma-style thread popover anchored to a comment's pin. */
+  openThread: (id: string) => void
+  closeThread: () => void
 
   hydrateIdentity: () => Promise<void>
   setIdentity: (name: string, colorToken: string) => Promise<void>
@@ -134,6 +140,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   archiveCursor: undefined,
   archiveLoaded: false,
   selectedCommentId: null,
+  threadCommentId: null,
 
   toggleActive: () => {
     const next = !get().active
@@ -150,6 +157,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
         sheetOpen: false,
         exportOpen: false,
         selectedCommentId: null,
+        threadCommentId: null,
       })
     }
   },
@@ -173,10 +181,18 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     })
   },
 
-  toggleSheet: () => set((s) => ({ sheetOpen: !s.sheetOpen })),
-  setSheetOpen: (open) => set({ sheetOpen: open }),
+  // The sheet and the anchored thread popover are mutually exclusive — opening
+  // one dismisses the other so a comment never shows in two places at once.
+  toggleSheet: () =>
+    set((s) => ({ sheetOpen: !s.sheetOpen, threadCommentId: null })),
+  setSheetOpen: (open) =>
+    set(open ? { sheetOpen: true, threadCommentId: null } : { sheetOpen: false }),
   setExportOpen: (open) => set({ exportOpen: open }),
   toggleShowResolved: () => set((s) => ({ showResolved: !s.showResolved })),
+
+  openThread: (id) =>
+    set({ threadCommentId: id, selectedCommentId: id, sheetOpen: false }),
+  closeThread: () => set({ threadCommentId: null }),
 
   hydrateIdentity: async () => {
     try {
@@ -313,6 +329,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       })
     }
     if (get().selectedCommentId === id) set({ selectedCommentId: null })
+    if (get().threadCommentId === id) set({ threadCommentId: null })
     await get().refreshFromStorage()
   },
 
@@ -331,6 +348,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       await storage.transitionComment(id, "approve", actor)
     }
     if (get().selectedCommentId === id) set({ selectedCommentId: null })
+    if (get().threadCommentId === id) set({ threadCommentId: null })
     await get().refreshFromStorage()
   },
 
@@ -370,6 +388,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   deleteComment: async (id) => {
     await get().storage.deleteComment(id)
     if (get().selectedCommentId === id) set({ selectedCommentId: null })
+    if (get().threadCommentId === id) set({ threadCommentId: null })
     await get().refreshFromStorage()
   },
 

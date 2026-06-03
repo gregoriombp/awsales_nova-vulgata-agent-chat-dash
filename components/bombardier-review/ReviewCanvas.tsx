@@ -8,7 +8,7 @@ import {
   elementBelowOverlayAt,
   useCumulativeScrollOffset,
 } from "@/lib/bombardier-review/scrollOffset"
-import { OVERLAY_DATA_ATTR } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewPinMarker } from "./ReviewPinMarker"
 import type { ReviewDrawPath, ReviewPoint } from "./types"
 
@@ -58,8 +58,7 @@ export function ReviewCanvas() {
   const appendDrawPoint = useReviewStore((s) => s.appendDrawPoint)
   const endDraw = useReviewStore((s) => s.endDraw)
   const placePin = useReviewStore((s) => s.placePin)
-  const selectComment = useReviewStore((s) => s.selectComment)
-  const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
+  const openThread = useReviewStore((s) => s.openThread)
 
   const url = useCurrentUrl()
   const comments = useCommentsForUrl(url)
@@ -130,10 +129,11 @@ export function ReviewCanvas() {
   return (
     <svg
       {...{ [OVERLAY_DATA_ATTR]: "" }}
-      className="fixed inset-0 z-40"
+      className="fixed inset-0"
       width="100%"
       height="100%"
       style={{
+        zIndex: REVIEW_Z.canvas,
         pointerEvents: captureMode ? "auto" : "none",
         cursor,
         touchAction: captureMode ? "none" : "auto",
@@ -145,7 +145,9 @@ export function ReviewCanvas() {
       onPointerCancel={onPointerUp}
     >
       <g transform={`translate(${-scroll.x} ${-scroll.y})`}>
-        {comments.map((c) => {
+        {/* ux-flow comments live on the diagram canvas (rendered by the flow
+            editor) — their document-coord pins would drift here, so skip them. */}
+        {comments.filter((c) => c.origin !== "ux-flow").map((c) => {
           if (c.anchor.kind === "draw") {
             return (
               <g key={c.id} style={{ pointerEvents: "auto" }}>
@@ -159,8 +161,7 @@ export function ReviewCanvas() {
                   selected={selectedCommentId === c.id}
                   onClick={(e) => {
                     e.stopPropagation()
-                    selectComment(c.id)
-                    setSheetOpen(true)
+                    openThread(c.id)
                   }}
                 />
               </g>
@@ -174,8 +175,7 @@ export function ReviewCanvas() {
               selected={selectedCommentId === c.id}
               onClick={(e) => {
                 e.stopPropagation()
-                selectComment(c.id)
-                setSheetOpen(true)
+                openThread(c.id)
               }}
             />
           )

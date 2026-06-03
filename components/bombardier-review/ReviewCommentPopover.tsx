@@ -5,7 +5,7 @@ import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCumulativeScrollOffset } from "@/lib/bombardier-review/scrollOffset"
-import { OVERLAY_DATA_ATTR } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import type { ReviewPoint } from "./types"
 
 const POPOVER_WIDTH = 320
@@ -118,8 +118,9 @@ export function ReviewCommentPopover() {
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
-      className="fixed z-[55] pointer-events-none"
+      className="fixed pointer-events-none"
       style={{
+        zIndex: REVIEW_Z.popover,
         top,
         left,
         width: POPOVER_WIDTH,

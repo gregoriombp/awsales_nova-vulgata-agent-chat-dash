@@ -4,7 +4,7 @@ import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
-import { OVERLAY_DATA_ATTR } from "./constants"
+import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import type { ReviewMode } from "./types"
 
 type ModeButtonProps = {
@@ -57,7 +57,8 @@ export function ReviewToolbar() {
     return (
       <div
         {...{ [OVERLAY_DATA_ATTR]: "" }}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+        style={{ zIndex: REVIEW_Z.toolbar }}
       >
         <button
           type="button"
@@ -76,7 +77,8 @@ export function ReviewToolbar() {
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+      style={{ zIndex: REVIEW_Z.toolbar }}
     >
       <div className="pointer-events-auto rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] shadow-lg px-1.5 py-1.5 flex items-center gap-1">
         {identity && (

@@ -8,31 +8,13 @@ import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCurrentUrl } from "@/lib/bombardier-review/hooks"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
+import {
+  formatFullTimestamp,
+  formatRelative,
+} from "@/lib/bombardier-review/format"
 import { STALE_DOCUMENT_HEIGHT_THRESHOLD } from "./constants"
+import { UxFlowChip } from "./UxFlowChip"
 import type { ReviewComment, ReviewReply } from "./types"
-
-function pad2(n: number): string {
-  return n < 10 ? `0${n}` : String(n)
-}
-
-function formatFullTimestamp(ts: number): string {
-  const d = new Date(ts)
-  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} · ${pad2(
-    d.getHours()
-  )}:${pad2(d.getMinutes())}`
-}
-
-function formatRelative(timestamp: number): string {
-  const diff = Date.now() - timestamp
-  const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return "agora"
-  if (minutes < 60) return `${minutes}m`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h`
-  const days = Math.floor(hours / 24)
-  if (days < 7) return `${days}d`
-  return new Date(timestamp).toLocaleDateString("pt-BR")
-}
 
 function isStale(comment: ReviewComment, currentDocHeight: number): boolean {
   if (!comment.documentHeight) return false
@@ -48,7 +30,7 @@ function StatusPill({ status }: { status: ReviewComment["status"] }) {
   return null
 }
 
-function ReplyRow({ reply }: { reply: ReviewReply }) {
+export function ReplyRow({ reply }: { reply: ReviewReply }) {
   const isAgent = reply.authorKind === "agent"
   return (
     <div className="flex items-start gap-2 py-1.5">
@@ -246,6 +228,7 @@ export function ReviewCommentCard({
             {formatFullTimestamp(comment.createdAt)}
           </span>
         </div>
+        {comment.origin === "ux-flow" && <UxFlowChip flowRef={comment.flowRef} />}
         <div className="ml-auto flex items-center gap-1">
           <StatusPill status={comment.status} />
           {stale && (

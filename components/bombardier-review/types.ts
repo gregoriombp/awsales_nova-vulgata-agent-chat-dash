@@ -50,6 +50,25 @@ export interface ReviewReply {
   createdAt: number
 }
 
+/**
+ * Where a comment was authored. Defaults to a normal page pin/draw ("page").
+ * "ux-flow" comments are dropped on a styleguide UX-flow diagram node — they
+ * carry a `flowRef` and are rendered by the flow editor (not the review
+ * canvas, whose document-coord pins would drift on the zoom/pan canvas).
+ */
+export type ReviewCommentOrigin = "page" | "ux-flow"
+
+export interface ReviewFlowRef {
+  /** Flow slug, e.g. "primeiro-acesso". */
+  flow: string
+  /** Anchored node id in the diagram, when the comment targets a specific node. */
+  nodeId?: string
+  /** Human label of the anchored node (title), for display in the review inbox. */
+  nodeLabel?: string
+  /** Position in flow-canvas coordinates where the marker sits. */
+  position?: ReviewPoint
+}
+
 export interface ReviewComment {
   id: string
   schemaVersion: 3
@@ -69,6 +88,10 @@ export interface ReviewComment {
   status: ReviewCommentStatus
   resolution?: ReviewResolution
   replies?: ReviewReply[]
+  /** Defaults to "page" when absent. */
+  origin?: ReviewCommentOrigin
+  /** Present when origin === "ux-flow". */
+  flowRef?: ReviewFlowRef
 }
 
 export interface ReviewExportPayload {

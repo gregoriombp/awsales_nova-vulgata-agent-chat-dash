@@ -52,6 +52,18 @@ export interface ReviewReply {
 
 export const REVIEW_SCHEMA_VERSION = 3
 
+// Mirror of the client type (components/bombardier-review/types.ts). "ux-flow"
+// comments come from the styleguide flow editor; the server just stores the
+// extra optional fields verbatim (additive — no schema bump).
+export type ReviewCommentOrigin = "page" | "ux-flow"
+
+export interface ReviewFlowRef {
+  flow: string
+  nodeId?: string
+  nodeLabel?: string
+  position?: ReviewPoint
+}
+
 export interface ReviewComment {
   id: string
   schemaVersion: 3
@@ -71,6 +83,8 @@ export interface ReviewComment {
   status: ReviewCommentStatus
   resolution?: ReviewResolution
   replies?: ReviewReply[]
+  origin?: ReviewCommentOrigin
+  flowRef?: ReviewFlowRef
 }
 
 export interface ReviewExportPayload {
