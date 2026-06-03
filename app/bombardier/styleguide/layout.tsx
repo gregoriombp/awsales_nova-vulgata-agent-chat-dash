@@ -38,8 +38,17 @@ export default function StyleguideLayout({
         <SidebarSearch />
 
         <nav className="flex flex-col gap-3">
-          {navigation.map((section) => (
-            <Collapsible.Root key={section.title} defaultOpen>
+          {navigation.map((section, i) => {
+            const prevGroup = i > 0 ? navigation[i - 1].group : undefined
+            const showGroupHeading = !!section.group && section.group !== prevGroup
+            return (
+            <div key={section.title} className="flex flex-col gap-3">
+              {showGroupHeading && (
+                <h2 className="m-0 mt-3 mb-0.5 px-0 text-[15px] font-semibold tracking-tight text-[var(--fg-primary)]">
+                  {section.group}
+                </h2>
+              )}
+            <Collapsible.Root defaultOpen>
               <h3 className="aw-eyebrow m-0 mb-2">
                 <Collapsible.Trigger className="group flex w-full items-center justify-between gap-2 text-left">
                   <span>{section.title}</span>
@@ -78,7 +87,9 @@ export default function StyleguideLayout({
                 </ul>
               </Collapsible.Content>
             </Collapsible.Root>
-          ))}
+            </div>
+            )
+          })}
         </nav>
 
         <div className="mt-auto text-xs text-[var(--fg-tertiary)] leading-relaxed">

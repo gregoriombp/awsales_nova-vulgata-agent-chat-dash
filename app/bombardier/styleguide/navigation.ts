@@ -4,6 +4,10 @@ export interface NavItem {
 }
 
 export interface NavSection {
+  /** Optional super-category. Consecutive sections that share the same `group`
+   *  render under one bigger heading — a tier above the section title. Sections
+   *  without a `group` render standalone (no super-heading). */
+  group?: string
   title: string
   items: NavItem[]
 }
@@ -16,12 +20,14 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    group: "Base",
     title: "Brand",
     items: [
       { name: "Logo", href: "/bombardier/styleguide/foundation/logos" },
     ],
   },
   {
+    group: "Base",
     title: "Foundations",
     items: [
       { name: "Cor", href: "/bombardier/styleguide/foundation/color" },
@@ -40,6 +46,7 @@ export const navigation: NavSection[] = [
   //    Taxonomia governada em docs/component-layers.md. Só o agrupamento muda aqui;
   //    nenhum href muda, components/ui/ permanece plano de propósito.
   {
+    group: "Biblioteca",
     title: "Primitivos",
     items: [
       { name: "Alertas", href: "/bombardier/styleguide/components/alerts" },
@@ -64,6 +71,7 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    group: "Biblioteca",
     title: "Componentes",
     items: [
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
@@ -89,6 +97,7 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    group: "Biblioteca",
     title: "Padrões",
     items: [
       { name: "Backup codes", href: "/bombardier/styleguide/components/aw-backup-codes" },
@@ -103,6 +112,7 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    group: "Biblioteca",
     title: "Domínio",
     items: [
       { name: "Agent Core", href: "/bombardier/styleguide/components/agent-core" },
@@ -117,12 +127,7 @@ export const navigation: NavSection[] = [
     ],
   },
   {
-    title: "Playground",
-    items: [
-      { name: "Componentes em quarentena", href: "/bombardier/styleguide/components/playground" },
-    ],
-  },
-  {
+    group: "UX Flows",
     title: "Onboarding",
     items: [
       { name: "Primeiro acesso", href: "/bombardier/styleguide/ux-flows/primeiro-acesso" },
@@ -131,6 +136,7 @@ export const navigation: NavSection[] = [
     ],
   },
   {
+    group: "UX Flows",
     title: "Acesso",
     items: [
       { name: "Login", href: "/bombardier/styleguide/ux-flows/login-auth" },
