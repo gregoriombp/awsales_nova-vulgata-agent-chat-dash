@@ -1,10 +1,11 @@
 "use client"
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type MouseEvent as ReactMouseEvent } from "react"
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent } from "react"
 import {
   addEdge,
   Background,
   BackgroundVariant,
+  ControlButton,
   Controls,
   Handle,
   MarkerType,
@@ -17,26 +18,39 @@ import {
   type Edge,
   type Node,
   type NodeProps,
+  type ReactFlowInstance,
 } from "@xyflow/react"
 import "@xyflow/react/dist/style.css"
 
 import { useRouter } from "next/navigation"
 
 import { AwSheet } from "@/components/ui/AwSheet"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  CommentNode,
+  commentMarkerNode,
+  FlowCommentComposer,
+  FlowCommentThread,
+  useFlowComments,
+  type CommentTarget,
+  type ScreenPoint,
+} from "./flow-comments"
+import {
+  buildExpansion,
+  flowSlugFromHref,
+  isExpandableFlow,
+  loadFlowData,
+  SubflowGroupNode,
+} from "./flow-subflow"
+import type { ReviewComment } from "@/components/bombardier-review/types"
 
 /* ─────────────────────────────────────────────────────────────────────
- * Bridge config — read from env at module load. Both are required.
- * If missing, the UI shows a setup hint instead of attempting fetches.
+ * Suggestions API — same-origin route (app/api/flow-suggestions) backed by
+ * flow-bridge/data/*.json. No separate server, no token, no setup: the editor
+ * always works, and Claude reads the suggestions straight from the repo file.
  * ──────────────────────────────────────────────────────────────────── */
 
-const BRIDGE_URL =
-  process.env.NEXT_PUBLIC_BOMBARDIER_FLOW_BRIDGE_URL?.replace(/\/+$/, "") ?? ""
-const BRIDGE_TOKEN = process.env.NEXT_PUBLIC_BOMBARDIER_FLOW_TOKEN ?? ""
-const BRIDGE_CONFIGURED = BRIDGE_URL.length > 0 && BRIDGE_TOKEN.length > 0
-
-function bridgeHeaders(extra?: Record<string, string>): HeadersInit {
-  return { "x-flow-token": BRIDGE_TOKEN, ...extra }
-}
+const SUGGESTIONS_API = "/api/flow-suggestions"
 
 /* ─────────────────────────────────────────────────────────────────────
  * Shared types
@@ -86,36 +100,168 @@ const USER_ACTOR: SuggestionActor = { kind: "user", id: "user", name: "Usuário"
 
 type EditorCtx = {
   mode: "view" | "edit"
-  onEditNode: (id: string) => void
+  /** Patch a node's data inline (title/step/note/question/href). */
+  onUpdateNodeData: (id: string, patch: Partial<ScreenData & DecisionData>) => void
   onPreviewScreen: (data: ScreenData) => void
+  /** A just-added node id — its title auto-enters edit so you can type at once. */
+  autoEditId: string | null
 }
 
 const FlowEditorContext = createContext<EditorCtx>({
   mode: "view",
-  onEditNode: () => {},
+  onUpdateNodeData: () => {},
   onPreviewScreen: () => {},
+  autoEditId: null,
 })
 
-function EditPencil({ id }: { id: string }) {
-  const { onEditNode } = useContext(FlowEditorContext)
-  return (
-    <button
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEditNode(id) }}
+/* ─────────────────────────────────────────────────────────────────────
+ * InlineText — FigJam-style on-canvas editing. Double-click any card text to
+ * edit it in place. `nodrag`/`nopan` so editing never drags the node or pans.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function InlineText({
+  value,
+  mode,
+  onCommit,
+  multiline = false,
+  placeholder,
+  className = "",
+  inputClassName = "",
+  autoEdit = false,
+}: {
+  value: string
+  mode: "view" | "edit"
+  onCommit: (next: string) => void
+  multiline?: boolean
+  placeholder?: string
+  className?: string
+  inputClassName?: string
+  /** Start in edit mode (used to auto-focus a just-added card). */
+  autoEdit?: boolean
+}) {
+  // Initial editing state derived from autoEdit (no prop→state sync effect).
+  const [editing, setEditing] = useState(autoEdit)
+  const [draft, setDraft] = useState(value)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const areaRef = useRef<HTMLTextAreaElement>(null)
+
+  useEffect(() => {
+    if (!editing) return
+    const el = multiline ? areaRef.current : inputRef.current
+    el?.focus()
+    el?.select()
+  }, [editing, multiline])
+
+  const startEditing = () => {
+    setDraft(value)
+    setEditing(true)
+  }
+
+  if (mode !== "edit") {
+    return value ? <span className={className}>{value}</span> : null
+  }
+
+  const commit = () => {
+    setEditing(false)
+    const next = draft.trim()
+    if (next !== value) onCommit(next)
+  }
+
+  if (!editing) {
+    return (
+      <span
+        className={`${className} cursor-text rounded-[var(--radius-xs)] -mx-1 px-1 hover:bg-[var(--aw-blue-100)]`}
+        onDoubleClick={(e) => { e.stopPropagation(); startEditing() }}
+        title="Clique duplo pra editar"
+      >
+        {value || <span className="italic text-[var(--fg-tertiary)]">{placeholder ?? "…"}</span>}
+      </span>
+    )
+  }
+
+  const onKeyDown = (e: ReactKeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.preventDefault()
+      e.stopPropagation()
+      setDraft(value)
+      setEditing(false)
+      return
+    }
+    if (e.key === "Enter" && (!multiline || e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      commit()
+      return
+    }
+    e.stopPropagation()
+  }
+  const cls = `nodrag nopan w-full rounded-[var(--radius-xs)] border border-[var(--aw-blue-400)] bg-[var(--bg-canvas)] px-1 py-0.5 outline-none ${inputClassName}`
+
+  return multiline ? (
+    <textarea
+      ref={areaRef}
+      value={draft}
+      rows={2}
+      placeholder={placeholder}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={onKeyDown}
       onPointerDown={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()}
-      title="Editar"
-      className="absolute top-1.5 right-1.5 w-5 h-5 inline-flex items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-[var(--fg-tertiary)] hover:text-[var(--aw-blue-700)] hover:border-[var(--aw-blue-400)] transition"
-    >
-      <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
-        <path
-          d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z"
-          stroke="currentColor"
-          strokeWidth="1.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
+      className={`${cls} resize-none`}
+    />
+  ) : (
+    <input
+      ref={inputRef}
+      type="text"
+      value={draft}
+      placeholder={placeholder}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={onKeyDown}
+      onPointerDown={(e) => e.stopPropagation()}
+      className={cls}
+    />
+  )
+}
+
+/* LinkPopover — the one "technical" field (prototype route) tucked into a
+ * subtle shadcn popover, so the card stays about the writing. */
+function LinkPopover({ href, onCommit }: { href: string; onCommit: (next: string) => void }) {
+  const [val, setVal] = useState(href)
+  const linked = !!href && href !== "#"
+  return (
+    <Popover onOpenChange={(open) => { if (open) setVal(href) }}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
+          title={linked ? `Link: ${href}` : "Definir link (rota do protótipo)"}
+          className={`nodrag absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border bg-[var(--bg-raised)] transition ${linked ? "border-[var(--aw-blue-300)] text-[var(--aw-blue-700)]" : "border-[var(--border-default)] text-[var(--fg-tertiary)] hover:border-[var(--aw-blue-400)] hover:text-[var(--aw-blue-700)]"}`}
+        >
+          <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6.8 9.2l2.4-2.4M7 4.6l1-1a2.4 2.4 0 013.4 3.4l-1 1M9 11.4l-1 1a2.4 2.4 0 01-3.4-3.4l1-1" />
+          </svg>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="end"
+        className="w-64 p-2.5"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
+        <label className="text-[11px] font-medium text-[var(--fg-secondary)]">Link (rota do protótipo)</label>
+        <input
+          value={val}
+          onChange={(e) => setVal(e.target.value)}
+          onBlur={() => onCommit(val.trim() || "#")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") { e.preventDefault(); onCommit(val.trim() || "#") }
+            e.stopPropagation()
+          }}
+          placeholder="/rota ou #"
+          className="nodrag mt-1 w-full rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2 py-1 text-xs outline-none focus:border-[var(--aw-blue-400)]"
         />
-      </svg>
-    </button>
+      </PopoverContent>
+    </Popover>
   )
 }
 
@@ -124,75 +270,75 @@ function EditPencil({ id }: { id: string }) {
  * ──────────────────────────────────────────────────────────────────── */
 
 export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
-  const { mode } = useContext(FlowEditorContext)
+  const { mode, onUpdateNodeData, autoEditId } = useContext(FlowEditorContext)
+  const editing = mode === "edit"
   const cursor = mode === "view" ? "cursor-pointer" : ""
   return (
     <div className={`relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition ${cursor}`}>
       <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
       <div className="px-4 py-3 flex flex-col gap-1">
-        <span className="aw-eyebrow text-[var(--aw-blue-700)]">{data.step}</span>
-        <span className="text-sm font-medium text-[var(--fg-primary)] leading-tight">{data.title}</span>
-        {data.note && <span className="caption text-[var(--fg-tertiary)]">{data.note}</span>}
+        <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="aw-eyebrow text-[var(--aw-blue-700)]" inputClassName="aw-eyebrow text-[var(--aw-blue-700)]" />
+        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da tela" className="text-sm font-medium text-[var(--fg-primary)] leading-tight" inputClassName="text-sm font-medium text-[var(--fg-primary)]" autoEdit={autoEditId === id} />
+        {(editing || data.note) && (
+          <InlineText value={data.note ?? ""} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { note: v })} placeholder="Descrição…" className="caption text-[var(--fg-tertiary)]" inputClassName="caption text-[var(--fg-tertiary)]" />
+        )}
       </div>
       <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
-      {/* Saídas laterais — anclam arestas que precisam sair pro lado (mesma
-          linha ou coluna vizinha). Invisíveis: só servem de âncora pra linha. */}
+      {/* Saídas laterais — invisíveis, só ancoram arestas que saem pro lado. */}
       <Handle id="left"  type="source" position={Position.Left}  style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
       <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
-      {mode === "edit" && <EditPencil id={id} />}
+      {editing && <LinkPopover href={data.href} onCommit={(v) => onUpdateNodeData(id, { href: v })} />}
     </div>
   )
 }
 
 export function DecisionNode({ id, data }: NodeProps<Node<DecisionData>>) {
-  const { mode } = useContext(FlowEditorContext)
+  const { mode, onUpdateNodeData, autoEditId } = useContext(FlowEditorContext)
   const hCls = "!bg-[var(--aw-amber-500)] !border-0 !w-2 !h-2"
   return (
     <div className="relative w-[240px] rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-amber-400)] bg-[var(--aw-amber-100)] px-4 py-3 flex flex-col gap-1">
       <Handle type="target" position={Position.Top} className={hCls} />
-      <span className="aw-eyebrow text-[var(--aw-amber-800)]">decisão · {data.step}</span>
-      <span className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight">{data.title}</span>
-      <span className="text-xs text-[var(--aw-amber-800)] leading-snug">{data.question}</span>
+      <span className="aw-eyebrow text-[var(--aw-amber-800)]">
+        decisão · <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="text-[var(--aw-amber-800)]" inputClassName="aw-eyebrow text-[var(--aw-amber-800)]" />
+      </span>
+      <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da decisão" className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight" inputClassName="text-sm font-medium text-[var(--aw-amber-900)]" autoEdit={autoEditId === id} />
+      <InlineText value={data.question} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { question: v })} placeholder="Qual condição o fluxo avalia aqui?" className="text-xs text-[var(--aw-amber-800)] leading-snug" inputClassName="text-xs text-[var(--aw-amber-800)]" />
       <Handle id="left"   type="source" position={Position.Left}   className={hCls} />
       <Handle id="bottom" type="source" position={Position.Bottom} className={hCls} />
       <Handle id="right"  type="source" position={Position.Right}  className={hCls} />
-      {mode === "edit" && <EditPencil id={id} />}
     </div>
   )
 }
 
 /**
- * CrossFlowNode — marca o ponto onde o caminho sai DESTE fluxo e entra em
- * OUTRO fluxo do styleguide. Forma e cor diferentes de propósito: losango
- * (quadrado girado 45°) roxo, pra não se confundir com tela (card azul) nem
- * decisão (caixa âmbar). Clicar abre um modal confirmatório antes de navegar.
- * Reusa o shape de ScreenData — `href` é a rota do outro fluxo, `title` o nome.
+ * CrossFlowNode — losango roxo que marca o salto pra OUTRO fluxo. Em view,
+ * clicar EXPANDE esse fluxo inline (ver flow-subflow). Em edit, o título é
+ * editável e o link (rota do fluxo alvo) fica no popover.
  */
 export function CrossFlowNode({ id, data }: NodeProps<Node<ScreenData>>) {
-  const { mode } = useContext(FlowEditorContext)
+  const { mode, onUpdateNodeData, autoEditId } = useContext(FlowEditorContext)
+  const editing = mode === "edit"
   const cursor = mode === "view" ? "cursor-pointer" : ""
   return (
     <div className={`group relative w-[184px] h-[150px] ${cursor}`}>
       <Handle type="target" position={Position.Top} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
-      {/* O losango em si — quadrado girado 45°. */}
       <div className="absolute left-1/2 top-1/2 h-[106px] w-[106px] -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[var(--radius-md)] border-2 border-[var(--aw-purple-400)] bg-[var(--aw-purple-100)] shadow-[var(--shadow-sm)] transition group-hover:border-[var(--aw-purple-500)] group-hover:bg-[var(--aw-purple-150)] group-hover:shadow-[var(--shadow-md)]" />
-      {/* Conteúdo na horizontal, centralizado sobre o losango. */}
-      <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6 text-center">
+      <div className={`absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6 text-center ${editing ? "" : "pointer-events-none"}`}>
         <span className="aw-eyebrow inline-flex items-center gap-1 text-[var(--aw-purple-700)]">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           outro fluxo
         </span>
-        <span className="text-[13px] font-semibold leading-tight text-[var(--aw-purple-900)]">{data.title}</span>
+        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Nome do fluxo" className="text-[13px] font-semibold leading-tight text-[var(--aw-purple-900)]" inputClassName="text-[13px] font-semibold text-[var(--aw-purple-900)] text-center" autoEdit={autoEditId === id} />
       </div>
       <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
-      {mode === "edit" && <EditPencil id={id} />}
+      {editing && <LinkPopover href={data.href} onCommit={(v) => onUpdateNodeData(id, { href: v })} />}
     </div>
   )
 }
 
-export const nodeTypes = { screen: ScreenNode, decision: DecisionNode, crossflow: CrossFlowNode }
+export const nodeTypes = { screen: ScreenNode, decision: DecisionNode, crossflow: CrossFlowNode, comment: CommentNode, subflowGroup: SubflowGroupNode }
 
 /* ─────────────────────────────────────────────────────────────────────
  * Edge styling — exported so flow pages can keep using the same look
@@ -220,30 +366,27 @@ export const crossEdge: Partial<Edge> = {
 }
 
 /* ─────────────────────────────────────────────────────────────────────
- * Suggestions hook — talks to the flow-bridge
+ * Suggestions hook — talks to the same-origin /api/flow-suggestions route
  * ──────────────────────────────────────────────────────────────────── */
 
-type BridgeError = "not-configured" | "network" | "auth" | "unknown"
+type BridgeError = "network" | "unknown"
 
 function useFlowSuggestions(flow: string) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [loaded, setLoaded] = useState(false)
-  const [error, setError] = useState<BridgeError | null>(BRIDGE_CONFIGURED ? null : "not-configured")
+  const [error, setError] = useState<BridgeError | null>(null)
 
   const refresh = useCallback(async () => {
-    if (!BRIDGE_CONFIGURED) { setLoaded(true); return }
     try {
-      const res = await fetch(`${BRIDGE_URL}/suggestions?flow=${encodeURIComponent(flow)}`, {
-        headers: bridgeHeaders(),
+      const res = await fetch(`${SUGGESTIONS_API}?flow=${encodeURIComponent(flow)}`, {
         cache: "no-store",
       })
-      if (res.status === 401) { setError("auth"); return }
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = (await res.json()) as { suggestions: Suggestion[] }
       setSuggestions(data.suggestions ?? [])
       setError(null)
     } catch (e) {
-      console.error("flow-bridge refresh", e)
+      console.error("flow-suggestions refresh", e)
       setError("network")
     } finally {
       setLoaded(true)
@@ -254,20 +397,18 @@ function useFlowSuggestions(flow: string) {
 
   const create = useCallback(
     async (description: string, nodes: Node[], edges: Edge[]): Promise<Suggestion | null> => {
-      if (!BRIDGE_CONFIGURED) { setError("not-configured"); return null }
       try {
-        const res = await fetch(`${BRIDGE_URL}/suggestions`, {
+        const res = await fetch(SUGGESTIONS_API, {
           method: "POST",
-          headers: bridgeHeaders({ "content-type": "application/json" }),
+          headers: { "content-type": "application/json" },
           body: JSON.stringify({ flow, description, nodes, edges }),
         })
-        if (res.status === 401) { setError("auth"); return null }
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         const data = (await res.json()) as { suggestion: Suggestion }
         setSuggestions((prev) => [data.suggestion, ...prev])
         return data.suggestion
       } catch (e) {
-        console.error("flow-bridge create", e)
+        console.error("flow-suggestions create", e)
         setError("network")
         return null
       }
@@ -281,23 +422,21 @@ function useFlowSuggestions(flow: string) {
       kind: "apply" | "discard" | "reject",
       actor: SuggestionActor = USER_ACTOR,
     ): Promise<boolean> => {
-      if (!BRIDGE_CONFIGURED) { setError("not-configured"); return false }
       try {
         const body =
           kind === "reject"
             ? { transition: "reject" }
             : { transition: kind, actor }
-        const res = await fetch(`${BRIDGE_URL}/suggestions/${encodeURIComponent(id)}`, {
+        const res = await fetch(`${SUGGESTIONS_API}/${encodeURIComponent(id)}`, {
           method: "PUT",
-          headers: bridgeHeaders({ "content-type": "application/json" }),
+          headers: { "content-type": "application/json" },
           body: JSON.stringify(body),
         })
-        if (res.status === 401) { setError("auth"); return false }
         if (!res.ok) throw new Error(`HTTP ${res.status}`)
         await refresh()
         return true
       } catch (e) {
-        console.error("flow-bridge transition", e)
+        console.error("flow-suggestions transition", e)
         setError("network")
         return false
       }
@@ -306,142 +445,6 @@ function useFlowSuggestions(flow: string) {
   )
 
   return { suggestions, loaded, error, refresh, create, transition }
-}
-
-/* ─────────────────────────────────────────────────────────────────────
- * Node edit modal
- * ──────────────────────────────────────────────────────────────────── */
-
-type NodeDraft =
-  | { kind: "screen"; step: string; title: string; href: string; note: string }
-  | { kind: "crossflow"; step: string; title: string; href: string; note: string }
-  | { kind: "decision"; step: string; title: string; question: string }
-
-function toDraft(node: Node): NodeDraft {
-  if (node.type === "decision") {
-    const d = node.data as DecisionData
-    return { kind: "decision", step: d.step ?? "", title: d.title ?? "", question: d.question ?? "" }
-  }
-  if (node.type === "crossflow") {
-    const d = node.data as ScreenData
-    return { kind: "crossflow", step: d.step ?? "", title: d.title ?? "", href: d.href ?? "#", note: d.note ?? "" }
-  }
-  const d = node.data as ScreenData
-  return { kind: "screen", step: d.step ?? "", title: d.title ?? "", href: d.href ?? "#", note: d.note ?? "" }
-}
-
-function NodeEditModal({
-  target,
-  onCancel,
-  onSave,
-}: {
-  target: Node
-  onCancel: () => void
-  onSave: (next: Node) => void
-}) {
-  const [draft, setDraft] = useState<NodeDraft>(() => toDraft(target))
-
-  function commit() {
-    if (draft.kind === "decision") {
-      onSave({
-        ...target,
-        type: "decision",
-        data: { step: draft.step, title: draft.title, question: draft.question },
-      })
-    } else {
-      onSave({
-        ...target,
-        type: draft.kind, // "screen" | "crossflow"
-        data: { step: draft.step, title: draft.title, href: draft.href || "#", note: draft.note || undefined },
-      })
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onCancel}>
-      <div
-        className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div>
-          <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">
-            Editar {draft.kind === "decision" ? "decisão" : draft.kind === "crossflow" ? "salto de fluxo" : "tela"}
-          </h2>
-          <p className="text-sm text-[var(--fg-secondary)] mt-1 m-0">
-            {draft.kind === "decision"
-              ? "Título aparece no card. A pergunta deixa clara qual decisão o fluxo está tomando."
-              : draft.kind === "crossflow"
-                ? "Título é o nome do outro fluxo. O link aponta pra rota desse fluxo no styleguide."
-                : "Título aparece no card. A descrição explica pra que essa tela serve. Link aponta pro protótipo."}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-            <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Etapa</label>
-            <input
-              type="text" value={draft.step}
-              placeholder="ex: 02, decisão A, →plataforma"
-              onChange={(e) => setDraft({ ...draft, step: e.target.value })}
-              className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)]"
-            />
-          </div>
-
-          <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-            <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Título</label>
-            <input
-              type="text" value={draft.title}
-              placeholder={draft.kind === "decision" ? "ex: Credenciais válidas?" : "ex: Login"}
-              onChange={(e) => setDraft({ ...draft, title: e.target.value })}
-              className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)]"
-            />
-          </div>
-
-          {draft.kind !== "decision" ? (
-            <>
-              <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-                <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Descrição</label>
-                <textarea
-                  value={draft.note} rows={3}
-                  placeholder="Pra que essa tela serve, o que o usuário faz nela…"
-                  onChange={(e) => setDraft({ ...draft, note: e.target.value })}
-                  className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)] resize-none"
-                />
-              </div>
-              <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-                <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Link</label>
-                <input
-                  type="text" value={draft.href}
-                  placeholder="ex: /inicio ou /bombardier/styleguide/ux-flows/login-auth"
-                  onChange={(e) => setDraft({ ...draft, href: e.target.value })}
-                  className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)]"
-                />
-              </div>
-            </>
-          ) : (
-            <div className="grid grid-cols-[120px_1fr] gap-2 items-start">
-              <label className="text-xs font-medium text-[var(--fg-secondary)] pt-2">Pergunta</label>
-              <textarea
-                value={draft.question} rows={3}
-                placeholder="ex: O usuário já tem conta ativa?"
-                onChange={(e) => setDraft({ ...draft, question: e.target.value })}
-                className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)] resize-none"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end gap-2">
-          <button onClick={onCancel} className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition">
-            Cancelar
-          </button>
-          <button onClick={commit} className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] transition">
-            Aplicar
-          </button>
-        </div>
-      </div>
-    </div>
-  )
 }
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -612,7 +615,7 @@ export function FlowDiagram({
   const [showReview, setShowReview] = useState(false)
   const [showPromptModal, setShowPromptModal] = useState(false)
   const [desc, setDesc] = useState("")
-  const [editingNodeId, setEditingNodeId] = useState<string | null>(null)
+  const [autoEditId, setAutoEditId] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [previewScreen, setPreviewScreen] = useState<ScreenData | null>(null)
   const [confirmFlow, setConfirmFlow] = useState<{ title: string; href: string } | null>(null)
@@ -624,21 +627,149 @@ export function FlowDiagram({
   const skipPushRef = useRef(false)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // "Tela cheia" = a CSS overlay (NOT the native Fullscreen API). The native API
+  // hides everything outside the fullscreened element — including body-portaled
+  // overlays (the screen-preview drawer) — which would break the toolbar,
+  // comments and modals. A fixed inset-0 panel keeps the whole app working and
+  // feels like an embedded canvas.
+  const rfRef = useRef<ReactFlowInstance | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  const toggleFullscreen = useCallback(() => setIsFullscreen((v) => !v), [])
+
+  // Re-fit the graph after the canvas resizes into/out of fullscreen.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => rfRef.current?.fitView({ padding: 0.12 }))
+    return () => cancelAnimationFrame(id)
+  }, [isFullscreen])
+
+  // ESC exits fullscreen (but let focused inputs handle their own Escape).
+  useEffect(() => {
+    if (!isFullscreen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return
+      const t = e.target as HTMLElement | null
+      if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return
+      setIsFullscreen(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [isFullscreen])
+
   const { suggestions, error, create, transition } = useFlowSuggestions(flow)
 
-  const onEditNode = useCallback((id: string) => setEditingNodeId(id), [])
+  // FigJam-style comments on the canvas — persisted to the review-bridge
+  // (origin: "ux-flow"), so they also show in Review Mode with a chip.
+  const { comments: flowComments, refresh: refreshComments } = useFlowComments(flow)
+  const [commentMode, setCommentMode] = useState(false)
+  const [pendingComment, setPendingComment] = useState<{ target: CommentTarget; at: ScreenPoint } | null>(null)
+  const [openThread, setOpenThread] = useState<{ commentId: string; at: ScreenPoint } | null>(null)
+
+  // Inline sub-flow expansion: diamond node id → its expanded { nodes, edges }.
+  const [expansions, setExpansions] = useState<Record<string, { nodes: Node[]; edges: Edge[] }>>({})
+  // Mirror in a ref so the (stable) click handler always reads the latest map —
+  // avoids a stale closure re-expanding an already-open diamond.
+  const expansionsRef = useRef(expansions)
+  useEffect(() => { expansionsRef.current = expansions }, [expansions])
+
+  const collapseSubflow = useCallback((id: string) => {
+    setExpansions((prev) => {
+      if (!prev[id]) return prev
+      const next = { ...prev }
+      delete next[id]
+      return next
+    })
+  }, [])
+
+  const toggleSubflow = useCallback(
+    async (diamond: Node) => {
+      const id = diamond.id
+      if (expansionsRef.current[id]) {
+        collapseSubflow(id)
+        return
+      }
+      const data = diamond.data as ScreenData
+      const slug = flowSlugFromHref(data.href || "")
+      // Unknown / non-registered flow → keep the old behaviour (navigate).
+      if (!isExpandableFlow(slug)) {
+        if (data.href && data.href !== "#") setConfirmFlow({ title: data.title, href: data.href })
+        return
+      }
+      const loaded = await loadFlowData(slug)
+      if (!loaded) {
+        if (data.href && data.href !== "#") setConfirmFlow({ title: data.title, href: data.href })
+        return
+      }
+      const expansion = buildExpansion(diamond, loaded, data.title, {
+        onOpen: () => setConfirmFlow({ title: data.title, href: data.href }),
+        onCollapse: () => collapseSubflow(id),
+      })
+      setExpansions((prev) => (prev[id] ? prev : { ...prev, [id]: expansion }))
+      // Gently pan to frame the diamond + its new sub-flow frame (deferred so
+      // they get measured first). maxZoom keeps it from zooming in too hard.
+      const groupId = `sub:${id}:__group`
+      window.setTimeout(
+        () =>
+          rfRef.current?.fitView({
+            nodes: [{ id }, { id: groupId }],
+            padding: 0.28,
+            duration: 500,
+            maxZoom: 1,
+          }),
+        120,
+      )
+    },
+    [collapseSubflow],
+  )
+
+  const onUpdateNodeData = useCallback(
+    (nodeId: string, patch: Partial<ScreenData & DecisionData>) => {
+      setEditNodes((nodes) =>
+        nodes.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, ...patch } } : n)),
+      )
+    },
+    [setEditNodes],
+  )
   const onPreviewScreen = useCallback((data: ScreenData) => setPreviewScreen(data), [])
   const ctxValue = useMemo<EditorCtx>(
-    () => ({ mode: editMode ? "edit" : "view", onEditNode, onPreviewScreen }),
-    [editMode, onEditNode, onPreviewScreen],
+    () => ({ mode: editMode ? "edit" : "view", onUpdateNodeData, onPreviewScreen, autoEditId }),
+    [editMode, onUpdateNodeData, onPreviewScreen, autoEditId],
   )
 
   const onNodeClick = useCallback(
     (event: ReactMouseEvent, node: Node) => {
+      // Comment marker → open its thread.
+      if (node.type === "comment") {
+        const c = (node.data as { comment?: ReviewComment }).comment
+        if (c) setOpenThread({ commentId: c.id, at: { x: event.clientX, y: event.clientY } })
+        return
+      }
+      // Sub-flow group frame: its header buttons handle open/collapse — ignore body clicks.
+      if (node.type === "subflowGroup") return
+      // Nodes inside an expanded sub-flow are display-only (top-level screens still preview).
+      if (node.parentId) {
+        if (!commentMode && !editMode && !previewSugg && node.type === "screen") {
+          setPreviewScreen(node.data as ScreenData)
+        }
+        return
+      }
+      // Comment mode → anchor a new comment to the clicked node (top-right corner).
+      if (commentMode) {
+        const w = node.type === "decision" ? 240 : node.type === "crossflow" ? 184 : 200
+        setPendingComment({
+          target: {
+            nodeId: node.id,
+            nodeLabel: (node.data as { title?: string }).title,
+            position: { x: node.position.x + w - 14, y: node.position.y - 14 },
+          },
+          at: { x: event.clientX, y: event.clientY },
+        })
+        return
+      }
       if (editMode || previewSugg) return
+      // Diamond → expand/collapse the referenced flow inline (instead of navigating).
       if (node.type === "crossflow") {
-        const data = node.data as ScreenData
-        if (data.href && data.href !== "#") setConfirmFlow({ title: data.title, href: data.href })
+        void toggleSubflow(node)
         return
       }
       if (node.type !== "screen") return
@@ -650,8 +781,40 @@ export function FlowDiagram({
       }
       setPreviewScreen(data)
     },
-    [editMode, previewSugg],
+    [editMode, previewSugg, commentMode, toggleSubflow],
   )
+
+  // Comment mode: clicking empty canvas drops a free comment at that flow coord.
+  const onPaneClick = useCallback(
+    (event: ReactMouseEvent) => {
+      if (!commentMode) return
+      // First click dismisses an open popover; next click drops a new comment.
+      if (pendingComment || openThread) {
+        setPendingComment(null)
+        setOpenThread(null)
+        return
+      }
+      const flowPos = rfRef.current?.screenToFlowPosition({ x: event.clientX, y: event.clientY })
+      if (!flowPos) return
+      setPendingComment({
+        target: { position: flowPos },
+        at: { x: event.clientX, y: event.clientY },
+      })
+    },
+    [commentMode, pendingComment, openThread],
+  )
+
+  const enterCommentMode = useCallback(() => {
+    setCommentMode(true)
+    setPendingComment(null)
+    setOpenThread(null)
+  }, [])
+
+  const exitCommentMode = useCallback(() => {
+    setCommentMode(false)
+    setPendingComment(null)
+    setOpenThread(null)
+  }, [])
 
   const resetHistory = useCallback((snap: FlowSnapshot) => {
     historyRef.current = [cloneSnapshot(snap)]
@@ -671,6 +834,9 @@ export function FlowDiagram({
 
   function enterEdit() {
     skipPushRef.current = true
+    setCommentMode(false)
+    setPendingComment(null)
+    setOpenThread(null)
     setEditNodes(canonicalNodes.map((n) => ({ ...n })))
     setEditEdges(canonicalEdges.map((e) => ({ ...e })))
     setPreviewSugg(null)
@@ -681,7 +847,7 @@ export function FlowDiagram({
   function cancelEdit() {
     setEditNodes(canonicalNodes.map((n) => ({ ...n })))
     setEditEdges(canonicalEdges.map((e) => ({ ...e })))
-    setEditingNodeId(null)
+    setAutoEditId(null)
     setEditMode(false)
     historyRef.current = []
     setHistoryIndex(-1)
@@ -697,7 +863,7 @@ export function FlowDiagram({
       : { ...NEW_SCREEN_DATA }
     const node: Node = { id: nextNodeId(), type: kind, position: { x: baseX, y: baseY }, data }
     setEditNodes((nodes) => [...nodes, node])
-    setEditingNodeId(node.id)
+    setAutoEditId(node.id)
   }
 
   const onConnect = useCallback(
@@ -716,11 +882,6 @@ export function FlowDiagram({
     },
     [setEditEdges],
   )
-
-  function saveEditedNode(next: Node) {
-    setEditNodes((nodes) => nodes.map((n) => (n.id === next.id ? next : n)))
-    setEditingNodeId(null)
-  }
 
   async function confirmSave() {
     if (!desc.trim()) return
@@ -825,60 +986,51 @@ export function FlowDiagram({
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [editMode, undo, redo, duplicateSelected])
 
-  const editingNode = editingNodeId ? editNodes.find((n) => n.id === editingNodeId) ?? null : null
 
   const displayNodes = editMode ? editNodes : previewSugg ? previewSugg.nodes : viewNodes
   const displayEdges = editMode ? editEdges : previewSugg ? previewSugg.edges : canonicalEdges
 
+  // Overlays render only in the live view (never while editing/previewing a
+  // suggestion) so they never leak into a saved suggestion's node/edge set.
+  const overlaysOn = !editMode && !previewSugg
+  const commentMarkers = overlaysOn ? flowComments.map(commentMarkerNode) : []
+  const expansionNodes = overlaysOn ? Object.values(expansions).flatMap((e) => e.nodes) : []
+  const expansionEdges = overlaysOn ? Object.values(expansions).flatMap((e) => e.edges) : []
+  // Order matters: each sub-flow group node must precede its children (ReactFlow
+  // parent-before-child rule); buildExpansion already returns [group, ...children].
+  const renderedNodes = [...displayNodes, ...expansionNodes, ...commentMarkers]
+  const renderedEdges = expansionEdges.length > 0 ? [...displayEdges, ...expansionEdges] : displayEdges
+  const threadComment = openThread
+    ? flowComments.find((c) => c.id === openThread.commentId) ?? null
+    : null
+
   const errorMessage =
-    error === "not-configured"
-      ? "Flow bridge não configurado — rode /bombardier-flow-bridge no chat."
-      : error === "auth"
-        ? "Token do flow bridge inválido. Confira NEXT_PUBLIC_BOMBARDIER_FLOW_TOKEN."
-        : error === "network"
-          ? "Não foi possível falar com o flow bridge — confira se o servidor está no ar."
-          : null
+    error === "network"
+      ? "Não foi possível salvar a sugestão — confira se o servidor (npm run dev) está no ar."
+      : null
 
   return (
     <FlowEditorContext.Provider value={ctxValue}>
-      <div className="relative">
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-          {suggestions.length > 0 && !editMode && (
-            <button
-              onClick={() => setShowReview(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-xs font-medium text-[var(--aw-amber-800)] hover:bg-[var(--aw-amber-200)] transition"
-            >
-              <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold">
-                {suggestions.length}
-              </span>
-              {suggestions.length === 1 ? "sugestão" : "sugestões"}
-            </button>
-          )}
-          {!editMode && !previewSugg && (
-            <button
-              onClick={enterEdit}
-              disabled={!BRIDGE_CONFIGURED}
-              title={!BRIDGE_CONFIGURED ? "Bridge não configurado" : undefined}
-              className="px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-raised)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:border-[var(--aw-blue-400)] hover:text-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              Sugerir edição
-            </button>
-          )}
-        </div>
-
+      <div className={isFullscreen ? "fixed inset-0 z-40 bg-[var(--bg-canvas)]" : "relative"}>
         <div
-          className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
-          style={{ backgroundColor: "var(--bg-muted)", height: 800 }}
+          className={
+            isFullscreen
+              ? "overflow-hidden"
+              : "rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
+          }
+          style={{ backgroundColor: "var(--bg-muted)", height: isFullscreen ? "100vh" : 800 }}
         >
           <ReactFlow
-            nodes={displayNodes}
-            edges={displayEdges}
+            nodes={renderedNodes}
+            edges={renderedEdges}
             nodeTypes={nodeTypes}
+            onInit={(instance) => { rfRef.current = instance }}
             onNodesChange={editMode ? onEditNodesChange : previewSugg ? undefined : onViewNodesChange}
             onEdgesChange={editMode ? onEditEdgesChange : undefined}
             onConnect={editMode ? onConnect : undefined}
             onNodeClick={onNodeClick}
-            nodesDraggable={editMode || !previewSugg}
+            onPaneClick={commentMode ? onPaneClick : undefined}
+            nodesDraggable={editMode || (!previewSugg && !commentMode)}
             nodesConnectable={editMode}
             elementsSelectable={editMode}
             deleteKeyCode={editMode ? ["Backspace", "Delete"] : null}
@@ -894,81 +1046,133 @@ export function FlowDiagram({
             style={{ background: "#fafafa" }}
           >
             <Background variant={BackgroundVariant.Dots} gap={24} size={1.5} color="var(--border-default)" />
-            <Controls showInteractive={false} />
+            <Controls showInteractive={false}>
+              <ControlButton
+                onClick={toggleFullscreen}
+                title={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
+                aria-label={isFullscreen ? "Sair da tela cheia" : "Tela cheia"}
+              >
+                {isFullscreen ? (
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 7H9V2" />
+                    <path d="M9 7l5-5" />
+                    <path d="M2 9h5v5" />
+                    <path d="M7 9l-5 5" />
+                  </svg>
+                ) : (
+                  <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 2h5v5" />
+                    <path d="M14 2 9 7" />
+                    <path d="M7 14H2V9" />
+                    <path d="M2 14l5-5" />
+                  </svg>
+                )}
+              </ControlButton>
+            </Controls>
+
+            {!editMode && !previewSugg && suggestions.length > 0 && (
+              <Panel position="top-right">
+                <button
+                  onClick={() => setShowReview(true)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-xs font-medium text-[var(--aw-amber-800)] hover:bg-[var(--aw-amber-200)] transition shadow-[var(--shadow-sm)]"
+                >
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold">
+                    {suggestions.length}
+                  </span>
+                  {suggestions.length === 1 ? "sugestão" : "sugestões"}
+                </button>
+              </Panel>
+            )}
+
+            {/* FigJam-style central toolbar — lives inside the canvas so it also
+                shows in fullscreen. Lifted above the global Review dot, which
+                also docks bottom-center. Mover / Comentar / Sugerir edição. */}
+            {!editMode && !previewSugg && (
+              <Panel position="bottom-center" className="!bottom-16">
+
+                <div className="flex items-center gap-1 rounded-full bg-[var(--bg-raised)] border border-[var(--border-default)] shadow-[var(--shadow-md)] px-1.5 py-1.5">
+                  <button
+                    onClick={exitCommentMode}
+                    aria-pressed={!commentMode}
+                    title="Mover / navegar"
+                    className={
+                      !commentMode
+                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-[var(--aw-blue-100)] text-[var(--aw-blue-700)] transition"
+                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                    }
+                  >
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M8 2.5v11M2.5 8h11M8 2.5 6 4.5M8 2.5l2 2M8 13.5l-2-2M8 13.5l2-2M2.5 8l2-2M2.5 8l2 2M13.5 8l-2-2M13.5 8l-2 2" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={commentMode ? exitCommentMode : enterCommentMode}
+                    aria-pressed={commentMode}
+                    title="Comentar (estilo FigJam) — vai pro review com chip UX Flow"
+                    className={
+                      commentMode
+                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-[var(--aw-purple-600)] text-white transition"
+                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                    }
+                  >
+                    <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2.5 3.5h11v7h-7l-3 2.5z" />
+                    </svg>
+                  </button>
+                  <span className="w-px h-5 bg-[var(--border-default)] mx-0.5" />
+                  <button
+                    onClick={enterEdit}
+                    title="Sugerir edição"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--aw-blue-700)] transition"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z" />
+                    </svg>
+                    Sugerir edição
+                  </button>
+                </div>
+              </Panel>
+            )}
 
             {editMode && (
-              <>
-                <Panel position="top-center">
-                  <div className="flex items-center gap-3 bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                    <span className="text-[var(--aw-amber-800)] font-medium">Modo sugestão</span>
-                    <span className="text-[var(--aw-amber-500)]">·</span>
-                    <button onClick={() => setShowSave(true)} className="text-[var(--aw-amber-900)] font-semibold hover:underline">Salvar</button>
-                    <span className="text-[var(--aw-amber-500)]">·</span>
-                    <button onClick={() => setShowPromptModal(true)} className="text-[var(--aw-amber-900)] font-semibold hover:underline">Copiar prompt</button>
-                    <span className="text-[var(--aw-amber-500)]">·</span>
-                    <button onClick={cancelEdit} className="text-[var(--aw-amber-700)] hover:text-[var(--aw-amber-900)]">Cancelar</button>
-                  </div>
-                </Panel>
+              <Panel position="bottom-center" className="!bottom-16">
+                <div className="flex items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--bg-raised)] px-2 py-1.5 text-xs shadow-[var(--shadow-md)]">
+                  <button onClick={() => addNode("screen")} className="rounded-full border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-2.5 py-1 font-medium text-[var(--aw-blue-800)] transition hover:bg-[var(--aw-blue-200)]">
+                    + Tela
+                  </button>
+                  <button onClick={() => addNode("decision")} className="rounded-full border border-[var(--aw-amber-300)] bg-[var(--aw-amber-100)] px-2.5 py-1 font-medium text-[var(--aw-amber-900)] transition hover:bg-[var(--aw-amber-200)]">
+                    + Decisão
+                  </button>
+                  <button onClick={() => addNode("crossflow")} className="rounded-full border border-[var(--aw-purple-200)] bg-[var(--aw-purple-100)] px-2.5 py-1 font-medium text-[var(--aw-purple-800)] transition hover:bg-[var(--aw-purple-150)]">
+                    + Outro fluxo
+                  </button>
 
-                <Panel position="bottom-center">
-                  <div className="flex items-center gap-2 bg-[var(--bg-raised)] border border-[var(--border-default)] rounded-[var(--radius-md)] px-3 py-2 text-xs shadow-[var(--shadow-md)]">
-                    <span className="text-[var(--fg-tertiary)] mr-1">Adicionar:</span>
-                    <button onClick={() => addNode("screen")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] text-[var(--aw-blue-800)] font-medium hover:bg-[var(--aw-blue-200)] transition">
-                      + Tela
-                    </button>
-                    <button onClick={() => addNode("decision")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-[var(--aw-amber-900)] font-medium hover:bg-[var(--aw-amber-200)] transition">
-                      + Decisão
-                    </button>
-                    <button onClick={() => addNode("crossflow")} className="px-2.5 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-purple-100)] border border-[var(--aw-purple-200)] text-[var(--aw-purple-800)] font-medium hover:bg-[var(--aw-purple-150)] transition">
-                      + Outro fluxo
-                    </button>
+                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
 
-                    <span className="w-px h-4 bg-[var(--border-default)] mx-1" />
+                  <button onClick={undo} disabled={!canUndo} title="Desfazer (⌘Z)" aria-label="Desfazer" className="rounded-full px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↶</button>
+                  <button onClick={redo} disabled={!canRedo} title="Refazer (⌘⇧Z)" aria-label="Refazer" className="rounded-full px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↷</button>
 
-                    <button
-                      onClick={undo}
-                      disabled={!canUndo}
-                      title="Desfazer (⌘Z)"
-                      aria-label="Desfazer"
-                      className="px-2 py-1 rounded-[var(--radius-sm)] text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--fg-secondary)] transition"
-                    >
-                      ↶
-                    </button>
-                    <button
-                      onClick={redo}
-                      disabled={!canRedo}
-                      title="Refazer (⌘⇧Z)"
-                      aria-label="Refazer"
-                      className="px-2 py-1 rounded-[var(--radius-sm)] text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-[var(--fg-secondary)] transition"
-                    >
-                      ↷
-                    </button>
+                  <button
+                    onClick={() => setSnapEnabled((v) => !v)}
+                    title={snapEnabled ? "Snap ligado" : "Snap desligado"}
+                    className={
+                      snapEnabled
+                        ? "rounded-full border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-2 py-1 font-medium text-[var(--aw-blue-800)] transition"
+                        : "rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)]"
+                    }
+                  >
+                    Snap
+                  </button>
+                  <button onClick={applyAutoLayout} title="Reorganizar os cards em colunas" className="rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]">
+                    Organizar
+                  </button>
 
-                    <span className="w-px h-4 bg-[var(--border-default)] mx-1" />
+                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
 
-                    <button
-                      onClick={() => setSnapEnabled((v) => !v)}
-                      title={snapEnabled ? "Snap ligado — desligar" : "Snap desligado — ligar"}
-                      className={
-                        snapEnabled
-                          ? "px-2 py-1 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] text-[var(--aw-blue-800)] font-medium transition"
-                          : "px-2 py-1 rounded-[var(--radius-sm)] border border-transparent text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
-                      }
-                    >
-                      Snap
-                    </button>
-                    <button
-                      onClick={applyAutoLayout}
-                      title="Reorganizar nós em colunas top-to-bottom"
-                      className="px-2 py-1 rounded-[var(--radius-sm)] border border-transparent text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] transition"
-                    >
-                      Auto-layout
-                    </button>
-
-                    <span className="text-[var(--fg-tertiary)] ml-1">· ⇧+arraste seleciona · ⌘D duplica · Delete remove</span>
-                  </div>
-                </Panel>
-              </>
+                  <button onClick={cancelEdit} className="rounded-full px-2.5 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)]">Cancelar</button>
+                  <button onClick={() => setShowSave(true)} className="rounded-full bg-[var(--aw-blue-600)] px-3 py-1 font-medium text-white transition hover:bg-[var(--aw-blue-700)]">Salvar</button>
+                </div>
+              </Panel>
             )}
 
             {previewSugg && (
@@ -1003,11 +1207,20 @@ export function FlowDiagram({
               placeholder="Ex: adicionei bloqueio de conta após 5 tentativas inválidas…"
               rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} autoFocus
             />
-            <div className="flex justify-end gap-2">
-              <button onClick={() => setShowSave(false)} disabled={saving} className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition disabled:opacity-40">Cancelar</button>
-              <button onClick={confirmSave} disabled={!desc.trim() || saving} className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition">
-                {saving ? "Salvando…" : "Salvar"}
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => { setShowSave(false); setShowPromptModal(true) }}
+                disabled={saving}
+                className="text-xs font-medium text-[var(--fg-tertiary)] underline-offset-2 hover:text-[var(--aw-blue-700)] hover:underline disabled:opacity-40"
+              >
+                ou copiar prompt pro chat
               </button>
+              <div className="flex gap-2">
+                <button onClick={() => setShowSave(false)} disabled={saving} className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition disabled:opacity-40">Cancelar</button>
+                <button onClick={confirmSave} disabled={!desc.trim() || saving} className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition">
+                  {saving ? "Salvando…" : "Salvar"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1024,7 +1237,7 @@ export function FlowDiagram({
               <button onClick={() => setShowReview(false)} className="text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] text-lg leading-none">×</button>
             </div>
             <p className="text-xs text-[var(--fg-secondary)] m-0 -mt-2">
-              Sugestões vivem no flow-bridge (LAN). Mande o ID pro Claude no chat (<em>"avalia a sugestão X do flow {flow}"</em>) pra ele propor a aplicação. Aprovar arquiva, rejeitar volta pra aberta.
+              Sugestões ficam salvas no repo (<code className="text-[10px] font-mono">flow-bridge/data/suggestions.json</code>). Mande o ID pro Claude no chat (<em>&quot;avalia a sugestão X do flow {flow}&quot;</em>) pra ele propor a aplicação. Aprovar arquiva, rejeitar volta pra aberta.
             </p>
             <ul className="flex flex-col gap-3 overflow-y-auto m-0 p-0 list-none">
               {suggestions.map((s) => (
@@ -1081,13 +1294,6 @@ export function FlowDiagram({
         </div>
       )}
 
-      {editingNode && (
-        <NodeEditModal
-          target={editingNode}
-          onCancel={() => setEditingNodeId(null)}
-          onSave={saveEditedNode}
-        />
-      )}
 
       {showPromptModal && (
         <CopyPromptModal
@@ -1114,6 +1320,28 @@ export function FlowDiagram({
         screen={previewScreen}
         onClose={() => setPreviewScreen(null)}
       />
+
+      {pendingComment && (
+        <FlowCommentComposer
+          flow={flow}
+          target={pendingComment.target}
+          at={pendingComment.at}
+          onClose={() => setPendingComment(null)}
+          onSaved={() => {
+            setPendingComment(null)
+            void refreshComments()
+          }}
+        />
+      )}
+
+      {threadComment && openThread && (
+        <FlowCommentThread
+          comment={threadComment}
+          at={openThread.at}
+          onClose={() => setOpenThread(null)}
+          onChanged={() => void refreshComments()}
+        />
+      )}
     </FlowEditorContext.Provider>
   )
 }
