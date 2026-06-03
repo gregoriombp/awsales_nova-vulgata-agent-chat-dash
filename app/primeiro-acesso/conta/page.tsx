@@ -62,11 +62,6 @@ export default function ContaPage() {
           />
         ) : (
           <>
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-emerald-200 bg-aw-emerald-100 px-2.5 py-1 body-xs text-aw-emerald-800">
-              <Icon name="check_circle" size={12} fill={1} />
-              <span>E-mail verificado</span>
-            </div>
-
             <h3 className="mb-2 text-fg-primary text-balance">
               Crie sua conta para continuar
             </h3>
