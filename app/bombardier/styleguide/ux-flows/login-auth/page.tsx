@@ -66,7 +66,7 @@ const Y = {
  * Nodes
  * ──────────────────────────────────────────────────────────────────── */
 
-const NODES: Node[] = [
+export const NODES: Node[] = [
   // ── Centre spine ──────────────────────────────────────────────────
   {
     id: "entrada",
@@ -240,7 +240,7 @@ const labelProps = {
   labelBgPadding: [6, 4] as [number, number],
 }
 
-const EDGES: Edge[] = [
+export const EDGES: Edge[] = [
   // ── Entry ──────────────────────────────────────────────────────────
   { ...edgeBase,   id: "e-entrada-metodo",    source: "entrada",    target: "metodo",           label: "Acessar",          ...labelProps },
 

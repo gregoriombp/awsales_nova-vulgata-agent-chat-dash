@@ -53,7 +53,7 @@ const Y = {
  * Nodes
  * ──────────────────────────────────────────────────────────────────── */
 
-const NODES: Node[] = [
+export const NODES: Node[] = [
   {
     id: "entrada",
     type: "screen",
@@ -273,7 +273,7 @@ const labelProps = {
   labelBgPadding: [6, 4] as [number, number],
 }
 
-const EDGES: Edge[] = [
+export const EDGES: Edge[] = [
   { ...edgeBase, id: "e-entrada-linkValido", source: "entrada", target: "linkValido", label: "Clica no link", ...labelProps },
   { ...branchEdge, id: "e-linkValido-landing",   source: "linkValido", target: "landing",       sourceHandle: "bottom", label: "Válido",               ...labelProps },
   { ...branchEdge, id: "e-linkValido-expirado",  source: "linkValido", target: "linkExpirado",  sourceHandle: "right",  label: "Expirado (7d)",        ...labelProps },

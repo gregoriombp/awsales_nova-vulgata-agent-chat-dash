@@ -42,7 +42,7 @@ const Y = {
  * Nodes
  * ──────────────────────────────────────────────────────────────────── */
 
-const NODES: Node[] = [
+export const NODES: Node[] = [
   {
     id: "entrada",
     type: "crossflow",
@@ -150,7 +150,7 @@ const labelProps = {
   labelBgPadding: [6, 4] as [number, number],
 }
 
-const EDGES: Edge[] = [
+export const EDGES: Edge[] = [
   { ...crossEdge, id: "e-entrada-contrato", source: "entrada", target: "contrato", label: "Configurar agora", ...labelProps },
   { ...edgeBase, id: "e-contrato-pagamento", source: "contrato", target: "pagamento" },
 
