@@ -133,11 +133,11 @@ Round up to the nearest 100 for cleanliness. Minimum 800 px.
 
 ## Step 3 — Node types
 
-The two node types — `screen` and `decision` — are already implemented in
-`../_components/flow-editor.tsx` and registered inside `FlowDiagram`. **Do
-not redefine them in your page.** A flow page only authors the `NODES` and
-`EDGES` arrays and hands them to `<FlowDiagram>`. Do not invent new node
-types.
+The three node types — `screen`, `decision`, and `crossflow` — are already
+implemented in `../_components/flow-editor.tsx` and registered inside
+`FlowDiagram`. **Do not redefine them in your page.** A flow page only authors
+the `NODES` and `EDGES` arrays and hands them to `<FlowDiagram>`. Do not invent
+new node types.
 
 ### `screen` — a tela/estado
 
@@ -177,13 +177,32 @@ Data shape: `{ step: string; title: string; question: string }`
 - `id="right"` → used when the right branch exits from the right side
 - Always specify `sourceHandle` on edges leaving a decision node
 
+### `crossflow` — salto pra outro fluxo
+
+Use this **only** when the path leaves THIS flow and enters ANOTHER styleguide
+flow (e.g. login → primeiro-acesso). Renders as a purple losango (rotated
+square), visually distinct from screen cards and decision boxes. Clicking it
+opens a confirmation modal ("Ir para outro fluxo?") and only navigates on
+confirm.
+
+Data shape (same as `screen`): `{ step: string; title: string; href: string; note?: string }`
+
+- `title`: the **destination flow's name** — short, shows inside the losango and in the modal (e.g. `"Login"`, `"Primeiro acesso"`).
+- `href`: the OTHER flow's page route — `/bombardier/styleguide/ux-flows/[other-slug]`. Not a prototype route.
+- `note`: optional one-liner of context.
+- Handles are top (target) + bottom (source), like `screen` — no `sourceHandle` needed on its edges.
+
+Don't use `crossflow` for a normal terminal screen that just enters the product
+(e.g. `/inicio`) — that stays `screen`. Only for jumps between two ux-flow pages.
+
 ---
 
 ## Step 4 — Edge styles
 
-The two edge bases — `edgeBase` (grey, main flow) and `branchEdge` (amber,
-exit from a decision) — are exported from `../_components/flow-editor.tsx`.
-Import them in the page instead of redeclaring:
+Three edge bases — `edgeBase` (grey, main flow), `branchEdge` (amber, exit from
+a decision), and `crossEdge` (purple dashed, to/from a `crossflow` node) — are
+exported from `../_components/flow-editor.tsx`. Import the ones you use instead
+of redeclaring:
 
 ```ts
 import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
@@ -203,6 +222,7 @@ const labelProps = {
 **When to use each:**
 - `edgeBase` — entry → step, step → step, step → decision, convergence → next step
 - `branchEdge` — decision → any branch node (always amber, always labelled with the branch choice)
+- `crossEdge` — an edge that touches a `crossflow` node (purple dashed, marks the jump to another flow)
 
 **Edge labelling:**
 - Decision → branch: label with the branch choice (e.g. `"Pix"`, `"Google"`, `"Sim"`, `"Não"`)

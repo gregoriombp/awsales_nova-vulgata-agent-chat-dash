@@ -36,6 +36,7 @@ returning to the page weeks later.
 | New `ScreenNode` or `DecisionNode` added | **yes** | `new-page` |
 | Node removed from the flow | **yes** | `removed-page` |
 | New branch (new edge leaving a `DecisionNode`) | **yes** | `new-branch` |
+| New `CrossFlowNode` (jump to another flow) | **yes** | `flow-rework` |
 | Branches reordered or rerouted so the perceived sequence changes | **yes** | `flow-rework` |
 | `ScreenNode` becomes `DecisionNode` (or vice-versa) | **yes** | `flow-rework` |
 | New external integration relevant to the flow (magic-link, OAuth provider, etc.) | **yes** | `integration` |
@@ -92,14 +93,17 @@ Open `app/bombardier/styleguide/ux-flows/[slug]/page.tsx` and edit the
 
 Rules that mirror `bombardier-create-ux-flow`:
 
-- Reuse the `screen` / `decision` node types from the shared
+- Reuse the `screen` / `decision` / `crossflow` node types from the shared
   `<FlowDiagram>` (imported from `../_components/flow-editor`) — never
-  redefine or invent new node types in the page.
+  redefine or invent new node types in the page. A `crossflow` node marks a
+  jump to ANOTHER ux-flow: `title` = destination flow name, `href` =
+  `/bombardier/styleguide/ux-flows/[other-slug]` (details in
+  `bombardier-create-ux-flow` Step 3).
 - Keep the column geometry consistent (see `bombardier-create-ux-flow`
   Step 2). If the new node sits off the main column, add a documented X
   constant (e.g. `EXPIRADO_X = 560`).
 - Always specify `sourceHandle` on edges leaving a decision node.
-- Use `edgeBase` for main-flow edges, `branchEdge` for decision exits.
+- Use `edgeBase` for main-flow edges, `branchEdge` for decision exits, `crossEdge` for edges touching a `crossflow` node.
 - Label every decision exit with the choice ("Sim", "Não", "Pix", etc.).
 - Update the `Y` table if you insert a new row.
 - Update the container `height` if the diagram grew.
