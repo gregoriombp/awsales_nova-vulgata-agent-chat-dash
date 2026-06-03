@@ -19,6 +19,8 @@ description: >
 
 # Bombardier — Prompt 1: Design System Foundation
 
+> **Repo override (AwSales): do not scaffold a "Playground" area.** This repo's `/bombardier/styleguide` has no Playground/quarantine route — it was removed deliberately. Skip any step below that creates a `playground/` folder or "Playground" nav section. Components live in `components/ui/Aw*` with showcases at `app/bombardier/styleguide/components/aw-[name]/`. Source of truth: `AGENTS.md`.
+
 Translate a design reference into a working Bombardier design system: shadcn/ui
 under the hood, tokens in `globals.css`, and a navigable
 `/bombardier/styleguide` route documenting everything.

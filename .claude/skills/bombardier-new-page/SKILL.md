@@ -17,6 +17,8 @@ description: >
 
 # Bombardier — Prompt 3: Page Development
 
+> **Repo override (AwSales): there is no "Playground"/quarantine area.** Ignore any step below that puts a new component or page prototype under a `playground/` path or in a "Playground" nav section — it was removed. New components go to `components/ui/Aw[Name].tsx` + showcase at `app/bombardier/styleguide/components/aw-[name]/`. Source of truth: `AGENTS.md`.
+
 Build a `[PAGE NAME]` page using the project's existing design system
 components and foundation tokens.
 
@@ -153,7 +155,7 @@ component covers it. Use shadcn MCP to verify available primitives:
 | Form inputs | Input, Textarea (with Label) |
 | Dropdowns | Select or DropdownMenu |
 | Badges / tags | Badge |
-| Icons | lucide-react |
+| Icons | Material Symbols via `Icon` (components/ui/Icon.tsx) |
 | Modal / dialog | Dialog |
 | Toast / notification | Toast / Sonner |
 | Avatar / profile image | Avatar |
@@ -288,26 +290,10 @@ Use Tailwind classes that reference project CSS variables:
 > the reference shows a visual that doesn't match any existing token, use the
 > **semantically closest** token. Flag the gap in the output report.
 
-### 9. Responsive behavior
+### 9. Layout (desktop-only)
 
-Define how the layout adapts:
-
-- **Mobile (< 768px):** Sidebar collapses or hides, single column, primary
-  actions visible
-- **Tablet (768px – 1024px):** Sidebar as overlay or mini, two-column where
-  appropriate
-- **Desktop (> 1024px):** Full layout as designed
-
-```tsx
-<div className="flex flex-col md:flex-row">
-  <aside className="hidden md:block md:w-64">
-    {/* Sidebar - hidden on mobile */}
-  </aside>
-  <main className="flex-1">
-    {/* Main content */}
-  </main>
-</div>
-```
+This product is **desktop-only** — there are no mobile/tablet breakpoints. Don't
+add `md:` / `lg:` reflows or hide elements per breakpoint.
 
 Do not let text overflow its parent. Use stable dimensions for cards, lists,
 controls, grids, and repeated items.
@@ -418,7 +404,6 @@ Validation:
   sections, and hierarchy; project tokens dictate all visual values.
 - **Playground for new components** — any component created during page
   building goes to Playground, not the official design system.
-- **Mobile-first** — consider responsive behavior from the start.
 - **Flag gaps** — if the page genuinely needs a token or component that
   doesn't exist, report it in the output instead of creating workarounds.
 - **Keep API aligned** — match the project's conventions for routing, layouts,

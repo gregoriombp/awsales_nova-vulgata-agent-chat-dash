@@ -19,6 +19,8 @@ description: >
 
 # Bombardier — Prompt 4: Design System Audit & Sync
 
+> **Repo override (AwSales): there is no "Playground"/quarantine area.** Skip any audit step below about scanning a `playground/` folder, counting "Playground items", or listing "Playground promotion candidates" — that area was removed from this repo. Source of truth: `AGENTS.md`.
+
 Verify that the entire design system is consistent, linked, and working
 correctly. Run after the foundation, component, or page skills — or any time
 you want to validate that foundations, components, pages, and navigation are
@@ -116,7 +118,7 @@ For each page, verify:
 - Uses only existing components from `/components/` or `/components/ui/`
 - Uses only existing project tokens (no hardcoded values)
 - Imports are correct and resolved
-- Responsive behavior is implemented (mobile, tablet, desktop)
+- Layout is stable and desktop-only (no mobile/tablet breakpoints)
 - Metadata is present when the framework supports it
 - No inline components that should be extracted to Playground
 
