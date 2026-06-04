@@ -1,0 +1,434 @@
+"use client"
+
+import * as React from "react"
+import Link from "next/link"
+import { AwButton } from "@/components/ui/AwButton"
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu"
+import {
+  AwEmpty,
+  AwEmptyDescription,
+  AwEmptyHeader,
+  AwEmptyMedia,
+  AwEmptyTitle,
+} from "@/components/ui/AwEmpty"
+import { AwInput } from "@/components/ui/AwInput"
+import { AwPill } from "@/components/ui/AwPill"
+import { AwStatCard } from "@/components/ui/AwStatCard"
+import { Icon } from "@/components/ui/Icon"
+import { useReviewStore } from "@/lib/bombardier-review/store"
+import type { ReviewComment } from "@/components/bombardier-review/types"
+
+type Tab = "open" | "in_review" | "archive"
+
+function pad2(n: number): string {
+  return n < 10 ? `0${n}` : String(n)
+}
+
+function formatTimestamp(ts: number): string {
+  const d = new Date(ts)
+  return `${pad2(d.getDate())}/${pad2(d.getMonth() + 1)}/${d.getFullYear()} · ${pad2(
+    d.getHours()
+  )}:${pad2(d.getMinutes())}`
+}
+
+function StatusPill({ status }: { status: ReviewComment["status"] }) {
+  if (status === "in_review") return <AwPill variant="beta">Em revisão</AwPill>
+  if (status === "resolved") return <AwPill variant="live">Resolvido</AwPill>
+  return <AwPill variant="draft">Aberto</AwPill>
+}
+
+function CommentCard({
+  comment,
+  archived,
+  selectable,
+  selected,
+  onToggleSelected,
+}: {
+  comment: ReviewComment
+  archived: boolean
+  selectable: boolean
+  selected: boolean
+  onToggleSelected: () => void
+}) {
+  const archiveDirect = useReviewStore((s) => s.archiveDirect)
+  const approveComment = useReviewStore((s) => s.approveComment)
+  const rejectComment = useReviewStore((s) => s.rejectComment)
+  const reopenFromArchive = useReviewStore((s) => s.reopenFromArchive)
+  const deleteComment = useReviewStore((s) => s.deleteComment)
+
+  const items: AwDropdownItem[] = [
+    {
+      id: "open",
+      label: "Abrir tela",
+      icon: "open_in_new",
+      onSelect: () => {
+        window.location.href = comment.url
+      },
+    },
+  ]
+  if (archived) {
+    items.push({
+      id: "reopen",
+      label: "Reabrir",
+      icon: "refresh",
+      onSelect: () => void reopenFromArchive(comment.id),
+    })
+  } else if (comment.status === "in_review") {
+    items.push(
+      {
+        id: "approve",
+        label: "Aprovar",
+        icon: "check_circle",
+        onSelect: () => void approveComment(comment.id),
+      },
+      {
+        id: "reject",
+        label: "Rejeitar",
+        icon: "undo",
+        onSelect: () => void rejectComment(comment.id),
+      }
+    )
+  } else {
+    items.push({
+      id: "archive",
+      label: "Marcar como resolvido",
+      icon: "check_circle",
+      onSelect: () => void archiveDirect(comment.id),
+    })
+  }
+  items.push(
+    { id: "sep", separator: true },
+    {
+      id: "delete",
+      label: "Excluir",
+      icon: "delete",
+      danger: true,
+      onSelect: () => void deleteComment(comment.id),
+    }
+  )
+
+  return (
+    <div className="flex items-start gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:bg-[var(--bg-hover)]">
+      {selectable && (
+        <input
+          type="checkbox"
+          checked={selected}
+          onChange={onToggleSelected}
+          aria-label="Selecionar"
+          className="mt-1 accent-[var(--accent-brand)]"
+        />
+      )}
+      <span
+        className="mt-0.5 h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-semibold text-[var(--fg-on-inverse)]"
+        style={{ background: comment.authorColorToken }}
+      >
+        {comment.authorName.charAt(0).toUpperCase()}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-sm font-medium text-[var(--fg-primary)] truncate">
+            {comment.authorName}
+          </span>
+          <StatusPill status={comment.status} />
+          <span className="text-[11px] text-[var(--fg-tertiary)] tabular-nums ml-auto">
+            {formatTimestamp(comment.createdAt)}
+          </span>
+        </div>
+        <p className="m-0 text-sm text-[var(--fg-primary)] whitespace-pre-wrap line-clamp-3">
+          {comment.text}
+        </p>
+        {comment.resolution?.summary && (
+          <p className="m-0 mt-1 text-[11px] text-[var(--fg-tertiary)] italic">
+            {comment.resolution.summary}
+          </p>
+        )}
+        <Link
+          href={comment.url}
+          className="mt-1 inline-flex items-center gap-1 text-[11px] text-[var(--fg-tertiary)] hover:text-[var(--accent-brand)]"
+          title={comment.url}
+        >
+          <Icon name="web_asset" size={11} />
+          <span className="truncate max-w-[280px]">{comment.url}</span>
+        </Link>
+      </div>
+      <AwDropdownMenu
+        align="end"
+        trigger={
+          <button
+            type="button"
+            aria-label="Ações"
+            className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
+          >
+            <Icon name="more_horiz" size={14} />
+          </button>
+        }
+        items={items}
+      />
+    </div>
+  )
+}
+
+export function CommentsPanel() {
+  const comments = useReviewStore((s) => s.comments)
+  const archivedComments = useReviewStore((s) => s.archivedComments)
+  const archiveLoaded = useReviewStore((s) => s.archiveLoaded)
+  const archiveCursor = useReviewStore((s) => s.archiveCursor)
+  const refresh = useReviewStore((s) => s.refreshFromStorage)
+  const loadArchivePage = useReviewStore((s) => s.loadArchivePage)
+  const approveComment = useReviewStore((s) => s.approveComment)
+  const rejectComment = useReviewStore((s) => s.rejectComment)
+  const backend = useReviewStore((s) => s.backend)
+  const storage = useReviewStore((s) => s.storage)
+
+  React.useEffect(() => {
+    void refresh()
+    void loadArchivePage(true)
+    const unsubscribe = storage.subscribe?.(() => {
+      void refresh()
+      void loadArchivePage(true)
+    })
+    return unsubscribe
+  }, [refresh, loadArchivePage, storage])
+
+  const [tab, setTab] = React.useState<Tab>("open")
+  const [search, setSearch] = React.useState("")
+  const [groupByUrl, setGroupByUrl] = React.useState(true)
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
+  const [bulkBusy, setBulkBusy] = React.useState(false)
+
+  React.useEffect(() => {
+    setSelectedIds(new Set())
+  }, [tab])
+
+  const openCount = comments.filter((c) => c.status === "open").length
+  const inReviewCount = comments.filter((c) => c.status === "in_review").length
+  const archivedCount = archivedComments.length
+
+  const source: ReviewComment[] = React.useMemo(() => {
+    if (tab === "open") return comments.filter((c) => c.status === "open")
+    if (tab === "in_review") return comments.filter((c) => c.status === "in_review")
+    return archivedComments
+  }, [tab, comments, archivedComments])
+
+  const filtered = React.useMemo(() => {
+    const q = search.trim().toLowerCase()
+    if (!q) return source
+    return source.filter((c) => c.text.toLowerCase().includes(q))
+  }, [source, search])
+
+  const sorted = React.useMemo(
+    () => [...filtered].sort((a, b) => b.createdAt - a.createdAt),
+    [filtered]
+  )
+
+  const grouped = React.useMemo(() => {
+    if (!groupByUrl) return null
+    const map = new Map<string, ReviewComment[]>()
+    for (const c of sorted) {
+      const arr = map.get(c.url) ?? []
+      arr.push(c)
+      map.set(c.url, arr)
+    }
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+  }, [sorted, groupByUrl])
+
+  const selectableTab = tab === "in_review"
+
+  const toggleSelected = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const runBulk = async (action: (id: string) => Promise<void>) => {
+    setBulkBusy(true)
+    try {
+      for (const id of Array.from(selectedIds)) await action(id)
+      setSelectedIds(new Set())
+    } finally {
+      setBulkBusy(false)
+    }
+  }
+
+  const renderList = (items: ReviewComment[]) => (
+    <div className="flex flex-col gap-2">
+      {items.map((c) => (
+        <CommentCard
+          key={c.id}
+          comment={c}
+          archived={tab === "archive"}
+          selectable={selectableTab}
+          selected={selectedIds.has(c.id)}
+          onToggleSelected={() => toggleSelected(c.id)}
+        />
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <AwStatCard icon="forum" label="Total ativos" value={comments.length} />
+        <AwStatCard icon="pending" label="Abertos" value={openCount} />
+        <AwStatCard icon="hourglass_top" label="Em revisão" value={inReviewCount} />
+        <AwStatCard icon="archive" label="Arquivados" value={archivedCount} />
+      </div>
+
+      <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 flex flex-wrap items-center gap-3">
+        <div className="flex-1 min-w-[200px] max-w-md">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar texto…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+
+        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] text-[11px] font-medium">
+          {(["open", "in_review", "archive"] as Tab[]).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={[
+                "px-3 py-1 rounded-full transition-colors inline-flex items-center gap-1.5",
+                tab === t
+                  ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-sm"
+                  : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]",
+              ].join(" ")}
+            >
+              {t === "open" ? "Abertos" : t === "in_review" ? "Em revisão" : "Arquivados"}
+              {t === "in_review" && inReviewCount > 0 && (
+                <span className="min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full text-[10px] font-semibold bg-[var(--aw-amber-100)] text-[var(--aw-amber-700)] tabular-nums">
+                  {inReviewCount}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        <label className="flex items-center gap-2 text-xs text-[var(--fg-secondary)] cursor-pointer">
+          <input
+            type="checkbox"
+            checked={groupByUrl}
+            onChange={(e) => setGroupByUrl(e.target.checked)}
+            className="accent-[var(--accent-brand)]"
+          />
+          Agrupar por tela
+        </label>
+
+        <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+          <Icon name={backend === "bridge" ? "cloud_done" : "save"} size={13} />
+          {backend === "bridge" ? "Bridge LAN" : "localStorage"}
+        </span>
+
+        <AwButton
+          variant="ghost"
+          size="sm"
+          iconLeft="refresh"
+          onClick={() => {
+            void refresh()
+            void loadArchivePage(true)
+          }}
+        >
+          Atualizar
+        </AwButton>
+      </div>
+
+      {selectableTab && selectedIds.size > 0 && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-muted)] border border-[var(--border-subtle)]">
+          <span className="text-sm text-[var(--fg-secondary)]">
+            {selectedIds.size} selecionado{selectedIds.size === 1 ? "" : "s"}
+          </span>
+          <div className="flex items-center gap-2">
+            <AwButton
+              variant="primary"
+              size="sm"
+              iconLeft="check_circle"
+              loading={bulkBusy}
+              disabled={bulkBusy}
+              onClick={() => void runBulk(approveComment)}
+            >
+              Aprovar selecionados
+            </AwButton>
+            <AwButton
+              variant="secondary"
+              size="sm"
+              iconLeft="undo"
+              disabled={bulkBusy}
+              onClick={() => void runBulk(rejectComment)}
+            >
+              Rejeitar selecionados
+            </AwButton>
+          </div>
+        </div>
+      )}
+
+      {sorted.length === 0 ? (
+        <AwEmpty>
+          <AwEmptyHeader>
+            <AwEmptyMedia variant="icon">
+              <Icon name="forum" size={20} />
+            </AwEmptyMedia>
+            <AwEmptyTitle>
+              {tab === "archive" && !archiveLoaded
+                ? "Carregando arquivados…"
+                : tab === "in_review"
+                ? "Nada esperando revisão"
+                : tab === "archive"
+                ? "Nenhum arquivado ainda"
+                : comments.length === 0
+                ? "Nenhum comentário ainda"
+                : "Nada com esses filtros"}
+            </AwEmptyTitle>
+            <AwEmptyDescription>
+              {tab === "open" && comments.length === 0
+                ? "Ative o Review Mode (⌘⇧Y) em qualquer tela e desenhe o primeiro comentário."
+                : tab === "in_review"
+                ? "Quando um agente marcar algo como resolvido, ele aparece aqui pra você aprovar ou rejeitar."
+                : "Tente afrouxar a busca."}
+            </AwEmptyDescription>
+          </AwEmptyHeader>
+        </AwEmpty>
+      ) : grouped ? (
+        <div className="flex flex-col gap-6">
+          {grouped.map(([url, items]) => (
+            <section key={url} className="flex flex-col gap-3">
+              <header className="flex items-center gap-2 min-w-0">
+                <Icon name="web_asset" size={14} className="text-[var(--fg-tertiary)] shrink-0" />
+                <Link
+                  href={url}
+                  className="text-sm text-[var(--fg-primary)] hover:text-[var(--accent-brand)] truncate"
+                >
+                  {url}
+                </Link>
+                <span className="text-xs text-[var(--fg-tertiary)] shrink-0">
+                  {items.length} no total
+                </span>
+              </header>
+              {renderList(items)}
+            </section>
+          ))}
+        </div>
+      ) : (
+        renderList(sorted)
+      )}
+
+      {tab === "archive" && archiveCursor && (
+        <div className="flex justify-center">
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconLeft="expand_more"
+            onClick={() => void loadArchivePage(false)}
+          >
+            Carregar mais arquivados
+          </AwButton>
+        </div>
+      )}
+    </div>
+  )
+}
