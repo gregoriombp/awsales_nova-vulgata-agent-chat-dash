@@ -86,6 +86,7 @@ export const navigation: NavSection[] = [
       { name: "Modais", href: "/bombardier/styleguide/components/modals" },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
+      { name: "Notificações", href: "/bombardier/styleguide/components/aw-notifications-panel" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
       { name: "Payment method card", href: "/bombardier/styleguide/components/payment-method-card" },
