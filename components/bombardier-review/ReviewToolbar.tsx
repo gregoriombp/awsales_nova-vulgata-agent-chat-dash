@@ -5,6 +5,7 @@ import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
+import { ReviewAvatar } from "./ReviewAvatar"
 import type { ReviewMode } from "./types"
 
 type ModeButtonProps = {
@@ -82,13 +83,14 @@ export function ReviewToolbar() {
     >
       <div className="pointer-events-auto rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] shadow-lg px-1.5 py-1.5 flex items-center gap-1">
         {identity && (
-          <span
-            className="h-7 w-7 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)] mr-0.5"
-            style={{ background: identity.colorToken }}
+          <ReviewAvatar
+            authorId={identity.id}
+            authorName={identity.name}
+            colorToken={identity.colorToken}
+            size={28}
             title={`Revisor: ${identity.name}`}
-          >
-            {identity.name.charAt(0).toUpperCase()}
-          </span>
+            className="mr-0.5"
+          />
         )}
 
         <span className="h-5 w-px bg-[var(--border-subtle)]" />
