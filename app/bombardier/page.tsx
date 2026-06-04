@@ -63,8 +63,12 @@ export default function BombardierHub() {
         </header>
 
         <section className="mb-10">
-          <p className="aw-eyebrow mb-3">Seus projetos</p>
-          <AwCard interactive className="p-6 flex flex-col gap-4">
+          <h2 className="text-xl font-semibold tracking-tight mb-3">Seus projetos</h2>
+          <AwCard
+            interactive
+            className="p-6 flex flex-col gap-4"
+            style={{ borderRadius: "var(--radius-2xl)" }}
+          >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <span
@@ -93,7 +97,9 @@ export default function BombardierHub() {
           </AwCard>
         </section>
 
-        <p className="aw-eyebrow mb-3">Ferramentas Bombardier</p>
+        <h2 className="text-xl font-semibold tracking-tight mb-3">
+          Ferramentas Bombardier
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sections.map((s) => {
             const ready = s.status === "ready"
@@ -101,7 +107,8 @@ export default function BombardierHub() {
               <AwCard
                 key={s.title}
                 interactive={ready}
-                className="p-6 flex flex-col gap-4"
+                className="p-6 flex flex-col gap-4 bg-[var(--bg-surface)]"
+                style={{ borderRadius: "var(--radius-2xl)" }}
               >
                 <div className="flex items-start justify-between">
                   <span
