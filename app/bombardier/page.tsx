@@ -66,20 +66,30 @@ export default function BombardierHub() {
           <h2 className="text-xl font-semibold tracking-tight mb-3">Seus projetos</h2>
           <AwCard
             interactive
-            className="p-6 flex flex-col gap-4"
-            style={{ borderRadius: "var(--radius-2xl)" }}
+            className="p-6 flex flex-col gap-4 border-transparent"
+            style={{
+              borderRadius: "var(--radius-2xl)",
+              background: "var(--bg-inverse)",
+            }}
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <span
-                  className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)]"
+                  className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-white/10"
                   style={{ width: 52, height: 52 }}
                 >
-                  <Icon name="hub" size={28} />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/assets/brand/awsales-mark-white.svg"
+                    alt="AwSales"
+                    style={{ width: 30, height: 30 }}
+                  />
                 </span>
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-2xl font-semibold tracking-tight">AwSales</h2>
-                  <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-xl">
+                  <h2 className="text-2xl font-semibold tracking-tight text-[var(--fg-on-inverse)]">
+                    AwSales
+                  </h2>
+                  <p className="text-sm text-white/70 leading-relaxed max-w-xl">
                     Plataforma de vendas com agentes — abra o produto para explorar
                     dashboard, conversas, canais e configurações.
                   </p>
@@ -89,7 +99,11 @@ export default function BombardierHub() {
             </div>
             <div className="mt-2">
               <Link href="/awsales/login" className="no-underline">
-                <AwButton variant="primary" iconRight="arrow_forward">
+                <AwButton
+                  variant="primary"
+                  iconRight="arrow_forward"
+                  style={{ background: "var(--aw-white)", color: "var(--aw-gray-1200)" }}
+                >
                   Abrir projeto
                 </AwButton>
               </Link>
@@ -107,7 +121,7 @@ export default function BombardierHub() {
               <AwCard
                 key={s.title}
                 interactive={ready}
-                className="p-6 flex flex-col gap-4 bg-[var(--bg-surface)]"
+                className="p-6 flex flex-col gap-4 bg-[var(--bg-raised)]"
                 style={{ borderRadius: "var(--radius-2xl)" }}
               >
                 <div className="flex items-start justify-between">
