@@ -28,6 +28,34 @@ the same pattern — no deviations without a reason.
 
 ---
 
+## What the diagram gives you for free
+
+Every interactive feature of the flow diagram lives **inside `<FlowDiagram>`**,
+not in the page. A page that renders `<FlowDiagram flow="…" nodes={…} edges={…} />`
+automatically inherits all of these — you do **not** wire them per page:
+
+- **Comentar** — FigJam-style comment markers. Each comment goes to the
+  review-bridge tagged `origin: "ux-flow"` and shows in Review Mode with a
+  **"UX Flow"** chip.
+- **Sugerir edição** — opens edit mode; "Salvar" POSTs the edited graph to the
+  serverless route `/api/flow-suggestions` (no server, no token). Suggestions
+  are applied later via the `bombardier-flow-bridge-solve` skill.
+- **Tela cheia** — fullscreen toggle (CSS overlay, ESC to exit).
+- **Sub-flow expansion** — a `crossflow` losango whose `href` points at another
+  expandable ux-flow opens that flow inline.
+- **Suggestions badge** — count of open suggestions, top-right.
+
+**The `flow` prop is a hard contract, not a label.** It is the scoping key for
+both comments (`flowRef.flow`) and suggestions (`/api/flow-suggestions?flow=…`).
+It **must equal the page's slug** — the folder name under `ux-flows/`. Pass it
+wrong and comments/suggestions silently land in the wrong bucket. So:
+`ux-flows/login-auth/` → `<FlowDiagram flow="login-auth" …>`.
+
+The only feature a page **does** author itself is the **updates changelog**
+(`updates[]` + `<FlowUpdatesBadge>` + `<FlowUpdatesHistorySection>`) — see Step 6.
+
+---
+
 ## Input expected from the user
 
 ```txt
@@ -257,11 +285,49 @@ note: "Clique em "Primeiro acesso" para iniciar.",
 The page has **four sections** in this order. The `Tldr` component is **not
 used** in UX flow pages — replace it with a brief introductory paragraph.
 
+### Imports + changelog scaffold
+
+Every flow page is born with the updates changelog wired in (the badge in the
+hero + the history section at the bottom). Import the helpers and declare an
+`updates[]` array — seed it with **one** entry dated today marking the flow's
+creation. After this, the `bombardier-update-ux-flow` skill prepends new
+entries on every structural change.
+
+```tsx
+"use client"
+
+import Link from "next/link"
+import type { Edge, Node } from "@xyflow/react"
+
+import { PageHero, Section } from "../../_primitives"
+import { branchEdge, edgeBase, FlowDiagram } from "../_components/flow-editor"
+import {
+  FlowUpdatesBadge,
+  FlowUpdatesHistorySection,
+  type FlowUpdate,
+} from "../_components/flow-updates"
+
+// ...NODES / EDGES / screens arrays...
+
+const updates: FlowUpdate[] = [
+  {
+    date: "[today YYYY-MM-DD]",
+    summary: "Flow mapeado no styleguide.",
+    tags: ["new-page"],
+  },
+]
+```
+
+### Page body
+
 ```tsx
 export default function [FlowName]FlowPage() {
   return (
     <>
-      <PageHero title="[Flow name]">
+      <PageHero
+        title="[Flow name]"
+        trailing={<FlowUpdatesBadge updates={updates} />}
+      >
         [1–2 sentence description of the flow. What it covers, who goes
         through it, when to use this map.]
       </PageHero>
@@ -338,6 +404,9 @@ export default function [FlowName]FlowPage() {
           </div>
         </Section>
 
+        {/* Changelog history — always last. Renders the entries from updates[]. */}
+        <FlowUpdatesHistorySection updates={updates} />
+
       </div>
     </>
   )
@@ -396,6 +465,8 @@ nodes are clickable, and the dots background is visible.
 
 - [ ] Read `primeiro-acesso/page.tsx` as reference
 - [ ] Page imports `branchEdge`, `edgeBase`, `FlowDiagram` from `../_components/flow-editor` — never redefines node or edge primitives
+- [ ] `<FlowDiagram flow="…">` **equals the folder slug** (scoping key for comments + suggestions)
+- [ ] Changelog wired: imports from `../_components/flow-updates`, `updates[]` seeded with a "new-page" entry dated today, `trailing={<FlowUpdatesBadge updates={updates} />}` on `PageHero`, `<FlowUpdatesHistorySection updates={updates} />` last
 - [ ] Mapped all screens + decision points + branches + convergences
 - [ ] Layout geometry calculated (COL, COL_D, branch X positions, Y table)
 - [ ] Container height passed via `<FlowDiagram height={…} />` = Y[last row] + 200, rounded to nearest 100

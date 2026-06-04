@@ -565,7 +565,7 @@ export default function LoginAuthFlowPage() {
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Todas as telas vivem em /. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central."
+          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral — todas vivem em /. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam bifurcações. Google e Microsoft seguem pelos corredores laterais sem cruzar o fluxo central. Na barra embaixo do diagrama dá pra comentar (vai pro review com chip UX Flow), sugerir uma edição ou ver em tela cheia."
         >
           <FlowDiagram flow="login-auth" nodes={NODES} edges={EDGES} height={2240} />
         </Section>

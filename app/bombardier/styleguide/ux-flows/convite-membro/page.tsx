@@ -478,7 +478,7 @@ export default function ConviteMembroFlowPage() {
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam os caminhos de bifurcação."
+          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral. Caixas tracejadas em âmbar são decisões. Setas âmbar indicam os caminhos de bifurcação. Na barra embaixo do diagrama dá pra comentar (vai pro review com chip UX Flow), sugerir uma edição ou ver em tela cheia."
         >
           <FlowDiagram flow="convite-membro" nodes={NODES} edges={EDGES} height={1780} />
         </Section>
