@@ -2,6 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { ReviewAvatar } from "@/components/bombardier-review/ReviewAvatar"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu"
 import {
@@ -50,20 +52,32 @@ function CommentCard({
   selected: boolean
   onToggleSelected: () => void
 }) {
+  const router = useRouter()
   const archiveDirect = useReviewStore((s) => s.archiveDirect)
   const approveComment = useReviewStore((s) => s.approveComment)
   const rejectComment = useReviewStore((s) => s.rejectComment)
   const reopenFromArchive = useReviewStore((s) => s.reopenFromArchive)
   const deleteComment = useReviewStore((s) => s.deleteComment)
+  const selectComment = useReviewStore((s) => s.selectComment)
+  const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
+  const setActive = useReviewStore((s) => s.setActive)
+
+  // Abre a tela do comentário mantendo o Review Mode ligado e o comentário
+  // destacado (permalink), via navegação client-side — sem reload.
+  const openOnScreen = () => {
+    selectComment(comment.id)
+    setActive(true)
+    setSheetOpen(true)
+    const sep = comment.url.includes("?") ? "&" : "?"
+    router.push(`${comment.url}${sep}reviewCommentId=${encodeURIComponent(comment.id)}`)
+  }
 
   const items: AwDropdownItem[] = [
     {
       id: "open",
       label: "Abrir tela",
       icon: "open_in_new",
-      onSelect: () => {
-        window.location.href = comment.url
-      },
+      onSelect: openOnScreen,
     },
   ]
   if (archived) {
@@ -118,12 +132,13 @@ function CommentCard({
           className="mt-1 accent-[var(--accent-brand)]"
         />
       )}
-      <span
-        className="mt-0.5 h-7 w-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-semibold text-[var(--fg-on-inverse)]"
-        style={{ background: comment.authorColorToken }}
-      >
-        {comment.authorName.charAt(0).toUpperCase()}
-      </span>
+      <ReviewAvatar
+        authorId={comment.authorId}
+        authorName={comment.authorName}
+        colorToken={comment.authorColorToken}
+        size={28}
+        className="mt-0.5"
+      />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-1">
           <span className="text-sm font-medium text-[var(--fg-primary)] truncate">
@@ -142,14 +157,16 @@ function CommentCard({
             {comment.resolution.summary}
           </p>
         )}
-        <Link
-          href={comment.url}
+        <button
+          type="button"
+          onClick={openOnScreen}
           className="mt-1 inline-flex items-center gap-1 text-[11px] text-[var(--fg-tertiary)] hover:text-[var(--accent-brand)]"
-          title={comment.url}
+          title={`Ir para ${comment.url}`}
         >
           <Icon name="web_asset" size={11} />
           <span className="truncate max-w-[280px]">{comment.url}</span>
-        </Link>
+          <Icon name="arrow_outward" size={11} />
+        </button>
       </div>
       <AwDropdownMenu
         align="end"

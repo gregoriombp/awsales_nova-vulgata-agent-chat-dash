@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname } from "next/navigation"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
@@ -29,6 +30,13 @@ export function ReviewModeProvider() {
   const comments = useReviewStore((s) => s.comments)
   const sheetOpen = useReviewStore((s) => s.sheetOpen)
   const permalinkHandledRef = React.useRef<string | null>(null)
+  const pathname = usePathname()
+
+  // Cada nova tela pode ter seu próprio ?reviewCommentId — libera o permalink
+  // pra ser reprocessado quando o pathname muda (navegação client-side).
+  React.useEffect(() => {
+    permalinkHandledRef.current = null
+  }, [pathname])
 
   React.useEffect(() => {
     void hydrateIdentity()
@@ -68,7 +76,7 @@ export function ReviewModeProvider() {
     }
     // Defer scroll until after the overlay mounts.
     requestAnimationFrame(scroll)
-  }, [comments, setActive, setSheetOpen, selectComment])
+  }, [comments, pathname, setActive, setSheetOpen, selectComment])
 
   useGlobalHotkey({ key: "y", meta: true, shift: true }, () => toggleActive())
 

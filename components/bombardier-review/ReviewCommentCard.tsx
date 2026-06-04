@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu"
 import { AwPill } from "@/components/ui/AwPill"
@@ -13,8 +14,15 @@ import {
   formatRelative,
 } from "@/lib/bombardier-review/format"
 import { STALE_DOCUMENT_HEIGHT_THRESHOLD } from "./constants"
+import { ReviewAvatar } from "./ReviewAvatar"
 import { UxFlowChip } from "./UxFlowChip"
 import type { ReviewComment, ReviewReply } from "./types"
+
+/** Monta a URL da tela do comentário com o permalink ?reviewCommentId=… */
+function permalinkPath(comment: ReviewComment): string {
+  const sep = comment.url.includes("?") ? "&" : "?"
+  return `${comment.url}${sep}reviewCommentId=${encodeURIComponent(comment.id)}`
+}
 
 function isStale(comment: ReviewComment, currentDocHeight: number): boolean {
   if (!comment.documentHeight) return false
@@ -34,13 +42,13 @@ export function ReplyRow({ reply }: { reply: ReviewReply }) {
   const isAgent = reply.authorKind === "agent"
   return (
     <div className="flex items-start gap-2 py-1.5">
-      <span
-        className="h-5 w-5 rounded-full shrink-0 flex items-center justify-center text-[10px] font-semibold text-[var(--fg-on-inverse)]"
-        style={{ background: reply.authorColorToken }}
-        title={reply.authorName}
-      >
-        {reply.authorName.charAt(0).toUpperCase()}
-      </span>
+      <ReviewAvatar
+        authorKind={reply.authorKind}
+        authorId={reply.authorId}
+        authorName={reply.authorName}
+        colorToken={reply.authorColorToken}
+        size={20}
+      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 leading-tight">
           <span className="body-xs font-medium text-[var(--fg-primary)] truncate">
@@ -85,8 +93,11 @@ export function ReviewCommentCard({
   onToggleSelected,
   archived = false,
 }: Props) {
+  const router = useRouter()
   const selectedId = useReviewStore((s) => s.selectedCommentId)
   const selectComment = useReviewStore((s) => s.selectComment)
+  const setSheetOpen = useReviewStore((s) => s.setSheetOpen)
+  const setActive = useReviewStore((s) => s.setActive)
   const archiveDirect = useReviewStore((s) => s.archiveDirect)
   const approveComment = useReviewStore((s) => s.approveComment)
   const rejectComment = useReviewStore((s) => s.rejectComment)
@@ -109,7 +120,14 @@ export function ReviewCommentCard({
 
   const navigateToAnchor = () => {
     selectComment(comment.id)
-    if (!isOnThisPage) return
+    // Mantém o review ativo e o drawer aberto enquanto leva pra outra tela —
+    // a navegação é client-side, então é fluido (sem reload).
+    setActive(true)
+    setSheetOpen(true)
+    if (!isOnThisPage) {
+      router.push(permalinkPath(comment))
+      return
+    }
     const anchorY =
       comment.anchor.kind === "pin"
         ? comment.anchor.position.y
@@ -211,12 +229,12 @@ export function ReviewCommentCard({
             className="accent-[var(--accent-brand)] mr-0.5"
           />
         )}
-        <span
-          className="h-6 w-6 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)]"
-          style={{ background: comment.authorColorToken }}
-        >
-          {comment.authorName.charAt(0).toUpperCase()}
-        </span>
+        <ReviewAvatar
+          authorId={comment.authorId}
+          authorName={comment.authorName}
+          colorToken={comment.authorColorToken}
+          size={24}
+        />
         <div className="flex flex-col leading-tight min-w-0">
           <span className="body-xs font-medium text-[var(--fg-primary)] truncate">
             {comment.authorName}
@@ -278,13 +296,23 @@ export function ReviewCommentCard({
         </div>
       )}
 
-      <div
-        className="mt-2 body-xs text-[var(--fg-tertiary)] flex items-center gap-1"
-        title={comment.url}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation()
+          navigateToAnchor()
+        }}
+        title={`Ir para ${comment.url}`}
+        className="mt-2 w-full body-xs text-[var(--fg-tertiary)] flex items-center gap-1 rounded-[var(--radius-xs)] hover:text-[var(--accent-brand)] transition-colors text-left"
       >
         <Icon name="link" size={11} />
-        <span className="truncate">{comment.url}</span>
-      </div>
+        <span className="truncate underline-offset-2 group-hover:underline">
+          {comment.url}
+        </span>
+        {!isOnThisPage && (
+          <Icon name="arrow_outward" size={11} className="ml-auto shrink-0" />
+        )}
+      </button>
 
       {comment.resolution?.summary && (
         <p
