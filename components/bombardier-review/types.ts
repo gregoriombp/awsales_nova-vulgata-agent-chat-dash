@@ -18,8 +18,22 @@ export interface ReviewDrawPath {
   strokeWidth: number
 }
 
+/**
+ * Element-relative anchor for a pin. Beyond the absolute `position` (doc
+ * coords), a pin can remember the element it was dropped on — a resolvable
+ * `selector` plus the fractional offset (0..1) of the click inside that
+ * element's box. On render the element is re-resolved so the pin follows
+ * horizontal reflow (a side panel opening shrinks `<main>` and shifts content).
+ * Optional and additive — comments without it fall back to `position`.
+ */
+export interface ReviewElementAnchor {
+  selector: string
+  fx: number
+  fy: number
+}
+
 export type ReviewAnchor =
-  | { kind: "pin"; position: ReviewPoint }
+  | { kind: "pin"; position: ReviewPoint; el?: ReviewElementAnchor }
   | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint }
 
 export type ReviewCommentStatus = "open" | "in_review" | "resolved"

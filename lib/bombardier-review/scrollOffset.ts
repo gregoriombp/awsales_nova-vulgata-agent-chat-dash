@@ -85,6 +85,36 @@ export function useCumulativeScrollOffset() {
   return offset
 }
 
+// Re-renderiza quando o layout reflui SEM scroll nem resize de window — caso
+// do Cortex/sidebars, que mudam a largura do `<main>` via flex. O
+// `useCumulativeScrollOffset` só ouve scroll/resize, então pins ancorados a
+// elemento não re-resolveriam. Um ResizeObserver no container principal (+ body)
+// cobre esse caso.
+export function useLayoutVersion(): number {
+  const [version, setVersion] = React.useState(0)
+  React.useEffect(() => {
+    if (typeof window === "undefined" || typeof ResizeObserver === "undefined")
+      return
+    let raf: number | null = null
+    const bump = () => {
+      if (raf !== null) return
+      raf = requestAnimationFrame(() => {
+        raf = null
+        setVersion((n) => n + 1)
+      })
+    }
+    const ro = new ResizeObserver(bump)
+    const primary = findPrimaryScrollContainer()
+    if (primary) ro.observe(primary)
+    ro.observe(document.body)
+    return () => {
+      ro.disconnect()
+      if (raf !== null) cancelAnimationFrame(raf)
+    }
+  }, [])
+  return version
+}
+
 // Encontra o container scrollable que cobre a maior área da viewport —
 // usado pra programmatic scroll (navegar até um comentário).
 export function findPrimaryScrollContainer(): HTMLElement | null {

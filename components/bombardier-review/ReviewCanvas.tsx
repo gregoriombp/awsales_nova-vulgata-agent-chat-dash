@@ -7,7 +7,12 @@ import {
   cumulativeScrollFromElement,
   elementBelowOverlayAt,
   useCumulativeScrollOffset,
+  useLayoutVersion,
 } from "@/lib/bombardier-review/scrollOffset"
+import {
+  captureElementAnchor,
+  resolveElementPoint,
+} from "@/lib/bombardier-review/elementAnchor"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewPinMarker } from "./ReviewPinMarker"
 import type { ReviewDrawPath, ReviewPoint } from "./types"
@@ -67,6 +72,29 @@ export function ReviewCanvas() {
   const rafRef = React.useRef<number | null>(null)
   const pendingPointRef = React.useRef<ReviewPoint | null>(null)
   const scroll = useCumulativeScrollOffset()
+  const layoutVersion = useLayoutVersion()
+
+  // Posição renderizada de cada pin, em coords do grupo (que já é transladado
+  // por -scroll). Quando o pin tem âncora de elemento e o elemento resolve, a
+  // posição segue o reflow horizontal; senão, cai na coord absoluta salva.
+  // `layoutVersion` força recálculo quando o layout muda sem scroll/resize.
+  const pinPositions = React.useMemo(() => {
+    void layoutVersion
+    const map = new Map<string, ReviewPoint>()
+    for (const c of comments) {
+      if (c.origin === "ux-flow") continue
+      if (c.anchor.kind === "pin") {
+        const vp = c.anchor.el ? resolveElementPoint(c.anchor.el) : null
+        map.set(
+          c.id,
+          vp ? { x: vp.x + scroll.x, y: vp.y + scroll.y } : c.anchor.position,
+        )
+      } else {
+        map.set(c.id, c.anchor.centroid)
+      }
+    }
+    return map
+  }, [comments, scroll.x, scroll.y, layoutVersion])
 
   const captureMode =
     pendingAnchor === null && (mode === "draw" || mode === "pin")
@@ -80,7 +108,8 @@ export function ReviewCanvas() {
       ;(e.target as Element).setPointerCapture?.(e.pointerId)
     } else if (mode === "pin") {
       const point = pointFromEvent(e)
-      placePin(point)
+      const el = captureElementAnchor(e.clientX, e.clientY)
+      placePin(point, el ?? undefined)
     }
   }
 
@@ -156,7 +185,7 @@ export function ReviewCanvas() {
                   opacity={c.status === "resolved" ? 0.3 : 0.85}
                 />
                 <ReviewPinMarker
-                  position={c.anchor.centroid}
+                  position={pinPositions.get(c.id) ?? c.anchor.centroid}
                   comment={c}
                   selected={selectedCommentId === c.id}
                   onClick={(e) => {
@@ -170,7 +199,7 @@ export function ReviewCanvas() {
           return (
             <ReviewPinMarker
               key={c.id}
-              position={c.anchor.position}
+              position={pinPositions.get(c.id) ?? c.anchor.position}
               comment={c}
               selected={selectedCommentId === c.id}
               onClick={(e) => {

@@ -9,7 +9,11 @@ import {
 import { AwPill } from "@/components/ui/AwPill"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
-import { useCumulativeScrollOffset } from "@/lib/bombardier-review/scrollOffset"
+import {
+  useCumulativeScrollOffset,
+  useLayoutVersion,
+} from "@/lib/bombardier-review/scrollOffset"
+import { resolveElementPoint } from "@/lib/bombardier-review/elementAnchor"
 import { formatFullTimestamp } from "@/lib/bombardier-review/format"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReplyRow } from "./ReviewCommentCard"
@@ -45,6 +49,7 @@ export function ReviewThreadPopover() {
   const deleteComment = useReviewStore((s) => s.deleteComment)
 
   const scroll = useCumulativeScrollOffset()
+  const layoutVersion = useLayoutVersion()
 
   const [replyText, setReplyText] = React.useState("")
   const [submitting, setSubmitting] = React.useState(false)
@@ -82,7 +87,15 @@ export function ReviewThreadPopover() {
   // While composing a new comment, the compose popover takes over.
   if (!comment || pendingAnchor || typeof window === "undefined") return null
 
-  const point = anchorPoint(comment)
+  // Acompanha o pin quando ele segue o reflow (âncora de elemento resolvida).
+  void layoutVersion
+  const elPoint =
+    comment.anchor.kind === "pin" && comment.anchor.el
+      ? resolveElementPoint(comment.anchor.el)
+      : null
+  const point = elPoint
+    ? { x: elPoint.x + scroll.x, y: elPoint.y + scroll.y }
+    : anchorPoint(comment)
   const pxX = point.x - scroll.x
   const pxY = point.y - scroll.y
 
