@@ -4,17 +4,23 @@ import * as React from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
+import { AwButton } from "@/components/ui/AwButton"
+import { AwPill } from "@/components/ui/AwPill"
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo"
 import { AwCardBrand } from "@/components/ui/AwCardBrand"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder"
+import { cn } from "@/lib/utils"
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data"
 
 type Org = typeof ONBOARDING_ORG
 
 type MethodId = "pix" | "cartao" | "boleto"
-type Line = { method: MethodId; parcelas: number }
+type Stage = "config" | "exec" | "paid"
+/** Uma das duas cobranças — cada uma é uma transação independente, com
+ *  método, parcelamento e ciclo de vida próprios. */
+type Charge = { method: MethodId; parcelas: number; stage: Stage; pending: boolean }
 
 const METHODS: {
   id: MethodId
@@ -32,19 +38,12 @@ const methodTitle = (id: MethodId) =>
 const methodBrand = (id: MethodId) =>
   METHODS.find((m) => m.id === id)?.brand ?? "card"
 
-function parcelaLabel(line: Line, total: number) {
-  if (line.parcelas === 1) return `${methodTitle(line.method)} · à vista`
-  return `${methodTitle(line.method)} · ${line.parcelas}× ${fmtBRL(
-    total / line.parcelas
-  )}`
-}
-
 export function PagamentoBody({
   org,
   backHref,
   concluidoHrefBase,
   concluidoExtraParams,
-  heading = "Configure seu pagamento",
+  heading = "Pague uma cobrança de cada vez.",
   intro,
 }: {
   org: Org
@@ -57,71 +56,99 @@ export function PagamentoBody({
   const router = useRouter()
   const maxParcelas = org.parcelamentoMaxImplementacao
 
-  const [phase, setPhase] = React.useState<
-    "setup" | "checkout" | "processing" | "declined" | "blocked"
-  >("setup")
-  const [step, setStep] = React.useState<"impl" | "mens" | "done">("impl")
-  const [attempts, setAttempts] = React.useState(0)
-  const [impl, setImpl] = React.useState<Line>({ method: "pix", parcelas: 1 })
-  const [mens, setMens] = React.useState<Line>({ method: "pix", parcelas: 1 })
+  // As duas cobranças, na ordem em que são quitadas. Texto e valores são
+  // NOSSOS (prorrata real do mês), não os do protótipo de referência.
+  const chargeMeta = React.useMemo(
+    () => [
+      {
+        title: "Implementação",
+        desc: "Setup único da plataforma · cobrança avulsa",
+        total: org.valorImplementacao,
+      },
+      {
+        title: "1ª mensalidade",
+        desc: `Proporcional aos ${org.diasRestantesMesAtual} dias restantes do mês`,
+        total: org.valorMensalProrrata,
+      },
+    ],
+    [org.valorImplementacao, org.valorMensalProrrata, org.diasRestantesMesAtual]
+  )
 
-  const totalImpl = org.valorImplementacao
-  const totalMens = org.valorMensalProrrata
-  const totalGeral = totalImpl + totalMens
+  const [phase, setPhase] = React.useState<
+    "cobrancas" | "processing" | "declined" | "blocked"
+  >("cobrancas")
+  const [attempts, setAttempts] = React.useState(0)
+  const [charges, setCharges] = React.useState<Charge[]>(() =>
+    chargeMeta.map(() => ({
+      method: "pix",
+      parcelas: 1,
+      stage: "config",
+      pending: false,
+    }))
+  )
+
+  const activeIdx = charges.findIndex((c) => c.stage !== "paid")
+  const paidCount = charges.filter((c) => c.stage === "paid").length
+  const allPaid = paidCount === charges.length
+  const anyPending = charges.some((c) => c.stage === "paid" && c.pending)
+
+  const patch = React.useCallback(
+    (i: number, p: Partial<Charge>) =>
+      setCharges((cs) => cs.map((c, idx) => (idx === i ? { ...c, ...p } : c))),
+    []
+  )
 
   const concluidoHref = React.useMemo(() => {
     const params = new URLSearchParams()
-    params.set("im", impl.method)
-    params.set("ip", String(impl.parcelas))
-    params.set("mm", mens.method)
-    params.set("mp", String(mens.parcelas))
+    params.set("im", charges[0].method)
+    params.set("ip", String(charges[0].parcelas))
+    params.set("mm", charges[1].method)
+    params.set("mp", String(charges[1].parcelas))
     if (concluidoExtraParams) {
       for (const [k, v] of Object.entries(concluidoExtraParams)) {
         if (v != null && v !== "") params.set(k, v)
       }
     }
     return `${concluidoHrefBase}?${params.toString()}`
-  }, [impl, mens, concluidoHrefBase, concluidoExtraParams])
+  }, [charges, concluidoHrefBase, concluidoExtraParams])
 
   const goProcessing = () => {
     setPhase("processing")
-    setTimeout(() => router.push(concluidoHref), 1800)
+    setTimeout(() => router.push(concluidoHref), 1600)
   }
 
+  // Caminho infeliz do cartão — recusa some na cobrança ativa (stage "exec").
   const handleDeclined = () => {
     const next = attempts + 1
     setAttempts(next)
     setPhase(next >= 3 ? "blocked" : "declined")
   }
-
-  const resetToSetup = () => {
+  const retryCard = () => setPhase("cobrancas") // cobrança ativa segue em "exec"
+  const switchMethod = () => {
+    if (activeIdx >= 0) patch(activeIdx, { stage: "config" })
+    setPhase("cobrancas")
+  }
+  const resetBlocked = () => {
     setAttempts(0)
-    setStep("impl")
-    setPhase("setup")
+    if (activeIdx >= 0) patch(activeIdx, { stage: "config" })
+    setPhase("cobrancas")
   }
 
   return (
     <AwOnboardingShell org={org}>
       {phase === "processing" ? (
-        <ProcessingPhase totalImpl={totalImpl} totalMens={totalMens} />
+        <ProcessingPhase
+          totalImpl={chargeMeta[0].total}
+          totalMens={chargeMeta[1].total}
+        />
       ) : phase === "blocked" ? (
-        <BlockedPhase org={org} onBack={resetToSetup} />
+        <BlockedPhase org={org} onBack={resetBlocked} />
       ) : phase === "declined" ? (
         <DeclinedPhase
           org={org}
           attempt={attempts}
-          onRetryCard={() => setPhase("checkout")}
-          onSwitchMethod={resetToSetup}
-        />
-      ) : phase === "checkout" ? (
-        <CheckoutPhase
-          impl={impl}
-          mens={mens}
-          totalImpl={totalImpl}
-          totalMens={totalMens}
-          onBack={() => setPhase("setup")}
-          onSubmit={goProcessing}
-          onDecline={handleDeclined}
+          onRetryCard={retryCard}
+          onSwitchMethod={switchMethod}
         />
       ) : (
         <section>
@@ -129,98 +156,65 @@ export function PagamentoBody({
           <p className="mb-6 body-sm text-fg-secondary text-pretty">
             {intro ?? (
               <>
-                Você vai pagar a{" "}
+                A{" "}
                 <b className="font-medium text-fg-primary">implementação</b> e a{" "}
-                <b className="font-medium text-fg-primary">1ª mensalidade</b> agora.
-                Pode escolher o método e dividir cada um em até {maxParcelas}×.
+                <b className="font-medium text-fg-primary">1ª mensalidade</b> são
+                duas cobranças separadas — cada uma com seu método e
+                parcelamento. Conclua a primeira para liberar a segunda.
               </>
             )}
           </p>
 
-          <HeroSummary totalImpl={totalImpl} totalMens={totalMens} />
+          <ChargeProgress
+            paid={paidCount}
+            total={charges.length}
+            activeIdx={activeIdx}
+            stages={charges.map((c) => c.stage)}
+          />
 
-          <div className="mt-5">
-            <PaymentLine
-              eyebrow="Item 01"
-              title="Implementação"
-              desc="Cobrança única · setup e onboarding"
-              total={totalImpl}
-              value={impl}
-              accent="primary"
-              valorMensal={org.valorMensal}
-              maxParcelas={maxParcelas}
-              onChange={setImpl}
-              expanded={step === "impl"}
-              onContinue={() => setStep("mens")}
-            />
+          {allPaid ? (
+            <DoneSummary anyPending={anyPending} onContinue={goProcessing} />
+          ) : (
+            <div className="mt-5 flex flex-col gap-3">
+              {charges.map((charge, i) => {
+                const meta = chargeMeta[i]
+                if (charge.stage === "paid")
+                  return <PaidRow key={i} charge={charge} meta={meta} />
 
-            <div
-              className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
-              style={{ gridTemplateRows: step !== "impl" ? "1fr" : "0fr" }}
-            >
-              <div className="overflow-hidden">
-                <div className="mt-3.5">
-                  <PaymentLine
-                    eyebrow="Item 02"
-                    title="1ª Mensalidade"
-                    desc={`Valor prorrata · referente aos ${org.diasRestantesMesAtual} dias restantes de Maio/2026`}
-                    total={totalMens}
-                    value={mens}
-                    accent="recurring"
-                    valorMensal={org.valorMensal}
+                // Sequencial: só a cobrança ativa fica aberta; as demais travadas.
+                if (i !== activeIdx)
+                  return <LockedRow key={i} meta={meta} index={i} />
+                return (
+                  <ChargeCard
+                    key={i}
+                    charge={charge}
+                    meta={meta}
+                    index={i}
                     maxParcelas={maxParcelas}
-                    onChange={setMens}
-                    expanded={step === "mens"}
-                    onContinue={() => setStep("done")}
+                    offerReuse={
+                      i === 1 &&
+                      charges[0].method === "cartao" &&
+                      charges[0].stage === "paid"
+                    }
+                    onConfig={(p) => patch(i, p)}
+                    onPay={() => patch(i, { stage: "exec" })}
+                    onBackToConfig={() => patch(i, { stage: "config" })}
+                    onPaid={(pending) => patch(i, { stage: "paid", pending })}
+                    onDecline={handleDeclined}
                   />
-                </div>
-              </div>
+                )
+              })}
             </div>
-          </div>
-
-          <div
-            className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
-            style={{ gridTemplateRows: step === "done" ? "1fr" : "0fr" }}
-          >
-            <div className="overflow-hidden">
-              <div className="mt-5">
-                <GrandTotalBar
-                  totalGeral={totalGeral}
-                  impl={impl}
-                  totalImpl={totalImpl}
-                  mens={mens}
-                  totalMens={totalMens}
-                />
-              </div>
-            </div>
-          </div>
+          )}
 
           <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-            <Link
-              href={backHref}
-              className="aw-btn aw-btn--ghost aw-btn--md"
-            >
-              <Icon name="arrow_back" size={16} />
-              <span className="aw-btn__label">Voltar</span>
-            </Link>
+            <AwButton asChild variant="ghost" size="md" iconLeft="arrow_back">
+              <Link href={backHref}>Voltar</Link>
+            </AwButton>
             <span className="flex-1" />
-            <div
-              className={[
-                "transition-[opacity,transform] duration-aw-base ease-aw-out",
-                step === "done"
-                  ? "opacity-100 translate-x-0"
-                  : "opacity-0 translate-x-3 pointer-events-none",
-              ].join(" ")}
-            >
-              <button
-                type="button"
-                onClick={() => setPhase("checkout")}
-                className="aw-btn aw-btn--primary aw-btn--sm"
-              >
-                <span className="aw-btn__label">Continuar para pagamento</span>
-                <Icon name="arrow_forward" size={16} />
-              </button>
-            </div>
+            <span className="body-xs text-fg-tertiary">
+              Cada cobrança é uma transação
+            </span>
           </footer>
         </section>
       )}
@@ -228,219 +222,125 @@ export function PagamentoBody({
   )
 }
 
-/* ---------- HERO SUMMARY ---------- */
+/* ---------- PROGRESSO DAS COBRANÇAS ---------- */
 
-function HeroSummary({
-  totalImpl,
-  totalMens,
-}: {
-  totalImpl: number
-  totalMens: number
-}) {
-  const total = totalImpl + totalMens
-  return (
-    <div className="relative overflow-hidden rounded-xl bg-aw-gray-1200 p-[22px] text-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(80% 60% at 100% 0%, rgba(71,138,255,0.18), transparent 60%)",
-        }}
-      />
-      <div className="relative">
-        <div className="aw-eyebrow text-aw-gray-500">A pagar hoje</div>
-        <div className="mt-1.5 text-[36px] font-medium tabular-nums tracking-tight">
-          {fmtBRL(total)}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <SummaryPart label="Implementação" amount={totalImpl} />
-          <SummaryPart label="1ª mensalidade" amount={totalMens} />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function SummaryPart({
-  label,
-  amount,
-}: {
-  label: string
-  amount: number
-}) {
-  return (
-    <div className="border-t border-white/[0.08] pt-3.5">
-      <div className="text-[11px] text-aw-gray-500">{label}</div>
-      <div className="mt-1 text-[17px] font-medium tabular-nums">
-        {fmtBRL(amount)}
-      </div>
-    </div>
-  )
-}
-
-/* ---------- PAYMENT LINE ---------- */
-
-function PaymentLine({
-  eyebrow,
-  title,
-  desc,
+function ChargeProgress({
+  paid,
   total,
-  value,
-  onChange,
-  accent,
-  expanded,
-  onContinue,
-  valorMensal,
-  maxParcelas,
+  activeIdx,
+  stages,
 }: {
-  eyebrow: string
-  title: string
-  desc: string
+  paid: number
   total: number
-  value: Line
-  onChange: (v: Line) => void
-  accent: "primary" | "recurring"
-  expanded: boolean
-  onContinue: () => void
-  valorMensal: number
-  maxParcelas: number
+  activeIdx: number
+  stages: Stage[]
 }) {
   return (
-    <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-      <header
-        className={[
-          "flex items-center gap-3 px-[18px] py-3.5",
-          expanded ? "border-b border-border-subtle" : "",
-        ].join(" ")}
-      >
+    <div className="rounded-xl border border-border-subtle bg-bg-surface px-4 py-3">
+      <div className="flex items-center gap-2">
+        <Icon name="receipt_long" size={15} className="text-fg-tertiary" />
+        <span className="body-xs font-medium text-fg-primary">
+          {paid} de {total} cobranças concluídas
+        </span>
+        <span className="flex-1" />
+        <AwPill variant="neutral" dot={false}>
+          Sequencial
+        </AwPill>
+      </div>
+      <div className="mt-2.5 flex gap-1.5">
+        {stages.map((s, i) => (
+          <span
+            key={i}
+            className={cn(
+              "h-1.5 flex-1 rounded-full transition-colors duration-aw-base ease-aw-out",
+              s === "paid"
+                ? "bg-aw-emerald-500"
+                : i === activeIdx
+                  ? "bg-brand"
+                  : "bg-bg-muted"
+            )}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+/* ---------- COBRANÇA ATIVA (config + exec) ---------- */
+
+type ChargeMeta = { title: string; desc: string; total: number }
+
+function ChargeCard({
+  charge,
+  meta,
+  index,
+  maxParcelas,
+  offerReuse,
+  onConfig,
+  onPay,
+  onBackToConfig,
+  onPaid,
+  onDecline,
+}: {
+  charge: Charge
+  meta: ChargeMeta
+  index: number
+  maxParcelas: number
+  offerReuse: boolean
+  onConfig: (p: Partial<Charge>) => void
+  onPay: () => void
+  onBackToConfig: () => void
+  onPaid: (pending: boolean) => void
+  onDecline: () => void
+}) {
+  const [reuse, setReuse] = React.useState(true)
+  const total = meta.total
+  const each = total / charge.parcelas
+  const isCard = charge.method === "cartao"
+  const payLabel = `Pagar ${meta.title} · ${
+    charge.parcelas === 1 ? fmtBRL(total) : `${charge.parcelas}× ${fmtBRL(each)}`
+  }`
+
+  return (
+    <article className="overflow-hidden rounded-xl border border-border-strong bg-bg-raised">
+      <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
+        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-fg-primary text-[11px] font-medium tabular-nums text-white">
+          {index + 1}
+        </span>
         <div className="min-w-0 flex-1">
-          <div className="aw-eyebrow text-fg-tertiary">{eyebrow}</div>
-          <div className="mt-0.5 body-sm font-medium text-fg-primary">
-            {title}
-          </div>
-          <div className="mt-0.5 body-xs text-fg-tertiary">
-            {expanded ? desc : parcelaLabel(value, total)}
-          </div>
+          <div className="body-sm font-medium text-fg-primary">{meta.title}</div>
+          <div className="mt-0.5 body-xs text-fg-tertiary">{meta.desc}</div>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="body-lg font-medium tabular-nums text-fg-primary">
-            {fmtBRL(total)}
-          </div>
-          {expanded && accent === "recurring" && (
-            <div className="text-[10px] text-fg-tertiary">
-              próximas {fmtBRL(valorMensal)}/mês
-            </div>
-          )}
-          {!expanded && (
-            <Icon
-              name="check_circle"
-              size={15}
-              fill={1}
-              className="text-aw-emerald-700"
-            />
-          )}
+        <div className="body-lg font-medium tabular-nums text-fg-primary">
+          {fmtBRL(total)}
         </div>
       </header>
 
-      <div
-        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
-        style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
-      >
-        <div className="overflow-hidden">
-          <div className="p-[18px]">
+      <div className="p-[18px]">
+        {charge.stage === "config" ? (
+          <>
             <div className="mb-2.5">
-              <span className="aw-eyebrow text-fg-tertiary">Método</span>
+              <span className="aw-eyebrow text-fg-tertiary">
+                Forma de pagamento desta cobrança
+              </span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              {METHODS.map((opt) => {
-                const sel = value.method === opt.id
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() =>
-                      onChange({
-                        method: opt.id,
-                        parcelas: opt.id === "cartao" ? value.parcelas : 1,
-                      })
-                    }
-                    className={[
-                      "rounded-lg border p-3 text-left transition-colors duration-aw-fast",
-                      sel
-                        ? "border-fg-primary bg-fg-primary"
-                        : "border-border bg-bg-raised hover:border-border-strong",
-                    ].join(" ")}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <AwBrandLogo brand={opt.brand} size="sm" bare={sel} />
-                      <div className="min-w-0 flex-1">
-                        <div
-                          className={[
-                            "body-xs font-medium",
-                            sel ? "text-white" : "text-fg-primary",
-                          ].join(" ")}
-                        >
-                          {opt.title}
-                        </div>
-                        <div
-                          className={[
-                            "mt-px text-[10px]",
-                            sel ? "text-white/65" : "text-fg-tertiary",
-                          ].join(" ")}
-                        >
-                          {opt.shortDesc}
-                        </div>
-                      </div>
-                    </div>
-                  </button>
-                )
-              })}
-            </div>
+            <MethodGrid
+              value={charge.method}
+              onChange={(m) =>
+                onConfig({
+                  method: m,
+                  parcelas: m === "cartao" ? charge.parcelas : 1,
+                })
+              }
+            />
 
-            {value.method === "cartao" ? (
-              <div className="mt-4">
-                <div className="aw-eyebrow mb-2.5 text-fg-tertiary">
-                  Parcelamento
-                </div>
-                <div className="grid grid-cols-4 gap-1.5">
-                  {Array.from({ length: maxParcelas }, (_, i) => i + 1).map(
-                    (p) => {
-                      const sel = value.parcelas === p
-                      return (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => onChange({ ...value, parcelas: p })}
-                          className={[
-                            "rounded-md border px-1 py-2.5 text-center transition-colors duration-aw-fast",
-                            sel
-                              ? "border-fg-primary bg-fg-primary text-white"
-                              : "border-border bg-bg-raised text-fg-primary hover:border-border-strong",
-                          ].join(" ")}
-                        >
-                          <div className="body-xs font-medium">{p}×</div>
-                          <div
-                            className={[
-                              "mt-0.5 text-[10px] tabular-nums",
-                              sel ? "text-white/70" : "text-fg-tertiary",
-                            ].join(" ")}
-                          >
-                            {fmtBRL(total / p)}
-                          </div>
-                        </button>
-                      )
-                    }
-                  )}
-                </div>
-                <div className="mt-2.5 body-xs text-fg-tertiary">
-                  {value.parcelas === 1
-                    ? `Pagamento à vista de ${fmtBRL(total)}`
-                    : `${value.parcelas} parcelas mensais de ${fmtBRL(
-                        total / value.parcelas
-                      )} · sem juros`}
-                </div>
-              </div>
+            {isCard ? (
+              <InstallmentGrid
+                total={total}
+                parcelas={charge.parcelas}
+                max={maxParcelas}
+                onChange={(p) => onConfig({ parcelas: p })}
+              />
             ) : (
               <div className="mt-4 flex items-center gap-2 rounded-md border border-border-subtle bg-bg-surface px-3 py-2.5 body-xs text-fg-secondary">
                 <Icon name="info" size={14} className="text-fg-tertiary" />
@@ -449,256 +349,267 @@ function PaymentLine({
                   <b className="font-medium tabular-nums text-fg-primary">
                     {fmtBRL(total)}
                   </b>
-                  {value.method === "boleto"
+                  {charge.method === "boleto"
                     ? " · boleto único enviado por e-mail"
-                    : " · QR Pix único"}
+                    : " · um único QR Pix"}
                 </span>
               </div>
             )}
 
-            <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={onContinue}
-                className="aw-btn aw-btn--primary aw-btn--sm"
+            <div className="mt-5">
+              <AwButton
+                variant="primary"
+                size="md"
+                block
+                iconRight="arrow_forward"
+                onClick={onPay}
               >
-                <span className="aw-btn__label">Continuar</span>
-                <Icon name="arrow_forward" size={14} />
-              </button>
+                {payLabel}
+              </AwButton>
             </div>
-          </div>
-        </div>
+          </>
+        ) : (
+          <>
+            <div className="mb-3.5 flex items-center justify-between gap-2">
+              <span className="inline-flex min-w-0 items-center gap-2 body-xs text-fg-secondary">
+                <AwBrandLogo brand={methodBrand(charge.method)} size="sm" />
+                <span className="truncate">
+                  {methodTitle(charge.method)} ·{" "}
+                  {charge.parcelas === 1
+                    ? "à vista"
+                    : `${charge.parcelas}× sem juros`}
+                </span>
+              </span>
+              <AwButton
+                variant="ghost"
+                size="sm"
+                iconLeft="swap_horiz"
+                onClick={onBackToConfig}
+              >
+                Trocar
+              </AwButton>
+            </div>
+
+            {charge.method === "pix" && (
+              <PixInstrument onConfirmPaid={() => onPaid(false)} />
+            )}
+            {charge.method === "cartao" && (
+              <CartaoInstrument
+                parcelas={charge.parcelas}
+                total={total}
+                offerReuse={offerReuse}
+                reuse={offerReuse && reuse}
+                onToggleReuse={() => setReuse((o) => !o)}
+                onConfirmPaid={() => onPaid(false)}
+                onDecline={onDecline}
+              />
+            )}
+            {charge.method === "boleto" && (
+              <BoletoInstrument
+                parcelas={charge.parcelas}
+                onConfirmPaid={() => onPaid(true)}
+              />
+            )}
+          </>
+        )}
       </div>
     </article>
   )
 }
 
-/* ---------- GRAND TOTAL BAR ---------- */
-
-function GrandTotalBar({
-  totalGeral,
-  impl,
-  totalImpl,
-  mens,
-  totalMens,
+function MethodGrid({
+  value,
+  onChange,
 }: {
-  totalGeral: number
-  impl: Line
-  totalImpl: number
-  mens: Line
-  totalMens: number
+  value: MethodId
+  onChange: (m: MethodId) => void
 }) {
   return (
-    <div className="mt-5 rounded-xl border border-border bg-bg-canvas p-4">
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <div className="body-xs text-fg-tertiary">Implementação</div>
-          <div className="body-sm font-medium tabular-nums text-fg-primary">
-            {fmtBRL(totalImpl)}
-          </div>
-          <div className="text-[10px] text-fg-tertiary">
-            {impl.parcelas === 1
-              ? "à vista"
-              : `${impl.parcelas}× ${fmtBRL(totalImpl / impl.parcelas)}`}
-          </div>
-        </div>
-        <div>
-          <div className="body-xs text-fg-tertiary">1ª mensalidade</div>
-          <div className="body-sm font-medium tabular-nums text-fg-primary">
-            {fmtBRL(totalMens)}
-          </div>
-          <div className="text-[10px] text-fg-tertiary">
-            {mens.parcelas === 1
-              ? "à vista"
-              : `${mens.parcelas}× ${fmtBRL(totalMens / mens.parcelas)}`}
-          </div>
-        </div>
+    <div className="grid grid-cols-3 gap-2">
+      {METHODS.map((opt) => {
+        const sel = value === opt.id
+        return (
+          <button
+            key={opt.id}
+            type="button"
+            onClick={() => onChange(opt.id)}
+            className={cn(
+              "rounded-lg border p-3 text-left transition-colors duration-aw-fast",
+              sel
+                ? "border-fg-primary bg-fg-primary"
+                : "border-border bg-bg-raised hover:border-border-strong"
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <AwBrandLogo brand={opt.brand} size="sm" bare={sel} />
+              <div className="min-w-0 flex-1">
+                <div
+                  className={cn(
+                    "body-xs font-medium",
+                    sel ? "text-white" : "text-fg-primary"
+                  )}
+                >
+                  {opt.title}
+                </div>
+                <div
+                  className={cn(
+                    "mt-px text-[10px]",
+                    sel ? "text-white/65" : "text-fg-tertiary"
+                  )}
+                >
+                  {opt.shortDesc}
+                </div>
+              </div>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function InstallmentGrid({
+  total,
+  parcelas,
+  max,
+  onChange,
+}: {
+  total: number
+  parcelas: number
+  max: number
+  onChange: (p: number) => void
+}) {
+  return (
+    <div className="mt-4">
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="aw-eyebrow text-fg-tertiary">
+          Dividir {fmtBRL(total)}
+        </span>
+        <AwPill variant="live" dot={false}>
+          sem juros
+        </AwPill>
       </div>
-      <div className="mt-3 flex items-baseline justify-between border-t border-border-subtle pt-3">
-        <span className="body-sm font-medium text-fg-primary">
-          Total a pagar agora
-        </span>
-        <span className="body-xl font-medium tabular-nums text-fg-primary">
-          {fmtBRL(totalGeral)}
-        </span>
+      <div className="grid grid-cols-4 gap-1.5">
+        {Array.from({ length: max }, (_, i) => i + 1).map((p) => {
+          const sel = parcelas === p
+          return (
+            <button
+              key={p}
+              type="button"
+              onClick={() => onChange(p)}
+              className={cn(
+                "rounded-md border px-1 py-2.5 text-center transition-colors duration-aw-fast",
+                sel
+                  ? "border-fg-primary bg-fg-primary text-white"
+                  : "border-border bg-bg-raised text-fg-primary hover:border-border-strong"
+              )}
+            >
+              <div className="body-xs font-medium">
+                {p === 1 ? "À vista" : `${p}×`}
+              </div>
+              <div
+                className={cn(
+                  "mt-0.5 text-[10px] tabular-nums",
+                  sel ? "text-white/70" : "text-fg-tertiary"
+                )}
+              >
+                {p === 1 ? fmtBRL(total) : `${fmtBRL(total / p)}/mês`}
+              </div>
+            </button>
+          )
+        })}
+      </div>
+      <div className="mt-2.5 body-xs text-fg-tertiary">
+        {parcelas === 1
+          ? `Pagamento à vista de ${fmtBRL(total)}`
+          : `${parcelas} parcelas mensais de ${fmtBRL(
+              total / parcelas
+            )} · sem juros`}
       </div>
     </div>
   )
 }
 
-/* ---------- CHECKOUT PHASE ---------- */
+/* ---------- COBRANÇA PAGA / TRAVADA ---------- */
 
-function CheckoutPhase({
-  impl,
-  mens,
-  totalImpl,
-  totalMens,
-  onBack,
-  onSubmit,
-  onDecline,
-}: {
-  impl: Line
-  mens: Line
-  totalImpl: number
-  totalMens: number
-  onBack: () => void
-  onSubmit: () => void
-  onDecline: () => void
-}) {
-  const bothCartao = impl.method === "cartao" && mens.method === "cartao"
-  const [reuseCard, setReuseCard] = React.useState(true)
-  const [implPaid, setImplPaid] = React.useState(false)
-  const [mensPaid, setMensPaid] = React.useState(false)
-  const allPaid = implPaid && mensPaid
-
-  React.useEffect(() => {
-    if (!allPaid) return
-    const t = setTimeout(onSubmit, 450)
-    return () => clearTimeout(t)
-  }, [allPaid, onSubmit])
-
+function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
   return (
-    <section>
-      <h3 className="mb-2 text-fg-primary text-balance">
-        Realize seu pagamento
-      </h3>
-      <p className="mb-6 body-sm text-fg-secondary text-pretty">
-        Preparamos as formas de pagamento que você escolheu. Conclua cada uma
-        abaixo para finalizar.
-      </p>
-
-      <div className="flex flex-col gap-4">
-        <PaymentInstrument
-          method={impl.method}
-          parcelas={impl.parcelas}
-          total={totalImpl}
-          label="Implementação"
-          paid={implPaid}
-          onMarkPaid={() => setImplPaid(true)}
-          onDecline={onDecline}
-        />
-        <PaymentInstrument
-          method={mens.method}
-          parcelas={mens.parcelas}
-          total={totalMens}
-          label="1ª mensalidade"
-          offerReuseCard={bothCartao}
-          reuseCard={bothCartao && reuseCard}
-          onToggleReuseCard={() => setReuseCard((o) => !o)}
-          paid={mensPaid}
-          onMarkPaid={() => setMensPaid(true)}
-          onDecline={onDecline}
-        />
+    <article className="flex items-center gap-3 rounded-xl border border-aw-emerald-700/30 bg-bg-raised px-[18px] py-3.5">
+      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
+        <Icon name="check" size={14} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="body-sm font-medium text-fg-primary">{meta.title}</div>
+        <div className="mt-0.5 body-xs text-fg-tertiary">
+          {charge.pending
+            ? "Boleto em compensação"
+            : `Pago via ${methodTitle(charge.method).toLowerCase()}`}
+          {charge.parcelas > 1 ? ` · ${charge.parcelas}×` : ""}
+        </div>
       </div>
-
-      <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-        <button
-          type="button"
-          onClick={onBack}
-          className="aw-btn aw-btn--ghost aw-btn--md"
-          disabled={allPaid}
-        >
-          <Icon name="arrow_back" size={16} />
-          <span className="aw-btn__label">Ajustar pagamento</span>
-        </button>
-        <span className="flex-1" />
-        <span className="body-xs text-fg-tertiary">
-          {allPaid
-            ? "Tudo confirmado · seguindo para a conclusão…"
-            : `${[implPaid, mensPaid].filter(Boolean).length} de 2 pagamentos confirmados`}
-        </span>
-      </footer>
-    </section>
+      <div className="body-sm font-medium tabular-nums text-fg-primary">
+        {fmtBRL(meta.total)}
+      </div>
+      <AwPill variant={charge.pending ? "warning" : "live"}>
+        {charge.pending ? "em análise" : "pago"}
+      </AwPill>
+    </article>
   )
 }
 
-function PaymentInstrument({
-  method,
-  parcelas,
-  total,
-  label,
-  offerReuseCard,
-  reuseCard,
-  onToggleReuseCard,
-  paid,
-  onMarkPaid,
-  onDecline,
-}: {
-  method: MethodId
-  parcelas: number
-  total: number
-  label: string
-  offerReuseCard?: boolean
-  reuseCard?: boolean
-  onToggleReuseCard?: () => void
-  paid: boolean
-  onMarkPaid: () => void
-  onDecline?: () => void
-}) {
-  const parcelaLine =
-    parcelas === 1
-      ? `à vista · ${fmtBRL(total)}`
-      : `${parcelas}× ${fmtBRL(total / parcelas)} sem juros`
-
+function LockedRow({ meta, index }: { meta: ChargeMeta; index: number }) {
   return (
-    <article
-      className={[
-        "overflow-hidden rounded-xl border bg-bg-raised transition-colors duration-aw-base",
-        paid ? "border-aw-emerald-700/40" : "border-border-subtle",
-      ].join(" ")}
-    >
-      <header
-        className={[
-          "flex items-center gap-3 px-4 py-3",
-          paid ? "" : "border-b border-border-subtle",
-        ].join(" ")}
-      >
-        <AwBrandLogo brand={methodBrand(method)} size="sm" />
-        <div className="min-w-0 flex-1">
-          <div className="body-xs font-medium text-fg-primary">{label}</div>
-          <div className="body-xs text-fg-tertiary">
-            {methodTitle(method)} · {parcelaLine}
-          </div>
-        </div>
-        {paid ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-aw-emerald-100 px-2 py-0.5 text-[11px] font-medium text-aw-emerald-700">
-            <Icon name="check_circle" size={12} fill={1} />
-            Pago
-          </span>
-        ) : (
-          <div className="body-sm font-medium tabular-nums text-fg-primary">
-            {fmtBRL(total)}
-          </div>
-        )}
-      </header>
-      <div
-        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out"
-        style={{ gridTemplateRows: paid ? "0fr" : "1fr" }}
-      >
-        <div className="overflow-hidden">
-          <div className="p-4">
-            {method === "pix" && <PixInstrument onConfirmPaid={onMarkPaid} />}
-            {method === "cartao" && (
-              <CartaoInstrument
-                parcelas={parcelas}
-                total={total}
-                offerReuse={offerReuseCard}
-                reuse={reuseCard}
-                onToggleReuse={onToggleReuseCard}
-                onConfirmPaid={onMarkPaid}
-                onDecline={onDecline}
-              />
-            )}
-            {method === "boleto" && (
-              <BoletoInstrument
-                parcelas={parcelas}
-                onConfirmPaid={onMarkPaid}
-              />
-            )}
-          </div>
+    <article className="flex items-center gap-3 rounded-xl border border-border-subtle bg-bg-surface px-[18px] py-3.5 opacity-70">
+      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-bg-muted text-[11px] font-medium tabular-nums text-fg-tertiary">
+        {index + 1}
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="body-sm font-medium text-fg-secondary">{meta.title}</div>
+        <div className="mt-0.5 body-xs text-fg-tertiary">
+          Liberada após a cobrança anterior
         </div>
       </div>
+      <div className="body-sm font-medium tabular-nums text-fg-tertiary">
+        {fmtBRL(meta.total)}
+      </div>
+      <Icon name="lock" size={15} className="text-fg-tertiary" />
     </article>
+  )
+}
+
+/* ---------- DUAS COBRANÇAS CONCLUÍDAS ---------- */
+
+function DoneSummary({
+  anyPending,
+  onContinue,
+}: {
+  anyPending: boolean
+  onContinue: () => void
+}) {
+  return (
+    <div className="mt-5 flex flex-col items-center rounded-xl border border-border-subtle bg-bg-surface px-6 py-8 text-center">
+      <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
+        <Icon name="task_alt" size={28} fill={1} />
+      </span>
+      <h4 className="text-fg-primary text-balance">
+        As duas cobranças foram concluídas
+      </h4>
+      <p className="mt-2 max-w-[380px] body-sm text-fg-secondary text-pretty">
+        {anyPending
+          ? "O boleto entra em compensação — liberamos seu acesso assim que o pagamento confirmar."
+          : "Implementação e 1ª mensalidade pagas separadamente, cada uma como sua própria transação."}
+      </p>
+      <div className="mt-6">
+        <AwButton
+          variant="primary"
+          size="md"
+          iconRight="arrow_forward"
+          onClick={onContinue}
+        >
+          Continuar
+        </AwButton>
+      </div>
+    </div>
   )
 }
 
@@ -751,25 +662,21 @@ function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
             <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[10px] text-fg-tertiary">
               {PIX_CODE}
             </code>
-            <button
-              type="button"
-              className="aw-btn aw-btn--secondary aw-btn--sm"
-            >
-              <Icon name="content_copy" size={12} />
-              <span className="aw-btn__label">Copiar</span>
-            </button>
+            <AwButton variant="secondary" size="sm" iconLeft="content_copy">
+              Copiar
+            </AwButton>
           </div>
         </div>
       </div>
       <div className="flex justify-end border-t border-border-subtle pt-3">
-        <button
-          type="button"
+        <AwButton
+          variant="primary"
+          size="sm"
+          iconLeft="check"
           onClick={onConfirmPaid}
-          className="aw-btn aw-btn--primary aw-btn--sm"
         >
-          <Icon name="check" size={14} />
-          <span className="aw-btn__label">Já paguei o Pix</span>
-        </button>
+          Já paguei o Pix
+        </AwButton>
       </div>
     </div>
   )
@@ -895,8 +802,10 @@ function CartaoInstrument({
         </>
       )}
       <div className="flex justify-end border-t border-border-subtle pt-3">
-        <button
-          type="button"
+        <AwButton
+          variant="primary"
+          size="sm"
+          iconLeft="lock"
           onClick={() => {
             const digits = number.replace(/\D/g, "")
             if (!reuse && digits.endsWith("0002")) {
@@ -905,11 +814,9 @@ function CartaoInstrument({
             }
             onConfirmPaid()
           }}
-          className="aw-btn aw-btn--primary aw-btn--sm"
         >
-          <Icon name="lock" size={14} />
-          <span className="aw-btn__label">Cobrar cartão</span>
-        </button>
+          Cobrar cartão
+        </AwButton>
       </div>
     </div>
   )
@@ -952,26 +859,22 @@ function BoletoInstrument({
         <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis body-xs text-fg-tertiary">
           {BOLETO_CODE}
         </code>
-        <button type="button" className="aw-btn aw-btn--secondary aw-btn--sm">
-          <Icon name="content_copy" size={12} />
-          <span className="aw-btn__label">Copiar</span>
-        </button>
+        <AwButton variant="secondary" size="sm" iconLeft="content_copy">
+          Copiar
+        </AwButton>
       </div>
       <div className="mt-2.5 flex gap-2">
-        <button
-          type="button"
-          className="aw-btn aw-btn--secondary aw-btn--sm flex-1"
+        <AwButton
+          variant="secondary"
+          size="sm"
+          block
+          iconLeft="picture_as_pdf"
         >
-          <Icon name="picture_as_pdf" size={12} />
-          <span className="aw-btn__label">Baixar PDF</span>
-        </button>
-        <button
-          type="button"
-          className="aw-btn aw-btn--secondary aw-btn--sm flex-1"
-        >
-          <Icon name="mail" size={12} />
-          <span className="aw-btn__label">Enviar por e-mail</span>
-        </button>
+          Baixar PDF
+        </AwButton>
+        <AwButton variant="secondary" size="sm" block iconLeft="mail">
+          Enviar por e-mail
+        </AwButton>
       </div>
       {parcelas > 1 && (
         <div className="mt-2.5 flex items-center gap-2 rounded-md bg-aw-amber-100 p-2.5 body-xs text-aw-amber-800">
@@ -993,33 +896,33 @@ function BoletoInstrument({
               </span>
             </div>
             <div className="flex justify-end gap-2">
-              <button
-                type="button"
+              <AwButton
+                variant="ghost"
+                size="sm"
                 onClick={() => setShowDelayNotice(false)}
-                className="aw-btn aw-btn--ghost aw-btn--sm"
               >
-                <span className="aw-btn__label">Voltar</span>
-              </button>
-              <button
-                type="button"
+                Voltar
+              </AwButton>
+              <AwButton
+                variant="primary"
+                size="sm"
+                iconLeft="arrow_forward"
                 onClick={onConfirmPaid}
-                className="aw-btn aw-btn--primary aw-btn--sm"
               >
-                <Icon name="arrow_forward" size={14} />
-                <span className="aw-btn__label">Entendi, seguir</span>
-              </button>
+                Entendi, seguir
+              </AwButton>
             </div>
           </div>
         ) : (
           <div className="flex justify-end">
-            <button
-              type="button"
+            <AwButton
+              variant="primary"
+              size="sm"
+              iconLeft="check"
               onClick={() => setShowDelayNotice(true)}
-              className="aw-btn aw-btn--primary aw-btn--sm"
             >
-              <Icon name="check" size={14} />
-              <span className="aw-btn__label">Já paguei o boleto</span>
-            </button>
+              Já paguei o boleto
+            </AwButton>
           </div>
         )}
       </div>
@@ -1099,41 +1002,33 @@ function DeclinedPhase({
       </div>
 
       <div className="flex flex-col gap-2.5">
-        <button
-          type="button"
+        <AwButton
+          variant="primary"
+          size="md"
+          block
+          iconLeft="credit_card"
           onClick={onRetryCard}
-          className="aw-btn aw-btn--primary aw-btn--md aw-btn--block"
         >
-          <Icon name="credit_card" size={16} />
-          <span className="aw-btn__label">Tentar outro cartão</span>
-        </button>
-        <button
-          type="button"
+          Tentar outro cartão
+        </AwButton>
+        <AwButton
+          variant="secondary"
+          size="md"
+          block
+          iconLeft="swap_horiz"
           onClick={onSwitchMethod}
-          className="aw-btn aw-btn--secondary aw-btn--md aw-btn--block"
         >
-          <Icon name="swap_horiz" size={16} />
-          <span className="aw-btn__label">Pagar com Pix ou boleto</span>
-        </button>
-        <button
-          type="button"
-          className="aw-btn aw-btn--ghost aw-btn--md aw-btn--block"
-        >
-          <Icon name="headset_mic" size={16} />
-          <span className="aw-btn__label">Falar com {amFirst}</span>
-        </button>
+          Pagar com Pix ou boleto
+        </AwButton>
+        <AwButton variant="ghost" size="md" block iconLeft="headset_mic">
+          Falar com {amFirst}
+        </AwButton>
       </div>
     </section>
   )
 }
 
-function BlockedPhase({
-  org,
-  onBack,
-}: {
-  org: Org
-  onBack: () => void
-}) {
+function BlockedPhase({ org, onBack }: { org: Org; onBack: () => void }) {
   const amFirst = org.accountManager.name.split(" ")[0]
   return (
     <section>
@@ -1170,21 +1065,18 @@ function BlockedPhase({
       </div>
 
       <div className="flex flex-col gap-2.5">
-        <button
-          type="button"
-          className="aw-btn aw-btn--primary aw-btn--md aw-btn--block"
-        >
-          <Icon name="headset_mic" size={16} />
-          <span className="aw-btn__label">Falar com {amFirst}</span>
-        </button>
-        <button
-          type="button"
+        <AwButton variant="primary" size="md" block iconLeft="headset_mic">
+          Falar com {amFirst}
+        </AwButton>
+        <AwButton
+          variant="ghost"
+          size="md"
+          block
+          iconLeft="arrow_back"
           onClick={onBack}
-          className="aw-btn aw-btn--ghost aw-btn--md aw-btn--block"
         >
-          <Icon name="arrow_back" size={16} />
-          <span className="aw-btn__label">Voltar ao pagamento</span>
-        </button>
+          Voltar ao pagamento
+        </AwButton>
       </div>
     </section>
   )
@@ -1205,14 +1097,13 @@ function ProcessingPhase({
         aria-hidden="true"
         className="h-9 w-9 animate-spin rounded-full border-2 border-brand border-r-transparent"
       />
-      <h4 className="mt-6 text-fg-primary">Processando pagamento…</h4>
+      <h4 className="mt-6 text-fg-primary">Preparando seu ambiente…</h4>
       <p className="m-0 mt-2.5 max-w-[380px] text-center body-sm text-fg-secondary">
-        Estamos confirmando a cobrança da implementação e da 1ª mensalidade.
-        Isso leva alguns segundos.
+        Confirmamos as duas cobranças. Em instantes seu acesso estará liberado.
       </p>
       <div className="mt-7 w-full max-w-[380px] rounded-lg border border-border-subtle bg-bg-surface p-3.5">
         <ProcessingRow label="Implementação" amount={totalImpl} done />
-        <ProcessingRow label="1ª mensalidade" amount={totalMens} />
+        <ProcessingRow label="1ª mensalidade" amount={totalMens} done />
       </div>
     </section>
   )
