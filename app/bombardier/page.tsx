@@ -22,12 +22,12 @@ const sections: HubSection[] = [
     status: "soon",
   },
   {
-    title: "Page Builder",
+    title: "Review Bridge",
     description:
-      "Abre o rascunho atual (guardado no navegador). Ideal para experimentar sem criar projeto.",
-    icon: "draw",
-    href: "/bombardier/page-builder",
-    status: "soon",
+      "Pendências a resolver — comentários do Review Mode e sugestões de UX Flow num só painel.",
+    icon: "rate_review",
+    href: "/bombardier/review-bridge",
+    status: "ready",
   },
   {
     title: "Styleguide",
@@ -43,7 +43,7 @@ const sections: HubSection[] = [
       "Conecte páginas em fluxos navegáveis, estilo Figma prototype.",
     icon: "account_tree",
     href: "/bombardier/ux-flow",
-    status: "soon",
+    status: "ready",
   },
 ]
 
