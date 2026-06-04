@@ -63,7 +63,7 @@ export function LoginScreen({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-[340px] animate-fadeInUp">
+    <form onSubmit={handleSubmit} className="w-full max-w-[380px] animate-fadeInUp">
       <h3 className="text-aw-gray-1200 mb-2.5 text-center">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-7 text-center">{c.sub}</p>
 

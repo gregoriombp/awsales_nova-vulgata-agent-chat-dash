@@ -4,8 +4,8 @@ export const COPY = {
   login: {
     pt: {
       kicker: "Acesso",
-      title: "Bem-vindo de volta",
-      sub: "Entre com seu e-mail de trabalho.",
+      title: "Acesse a AwSales",
+      sub: "Entre com seu e-mail corporativo para continuar.",
       email: "E-mail",
       emailPh: "voce@empresa.com",
       cta: "Continuar",
@@ -15,8 +15,8 @@ export const COPY = {
     },
     en: {
       kicker: "Access",
-      title: "Welcome back",
-      sub: "Enter your work email.",
+      title: "Sign in to AwSales",
+      sub: "Use your work email to continue.",
       email: "Email",
       emailPh: "you@company.com",
       cta: "Continue",
