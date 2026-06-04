@@ -26,15 +26,20 @@ function BellDemo({
   limit?: number
 }) {
   return (
-    <div className="flex justify-end pr-6" style={{ paddingBottom: bottom }}>
-      <div className="relative">
-        <button
-          type="button"
-          aria-label="Notificações"
-          className="flex h-9 w-9 items-center justify-center rounded-full text-fg-secondary"
-        >
-          <Icon name="notifications" size={18} />
-        </button>
+    <div className="flex justify-center" style={{ paddingBottom: bottom }}>
+      {/* Caixa de largura fixa = âncora do painel. O sino fica no topo-direita
+       * e o painel (right-0, ~420px) cai logo abaixo, dentro da caixa — sem
+       * estourar pra fora do Stage. */}
+      <div className="relative" style={{ width: 440 }}>
+        <div className="flex justify-end">
+          <button
+            type="button"
+            aria-label="Notificações"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-fg-secondary"
+          >
+            <Icon name="notifications" size={18} />
+          </button>
+        </div>
         <AwNotificationsPanel isOpen onClose={noop} {...props} />
       </div>
     </div>
