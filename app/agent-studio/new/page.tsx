@@ -6,6 +6,7 @@ import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
+import { AwModal } from "@/components/ui/AwModal";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -1617,6 +1618,7 @@ export default function AgentStudioNewPage() {
   const [selectedBaseId, setSelectedBaseId] = useState<string | null>(null);
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
   const [showAllBases, setShowAllBases] = useState(false);
+  const [basesModalOpen, setBasesModalOpen] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
   // Step 3 state
@@ -2990,15 +2992,69 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
                     {hasMoreBases && (
                       <button
-                        onClick={() => setShowAllBases(!showAllBases)}
-                        className="text-sm font-medium text-fg-primary hover:underline mt-2"
+                        onClick={() => setBasesModalOpen(true)}
+                        className="inline-flex items-center gap-1 text-sm font-medium text-fg-primary hover:underline mt-2"
                       >
-                        {showAllBases ? "Ver menos" : `Ver mais (${knowledgeBases.length - MAX_VISIBLE_BASES})`}
+                        <Icon name="grid_view" size={15} />
+                        Ver todas as bases ({knowledgeBases.length})
                       </button>
                     )}
                   </>
                 )}
               </div>
+
+              <AwModal
+                open={basesModalOpen}
+                onClose={() => setBasesModalOpen(false)}
+                title="Bases de conhecimento"
+              >
+                <p className="text-sm text-fg-tertiary mb-4">
+                  Todas as suas bases. Selecione qual o agente vai utilizar.
+                </p>
+                <div className="flex flex-col gap-2 max-h-[60vh] overflow-auto pr-1">
+                  {knowledgeBases.map((base) => {
+                    const isSelected = selectedBaseId === base.id;
+                    const layers = base.knowledgeLayersCount ?? 0;
+                    const sources = base.documentCount ?? 0;
+                    return (
+                      <button
+                        key={base.id}
+                        onClick={() => {
+                          setSelectedBaseId(base.id);
+                          setBasesModalOpen(false);
+                        }}
+                        className={`flex items-center gap-3 p-3 rounded-xl border text-left transition-colors ${
+                          isSelected
+                            ? "border-aw-gray-1200 bg-bg-muted"
+                            : "border-border hover:border-aw-gray-400"
+                        }`}
+                      >
+                        <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-bg-muted">
+                          <Icon name="account_balance" fill={1} size={18} style={{ color: "var(--aw-gray-600)" }} />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block font-heading font-medium text-sm text-fg-primary truncate">
+                            {base.name}
+                          </span>
+                          <span className="flex items-center gap-3 mt-0.5 text-xs text-fg-tertiary">
+                            <span className="inline-flex items-center gap-1">
+                              <Icon name="stacks" fill={1} size={12} />
+                              {layers} Knowledge Layer{layers !== 1 ? "s" : ""}
+                            </span>
+                            <span className="inline-flex items-center gap-1">
+                              <Icon name="file_copy" fill={1} size={12} />
+                              {sources} Fonte{sources !== 1 ? "s" : ""}
+                            </span>
+                          </span>
+                        </span>
+                        {isSelected && (
+                          <Icon name="check_circle" fill={1} size={18} style={{ color: "var(--aw-gray-1200)" }} />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </AwModal>
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
