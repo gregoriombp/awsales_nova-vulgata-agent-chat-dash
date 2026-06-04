@@ -940,6 +940,18 @@ export function FlowDiagram({
     ])
   }, [editNodes, setEditNodes])
 
+  // Remove the selected card(s) and any edge touching them. Mirrors the
+  // Backspace/Delete shortcut, but exposed as a visible toolbar button so the
+  // capability is discoverable while building a suggestion.
+  const deleteSelected = useCallback(() => {
+    const ids = new Set(editNodes.filter((n) => n.selected).map((n) => n.id))
+    if (ids.size === 0) return
+    setEditNodes((prev) => prev.filter((n) => !ids.has(n.id)))
+    setEditEdges((prev) => prev.filter((e) => !ids.has(e.source) && !ids.has(e.target)))
+  }, [editNodes, setEditNodes, setEditEdges])
+
+  const selectedCount = editMode ? editNodes.filter((n) => n.selected).length : 0
+
   const canUndo = editMode && historyIndex > 0
   const canRedo = editMode && historyIndex >= 0 && historyIndex < historyLength - 1
 
@@ -1165,6 +1177,25 @@ export function FlowDiagram({
                   </button>
                   <button onClick={applyAutoLayout} title="Reorganizar os cards em colunas" className="rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]">
                     Organizar
+                  </button>
+
+                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
+
+                  <button
+                    onClick={duplicateSelected}
+                    disabled={selectedCount === 0}
+                    title="Duplicar selecionado (⌘D)"
+                    className="rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                  >
+                    Duplicar
+                  </button>
+                  <button
+                    onClick={deleteSelected}
+                    disabled={selectedCount === 0}
+                    title="Excluir selecionado (Delete)"
+                    className="rounded-full border border-transparent px-2 py-1 font-medium text-[var(--aw-red-700)] transition hover:bg-[var(--aw-red-100)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                  >
+                    Excluir{selectedCount > 1 ? ` (${selectedCount})` : ""}
                   </button>
 
                   <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
