@@ -33,7 +33,7 @@ export function ContratoBody({
 }: {
   org: Org
   user: User
-  backHref: string
+  backHref?: string
   nextHref: string
   heading?: string
   intro?: React.ReactNode
@@ -220,13 +220,15 @@ export function ContratoBody({
         </label>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-          <Link
-            href={backHref}
-            className="aw-btn aw-btn--ghost aw-btn--md"
-          >
-            <Icon name="arrow_back" size={16} />
-            <span className="aw-btn__label">Voltar</span>
-          </Link>
+          {backHref && (
+            <Link
+              href={backHref}
+              className="aw-btn aw-btn--ghost aw-btn--md"
+            >
+              <Icon name="arrow_back" size={16} />
+              <span className="aw-btn__label">Voltar</span>
+            </Link>
+          )}
           <span className="flex-1" />
           {accepted ? (
             <Link href={nextHref} className="aw-btn aw-btn--primary aw-btn--md">

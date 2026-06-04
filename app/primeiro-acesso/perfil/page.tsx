@@ -40,14 +40,20 @@ function PerfilContent() {
     metodo ? `?metodo=${metodo}` : ""
   }`
 
+  // Quem entrou via SSO (Google/Microsoft) já tem foto de perfil — ela vem
+  // junto. Aqui mockamos isso pré-preenchendo o avatar. (captura real = backend)
+  const ssoPhoto = metodo === "google" || metodo === "microsoft"
   const [name, setName] = React.useState(ONBOARDING_USER.name)
   const [cargo, setCargo] = React.useState("")
   const [email, setEmail] = React.useState(ONBOARDING_USER.email)
   const [phone, setPhone] = React.useState("")
-  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(
+    ssoPhoto ? ONBOARDING_USER.photo ?? "/assets/ui-faces/male-7.jpg" : null
+  )
   const [invoiceSelf, setInvoiceSelf] = React.useState(true)
   const [extraEmails, setExtraEmails] = React.useState<ExtraEmail[]>([])
   const [pendingEmail, setPendingEmail] = React.useState("")
+  const [addingEmail, setAddingEmail] = React.useState(false)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const emailIdRef = React.useRef(0)
 
@@ -115,7 +121,9 @@ function PerfilContent() {
               Foto de perfil
             </div>
             <div className="mt-0.5 body-xs text-fg-tertiary">
-              Opcional · PNG ou JPG, até 4 MB
+              {ssoPhoto
+                ? `Importada da sua conta ${metodo === "google" ? "Google" : "Microsoft"}`
+                : "Opcional · PNG ou JPG, até 4 MB"}
             </div>
             <button
               type="button"
@@ -195,47 +203,77 @@ function PerfilContent() {
         </div>
 
         <div className="mt-3">
-          <div className="flex items-center gap-2">
-            <span className="flex h-[38px] flex-1 items-center gap-2 rounded-md border border-border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary">
-              <Icon name="mail" size={14} className="text-fg-tertiary" />
-              <input
-                type="email"
-                inputMode="email"
-                value={pendingEmail}
-                onChange={(e) => setPendingEmail(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault()
-                    commitPendingEmail()
-                  }
-                }}
-                placeholder="financeiro@empresa.com"
-                className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
-              />
-            </span>
-            <button
-              type="button"
-              onClick={commitPendingEmail}
-              disabled={!canAddPending}
-              aria-label="Adicionar e-mail"
-              className={[
-                "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
-                canAddPending
-                  ? "bg-fg-primary text-white hover:opacity-90"
-                  : "bg-bg-muted text-fg-tertiary",
-              ].join(" ")}
-            >
-              <Icon name="add" size={16} />
-            </button>
-          </div>
+          {(() => {
+            // Campo fica escondido atrás de um botão discreto. Só aparece quando
+            // o usuário clica em "adicionar", quando já há e-mails, ou quando a
+            // caixa "no meu e-mail" está desmarcada (aí precisa de destinatário
+            // e o campo chama atenção).
+            const needsAttention = needsRecipient && extraEmails.length === 0
+            const showField = addingEmail || extraEmails.length > 0 || needsAttention
+            if (!showField) {
+              return (
+                <button
+                  type="button"
+                  onClick={() => setAddingEmail(true)}
+                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 body-xs font-medium text-fg-secondary transition-colors hover:bg-bg-muted hover:text-fg-primary"
+                >
+                  <Icon name="add" size={15} />
+                  Adicionar e-mail para receber faturas
+                </button>
+              )
+            }
+            return (
+              <>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={[
+                      "flex h-[38px] flex-1 items-center gap-2 rounded-md border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary",
+                      needsAttention ? "border-aw-amber-500 bg-aw-amber-100" : "border-border",
+                    ].join(" ")}
+                  >
+                    <Icon name="mail" size={14} className="text-fg-tertiary" />
+                    <input
+                      type="email"
+                      inputMode="email"
+                      autoFocus={addingEmail}
+                      value={pendingEmail}
+                      onChange={(e) => setPendingEmail(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault()
+                          commitPendingEmail()
+                        }
+                      }}
+                      placeholder="financeiro@empresa.com"
+                      className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+                    />
+                  </span>
+                  <button
+                    type="button"
+                    onClick={commitPendingEmail}
+                    disabled={!canAddPending}
+                    aria-label="Adicionar e-mail"
+                    className={[
+                      "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
+                      canAddPending
+                        ? "bg-fg-primary text-white hover:opacity-90"
+                        : "bg-bg-muted text-fg-tertiary",
+                    ].join(" ")}
+                  >
+                    <Icon name="add" size={16} />
+                  </button>
+                </div>
 
-          <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
-            <Icon name="info" size={12} className="mt-px flex-shrink-0" />
-            <span>
-              Cada e-mail recebe um convite para entrar na organização. A pessoa
-              precisa confirmar o convite para começar a receber as faturas.
-            </span>
-          </p>
+                <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
+                  <Icon name="info" size={12} className="mt-px flex-shrink-0" />
+                  <span>
+                    Cada e-mail recebe um convite para entrar na organização. A pessoa
+                    precisa confirmar o convite para começar a receber as faturas.
+                  </span>
+                </p>
+              </>
+            )
+          })()}
 
           {extraEmails.length > 0 && (
             <ul className="mt-3 flex flex-col gap-1.5">

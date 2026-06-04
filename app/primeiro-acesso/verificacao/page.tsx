@@ -28,11 +28,6 @@ export default function VerificacaoPage() {
   return (
     <AwOnboardingShell org={ONBOARDING_ORG}>
       <section>
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-emerald-200 bg-aw-emerald-100 px-2.5 py-1 body-xs text-aw-emerald-800">
-          <Icon name="check_circle" size={12} fill={1} />
-          <span>Link de acesso verificado</span>
-        </div>
-
         <h3 className="mb-2 text-fg-primary text-balance">
           Bem-vindo à AwSales, {ONBOARDING_USER.firstName}
         </h3>
@@ -69,10 +64,6 @@ export default function VerificacaoPage() {
         </div>
 
         <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-          <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-            <Icon name="lock" size={12} />
-            Conexão criptografada
-          </span>
           <span className="flex-1" />
           <button
             type="button"

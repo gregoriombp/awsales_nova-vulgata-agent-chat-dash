@@ -22,7 +22,6 @@ function ContratoWrapper() {
     <ContratoBody
       org={ONBOARDING_ORG}
       user={ONBOARDING_USER}
-      backHref={`/primeiro-acesso/perfil${suffix}`}
       nextHref={`/primeiro-acesso/pagamento${suffix}`}
     />
   )
