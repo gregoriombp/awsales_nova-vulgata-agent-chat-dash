@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { AwNotificationsPopover } from "@/components/ui/AwNotificationsPopover";
+import { AwNotificationsPanel } from "@/components/ui/AwNotificationsPanel";
 import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer";
 import { AwSidebar } from "@/components/ui/AwSidebar";
 
@@ -143,7 +143,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
           </button>
 
           <div ref={notificationsPanelRef}>
-            <AwNotificationsPopover
+            <AwNotificationsPanel
               isOpen={isNotificationsOpen}
               onClose={() => setIsNotificationsOpen(false)}
             />

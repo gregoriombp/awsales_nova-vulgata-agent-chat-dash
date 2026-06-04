@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { AwNotificationsPopover } from "@/components/ui/AwNotificationsPopover";
+import { AwNotificationsPanel } from "@/components/ui/AwNotificationsPanel";
 import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
@@ -165,7 +165,7 @@ export function AwHeader({
       />
 
       <div ref={notificationsPanelRef}>
-        <AwNotificationsPopover
+        <AwNotificationsPanel
           isOpen={isNotificationsOpen}
           onClose={() => setIsNotificationsOpen(false)}
         />
