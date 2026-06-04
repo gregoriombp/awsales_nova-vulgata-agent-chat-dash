@@ -4,36 +4,18 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import type { AppNotification, NotificationKind } from "@/lib/notifications";
 
-/** Ícone e tom de cor por tipo de notificação — só tokens da paleta. */
+/** Ícone por tipo de notificação. O tom é sempre neutro (cinza) — o feed não
+ * usa cor semântica nos ícones; o que sinaliza "novo" é o dot azul. */
+const NEUTRAL = { bg: "var(--bg-muted)", fg: "var(--fg-tertiary)" } as const;
 const KIND_META: Record<
   NotificationKind,
   { icon: string; bg: string; fg: string }
 > = {
-  billing: {
-    icon: "credit_card",
-    bg: "var(--aw-amber-100)",
-    fg: "var(--aw-amber-500)",
-  },
-  agent: {
-    icon: "smart_toy",
-    bg: "var(--aw-emerald-100)",
-    fg: "var(--aw-emerald-500)",
-  },
-  team: {
-    icon: "group",
-    bg: "var(--aw-blue-100)",
-    fg: "var(--aw-blue-500)",
-  },
-  security: {
-    icon: "shield",
-    bg: "var(--aw-red-100)",
-    fg: "var(--aw-red-500)",
-  },
-  system: {
-    icon: "info",
-    bg: "var(--bg-muted)",
-    fg: "var(--fg-tertiary)",
-  },
+  billing: { icon: "credit_card", ...NEUTRAL },
+  agent: { icon: "smart_toy", ...NEUTRAL },
+  team: { icon: "group", ...NEUTRAL },
+  security: { icon: "shield", ...NEUTRAL },
+  system: { icon: "info", ...NEUTRAL },
 };
 
 export type NotificationRowProps = {

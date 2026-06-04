@@ -39,18 +39,18 @@ export function AwNotificationsPopover({
   return (
     <div className="absolute right-0 top-[calc(100%+14px)] z-50">
       {/* caret */}
-      <div className="absolute -top-2 right-10 h-4 w-4 rotate-45 bg-white shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.18),0px_1px_3px_0px_rgba(0,0,0,0.10)]" />
+      <div className="absolute -top-2 right-10 h-4 w-4 rotate-45 bg-[var(--bg-raised)] shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.18),0px_1px_3px_0px_rgba(0,0,0,0.10)]" />
 
-      <div className="w-[582px] max-w-[calc(100vw-32px)] rounded-[24px] bg-white p-6 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.3),0px_1px_3px_0px_rgba(0,0,0,0.15)]">
+      <div className="w-[582px] max-w-[calc(100vw-32px)] rounded-[24px] bg-[var(--bg-raised)] p-6 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.3),0px_1px_3px_0px_rgba(0,0,0,0.15)]">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div className="body-lg font-normal text-[#2f2f2f]">
+          <div className="body-lg font-normal text-[var(--fg-primary)]">
             Notificações
           </div>
-          <div className="flex items-center gap-4 text-[#737373]">
+          <div className="flex items-center gap-4 text-[var(--fg-tertiary)]">
             <button
               type="button"
-              className="p-1 hover:text-[#0d0d0d]"
+              className="p-1 hover:text-[var(--fg-primary)]"
               aria-label="Configurações de notificações"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -78,7 +78,7 @@ export function AwNotificationsPopover({
             </button>
             <button
               type="button"
-              className="p-1 hover:text-[#0d0d0d]"
+              className="p-1 hover:text-[var(--fg-primary)]"
               aria-label="Marcar todas como lidas"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -101,13 +101,13 @@ export function AwNotificationsPopover({
         </div>
 
         {/* Tabs */}
-        <div className="mt-4 border-b border-[#f2f2f2]">
+        <div className="mt-4 border-b border-[var(--border-subtle)]">
           <div className="flex">
             <button
               type="button"
               onClick={() => setTab("all")}
-              className={`flex-1 py-2 body-md font-normal text-[#2f2f2f] ${
-                tab === "all" ? "border-b border-[#0d0d0d]" : ""
+              className={`flex-1 py-2 body-md font-normal text-[var(--fg-primary)] ${
+                tab === "all" ? "border-b border-[var(--fg-primary)]" : ""
               }`}
             >
               Todas
@@ -115,8 +115,8 @@ export function AwNotificationsPopover({
             <button
               type="button"
               onClick={() => setTab("unread")}
-              className={`flex-1 py-2 body-md font-normal text-[#2f2f2f] ${
-                tab === "unread" ? "border-b border-[#0d0d0d]" : ""
+              className={`flex-1 py-2 body-md font-normal text-[var(--fg-primary)] ${
+                tab === "unread" ? "border-b border-[var(--fg-primary)]" : ""
               }`}
             >
               Não lidas
@@ -127,17 +127,17 @@ export function AwNotificationsPopover({
         {/* List */}
         <div className="mt-4 flex max-h-[640px] flex-col gap-4 overflow-auto pr-1">
           {filtered.length === 0 ? (
-            <div className="rounded-[16px] border border-[#f2f2f2] p-4 body-sm text-[#7a7a7a]">
+            <div className="rounded-[16px] border border-[var(--border-subtle)] p-4 body-sm text-[var(--fg-tertiary)]">
               Nenhuma notificação.
             </div>
           ) : (
             filtered.map((n) => (
               <div
                 key={n.id}
-                className="rounded-[16px] border border-[#f2f2f2] p-4"
+                className="rounded-[16px] border border-[var(--border-subtle)] p-4"
               >
                 <div className="flex gap-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[#f2f7ff] text-[#3b82f6]">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-[8px] bg-[var(--bg-muted)] text-[var(--fg-tertiary)]">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                       <path
                         d="M12 1v22"
@@ -155,13 +155,13 @@ export function AwNotificationsPopover({
                     </svg>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="body-sm font-medium text-[#2f2f2f]">
+                    <div className="body-sm font-medium text-[var(--fg-primary)]">
                       {n.title}
                     </div>
-                    <div className="mt-1 body-xs font-normal text-[#5e5e5e]">
+                    <div className="mt-1 body-xs font-normal text-[var(--fg-secondary)]">
                       {n.description}
                     </div>
-                    <div className="mt-1 body-xs font-normal text-[#7a7a7a]">
+                    <div className="mt-1 body-xs font-normal text-[var(--fg-tertiary)]">
                       {n.dateLabel}
                     </div>
                   </div>
@@ -170,7 +170,7 @@ export function AwNotificationsPopover({
                 <div className="mt-3 flex items-center justify-end gap-6">
                   <button
                     type="button"
-                    className="body-sm font-medium tracking-[-0.1px] text-[#999999] hover:text-[#0d0d0d]"
+                    className="body-sm font-medium tracking-[-0.1px] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)]"
                   >
                     {n.isUnread ? "Marcar como lida" : "Ignorar"}
                   </button>
@@ -192,11 +192,11 @@ export function AwNotificationsPopover({
           )}
         </div>
 
-        <div className="mt-4 border-t border-[#f2f2f2] pt-3 text-center">
+        <div className="mt-4 border-t border-[var(--border-subtle)] pt-3 text-center">
           <Link
             href="/notifications"
             onClick={onClose}
-            className="body-sm font-medium text-[#5e5e5e] hover:text-[#0d0d0d]"
+            className="body-sm font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
           >
             Ver todas as notificações →
           </Link>
