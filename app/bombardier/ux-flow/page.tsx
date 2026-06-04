@@ -5,6 +5,7 @@ import { AwCard } from "@/components/ui/AwCard"
 import { AwPill } from "@/components/ui/AwPill"
 import { AwStatCard } from "@/components/ui/AwStatCard"
 import { Icon } from "@/components/ui/Icon"
+import { CollapsibleGroup } from "./_components/CollapsibleGroup"
 import { FLOW_GROUPS, FLOW_META, type FlowGroup } from "./_data/flow-meta"
 
 export const metadata: Metadata = {
@@ -54,8 +55,7 @@ export default function UxFlowIndex() {
           const flows = FLOW_META.filter((f) => f.group === group)
           if (flows.length === 0) return null
           return (
-            <section key={group} className="mb-10">
-              <p className="aw-eyebrow mb-3">{group}</p>
+            <CollapsibleGroup key={group} title={group} count={flows.length}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {flows.map((f) => (
                   <AwCard
@@ -73,7 +73,7 @@ export default function UxFlowIndex() {
                       <AwPill variant="neutral">{f.screens} telas</AwPill>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <h2 className="text-xl font-semibold">{f.title}</h2>
+                      <h3 className="text-xl font-semibold">{f.title}</h3>
                       <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">
                         {f.description}
                       </p>
@@ -95,7 +95,7 @@ export default function UxFlowIndex() {
                   </AwCard>
                 ))}
               </div>
-            </section>
+            </CollapsibleGroup>
           )
         })}
       </div>
