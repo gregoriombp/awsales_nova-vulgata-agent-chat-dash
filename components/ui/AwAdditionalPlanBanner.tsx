@@ -38,12 +38,11 @@ export function AwAdditionalPlanBanner({
     <div
       role="status"
       className={[
-        "flex items-start gap-3 rounded-xl border px-4 py-3.5 sm:items-center",
+        "flex items-start gap-3 rounded-xl px-4 py-3.5 sm:items-center",
         className ?? "",
       ].join(" ")}
       style={{
         background: "var(--aw-amber-100)",
-        borderColor: "var(--aw-amber-300)",
       }}
     >
       <span
