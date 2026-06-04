@@ -2471,12 +2471,14 @@
 .aw-progress__fill {
   height: 100%;
   border-radius: inherit;
-  background: var(--aw-blue-500);
+  /* Progresso é neutro: dark/gray em vez de azul/verde/laranja/vermelho.
+   * As variantes mantêm distinção só pelo tom de cinza, sem matiz. */
+  background: var(--fg-primary);
   transition: width var(--dur-slow) var(--ease-out);
 }
-.aw-progress--success .aw-progress__fill { background: var(--aw-emerald-600); }
-.aw-progress--warning .aw-progress__fill { background: var(--aw-amber-500); }
-.aw-progress--danger  .aw-progress__fill { background: var(--aw-red-600); }
+.aw-progress--success .aw-progress__fill { background: var(--aw-gray-900); }
+.aw-progress--warning .aw-progress__fill { background: var(--aw-gray-700); }
+.aw-progress--danger  .aw-progress__fill { background: var(--aw-gray-1100); }
 
 /* ============================================================
  * AwNavRail — vertical primary navigation (app chrome).
@@ -3371,10 +3373,10 @@
   cursor: pointer;
   background: transparent;
   transition:
-    background var(--dur-fast) var(--ease-out),
-    border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out),
-    box-shadow var(--dur-fast) var(--ease-out);
+    background var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out),
+    color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
 }
 .aw-tabs__tab:hover:not([disabled]) { color: var(--fg-primary); }
 .aw-tabs__tab[disabled] {
@@ -3401,7 +3403,7 @@
 }
 .aw-tabs--segmented .aw-tabs__tab {
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
 }
 .aw-tabs--segmented .aw-tabs__tab--active {
   background: var(--bg-raised);
@@ -3431,6 +3433,12 @@
   background: var(--fg-primary);
   border-color: var(--fg-primary);
   color: var(--bg-raised);
+}
+/* Hover no tab ativo (bg escuro): mantém o texto claro — senão a regra
+ * genérica de hover pinta a fonte de --fg-primary e some no fundo preto. */
+.aw-tabs--standalone .aw-tabs__tab--active:hover:not([disabled]) {
+  color: var(--bg-raised);
+  border-color: var(--fg-primary);
 }
 
 /* Variant: underline — text-style nav with hairline divider + underline indicator. */
@@ -3742,12 +3750,16 @@
   background: var(--dark-bg);
   color: var(--dark-fg-primary);
   border-bottom: 1px solid var(--dark-border);
-  padding: 64px 56px 56px;
+  /* Sem padding horizontal aqui: o alinhamento do texto vem do __inner, que
+   * espelha o container do conteúdo (max-width 1200 + px-10) pra o cabeçalho
+   * casar com a coluna de baixo. */
+  padding: 64px 0 56px;
   margin: 0 0 56px 0;
 }
 .aw-hero__inner {
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 40px;
 }
 .aw-hero__title {
   margin: 0;
