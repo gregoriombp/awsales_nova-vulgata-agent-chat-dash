@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import BrandPane from "./BrandPane";
 import { LoginScreen } from "./screens/LoginScreen";
 import { EmailLoginScreen } from "./screens/EmailLoginScreen";
@@ -23,22 +23,33 @@ import type { AuthScreen, Locale, VerifyMode, AuthMethod } from "./_types";
 export type { AuthScreen };
 
 export function AuthFlow() {
-  // Deep-link opcional: `?screen=mfaVerify` etc. abre direto numa tela
-  // específica (usado pelos cards dos fluxogramas do styleguide). Valores
-  // inválidos caem no padrão "login".
+  // A URL é a fonte de verdade da tela: `?screen=email` etc. Cada etapa vira um
+  // endereço próprio — deep-link funciona, o browser back anda entre as telas, e
+  // o Review Mode (escopado por URL) não vaza comentário de uma tela pra outra.
+  // A tela inicial fica na URL nua (/awsales/login) pra não orfanar comentários
+  // antigos. Valores inválidos caem no padrão "login".
+  const router = useRouter();
   const searchParams = useSearchParams();
   const screenParam = searchParams.get("screen") as AuthScreen | null;
-  const initialScreen: AuthScreen =
+  const screen: AuthScreen =
     screenParam && AUTH_SCREENS.includes(screenParam) ? screenParam : "login";
 
-  const [screen, setScreen] = useState<AuthScreen>(initialScreen);
+  // Dados efêmeros do fluxo NÃO vão pra URL — e-mail/modo não são "endereço"
+  // (e expor e-mail na barra não faz sentido). Ficam em estado local, que
+  // sobrevive à troca de tela porque o segmento de rota não remonta.
   const [locale] = useState<Locale>("pt");
   const [email, setEmail] = useState("");
   const [ssoOrg, setSsoOrg] = useState("");
   const [verifyMode, setVerifyMode] = useState<VerifyMode>("login");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("password");
 
-  const goTo = useCallback((s: AuthScreen) => setScreen(s), []);
+  const goTo = useCallback(
+    (s: AuthScreen) => {
+      const url = s === "login" ? "/awsales/login" : `/awsales/login?screen=${s}`;
+      router.push(url, { scroll: false });
+    },
+    [router]
+  );
 
   const renderScreen = () => {
     switch (screen) {
