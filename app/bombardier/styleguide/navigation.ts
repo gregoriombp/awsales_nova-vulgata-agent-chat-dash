@@ -117,7 +117,6 @@ export const navigation: NavSection[] = [
     title: "Domínio",
     items: [
       { name: "Agent Core", href: "/bombardier/styleguide/components/agent-core" },
-      { name: "Agent tile", href: "/bombardier/styleguide/components/aw-agent-tile" },
       { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
