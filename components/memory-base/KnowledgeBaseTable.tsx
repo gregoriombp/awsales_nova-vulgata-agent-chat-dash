@@ -12,6 +12,7 @@ import {
 import { Icon } from "@/components/ui/Icon";
 import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { AwAvatar, AwAvatarGroup } from "@/components/ui/AwAvatar";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { getOrbForAgent } from "@/lib/agentOrbs";
 import {
   type KnowledgeBase,
@@ -19,36 +20,40 @@ import {
   statusLabel,
 } from "./knowledgeBases";
 
+/* ─────────────────────────────────────────────────────────────────────────
+ * Lista densa — versão enxuta (6 colunas).
+ *
+ * O Figma trazia 11 colunas + scroll horizontal. Referências do mesmo padrão
+ * (Slite, HubSpot, Front no Mobbin) param em ~4-6 colunas. Cortamos as colunas
+ * de negócio que só servem pra leitura rápida (Objetivo, Segmento, Tipo de
+ * dados, Produtos): Objetivo · Segmento descem pro subtítulo da base; Tipo de
+ * dados e Produtos vivem na tela de detalhe. Sem scroll horizontal — a tabela
+ * respira na largura do painel.
+ * ───────────────────────────────────────────────────────────────────────── */
+
 const headClass =
   "h-11 px-4 text-left align-middle text-[12.5px] font-medium text-[var(--fg-tertiary)] whitespace-nowrap";
 const cellClass = "px-4 py-3.5 align-middle text-[13px] text-[var(--fg-secondary)]";
+const numClass = `${cellClass} text-right tabular-nums`;
 
-/** Célula com ícone + texto (placeholders de ícone — o usuário define os finais). */
-function IconCell({ icon, children }: { icon: string; children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2 whitespace-nowrap">
-      <Icon name={icon} size={16} weight={300} className="text-[var(--fg-tertiary)]" />
-      {children}
-    </span>
-  );
-}
-
-export function KnowledgeBaseTable({ bases }: { bases: KnowledgeBase[] }) {
+export function KnowledgeBaseTable({
+  bases,
+  onDelete,
+}: {
+  bases: KnowledgeBase[];
+  onDelete?: (id: string) => void;
+}) {
   const router = useRouter();
 
   return (
     <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <Table className="min-w-[1100px]">
+      <Table>
         <TableHeader>
           <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
             <TableHead className={headClass}>Base de conhecimento</TableHead>
             <TableHead className={headClass}>Status</TableHead>
-            <TableHead className={headClass}>Objetivo</TableHead>
-            <TableHead className={headClass}>Segmento</TableHead>
-            <TableHead className={headClass}>Tipo de dados</TableHead>
-            <TableHead className={headClass}>Produtos</TableHead>
-            <TableHead className={headClass}>Fontes de conhecimento</TableHead>
-            <TableHead className={headClass}>Knowledge Layers</TableHead>
+            <TableHead className={`${headClass} text-right`}>Fontes</TableHead>
+            <TableHead className={`${headClass} text-right`}>Knowledge Layers</TableHead>
             <TableHead className={headClass}>Uso</TableHead>
             <TableHead className={headClass}>Última modificação</TableHead>
             <TableHead className={`${headClass} w-px`} aria-label="Ações" />
@@ -61,17 +66,20 @@ export function KnowledgeBaseTable({ bases }: { bases: KnowledgeBase[] }) {
               <TableRow
                 key={base.id}
                 onClick={() => router.push(`/memory-base/${base.id}`)}
-                className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors hover:bg-[var(--bg-hover)]"
+                className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors last:border-b-0 hover:bg-[var(--bg-hover)]"
               >
                 <TableCell className={`${cellClass} text-[var(--fg-primary)]`}>
-                  <span className="inline-flex items-center gap-2.5 whitespace-nowrap font-medium">
-                    <Icon
-                      name="account_balance"
-                      size={18}
-                      weight={300}
-                      className="text-[var(--fg-secondary)]"
-                    />
-                    {base.name}
+                  <span className="flex items-center gap-3">
+                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+                      <Icon name="account_balance" size={18} weight={300} />
+                    </span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate font-medium">{base.name}</span>
+                      <span className="truncate text-[12px] text-[var(--fg-tertiary)]">
+                        {[base.objetivo, base.segmento].filter(Boolean).join(" · ") ||
+                          "Base recém-criada"}
+                      </span>
+                    </span>
                   </span>
                 </TableCell>
                 <TableCell className={cellClass}>
@@ -80,24 +88,8 @@ export function KnowledgeBaseTable({ bases }: { bases: KnowledgeBase[] }) {
                     {statusLabel(base.status)}
                   </span>
                 </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="adjust">{base.objetivo}</IconCell>
-                </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="category">{base.segmento}</IconCell>
-                </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="dataset">{base.tipoDados}</IconCell>
-                </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="inventory_2">{base.produtos} produtos</IconCell>
-                </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="account_tree">{base.fontes} fontes</IconCell>
-                </TableCell>
-                <TableCell className={cellClass}>
-                  <IconCell icon="layers">{base.knowledgeLayers} Knowledge Layers</IconCell>
-                </TableCell>
+                <TableCell className={numClass}>{base.fontes}</TableCell>
+                <TableCell className={numClass}>{base.knowledgeLayers}</TableCell>
                 <TableCell className={cellClass}>
                   <span className="inline-flex items-center gap-2 whitespace-nowrap">
                     {base.agents.length > 0 && (
@@ -110,18 +102,39 @@ export function KnowledgeBaseTable({ bases }: { bases: KnowledgeBase[] }) {
                     {agentUsageLabel(base.agents.length)}
                   </span>
                 </TableCell>
-                <TableCell className={`${cellClass} whitespace-nowrap`}>
+                <TableCell className={`${cellClass} whitespace-nowrap text-[var(--fg-tertiary)]`}>
                   {base.updatedAt}
                 </TableCell>
-                <TableCell className={cellClass}>
-                  <button
-                    type="button"
+                <TableCell className={cellClass} onClick={(e) => e.stopPropagation()}>
+                  <AwDropdownMenu
+                    align="end"
                     aria-label={`Ações de ${base.name}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
-                  >
-                    <Icon name="more_vert" size={18} weight={400} />
-                  </button>
+                    trigger={
+                      <button
+                        type="button"
+                        aria-label={`Ações de ${base.name}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+                      >
+                        <Icon name="more_vert" size={18} weight={400} />
+                      </button>
+                    }
+                    items={[
+                      {
+                        id: "view",
+                        label: "Ver",
+                        icon: "visibility",
+                        onSelect: () => router.push(`/memory-base/${base.id}`),
+                      },
+                      { id: "sep", separator: true },
+                      {
+                        id: "delete",
+                        label: "Excluir",
+                        icon: "delete",
+                        danger: true,
+                        onSelect: () => onDelete?.(base.id),
+                      },
+                    ]}
+                  />
                 </TableCell>
               </TableRow>
             );

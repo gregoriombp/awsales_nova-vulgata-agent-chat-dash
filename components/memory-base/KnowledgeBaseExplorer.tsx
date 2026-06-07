@@ -16,15 +16,15 @@ import {
 
 type View = "cards" | "list";
 
-/* Presets do filtro de data (visual — a faixa real liga ao backend depois). */
-const DATE_PRESETS = [
-  "Hoje",
-  "Ontem",
-  "Últimos 7 dias",
-  "Últimos 30 dias",
-  "Esse mês",
-  "Personalizado",
-];
+/* ─────────────────────────────────────────────────────────────────────────
+ * Explorer — busca + filtros + alternância Cards/Lista.
+ *
+ * O Figma trazia 5 dropdowns (Status, Objetivo, Segmento, Tipo de dados, Data)
+ * + busca. Filtrar ~6 bases por 5 dimensões é overspec — as referências do
+ * padrão (HubSpot, Front) param em 2-3 filtros + busca. Ficamos com Status +
+ * Objetivo (os dois que importam pra uma base de conhecimento de vendas); o
+ * resto volta quando a contagem de bases justificar.
+ * ───────────────────────────────────────────────────────────────────────── */
 
 function toggle(list: string[], value: string): string[] {
   return list.includes(value)
@@ -87,29 +87,21 @@ function FilterPopover({
   );
 }
 
-/** Filtro de data — presets visuais (não liga à lista ainda). */
-function DateFilter() {
-  return (
-    <Popover>
-      <PopoverTrigger asChild>
-        <AwSelect aria-label="Data de modificação">Data de modificação</AwSelect>
-      </PopoverTrigger>
-      <PopoverContent
-        align="end"
-        className="w-52 rounded-[var(--radius-lg)] border-[var(--border-subtle)] p-1"
-      >
-        {DATE_PRESETS.map((preset) => (
-          <button
-            key={preset}
-            type="button"
-            className="flex w-full items-center rounded-[var(--radius-md)] px-2.5 py-2 text-left text-[13px] text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-hover)]"
-          >
-            {preset}
-          </button>
-        ))}
-      </PopoverContent>
-    </Popover>
-  );
+/** Remove uma base criada do localStorage (no-op pras mock). */
+function removeCreatedBase(id: string) {
+  if (typeof window === "undefined") return;
+  try {
+    const raw = window.localStorage.getItem("memory-bases-list");
+    if (!raw) return;
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return;
+    window.localStorage.setItem(
+      "memory-bases-list",
+      JSON.stringify(arr.filter((b) => b?.id !== id)),
+    );
+  } catch {
+    /* ignore */
+  }
 }
 
 export function KnowledgeBaseExplorer({ bases }: { bases: KnowledgeBase[] }) {
@@ -117,24 +109,25 @@ export function KnowledgeBaseExplorer({ bases }: { bases: KnowledgeBase[] }) {
   const [query, setQuery] = useState("");
   const [statusSel, setStatusSel] = useState<string[]>([]);
   const [objSel, setObjSel] = useState<string[]>([]);
-  const [segSel, setSegSel] = useState<string[]>([]);
-  const [tipoSel, setTipoSel] = useState<string[]>([]);
+  const [removedIds, setRemovedIds] = useState<string[]>([]);
 
   const objOptions = useMemo(() => distinctValues(bases, "objetivo"), [bases]);
-  const segOptions = useMemo(() => distinctValues(bases, "segmento"), [bases]);
-  const tipoOptions = useMemo(() => distinctValues(bases, "tipoDados"), [bases]);
+
+  const handleDelete = (id: string) => {
+    setRemovedIds((prev) => [...prev, id]);
+    removeCreatedBase(id);
+  };
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return bases.filter(
       (b) =>
+        !removedIds.includes(b.id) &&
         (q === "" || b.name.toLowerCase().includes(q)) &&
         (statusSel.length === 0 || statusSel.includes(statusLabel(b.status))) &&
-        (objSel.length === 0 || objSel.includes(b.objetivo)) &&
-        (segSel.length === 0 || segSel.includes(b.segmento)) &&
-        (tipoSel.length === 0 || tipoSel.includes(b.tipoDados)),
+        (objSel.length === 0 || objSel.includes(b.objetivo)),
     );
-  }, [bases, query, statusSel, objSel, segSel, tipoSel]);
+  }, [bases, query, statusSel, objSel, removedIds]);
 
   return (
     <div className="mt-8 flex flex-col gap-6">
@@ -162,19 +155,6 @@ export function KnowledgeBaseExplorer({ bases }: { bases: KnowledgeBase[] }) {
             selected={objSel}
             onChange={setObjSel}
           />
-          <FilterPopover
-            label="Segmento"
-            options={segOptions}
-            selected={segSel}
-            onChange={setSegSel}
-          />
-          <FilterPopover
-            label="Tipo de dados"
-            options={tipoOptions}
-            selected={tipoSel}
-            onChange={setTipoSel}
-          />
-          <DateFilter />
 
           <AwTabs
             aria-label="Visualização"
@@ -213,11 +193,11 @@ export function KnowledgeBaseExplorer({ bases }: { bases: KnowledgeBase[] }) {
       ) : view === "cards" ? (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((base) => (
-            <KnowledgeBaseCard key={base.id} base={base} />
+            <KnowledgeBaseCard key={base.id} base={base} onDelete={handleDelete} />
           ))}
         </div>
       ) : (
-        <KnowledgeBaseTable bases={filtered} />
+        <KnowledgeBaseTable bases={filtered} onDelete={handleDelete} />
       )}
     </div>
   );
