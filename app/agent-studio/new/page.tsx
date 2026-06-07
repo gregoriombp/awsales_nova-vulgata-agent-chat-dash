@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -1606,8 +1606,26 @@ const ModularFlowVisualization = () => {
 
 export default function AgentStudioNewPage() {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  
+  // A URL é a fonte de verdade do passo (?step=N). O wizard inteiro vive em
+  // /agent-studio/new, mas cada etapa vira um endereço próprio — deep-link
+  // funciona, o browser back anda entre passos, e o Review Mode (escopado por
+  // URL) separa os comentários por etapa. Sem ?step válido, começa no 1.
+  const searchParams = useSearchParams();
+  const stepParam = Number(searchParams.get("step"));
+  const currentStep = stepParam >= 1 && stepParam <= 5 ? stepParam : 1;
+
+  // Navega entre passos escrevendo na URL. User-driven = push (browser back
+  // volta um passo); auto-advance do loader (passo 4) = replace, pra não virar
+  // entrada de histórico (senão o back cairia no loader e re-avançaria).
+  const goToStep = useCallback(
+    (n: number, opts?: { replace?: boolean }) => {
+      const url = `/agent-studio/new?step=${n}`;
+      if (opts?.replace) router.replace(url, { scroll: false });
+      else router.push(url, { scroll: false });
+    },
+    [router]
+  );
+
   // Step 1 state
   const [selectedGoal, setSelectedGoal] = useState<string | null>(null);
   const [customGoal, setCustomGoal] = useState("");
@@ -1698,14 +1716,6 @@ export default function AgentStudioNewPage() {
     setKnowledgeBases(loadBasesFromStorage());
   }, []);
 
-  // Espelha o passo atual na URL (?step=N). O Bombardier Review Bridge ancora
-  // comentário por pathname+query, então isso faz ele separar os comentários
-  // por etapa mesmo o wizard inteiro vivendo em /agent-studio/new. router.replace
-  // é navegação soft: não remonta o wizard nem reseta o estado dos passos.
-  useEffect(() => {
-    router.replace(`/agent-studio/new?step=${currentStep}`, { scroll: false });
-  }, [currentStep, router]);
-
   // Loading message rotation
   useEffect(() => {
     if (currentStep === 4) {
@@ -1716,7 +1726,7 @@ export default function AgentStudioNewPage() {
       // Auto-advance to step 5 after 4 seconds
       const timeout = setTimeout(() => {
         generatePrompt();
-        setCurrentStep(5);
+        goToStep(5, { replace: true });
       }, 4000);
 
       return () => {
@@ -2008,20 +2018,20 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     if (currentStep === 1) {
       router.push("/agent-studio");
     } else if (currentStep === 5) {
-      setCurrentStep(3);
+      goToStep(3);
     } else {
-      setCurrentStep(currentStep - 1);
+      goToStep(currentStep - 1);
     }
   };
 
   const handleAdvance = () => {
     if (currentStep === 1 && canAdvanceStep1) {
-      setCurrentStep(2);
+      goToStep(2);
     } else if (currentStep === 2 && canAdvanceStep2) {
-      setCurrentStep(3);
+      goToStep(3);
     } else if (currentStep === 3) {
       // Start loading animation
-      setCurrentStep(4);
+      goToStep(4);
     }
   };
 
@@ -2916,7 +2926,9 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             className={`flex items-start gap-3 p-4 rounded-xl border-2 transition-all duration-200 text-left ${
                               isSelected
                                 ? "bg-aw-gray-1200 border-aw-gray-1200"
-                                : "bg-white border-border hover:border-aw-gray-400"
+                                : selectedBaseId
+                                  ? "bg-white border-border opacity-50 hover:opacity-100 hover:border-aw-gray-400"
+                                  : "bg-white border-border hover:border-aw-gray-400"
                             }`}
                           >
                             <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
@@ -3082,7 +3094,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             <>
               <div className="text-left">
                 <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
-                  Integrações
+                  Canais
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
                   Selecione quais canais o agente deve utilizar
@@ -3093,7 +3105,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               {configuredIntegrations.length > 0 && (
                 <div className="space-y-3">
                   <label className="block text-sm font-medium text-fg-primary">
-                    Integrações configuradas
+                    Canais configurados
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {configuredIntegrations.map((integration) => {
@@ -3153,30 +3165,6 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   </div>
                 </div>
               )}
-
-              {/* Add new integration trigger — opens AwAddIntegrationModal */}
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  onClick={() => setAddIntegrationOpen(true)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-dashed border-aw-gray-400 bg-white p-4 text-left transition-colors hover:border-aw-gray-600 hover:bg-bg-surface"
-                >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
-                    <svg width="18" height="18" viewBox="0 0 16 16" fill="none" className="text-fg-primary">
-                      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="font-heading text-sm font-medium text-fg-primary">
-                      Adicionar nova integração
-                    </h4>
-                    <p className="text-xs text-fg-tertiary">
-                      Conecte aplicações de terceiros para expandir o que o agente faz
-                    </p>
-                  </div>
-                  <Icon name="chevron_right" size={16} className="text-fg-tertiary" />
-                </button>
-              </div>
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
