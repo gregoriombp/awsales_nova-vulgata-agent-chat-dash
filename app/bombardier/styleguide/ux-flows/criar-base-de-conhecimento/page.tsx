@@ -320,7 +320,7 @@ export default function CriarBaseDeConhecimentoFlowPage() {
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
               <div className="aw-eyebrow mb-2">Wizard full-screen, não modal</div>
               <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                A criação ocupa a tela inteira (rota <code>/memory-base/new</code>), no padrão do Agent Studio — etapas com progresso e animação. O modal atual (<code>CreateBaseModal</code>) é só um v0 stopgap até o wizard existir.
+                A criação ocupa a tela inteira (rota <code>/memory-base/new</code>), no padrão do Agent Studio — etapas com progresso. O wizard (enxuto: 3 telas + loading) substitui o modal de criação v0, que foi aposentado.
               </p>
             </div>
             <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
