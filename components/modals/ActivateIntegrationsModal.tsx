@@ -3,23 +3,24 @@
 import { useState } from "react";
 import BaseModal from "./BaseModal";
 import { AwButton } from "@/components/ui/AwButton";
-
-const INTEGRATIONS_ASSETS = "/assets/integrations";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { Icon } from "@/components/ui/Icon";
 
 export type IntegrationItem = {
   id: string;
   name: string;
-  shortLabel: string; // fallback quando não houver ícone
+  shortLabel: string; // fallback quando não houver marca no registry
   description?: string;
-  /** Caminho do ícone em public/assets/integrations (ex: Logotipo/Tool/Tamanho=104px.png) */
   icon?: string;
 };
 
+/* Defaults usam ids do registry canônico do AwBrandLogo (o mesmo do styleguide),
+ * então os logos renderizam de verdade — sem PNG/URL solto. */
 export const DEFAULT_INTEGRATIONS: IntegrationItem[] = [
-  { id: "hubspot", name: "HubSpot", shortLabel: "H", description: "CRM e marketing", icon: `${INTEGRATIONS_ASSETS}/Logotipo/IA/Tamanho=104px.png` },
-  { id: "klaviyo", name: "Klaviyo", shortLabel: "K", description: "E-mail marketing", icon: `${INTEGRATIONS_ASSETS}/Logotipo/Form/Tamanho=104px.png` },
-  { id: "google", name: "Google", shortLabel: "G", description: "Drive, Sheets e Docs", icon: "https://www.gstatic.com/images/branding/product/2x/google_48dp.png" },
-  { id: "asana", name: "Asana", shortLabel: "A", description: "Gestão de projetos", icon: `${INTEGRATIONS_ASSETS}/Logotipo/Agenda/Tamanho=104px.png` },
+  { id: "hubspot", name: "HubSpot", shortLabel: "H", description: "CRM e marketing" },
+  { id: "rdstation", name: "RD Station", shortLabel: "RD", description: "Automação de marketing" },
+  { id: "pipedrive", name: "Pipedrive", shortLabel: "P", description: "CRM de vendas" },
+  { id: "calendly", name: "Calendly", shortLabel: "C", description: "Agendamentos" },
 ];
 
 interface ActivateIntegrationsModalProps {
@@ -29,41 +30,20 @@ interface ActivateIntegrationsModalProps {
   integrations?: IntegrationItem[];
 }
 
-function Checkbox({
-  checked,
-  onChange,
-  ariaLabel,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  ariaLabel: string;
-}) {
+/** Caixa de seleção apenas visual — o item inteiro é o botão que alterna. */
+function CheckBox({ checked }: { checked: boolean }) {
   return (
-    <button
-      type="button"
-      aria-label={ariaLabel}
-      aria-pressed={checked}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        onChange(!checked);
-      }}
-      className={`h-4 w-4 rounded-[4px] border flex items-center justify-center transition-colors flex-shrink-0 ${
-        checked ? "bg-gray-1200 border-gray-1200" : "bg-white border-[#e5e5e5]"
-      }`}
+    <span
+      aria-hidden="true"
+      className={
+        "flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] border transition-colors " +
+        (checked
+          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
+          : "border-[var(--border-default)] bg-[var(--bg-raised)]")
+      }
     >
-      {checked ? (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M20 6 9 17l-5-5"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : null}
-    </button>
+      {checked && <Icon name="check" size={12} />}
+    </span>
   );
 }
 
@@ -84,12 +64,10 @@ export default function ActivateIntegrationsModal({
     });
   };
 
+  const allSelected = selectedIds.size === integrations.length;
+
   const selectAll = () => {
-    if (selectedIds.size === integrations.length) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(integrations.map((i) => i.id)));
-    }
+    setSelectedIds(allSelected ? new Set() : new Set(integrations.map((i) => i.id)));
   };
 
   const handleConfirm = () => {
@@ -108,33 +86,34 @@ export default function ActivateIntegrationsModal({
 
   return (
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
-      <div className="flex flex-col max-h-[90vh]">
-        <div className="p-6 border-b border-[#f2f2f2]">
-          <h2 className="body-xl font-heading font-bold text-[#1a1a1a]">
+      <div className="flex max-h-[90vh] flex-col">
+        <div className="px-6 pb-4 pt-6">
+          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
             Ativar integrações
           </h2>
-          <p className="mt-1 body-sm text-[#5e5e5e]">
-            Selecione as integrações que deseja ativar. Elas serão adicionadas à lista de fontes da pasta.
+          <p className="mt-1 text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+            Selecione as integrações que viram fonte nesta pasta. A IA analisa os
+            dados e gera Knowledge Layers.
           </p>
         </div>
 
-        <div className="p-6 overflow-y-auto flex-1">
-          <div className="flex items-center justify-between mb-4">
+        <div className="flex-1 overflow-y-auto px-6 pb-2">
+          <div className="mb-3 flex items-center justify-between">
             <button
               type="button"
               onClick={selectAll}
-              className="body-sm font-medium text-[#1a1a1a] hover:text-[#5e5e5e]"
+              className="text-[13px] font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
             >
-              {selectedIds.size === integrations.length ? "Desmarcar todas" : "Selecionar todas"}
+              {allSelected ? "Desmarcar todas" : "Selecionar todas"}
             </button>
             {selectedCount > 0 && (
-              <span className="body-sm text-[#5e5e5e]">
+              <span className="text-[13px] text-[var(--fg-tertiary)]">
                 {selectedCount} selecionada{selectedCount !== 1 ? "s" : ""}
               </span>
             )}
           </div>
 
-          <ul className="space-y-2">
+          <ul className="flex flex-col gap-2">
             {integrations.map((integration) => {
               const checked = selectedIds.has(integration.id);
               return (
@@ -142,30 +121,21 @@ export default function ActivateIntegrationsModal({
                   <button
                     type="button"
                     onClick={() => toggle(integration.id)}
-                    className={`w-full rounded-[12px] border p-4 flex items-center gap-4 text-left transition-colors ${
-                      checked
-                        ? "border-gray-1200 bg-[#f9f9f9]"
-                        : "border-[#f2f2f2] bg-white hover:border-[#e5e5e5] hover:bg-[#fbfcfd]"
-                    }`}
+                    className={
+                      "flex w-full items-center gap-3.5 rounded-[var(--radius-lg)] border p-3.5 text-left transition-colors " +
+                      (checked
+                        ? "border-[var(--fg-primary)] bg-[var(--bg-hover)]"
+                        : "border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]")
+                    }
                   >
-                    <Checkbox
-                      checked={checked}
-                      onChange={() => toggle(integration.id)}
-                      ariaLabel={`Selecionar ${integration.name}`}
-                    />
-                    <div className="h-10 w-10 rounded-[8px] border border-[#f2f2f2] bg-white flex items-center justify-center overflow-hidden flex-shrink-0">
-                      {integration.icon ? (
-                        <img src={integration.icon} alt="" className="w-full h-full object-contain" />
-                      ) : (
-                        <span className="text-[#1a1a1a] font-bold body-sm">{integration.shortLabel}</span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="body-sm font-medium text-[#0d0d0d]">
+                    <CheckBox checked={checked} />
+                    <AwBrandLogo brand={integration.id} size="md" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[14px] font-medium text-[var(--fg-primary)]">
                         {integration.name}
                       </div>
                       {integration.description && (
-                        <div className="body-xs text-[#5e5e5e] mt-0.5">
+                        <div className="mt-0.5 text-[12.5px] text-[var(--fg-tertiary)]">
                           {integration.description}
                         </div>
                       )}
@@ -177,7 +147,7 @@ export default function ActivateIntegrationsModal({
           </ul>
         </div>
 
-        <div className="p-6 border-t border-[#f2f2f2] flex justify-end gap-2">
+        <div className="flex justify-end gap-2 border-t border-[var(--border-subtle)] px-6 py-4">
           <AwButton type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
             Cancelar
           </AwButton>

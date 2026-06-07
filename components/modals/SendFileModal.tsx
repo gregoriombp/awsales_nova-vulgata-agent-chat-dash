@@ -2,6 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import BaseModal from "./BaseModal";
+import { AwButton } from "@/components/ui/AwButton";
+import { Icon } from "@/components/ui/Icon";
 
 export type UploadedFileItem = {
   id: string;
@@ -139,31 +141,25 @@ export default function SendFileModal({
 
   return (
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
-      <div className="p-6 flex flex-col max-h-[90vh]">
-        <div className="flex items-center justify-between mb-6 flex-shrink-0">
-          <h2 className=" font-heading font-bold text-text-primary">
+      <div className="flex max-h-[90vh] flex-col p-6">
+        <div className="mb-2 flex flex-shrink-0 items-start justify-between">
+          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
             Enviar arquivo
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+            className="-mr-1 -mt-1 flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
             aria-label="Fechar"
           >
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M6 6L18 18M18 6L6 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Icon name="close" size={18} />
           </button>
         </div>
 
-        <p className="text-text-secondary body-sm mb-6 flex-shrink-0">
-          Arraste os arquivos para esta área ou clique para selecionar. Formatos aceitos: PDF, DOC, DOCX, TXT, MD, XLSX, XLS, CSV, JPG, PNG. Tamanho máximo por arquivo: {MAX_SIZE_MB}MB.
+        <p className="mb-6 flex-shrink-0 text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+          Arraste arquivos para esta área ou clique para selecionar. Aceita PDF,
+          DOC, DOCX, TXT, MD, XLSX, XLS, CSV, JPG, PNG. Máximo {MAX_SIZE_MB}MB por
+          arquivo.
         </p>
 
         <input
@@ -181,50 +177,38 @@ export default function SendFileModal({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded-xl p-10 text-center transition-colors flex-shrink-0 ${
+            className={`flex-shrink-0 rounded-[var(--radius-xl)] border-2 border-dashed p-10 text-center transition-colors ${
               isDragging
-                ? "border-gray-1200 bg-[#f5f5f5]"
-                : "border-[#e5e5e5] bg-[#f5f5f5]"
+                ? "border-[var(--fg-primary)] bg-[var(--bg-hover)]"
+                : "border-[var(--border-default)] bg-[var(--bg-canvas)]"
             }`}
           >
             <div className="flex flex-col items-center justify-center gap-4">
-              <div className="w-16 h-16 rounded-2xl bg-[#f2f2f2] flex items-center justify-center text-[#999999]">
-                <svg
-                  width="32"
-                  height="32"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-8-6Z" />
-                  <path d="M14 3v6h8" />
-                </svg>
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-[var(--fg-tertiary)]">
+                <Icon name="upload_file" size={32} weight={300} />
               </div>
               <div>
-                <p className="text-[#1a1a1a] font-medium mb-1">
+                <p className="mb-1 font-medium text-[var(--fg-primary)]">
                   Arraste e solte arquivos aqui
                 </p>
-                <p className="body-sm text-[#999999] mb-4">
+                <p className="mb-4 text-[13.5px] text-[var(--fg-tertiary)]">
                   ou clique para selecionar no seu computador
                 </p>
-                <button
+                <AwButton
                   type="button"
+                  variant="primary"
+                  size="sm"
+                  iconLeft="add"
+                  className="w-auto"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gray-1200 text-white rounded-lg hover:bg-[#111111] active:bg-black transition-colors cursor-pointer body-sm font-medium"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
                   Adicionar arquivos
-                </button>
+                </AwButton>
               </div>
             </div>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 flex-1 min-h-0 overflow-y-auto max-h-[50vh]">
+          <div className="flex max-h-[50vh] min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
             {uploadedFiles.map((item) => {
               const kind = getFileKind(item.name, item.type);
               const totalBytes = item.size ?? 0;
@@ -240,72 +224,46 @@ export default function SendFileModal({
               return (
                 <div
                   key={item.id}
-                  className="flex items-start gap-3 p-3 bg-white rounded-xl border border-[#e5e5e5] flex-shrink-0"
+                  className="flex flex-shrink-0 items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-3"
                 >
-                  <div
-                    className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 text-white body-xs font-semibold uppercase ${
-                      kind === "csv"
-                        ? "bg-[#0d7d4d]"
-                        : kind === "pdf"
-                          ? "bg-[#c41e3a]"
-                          : "bg-[#5f6368]"
-                    }`}
-                  >
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[10px] font-semibold uppercase text-[var(--fg-secondary)]">
                     {kind === "csv" ? "CSV" : kind === "pdf" ? "PDF" : "DOC"}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="body-sm font-medium text-[#1a1a1a] truncate">{item.name}</p>
-                    <p className="body-xs text-[#666] mt-0.5">{sizeLabel}</p>
-                    <div className="mt-2 h-1.5 bg-[#e8f0fe] rounded-full overflow-hidden">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13.5px] font-medium text-[var(--fg-primary)]">{item.name}</p>
+                    <p className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">{sizeLabel}</p>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--bg-muted)]">
                       <div
-                        className="h-full bg-[#1a73e8] rounded-full transition-all duration-150 ease-out"
+                        className="h-full rounded-full bg-[var(--fg-primary)] transition-all duration-150 ease-out"
                         style={{ width: `${item.progress}%` }}
                       />
                     </div>
                   </div>
-                  <div className="flex-shrink-0">
-                    {item.status === "uploading" ? (
-                      <button
-                        type="button"
-                        onClick={() => removeFile(item.id)}
-                        className="p-1.5 text-[#666] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
-                        aria-label={`Cancelar ${item.name}`}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
-                      </button>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() => removeFile(item.id)}
-                        className="p-1.5 text-[#c41e3a] hover:bg-red-50 rounded-lg transition-colors"
-                        aria-label={`Excluir ${item.name}`}
-                      >
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                          <line x1="10" y1="11" x2="10" y2="17" />
-                          <line x1="14" y1="11" x2="14" y2="17" />
-                        </svg>
-                      </button>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(item.id)}
+                    className={`flex-shrink-0 rounded-[var(--radius-md)] p-1.5 transition-colors ${
+                      item.status === "completed"
+                        ? "text-[var(--accent-danger)] hover:bg-[var(--bg-muted)]"
+                        : "text-[var(--fg-tertiary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+                    }`}
+                    aria-label={`${item.status === "completed" ? "Excluir" : "Cancelar"} ${item.name}`}
+                  >
+                    <Icon name={item.status === "completed" ? "delete" : "close"} size={18} weight={300} />
+                  </button>
                 </div>
               );
             })}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center justify-center gap-2 py-2.5 body-sm font-medium text-[#1a73e8] hover:bg-[#e8f0fe] rounded-lg transition-colors border border-dashed border-[#1a73e8] border-opacity-50 flex-shrink-0"
+              className="flex flex-shrink-0 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] py-2.5 text-[13.5px] font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 5v14M5 12h14" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+              <Icon name="add" size={18} weight={300} />
               Adicionar arquivos
             </button>
           </div>
         )}
-
       </div>
     </BaseModal>
   );
