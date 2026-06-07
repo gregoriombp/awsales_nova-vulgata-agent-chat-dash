@@ -143,4 +143,11 @@ export const navigation: NavSection[] = [
       { name: "Login", href: "/bombardier/styleguide/ux-flows/login-auth" },
     ],
   },
+  {
+    group: "UX Flows",
+    title: "Memory Base",
+    items: [
+      { name: "Criar base de conhecimento", href: "/bombardier/styleguide/ux-flows/criar-base-de-conhecimento" },
+    ],
+  },
 ]
