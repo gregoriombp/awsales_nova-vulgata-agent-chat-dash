@@ -7,8 +7,11 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwSelect } from "@/components/ui/AwSelect";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -526,6 +529,50 @@ const WHATS_TEMPLATES: WhatsTemplate[] = [
   { id: "fyntra_produtos", name: "fyntra_produtos", preview: "Oi {{1}}! Vi que você se interessou pelos nossos produtos. Posso te ajudar a escolher o ideal?", status: "aprovado" },
   { id: "recuperacao_carrinho", name: "recuperacao_carrinho", preview: "Olá {{1}}, notamos que você deixou itens no carrinho. Quer finalizar com 10% de desconto?", status: "aprovado" },
   { id: "agendamento_demo", name: "agendamento_demo", preview: "Oi {{1}}! Que tal agendar uma demonstração rápida? Tenho horários essa semana.", status: "pendente" },
+];
+
+/* ───────── Agent Core (step 6) ─────────
+ * Framework de agente da AwSales que impulsiona o agente do usuário. Visual:
+ * orb diamante estático (AwAgentCore). Mostra 6 inicialmente + "ver mais". */
+
+interface AgentCoreOption {
+  id: string;
+  name: string;
+  description: string;
+  /** Número do orb (1–20) em /assets/agent_imgs/orbs/. */
+  core: number;
+}
+
+const AGENT_CORES: AgentCoreOption[] = [
+  { id: "meeting-recovery", name: "Meeting Recovery", description: "Recupera reuniões perdidas e reagenda no-shows automaticamente.", core: 1 },
+  { id: "sales-closer", name: "Sales Closer", description: "Conduz a negociação até o fechamento com gatilhos de urgência.", core: 2 },
+  { id: "lead-qualifier", name: "Lead Qualifier", description: "Qualifica e pontua leads pelo seu ICP antes de passar pro time.", core: 3 },
+  { id: "support-resolver", name: "Support Resolver", description: "Resolve dúvidas de suporte com base na sua memory base.", core: 4 },
+  { id: "onboarding-guide", name: "Onboarding Guide", description: "Conduz o cliente novo pelos primeiros passos do produto.", core: 5 },
+  { id: "churn-saver", name: "Churn Saver", description: "Detecta risco de cancelamento e age pra reter o cliente.", core: 6 },
+  { id: "upsell-engine", name: "Upsell Engine", description: "Identifica oportunidades de upgrade e oferece no momento certo.", core: 7 },
+  { id: "demo-scheduler", name: "Demo Scheduler", description: "Agenda demonstrações e confirma presença automaticamente.", core: 8 },
+  { id: "reactivation", name: "Reactivation", description: "Reativa contatos frios com campanhas de retorno.", core: 9 },
+  { id: "nps-collector", name: "NPS Collector", description: "Coleta e interpreta o feedback pós-atendimento.", core: 10 },
+];
+
+const CORES_VISIVEIS = 6;
+
+/* ───────── Config de conversão (step 5, opcional) ───────── */
+const CONVERSION_ORIGINS = [
+  "Anúncio · Meta Ads",
+  "Anúncio · Google Ads",
+  "Orgânico / Direto",
+  "Link de campanha",
+  "Indicação",
+];
+
+const CONVERSION_EVENTS = [
+  "Lead respondeu a 1ª mensagem",
+  "Reunião agendada",
+  "Compra realizada",
+  "Cadastro completo",
+  "Proposta aceita",
 ];
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
@@ -1708,7 +1755,7 @@ export default function AgentStudioNewPage() {
   // URL) separa os comentários por etapa. Sem ?step válido, começa no 1.
   const searchParams = useSearchParams();
   const stepParam = Number(searchParams.get("step"));
-  const currentStep = stepParam >= 1 && stepParam <= 6 ? stepParam : 1;
+  const currentStep = stepParam >= 1 && stepParam <= 8 ? stepParam : 1;
 
   // Navega entre passos escrevendo na URL. User-driven = push (browser back
   // volta um passo); auto-advance do loader (passo 4) = replace, pra não virar
@@ -1749,10 +1796,18 @@ export default function AgentStudioNewPage() {
   const [integrations, setIntegrations] = useState<Integration[]>(MOCK_INTEGRATIONS);
   const [addIntegrationOpen, setAddIntegrationOpen] = useState(false);
 
-  // Step 5 (Loading) state
+  // Step 5 state (Config de conversão) — opcional
+  const [conversionOrigin, setConversionOrigin] = useState<string | null>(null);
+  const [conversionEvent, setConversionEvent] = useState<string | null>(null);
+
+  // Step 6 state (Agent Core)
+  const [selectedAgentCore, setSelectedAgentCore] = useState<string | null>(null);
+  const [showAllCores, setShowAllCores] = useState(false);
+
+  // Step 7 (Loading) state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
-  // Step 6 (Editor) state
+  // Step 8 (Editor) state
   const [generatedPrompt, setGeneratedPrompt] = useState<PromptModule[]>([]);
   const [checkpointEditorExpanded, setCheckpointEditorExpanded] = useState(false);
   const [promptEditorExpanded, setPromptEditorExpanded] = useState(false);
@@ -1824,7 +1879,7 @@ export default function AgentStudioNewPage() {
 
   // Loading message rotation
   useEffect(() => {
-    if (currentStep === 5) {
+    if (currentStep === 7) {
       const interval = setInterval(() => {
         setLoadingMessageIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
       }, 1500);
@@ -1832,7 +1887,7 @@ export default function AgentStudioNewPage() {
       // Auto-advance to the editor after 4 seconds
       const timeout = setTimeout(() => {
         generatePrompt();
-        goToStep(6, { replace: true });
+        goToStep(8, { replace: true });
       }, 4000);
 
       return () => {
@@ -2076,7 +2131,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     setVariableModalOpen(true);
   }, []);
 
-  const breadcrumbs = currentStep === 6 ? [
+  const breadcrumbs = currentStep === 8 ? [
     { label: "Agent Studio", href: "/agent-studio" },
     agentName || "Agente",
     "Configuração geral",
@@ -2123,8 +2178,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   const handleBack = () => {
     if (currentStep === 1) {
       router.push("/agent-studio");
-    } else if (currentStep === 6) {
-      goToStep(4);
+    } else if (currentStep === 8) {
+      goToStep(6);
     } else {
       goToStep(currentStep - 1);
     }
@@ -2139,13 +2194,23 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
       // Habilidades e AOPs são opcionais → sempre pode avançar
       goToStep(4);
     } else if (currentStep === 4) {
-      // Canais → tela de loading
+      // Canal → config de conversão
       goToStep(5);
+    } else if (currentStep === 5) {
+      // Conversão (opcional) → Agent Core
+      goToStep(6);
+    } else if (currentStep === 6) {
+      // Agent Core → tela de loading
+      goToStep(7);
     }
   };
 
   // Step 4 só avança com canal + número + template definidos.
   const canAdvanceStep4 = !!selectedChannel && !!selectedNumber && !!selectedTemplate;
+
+  // Step 6 (Agent Core) exige uma escolha. (Step 5/conversão é opcional.)
+  const canAdvanceStep6 = !!selectedAgentCore;
+  const visibleCores = showAllCores ? AGENT_CORES : AGENT_CORES.slice(0, CORES_VISIVEIS);
 
   const handleCreateAgent = () => {
     // Save agent and redirect
@@ -2195,8 +2260,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
   const isOtherSelected = selectedGoal === "outro";
 
-  // Step 5: Loading Screen
-  if (currentStep === 5) {
+  // Step 7: Loading Screen
+  if (currentStep === 7) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
@@ -2221,8 +2286,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     );
   }
 
-  // Step 6: Editor Screen
-  if (currentStep === 6) {
+  // Step 8: Editor Screen
+  if (currentStep === 8) {
     const selectedBase = knowledgeBases.find(b => b.id === selectedBaseId);
     const enabledIntegrations = integrations.filter(i => i.enabled);
     const goalTitle = GOAL_OPTIONS.find(g => g.id === selectedGoal)?.title || customGoal;
@@ -3541,6 +3606,173 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   variant="primary"
                   size="md"
                   disabled={!canAdvanceStep4}
+                  onClick={handleAdvance}
+                >
+                  Avançar
+                </AwButton>
+              </div>
+            </>
+          )}
+
+          {/* Step 5: Configurações de conversão (opcional) */}
+          {currentStep === 5 && (
+            <>
+              <div className="text-left">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                  Configurações de conversão
+                </h1>
+                <p className="text-base text-fg-tertiary font-sans">
+                  Opcional. Defina de onde vem o lead e o que conta como conversão
+                  pro sistema disparar o evento. Pode pular — sem isso, o agente só
+                  age quando alguém entra em contato.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium text-fg-primary">Origem</span>
+                  <AwDropdownMenu
+                    align="start"
+                    trigger={
+                      <AwSelect className="w-full">
+                        <span className={conversionOrigin ? "text-fg-primary" : "text-fg-tertiary"}>
+                          {conversionOrigin ?? "De onde vem o contato"}
+                        </span>
+                      </AwSelect>
+                    }
+                    items={CONVERSION_ORIGINS.map((o) => ({
+                      id: o,
+                      label: o,
+                      checked: conversionOrigin === o,
+                      onSelect: () => setConversionOrigin(o),
+                    }))}
+                  />
+                </label>
+
+                <label className="flex flex-col gap-1.5">
+                  <span className="text-sm font-medium text-fg-primary">
+                    Evento de conversão
+                  </span>
+                  <AwDropdownMenu
+                    align="start"
+                    trigger={
+                      <AwSelect className="w-full">
+                        <span className={conversionEvent ? "text-fg-primary" : "text-fg-tertiary"}>
+                          {conversionEvent ?? "O que dispara a conversão"}
+                        </span>
+                      </AwSelect>
+                    }
+                    items={CONVERSION_EVENTS.map((e) => ({
+                      id: e,
+                      label: e,
+                      checked: conversionEvent === e,
+                      onSelect: () => setConversionEvent(e),
+                    }))}
+                  />
+                </label>
+              </div>
+
+              <div className="flex items-center justify-between pt-4">
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
+                  onClick={handleBack}
+                >
+                  Voltar
+                </AwButton>
+                <div className="flex items-center gap-2">
+                  <AwButton
+                    variant="ghost"
+                    size="md"
+                    onClick={() => {
+                      setConversionOrigin(null);
+                      setConversionEvent(null);
+                      handleAdvance();
+                    }}
+                  >
+                    Pular etapa
+                  </AwButton>
+                  <AwButton variant="primary" size="md" onClick={handleAdvance}>
+                    Avançar
+                  </AwButton>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Step 6: Seleção de Agent Core */}
+          {currentStep === 6 && (
+            <>
+              <div className="text-left">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                  Agent Core
+                </h1>
+                <p className="text-base text-fg-tertiary font-sans">
+                  O framework da AwSales que impulsiona seu agente. Escolha o que
+                  mais combina com o objetivo dele.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {visibleCores.map((c) => {
+                  const sel = selectedAgentCore === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => setSelectedAgentCore(c.id)}
+                      className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
+                        sel
+                          ? "border-fg-primary bg-bg-raised"
+                          : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                      }`}
+                    >
+                      <AwAgentCore src={agentCoreSrc(c.core)} alt={c.name} size={44} />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
+                          {c.name}
+                        </h4>
+                        <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
+                          {c.description}
+                        </p>
+                      </div>
+                      <span
+                        className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                          sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                        }`}
+                      >
+                        {sel && <Icon name="check" size={12} />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {!showAllCores && AGENT_CORES.length > CORES_VISIVEIS && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllCores(true)}
+                  className="inline-flex items-center justify-center gap-1.5 self-center rounded-md px-3 py-2 text-sm font-medium text-fg-secondary transition-colors hover:bg-bg-muted hover:text-fg-primary"
+                >
+                  <Icon name="expand_more" size={16} />
+                  Ver mais Agent Cores
+                </button>
+              )}
+
+              <div className="flex items-center justify-between pt-4">
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
+                  onClick={handleBack}
+                >
+                  Voltar
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="md"
+                  disabled={!canAdvanceStep6}
                   onClick={handleAdvance}
                 >
                   Avançar
