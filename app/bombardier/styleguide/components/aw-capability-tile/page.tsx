@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { Icon } from "@/components/ui/Icon";
 import {
   ApiTable,
@@ -14,15 +15,12 @@ import {
   Tldr,
 } from "../../_primitives";
 
-/** Mini-logo de marca pra demo (a integração real traz o SVG próprio). */
-function BrandBadge({ letter, color }: { letter: string; color: string }) {
+/** Ícone de AOP — Material Symbol numa caixa neutra de 40px. */
+function AopIcon({ name }: { name: string }) {
   return (
-    <span
-      className="flex h-full w-full items-center justify-center rounded-lg text-[13px] font-semibold text-white"
-      style={{ backgroundColor: color }}
-    >
-      {letter}
-    </span>
+    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+      <Icon name={name} size={20} fill={1} />
+    </div>
   );
 }
 
@@ -85,7 +83,7 @@ export default function AwCapabilityTilePage() {
             gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full"
           >
             <AwCapabilityTile
-              icon={<BrandBadge letter="S" color="#635BFF" />}
+              icon={<AwBrandLogo brand="stripe" size="md" />}
               name="Stripe"
               description="stripe.com"
               selected={skills.stripe}
@@ -93,7 +91,7 @@ export default function AwCapabilityTilePage() {
               onPreview={() => {}}
             />
             <AwCapabilityTile
-              icon={<BrandBadge letter="C" color="#006BFF" />}
+              icon={<AwBrandLogo brand="calendly" size="md" />}
               name="Calendly"
               description="calendly.com"
               selected={skills.calendly}
@@ -110,7 +108,7 @@ export default function AwCapabilityTilePage() {
             gridClassName="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full"
           >
             <AwCapabilityTile
-              icon={<Icon name="payments" size={20} fill={1} />}
+              icon={<AopIcon name="payments" />}
               name="Reembolso de cartão"
               description="Estorna uma cobrança aprovada"
               selected={aops.reembolso}
@@ -118,7 +116,7 @@ export default function AwCapabilityTilePage() {
               onPreview={() => {}}
             />
             <AwCapabilityTile
-              icon={<Icon name="event" size={20} fill={1} />}
+              icon={<AopIcon name="event" />}
               name="Agendar reunião"
               description="Cria evento na agenda conectada"
               selected={!!aops.agendar}
@@ -134,20 +132,20 @@ export default function AwCapabilityTilePage() {
             gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"
           >
             <AwCapabilityTile
-              icon={<BrandBadge letter="P" color="#1A7F4B" />}
+              icon={<AwBrandLogo brand="pipedrive" size="md" />}
               name="Pipedrive"
               description="pipedrive.com"
               onPreview={() => {}}
             />
             <AwCapabilityTile
-              icon={<BrandBadge letter="P" color="#1A7F4B" />}
+              icon={<AwBrandLogo brand="pipedrive" size="md" />}
               name="Pipedrive"
               description="pipedrive.com"
               selected
               onPreview={() => {}}
             />
             <AwCapabilityTile
-              icon={<BrandBadge letter="T" color="#7C7C7C" />}
+              icon={<AwBrandLogo brand="tally" size="md" />}
               name="Tally"
               description="indisponível no plano"
               disabled
