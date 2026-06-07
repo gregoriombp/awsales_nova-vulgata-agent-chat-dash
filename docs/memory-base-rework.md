@@ -138,13 +138,22 @@ Feito:
   (`/semantic-search` e `/settings` já não existiam como página). `MemoryBaseSidebar.tsx`
   ficou órfão — pode ser deletado.
 
-Recomendações / precisam de direção (estruturais — não toquei pra não quebrar):
+## 4d. Round 4 — modais legacy → styleguide (2026-06-07)
 
-- [ ] **Modais legacy** (`SendFileModal`, `AddUrlFlow`, `AddSnippetModal`,
-  `ActivateIntegrationsModal`): reconstruir sobre `AwModal` pra conversar com o
-  styleguide (referência: modais de Integrações / Canais). É o maior item.
-- [ ] **Ícones de integração**: trocar `getIntegrationIconUrl(DEFAULT_INTEGRATIONS)`
-  por `AwBrandLogo` / `integrationsCatalog` (fonte canônica do styleguide).
+- [x] **`BaseModal`** (casca compartilhada dos 4 modais de fonte + pastas) herda a
+  casca visual do `AwModal`: scrim com blur + `--bg-raised` + `--radius-xl` +
+  `--shadow-overlay` + animação `aw-modal-in`. API legada mantida, então todos os
+  modais ganham o visual do styleguide de uma vez.
+- [x] **`AddSnippetModal`**: tokens + `AwInput`/`AwField`.
+- [x] **`SendFileModal`**: tokens + `AwButton` + `Icon` (Material Symbols); removeu
+  o azul `#1a73e8` do upload; barra de progresso e chips de arquivo em grayscale.
+- [x] **`ActivateIntegrationsModal`**: tokens + logos via **`AwBrandLogo`** (registry
+  canônico — resolve também o comentário dos ícones de integração); checkbox
+  tokenizado.
+- [x] **`AddUrlFlow`**: títulos normalizados pro padrão do styleguide (já era
+  grayscale; sweep leve pra não arriscar as 697 linhas do multi-step).
+
+Commits: `a494a6e` (casca) + `3b1b47d` (conteúdo). **Ainda não pushado.**
 
 ## 5. Próximos passos (priorizados)
 
