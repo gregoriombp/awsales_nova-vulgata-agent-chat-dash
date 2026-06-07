@@ -117,14 +117,25 @@ function PerfilContent() {
             style={{ width: 72, height: 72, fontSize: 24 }}
           />
           <div className="min-w-0 flex-1">
-            <div className="body-sm font-medium text-fg-primary">
-              Foto de perfil
-            </div>
-            <div className="mt-0.5 body-xs text-fg-tertiary">
-              {ssoPhoto
-                ? `Importada da sua conta ${metodo === "google" ? "Google" : "Microsoft"}`
-                : "Opcional · PNG ou JPG, até 4 MB"}
-            </div>
+            {ssoPhoto ? (
+              <>
+                <div className="truncate body-sm font-medium text-fg-primary">
+                  {name}
+                </div>
+                <div className="mt-0.5 truncate body-xs text-fg-tertiary">
+                  {email}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="body-sm font-medium text-fg-primary">
+                  Foto de perfil
+                </div>
+                <div className="mt-0.5 body-xs text-fg-tertiary">
+                  Opcional · PNG ou JPG, até 4 MB
+                </div>
+              </>
+            )}
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
@@ -147,14 +158,18 @@ function PerfilContent() {
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-          <Field
-            label="Seu nome"
-            icon="person"
-            value={name}
-            onChange={setName}
-            placeholder="Como você gosta de ser chamado"
-            required
-          />
+          {/* Em SSO (Google/Microsoft) nome e e-mail vêm do provedor e aparecem
+              como identidade no card acima — aqui só os campos editáveis. */}
+          {!ssoPhoto && (
+            <Field
+              label="Seu nome"
+              icon="person"
+              value={name}
+              onChange={setName}
+              placeholder="Como você gosta de ser chamado"
+              required
+            />
+          )}
           <Field
             label="Cargo"
             icon="badge"
@@ -163,16 +178,18 @@ function PerfilContent() {
             placeholder="Ex.: Gerente Comercial"
             required
           />
-          <Field
-            label="E-mail"
-            icon="mail"
-            value={email}
-            onChange={setEmail}
-            placeholder="seu@email.com"
-            type="email"
-            inputMode="email"
-            required
-          />
+          {!ssoPhoto && (
+            <Field
+              label="E-mail"
+              icon="mail"
+              value={email}
+              onChange={setEmail}
+              placeholder="seu@email.com"
+              type="email"
+              inputMode="email"
+              required
+            />
+          )}
           <Field
             label="Celular"
             icon="phone"
@@ -204,73 +221,80 @@ function PerfilContent() {
 
         <div className="mt-3">
           {(() => {
-            // Campo fica escondido atrás de um botão discreto. Só aparece quando
-            // o usuário clica em "adicionar", quando já há e-mails, ou quando a
-            // caixa "no meu e-mail" está desmarcada (aí precisa de destinatário
-            // e o campo chama atenção).
+            // O campo fica escondido atrás de um botão discreto. Aparece — com
+            // transição suave pra baixo — quando o usuário clica em "adicionar",
+            // quando já há e-mails, ou quando a caixa "no meu e-mail" é desmarcada
+            // (aí precisa de destinatário e o campo chama atenção).
             const needsAttention = needsRecipient && extraEmails.length === 0
             const showField = addingEmail || extraEmails.length > 0 || needsAttention
-            if (!showField) {
-              return (
-                <button
-                  type="button"
-                  onClick={() => setAddingEmail(true)}
-                  className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 body-xs font-medium text-fg-secondary transition-colors hover:bg-bg-muted hover:text-fg-primary"
-                >
-                  <Icon name="add" size={15} />
-                  Adicionar e-mail para receber faturas
-                </button>
-              )
-            }
             return (
               <>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={[
-                      "flex h-[38px] flex-1 items-center gap-2 rounded-md border bg-bg-surface px-3 transition-colors duration-aw-fast focus-within:border-fg-primary",
-                      needsAttention ? "border-aw-amber-500 bg-aw-amber-100" : "border-border",
-                    ].join(" ")}
-                  >
-                    <Icon name="mail" size={14} className="text-fg-tertiary" />
-                    <input
-                      type="email"
-                      inputMode="email"
-                      autoFocus={addingEmail}
-                      value={pendingEmail}
-                      onChange={(e) => setPendingEmail(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault()
-                          commitPendingEmail()
-                        }
-                      }}
-                      placeholder="financeiro@empresa.com"
-                      className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
-                    />
-                  </span>
+                {!showField && (
                   <button
                     type="button"
-                    onClick={commitPendingEmail}
-                    disabled={!canAddPending}
-                    aria-label="Adicionar e-mail"
-                    className={[
-                      "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
-                      canAddPending
-                        ? "bg-fg-primary text-white hover:opacity-90"
-                        : "bg-bg-muted text-fg-tertiary",
-                    ].join(" ")}
+                    onClick={() => setAddingEmail(true)}
+                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 body-xs font-medium text-fg-secondary transition-colors hover:bg-bg-muted hover:text-fg-primary"
                   >
-                    <Icon name="add" size={16} />
+                    <Icon name="add" size={15} />
+                    Adicionar e-mail para receber faturas
                   </button>
-                </div>
+                )}
+                <div
+                  className="grid transition-[grid-template-rows,opacity] duration-aw-base ease-aw-out"
+                  style={{
+                    gridTemplateRows: showField ? "1fr" : "0fr",
+                    opacity: showField ? 1 : 0,
+                  }}
+                >
+                  <div className="overflow-hidden">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={[
+                          "flex h-[38px] flex-1 items-center gap-2 rounded-md border bg-bg-raised px-3 transition-colors duration-aw-fast focus-within:border-fg-primary",
+                          needsAttention ? "border-aw-amber-500 bg-aw-amber-100" : "border-border",
+                        ].join(" ")}
+                      >
+                        <Icon name="mail" size={14} className="text-fg-tertiary" />
+                        <input
+                          type="email"
+                          inputMode="email"
+                          value={pendingEmail}
+                          onChange={(e) => setPendingEmail(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault()
+                              commitPendingEmail()
+                            }
+                          }}
+                          placeholder="financeiro@empresa.com"
+                          className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+                        />
+                      </span>
+                      <button
+                        type="button"
+                        onClick={commitPendingEmail}
+                        disabled={!canAddPending}
+                        aria-label="Adicionar e-mail"
+                        className={[
+                          "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
+                          canAddPending
+                            ? "bg-fg-primary text-white hover:opacity-90"
+                            : "bg-bg-muted text-fg-tertiary",
+                        ].join(" ")}
+                      >
+                        <Icon name="add" size={16} />
+                      </button>
+                    </div>
 
-                <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
-                  <Icon name="info" size={12} className="mt-px flex-shrink-0" />
-                  <span>
-                    Cada e-mail recebe um convite para entrar na organização. A pessoa
-                    precisa confirmar o convite para começar a receber as faturas.
-                  </span>
-                </p>
+                    <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
+                      <Icon name="info" size={12} className="mt-px flex-shrink-0" />
+                      <span>
+                        Cada e-mail recebe um convite para entrar na organização. A pessoa
+                        precisa confirmar o convite para começar a receber as faturas.
+                      </span>
+                    </p>
+                  </div>
+                </div>
               </>
             )
           })()}
