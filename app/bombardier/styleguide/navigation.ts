@@ -120,6 +120,7 @@ export const navigation: NavSection[] = [
       { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
+      { name: "Capability tile", href: "/bombardier/styleguide/components/aw-capability-tile" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       { name: "Visual dos agentes", href: "/bombardier/styleguide/components/agents" },
