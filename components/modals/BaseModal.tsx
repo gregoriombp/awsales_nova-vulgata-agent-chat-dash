@@ -9,6 +9,15 @@ interface BaseModalProps {
   size?: "sm" | "md" | "lg" | "xl";
 }
 
+/**
+ * BaseModal — shell dos modais de fonte (enviar arquivo / URL / snippet /
+ * integrações + pastas). Alinhado ao styleguide: usa a MESMA casca visual do
+ * AwModal (scrim com blur + cor de superfície `--bg-raised`, raio `--radius-xl`,
+ * sombra `--shadow-overlay` e a mesma animação de entrada `aw-modal-in`).
+ *
+ * Mantém a API legada (`isOpen/onClose/size/children`) pra não tocar nos modais
+ * que o consomem — eles trazem o próprio header/body/footer dentro de children.
+ */
 export default function BaseModal({
   isOpen,
   onClose,
@@ -32,11 +41,9 @@ export default function BaseModal({
         onClose();
       }
     };
-
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
     }
-
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
@@ -53,16 +60,22 @@ export default function BaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-[1000] flex items-center justify-center p-6"
       onClick={onClose}
+      style={{
+        background: "rgba(0, 0, 0, 0.55)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
+        animation: "aw-scrim-in 180ms var(--ease-out)",
+      }}
     >
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      
-      {/* Modal content */}
       <div
-        className={`relative bg-white rounded-xl shadow-xl ${sizeClasses[size]} w-full max-h-[90vh] overflow-hidden flex flex-col`}
+        className={`relative flex max-h-[90vh] w-full ${sizeClasses[size]} flex-col overflow-hidden rounded-[var(--radius-xl)] bg-[var(--bg-raised)] text-[var(--fg-primary)]`}
         onClick={(e) => e.stopPropagation()}
+        style={{
+          boxShadow: "var(--shadow-overlay)",
+          animation: "aw-modal-in 180ms var(--ease-out)",
+        }}
       >
         {children}
       </div>
