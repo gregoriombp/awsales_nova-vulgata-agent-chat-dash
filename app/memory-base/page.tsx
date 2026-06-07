@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { AwSidebar } from "@/components/ui/AwSidebar";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
@@ -17,9 +17,13 @@ import {
   AwEmptyContent,
 } from "@/components/ui/AwEmpty";
 import { useAwTheme } from "@/components/ui/AwThemeProvider";
+import { CreateBaseModal, type NewBaseDraft } from "@/components/memory-base/CreateBaseModal";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { KnowledgeBaseExplorer } from "@/components/memory-base/KnowledgeBaseExplorer";
-import { MOCK_KNOWLEDGE_BASES } from "@/components/memory-base/knowledgeBases";
+import {
+  MOCK_KNOWLEDGE_BASES,
+  type KnowledgeBase,
+} from "@/components/memory-base/knowledgeBases";
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
 
@@ -76,9 +80,9 @@ type MemoryBaseState = "welcome" | "empty" | "populated";
  * tela de detalhe) e devolve o id pra navegar com `?new=1` — assim a página
  * `/memory-base/[id]` assume o estado de base recém-criada (tour + vazia).
  */
-function createMemoryBase(): string {
+function createMemoryBase(draft: NewBaseDraft): string {
   const id = Math.random().toString(36).slice(2, 9);
-  const name = "Base de conhecimento";
+  const { name, objetivo, segmento, tipoDados } = draft;
   try {
     const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
     const bases = raw ? JSON.parse(raw) : [];
@@ -86,7 +90,10 @@ function createMemoryBase(): string {
       id,
       name,
       description: "",
-      type: "documentos",
+      type: tipoDados || "documentos",
+      objetivo,
+      segmento,
+      tipoDados,
       documentCount: 0,
       knowledgeLayersCount: 0,
       createdAt: new Date().toISOString().split("T")[0],
@@ -101,23 +108,110 @@ function createMemoryBase(): string {
   return id;
 }
 
+const MONTHS_PT = [
+  "jan", "fev", "mar", "abr", "mai", "jun",
+  "jul", "ago", "set", "out", "nov", "dez",
+];
+
+/** "2026-06-07" → "07 de jun 2026" (formato das bases mock). */
+function formatCreatedAt(iso: string): string {
+  const [y, m, d] = (iso ?? "").split("-").map(Number);
+  if (!y || !m || !d) return iso ?? "";
+  return `${String(d).padStart(2, "0")} de ${MONTHS_PT[m - 1]} ${y}`;
+}
+
+/**
+ * Bases que o usuário criou (persistidas em localStorage pelo fluxo de "Criar
+ * base") mapeadas pro shape da lista. Objetivo/segmento ficam vazios até a base
+ * ser configurada — os cards/linhas mostram um selo "Nova" nesse caso. Assim o
+ * fluxo Criar → voltar pra lista fecha o ciclo (a base recém-criada aparece).
+ */
+function loadCreatedBases(): KnowledgeBase[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .filter((b) => b && typeof b.id === "string")
+      .map((b): KnowledgeBase => ({
+        id: b.id,
+        name: b.name || "Base de conhecimento",
+        status: b.status === "inactive" ? "inativo" : "ativo",
+        objetivo: typeof b.objetivo === "string" ? b.objetivo : "",
+        segmento: typeof b.segmento === "string" ? b.segmento : "",
+        tipoDados: typeof b.tipoDados === "string" ? b.tipoDados : "",
+        produtos: 0,
+        fontes: typeof b.documentCount === "number" ? b.documentCount : 0,
+        knowledgeLayers:
+          typeof b.knowledgeLayersCount === "number" ? b.knowledgeLayersCount : 0,
+        agents: [],
+        updatedAt: formatCreatedAt(b.createdAt),
+      }))
+      .reverse(); // mais recentes primeiro
+  } catch {
+    return [];
+  }
+}
+
 export default function MemoryBaseIndexPage() {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Protótipo: estado fixo. Trocar aqui pra iterar nos três cenários.
   const state = "populated" as MemoryBaseState;
 
+  // Bases criadas pelo usuário (localStorage) + as mock. Lido só no cliente pra
+  // não quebrar hidratação. Recarrega ao voltar pra aba (base recém-criada).
+  const [createdBases, setCreatedBases] = useState<KnowledgeBase[]>([]);
+  useEffect(() => {
+    const sync = () => setCreatedBases(loadCreatedBases());
+    sync();
+    window.addEventListener("focus", sync);
+    return () => window.removeEventListener("focus", sync);
+  }, []);
+  const bases = useMemo(
+    () => [...createdBases, ...MOCK_KNOWLEDGE_BASES],
+    [createdBases],
+  );
+
+  // Abre o passo de criação (nomear a base). A criação de fato acontece no confirm.
   const handleCreate = useCallback(() => {
     if (creating) return;
-    setCreating(true);
-    const id = createMemoryBase();
-    router.push(`/memory-base/${id}?new=1`);
-  }, [creating, router]);
+    setIsCreateOpen(true);
+  }, [creating]);
+
+  const handleConfirmCreate = useCallback(
+    (draft: NewBaseDraft) => {
+      if (creating) return;
+      setCreating(true);
+      const id = createMemoryBase(draft);
+      router.push(
+        `/memory-base/${id}?new=1&name=${encodeURIComponent(draft.name)}`,
+      );
+    },
+    [creating, router],
+  );
+
+  const createModal = (
+    <CreateBaseModal
+      open={isCreateOpen}
+      onClose={() => setIsCreateOpen(false)}
+      onCreate={handleConfirmCreate}
+      creating={creating}
+    />
+  );
 
   // Primeiro acesso: cena cheia do shader, sem o chrome do dashboard.
   if (state === "welcome") {
-    return <WelcomeState creating={creating} onCreate={handleCreate} />;
+    return (
+      <>
+        <WelcomeState creating={creating} onCreate={handleCreate} />
+        {createModal}
+      </>
+    );
   }
 
   // Recorrente (vazio ou populado): chrome padrão do dashboard.
@@ -150,11 +244,12 @@ export default function MemoryBaseIndexPage() {
         />
 
         {state === "populated" ? (
-          <KnowledgeBaseExplorer bases={MOCK_KNOWLEDGE_BASES} />
+          <KnowledgeBaseExplorer bases={bases} />
         ) : (
           <EmptyState creating={creating} onCreate={handleCreate} />
         )}
       </div>
+      {createModal}
     </AwDashboardLayout>
   );
 }
