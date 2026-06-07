@@ -2,9 +2,9 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
+import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import BaseModal from "@/components/modals/BaseModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
@@ -114,18 +114,6 @@ function Checkbox({
   );
 }
 
-function FolderIconBase({ width = 32, height = 32, className }: { width?: number; height?: number; className?: string }) {
-  return (
-    <img
-      src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"
-      alt=""
-      width={width}
-      height={height}
-      className={className}
-    />
-  );
-}
-
 function DotsVertical32() {
   return (
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
@@ -137,16 +125,8 @@ function DotsVertical32() {
 }
 
 function Plus24() {
-  return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 5V19M5 12H19"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
+  // Material Symbols (styleguide), tamanho contido — antes era um SVG 24px bold.
+  return <Icon name="add" size={20} weight={300} />;
 }
 
 function Layers16() {
@@ -224,16 +204,22 @@ function getIntegrationIconUrl(integrationName: string): string | undefined {
   return found?.icon;
 }
 
+// Grayscale-only (pedido de review): o tipo do arquivo se distingue pelo glifo
+// do ícone, não pela cor. Tokens themeáveis (claro/escuro).
+const FILE_TYPE_CHIP = {
+  bg: "bg-[var(--bg-muted)]",
+  icon: "text-[var(--fg-secondary)]",
+} as const;
 const FILE_TYPE_STYLES = {
-  pdf: { bg: "bg-red-50", icon: "text-red-600" },
-  word: { bg: "bg-blue-50", icon: "text-blue-600" },
-  excel: { bg: "bg-emerald-50", icon: "text-emerald-600" },
-  text: { bg: "bg-slate-100", icon: "text-slate-600" },
-  code: { bg: "bg-violet-50", icon: "text-violet-600" },
-  url: { bg: "bg-sky-50", icon: "text-sky-600" },
-  snippet: { bg: "bg-amber-50", icon: "text-amber-600" },
-  integration: { bg: "bg-teal-50", icon: "text-teal-600" },
-  default: { bg: "bg-gray-100", icon: "text-gray-600" },
+  pdf: FILE_TYPE_CHIP,
+  word: FILE_TYPE_CHIP,
+  excel: FILE_TYPE_CHIP,
+  text: FILE_TYPE_CHIP,
+  code: FILE_TYPE_CHIP,
+  url: FILE_TYPE_CHIP,
+  snippet: FILE_TYPE_CHIP,
+  integration: FILE_TYPE_CHIP,
+  default: FILE_TYPE_CHIP,
 } as const;
 
 function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) {
@@ -899,17 +885,10 @@ function MemoryBaseDirectoryContent() {
         {/* Header area */}
         <div className="bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
           <div className="mx-auto max-w-[1544px] px-12 py-8">
-            <nav className="flex items-center gap-2 text-sm text-gray-400 mb-4" aria-label="Breadcrumb">
-              <Link href="/memory-base" className="hover:text-white transition-colors">
-                Memory Base
-              </Link>
-              <span aria-hidden="true">|</span>
-              <span className="text-white">{directoryName}</span>
-            </nav>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="text-white">
-                  <FolderIconBase width={64} height={64} className="invert" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] bg-white/10 text-white">
+                  <Icon name="account_balance" size={26} weight={300} />
                 </div>
                 <h1 className="text-[40px] font-regular text-white leading-none">
                   {directoryName}
@@ -975,11 +954,26 @@ function MemoryBaseDirectoryContent() {
                     setIsSourcesPopoverOpen(false);
                     setIsLayersPopoverOpen(false);
                   }}
-                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  className="flex items-center gap-2 hover:text-white transition-colors"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
-                  </svg>
+                  {connectedAgents.length > 0 ? (
+                    <span className="flex -space-x-1.5">
+                      {connectedAgents.slice(0, 3).map((agent) => (
+                        <img
+                          key={agent.id}
+                          src={getOrbForAgent(agent.id)}
+                          alt=""
+                          width={20}
+                          height={20}
+                          className="h-5 w-5 rounded-full object-cover ring-2 ring-gray-1200"
+                        />
+                      ))}
+                    </span>
+                  ) : (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
+                    </svg>
+                  )}
                   <span>Utilizado por {connectedAgents.length} Agente{connectedAgents.length !== 1 ? "s" : ""}</span>
                 </button>
                 {isAgentsPopoverOpen && connectedAgents.length > 0 && (
@@ -1035,7 +1029,7 @@ function MemoryBaseDirectoryContent() {
                         setIsAgentsPopoverOpen(false);
                         router.push("/agent-studio");
                       }}
-                      className="mt-3 w-full text-[12px] text-[#0066cc] hover:underline text-left"
+                      className="mt-3 w-full text-[12px] font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:underline text-left transition-colors"
                     >
                       Ver no Agent Studio →
                     </button>
@@ -1134,13 +1128,40 @@ function MemoryBaseDirectoryContent() {
                         setIsLayersPopoverOpen(false);
                         router.push(`/memory-base/${params?.id}/semantic-search`);
                       }}
-                      className="mt-3 w-full text-[12px] text-[#0066cc] hover:underline text-left"
+                      className="mt-3 w-full text-[12px] font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:underline text-left transition-colors"
                     >
                       Explorar via Semantic Search →
                     </button>
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* Tabs da base — substituem a sidebar contextual (legacy). */}
+            <div className="mt-7 flex items-center gap-1">
+              <span className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-white/10 px-3 py-2 text-[13px] font-medium text-white">
+                <Icon name="description" size={16} weight={300} />
+                Documentos
+                <span className="ml-0.5 rounded-full bg-white/15 px-1.5 text-[11px] tabular-nums text-white/80">
+                  {rows.length}
+                </span>
+              </span>
+              <button
+                type="button"
+                onClick={() => router.push(`/memory-base/${params?.id}/semantic-search`)}
+                className="inline-flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-[13px] font-medium text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <Icon name="search" size={16} weight={300} />
+                Busca semântica
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(`/memory-base/${params?.id}/settings`)}
+                className="inline-flex items-center gap-2 rounded-[var(--radius-md)] px-3 py-2 text-[13px] font-medium text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
+              >
+                <Icon name="settings" size={16} weight={300} />
+                Configurações
+              </button>
             </div>
           </div>
         </div>
