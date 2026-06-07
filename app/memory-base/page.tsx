@@ -17,7 +17,6 @@ import {
   AwEmptyContent,
 } from "@/components/ui/AwEmpty";
 import { useAwTheme } from "@/components/ui/AwThemeProvider";
-import { CreateBaseModal, type NewBaseDraft } from "@/components/memory-base/CreateBaseModal";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { KnowledgeBaseExplorer } from "@/components/memory-base/KnowledgeBaseExplorer";
 import {
@@ -75,39 +74,6 @@ const SHADER = {
  * ─────────────────────────────────────────────────────────────────────────── */
 type MemoryBaseState = "welcome" | "empty" | "populated";
 
-/**
- * Cria uma base nova (id + persistência no padrão de localStorage usado pela
- * tela de detalhe) e devolve o id pra navegar com `?new=1` — assim a página
- * `/memory-base/[id]` assume o estado de base recém-criada (tour + vazia).
- */
-function createMemoryBase(draft: NewBaseDraft): string {
-  const id = Math.random().toString(36).slice(2, 9);
-  const { name, objetivo, segmento, tipoDados } = draft;
-  try {
-    const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
-    const bases = raw ? JSON.parse(raw) : [];
-    bases.push({
-      id,
-      name,
-      description: "",
-      type: tipoDados || "documentos",
-      objetivo,
-      segmento,
-      tipoDados,
-      documentCount: 0,
-      knowledgeLayersCount: 0,
-      createdAt: new Date().toISOString().split("T")[0],
-      status: "active",
-    });
-    window.localStorage.setItem(MEMORY_BASES_STORAGE_KEY, JSON.stringify(bases));
-    window.localStorage.setItem(`memory-base-name-${id}`, name);
-    window.localStorage.setItem(`memory-base-empty-${id}`, "1");
-  } catch (e) {
-    console.error("Erro ao criar a Memory Base:", e);
-  }
-  return id;
-}
-
 const MONTHS_PT = [
   "jan", "fev", "mar", "abr", "mai", "jun",
   "jul", "ago", "set", "out", "nov", "dez",
@@ -157,8 +123,6 @@ function loadCreatedBases(): KnowledgeBase[] {
 
 export default function MemoryBaseIndexPage() {
   const router = useRouter();
-  const [creating, setCreating] = useState(false);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
   // Protótipo: estado fixo. Trocar aqui pra iterar nos três cenários.
   const state = "populated" as MemoryBaseState;
@@ -177,41 +141,14 @@ export default function MemoryBaseIndexPage() {
     [createdBases],
   );
 
-  // Abre o passo de criação (nomear a base). A criação de fato acontece no confirm.
+  // "Criar base" abre o wizard full-screen (/memory-base/new).
   const handleCreate = useCallback(() => {
-    if (creating) return;
-    setIsCreateOpen(true);
-  }, [creating]);
-
-  const handleConfirmCreate = useCallback(
-    (draft: NewBaseDraft) => {
-      if (creating) return;
-      setCreating(true);
-      const id = createMemoryBase(draft);
-      router.push(
-        `/memory-base/${id}?new=1&name=${encodeURIComponent(draft.name)}`,
-      );
-    },
-    [creating, router],
-  );
-
-  const createModal = (
-    <CreateBaseModal
-      open={isCreateOpen}
-      onClose={() => setIsCreateOpen(false)}
-      onCreate={handleConfirmCreate}
-      creating={creating}
-    />
-  );
+    router.push("/memory-base/new");
+  }, [router]);
 
   // Primeiro acesso: cena cheia do shader, sem o chrome do dashboard.
   if (state === "welcome") {
-    return (
-      <>
-        <WelcomeState creating={creating} onCreate={handleCreate} />
-        {createModal}
-      </>
-    );
+    return <WelcomeState creating={false} onCreate={handleCreate} />;
   }
 
   // Recorrente (vazio ou populado): chrome padrão do dashboard.
@@ -235,7 +172,6 @@ export default function MemoryBaseIndexPage() {
               size="md"
               iconLeft="add"
               onClick={handleCreate}
-              disabled={creating}
             >
               Criar base
             </AwButton>
@@ -246,10 +182,9 @@ export default function MemoryBaseIndexPage() {
         {state === "populated" ? (
           <KnowledgeBaseExplorer bases={bases} />
         ) : (
-          <EmptyState creating={creating} onCreate={handleCreate} />
+          <EmptyState creating={false} onCreate={handleCreate} />
         )}
       </div>
-      {createModal}
     </AwDashboardLayout>
   );
 }
