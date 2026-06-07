@@ -48,28 +48,28 @@ export default function ReviewModeFoundationPage() {
       <Section
         id="ativar"
         title="Como ativar"
-        lead="O overlay é gated por env flag. Sem a flag, nada aparece — zero risco de vazar pra produção."
+        lead="O Review Mode fica sempre montado — sem env flag. Ele se auto-gateia pelo estado do store, então é só abrir."
       >
         <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
             <Icon
-              name="terminal"
+              name="draw"
               size={20}
               className="text-[var(--fg-tertiary)] mt-0.5"
             />
-            <div>
-              <p className="m-0 text-sm text-[var(--fg-primary)] font-medium">
-                Adicione no <code className="font-mono text-xs">.env.local</code>:
-              </p>
-              <pre className="mt-2 mb-0 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] p-3 text-[12px] font-mono">
-                NEXT_PUBLIC_BOMBARDIER_REVIEW_ENABLED=true
-              </pre>
-            </div>
+            <p className="m-0 text-sm text-[var(--fg-secondary)]">
+              Abra a <strong>bolota do Bombardier</strong> (canto inferior) e
+              escolha <strong>Entrar no Review Mode</strong> — ou aperte{" "}
+              <Kbd>⌘</Kbd>+<Kbd>⇧</Kbd>+<Kbd>Y</Kbd>. Sem env flag, sem rebuild.
+            </p>
           </div>
           <p className="m-0 text-sm text-[var(--fg-secondary)]">
-            Reinicie <code className="font-mono text-xs">npm run dev</code>.
-            O botão <strong>Review</strong> aparece no rodapé central. Clique
-            (ou aperte <Kbd>⌘</Kbd>+<Kbd>⇧</Kbd>+<Kbd>Y</Kbd>) pra abrir.
+            Pra sincronizar com o time na LAN, suba o servidor com{" "}
+            <code className="font-mono text-xs">npm run review-bridge</code> e
+            sete <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL</code>{" "}
+            + <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN</code> no{" "}
+            <code className="font-mono text-xs">.env.local</code>. Sem isso, os
+            comentários ficam no <code className="font-mono text-xs">localStorage</code> do browser.
           </p>
         </div>
       </Section>
