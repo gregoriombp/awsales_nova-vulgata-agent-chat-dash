@@ -174,7 +174,7 @@ export function AwHeader({
       <button
         type="button"
         aria-label={isCopilotOpen ? "Fechar AwSales Copilot" : "Abrir AwSales Copilot"}
-        className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full ml-1"
+        className="cursor-pointer rounded-full ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg-primary)] focus-visible:ring-offset-2"
         onClick={() => onCopilotOpen?.(!isCopilotOpen)}
       >
         <AwCopilotOrb size={28} />

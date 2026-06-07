@@ -152,7 +152,7 @@ export default function MemoryBaseOnboarding({ onComplete }: MemoryBaseOnboardin
           <button
             type="button"
             aria-label="Abrir AwSales Copilot"
-            className="cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#1fb6ff] focus:ring-offset-2 rounded-full"
+            className="cursor-pointer rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg-primary)] focus-visible:ring-offset-2"
           >
             <AwCopilotOrb size={20} />
           </button>
