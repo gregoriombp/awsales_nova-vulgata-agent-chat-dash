@@ -1,4 +1,5 @@
 import * as React from "react"
+import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon"
 
 export type IconProps = {
   name: string
@@ -22,6 +23,28 @@ export function Icon({
   if (name === "agent_studio") {
     return (
       <AgentStudioGlyph size={size} className={className} style={style} />
+    )
+  }
+  if (name === "memory_base") {
+    // Marca real da Memory Base (grade pontilhada). currentColor herda a cor
+    // do estado do nav (ativo/inativo). viewBox 38×40 — mantém proporção.
+    const w = Math.round((size * 38) / 40)
+    return (
+      <span
+        aria-hidden="true"
+        className={"aw-icon" + (className ? " " + className : "")}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+          width: size,
+          height: size,
+          lineHeight: 0,
+          ...style,
+        }}
+      >
+        <MemoryBaseIcon width={w} height={size} />
+      </span>
     )
   }
   return (
