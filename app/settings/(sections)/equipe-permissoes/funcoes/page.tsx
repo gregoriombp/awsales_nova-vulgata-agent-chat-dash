@@ -469,7 +469,7 @@ function CompactRoleList({
   return (
     <aside className="flex flex-col self-start divide-y divide-[var(--border-subtle)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
       <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+        <p className="m-0 text-[13px] font-semibold tracking-tight text-[var(--fg-primary)]">
           Funções · {roles.length}
         </p>
         <button
