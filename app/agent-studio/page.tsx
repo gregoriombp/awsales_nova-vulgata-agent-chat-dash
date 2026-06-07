@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
@@ -16,7 +15,6 @@ import {
   AwEmptyContent,
 } from "@/components/ui/AwEmpty";
 import { getOrbForAgent } from "@/lib/agentOrbs";
-import { cn } from "@/lib/utils";
 
 type Agent = {
   id: string;
@@ -99,10 +97,10 @@ const TODOS_OS_AGENTES: Agent[] = [
 type StudioState = "welcome" | "populated" | "returning";
 
 export default function AgentStudioPage() {
-  // `welcome` é a tela de primeiro acesso (aparece uma única vez). Os outros
-  // dois estados são o studio já com chrome. O switcher abaixo é só de preview
-  // — em produção o estado vem do backend (tem agente? primeiro login?).
-  const [state, setState] = useState<StudioState>("welcome");
+  // Em produção o estado vem do backend (tem agente? primeiro login?). No
+  // protótipo o studio aparece já populado — os outros estados (welcome / sem
+  // agentes) ficam documentados no styleguide do Bombardier.
+  const state = "populated" as StudioState;
 
   return (
     <>
@@ -127,8 +125,6 @@ export default function AgentStudioPage() {
           </div>
         )}
       </AwDashboardLayout>
-
-      <PreviewSwitcher state={state} onChange={setState} />
     </>
   );
 }
@@ -256,40 +252,3 @@ function AgentGrid({ agents }: { agents: Agent[] }) {
   );
 }
 
-/* Controle de preview — alterna os 3 estados no browser. Não é UI de produto. */
-function PreviewSwitcher({
-  state,
-  onChange,
-}: {
-  state: StudioState;
-  onChange: (next: StudioState) => void;
-}) {
-  const options: { id: StudioState; label: string }[] = [
-    { id: "welcome", label: "Boas-vindas (1º acesso)" },
-    { id: "populated", label: "Com agentes" },
-    { id: "returning", label: "Sem agentes (recorrente)" },
-  ];
-
-  return (
-    <div className="fixed bottom-4 left-1/2 z-[100] flex -translate-x-1/2 items-center gap-1 rounded-[var(--radius-full)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-1 shadow-[0_8px_24px_-8px_rgba(15,23,42,0.25)]">
-      <span className="px-2 text-[11px] uppercase tracking-wide text-[var(--fg-tertiary)]">
-        Preview
-      </span>
-      {options.map((option) => (
-        <button
-          key={option.id}
-          type="button"
-          onClick={() => onChange(option.id)}
-          className={cn(
-            "rounded-[var(--radius-full)] px-3 py-1.5 text-[12.5px] transition-colors",
-            state === option.id
-              ? "bg-[var(--fg-primary)] text-[var(--bg-canvas)]"
-              : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)]",
-          )}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
