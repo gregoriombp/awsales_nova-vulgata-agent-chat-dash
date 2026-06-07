@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useParams, useRouter } from "next/navigation";
+import { usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
@@ -96,8 +95,6 @@ function SettingsIcon() {
 export default function MemoryBaseSidebar() {
   const pathname = usePathname();
   const params = useParams<{ id: string }>();
-  const router = useRouter();
-  const [bases, setBases] = useState<MemoryBaseItem[]>([]);
 
   const isFolderView = pathname === "/memory-base";
   const baseId = typeof params?.id === "string" ? params.id : null;
@@ -105,12 +102,12 @@ export default function MemoryBaseSidebar() {
   const isSemanticSearchActive = baseId && pathname?.includes("/semantic-search");
   const isSettingsActive = baseId && pathname?.includes("/settings");
 
-  useEffect(() => {
-    setBases(loadBasesFromStorage());
-  }, [pathname]);
-
   const currentBaseName = baseId ? getBaseName(baseId) : "";
   const currentBaseDocCount = baseId ? getSourceCount(baseId) : 0;
+
+  // A index (/memory-base) tem sua própria UI de listagem em largura cheia —
+  // não mostramos o rail de pastas aqui. Ele só aparece dentro de uma base.
+  if (isFolderView) return null;
 
   return (
     <aside
@@ -118,30 +115,7 @@ export default function MemoryBaseSidebar() {
       data-tour="kb-sidebar"
     >
       <div className="flex-1 min-h-0 overflow-y-auto py-4">
-        {isFolderView ? (
-          /* Navegação em árvore: pastas = Bases de Conhecimento */
-          <div className="px-3">
-            <div className="border-b border-[var(--border-subtle)] px-4 pb-4 mb-2 flex items-center gap-2">
-              <FolderIcon className="flex-shrink-0 text-[var(--fg-primary)]" />
-              <span className="body-md font-semibold text-[var(--fg-primary)]">Bases de Conhecimento</span>
-            </div>
-            {bases.map((base) => {
-              const count = getSourceCount(base.id) || (base.documentCount ?? 0);
-              return (
-                <button
-                  key={base.id}
-                  type="button"
-                  onClick={() => router.push(`/memory-base/${base.id}`)}
-                  className="w-full flex items-center gap-2 py-2.5 px-3 rounded-lg text-left text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
-                >
-                  <FolderIcon className="text-[var(--fg-secondary)] flex-shrink-0" />
-                  <span className="flex-1 body-sm font-medium truncate">{base.name}</span>
-                  <span className="body-xs text-[var(--fg-tertiary)] flex-shrink-0">{count}</span>
-                </button>
-              );
-            })}
-          </div>
-        ) : baseId ? (
+        {baseId ? (
           /* Menu contextual da Base de Conhecimento */
           <div className="px-3 space-y-4">
             {/* Card da base selecionada */}
