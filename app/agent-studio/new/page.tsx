@@ -496,10 +496,10 @@ function VerTodasTile({ label, onClick }: { label: string; onClick?: () => void 
  * mas seguem direto. Espelha o modelo do Figma: Telefone + Primeira mensagem. */
 
 const CANAIS = [
-  { id: "whatsapp", name: "WhatsApp", description: "Atendimento e disparos no WhatsApp Business", icon: "whatsapp" },
-  { id: "instagram", name: "Instagram", description: "Conversas no Instagram Direct", icon: "instagram" },
-  { id: "messenger", name: "Messenger", description: "Facebook Messenger", icon: "messenger" },
-  { id: "telegram", name: "Telegram", description: "Bot do Telegram", icon: "telegram" },
+  { id: "whatsapp", name: "WhatsApp", description: "Atende e recebe leads no WhatsApp Business.", icon: "whatsapp", status: "ativo" as const },
+  { id: "instagram", name: "Instagram", description: "Conversas no Instagram Direct.", icon: "instagram", status: "em-breve" as const },
+  { id: "messenger", name: "Messenger", description: "Atendimento pelo Facebook Messenger.", icon: "messenger", status: "em-breve" as const },
+  { id: "telegram", name: "Telegram", description: "Bot de atendimento no Telegram.", icon: "telegram", status: "em-breve" as const },
 ];
 
 interface WhatsNumber {
@@ -1742,8 +1742,7 @@ export default function AgentStudioNewPage() {
     { kind: "skill"; item: Habilidade } | { kind: "aop"; item: Aop } | null
   >(null);
 
-  // Step 4 state (Seleção de Canal) — sub-fluxo canal → número → 1ª mensagem
-  const [channelStep, setChannelStep] = useState<"canal" | "numero" | "mensagem">("canal");
+  // Step 4 state (Seleção de Canal) — master-detail numa etapa só
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
@@ -2145,31 +2144,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     }
   };
 
-  // Sub-navegação dentro da Seleção de Canal (step 4)
-  const canAdvanceChannel =
-    channelStep === "canal"
-      ? !!selectedChannel
-      : channelStep === "numero"
-        ? !!selectedNumber
-        : !!selectedTemplate;
-
-  const channelBack = () => {
-    if (channelStep === "mensagem") setChannelStep("numero");
-    else if (channelStep === "numero") setChannelStep("canal");
-    else handleBack();
-  };
-
-  const channelAdvance = () => {
-    if (channelStep === "canal") {
-      // Só WhatsApp tem o sub-fluxo número → template no protótipo.
-      if (selectedChannel === "whatsapp") setChannelStep("numero");
-      else handleAdvance();
-    } else if (channelStep === "numero") {
-      setChannelStep("mensagem");
-    } else {
-      handleAdvance();
-    }
-  };
+  // Step 4 só avança com canal + número + template definidos.
+  const canAdvanceStep4 = !!selectedChannel && !!selectedNumber && !!selectedTemplate;
 
   const handleCreateAgent = () => {
     // Save agent and redirect
@@ -2898,7 +2874,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className="w-full max-w-[900px] bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11 flex flex-col gap-8">
+        <div className={`w-full ${currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11 flex flex-col gap-8`}>
           
           {/* Step 1: Goal Selection */}
           {currentStep === 1 && (
@@ -3327,197 +3303,245 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </>
           )}
 
-          {/* Step 4: Seleção de Canal (canal → número → 1ª mensagem) */}
+          {/* Step 4: Seleção de Canal — master-detail numa etapa só */}
           {currentStep === 4 && (
             <>
-              {/* Sub-etapa: Canal */}
-              {channelStep === "canal" && (
-                <>
-                  <div className="text-left">
-                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
-                      Canal de atendimento
-                    </h1>
-                    <p className="text-base text-fg-tertiary font-sans">
-                      Onde esse agente vai atender? Comece pelo canal — depois você
-                      escolhe o número e a primeira mensagem.
+              <div className="text-left">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                  Canal de atendimento
+                </h1>
+                <p className="text-base text-fg-tertiary font-sans">
+                  Escolha o canal e configure o telefone e a primeira mensagem do
+                  agente — tudo numa etapa.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+                {/* Master: canais */}
+                <section className="flex flex-col gap-3">
+                  <div>
+                    <h2 className="font-heading text-lg font-medium text-fg-primary">
+                      Canais
+                    </h2>
+                    <p className="text-sm text-fg-tertiary">
+                      Por onde o agente vai atender.
                     </p>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-2">
                     {CANAIS.map((c) => {
                       const sel = selectedChannel === c.id;
+                      const soon = c.status === "em-breve";
                       return (
                         <button
                           key={c.id}
                           type="button"
+                          disabled={soon}
                           onClick={() => setSelectedChannel(c.id)}
                           className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
-                            sel
-                              ? "border-fg-primary bg-bg-raised"
-                              : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
-                          }`}
-                        >
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
-                            <IntegrationIcon type={c.icon} />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
-                              {c.name}
-                            </h4>
-                            <p className="truncate text-xs text-fg-tertiary">
-                              {c.description}
-                            </p>
-                          </div>
-                          <span
-                            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
-                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
-                            }`}
-                          >
-                            {sel && <Icon name="check" size={12} />}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {/* Sub-etapa: Número do WhatsApp */}
-              {channelStep === "numero" && (
-                <>
-                  <div className="text-left">
-                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
-                      Número do WhatsApp
-                    </h1>
-                    <p className="text-base text-fg-tertiary font-sans">
-                      Qual número da sua conta esse agente vai usar pra atender?
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {WHATS_NUMBERS.map((n) => {
-                      const sel = selectedNumber === n.id;
-                      const initials = n.name
-                        .split(/\s+/)
-                        .slice(0, 2)
-                        .map((p) => p[0]?.toUpperCase() ?? "")
-                        .join("");
-                      return (
-                        <button
-                          key={n.id}
-                          type="button"
-                          onClick={() => setSelectedNumber(n.id)}
-                          className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
-                            sel
-                              ? "border-fg-primary bg-bg-raised"
-                              : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
-                          }`}
-                        >
-                          <AwAvatar
-                            src={n.avatar}
-                            initials={initials}
-                            alt={n.name}
-                            style={{ width: 40, height: 40, fontSize: 14 }}
-                          />
-                          <div className="min-w-0 flex-1">
-                            <h4 className="truncate text-sm font-medium text-fg-primary">
-                              {n.name}
-                            </h4>
-                            <p className="truncate text-xs text-fg-tertiary">{n.phone}</p>
-                          </div>
-                          <span
-                            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
-                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
-                            }`}
-                          >
-                            {sel && <Icon name="check" size={12} />}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {/* Sub-etapa: Primeira mensagem */}
-              {channelStep === "mensagem" && (
-                <>
-                  <div className="text-left">
-                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
-                      Primeira mensagem
-                    </h1>
-                    <p className="text-base text-fg-tertiary font-sans">
-                      O template aprovado que abre a conversa. As variáveis{" "}
-                      <code className="font-mono text-sm">{"{{1}}"}</code> são
-                      preenchidas na hora do disparo.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    {WHATS_TEMPLATES.map((t) => {
-                      const sel = selectedTemplate === t.id;
-                      const pending = t.status === "pendente";
-                      return (
-                        <button
-                          key={t.id}
-                          type="button"
-                          disabled={pending}
-                          onClick={() => setSelectedTemplate(t.id)}
-                          className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
-                            pending
+                            soon
                               ? "cursor-not-allowed border-border bg-white opacity-60"
                               : sel
                                 ? "border-fg-primary bg-bg-raised"
                                 : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
                           }`}
                         >
-                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
-                            <Icon name="chat_bubble" size={18} fill={1} />
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
+                            <IntegrationIcon type={c.icon} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="truncate text-sm font-medium text-fg-primary">
-                                {t.name}
+                              <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
+                                {c.name}
                               </h4>
-                              <span
-                                className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                                  pending
-                                    ? "bg-aw-amber-100 text-aw-amber-800"
-                                    : "bg-aw-emerald-100 text-aw-emerald-800"
-                                }`}
-                              >
-                                {pending ? "Em revisão" : "Aprovado"}
-                              </span>
+                              {soon ? (
+                                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-fg-tertiary">
+                                  Em breve
+                                </span>
+                              ) : (
+                                <span className="inline-flex flex-shrink-0 items-center gap-1 text-xs text-aw-emerald-700">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500" />
+                                  Ativo
+                                </span>
+                              )}
                             </div>
-                            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
-                              {t.preview}
+                            <p className="truncate text-xs text-fg-tertiary">
+                              {c.description}
                             </p>
                           </div>
-                          <span
-                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
-                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
-                            }`}
-                          >
-                            {sel && <Icon name="check" size={12} />}
-                          </span>
+                          {!soon && (
+                            <span
+                              className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                              }`}
+                            >
+                              {sel && <Icon name="check" size={12} />}
+                            </span>
+                          )}
                         </button>
                       );
                     })}
                   </div>
-                </>
-              )}
+                </section>
+
+                {/* Detail: telefone e template */}
+                <section className="flex flex-col gap-3">
+                  <div>
+                    <h2 className="font-heading text-lg font-medium text-fg-primary">
+                      Telefone e template
+                    </h2>
+                    <p className="text-sm text-fg-tertiary">
+                      Selecione o número e a mensagem que abre a conversa.
+                    </p>
+                  </div>
+
+                  {!selectedChannel ? (
+                    <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-bg-surface px-6 py-14 text-center">
+                      <Icon name="arrow_back" size={20} className="text-fg-tertiary" />
+                      <p className="text-sm text-fg-tertiary">
+                        Escolha um canal à esquerda pra configurar o telefone e a
+                        primeira mensagem.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-6">
+                      {/* Telefone */}
+                      <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-fg-primary">
+                          Telefone
+                        </label>
+                        {WHATS_NUMBERS.map((n) => {
+                          const sel = selectedNumber === n.id;
+                          const initials = n.name
+                            .split(/\s+/)
+                            .slice(0, 2)
+                            .map((p) => p[0]?.toUpperCase() ?? "")
+                            .join("");
+                          return (
+                            <button
+                              key={n.id}
+                              type="button"
+                              onClick={() => setSelectedNumber(n.id)}
+                              className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
+                                sel
+                                  ? "border-fg-primary bg-bg-raised"
+                                  : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                              }`}
+                            >
+                              <AwAvatar
+                                src={n.avatar}
+                                initials={initials}
+                                alt={n.name}
+                                style={{ width: 40, height: 40, fontSize: 14 }}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-2">
+                                  <h4 className="truncate text-sm font-medium text-fg-primary">
+                                    {n.name}
+                                  </h4>
+                                  {n.avatar && (
+                                    <span className="inline-flex flex-shrink-0 items-center gap-0.5 text-xs text-aw-emerald-700">
+                                      <Icon name="trending_up" size={13} />
+                                      Alta
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="truncate text-xs text-fg-tertiary">
+                                  {n.phone}
+                                </p>
+                              </div>
+                              <span
+                                className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                  sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                                }`}
+                              >
+                                {sel && <Icon name="check" size={12} />}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Primeira mensagem — aparece após escolher o número */}
+                      {selectedNumber && (
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-medium text-fg-primary">
+                            Primeira mensagem
+                          </label>
+                          <p className="-mt-1 text-xs text-fg-tertiary">
+                            Template aprovado que abre a conversa. As variáveis{" "}
+                            <code className="font-mono text-[11px]">{"{{1}}"}</code>{" "}
+                            entram na hora do disparo.
+                          </p>
+                          {WHATS_TEMPLATES.map((t) => {
+                            const sel = selectedTemplate === t.id;
+                            const pending = t.status === "pendente";
+                            return (
+                              <button
+                                key={t.id}
+                                type="button"
+                                disabled={pending}
+                                onClick={() => setSelectedTemplate(t.id)}
+                                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
+                                  pending
+                                    ? "cursor-not-allowed border-border bg-white opacity-60"
+                                    : sel
+                                      ? "border-fg-primary bg-bg-raised"
+                                      : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                                }`}
+                              >
+                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+                                  <Icon name="chat_bubble" size={18} fill={1} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center gap-2">
+                                    <h4 className="truncate text-sm font-medium text-fg-primary">
+                                      {t.name}
+                                    </h4>
+                                    <span
+                                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                        pending
+                                          ? "bg-aw-amber-100 text-aw-amber-800"
+                                          : "bg-aw-emerald-100 text-aw-emerald-800"
+                                      }`}
+                                    >
+                                      {pending ? "Em revisão" : "Aprovado"}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
+                                    {t.preview}
+                                  </p>
+                                </div>
+                                <span
+                                  className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                    sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                                  }`}
+                                >
+                                  {sel && <Icon name="check" size={12} />}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </section>
+              </div>
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
                   variant="secondary"
                   size="md"
                   iconLeft="chevron_left"
-                  onClick={channelBack}
+                  onClick={handleBack}
                 >
                   Voltar
                 </AwButton>
                 <AwButton
                   variant="primary"
                   size="md"
-                  disabled={!canAdvanceChannel}
-                  onClick={channelAdvance}
+                  disabled={!canAdvanceStep4}
+                  onClick={handleAdvance}
                 >
                   Avançar
                 </AwButton>
