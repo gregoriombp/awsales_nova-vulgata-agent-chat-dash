@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { AwSidebar } from "@/components/ui/AwSidebar";
-import MemoryBaseSidebar from "@/components/memory-base/MemoryBaseSidebar";
 import { AwHeader } from "@/components/ui/AwHeader";
 import { AwCopilotDrawer } from "@/components/ui/AwCopilotDrawer";
 import { AwBreadcrumbsBar, type BreadcrumbItem } from "@/components/ui/AwBreadcrumbsBar";
@@ -43,7 +42,6 @@ export function AwDashboardLayout({
       )}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden relative">
         <div className="flex flex-1 min-w-0 overflow-hidden">
-          {isInMemoryBase && <MemoryBaseSidebar />}
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
           <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
