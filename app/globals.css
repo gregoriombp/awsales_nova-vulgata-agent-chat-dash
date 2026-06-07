@@ -557,6 +557,27 @@
   }
 }
 
+/* Wizard do Agent Studio: entrada suave de cada etapa (fade + slide up).
+ * Aplicada num wrapper com key={currentStep} pra tocar a cada troca de tela. */
+@keyframes aw-wizard-step-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.aw-wizard-step {
+  animation: aw-wizard-step-in var(--dur-base) var(--ease-out);
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-wizard-step {
+    animation: none;
+  }
+}
+
 /* Cada dot: pulsação suave (opacidade + escala) – efeito partículas */
 @keyframes memory-base-dot-pulse {
   0%, 100% {

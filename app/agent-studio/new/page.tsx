@@ -12,6 +12,7 @@ import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -444,22 +445,23 @@ const MOCK_INTEGRATIONS: Integration[] = [
 
 interface Habilidade {
   id: string;
+  /** id da marca no registry do AwBrandLogo (logo + cor reais). */
+  brand: string;
   name: string;
   domain: string;
-  /** Inicial + cor da marca pro badge (logo real entra depois). */
-  letter: string;
-  color: string;
   summary: string;
 }
 
 const HABILIDADES: Habilidade[] = [
-  { id: "stripe", name: "Stripe", domain: "stripe.com", letter: "S", color: "#635BFF", summary: "Pagamentos, assinaturas e reembolsos. O agente consulta o status de uma cobrança e pode iniciar estornos quando autorizado." },
-  { id: "calendly", name: "Calendly", domain: "calendly.com", letter: "C", color: "#006BFF", summary: "Agendamento. O agente oferece horários livres e confirma reuniões direto na agenda conectada." },
-  { id: "pipedrive", name: "Pipedrive", domain: "pipedrive.com", letter: "P", color: "#1A7F4B", summary: "CRM de vendas. O agente lê e atualiza negócios, contatos e etapas do funil." },
-  { id: "slack", name: "Slack", domain: "slack.com", letter: "S", color: "#4A154B", summary: "Mensageria do time. O agente notifica canais e escala conversas pra um humano." },
-  { id: "hotmart", name: "Hotmart", domain: "hotmart.com", letter: "H", color: "#F04E23", summary: "Produtos digitais. O agente consulta compras, acessos e status de assinatura do aluno." },
-  { id: "onprofit", name: "OnProfit", domain: "onprofit.com.br", letter: "O", color: "#2E9E7B", summary: "Gestão financeira. O agente puxa indicadores de receita e despesas pra responder dúvidas comerciais." },
-  { id: "tally", name: "Tally", domain: "tally.so", letter: "T", color: "#7C7C7C", summary: "Formulários. O agente lê respostas de formulários pra qualificar e enriquecer o lead." },
+  { id: "stripe", brand: "stripe", name: "Stripe", domain: "stripe.com", summary: "Pagamentos, assinaturas e reembolsos. O agente consulta o status de uma cobrança e pode iniciar estornos quando autorizado." },
+  { id: "calendly", brand: "calendly", name: "Calendly", domain: "calendly.com", summary: "Agendamento. O agente oferece horários livres e confirma reuniões direto na agenda conectada." },
+  { id: "pipedrive", brand: "pipedrive", name: "Pipedrive", domain: "pipedrive.com", summary: "CRM de vendas. O agente lê e atualiza negócios, contatos e etapas do funil." },
+  { id: "hotmart", brand: "hotmart", name: "Hotmart", domain: "hotmart.com", summary: "Produtos digitais. O agente consulta compras, acessos e status de assinatura do aluno." },
+  { id: "onprofit", brand: "onprofit", name: "OnProfit", domain: "onprofit.com.br", summary: "Gestão financeira. O agente puxa indicadores de receita e despesas pra responder dúvidas comerciais." },
+  { id: "typeform", brand: "typeform", name: "Typeform", domain: "typeform.com", summary: "Formulários. O agente lê respostas pra qualificar e enriquecer o lead." },
+  { id: "eduzz", brand: "eduzz", name: "Eduzz", domain: "eduzz.com", summary: "Checkout e infoprodutos. O agente acompanha transações e acessos do comprador." },
+  { id: "hubla", brand: "hubla", name: "Hubla", domain: "hub.la", summary: "Vendas e comunidades. O agente sincroniza assinaturas e status de membros." },
+  { id: "ticto", brand: "ticto", name: "Ticto", domain: "ticto.com.br", summary: "Checkout. O agente recebe eventos de venda e renovação em tempo real." },
 ];
 
 interface Aop {
@@ -586,13 +588,22 @@ const LOADING_MESSAGES = [
   "Finalizando configuração...",
 ];
 
+// Bases de demonstração — usadas quando o usuário ainda não criou nenhuma base
+// na conta. Sem isso o step 2 trava (não há base pra selecionar → não avança).
+const MOCK_BASES: KnowledgeBase[] = [
+  { id: "fyntra-geral", name: "Fyntra | Dados Gerais 2026", documentCount: 5, knowledgeLayersCount: 178 },
+  { id: "catalogo-produtos", name: "Catálogo de Produtos", documentCount: 12, knowledgeLayersCount: 64 },
+  { id: "faq-suporte", name: "FAQ & Políticas de Suporte", documentCount: 8, knowledgeLayersCount: 40 },
+];
+
 function loadBasesFromStorage(): KnowledgeBase[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return MOCK_BASES;
   try {
     const s = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
-    return s ? JSON.parse(s) : [];
+    const parsed: KnowledgeBase[] = s ? JSON.parse(s) : [];
+    return parsed.length > 0 ? parsed : MOCK_BASES;
   } catch {
-    return [];
+    return MOCK_BASES;
   }
 }
 
@@ -2939,8 +2950,9 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className={`w-full ${currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11 flex flex-col gap-8`}>
-          
+        <div className={`w-full ${currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11`}>
+          <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
+
           {/* Step 1: Goal Selection */}
           {currentStep === 1 && (
             <>
@@ -3289,18 +3301,11 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     Integrações de terceiro que o agente usa como ferramenta.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {HABILIDADES.map((h) => (
                     <AwCapabilityTile
                       key={h.id}
-                      icon={
-                        <span
-                          className="flex h-full w-full items-center justify-center rounded-lg text-[13px] font-semibold text-white"
-                          style={{ backgroundColor: h.color }}
-                        >
-                          {h.letter}
-                        </span>
-                      }
+                      icon={<AwBrandLogo brand={h.brand} size="md" />}
                       name={h.name}
                       description={h.domain}
                       selected={selectedSkills.has(h.id)}
@@ -3329,11 +3334,15 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     Processos operacionais padrão que o agente pode executar.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {AOPS.map((a) => (
                     <AwCapabilityTile
                       key={a.id}
-                      icon={<Icon name={a.icon} size={20} fill={1} />}
+                      icon={
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+                          <Icon name={a.icon} size={20} fill={1} />
+                        </div>
+                      }
                       name={a.name}
                       description={a.summary.split(".")[0]}
                       selected={selectedAops.has(a.id)}
@@ -3780,6 +3789,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               </div>
             </>
           )}
+          </div>
         </div>
       </div>
 
@@ -3863,18 +3873,13 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
         {preview && (
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-bg-muted text-fg-secondary">
-                {preview.kind === "skill" ? (
-                  <span
-                    className="flex h-full w-full items-center justify-center text-base font-semibold text-white"
-                    style={{ backgroundColor: preview.item.color }}
-                  >
-                    {preview.item.letter}
-                  </span>
-                ) : (
+              {preview.kind === "skill" ? (
+                <AwBrandLogo brand={preview.item.brand} size="lg" />
+              ) : (
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-bg-muted text-fg-secondary">
                   <Icon name={preview.item.icon} size={24} fill={1} />
-                )}
-              </div>
+                </div>
+              )}
               <div className="min-w-0">
                 <div className="body-sm font-medium text-fg-primary">
                   {preview.item.name}
