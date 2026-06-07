@@ -74,3 +74,6 @@ review-bridge/node_modules/
 # flow-bridge runtime state (grows unbounded — not source code)
 flow-bridge/data/*.json
 flow-bridge/node_modules/
+
+# Playwright MCP verification artifacts (snapshots/console logs)
+.playwright-mcp/
