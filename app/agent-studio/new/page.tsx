@@ -7,6 +7,8 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -430,6 +432,100 @@ const MOCK_INTEGRATIONS: Integration[] = [
   { id: "telegram", name: "Telegram", description: "Bot do Telegram", icon: "telegram", configured: false, enabled: false },
   { id: "email", name: "E-mail", description: "Integração com e-mail", icon: "email", configured: false, enabled: false },
   { id: "slack", name: "Slack", description: "Workspace do Slack", icon: "slack", configured: false, enabled: false },
+];
+
+/* ───────── Habilidades e AOPs (step 3) ─────────
+ * Habilidades = integrações de terceiro que o agente usa como ferramenta.
+ * AOPs = processos operacionais padrão. Ambos já existem a nível de conta/org;
+ * aqui o usuário só concede permissão de acesso ao agente que está criando. */
+
+interface Habilidade {
+  id: string;
+  name: string;
+  domain: string;
+  /** Inicial + cor da marca pro badge (logo real entra depois). */
+  letter: string;
+  color: string;
+  summary: string;
+}
+
+const HABILIDADES: Habilidade[] = [
+  { id: "stripe", name: "Stripe", domain: "stripe.com", letter: "S", color: "#635BFF", summary: "Pagamentos, assinaturas e reembolsos. O agente consulta o status de uma cobrança e pode iniciar estornos quando autorizado." },
+  { id: "calendly", name: "Calendly", domain: "calendly.com", letter: "C", color: "#006BFF", summary: "Agendamento. O agente oferece horários livres e confirma reuniões direto na agenda conectada." },
+  { id: "pipedrive", name: "Pipedrive", domain: "pipedrive.com", letter: "P", color: "#1A7F4B", summary: "CRM de vendas. O agente lê e atualiza negócios, contatos e etapas do funil." },
+  { id: "slack", name: "Slack", domain: "slack.com", letter: "S", color: "#4A154B", summary: "Mensageria do time. O agente notifica canais e escala conversas pra um humano." },
+  { id: "hotmart", name: "Hotmart", domain: "hotmart.com", letter: "H", color: "#F04E23", summary: "Produtos digitais. O agente consulta compras, acessos e status de assinatura do aluno." },
+  { id: "onprofit", name: "OnProfit", domain: "onprofit.com.br", letter: "O", color: "#2E9E7B", summary: "Gestão financeira. O agente puxa indicadores de receita e despesas pra responder dúvidas comerciais." },
+  { id: "tally", name: "Tally", domain: "tally.so", letter: "T", color: "#7C7C7C", summary: "Formulários. O agente lê respostas de formulários pra qualificar e enriquecer o lead." },
+];
+
+interface Aop {
+  id: string;
+  name: string;
+  /** Material Symbol semântico. */
+  icon: string;
+  summary: string;
+}
+
+const AOPS: Aop[] = [
+  { id: "reembolso-cartao", name: "Reembolso de cartão", icon: "payments", summary: "Estorna uma cobrança aprovada seguindo a política de reembolso da organização." },
+  { id: "agendar-reuniao", name: "Agendar reunião", icon: "event", summary: "Encontra um horário livre e marca a reunião na agenda conectada do responsável." },
+  { id: "qualificar-lead", name: "Qualificar lead", icon: "filter_alt", summary: "Aplica o roteiro de qualificação (BANT/ICP) e classifica o lead antes de seguir." },
+  { id: "atualizar-crm", name: "Atualizar CRM", icon: "sync_alt", summary: "Registra a conversa e atualiza a etapa do negócio no CRM automaticamente." },
+  { id: "emitir-nota", name: "Emitir nota fiscal", icon: "receipt_long", summary: "Dispara a emissão da nota fiscal após a confirmação do pagamento." },
+  { id: "escalar-humano", name: "Escalar para humano", icon: "support_agent", summary: "Transfere a conversa para um atendente quando o assunto sai do escopo do agente." },
+];
+
+/** Tile fantasma que leva pra lista completa de Habilidades/AOPs. */
+function VerTodasTile({ label, onClick }: { label: string; onClick?: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-medium text-fg-secondary transition-colors duration-aw-fast hover:border-aw-gray-400 hover:bg-bg-surface"
+    >
+      <Icon name="open_in_new" size={16} />
+      {label}
+    </button>
+  );
+}
+
+/* ───────── Seleção de Canal (step 4) ─────────
+ * Onde o agente vai atender. No protótipo, WhatsApp tem o sub-fluxo completo
+ * (número da conta → template de 1ª mensagem); os outros canais são selecionáveis
+ * mas seguem direto. Espelha o modelo do Figma: Telefone + Primeira mensagem. */
+
+const CANAIS = [
+  { id: "whatsapp", name: "WhatsApp", description: "Atendimento e disparos no WhatsApp Business", icon: "whatsapp" },
+  { id: "instagram", name: "Instagram", description: "Conversas no Instagram Direct", icon: "instagram" },
+  { id: "messenger", name: "Messenger", description: "Facebook Messenger", icon: "messenger" },
+  { id: "telegram", name: "Telegram", description: "Bot do Telegram", icon: "telegram" },
+];
+
+interface WhatsNumber {
+  id: string;
+  name: string;
+  phone: string;
+  avatar?: string;
+}
+
+const WHATS_NUMBERS: WhatsNumber[] = [
+  { id: "germano", name: "Germano Faccio", phone: "+55 (31) 99949-6803", avatar: "/assets/ui-faces/male-7.jpg" },
+  { id: "comercial", name: "Comercial Fyntra", phone: "+55 (11) 98123-4501" },
+  { id: "suporte", name: "Suporte Fyntra", phone: "+55 (11) 3003-9012" },
+];
+
+interface WhatsTemplate {
+  id: string;
+  name: string;
+  preview: string;
+  status: "aprovado" | "pendente";
+}
+
+const WHATS_TEMPLATES: WhatsTemplate[] = [
+  { id: "fyntra_produtos", name: "fyntra_produtos", preview: "Oi {{1}}! Vi que você se interessou pelos nossos produtos. Posso te ajudar a escolher o ideal?", status: "aprovado" },
+  { id: "recuperacao_carrinho", name: "recuperacao_carrinho", preview: "Olá {{1}}, notamos que você deixou itens no carrinho. Quer finalizar com 10% de desconto?", status: "aprovado" },
+  { id: "agendamento_demo", name: "agendamento_demo", preview: "Oi {{1}}! Que tal agendar uma demonstração rápida? Tenho horários essa semana.", status: "pendente" },
 ];
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
@@ -1612,7 +1708,7 @@ export default function AgentStudioNewPage() {
   // URL) separa os comentários por etapa. Sem ?step válido, começa no 1.
   const searchParams = useSearchParams();
   const stepParam = Number(searchParams.get("step"));
-  const currentStep = stepParam >= 1 && stepParam <= 5 ? stepParam : 1;
+  const currentStep = stepParam >= 1 && stepParam <= 6 ? stepParam : 1;
 
   // Navega entre passos escrevendo na URL. User-driven = push (browser back
   // volta um passo); auto-advance do loader (passo 4) = replace, pra não virar
@@ -1639,14 +1735,25 @@ export default function AgentStudioNewPage() {
   const [basesModalOpen, setBasesModalOpen] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
-  // Step 3 state
+  // Step 3 state (Habilidades e AOPs) — permissões que o agente recebe
+  const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set());
+  const [selectedAops, setSelectedAops] = useState<Set<string>>(new Set());
+  const [preview, setPreview] = useState<
+    { kind: "skill"; item: Habilidade } | { kind: "aop"; item: Aop } | null
+  >(null);
+
+  // Step 4 state (Seleção de Canal) — sub-fluxo canal → número → 1ª mensagem
+  const [channelStep, setChannelStep] = useState<"canal" | "numero" | "mensagem">("canal");
+  const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
+  const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [integrations, setIntegrations] = useState<Integration[]>(MOCK_INTEGRATIONS);
   const [addIntegrationOpen, setAddIntegrationOpen] = useState(false);
 
-  // Step 4 (Loading) state
+  // Step 5 (Loading) state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
-  // Step 5 (Editor) state
+  // Step 6 (Editor) state
   const [generatedPrompt, setGeneratedPrompt] = useState<PromptModule[]>([]);
   const [checkpointEditorExpanded, setCheckpointEditorExpanded] = useState(false);
   const [promptEditorExpanded, setPromptEditorExpanded] = useState(false);
@@ -1718,15 +1825,15 @@ export default function AgentStudioNewPage() {
 
   // Loading message rotation
   useEffect(() => {
-    if (currentStep === 4) {
+    if (currentStep === 5) {
       const interval = setInterval(() => {
         setLoadingMessageIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
       }, 1500);
 
-      // Auto-advance to step 5 after 4 seconds
+      // Auto-advance to the editor after 4 seconds
       const timeout = setTimeout(() => {
         generatePrompt();
-        goToStep(5, { replace: true });
+        goToStep(6, { replace: true });
       }, 4000);
 
       return () => {
@@ -1970,7 +2077,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     setVariableModalOpen(true);
   }, []);
 
-  const breadcrumbs = currentStep === 5 ? [
+  const breadcrumbs = currentStep === 6 ? [
     { label: "Agent Studio", href: "/agent-studio" },
     agentName || "Agente",
     "Configuração geral",
@@ -2017,8 +2124,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   const handleBack = () => {
     if (currentStep === 1) {
       router.push("/agent-studio");
-    } else if (currentStep === 5) {
-      goToStep(3);
+    } else if (currentStep === 6) {
+      goToStep(4);
     } else {
       goToStep(currentStep - 1);
     }
@@ -2030,8 +2137,37 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     } else if (currentStep === 2 && canAdvanceStep2) {
       goToStep(3);
     } else if (currentStep === 3) {
-      // Start loading animation
+      // Habilidades e AOPs são opcionais → sempre pode avançar
       goToStep(4);
+    } else if (currentStep === 4) {
+      // Canais → tela de loading
+      goToStep(5);
+    }
+  };
+
+  // Sub-navegação dentro da Seleção de Canal (step 4)
+  const canAdvanceChannel =
+    channelStep === "canal"
+      ? !!selectedChannel
+      : channelStep === "numero"
+        ? !!selectedNumber
+        : !!selectedTemplate;
+
+  const channelBack = () => {
+    if (channelStep === "mensagem") setChannelStep("numero");
+    else if (channelStep === "numero") setChannelStep("canal");
+    else handleBack();
+  };
+
+  const channelAdvance = () => {
+    if (channelStep === "canal") {
+      // Só WhatsApp tem o sub-fluxo número → template no protótipo.
+      if (selectedChannel === "whatsapp") setChannelStep("numero");
+      else handleAdvance();
+    } else if (channelStep === "numero") {
+      setChannelStep("mensagem");
+    } else {
+      handleAdvance();
     }
   };
 
@@ -2083,8 +2219,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
   const isOtherSelected = selectedGoal === "outro";
 
-  // Step 4: Loading Screen
-  if (currentStep === 4) {
+  // Step 5: Loading Screen
+  if (currentStep === 5) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
@@ -2109,8 +2245,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     );
   }
 
-  // Step 5: Editor Screen
-  if (currentStep === 5) {
+  // Step 6: Editor Screen
+  if (currentStep === 6) {
     const selectedBase = knowledgeBases.find(b => b.id === selectedBaseId);
     const enabledIntegrations = integrations.filter(i => i.enabled);
     const goalTitle = GOAL_OPTIONS.find(g => g.id === selectedGoal)?.title || customGoal;
@@ -3089,82 +3225,91 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </>
           )}
 
-          {/* Step 3: Integrations */}
+          {/* Step 3: Habilidades e AOPs */}
           {currentStep === 3 && (
             <>
               <div className="text-left">
                 <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
-                  Canais
+                  Habilidades e AOPs
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
-                  Selecione quais canais o agente deve utilizar
+                  Dê ao agente acesso ao que ele precisa. Tudo aqui já existe na
+                  sua conta — aqui você só concede a permissão.
                 </p>
               </div>
 
-              {/* Configured Integrations – mesma largura dos cards de "Adicionar nova integração", seleção por clique (sem toggle) */}
-              {configuredIntegrations.length > 0 && (
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-fg-primary">
-                    Canais configurados
-                  </label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {configuredIntegrations.map((integration) => {
-                      const selected = integration.enabled;
-                      return (
-                        <button
-                          key={integration.id}
-                          type="button"
-                          onClick={() => handleToggleIntegration(integration.id)}
-                          className={`flex items-center justify-between gap-3 p-4 rounded-xl border text-left transition-colors ${
-                            selected
-                              ? "bg-aw-gray-1200 border-aw-gray-1200"
-                              : "bg-white border-border hover:border-aw-gray-400 hover:bg-bg-surface"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 flex-1">
-                            <div
-                              className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                                selected ? "bg-white/20" : "bg-bg-muted"
-                              }`}
-                            >
-                              <IntegrationIcon type={integration.icon} />
-                            </div>
-                            <div className="min-w-0">
-                              <h4
-                                className={`font-heading font-medium text-sm truncate ${
-                                  selected ? "text-white" : "text-fg-primary"
-                                }`}
-                              >
-                                {integration.name}
-                              </h4>
-                              <p
-                                className={`text-xs truncate ${
-                                  selected ? "text-white/80" : "text-fg-tertiary"
-                                }`}
-                              >
-                                {integration.description}
-                              </p>
-                            </div>
-                          </div>
-                          {selected && (
-                            <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white flex items-center justify-center" aria-hidden>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-fg-primary">
-                                <path
-                                  d="M20 6 9 17l-5-5"
-                                  stroke="currentColor"
-                                  strokeWidth="2.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+              {/* Habilidades */}
+              <section className="flex flex-col gap-3">
+                <div>
+                  <h2 className="font-heading text-lg font-medium text-fg-primary">
+                    Habilidades
+                  </h2>
+                  <p className="text-sm text-fg-tertiary">
+                    Integrações de terceiro que o agente usa como ferramenta.
+                  </p>
                 </div>
-              )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {HABILIDADES.map((h) => (
+                    <AwCapabilityTile
+                      key={h.id}
+                      icon={
+                        <span
+                          className="flex h-full w-full items-center justify-center rounded-lg text-[13px] font-semibold text-white"
+                          style={{ backgroundColor: h.color }}
+                        >
+                          {h.letter}
+                        </span>
+                      }
+                      name={h.name}
+                      description={h.domain}
+                      selected={selectedSkills.has(h.id)}
+                      onToggle={() =>
+                        setSelectedSkills((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(h.id)) next.delete(h.id);
+                          else next.add(h.id);
+                          return next;
+                        })
+                      }
+                      onPreview={() => setPreview({ kind: "skill", item: h })}
+                    />
+                  ))}
+                  <VerTodasTile label="Ver todas as integrações" />
+                </div>
+              </section>
+
+              {/* AOPs */}
+              <section className="flex flex-col gap-3">
+                <div>
+                  <h2 className="font-heading text-lg font-medium text-fg-primary">
+                    AOPs
+                  </h2>
+                  <p className="text-sm text-fg-tertiary">
+                    Processos operacionais padrão que o agente pode executar.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {AOPS.map((a) => (
+                    <AwCapabilityTile
+                      key={a.id}
+                      icon={<Icon name={a.icon} size={20} fill={1} />}
+                      name={a.name}
+                      description={a.summary.split(".")[0]}
+                      selected={selectedAops.has(a.id)}
+                      onToggle={() =>
+                        setSelectedAops((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(a.id)) next.delete(a.id);
+                          else next.add(a.id);
+                          return next;
+                        })
+                      }
+                      onPreview={() => setPreview({ kind: "aop", item: a })}
+                    />
+                  ))}
+                  <VerTodasTile label="Ver todos os AOPs" />
+                </div>
+              </section>
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
@@ -3176,7 +3321,205 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   Voltar
                 </AwButton>
                 <AwButton variant="primary" size="md" onClick={handleAdvance}>
-                  Criar agente
+                  Avançar
+                </AwButton>
+              </div>
+            </>
+          )}
+
+          {/* Step 4: Seleção de Canal (canal → número → 1ª mensagem) */}
+          {currentStep === 4 && (
+            <>
+              {/* Sub-etapa: Canal */}
+              {channelStep === "canal" && (
+                <>
+                  <div className="text-left">
+                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                      Canal de atendimento
+                    </h1>
+                    <p className="text-base text-fg-tertiary font-sans">
+                      Onde esse agente vai atender? Comece pelo canal — depois você
+                      escolhe o número e a primeira mensagem.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {CANAIS.map((c) => {
+                      const sel = selectedChannel === c.id;
+                      return (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => setSelectedChannel(c.id)}
+                          className={`flex items-center gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
+                            sel
+                              ? "border-fg-primary bg-bg-raised"
+                              : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                          }`}
+                        >
+                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
+                            <IntegrationIcon type={c.icon} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
+                              {c.name}
+                            </h4>
+                            <p className="truncate text-xs text-fg-tertiary">
+                              {c.description}
+                            </p>
+                          </div>
+                          <span
+                            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                            }`}
+                          >
+                            {sel && <Icon name="check" size={12} />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* Sub-etapa: Número do WhatsApp */}
+              {channelStep === "numero" && (
+                <>
+                  <div className="text-left">
+                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                      Número do WhatsApp
+                    </h1>
+                    <p className="text-base text-fg-tertiary font-sans">
+                      Qual número da sua conta esse agente vai usar pra atender?
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {WHATS_NUMBERS.map((n) => {
+                      const sel = selectedNumber === n.id;
+                      const initials = n.name
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map((p) => p[0]?.toUpperCase() ?? "")
+                        .join("");
+                      return (
+                        <button
+                          key={n.id}
+                          type="button"
+                          onClick={() => setSelectedNumber(n.id)}
+                          className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
+                            sel
+                              ? "border-fg-primary bg-bg-raised"
+                              : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                          }`}
+                        >
+                          <AwAvatar
+                            src={n.avatar}
+                            initials={initials}
+                            alt={n.name}
+                            style={{ width: 40, height: 40, fontSize: 14 }}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <h4 className="truncate text-sm font-medium text-fg-primary">
+                              {n.name}
+                            </h4>
+                            <p className="truncate text-xs text-fg-tertiary">{n.phone}</p>
+                          </div>
+                          <span
+                            className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                            }`}
+                          >
+                            {sel && <Icon name="check" size={12} />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              {/* Sub-etapa: Primeira mensagem */}
+              {channelStep === "mensagem" && (
+                <>
+                  <div className="text-left">
+                    <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                      Primeira mensagem
+                    </h1>
+                    <p className="text-base text-fg-tertiary font-sans">
+                      O template aprovado que abre a conversa. As variáveis{" "}
+                      <code className="font-mono text-sm">{"{{1}}"}</code> são
+                      preenchidas na hora do disparo.
+                    </p>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {WHATS_TEMPLATES.map((t) => {
+                      const sel = selectedTemplate === t.id;
+                      const pending = t.status === "pendente";
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          disabled={pending}
+                          onClick={() => setSelectedTemplate(t.id)}
+                          className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
+                            pending
+                              ? "cursor-not-allowed border-border bg-white opacity-60"
+                              : sel
+                                ? "border-fg-primary bg-bg-raised"
+                                : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                          }`}
+                        >
+                          <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+                            <Icon name="chat_bubble" size={18} fill={1} />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <h4 className="truncate text-sm font-medium text-fg-primary">
+                                {t.name}
+                              </h4>
+                              <span
+                                className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                  pending
+                                    ? "bg-aw-amber-100 text-aw-amber-800"
+                                    : "bg-aw-emerald-100 text-aw-emerald-800"
+                                }`}
+                              >
+                                {pending ? "Em revisão" : "Aprovado"}
+                              </span>
+                            </div>
+                            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
+                              {t.preview}
+                            </p>
+                          </div>
+                          <span
+                            className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                              sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                            }`}
+                          >
+                            {sel && <Icon name="check" size={12} />}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+
+              <div className="flex items-center justify-between pt-4">
+                <AwButton
+                  variant="secondary"
+                  size="md"
+                  iconLeft="chevron_left"
+                  onClick={channelBack}
+                >
+                  Voltar
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="md"
+                  disabled={!canAdvanceChannel}
+                  onClick={channelAdvance}
+                >
+                  Avançar
                 </AwButton>
               </div>
             </>
@@ -3214,6 +3557,94 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           </div>
         </div>
       )}
+
+      {/* Preview de Habilidade / AOP (step 3) */}
+      <AwModal
+        open={preview !== null}
+        onClose={() => setPreview(null)}
+        title={preview?.item.name}
+        footer={
+          preview ? (
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-fg-secondary transition-colors hover:text-fg-primary"
+              >
+                <Icon name="open_in_new" size={14} />
+                {preview.kind === "skill" ? "Ver em Integrações" : "Ver em AOPs"}
+              </button>
+              {(() => {
+                const granted =
+                  preview.kind === "skill"
+                    ? selectedSkills.has(preview.item.id)
+                    : selectedAops.has(preview.item.id);
+                const toggle = () => {
+                  const id = preview.item.id;
+                  const set =
+                    preview.kind === "skill" ? setSelectedSkills : setSelectedAops;
+                  set((prev) => {
+                    const next = new Set(prev);
+                    if (next.has(id)) next.delete(id);
+                    else next.add(id);
+                    return next;
+                  });
+                };
+                return (
+                  <AwButton
+                    variant={granted ? "secondary" : "primary"}
+                    size="md"
+                    iconLeft={granted ? "check" : "add"}
+                    onClick={toggle}
+                  >
+                    {granted ? "Habilitado" : "Habilitar"}
+                  </AwButton>
+                );
+              })()}
+            </div>
+          ) : undefined
+        }
+      >
+        {preview && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-xl bg-bg-muted text-fg-secondary">
+                {preview.kind === "skill" ? (
+                  <span
+                    className="flex h-full w-full items-center justify-center text-base font-semibold text-white"
+                    style={{ backgroundColor: preview.item.color }}
+                  >
+                    {preview.item.letter}
+                  </span>
+                ) : (
+                  <Icon name={preview.item.icon} size={24} fill={1} />
+                )}
+              </div>
+              <div className="min-w-0">
+                <div className="body-sm font-medium text-fg-primary">
+                  {preview.item.name}
+                </div>
+                <div className="body-xs text-fg-tertiary">
+                  {preview.kind === "skill"
+                    ? preview.item.domain
+                    : "Processo operacional padrão"}
+                </div>
+              </div>
+            </div>
+
+            <p className="text-sm leading-relaxed text-fg-secondary">
+              {preview.item.summary}
+            </p>
+
+            <div className="flex items-start gap-2 rounded-lg bg-bg-surface px-3 py-2.5 text-xs text-fg-tertiary">
+              <Icon name="lock" size={14} className="mt-px flex-shrink-0" />
+              <span>
+                Já configurado a nível de conta — aqui você só dá permissão pra
+                este agente acessar.
+              </span>
+            </div>
+          </div>
+        )}
+      </AwModal>
     </AwDashboardLayout>
   );
 }
