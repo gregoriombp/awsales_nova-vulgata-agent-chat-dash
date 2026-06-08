@@ -946,12 +946,6 @@
   }
 }
 
-/* Brand pane image crossfade — auth flow right pane */
-@keyframes brandPaneFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* Fade in from bottom */
 @keyframes onboarding-fadeInUp {
   from {

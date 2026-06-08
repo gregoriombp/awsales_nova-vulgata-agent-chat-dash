@@ -95,7 +95,7 @@ export function AuthFlow() {
         </div>
       </aside>
 
-      <BrandPane screen={screen} locale={locale} />
+      <BrandPane />
     </div>
   );
 }
