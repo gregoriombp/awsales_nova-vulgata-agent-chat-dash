@@ -362,7 +362,7 @@ function ChargeCard({
   }`
 
   return (
-    <article className="overflow-hidden rounded-xl border border-border-strong bg-bg-raised">
+    <article className="overflow-hidden rounded-xl border border-border bg-bg-raised">
       <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fg-primary text-[11px] font-medium tabular-nums text-white">
           {index + 1}
@@ -380,7 +380,7 @@ function ChargeCard({
         {charge.stage === "config" ? (
           <>
             <div className="mb-2.5">
-              <span className="aw-eyebrow text-fg-tertiary">
+              <span className="body-sm font-medium text-fg-secondary">
                 Forma de pagamento desta cobrança
               </span>
             </div>
