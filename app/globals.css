@@ -3719,7 +3719,7 @@
 .aw-tabs--segmented {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-full);
   padding: 3px;
 }
 .aw-tabs--segmented .aw-tabs__tab {
