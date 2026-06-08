@@ -44,6 +44,9 @@ export function PagamentoResumo({
   /** Valor e dia da mensalidade cheia, depois da prorrata. */
   recorrencia: { valor: number; dia: number }
 }) {
+  // A primeira cobrança ainda em aberto é a ativa — recebe o marcador
+  // preenchido; as demais em aberto ficam pendentes (contorno).
+  const firstOpenIndex = items.findIndex((it) => it.status === "open")
   return (
     <aside className="lg:sticky lg:top-10 rounded-2xl border border-border-subtle bg-bg-surface">
       <header className="flex items-center gap-2 border-b border-border-subtle px-5 py-3.5">
@@ -53,9 +56,15 @@ export function PagamentoResumo({
         </span>
       </header>
 
-      <div className="flex flex-col gap-3 px-5 py-4">
+      <div className="flex flex-col gap-3.5 px-5 py-4">
         {items.map((item, i) => (
-          <ResumoLine key={i} index={i} item={item} />
+          <ResumoLine
+            key={i}
+            index={i}
+            item={item}
+            current={item.status === "open" && i === firstOpenIndex}
+            isLast={i === items.length - 1}
+          />
         ))}
       </div>
 
@@ -75,7 +84,7 @@ export function PagamentoResumo({
               type="button"
               className="group flex w-full cursor-pointer items-center gap-2 px-5 py-3.5 text-left focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--aw-blue-400)"
             >
-              <span className="aw-eyebrow text-fg-tertiary">
+              <span className="body-sm font-medium text-fg-secondary">
                 Ver próximas mensalidades
               </span>
               <span className="flex-1" />
@@ -114,41 +123,80 @@ export function PagamentoResumo({
   )
 }
 
-function ResumoLine({ index, item }: { index: number; item: ResumoItem }) {
-  const paid = item.status !== "open"
+function ResumoLine({
+  index,
+  item,
+  current,
+  isLast,
+}: {
+  index: number
+  item: ResumoItem
+  current: boolean
+  isLast: boolean
+}) {
   return (
-    <div className="flex items-start gap-2.5 transition-opacity duration-aw-base ease-aw-out">
-      <span
-        className={cn(
-          "mt-px body-xs font-medium tabular-nums transition-colors duration-aw-base",
-          paid ? "text-fg-tertiary" : "text-fg-secondary"
-        )}
-      >
-        {index + 1}.
-      </span>
+    <div className="relative flex items-start gap-3 transition-opacity duration-aw-base ease-aw-out">
+      {/* Conector vertical da timeline — liga este marcador ao próximo. */}
+      {!isLast && (
+        <span
+          aria-hidden="true"
+          className="absolute left-3 top-6 bottom-[-0.875rem] w-px -translate-x-1/2 bg-border-subtle"
+        />
+      )}
+      <ResumoMarker status={item.status} current={current} index={index} />
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline justify-between gap-2">
-          <span className="body-sm text-fg-primary">{item.title}</span>
-          <span className="shrink-0 body-sm font-medium tabular-nums text-fg-primary">
+          <span className={cn("body-sm", current || item.status !== "open" ? "text-fg-primary" : "text-fg-tertiary")}>
+            {item.title}
+          </span>
+          <span
+            className={cn(
+              "shrink-0 body-sm font-medium tabular-nums",
+              current || item.status !== "open" ? "text-fg-primary" : "text-fg-tertiary"
+            )}
+          >
             {fmtBRL(item.total)}
           </span>
         </div>
-        <div className="mt-1 flex items-center gap-2">
+        <div className="mt-1.5">
           <ResumoStatusPill status={item.status} />
-          {item.detail && (
-            <span className="min-w-0 truncate body-xs text-fg-tertiary">
-              {item.detail}
-            </span>
-          )}
         </div>
       </div>
     </div>
   )
 }
 
+/** Marcador numerado da timeline — espelha o StepMarker do AwOnboardingTimeline:
+ *  paga = círculo verde com check; ativa = círculo escuro com número;
+ *  pendente = contorno com número apagado. */
+function ResumoMarker({
+  status,
+  current,
+  index,
+}: {
+  status: ResumoStatus
+  current: boolean
+  index: number
+}) {
+  return (
+    <span
+      className={cn(
+        "relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-medium tabular-nums shadow-[0_0_0_3px_var(--bg-surface)] transition-colors duration-aw-base",
+        status === "paid"
+          ? "bg-aw-emerald-600 text-aw-white"
+          : current
+            ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+            : "border border-border bg-bg-raised text-fg-tertiary"
+      )}
+    >
+      {status === "paid" ? <Icon name="check" size={13} weight={500} /> : index + 1}
+    </span>
+  )
+}
+
 function ResumoStatusPill({ status }: { status: ResumoStatus }) {
   const label =
-    status === "paid" ? "Pago" : status === "pending" ? "em análise" : "em aberto"
+    status === "paid" ? "Pago" : status === "pending" ? "Em análise" : "Em aberto"
   const variant = status === "paid" ? "live" : status === "pending" ? "warning" : "neutral"
   return (
     <AwPill

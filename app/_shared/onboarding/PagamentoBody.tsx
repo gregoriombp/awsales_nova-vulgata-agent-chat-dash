@@ -285,44 +285,23 @@ function ChargeProgress({
   activeIdx: number
   stages: Stage[]
 }) {
+  // Barra limpa de duas etapas — um segmento por cobrança. Sem texto nem
+  // moldura: a cobrança paga fica verde, a ativa preta, a pendente cinza.
   return (
-    <div className="rounded-xl border border-border-subtle bg-bg-surface px-5 py-4">
-      <ol className="flex items-center">
-        {stages.map((s, i) => {
-          const done = s === "paid"
-          const active = i === activeIdx
-          return (
-            <React.Fragment key={i}>
-              <li className="flex shrink-0 items-center">
-                <span
-                  className={cn(
-                    "flex h-7 w-7 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums transition-colors duration-aw-base ease-aw-out",
-                    done
-                      ? "border-aw-emerald-500 bg-aw-emerald-500 text-white"
-                      : active
-                        ? "border-brand bg-brand text-white"
-                        : "border-border bg-bg-raised text-fg-tertiary"
-                  )}
-                >
-                  {done ? (
-                    <Icon name="check" size={15} />
-                  ) : (
-                    `0${i + 1}`
-                  )}
-                </span>
-              </li>
-              {i < stages.length - 1 && (
-                <span className="relative mx-2.5 h-[3px] flex-1 overflow-hidden rounded-full bg-bg-muted">
-                  <span
-                    className="absolute inset-y-0 left-0 rounded-full bg-aw-emerald-500 transition-[width] duration-aw-base ease-aw-out"
-                    style={{ width: done ? "100%" : "0%" }}
-                  />
-                </span>
-              )}
-            </React.Fragment>
-          )
-        })}
-      </ol>
+    <div className="flex gap-1.5" aria-hidden="true">
+      {stages.map((s, i) => {
+        const done = s === "paid"
+        const active = i === activeIdx
+        return (
+          <span
+            key={i}
+            className={cn(
+              "h-2 flex-1 rounded-full transition-colors duration-aw-base ease-aw-out",
+              done ? "bg-aw-emerald-500" : active ? "bg-fg-primary" : "bg-bg-muted"
+            )}
+          />
+        )
+      })}
     </div>
   )
 }
@@ -540,9 +519,7 @@ function InstallmentGrid({
   return (
     <div className="mt-4">
       <div className="mb-2.5">
-        <span className="aw-eyebrow text-fg-tertiary">
-          Dividir {fmtBRL(total)}
-        </span>
+        <span className="body-sm font-medium text-fg-secondary">Parcelas</span>
       </div>
       <div className="grid grid-cols-4 gap-1.5">
         {Array.from({ length: max }, (_, i) => i + 1).map((p) => {
