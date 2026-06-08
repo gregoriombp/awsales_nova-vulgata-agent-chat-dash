@@ -672,15 +672,7 @@ function MemoryBaseDirectoryContent() {
       {
         label: directoryName,
         href: `/memory-base/${params?.id}`,
-        icon: (
-          <img
-            src="/assets/folder_data_24dp_1F1F1F_FILL0_wght200_GRAD0_opsz24.svg"
-            alt=""
-            width={16}
-            height={16}
-            className="shrink-0"
-          />
-        ),
+        icon: <Icon name="account_balance" size={16} weight={300} />,
       },
     ];
 
@@ -810,10 +802,10 @@ function MemoryBaseDirectoryContent() {
           <div className="mx-auto max-w-[1544px] px-12 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/10 text-white">
-                  <Icon name="account_balance" size={26} weight={300} />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white">
+                  <Icon name="account_balance" size={20} weight={300} />
                 </div>
-                <h1 className="text-[40px] font-regular text-white leading-none">
+                <h1 className="text-[40px] font-normal text-white leading-none">
                   {directoryName}
                 </h1>
               </div>
