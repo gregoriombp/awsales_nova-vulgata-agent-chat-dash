@@ -41,8 +41,8 @@ export default function VerificacaoPage() {
           pronto pra usar.
         </p>
 
-        <div className="rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
-          <div className="aw-eyebrow mb-4 text-fg-tertiary">O que vem agora</div>
+        <div>
+          <h6 className="mb-4 text-fg-primary">O que vem agora</h6>
           <ol className="m-0 flex list-none flex-col p-0">
             {PROXIMOS_PASSOS.map((s, i) => (
               <li key={s.label} className="flex gap-3.5 pb-5 last:pb-0">

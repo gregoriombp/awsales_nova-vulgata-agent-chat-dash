@@ -67,10 +67,10 @@ export default function ContaPage() {
             </h3>
 
             <p className="mb-7 body-sm text-fg-secondary text-pretty">
-              O código confirmou que o e-mail é seu. Agora é preciso um{" "}
-              <b className="font-medium text-fg-primary">fator forte</b> para
-              autenticar sua sessão antes de revisar contratos e realizar
-              pagamentos. Você só precisa fazer isso uma vez.
+              Seu e-mail está confirmado. Agora escolha como você vai entrar —
+              é o que <b className="font-medium text-fg-primary">protege sua
+              conta</b> antes de revisar o contrato e o pagamento. Você só faz
+              isso uma vez.
             </p>
 
             <div className="flex flex-col gap-2.5">
