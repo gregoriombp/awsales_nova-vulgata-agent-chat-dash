@@ -148,7 +148,7 @@ function ResumoLine({ index, item }: { index: number; item: ResumoItem }) {
 
 function ResumoStatusPill({ status }: { status: ResumoStatus }) {
   const label =
-    status === "paid" ? "pago" : status === "pending" ? "em análise" : "em aberto"
+    status === "paid" ? "Pago" : status === "pending" ? "em análise" : "em aberto"
   const variant = status === "paid" ? "live" : status === "pending" ? "warning" : "neutral"
   return (
     <AwPill

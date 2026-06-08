@@ -44,10 +44,12 @@ const METHOD_SHORT: Record<MethodId, string> = {
   cartao: "Cartão",
   boleto: "Boleto",
 }
+/** Cartão e Pix podem ser parcelados; boleto é sempre à vista. */
+const supportsInstallments = (id: MethodId) => id === "cartao" || id === "pix"
 /** Linha curta de método + parcelamento para o resumo lateral. */
 const methodSummary = (id: MethodId, parcelas: number) =>
-  id === "cartao"
-    ? `Cartão · ${parcelas === 1 ? "à vista" : `${parcelas}× sem juros`}`
+  supportsInstallments(id) && parcelas > 1
+    ? `${METHOD_SHORT[id]} · ${parcelas}×`
     : `${METHOD_SHORT[id]} · à vista`
 
 export function PagamentoBody({
@@ -203,8 +205,6 @@ export function PagamentoBody({
           <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-7">
             <div>
               <ChargeProgress
-                paid={paidCount}
-                total={charges.length}
                 activeIdx={activeIdx}
                 stages={charges.map((c) => c.stage)}
               />
@@ -279,39 +279,50 @@ export function PagamentoBody({
 /* ---------- PROGRESSO DAS COBRANÇAS ---------- */
 
 function ChargeProgress({
-  paid,
-  total,
   activeIdx,
   stages,
 }: {
-  paid: number
-  total: number
   activeIdx: number
   stages: Stage[]
 }) {
   return (
-    <div className="rounded-xl border border-border-subtle bg-bg-surface px-4 py-3">
-      <div className="flex items-center gap-2">
-        <Icon name="receipt_long" size={15} className="text-fg-tertiary" />
-        <span className="body-xs font-medium text-fg-primary">
-          {paid} de {total} cobranças concluídas
-        </span>
-      </div>
-      <div className="mt-2.5 flex gap-1.5">
-        {stages.map((s, i) => (
-          <span
-            key={i}
-            className={cn(
-              "h-1.5 flex-1 rounded-full transition-colors duration-aw-base ease-aw-out",
-              s === "paid"
-                ? "bg-aw-emerald-500"
-                : i === activeIdx
-                  ? "bg-brand"
-                  : "bg-bg-muted"
-            )}
-          />
-        ))}
-      </div>
+    <div className="rounded-xl border border-border-subtle bg-bg-surface px-5 py-4">
+      <ol className="flex items-center">
+        {stages.map((s, i) => {
+          const done = s === "paid"
+          const active = i === activeIdx
+          return (
+            <React.Fragment key={i}>
+              <li className="flex shrink-0 items-center">
+                <span
+                  className={cn(
+                    "flex h-7 w-7 items-center justify-center rounded-full border text-[11px] font-medium tabular-nums transition-colors duration-aw-base ease-aw-out",
+                    done
+                      ? "border-aw-emerald-500 bg-aw-emerald-500 text-white"
+                      : active
+                        ? "border-brand bg-brand text-white"
+                        : "border-border bg-bg-raised text-fg-tertiary"
+                  )}
+                >
+                  {done ? (
+                    <Icon name="check" size={15} />
+                  ) : (
+                    `0${i + 1}`
+                  )}
+                </span>
+              </li>
+              {i < stages.length - 1 && (
+                <span className="relative mx-2.5 h-[3px] flex-1 overflow-hidden rounded-full bg-bg-muted">
+                  <span
+                    className="absolute inset-y-0 left-0 rounded-full bg-aw-emerald-500 transition-[width] duration-aw-base ease-aw-out"
+                    style={{ width: done ? "100%" : "0%" }}
+                  />
+                </span>
+              )}
+            </React.Fragment>
+          )
+        })}
+      </ol>
     </div>
   )
 }
@@ -346,7 +357,6 @@ function ChargeCard({
   const [reuse, setReuse] = React.useState(true)
   const total = meta.total
   const each = total / charge.parcelas
-  const isCard = charge.method === "cartao"
   const payLabel = `Pagar ${meta.title} · ${
     charge.parcelas === 1 ? fmtBRL(total) : `${charge.parcelas}× ${fmtBRL(each)}`
   }`
@@ -379,12 +389,12 @@ function ChargeCard({
               onChange={(m) =>
                 onConfig({
                   method: m,
-                  parcelas: m === "cartao" ? charge.parcelas : 1,
+                  parcelas: supportsInstallments(m) ? charge.parcelas : 1,
                 })
               }
             />
 
-            {isCard ? (
+            {supportsInstallments(charge.method) ? (
               <InstallmentGrid
                 total={total}
                 parcelas={charge.parcelas}
@@ -398,10 +408,8 @@ function ChargeCard({
                   Pagamento à vista de{" "}
                   <b className="font-medium tabular-nums text-fg-primary">
                     {fmtBRL(total)}
-                  </b>
-                  {charge.method === "boleto"
-                    ? " · boleto único enviado por e-mail"
-                    : " · um único QR Pix"}
+                  </b>{" "}
+                  · boleto único enviado por e-mail
                 </span>
               </div>
             )}
@@ -427,7 +435,7 @@ function ChargeCard({
                   {methodTitle(charge.method)} ·{" "}
                   {charge.parcelas === 1
                     ? "à vista"
-                    : `${charge.parcelas}× sem juros`}
+                    : `${charge.parcelas}×`}
                 </span>
               </span>
               <AwButton
@@ -531,13 +539,10 @@ function InstallmentGrid({
 }) {
   return (
     <div className="mt-4">
-      <div className="mb-2.5 flex items-center justify-between">
+      <div className="mb-2.5">
         <span className="aw-eyebrow text-fg-tertiary">
           Dividir {fmtBRL(total)}
         </span>
-        <AwPill variant="live" dot={false}>
-          sem juros
-        </AwPill>
       </div>
       <div className="grid grid-cols-4 gap-1.5">
         {Array.from({ length: max }, (_, i) => i + 1).map((p) => {
@@ -569,13 +574,6 @@ function InstallmentGrid({
           )
         })}
       </div>
-      <div className="mt-2.5 body-xs text-fg-tertiary">
-        {parcelas === 1
-          ? `Pagamento à vista de ${fmtBRL(total)}`
-          : `${parcelas} parcelas mensais de ${fmtBRL(
-              total / parcelas
-            )} · sem juros`}
-      </div>
     </div>
   )
 }
@@ -601,7 +599,7 @@ function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
         {fmtBRL(meta.total)}
       </div>
       <AwPill variant={charge.pending ? "warning" : "live"}>
-        {charge.pending ? "em análise" : "pago"}
+        {charge.pending ? "em análise" : "Pago"}
       </AwPill>
     </article>
   )
@@ -755,6 +753,31 @@ function CartaoInstrument({
   const [name, setName] = React.useState("")
   const [exp, setExp] = React.useState("")
   const [cvv, setCvv] = React.useState("")
+  // Caminho feliz do cartão: processando → confirmado → (o card encolhe ao
+  // virar PaidRow). A recusa segue síncrona, sem passar por aqui.
+  const [status, setStatus] = React.useState<
+    "idle" | "processing" | "confirmed"
+  >("idle")
+
+  React.useEffect(() => {
+    if (status === "processing") {
+      const t = window.setTimeout(() => setStatus("confirmed"), 1100)
+      return () => window.clearTimeout(t)
+    }
+    if (status === "confirmed") {
+      const t = window.setTimeout(() => onConfirmPaid(), 720)
+      return () => window.clearTimeout(t)
+    }
+  }, [status, onConfirmPaid])
+
+  const handlePay = () => {
+    const digits = number.replace(/\D/g, "")
+    if (!reuse && digits.endsWith("0002")) {
+      onDecline?.()
+      return
+    }
+    setStatus("processing")
+  }
 
   const fmtCard = (v: string) =>
     v
@@ -764,6 +787,33 @@ function CartaoInstrument({
   const fmtExp = (v: string) => {
     const n = v.replace(/\D/g, "").slice(0, 4)
     return n.length > 2 ? n.slice(0, 2) + "/" + n.slice(2) : n
+  }
+
+  if (status !== "idle") {
+    return (
+      <div className="flex animate-fadeInUp flex-col items-center justify-center gap-3 py-8 text-center">
+        {status === "processing" ? (
+          <>
+            <span
+              aria-hidden="true"
+              className="h-8 w-8 animate-spin rounded-full border-2 border-brand border-r-transparent"
+            />
+            <span className="body-sm text-fg-secondary">
+              Processando pagamento…
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
+              <Icon name="check" size={26} fill={1} />
+            </span>
+            <span className="body-sm font-medium text-fg-primary">
+              Pagamento confirmado
+            </span>
+          </>
+        )}
+      </div>
+    )
   }
 
   return (
@@ -856,16 +906,9 @@ function CartaoInstrument({
           variant="primary"
           size="sm"
           iconLeft="lock"
-          onClick={() => {
-            const digits = number.replace(/\D/g, "")
-            if (!reuse && digits.endsWith("0002")) {
-              onDecline?.()
-              return
-            }
-            onConfirmPaid()
-          }}
+          onClick={handlePay}
         >
-          Cobrar cartão
+          Pagar agora
         </AwButton>
       </div>
     </div>
