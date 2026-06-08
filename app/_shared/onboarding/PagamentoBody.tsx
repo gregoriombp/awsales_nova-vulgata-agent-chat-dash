@@ -13,6 +13,7 @@ import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder"
 import { cn } from "@/lib/utils"
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data"
+import { PagamentoResumo, type ResumoItem } from "./PagamentoResumo"
 
 type Org = typeof ONBOARDING_ORG
 
@@ -37,6 +38,17 @@ const methodTitle = (id: MethodId) =>
   METHODS.find((m) => m.id === id)?.title ?? id
 const methodBrand = (id: MethodId) =>
   METHODS.find((m) => m.id === id)?.brand ?? "card"
+
+const METHOD_SHORT: Record<MethodId, string> = {
+  pix: "Pix",
+  cartao: "Cartão",
+  boleto: "Boleto",
+}
+/** Linha curta de método + parcelamento para o resumo lateral. */
+const methodSummary = (id: MethodId, parcelas: number) =>
+  id === "cartao"
+    ? `Cartão · ${parcelas === 1 ? "à vista" : `${parcelas}× sem juros`}`
+    : `${METHOD_SHORT[id]} · à vista`
 
 export function PagamentoBody({
   org,
@@ -92,6 +104,29 @@ export function PagamentoBody({
   const allPaid = paidCount === charges.length
   const anyPending = charges.some((c) => c.stage === "paid" && c.pending)
 
+  // Dados do resumo lateral — derivados do estado ao vivo das cobranças.
+  const totalHoje = chargeMeta[0].total + chargeMeta[1].total
+  const resumoItems: ResumoItem[] = charges.map((charge, i) => {
+    const status =
+      charge.stage === "paid"
+        ? charge.pending
+          ? ("pending" as const)
+          : ("paid" as const)
+        : ("open" as const)
+    const detail =
+      charge.stage === "paid"
+        ? `via ${METHOD_SHORT[charge.method].toLowerCase()}${
+            charge.parcelas > 1 ? ` · ${charge.parcelas}×` : ""
+          }`
+        : i === activeIdx
+          ? methodSummary(charge.method, charge.parcelas)
+          : undefined
+    return { title: chargeMeta[i].title, total: chargeMeta[i].total, status, detail }
+  })
+  const proximos = org.proximosVencimentos
+    .filter((v) => !v.prorrata)
+    .map((v) => ({ quando: v.vencimento.slice(0, 5), valor: v.valor }))
+
   const patch = React.useCallback(
     (i: number, p: Partial<Charge>) =>
       setCharges((cs) => cs.map((c, idx) => (idx === i ? { ...c, ...p } : c))),
@@ -135,7 +170,7 @@ export function PagamentoBody({
   }
 
   return (
-    <AwOnboardingShell org={org}>
+    <AwOnboardingShell org={org} size="wide">
       {phase === "processing" ? (
         <ProcessingPhase
           totalImpl={chargeMeta[0].total}
@@ -153,7 +188,7 @@ export function PagamentoBody({
       ) : (
         <section>
           <h3 className="mb-2 text-fg-primary text-balance">{heading}</h3>
-          <p className="mb-6 body-sm text-fg-secondary text-pretty">
+          <p className="mb-6 max-w-[600px] body-sm text-fg-secondary text-pretty">
             {intro ?? (
               <>
                 A{" "}
@@ -165,57 +200,76 @@ export function PagamentoBody({
             )}
           </p>
 
-          <ChargeProgress
-            paid={paidCount}
-            total={charges.length}
-            activeIdx={activeIdx}
-            stages={charges.map((c) => c.stage)}
-          />
+          <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-7">
+            <div>
+              <ChargeProgress
+                paid={paidCount}
+                total={charges.length}
+                activeIdx={activeIdx}
+                stages={charges.map((c) => c.stage)}
+              />
 
-          {allPaid ? (
-            <DoneSummary anyPending={anyPending} onContinue={goProcessing} />
-          ) : (
-            <div className="mt-5 flex flex-col gap-3">
-              {charges.map((charge, i) => {
-                const meta = chargeMeta[i]
-                if (charge.stage === "paid")
-                  return <PaidRow key={i} charge={charge} meta={meta} />
+              {allPaid ? (
+                <DoneSummary anyPending={anyPending} onContinue={goProcessing} />
+              ) : (
+                <div className="mt-4 flex flex-col gap-3">
+                  {charges.map((charge, i) => {
+                    const meta = chargeMeta[i]
+                    const row =
+                      charge.stage === "paid" ? (
+                        <PaidRow charge={charge} meta={meta} />
+                      ) : i !== activeIdx ? (
+                        // Sequencial: só a cobrança ativa fica aberta; as demais travadas.
+                        <LockedRow meta={meta} index={i} />
+                      ) : (
+                        <ChargeCard
+                          charge={charge}
+                          meta={meta}
+                          index={i}
+                          maxParcelas={maxParcelas}
+                          offerReuse={
+                            i === 1 &&
+                            charges[0].method === "cartao" &&
+                            charges[0].stage === "paid"
+                          }
+                          onConfig={(p) => patch(i, p)}
+                          onPay={() => patch(i, { stage: "exec" })}
+                          onBackToConfig={() => patch(i, { stage: "config" })}
+                          onPaid={(pending) => patch(i, { stage: "paid", pending })}
+                          onDecline={handleDeclined}
+                        />
+                      )
+                    // Re-monta a cada mudança de etapa (config→exec→paid, travada→
+                    // ativa), disparando o fadeInUp para a transição entre estados.
+                    return (
+                      <div
+                        key={`${i}-${charge.stage}`}
+                        className="animate-fadeInUp"
+                      >
+                        {row}
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
 
-                // Sequencial: só a cobrança ativa fica aberta; as demais travadas.
-                if (i !== activeIdx)
-                  return <LockedRow key={i} meta={meta} index={i} />
-                return (
-                  <ChargeCard
-                    key={i}
-                    charge={charge}
-                    meta={meta}
-                    index={i}
-                    maxParcelas={maxParcelas}
-                    offerReuse={
-                      i === 1 &&
-                      charges[0].method === "cartao" &&
-                      charges[0].stage === "paid"
-                    }
-                    onConfig={(p) => patch(i, p)}
-                    onPay={() => patch(i, { stage: "exec" })}
-                    onBackToConfig={() => patch(i, { stage: "config" })}
-                    onPaid={(pending) => patch(i, { stage: "paid", pending })}
-                    onDecline={handleDeclined}
-                  />
-                )
-              })}
+              <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+                <AwButton asChild variant="ghost" size="md" iconLeft="arrow_back">
+                  <Link href={backHref}>Voltar</Link>
+                </AwButton>
+                <span className="flex-1" />
+              </footer>
             </div>
-          )}
 
-          <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
-            <AwButton asChild variant="ghost" size="md" iconLeft="arrow_back">
-              <Link href={backHref}>Voltar</Link>
-            </AwButton>
-            <span className="flex-1" />
-            <span className="body-xs text-fg-tertiary">
-              Cada cobrança é uma transação
-            </span>
-          </footer>
+            <div className="mt-6 lg:mt-0">
+              <PagamentoResumo
+                items={resumoItems}
+                totalHoje={totalHoje}
+                proximos={proximos}
+                recorrencia={{ valor: org.valorMensal, dia: org.diaVencimento }}
+              />
+            </div>
+          </div>
         </section>
       )}
     </AwOnboardingShell>
@@ -242,10 +296,6 @@ function ChargeProgress({
         <span className="body-xs font-medium text-fg-primary">
           {paid} de {total} cobranças concluídas
         </span>
-        <span className="flex-1" />
-        <AwPill variant="neutral" dot={false}>
-          Sequencial
-        </AwPill>
       </div>
       <div className="mt-2.5 flex gap-1.5">
         {stages.map((s, i) => (
@@ -733,7 +783,7 @@ function CartaoInstrument({
               Usar o mesmo cartão da implementação
             </span>
             <span className="mt-px block body-xs text-fg-tertiary">
-              Evita preencher os dados duas vezes · a cobrança vai pro mesmo
+              Evita preencher os dados duas vezes · a cobrança vai para o mesmo
               cartão
             </span>
           </span>
@@ -879,7 +929,7 @@ function BoletoInstrument({
       {parcelas > 1 && (
         <div className="mt-2.5 flex items-center gap-2 rounded-md bg-aw-amber-100 p-2.5 body-xs text-aw-amber-800">
           <Icon name="info" size={14} />
-          <span>{parcelas} boletos serão enviados — um por parcela.</span>
+          <span>Você recebe {parcelas} boletos — um por parcela.</span>
         </div>
       )}
 
@@ -969,7 +1019,7 @@ function DeclinedPhase({
 }) {
   const amFirst = org.accountManager.name.split(" ")[0]
   return (
-    <section>
+    <section className="mx-auto w-full max-w-[460px]">
       <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-red-200 bg-aw-red-100 px-2.5 py-1 body-xs font-medium text-aw-red-700">
         <Icon name="credit_card_off" size={12} fill={1} />
         Tentativa {attempt} de 3
@@ -1031,7 +1081,7 @@ function DeclinedPhase({
 function BlockedPhase({ org, onBack }: { org: Org; onBack: () => void }) {
   const amFirst = org.accountManager.name.split(" ")[0]
   return (
-    <section>
+    <section className="mx-auto w-full max-w-[460px]">
       <span className="mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-aw-amber-100 text-aw-amber-700">
         <Icon name="lock" size={36} fill={1} />
       </span>

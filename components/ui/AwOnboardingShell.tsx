@@ -3,6 +3,7 @@
 import * as React from "react"
 import { AwLogo } from "./AwLogo"
 import { AwNeuralPattern } from "@/components/ui/AwNeuralPattern"
+import { cn } from "@/lib/utils"
 
 export type AwOnboardingOrg = {
   name: string
@@ -22,6 +23,12 @@ export type AwOnboardingShellProps = {
   brandBackground?: string
   /** Hide the organization card in the brand pane (e.g. before user recognition). */
   showOrgCard?: boolean
+  /**
+   * Largura da coluna de conteúdo. `default` (640px, centrado verticalmente)
+   * para as etapas de uma coluna; `wide` (960px, alinhado ao topo) para
+   * layouts de duas colunas, como o resumo das cobranças no pagamento.
+   */
+  size?: "default" | "wide"
 }
 
 export function AwOnboardingShell({
@@ -29,7 +36,9 @@ export function AwOnboardingShell({
   children,
   brandBackground = AW_ONBOARDING_BRAND_BACKGROUND,
   showOrgCard = true,
+  size = "default",
 }: AwOnboardingShellProps) {
+  const wide = size === "wide"
   return (
     <div className="flex h-screen overflow-hidden bg-bg-canvas text-fg-primary">
       <OnboardingBrandPane
@@ -38,7 +47,12 @@ export function AwOnboardingShell({
         showOrgCard={showOrgCard}
       />
       <main className="flex-1 overflow-auto bg-bg-canvas">
-        <div className="mx-auto flex min-h-full w-full max-w-[640px] items-center px-10 py-10">
+        <div
+          className={cn(
+            "mx-auto flex min-h-full w-full items-center px-10 py-10",
+            wide ? "max-w-[1080px]" : "max-w-[640px]"
+          )}
+        >
           <div className="aw-step-transition w-full">{children}</div>
         </div>
       </main>
@@ -58,7 +72,7 @@ function OnboardingBrandPane({
   const hasImage = Boolean(background)
 
   return (
-    <aside className="relative flex w-[38%] min-w-[320px] max-w-[480px] shrink-0 flex-col overflow-hidden border-r border-aw-gray-1100 bg-aw-gray-1200 p-10 text-white">
+    <aside className="relative m-3 flex w-[38%] min-w-[320px] max-w-[480px] shrink-0 flex-col overflow-hidden rounded-3xl bg-aw-gray-1100 p-10 text-white">
       {hasImage ? (
         <>
           <div
@@ -74,7 +88,7 @@ function OnboardingBrandPane({
             className="pointer-events-none absolute inset-0 z-0"
             style={{
               background:
-                "linear-gradient(180deg, color-mix(in srgb, var(--aw-gray-1200) 78%, transparent) 0%, color-mix(in srgb, var(--aw-gray-1200) 85%, transparent) 45%, color-mix(in srgb, var(--aw-gray-1200) 95%, transparent) 100%)",
+                "linear-gradient(180deg, color-mix(in srgb, var(--aw-gray-1100) 58%, transparent) 0%, color-mix(in srgb, var(--aw-gray-1100) 70%, transparent) 45%, color-mix(in srgb, var(--aw-gray-1100) 88%, transparent) 100%)",
             }}
           />
         </>
