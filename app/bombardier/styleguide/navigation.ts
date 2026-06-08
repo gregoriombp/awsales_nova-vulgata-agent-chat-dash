@@ -41,6 +41,8 @@ export const navigation: NavSection[] = [
       { name: "Acessibilidade", href: "/bombardier/styleguide/foundation/accessibility" },
       { name: "Escrita", href: "/bombardier/styleguide/foundation/content" },
     ],
+    // foundation/review-mode existe, mas é intencionalmente NÃO listada aqui:
+    // é a doc do Review Mode (produto Bombardier), fora do styleguide do produto.
   },
   // ── Camadas do design system (pirâmide: do mais fundamental ao mais específico).
   //    Taxonomia governada em docs/component-layers.md. Só o agrupamento muda aqui;
