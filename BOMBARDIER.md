@@ -38,7 +38,7 @@ O Bombardier resolve um atrito comum de times de produto: designer cria no Figma
 
 **Três pilares:**
 
-- **Styleguide** (`/bombardier/styleguide`) — documentação viva dos tokens, foundations e componentes `Aw*`. Fonte da verdade.
+- **Styleguide** (`/bombardier/styleguide`) — documentação viva dos tokens, foundations e componentes `Aw`*. Fonte da verdade.
 - **Page Builder** (`/bombardier/page-builder`) — canvas infinito com múltiplos frames, drag-and-drop de componentes, inline editing, Inspector para props, e um AI Copilot flutuante que gera páginas a partir de prompt + imagem.
 - **UX Flow** (`/bombardier/ux-flow`) — **em breve** — conecta páginas criadas no Page Builder em fluxos navegáveis estilo Figma Prototype.
 
@@ -278,7 +278,7 @@ Arquivos principais:
 
 ### 5.3 A skill `bombardier-generate.md`
 
-Arquivo em [`.claude/skills/bombardier-generate.md`](.claude/skills/bombardier-generate.md). É o **system prompt** do agente. Contém:
+Arquivo em `[.claude/skills/bombardier-generate.md](.claude/skills/bombardier-generate.md)`. É o **system prompt** do agente. Contém:
 
 - Definição do papel (gerador de páginas Bombardier)
 - Regras da cascata Aw → shadcn → create_playground
@@ -293,11 +293,9 @@ Arquivo em [`.claude/skills/bombardier-generate.md`](.claude/skills/bombardier-g
 
 Quando o designer envia um prompt, a IA segue esta ordem:
 
-1. **`match_aw(description, keywords?)`** — procura no manifest da paleta local (21 itens). Retorna top-5 matches com score e propSchema. Se achar (score ≥ 3), usa direto no JSON de saída.
-
-2. **`search_shadcn(query)`** — se não achou nada, busca no registry público da shadcn/ui (`https://ui.shadcn.com/r/index.json`, cache de 5min). Retorna até 8 componentes com `install` command. Se couber, menciona no texto da resposta e modela um placeholder em Box.
-
-3. **`create_playground_component(name, description, tsx, sourcePrompt?)`** — último recurso. Valida PascalCase sem prefixo `Aw`, escreve em `components/playground/<Name>.tsx` + `<Name>.meta.json` com `approval: "pending"`. **Não** inclui o tipo no JSON de saída — o componente fica em quarentena.
+1. `**match_aw(description, keywords?)`** — procura no manifest da paleta local (21 itens). Retorna top-5 matches com score e propSchema. Se achar (score ≥ 3), usa direto no JSON de saída.
+2. `**search_shadcn(query)**` — se não achou nada, busca no registry público da shadcn/ui (`https://ui.shadcn.com/r/index.json`, cache de 5min). Retorna até 8 componentes com `install` command. Se couber, menciona no texto da resposta e modela um placeholder em Box.
+3. `**create_playground_component(name, description, tsx, sourcePrompt?)**` — último recurso. Valida PascalCase sem prefixo `Aw`, escreve em `components/playground/<Name>.tsx` + `<Name>.meta.json` com `approval: "pending"`. **Não** inclui o tipo no JSON de saída — o componente fica em quarentena.
 
 O SDK do Agent permite que o Claude chame qualquer dessas tools durante o turno (até 6 turns por request).
 
@@ -306,6 +304,7 @@ O SDK do Agent permite que o Claude chame qualquer dessas tools durante o turno 
 As 3 tools rodam **no processo do bridge** (Node), expostas via `createSdkMcpServer()` do Agent SDK. Nomeadas como `mcp__bombardier__<tool_name>`.
 
 Quando o Claude chama uma tool:
+
 - `bridge/src/tools/<tool>.ts` executa no mesmo processo
 - Tem acesso ao filesystem do repo, ao manifest cacheado, etc.
 - Retorna `CallToolResult` com conteúdo JSON
@@ -318,7 +317,7 @@ Default: **Claude Sonnet 4.6** (melhor custo-benefício).
 Para mudar, defina a env var antes de subir a ponte:
 
 ```bash
-BOMBARDIER_CLAUDE_MODEL=claude-opus-4-7 npm run bridge
+BOMBARDIER_CLAUDE_MODEL=claude-opus-4-8 npm run bridge
 # ou
 BOMBARDIER_CLAUDE_MODEL=claude-haiku-4-5-20251001 npm run bridge
 ```
@@ -377,14 +376,17 @@ Todas as rotas retornam JSON.
 
 ### Projetos
 
-| Método | Rota | Corpo | Resposta |
-|---|---|---|---|
-| `GET` | `/api/bombardier/projects` | — | `{ projects: [{ slug, name, pageCount, updatedAt }] }` |
-| `GET` | `/api/bombardier/projects/[slug]` | — | `{ slug, project }` |
-| `PUT` | `/api/bombardier/projects/[slug]` | `{ project }` | `{ ok, slug, path }` |
-| `DELETE` | `/api/bombardier/projects/[slug]` | — | `{ ok, removed }` |
+
+| Método   | Rota                              | Corpo         | Resposta                                               |
+| -------- | --------------------------------- | ------------- | ------------------------------------------------------ |
+| `GET`    | `/api/bombardier/projects`        | —             | `{ projects: [{ slug, name, pageCount, updatedAt }] }` |
+| `GET`    | `/api/bombardier/projects/[slug]` | —             | `{ slug, project }`                                    |
+| `PUT`    | `/api/bombardier/projects/[slug]` | `{ project }` | `{ ok, slug, path }`                                   |
+| `DELETE` | `/api/bombardier/projects/[slug]` | —             | `{ ok, removed }`                                      |
+
 
 Erros comuns:
+
 - `400 invalid_slug` — slug fora do regex
 - `400 missing_project` / `invalid_project_shape`
 - `404 not_found`
@@ -392,9 +394,11 @@ Erros comuns:
 
 ### Manifest
 
-| Método | Rota | Resposta |
-|---|---|---|
-| `GET` | `/api/bombardier/components/manifest` | Manifest completo do DS |
+
+| Método | Rota                                  | Resposta                |
+| ------ | ------------------------------------- | ----------------------- |
+| `GET`  | `/api/bombardier/components/manifest` | Manifest completo do DS |
+
 
 Retorna:
 
@@ -416,10 +420,12 @@ Retorna:
 
 ### Playground
 
-| Método | Rota | Corpo | Ação |
-|---|---|---|---|
-| `POST` | `/api/bombardier/playground/[name]` | `{ action: "approve" }` | Move para `components/ui/` |
-| `DELETE` | `/api/bombardier/playground/[name]` | — | Apaga do playground |
+
+| Método   | Rota                                | Corpo                   | Ação                       |
+| -------- | ----------------------------------- | ----------------------- | -------------------------- |
+| `POST`   | `/api/bombardier/playground/[name]` | `{ action: "approve" }` | Move para `components/ui/` |
+| `DELETE` | `/api/bombardier/playground/[name]` | —                       | Apaga do playground        |
+
 
 Valida PascalCase, bloqueia prefixo `Aw`, checa `already_exists_in_ui`, path traversal etc.
 
@@ -468,6 +474,7 @@ Gera uma página via Claude. Retorna stream SSE.
 ```
 
 Limites:
+
 - `prompt` obrigatório, `images` opcional
 - Máximo 4 imagens
 - Cada imagem ≤ 8MB (base64)
@@ -475,18 +482,20 @@ Limites:
 
 **Eventos SSE:**
 
-| Evento | Payload | Significado |
-|---|---|---|
-| `status` | `{ text }` | "Iniciando Claude Code…" |
-| `chunk` | `{ text }` | Token incremental do streaming (concatenar) |
-| `assistant` | `{ text }` | Turn completo (ignorado pela UI, chunks já cobrem) |
-| `tool_use` | `{ id, name, input }` | Tool foi chamada pelo Claude |
-| `tool_result` | `{ tool_use_id, content, isError }` | Resultado voltou pra Claude |
-| `result` | `{ text, nodes, durationMs, costUsd }` | Resposta final, JSON extraído, custo |
-| `error` | `{ message }` | Erro em qualquer ponto |
-| `done` | `{ ok }` | Stream fechou |
 
-O `nodes` final é `BuilderNode[]` parseado do último bloco ```` ```json ```` na resposta do Claude.
+| Evento        | Payload                                | Significado                                        |
+| ------------- | -------------------------------------- | -------------------------------------------------- |
+| `status`      | `{ text }`                             | "Iniciando Claude Code…"                           |
+| `chunk`       | `{ text }`                             | Token incremental do streaming (concatenar)        |
+| `assistant`   | `{ text }`                             | Turn completo (ignorado pela UI, chunks já cobrem) |
+| `tool_use`    | `{ id, name, input }`                  | Tool foi chamada pelo Claude                       |
+| `tool_result` | `{ tool_use_id, content, isError }`    | Resultado voltou pra Claude                        |
+| `result`      | `{ text, nodes, durationMs, costUsd }` | Resposta final, JSON extraído, custo               |
+| `error`       | `{ message }`                          | Erro em qualquer ponto                             |
+| `done`        | `{ ok }`                               | Stream fechou                                      |
+
+
+O `nodes` final é `BuilderNode[]` parseado do último bloco ````json` na resposta do Claude.
 
 ---
 
@@ -494,22 +503,26 @@ O `nodes` final é `BuilderNode[]` parseado do último bloco ```` ```json ```` n
 
 No Page Builder (desabilitados quando o foco está em input/textarea/contenteditable):
 
-| Atalho | Ação |
-|---|---|
-| `Cmd/Ctrl + C` | Copia o nó selecionado para o clipboard como JSON Bombardier |
-| `Cmd/Ctrl + V` | Cola do clipboard (JSON Bombardier vira componente; texto vira nó `text`) |
-| `Cmd/Ctrl + D` | Duplica o nó selecionado (sibling após o original) |
-| `Space + drag` | Pan no canvas |
-| `Ctrl/Cmd + scroll` | Zoom (no cursor) |
-| `Enter` (em inline edit) | Commit (heading) / quebra linha (paragraph com Shift) |
-| `Esc` (em inline edit) | Cancela edição |
+
+| Atalho                   | Ação                                                                      |
+| ------------------------ | ------------------------------------------------------------------------- |
+| `Cmd/Ctrl + C`           | Copia o nó selecionado para o clipboard como JSON Bombardier              |
+| `Cmd/Ctrl + V`           | Cola do clipboard (JSON Bombardier vira componente; texto vira nó `text`) |
+| `Cmd/Ctrl + D`           | Duplica o nó selecionado (sibling após o original)                        |
+| `Space + drag`           | Pan no canvas                                                             |
+| `Ctrl/Cmd + scroll`      | Zoom (no cursor)                                                          |
+| `Enter` (em inline edit) | Commit (heading) / quebra linha (paragraph com Shift)                     |
+| `Esc` (em inline edit)   | Cancela edição                                                            |
+
 
 **Paste inteligente:**
+
 - JSON com shape `{ kind: "bombardier.node", version: 1, node: {...} }` → recria componente
 - Qualquer outro texto → cria parágrafo com esse conteúdo
 - Destino: se um container está selecionado, cola dentro; senão, raiz do frame ativo
 
 **Seleção via pointer:**
+
 - Click simples em componente → seleciona (outline azul)
 - Click em background do canvas → desseleciona
 - Click no header do frame → seleciona o frame inteiro
@@ -597,8 +610,7 @@ No Page Builder (desabilitados quando o foco está em input/textarea/contentedit
 ├── BOMBARDIER.md                     # Este arquivo
 ├── package.json                      # Scripts: dev, bridge, bridge:install, etc.
 ├── next.config.ts                    # Redirect /styleguide → /bombardier/styleguide
-├── tailwind.config.ts                # Tokens aw-* + semantic
-└── app/globals.css                   # Tokens CSS completos
+└── app/globals.css                   # Tailwind v4: @theme (utilities) + :root vars — tokens aw-* + semantic (sem tailwind.config.ts)
 ```
 
 ---
@@ -608,11 +620,11 @@ No Page Builder (desabilitados quando o foco está em input/textarea/contentedit
 ### 11.1 Adicionar um novo componente `Aw*`
 
 1. Crie `components/ui/AwNomeNovo.tsx` seguindo a convenção:
-   - PascalCase com prefixo `Aw`
-   - `export type AwNomeNovoProps = ...`
-   - `export function AwNomeNovo(...)` ou `forwardRef`
-   - Classes `aw-nome-novo` + variantes em `app/globals.css` (ou inline com CSS vars)
-   - Use CSS variables do DS: `var(--fg-primary)`, `var(--aw-blue-500)`, etc.
+  - PascalCase com prefixo `Aw`
+  - `export type AwNomeNovoProps = ...`
+  - `export function AwNomeNovo(...)` ou `forwardRef`
+  - Classes `aw-nome-novo` + variantes em `app/globals.css` (ou inline com CSS vars)
+  - Use CSS variables do DS: `var(--fg-primary)`, `var(--aw-blue-500)`, etc.
 2. Documente em `app/bombardier/styleguide/components/nome-novo/page.tsx`
 3. Adicione entrada em `app/bombardier/styleguide/navigation.ts`
 
@@ -620,7 +632,7 @@ Pronto — o componente existe no DS. Para expô-lo como palette item drag-drop,
 
 ### 11.2 Expor um componente na palette
 
-Edite [`lib/bombardier/palette.ts`](lib/bombardier/palette.ts) e adicione uma entrada:
+Edite `[lib/bombardier/palette.ts](lib/bombardier/palette.ts)` e adicione uma entrada:
 
 ```ts
 {
@@ -637,7 +649,7 @@ Edite [`lib/bombardier/palette.ts`](lib/bombardier/palette.ts) e adicione uma en
 },
 ```
 
-Depois renderize no [`NodeRenderer.tsx`](app/bombardier/page-builder/_components/NodeRenderer.tsx), adicionando um case no switch da função `Leaf`:
+Depois renderize no `[NodeRenderer.tsx](app/bombardier/page-builder/_components/NodeRenderer.tsx)`, adicionando um case no switch da função `Leaf`:
 
 ```tsx
 case "AwNomeNovo":
@@ -652,7 +664,7 @@ case "AwNomeNovo":
 
 ### 11.3 Editar a skill
 
-Abra [`.claude/skills/bombardier-generate.md`](.claude/skills/bombardier-generate.md) e mude o texto. Exemplos do que faz sentido ajustar:
+Abra `[.claude/skills/bombardier-generate.md](.claude/skills/bombardier-generate.md)` e mude o texto. Exemplos do que faz sentido ajustar:
 
 - Regras de densidade/espaçamento específicas do produto
 - Exemplos few-shot adicionais
@@ -684,7 +696,7 @@ export const suaTool = tool(
 )
 ```
 
-2. Registre em `bridge/src/tools/index.ts`:
+1. Registre em `bridge/src/tools/index.ts`:
 
 ```ts
 import { suaTool } from "./sua-tool.js"
@@ -702,9 +714,8 @@ export const allowedTools = [
 ]
 ```
 
-3. Documente a tool na skill pra Claude saber quando usá-la.
-
-4. Reinicie a ponte. `/health` vai mostrar a tool nova na lista.
+1. Documente a tool na skill pra Claude saber quando usá-la.
+2. Reinicie a ponte. `/health` vai mostrar a tool nova na lista.
 
 ---
 
@@ -714,17 +725,21 @@ Todas opcionais, com defaults razoáveis.
 
 ### Ponte (servidor)
 
-| Var | Default | Uso |
-|---|---|---|
-| `BOMBARDIER_BRIDGE_PORT` | `9876` | Porta HTTP da ponte |
-| `BOMBARDIER_CLAUDE_MODEL` | `claude-sonnet-4-6` | Modelo do Claude |
-| `BOMBARDIER_NEXT_URL` | `http://localhost:3000` | URL do app Next para buscar manifest |
+
+| Var                       | Default                 | Uso                                  |
+| ------------------------- | ----------------------- | ------------------------------------ |
+| `BOMBARDIER_BRIDGE_PORT`  | `9876`                  | Porta HTTP da ponte                  |
+| `BOMBARDIER_CLAUDE_MODEL` | `claude-sonnet-4-6`     | Modelo do Claude                     |
+| `BOMBARDIER_NEXT_URL`     | `http://localhost:3000` | URL do app Next para buscar manifest |
+
 
 ### Next (cliente)
 
-| Var | Default | Uso |
-|---|---|---|
+
+| Var                                 | Default                 | Uso                             |
+| ----------------------------------- | ----------------------- | ------------------------------- |
 | `NEXT_PUBLIC_BOMBARDIER_BRIDGE_URL` | `http://localhost:9876` | URL da ponte usada pelo browser |
+
 
 ### Claude Code
 

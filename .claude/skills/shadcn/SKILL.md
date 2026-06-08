@@ -11,7 +11,7 @@ You were invoked to consult shadcn/ui — its registry, component docs, examples
 
 - **Wrap, don't expose.** A shadcn primitive lands at `components/ui/[name].tsx` (lowercase, CLI-generated). The DS component is `components/ui/Aw[Name].tsx`, which imports it. Pages/features import **only `Aw[Name]`**, never the raw primitive.
 - **Tokens are sacred.** Never add new tokens. Use existing token classes/vars (`bg-primary`, `var(--accent-brand)`, …). No arbitrary `bg-[#hex]` / `p-[Npx]`. If a token is missing, report it — don't invent it.
-- **Tailwind v3.** Ignore any shadcn/v4 instruction to emit `@theme inline` or `@import "tailwindcss"`. Tokens live in `tailwind.config.ts theme.extend` + `:root` CSS vars.
+- **Tailwind v4.** This repo is on Tailwind v4 (since 2026-06-08): `@import "tailwindcss"` + `@theme` in `app/globals.css`, and **no `tailwind.config.ts`**. The shadcn CLI auto-detects this (`npx shadcn@latest info` → `tailwindVersion v4`, `tailwindConfig -`) and emits v4-compatible output. Token VALUES live in `@theme` (which generates the `bg-aw-*`/`text-aw-*` utilities), mirrored by `--aw-*` vars in `:root` for `var()` use — two channels, same value. Still: **don't add tokens** (see "Tokens are sacred"); only `bombardier-design-system-foundation` may.
 - **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the default. Don't pull `lucide-react` into product code (it only ships inside CLI-generated primitives).
 
 ## Flow
