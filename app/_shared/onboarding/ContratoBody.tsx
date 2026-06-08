@@ -49,7 +49,7 @@ export function ContratoBody({
         <p className="mb-6 body-sm text-fg-secondary text-pretty">
           {intro ?? (
             <>
-              Os termos abaixo refletem o contrato firmado com a AwSales. Confira
+              Os termos abaixo refletem o contrato firmado com a Aswork. Confira
               cada seção; divergências devem ser tratadas com{" "}
               {org.accountManager.name} antes do pagamento.
             </>
@@ -154,7 +154,7 @@ export function ContratoBody({
 
         <div className="mt-4 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3">
           <span className="block body-xs font-medium text-fg-secondary">
-            Seu time AwSales
+            Seu time Aswork
           </span>
           <div className="mt-3 flex flex-wrap items-center gap-4">
             <TeamMember person={org.accountManager} />

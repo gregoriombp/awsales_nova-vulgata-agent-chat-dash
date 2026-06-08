@@ -29,7 +29,7 @@ export type ConviteRole = {
 }
 
 export const CONVITE_ORG: ConviteOrg = {
-  name: "AwSales",
+  name: "Aswork",
   cnpj: "33.456.789/0001-12",
   plan: "Pro",
   contractTerm: "12 meses",

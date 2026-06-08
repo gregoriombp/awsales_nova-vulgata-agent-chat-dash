@@ -32,7 +32,7 @@ export type AuthMethod = "password" | "social" | "sso";
 /** Domínios mockados que disparam SSO empresarial no HRD do front.
  *  Em produção essa decisão é do backend via /auth/discover por DNS. */
 export const SSO_DOMAINS: Record<string, string> = {
-  "awsales.com": "AwSales",
+  "awsales.com": "Aswork",
   "fyntra.com.br": "Fyntra",
 };
 

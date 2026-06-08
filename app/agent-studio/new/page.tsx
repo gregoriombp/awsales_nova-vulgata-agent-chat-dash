@@ -534,7 +534,7 @@ const WHATS_TEMPLATES: WhatsTemplate[] = [
 ];
 
 /* ───────── Agent Core (step 6) ─────────
- * Framework de agente da AwSales que impulsiona o agente do usuário. Visual:
+ * Framework de agente da Aswork que impulsiona o agente do usuário. Visual:
  * orb diamante estático (AwAgentCore). Mostra 6 inicialmente + "ver mais". */
 
 interface AgentCoreOption {
@@ -3718,7 +3718,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   Agent Core
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
-                  O framework da AwSales que impulsiona seu agente. Escolha o que
+                  O framework da Aswork que impulsiona seu agente. Escolha o que
                   mais combina com o objetivo dele.
                 </p>
               </div>

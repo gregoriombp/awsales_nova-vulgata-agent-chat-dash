@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { NextRequest, NextResponse } from "next/server";
 
-const SYSTEM_INSTRUCTION = `Você é o assistente do AwSales, uma plataforma de vendas e atendimento.
+const SYSTEM_INSTRUCTION = `Você é o assistente do Aswork, uma plataforma de vendas e atendimento.
 Responda de forma clara, objetiva e em português brasileiro.
 Ajude com dúvidas sobre relatórios, métricas, integrações e uso da plataforma.`;
 

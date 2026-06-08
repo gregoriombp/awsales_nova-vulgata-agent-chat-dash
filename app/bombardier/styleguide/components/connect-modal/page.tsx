@@ -206,12 +206,12 @@ export default function ConnectModalPage() {
               <PropRow
                 prop="productBrand"
                 type="string"
-                doc="Brand id do AwBrandLogo. Default: mark do AwSales sobre tile preto."
+                doc="Brand id do AwBrandLogo. Default: mark do Aswork sobre tile preto."
               />
               <PropRow
                 prop="productName"
                 type="string"
-                def={`"AwSales"`}
+                def={`"Aswork"`}
                 doc="Nome usado no título OAuth."
               />
               <PropRow
@@ -258,7 +258,7 @@ export default function ConnectModalPage() {
               <PropRow
                 prop="permissionsTitle"
                 type="string"
-                doc="(OAuth) Heading da lista. Ex: “AwSales precisa”."
+                doc="(OAuth) Heading da lista. Ex: “Aswork precisa”."
               />
               <PropRow
                 prop="redirectUrl"
@@ -355,7 +355,7 @@ export default function ConnectModalPage() {
         <>
           <p>Em <strong>Painel → Webhooks → Novo</strong>, preencha:</p>
           <ul>
-            <li><strong>Nome:</strong> Integração AwSales</li>
+            <li><strong>Nome:</strong> Integração Aswork</li>
             <li><strong>URL:</strong> cole o webhook acima</li>
             <li><strong>Eventos:</strong> Fatura criada, Fatura paga, Carrinho abandonado</li>
           </ul>
@@ -431,9 +431,9 @@ export default function ConnectModalPage() {
         onClose={() => setOpenLinear(false)}
         targetBrand="pipedrive"
         targetName="Linear"
-        productName="AwSales"
+        productName="Aswork"
         description="Priorize trabalho com base nas necessidades dos clientes e crie um loop de feedback mais apertado."
-        permissionsTitle="O AwSales precisa"
+        permissionsTitle="O Aswork precisa"
         permissions={[
           "Acessar informações básicas da empresa",
           "Acessar e editar bug reports e criar issues",
@@ -451,9 +451,9 @@ export default function ConnectModalPage() {
         onClose={() => setOpenHubspot(false)}
         targetBrand="hubspot"
         targetName="HubSpot"
-        productName="AwSales"
+        productName="Aswork"
         description="Sincronize contatos, empresas e pipelines com seus agentes."
-        permissionsTitle="O AwSales precisa"
+        permissionsTitle="O Aswork precisa"
         permissions={[
           "Acessar contatos e empresas",
           "Criar e atualizar deals do pipeline",
@@ -468,7 +468,7 @@ export default function ConnectModalPage() {
         onClose={() => setOpenMin(false)}
         targetBrand="calendly"
         targetName="Calendly"
-        productName="AwSales"
+        productName="Aswork"
         description="Agendamentos automáticos sincronizados com agentes."
         onAllow={() => setOpenMin(false)}
       />
@@ -508,7 +508,7 @@ export default function ConnectModalPage() {
                 </p>
                 <ul>
                   <li>
-                    <strong>Nome:</strong> Integração AwSales
+                    <strong>Nome:</strong> Integração Aswork
                   </li>
                   <li>
                     <strong>URL:</strong> cole o webhook copiado na etapa

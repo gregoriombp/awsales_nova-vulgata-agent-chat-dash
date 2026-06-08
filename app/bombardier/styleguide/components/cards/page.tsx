@@ -41,7 +41,7 @@ export default function CardsPage() {
         <code className="mono">CardContent</code>
         {" / "}
         <code className="mono">CardFooter</code>
-        {" "}— sob tokens AwSales. Borda 1 px, radius{" "}
+        {" "}— sob tokens Aswork. Borda 1 px, radius{" "}
         <code className="mono">--radius-xl</code>, sem drop shadow por padrão.
         A variante <strong>ai</strong> aplica gradient-mesh sutil em superfícies
         ligadas ao agente.
@@ -156,7 +156,7 @@ export default function CardsPage() {
 
               <AwCard variant="ai-warm">
                 <AwCardHeader>
-                  <AwCardTitle>Especialista da Awsales</AwCardTitle>
+                  <AwCardTitle>Especialista da Aswork</AwCardTitle>
                   <AwCardDescription>
                     Seu Gerente de contas dedicado está disponível pra revisar
                     estratégia.
@@ -208,7 +208,7 @@ export default function CardsPage() {
                   Gradient-mesh peach a ~14% sobre{" "}
                   <code className="mono">--bg-raised</code>. Reservado pro
                   lado humano em superfícies que pareiam um especialista da
-                  Awsales com a IA — o calor codifica "pessoa real" sem virar
+                  Aswork com a IA — o calor codifica "pessoa real" sem virar
                   CTA.
                 </p>
               </div>

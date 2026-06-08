@@ -30,7 +30,7 @@ export default function AgentCorePage() {
   return (
     <>
       <PageHero title="Agent Core">
-        Os frameworks agênticos proprietários da AwSales. Cada Core é um{" "}
+        Os frameworks agênticos proprietários da Aswork. Cada Core é um{" "}
         <strong>orb colorido (PNG)</strong> recortado na silhueta de{" "}
         <strong>diamante</strong> (quadrado rotacionado 45°). É{" "}
         <strong>estático</strong> de propósito: o Core é a infraestrutura que o
@@ -51,7 +51,7 @@ export default function AgentCorePage() {
           use={[
             <>
               Represente um <strong>Agent Core</strong> — um framework
-              proprietário da AwSales.
+              proprietário da Aswork.
             </>,
             <>
               No <strong>picker</strong> em que o usuário escolhe o Core ao criar
@@ -91,7 +91,7 @@ export default function AgentCorePage() {
         <Section
           id="biblioteca"
           title="Biblioteca de Cores"
-          lead="20 frameworks proprietários. Cada Core tem arte própria; juntos formam a família da AwSales. São PNGs do repo, recortados no diamante — sem animação."
+          lead="20 frameworks proprietários. Cada Core tem arte própria; juntos formam a família da Aswork. São PNGs do repo, recortados no diamante — sem animação."
         >
           <Stage
             label="AwAgentCore · estático"

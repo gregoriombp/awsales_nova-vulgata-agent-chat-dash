@@ -27,7 +27,7 @@ export default function BrandLogoPage() {
           <strong>AwBrandLogo vs AwLogo.</strong> Use{" "}
           <code className="mono">AwBrandLogo</code> aqui para marcas de
           terceiros (canais, checkouts, CRMs). Para a logo do{" "}
-          <strong>próprio AwSales</strong>, use{" "}
+          <strong>próprio Aswork</strong>, use{" "}
           <code className="mono">AwLogo</code> — documentado em{" "}
           <a
             href="/bombardier/styleguide/foundation/logos"

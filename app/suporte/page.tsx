@@ -17,13 +17,13 @@ export default function SuportePage() {
       <section>
         <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-border-subtle bg-bg-surface px-2.5 py-1 body-xs text-fg-tertiary">
           <Icon name="support_agent" size={12} />
-          <span>Suporte AwSales</span>
+          <span>Suporte Aswork</span>
         </div>
 
         <h3 className="mb-2 text-fg-primary text-balance">Fale com a gente</h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Seu time tem um contato dedicado na AwSales. Chame por e-mail ou
+          Seu time tem um contato dedicado na Aswork. Chame por e-mail ou
           telefone e a gente resolve o que você precisa — de uma dúvida no
           primeiro acesso a reabrir um convite.
         </p>
@@ -36,7 +36,7 @@ export default function SuportePage() {
             style={{ width: 44, height: 44, fontSize: 16 }}
           />
           <div className="min-w-0 flex-1">
-            <div className="body-xs text-fg-tertiary">Seu contato na AwSales</div>
+            <div className="body-xs text-fg-tertiary">Seu contato na Aswork</div>
             <div className="body-sm font-medium text-fg-primary">{am.name}</div>
             <div className="body-xs text-fg-tertiary">{am.role}</div>
           </div>

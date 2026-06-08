@@ -6,7 +6,7 @@
  * The Tool UI primitive lives at `@/components/tool-ui/option-list/` and is a
  * Tool-UI surface designed for assistant tool calls (multi/single-select with
  * action footer + receipt mode). The internal classes were retokenised in
- * place to use AwSales semantic tokens (`--bg-raised`, `--fg-primary`,
+ * place to use Aswork semantic tokens (`--bg-raised`, `--fg-primary`,
  * `--border-subtle`, etc.) — see `components/tool-ui/option-list/option-list.tsx`.
  *
  * Pages and features should always import the `Aw*` re-export below — never

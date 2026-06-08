@@ -30,7 +30,7 @@ export function WelcomeModalDemo() {
         onClose={close}
         imageSrc={IMAGE}
         imageAlt="Capa da Artificial Concord"
-        eyebrow="Bem-vindo à AwSales"
+        eyebrow="Bem-vindo à Aswork"
         title={
           <>
             Tudo certo, Greg.

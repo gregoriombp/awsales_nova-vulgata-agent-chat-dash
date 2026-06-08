@@ -23,7 +23,7 @@ export default function ListGroupPage() {
         <code className="mono">/tools</code>) e qualquer estrutura de pai →
         filhos onde os filhos precisam ficar levemente recuados, em árvore.
         Wrapper sobre <strong>shadcn/ui Collapsible</strong> (Radix) com tokens
-        AwSales.
+        Aswork.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-16">
@@ -61,7 +61,7 @@ export default function ListGroupPage() {
                     pill={<AwPill variant="live">Ativo</AwPill>}
                   />
                   <ChildRow
-                    name="AwSales-Tech-Test"
+                    name="Aswork-Tech-Test"
                     subtitle="Time Eng · 1 número"
                     pill={<AwPill variant="beta">Pagamento pendente</AwPill>}
                   />

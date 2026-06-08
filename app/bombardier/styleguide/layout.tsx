@@ -27,7 +27,7 @@ export default function StyleguideLayout({
       <aside className="aw-sg-sidebar w-64 border-r border-(--border-subtle) p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
         <Link
           href="/bombardier/styleguide"
-          aria-label="AwSales Design System — voltar ao índice"
+          aria-label="Aswork Design System — voltar ao índice"
           className="inline-flex flex-col items-start no-underline"
           style={{ color: "var(--fg-primary)" }}
         >
@@ -93,7 +93,7 @@ export default function StyleguideLayout({
         </nav>
 
         <div className="mt-auto text-xs text-(--fg-tertiary) leading-relaxed">
-          AwSales Design System
+          Aswork Design System
           <br />
           Geist · Geist Mono
         </div>

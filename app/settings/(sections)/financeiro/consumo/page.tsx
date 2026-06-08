@@ -353,7 +353,7 @@ function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
         <div>
           <h6 className="m-0 mb-1 text-(--fg-primary)">Vouchers</h6>
           <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Créditos emitidos pela AwSales que descontam dos{" "}
+            Créditos emitidos pela Aswork que descontam dos{" "}
             <strong className="font-medium text-(--fg-primary)">
               gastos variáveis
             </strong>{" "}

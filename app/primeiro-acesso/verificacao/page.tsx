@@ -29,11 +29,11 @@ export default function VerificacaoPage() {
     <AwOnboardingShell org={ONBOARDING_ORG}>
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
-          Bem-vindo à AwSales, {ONBOARDING_USER.firstName}
+          Bem-vindo à Aswork, {ONBOARDING_USER.firstName}
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Este é o seu primeiro acesso à AwSales. O link chegou no seu e-mail{" "}
+          Este é o seu primeiro acesso à Aswork. O link chegou no seu e-mail{" "}
           <b className="font-medium text-fg-primary">{ONBOARDING_USER.email}</b>{" "}
           e já validou sua entrada — sem código nem senha. A partir daqui você
           vai configurar sua conta e deixar o ambiente da{" "}

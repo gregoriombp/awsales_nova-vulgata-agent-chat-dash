@@ -156,7 +156,7 @@ export default function OrganizationSettingsPage() {
       <div className="mt-10">
         <SectionHeading
           title="Dados contratuais"
-          description="Cadastrados pela equipe AwSales no fechamento do contrato. Para alterar, abra um chamado com seu Account Manager."
+          description="Cadastrados pela equipe Aswork no fechamento do contrato. Para alterar, abra um chamado com seu Account Manager."
         />
         <AwCard className="p-0!">
           <dl className="m-0">

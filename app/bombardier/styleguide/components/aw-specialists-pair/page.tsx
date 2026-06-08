@@ -32,7 +32,7 @@ export default function SpecialistsPairPage() {
       <PageHero title="Specialists pair">
         Bloco usado nas configurações de equipe para apresentar os dois
         especialistas que acompanham cada workspace: o Gerente de Contas humano
-        da Awsales e o Cortex, copilot de IA. Cards pill horizontais — humano
+        da Aswork e o Cortex, copilot de IA. Cards pill horizontais — humano
         com gradient warm (peach) e Cortex com o novo gradient{" "}
         <code className="mono">ai-cortex</code> (silver mesh inspirado no cubo
         de mármore da marca).
@@ -51,7 +51,7 @@ export default function SpecialistsPairPage() {
             >
               <AwSpecialistsPair
                 title="Especialistas dedicados à sua conta"
-                description="Dois reforços fixos pra acelerar sua operação: um Gerente de Contas humano da Awsales pra estratégia, e o Cortex, copilot de IA que monitora seu workspace 24/7."
+                description="Dois reforços fixos pra acelerar sua operação: um Gerente de Contas humano da Aswork pra estratégia, e o Cortex, copilot de IA que monitora seu workspace 24/7."
                 human={HUMAN}
                 ai={CORTEX}
               />
@@ -81,7 +81,7 @@ export default function SpecialistsPairPage() {
               gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwSpecialistsPair
-                title="Bem-vindo à Awsales"
+                title="Bem-vindo à Aswork"
                 description="Seu workspace já vem com dois especialistas conectados. Apresente-se e comece a tirar valor desde o dia um."
                 human={{
                   ...HUMAN,

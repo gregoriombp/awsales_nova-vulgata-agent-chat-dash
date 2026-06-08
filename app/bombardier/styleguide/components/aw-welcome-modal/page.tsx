@@ -48,7 +48,7 @@ export default function AwWelcomeModalPage() {
                 </li>
                 <li>
                   <b className="text-fg-primary">Eyebrow + título + descrição</b>
-                  {" "}— eyebrow opcional acima do <code className="font-mono text-xs">h4</code> (ex. "Bem-vindo à AwSales").
+                  {" "}— eyebrow opcional acima do <code className="font-mono text-xs">h4</code> (ex. "Bem-vindo à Aswork").
                 </li>
                 <li>
                   <b className="text-fg-primary">Tile actions</b> — lista de 1

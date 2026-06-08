@@ -4,7 +4,7 @@ export const COPY = {
   login: {
     pt: {
       kicker: "Acesso",
-      title: "Acesse a AwSales",
+      title: "Acesse a Aswork",
       sub: "Entre com seu e-mail corporativo para continuar.",
       email: "E-mail",
       emailPh: "voce@empresa.com",
@@ -15,7 +15,7 @@ export const COPY = {
     },
     en: {
       kicker: "Access",
-      title: "Sign in to AwSales",
+      title: "Sign in to Aswork",
       sub: "Use your work email to continue.",
       email: "Email",
       emailPh: "you@company.com",
@@ -29,7 +29,7 @@ export const COPY = {
     pt: {
       kicker: "E-mail",
       title: "Entre com seu e-mail",
-      sub: "Use o e-mail e a senha da sua conta AwSales.",
+      sub: "Use o e-mail e a senha da sua conta Aswork.",
       email: "E-mail",
       emailPh: "voce@empresa.com",
       password: "Senha",
@@ -47,7 +47,7 @@ export const COPY = {
     en: {
       kicker: "Email",
       title: "Sign in with email",
-      sub: "Use your AwSales account email and password.",
+      sub: "Use your Aswork account email and password.",
       email: "Email",
       emailPh: "you@company.com",
       password: "Password",
@@ -319,7 +319,7 @@ export const ORGS: Record<Locale, Org[]> = {
       avatar: "/assets/icon_artificial_concord_organization.png",
     },
     { name: "Fyntra Tecnologia", meta: "8 membros" },
-    { name: "AwSales Labs", meta: "Não configurada", pending: true },
+    { name: "Aswork Labs", meta: "Não configurada", pending: true },
   ],
   en: [
     {
@@ -328,6 +328,6 @@ export const ORGS: Record<Locale, Org[]> = {
       avatar: "/assets/icon_artificial_concord_organization.png",
     },
     { name: "Fyntra Tecnologia", meta: "8 members" },
-    { name: "AwSales Labs", meta: "Not set up yet", pending: true },
+    { name: "Aswork Labs", meta: "Not set up yet", pending: true },
   ],
 };

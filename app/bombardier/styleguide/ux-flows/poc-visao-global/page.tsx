@@ -31,6 +31,7 @@ import {
   MarkerType,
   type Edge,
   type Node,
+  type NodeChange,
   type NodeProps,
   type ReactFlowInstance,
 } from "@xyflow/react"
@@ -207,7 +208,7 @@ const BASE_NODES: Node[] = [
   S("l-workspace", MX, 1235, { step: "03", title: "Seletor de organização", note: "lista as orgs do usuário", href: "/awsales/login?screen=workspace", personas: L }),
 
   /* ═══ ONBOARDING (PA + convite) ═══ */
-  S("pa-entrada", OL, 0, { step: "entrada", title: "E-mail de primeiro acesso", note: "magic link da AwSales", href: "/primeiro-acesso/verificacao", personas: PA }),
+  S("pa-entrada", OL, 0, { step: "entrada", title: "E-mail de primeiro acesso", note: "magic link da Aswork", href: "/primeiro-acesso/verificacao", personas: PA }),
   S("cv-entrada", OR, 0, { step: "entrada", title: "E-mail de convite", note: "magic link do admin", href: "/convite", personas: CV }),
   D("dec-link", OM, 180, { title: "O link ainda funciona?", question: "Dentro do prazo, não usado e não cancelado? (PA 10 dias · convite 7)", personas: ["primeiro-acesso", "convite"] }),
   S("link-erros", OR + 40, 200, { step: "erro", title: "Link expirado / usado / cancelado", note: "3 telas terminais → reenvio ou suporte", href: "/primeiro-acesso/link-expirado", personas: ["primeiro-acesso", "convite"] }),
@@ -342,6 +343,8 @@ export default function PocVisaoGlobalPage() {
   const [composer, setComposer] = useState<{ id: string; title: string } | null>(null)
   const [draft, setDraft] = useState("")
   const [sending, setSending] = useState(false)
+  /* Posições arrastadas pelo usuário (sobrescrevem o layout base). */
+  const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({})
   const rfRef = useRef<ReactFlowInstance | null>(null)
 
   const nodes = useMemo<Node[]>(() => {
@@ -350,12 +353,26 @@ export default function PocVisaoGlobalPage() {
       const dim = focus !== "all" && !personas.includes(focus as Persona)
       return {
         ...n,
+        position: positions[n.id] ?? n.position,
         data: { ...n.data, _comments: comments[n.id]?.length },
         className: dim ? "opacity-15 saturate-0 transition-all duration-300" : "opacity-100 transition-all duration-300",
       }
     })
     return focus === "all" ? dimmed : [focusBand(focus as Persona), ...dimmed]
-  }, [focus, comments])
+  }, [focus, comments, positions])
+
+  /* Persiste o arraste: sem isto o ReactFlow controlado faz o card voltar ao lugar. */
+  const onNodesChange = useCallback((changes: NodeChange[]) => {
+    setPositions((prev) => {
+      let next = prev
+      for (const ch of changes) {
+        if (ch.type === "position" && ch.position && ch.id !== "band") {
+          next = { ...next, [ch.id]: ch.position }
+        }
+      }
+      return next
+    })
+  }, [])
 
   const edges = useMemo<Edge[]>(() => {
     if (focus === "all") return EDGES
@@ -424,6 +441,33 @@ export default function PocVisaoGlobalPage() {
     }
   }, [composer, draft])
 
+  /* Chips de foco — reusadas acima do canvas e dentro do fullscreen. */
+  const focusTabs = (
+    <div className="flex flex-wrap items-center gap-1.5">
+      <span className="caption mr-1 text-(--fg-tertiary)">Foco:</span>
+      {FOCI.map((f) => {
+        const on = focus === f.id
+        const color = f.id === "all" ? "var(--aw-blue-600)" : PERSONA[f.id as Persona].color
+        return (
+          <button
+            key={f.id}
+            type="button"
+            onClick={() => setFocus(f.id)}
+            className={
+              "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition " +
+              (on
+                ? "border-(--aw-blue-300) bg-(--aw-blue-100) text-(--aw-blue-800)"
+                : "border-(--border-default) bg-(--bg-raised) text-(--fg-secondary) hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)")
+            }
+          >
+            {f.id !== "all" && <span className="inline-block h-2 w-2 rounded-full" style={{ background: color }} />}
+            {f.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+
   return (
     <>
       <PageHero
@@ -448,29 +492,7 @@ export default function PocVisaoGlobalPage() {
           lead="2+ bolinhas num card = compartilhado (não foi repetido). A lente acinzenta nós e arestas fora da persona. No modo Mover: arraste os cards e clique pra abrir a tela real. No modo Comentar: clique num card pra deixar uma nota (vai pro canal que o Claude lê). Botão de tela cheia no canto."
         >
           {/* Tabs de foco */}
-          <div className="mb-3 flex flex-wrap items-center gap-1.5">
-            <span className="caption mr-1 text-(--fg-tertiary)">Foco:</span>
-            {FOCI.map((f) => {
-              const on = focus === f.id
-              const color = f.id === "all" ? "var(--aw-blue-600)" : PERSONA[f.id as Persona].color
-              return (
-                <button
-                  key={f.id}
-                  type="button"
-                  onClick={() => setFocus(f.id)}
-                  className={
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition " +
-                    (on
-                      ? "border-(--aw-blue-300) bg-(--aw-blue-100) text-(--aw-blue-800)"
-                      : "border-(--border-default) bg-(--bg-raised) text-(--fg-secondary) hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)")
-                  }
-                >
-                  {f.id !== "all" && <span className="inline-block h-2 w-2 rounded-full" style={{ background: color }} />}
-                  {f.label}
-                </button>
-              )
-            })}
-          </div>
+          <div className="mb-3">{focusTabs}</div>
 
           {/* Legenda */}
           <div className="caption mb-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-(--fg-tertiary)">
@@ -495,6 +517,7 @@ export default function PocVisaoGlobalPage() {
             <ReactFlow
               nodes={nodes}
               edges={edges}
+              onNodesChange={onNodesChange}
               nodeTypes={nodeTypes}
               fitView
               fitViewOptions={{ padding: 0.08 }}
@@ -517,6 +540,15 @@ export default function PocVisaoGlobalPage() {
             >
               <Background color="var(--border-default)" gap={24} size={1.5} />
               <Controls showInteractive={false} />
+
+              {/* Foco — só no fullscreen (fora dele já existem chips acima do canvas) */}
+              {isFullscreen && (
+                <Panel position="top-left">
+                  <div className="rounded-xl border border-(--border-default) bg-(--bg-raised)/95 px-3 py-2 shadow-(--shadow-md) backdrop-blur">
+                    {focusTabs}
+                  </div>
+                </Panel>
+              )}
 
               {/* Tela cheia (canto superior direito) */}
               <Panel position="top-right">
@@ -542,7 +574,7 @@ export default function PocVisaoGlobalPage() {
                       (!commentMode ? "bg-(--aw-blue-100) text-(--aw-blue-800)" : "text-(--fg-secondary) hover:bg-(--bg-muted)")
                     }
                   >
-                    ✋ Mover
+                    Mover
                   </button>
                   <button
                     type="button"
@@ -554,7 +586,7 @@ export default function PocVisaoGlobalPage() {
                       (commentMode ? "bg-(--aw-amber-100) text-(--aw-amber-800)" : "text-(--fg-secondary) hover:bg-(--bg-muted)")
                     }
                   >
-                    💬 Comentar
+                    Comentar
                   </button>
                   {commentMode && <span className="px-2 text-[11px] text-(--fg-tertiary)">clique num card pra deixar uma nota</span>}
                 </div>

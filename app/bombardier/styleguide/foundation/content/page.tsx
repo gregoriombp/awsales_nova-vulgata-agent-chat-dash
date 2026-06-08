@@ -205,7 +205,7 @@ export default function ContentPage() {
   return (
     <>
       <PageHero title="Escrita">
-        Uma frase da AwSales termina antes do esperado. Não explica demais,
+        Uma frase da Aswork termina antes do esperado. Não explica demais,
         não decora, não bajula. O produto conversa com quem sabe o que está
         fazendo — e com quem acabou de chegar. Para ambos, vale a mesma
         regra: <strong>diga o que é, diga o que muda, pare.</strong>
@@ -283,7 +283,7 @@ export default function ContentPage() {
             A cortesia do bom texto é poupar o tempo de quem lê — não o ego de
             quem escreve.
             <footer className="caption not-italic mt-1">
-              — princípio editorial, AwSales
+              — princípio editorial, Aswork
             </footer>
           </blockquote>
         </Section>

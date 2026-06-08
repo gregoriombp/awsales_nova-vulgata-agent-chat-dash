@@ -63,7 +63,7 @@ export const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "E-mail de primeiro acesso", href: "/primeiro-acesso/verificacao", note: "E-mail de convite da AwSales com o magic link." },
+    data: { step: "entrada", title: "E-mail de primeiro acesso", href: "/primeiro-acesso/verificacao", note: "E-mail de convite da Aswork com o magic link." },
   },
   {
     id: "linkValido",

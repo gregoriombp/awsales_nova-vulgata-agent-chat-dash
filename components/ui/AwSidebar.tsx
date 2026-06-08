@@ -31,7 +31,7 @@ const ORGANIZATIONS: AwNavRailOrgOption[] = [
     subtitle: "Organização",
     icon: "/assets/icon_artificial_concord_organization.png",
   },
-  { id: "org-2", name: "AwSales Labs", subtitle: "Workspace" },
+  { id: "org-2", name: "Aswork Labs", subtitle: "Workspace" },
   { id: "org-3", name: "Cliente Demo", subtitle: "Organização" },
 ];
 

@@ -38,7 +38,7 @@ const ACCOUNTS: ChannelAccount[] = [
   {
     id: "waba-eng",
     channelId: "whatsapp",
-    name: "AwSales-Tech-Test",
+    name: "Aswork-Tech-Test",
     subtitle: "Time Eng · 1 número",
     status: "attention",
     statusLabel: "Pagamento pendente",

@@ -80,14 +80,14 @@ export default function BombardierHub() {
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src="/assets/brand/awsales-mark-white.svg"
-                    alt="AwSales"
+                    src="/assets/brand/aswork-mark-white.svg"
+                    alt="Aswork"
                     style={{ width: 30, height: 30 }}
                   />
                 </span>
                 <div className="flex flex-col gap-1">
                   <h2 className="text-2xl font-semibold tracking-tight text-(--fg-on-inverse)">
-                    AwSales
+                    Aswork
                   </h2>
                   <p className="text-sm text-white/70 leading-relaxed max-w-xl">
                     Plataforma de vendas com agentes — abra o produto para explorar

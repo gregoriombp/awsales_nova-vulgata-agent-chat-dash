@@ -1055,7 +1055,7 @@ function BlockedPhase({ org, onBack }: { org: Org; onBack: () => void }) {
             {org.accountManager.name}
           </div>
           <div className="body-xs text-fg-tertiary">
-            {org.accountManager.role} · AwSales
+            {org.accountManager.role} · Aswork
           </div>
         </div>
         <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-0.5 text-[11px] font-medium text-aw-amber-800">

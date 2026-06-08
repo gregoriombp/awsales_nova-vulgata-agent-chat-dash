@@ -1,4 +1,4 @@
-// Single source of truth for the AwSales password policy.
+// Single source of truth for the Aswork password policy.
 //
 // Follows NIST SP 800-63-4 §5.1.1.2: length over composition. We require a
 // minimum length, allow passphrases (any character, including spaces), do NOT

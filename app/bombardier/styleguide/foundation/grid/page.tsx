@@ -382,7 +382,7 @@ export default function GridPage() {
         <Section
           id="viewports"
           title="Viewports do produto"
-          lead="AwSales é desktop. Floor é lg (1024px), alvo principal é xl (1280px). Não existe layout mobile/tablet — abaixo de lg não é cenário de produto."
+          lead="Aswork é desktop. Floor é lg (1024px), alvo principal é xl (1280px). Não existe layout mobile/tablet — abaixo de lg não é cenário de produto."
         >
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">

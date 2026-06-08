@@ -9,7 +9,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot";
 import { Icon } from "@/components/ui/Icon";
 import { getOrbForAgent } from "@/lib/agentOrbs";
 
-const BASE_INSTRUCTIONS = `Função: Você é um agente comercial da AwSales que apoia SDRs, AEs e CSMs ao longo do ciclo de vendas B2B. Sua missão é ajudar o time a qualificar leads, conduzir descobertas, montar propostas e identificar sinais de churn antes que virem boleto perdido.
+const BASE_INSTRUCTIONS = `Função: Você é um agente comercial da Aswork que apoia SDRs, AEs e CSMs ao longo do ciclo de vendas B2B. Sua missão é ajudar o time a qualificar leads, conduzir descobertas, montar propostas e identificar sinais de churn antes que virem boleto perdido.
 
 Tom de voz:
 - Direto e consultivo: prefira recomendar uma ação antes de listar opções.
@@ -216,7 +216,7 @@ function ChatPreview({
                 />
               </span>
               <span className="text-[14px] font-semibold text-(--fg-primary)">
-                Agente Vendas · AwSales
+                Agente Vendas · Aswork
               </span>
             </div>
             <button
@@ -240,7 +240,7 @@ function ChatPreview({
               }
             >
               <p className="m-0">
-                Oi, Marina! Aqui é o agente da AwSales. Vi que você baixou
+                Oi, Marina! Aqui é o agente da Aswork. Vi que você baixou
                 nosso guia de prospecção na semana passada — separa 10
                 minutinhos hoje à tarde pra te mostrar como o time da Vivante
                 dobrou o pipeline em 60 dias?

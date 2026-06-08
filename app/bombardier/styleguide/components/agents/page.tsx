@@ -79,7 +79,7 @@ export default function AgentsPage() {
   return (
     <>
       <PageHero title="Visual dos agentes">
-        A AwSales tem três peças distintas de IA na interface — cada uma com
+        A Aswork tem três peças distintas de IA na interface — cada uma com
         identidade visual própria. <strong>Agent Core</strong> são os
         frameworks proprietários da plataforma — <strong>diamantes estáticos</strong>{" "}
         (quadrado 45°), orbs coloridos (PNG). O usuário não cria um Core: ele{" "}
@@ -144,7 +144,7 @@ export default function AgentsPage() {
           <Section
             id="agent-core"
             title="Agent Core"
-            lead="Frameworks de agentes proprietários da AwSales — peças fixas do sistema que rodam em conjunto com o agente do usuário (memória, contexto, orquestração, integrações internas). O usuário não cria nem edita um Core; ele seleciona um ao criar o agente. Visualmente é um selo estático: orb colorido (PNG) recortado no diamante."
+            lead="Frameworks de agentes proprietários da Aswork — peças fixas do sistema que rodam em conjunto com o agente do usuário (memória, contexto, orquestração, integrações internas). O usuário não cria nem edita um Core; ele seleciona um ao criar o agente. Visualmente é um selo estático: orb colorido (PNG) recortado no diamante."
           >
             <Stage
               label="Biblioteca de Cores · estático"

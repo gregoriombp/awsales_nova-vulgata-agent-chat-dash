@@ -111,7 +111,7 @@ export default function AwAvatarPage() {
                 <div className="text-[15px] font-medium text-(--fg-primary)">
                   Marina Souza
                 </div>
-                <div className="caption">Head of Support · Awsales</div>
+                <div className="caption">Head of Support · Aswork</div>
               </div>
             </div>
           </Stage>

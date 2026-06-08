@@ -59,7 +59,7 @@ export function AwNavRail({
                   variant="wordmark"
                   height={16}
                   className="aw-nav-rail__logo"
-                  aria-label="AwSales"
+                  aria-label="Aswork"
                 />
               )}
               <button

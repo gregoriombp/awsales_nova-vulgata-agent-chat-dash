@@ -459,7 +459,7 @@ function IssuesBanner({ account }: { account: IgAccount }) {
       list.push({
         sev: "med",
         title: "Comentários sem moderação automática",
-        desc: "Ative o webhook comments pra responder ou ocultar comentários a partir do AwSales.",
+        desc: "Ative o webhook comments pra responder ou ocultar comentários a partir do Aswork.",
         cta: "Ativar comments",
       });
     }
@@ -585,7 +585,7 @@ function OverviewTab({
           </div>
           <div className="body-xs text-(--fg-tertiary)">
             <b className="text-(--fg-primary)">{account.comments30d}</b>{" "}
-            comentários · respondidos pelo AwSales
+            comentários · respondidos pelo Aswork
           </div>
         </AwCard>
 
@@ -1379,12 +1379,12 @@ function AccountTab({ account }: { account: IgAccount }) {
         />
         <DangerRow
           title="Desconectar conta"
-          desc="Pausa imediatamente DMs e moderação de comentários. Histórico permanece no Instagram e no AwSales."
+          desc="Pausa imediatamente DMs e moderação de comentários. Histórico permanece no Instagram e no Aswork."
           cta="Desconectar"
         />
         <DangerRow
-          title="Excluir do AwSales"
-          desc="Remove webhooks, ice breakers e regras de automação dentro do AwSales. Não afeta a conta no Instagram."
+          title="Excluir do Aswork"
+          desc="Remove webhooks, ice breakers e regras de automação dentro do Aswork. Não afeta a conta no Instagram."
           cta="Excluir"
         />
       </SectionCard>

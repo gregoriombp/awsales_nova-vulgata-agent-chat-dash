@@ -115,7 +115,7 @@ export default function AwBackupCodesPage() {
         >
           <ApiTable>
             <PropRow prop="codes" type="string[]" doc="Os códigos a exibir. Required." />
-            <PropRow prop="filename" type="string" def="awsales-backup-codes.txt" doc="Nome do arquivo do 'Baixar .txt'." />
+            <PropRow prop="filename" type="string" def="aswork-backup-codes.txt" doc="Nome do arquivo do 'Baixar .txt'." />
             <PropRow prop="warning" type="ReactNode" doc="Callout âmbar opcional acima do checkbox." />
             <PropRow prop="confirm" type="{ checked, onChange, label }" doc="Checkbox de confirmação controlado (opcional)." />
             <PropRow prop="labels" type="{ copy, copied, download }" doc="Rótulos i18n; defaults em PT-BR." />

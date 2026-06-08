@@ -3,7 +3,7 @@ import * as React from "react"
 /**
  * AwEmpty — empty / zero-state container. Composed primitives so each slot
  * can be styled independently. Port of shadcn/ui's `Empty` adapted to the
- * AwSales token system (no shadcn dependency).
+ * Aswork token system (no shadcn dependency).
  *
  * <AwEmpty>
  *   <AwEmptyHeader>

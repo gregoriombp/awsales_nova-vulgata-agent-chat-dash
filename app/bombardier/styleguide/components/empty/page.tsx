@@ -27,7 +27,7 @@ export default function EmptyPage() {
         Zero-state composto — header com mídia opcional, título,
         descrição, e content area para CTAs. Port direto da receita do
         shadcn <code className="mono">Empty</code>, adaptado aos tokens
-        AwSales.
+        Aswork.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-16">

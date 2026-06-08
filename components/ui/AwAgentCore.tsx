@@ -35,7 +35,7 @@ export interface AwAgentCoreProps {
 }
 
 /**
- * AwAgentCore — a proprietary AwSales Agent Core.
+ * AwAgentCore — a proprietary Aswork Agent Core.
  *
  * A static colored orb (PNG) clipped into the diamond silhouette (a square
  * rotated 45°). Static by design: a Core is an agentic *framework* the user

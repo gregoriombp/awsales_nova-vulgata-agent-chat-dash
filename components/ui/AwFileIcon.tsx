@@ -8,14 +8,14 @@ import * as React from "react"
  * side-by-side in lists (attachments, knowledge base entries, source pickers).
  *
  * Type identity is intentionally NOT a theme token — it's brand-of-format
- * (red = PDF, green = spreadsheet, blue = doc). Colors flow through AwSales
+ * (red = PDF, green = spreadsheet, blue = doc). Colors flow through Aswork
  * palette tokens (`--aw-red-600`, etc.) so they stay in sync with the system.
  */
 
 type FileMark = (props: { fg: string }) => React.ReactNode
 
 type FileTypeDef = {
-  /** Tile background — solid color via AwSales palette token. */
+  /** Tile background — solid color via Aswork palette token. */
   bg: string
   /** Glyph foreground (defaults to white). */
   fg?: string

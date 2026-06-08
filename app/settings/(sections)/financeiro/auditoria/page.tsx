@@ -44,7 +44,7 @@ function getInitials(name: string): string {
 
 function executorRole(executor: AuditExecutor): string {
   switch (executor) {
-    case "AwSales":
+    case "Aswork":
       return "Account Manager";
     case "Cliente":
       return "Usuário";
@@ -61,7 +61,7 @@ type Person = {
 
 /** Unique people who appear as actors in the audit log — used to populate
  *  the executor filter as a list of real people instead of abstract
- *  category buckets. Order: AwSales first, then Cliente, then Sistema. */
+ *  category buckets. Order: Aswork first, then Cliente, then Sistema. */
 function buildPeople(events: AuditEvent[]): Person[] {
   const seen = new Map<string, Person>();
   for (const e of events) {
@@ -69,7 +69,7 @@ function buildPeople(events: AuditEvent[]): Person[] {
       seen.set(e.actor, { actor: e.actor, avatar: e.actorAvatar, executor: e.executor });
     }
   }
-  const order: AuditExecutor[] = ["AwSales", "Cliente", "Sistema"];
+  const order: AuditExecutor[] = ["Aswork", "Cliente", "Sistema"];
   return Array.from(seen.values()).sort((a, b) => {
     const ai = order.indexOf(a.executor);
     const bi = order.indexOf(b.executor);
@@ -131,7 +131,7 @@ export default function AuditoriaPage() {
         </h6>
         <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
           Eventos de plano, cartão, fatura, cupom e voucher — feitos por
-          AwSales, cliente ou sistema.
+          Aswork, cliente ou sistema.
         </p>
       </section>
 

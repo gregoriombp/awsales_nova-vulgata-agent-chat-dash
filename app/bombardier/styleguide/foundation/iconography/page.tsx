@@ -140,7 +140,7 @@ export default function IconographyPage() {
     <>
       <PageHero title="Iconografia">
         <strong>Material Symbols Rounded</strong> é o sistema de ícones da
-          AwSales. Fonte variável com 4 eixos — tamanho, peso, preenchimento e
+          Aswork. Fonte variável com 4 eixos — tamanho, peso, preenchimento e
           grade — tudo herdando <code className="mono">currentColor</code>.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">

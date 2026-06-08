@@ -561,7 +561,7 @@ export default function ConviteMembroFlowPage() {
                 de uma mensagem de erro genérica, cada motivo tem tela própria
                 — expirado, já utilizado e cancelado — porque a saída é
                 diferente em cada caso e o contato certo é sempre o admin da
-                org, nunca o suporte da AwSales.
+                org, nunca o suporte da Aswork.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">

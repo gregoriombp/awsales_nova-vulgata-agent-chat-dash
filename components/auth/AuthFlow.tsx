@@ -75,7 +75,7 @@ export function AuthFlow() {
       <aside className="flex flex-col bg-white px-8 py-8 xl:px-12 min-h-screen">
         <div className="mb-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/brand/awsales-wordmark-brand.svg" alt="AwSales" className="h-5 w-auto" />
+          <img src="/assets/brand/aswork-wordmark-brand.svg" alt="Aswork" className="h-5 w-auto" />
         </div>
 
         <div className="flex-1 flex items-center justify-center min-h-0">

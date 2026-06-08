@@ -177,7 +177,7 @@ export default function FileIconPage() {
           <Section
             id="anatomy"
             title="Anatomia"
-            lead="Tile + glifo. Cor do tile usa tokens da paleta AwSales (var(--aw-red-600), var(--aw-emerald-600)…) — nada de hex hardcoded. Glifo interno sempre branco."
+            lead="Tile + glifo. Cor do tile usa tokens da paleta Aswork (var(--aw-red-600), var(--aw-emerald-600)…) — nada de hex hardcoded. Glifo interno sempre branco."
           >
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec k="tile sm" v="32 × 32 px" d="Glifo: ~55% do tile" />

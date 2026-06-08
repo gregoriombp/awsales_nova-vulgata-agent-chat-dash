@@ -17,7 +17,7 @@ const bombardierDotEnabled =
   process.env.NEXT_PUBLIC_BOMBARDIER_DOT_DISABLED !== "true";
 
 export const metadata: Metadata = {
-  title: "AwSales",
+  title: "Aswork",
   description: "Plataforma de agentes de IA para vendas.",
 };
 
@@ -30,7 +30,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeNoFlashScript }} />
-        {/* AwSales Design System fonts — loaded via <link> because Turbopack
+        {/* Aswork Design System fonts — loaded via <link> because Turbopack
          * strips CSS @import. One typographic voice: Geist.
          * Geist Mono for code. Material Symbols Rounded for iconography. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

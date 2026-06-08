@@ -179,7 +179,7 @@ function InicioContent() {
         onClose={dismiss}
         imageSrc={ONBOARDING_ORG.brandBackground}
         imageAlt={`Capa da ${ONBOARDING_ORG.name}`}
-        eyebrow={`Bem-vindo à AwSales`}
+        eyebrow={`Bem-vindo à Aswork`}
         title={
           <>
             Tudo certo, {ONBOARDING_USER.firstName}.

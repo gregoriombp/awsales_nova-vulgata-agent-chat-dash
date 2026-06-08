@@ -265,7 +265,7 @@ function buildWebhookSteps(integration: Integration): AwWebhookStep[] {
           </p>
           <ul>
             <li>
-              <strong>Nome:</strong> Integração AwSales
+              <strong>Nome:</strong> Integração Aswork
             </li>
             <li>
               <strong>URL:</strong> cole o webhook copiado na etapa anterior
@@ -1379,7 +1379,7 @@ export default function IntegrationsPage() {
         targetName={connectTarget?.name ?? ""}
         description={connectTarget?.desc}
         permissionsTitle={
-          connectTarget?.auth === "oauth" ? `O AwSales precisa` : undefined
+          connectTarget?.auth === "oauth" ? `O Aswork precisa` : undefined
         }
         permissions={
           connectTarget?.auth === "oauth"
@@ -1551,7 +1551,7 @@ export default function IntegrationsPage() {
             integração personalizada via webhook
           </strong>
           . É preciso definir um nome único, gerar um endpoint e enviar
-          eventos no formato esperado pelo AwSales. Nada é criado até você
+          eventos no formato esperado pelo Aswork. Nada é criado até você
           concluir a configuração — quer continuar?
         </p>
       </AwModal>

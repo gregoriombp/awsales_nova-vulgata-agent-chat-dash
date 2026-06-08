@@ -80,7 +80,7 @@ export default function OptionListPage() {
         antes do agente continuar. Suporta seleção múltipla, seleção única,
         limites <code className="mono">min/max</code>, descrição, ícone, ações
         customizáveis no rodapé e modo recibo (read-only). Reusa os tokens
-        AwSales — sem cores hardcoded.
+        Aswork — sem cores hardcoded.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">

@@ -29,7 +29,7 @@ export function DesktopOnlyBlocker({ children }: { children: React.ReactNode }) 
               Disponível em desktop ou tablet
             </h2>
             <p className="m-0 body-sm text-(--fg-secondary)">
-              O AwSales foi feito pra telas maiores. Abra essa mesma URL num
+              O Aswork foi feito pra telas maiores. Abra essa mesma URL num
               dispositivo com pelo menos {DESKTOP_FLOOR}px de largura.
             </p>
           </div>

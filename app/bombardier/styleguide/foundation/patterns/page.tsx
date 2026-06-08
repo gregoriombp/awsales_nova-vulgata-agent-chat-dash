@@ -152,7 +152,7 @@ export default function PatternsPage() {
             {/* Sidebar primária 320 light (proporcional ao mockup: ~140) */}
             <aside className="w-[140px] shrink-0 bg-(--bg-surface) p-3 flex flex-col gap-3">
               <div className="rounded-md border border-(--border-subtle) bg-(--bg-raised) h-9 flex items-center px-2 text-[11px] font-medium text-(--fg-primary)">
-                AwSales
+                Aswork
               </div>
               <div className="rounded-sm bg-(--bg-raised) border border-(--border-subtle) h-6" />
               <div className="aw-eyebrow text-[9px] text-(--fg-tertiary) px-1 mt-1">

@@ -641,7 +641,7 @@ export default function CustomCheckoutIntegrationPage() {
               <p className="m-0 max-w-[640px] body-sm text-(--fg-secondary)">
                 Conecte qualquer checkout via webhook. Defina um nome único, gere
                 o endpoint e envie eventos de transação no formato esperado pelo
-                AwSales.
+                Aswork.
               </p>
             </div>
             <AwPill variant="beta" dot>
@@ -730,7 +730,7 @@ export default function CustomCheckoutIntegrationPage() {
                       Status de resposta
                     </h2>
                     <p className="aw-card__description">
-                      Códigos retornados pelo AwSales no recebimento e
+                      Códigos retornados pelo Aswork no recebimento e
                       processamento de cada transação.
                     </p>
                   </div>

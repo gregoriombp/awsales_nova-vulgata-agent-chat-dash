@@ -20,7 +20,7 @@ export const CURRENT_INVOICE = {
 };
 
 export const BILLING_PROFILE = {
-  legalName: "AwSales Tecnologia Ltda.",
+  legalName: "Aswork Tecnologia Ltda.",
   taxId: "47.382.519/0001-04",
   stateRegistration: "Isento",
   email: "financeiro@awsales.com.br",
@@ -532,7 +532,7 @@ export const COUPONS_APPLIED: CouponRow[] = [
 
 // ---- Auditoria ----
 
-export type AuditExecutor = "AwSales" | "Cliente" | "Sistema";
+export type AuditExecutor = "Aswork" | "Cliente" | "Sistema";
 export type AuditEventType = "Plano" | "Cartão" | "Fatura" | "Cupom" | "Voucher";
 
 export type AuditEvent = {
@@ -552,7 +552,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-1",
     date: "11/05/2026",
     time: "14:32",
-    executor: "AwSales",
+    executor: "Aswork",
     actor: "Bruno Costa",
     actorAvatar: "/assets/ui-faces/male-1.jpg",
     type: "Plano",
@@ -607,7 +607,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-6",
     date: "10/05/2026",
     time: "16:00",
-    executor: "AwSales",
+    executor: "Aswork",
     actor: "Ana A.",
     actorAvatar: "/assets/ui-faces/female-1.jpg",
     type: "Fatura",
@@ -640,7 +640,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-9",
     date: "09/05/2026",
     time: "10:30",
-    executor: "AwSales",
+    executor: "Aswork",
     actor: "Bruno Costa",
     actorAvatar: "/assets/ui-faces/male-1.jpg",
     type: "Voucher",
@@ -656,7 +656,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     actorAvatar: "/assets/Cortex.png",
     type: "Fatura",
     action: "Disputa aceita",
-    meta: "INV-2026-03-0987 · favorável à AwSales",
+    meta: "INV-2026-03-0987 · favorável à Aswork",
   },
 ];
 

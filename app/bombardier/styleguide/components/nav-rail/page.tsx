@@ -404,8 +404,8 @@ import {
 } from "@/components/ui/AwNavRail"
 
 const ORGS = [
-  { id: "o-1", name: "AwSales", subtitle: "Organização", icon: "/org.png" },
-  { id: "o-2", name: "AwSales Labs", subtitle: "Workspace" },
+  { id: "o-1", name: "Aswork", subtitle: "Organização", icon: "/org.png" },
+  { id: "o-2", name: "Aswork Labs", subtitle: "Workspace" },
 ]
 
 const USERS = [

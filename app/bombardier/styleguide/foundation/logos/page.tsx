@@ -244,9 +244,9 @@ export default function LogosPage() {
       <PageHero title="Logos">
         Duas glifas que formam <strong>Aw</strong>: o A triangular e o w em três
         traços. O <strong>mark</strong> (Aw) é a forma autônoma; o{" "}
-        <strong>wordmark</strong> (Awsales) acompanha em cabeçalhos, documentos
+        <strong>wordmark</strong> (Aswork) acompanha em cabeçalhos, documentos
         e assinatura. Esta página é a fonte de verdade para qualquer aplicação
-        da logo AwSales — em código, deck, e-mail, social, print.
+        da logo Aswork — em código, deck, e-mail, social, print.
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
@@ -254,7 +254,7 @@ export default function LogosPage() {
         <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 text-sm text-(--aw-blue-900)">
           <strong>AwLogo vs AwBrandLogo.</strong> Esta página documenta o{" "}
           <code className="mono">AwLogo</code> — a logo do{" "}
-          <strong>próprio AwSales</strong>. Para logos de{" "}
+          <strong>próprio Aswork</strong>. Para logos de{" "}
           <strong>marcas de terceiros</strong> (WhatsApp, Stripe, Hotmart…), use{" "}
           <code className="mono">AwBrandLogo</code>, documentado em{" "}
           <a
@@ -363,7 +363,7 @@ export default function LogosPage() {
           title="Componente · AwLogo"
           lead="Caminho preferencial dentro do produto. SVG inline com fill=currentColor — herda a cor do parent via text-* token."
         >
-          <Stage label="Variant · wordmark" hint="Wordmark (Awsales). Cor vem do parent via text-* token.">
+          <Stage label="Variant · wordmark" hint="Wordmark (Aswork). Cor vem do parent via text-* token.">
             <span style={{ color: "var(--fg-primary)" }}>
               <AwLogo variant="wordmark" height={24} />
             </span>
@@ -398,7 +398,7 @@ export default function LogosPage() {
               prop="variant"
               type='"wordmark" | "mark"'
               def='"wordmark"'
-              doc="Forma autônoma (mark = Aw) ou completa (wordmark = Awsales)."
+              doc="Forma autônoma (mark = Aw) ou completa (wordmark = Aswork)."
             />
             <PropRow
               prop="height"
@@ -419,7 +419,7 @@ export default function LogosPage() {
             <PropRow
               prop="aria-label"
               type="string"
-              def='"AwSales"'
+              def='"Aswork"'
               doc="Sobrescrever quando a logo for puramente decorativa: aria-hidden + aria-label=undefined."
             />
           </ApiTable>
@@ -674,12 +674,12 @@ export default function LogosPage() {
                 Quando a logo é a única identificação do produto na tela (sidebar
                 collapsed, header inicial), ela deve ter rótulo lido em voz alta.
               </p>
-              <CodeExample lang="tsx">{`<AwLogo variant="mark" aria-label="AwSales" />
+              <CodeExample lang="tsx">{`<AwLogo variant="mark" aria-label="Aswork" />
 
 // Ou no <img> estático:
 <img
-  src="/assets/brand/awsales-mark-brand.png"
-  alt="AwSales"
+  src="/assets/brand/aswork-mark-brand.png"
+  alt="Aswork"
   width={24}
   height={24}
 />`}</CodeExample>
@@ -687,12 +687,12 @@ export default function LogosPage() {
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
               <div className="aw-eyebrow">decorativa</div>
               <p className="text-sm text-(--fg-secondary)">
-                Quando o cabeçalho já tem texto &quot;AwSales&quot; ao lado, a logo é
+                Quando o cabeçalho já tem texto &quot;Aswork&quot; ao lado, a logo é
                 redundante para screen readers — esconda do AT.
               </p>
               <CodeExample lang="tsx">{`<div className="flex items-center gap-2">
   <AwLogo variant="mark" height={24} aria-hidden />
-  <span>AwSales</span>
+  <span>Aswork</span>
 </div>
 
 // Ou no <img>:
@@ -715,7 +715,7 @@ export default function LogosPage() {
 // 2 · PNG via registry (e-mail, OG, hardcoded fora do React)
 <img
   src={AW_LOGO_ASSETS.wordmark.brand}
-  alt="AwSales"
+  alt="Aswork"
   style={{ height: 28, width: "auto" }}
 />
 
@@ -723,14 +723,14 @@ export default function LogosPage() {
 import Image from "next/image"
 <Image
   src={AW_LOGO_ASSETS.mark.brand}
-  alt="AwSales"
+  alt="Aswork"
   width={96}
   height={96}
   priority
 />
 
 // 4 · Fundo escuro — escolha a variante "white" / "*-on-dark"
-<img src={AW_LOGO_ASSETS.mark.white} alt="AwSales" />`}</CodeExample>
+<img src={AW_LOGO_ASSETS.mark.white} alt="Aswork" />`}</CodeExample>
         </Section>
 
         {/* ── Do / Don't ──────────────────────────────────────────────── */}
@@ -753,7 +753,7 @@ import Image from "next/image"
                 Importe paths do <code className="mono">AW_LOGO_ASSETS</code> — uma fonte de verdade.
               </>,
               <>
-                Use <code className="mono">aria-label=&quot;AwSales&quot;</code> quando a logo for o
+                Use <code className="mono">aria-label=&quot;Aswork&quot;</code> quando a logo for o
                 único identificador; <code className="mono">aria-hidden</code> quando for decorativa.
               </>,
             ]}
@@ -767,7 +767,7 @@ import Image from "next/image"
               <>Adicionar sombra, bevel ou glow — o A é sólido, plano, geométrico.</>,
               <>Recolorir o PNG no Figma — use o arquivo da variante correta.</>,
               <>
-                Hardcode paths tipo <code className="mono">&quot;/assets/brand/awsales-mark-brand.png&quot;</code>{" "}
+                Hardcode paths tipo <code className="mono">&quot;/assets/brand/aswork-mark-brand.png&quot;</code>{" "}
                 — sempre via <code className="mono">AW_LOGO_ASSETS</code>.
               </>,
             ]}

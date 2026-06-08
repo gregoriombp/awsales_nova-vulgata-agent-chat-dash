@@ -1,7 +1,7 @@
 import * as React from "react"
 
 /**
- * Registry of brand identities for third-party platforms surfaced in AwSales
+ * Registry of brand identities for third-party platforms surfaced in Aswork
  * (integrations, source pickers, settings). Each entry owns its tile bg —
  * the wrapper paints the brand color so the icon fills the frame, instead of
  * sitting as a tiny chip on a neutral surface. Vendor color literals live

@@ -116,7 +116,7 @@ const SAMPLE_PAGES: Page[] = [
   },
   {
     id: "page-tech",
-    name: "AwSales Tech",
+    name: "Aswork Tech",
     category: "Tecnologia da informação",
     pageId: "204989013429912",
     bmId: "4116240988602907",
@@ -133,7 +133,7 @@ const SAMPLE_PAGES: Page[] = [
     quality: "Média",
     activeWindows: 4,
     greeting:
-      "Bem-vindo à AwSales Tech. Posso te ajudar com integrações, status de releases ou abrir um ticket.",
+      "Bem-vindo à Aswork Tech. Posso te ajudar com integrações, status de releases ou abrir um ticket.",
     getStartedPayload: "GET_STARTED_TECH",
     iceBreakers: [
       { question: "Status da plataforma", payload: "ICE_STATUS" },
@@ -1236,12 +1236,12 @@ function AccountTab({ page }: { page: Page }) {
         />
         <DangerRow
           title="Desconectar Página"
-          desc="Pausa imediatamente o atendimento via Messenger. Histórico permanece na Meta e no AwSales."
+          desc="Pausa imediatamente o atendimento via Messenger. Histórico permanece na Meta e no Aswork."
           cta="Desconectar"
         />
         <DangerRow
-          title="Excluir do AwSales"
-          desc="Remove webhooks, ice breakers, menu persistente e mensagens automáticas dentro do AwSales. Não afeta a Página na Meta."
+          title="Excluir do Aswork"
+          desc="Remove webhooks, ice breakers, menu persistente e mensagens automáticas dentro do Aswork. Não afeta a Página na Meta."
           cta="Excluir"
         />
       </SectionCard>

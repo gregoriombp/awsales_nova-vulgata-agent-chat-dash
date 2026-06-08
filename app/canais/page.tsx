@@ -511,7 +511,7 @@ export default function CanaisPage() {
         targetName={connectTarget?.name ?? ""}
         description={connectTarget?.desc}
         permissionsTitle={
-          connectTarget?.auth === "oauth" ? `O AwSales precisa` : undefined
+          connectTarget?.auth === "oauth" ? `O Aswork precisa` : undefined
         }
         permissions={
           connectTarget?.auth === "oauth"

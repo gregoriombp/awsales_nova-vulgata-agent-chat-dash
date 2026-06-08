@@ -44,7 +44,7 @@ export type AwConnectModalProps = {
   kind?: AwConnectModalKind
   /** Brand id (registered in AwBrandLogo) for the source product. */
   productBrand?: string
-  /** Image URL for the source mark — overrides the AwSales default mark. */
+  /** Image URL for the source mark — overrides the Aswork default mark. */
   productLogoSrc?: string
   productName?: string
   /** Brand id (registered in AwBrandLogo) for the target integration. */
@@ -136,7 +136,7 @@ function ProductMark({ src, name }: { src?: string; name?: string }) {
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
         />
       ) : (
-        <AwLogo variant="mark" height={22} aria-label="AwSales" />
+        <AwLogo variant="mark" height={22} aria-label="Aswork" />
       )}
     </span>
   )
@@ -256,7 +256,7 @@ export function AwConnectModal({
   kind = "oauth",
   productBrand,
   productLogoSrc,
-  productName = "AwSales",
+  productName = "Aswork",
   targetBrand,
   targetName,
   description,

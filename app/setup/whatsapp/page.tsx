@@ -32,7 +32,7 @@ const PREREQUISITES = [
     id: "admin",
     title: "Acesso de administrador da empresa",
     description:
-      "Você precisa ser admin do Business Manager da Meta. Outros usuários da AwSales podem assumir depois.",
+      "Você precisa ser admin do Business Manager da Meta. Outros usuários da Aswork podem assumir depois.",
     helpLabel: "Como verifico minhas permissões?",
   },
   {
@@ -48,7 +48,7 @@ const META_LOGIN_STEPS: { num: number; head: string; tail: string }[] = [
   { num: 1, head: "Entrar com seu Facebook", tail: " ligado ao Business Manager" },
   { num: 2, head: "Selecionar ou criar a Conta WhatsApp Business", tail: " (WABA)" },
   { num: 3, head: "Verificar o número", tail: " por SMS ou ligação" },
-  { num: 4, head: "Autorizar a AwSales", tail: " a enviar mensagens em seu nome" },
+  { num: 4, head: "Autorizar a Aswork", tail: " a enviar mensagens em seu nome" },
 ];
 
 function PrereqRow({

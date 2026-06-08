@@ -68,7 +68,7 @@ export function AwPasswordSetup({
       <>
         Você usará{" "}
         <span className="font-medium text-fg-primary">{email}</span> e essa
-        senha para entrar na AwSales.
+        senha para entrar na Aswork.
       </>
     ) : (
       <>Escolha uma senha forte para proteger sua conta.</>

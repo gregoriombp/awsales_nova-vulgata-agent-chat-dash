@@ -136,7 +136,7 @@ const SAMPLE_WABAS: Waba[] = [
   },
   {
     id: "waba-eng",
-    name: "AwSales-Tech-Test",
+    name: "Aswork-Tech-Test",
     bmName: "Time Eng",
     wabaId: "30911404598548891",
     bmId: "4116240988602907",
@@ -1342,12 +1342,12 @@ function AccountTab({ waba }: { waba: Waba }) {
       <SectionCard title="Zona de risco" tone="danger">
         <DangerRow
           title="Desconectar esta WABA"
-          desc="Os templates ficam intactos na Meta. Disparos pelo AwSales serão pausados imediatamente."
+          desc="Os templates ficam intactos na Meta. Disparos pelo Aswork serão pausados imediatamente."
           cta="Desconectar"
         />
         <DangerRow
           title="Excluir permanentemente"
-          desc="Remove todos os templates, números e variáveis vinculados a esta WABA dentro do AwSales. Não afeta a Meta."
+          desc="Remove todos os templates, números e variáveis vinculados a esta WABA dentro do Aswork. Não afeta a Meta."
           cta="Excluir"
         />
       </SectionCard>

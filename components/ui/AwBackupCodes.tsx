@@ -15,7 +15,7 @@ export type AwBackupCodesConfirm = {
 export type AwBackupCodesProps = {
   /** Os códigos de uso único a exibir (grade de 2 colunas). */
   codes: string[]
-  /** Nome do arquivo do "Baixar .txt". Default "awsales-backup-codes.txt". */
+  /** Nome do arquivo do "Baixar .txt". Default "aswork-backup-codes.txt". */
   filename?: string
   /** Callout âmbar opcional acima do checkbox (aviso de risco). */
   warning?: React.ReactNode
@@ -34,7 +34,7 @@ export type AwBackupCodesProps = {
  */
 export function AwBackupCodes({
   codes,
-  filename = "awsales-backup-codes.txt",
+  filename = "aswork-backup-codes.txt",
   warning,
   confirm,
   labels,
