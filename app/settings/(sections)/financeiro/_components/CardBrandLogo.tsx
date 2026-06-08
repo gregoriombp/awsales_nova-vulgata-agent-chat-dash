@@ -2,11 +2,12 @@
 
 import { FaCcAmex, FaCcMastercard, FaCcVisa } from "react-icons/fa6";
 import type { CardBrand } from "./data";
+import { BRAND_COLORS } from "@/lib/brandColors";
 
 const BRAND_COLOR: Record<CardBrand, string> = {
-  Visa: "#1A1F71",
-  Mastercard: "#EB001B",
-  Amex: "#2E77BC",
+  Visa: BRAND_COLORS.visa,
+  Mastercard: BRAND_COLORS.mastercard,
+  Amex: BRAND_COLORS.amex,
 };
 
 export function CardBrandLogo({
