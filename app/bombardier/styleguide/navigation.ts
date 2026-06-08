@@ -79,6 +79,7 @@ export const navigation: NavSection[] = [
       { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
+      { name: "Channel icon", href: "/bombardier/styleguide/components/aw-channel-icon" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
       { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
@@ -106,6 +107,7 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Backup codes", href: "/bombardier/styleguide/components/aw-backup-codes" },
       { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
+      { name: "Contact channel modal", href: "/bombardier/styleguide/components/aw-contact-channel-modal" },
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
       { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
@@ -118,8 +120,13 @@ export const navigation: NavSection[] = [
   {
     group: "Biblioteca",
     title: "Domínio",
+    // Infra/layout intencionalmente NÃO listada aqui (não rende inline com
+    // sentido): AwThemeProvider, AwDashboardLayout, AwSidebar. AwHeader e
+    // AwNeuralPattern são internos — consumidos por AwDashboardLayout e
+    // AwOnboardingShell, sem showcase próprio de propósito.
     items: [
       { name: "Agent Core", href: "/bombardier/styleguide/components/agent-core" },
+      { name: "Agent tile", href: "/bombardier/styleguide/components/aw-agent-tile" },
       { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
