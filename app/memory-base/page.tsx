@@ -29,7 +29,9 @@ const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
 const HEADER_DESCRIPTION =
   "MemoryBase é a Base de Conhecimento dos seus Agentes. Todos os seus documentos, URLs e snippets ficam organizados aqui.";
 
-/** Paletas do shader Synthesis por aparência. */
+/** Paletas do shader Synthesis por aparência.
+ *  Hex literais de propósito: são uniforms passados ao WebGL, não classes CSS —
+ *  o shader não lê var(--token). NÃO migrar para tokens do design system. */
 const SHADER = {
   dark: {
     backgroundColor: "#000000",
@@ -214,7 +216,9 @@ function WelcomeState({
       {/* Mesmo container arredondado que toda página usa (espelha AwDashboardLayout):
           painel flutuante com cantos --radius-xl + borda; a surface aparece nas bordas. */}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
-        <main className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden rounded-xl border border-(--border-subtle) bg-white dark:bg-[#05070d]">
+        {/* dark:bg-[#05070d] é literal de propósito: azul-quase-preto que costura
+            com a borda do shader Synthesis (color2 #060709). Não é --bg-canvas. */}
+        <main className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised) dark:bg-[#05070d]">
           {/* Fundo animado — shader Synthesis (@react-three/fiber). Paleta clara/escura. */}
           {mounted && <AwCortexSynthesis {...palette} />}
 
@@ -241,13 +245,13 @@ function WelcomeState({
 
           {/* Conteúdo */}
           <div className="relative z-10 flex flex-col items-center gap-[50px] px-8 text-center">
-            <AwMemoryBaseLogo size={180} className="text-[#0d0d0d] dark:text-white" />
+            <AwMemoryBaseLogo size={180} className="text-(--fg-primary)" />
 
             <div className="flex w-[560px] max-w-full flex-col items-center gap-8">
               <h1 className="font-heading text-[2.5rem] leading-none text-fg-primary">
                 Bem-vindo à Memory Base
               </h1>
-              <p className="text-base leading-relaxed tracking-tight text-aw-gray-800 dark:text-[#ececec]">
+              <p className="text-base leading-relaxed tracking-tight text-(--fg-secondary)">
                 O Memory Base é onde você organiza todo o conhecimento dos seus
                 agentes. Crie bases de conhecimento para armazenar documentos,
                 URLs, snippets e integrações que alimentarão suas conversas
@@ -258,7 +262,7 @@ function WelcomeState({
                 type="button"
                 onClick={onCreate}
                 disabled={creating}
-                className="inline-flex h-[50px] items-center justify-center gap-2 rounded-2xl bg-[#0d0d0d] pl-4 pr-6 font-heading font-medium text-white transition-colors hover:bg-[#262626] disabled:opacity-60 dark:bg-white dark:text-[#0d0d0d] dark:hover:bg-aw-gray-200"
+                className="inline-flex h-[50px] items-center justify-center gap-2 rounded-2xl bg-(--bg-inverse) pl-4 pr-6 font-heading font-medium text-(--fg-on-inverse) transition-colors hover:bg-(--aw-gray-1100) disabled:opacity-60 dark:hover:bg-(--aw-gray-200)"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                   <path

@@ -44,3 +44,28 @@ export function createMemoryBase(draft: NewBaseDraft): string {
   }
   return id;
 }
+
+/**
+ * Atualiza a classificação de uma base já criada (objetivo / segmento / tipo de
+ * dados). Usado pelo passo de "Configurar" do fluxo de criação — a base nasce no
+ * "Criar" e essas escolhas são preenchidas depois, então o card sai do selo
+ * "Nova" quando a config termina. Sem efeito se o id não existir.
+ */
+export function updateMemoryBase(
+  id: string,
+  patch: Partial<Pick<NewBaseDraft, "objetivo" | "segmento" | "tipoDados">>,
+): void {
+  try {
+    const raw = window.localStorage.getItem(MEMORY_BASES_STORAGE_KEY);
+    const bases = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(bases)) return;
+    const next = bases.map((b) =>
+      b && b.id === id
+        ? { ...b, ...patch, ...(patch.tipoDados ? { type: patch.tipoDados } : {}) }
+        : b,
+    );
+    window.localStorage.setItem(MEMORY_BASES_STORAGE_KEY, JSON.stringify(next));
+  } catch (e) {
+    console.error("Erro ao atualizar a Memory Base:", e);
+  }
+}

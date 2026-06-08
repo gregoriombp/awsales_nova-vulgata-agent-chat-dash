@@ -836,7 +836,7 @@ function MemoryBaseDirectoryContent() {
                   </button>
                   <button
                     type="button"
-                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
+                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--accent-danger) hover:bg-(--aw-red-100)"
                     onClick={() => {
                       setIsDirMenuOpen(false);
                       setIsDeleteDirectoryOpen(true);
@@ -854,7 +854,7 @@ function MemoryBaseDirectoryContent() {
               <div className="flex items-center gap-2 pr-3 border-r border-gray-600">
                 <span
                   className={`inline-block h-[6px] w-[6px] rounded-full ${
-                    isDirectoryActive ? "bg-[#00c650]" : "bg-gray-500"
+                    isDirectoryActive ? "bg-(--accent-success)" : "bg-(--fg-muted)"
                   }`}
                 />
                 <span>{isDirectoryActive ? "Ativo" : "Inativo"}</span>
@@ -1336,23 +1336,23 @@ function MemoryBaseDirectoryContent() {
 
                     <div className="min-w-[88px] py-1 flex items-center">
                       {r.status === "Analisando" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#b45309]">
-                          <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" />
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--aw-amber-700)">
+                          <span className="w-2 h-2 rounded-full bg-(--aw-amber-500) shrink-0" />
                           Analisando
                         </span>
                       ) : r.status === "Ativo" ? (
                         <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-aw-emerald-900">
-                          <span className="w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                          <span className="w-2 h-2 rounded-full bg-(--accent-success) shrink-0" />
                           Ativo
                         </span>
                       ) : r.status === "Erro" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-[#b91c1c]">
-                          <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--accent-danger)">
+                          <span className="w-2 h-2 rounded-full bg-(--aw-red-500) shrink-0" />
                           Erro
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--fg-secondary)">
-                          <span className="w-2 h-2 rounded-full bg-[#9ca3af] shrink-0" />
+                          <span className="w-2 h-2 rounded-full bg-(--fg-muted) shrink-0" />
                           Inativo
                         </span>
                       )}
@@ -1406,7 +1406,7 @@ function MemoryBaseDirectoryContent() {
                           </button>
                           <button
                             type="button"
-                            className="w-full rounded-sm px-3 py-2 text-left text-sm text-[#ff3e4c] hover:bg-[#fff1f2]"
+                            className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--accent-danger) hover:bg-(--aw-red-100)"
                             onClick={() => {
                               setRowMenuOpenId(null);
                               openDeleteSelected([r.id]);
@@ -1470,7 +1470,7 @@ function MemoryBaseDirectoryContent() {
                 <div>
                   <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">ID do arquivo</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-mono text-(--fg-primary) truncate" title={idToFileUuid(drawerRow.id)}>
+                    <span className="text-[13px] text-(--fg-primary) truncate" title={idToFileUuid(drawerRow.id)}>
                       {idToFileUuid(drawerRow.id)}
                     </span>
                     <button
@@ -1687,7 +1687,7 @@ function MemoryBaseDirectoryContent() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-[#ff3e4c] hover:bg-[#fff1f2]"
+                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--accent-danger) hover:bg-(--aw-red-100)"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) => prev.filter((_, i) => i !== index));
                                       setLayersRowMenuIndex(null);
