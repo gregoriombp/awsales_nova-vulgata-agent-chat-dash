@@ -50,9 +50,6 @@ yarn-error.log*
 .env*.local
 .env
 
-# vercel
-.vercel
-
 # local uploads (max 1GB for preview testing)
 /storage
 
