@@ -275,11 +275,11 @@ Termos canônicos pra usar em UI:
 
 (Histórico: até 04/05/2026, comentários e docs ainda mencionavam Mona Sans / JetBrains Mono — drift corrigido.)
 
-**Tokens** (10 paletas + semantic + dark shell + radius/spacing/motion) em `app/globals.css` + mapeamento Tailwind em `tailwind.config.ts`. Hard rule: **só `bombardier-design-system-foundation` cria tokens novos** — qualquer outro skill ou agente que precisar de um token inexistente reporta o gap em vez de criar. Ver AGENTS.md regra #2.
+**Tokens** (10 paletas + semantic + dark shell + radius/spacing/motion) em `app/globals.css` (bloco `@theme` + `:root` CSS vars; sem `tailwind.config.ts`). Hard rule: **só `bombardier-design-system-foundation` cria tokens novos** — qualquer outro skill ou agente que precisar de um token inexistente reporta o gap em vez de criar. Ver AGENTS.md regra #2.
 
 **Libs principais**:
 - Next.js 16 + React 19 + TypeScript
-- Tailwind CSS v3.4
+- Tailwind CSS v4
 - Zustand (estado)
 - React Hook Form + Zod (forms)
 - Recharts (charts)
