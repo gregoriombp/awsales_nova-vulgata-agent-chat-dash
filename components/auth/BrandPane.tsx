@@ -23,7 +23,7 @@ export default function BrandPane() {
       <div className="relative h-full w-full overflow-hidden rounded-2xl bg-(--bg-inverse)">
         {mounted && (
           <AwBeams
-            backgroundColor="#000000"
+            backgroundColor="#00000000"
             beamWidth={5.5}
             beamHeight={30}
             beamNumber={29}
