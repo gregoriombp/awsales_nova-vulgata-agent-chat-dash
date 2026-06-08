@@ -15,12 +15,15 @@ export type IntegrationItem = {
 };
 
 /* Defaults usam ids do registry canônico do AwBrandLogo (o mesmo do styleguide),
- * então os logos renderizam de verdade — sem PNG/URL solto. */
+ * então os logos renderizam de verdade — sem PNG/URL solto. `icon` aponta pro
+ * mesmo SVG do registry, pra superfícies que renderizam por <img> (ex.: linhas
+ * de fonte da Memory Base) também mostrarem a marca. */
+const INTEGRATION_ICON_BASE = "/assets/integrations/integrations_icon_svg";
 export const DEFAULT_INTEGRATIONS: IntegrationItem[] = [
-  { id: "hubspot", name: "HubSpot", shortLabel: "H", description: "CRM e marketing" },
-  { id: "rdstation", name: "RD Station", shortLabel: "RD", description: "Automação de marketing" },
-  { id: "pipedrive", name: "Pipedrive", shortLabel: "P", description: "CRM de vendas" },
-  { id: "calendly", name: "Calendly", shortLabel: "C", description: "Agendamentos" },
+  { id: "stripe", name: "Stripe", shortLabel: "S", description: "Pagamentos", icon: `${INTEGRATION_ICON_BASE}/Stripe.svg` },
+  { id: "calendly", name: "Calendly", shortLabel: "C", description: "Agendamentos", icon: `${INTEGRATION_ICON_BASE}/Calendly.svg` },
+  { id: "typeform", name: "Typeform", shortLabel: "T", description: "Formulários e captação", icon: `${INTEGRATION_ICON_BASE}/Typeform.svg` },
+  { id: "hotmart", name: "Hotmart", shortLabel: "H", description: "Checkout e infoprodutos", icon: `${INTEGRATION_ICON_BASE}/Hotmart.svg` },
 ];
 
 interface ActivateIntegrationsModalProps {
