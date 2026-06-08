@@ -220,25 +220,25 @@ const scales: Scale[] = [
   {
     title: "Teal",
     description: "Informacional + data-viz.",
-    intent: "Acento neutro frio. Charts.",
+    intent: "Acento neutro frio. Charts. Escala parcial: só os tons exibidos existem.",
     swatches: tealSteps,
   },
   {
     title: "Pink",
     description: "Highlight de marketing.",
-    intent: "Use raramente — vira ruído rápido.",
+    intent: "Use raramente — vira ruído rápido. Escala parcial: só os tons exibidos existem.",
     swatches: pinkSteps,
   },
   {
     title: "Lime",
     description: "Growth / positive delta.",
-    intent: "Indicadores de crescimento em métricas.",
+    intent: "Indicadores de crescimento em métricas. Escala parcial: só os tons exibidos existem.",
     swatches: limeSteps,
   },
   {
     title: "Slate",
     description: "Neutro frio. Alternativa a gray.",
-    intent: "Chrome sutil, data-viz, ambientes mais &quot;tech&quot;.",
+    intent: "Chrome sutil, data-viz, ambientes mais &quot;tech&quot;. Escala parcial: só os tons exibidos existem.",
     swatches: slateSteps,
   },
 ]

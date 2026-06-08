@@ -15,6 +15,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ──────────────────────────────────────────────────────────────────────────
+ * COLOR — canal UTILITY. Os --color-aw-* aqui no @theme fazem o Tailwind v4
+ * gerar as classes utilitárias (bg-aw-gray-100, text-aw-emerald-700, …) —
+ * ~337 usos no app. Os MESMOS valores também existem como --aw-* no :root
+ * abaixo, pro canal var() (bg-(--aw-gray-100), var(--aw-blue-700), …) — ~810
+ * usos. NÃO é duplicação acidental: são dois caminhos de consumo do v4, um por
+ * classe e outro por var(). Mantenha os dois em sincronia; remover um quebra
+ * centenas de chamadas. Fonte de verdade do VALOR: este bloco.
+ * ────────────────────────────────────────────────────────────────────────── */
 @theme {
   --color-aw-gray-25: #fefefe;
   --color-aw-gray-50: #fdfdfd;
@@ -191,12 +200,18 @@
   --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
   --shadow-overlay: 0 24px 64px rgba(0, 0, 0, 0.18);
 
-  --ease-aw-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  /* Motion — UTILITY channel (Tailwind v4 generates classes from @theme).
+   *  These exist so motion can be applied straight in className:
+   *  `ease-aw-out` (57× `duration-aw-fast`, + `ease-fluid`, `duration-aw-base`…).
+   *  Same curves/durations are also published as plain `var()` tokens in :root
+   *  (`--ease-out`, `--dur-*`) for inline styles & raw CSS — keep both in sync.
+   *  Two NAMES, one source of truth; neither block is redundant. */
+  --ease-aw-out: cubic-bezier(0.22, 0.61, 0.36, 1); /* mirror of --ease-out */
   --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --transition-duration-aw-fast: 120ms;
-  --transition-duration-aw-base: 180ms;
-  --transition-duration-aw-slow: 280ms;
+  --transition-duration-aw-fast: 120ms; /* mirror of --dur-fast */
+  --transition-duration-aw-base: 180ms; /* mirror of --dur-base */
+  --transition-duration-aw-slow: 280ms; /* mirror of --dur-slow */
 
   --animate-spin-slow: spin 8s linear infinite;
   --animate-fadeInUp: fadeInUp 0.35s cubic-bezier(0.22, 0.8, 0.3, 1);
@@ -377,6 +392,13 @@
  * Geometric minimalism: grayscale primitives + blue-origin AI gradient.
  * ============================================================ */
   :root {
+    /* COLOR — canal VAR. Os --aw-* abaixo espelham os --color-aw-* do @theme
+     * (topo do arquivo) e existem pro consumo por var(): bg-(--aw-gray-100),
+     * var(--aw-blue-700), etc. (~810 usos). O @theme cobre o consumo por
+     * classe utilitária (bg-aw-*, ~337 usos). Dois canais, um valor —
+     * mantenha em sincronia com o @theme; este bloco também ancora os tokens
+     * semânticos (--bg-*, --fg-*, --accent-*) que referenciam estes primitivos. */
+
     /* Neutral anchors */
     --aw-black: #000000;
     --aw-white: #ffffff;
@@ -600,7 +622,10 @@
     --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.04);
     --shadow-overlay: 0 24px 64px rgba(0, 0, 0, 0.18);
 
-    /* Motion */
+    /* Motion — VAR channel (consumed as var(--…) in inline styles & raw CSS).
+     *  Mirrors the utility-class tokens in @theme above (--ease-aw-out,
+     *  --transition-duration-aw-*). Same values, different consumption path —
+     *  use these for `style={{ transition }}`, the @theme ones for className. */
     --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --dur-fast: 120ms;
@@ -912,6 +937,39 @@
 .memory-base-welcome-icon path:nth-child(4n + 2) { animation-delay: 0.32s; }
 .memory-base-welcome-icon path:nth-child(4n + 3) { animation-delay: 0.65s; }
 .memory-base-welcome-icon path:nth-child(4n + 4) { animation-delay: 0.98s; }
+
+/* ── Fluxo de criação da Memory Base (/memory-base/new) ───────────────────── */
+
+/* Glyphs decorativos do passo "envio" (Padrão = estrela, Catálogo = funil).
+ * Giro lento e contínuo só pra dar vida — puramente ornamental. */
+@keyframes mb-glyph-spin {
+  to { transform: rotate(360deg); }
+}
+.mb-glyph-spin {
+  transform-origin: center;
+  animation: mb-glyph-spin 30s linear infinite;
+}
+.mb-glyph-spin-rev {
+  transform-origin: center;
+  animation: mb-glyph-spin 44s linear infinite reverse;
+}
+
+/* Botão "Configurar" da tela de base criada: surge em fade depois da celebração. */
+@keyframes mb-reveal-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.mb-reveal-up {
+  opacity: 0;
+  animation: mb-reveal-up 0.5s var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mb-glyph-spin,
+  .mb-glyph-spin-rev,
+  .mb-reveal-up { animation: none; }
+  .mb-reveal-up { opacity: 1; }
+}
 
 /* Pulse animation for the Memory Base icon container */
 @keyframes onboarding-pulse {
