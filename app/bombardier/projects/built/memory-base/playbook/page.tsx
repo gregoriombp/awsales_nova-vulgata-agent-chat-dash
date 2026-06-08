@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { AwButton } from "@/components/ui/AwButton"
+import { BuiltShell } from "@/app/bombardier/projects/_components/BuiltShell"
 import { AwInput } from "@/components/ui/AwInput"
 import { AwModal } from "@/components/ui/AwModal"
 import { AwPill } from "@/components/ui/AwPill"
@@ -75,30 +76,8 @@ export default function PlaybookScreen() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--bg-canvas) text-(--fg-primary)">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--border-subtle) px-6 py-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href="/bombardier/projects/memory-base" className="no-underline">
-            <AwButton variant="ghost" size="sm" iconLeft="arrow_back">
-              Memory Base
-            </AwButton>
-          </Link>
-          <span className="text-sm text-(--fg-secondary)">
-            Reconstruído de{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              Tela 08 · Playbook (1 tela + 2 modais)
-            </strong>
-          </span>
-          <AwPill variant="live">No design system atual</AwPill>
-        </div>
-        <a href={FIGMA_URL} target="_blank" rel="noopener noreferrer" className="no-underline">
-          <AwButton variant="ghost" size="sm" iconRight="open_in_new">
-            Original no Figma
-          </AwButton>
-        </a>
-      </div>
+    <BuiltShell breadcrumbs={[{ label: "Projetos", href: "/bombardier/projects" }, { label: "Memory Base", href: "/bombardier/projects/memory-base" }, "Playbook"]} center>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
           <p className="aw-eyebrow mb-6">Etapa 6 de 6 · Playbook</p>
           <h1 className="flex items-center gap-2 text-2xl font-semibold tracking-tight">
@@ -188,7 +167,6 @@ export default function PlaybookScreen() {
             </AwButton>
           </div>
         </div>
-      </main>
 
       {/* Modal: Novo playbook */}
       <AwModal
@@ -423,7 +401,7 @@ export default function PlaybookScreen() {
           </div>
         </div>
       </AwModal>
-    </div>
+    </BuiltShell>
   )
 }
 

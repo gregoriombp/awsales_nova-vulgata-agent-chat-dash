@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { AwButton } from "@/components/ui/AwButton"
+import { BuiltShell } from "@/app/bombardier/projects/_components/BuiltShell"
 import { AwInput } from "@/components/ui/AwInput"
 import { AwModal } from "@/components/ui/AwModal"
 import { AwSheet } from "@/components/ui/AwSheet"
@@ -81,30 +82,8 @@ export default function CatalogoScreen() {
   const novoCanAdvance = name.trim().length > 0 && (csv || integr.length > 0)
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--bg-canvas) text-(--fg-primary)">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--border-subtle) px-6 py-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href="/bombardier/projects/memory-base" className="no-underline">
-            <AwButton variant="ghost" size="sm" iconLeft="arrow_back">
-              Memory Base
-            </AwButton>
-          </Link>
-          <span className="text-sm text-(--fg-secondary)">
-            Reconstruído de{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              Tela 07 · Catálogo (1 tela + 2 modais + drawer)
-            </strong>
-          </span>
-          <AwPill variant="live">No design system atual</AwPill>
-        </div>
-        <a href={FIGMA_URL} target="_blank" rel="noopener noreferrer" className="no-underline">
-          <AwButton variant="ghost" size="sm" iconRight="open_in_new">
-            Original no Figma
-          </AwButton>
-        </a>
-      </div>
+    <BuiltShell breadcrumbs={[{ label: "Projetos", href: "/bombardier/projects" }, { label: "Memory Base", href: "/bombardier/projects/memory-base" }, "Catálogo"]} center>
 
-      <main className="flex flex-1 items-center justify-center px-6 py-12">
         <div className="w-full max-w-3xl">
           <p className="aw-eyebrow mb-6">Etapa 5 de 6 · Catálogo</p>
           <h1 className="text-2xl font-semibold tracking-tight">Catálogo</h1>
@@ -178,7 +157,6 @@ export default function CatalogoScreen() {
             </AwButton>
           </div>
         </div>
-      </main>
 
       {/* Modal: Novo catálogo */}
       <AwModal
@@ -454,7 +432,7 @@ export default function CatalogoScreen() {
           </div>
         </div>
       </AwSheet>
-    </div>
+    </BuiltShell>
   )
 }
 
