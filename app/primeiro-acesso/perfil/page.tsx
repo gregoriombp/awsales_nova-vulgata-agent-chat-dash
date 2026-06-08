@@ -105,7 +105,7 @@ function PerfilContent() {
         </h3>
 
         <p className="mb-7 body-sm text-fg-secondary text-pretty">
-          Como você quer ser chamado por aqui e para quem mandamos as faturas.
+          Configure seu perfil: como você quer ser chamado, seu cargo e contato.
           Pode ajustar depois nas configurações.
         </p>
 
@@ -162,6 +162,18 @@ function PerfilContent() {
               como identidade no card acima — aqui só os campos editáveis. */}
           {!ssoPhoto && (
             <Field
+              label="E-mail"
+              icon="mail"
+              value={email}
+              onChange={setEmail}
+              placeholder="seu@email.com"
+              type="email"
+              inputMode="email"
+              required
+            />
+          )}
+          {!ssoPhoto && (
+            <Field
               label="Seu nome"
               icon="person"
               value={name}
@@ -178,18 +190,6 @@ function PerfilContent() {
             placeholder="Ex.: Gerente Comercial"
             required
           />
-          {!ssoPhoto && (
-            <Field
-              label="E-mail"
-              icon="mail"
-              value={email}
-              onChange={setEmail}
-              placeholder="seu@email.com"
-              type="email"
-              inputMode="email"
-              required
-            />
-          )}
           <Field
             label="Celular"
             icon="phone"
@@ -285,14 +285,6 @@ function PerfilContent() {
                         <Icon name="add" size={16} />
                       </button>
                     </div>
-
-                    <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
-                      <Icon name="info" size={12} className="mt-px shrink-0" />
-                      <span>
-                        Cada e-mail recebe um convite para entrar na organização. A pessoa
-                        precisa confirmar o convite para começar a receber as faturas.
-                      </span>
-                    </p>
                   </div>
                 </div>
               </>
