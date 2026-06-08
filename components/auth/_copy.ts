@@ -138,7 +138,7 @@ export const COPY = {
   ssoConnecting: {
     pt: {
       kicker: "Conectando",
-      title: "Te direcionando pro acesso da",
+      title: "Abrindo o acesso da",
       sub: "Aguarde alguns segundos enquanto preparamos sua entrada.",
     },
     en: {
@@ -189,7 +189,7 @@ export const COPY = {
     pt: {
       kicker: "Segurança",
       title: "Sua organização exige 2FA",
-      sub: "Configure agora a autenticação de dois fatores no seu app autenticador pra continuar acessando.",
+      sub: "Configure a autenticação de dois fatores no seu app autenticador para manter o acesso.",
       method: "Método",
       methodApp: "App autenticador (TOTP)",
       methodAppDesc: "Google Authenticator, 1Password, Authy ou similar.",
@@ -299,12 +299,12 @@ export const COPY = {
   },
   success: {
     pt: {
-      title: "Tudo certo!",
+      title: "Tudo certo",
       sub: "Redirecionando você para a plataforma…",
       cta: "Entrar agora",
     },
     en: {
-      title: "You’re all set!",
+      title: "You’re all set",
       sub: "Redirecting you to the platform…",
       cta: "Enter now",
     },
