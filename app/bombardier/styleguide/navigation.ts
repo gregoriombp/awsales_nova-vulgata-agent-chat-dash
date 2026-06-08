@@ -147,6 +147,13 @@ export const navigation: NavSection[] = [
   },
   {
     group: "UX Flows",
+    title: "Experimentos",
+    items: [
+      { name: "POC · Visão global", href: "/bombardier/styleguide/ux-flows/poc-visao-global" },
+    ],
+  },
+  {
+    group: "UX Flows",
     title: "Memory Base",
     items: [
       { name: "Criar base de conhecimento", href: "/bombardier/styleguide/ux-flows/criar-base-de-conhecimento" },
