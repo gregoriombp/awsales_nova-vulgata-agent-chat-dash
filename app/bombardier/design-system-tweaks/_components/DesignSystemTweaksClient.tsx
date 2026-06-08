@@ -5,9 +5,12 @@ import * as React from "react"
 import { AwAlert } from "@/components/ui/AwAlert"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwCard } from "@/components/ui/AwCard"
+import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwField, AwInput } from "@/components/ui/AwInput"
 import { AwPill } from "@/components/ui/AwPill"
+import { AwProgress } from "@/components/ui/AwProgress"
 import { AwSlider } from "@/components/ui/AwSlider"
+import { AwTable } from "@/components/ui/AwTable"
 import { AwTabs } from "@/components/ui/AwTabs"
 import { AwToggleRow } from "@/components/ui/AwToggle"
 import { Icon } from "@/components/ui/Icon"
@@ -17,10 +20,12 @@ import {
   createDefaultFoundationTweakValues,
   FOUNDATION_TWEAK_CATEGORIES,
   FOUNDATION_TWEAK_CONTROLS,
+  FOUNDATION_TWEAK_DRAFT_STORAGE_KEY,
   FOUNDATION_TWEAK_STORAGE_KEY,
   FOUNDATION_TWEAK_STYLE_ID,
   type FoundationTweakCategory,
   type FoundationTweakControl,
+  type FoundationTweakDraft,
   type FoundationTweakMode,
   type FoundationTweakStore,
   type FoundationTweakValueMap,
@@ -40,6 +45,17 @@ const categoryTabs = FOUNDATION_TWEAK_CATEGORIES.map((category) => ({
   ).length,
 }))
 
+type PreviewSurface = "product" | "forms" | "data" | "chrome"
+
+const previewTabs = [
+  { value: "product", label: "Produto" },
+  { value: "forms", label: "Form" },
+  { value: "data", label: "Dados" },
+  { value: "chrome", label: "Chrome" },
+]
+
+const DRAFT_LIMIT = 12
+
 function readStoredTweaks(): FoundationTweakValueMap {
   try {
     const raw = window.localStorage.getItem(FOUNDATION_TWEAK_STORAGE_KEY)
@@ -48,6 +64,68 @@ function readStoredTweaks(): FoundationTweakValueMap {
   } catch {
     return createDefaultFoundationTweakValues()
   }
+}
+
+function readStoredDrafts(): FoundationTweakDraft[] {
+  try {
+    const raw = window.localStorage.getItem(FOUNDATION_TWEAK_DRAFT_STORAGE_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return []
+
+    return parsed
+      .flatMap((draft): FoundationTweakDraft[] => {
+        if (!draft || typeof draft !== "object") return []
+        const item = draft as Partial<FoundationTweakDraft>
+        if (
+          typeof item.id !== "string" ||
+          typeof item.name !== "string" ||
+          typeof item.createdAt !== "string" ||
+          typeof item.updatedAt !== "string"
+        ) {
+          return []
+        }
+
+        return [
+          {
+            id: item.id,
+            name: item.name,
+            createdAt: item.createdAt,
+            updatedAt: item.updatedAt,
+            values: mergeFoundationTweakValues(item.values),
+          },
+        ]
+      })
+      .slice(0, DRAFT_LIMIT)
+  } catch {
+    return []
+  }
+}
+
+function storeDrafts(drafts: FoundationTweakDraft[]) {
+  window.localStorage.setItem(
+    FOUNDATION_TWEAK_DRAFT_STORAGE_KEY,
+    JSON.stringify(drafts.slice(0, DRAFT_LIMIT)),
+  )
+}
+
+function createDraftId() {
+  if (typeof window !== "undefined" && window.crypto?.randomUUID) {
+    return window.crypto.randomUUID()
+  }
+  return `draft-${Date.now()}`
+}
+
+function formatDraftDate(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return "Sem data"
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date)
 }
 
 function applyTweaksStyle(values: FoundationTweakValueMap) {
@@ -103,11 +181,20 @@ export function DesignSystemTweaksClient() {
   const [values, setValues] = React.useState<FoundationTweakValueMap>(() =>
     createDefaultFoundationTweakValues(),
   )
+  const [previewSurface, setPreviewSurface] =
+    React.useState<PreviewSurface>("product")
+  const [drafts, setDrafts] = React.useState<FoundationTweakDraft[]>([])
+  const [activeDraftId, setActiveDraftId] = React.useState<string | null>(null)
+  const [draftName, setDraftName] = React.useState("Exploração sem título")
+  const [draftStatus, setDraftStatus] = React.useState<
+    "idle" | "saved" | "loaded" | "deleted"
+  >("idle")
   const [copied, setCopied] = React.useState(false)
 
   React.useEffect(() => {
     const stored = readStoredTweaks()
     setValues(stored)
+    setDrafts(readStoredDrafts())
     applyTweaksStyle(stored)
     setHydrated(true)
   }, [])
@@ -134,6 +221,7 @@ export function DesignSystemTweaksClient() {
 
   function updateValue(control: FoundationTweakControl, next: string) {
     setCopied(false)
+    setDraftStatus("idle")
     setValues((current) => ({
       ...current,
       [mode]: {
@@ -148,7 +236,58 @@ export function DesignSystemTweaksClient() {
     setValues(defaults)
     window.localStorage.removeItem(FOUNDATION_TWEAK_STORAGE_KEY)
     removeTweaksStyle()
+    setActiveDraftId(null)
+    setDraftStatus("idle")
     setCopied(false)
+  }
+
+  function saveDraft(options: { forceNew?: boolean } = {}) {
+    const name = draftName.trim() || "Exploração sem título"
+    const now = new Date().toISOString()
+    const id = options.forceNew || !activeDraftId ? createDraftId() : activeDraftId
+    const nextDraft: FoundationTweakDraft = {
+      id,
+      name,
+      createdAt:
+        drafts.find((draft) => draft.id === id)?.createdAt ??
+        now,
+      updatedAt: now,
+      values: mergeFoundationTweakValues(values),
+    }
+
+    setDrafts((current) => {
+      const next = [
+        nextDraft,
+        ...current.filter((draft) => draft.id !== id),
+      ].slice(0, DRAFT_LIMIT)
+      storeDrafts(next)
+      return next
+    })
+    setActiveDraftId(id)
+    setDraftName(name)
+    setDraftStatus("saved")
+  }
+
+  function loadDraft(draft: FoundationTweakDraft) {
+    const nextValues = mergeFoundationTweakValues(draft.values)
+    setValues(nextValues)
+    applyTweaksStyle(nextValues)
+    setActiveDraftId(draft.id)
+    setDraftName(draft.name)
+    setDraftStatus("loaded")
+    setCopied(false)
+  }
+
+  function deleteDraft(id: string) {
+    setDrafts((current) => {
+      const next = current.filter((draft) => draft.id !== id)
+      storeDrafts(next)
+      return next
+    })
+    if (activeDraftId === id) {
+      setActiveDraftId(null)
+      setDraftStatus("deleted")
+    }
   }
 
   async function copyPatch() {
@@ -253,10 +392,111 @@ export function DesignSystemTweaksClient() {
               </div>
             </AwCard>
 
-            <PreviewPanel mode={mode} />
+            <PreviewPanel
+              mode={mode}
+              surface={previewSurface}
+              onSurfaceChange={setPreviewSurface}
+            />
           </section>
 
           <aside className="col-span-1 sticky top-8 flex flex-col gap-6">
+            <AwCard
+              className="p-5 bg-(--bg-raised)"
+              style={{ borderRadius: "var(--radius-2xl)" }}
+            >
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <p className="aw-eyebrow mb-2">Rascunhos</p>
+                  <h2 className="m-0 text-(--h5-size)">Explorações salvas</h2>
+                </div>
+                <Icon name="bookmark" size={22} />
+              </div>
+              <AwField label="Nome do rascunho">
+                <AwInput
+                  dense
+                  value={draftName}
+                  onChange={(event) => {
+                    setDraftName(event.target.value)
+                    setDraftStatus("idle")
+                  }}
+                />
+              </AwField>
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <AwButton
+                  variant="primary"
+                  iconLeft="save"
+                  onClick={() => saveDraft()}
+                >
+                  Salvar
+                </AwButton>
+                <AwButton
+                  variant="secondary"
+                  iconLeft="add"
+                  onClick={() => saveDraft({ forceNew: true })}
+                >
+                  Novo
+                </AwButton>
+              </div>
+              {draftStatus !== "idle" && (
+                <p className="mt-3 text-sm text-(--fg-secondary)">
+                  {draftStatus === "saved" && "Rascunho salvo."}
+                  {draftStatus === "loaded" && "Rascunho carregado."}
+                  {draftStatus === "deleted" && "Rascunho apagado."}
+                </p>
+              )}
+              <div className="mt-5 flex flex-col gap-2">
+                {drafts.length === 0 ? (
+                  <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4 text-sm text-(--fg-secondary)">
+                    Nenhum rascunho salvo ainda.
+                  </div>
+                ) : (
+                  drafts.map((draft) => {
+                    const selected = draft.id === activeDraftId
+                    const draftChanges = countFoundationTweakChanges(draft.values)
+                    return (
+                      <div
+                        key={draft.id}
+                        className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <button
+                            type="button"
+                            onClick={() => loadDraft(draft)}
+                            className="min-w-0 flex-1 text-left"
+                          >
+                            <span className="block truncate text-sm font-medium text-(--fg-primary)">
+                              {draft.name}
+                            </span>
+                            <span className="mt-1 block text-xs text-(--fg-tertiary)">
+                              {formatDraftDate(draft.updatedAt)} ·{" "}
+                              {draftChanges} alterações
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            aria-label={`Apagar ${draft.name}`}
+                            onClick={() => deleteDraft(draft.id)}
+                            className="inline-flex items-center justify-center rounded-md text-(--fg-tertiary) hover:text-(--fg-primary) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+                            style={{
+                              width: "var(--space-8)",
+                              height: "var(--space-8)",
+                            }}
+                          >
+                            <Icon name="delete" size={18} />
+                          </button>
+                        </div>
+                        {selected && (
+                          <div className="mt-2">
+                            <AwPill variant="live">Em edição</AwPill>
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })
+                )}
+              </div>
+            </AwCard>
+
             <AwCard
               className="p-5 bg-(--bg-raised)"
               style={{ borderRadius: "var(--radius-2xl)" }}
@@ -339,6 +579,36 @@ function TokenControl({
   value: string
   onChange: (value: string) => void
 }) {
+  if (control.type === "shadow") {
+    return (
+      <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div>
+            <h3 className="m-0 text-base">{control.label}</h3>
+            <p className="m-0 mt-1 text-sm leading-relaxed text-(--fg-secondary)">
+              {control.description}
+            </p>
+          </div>
+          <code className="mono text-xs text-(--fg-tertiary)">
+            {control.token}
+          </code>
+        </div>
+        <textarea
+          aria-label={control.label}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="mono min-h-24 w-full resize-y rounded-md border border-(--border-default) bg-(--bg-raised) p-3 text-xs text-(--fg-primary) outline-none focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+        />
+        <div
+          className="mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4 text-sm text-(--fg-secondary)"
+          style={{ boxShadow: value }}
+        >
+          Preview da elevação com este shadow token.
+        </div>
+      </div>
+    )
+  }
+
   if (control.type === "color") {
     const fallback = control.defaults[mode]
     const colorValue = safeColorValue(value, fallback)
@@ -424,7 +694,15 @@ function TokenControl({
   )
 }
 
-function PreviewPanel({ mode }: { mode: FoundationTweakMode }) {
+function PreviewPanel({
+  mode,
+  surface,
+  onSurfaceChange,
+}: {
+  mode: FoundationTweakMode
+  surface: PreviewSurface
+  onSurfaceChange: (surface: PreviewSurface) => void
+}) {
   return (
     <AwCard
       className="overflow-hidden bg-(--bg-raised)"
@@ -435,96 +713,379 @@ function PreviewPanel({ mode }: { mode: FoundationTweakMode }) {
           <p className="aw-eyebrow mb-2">Preview</p>
           <h2 className="m-0 text-(--h5-size)">Componentes em contexto</h2>
         </div>
-        <AwPill variant={mode === "dark" ? "neutral" : "live"}>
-          {mode === "dark" ? "Dark" : "Light"}
-        </AwPill>
+        <div className="flex items-center gap-3">
+          <AwTabs
+            items={previewTabs}
+            value={surface}
+            onChange={(next) => onSurfaceChange(next as PreviewSurface)}
+            variant="segmented"
+            aria-label="Preview"
+          />
+          <AwPill variant={mode === "dark" ? "neutral" : "live"}>
+            {mode === "dark" ? "Dark" : "Light"}
+          </AwPill>
+        </div>
       </div>
 
       <div className={mode === "dark" ? "dark" : undefined}>
         <div className="bg-(--bg-canvas) text-(--fg-primary) p-6">
-          <div className="grid grid-cols-2 gap-5">
-            <AwCard
-              className="p-5 bg-(--bg-raised)"
-              style={{ borderRadius: "var(--radius-xl)" }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="aw-eyebrow mb-2">Agent Studio</p>
-                  <h3 className="m-0">Orquestração de agentes</h3>
-                </div>
-                <AwPill variant="ai">Beta</AwPill>
-              </div>
-              <p className="mt-3 text-sm leading-relaxed text-(--fg-secondary)">
-                Simule como as foundations reagem em superfícies, texto,
-                bordas, ações e estados.
-              </p>
-              <div className="mt-5 flex items-center gap-3">
-                <AwButton variant="primary" iconRight="arrow_forward">
-                  Salvar ajuste
-                </AwButton>
-                <AwButton variant="secondary" iconLeft="visibility">
-                  Revisar
-                </AwButton>
-              </div>
-            </AwCard>
-
-            <AwCard
-              className="p-5 bg-(--bg-surface)"
-              style={{ borderRadius: "var(--radius-xl)" }}
-            >
-              <div className="flex items-center justify-between gap-4 mb-5">
-                <div>
-                  <p className="aw-eyebrow mb-2">Controls</p>
-                  <h3 className="m-0">Estados reais</h3>
-                </div>
-                <Icon name="settings" size={22} />
-              </div>
-              <div className="flex flex-col gap-4">
-                <AwField label="Nome do token">
-                  <AwInput placeholder="--accent-brand" iconLeft="search" />
-                </AwField>
-                <AwToggleRow
-                  title="Preview ativo"
-                  description="Override local aplicado na sessão atual."
-                  checked
-                />
-                <AwSlider
-                  label="Densidade"
-                  valueDisplay="24px"
-                  value={24}
-                  min={8}
-                  max={48}
-                  readOnly
-                />
-              </div>
-            </AwCard>
-          </div>
-
-          <div className="mt-5 grid grid-cols-4 gap-3">
-            {[
-              ["Brand", "var(--accent-brand)"],
-              ["Success", "var(--accent-success)"],
-              ["Warning", "var(--accent-warning)"],
-              ["Danger", "var(--accent-danger)"],
-            ].map(([label, token]) => (
-              <div
-                key={label}
-                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4"
-              >
-                <div
-                  className="mb-3 rounded-md"
-                  style={{
-                    height: "var(--space-8)",
-                    background: token,
-                  }}
-                />
-                <div className="text-sm font-medium">{label}</div>
-                <div className="caption mono mt-1">{token}</div>
-              </div>
-            ))}
-          </div>
+          {surface === "product" && <ProductPreview />}
+          {surface === "forms" && <FormPreview />}
+          {surface === "data" && <DataPreview />}
+          {surface === "chrome" && <ChromePreview />}
         </div>
       </div>
     </AwCard>
+  )
+}
+
+function ProductPreview() {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-[1.35fr_1fr] gap-5">
+        <div
+          className="border border-(--border-subtle) bg-(--bg-raised) p-5"
+          style={{
+            borderRadius: "var(--radius-xl)",
+            boxShadow: "var(--shadow-sm)",
+          }}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="aw-eyebrow mb-2">Agent Studio</p>
+              <h3 className="m-0">Orquestração de agentes</h3>
+            </div>
+            <AwPill variant="ai">Beta</AwPill>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-(--fg-secondary)">
+            Simule como as foundations reagem em superfícies, texto, bordas,
+            ações, estados e elevação.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <AwButton variant="primary" iconRight="arrow_forward">
+              Salvar ajuste
+            </AwButton>
+            <AwButton variant="secondary" iconLeft="visibility">
+              Revisar
+            </AwButton>
+            <AwButton variant="ghost" iconLeft="more_horiz">
+              Mais
+            </AwButton>
+          </div>
+        </div>
+
+        <div
+          className="border border-(--border-subtle) bg-(--bg-surface) p-5"
+          style={{
+            borderRadius: "var(--radius-xl)",
+            boxShadow: "var(--shadow-xs)",
+          }}
+        >
+          <div className="mb-5 flex items-center justify-between gap-4">
+            <div>
+              <p className="aw-eyebrow mb-2">Pipeline</p>
+              <h3 className="m-0">Qualidade do setup</h3>
+            </div>
+            <Icon name="settings" size={22} />
+          </div>
+          <div className="flex flex-col gap-4">
+            <AwProgress
+              value={72}
+              label="Cobertura"
+              valueLabel="72%"
+              variant="success"
+            />
+            <AwProgress
+              value={38}
+              label="Pendências"
+              valueLabel="3 itens"
+              variant="warning"
+            />
+            <AwToggleRow
+              title="Preview ativo"
+              description="Override local aplicado na sessão atual."
+              checked
+            />
+          </div>
+        </div>
+      </div>
+
+      <TokenSwatchGrid />
+    </div>
+  )
+}
+
+function FormPreview() {
+  return (
+    <div className="grid grid-cols-[1fr_1fr] gap-5">
+      <div
+        className="border border-(--border-subtle) bg-(--bg-raised) p-5"
+        style={{
+          borderRadius: "var(--radius-xl)",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <p className="aw-eyebrow mb-2">Form</p>
+        <h3 className="m-0">Configuração de foundation</h3>
+        <div className="mt-5 flex flex-col gap-4">
+          <AwField label="Token">
+            <AwInput placeholder="--accent-brand" iconLeft="search" />
+          </AwField>
+          <AwField label="Descrição">
+            <AwInput placeholder="Ação primária e acento institucional" />
+          </AwField>
+          <div className="flex items-center gap-3">
+            <AwCheckbox checked label="Aprovado para revisão" />
+            <span className="text-sm text-(--fg-secondary)">
+              Aprovado para revisão
+            </span>
+          </div>
+          <AwToggleRow
+            title="Aplicar preview global"
+            description="Mantém os overrides entre reloads."
+            checked
+          />
+          <div className="flex items-center gap-3">
+            <AwButton variant="primary" iconLeft="save">
+              Salvar draft
+            </AwButton>
+            <AwButton variant="danger" iconLeft="delete">
+              Descartar
+            </AwButton>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <AwAlert variant="success" title="Patch pronto">
+          O conjunto atual pode ser consolidado como revisão de foundation.
+        </AwAlert>
+        <AwAlert variant="warning" title="Verifique contraste">
+          Alterações de texto e surface devem passar por leitura em light e
+          dark.
+        </AwAlert>
+        <div
+          className="border border-(--border-subtle) bg-(--bg-surface) p-5"
+          style={{
+            borderRadius: "var(--radius-lg)",
+            boxShadow: "var(--shadow-xs)",
+          }}
+        >
+          <p className="aw-eyebrow mb-2">States</p>
+          <div className="flex flex-wrap gap-2">
+            <AwPill variant="live">Ativo</AwPill>
+            <AwPill variant="draft">Draft</AwPill>
+            <AwPill variant="warning">Revisão</AwPill>
+            <AwPill variant="error">Erro</AwPill>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DataPreview() {
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="grid grid-cols-3 gap-4">
+        {[
+          ["Tokens alterados", "12", "var(--accent-brand)"],
+          ["Componentes afetados", "34", "var(--accent-success)"],
+          ["Contraste mínimo", "AA", "var(--accent-warning)"],
+        ].map(([label, value, token]) => (
+          <div
+            key={label}
+            className="border border-(--border-subtle) bg-(--bg-raised) p-4"
+            style={{
+              borderRadius: "var(--radius-lg)",
+              boxShadow: "var(--shadow-xs)",
+            }}
+          >
+            <div
+              className="mb-4 rounded-md"
+              style={{
+                width: "var(--space-8)",
+                height: "var(--space-2)",
+                background: token,
+              }}
+            />
+            <div className="text-(--h4-size) font-semibold">{value}</div>
+            <div className="mt-1 text-sm text-(--fg-secondary)">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      <div
+        className="border border-(--border-subtle) bg-(--bg-raised) p-5"
+        style={{
+          borderRadius: "var(--radius-xl)",
+          boxShadow: "var(--shadow-sm)",
+        }}
+      >
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <p className="aw-eyebrow mb-2">Tabela</p>
+            <h3 className="m-0">Impacto por token</h3>
+          </div>
+          <AwButton variant="secondary" iconLeft="filter_list">
+            Filtrar
+          </AwButton>
+        </div>
+        <AwTable>
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Uso</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[
+              ["--accent-brand", "Botões primários", "Alterado"],
+              ["--bg-raised", "Cards e painéis", "Estável"],
+              ["--shadow-sm", "Cards sutis", "Revisar"],
+            ].map(([token, use, status]) => (
+              <tr key={token}>
+                <td className="mono">{token}</td>
+                <td>{use}</td>
+                <td>
+                  <AwPill
+                    variant={
+                      status === "Alterado"
+                        ? "warning"
+                        : status === "Revisar"
+                          ? "draft"
+                          : "neutral"
+                    }
+                  >
+                    {status}
+                  </AwPill>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </AwTable>
+      </div>
+    </div>
+  )
+}
+
+function ChromePreview() {
+  return (
+    <div
+      className="grid grid-cols-[220px_1fr] overflow-hidden border border-(--dark-border)"
+      style={{
+        borderRadius: "var(--radius-2xl)",
+        background: "var(--dark-bg)",
+        color: "var(--dark-fg-primary)",
+        boxShadow: "var(--shadow-lg)",
+      }}
+    >
+      <aside className="border-r border-(--dark-border) p-4">
+        <div className="mb-6 flex items-center gap-3">
+          <span
+            className="inline-flex items-center justify-center rounded-md"
+            style={{
+              width: "var(--space-10)",
+              height: "var(--space-10)",
+              background: "var(--dark-bg-raised)",
+            }}
+          >
+            <Icon name="auto_awesome" size={20} />
+          </span>
+          <div>
+            <div className="text-sm font-semibold">Aswork</div>
+            <div
+              className="text-xs"
+              style={{ color: "var(--dark-fg-secondary)" }}
+            >
+              Shell preview
+            </div>
+          </div>
+        </div>
+        {["Dashboard", "Agent Studio", "Memory Base", "Settings"].map(
+          (item, index) => (
+            <div
+              key={item}
+              className="mb-2 flex items-center gap-3 px-3 py-2 text-sm"
+              style={{
+                borderRadius: "var(--radius-md)",
+                background: index === 1 ? "var(--dark-bg-hover)" : undefined,
+                color:
+                  index === 1
+                    ? "var(--dark-fg-primary)"
+                    : "var(--dark-fg-secondary)",
+              }}
+            >
+              <Icon name={index === 1 ? "hub" : "circle"} size={18} />
+              {item}
+            </div>
+          ),
+        )}
+      </aside>
+      <section className="p-5">
+        <div
+          className="border p-5"
+          style={{
+            borderColor: "var(--dark-border)",
+            borderRadius: "var(--radius-xl)",
+            background: "var(--dark-bg-raised)",
+          }}
+        >
+          <p
+            className="aw-eyebrow mb-2"
+            style={{ color: "var(--dark-fg-tertiary)" }}
+          >
+            Dark chrome
+          </p>
+          <h3 className="m-0" style={{ color: "var(--dark-fg-primary)" }}>
+            Navegação e superfícies escuras
+          </h3>
+          <p
+            className="mt-3 text-sm leading-relaxed"
+            style={{ color: "var(--dark-fg-secondary)" }}
+          >
+            Esta área mostra tokens específicos do shell escuro, separados dos
+            tokens semânticos light/dark do conteúdo.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <AwButton variant="secondary" iconLeft="visibility">
+              Preview
+            </AwButton>
+            <AwButton variant="ghost" iconLeft="tune">
+              Ajustar
+            </AwButton>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function TokenSwatchGrid() {
+  return (
+    <div className="grid grid-cols-4 gap-3">
+      {[
+        ["Brand", "var(--accent-brand)"],
+        ["Success", "var(--accent-success)"],
+        ["Warning", "var(--accent-warning)"],
+        ["Danger", "var(--accent-danger)"],
+      ].map(([label, token]) => (
+        <div
+          key={label}
+          className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4"
+        >
+          <div
+            className="mb-3 rounded-md"
+            style={{
+              height: "var(--space-8)",
+              background: token,
+            }}
+          />
+          <div className="text-sm font-medium">{label}</div>
+          <div className="caption mono mt-1">{token}</div>
+        </div>
+      ))}
+    </div>
   )
 }
