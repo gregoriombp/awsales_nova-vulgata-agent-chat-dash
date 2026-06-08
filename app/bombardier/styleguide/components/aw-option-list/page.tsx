@@ -279,9 +279,9 @@ if (result) {
             title="Notas"
             lead="Detalhes operacionais e de acessibilidade."
           >
-            <ul className="flex flex-col gap-2 text-[13.5px] leading-[1.55] text-[var(--fg-secondary)]">
+            <ul className="flex flex-col gap-2 text-[13.5px] leading-[1.55] text-(--fg-secondary)">
               <li>
-                <strong className="text-[var(--fg-primary)]">
+                <strong className="text-(--fg-primary)">
                   Acessibilidade:
                 </strong>{" "}
                 listbox roving tabindex (↑/↓ navega, Home/End extremos, Enter/Espaço
@@ -289,14 +289,14 @@ if (result) {
                 selectionMode.
               </li>
               <li>
-                <strong className="text-[var(--fg-primary)]">
+                <strong className="text-(--fg-primary)">
                   Container queries:
                 </strong>{" "}
                 a lista usa @container/option-list para encolher fonte e
                 ajustar padding em containers menores.
               </li>
               <li>
-                <strong className="text-[var(--fg-primary)]">
+                <strong className="text-(--fg-primary)">
                   Tool UI surface:
                 </strong>{" "}
                 exporta SerializableOptionListSchema (Zod) +
@@ -304,7 +304,7 @@ if (result) {
                 LLM. value (controlado) é excluído do schema serializável.
               </li>
               <li>
-                <strong className="text-[var(--fg-primary)]">
+                <strong className="text-(--fg-primary)">
                   Tokens:
                 </strong>{" "}
                 superfície usa --bg-raised, borda --border-subtle, indicador de

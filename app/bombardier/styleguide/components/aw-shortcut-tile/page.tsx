@@ -34,7 +34,7 @@ export default function AwShortcutTilePage() {
           >
             <Stage label="Atalhos do Financeiro · 2 colunas">
               <div className="w-full max-w-[820px]">
-                <AwCard className="!p-2">
+                <AwCard className="p-2!">
                   <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                     <AwShortcutTile
                       icon="redeem"
@@ -73,7 +73,7 @@ export default function AwShortcutTilePage() {
           >
             <Stage label="Só título + ícone">
               <div className="w-full max-w-[820px]">
-                <AwCard className="!p-2">
+                <AwCard className="p-2!">
                   <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                     <AwShortcutTile
                       icon="settings"

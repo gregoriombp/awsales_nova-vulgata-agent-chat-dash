@@ -64,7 +64,7 @@ export default function ConviteEntradaPage() {
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Seu acesso</div>
 
           <div className="flex items-start gap-3.5">
-            <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
               <Icon name="headset_mic" size={18} />
             </span>
             <div className="min-w-0 flex-1">
@@ -118,7 +118,7 @@ export default function ConviteEntradaPage() {
             {accepting ? (
               <span
                 aria-hidden="true"
-                className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-white border-r-transparent"
+                className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-[1.5px] border-white border-r-transparent"
               />
             ) : null}
             <span className="aw-btn__label">

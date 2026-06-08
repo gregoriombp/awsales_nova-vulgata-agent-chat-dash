@@ -44,7 +44,7 @@ export default function SkeletonPage() {
             <AwSkeleton shape="card" />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="block"
               v="52 px · radius-md"
@@ -111,7 +111,7 @@ export default function SkeletonPage() {
           title="Anatomia"
           lead="O shimmer é horizontal, direção fixa, duração 1.6 s. Reduced-motion mata a animação — o placeholder continua marcando o espaço."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="shimmer"
               v="1.6 s · linear · infinite"

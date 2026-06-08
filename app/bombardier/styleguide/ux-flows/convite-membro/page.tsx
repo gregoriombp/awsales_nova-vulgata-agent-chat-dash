@@ -488,23 +488,23 @@ export default function ConviteMembroFlowPage() {
           title="Cada tela"
           lead="Propósito, decisões e link direto pro protótipo de cada uma."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-(--border-subtle)">
               {screens.map((s) => (
                 <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
-                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                    <span className="aw-eyebrow text-(--aw-blue-700)">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-(--fg-primary)">{s.title}</h3>
                   </div>
-                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">{s.purpose}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
                     <span className="caption">
-                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      <span className="font-medium text-(--fg-secondary)">Decisões: </span>
                       {s.decisions}
                     </span>
                     <Link
                       href={s.href}
-                      className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                      className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
                     >
                       Abrir protótipo →
                     </Link>
@@ -521,42 +521,42 @@ export default function ConviteMembroFlowPage() {
           lead="Por que o fluxo está estruturado desse jeito."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Magic link é a verificação</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Não há etapa de código de 6 dígitos como em /primeiro-acesso. O
                 próprio link no e-mail já comprova posse da caixa de entrada —
                 um clique a menos pra completar o onboarding.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Função vem pré-definida</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Quem convida escolhe a função e os grupos no momento do
                 convite. O novo membro vê o que vai receber, mas não altera —
                 permissão é responsabilidade do admin, não da pessoa convidada.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Sem contrato e sem pagamento</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 A organização já está com o contrato ativo. O membro não vê
                 condições comerciais, não aceita termos comerciais e não
                 preenche dados de fatura — entra direto na operação.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Coerência com o buyer</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Mesmo AwOnboardingShell, mesma tipografia, mesmos tokens.
                 Quando o admin (que passou por /primeiro-acesso) compara o
                 ambiente com o que o time vê, o visual é o mesmo — sem
                 surpresas.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Três motivos pra um link falhar</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Magic links de convite são one-time e expiram em 7 dias. Em vez
                 de uma mensagem de erro genérica, cada motivo tem tela própria
                 — expirado, já utilizado e cancelado — porque a saída é
@@ -564,9 +564,9 @@ export default function ConviteMembroFlowPage() {
                 org, nunca o suporte da AwSales.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">2FA decidido pela org que convidou</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Quem decide se 2FA é obrigatório é o super admin da
                 organização. A regra pega pros dois lados: se a org exige
                 verificação em duas etapas no login dos membros existentes,

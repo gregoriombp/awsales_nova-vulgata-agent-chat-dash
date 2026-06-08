@@ -184,7 +184,7 @@ export default function NotificationsPanelPage() {
             title="Acessibilidade"
             lead={`Total no feed: ${NOTIFICATIONS.length} itens.`}
           >
-            <p className="text-[var(--body-md-size)] text-[var(--fg-secondary)]">
+            <p className="text-(--body-md-size) text-(--fg-secondary)">
               O painel é um <code className="mono">role=&quot;dialog&quot;</code> rotulado
               (&quot;Notificações&quot;). Cada item é um <code className="mono">NotificationRow</code>{" "}
               focável; o gatilho deve refletir <code className="mono">aria-expanded</code>. O

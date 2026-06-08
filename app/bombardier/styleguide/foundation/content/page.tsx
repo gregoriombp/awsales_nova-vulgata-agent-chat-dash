@@ -221,16 +221,16 @@ export default function ContentPage() {
             {axes.map((a) => (
               <div
                 key={a.n}
-                className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5"
+                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5"
               >
                 <div className="flex items-baseline gap-3 mb-1">
-                  <span className="text-xs text-[var(--fg-tertiary)]">
+                  <span className="text-xs text-(--fg-tertiary)">
                     {a.n}
                   </span>
                   <h4 className="m-0">{a.name}</h4>
                 </div>
-                <p className="body-sm m-0 text-[var(--fg-primary)]">{a.rule}</p>
-                <p className="body-sm m-0 mt-2 text-[var(--fg-tertiary)]">
+                <p className="body-sm m-0 text-(--fg-primary)">{a.rule}</p>
+                <p className="body-sm m-0 mt-2 text-(--fg-tertiary)">
                   <em>Evitar</em> — {a.avoid}
                 </p>
               </div>
@@ -247,37 +247,37 @@ export default function ContentPage() {
             {rewrites.map((r, i) => (
               <div
                 key={i}
-                className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden"
+                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden"
               >
-                <div className="px-5 py-3 border-b border-[var(--border-subtle)]">
+                <div className="px-5 py-3 border-b border-(--border-subtle)">
                   <span className="aw-eyebrow">{r.context}</span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2">
-                  <div className="p-5 border-b md:border-b-0 md:border-r border-[var(--border-subtle)]">
-                    <div className="aw-eyebrow mb-2 text-[var(--aw-red-800)]">
+                  <div className="p-5 border-b md:border-b-0 md:border-r border-(--border-subtle)">
+                    <div className="aw-eyebrow mb-2 text-(--aw-red-800)">
                       antes
                     </div>
-                    <p className="body-sm m-0 text-[var(--fg-secondary)] leading-relaxed">
+                    <p className="body-sm m-0 text-(--fg-secondary) leading-relaxed">
                       {r.before}
                     </p>
                   </div>
                   <div className="p-5">
-                    <div className="aw-eyebrow mb-2 text-[var(--aw-emerald-800)]">
+                    <div className="aw-eyebrow mb-2 text-(--aw-emerald-800)">
                       depois
                     </div>
-                    <p className="body-sm m-0 text-[var(--fg-primary)] leading-relaxed">
+                    <p className="body-sm m-0 text-(--fg-primary) leading-relaxed">
                       {r.after}
                     </p>
                   </div>
                 </div>
-                <div className="px-5 py-3 bg-[var(--bg-surface)] border-t border-[var(--border-subtle)]">
+                <div className="px-5 py-3 bg-(--bg-surface) border-t border-(--border-subtle)">
                   <p className="caption m-0 italic">{r.note}</p>
                 </div>
               </div>
             ))}
           </div>
           <blockquote
-            className="mt-6 pl-5 italic text-[var(--fg-secondary)]"
+            className="mt-6 pl-5 italic text-(--fg-secondary)"
             style={{ borderLeft: "3px solid var(--border-default)" }}
           >
             A cortesia do bom texto é poupar o tempo de quem lê — não o ego de
@@ -293,17 +293,17 @@ export default function ContentPage() {
           title="Mecânica"
           lead="Decisões que pulam no produto todo dia."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)] w-[150px]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle) w-[150px]">
                     Decisão
                   </th>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle)">
                     Regra
                   </th>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle)">
                     Exemplo
                   </th>
                 </tr>
@@ -312,13 +312,13 @@ export default function ContentPage() {
                 {mechanics.map((m) => (
                   <tr
                     key={m.k}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
                     <td className="px-4 py-3 font-medium">{m.k}</td>
-                    <td className="px-4 py-3 text-[var(--fg-secondary)]">
+                    <td className="px-4 py-3 text-(--fg-secondary)">
                       {m.rule}
                     </td>
-                    <td className="px-4 py-3 text-[var(--fg-primary)]">
+                    <td className="px-4 py-3 text-(--fg-primary)">
                       {m.example}
                     </td>
                   </tr>
@@ -334,10 +334,10 @@ export default function ContentPage() {
           lead="Como título, descrição e rótulo convivem no mesmo bloco."
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">empty state</div>
               <h5 className="m-0 mb-2">Nenhum rastro ainda</h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)] mb-3">
+              <p className="body-sm m-0 text-(--fg-secondary) mb-3">
                 Rastros aparecem quando o agente escolhe um caminho de
                 resposta. Mande uma conversa teste para começar.
               </p>
@@ -349,12 +349,12 @@ export default function ContentPage() {
                 aparecer. O botão é o caminho mais curto.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">modal destrutiva</div>
               <h5 className="m-0 mb-2">
                 Arquivar &ldquo;Pré-venda B2B&rdquo;?
               </h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Conversas em andamento terminam. O histórico fica disponível
                 por 30 dias antes de ser apagado.
               </p>
@@ -363,12 +363,12 @@ export default function ContentPage() {
                 separa o que acontece agora do que acontece depois.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">erro recuperável</div>
               <h5 className="m-0 mb-2">
                 Webhook do Salesforce parou de responder
               </h5>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 O agente segue usando a última resposta em cache, de 14 min
                 atrás. Revise a integração para voltar ao tempo real.
               </p>
@@ -386,34 +386,34 @@ export default function ContentPage() {
           lead="Palavras que usamos e as que trocamos."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--aw-emerald-300)] bg-[var(--aw-emerald-100)] p-5">
-              <div className="aw-eyebrow mb-3 text-[var(--aw-emerald-800)]">
+            <div className="rounded-lg border border-(--aw-emerald-300) bg-(--aw-emerald-100) p-5">
+              <div className="aw-eyebrow mb-3 text-(--aw-emerald-800)">
                 dizemos
               </div>
               <dl className="flex flex-col gap-3 m-0">
                 {weSay.map((w) => (
                   <div key={w.term}>
-                    <dt className="font-medium text-[var(--aw-emerald-900)]">
+                    <dt className="font-medium text-(--aw-emerald-900)">
                       {w.term}
                     </dt>
-                    <dd className="body-sm text-[var(--aw-emerald-900)] opacity-80 m-0">
+                    <dd className="body-sm text-(--aw-emerald-900) opacity-80 m-0">
                       {w.gloss}
                     </dd>
                   </div>
                 ))}
               </dl>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--aw-red-300)] bg-[var(--aw-red-100)] p-5">
-              <div className="aw-eyebrow mb-3 text-[var(--aw-red-800)]">
+            <div className="rounded-lg border border-(--aw-red-300) bg-(--aw-red-100) p-5">
+              <div className="aw-eyebrow mb-3 text-(--aw-red-800)">
                 não dizemos
               </div>
               <dl className="flex flex-col gap-3 m-0">
                 {weDont.map((w) => (
                   <div key={w.term}>
-                    <dt className="font-medium text-[var(--aw-red-900)]">
+                    <dt className="font-medium text-(--aw-red-900)">
                       {w.term}
                     </dt>
-                    <dd className="body-sm text-[var(--aw-red-900)] opacity-80 m-0">
+                    <dd className="body-sm text-(--aw-red-900) opacity-80 m-0">
                       {w.gloss}
                     </dd>
                   </div>
@@ -428,21 +428,21 @@ export default function ContentPage() {
           title="Antes de criar um texto"
           lead="Seis perguntas rápidas."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
             <ol className="list-none m-0 p-0 flex flex-col">
               {checklist.map((item, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-4 px-5 py-4 border-b border-[var(--border-subtle)] last:border-b-0"
+                  className="flex items-start gap-4 px-5 py-4 border-b border-(--border-subtle) last:border-b-0"
                 >
-                  <span className="text-xs text-[var(--fg-tertiary)] pt-0.5 w-6 shrink-0">
+                  <span className="text-xs text-(--fg-tertiary) pt-0.5 w-6 shrink-0">
                     0{i + 1}
                   </span>
                   <div>
-                    <div className="font-medium text-[var(--fg-primary)] mb-1">
+                    <div className="font-medium text-(--fg-primary) mb-1">
                       {item.q}
                     </div>
-                    <div className="body-sm text-[var(--fg-secondary)]">
+                    <div className="body-sm text-(--fg-secondary)">
                       {item.a}
                     </div>
                   </div>

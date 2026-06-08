@@ -79,7 +79,7 @@ New components from now on follow the correct flow from day one (primitive + wra
 
 ### 2. Tokens are sacred
 
-- Only the `bombardier-design-system-foundation` skill creates tokens. Any other skill, prompt, or manual edit **must not** add new tokens to `globals.css` or `tailwind.config.ts`.
+- Only the `bombardier-design-system-foundation` skill creates tokens. Any other skill, prompt, or manual edit **must not** add new tokens to `globals.css` (the `@theme` block or `:root`).
 - Forbidden: `bg-[#hex]`, `text-[#hex]`, `p-[Npx]`, `border-[#hex]`, `rounded-[Npx]`, or any Tailwind arbitrary value for color / spacing / radius / shadow / typography.
 - Allowed: Tailwind classes that reference existing tokens (`bg-primary`, `text-fg-primary`, `border-border`, `rounded-lg`, `shadow-sm`, etc.) and CSS variables (`var(--bg-canvas)`, `var(--accent-brand)`).
 - If a token genuinely does not exist and the work requires it, **report it in the output** instead of creating it — the foundation skill is the only one authorized to extend the token set.
@@ -94,7 +94,7 @@ New components from now on follow the correct flow from day one (primitive + wra
 
 ### 4. Stack & scope gotchas
 
-- **Tailwind v3.** This repo is Tailwind **v3** (`tailwind.config.ts` + `@tailwind base/components/utilities` in `globals.css`). **Ignore any skill instruction to emit `@theme inline` or `@import "tailwindcss"`** — that's v4 and would break the token layer here. Tokens live in `tailwind.config.ts theme.extend` + `:root` CSS vars.
+- **Tailwind v4.** This repo is Tailwind **v4** (`@import "tailwindcss"` + `@theme` in `app/globals.css`; there is **no `tailwind.config.ts`**). Tokens live in the `@theme` block + `:root` CSS vars in `globals.css`. Enter/exit animations come from `tw-animate-css` (not `tailwindcss-animate`); container queries are core (no plugin). Dark mode is `@custom-variant dark` + the `.dark` class. PostCSS uses `@tailwindcss/postcss` (no autoprefixer — Lightning CSS handles prefixing). The `.claude/` dir is excluded from content-scan via `@source not`.
 - **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the product/DS default. `react-icons` is allowed **only** for brand marks Material Symbols lacks (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` only leaks in via CLI-generated shadcn primitives — don't reach for it in product code.
 - **No emoji.** Do not add emoji to product UI, styleguide documentation, generated diagrams, or agent-facing docs unless the user explicitly asks for one or a source asset already contains it.
 - **Feature modules are out of DS scope.** `components/{auth,memory-base}` (and similar app-feature folders) are NOT DS components — they *consume* `Aw*` but are not themselves prefixed/wrapped/showcased. Don't rename them to `Aw*` or migrate them.

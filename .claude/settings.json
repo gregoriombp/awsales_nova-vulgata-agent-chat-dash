@@ -3,7 +3,7 @@
     "allow": [
       "Bash(git fetch *)",
       "Bash(git checkout *)",
-      "Bash(node -e \"const p=require\\('./package.json'\\);for\\(const k of ['clsx','tailwind-merge','class-variance-authority','@radix-ui/react-slot','tailwindcss-animate']\\){console.log\\(k,p.dependencies[k]||p.devDependencies?.[k]||'MISSING'\\)}\")"
+      "Bash(node -e \"const p=require\\('./package.json'\\);for\\(const k of ['clsx','tailwind-merge','class-variance-authority','@radix-ui/react-slot','tw-animate-css']\\){console.log\\(k,p.dependencies[k]||p.devDependencies?.[k]||'MISSING'\\)}\")"
     ]
   },
   "enableAllProjectMcpServers": true,

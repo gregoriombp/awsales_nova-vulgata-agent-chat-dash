@@ -47,7 +47,7 @@ export default function VerificacaoPage() {
             {PROXIMOS_PASSOS.map((s, i) => (
               <li key={s.label} className="flex gap-3.5 pb-5 last:pb-0">
                 <div className="flex flex-col items-center self-stretch">
-                  <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse)">
                     <Icon name={s.icon} size={18} />
                   </span>
                   {i < PROXIMOS_PASSOS.length - 1 && (
@@ -74,7 +74,7 @@ export default function VerificacaoPage() {
             {advancing ? (
               <span
                 aria-hidden="true"
-                className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-white border-r-transparent"
+                className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-[1.5px] border-white border-r-transparent"
               />
             ) : null}
             <span className="aw-btn__label">

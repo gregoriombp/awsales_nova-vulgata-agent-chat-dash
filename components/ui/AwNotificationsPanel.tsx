@@ -65,21 +65,21 @@ export function AwNotificationsPanel({
       className={["absolute right-0 top-[calc(100%+14px)] z-50", className ?? ""].join(" ")}
     >
       {/* Caret apontando pro sino */}
-      <div className="absolute -top-2 right-9 h-4 w-4 rotate-45 border-l border-t border-[var(--border-subtle)] bg-[var(--bg-raised)]" />
+      <div className="absolute -top-2 right-9 h-4 w-4 rotate-45 border-l border-t border-(--border-subtle) bg-(--bg-raised)" />
 
       <div
         role="dialog"
         aria-label="Notificações"
-        className="w-[420px] max-w-[calc(100vw-32px)] overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] shadow-[var(--shadow-lg)]"
+        className="w-[420px] max-w-[calc(100vw-32px)] overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised) shadow-(--shadow-lg)"
       >
         {/* Header — sem abas/toggle, só título + contagem + marcar todas */}
-        <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-3">
+        <div className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-3">
           <div className="flex items-center gap-2">
-            <span className="body-md font-semibold text-[var(--fg-primary)]">
+            <span className="body-md font-semibold text-(--fg-primary)">
               Notificações
             </span>
             {unread > 0 && (
-              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[var(--aw-blue-100)] px-1.5 body-xs font-semibold tabular-nums text-[var(--aw-blue-700)]">
+              <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-(--aw-blue-100) px-1.5 body-xs font-semibold tabular-nums text-(--aw-blue-700)">
                 {unread}
               </span>
             )}
@@ -88,7 +88,7 @@ export function AwNotificationsPanel({
             <button
               type="button"
               onClick={markAllRead}
-              className="inline-flex items-center gap-1 rounded-[var(--radius-sm)] px-2 py-1 body-xs font-medium text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+              className="inline-flex items-center gap-1 rounded-sm px-2 py-1 body-xs font-medium text-(--fg-tertiary) transition-colors hover:bg-(--bg-muted) hover:text-(--fg-primary)"
             >
               <Icon name="done_all" size={14} />
               Marcar todas como lidas
@@ -99,7 +99,7 @@ export function AwNotificationsPanel({
         {/* Feed */}
         {items.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
-            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-tertiary)]">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-tertiary)">
               <Icon name="notifications" size={20} />
             </span>
             <p className="m-0 body-sm text-fg-secondary">
@@ -107,7 +107,7 @@ export function AwNotificationsPanel({
             </p>
           </div>
         ) : (
-          <ul className="m-0 flex max-h-[60vh] list-none flex-col divide-y divide-[var(--border-subtle)] overflow-auto p-0">
+          <ul className="m-0 flex max-h-[60vh] list-none flex-col divide-y divide-(--border-subtle) overflow-auto p-0">
             {items.map((n) => (
               <li key={n.id}>
                 <NotificationRow notification={n} onActivate={activate} />
@@ -120,7 +120,7 @@ export function AwNotificationsPanel({
         <Link
           href={seeAllHref}
           onClick={onClose}
-          className="flex items-center justify-center gap-1 border-t border-[var(--border-subtle)] px-4 py-3 body-sm font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+          className="flex items-center justify-center gap-1 border-t border-(--border-subtle) px-4 py-3 body-sm font-medium text-(--fg-secondary) transition-colors hover:bg-(--bg-muted) hover:text-(--fg-primary)"
         >
           Ver todas as notificações
           <Icon name="arrow_forward" size={14} />

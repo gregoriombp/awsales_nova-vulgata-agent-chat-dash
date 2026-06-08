@@ -76,7 +76,7 @@ export default function AwPaymentMethodCardPage() {
                   size="sm"
                   variant="ghost"
                   iconLeft="delete"
-                  className="text-[var(--accent-danger)] hover:!bg-[var(--aw-red-100)]"
+                  className="text-(--accent-danger) hover:bg-(--aw-red-100)!"
                 >
                   Excluir
                 </AwButton>
@@ -142,7 +142,7 @@ export default function AwPaymentMethodCardPage() {
             <Spec
               k="Background"
               v="coverImage + dark wash"
-              d="from-black/45 via-black/30 to-black/55 + backdrop-blur 2px."
+              d="from-black/45 via-black/30 to-black/55 + backdrop-blur-sm 2px."
             />
             <Spec
               k="Fallback bg"
@@ -156,7 +156,7 @@ export default function AwPaymentMethodCardPage() {
             />
             <Spec
               k="Badge default"
-              v="bg-white/15 + blur"
+              v="bg-white/15 + blur-sm"
               d="10px uppercase tracking 0.08em, ícone check 11px."
             />
             <Spec
@@ -227,7 +227,7 @@ export function PrimaryCard({ method, cover, holderName, onRemove }) {
           variant="ghost"
           iconLeft="delete"
           onClick={onRemove}
-          className="text-[var(--accent-danger)]"
+          className="text-(--accent-danger)"
         >
           Excluir
         </AwButton>

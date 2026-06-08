@@ -128,7 +128,7 @@ export default function AwTabsPage() {
           title="Anatomia"
           lead="Cada tab é um botão com label + count opcional. Heights e padding variam por variant."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="segmented altura" v="32 px" d="Pad y 4, x 12. Track --bg-muted." />
             <Spec k="standalone altura" v="28 px" d="Chip solto, sem track." />
             <Spec k="underline altura" v="40 px" d="Linha 2px embaixo no ativo." />

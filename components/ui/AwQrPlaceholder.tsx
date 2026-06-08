@@ -45,7 +45,7 @@ export function AwQrPlaceholder({
       role="img"
       aria-label={ariaLabel}
       className={cn(
-        "grid flex-shrink-0 rounded-md border border-border-subtle bg-white p-2.5",
+        "grid shrink-0 rounded-md border border-border-subtle bg-white p-2.5",
         className
       )}
       style={{

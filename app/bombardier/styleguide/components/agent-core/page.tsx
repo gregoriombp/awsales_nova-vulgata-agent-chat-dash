@@ -37,7 +37,7 @@ export default function AgentCorePage() {
         usuário <em>seleciona</em> ao criar um agente — um selo de framework,
         não o agente vivo. A textura animada é do{" "}
         <a
-          className="underline text-[var(--aw-blue-700)]"
+          className="underline text-(--aw-blue-700)"
           href="/bombardier/styleguide/components/user-agent"
         >
           Agente do Usuário
@@ -101,7 +101,7 @@ export default function AgentCorePage() {
             {CORES.map((c) => (
               <div
                 key={c.n}
-                className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
               >
                 <AwAgentCore src={agentCoreSrc(c.n)} alt={c.label} size={88} />
                 <span className="mono">{c.label}</span>
@@ -123,7 +123,7 @@ export default function AgentCorePage() {
             {SIZE_SCALE.map((s) => (
               <div
                 key={s.key}
-                className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
               >
                 <AwAgentCore src={agentCoreSrc(3)} alt={`Core 03 ${s.key}`} size={s.px} />
                 <span className="mono">
@@ -133,7 +133,7 @@ export default function AgentCorePage() {
             ))}
           </Stage>
 
-          <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="mt-6 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
             {SIZE_SCALE.map((s) => (
               <Spec key={s.key} k={s.key} v={`${s.px}px`} d={s.note} />
             ))}
@@ -145,7 +145,7 @@ export default function AgentCorePage() {
           title="Anatomia"
           lead="Diamante = quadrado rotacionado 45° inscrito num box 1:1 (vértices no meio de cada aresta), aplicado como máscara SVG sobre a arte do orb. A mesma máscara dá a silhueta; a arte é a identidade de cada Core."
         >
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8">
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <div className="flex items-center justify-center">
               <AwAgentCore src={agentCoreSrc(1)} alt="Core 01" size={140} />
             </div>

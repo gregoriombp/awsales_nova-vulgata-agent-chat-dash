@@ -85,15 +85,15 @@ export default function CreateMemoryBaseWizardPage() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)]">
+    <div className="flex h-screen overflow-hidden bg-(--bg-surface)">
       <AwSidebar />
-      <div className="flex flex-1 min-w-0 flex-col overflow-hidden bg-[var(--bg-raised)]">
+      <div className="flex flex-1 min-w-0 flex-col overflow-hidden bg-(--bg-raised)">
         {creating ? (
           <LoadingScene />
         ) : (
           <>
             {/* Stepper */}
-            <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-12 py-4">
+            <div className="flex items-center gap-2 border-b border-(--border-subtle) px-12 py-4">
               {STEPS.map((label, i) => {
                 const n = (i + 1) as 1 | 2 | 3;
                 const active = n === step;
@@ -104,10 +104,10 @@ export default function CreateMemoryBaseWizardPage() {
                       className={cn(
                         "flex h-6 w-6 items-center justify-center rounded-full text-[12px] font-medium transition-colors",
                         active
-                          ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
+                          ? "bg-(--fg-primary) text-(--bg-raised)"
                           : done
-                            ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                            : "bg-[var(--bg-muted)] text-[var(--fg-tertiary)]",
+                            ? "bg-(--fg-primary) text-(--bg-raised)"
+                            : "bg-(--bg-muted) text-(--fg-tertiary)",
                       )}
                     >
                       {done ? <Icon name="check" size={14} /> : n}
@@ -115,13 +115,13 @@ export default function CreateMemoryBaseWizardPage() {
                     <span
                       className={cn(
                         "text-[13px]",
-                        active ? "font-medium text-[var(--fg-primary)]" : "text-[var(--fg-tertiary)]",
+                        active ? "font-medium text-(--fg-primary)" : "text-(--fg-tertiary)",
                       )}
                     >
                       {label}
                     </span>
                     {i < STEPS.length - 1 && (
-                      <span className="mx-2 h-px w-8 bg-[var(--border-subtle)]" />
+                      <span className="mx-2 h-px w-8 bg-(--border-subtle)" />
                     )}
                   </div>
                 );
@@ -165,7 +165,7 @@ export default function CreateMemoryBaseWizardPage() {
                     <button
                       type="button"
                       onClick={() => router.push("/memory-base")}
-                      className="text-[13px] text-[var(--fg-tertiary)] transition-colors hover:text-[var(--fg-secondary)]"
+                      className="text-[13px] text-(--fg-tertiary) transition-colors hover:text-(--fg-secondary)"
                     >
                       Cancelar
                     </button>
@@ -202,14 +202,14 @@ function StepNome({
 }) {
   return (
     <div className="flex flex-col items-center gap-8 pt-12 text-center">
-      <span className="flex h-20 w-20 items-center justify-center rounded-[var(--radius-xl)] bg-[var(--fg-primary)] text-[var(--bg-raised)]">
+      <span className="flex h-20 w-20 items-center justify-center rounded-xl bg-(--fg-primary) text-(--bg-raised)">
         <Icon name="account_balance" size={40} weight={300} />
       </span>
       <div className="flex flex-col gap-2">
-        <h1 className="text-[28px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h1 className="text-[28px] font-medium tracking-[-0.01em] text-(--fg-primary)">
           Vamos criar sua base de conhecimento
         </h1>
-        <p className="text-[15px] text-[var(--fg-secondary)]">
+        <p className="text-[15px] text-(--fg-secondary)">
           Comece dando um nome. Depois você classifica e adiciona as fontes.
         </p>
       </div>
@@ -224,7 +224,7 @@ function StepNome({
           }
         }}
         placeholder="Ex.: Fyntra produtos"
-        className="w-full max-w-[420px] border-0 border-b border-[var(--border-default)] bg-transparent pb-2 text-center text-[22px] font-medium text-[var(--fg-primary)] outline-none transition-colors placeholder:font-normal placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+        className="w-full max-w-[420px] border-0 border-b border-(--border-default) bg-transparent pb-2 text-center text-[22px] font-medium text-(--fg-primary) outline-hidden transition-colors placeholder:font-normal placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
       />
     </div>
   );
@@ -300,10 +300,10 @@ function StepFontes({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[24px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h1 className="text-[24px] font-medium tracking-[-0.01em] text-(--fg-primary)">
           Fontes-âncora
         </h1>
-        <p className="text-[14px] text-[var(--fg-secondary)]">
+        <p className="text-[14px] text-(--fg-secondary)">
           As fontes que a IA analisa pra gerar os Knowledge Layers. Dá pra
           adicionar mais depois, dentro da base.
         </p>
@@ -354,8 +354,8 @@ function FieldBlock({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-0.5">
-        <h2 className="text-[18px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">{title}</h2>
-        <p className="text-[13.5px] text-[var(--fg-secondary)]">{subtitle}</p>
+        <h2 className="text-[18px] font-medium tracking-[-0.01em] text-(--fg-primary)">{title}</h2>
+        <p className="text-[13.5px] text-(--fg-secondary)">{subtitle}</p>
       </div>
       {children}
     </div>
@@ -378,17 +378,17 @@ function OptionCard({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex flex-col gap-2 rounded-[var(--radius-lg)] border p-4 text-left transition-colors",
+        "flex flex-col gap-2 rounded-lg border p-4 text-left transition-colors",
         tall ? "items-start" : "items-center justify-center text-center",
         selected
-          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-          : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-primary)] hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]",
+          ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+          : "border-(--border-subtle) bg-(--bg-raised) text-(--fg-primary) hover:border-(--border-default) hover:bg-(--bg-hover)",
       )}
     >
       <Icon name={opt.icon} size={tall ? 22 : 24} weight={300} />
       <span className="text-[14px] font-medium">{opt.id}</span>
       {opt.desc && (
-        <span className={cn("text-[12.5px] leading-relaxed", selected ? "opacity-80" : "text-[var(--fg-tertiary)]")}>
+        <span className={cn("text-[12.5px] leading-relaxed", selected ? "opacity-80" : "text-(--fg-tertiary)")}>
           {opt.desc}
         </span>
       )}
@@ -414,29 +414,29 @@ function SourceBlock({
   existenteLabel: string;
 }) {
   return (
-    <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+    <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-5">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-(--bg-surface) text-(--fg-secondary)">
             <Icon name={icon} size={20} weight={300} />
           </span>
           <div className="flex flex-col">
-            <h3 className="text-[15px] font-medium text-[var(--fg-primary)]">{title}</h3>
-            <p className="text-[13px] text-[var(--fg-tertiary)]">{desc}</p>
+            <h3 className="text-[15px] font-medium text-(--fg-primary)">{title}</h3>
+            <p className="text-[13px] text-(--fg-tertiary)">{desc}</p>
           </div>
         </div>
         {/* Toggle novo / existente */}
-        <div className="flex flex-shrink-0 items-center gap-0.5 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-0.5">
+        <div className="flex shrink-0 items-center gap-0.5 rounded-md border border-(--border-subtle) bg-(--bg-canvas) p-0.5">
           {(["novo", "existente"] as SourceMode[]).map((m) => (
             <button
               key={m}
               type="button"
               onClick={() => onMode(m)}
               className={cn(
-                "rounded-[var(--radius-sm)] px-3 py-1.5 text-[12.5px] font-medium capitalize transition-colors",
+                "rounded-sm px-3 py-1.5 text-[12.5px] font-medium capitalize transition-colors",
                 mode === m
-                  ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[0_1px_2px_rgba(0,0,0,0.06)]"
-                  : "text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]",
+                  ? "bg-(--bg-raised) text-(--fg-primary) shadow-xs"
+                  : "text-(--fg-tertiary) hover:text-(--fg-secondary)",
               )}
             >
               {m}
@@ -447,17 +447,17 @@ function SourceBlock({
 
       <div className="mt-4">
         {mode === "novo" ? (
-          <div className="flex flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] px-4 py-8 text-center">
-            <Icon name="upload_file" size={24} weight={300} className="text-[var(--fg-tertiary)]" />
-            <span className="text-[13px] text-[var(--fg-secondary)]">{novoLabel}</span>
+          <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-(--border-default) bg-(--bg-canvas) px-4 py-8 text-center">
+            <Icon name="upload_file" size={24} weight={300} className="text-(--fg-tertiary)" />
+            <span className="text-[13px] text-(--fg-secondary)">{novoLabel}</span>
           </div>
         ) : (
           <button
             type="button"
-            className="flex w-full items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3 text-left text-[13px] text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+            className="flex w-full items-center justify-between rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3 text-left text-[13px] text-(--fg-secondary) transition-colors hover:bg-(--bg-hover)"
           >
             {existenteLabel}
-            <Icon name="expand_more" size={18} className="text-[var(--fg-tertiary)]" />
+            <Icon name="expand_more" size={18} className="text-(--fg-tertiary)" />
           </button>
         )}
       </div>
@@ -469,11 +469,11 @@ function SourceBlock({
 function LoadingScene() {
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-8 text-center">
-      <Icon name="auto_awesome" size={40} weight={300} className="text-[var(--fg-primary)] animate-pulse" />
-      <h1 className="text-[22px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+      <Icon name="auto_awesome" size={40} weight={300} className="text-(--fg-primary) animate-pulse" />
+      <h1 className="text-[22px] font-medium tracking-[-0.01em] text-(--fg-primary)">
         Construindo sua base de conhecimento…
       </h1>
-      <p className="max-w-[460px] text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+      <p className="max-w-[460px] text-[14px] leading-relaxed text-(--fg-secondary)">
         Arquitetamos sua base de conhecimento, consolidando as informações para
         gerar os briefings prontos para seus agentes de IA.
       </p>

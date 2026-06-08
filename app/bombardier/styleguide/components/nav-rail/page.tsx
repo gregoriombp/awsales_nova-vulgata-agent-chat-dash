@@ -19,7 +19,7 @@ function Panel({
   children: React.ReactNode
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-8 flex items-start justify-center relative min-h-[560px]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-8 flex items-start justify-center relative min-h-[560px]">
       <div className="absolute top-3 right-5 aw-eyebrow">{label}</div>
       <div
         style={
@@ -71,7 +71,7 @@ function GlassPanel({
       "#0a0e17",
   }
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden relative min-h-[560px] p-8 flex items-start justify-center">
+    <div className="rounded-lg border border-(--border-subtle) overflow-hidden relative min-h-[560px] p-8 flex items-start justify-center">
       <div
         className="absolute inset-0 pointer-events-none"
         style={tint === "dark" ? darkCanvas : lightCanvas}
@@ -142,7 +142,7 @@ export default function NavRailPage() {
           <Section
             id="translucent"
             title="Translucent — liquid glass"
-            lead="Acabamento em vidro líquido: fundo translúcido + backdrop blur + saturação. Use quando o rail flutua sobre um canvas rico (arte, gradiente, mídia). Duas versões — claro e escuro — tingem o vidro para canvases de cada cor."
+            lead="Acabamento em vidro líquido: fundo translúcido + backdrop blur-sm + saturação. Use quando o rail flutua sobre um canvas rico (arte, gradiente, mídia). Duas versões — claro e escuro — tingem o vidro para canvases de cada cor."
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <GlassPanel label="translucent · light" tint="light">
@@ -159,7 +159,7 @@ export default function NavRailPage() {
               </GlassPanel>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
               <Spec
                 k="prop"
                 v="translucent={true}"
@@ -188,7 +188,7 @@ export default function NavRailPage() {
               <Spec
                 k="quando não usar"
                 v="canvas chapado / denso de texto"
-                d="Sobre superfície uniforme o blur some; use a variante sólida."
+                d="Sobre superfície uniforme o blur-sm some; use a variante sólida."
               />
             </div>
           </Section>
@@ -198,7 +198,7 @@ export default function NavRailPage() {
             title="Estrutura"
             lead="3 slots bem definidos: top (org switcher + toggle), body (grupos de navegação) e bottom (user switcher)."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="top"
                 v="toolbar + AwNavRailOrgSwitcher"
@@ -237,7 +237,7 @@ export default function NavRailPage() {
             title="Anatomia"
             lead="Mesmos valores das variantes anteriores; adicionais para os novos slots."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="largura"
                 v="collapsed 64 · expanded 260"
@@ -291,7 +291,7 @@ export default function NavRailPage() {
             title="API"
             lead={`Import: import { AwNavRail, AwNavRailGroup, AwNavRailItem, AwNavRailOrgSwitcher, AwNavRailUserSwitcher } from "@/components/ui/AwNavRail".`}
           >
-            <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+            <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
               AwNavRail
             </h3>
             <ApiTable>
@@ -311,7 +311,7 @@ export default function NavRailPage() {
                 prop="translucent"
                 type="boolean"
                 def="false"
-                doc="Liquid-glass — backdrop-blur + fundo translúcido. Combine com theme para tingir o vidro."
+                doc="Liquid-glass — backdrop-blur-sm + fundo translúcido. Combine com theme para tingir o vidro."
               />
               <PropRow
                 prop="onToggleCollapsed"
@@ -335,7 +335,7 @@ export default function NavRailPage() {
               />
             </ApiTable>
 
-            <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+            <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
               AwNavRailOrgSwitcher
             </h3>
             <ApiTable>
@@ -367,7 +367,7 @@ export default function NavRailPage() {
               />
             </ApiTable>
 
-            <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+            <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
               AwNavRailUserSwitcher
             </h3>
             <ApiTable>

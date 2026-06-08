@@ -172,14 +172,14 @@ export default function AwOnboardingTimelinePage() {
                   },
                 ]}
                 preview={
-                  <div className="relative aspect-[4/5] w-full">
+                  <div className="relative aspect-4/5 w-full">
                     <div className="absolute inset-0 aw-gradient-iridescent-soft" />
                     <div className="absolute inset-0 flex flex-col justify-end gap-2 p-6">
-                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-[var(--bg-raised)] px-2.5 py-1 body-xs font-medium text-[var(--fg-primary)] shadow-sm">
+                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-(--bg-raised) px-2.5 py-1 body-xs font-medium text-(--fg-primary) shadow-sm">
                         <Icon name="play_arrow" size={14} fill={1} />
                         Tour em 60s
                       </span>
-                      <p className="m-0 max-w-[240px] body-sm text-[var(--fg-primary)]">
+                      <p className="m-0 max-w-[240px] body-sm text-(--fg-primary)">
                         Veja como uma conversa percorre canais, agente IA e
                         humano em menos de um minuto.
                       </p>

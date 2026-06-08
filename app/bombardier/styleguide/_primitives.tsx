@@ -42,7 +42,7 @@ export function Section({
       <div className="mb-6">
         <h2 className="m-0">{title}</h2>
         {lead && (
-          <p className="text-[var(--body-md-size)] text-[var(--fg-secondary)] mt-2 max-w-2xl">
+          <p className="text-(--body-md-size) text-(--fg-secondary) mt-2 max-w-2xl">
             {lead}
           </p>
         )}
@@ -66,10 +66,10 @@ export function Stage({
   gridClassName?: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex items-baseline justify-between">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+      <div className="px-5 py-3 border-b border-(--border-subtle) flex items-baseline justify-between">
         <div>
-          <div className="text-sm font-medium text-[var(--fg-primary)]">
+          <div className="text-sm font-medium text-(--fg-primary)">
             {label}
           </div>
           {hint && <div className="caption mt-0.5">{hint}</div>}
@@ -107,7 +107,7 @@ export function Spec({
   return (
     <div>
       <div className="aw-eyebrow mb-1">{k}</div>
-      <div className="mono text-sm text-[var(--fg-primary)]">{v}</div>
+      <div className="mono text-sm text-(--fg-primary)">{v}</div>
       {d && <div className="caption mt-1">{d}</div>}
     </div>
   )
@@ -125,27 +125,27 @@ export function PropRow({
   doc: string
 }) {
   return (
-    <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-      <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+    <tr className="border-b border-(--border-subtle) last:border-b-0 align-top">
+      <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
         {prop}
       </td>
-      <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-normal">
+      <td className="py-3 pr-4 mono text-xs text-(--aw-blue-700) whitespace-normal">
         {type}
       </td>
-      <td className="py-3 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+      <td className="py-3 pr-4 mono text-xs text-(--fg-tertiary) whitespace-nowrap">
         {def ?? "—"}
       </td>
-      <td className="py-3 text-sm text-[var(--fg-secondary)]">{doc}</td>
+      <td className="py-3 text-sm text-(--fg-secondary)">{doc}</td>
     </tr>
   )
 }
 
 export function ApiTable({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-[var(--border-subtle)]">
+          <tr className="border-b border-(--border-subtle)">
             <th className="pb-2 aw-eyebrow">prop</th>
             <th className="pb-2 aw-eyebrow">type</th>
             <th className="pb-2 aw-eyebrow">default</th>
@@ -184,19 +184,19 @@ export function DoDont({
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="rounded-[var(--radius-lg)] border border-[var(--aw-emerald-300)] bg-[var(--aw-emerald-100)] p-5">
-        <div className="aw-eyebrow mb-2 text-[var(--aw-emerald-800)]">do</div>
-        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-emerald-900)]">
+      <div className="rounded-lg border border-(--aw-emerald-300) bg-(--aw-emerald-100) p-5">
+        <div className="aw-eyebrow mb-2 text-(--aw-emerald-800)">do</div>
+        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--aw-emerald-900)">
           {dos.map((d, i) => (
             <li key={i}>{d}</li>
           ))}
         </ul>
       </div>
-      <div className="rounded-[var(--radius-lg)] border border-[var(--aw-red-300)] bg-[var(--aw-red-100)] p-5">
-        <div className="aw-eyebrow mb-2 text-[var(--aw-red-800)]">
+      <div className="rounded-lg border border-(--aw-red-300) bg-(--aw-red-100) p-5">
+        <div className="aw-eyebrow mb-2 text-(--aw-red-800)">
           don&apos;t
         </div>
-        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-red-900)]">
+        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--aw-red-900)">
           {donts.map((d, i) => (
             <li key={i}>{d}</li>
           ))}
@@ -225,21 +225,21 @@ export function Tldr({
 }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div className="rounded-[var(--radius-lg)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] p-5">
-        <div className="aw-eyebrow mb-2 text-[var(--aw-blue-800)]">
+      <div className="rounded-lg border border-(--aw-blue-200) bg-(--aw-blue-100) p-5">
+        <div className="aw-eyebrow mb-2 text-(--aw-blue-800)">
           quando usar
         </div>
-        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--aw-blue-900)]">
+        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--aw-blue-900)">
           {use.map((d, i) => (
             <li key={i}>{d}</li>
           ))}
         </ul>
       </div>
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-surface)] p-5">
-        <div className="aw-eyebrow mb-2 text-[var(--fg-secondary)]">
+      <div className="rounded-lg border border-(--border-default) bg-(--bg-surface) p-5">
+        <div className="aw-eyebrow mb-2 text-(--fg-secondary)">
           quando não usar
         </div>
-        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-primary)]">
+        <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-primary)">
           {dontUse.map((d, i) => (
             <li key={i}>{d}</li>
           ))}
@@ -284,19 +284,19 @@ export function StatesMatrix({
       {states.map((s, i) => (
         <div
           key={i}
-          className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden flex flex-col"
+          className="rounded-lg border border-(--border-subtle) overflow-hidden flex flex-col"
           style={{
             background: dark ? "var(--dark-bg)" : "var(--bg-raised)",
           }}
         >
-          <div className="px-4 py-2 border-b border-[var(--border-subtle)] bg-[var(--bg-raised)] flex items-center justify-between">
+          <div className="px-4 py-2 border-b border-(--border-subtle) bg-(--bg-raised) flex items-center justify-between">
             <span className="aw-eyebrow">{s.name}</span>
           </div>
           <div className="flex-1 p-6 flex items-center justify-center min-h-[88px]">
             {s.node}
           </div>
           {s.note && (
-            <div className="px-4 py-2 border-t border-[var(--border-subtle)] bg-[var(--bg-raised)] caption">
+            <div className="px-4 py-2 border-t border-(--border-subtle) bg-(--bg-raised) caption">
               {s.note}
             </div>
           )}
@@ -317,10 +317,10 @@ export function TokensConsumed({
   tokens: Array<{ token: string; role: string; value?: string }>
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-[var(--border-subtle)]">
+          <tr className="border-b border-(--border-subtle)">
             <th className="pb-2 aw-eyebrow">token</th>
             <th className="pb-2 aw-eyebrow">role</th>
             <th className="pb-2 aw-eyebrow">value / alias</th>
@@ -330,15 +330,15 @@ export function TokensConsumed({
           {tokens.map((t, i) => (
             <tr
               key={i}
-              className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+              className="border-b border-(--border-subtle) last:border-b-0 align-top"
             >
-              <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+              <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
                 {t.token}
               </td>
-              <td className="py-3 pr-4 text-sm text-[var(--fg-secondary)]">
+              <td className="py-3 pr-4 text-sm text-(--fg-secondary)">
                 {t.role}
               </td>
-              <td className="py-3 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+              <td className="py-3 mono text-xs text-(--fg-tertiary) whitespace-nowrap">
                 {t.value ?? "—"}
               </td>
             </tr>
@@ -367,16 +367,16 @@ export function ResponsiveStage({
   hint?: string
 }) {
   const frame = (width: number, node: React.ReactNode, name: string) => (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden flex flex-col">
-      <div className="px-4 py-2 border-b border-[var(--border-subtle)] flex items-baseline justify-between">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden flex flex-col">
+      <div className="px-4 py-2 border-b border-(--border-subtle) flex items-baseline justify-between">
         <span className="aw-eyebrow">{name}</span>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           {width}px
         </code>
       </div>
-      <div className="p-4 bg-[var(--bg-surface)] flex justify-center">
+      <div className="p-4 bg-(--bg-surface) flex justify-center">
         <div
-          className="bg-[var(--bg-raised)] border border-[var(--border-subtle)] rounded-[var(--radius-md)] overflow-hidden"
+          className="bg-(--bg-raised) border border-(--border-subtle) rounded-md overflow-hidden"
           style={{ width: "100%", maxWidth: width }}
         >
           {node}
@@ -385,11 +385,11 @@ export function ResponsiveStage({
     </div>
   )
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
       {(label || hint) && (
-        <div className="px-5 py-3 border-b border-[var(--border-subtle)]">
+        <div className="px-5 py-3 border-b border-(--border-subtle)">
           {label && (
-            <div className="text-sm font-medium text-[var(--fg-primary)]">
+            <div className="text-sm font-medium text-(--fg-primary)">
               {label}
             </div>
           )}
@@ -415,10 +415,10 @@ export function KeyboardTable({
   rows: Array<{ keys: string[]; action: string }>
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
       <table className="w-full text-left">
         <thead>
-          <tr className="border-b border-[var(--border-subtle)]">
+          <tr className="border-b border-(--border-subtle)">
             <th className="pb-2 aw-eyebrow w-1/3">tecla</th>
             <th className="pb-2 aw-eyebrow">ação</th>
           </tr>
@@ -427,21 +427,21 @@ export function KeyboardTable({
           {rows.map((r, i) => (
             <tr
               key={i}
-              className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+              className="border-b border-(--border-subtle) last:border-b-0 align-top"
             >
               <td className="py-3 pr-4 whitespace-nowrap">
                 <span className="inline-flex flex-wrap gap-1">
                   {r.keys.map((k, j) => (
                     <kbd
                       key={j}
-                      className="mono text-xs px-2 py-0.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--fg-primary)]"
+                      className="mono text-xs px-2 py-0.5 rounded-sm border border-(--border-default) bg-(--bg-surface) text-(--fg-primary)"
                     >
                       {k}
                     </kbd>
                   ))}
                 </span>
               </td>
-              <td className="py-3 text-sm text-[var(--fg-secondary)]">
+              <td className="py-3 text-sm text-(--fg-secondary)">
                 {r.action}
               </td>
             </tr>
@@ -467,13 +467,13 @@ export function RelatedLinks({
         <a
           key={item.href}
           href={item.href}
-          className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2 no-underline transition-colors hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+          className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2 no-underline transition-colors hover:border-(--border-default) hover:bg-(--bg-hover)"
         >
-          <div className="text-sm font-medium text-[var(--fg-primary)]">
+          <div className="text-sm font-medium text-(--fg-primary)">
             {item.name}
           </div>
           <p className="caption m-0">{item.description}</p>
-          <span className="mono text-[10px] text-[var(--aw-blue-700)] mt-1">
+          <span className="mono text-[10px] text-(--aw-blue-700) mt-1">
             {item.href} →
           </span>
         </a>
@@ -494,15 +494,15 @@ export function Toc({
   return (
     <nav
       aria-label="Sumário"
-      className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5"
+      className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5"
     >
       <div className="aw-eyebrow mb-3">nesta página</div>
-      <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 list-decimal pl-5 text-sm text-[var(--fg-secondary)]">
+      <ol className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-1 list-decimal pl-5 text-sm text-(--fg-secondary)">
         {items.map((i) => (
           <li key={i.id}>
             <a
               href={`#${i.id}`}
-              className="text-[var(--fg-primary)] no-underline hover:text-[var(--aw-blue-700)]"
+              className="text-(--fg-primary) no-underline hover:text-(--aw-blue-700)"
             >
               {i.label}
             </a>

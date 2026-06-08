@@ -47,7 +47,7 @@ export function AwAdditionalPlanBanner({
     >
       <span
         aria-hidden
-        className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
         style={{ background: "var(--aw-amber-200)", color: "var(--aw-amber-900)" }}
       >
         <Icon name="schedule" size={18} fill={1} />
@@ -68,7 +68,7 @@ export function AwAdditionalPlanBanner({
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <Link href={configureHref} className="aw-btn aw-btn--primary aw-btn--sm">
           <span className="aw-btn__label">Configurar agora</span>
           <Icon name="arrow_forward" size={14} />

@@ -137,8 +137,8 @@ function StepIndicator({ step }: { step: Step }) {
                 className={
                   "flex h-5 w-5 shrink-0 items-center justify-center rounded-full body-xs font-semibold tabular-nums transition-colors duration-aw-fast " +
                   (done || active
-                    ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                    : "bg-[var(--bg-muted)] text-[var(--fg-tertiary)]")
+                    ? "bg-(--fg-primary) text-(--bg-raised)"
+                    : "bg-(--bg-muted) text-(--fg-tertiary)")
                 }
               >
                 {i + 1}
@@ -147,8 +147,8 @@ function StepIndicator({ step }: { step: Step }) {
                 className={
                   "body-xs font-medium " +
                   (active
-                    ? "text-[var(--fg-primary)]"
-                    : "text-[var(--fg-tertiary)]")
+                    ? "text-(--fg-primary)"
+                    : "text-(--fg-tertiary)")
                 }
               >
                 {s.label}
@@ -157,7 +157,7 @@ function StepIndicator({ step }: { step: Step }) {
             {i < STEPS.length - 1 && (
               <span
                 aria-hidden="true"
-                className="h-px w-6 shrink-0 bg-[var(--border-default)]"
+                className="h-px w-6 shrink-0 bg-(--border-default)"
               />
             )}
           </React.Fragment>
@@ -180,7 +180,7 @@ function CardStep() {
 
   return (
     <>
-      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+      <p className="m-0 body-xs text-(--fg-secondary)">
         Os dados do cartão são salvos com criptografia. Você pode remover o
         cartão a qualquer momento.
       </p>
@@ -245,7 +245,7 @@ function AddressStep({
 }) {
   return (
     <>
-      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+      <p className="m-0 body-xs text-(--fg-secondary)">
         Endereço usado nas faturas. Não precisa ser o mesmo do cartão.
       </p>
 
@@ -299,13 +299,13 @@ function AddressStep({
         </AwField>
       </section>
 
-      <label className="flex cursor-pointer items-center gap-2 border-t border-[var(--border-subtle)] pt-4">
+      <label className="flex cursor-pointer items-center gap-2 border-t border-(--border-subtle) pt-4">
         <AwCheckbox
           checked={setAsDefault}
           onChange={onSetAsDefaultChange}
           label="Definir como método de pagamento padrão"
         />
-        <span className="body-xs text-[var(--fg-primary)]">
+        <span className="body-xs text-(--fg-primary)">
           Definir como método de pagamento padrão
         </span>
       </label>

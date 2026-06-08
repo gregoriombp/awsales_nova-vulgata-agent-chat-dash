@@ -94,7 +94,7 @@ export default function AwProgressPage() {
           title="Anatomia"
           lead="Linha de meta (label + valueLabel) acima, barra abaixo. Altura 6px, radius full, fundo --bg-muted."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="altura" v="6 px" d="Constante. Track + fill compartilham." />
             <Spec k="radius" v="--radius-full" d="Pílula tonal." />
             <Spec k="track" v="--bg-muted" d="Fundo neutro." />

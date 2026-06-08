@@ -32,9 +32,9 @@ export function AwDashboardLayout({
   const isInMemoryBase = pathname?.startsWith("/memory-base") ?? false;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)] relative">
+    <div className="flex h-screen overflow-hidden bg-(--bg-surface) relative">
       {floatingSidebar ? (
-        <div className="absolute inset-y-0 left-0 z-[32]">
+        <div className="absolute inset-y-0 left-0 z-32">
           <AwSidebar floating />
         </div>
       ) : (
@@ -44,7 +44,7 @@ export function AwDashboardLayout({
         <div className="flex flex-1 min-w-0 overflow-hidden">
           {/* Floating content panel — mirrors the sidebar's container
               treatment so the surface tone shows around the edges. */}
-          <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+          <div className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised)">
             <div className="absolute right-3 top-2 z-30">
               <AwHeader
                 minimal
@@ -68,7 +68,7 @@ export function AwDashboardLayout({
           {/* Copilot — in-flow sibling that pushes the main content to the
               left when opened, instead of overlaying it. */}
           <div
-            className="my-2 overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,margin] duration-300 ease-out shrink-0"
+            className="my-2 overflow-hidden rounded-xl border border-(--border-subtle) shadow-[0_24px_48px_-12px_rgba(15,23,42,0.18)] transition-[width,margin] duration-300 ease-out shrink-0"
             style={{
               width: isCopilotOpen ? 405 : 0,
               marginRight: isCopilotOpen ? 8 : 0,

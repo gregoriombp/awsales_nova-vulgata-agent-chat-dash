@@ -68,9 +68,9 @@ export function AwHeader({
     const content = (
       <span className="inline-flex items-center gap-2">
         {breadcrumbItem.icon && (
-          <span className="flex-shrink-0 text-[var(--fg-primary)]">{breadcrumbItem.icon}</span>
+          <span className="shrink-0 text-(--fg-primary)">{breadcrumbItem.icon}</span>
         )}
-        <span className={isLast ? 'text-[var(--fg-tertiary)]' : 'text-[var(--fg-primary)]'}>
+        <span className={isLast ? 'text-(--fg-tertiary)' : 'text-(--fg-primary)'}>
           {breadcrumbItem.label}
         </span>
       </span>
@@ -82,7 +82,7 @@ export function AwHeader({
           {hasLink ? (
             <Link
               href={breadcrumbItem.href!}
-              className="body-sm leading-5 hover:underline hover:text-[var(--fg-primary)] focus:outline-none focus:underline"
+              className="body-sm leading-5 hover:underline hover:text-(--fg-primary) focus:outline-hidden focus:underline"
             >
               {content}
             </Link>
@@ -91,7 +91,7 @@ export function AwHeader({
           )}
         </div>
         {!isLast && (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[var(--fg-tertiary)] flex-shrink-0">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-(--fg-tertiary) shrink-0">
             <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         )}
@@ -136,7 +136,7 @@ export function AwHeader({
           dense
           aria-label="Busca"
           className={`w-[240px] transition-colors duration-200 ${
-            isSearchOpen ? "" : "!border-transparent !bg-transparent"
+            isSearchOpen ? "" : "border-transparent! bg-transparent!"
           }`}
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
@@ -149,7 +149,7 @@ export function AwHeader({
             type="button"
             aria-label="Abrir busca"
             onClick={openSearch}
-            className="absolute inset-0 cursor-pointer rounded-full hover:bg-[var(--bg-surface)] transition-colors"
+            className="absolute inset-0 cursor-pointer rounded-full hover:bg-(--bg-surface) transition-colors"
           />
         )}
       </div>
@@ -174,7 +174,7 @@ export function AwHeader({
       <button
         type="button"
         aria-label={isCopilotOpen ? "Fechar AwSales Copilot" : "Abrir AwSales Copilot"}
-        className="cursor-pointer rounded-full ml-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg-primary)] focus-visible:ring-offset-2"
+        className="cursor-pointer rounded-full ml-1 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-2"
         onClick={() => onCopilotOpen?.(!isCopilotOpen)}
       >
         <AwCopilotOrb size={28} />
@@ -185,7 +185,7 @@ export function AwHeader({
   if (minimal) return threeItems;
 
   return (
-    <div className="bg-[var(--bg-raised)] border-b border-[var(--border-default)] px-5 py-3">
+    <div className="bg-(--bg-raised) border-b border-(--border-default) px-5 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {breadcrumbs && breadcrumbs.length > 0 && breadcrumbs.map((item, index) =>

@@ -107,12 +107,12 @@ export default function ButtonsPage() {
           title="Anatomia"
           lead="Quatro partes nomeadas, todas plugadas a tokens. O componente nunca hardcoda valores — mude o token, não o CSS."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10 flex items-center justify-center">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10 flex items-center justify-center">
             <AwButton variant="primary" size="lg" iconLeft="add">
               Criar agente
             </AwButton>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec
               k="container"
               v="aw-btn"
@@ -362,18 +362,18 @@ export default function ButtonsPage() {
             </AwButton>
           </Stage>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec k="sm" v="h 30 · pad 12 · 13px" d="Toolbars, inline" />
             <Spec k="md" v="h 38 · pad 16 · 14px" d="Padrão (default)" />
             <Spec k="lg" v="h 46 · pad 22 · 15px" d="CTA de hero" />
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)]">
-            <strong className="text-[var(--fg-primary)]">Ícone com label.</strong>{" "}
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 mt-4 body-sm text-(--fg-secondary)">
+            <strong className="text-(--fg-primary)">Ícone com label.</strong>{" "}
             16 px em <code className="mono">sm</code>, 20 px em{" "}
             <code className="mono">md</code>, 22 px em{" "}
             <code className="mono">lg</code>.{" "}
-            <strong className="text-[var(--fg-primary)]">Icon-only</strong> sobe
+            <strong className="text-(--fg-primary)">Icon-only</strong> sobe
             de 20 / 22 / 24 px — o glyph carrega todo o sinal sem o auxílio do
             label, então respira um pouco mais. Calculado automaticamente — não
             passe <code className="mono">style</code>.
@@ -387,7 +387,7 @@ export default function ButtonsPage() {
           lead="Três posições. Ícone à esquerda (default) significa “ação que aciona algo”. À direita é reservado pra navegação ou direção. Icon-only é só para gestos secundários conhecidos — sempre com aria-label."
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
               <div className="aw-eyebrow">iconLeft</div>
               <div className="flex flex-col items-start gap-2">
                 <AwButton variant="primary" iconLeft="add">
@@ -400,14 +400,14 @@ export default function ButtonsPage() {
                   Gerar sugestão
                 </AwButton>
               </div>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Default. Use sempre que o ícone <strong>identifica a ação</strong>{" "}
                 (criar, duplicar, gerar, enviar). O ícone vem antes porque é
                 lido junto com o verbo.
               </p>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
               <div className="aw-eyebrow">iconRight</div>
               <div className="flex flex-col items-start gap-2">
                 <AwButton variant="primary" iconRight="arrow_forward">
@@ -420,14 +420,14 @@ export default function ButtonsPage() {
                   Mais opções
                 </AwButton>
               </div>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Reservado a <strong>direção e navegação</strong>: avançar,
                 voltar, sair, abrir externo, expandir. Nunca pra identificar a
                 ação — isso é trabalho do iconLeft.
               </p>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
               <div className="aw-eyebrow">iconOnly</div>
               <div className="flex items-center gap-2">
                 <AwButton
@@ -451,7 +451,7 @@ export default function ButtonsPage() {
                   aria-label="Fechar"
                 />
               </div>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Quadrado com cantos rounded. Apenas gestos secundários{" "}
                 <strong>cujo glyph é universal</strong> (mais, fechar, editar,
                 duplicar). Sempre acompanhado de{" "}
@@ -460,7 +460,7 @@ export default function ButtonsPage() {
             </div>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 mt-4">
             <div className="aw-eyebrow mb-4">comparativo · mesma ação, três posições</div>
             <div className="flex flex-wrap items-center gap-4">
               <AwButton variant="primary" iconLeft="cloud_upload">
@@ -548,10 +548,10 @@ export default function ButtonsPage() {
           {ALL_VARIANTS.map((v) => (
             <div
               key={v.value}
-              className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-5 mb-4 last:mb-0"
+              className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-5 mb-4 last:mb-0"
             >
               <div className="flex items-baseline justify-between">
-                <code className="mono text-sm text-[var(--fg-primary)]">
+                <code className="mono text-sm text-(--fg-primary)">
                   variant=&quot;{v.label}&quot;
                 </code>
                 <span className="caption">sm · md · lg</span>
@@ -570,7 +570,7 @@ export default function ButtonsPage() {
             </div>
           ))}
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-2">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-2">
             Os estados <strong>hover</strong> e <strong>active</strong> não
             aparecem aqui porque dependem de cursor — passe o mouse em qualquer
             linha de default pra verificar.
@@ -849,20 +849,20 @@ export default function ButtonsPage() {
               },
             ]}
           />
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)] flex flex-col gap-2">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 mt-4 body-sm text-(--fg-secondary) flex flex-col gap-2">
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">iconOnly.</strong>{" "}
+              <strong className="text-(--fg-primary)">iconOnly.</strong>{" "}
               Sempre passe <code className="mono">aria-label</code>. Sem ele, o
               screen reader anuncia apenas o nome do glyph.
             </p>
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">loading.</strong>{" "}
+              <strong className="text-(--fg-primary)">loading.</strong>{" "}
               O componente seta <code className="mono">aria-busy=&quot;true&quot;</code>{" "}
               e desabilita o click. O label permanece visível para preservar a
               largura — não troque o label por &quot;Aguarde…&quot;.
             </p>
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">contraste.</strong>{" "}
+              <strong className="text-(--fg-primary)">contraste.</strong>{" "}
               Todas as variantes atingem WCAG AA (4.5:1) em texto. AI usa
               gradient com luminosidade controlada em ambos os endpoints.
             </p>
@@ -875,7 +875,7 @@ export default function ButtonsPage() {
           title="Em código"
           lead="Cada padrão tem duas escritas. Esquerda: HTML + className representando a variant — formato usado dentro do próprio styleguide pra gerar telas rápido. Direita: AwButton no produto, onde os devs implementam pra valer."
         >
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900)">
             Regra: <code className="mono">variant</code> e modificadores
             booleanos (<code className="mono">loading</code>,{" "}
             <code className="mono">block</code>,{" "}
@@ -1059,13 +1059,13 @@ function VariantCard({
   return (
     <div
       className={
-        "rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 " +
+        "rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 " +
         (wide ? "md:col-span-2" : "")
       }
     >
       <div className="flex items-center gap-3 mb-2">{demo}</div>
       <div className="aw-eyebrow mb-1">{title}</div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }
@@ -1100,7 +1100,7 @@ function MatrixRow({
   iconOnly?: string
 }) {
   return (
-    <div className="grid grid-cols-[100px_1fr] gap-4 items-center border-b border-[var(--border-subtle)] pb-4 last:border-b-0 last:pb-0">
+    <div className="grid grid-cols-[100px_1fr] gap-4 items-center border-b border-(--border-subtle) pb-4 last:border-b-0 last:pb-0">
       <div className="aw-eyebrow">{label}</div>
       <div className="flex items-center gap-3 flex-wrap">
         {ALL_SIZES.map((s) => {

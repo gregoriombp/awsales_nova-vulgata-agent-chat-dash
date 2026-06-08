@@ -126,20 +126,20 @@ export function SheetDemo() {
           </>
         )}
         {tab === "transcricao" && (
-          <div className="text-sm text-[var(--fg-secondary)] leading-relaxed">
+          <div className="text-sm text-(--fg-secondary) leading-relaxed">
             Trecho simulado da transcrição. Em produção, renderize{" "}
             <code className="mono">AwChatBubble</code> para user/agent com
             timestamps.
           </div>
         )}
         {tab === "tools" && (
-          <div className="text-sm text-[var(--fg-secondary)]">
+          <div className="text-sm text-(--fg-secondary)">
             <code className="mono">lookup_invoice</code> ·{" "}
             <code className="mono">send_pdf</code>
           </div>
         )}
         {tab === "metricas" && (
-          <div className="text-sm text-[var(--fg-secondary)]">
+          <div className="text-sm text-(--fg-secondary)">
             Custo: {c.cost} · Latência p95: {c.latency}
           </div>
         )}

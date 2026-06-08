@@ -54,7 +54,7 @@ export default function AwQrPlaceholderPage() {
           title="Anatomia"
           lead="Uma matriz 21×21 gerada por LCG com seed fixa, com os 3 finders (cantos) desenhados por cima. Quadrado branco com borda sutil."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="matriz" v="21 × 21" d="Densidade fixa; cada célula é um quadradinho com aspect 1:1." />
             <Spec k="finders" v="3 cantos" d="Os marcadores de canto do QR são desenhados (não aleatórios)." />
             <Spec k="seed" v="fixa (LCG)" d="Mesmo padrão sempre — não regenera a cada render." />

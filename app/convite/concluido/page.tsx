@@ -87,7 +87,7 @@ export default function ConviteConcluidoPage() {
               {CONVITE_INVITER.role}
             </div>
           </div>
-          <span className="inline-flex flex-shrink-0 items-center gap-1.5 body-xs text-fg-tertiary">
+          <span className="inline-flex shrink-0 items-center gap-1.5 body-xs text-fg-tertiary">
             <Icon name="check_circle" size={14} fill={1} className="text-aw-emerald-700" />
             Avisado
           </span>

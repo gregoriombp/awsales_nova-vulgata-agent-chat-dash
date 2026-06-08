@@ -54,7 +54,7 @@ export default function AwSelectPage() {
           lead="O componente não traz label próprio — coloque um <label> ou <AwField> acima quando o contexto não for óbvio."
         >
           <Stage label="Dentro de um form" gridClassName="flex flex-col gap-2 w-full max-w-md">
-            <label className="body-sm text-[var(--fg-secondary)]" htmlFor="canal">
+            <label className="body-sm text-(--fg-secondary)" htmlFor="canal">
               Canal padrão de respostas
             </label>
             <AwSelect id="canal">WhatsApp Business</AwSelect>
@@ -67,7 +67,7 @@ export default function AwSelectPage() {
         <Section
           id="states"
           title="Estados"
-          lead="Hover sobe a cor da borda para --fg-primary; focus-visible ganha ring azul; disabled abate opacity 0.5."
+          lead="Hover sobe a cor da borda para --fg-primary; focus-visible ganha ring-3 azul; disabled abate opacity 0.5."
         >
           <Stage label="default · hover · focus · disabled" gridClassName="flex flex-wrap items-center gap-3">
             <AwSelect>Default</AwSelect>
@@ -81,7 +81,7 @@ export default function AwSelectPage() {
           title="Anatomia"
           lead="Container retangular com radius md, label do valor à esquerda, caret chevron à direita. Sem ícone à esquerda — se precisar, prefira AwButton com iconLeft + dropdown."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="altura" v="38 px" d="Mesma do AwInput md / AwButton md." />
             <Spec k="padding" v="0 12 0 14" d="Right reservado pro caret + 6px gap." />
             <Spec k="radius" v="--radius-md · 8 px" d="Casado com input." />

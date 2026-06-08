@@ -132,7 +132,7 @@ export function MfaSetupAppScreen({
               onKeyDown={(e) => handleKeyDown(i, e)}
               onPaste={i === 0 ? handlePaste : undefined}
               className={cn(
-                "w-11 h-13 border rounded-lg text-center tabular-nums body-xl font-medium text-aw-gray-1200 outline-none transition-all duration-150",
+                "w-11 h-13 border rounded-lg text-center tabular-nums body-xl font-medium text-aw-gray-1200 outline-hidden transition-all duration-150",
                 "focus:border-aw-blue-600 focus:ring-2 focus:ring-aw-blue-500/25",
                 digit
                   ? "bg-aw-gray-150 border-aw-gray-300"

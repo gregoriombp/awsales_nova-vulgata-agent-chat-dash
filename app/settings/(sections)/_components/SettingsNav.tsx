@@ -91,7 +91,7 @@ export function SettingsNav() {
     <aside
       aria-label="Seções de configurações"
       data-collapsed={collapsed ? "true" : "false"}
-      className={`hidden h-full shrink-0 self-stretch border-r border-[var(--border-subtle)] bg-[var(--aw-gray-50)] transition-[width] duration-200 ease-out lg:block ${
+      className={`hidden h-full shrink-0 self-stretch border-r border-(--border-subtle) bg-(--aw-gray-50) transition-[width] duration-200 ease-out lg:block ${
         collapsed ? "w-[72px]" : "w-[260px]"
       }`}
       style={hydrated ? undefined : { visibility: "hidden" }}
@@ -104,10 +104,10 @@ export function SettingsNav() {
         >
           {!collapsed && (
             <div>
-              <p className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
+              <p className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
                 Configurações
               </p>
-              <h6 className="m-0 text-[var(--fg-primary)]">
+              <h6 className="m-0 text-(--fg-primary)">
                 Workspace
               </h6>
             </div>
@@ -117,7 +117,7 @@ export function SettingsNav() {
             onClick={toggle}
             aria-label={collapsed ? "Expandir navegação" : "Recolher navegação"}
             aria-expanded={!collapsed}
-            className="flex h-8 w-8 items-center justify-center rounded-md text-[var(--fg-tertiary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+            className="flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) hover:bg-(--bg-muted) hover:text-(--fg-primary)"
           >
             <Icon name={collapsed ? "menu_open" : "menu"} size={18} />
           </button>
@@ -126,7 +126,7 @@ export function SettingsNav() {
         <nav
           className={`aw-nav-rail ${
             collapsed ? "aw-nav-rail--collapsed" : "aw-nav-rail--expanded"
-          } !w-full !p-0 !border-0 !bg-transparent`}
+          } w-full! p-0! border-0! bg-transparent!`}
         >
           <div className="aw-nav-rail__items">
             {SETTINGS_NAV_ITEMS.map((item) => {

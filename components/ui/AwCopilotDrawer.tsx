@@ -191,23 +191,23 @@ export function AwCopilotDrawer({
   const panel = (
     <aside
       ref={panelRef}
-      className={`h-full bg-[var(--bg-surface)] overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
+      className={`h-full bg-(--bg-surface) overflow-hidden flex flex-col shrink-0 transition-[width] duration-300 ease-out ${
         isOpen ? "w-[405px]" : "w-0"
       }`}
       role="dialog"
       aria-label="Cortex"
     >
-      <div className="h-full w-[405px] min-w-[405px] bg-[var(--bg-raised)] flex flex-col">
+      <div className="h-full w-[405px] min-w-[405px] bg-(--bg-raised) flex flex-col">
         {/* Top bar */}
-        <div className="h-[79px] w-full border-b border-[var(--border-subtle)] px-4 flex items-center justify-between shrink-0">
+        <div className="h-[79px] w-full border-b border-(--border-subtle) px-4 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2">
             <AwCopilotOrb size={46} />
             <div className="flex flex-col">
-              <div className="body-xl font-semibold text-[var(--fg-primary)]">
+              <div className="body-xl font-semibold text-(--fg-primary)">
                 Cortex
               </div>
-              <div className="flex items-center gap-2 body-xs leading-4 text-[var(--accent-success)]">
-                <span className="h-[6px] w-[6px] rounded-full bg-[var(--accent-success)] opacity-50" />
+              <div className="flex items-center gap-2 body-xs leading-4 text-(--accent-success)">
+                <span className="h-[6px] w-[6px] rounded-full bg-(--accent-success) opacity-50" />
                 <span>Online</span>
               </div>
             </div>
@@ -215,7 +215,7 @@ export function AwCopilotDrawer({
 
           <button
             type="button"
-            className="rounded-full p-2 text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors"
+            className="rounded-full p-2 text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors"
             onClick={onClose}
             aria-label="Fechar"
           >
@@ -230,7 +230,7 @@ export function AwCopilotDrawer({
               <div className="mb-10">
                 <AwCopilotOrb size={119} />
               </div>
-              <div className="body-xl font-semibold text-[var(--fg-primary)]">
+              <div className="body-xl font-semibold text-(--fg-primary)">
                 Olá! Como posso te ajudar?
               </div>
             </div>
@@ -244,8 +244,8 @@ export function AwCopilotDrawer({
                   <div
                     className={`max-w-[85%] rounded-2xl px-4 py-2.5 body-sm ${
                       m.role === "user"
-                        ? "bg-[var(--fg-primary)] text-[var(--bg-canvas)] rounded-br-md"
-                        : "bg-[var(--bg-surface)] text-[var(--fg-primary)] border border-[var(--border-subtle)] rounded-bl-md"
+                        ? "bg-(--fg-primary) text-(--bg-canvas) rounded-br-md"
+                        : "bg-(--bg-surface) text-(--fg-primary) border border-(--border-subtle) rounded-bl-md"
                     }`}
                   >
                     {m.role === "bot" ? (
@@ -261,11 +261,11 @@ export function AwCopilotDrawer({
                             code: ({ children, className }) => {
                               const isInline = !className;
                               return isInline ? (
-                                <code className="bg-[var(--bg-muted)] px-1.5 py-0.5 rounded body-xs mono">
+                                <code className="bg-(--bg-muted) px-1.5 py-0.5 rounded body-xs mono">
                                   {children}
                                 </code>
                               ) : (
-                                <code className="block bg-[var(--bg-muted)] p-2 rounded body-xs mono overflow-x-auto my-2">
+                                <code className="block bg-(--bg-muted) p-2 rounded body-xs mono overflow-x-auto my-2">
                                   {children}
                                 </code>
                               );
@@ -275,7 +275,7 @@ export function AwCopilotDrawer({
                             h2: ({ children }) => <h2 className="body-sm font-semibold mb-2 mt-3 first:mt-0">{children}</h2>,
                             h3: ({ children }) => <h3 className="body-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
                             blockquote: ({ children }) => (
-                              <blockquote className="border-l-2 border-[var(--border-default)] pl-3 my-2 italic text-[var(--fg-secondary)]">
+                              <blockquote className="border-l-2 border-(--border-default) pl-3 my-2 italic text-(--fg-secondary)">
                                 {children}
                               </blockquote>
                             ),
@@ -284,7 +284,7 @@ export function AwCopilotDrawer({
                                 href={href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-[var(--aw-blue-600)] underline hover:text-[var(--aw-blue-700)]"
+                                className="text-(--aw-blue-600) underline hover:text-(--aw-blue-700)"
                               >
                                 {children}
                               </a>
@@ -302,10 +302,10 @@ export function AwCopilotDrawer({
               ))}
               {isTyping && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl rounded-bl-md bg-[var(--bg-surface)] border border-[var(--border-subtle)] px-4 py-2.5 flex gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:0ms]" />
-                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:150ms]" />
-                    <span className="w-2 h-2 rounded-full bg-[var(--fg-tertiary)] animate-bounce [animation-delay:300ms]" />
+                  <div className="rounded-2xl rounded-bl-md bg-(--bg-surface) border border-(--border-subtle) px-4 py-2.5 flex gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-(--fg-tertiary) animate-bounce [animation-delay:0ms]" />
+                    <span className="w-2 h-2 rounded-full bg-(--fg-tertiary) animate-bounce [animation-delay:150ms]" />
+                    <span className="w-2 h-2 rounded-full bg-(--fg-tertiary) animate-bounce [animation-delay:300ms]" />
                   </div>
                 </div>
               )}
@@ -315,34 +315,34 @@ export function AwCopilotDrawer({
         </div>
 
         {/* Composer */}
-        <div className="w-full border-t border-[var(--border-subtle)] px-4 pt-3 pb-3 flex flex-col gap-2 shrink-0">
-          <div className="w-full rounded-[var(--radius-2xl)] bg-[var(--bg-surface)] pl-4 pr-2 py-2 flex items-center justify-between">
+        <div className="w-full border-t border-(--border-subtle) px-4 pt-3 pb-3 flex flex-col gap-2 shrink-0">
+          <div className="w-full rounded-2xl bg-(--bg-surface) pl-4 pr-2 py-2 flex items-center justify-between">
             <input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
-              className="w-full bg-transparent body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none"
+              className="w-full bg-transparent body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden"
               placeholder="Pergunte qualquer coisa..."
             />
 
             <div className="ml-2 flex items-center gap-1">
               <button
                 type="button"
-                className="h-7 w-7 rounded-full grid place-items-center text-[var(--fg-tertiary)] hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)] transition-colors"
+                className="h-7 w-7 rounded-full grid place-items-center text-(--fg-tertiary) hover:bg-(--bg-raised) hover:text-(--fg-primary) transition-colors"
                 aria-label="Anexar"
               >
                 <Icon name="attach_file" size={18} />
               </button>
               <button
                 type="button"
-                className="h-7 w-7 rounded-full grid place-items-center text-[var(--fg-tertiary)] hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)] transition-colors"
+                className="h-7 w-7 rounded-full grid place-items-center text-(--fg-tertiary) hover:bg-(--bg-raised) hover:text-(--fg-primary) transition-colors"
                 aria-label="Emoji"
               >
                 <Icon name="mood" size={18} />
               </button>
               <button
                 type="button"
-                className="h-7 w-7 rounded-full bg-[var(--fg-primary)] text-[var(--fg-on-inverse)] grid place-items-center disabled:opacity-50 ml-0.5"
+                className="h-7 w-7 rounded-full bg-(--fg-primary) text-(--fg-on-inverse) grid place-items-center disabled:opacity-50 ml-0.5"
                 aria-label="Enviar"
                 onClick={sendMessage}
                 disabled={!message.trim() || isTyping}
@@ -352,7 +352,7 @@ export function AwCopilotDrawer({
             </div>
           </div>
 
-          <div className="body-xs text-[var(--fg-tertiary)] text-center">
+          <div className="body-xs text-(--fg-tertiary) text-center">
             Cortex pode cometer erros. Verifique informações importantes.
           </div>
         </div>
@@ -366,7 +366,7 @@ export function AwCopilotDrawer({
 
   return (
     <div
-      className={`fixed inset-0 z-[60] ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
+      className={`fixed inset-0 z-60 ${isOpen ? "pointer-events-auto" : "pointer-events-none"}`}
       aria-hidden={!isOpen}
     >
       <button
@@ -379,13 +379,13 @@ export function AwCopilotDrawer({
       />
       <aside
         ref={panelRef}
-        className={`fixed right-0 top-0 h-screen w-[405px] max-w-[100vw] border-l border-[var(--border-subtle)] bg-[var(--bg-surface)] transition-transform duration-300 ease-out ${
+        className={`fixed right-0 top-0 h-screen w-[405px] max-w-[100vw] border-l border-(--border-subtle) bg-(--bg-surface) transition-transform duration-300 ease-out ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
         role="dialog"
         aria-label="Cortex"
       >
-        <div className="h-full w-full bg-[var(--bg-raised)]">{/* content reused from panel */}</div>
+        <div className="h-full w-full bg-(--bg-raised)">{/* content reused from panel */}</div>
       </aside>
     </div>
   );

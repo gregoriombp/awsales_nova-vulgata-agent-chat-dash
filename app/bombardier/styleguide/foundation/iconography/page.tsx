@@ -8,9 +8,9 @@ import {
 } from "../../_primitives"
 
 const IconCell = ({ name }: { name: string }) => (
-  <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:bg-[var(--bg-surface)] transition-colors duration-150">
+  <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-md border border-(--border-subtle) bg-(--bg-raised) hover:bg-(--bg-surface) transition-colors duration-150">
     <Icon name={name} size={24} />
-    <span className="mono text-[10px] text-[var(--fg-tertiary)] text-center leading-tight">
+    <span className="mono text-[10px] text-(--fg-tertiary) text-center leading-tight">
       {name}
     </span>
   </div>
@@ -150,7 +150,7 @@ export default function IconographyPage() {
           title="Anatomia"
           lead="Um glyph Material Symbols é controlado por quatro eixos variáveis. Todos estão expostos como props no componente Icon."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
             <Spec
               k="opsz"
               v="20..48"
@@ -179,11 +179,11 @@ export default function IconographyPage() {
           title="Tamanhos"
           lead="Seis tamanhos padrão. Não misturar com valores intermediários — preserva ritmo com a tipografia."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap items-end gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap items-end gap-6">
             {sizes.map((s) => (
               <div key={s} className="flex flex-col items-center gap-2">
                 <Icon name="auto_awesome" size={s} />
-                <span className="text-xs text-[var(--fg-tertiary)]">
+                <span className="text-xs text-(--fg-tertiary)">
                   {s}
                 </span>
               </div>
@@ -196,11 +196,11 @@ export default function IconographyPage() {
           title="Pesos"
           lead="Mesmo glyph, pesos de 200 a 700. 200 é o default (thin/light); 300/400 para ênfase regular; 500/600 quando o ícone precisa se destacar em superfície escura."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap items-end gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap items-end gap-6">
             {weights.map((w) => (
               <div key={w} className="flex flex-col items-center gap-2">
                 <Icon name="auto_awesome" size={32} weight={w} />
-                <span className="text-xs text-[var(--fg-tertiary)]">
+                <span className="text-xs text-(--fg-tertiary)">
                   {w}
                 </span>
               </div>
@@ -213,7 +213,7 @@ export default function IconographyPage() {
           title="FILL — default vs filled"
           lead="FILL=1 é reservado para estados selecionados ou ativos, nunca como default decorativo."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex gap-10 items-end flex-wrap">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex gap-10 items-end flex-wrap">
             {["bolt", "favorite", "star", "notifications"].map((n) => (
               <div
                 key={n}
@@ -221,17 +221,17 @@ export default function IconographyPage() {
               >
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={0} />
-                  <span className="text-[10px] text-[var(--fg-tertiary)]">
+                  <span className="text-[10px] text-(--fg-tertiary)">
                     FILL 0
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={1} />
-                  <span className="text-[10px] text-[var(--fg-tertiary)]">
+                  <span className="text-[10px] text-(--fg-tertiary)">
                     FILL 1
                   </span>
                 </div>
-                <code className="mono text-xs text-[var(--fg-tertiary)] pb-1">
+                <code className="mono text-xs text-(--fg-tertiary) pb-1">
                   {n}
                 </code>
               </div>
@@ -244,7 +244,7 @@ export default function IconographyPage() {
           title="Biblioteca"
           lead="Todos os glyphs usados no produto, agrupados por função. Biblioteca completa em fonts.google.com/icons (estilo Rounded)."
         >
-          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+          <div className="mb-3 text-sm font-medium text-(--fg-primary)">
             Navegação
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
@@ -253,7 +253,7 @@ export default function IconographyPage() {
             ))}
           </div>
 
-          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+          <div className="mb-3 text-sm font-medium text-(--fg-primary)">
             Ações
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
@@ -262,7 +262,7 @@ export default function IconographyPage() {
             ))}
           </div>
 
-          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+          <div className="mb-3 text-sm font-medium text-(--fg-primary)">
             Estados & Feedback
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
@@ -271,7 +271,7 @@ export default function IconographyPage() {
             ))}
           </div>
 
-          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+          <div className="mb-3 text-sm font-medium text-(--fg-primary)">
             Conteúdo & Mídia
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2 mb-8">
@@ -280,7 +280,7 @@ export default function IconographyPage() {
             ))}
           </div>
 
-          <div className="mb-3 text-sm font-medium text-[var(--fg-primary)]">
+          <div className="mb-3 text-sm font-medium text-(--fg-primary)">
             Financeiro
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
@@ -295,7 +295,7 @@ export default function IconographyPage() {
           title="Ícones da IA"
           lead={`Três glyphs reservados para momentos do agente — auto_awesome ("gerar"), bolt ("executar"), sync ("sincronizar com o agente").`}
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap gap-8 items-center">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap gap-8 items-center">
             {(["auto_awesome", "bolt", "sync"] as const).map((n) => (
               <div key={n} className="flex items-center gap-3">
                 <Icon
@@ -304,7 +304,7 @@ export default function IconographyPage() {
                   style={{ color: "var(--aw-blue-600)" }}
                 />
                 <div>
-                  <div className="mono text-sm text-[var(--fg-primary)]">
+                  <div className="mono text-sm text-(--fg-primary)">
                     {n}
                   </div>
                   <div className="caption">
@@ -325,11 +325,11 @@ export default function IconographyPage() {
           title="Glyph customizado — Agent Studio"
           lead={`Mark próprio da superfície do Agent Studio. Padrão radial de pontos com paleta greyscale fixa, desenhada à mão nos 6 tamanhos canônicos — 12px é monotonal pra preservar leitura, do 16 ao 28 ganha gradiente de 4 tons, e 32 adensa em pontos pretos uniformes pra firmar como mark de header. Renderiza via <Icon name="agent_studio" />, snap automático ao tamanho mais próximo. Cor é baked-in: não responde a currentColor, weight nem fill.`}
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-wrap items-end gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap items-end gap-6">
             {sizes.map((s) => (
               <div key={s} className="flex flex-col items-center gap-2">
                 <Icon name="agent_studio" size={s} />
-                <span className="text-xs text-[var(--fg-tertiary)]">
+                <span className="text-xs text-(--fg-tertiary)">
                   {s}
                 </span>
               </div>

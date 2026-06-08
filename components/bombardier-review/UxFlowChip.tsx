@@ -12,7 +12,7 @@ export function UxFlowChip({ flowRef }: { flowRef?: ReviewFlowRef }) {
     : "Comentário de UX flow"
   return (
     <span
-      className="inline-flex shrink-0 items-center gap-1 rounded-[var(--radius-xs)] bg-[var(--aw-purple-100)] px-1.5 py-0.5 body-xs font-medium text-[var(--aw-purple-700)]"
+      className="inline-flex shrink-0 items-center gap-1 rounded-xs bg-(--aw-purple-100) px-1.5 py-0.5 body-xs font-medium text-(--aw-purple-700)"
       title={title}
     >
       <Icon name="account_tree" size={10} />

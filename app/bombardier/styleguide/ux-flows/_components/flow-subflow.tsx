@@ -54,10 +54,10 @@ export type SubflowGroupData = {
 export function SubflowGroupNode({ data }: NodeProps<Node<SubflowGroupData>>) {
   return (
     <div
-      className="relative h-full w-full rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-purple-300)]"
+      className="relative h-full w-full rounded-lg border-2 border-dashed border-(--aw-purple-300)"
       style={{ background: "color-mix(in srgb, var(--aw-purple-100) 55%, transparent)" }}
     >
-      <div className="absolute -top-3.5 left-4 flex items-center gap-2 rounded-full bg-[var(--aw-purple-600)] px-2.5 py-1 text-white shadow-[var(--shadow-sm)]">
+      <div className="absolute -top-3.5 left-4 flex items-center gap-2 rounded-full bg-(--aw-purple-600) px-2.5 py-1 text-white shadow-(--shadow-sm)">
         <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
           <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
         </svg>

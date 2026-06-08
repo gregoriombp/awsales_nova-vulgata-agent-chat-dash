@@ -72,7 +72,7 @@ export function AwSheet({
          * to the right edge. This wrapper recreates that dock without
          * touching globals.css. */}
         <div
-          className="fixed inset-0 z-[1001] flex justify-end pointer-events-none"
+          className="fixed inset-0 z-1001 flex justify-end pointer-events-none"
           style={zIndex !== undefined ? { zIndex } : undefined}
         >
           <DialogPrimitive.Content

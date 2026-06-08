@@ -45,10 +45,10 @@ export default function AddSnippetModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
       <form onSubmit={handleSubmit} className="flex max-h-[90vh] flex-col">
         <div className="px-6 pb-4 pt-6">
-          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
             Adicionar snippet
           </h2>
-          <p className="mt-1 text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+          <p className="mt-1 text-[14px] leading-relaxed text-(--fg-secondary)">
             Insira o conteúdo do snippet. Ele vira uma fonte na pasta atual.
           </p>
         </div>
@@ -67,12 +67,12 @@ export default function AddSnippetModal({
               onChange={(e) => setContent(e.target.value)}
               placeholder="Cole ou digite o texto do snippet aqui…"
               rows={8}
-              className="min-h-[140px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3.5 py-2.5 text-[14px] text-[var(--fg-primary)] outline-none transition-colors placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+              className="min-h-[140px] w-full resize-y rounded-md border border-(--border-subtle) bg-(--bg-canvas) px-3.5 py-2.5 text-[14px] text-(--fg-primary) outline-hidden transition-colors placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
             />
           </AwField>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-[var(--border-subtle)] px-6 py-4">
+        <div className="flex justify-end gap-2 border-t border-(--border-subtle) px-6 py-4">
           <AwButton type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
             Cancelar
           </AwButton>

@@ -571,21 +571,21 @@ export default function LoginAuthFlowPage() {
         </Section>
 
         <Section id="screens" title="Cada tela" lead="Propósito e decisões de cada uma. Todas vivem em /.">
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-(--border-subtle)">
               {screens.map((s) => (
                 <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
-                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                    <span className="aw-eyebrow text-(--aw-blue-700)">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-(--fg-primary)">{s.title}</h3>
                   </div>
-                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">{s.purpose}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
                     <span className="caption">
-                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      <span className="font-medium text-(--fg-secondary)">Decisões: </span>
                       {s.decisions}
                     </span>
-                    <Link href={s.href} className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline">
+                    <Link href={s.href} className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline">
                       Abrir em / →
                     </Link>
                   </div>
@@ -597,33 +597,33 @@ export default function LoginAuthFlowPage() {
 
         <Section id="design-notes" title="Decisões de design" lead="Por que o fluxo está estruturado desse jeito.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Login corporativo sem fricção</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Quem usa email corporativo de uma org com login corporativo obrigatório pula a tela de senha, a verificação por código e a verificação em duas etapas — a empresa já fez essa verificação no próprio login. O usuário vê apenas uma tela curta 'Te direcionando pro acesso da [Empresa]' antes de entrar direto. No mockup, 2 domínios disparam o login corporativo (awsales.com, fyntra.com.br).
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Verificação por e-mail acontece sempre após senha</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 O código de 6 dígitos é forçado após e-mail+senha — não há gate 'MFA ativo?'. Só pulam quem já foi autenticado por outro meio: Google, Microsoft e magic link.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Magic link como alternativa à senha</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 O link clicado no e-mail entra direto, sem verificação adicional. Reduz fricção pra quem não quer digitar senha e cobre quem esqueceu a senha mas não quer passar pelo fluxo completo de redefinição.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Recuperação reusa o código por e-mail do login</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 "Esqueci a senha" abre a mesma tela de verificação por e-mail do login. A diferença é o contexto: a tela carrega em modo recuperação e, depois do código válido, direciona pra "Definir nova senha" em vez do seletor de organização. Uma tela só, dois destinos.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Configurar nova org pode ser adiado</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Comprar um plano novo não força a configurar imediatamente. O usuário pode entrar na plataforma escolhendo uma organização existente, e o /inicio mostra um banner persistente lembrando da pendência. Reduz pressão no cenário comum de compra apressada de plano em nome do time.
               </p>
             </div>

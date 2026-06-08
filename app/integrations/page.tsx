@@ -579,7 +579,7 @@ function QuickPickPill({
     <button
       type="button"
       onClick={onClick}
-      className="group inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-2 pr-5 body-xs font-medium text-[var(--fg-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-canvas)]"
+      className="group inline-flex items-center gap-2 rounded-full border border-(--border-subtle) bg-(--bg-surface) py-1.5 pl-2 pr-5 body-xs font-medium text-(--fg-primary) transition-colors hover:border-(--border-strong) hover:bg-(--bg-canvas)"
     >
       <AwBrandLogo brand={brand} size="sm" bare />
       <span>{name}</span>
@@ -705,15 +705,15 @@ function IntegrationsTable({
   return (
     <section aria-label="Suas integrações">
       <div className="mb-5 flex items-baseline justify-between gap-4">
-        <h6 className="m-0 body-md font-medium text-[var(--fg-primary)]">
+        <h6 className="m-0 body-md font-medium text-(--fg-primary)">
           Suas integrações
         </h6>
-        <div className="flex items-baseline gap-3 body-xs text-[var(--fg-tertiary)]">
+        <div className="flex items-baseline gap-3 body-xs text-(--fg-tertiary)">
           {onSeedDemo && instances.length < 25 ? (
             <button
               type="button"
               onClick={onSeedDemo}
-              className="font-medium text-[var(--fg-secondary)] underline-offset-2 hover:text-[var(--fg-primary)] hover:underline"
+              className="font-medium text-(--fg-secondary) underline-offset-2 hover:text-(--fg-primary) hover:underline"
             >
               + 100 exemplos (demo)
             </button>
@@ -800,7 +800,7 @@ function IntegrationsTable({
                 <td
                   colSpan={5}
                   style={{ padding: "48px 20px", textAlign: "center" }}
-                  className="body-xs text-[var(--fg-tertiary)]"
+                  className="body-xs text-(--fg-tertiary)"
                 >
                   {query
                     ? `Nenhuma integração corresponde a "${query}".`
@@ -832,19 +832,19 @@ function IntegrationsTable({
                             <AwBrandLogo brand={integration.id} size="md" />
                             <div className="min-w-0">
                               <div className="flex items-center gap-1.5">
-                                <span className="truncate font-medium text-[var(--fg-primary)]">
+                                <span className="truncate font-medium text-(--fg-primary)">
                                   {instance.name}
                                 </span>
                                 {failing ? (
                                   <Icon
                                     name="error"
                                     size={14}
-                                    className="flex-shrink-0 text-[var(--aw-red-500)]"
+                                    className="shrink-0 text-(--aw-red-500)"
                                     aria-label="Falha na conexão"
                                   />
                                 ) : null}
                               </div>
-                              <div className="truncate body-xs text-[var(--fg-tertiary)]">
+                              <div className="truncate body-xs text-(--fg-tertiary)">
                                 {integration.name}
                               </div>
                             </div>
@@ -858,10 +858,10 @@ function IntegrationsTable({
                             {status.label}
                           </AwPill>
                         </td>
-                        <td className="text-[var(--fg-secondary)]">
+                        <td className="text-(--fg-secondary)">
                           {formatDateBR(createdAt)}
                         </td>
-                        <td className="text-[var(--fg-secondary)]">
+                        <td className="text-(--fg-secondary)">
                           {eventLabel}
                         </td>
                         <td onClick={(e) => e.stopPropagation()}>
@@ -889,7 +889,7 @@ function IntegrationsTable({
                     <td
                       colSpan={5}
                       style={{ padding: "20px", textAlign: "center" }}
-                      className="body-xs text-[var(--fg-tertiary)]"
+                      className="body-xs text-(--fg-tertiary)"
                     >
                       Carregando mais integrações…
                     </td>
@@ -899,7 +899,7 @@ function IntegrationsTable({
                     <td
                       colSpan={5}
                       style={{ padding: "20px", textAlign: "center" }}
-                      className="body-xs text-[var(--fg-tertiary)]"
+                      className="body-xs text-(--fg-tertiary)"
                     >
                       Você chegou ao fim — {rows.length} integrações.
                     </td>
@@ -940,13 +940,13 @@ function ExploreIntegrations({
   return (
     <section aria-label="Explore novas integrações" className="mt-12">
       <div className="mb-5 flex items-baseline justify-between gap-4">
-        <h6 className="m-0 body-md font-medium text-[var(--fg-primary)]">
+        <h6 className="m-0 body-md font-medium text-(--fg-primary)">
           Explore novas integrações
         </h6>
         <button
           type="button"
           onClick={onSeeAll}
-          className="body-xs font-medium text-[var(--fg-secondary)] underline-offset-2 hover:text-[var(--fg-primary)] hover:underline"
+          className="body-xs font-medium text-(--fg-secondary) underline-offset-2 hover:text-(--fg-primary) hover:underline"
         >
           Ver catálogo completo →
         </button>
@@ -980,10 +980,10 @@ function ExploreCard({
     >
       <AwBrandLogo brand={integration.id} size="md" />
       <div className="min-w-0 flex-1">
-        <div className="truncate body-sm font-medium text-[var(--fg-primary)]">
+        <div className="truncate body-sm font-medium text-(--fg-primary)">
           {integration.name}
         </div>
-        <p className="m-0 mt-0.5 line-clamp-2 body-xs text-[var(--fg-tertiary)]">
+        <p className="m-0 mt-0.5 line-clamp-2 body-xs text-(--fg-tertiary)">
           {integration.desc}
         </p>
       </div>
@@ -1005,16 +1005,16 @@ function SeeAllCard({
       className="aw-card aw-card--interactive aw-card--dashed aw-explore-card flex h-full items-center gap-4 text-left"
     >
       <div
-        className="flex flex-shrink-0 items-center justify-center rounded-[8px] bg-[var(--bg-raised)] text-[var(--fg-secondary)]"
+        className="flex shrink-0 items-center justify-center rounded-sm bg-(--bg-raised) text-(--fg-secondary)"
         style={{ width: 40, height: 40 }}
       >
         <Icon name="apps" size={20} />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="body-sm font-medium text-[var(--fg-primary)]">
+        <div className="body-sm font-medium text-(--fg-primary)">
           Ver todas
         </div>
-        <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
           {count} integrações disponíveis
         </p>
       </div>
@@ -1174,7 +1174,7 @@ export default function IntegrationsPage() {
   if (!hydrated) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+        <div className="-m-8 min-h-full bg-(--bg-canvas)" />
       </AwDashboardLayout>
     );
   }
@@ -1182,21 +1182,21 @@ export default function IntegrationsPage() {
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
       {variant !== "first-run" ? (
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+        <div className="-m-8 min-h-full bg-(--bg-canvas)">
           <div className="w-full px-10 pt-12 pb-24">
             {/* Header */}
-            <header className="mb-10 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
+            <header className="mb-10 flex items-end justify-between gap-6 border-b border-(--border-subtle) pb-6">
               <div>
-                <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
+                <h3 className="m-0 mb-1.5 text-(--fg-primary)">
                   Integrações
                 </h3>
-                <p className="m-0 max-w-[560px] body-sm text-[var(--fg-secondary)]">
+                <p className="m-0 max-w-[560px] body-sm text-(--fg-secondary)">
                   Conecte plataformas e ferramentas para que seus agentes
                   coletem contexto, executem ações e mantenham seus
                   sistemas sincronizados.
                 </p>
               </div>
-              <div className="flex flex-shrink-0 gap-2">
+              <div className="flex shrink-0 gap-2">
                 <AwButton
                   variant="primary"
                   size="md"
@@ -1234,15 +1234,15 @@ export default function IntegrationsPage() {
                  and offers the same quick picks without the onboarding tone. */
               <section
                 aria-label="Você não tem integrações conectadas"
-                className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-8 py-14 text-center"
+                className="flex flex-col items-center rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-surface) px-8 py-14 text-center"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-canvas) text-(--fg-secondary)">
                   <Icon name="link_off" size={24} />
                 </div>
-                <h5 className="m-0 mt-5 text-[var(--fg-primary)]">
+                <h5 className="m-0 mt-5 text-(--fg-primary)">
                   Você não tem integrações conectadas
                 </h5>
-                <p className="m-0 mt-2 max-w-[420px] body-sm text-[var(--fg-secondary)]">
+                <p className="m-0 mt-2 max-w-[420px] body-sm text-(--fg-secondary)">
                   Reconecte uma das suas ferramentas ou explore o catálogo
                   completo para escolher por onde começar de novo.
                 </p>
@@ -1259,7 +1259,7 @@ export default function IntegrationsPage() {
                 <button
                   type="button"
                   onClick={() => setAddOpen(true)}
-                  className="mt-5 body-xs font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+                  className="mt-5 body-xs font-medium text-(--fg-secondary) underline-offset-2 hover:underline"
                 >
                   Ver catálogo completo
                 </button>
@@ -1268,7 +1268,7 @@ export default function IntegrationsPage() {
           </div>
         </div>
       ) : (
-        <div className="-m-8 flex min-h-full items-center justify-center bg-[var(--bg-canvas)] px-10 py-16">
+        <div className="-m-8 flex min-h-full items-center justify-center bg-(--bg-canvas) px-10 py-16">
           {/* Empty-state hero — owns the page, no competing header */}
           <section
             aria-label="Comece conectando sua primeira ferramenta"
@@ -1290,10 +1290,10 @@ export default function IntegrationsPage() {
 
             {/* Headline + subtitle */}
             <div className="mt-10 flex flex-col items-center text-center">
-              <h3 className="m-0 max-w-[520px] text-[var(--fg-primary)]">
+              <h3 className="m-0 max-w-[520px] text-(--fg-primary)">
                 Comece conectando sua primeira ferramenta
               </h3>
-              <p className="m-0 mt-3 max-w-[480px] body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 mt-3 max-w-[480px] body-sm text-(--fg-secondary)">
                 Hotmart, Stripe, Calendly, RD Station, Claude… escolha
                 por onde começar e o agente assume daí.
               </p>
@@ -1319,15 +1319,15 @@ export default function IntegrationsPage() {
             </div>
 
             {/* Divider */}
-            <div className="mt-10 mb-5 flex items-center gap-3 body-xs text-[var(--fg-tertiary)]">
+            <div className="mt-10 mb-5 flex items-center gap-3 body-xs text-(--fg-tertiary)">
               <span
                 aria-hidden="true"
-                className="h-px flex-1 bg-[var(--border-subtle)]"
+                className="h-px flex-1 bg-(--border-subtle)"
               />
               <span>ou comece pelas mais usadas</span>
               <span
                 aria-hidden="true"
-                className="h-px flex-1 bg-[var(--border-subtle)]"
+                className="h-px flex-1 bg-(--border-subtle)"
               />
             </div>
 
@@ -1496,9 +1496,9 @@ export default function IntegrationsPage() {
           </>
         }
       >
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           Você já tem ao menos uma conexão de{" "}
-          <strong className="text-[var(--fg-primary)]">
+          <strong className="text-(--fg-primary)">
             {explorePick?.name ?? "essa ferramenta"}
           </strong>
           . Quer ver e gerenciar as conexões existentes, ou conectar uma
@@ -1545,9 +1545,9 @@ export default function IntegrationsPage() {
           </>
         }
       >
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           Você vai abrir a configuração de uma{" "}
-          <strong className="text-[var(--fg-primary)]">
+          <strong className="text-(--fg-primary)">
             integração personalizada via webhook
           </strong>
           . É preciso definir um nome único, gerar um endpoint e enviar
@@ -1583,9 +1583,9 @@ export default function IntegrationsPage() {
           </>
         }
       >
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           Tem certeza que deseja desconectar{" "}
-          <strong className="text-[var(--fg-primary)]">
+          <strong className="text-(--fg-primary)">
             {disconnectTarget?.name ?? "esta integração"}
           </strong>
           ? Os agentes vão perder o acesso aos dados e ações dessa

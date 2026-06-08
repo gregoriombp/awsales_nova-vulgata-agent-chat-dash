@@ -59,7 +59,7 @@ export default function AwPasswordSetupPage() {
           title="Anatomia"
           lead="Dois campos (nova + confirmar), um único requisito rígido (comprimento), medidor de força consultivo, nota de vazamento, dica de frase secreta e rodapé com voltar + enviar."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="campos" v="2 × password" d="Nova senha + confirmar, com toggle mostrar/ocultar compartilhado." />
             <Spec k="requisito" v="≥ 10 chars" d="Único gate. Sem complexidade. Vem de PASSWORD_MIN_LENGTH." />
             <Spec k="medidor" v="4 segmentos" d="Consultivo (não trava). evaluatePassword → score 0–4." />
@@ -107,7 +107,7 @@ export default function AwPasswordSetupPage() {
           title="Comportamento"
           lead="O componente gerencia o próprio estado — interaja na demo acima. Os estados observáveis:"
         >
-          <ul className="body-sm text-[var(--fg-secondary)] flex flex-col gap-1.5 m-0 pl-4 list-disc">
+          <ul className="body-sm text-(--fg-secondary) flex flex-col gap-1.5 m-0 pl-4 list-disc">
             <li>
               <b>Vazio</b> — requisito cinza, medidor em “—”, enviar desabilitado.
             </li>

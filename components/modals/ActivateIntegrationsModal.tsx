@@ -36,10 +36,10 @@ function CheckBox({ checked }: { checked: boolean }) {
     <span
       aria-hidden="true"
       className={
-        "flex h-[18px] w-[18px] flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] border transition-colors " +
+        "flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-colors " +
         (checked
-          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-          : "border-[var(--border-default)] bg-[var(--bg-raised)]")
+          ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+          : "border-(--border-default) bg-(--bg-raised)")
       }
     >
       {checked && <Icon name="check" size={12} />}
@@ -88,10 +88,10 @@ export default function ActivateIntegrationsModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="flex max-h-[90vh] flex-col">
         <div className="px-6 pb-4 pt-6">
-          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
             Ativar integrações
           </h2>
-          <p className="mt-1 text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+          <p className="mt-1 text-[14px] leading-relaxed text-(--fg-secondary)">
             Selecione as integrações que viram fonte nesta pasta. A IA analisa os
             dados e gera Knowledge Layers.
           </p>
@@ -102,12 +102,12 @@ export default function ActivateIntegrationsModal({
             <button
               type="button"
               onClick={selectAll}
-              className="text-[13px] font-medium text-[var(--fg-secondary)] transition-colors hover:text-[var(--fg-primary)]"
+              className="text-[13px] font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
             >
               {allSelected ? "Desmarcar todas" : "Selecionar todas"}
             </button>
             {selectedCount > 0 && (
-              <span className="text-[13px] text-[var(--fg-tertiary)]">
+              <span className="text-[13px] text-(--fg-tertiary)">
                 {selectedCount} selecionada{selectedCount !== 1 ? "s" : ""}
               </span>
             )}
@@ -122,20 +122,20 @@ export default function ActivateIntegrationsModal({
                     type="button"
                     onClick={() => toggle(integration.id)}
                     className={
-                      "flex w-full items-center gap-3.5 rounded-[var(--radius-lg)] border p-3.5 text-left transition-colors " +
+                      "flex w-full items-center gap-3.5 rounded-lg border p-3.5 text-left transition-colors " +
                       (checked
-                        ? "border-[var(--fg-primary)] bg-[var(--bg-hover)]"
-                        : "border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]")
+                        ? "border-(--fg-primary) bg-(--bg-hover)"
+                        : "border-(--border-subtle) bg-(--bg-raised) hover:border-(--border-default) hover:bg-(--bg-hover)")
                     }
                   >
                     <CheckBox checked={checked} />
                     <AwBrandLogo brand={integration.id} size="md" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-[14px] font-medium text-[var(--fg-primary)]">
+                      <div className="text-[14px] font-medium text-(--fg-primary)">
                         {integration.name}
                       </div>
                       {integration.description && (
-                        <div className="mt-0.5 text-[12.5px] text-[var(--fg-tertiary)]">
+                        <div className="mt-0.5 text-[12.5px] text-(--fg-tertiary)">
                           {integration.description}
                         </div>
                       )}
@@ -147,7 +147,7 @@ export default function ActivateIntegrationsModal({
           </ul>
         </div>
 
-        <div className="flex justify-end gap-2 border-t border-[var(--border-subtle)] px-6 py-4">
+        <div className="flex justify-end gap-2 border-t border-(--border-subtle) px-6 py-4">
           <AwButton type="button" variant="secondary" size="sm" className="w-auto" onClick={handleClose}>
             Cancelar
           </AwButton>

@@ -135,10 +135,10 @@ export default function SpacingPage() {
           title="Escala completa"
           lead="Onze tokens. Use sempre o token, não o valor — assim mudanças globais ficam triviais."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-16">name</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-48">token</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-20">px</th>
@@ -151,27 +151,27 @@ export default function SpacingPage() {
                 {SCALE.map((s) => (
                   <tr
                     key={s.token}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-middle"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-middle"
                   >
-                    <td className="px-5 py-3 text-sm font-medium text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-sm font-medium text-(--fg-primary) whitespace-nowrap">
                       {s.name}
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="px-5 py-3 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {s.token}
                     </td>
-                    <td className="px-5 py-3 text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-xs text-(--fg-tertiary) whitespace-nowrap">
                       {s.px} px
                     </td>
                     <td className="px-5 py-3">
                       <div
-                        className="h-4 rounded-[var(--radius-xs)] bg-[var(--aw-blue-500)]"
+                        className="h-4 rounded-xs bg-(--aw-blue-500)"
                         style={{ width: s.px * 2 }}
                       />
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                    <td className="px-5 py-3 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                       {s.tailwind}
                     </td>
-                    <td className="px-5 py-3 text-sm text-[var(--fg-secondary)]">
+                    <td className="px-5 py-3 text-sm text-(--fg-secondary)">
                       {s.use}
                     </td>
                   </tr>
@@ -227,10 +227,10 @@ export default function SpacingPage() {
           title="Padrões canônicos"
           lead="Sete combinações que aparecem o tempo todo. Memorize e pare de decidir caso a caso."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="px-5 pt-4 pb-2 aw-eyebrow">padrão</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow">spec</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow">uso</th>
@@ -240,15 +240,15 @@ export default function SpacingPage() {
                 {PATTERNS.map((p) => (
                   <tr
                     key={p.name}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
-                    <td className="px-5 py-3 text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-sm text-(--fg-primary) whitespace-nowrap">
                       {p.name}
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="px-5 py-3 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {p.spec}
                     </td>
-                    <td className="px-5 py-3 text-sm text-[var(--fg-secondary)]">
+                    <td className="px-5 py-3 text-sm text-(--fg-secondary)">
                       {p.use}
                     </td>
                   </tr>
@@ -257,7 +257,7 @@ export default function SpacingPage() {
             </table>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec
               k="entre seções"
               v="gap-16 · 64 px"
@@ -396,12 +396,12 @@ function Principle({
   body: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
-      <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
+      <span className="text-xs text-(--fg-tertiary)">{n}</span>
+      <div className="text-sm font-medium text-(--fg-primary)">
         {title}
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }
@@ -416,12 +416,12 @@ function Rule({
   body: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <div className="body-xs font-medium text-[var(--aw-blue-800)]">{tier}</div>
-      <div className="text-base font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
+      <div className="body-xs font-medium text-(--aw-blue-800)">{tier}</div>
+      <div className="text-base font-medium text-(--fg-primary)">
         {title}
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }

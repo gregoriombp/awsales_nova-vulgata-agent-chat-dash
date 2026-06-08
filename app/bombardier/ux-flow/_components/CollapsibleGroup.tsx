@@ -32,17 +32,17 @@ export function CollapsibleGroup({
         <Icon
           name="keyboard_arrow_down"
           size={22}
-          className="text-[var(--fg-tertiary)] transition-transform group-hover:text-[var(--fg-secondary)]"
+          className="text-(--fg-tertiary) transition-transform group-hover:text-(--fg-secondary)"
           style={{
             transform: open ? "rotate(0deg)" : "rotate(-90deg)",
             transition: "transform var(--dur-base) var(--ease-out)",
           }}
         />
-        <h2 className="m-0 text-xl font-semibold tracking-tight text-[var(--fg-primary)]">
+        <h2 className="m-0 text-xl font-semibold tracking-tight text-(--fg-primary)">
           {title}
         </h2>
         {typeof count === "number" && (
-          <span className="text-sm text-[var(--fg-tertiary)] tabular-nums">{count}</span>
+          <span className="text-sm text-(--fg-tertiary) tabular-nums">{count}</span>
         )}
       </button>
 

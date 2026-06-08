@@ -122,14 +122,14 @@ function CommentCard({
   )
 
   return (
-    <div className="flex items-start gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:bg-[var(--bg-hover)]">
+    <div className="flex items-start gap-3 px-4 py-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) hover:bg-(--bg-hover)">
       {selectable && (
         <input
           type="checkbox"
           checked={selected}
           onChange={onToggleSelected}
           aria-label="Selecionar"
-          className="mt-1 accent-[var(--accent-brand)]"
+          className="mt-1 accent-(--accent-brand)"
         />
       )}
       <ReviewAvatar
@@ -141,26 +141,26 @@ function CommentCard({
       />
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-sm font-medium text-[var(--fg-primary)] truncate">
+          <span className="text-sm font-medium text-(--fg-primary) truncate">
             {comment.authorName}
           </span>
           <StatusPill status={comment.status} />
-          <span className="text-[11px] text-[var(--fg-tertiary)] tabular-nums ml-auto">
+          <span className="text-[11px] text-(--fg-tertiary) tabular-nums ml-auto">
             {formatTimestamp(comment.createdAt)}
           </span>
         </div>
-        <p className="m-0 text-sm text-[var(--fg-primary)] whitespace-pre-wrap line-clamp-3">
+        <p className="m-0 text-sm text-(--fg-primary) whitespace-pre-wrap line-clamp-3">
           {comment.text}
         </p>
         {comment.resolution?.summary && (
-          <p className="m-0 mt-1 text-[11px] text-[var(--fg-tertiary)] italic">
+          <p className="m-0 mt-1 text-[11px] text-(--fg-tertiary) italic">
             {comment.resolution.summary}
           </p>
         )}
         <button
           type="button"
           onClick={openOnScreen}
-          className="mt-1 inline-flex items-center gap-1 text-[11px] text-[var(--fg-tertiary)] hover:text-[var(--accent-brand)]"
+          className="mt-1 inline-flex items-center gap-1 text-[11px] text-(--fg-tertiary) hover:text-(--accent-brand)"
           title={`Ir para ${comment.url}`}
         >
           <Icon name="web_asset" size={11} />
@@ -174,7 +174,7 @@ function CommentCard({
           <button
             type="button"
             aria-label="Ações"
-            className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
+            className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)"
           >
             <Icon name="more_horiz" size={14} />
           </button>
@@ -294,7 +294,7 @@ export function CommentsPanel() {
         <AwStatCard icon="archive" label="Arquivados" value={archivedCount} />
       </div>
 
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 flex flex-wrap items-center gap-3">
+      <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4 flex flex-wrap items-center gap-3">
         <div className="flex-1 min-w-[200px] max-w-md">
           <AwInput
             iconLeft="search"
@@ -304,7 +304,7 @@ export function CommentsPanel() {
           />
         </div>
 
-        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] text-[11px] font-medium">
+        <div className="flex items-center gap-1 p-1 rounded-full bg-(--bg-muted) text-[11px] font-medium">
           {(["open", "in_review", "archive"] as Tab[]).map((t) => (
             <button
               key={t}
@@ -313,13 +313,13 @@ export function CommentsPanel() {
               className={[
                 "px-3 py-1 rounded-full transition-colors inline-flex items-center gap-1.5",
                 tab === t
-                  ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-sm"
-                  : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]",
+                  ? "bg-(--bg-raised) text-(--fg-primary) shadow-sm"
+                  : "text-(--fg-secondary) hover:text-(--fg-primary)",
               ].join(" ")}
             >
               {t === "open" ? "Abertos" : t === "in_review" ? "Em revisão" : "Arquivados"}
               {t === "in_review" && inReviewCount > 0 && (
-                <span className="min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full text-[10px] font-semibold bg-[var(--aw-amber-100)] text-[var(--aw-amber-700)] tabular-nums">
+                <span className="min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full text-[10px] font-semibold bg-(--aw-amber-100) text-(--aw-amber-700) tabular-nums">
                   {inReviewCount}
                 </span>
               )}
@@ -327,17 +327,17 @@ export function CommentsPanel() {
           ))}
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-[var(--fg-secondary)] cursor-pointer">
+        <label className="flex items-center gap-2 text-xs text-(--fg-secondary) cursor-pointer">
           <input
             type="checkbox"
             checked={groupByUrl}
             onChange={(e) => setGroupByUrl(e.target.checked)}
-            className="accent-[var(--accent-brand)]"
+            className="accent-(--accent-brand)"
           />
           Agrupar por tela
         </label>
 
-        <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+        <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-(--fg-tertiary)">
           <Icon name={backend === "bridge" ? "cloud_done" : "save"} size={13} />
           {backend === "bridge" ? "Bridge LAN" : "localStorage"}
         </span>
@@ -356,8 +356,8 @@ export function CommentsPanel() {
       </div>
 
       {selectableTab && selectedIds.size > 0 && (
-        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-muted)] border border-[var(--border-subtle)]">
-          <span className="text-sm text-[var(--fg-secondary)]">
+        <div className="flex items-center justify-between gap-3 px-4 py-2 rounded-md bg-(--bg-muted) border border-(--border-subtle)">
+          <span className="text-sm text-(--fg-secondary)">
             {selectedIds.size} selecionado{selectedIds.size === 1 ? "" : "s"}
           </span>
           <div className="flex items-center gap-2">
@@ -415,14 +415,14 @@ export function CommentsPanel() {
           {grouped.map(([url, items]) => (
             <section key={url} className="flex flex-col gap-3">
               <header className="flex items-center gap-2 min-w-0">
-                <Icon name="web_asset" size={14} className="text-[var(--fg-tertiary)] shrink-0" />
+                <Icon name="web_asset" size={14} className="text-(--fg-tertiary) shrink-0" />
                 <Link
                   href={url}
-                  className="text-sm text-[var(--fg-primary)] hover:text-[var(--accent-brand)] truncate"
+                  className="text-sm text-(--fg-primary) hover:text-(--accent-brand) truncate"
                 >
                   {url}
                 </Link>
-                <span className="text-xs text-[var(--fg-tertiary)] shrink-0">
+                <span className="text-xs text-(--fg-tertiary) shrink-0">
                   {items.length} no total
                 </span>
               </header>

@@ -54,7 +54,7 @@ export function AwPaymentMethodCard({
   return (
     <article
       className={cn(
-        "relative isolate aspect-[1.586/1] w-full max-w-[440px] overflow-hidden rounded-[var(--radius-xl)] text-white shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)]",
+        "relative isolate aspect-[1.586/1] w-full max-w-[440px] overflow-hidden rounded-xl text-white shadow-[0_8px_24px_-8px_rgba(0,0,0,0.35)]",
         className
       )}
       aria-label={`${brandLabel} •••• ${last4}`}
@@ -73,21 +73,21 @@ export function AwPaymentMethodCard({
         className={cn(
           "absolute inset-0 -z-10",
           coverImage
-            ? "bg-gradient-to-br from-black/45 via-black/30 to-black/55 backdrop-blur-[2px]"
-            : "bg-gradient-to-br from-[var(--aw-blue-700)] via-[var(--aw-purple-700)] to-[var(--aw-blue-1100)]"
+            ? "bg-linear-to-br from-black/45 via-black/30 to-black/55 backdrop-blur-[2px]"
+            : "bg-linear-to-br from-(--aw-blue-700) via-(--aw-purple-700) to-(--aw-blue-1100)"
         )}
       />
 
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 rounded-[var(--radius-xl)] ring-1 ring-inset ring-white/20"
+        className="pointer-events-none absolute inset-0 -z-10 rounded-xl ring-1 ring-inset ring-white/20"
       />
 
       <div className="flex h-full flex-col justify-between p-5">
         <div className="flex items-start justify-between gap-3">
           {isDefault ? (
             <span
-              className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-normal text-white/70 backdrop-blur-sm"
+              className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-normal text-white/70 backdrop-blur-xs"
               aria-label="Pagamento principal"
             >
               Pagamento principal
@@ -99,7 +99,7 @@ export function AwPaymentMethodCard({
         </div>
 
         <div className="flex flex-col gap-1">
-          <p className="m-0 font-medium tabular-nums tracking-[0.16em] text-white drop-shadow-sm">
+          <p className="m-0 font-medium tabular-nums tracking-[0.16em] text-white drop-shadow-xs">
             <span className="text-white/55">••••&nbsp;••••&nbsp;••••</span>
             <span className="ml-2 text-[18px]">{last4}</span>
           </p>
@@ -107,7 +107,7 @@ export function AwPaymentMethodCard({
             <div className="min-w-0">
               {holderName && (
                 <>
-                  <p className="m-0 text-[9px] font-medium uppercase tracking-[0.1em] text-white/55">
+                  <p className="m-0 text-[9px] font-medium uppercase tracking-widest text-white/55">
                     Titular
                   </p>
                   <p className="m-0 truncate body-xs font-medium text-white">
@@ -119,7 +119,7 @@ export function AwPaymentMethodCard({
             <div className="text-right">
               {expiresAt && (
                 <>
-                  <p className="m-0 text-[9px] font-medium uppercase tracking-[0.1em] text-white/55">
+                  <p className="m-0 text-[9px] font-medium uppercase tracking-widest text-white/55">
                     Validade
                   </p>
                   <p className="m-0 body-xs font-medium tabular-nums text-white">

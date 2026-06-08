@@ -226,7 +226,7 @@ function NewToolPageContent() {
   if (!hydrated || !parent) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+        <div className="-m-8 min-h-full bg-(--bg-canvas)" />
       </AwDashboardLayout>
     );
   }
@@ -236,7 +236,7 @@ function NewToolPageContent() {
       <AwBrandLogo brand={parent.integration.id} size="sm" />
     ) : (
       <div
-        className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+        className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
         style={{ width: 32, height: 32 }}
       >
         <Icon name={parent.custom.icon} size={16} />
@@ -253,25 +253,25 @@ function NewToolPageContent() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+      <div className="-m-8 min-h-full bg-(--bg-canvas)">
         <div className="mx-auto w-full max-w-[1280px] px-10 pt-12 pb-32">
           {/* ---------------- Header ---------------- */}
-          <header className="mb-8 border-b border-[var(--border-subtle)] pb-6">
+          <header className="mb-8 border-b border-(--border-subtle) pb-6">
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
-                <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
+                <h3 className="m-0 mb-1.5 text-(--fg-primary)">
                   Nova habilidade
                 </h3>
-                <p className="m-0 max-w-[600px] body-sm text-[var(--fg-secondary)]">
+                <p className="m-0 max-w-[600px] body-sm text-(--fg-secondary)">
                   Configure a ação, descreva pra IA quando usar, e
                   rode um teste antes de ativar.
                 </p>
               </div>
-              <div className="flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] py-1.5 pl-1.5 pr-3">
+              <div className="flex items-center gap-2 rounded-full border border-(--border-subtle) bg-(--bg-canvas) py-1.5 pl-1.5 pr-3">
                 {parentLogo}
-                <span className="body-xs text-[var(--fg-secondary)]">
+                <span className="body-xs text-(--fg-secondary)">
                   Herda da conexão{" "}
-                  <span className="font-semibold text-[var(--fg-primary)]">
+                  <span className="font-semibold text-(--fg-primary)">
                     {parentLabel}
                   </span>
                 </span>
@@ -313,12 +313,12 @@ function NewToolPageContent() {
                   </AwField>
 
                   <AwField label="Conexão a que pertence">
-                    <div className="flex items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2.5">
+                    <div className="flex items-center gap-2 rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-3 py-2.5">
                       {parentLogo}
-                      <span className="body-xs text-[var(--fg-primary)]">
+                      <span className="body-xs text-(--fg-primary)">
                         {parentLabel}
                       </span>
-                      <span className="ml-auto body-xs uppercase tracking-wider text-[var(--fg-tertiary)]">
+                      <span className="ml-auto body-xs uppercase tracking-wider text-(--fg-tertiary)">
                         {parent.kind === "native"
                           ? "Nativa"
                           : "Personalizada"}
@@ -356,7 +356,7 @@ function NewToolPageContent() {
                         onChange={(e) =>
                           setMethod(e.target.value as CustomToolMethod)
                         }
-                        className="flex-1 cursor-pointer appearance-none border-0 bg-transparent body-sm text-[var(--fg-primary)] outline-none"
+                        className="flex-1 cursor-pointer appearance-none border-0 bg-transparent body-sm text-(--fg-primary) outline-hidden"
                         style={{ paddingRight: 22 }}
                       >
                         {METHOD_OPTIONS.map((m) => (
@@ -368,7 +368,7 @@ function NewToolPageContent() {
                       <Icon
                         name="expand_more"
                         size={18}
-                        className="text-[var(--fg-tertiary)]"
+                        className="text-(--fg-tertiary)"
                         style={{
                           marginLeft: -22,
                           pointerEvents: "none",
@@ -391,7 +391,7 @@ function NewToolPageContent() {
                     </div>
                   </div>
                   {parent.kind === "custom" && parent.custom.baseUrl && (
-                    <span className="body-xs text-[var(--fg-tertiary)]">
+                    <span className="body-xs text-(--fg-tertiary)">
                       Pode usar caminhos relativos —{" "}
                       <span className="mono">
                         {parent.custom.baseUrl}
@@ -403,7 +403,7 @@ function NewToolPageContent() {
               </Collapsible>
 
               <Collapsible title="Headers, query e body">
-                <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+                <p className="m-0 body-xs text-(--fg-tertiary)">
                   Headers customizados, query params e schema do body
                   (JSON) — virão depois. Por enquanto a habilidade usa
                   só a credencial da conexão pai e o input do teste.
@@ -411,7 +411,7 @@ function NewToolPageContent() {
               </Collapsible>
 
               <Collapsible title="Mapeamento de resposta">
-                <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+                <p className="m-0 body-xs text-(--fg-tertiary)">
                   Configure de quais campos da resposta o agente
                   extrai cada variável (ex.{" "}
                   <span className="mono">especialista_nome</span>{" "}
@@ -423,8 +423,8 @@ function NewToolPageContent() {
 
             {/* ----- Test (right) ----- */}
             <aside className="flex flex-col gap-4">
-              <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5">
-                <h3 className="m-0 mb-3 body-sm font-medium text-[var(--fg-primary)]">
+              <div className="rounded-2xl border border-(--border-subtle) bg-(--bg-canvas) p-5">
+                <h3 className="m-0 mb-3 body-sm font-medium text-(--fg-primary)">
                   Teste
                 </h3>
 
@@ -460,10 +460,10 @@ function NewToolPageContent() {
                     className={
                       "mt-4 rounded-xl border px-3 py-2.5 body-xs " +
                       (testStatus === "ok"
-                        ? "border-[var(--aw-emerald-150)] bg-[var(--aw-emerald-100)] text-[var(--aw-emerald-800)]"
+                        ? "border-(--aw-emerald-150) bg-(--aw-emerald-100) text-(--aw-emerald-800)"
                         : testStatus === "error"
-                          ? "border-[var(--aw-red-150)] bg-[var(--aw-red-100)] text-[var(--aw-red-700)]"
-                          : "border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]")
+                          ? "border-(--aw-red-150) bg-(--aw-red-100) text-(--aw-red-700)"
+                          : "border-(--border-subtle) bg-(--bg-surface) text-(--fg-secondary)")
                     }
                   >
                     <div className="mb-1 inline-flex items-center gap-1.5 font-medium">
@@ -492,7 +492,7 @@ function NewToolPageContent() {
                 )}
               </div>
 
-              <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 body-xs text-[var(--fg-tertiary)]">
+              <div className="rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-surface) p-4 body-xs text-(--fg-tertiary)">
                 <span className="inline-flex items-center gap-1.5">
                   <Icon name="info" size={14} />
                   Pra ativar a habilidade, o teste precisa passar pelo
@@ -558,20 +558,20 @@ function Collapsible({
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <section className="overflow-hidden rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+    <section className="overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--bg-canvas)">
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-[var(--bg-hover)]"
+        className="flex w-full items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-(--bg-hover)"
       >
-        <span className="flex-1 body-sm font-medium text-[var(--fg-primary)]">
+        <span className="flex-1 body-sm font-medium text-(--fg-primary)">
           {title}
         </span>
         <Icon
           name="expand_more"
           size={18}
-          className={`text-[var(--fg-secondary)] transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+          className={`text-(--fg-secondary) transition-transform duration-200 ease-out motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
         />
       </button>
       <div
@@ -579,7 +579,7 @@ function Collapsible({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-[var(--border-subtle)] px-5 py-5">
+          <div className="border-t border-(--border-subtle) px-5 py-5">
             {children}
           </div>
         </div>
@@ -631,14 +631,14 @@ function KindPicker({
             className={
               "flex flex-col items-start gap-1.5 rounded-xl border px-3 py-2.5 text-left transition-colors " +
               (active
-                ? "border-[var(--fg-primary)] bg-[var(--aw-blue-100)]"
-                : "border-[var(--border-subtle)] bg-[var(--bg-canvas)] hover:bg-[var(--bg-hover)]")
+                ? "border-(--fg-primary) bg-(--aw-blue-100)"
+                : "border-(--border-subtle) bg-(--bg-canvas) hover:bg-(--bg-hover)")
             }
           >
             <AwPill variant={KIND_PILL_VARIANT[it.id]} dot={false}>
               {KIND_LABELS[it.id]}
             </AwPill>
-            <span className="body-xs text-[var(--fg-tertiary)]">
+            <span className="body-xs text-(--fg-tertiary)">
               {it.helper}
             </span>
           </button>

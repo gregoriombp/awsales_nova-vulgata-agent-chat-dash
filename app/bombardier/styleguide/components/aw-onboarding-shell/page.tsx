@@ -24,11 +24,11 @@ export default function AwOnboardingShellPage() {
             <li>
               <Link
                 href="/primeiro-acesso"
-                className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
               >
                 /primeiro-acesso →
               </Link>
-              <span className="ml-2 text-sm text-[var(--fg-secondary)]">
+              <span className="ml-2 text-sm text-(--fg-secondary)">
                 Fluxo de criação da organização (verificação, perfil,
                 contrato, pagamento, conclusão).
               </span>
@@ -36,11 +36,11 @@ export default function AwOnboardingShellPage() {
             <li>
               <Link
                 href="/organizacao-adicional"
-                className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
               >
                 /organizacao-adicional →
               </Link>
-              <span className="ml-2 text-sm text-[var(--fg-secondary)]">
+              <span className="ml-2 text-sm text-(--fg-secondary)">
                 Plano adicional sem perfil (contrato + pagamento). Reusa o
                 shell sem o card da organização.
               </span>

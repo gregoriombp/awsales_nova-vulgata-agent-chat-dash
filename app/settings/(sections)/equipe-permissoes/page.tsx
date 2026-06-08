@@ -179,10 +179,10 @@ export default function MembersPage() {
       />
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-(--fg-primary)">
             Equipe &amp; permissões
           </h3>
-          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -300,7 +300,7 @@ function MembersTableState({
 
   if (members.length === 0 && search.trim() !== "") {
     return (
-      <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10">
+      <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10">
         <AwEmpty>
           <AwEmptyHeader>
             <AwEmptyMedia variant="icon">
@@ -394,7 +394,7 @@ function ContactChannelModal({
   return (
     <AwModal open={open} onClose={onClose} title="Conversar com seu gerente">
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Escolha por onde falar com{" "}
           {managerName ?? "seu gerente de contas"}.
         </p>
@@ -404,7 +404,7 @@ function ContactChannelModal({
               key={channel.key}
               type="button"
               onClick={onClose}
-              className="aw-card flex items-center gap-3 !px-4 !py-3 text-left transition-colors hover:bg-[var(--bg-surface)]"
+              className="aw-card flex items-center gap-3 px-4! py-3! text-left transition-colors hover:bg-(--bg-surface)"
             >
               <span
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white"
@@ -413,17 +413,17 @@ function ContactChannelModal({
                 {channel.icon}
               </span>
               <span className="flex min-w-0 flex-col">
-                <span className="text-[14px] font-semibold text-[var(--fg-primary)]">
+                <span className="text-[14px] font-semibold text-(--fg-primary)">
                   {channel.label}
                 </span>
-                <span className="body-xs text-[var(--fg-secondary)]">
+                <span className="body-xs text-(--fg-secondary)">
                   {channel.hint}
                 </span>
               </span>
               <Icon
                 name="chevron_right"
                 size={18}
-                className="ml-auto text-[var(--fg-tertiary)]"
+                className="ml-auto text-(--fg-tertiary)"
               />
             </button>
           ))}
@@ -464,11 +464,11 @@ function MemberSection({
     <section>
       <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <h2 className="m-0 body-sm font-semibold text-[var(--fg-primary)]">
+          <h2 className="m-0 body-sm font-semibold text-(--fg-primary)">
             {title}
           </h2>
           {description && (
-            <p className="m-0 mt-2 max-w-[760px] body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 mt-2 max-w-[760px] body-xs text-(--fg-secondary)">
               {description}
             </p>
           )}
@@ -501,8 +501,8 @@ function MemberSection({
       )}
 
       {total === 0 ? (
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-6 py-8 text-center">
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) px-6 py-8 text-center">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             {emptyHint}
           </p>
         </div>
@@ -536,7 +536,7 @@ function MemberSection({
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
                           aria-label="Ações"
                         >
                           <Icon name="more_vert" size={20} />
@@ -553,7 +553,7 @@ function MemberSection({
                   <Icon
                     name="chevron_right"
                     size={16}
-                    className="shrink-0 text-[var(--fg-tertiary)]"
+                    className="shrink-0 text-(--fg-tertiary)"
                   />
                 </div>
               </td>
@@ -575,7 +575,7 @@ function MemberSection({
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] transition-colors duration-aw-fast"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
                           aria-label="Ações do convite"
                         >
                           <Icon name="more_vert" size={20} />
@@ -613,9 +613,9 @@ function CompactMemberList({
   onSelect: (id: string) => void;
 }) {
   return (
-    <aside className="flex flex-col self-start divide-y divide-[var(--border-subtle)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <div className="border-b border-[var(--border-subtle)] px-4 py-3">
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+    <aside className="flex flex-col self-start divide-y divide-(--border-subtle) overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
+      <div className="border-b border-(--border-subtle) px-4 py-3">
+        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
           Pessoas · {members.length}
         </p>
       </div>
@@ -629,10 +629,10 @@ function CompactMemberList({
                 onClick={() => onSelect(m.id)}
                 aria-pressed={active}
                 className={
-                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-none focus-visible:bg-[var(--bg-hover)] " +
+                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-hidden focus-visible:bg-(--bg-hover) " +
                   (active
-                    ? "bg-[var(--bg-selected)]"
-                    : "hover:bg-[var(--bg-hover)]")
+                    ? "bg-(--bg-selected)"
+                    : "hover:bg-(--bg-hover)")
                 }
               >
                 <AwAvatar
@@ -642,15 +642,15 @@ function CompactMemberList({
                   initials={m.initials}
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-medium text-(--fg-primary)">
                     {m.name}
                     {m.isYou && (
-                      <span className="ml-1 text-[var(--fg-secondary)]">
+                      <span className="ml-1 text-(--fg-secondary)">
                         (você)
                       </span>
                     )}
                   </span>
-                  <span className="block truncate body-xs text-[var(--fg-secondary)]">
+                  <span className="block truncate body-xs text-(--fg-secondary)">
                     {m.email}
                   </span>
                 </span>
@@ -689,8 +689,8 @@ function MemberDetail({
     member.permissions.length === ALL_PERMISSION_IDS.length;
 
   return (
-    <section className="flex max-h-[calc(100vh-160px)] flex-col self-start overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <header className="flex items-start gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
+    <section className="flex max-h-[calc(100vh-160px)] flex-col self-start overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
+      <header className="flex items-start gap-4 border-b border-(--border-subtle) px-6 py-5">
         <AwAvatar
           size="lg"
           src={member.avatar}
@@ -699,7 +699,7 @@ function MemberDetail({
         />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="m-0 truncate body-sm font-semibold text-[var(--fg-primary)]">
+            <p className="m-0 truncate body-sm font-semibold text-(--fg-primary)">
               {member.name}
             </p>
             {member.isYou && (
@@ -708,7 +708,7 @@ function MemberDetail({
               </AwPill>
             )}
           </div>
-          <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 truncate body-xs text-(--fg-secondary)">
             {member.email}
           </p>
         </div>
@@ -752,7 +752,7 @@ function MemberDetail({
       </header>
 
       <div className="flex-1 overflow-y-auto">
-        <div className="grid grid-cols-2 gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
+        <div className="grid grid-cols-2 gap-4 border-b border-(--border-subtle) px-6 py-5">
           <DetailStat label="Função" value={member.role} />
           <DetailStat label="Último acesso" value={member.lastActive} />
         </div>
@@ -760,7 +760,7 @@ function MemberDetail({
         <DetailSection title="Permissões por escopo">
           <div className="flex flex-col gap-3">
             {hasFullAccess && <FullAccessBanner />}
-            <ul className="flex flex-col divide-y divide-[var(--border-subtle)]">
+            <ul className="flex flex-col divide-y divide-(--border-subtle)">
               {SCOPES.map((scope) => (
                 <ScopeRow
                   key={scope.id}
@@ -776,7 +776,7 @@ function MemberDetail({
 
         <DetailSection title="Atividade">
           {member.activity.length === 0 ? (
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Sem eventos registrados para este membro.
             </p>
           ) : (
@@ -784,16 +784,16 @@ function MemberDetail({
               {member.activity.map((entry, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+                  className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-(--bg-muted) text-(--fg-secondary)">
                     <Icon name={inferActivityIcon(entry.description)} size={14} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block body-xs text-[var(--fg-primary)]">
+                    <span className="block body-xs text-(--fg-primary)">
                       {entry.description}
                     </span>
-                    <span className="block aw-eyebrow text-[var(--fg-tertiary)]">
+                    <span className="block aw-eyebrow text-(--fg-tertiary)">
                       {entry.time}
                     </span>
                   </span>
@@ -810,10 +810,10 @@ function MemberDetail({
 function DetailStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <p className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
+      <p className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
         {label}
       </p>
-      <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+      <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
         {value}
       </p>
     </div>
@@ -828,8 +828,8 @@ function DetailSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-b border-[var(--border-subtle)] px-6 py-5 last:border-b-0">
-      <h3 className="m-0 mb-3 aw-eyebrow text-[var(--fg-tertiary)]">
+    <section className="border-b border-(--border-subtle) px-6 py-5 last:border-b-0">
+      <h3 className="m-0 mb-3 aw-eyebrow text-(--fg-tertiary)">
         {title}
       </h3>
       {children}
@@ -851,15 +851,15 @@ function inferActivityIcon(description: string): string {
 
 function FullAccessBanner() {
   return (
-    <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-raised)] text-[var(--fg-primary)]">
+    <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
         <Icon name="verified" size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+        <p className="m-0 body-xs font-medium text-(--fg-primary)">
           Acesso total
         </p>
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Todos os {SCOPES.length} escopos liberados, incluindo ações
           irreversíveis (faturamento, exclusão).
         </p>
@@ -895,11 +895,11 @@ function ScopeRow({
 
   return (
     <li>
-      <div className="flex w-full items-center gap-3 rounded-[var(--radius-sm)] px-2 py-3.5 transition-colors duration-aw-fast hover:bg-[var(--bg-hover)]">
+      <div className="flex w-full items-center gap-3 rounded-sm px-2 py-3.5 transition-colors duration-aw-fast hover:bg-(--bg-hover)">
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none rounded-[var(--radius-sm)] focus-visible:bg-[var(--bg-hover)]"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-hidden rounded-sm focus-visible:bg-(--bg-hover)"
           aria-expanded={open}
         >
           <Icon
@@ -911,14 +911,14 @@ function ScopeRow({
               transitionTimingFunction: "var(--ease-in-out)",
             }}
           />
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-(--bg-muted) text-(--fg-secondary)">
             <Icon name={scope.icon} size={14} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+            <span className="block truncate body-xs font-medium text-(--fg-primary)">
               {scope.name}
             </span>
-            <span className="block body-xs text-[var(--fg-secondary)]">
+            <span className="block body-xs text-(--fg-secondary)">
               {granted}/{total} permiss{total === 1 ? "ão" : "ões"}
             </span>
           </span>
@@ -946,7 +946,7 @@ function ScopeRow({
           <div className="flex flex-col gap-3 px-1 pb-3 pl-10 pt-1">
             {scope.groups.map((g) => (
               <div key={g.id}>
-                <p className="m-0 mb-1.5 aw-eyebrow text-[var(--fg-tertiary)]">
+                <p className="m-0 mb-1.5 aw-eyebrow text-(--fg-tertiary)">
                   {g.label}
                 </p>
                 <ul className="flex flex-col gap-1">
@@ -955,7 +955,7 @@ function ScopeRow({
                     return (
                       <li
                         key={p.id}
-                        className="flex items-start gap-2 rounded-[var(--radius-sm)] px-1 py-1 hover:bg-[var(--bg-hover)]"
+                        className="flex items-start gap-2 rounded-sm px-1 py-1 hover:bg-(--bg-hover)"
                       >
                         <span className="mt-0.5">
                           <AwCheckbox
@@ -972,14 +972,14 @@ function ScopeRow({
                             className={
                               "block " +
                               (has
-                                ? "font-medium text-[var(--fg-primary)]"
-                                : "text-[var(--fg-secondary)]")
+                                ? "font-medium text-(--fg-primary)"
+                                : "text-(--fg-secondary)")
                             }
                           >
                             {p.label}
                           </span>
                           {p.description && (
-                            <span className="block body-xs text-[var(--fg-tertiary)]">
+                            <span className="block body-xs text-(--fg-tertiary)">
                               {p.description}
                             </span>
                           )}
@@ -1049,46 +1049,46 @@ function RoleChangeConfirmModal({
     >
       {pending && (
         <div className="flex flex-col gap-4">
-          <p className="m-0 body-xs text-[var(--fg-primary)]">
+          <p className="m-0 body-xs text-(--fg-primary)">
             Você vai mudar{" "}
             <strong className="font-semibold">{pending.memberName}</strong> de{" "}
             <strong className="font-semibold">{pending.fromRole}</strong> para{" "}
             <strong className="font-semibold">{pending.toRole}</strong>.
           </p>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] p-4">
+          <div className="rounded-md border border-(--border-subtle) bg-(--bg-muted) p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+                <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
                   De
                 </p>
-                <p className="m-0 mt-1 body-xs font-medium text-[var(--fg-primary)]">
+                <p className="m-0 mt-1 body-xs font-medium text-(--fg-primary)">
                   {pending.fromRole}
                 </p>
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-(--fg-secondary)">
                   {fromCount} permiss{fromCount === 1 ? "ão" : "ões"}
                 </p>
               </div>
               <Icon
                 name="arrow_forward"
                 size={18}
-                className="shrink-0 text-[var(--fg-tertiary)]"
+                className="shrink-0 text-(--fg-tertiary)"
               />
               <div className="min-w-0 text-right">
-                <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+                <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
                   Para
                 </p>
-                <p className="m-0 mt-1 body-xs font-medium text-[var(--fg-primary)]">
+                <p className="m-0 mt-1 body-xs font-medium text-(--fg-primary)">
                   {pending.toRole}
                 </p>
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-(--fg-secondary)">
                   {toCount} permiss{toCount === 1 ? "ão" : "ões"}
                   {diff !== 0 && (
                     <span
                       className={
                         diff > 0
-                          ? "ml-1.5 text-[var(--accent-success)]"
-                          : "ml-1.5 text-[var(--accent-danger)]"
+                          ? "ml-1.5 text-(--accent-success)"
+                          : "ml-1.5 text-(--accent-danger)"
                       }
                     >
                       {diff > 0 ? `+${diff}` : diff}
@@ -1099,7 +1099,7 @@ function RoleChangeConfirmModal({
             </div>
           </div>
 
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             As permissões serão ajustadas automaticamente. Você pode reverter a
             qualquer momento abrindo o membro novamente.
           </p>

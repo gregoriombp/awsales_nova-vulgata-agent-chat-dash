@@ -32,8 +32,8 @@ import {
  * ───────────────────────────────────────────────────────────────────────── */
 
 const headClass =
-  "h-11 px-4 text-left align-middle text-[12.5px] font-medium text-[var(--fg-tertiary)] whitespace-nowrap";
-const cellClass = "px-4 py-3.5 align-middle text-[13px] text-[var(--fg-secondary)]";
+  "h-11 px-4 text-left align-middle text-[12.5px] font-medium text-(--fg-tertiary) whitespace-nowrap";
+const cellClass = "px-4 py-3.5 align-middle text-[13px] text-(--fg-secondary)";
 const numClass = `${cellClass} text-right tabular-nums`;
 
 export function KnowledgeBaseTable({
@@ -46,10 +46,10 @@ export function KnowledgeBaseTable({
   const router = useRouter();
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+    <div className="overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised)">
       <Table>
         <TableHeader>
-          <TableRow className="border-b border-[var(--border-subtle)] hover:bg-transparent">
+          <TableRow className="border-b border-(--border-subtle) hover:bg-transparent">
             <TableHead className={headClass}>Base de conhecimento</TableHead>
             <TableHead className={headClass}>Status</TableHead>
             <TableHead className={`${headClass} text-right`}>Fontes</TableHead>
@@ -66,16 +66,16 @@ export function KnowledgeBaseTable({
               <TableRow
                 key={base.id}
                 onClick={() => router.push(`/memory-base/${base.id}`)}
-                className="cursor-pointer border-b border-[var(--border-subtle)] transition-colors last:border-b-0 hover:bg-[var(--bg-hover)]"
+                className="cursor-pointer border-b border-(--border-subtle) transition-colors last:border-b-0 hover:bg-(--bg-hover)"
               >
-                <TableCell className={`${cellClass} text-[var(--fg-primary)]`}>
+                <TableCell className={`${cellClass} text-(--fg-primary)`}>
                   <span className="flex items-center gap-3">
-                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-surface) text-(--fg-secondary)">
                       <Icon name="account_balance" size={18} weight={300} />
                     </span>
                     <span className="flex min-w-0 flex-col">
                       <span className="truncate font-medium">{base.name}</span>
-                      <span className="truncate text-[12px] text-[var(--fg-tertiary)]">
+                      <span className="truncate text-[12px] text-(--fg-tertiary)">
                         {[base.objetivo, base.segmento].filter(Boolean).join(" · ") ||
                           "Base recém-criada"}
                       </span>
@@ -102,7 +102,7 @@ export function KnowledgeBaseTable({
                     {agentUsageLabel(base.agents.length)}
                   </span>
                 </TableCell>
-                <TableCell className={`${cellClass} whitespace-nowrap text-[var(--fg-tertiary)]`}>
+                <TableCell className={`${cellClass} whitespace-nowrap text-(--fg-tertiary)`}>
                   {base.updatedAt}
                 </TableCell>
                 <TableCell className={cellClass} onClick={(e) => e.stopPropagation()}>
@@ -113,7 +113,7 @@ export function KnowledgeBaseTable({
                       <button
                         type="button"
                         aria-label={`Ações de ${base.name}`}
-                        className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-colors hover:bg-(--bg-muted) hover:text-(--fg-primary)"
                       >
                         <Icon name="more_vert" size={18} weight={400} />
                       </button>

@@ -68,7 +68,7 @@ export default function StatusDotPage() {
             title="Ring (overlay)"
             lead="ring={true} adiciona uma borda fina da cor da superfície — necessário ao sobrepor a logos/avatares para garantir contraste."
           >
-            <Stage label="absolute + ring sobre AwBrandLogo">
+            <Stage label="absolute + ring-3 sobre AwBrandLogo">
               <div className="relative">
                 <AwBrandLogo brand="whatsapp" size="md" />
                 <AwStatusDot variant="live" size="md" ring absolute />
@@ -101,7 +101,7 @@ export default function StatusDotPage() {
             title="Anatomia"
             lead="Cores referenciam tokens — não hex literais."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec k="size xs" v="6px" />
               <Spec k="size sm" v="8px (default)" />
               <Spec k="size md" v="10px" />

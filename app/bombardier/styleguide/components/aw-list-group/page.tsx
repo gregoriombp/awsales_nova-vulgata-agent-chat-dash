@@ -83,7 +83,7 @@ export default function ListGroupPage() {
                 {(["none", "sm", "md", "lg"] as const).map((indent) => (
                   <div
                     key={indent}
-                    className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]"
+                    className="rounded-md border border-(--border-subtle) bg-(--bg-raised)"
                   >
                     <AwListGroup
                       media={<AwBrandLogo brand="instagram" size="md" />}
@@ -268,7 +268,7 @@ export default function ListGroupPage() {
     <AwAvatar src="/foto.jpg" size="md" />
     <div className="flex-1">
       <div className="font-semibold">Marina Cosméticos</div>
-      <div className="text-[12.5px] text-[var(--fg-tertiary)]">
+      <div className="text-[12.5px] text-(--fg-tertiary)">
         Marina Costa · 2 números
       </div>
     </div>
@@ -310,7 +310,7 @@ export default function ListGroupPage() {
                 d="Radix expõe data-state no trigger."
               />
               <Spec
-                k="focus ring"
+                k="focus ring-3"
                 v="ring-2 · aw-blue-400"
                 d="Apenas em focus-visible — não aparece com mouse."
               />
@@ -343,13 +343,13 @@ function ChildRow({
     .toUpperCase()
 
   return (
-    <div className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-[var(--bg-hover)]">
+    <div className="flex items-center gap-3 px-6 py-3.5 transition-colors hover:bg-(--bg-hover)">
       <AwAvatar size="md" src={avatarSrc} alt={name} initials={initials} />
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[14px] font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+        <div className="truncate text-[14px] font-semibold tracking-[-0.005em] text-(--fg-primary)">
           {name}
         </div>
-        <div className="mt-0.5 truncate text-[12.5px] leading-[1.45] text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 truncate text-[12.5px] leading-[1.45] text-(--fg-tertiary)">
           {subtitle}
         </div>
       </div>

@@ -70,7 +70,7 @@ export default function AwBackupCodesPage() {
           title="Anatomia"
           lead="Grade de 2 colunas com os códigos, par de ações copiar/baixar, e dois slots opcionais: callout de aviso e checkbox de confirmação."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="grade" v="2 colunas" d="tabular-nums + tracking pra alinhar os códigos." />
             <Spec k="copiar" v="clipboard" d="Copia todos (estado 'Copiado' por ~1,8s)." />
             <Spec k="baixar" v=".txt" d="Gera um arquivo (filename configurável)." />

@@ -76,10 +76,10 @@ export function SidebarSearch() {
       <div className={cn(
         "flex items-center gap-2 h-8 px-2.5 rounded-md border transition-colors duration-150",
         open && hits.length > 0
-          ? "border-[var(--aw-blue-500)] bg-[var(--bg-canvas)]"
-          : "border-[var(--border-default)] bg-[var(--bg-surface)] hover:border-[var(--border-hover)]"
+          ? "border-(--aw-blue-500) bg-(--bg-canvas)"
+          : "border-(--border-default) bg-(--bg-surface) hover:border-(--border-hover)"
       )}>
-        <Icon name="search" size={14} className="text-[var(--fg-tertiary)] shrink-0" />
+        <Icon name="search" size={14} className="text-(--fg-tertiary) shrink-0" />
         <input
           ref={inputRef}
           type="text"
@@ -89,13 +89,13 @@ export function SidebarSearch() {
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={handleKeyDown}
           placeholder="Buscar…"
-          className="flex-1 min-w-0 bg-transparent outline-none border-0 text-[13px] text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)]"
+          className="flex-1 min-w-0 bg-transparent outline-hidden border-0 text-[13px] text-(--fg-primary) placeholder:text-(--fg-tertiary)"
         />
         {query && (
           <button
             type="button"
             onMouseDown={(e) => { e.preventDefault(); setQuery(""); inputRef.current?.focus() }}
-            className="flex items-center justify-center text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)] transition-colors"
+            className="flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-secondary) transition-colors"
           >
             <Icon name="cancel" size={14} />
           </button>
@@ -103,7 +103,7 @@ export function SidebarSearch() {
       </div>
 
       {open && hits.length > 0 && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-md)] overflow-hidden">
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-md) overflow-hidden">
           <ul ref={listRef} role="listbox" className="max-h-64 overflow-y-auto py-1">
             {hits.map((hit, i) => (
               <li key={hit.href} role="option" aria-selected={i === cursor}>
@@ -114,16 +114,16 @@ export function SidebarSearch() {
                   className={cn(
                     "w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors",
                     i === cursor
-                      ? "bg-[var(--bg-surface)]"
-                      : "hover:bg-[var(--bg-surface)]"
+                      ? "bg-(--bg-surface)"
+                      : "hover:bg-(--bg-surface)"
                   )}
                 >
-                  <Icon name="article" size={14} className="mt-0.5 shrink-0 text-[var(--fg-tertiary)]" />
+                  <Icon name="article" size={14} className="mt-0.5 shrink-0 text-(--fg-tertiary)" />
                   <span className="flex-1 min-w-0">
-                    <span className="block text-[13px] font-medium text-[var(--fg-primary)] truncate">
+                    <span className="block text-[13px] font-medium text-(--fg-primary) truncate">
                       {hit.name}
                     </span>
-                    <span className="block text-[11px] text-[var(--fg-tertiary)] mt-0.5">
+                    <span className="block text-[11px] text-(--fg-tertiary) mt-0.5">
                       {hit.section}
                     </span>
                   </span>
@@ -135,8 +135,8 @@ export function SidebarSearch() {
       )}
 
       {open && query.trim().length > 0 && hits.length === 0 && (
-        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-md)] px-3 py-4 text-center">
-          <p className="text-[12px] text-[var(--fg-tertiary)]">Nenhum resultado para &ldquo;{query}&rdquo;</p>
+        <div className="absolute left-0 right-0 top-[calc(100%+4px)] z-50 rounded-lg border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-md) px-3 py-4 text-center">
+          <p className="text-[12px] text-(--fg-tertiary)">Nenhum resultado para &ldquo;{query}&rdquo;</p>
         </div>
       )}
     </div>

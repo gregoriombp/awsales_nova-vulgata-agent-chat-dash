@@ -256,17 +256,17 @@ export default function CriarBaseDeConhecimentoFlowPage() {
         trailing={<FlowUpdatesBadge updates={updates} />}
       >
         Wizard de criação de uma base de conhecimento dentro da Memory Base.
-        Mapeado a partir do Figma — <b className="font-medium text-[var(--fg-primary)]">a desenvolver</b>:
+        Mapeado a partir do Figma — <b className="font-medium text-(--fg-primary)">a desenvolver</b>:
         hoje o produto só tem um modal v0 de criação. O alvo é um wizard
         full-screen (rota <code>/memory-base/new</code>), não modal.
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
-        <p className="text-sm text-[var(--fg-secondary)] leading-relaxed max-w-2xl -mt-8">
+        <p className="text-sm text-(--fg-secondary) leading-relaxed max-w-2xl -mt-8">
           São 6 etapas sequenciais no Figma: as quatro primeiras classificam a base
           (Nome, Objetivo, Tipo de segmento, Tipo de envio de dados) e as duas
           últimas vinculam as fontes-âncora (Produto, Catálogo/XLS e Playbook),
-          cada uma com um ramo <b className="font-medium text-[var(--fg-primary)]">novo vs. existente</b>.
+          cada uma com um ramo <b className="font-medium text-(--fg-primary)">novo vs. existente</b>.
           O fluxo converge na base recém-criada. Veja em "Decisões de design" a
           proposta de enxugar isso pra 3 telas.
         </p>
@@ -284,23 +284,23 @@ export default function CriarBaseDeConhecimentoFlowPage() {
           title="Cada tela"
           lead="Propósito e pra onde leva cada etapa do wizard."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-(--border-subtle)">
               {screens.map((s) => (
                 <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
-                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                    <span className="aw-eyebrow text-(--aw-blue-700)">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-(--fg-primary)">{s.title}</h3>
                   </div>
-                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">{s.purpose}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
                     <span className="caption">
-                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      <span className="font-medium text-(--fg-secondary)">Decisões: </span>
                       {s.decisions}
                     </span>
                     <Link
                       href={s.href}
-                      className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                      className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
                     >
                       Abrir protótipo →
                     </Link>
@@ -317,28 +317,28 @@ export default function CriarBaseDeConhecimentoFlowPage() {
           lead="Como simplificar o fluxo do Figma sem perder o essencial."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Wizard full-screen, não modal</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 A criação ocupa a tela inteira (rota <code>/memory-base/new</code>), no padrão do Agent Studio — etapas com progresso. O wizard (enxuto: 3 telas + loading) substitui o modal de criação v0, que foi aposentado.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Alvo: 6 telas → 3</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Enxugar pra <b className="font-medium text-[var(--fg-primary)]">(1) Identidade &amp; objetivo</b> (funde Nome + Objetivo + Tipo de segmento + Tipo de envio), <b className="font-medium text-[var(--fg-primary)]">(2) Fontes-âncora</b> (produto + catálogo/XLS + playbook numa tela só) e <b className="font-medium text-[var(--fg-primary)]">(3) Revisão &amp; criar</b>.
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
+                Enxugar pra <b className="font-medium text-(--fg-primary)">(1) Identidade &amp; objetivo</b> (funde Nome + Objetivo + Tipo de segmento + Tipo de envio), <b className="font-medium text-(--fg-primary)">(2) Fontes-âncora</b> (produto + catálogo/XLS + playbook numa tela só) e <b className="font-medium text-(--fg-primary)">(3) Revisão &amp; criar</b>.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Novo/existente vira toggle</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Os ramos "novo vs. existente" de produto, catálogo e playbook não precisam de tela própria cada — viram um toggle (segmented) dentro do bloco correspondente na tela de Fontes-âncora.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">A base de produtos (XLS) é o catálogo</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                A tela de upload de uma planilha de produtos que faltava no produto é o ramo <b className="font-medium text-[var(--fg-primary)]">Novo catálogo</b> da etapa 5 — sobe um <code>.xlsx/.csv</code> que vira o catálogo da base. Fontes extras (URL, snippet, integrações) ficam fora do wizard, dentro da base.
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
+                A tela de upload de uma planilha de produtos que faltava no produto é o ramo <b className="font-medium text-(--fg-primary)">Novo catálogo</b> da etapa 5 — sobe um <code>.xlsx/.csv</code> que vira o catálogo da base. Fontes extras (URL, snippet, integrações) ficam fora do wizard, dentro da base.
               </p>
             </div>
           </div>

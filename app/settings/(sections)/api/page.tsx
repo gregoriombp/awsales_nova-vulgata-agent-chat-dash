@@ -24,19 +24,19 @@ export default function ApiSettingsPage() {
           </AwButton>
         }
       />
-      <AwCard className="!p-0">
-        <ul className="divide-y divide-[var(--border-subtle)]">
+      <AwCard className="p-0!">
+        <ul className="divide-y divide-(--border-subtle)">
           {API_KEYS.map((k) => (
             <li key={k.id} className="flex items-center gap-4 px-6 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
                 <Icon name="key" size={16} />
               </span>
               <div className="min-w-0 flex-1">
-                <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+                <p className="m-0 body-xs font-medium text-(--fg-primary)">
                   {k.name}
                 </p>
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">
-                  <code className="mono text-[var(--fg-primary)]">
+                <p className="m-0 body-xs text-(--fg-secondary)">
+                  <code className="mono text-(--fg-primary)">
                     {k.prefix}
                   </code>{" "}
                   · criada {k.createdAt} · usada {k.lastUsed}
@@ -51,12 +51,12 @@ export default function ApiSettingsPage() {
             </li>
           ))}
         </ul>
-        <div className="flex items-center justify-between gap-4 border-t border-[var(--border-subtle)] px-6 py-4">
+        <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) px-6 py-4">
           <div>
-            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-(--fg-primary)">
               Webhook signing secret
             </p>
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Usado para validar payloads recebidos dos agentes.
             </p>
           </div>

@@ -72,16 +72,16 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
         ref={ref}
         onClick={onManage}
         className={cn(
-          "flex flex-col overflow-hidden rounded-[var(--radius-xl)]",
-          "border border-[var(--border-subtle)] bg-[var(--aw-gray-100)]",
-          "transition-colors duration-aw-fast hover:border-[var(--border-default)]",
+          "flex flex-col overflow-hidden rounded-xl",
+          "border border-(--border-subtle) bg-(--aw-gray-100)",
+          "transition-colors duration-aw-fast hover:border-(--border-default)",
           onManage && "cursor-pointer",
           className,
         )}
         {...rest}
       >
         <div
-          className="relative h-[180px] w-full bg-[var(--aw-gray-100)]"
+          className="relative h-[180px] w-full bg-(--aw-gray-100)"
           style={
             backgroundImage
               ? {
@@ -112,8 +112,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                           initials={m.initials}
                           alt={m.name}
                           className={cn(
-                            "!h-12 !w-12 !text-[length:var(--body-sm-size)]",
-                            "ring-2 ring-[var(--bg-raised)]",
+                            "h-12! w-12! text-(length:--body-sm-size)!",
+                            "ring-2 ring-(--bg-raised)",
                           )}
                         />
                       </span>
@@ -133,10 +133,10 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                       }}
                       aria-label="Ver todos os membros"
                       className={cn(
-                        "aw-avatar -ml-3 !h-12 !w-12 !text-[length:var(--body-xs-size)]",
-                        "ring-2 ring-[var(--bg-raised)]",
-                        "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
-                        "transition-colors hover:!bg-[var(--bg-hover)] hover:!text-[var(--fg-primary)]",
+                        "aw-avatar -ml-3 h-12! w-12! text-(length:--body-xs-size)!",
+                        "ring-2 ring-(--bg-raised)",
+                        "bg-(--bg-muted)! text-(--fg-secondary)!",
+                        "transition-colors hover:bg-(--bg-hover)! hover:text-(--fg-primary)!",
                       )}
                     >
                       +{overflow}
@@ -144,9 +144,9 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                   ) : (
                     <span
                       className={cn(
-                        "aw-avatar -ml-3 !h-12 !w-12 !text-[length:var(--body-xs-size)]",
-                        "ring-2 ring-[var(--bg-raised)]",
-                        "!bg-[var(--bg-muted)] !text-[var(--fg-secondary)]",
+                        "aw-avatar -ml-3 h-12! w-12! text-(length:--body-xs-size)!",
+                        "ring-2 ring-(--bg-raised)",
+                        "bg-(--bg-muted)! text-(--fg-secondary)!",
                       )}
                     >
                       +{overflow}
@@ -160,10 +160,10 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
 
         <div className="flex flex-1 flex-col gap-3 px-5 pb-5 pt-5">
           <header className="flex items-center gap-3">
-            <h3 className="m-0 flex-1 truncate text-[length:var(--body-lg-size)] font-semibold leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+            <h3 className="m-0 flex-1 truncate text-(length:--body-lg-size) font-semibold leading-tight tracking-[-0.01em] text-(--fg-primary)">
               {name}
             </h3>
-            <span className="text-[12.5px] text-[var(--fg-secondary)]">
+            <span className="text-[12.5px] text-(--fg-secondary)">
               {memberCount} {memberCount === 1 ? "Membro" : "Membros"}
             </span>
             {menu && menu.length > 0 && (
@@ -182,7 +182,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
             )}
           </header>
 
-          <p className="m-0 line-clamp-2 text-[13px] leading-[1.55] text-[var(--fg-secondary)]">
+          <p className="m-0 line-clamp-2 text-[13px] leading-[1.55] text-(--fg-secondary)">
             {description}
           </p>
 

@@ -47,7 +47,7 @@ export default function SpecialistsPairPage() {
           >
             <Stage
               label="Equipe & permissões"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwSpecialistsPair
                 title="Especialistas dedicados à sua conta"
@@ -65,7 +65,7 @@ export default function SpecialistsPairPage() {
           >
             <Stage
               label="Só cards"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwSpecialistsPair human={HUMAN} ai={CORTEX} />
             </Stage>
@@ -78,7 +78,7 @@ export default function SpecialistsPairPage() {
           >
             <Stage
               label="Onboarding"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwSpecialistsPair
                 title="Bem-vindo à Awsales"

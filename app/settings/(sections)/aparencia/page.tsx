@@ -22,9 +22,9 @@ export default function AppearanceSettingsPage() {
         title="Aparência"
         description="Aplica somente para sua conta, neste navegador."
       />
-      <AwCard className="!p-0">
-        <div className="border-b border-[var(--border-subtle)] px-6 py-5">
-          <p className="m-0 mb-3 body-xs font-medium text-[var(--fg-primary)]">
+      <AwCard className="p-0!">
+        <div className="border-b border-(--border-subtle) px-6 py-5">
+          <p className="m-0 mb-3 body-xs font-medium text-(--fg-primary)">
             Tema
           </p>
           <div className="flex flex-wrap gap-3">
@@ -45,12 +45,12 @@ export default function AppearanceSettingsPage() {
                   className={
                     "flex min-w-[120px] flex-col items-start gap-2 rounded-lg border p-3 text-left transition-all duration-aw-fast " +
                     (isActive
-                      ? "border-[var(--fg-primary)] bg-[var(--bg-raised)] shadow-xs"
-                      : "border-[var(--border-default)] bg-[var(--bg-raised)] hover:border-[var(--border-strong)]")
+                      ? "border-(--fg-primary) bg-(--bg-raised) shadow-xs"
+                      : "border-(--border-default) bg-(--bg-raised) hover:border-(--border-strong)")
                   }
                 >
                   <Icon name={t.icon} size={18} />
-                  <span className="body-xs font-medium text-[var(--fg-primary)]">
+                  <span className="body-xs font-medium text-(--fg-primary)">
                     {t.label}
                   </span>
                 </button>
@@ -71,7 +71,7 @@ export default function AppearanceSettingsPage() {
             <AwSelect>Português (Brasil)</AwSelect>
           </AwField>
         </div>
-        <div className="border-t border-[var(--border-subtle)] px-6 py-2">
+        <div className="border-t border-(--border-subtle) px-6 py-2">
           <AwToggleRow
             title="Reduzir movimento"
             description="Suaviza ou desativa transições e parallax."

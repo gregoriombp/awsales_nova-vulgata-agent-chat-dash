@@ -29,7 +29,7 @@ export default function TablePage() {
           title="Exemplo"
           lead="Headers sortable de verdade — clique pra ciclar none → asc → desc. Coluna ativa fica em --fg-primary com a direção; as outras mostram ⇅ esmaecido. Sort vem do hook useTableSort (documentado abaixo)."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <SortableTableDemo />
           </div>
         </Section>
@@ -39,7 +39,7 @@ export default function TablePage() {
           title="Tipos de coluna"
           lead="Três classes utilitárias cobrem 95% dos casos. Combine com o próprio <td> normal para texto padrão."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k=".aw-table__name"
               v="500 · --fg-primary"
@@ -63,7 +63,7 @@ export default function TablePage() {
           title="Anatomia"
           lead="Lista densa sóbria — não planilha. Sem chrome próprio: a tabela respira dentro do wrapper da página. Hover ilumina a linha inteira, zero zebra."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="padding"
               v="16 · 20"

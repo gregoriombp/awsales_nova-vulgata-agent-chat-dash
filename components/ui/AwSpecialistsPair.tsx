@@ -46,12 +46,12 @@ export function AwSpecialistsPair({
       {(title || description) && (
         <header>
           {title && (
-            <h2 className="m-0 text-[length:var(--body-sm-size)] font-semibold text-[var(--fg-primary)]">
+            <h2 className="m-0 text-(length:--body-sm-size) font-semibold text-(--fg-primary)">
               {title}
             </h2>
           )}
           {description && (
-            <p className="m-0 mt-2 max-w-[760px] text-[12.5px] leading-[1.55] text-[var(--fg-secondary)]">
+            <p className="m-0 mt-2 max-w-[760px] text-[12.5px] leading-[1.55] text-(--fg-secondary)">
               {description}
             </p>
           )}
@@ -79,7 +79,7 @@ function SpecialistCard({
       className={cn(
         "aw-card",
         isAi && "aw-card--ai-cortex",
-        "!rounded-full !px-4 !py-3 flex items-center gap-4",
+        "rounded-full! px-4! py-3! flex items-center gap-4",
       )}
     >
       {isAi ? (
@@ -105,15 +105,15 @@ function SpecialistCard({
           src={data.avatarSrc}
           alt={data.name}
           initials={data.initials}
-          className="!h-12 !w-12 !text-[length:var(--body-md-size)]"
+          className="h-12! w-12! text-(length:--body-md-size)!"
         />
       )}
 
       <div className="min-w-0 flex-1 flex flex-col gap-0.5">
-        <span className="truncate text-[length:var(--body-sm-size)] font-semibold text-[var(--fg-primary)]">
+        <span className="truncate text-(length:--body-sm-size) font-semibold text-(--fg-primary)">
           {data.name}
         </span>
-        <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
+        <span className="truncate text-[12.5px] text-(--fg-secondary)">
           {data.role}
         </span>
       </div>
@@ -123,7 +123,7 @@ function SpecialistCard({
         variant={isAi ? "primary" : "secondary"}
         iconLeft={data.ctaIcon}
         onClick={data.onCtaClick}
-        className="!rounded-full shrink-0"
+        className="rounded-full! shrink-0"
       >
         {data.ctaLabel}
       </AwButton>

@@ -142,21 +142,21 @@ export default function SendFileModal({
   return (
     <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
       <div className="flex max-h-[90vh] flex-col p-6">
-        <div className="mb-2 flex flex-shrink-0 items-start justify-between">
-          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+        <div className="mb-2 flex shrink-0 items-start justify-between">
+          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
             Enviar arquivo
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            className="-mr-1 -mt-1 flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
+            className="-mr-1 -mt-1 flex h-7 w-7 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors hover:bg-(--bg-surface) hover:text-(--fg-primary)"
             aria-label="Fechar"
           >
             <Icon name="close" size={18} />
           </button>
         </div>
 
-        <p className="mb-6 flex-shrink-0 text-[14px] leading-relaxed text-[var(--fg-secondary)]">
+        <p className="mb-6 shrink-0 text-[14px] leading-relaxed text-(--fg-secondary)">
           Arraste arquivos para esta área ou clique para selecionar. Aceita PDF,
           DOC, DOCX, TXT, MD, XLSX, XLS, CSV, JPG, PNG. Máximo {MAX_SIZE_MB}MB por
           arquivo.
@@ -177,21 +177,21 @@ export default function SendFileModal({
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
-            className={`flex-shrink-0 rounded-[var(--radius-xl)] border-2 border-dashed p-10 text-center transition-colors ${
+            className={`shrink-0 rounded-xl border-2 border-dashed p-10 text-center transition-colors ${
               isDragging
-                ? "border-[var(--fg-primary)] bg-[var(--bg-hover)]"
-                : "border-[var(--border-default)] bg-[var(--bg-canvas)]"
+                ? "border-(--fg-primary) bg-(--bg-hover)"
+                : "border-(--border-default) bg-(--bg-canvas)"
             }`}
           >
             <div className="flex flex-col items-center justify-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-surface)] text-[var(--fg-tertiary)]">
+              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-(--bg-surface) text-(--fg-tertiary)">
                 <Icon name="upload_file" size={32} weight={300} />
               </div>
               <div>
-                <p className="mb-1 font-medium text-[var(--fg-primary)]">
+                <p className="mb-1 font-medium text-(--fg-primary)">
                   Arraste e solte arquivos aqui
                 </p>
-                <p className="mb-4 text-[13.5px] text-[var(--fg-tertiary)]">
+                <p className="mb-4 text-[13.5px] text-(--fg-tertiary)">
                   ou clique para selecionar no seu computador
                 </p>
                 <AwButton
@@ -224,17 +224,17 @@ export default function SendFileModal({
               return (
                 <div
                   key={item.id}
-                  className="flex flex-shrink-0 items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-3"
+                  className="flex shrink-0 items-start gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[10px] font-semibold uppercase text-[var(--fg-secondary)]">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-[10px] font-semibold uppercase text-(--fg-secondary)">
                     {kind === "csv" ? "CSV" : kind === "pdf" ? "PDF" : "DOC"}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13.5px] font-medium text-[var(--fg-primary)]">{item.name}</p>
-                    <p className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">{sizeLabel}</p>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--bg-muted)]">
+                    <p className="truncate text-[13.5px] font-medium text-(--fg-primary)">{item.name}</p>
+                    <p className="mt-0.5 text-[12px] text-(--fg-tertiary)">{sizeLabel}</p>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
                       <div
-                        className="h-full rounded-full bg-[var(--fg-primary)] transition-all duration-150 ease-out"
+                        className="h-full rounded-full bg-(--fg-primary) transition-all duration-150 ease-out"
                         style={{ width: `${item.progress}%` }}
                       />
                     </div>
@@ -242,10 +242,10 @@ export default function SendFileModal({
                   <button
                     type="button"
                     onClick={() => removeFile(item.id)}
-                    className={`flex-shrink-0 rounded-[var(--radius-md)] p-1.5 transition-colors ${
+                    className={`shrink-0 rounded-md p-1.5 transition-colors ${
                       item.status === "completed"
-                        ? "text-[var(--accent-danger)] hover:bg-[var(--bg-muted)]"
-                        : "text-[var(--fg-tertiary)] hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]"
+                        ? "text-(--accent-danger) hover:bg-(--bg-muted)"
+                        : "text-(--fg-tertiary) hover:bg-(--bg-muted) hover:text-(--fg-primary)"
                     }`}
                     aria-label={`${item.status === "completed" ? "Excluir" : "Cancelar"} ${item.name}`}
                   >
@@ -257,7 +257,7 @@ export default function SendFileModal({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-shrink-0 items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] py-2.5 text-[13.5px] font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+              className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-dashed border-(--border-default) py-2.5 text-[13.5px] font-medium text-(--fg-secondary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
             >
               <Icon name="add" size={18} weight={300} />
               Adicionar arquivos

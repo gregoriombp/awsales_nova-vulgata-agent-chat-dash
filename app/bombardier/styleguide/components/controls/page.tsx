@@ -47,7 +47,7 @@ export default function ControlsPage() {
             </Stage>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="tamanho"
               v="38 × 22 px"
@@ -75,12 +75,12 @@ export default function ControlsPage() {
             <SliderDemo />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec k="track" v="4 px · --bg-muted" d="Pill-radius." />
             <Spec
               k="thumb"
               v="16 px · --fg-primary"
-              d="Border 2px --bg-raised + ring --border-default."
+              d="Border 2px --bg-raised + ring-3 --border-default."
             />
             <Spec
               k="label"
@@ -102,7 +102,7 @@ export default function ControlsPage() {
             <TabsDemo />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="container"
               v="--bg-surface + 1px --border-subtle"
@@ -130,7 +130,7 @@ export default function ControlsPage() {
             <SelectDemo />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="altura"
               v="36 px"
@@ -161,7 +161,7 @@ export default function ControlsPage() {
             <ProgressDemo />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="track"
               v="6 px · --bg-muted"
@@ -185,7 +185,7 @@ export default function ControlsPage() {
           title="API"
           lead="Todos os controles vivem em arquivos separados dentro de components/ui/."
         >
-          <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
             AwToggle
           </h3>
           <ApiTable>
@@ -206,7 +206,7 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwSlider
           </h3>
           <ApiTable>
@@ -232,7 +232,7 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwTabs
           </h3>
           <ApiTable>
@@ -253,7 +253,7 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwSelect
           </h3>
           <ApiTable>
@@ -274,7 +274,7 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwProgress
           </h3>
           <ApiTable>
@@ -307,7 +307,7 @@ export default function ControlsPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">checked</code>,{" "}
             <code className="mono">active</code>,{" "}
             <code className="mono">variant</code> viram tokens na{" "}

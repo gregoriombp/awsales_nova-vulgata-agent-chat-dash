@@ -46,7 +46,7 @@ export function AwModal({
          * .aw-modal-scrim relied on flex centering of its child .aw-modal.
          * This wrapper recreates that centering layer without touching globals.css. */}
         <div
-          className="fixed inset-0 z-[1001] flex items-center justify-center p-6 pointer-events-none"
+          className="fixed inset-0 z-1001 flex items-center justify-center p-6 pointer-events-none"
           style={zIndex !== undefined ? { zIndex } : undefined}
         >
           <DialogPrimitive.Content

@@ -304,7 +304,7 @@ function ChargeCard({
   return (
     <article className="overflow-hidden rounded-xl border border-border-strong bg-bg-raised">
       <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
-        <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-fg-primary text-[11px] font-medium tabular-nums text-white">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fg-primary text-[11px] font-medium tabular-nums text-white">
           {index + 1}
         </span>
         <div className="min-w-0 flex-1">
@@ -535,7 +535,7 @@ function InstallmentGrid({
 function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
   return (
     <article className="flex items-center gap-3 rounded-xl border border-aw-emerald-700/30 bg-bg-raised px-[18px] py-3.5">
-      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
         <Icon name="check" size={14} />
       </span>
       <div className="min-w-0 flex-1">
@@ -560,7 +560,7 @@ function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
 function LockedRow({ meta, index }: { meta: ChargeMeta; index: number }) {
   return (
     <article className="flex items-center gap-3 rounded-xl border border-border-subtle bg-bg-surface px-[18px] py-3.5 opacity-70">
-      <span className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-bg-muted text-[11px] font-medium tabular-nums text-fg-tertiary">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-muted text-[11px] font-medium tabular-nums text-fg-tertiary">
         {index + 1}
       </span>
       <div className="min-w-0 flex-1">

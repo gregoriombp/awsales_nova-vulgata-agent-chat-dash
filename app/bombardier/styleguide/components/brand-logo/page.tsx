@@ -23,7 +23,7 @@ export default function BrandLogoPage() {
         para monograma quando o brand id não está no registry.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
-        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mb-10 text-sm text-[var(--aw-blue-900)]">
+        <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mb-10 text-sm text-(--aw-blue-900)">
           <strong>AwBrandLogo vs AwLogo.</strong> Use{" "}
           <code className="mono">AwBrandLogo</code> aqui para marcas de
           terceiros (canais, checkouts, CRMs). Para a logo do{" "}
@@ -31,7 +31,7 @@ export default function BrandLogoPage() {
           <code className="mono">AwLogo</code> — documentado em{" "}
           <a
             href="/bombardier/styleguide/foundation/logos"
-            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+            className="underline underline-offset-2 hover:text-(--aw-blue-700)"
           >
             Foundation → Logos
           </a>
@@ -56,15 +56,15 @@ export default function BrandLogoPage() {
             lead="Pix, boleto e cartão moram no mesmo registry de brand — vivem ao lado de Stripe/Hotmart numa lista de checkout. Pix usa a cor oficial (#32BCAD); boleto e card são genéricos (não há brand oficial)."
           >
             <Stage label="Payment methods">
-              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                 <AwBrandLogo brand="pix" size="md" />
                 <span className="mono">pix</span>
               </div>
-              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                 <AwBrandLogo brand="boleto" size="md" />
                 <span className="mono">boleto</span>
               </div>
-              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                 <AwBrandLogo brand="card" size="md" />
                 <span className="mono">card</span>
               </div>
@@ -102,11 +102,11 @@ export default function BrandLogoPage() {
             title="Registry"
             lead={`${AW_BRAND_LOGO_REGISTRY.length} brands disponíveis. Para adicionar, edite o objeto BRANDS em components/ui/AwBrandLogo.tsx — uma entrada (id → função que retorna o SVG).`}
           >
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               {AW_BRAND_LOGO_REGISTRY.map((id) => (
                 <div
                   key={id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                 >
                   <AwBrandLogo brand={id} size="md" />
                   <span className="mono">{id}</span>
@@ -120,7 +120,7 @@ export default function BrandLogoPage() {
             title="Anatomia"
             lead="Tile + SVG. Brand colors (vendor identity) ficam no SVG; só o tile responde aos tokens."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec k="tile sm" v="32 × 32 px" d="Logo: 20px" />
               <Spec k="tile md" v="40 × 40 px" d="Logo: 24px (default)" />
               <Spec k="tile lg" v="56 × 56 px" d="Logo: 32px" />

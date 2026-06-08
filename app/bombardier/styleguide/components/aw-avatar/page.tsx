@@ -48,7 +48,7 @@ export default function AwAvatarPage() {
           use={[
             <>Pessoa real → imagem; fallback automático pra iniciais.</>,
             <>Agente → variante <code className="mono">ai</code> com glyph (`auto_awesome`, `psychology`, etc.).</>,
-            <>Status overlay: <code className="mono">{`<AwStatusDot variant="live" ring absolute />`}</code>{" "}dentro de wrapper relative.</>,
+            <>Status overlay: <code className="mono">{`<AwStatusDot variant="live" ring-3 absolute />`}</code>{" "}dentro de wrapper relative.</>,
             <>Em listas densas, agrupar com <code className="mono">AwAvatarGroup</code> — sobreposição -10px.</>,
             <>Iniciais sempre derivadas do nome: &ldquo;Marina Souza&rdquo; → MS.</>,
           ]}
@@ -108,7 +108,7 @@ export default function AwAvatarPage() {
             <div className="flex items-center gap-3">
               <AwAvatar size="lg" src={PHOTO_MARINA} alt="Marina" initials="MS" />
               <div>
-                <div className="text-[15px] font-medium text-[var(--fg-primary)]">
+                <div className="text-[15px] font-medium text-(--fg-primary)">
                   Marina Souza
                 </div>
                 <div className="caption">Head of Support · Awsales</div>
@@ -116,7 +116,7 @@ export default function AwAvatarPage() {
             </div>
           </Stage>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">initials</code> ainda é obrigatório como
             fallback — se a imagem demorar ou falhar, o usuário não fica vendo
             um círculo vazio.
@@ -127,7 +127,7 @@ export default function AwAvatarPage() {
         <Section
           id="status"
           title="Status (online · ocupado · ausente · offline)"
-          lead="Status é composto: AwAvatar não traz prop própria. Use AwStatusDot com absolute + ring pra fazer o dot atravessar a borda do avatar com um halo da cor da superfície. Quatro variantes mapeam o estado real."
+          lead="Status é composto: AwAvatar não traz prop própria. Use AwStatusDot com absolute + ring-3 pra fazer o dot atravessar a borda do avatar com um halo da cor da superfície. Quatro variantes mapeam o estado real."
         >
           <Stage label="md · 4 estados" gridClassName="flex flex-wrap items-center gap-6">
             <AvatarStatus photo={PHOTO_MARINA} initials="MS" label="Online" variant="live" />
@@ -167,7 +167,7 @@ export default function AwAvatarPage() {
                 <AwStatusDot variant="live" size="sm" ring absolute pulse />
               </span>
               <div>
-                <div className="text-[14px] font-medium text-[var(--fg-primary)]">
+                <div className="text-[14px] font-medium text-(--fg-primary)">
                   Atlas · Suporte N1
                 </div>
                 <div className="caption">Disponível · pulsa enquanto pensa</div>
@@ -241,7 +241,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
           title="Como item em lista"
           lead="Pattern recorrente: avatar + nome + role + status. Use sm em listas densas (sidebar de conversas), md em listas normais (membros do time)."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
             {[
               { name: "Marina Souza", role: "Head of Support", photo: PHOTO_MARINA, initials: "MS", status: "live" as const, statusLabel: "online" },
               { name: "João Pereira", role: "SDR", photo: PHOTO_JOAO, initials: "JP", status: "attention" as const, statusLabel: "ocupado" },
@@ -250,14 +250,14 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
             ].map((p) => (
               <div
                 key={p.name}
-                className="flex items-center gap-3 px-5 py-3 border-b border-[var(--border-subtle)] last:border-b-0"
+                className="flex items-center gap-3 px-5 py-3 border-b border-(--border-subtle) last:border-b-0"
               >
                 <span style={{ position: "relative", display: "inline-block" }}>
                   <AwAvatar size="md" src={p.photo} alt={p.name} initials={p.initials} />
                   <AwStatusDot variant={p.status} size="sm" ring absolute />
                 </span>
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-[var(--fg-primary)]">
+                  <div className="text-sm font-medium text-(--fg-primary)">
                     {p.name}
                   </div>
                   <div className="caption">{p.role} · {p.statusLabel}</div>
@@ -273,7 +273,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
           title="Anatomia"
           lead="Container circular, conteúdo centralizado. Iniciais em Geist medium; imagens cobrem com object-fit cover. Status entra externamente, sempre via AwStatusDot."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="forma" v="círculo · radius full" d="Constante em todos os tamanhos e variantes." />
             <Spec k="sm" v="24 × 24 · 11 px font" d="Listas densas, chat sidebar." />
             <Spec k="md" v="36 × 36 · 13 px font" d="Padrão. Rows, cards, headers." />
@@ -282,7 +282,7 @@ import { AwStatusDot } from "@/components/ui/AwStatusDot"
             <Spec k="borda" v="1 px --border-default" d="Hairline pra recortar do fundo." />
             <Spec k="variante ai" v="--aw-blue-400 border" d="Texto --aw-blue-600. Glyph entra como children." />
             <Spec k="overlap group" v="-10 px margin-left" d="A partir do segundo avatar." />
-            <Spec k="status dot ring" v="2-4 px box-shadow" d="Cor casada com --bg-raised do fundo." />
+            <Spec k="status dot ring-3" v="2-4 px box-shadow" d="Cor casada com --bg-raised do fundo." />
           </div>
         </Section>
 

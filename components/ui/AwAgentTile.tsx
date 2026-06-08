@@ -32,23 +32,23 @@ export type AwAgentTileProps = {
 }
 
 const TONE_BG: Record<AwAgentTileTone, string> = {
-  lime:    "bg-[var(--aw-lime-500)]",
-  amber:   "bg-[var(--aw-amber-500)]",
-  emerald: "bg-[var(--aw-emerald-500)]",
-  blue:    "bg-[var(--aw-blue-500)]",
-  purple:  "bg-[var(--aw-purple-500)]",
-  pink:    "bg-[var(--aw-pink-500)]",
-  neutral: "bg-[var(--bg-surface)]",
+  lime:    "bg-(--aw-lime-500)",
+  amber:   "bg-(--aw-amber-500)",
+  emerald: "bg-(--aw-emerald-500)",
+  blue:    "bg-(--aw-blue-500)",
+  purple:  "bg-(--aw-purple-500)",
+  pink:    "bg-(--aw-pink-500)",
+  neutral: "bg-(--bg-surface)",
 }
 
 const TONE_FG: Record<AwAgentTileTone, string> = {
-  lime:    "text-[var(--aw-lime-1200)]",
-  amber:   "text-[var(--aw-amber-1200)]",
-  emerald: "text-[var(--aw-emerald-1200)]",
-  blue:    "text-[var(--aw-blue-1200)]",
-  purple:  "text-[var(--aw-purple-1000)]",
-  pink:    "text-[var(--aw-pink-1200)]",
-  neutral: "text-[var(--fg-primary)]",
+  lime:    "text-(--aw-lime-1200)",
+  amber:   "text-(--aw-amber-1200)",
+  emerald: "text-(--aw-emerald-1200)",
+  blue:    "text-(--aw-blue-1200)",
+  purple:  "text-(--aw-purple-1000)",
+  pink:    "text-(--aw-pink-1200)",
+  neutral: "text-(--fg-primary)",
 }
 
 function initialsOf(name: string): string {
@@ -76,24 +76,24 @@ export function AwAgentTile({
   const content = (
     <div
       className={cn(
-        "group flex w-full items-start gap-4 rounded-[var(--radius-lg)] p-3 transition-colors",
-        href && "cursor-pointer hover:bg-[var(--bg-hover)]",
+        "group flex w-full items-start gap-4 rounded-lg p-3 transition-colors",
+        href && "cursor-pointer hover:bg-(--bg-hover)",
         className
       )}
     >
       {avatarSrc ? (
-        <div className="relative flex h-[88px] w-[88px] flex-shrink-0 items-center justify-center">
+        <div className="relative flex h-[88px] w-[88px] shrink-0 items-center justify-center">
           <img
             src={avatarSrc}
             alt=""
-            className="h-full w-full rounded-[var(--radius-lg)] object-cover"
+            className="h-full w-full rounded-lg object-cover"
             aria-hidden
           />
         </div>
       ) : (
         <div
           className={cn(
-            "flex h-[88px] w-[88px] flex-shrink-0 items-center justify-center rounded-[var(--radius-lg)]",
+            "flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-lg",
             TONE_BG[tone],
             TONE_FG[tone]
           )}
@@ -104,10 +104,10 @@ export function AwAgentTile({
 
       <div className="flex min-w-0 flex-1 flex-col gap-2 pt-1">
         <div className="flex flex-col gap-1">
-          <h3 className="m-0 truncate text-[15px] font-medium leading-tight text-[var(--fg-primary)]">
+          <h3 className="m-0 truncate text-[15px] font-medium leading-tight text-(--fg-primary)">
             {title}
           </h3>
-          <p className="m-0 line-clamp-2 text-[13.5px] leading-[1.45] text-[var(--fg-secondary)]">
+          <p className="m-0 line-clamp-2 text-[13.5px] leading-[1.45] text-(--fg-secondary)">
             {description}
           </p>
         </div>
@@ -120,13 +120,13 @@ export function AwAgentTile({
               initials={initialsOf(authorName)}
               alt={authorName}
             />
-            <span className="text-[12.5px] text-[var(--fg-tertiary)]">
+            <span className="text-[12.5px] text-(--fg-tertiary)">
               {authorName}
             </span>
           </div>
 
           {typeof count === "number" && (
-            <span className="inline-flex items-center gap-1 text-[12.5px] text-[var(--fg-tertiary)]">
+            <span className="inline-flex items-center gap-1 text-[12.5px] text-(--fg-tertiary)">
               <Icon name="add_box" size={14} weight={300} />
               {count}
             </span>
@@ -140,7 +140,7 @@ export function AwAgentTile({
     return (
       <Link
         href={href}
-        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-canvas)] rounded-[var(--radius-lg)]"
+        className="block focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-canvas) rounded-lg"
       >
         {content}
       </Link>

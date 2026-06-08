@@ -17,13 +17,13 @@ export default function SecuritySettingsPage() {
         title="Segurança"
         description="Acesso à sua conta e auditoria de sessões."
       />
-      <AwCard className="!p-0">
-        <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
+      <AwCard className="p-0!">
+        <div className="flex items-start justify-between gap-4 border-b border-(--border-subtle) px-6 py-5">
           <div>
-            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
               Senha
             </p>
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Última alteração há 3 meses.
             </p>
           </div>
@@ -39,14 +39,14 @@ export default function SecuritySettingsPage() {
             onChange={setTwoFactor}
           />
         </div>
-        <div className="border-t border-[var(--border-subtle)] px-6 py-5">
+        <div className="border-t border-(--border-subtle) px-6 py-5">
           <div className="mb-3 flex items-center justify-between">
-            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
               Sessões ativas
             </p>
             <button
               type="button"
-              className="body-xs font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
+              className="body-xs font-medium text-(--fg-secondary) hover:text-(--fg-primary)"
             >
               Encerrar todas as outras
             </button>
@@ -55,14 +55,14 @@ export default function SecuritySettingsPage() {
             {SESSIONS.map((s) => (
               <li
                 key={s.id}
-                className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-[var(--bg-surface)]"
+                className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-(--bg-surface)"
               >
                 <AwStatusDot
                   variant={s.current ? "live" : "neutral"}
                   size="sm"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="m-0 flex items-center gap-2 body-xs font-medium text-[var(--fg-primary)]">
+                  <p className="m-0 flex items-center gap-2 body-xs font-medium text-(--fg-primary)">
                     {s.device}
                     {s.current && (
                       <AwPill variant="live" dot={false}>
@@ -70,7 +70,7 @@ export default function SecuritySettingsPage() {
                       </AwPill>
                     )}
                   </p>
-                  <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                  <p className="m-0 body-xs text-(--fg-secondary)">
                     {s.location} · {s.lastActive}
                   </p>
                 </div>

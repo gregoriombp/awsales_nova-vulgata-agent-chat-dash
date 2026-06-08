@@ -132,19 +132,19 @@ export function ReviewCommentPopover() {
     >
       <form
         onSubmit={submit}
-        className="pointer-events-auto rounded-[var(--radius-lg)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] shadow-lg flex flex-col overflow-hidden"
+        className="pointer-events-auto rounded-lg bg-(--bg-raised) border border-(--border-subtle) shadow-lg flex flex-col overflow-hidden"
       >
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-(--border-subtle)">
           <span
-            className="h-5 w-5 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)]"
+            className="h-5 w-5 rounded-full flex items-center justify-center body-xs font-semibold text-(--fg-on-inverse)"
             style={{ background: identity.colorToken }}
           >
             {identity.name.charAt(0).toUpperCase()}
           </span>
-          <span className="body-xs font-medium text-[var(--fg-primary)]">
+          <span className="body-xs font-medium text-(--fg-primary)">
             {identity.name}
           </span>
-          <span className="body-xs text-[var(--fg-tertiary)] ml-auto">
+          <span className="body-xs text-(--fg-tertiary) ml-auto">
             {pendingAnchor.kind === "draw" ? "Marcação livre" : "Pino"}
           </span>
         </div>
@@ -165,7 +165,7 @@ export function ReviewCommentPopover() {
           }}
           placeholder="Escreva o feedback… ou cole uma imagem"
           rows={3}
-          className="w-full resize-none px-3 py-2 bg-transparent body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none"
+          className="w-full resize-none px-3 py-2 bg-transparent body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden"
         />
 
         {images.length > 0 && (
@@ -176,12 +176,12 @@ export function ReviewCommentPopover() {
                 <img
                   src={src}
                   alt=""
-                  className="h-16 w-16 rounded-[var(--radius-sm)] object-cover border border-[var(--border-subtle)]"
+                  className="h-16 w-16 rounded-sm object-cover border border-(--border-subtle)"
                 />
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
-                  className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] opacity-0 group-hover/thumb:opacity-100 transition-opacity"
+                  className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-(--bg-raised) border border-(--border-subtle) flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-primary) opacity-0 group-hover/thumb:opacity-100 transition-opacity"
                   aria-label="Remover imagem"
                 >
                   <Icon name="close" size={9} />
@@ -192,7 +192,7 @@ export function ReviewCommentPopover() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="h-16 w-16 rounded-[var(--radius-sm)] border border-dashed border-[var(--border-default)] flex items-center justify-center text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:border-[var(--border-strong)] transition-colors"
+                className="h-16 w-16 rounded-sm border border-dashed border-(--border-default) flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-primary) hover:border-(--border-strong) transition-colors"
                 aria-label="Adicionar imagem"
               >
                 <Icon name="add" size={16} />
@@ -201,19 +201,19 @@ export function ReviewCommentPopover() {
           </div>
         )}
 
-        <div className="px-2 py-2 flex items-center justify-between gap-2 border-t border-[var(--border-subtle)]">
+        <div className="px-2 py-2 flex items-center justify-between gap-2 border-t border-(--border-subtle)">
           <div className="flex items-center gap-1">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+              className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
               aria-label="Anexar imagem"
               title="Anexar imagem (ou cole com ⌘V)"
               disabled={images.length >= MAX_IMAGES}
             >
               <Icon name="image" size={14} />
             </button>
-            <span className="body-xs text-[var(--fg-tertiary)] flex items-center gap-1">
+            <span className="body-xs text-(--fg-tertiary) flex items-center gap-1">
               <Icon name="keyboard_command_key" size={11} />
               ⌘↵
             </span>

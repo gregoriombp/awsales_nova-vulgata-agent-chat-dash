@@ -267,7 +267,7 @@ function PerfilContent() {
                             }
                           }}
                           placeholder="financeiro@empresa.com"
-                          className="flex-1 border-0 bg-transparent body-xs outline-none focus:outline-none focus-visible:outline-none"
+                          className="flex-1 border-0 bg-transparent body-xs outline-hidden focus:outline-hidden focus-visible:outline-hidden"
                         />
                       </span>
                       <button
@@ -276,7 +276,7 @@ function PerfilContent() {
                         disabled={!canAddPending}
                         aria-label="Adicionar e-mail"
                         className={[
-                          "flex h-[38px] w-[38px] flex-shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
+                          "flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast",
                           canAddPending
                             ? "bg-fg-primary text-white hover:opacity-90"
                             : "bg-bg-muted text-fg-tertiary",
@@ -287,7 +287,7 @@ function PerfilContent() {
                     </div>
 
                     <p className="mt-2 flex items-start gap-1.5 body-xs text-fg-tertiary">
-                      <Icon name="info" size={12} className="mt-px flex-shrink-0" />
+                      <Icon name="info" size={12} className="mt-px shrink-0" />
                       <span>
                         Cada e-mail recebe um convite para entrar na organização. A pessoa
                         precisa confirmar o convite para começar a receber as faturas.
@@ -381,7 +381,7 @@ function InvitedEmailRow({
             type="button"
             onClick={onRemove}
             aria-label={`Remover ${value}`}
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-fg-tertiary transition-colors duration-aw-fast hover:bg-bg-muted hover:text-fg-secondary"
           >
             <Icon name="close" size={14} />
           </button>
@@ -414,7 +414,7 @@ function Field({
     <label className="flex flex-col gap-1.5">
       <span className="flex items-center gap-1 body-xs font-medium text-fg-secondary">
         {label}
-        {required && <span className="text-[var(--accent-danger)]">*</span>}
+        {required && <span className="text-(--accent-danger)">*</span>}
       </span>
       <span className="flex h-[42px] items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary">
         <Icon name={icon} size={16} className="text-fg-tertiary" />
@@ -425,7 +425,7 @@ function Field({
           inputMode={inputMode}
           type={type}
           required={required}
-          className="flex-1 border-0 bg-transparent body-sm outline-none focus:outline-none focus-visible:outline-none"
+          className="flex-1 border-0 bg-transparent body-sm outline-hidden focus:outline-hidden focus-visible:outline-hidden"
         />
       </span>
     </label>

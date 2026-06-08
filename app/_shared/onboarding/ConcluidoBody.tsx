@@ -137,7 +137,7 @@ export function ConcluidoBody({
           <button
             type="button"
             onClick={() => setContactOpen(true)}
-            className="aw-btn aw-btn--secondary aw-btn--sm flex-shrink-0"
+            className="aw-btn aw-btn--secondary aw-btn--sm shrink-0"
           >
             <Icon name="chat" size={12} />
             <span className="aw-btn__label">Falar com {amFirstName}</span>

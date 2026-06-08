@@ -87,7 +87,7 @@ export function FlowUpdatesBadge({ updates }: { updates: FlowUpdate[] }) {
   const latest = sortDesc(updates)[0]
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-[var(--radius-md)] border px-2.5 py-1 text-xs font-medium"
+      className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium"
       style={{
         background: "var(--aw-amber-100)",
         borderColor: "var(--aw-amber-300)",
@@ -122,10 +122,10 @@ export function FlowUpdatesHistorySection({ updates }: { updates: FlowUpdate[] }
         {sorted.map((u, i) => (
           <li
             key={`${u.date}-${i}`}
-            className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2"
+            className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2"
           >
             <div className="flex items-baseline gap-3 flex-wrap">
-              <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+              <span className="aw-eyebrow text-(--fg-tertiary)">
                 {formatLong(u.date)}
                 {u.time ? ` · ${u.time}` : ""}
               </span>
@@ -134,7 +134,7 @@ export function FlowUpdatesHistorySection({ updates }: { updates: FlowUpdate[] }
                 return (
                   <span
                     key={t}
-                    className="inline-flex items-center rounded-[var(--radius-sm)] border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+                    className="inline-flex items-center rounded-sm border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide"
                     style={{ background: s.bg, borderColor: s.border, color: s.fg }}
                   >
                     {s.label}
@@ -142,7 +142,7 @@ export function FlowUpdatesHistorySection({ updates }: { updates: FlowUpdate[] }
                 )
               })}
             </div>
-            <p className="m-0 text-sm text-[var(--fg-primary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-primary) leading-relaxed">
               {u.summary}
             </p>
           </li>

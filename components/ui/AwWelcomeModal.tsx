@@ -72,14 +72,14 @@ export function AwWelcomeModal({
     >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="aw-modal-scrim" />
-        <div className="fixed inset-0 z-[1001] flex items-center justify-center p-4 pointer-events-none">
+        <div className="fixed inset-0 z-1001 flex items-center justify-center p-4 pointer-events-none">
           <DialogPrimitive.Content
             data-slot="welcome-modal"
             className={cn(
               "pointer-events-auto w-full max-w-[480px]",
               "flex flex-col overflow-hidden",
-              "rounded-[var(--radius-xl)] bg-[var(--bg-raised)]",
-              "shadow-[var(--shadow-overlay)]",
+              "rounded-xl bg-(--bg-raised)",
+              "shadow-(--shadow-overlay)",
               "animate-[aw-modal-in_180ms_var(--ease-out)]",
             )}
             onPointerDownOutside={(e) => {
@@ -98,17 +98,17 @@ export function AwWelcomeModal({
                   alt={imageAlt}
                   className="absolute inset-0 h-full w-full object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-b from-transparent to-[var(--bg-raised)]" />
+                <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-b from-transparent to-(--bg-raised)" />
               </div>
 
               {dismissible ? (
                 <DialogPrimitive.Close
                   className={cn(
                     "absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center",
-                    "rounded-full bg-[var(--bg-raised)]/85 text-[var(--fg-primary)]",
-                    "backdrop-blur-sm transition-colors duration-aw-fast",
-                    "hover:bg-[var(--bg-raised)]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2",
+                    "rounded-full bg-(--bg-raised)/85 text-(--fg-primary)",
+                    "backdrop-blur-xs transition-colors duration-aw-fast",
+                    "hover:bg-(--bg-raised)",
+                    "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2",
                   )}
                   aria-label="Fechar"
                 >
@@ -120,18 +120,18 @@ export function AwWelcomeModal({
             <div className="flex flex-col gap-5 px-7 pb-7 pt-1">
               <div className="flex flex-col gap-2">
                 {eyebrow ? (
-                  <span className="aw-eyebrow text-[var(--fg-tertiary)]">
+                  <span className="aw-eyebrow text-(--fg-tertiary)">
                     {eyebrow}
                   </span>
                 ) : null}
                 <DialogPrimitive.Title asChild>
-                  <h4 className="m-0 text-balance text-[var(--fg-primary)]">
+                  <h4 className="m-0 text-balance text-(--fg-primary)">
                     {title}
                   </h4>
                 </DialogPrimitive.Title>
                 {description ? (
                   <DialogPrimitive.Description asChild>
-                    <p className="m-0 body-sm text-pretty text-[var(--fg-secondary)]">
+                    <p className="m-0 body-sm text-pretty text-(--fg-secondary)">
                       {description}
                     </p>
                   </DialogPrimitive.Description>
@@ -153,7 +153,7 @@ export function AwWelcomeModal({
               ) : null}
 
               {footnote ? (
-                <p className="m-0 body-xs text-center text-[var(--fg-tertiary)]">
+                <p className="m-0 body-xs text-center text-(--fg-tertiary)">
                   {footnote}
                 </p>
               ) : null}
@@ -174,23 +174,23 @@ function ActionTile({ action }: { action: AwWelcomeModalAction }) {
       data-primary={primary || undefined}
       data-coming-soon={comingSoon || undefined}
       className={cn(
-        "group flex w-full items-center gap-3 rounded-[var(--radius-lg)] px-3.5 py-3 text-left",
-        "border border-[var(--border-subtle)] bg-[var(--bg-raised)]",
+        "group flex w-full items-center gap-3 rounded-lg px-3.5 py-3 text-left",
+        "border border-(--border-subtle) bg-(--bg-raised)",
         "transition-all duration-aw-fast",
-        "hover:border-[var(--border)] hover:bg-[var(--bg-surface)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2",
+        "hover:border-(--border) hover:bg-(--bg-surface)",
+        "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2",
         // Primary tone — solid surface, inverted text
-        "data-[primary=true]:border-[var(--fg-primary)] data-[primary=true]:bg-[var(--fg-primary)]",
-        "data-[primary=true]:text-[var(--bg-raised)]",
-        "data-[primary=true]:hover:bg-[var(--fg-primary)] data-[primary=true]:hover:opacity-90",
+        "data-[primary=true]:border-(--fg-primary) data-[primary=true]:bg-(--fg-primary)",
+        "data-[primary=true]:text-(--bg-raised)",
+        "data-[primary=true]:hover:bg-(--fg-primary) data-[primary=true]:hover:opacity-90",
       )}
     >
       {icon ? (
         <span
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-full",
-            "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]",
-            "group-data-[primary=true]:bg-[var(--bg-raised)]/15 group-data-[primary=true]:text-[var(--bg-raised)]",
+            "bg-(--bg-inverse) text-(--fg-on-inverse)",
+            "group-data-[primary=true]:bg-(--bg-raised)/15 group-data-[primary=true]:text-(--bg-raised)",
           )}
         >
           <Icon name={icon} size={18} />
@@ -199,15 +199,15 @@ function ActionTile({ action }: { action: AwWelcomeModalAction }) {
 
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="flex items-center gap-2">
-          <span className="body-sm font-medium text-[var(--fg-primary)] group-data-[primary=true]:text-[var(--bg-raised)]">
+          <span className="body-sm font-medium text-(--fg-primary) group-data-[primary=true]:text-(--bg-raised)">
             {label}
           </span>
           {comingSoon ? (
             <span
               className={cn(
                 "aw-eyebrow inline-flex items-center rounded-full px-1.5 py-px",
-                "bg-[var(--bg-surface)] text-[var(--fg-tertiary)]",
-                "group-data-[primary=true]:bg-[var(--bg-raised)]/15 group-data-[primary=true]:text-[var(--bg-raised)]/80",
+                "bg-(--bg-surface) text-(--fg-tertiary)",
+                "group-data-[primary=true]:bg-(--bg-raised)/15 group-data-[primary=true]:text-(--bg-raised)/80",
               )}
             >
               em breve
@@ -215,7 +215,7 @@ function ActionTile({ action }: { action: AwWelcomeModalAction }) {
           ) : null}
         </span>
         {description ? (
-          <span className="body-xs text-[var(--fg-secondary)] group-data-[primary=true]:text-[var(--bg-raised)]/80">
+          <span className="body-xs text-(--fg-secondary) group-data-[primary=true]:text-(--bg-raised)/80">
             {description}
           </span>
         ) : null}
@@ -225,9 +225,9 @@ function ActionTile({ action }: { action: AwWelcomeModalAction }) {
         name="chevron_right"
         size={18}
         className={cn(
-          "shrink-0 text-[var(--fg-tertiary)] transition-transform duration-aw-fast",
+          "shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast",
           "group-hover:translate-x-0.5",
-          "group-data-[primary=true]:text-[var(--bg-raised)]",
+          "group-data-[primary=true]:text-(--bg-raised)",
         )}
       />
     </button>

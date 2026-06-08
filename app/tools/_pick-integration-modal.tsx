@@ -82,7 +82,7 @@ export function PickIntegrationModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           {isNative
             ? "Sua habilidade vai herdar a credencial OAuth/API key dessa integração."
             : "Sua habilidade vai herdar a credencial bearer/api-key/basic dessa conexão."}
@@ -130,7 +130,7 @@ export function PickIntegrationModal({
                   key={c.id}
                   leading={
                     <div
-                      className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+                      className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
                       style={{ width: 32, height: 32 }}
                     >
                       <Icon name={c.icon} size={16} />
@@ -147,26 +147,26 @@ export function PickIntegrationModal({
             <button
               type="button"
               onClick={onCreateNew}
-              className="mt-1 flex w-full items-center gap-3 rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
+              className="mt-1 flex w-full items-center gap-3 rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-canvas) px-4 py-3.5 text-left transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover)"
             >
               <div
-                className="flex flex-shrink-0 items-center justify-center rounded-[10px] border border-[var(--aw-blue-500)] bg-[var(--aw-blue-100)] text-[var(--aw-blue-700)]"
+                className="flex shrink-0 items-center justify-center rounded-md border border-(--aw-blue-500) bg-(--aw-blue-100) text-(--aw-blue-700)"
                 style={{ width: 32, height: 32 }}
               >
                 <Icon name="add" size={18} />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="block body-sm font-medium text-[var(--fg-primary)]">
+                <span className="block body-sm font-medium text-(--fg-primary)">
                   Criar nova integração personalizada
                 </span>
-                <span className="mt-0.5 block body-xs text-[var(--fg-tertiary)]">
+                <span className="mt-0.5 block body-xs text-(--fg-tertiary)">
                   Pra integrar com uma API que ainda não está no catálogo.
                 </span>
               </div>
               <Icon
                 name="arrow_forward"
                 size={18}
-                className="flex-shrink-0 text-[var(--fg-tertiary)]"
+                className="shrink-0 text-(--fg-tertiary)"
               />
             </button>
           </div>
@@ -191,21 +191,21 @@ function PickCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
+      className="flex w-full items-center gap-3 rounded-2xl border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3 text-left transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover)"
     >
       {leading}
       <div className="min-w-0 flex-1">
-        <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
+        <span className="block truncate body-sm font-medium text-(--fg-primary)">
           {title}
         </span>
-        <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
+        <span className="mt-0.5 block truncate body-xs text-(--fg-tertiary)">
           {subtitle}
         </span>
       </div>
       <Icon
         name="chevron_right"
         size={18}
-        className="flex-shrink-0 text-[var(--fg-tertiary)]"
+        className="shrink-0 text-(--fg-tertiary)"
       />
     </button>
   );
@@ -213,7 +213,7 @@ function PickCard({
 
 function EmptyHint({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3 body-xs italic text-[var(--fg-tertiary)]">
+    <div className="rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-canvas) px-4 py-3 body-xs italic text-(--fg-tertiary)">
       {children}
     </div>
   );

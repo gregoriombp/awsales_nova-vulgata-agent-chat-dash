@@ -101,7 +101,7 @@ export default function AlertsPage() {
           title="Anatomia"
           lead="Todos os valores vêm de tokens. A cor da borda intensifica a semântica sem sobrecarregar."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec k="padding" v="14 · 16" d="Vertical · horizontal." />
             <Spec
               k="radius"
@@ -159,7 +159,7 @@ export default function AlertsPage() {
               doc="Corpo da mensagem. Mantenha curto — 1 a 3 frases."
             />
           </ApiTable>
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">variant</code> vira token de{" "}
             <code className="mono">className</code>;{" "}
             <code className="mono">title</code> e{" "}

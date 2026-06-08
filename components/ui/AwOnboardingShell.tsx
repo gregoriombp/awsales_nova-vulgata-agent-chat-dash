@@ -58,7 +58,7 @@ function OnboardingBrandPane({
   const hasImage = Boolean(background)
 
   return (
-    <aside className="relative flex w-[38%] min-w-[320px] max-w-[480px] flex-shrink-0 flex-col overflow-hidden border-r border-aw-gray-1100 bg-aw-gray-1200 p-10 text-white">
+    <aside className="relative flex w-[38%] min-w-[320px] max-w-[480px] shrink-0 flex-col overflow-hidden border-r border-aw-gray-1100 bg-aw-gray-1200 p-10 text-white">
       {hasImage ? (
         <>
           <div
@@ -105,7 +105,7 @@ function OnboardingBrandPane({
             </div>
             <div className="flex items-center gap-3">
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                <span className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-lg border border-aw-gray-1000 bg-white/[0.06] body-md font-medium text-aw-gray-400">
+                <span className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-aw-gray-1000 bg-white/6 body-md font-medium text-aw-gray-400">
                   {org.logo ? (
                     <img
                       src={org.logo}
@@ -128,15 +128,15 @@ function OnboardingBrandPane({
                   </div>
                 </div>
               </div>
-              <div className="flex flex-shrink-0 items-center gap-1.5">
+              <div className="flex shrink-0 items-center gap-1.5">
                 <span
-                  className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
+                  className="rounded-xs border border-aw-gray-1000 bg-white/6 px-2 py-[3px] text-aw-gray-500"
                   style={{ fontSize: 10 }}
                 >
                   Plano {org.plan}
                 </span>
                 <span
-                  className="rounded-xs border border-aw-gray-1000 bg-white/[0.06] px-2 py-[3px] text-aw-gray-500"
+                  className="rounded-xs border border-aw-gray-1000 bg-white/6 px-2 py-[3px] text-aw-gray-500"
                   style={{ fontSize: 10 }}
                 >
                   {org.contractTerm}

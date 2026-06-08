@@ -96,10 +96,10 @@ export default function MetodosPagamentoPage() {
     <div className="flex flex-col gap-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+          <h6 className="m-0 mb-1 text-(--fg-primary)">
             Métodos de pagamento
           </h6>
-          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
             Cartões e formas de cobrança aceitos por esta organização. As
             cobranças tentam primeiro o método marcado como padrão.
           </p>
@@ -117,13 +117,13 @@ export default function MetodosPagamentoPage() {
       {methods.length === 0 ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <ul className="m-0 flex flex-col border-y border-[var(--border-subtle)] p-0">
+        <ul className="m-0 flex flex-col border-y border-(--border-subtle) p-0">
           {ordered.map((m, i) => (
             <li
               key={m.id}
               className={
                 "m-0 list-none " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
               <MethodRow
@@ -178,7 +178,7 @@ function MethodRow({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+          <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
             {method.brand} •••• {method.last4}
           </p>
           {method.isDefault && (
@@ -196,7 +196,7 @@ function MethodRow({
             </AwPill>
           ) : null}
         </div>
-        <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
           Expira em {method.expiresAt}
         </p>
       </div>
@@ -255,13 +255,13 @@ function BillingInfoSection() {
   ].filter(Boolean);
 
   return (
-    <section className="flex flex-col gap-5 border-t border-[var(--border-subtle)] pt-8">
+    <section className="flex flex-col gap-5 border-t border-(--border-subtle) pt-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+          <h6 className="m-0 mb-1 text-(--fg-primary)">
             Informações de faturamento
           </h6>
-          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
             Dados usados na emissão da nota fiscal e no envio das cobranças.
           </p>
         </div>
@@ -276,10 +276,10 @@ function BillingInfoSection() {
         <BillingField label="Inscrição estadual" value={stateRegistration} />
         <BillingField label="E-mail de faturamento" value={email} />
         <div className="sm:col-span-2">
-          <dt className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">
+          <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
             Endereço
           </dt>
-          <dd className="m-0 flex flex-col gap-0.5 body-sm text-[var(--fg-primary)]">
+          <dd className="m-0 flex flex-col gap-0.5 body-sm text-(--fg-primary)">
             {fullAddress.map((line) => (
               <span key={line}>{line}</span>
             ))}
@@ -301,10 +301,10 @@ function BillingField({
 }) {
   return (
     <div className="min-w-0">
-      <dt className="m-0 mb-1 aw-eyebrow text-[var(--fg-tertiary)]">{label}</dt>
+      <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">{label}</dt>
       <dd
         className={
-          "m-0 body-sm text-[var(--fg-primary)] " +
+          "m-0 body-sm text-(--fg-primary) " +
           (tabular ? "tabular-nums" : "")
         }
       >
@@ -320,7 +320,7 @@ function BillingField({
 
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
-    <div className="border-y border-[var(--border-subtle)] py-12">
+    <div className="border-y border-(--border-subtle) py-12">
       <AwEmpty>
         <AwEmptyHeader>
           <AwEmptyMedia variant="icon">
@@ -372,13 +372,13 @@ function RemovePaymentMethodModal({
     >
       {method && (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2">
+          <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2">
             <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
             <div className="min-w-0 flex-1">
-              <p className="m-0 body-xs font-medium tabular-nums text-[var(--fg-primary)]">
+              <p className="m-0 body-xs font-medium tabular-nums text-(--fg-primary)">
                 {method.brand} •••• {method.last4}
               </p>
-              <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+              <p className="m-0 body-xs text-(--fg-tertiary)">
                 Expira em {method.expiresAt}
               </p>
             </div>
@@ -388,12 +388,12 @@ function RemovePaymentMethodModal({
               </AwPill>
             )}
           </div>
-          <p className="m-0 body-xs text-[var(--fg-primary)]">
+          <p className="m-0 body-xs text-(--fg-primary)">
             Você está prestes a remover este método das formas de cobrança da
             organização.
           </p>
           {method.isDefault && (
-            <p className="m-0 body-xs text-[var(--accent-warning)]">
+            <p className="m-0 body-xs text-(--accent-warning)">
               Este é o método padrão. Depois da remoção, o próximo da lista
               vira o padrão automaticamente.
             </p>

@@ -38,7 +38,7 @@ export default async function UxFlowViewer({
   if (!meta || !data) notFound()
 
   return (
-    <main className="min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
+    <main className="min-h-screen bg-(--bg-canvas) text-(--fg-primary)">
       <div className="max-w-[1400px] mx-auto px-8 py-12">
         <Link href="/bombardier/ux-flow" className="no-underline">
           <AwButton variant="ghost" size="sm" iconLeft="arrow_back">
@@ -50,10 +50,10 @@ export default async function UxFlowViewer({
           <div>
             <p className="aw-eyebrow mb-2">{meta.group}</p>
             <h1 className="text-4xl font-semibold tracking-tight">{meta.title}</h1>
-            <p className="mt-2 text-[var(--fg-secondary)] max-w-2xl leading-relaxed">
+            <p className="mt-2 text-(--fg-secondary) max-w-2xl leading-relaxed">
               {meta.description}
             </p>
-            <div className="mt-3 flex items-center gap-4 text-[11px] text-[var(--fg-tertiary)]">
+            <div className="mt-3 flex items-center gap-4 text-[11px] text-(--fg-tertiary)">
               <span className="inline-flex items-center gap-1.5">
                 <Icon name="web_asset" size={13} />
                 {meta.screens} telas

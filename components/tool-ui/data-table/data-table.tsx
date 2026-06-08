@@ -371,7 +371,7 @@ function DataTableLayout({
             className={cn(
               "bg-bg-raised relative w-full overflow-clip overflow-y-auto rounded-lg border border-border",
               "touch-pan-x",
-              maxHeight && "max-h-[--max-height]",
+              maxHeight && "max-h-(--max-height)",
             )}
             style={
               maxHeight
@@ -1019,7 +1019,7 @@ function DataTableAccordionCard({
     >
       <AccordionItem value={accordionItemId} className="group border-0">
         <AccordionTrigger
-          className="group-data-[state=closed]:hover:bg-bg-surface active:bg-bg-surface group-data-[state=open]:bg-bg-surface w-full rounded-none px-4 py-3 hover:no-underline"
+          className="hover:group-data-[state=closed]:bg-bg-surface active:bg-bg-surface group-data-[state=open]:bg-bg-surface w-full rounded-none px-4 py-3 hover:no-underline"
           aria-controls={detailsId}
           aria-label={`${rowLabel}. ${secondary.length > 0 ? "Expand for details" : ""}`}
         >

@@ -58,25 +58,25 @@ function SuggestionCard({
   const meta = getFlowMeta(suggestion.flow)
   const inReview = suggestion.status === "in_review"
   return (
-    <div className="flex flex-col gap-3 px-4 py-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+    <div className="flex flex-col gap-3 px-4 py-3 rounded-md border border-(--border-subtle) bg-(--bg-raised)">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-sm font-medium text-[var(--fg-primary)]">
+            <span className="text-sm font-medium text-(--fg-primary)">
               {suggestion.authorName?.trim() || "Anônimo"}
             </span>
             <StatusPill status={suggestion.status} />
           </div>
-          <p className="m-0 text-sm text-[var(--fg-primary)] whitespace-pre-wrap">
+          <p className="m-0 text-sm text-(--fg-primary) whitespace-pre-wrap">
             {suggestion.description}
           </p>
           {suggestion.resolution?.summary && (
-            <p className="m-0 mt-1 text-[11px] text-[var(--fg-tertiary)] italic">
+            <p className="m-0 mt-1 text-[11px] text-(--fg-tertiary) italic">
               {suggestion.resolution.summary}
             </p>
           )}
         </div>
-        <span className="text-[11px] text-[var(--fg-tertiary)] tabular-nums shrink-0">
+        <span className="text-[11px] text-(--fg-tertiary) tabular-nums shrink-0">
           {formatTimestamp(suggestion.createdAt)}
         </span>
       </div>
@@ -87,7 +87,7 @@ function SuggestionCard({
             Abrir flow
           </AwButton>
         </Link>
-        <span className="text-[11px] text-[var(--fg-tertiary)]">
+        <span className="text-[11px] text-(--fg-tertiary)">
           {meta?.title ?? suggestion.flow}
         </span>
         <div className="ml-auto flex items-center gap-2">
@@ -202,7 +202,7 @@ export function SuggestionsPanel() {
       </div>
 
       <div className="flex items-center justify-between gap-3">
-        <p className="m-0 text-xs text-[var(--fg-tertiary)]">
+        <p className="m-0 text-xs text-(--fg-tertiary)">
           Sugestões de edição vindas do editor de UX Flow. Aplicar/Descartar arquiva
           a sugestão; a alteração real dos nós é feita via skill.
         </p>
@@ -212,7 +212,7 @@ export function SuggestionsPanel() {
       </div>
 
       {error && (
-        <div className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] text-sm text-[var(--fg-secondary)]">
+        <div className="px-4 py-2 rounded-md border border-(--border-subtle) bg-(--bg-muted) text-sm text-(--fg-secondary)">
           <Icon name="error" size={14} className="mr-1 align-text-bottom" />
           {error}
         </div>
@@ -243,15 +243,15 @@ export function SuggestionsPanel() {
                   <Icon
                     name="account_tree"
                     size={14}
-                    className="text-[var(--fg-tertiary)] shrink-0"
+                    className="text-(--fg-tertiary) shrink-0"
                   />
                   <Link
                     href={`/bombardier/ux-flow/${flow}`}
-                    className="text-sm text-[var(--fg-primary)] hover:text-[var(--accent-brand)] truncate"
+                    className="text-sm text-(--fg-primary) hover:text-(--accent-brand) truncate"
                   >
                     {meta?.title ?? flow}
                   </Link>
-                  <span className="text-xs text-[var(--fg-tertiary)] shrink-0">
+                  <span className="text-xs text-(--fg-tertiary) shrink-0">
                     {items.length} sugest{items.length === 1 ? "ão" : "ões"}
                   </span>
                 </header>

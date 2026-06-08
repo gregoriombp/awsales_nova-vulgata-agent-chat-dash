@@ -39,7 +39,7 @@ export function CommentNode({ data }: NodeProps<Node<CommentNodeData>>) {
   return (
     <div className="relative cursor-pointer select-none" title={c.text}>
       <div
-        className="flex items-center gap-1 rounded-full rounded-bl-none border-2 border-[var(--bg-canvas)] px-2 py-1 shadow-[var(--shadow-md)]"
+        className="flex items-center gap-1 rounded-full rounded-bl-none border-2 border-(--bg-canvas) px-2 py-1 shadow-(--shadow-md)"
         style={{ background: c.authorColorToken }}
       >
         <span className="text-[10px] font-bold leading-none text-white">
@@ -52,7 +52,7 @@ export function CommentNode({ data }: NodeProps<Node<CommentNodeData>>) {
         )}
       </div>
       {inReview && (
-        <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[var(--aw-amber-500)] ring-2 ring-[var(--bg-canvas)]" />
+        <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-(--aw-amber-500) ring-2 ring-(--bg-canvas)" />
       )}
     </div>
   )
@@ -149,11 +149,11 @@ function PopoverShell({
   const top = Math.max(8, Math.min(at.y + 12, window.innerHeight - 280))
   return (
     <div
-      className="fixed z-[1200]"
+      className="fixed z-1200"
       style={{ left, top, width: POPOVER_WIDTH }}
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] shadow-[var(--shadow-lg)]">
+      <div className="flex flex-col overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised) shadow-(--shadow-lg)">
         {children}
       </div>
     </div>
@@ -244,16 +244,16 @@ export function FlowCommentComposer({
 
   return (
     <PopoverShell at={at}>
-      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-3 py-2">
-        <Icon name="comment" size={13} className="text-[var(--aw-purple-600)]" />
-        <span className="text-xs font-medium text-[var(--fg-primary)]">
+      <div className="flex items-center gap-2 border-b border-(--border-subtle) px-3 py-2">
+        <Icon name="comment" size={13} className="text-(--aw-purple-600)" />
+        <span className="text-xs font-medium text-(--fg-primary)">
           {target.nodeLabel ? `Comentar em "${target.nodeLabel}"` : "Novo comentário"}
         </span>
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="ml-auto text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)]"
+          className="ml-auto text-(--fg-tertiary) hover:text-(--fg-primary)"
         >
           <Icon name="close" size={14} />
         </button>
@@ -264,7 +264,7 @@ export function FlowCommentComposer({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Seu nome (aparece no review)"
-            className="rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-xs text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-purple-400)] focus:outline-none"
+            className="rounded-sm border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1.5 text-xs text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--aw-purple-400) focus:outline-hidden"
           />
         )}
         <textarea
@@ -282,13 +282,13 @@ export function FlowCommentComposer({
           }}
           rows={3}
           placeholder="O que muda aqui? Ex: falta a tela de confirmação…"
-          className="resize-none rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-purple-400)] focus:outline-none"
+          className="resize-none rounded-sm border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1.5 text-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--aw-purple-400) focus:outline-hidden"
         />
         <div className="flex items-center justify-end gap-2">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[var(--radius-sm)] px-2.5 py-1 text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)]"
+            className="rounded-sm px-2.5 py-1 text-xs font-medium text-(--fg-secondary) hover:bg-(--bg-muted)"
           >
             Cancelar
           </button>
@@ -296,7 +296,7 @@ export function FlowCommentComposer({
             type="button"
             onClick={() => void submit()}
             disabled={!text.trim() || busy || (!identity && !name.trim())}
-            className="rounded-[var(--radius-sm)] bg-[var(--aw-purple-600)] px-2.5 py-1 text-xs font-medium text-white hover:bg-[var(--aw-purple-700)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-sm bg-(--aw-purple-600) px-2.5 py-1 text-xs font-medium text-white hover:bg-(--aw-purple-700) disabled:cursor-not-allowed disabled:opacity-40"
           >
             {busy ? "Salvando…" : "Comentar"}
           </button>
@@ -376,18 +376,18 @@ export function FlowCommentThread({
 
   return (
     <PopoverShell at={at}>
-      <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] px-3 py-2">
+      <div className="flex items-center gap-2 border-b border-(--border-subtle) px-3 py-2">
         <span
           className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-semibold text-white"
           style={{ background: comment.authorColorToken }}
         >
           {comment.authorName.charAt(0).toUpperCase()}
         </span>
-        <span className="text-xs font-medium text-[var(--fg-primary)]">
+        <span className="text-xs font-medium text-(--fg-primary)">
           {comment.authorName}
         </span>
         {comment.status === "in_review" && (
-          <span className="rounded-[var(--radius-xs)] bg-[var(--aw-amber-100)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--aw-amber-800)]">
+          <span className="rounded-xs bg-(--aw-amber-100) px-1.5 py-0.5 text-[10px] font-medium text-(--aw-amber-800)">
             em revisão
           </span>
         )}
@@ -395,18 +395,18 @@ export function FlowCommentThread({
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="ml-auto text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)]"
+          className="ml-auto text-(--fg-tertiary) hover:text-(--fg-primary)"
         >
           <Icon name="close" size={14} />
         </button>
       </div>
 
       <div className="max-h-64 overflow-y-auto px-3 py-2.5">
-        <p className="m-0 whitespace-pre-wrap text-sm leading-relaxed text-[var(--fg-primary)]">
+        <p className="m-0 whitespace-pre-wrap text-sm leading-relaxed text-(--fg-primary)">
           {comment.text}
         </p>
         {replies.length > 0 && (
-          <div className="mt-2 flex flex-col gap-2 border-t border-[var(--border-subtle)] pt-2">
+          <div className="mt-2 flex flex-col gap-2 border-t border-(--border-subtle) pt-2">
             {replies.map((r) => (
               <div key={r.id} className="flex items-start gap-2">
                 <span
@@ -417,19 +417,19 @@ export function FlowCommentThread({
                 </span>
                 <div className="min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[11px] font-medium text-[var(--fg-primary)]">
+                    <span className="text-[11px] font-medium text-(--fg-primary)">
                       {r.authorName}
                     </span>
                     {r.authorKind === "agent" && (
-                      <span className="rounded-[var(--radius-xs)] bg-[var(--bg-muted)] px-1 text-[10px] text-[var(--fg-tertiary)]">
+                      <span className="rounded-xs bg-(--bg-muted) px-1 text-[10px] text-(--fg-tertiary)">
                         agente
                       </span>
                     )}
-                    <span className="text-[10px] text-[var(--fg-tertiary)]">
+                    <span className="text-[10px] text-(--fg-tertiary)">
                       {formatRelative(r.createdAt)}
                     </span>
                   </div>
-                  <p className="m-0 whitespace-pre-wrap text-[13px] leading-snug text-[var(--fg-primary)]">
+                  <p className="m-0 whitespace-pre-wrap text-[13px] leading-snug text-(--fg-primary)">
                     {r.text}
                   </p>
                 </div>
@@ -439,7 +439,7 @@ export function FlowCommentThread({
         )}
       </div>
 
-      <div className="flex flex-col gap-2 border-t border-[var(--border-subtle)] p-2">
+      <div className="flex flex-col gap-2 border-t border-(--border-subtle) p-2">
         <div className="flex items-end gap-1.5">
           <textarea
             value={reply}
@@ -452,14 +452,14 @@ export function FlowCommentThread({
             }}
             rows={1}
             placeholder="Responder…"
-            className="max-h-20 flex-1 resize-none rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2.5 py-1.5 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-purple-400)] focus:outline-none"
+            className="max-h-20 flex-1 resize-none rounded-sm border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1.5 text-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--aw-purple-400) focus:outline-hidden"
           />
           <button
             type="button"
             onClick={() => void sendReply()}
             disabled={!reply.trim() || busy}
             aria-label="Enviar"
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--aw-purple-600)] text-white hover:bg-[var(--aw-purple-700)] disabled:cursor-not-allowed disabled:opacity-40"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--aw-purple-600) text-white hover:bg-(--aw-purple-700) disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Icon name="arrow_upward" size={14} />
           </button>
@@ -468,7 +468,7 @@ export function FlowCommentThread({
           <button
             type="button"
             onClick={openInReview}
-            className="inline-flex items-center gap-1 text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)]"
+            className="inline-flex items-center gap-1 text-(--fg-tertiary) hover:text-(--fg-primary)"
           >
             <Icon name="open_in_full" size={11} />
             Ver no review
@@ -477,7 +477,7 @@ export function FlowCommentThread({
             type="button"
             onClick={() => void resolve()}
             disabled={busy}
-            className="inline-flex items-center gap-1 text-[var(--fg-secondary)] hover:text-[var(--accent-success)] disabled:opacity-40"
+            className="inline-flex items-center gap-1 text-(--fg-secondary) hover:text-(--accent-success) disabled:opacity-40"
           >
             <Icon name="check_circle" size={12} />
             Resolver

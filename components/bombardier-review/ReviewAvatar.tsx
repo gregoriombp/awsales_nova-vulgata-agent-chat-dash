@@ -102,7 +102,7 @@ export function ReviewAvatar({
 
   return (
     <span
-      className={`${base} font-semibold text-[var(--fg-on-inverse)]`}
+      className={`${base} font-semibold text-(--fg-on-inverse)`}
       style={{ ...dim, background: colorToken, fontSize: Math.round(size * 0.42) }}
       title={label}
       aria-label={label}

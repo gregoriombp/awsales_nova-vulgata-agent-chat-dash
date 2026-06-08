@@ -193,10 +193,10 @@ function WelcomeState() {
     <div className="flex min-h-full flex-col items-center justify-center px-6 py-16 text-center">
       <AwDotTunnel size={320} />
 
-      <h1 className="mt-12 text-[length:var(--h1-size)] font-light leading-[1.1] tracking-[-0.04em] text-[var(--fg-primary)]">
+      <h1 className="mt-12 text-(length:--h1-size) font-light leading-[1.1] tracking-[-0.04em] text-(--fg-primary)">
         Bem vindo ao Agent Studio
       </h1>
-      <p className="mt-3 text-[15px] text-[var(--fg-secondary)]">
+      <p className="mt-3 text-[15px] text-(--fg-secondary)">
         Crie seu primeiro agente em menos de 90 minutos.
       </p>
 
@@ -235,7 +235,7 @@ function ReturningEmptyState() {
   return (
     <>
       <Section title="Meus agentes">
-        <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+        <div className="rounded-xl border border-(--border-subtle) bg-(--bg-canvas)">
           <AwEmpty>
             <AwEmptyHeader>
               <AwEmptyMedia variant="default">
@@ -256,7 +256,7 @@ function ReturningEmptyState() {
         </div>
       </Section>
 
-      <div className="mt-14 border-t border-[var(--border-subtle)]" />
+      <div className="mt-14 border-t border-(--border-subtle)" />
 
       <Section title="Todos os agentes">
         <AgentsTable agents={TODOS_OS_AGENTES} />
@@ -274,7 +274,7 @@ function Section({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="mb-6 text-[20px] font-medium leading-tight tracking-[-0.01em] text-[var(--fg-primary)]">
+      <h2 className="mb-6 text-[20px] font-medium leading-tight tracking-[-0.01em] text-(--fg-primary)">
         {title}
       </h2>
       {children}
@@ -322,7 +322,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                 <Icon
                   name="target"
                   size={16}
-                  className="shrink-0 text-[var(--fg-tertiary)]"
+                  className="shrink-0 text-(--fg-tertiary)"
                 />
                 <span className="truncate">{agent.objetivo}</span>
               </span>
@@ -335,7 +335,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
             <td>
               <span className="flex items-center gap-2">
                 <AwAgentCore src={agent.coreSrc} size={20} />
-                <span className="truncate text-[length:var(--body-sm-size)] text-[var(--fg-primary)]">
+                <span className="truncate text-(length:--body-sm-size) text-(--fg-primary)">
                   {agent.coreName}
                 </span>
               </span>
@@ -348,7 +348,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                   initials={agent.author.initials}
                   alt={agent.author.name}
                 />
-                <span className="truncate text-[length:var(--body-sm-size)] text-[var(--fg-secondary)]">
+                <span className="truncate text-(length:--body-sm-size) text-(--fg-secondary)">
                   {agent.author.name}
                 </span>
               </span>
@@ -363,7 +363,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                 <Icon
                   name="database"
                   size={15}
-                  className="shrink-0 text-[var(--fg-tertiary)]"
+                  className="shrink-0 text-(--fg-tertiary)"
                 />
                 <span className="truncate">{agent.knowledgeBase}</span>
               </span>
@@ -377,7 +377,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                     trigger={
                       <button
                         type="button"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
                         aria-label={`Ações de ${agent.title}`}
                       >
                         <Icon name="more_vert" size={20} />

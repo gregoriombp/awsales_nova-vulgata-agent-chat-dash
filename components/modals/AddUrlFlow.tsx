@@ -94,7 +94,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -131,7 +131,7 @@ export default function AddUrlFlow({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="http://"
-                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 body-sm"
+                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-hidden focus:ring-2 focus:ring-gray-1200 body-sm"
                 />
               </div>
             </div>
@@ -159,7 +159,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -195,7 +195,7 @@ export default function AddUrlFlow({
                   type="text"
                   value={url || "https://artificialconcord.com"}
                   onChange={(e) => setUrl(e.target.value)}
-                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-1200 body-sm"
+                  className="w-full h-10 pl-12 pr-4 border border-input-border bg-input-bg rounded-lg focus:outline-hidden focus:ring-2 focus:ring-gray-1200 body-sm"
                 />
               </div>
             </div>
@@ -214,7 +214,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -259,7 +259,7 @@ export default function AddUrlFlow({
                   <button
                     type="button"
                     onClick={toggleAllPages}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   >
                     <div
                       className={`h-4 w-4 rounded border flex items-center justify-center ${
@@ -298,7 +298,7 @@ export default function AddUrlFlow({
                     <button
                       type="button"
                       onClick={() => togglePage(page.id)}
-                      className="flex-shrink-0"
+                      className="shrink-0"
                     >
                       <div
                         className={`h-4 w-4 rounded border flex items-center justify-center ${
@@ -371,7 +371,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -416,7 +416,7 @@ export default function AddUrlFlow({
                   <button
                     type="button"
                     onClick={toggleAllPages}
-                    className="flex-shrink-0"
+                    className="shrink-0"
                   >
                     <div
                       className={`h-4 w-4 rounded border flex items-center justify-center ${
@@ -455,7 +455,7 @@ export default function AddUrlFlow({
                     <button
                       type="button"
                       onClick={() => togglePage(page.id)}
-                      className="flex-shrink-0"
+                      className="shrink-0"
                     >
                       <div
                         className={`h-4 w-4 rounded border flex items-center justify-center ${
@@ -493,7 +493,7 @@ export default function AddUrlFlow({
                 {/* Additional URLs */}
                 <div className="mb-4">
                   <div className="flex items-start gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M12 5v14M5 12h14"
@@ -525,7 +525,7 @@ export default function AddUrlFlow({
                 {/* Excluded URLs */}
                 <div className="mb-4">
                   <div className="flex items-start gap-3 mb-2">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M18 6L6 18M6 6l12 12"
@@ -557,7 +557,7 @@ export default function AddUrlFlow({
                 {/* Page elements */}
                 <div>
                   <div className="flex items-start gap-3 mb-3">
-                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                         <path
                           d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"
@@ -631,7 +631,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-[var(--fg-primary)]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button

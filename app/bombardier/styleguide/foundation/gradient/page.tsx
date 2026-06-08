@@ -146,10 +146,10 @@ export default function GradientPage() {
           title="Paleta iridescente"
           lead="Seis tokens existentes da paleta primitiva, recombinados. Nenhum token novo foi criado — o gradient é composição."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-32">role</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-20">swatch</th>
                   <th className="px-5 pt-4 pb-2 aw-eyebrow w-40">token</th>
@@ -161,24 +161,24 @@ export default function GradientPage() {
                 {PALETTE.map((p) => (
                   <tr
                     key={p.token}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-middle"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-middle"
                   >
-                    <td className="px-5 py-3 text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="px-5 py-3 text-sm text-(--fg-primary) whitespace-nowrap">
                       {p.role}
                     </td>
                     <td className="px-5 py-3">
                       <div
-                        className="w-10 h-6 rounded-[var(--radius-sm)] border border-[var(--border-subtle)]"
+                        className="w-10 h-6 rounded-sm border border-(--border-subtle)"
                         style={{ backgroundColor: p.hex }}
                       />
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="px-5 py-3 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {p.token}
                     </td>
-                    <td className="px-5 py-3 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+                    <td className="px-5 py-3 mono text-xs text-(--fg-tertiary) whitespace-nowrap">
                       {p.hex}
                     </td>
-                    <td className="px-5 py-3 text-sm text-[var(--fg-secondary)]">
+                    <td className="px-5 py-3 text-sm text-(--fg-secondary)">
                       {p.intent}
                     </td>
                   </tr>
@@ -216,7 +216,7 @@ export default function GradientPage() {
                       aria-label="Gerar"
                     />
                   </div>
-                  <div className="dark rounded-[var(--radius-md)] p-6 bg-[var(--dark-bg)] border border-[var(--dark-border)] flex flex-wrap gap-3">
+                  <div className="dark rounded-md p-6 bg-(--dark-bg) border border-(--dark-border) flex flex-wrap gap-3">
                     <AwButton variant="ai" iconLeft="auto_awesome">
                       Get Started
                     </AwButton>
@@ -225,7 +225,7 @@ export default function GradientPage() {
                     </AwButton>
                   </div>
                   <div className="flex flex-wrap gap-3">
-                    <span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium text-[var(--aw-gray-1200)]">
+                    <span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-(--aw-gray-1200)">
                       Capture o Tom das Primeiras Palavras do Lead
                     </span>
                   </div>
@@ -244,7 +244,7 @@ export default function GradientPage() {
                   <div className="flex flex-wrap gap-3">
                     <button
                       type="button"
-                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-[var(--radius-full)] text-sm font-medium inline-flex items-center gap-2 text-[var(--fg-primary)]"
+                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-full text-sm font-medium inline-flex items-center gap-2 text-(--fg-primary)"
                       style={
                         {
                           "--aw-iridescent-fill": "var(--bg-canvas)",
@@ -255,15 +255,15 @@ export default function GradientPage() {
                     </button>
                     <button
                       type="button"
-                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-[var(--radius-full)] text-sm font-medium inline-flex items-center gap-2 text-[var(--fg-primary)]"
+                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-full text-sm font-medium inline-flex items-center gap-2 text-(--fg-primary)"
                     >
                       Saiba como funciona →
                     </button>
                   </div>
-                  <div className="dark rounded-[var(--radius-md)] p-6 bg-[var(--dark-bg)] border border-[var(--dark-border)] flex flex-wrap gap-3">
+                  <div className="dark rounded-md p-6 bg-(--dark-bg) border border-(--dark-border) flex flex-wrap gap-3">
                     <button
                       type="button"
-                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-[var(--radius-full)] text-sm font-medium inline-flex items-center gap-2"
+                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-full text-sm font-medium inline-flex items-center gap-2"
                       style={
                         {
                           "--aw-iridescent-fill": "var(--dark-bg)",
@@ -275,7 +275,7 @@ export default function GradientPage() {
                     </button>
                     <button
                       type="button"
-                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-[var(--radius-full)] text-sm font-medium inline-flex items-center gap-2"
+                      className="aw-gradient-iridescent-border px-5 h-[38px] rounded-full text-sm font-medium inline-flex items-center gap-2"
                       style={
                         {
                           "--aw-iridescent-fill": "var(--dark-bg)",
@@ -291,7 +291,7 @@ export default function GradientPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec
               k="fill"
               v=".aw-gradient-iridescent"
@@ -317,13 +317,13 @@ export default function GradientPage() {
           lead="O gradient não vive sozinho. Aqui em três layouts canônicos: hero CTA, insight banner, row action."
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-              <div className="px-5 py-3 border-b border-[var(--border-subtle)] aw-eyebrow">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+              <div className="px-5 py-3 border-b border-(--border-subtle) aw-eyebrow">
                 hero · landing
               </div>
               <div className="p-8 flex flex-col items-center text-center gap-4">
                 <h3 className="m-0">Agentes que pensam com você</h3>
-                <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                <p className="body-sm m-0 text-(--fg-secondary)">
                   Crie em minutos, refine em horas, escale em dias.
                 </p>
                 <div className="flex gap-2">
@@ -335,8 +335,8 @@ export default function GradientPage() {
               </div>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-              <div className="px-5 py-3 border-b border-[var(--border-subtle)] aw-eyebrow">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+              <div className="px-5 py-3 border-b border-(--border-subtle) aw-eyebrow">
                 insight banner
               </div>
               <div className="p-5">
@@ -344,22 +344,22 @@ export default function GradientPage() {
                   <div className="text-sm font-medium">
                     Sugestão pronta pra revisar
                   </div>
-                  <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                  <p className="body-sm m-0 text-(--fg-secondary)">
                     Capturei o tom das primeiras palavras do lead. Confere?
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-              <div className="px-5 py-3 border-b border-[var(--border-subtle)] aw-eyebrow">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+              <div className="px-5 py-3 border-b border-(--border-subtle) aw-eyebrow">
                 row action
               </div>
               <div className="p-5 flex flex-col gap-2">
                 {["Pedro Silva", "Ana Costa", "João Mendes"].map((name, i) => (
                   <div
                     key={name}
-                    className="flex items-center justify-between px-3 py-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)]"
+                    className="flex items-center justify-between px-3 py-2 rounded-md border border-(--border-subtle)"
                   >
                     <div className="text-sm">{name}</div>
                     {i === 0 ? (
@@ -403,12 +403,12 @@ export default function GradientPage() {
   <p>3 leads aquecidos esperando resposta.</p>
 </AwCard>`}</CodeExample>
 
-          <CodeExample label="badge inline com fill iridescente">{`<span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-full)] text-xs font-medium text-[var(--aw-gray-1200)]">
+          <CodeExample label="badge inline com fill iridescente">{`<span className="aw-gradient-iridescent inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium text-(--aw-gray-1200)">
   Capture o Tom das Primeiras Palavras do Lead
 </span>`}</CodeExample>
 
           <CodeExample label="border iridescente em fundo dark">{`<button
-  className="aw-gradient-iridescent-border px-5 h-[38px] rounded-[var(--radius-full)] text-sm font-medium"
+  className="aw-gradient-iridescent-border px-5 h-[38px] rounded-full text-sm font-medium"
   style={{
     "--aw-iridescent-fill": "var(--dark-bg)",
     color: "var(--dark-fg-primary)",
@@ -424,23 +424,23 @@ export default function GradientPage() {
           title="Acessibilidade"
           lead="O gradient tem regiões de contraste variável. O texto sempre escuro garante leitura em qualquer ponto do mesh."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 body-sm text-[var(--fg-secondary)] flex flex-col gap-2">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 body-sm text-(--fg-secondary) flex flex-col gap-2">
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">contraste.</strong>{" "}
+              <strong className="text-(--fg-primary)">contraste.</strong>{" "}
               Texto <code className="mono">--aw-gray-1200</code> sobre as
               regiões mais claras do gradient (peach, lavender) atinge ≥ 12:1.
               Sobre as regiões mais saturadas (blue-400) atinge ≥ 4.5:1 (AA).
               Não use texto branco sobre o filled — fica ilegível no peach.
             </p>
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">animação.</strong>{" "}
+              <strong className="text-(--fg-primary)">animação.</strong>{" "}
               O gradient é estático por padrão. Se animar (mesh drift),
               respeite{" "}
               <code className="mono">prefers-reduced-motion: reduce</code> e
               congele a posição.
             </p>
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">semântica.</strong>{" "}
+              <strong className="text-(--fg-primary)">semântica.</strong>{" "}
               O gradient não substitui label nem ícone — é decoração. Use{" "}
               <code className="mono">aria-label</code> sempre que o botão for
               iconOnly.
@@ -549,12 +549,12 @@ function Principle({
   body: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
-      <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
+      <span className="text-xs text-(--fg-tertiary)">{n}</span>
+      <div className="text-sm font-medium text-(--fg-primary)">
         {title}
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }
@@ -573,24 +573,24 @@ function PatternBlock({
   demos: React.ReactNode
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-      <header className="px-6 py-4 border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+      <header className="px-6 py-4 border-b border-(--border-subtle) flex items-start justify-between gap-4">
         <div>
-          <h3 className="m-0 text-[var(--h5-size)]">
-            <span className="text-[var(--fg-tertiary)] text-sm mr-2">
+          <h3 className="m-0 text-(--h5-size)">
+            <span className="text-(--fg-tertiary) text-sm mr-2">
               {n} ·
             </span>
             {title}
           </h3>
-          <p className="mt-1 mb-0 body-sm text-[var(--fg-secondary)]">
+          <p className="mt-1 mb-0 body-sm text-(--fg-secondary)">
             {description}
           </p>
         </div>
-        <code className="mono text-xs text-[var(--aw-blue-700)] shrink-0 mt-1">
+        <code className="mono text-xs text-(--aw-blue-700) shrink-0 mt-1">
           {utility}
         </code>
       </header>
-      <div className="p-6 bg-[var(--bg-surface)]">{demos}</div>
+      <div className="p-6 bg-(--bg-surface)">{demos}</div>
     </div>
   )
 }

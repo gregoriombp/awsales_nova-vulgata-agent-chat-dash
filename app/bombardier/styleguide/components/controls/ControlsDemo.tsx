@@ -81,7 +81,7 @@ export function TabsDemo() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+        <div className="text-xs font-medium text-(--fg-tertiary)">
           variant=&quot;segmented&quot; (default)
         </div>
         <AwTabs
@@ -97,7 +97,7 @@ export function TabsDemo() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+        <div className="text-xs font-medium text-(--fg-tertiary)">
           tamanhos + estado disabled
         </div>
         <AwTabs
@@ -113,7 +113,7 @@ export function TabsDemo() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+        <div className="text-xs font-medium text-(--fg-tertiary)">
           variant=&quot;standalone&quot; com contadores — para nav de categorias
         </div>
         <AwTabs
@@ -132,7 +132,7 @@ export function TabsDemo() {
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="text-xs font-medium text-[var(--fg-tertiary)]">
+        <div className="text-xs font-medium text-(--fg-tertiary)">
           variant=&quot;underline&quot; — nav de página, hairline + indicador
         </div>
         <AwTabs
@@ -149,7 +149,7 @@ export function TabsDemo() {
         />
       </div>
 
-      <div className="text-sm text-[var(--fg-secondary)]">
+      <div className="text-sm text-(--fg-secondary)">
         Tab ativa (segmented): <code className="mono">{tab}</code> · Categoria
         ativa (standalone): <code className="mono">{cat}</code> · Seção ativa
         (underline): <code className="mono">{page}</code>
@@ -165,7 +165,7 @@ export function SelectDemo() {
       <AwSelect onClick={() => setPeriod((p) => (p === "Hoje" ? "Últimos 30 dias" : "Hoje"))}>
         {period}
       </AwSelect>
-      <div className="text-xs text-[var(--fg-tertiary)]">
+      <div className="text-xs text-(--fg-tertiary)">
         Trigger puro — clique alterna o exemplo. Combine com um menu (AwDropdownMenu) para abrir as opções.
       </div>
     </div>

@@ -53,7 +53,7 @@ export default function ConviteLinkExpiradoPage() {
               name="schedule"
               size={16}
               fill={1}
-              className="mt-0.5 flex-shrink-0"
+              className="mt-0.5 shrink-0"
             />
             <span>
               Seu convite continua de pé — só o link de acesso precisa ser
@@ -66,7 +66,7 @@ export default function ConviteLinkExpiradoPage() {
               name="check_circle"
               size={16}
               fill={1}
-              className="mt-0.5 flex-shrink-0 text-aw-emerald-700"
+              className="mt-0.5 shrink-0 text-aw-emerald-700"
             />
             <div className="flex flex-col gap-0.5">
               <div className="body-xs font-medium text-fg-primary">

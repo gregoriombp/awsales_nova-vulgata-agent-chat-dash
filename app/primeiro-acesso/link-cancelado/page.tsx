@@ -45,7 +45,7 @@ export default function LinkCanceladoPage() {
             name="block"
             size={16}
             fill={1}
-            className="mt-0.5 flex-shrink-0"
+            className="mt-0.5 shrink-0"
           />
           <div className="flex flex-col gap-0.5">
             <span>

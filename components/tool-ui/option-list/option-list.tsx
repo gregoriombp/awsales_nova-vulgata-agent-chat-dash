@@ -62,8 +62,8 @@ function SelectionIndicator({
         "flex size-4 shrink-0 items-center justify-center border-2 transition-colors",
         shape,
         isSelected &&
-          "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]",
-        !isSelected && "border-[var(--border-default)]",
+          "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)",
+        !isSelected && "border-(--border-default)",
         disabled && "opacity-50",
       )}
     >
@@ -123,7 +123,7 @@ function OptionItem({
     >
       <span
         className={cn(
-          "bg-[var(--bg-muted)] absolute inset-0 -mx-3 -my-0.5 rounded-xl opacity-0 transition-opacity group-hover:opacity-100",
+          "bg-(--bg-muted) absolute inset-0 -mx-3 -my-0.5 rounded-xl opacity-0 transition-opacity group-hover:opacity-100",
         )}
       />
       <div className="relative flex items-start gap-3">
@@ -140,7 +140,7 @@ function OptionItem({
         <div className="flex flex-col text-left">
           <span className="leading-6 text-pretty">{option.label}</span>
           {option.description && (
-            <span className="text-[var(--fg-secondary)] body-sm font-normal text-pretty">
+            <span className="text-(--fg-secondary) body-sm font-normal text-pretty">
               {option.description}
             </span>
           )}
@@ -169,7 +169,7 @@ function OptionListConfirmation({
     <div
       className={cn(
         "@container/option-list flex w-full max-w-md min-w-80 flex-col",
-        "text-[var(--fg-primary)]",
+        "text-(--fg-primary)",
         "motion-safe:animate-in motion-safe:fade-in motion-safe:blur-in-sm motion-safe:zoom-in-95 motion-safe:duration-300 motion-safe:ease-fluid motion-safe:fill-mode-both",
         className,
       )}
@@ -181,7 +181,7 @@ function OptionListConfirmation({
     >
       <div
         className={cn(
-          "bg-[var(--bg-raised)]/60 border-[var(--border-subtle)] flex w-full flex-col overflow-hidden rounded-2xl border px-5 py-2.5 shadow-xs",
+          "bg-(--bg-raised)/60 border-(--border-subtle) flex w-full flex-col overflow-hidden rounded-2xl border px-5 py-2.5 shadow-xs",
         )}
       >
         {confirmedOptions.map((option, index) => (
@@ -191,7 +191,7 @@ function OptionListConfirmation({
             )}
             <div className="flex items-start gap-3 py-1">
               <span className="flex h-6 items-center">
-                <Check className="text-[var(--fg-primary)] size-4 shrink-0" />
+                <Check className="text-(--fg-primary) size-4 shrink-0" />
               </span>
               {option.icon && (
                 <span className="flex h-6 items-center">{option.icon}</span>
@@ -561,7 +561,7 @@ export function OptionList({
         <div
           className={cn(
             "@container/option-list flex w-full max-w-md min-w-80 flex-col gap-3",
-            "text-[var(--fg-primary)]",
+            "text-(--fg-primary)",
             className,
           )}
           data-slot="option-list"
@@ -571,7 +571,7 @@ export function OptionList({
         >
           <div
             className={cn(
-              "group/list bg-[var(--bg-raised)] border-[var(--border-subtle)] flex w-full flex-col overflow-hidden rounded-2xl border px-4 py-1.5 shadow-xs",
+              "group/list bg-(--bg-raised) border-(--border-subtle) flex w-full flex-col overflow-hidden rounded-2xl border px-4 py-1.5 shadow-xs",
             )}
             role="listbox"
             aria-multiselectable={selectionMode === "multi"}

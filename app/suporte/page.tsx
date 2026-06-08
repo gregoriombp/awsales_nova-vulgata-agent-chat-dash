@@ -46,7 +46,7 @@ export default function SuportePage() {
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Canais</div>
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             <li className="flex items-center gap-3.5">
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
                 <Icon name="mail" size={18} />
               </span>
               <div className="min-w-0 flex-1">
@@ -57,7 +57,7 @@ export default function SuportePage() {
               </div>
             </li>
             <li className="flex items-center gap-3.5">
-              <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
                 <Icon name="phone" size={18} />
               </span>
               <div className="min-w-0 flex-1">

@@ -135,7 +135,7 @@ export function NewCustomIntegrationModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Conecte um serviço HTTP que ainda não está no catálogo.
           Depois de criar, você adiciona habilidades dentro dessa
           conexão e elas herdam essa credencial automaticamente.
@@ -207,7 +207,7 @@ export function NewCustomIntegrationModal({
         )}
 
         <div>
-          <div className="mb-1.5 body-xs font-medium text-[var(--fg-secondary)]">
+          <div className="mb-1.5 body-xs font-medium text-(--fg-secondary)">
             Ícone
           </div>
           <div className="flex flex-wrap gap-1.5">
@@ -222,8 +222,8 @@ export function NewCustomIntegrationModal({
                   className={
                     "flex h-9 w-9 items-center justify-center rounded-lg border transition-colors " +
                     (active
-                      ? "border-[var(--fg-primary)] bg-[var(--aw-blue-100)] text-[var(--fg-primary)]"
-                      : "border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)]")
+                      ? "border-(--fg-primary) bg-(--aw-blue-100) text-(--fg-primary)"
+                      : "border-(--border-subtle) text-(--fg-secondary) hover:bg-(--bg-hover)")
                   }
                 >
                   <Icon name={p} size={18} />
@@ -239,8 +239,8 @@ export function NewCustomIntegrationModal({
             className={
               "flex items-center gap-2 rounded-xl border px-3 py-2.5 body-xs " +
               (testState === "ok"
-                ? "border-[var(--aw-emerald-150)] bg-[var(--aw-emerald-100)] text-[var(--aw-emerald-800)]"
-                : "border-[var(--aw-red-150)] bg-[var(--aw-red-100)] text-[var(--aw-red-700)]")
+                ? "border-(--aw-emerald-150) bg-(--aw-emerald-100) text-(--aw-emerald-800)"
+                : "border-(--aw-red-150) bg-(--aw-red-100) text-(--aw-red-700)")
             }
           >
             <Icon
@@ -296,7 +296,7 @@ function InlineSelect({
       <Icon
         name="expand_more"
         size={18}
-        className="text-[var(--fg-tertiary)]"
+        className="text-(--fg-tertiary)"
         style={{ marginLeft: -22, pointerEvents: "none" }}
       />
     </div>

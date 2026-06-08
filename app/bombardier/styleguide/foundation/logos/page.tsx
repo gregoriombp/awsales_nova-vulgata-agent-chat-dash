@@ -191,7 +191,7 @@ function LogoCard({ item }: { item: LogoExport }) {
   const hasBug = Boolean(item.bug)
   return (
     <div
-      className="rounded-[var(--radius-lg)] border overflow-hidden flex flex-col"
+      className="rounded-lg border overflow-hidden flex flex-col"
       style={{
         background: item.needsDarkBg ? "var(--dark-bg)" : "var(--bg-raised)",
         borderColor: hasBug ? "var(--aw-amber-400)" : "var(--border-subtle)",
@@ -215,12 +215,12 @@ function LogoCard({ item }: { item: LogoExport }) {
       >
         <LogoCardPreview item={item} />
       </div>
-      <div className="px-4 py-3 border-t border-[var(--border-subtle)] bg-[var(--bg-raised)] flex flex-col gap-1">
+      <div className="px-4 py-3 border-t border-(--border-subtle) bg-(--bg-raised) flex flex-col gap-1">
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium text-[var(--fg-primary)]">
+          <span className="text-sm font-medium text-(--fg-primary)">
             {item.label}
           </span>
-          <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+          <code className="mono text-[10px] text-(--fg-tertiary)">
             {item.src.split("/").pop()}
           </code>
         </div>
@@ -251,7 +251,7 @@ export default function LogosPage() {
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-16">
         {/* ── AwLogo vs AwBrandLogo ───────────────────────────────────── */}
-        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 text-sm text-[var(--aw-blue-900)]">
+        <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 text-sm text-(--aw-blue-900)">
           <strong>AwLogo vs AwBrandLogo.</strong> Esta página documenta o{" "}
           <code className="mono">AwLogo</code> — a logo do{" "}
           <strong>próprio AwSales</strong>. Para logos de{" "}
@@ -259,7 +259,7 @@ export default function LogosPage() {
           <code className="mono">AwBrandLogo</code>, documentado em{" "}
           <a
             href="/bombardier/styleguide/components/brand-logo"
-            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+            className="underline underline-offset-2 hover:text-(--aw-blue-700)"
           >
             Components → Brand logo
           </a>
@@ -272,21 +272,21 @@ export default function LogosPage() {
           title="Quando usar o quê"
           lead="Três caminhos. A regra primeira: dentro do app, prefira o componente. Fora do app, prefira PNG. SVG estático é o último recurso quando o componente não cabe e o PNG não escala."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="aw-eyebrow px-5 py-3">contexto</th>
                   <th className="aw-eyebrow px-5 py-3">use</th>
                   <th className="aw-eyebrow px-5 py-3">por quê</th>
                 </tr>
               </thead>
-              <tbody className="text-[var(--fg-secondary)]">
-                <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-                  <td className="px-5 py-4 text-[var(--fg-primary)]">
+              <tbody className="text-(--fg-secondary)">
+                <tr className="border-b border-(--border-subtle) last:border-b-0 align-top">
+                  <td className="px-5 py-4 text-(--fg-primary)">
                     UI do produto, sidebar, header, footer
                   </td>
-                  <td className="px-5 py-4 mono text-xs text-[var(--aw-blue-700)]">
+                  <td className="px-5 py-4 mono text-xs text-(--aw-blue-700)">
                     {`<AwLogo />`}
                   </td>
                   <td className="px-5 py-4">
@@ -294,22 +294,22 @@ export default function LogosPage() {
                     herda cor do contexto, escala vetorial, sem request HTTP.
                   </td>
                 </tr>
-                <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-                  <td className="px-5 py-4 text-[var(--fg-primary)]">
+                <tr className="border-b border-(--border-subtle) last:border-b-0 align-top">
+                  <td className="px-5 py-4 text-(--fg-primary)">
                     E-mail transacional, deck, social, favicon, OG image
                   </td>
-                  <td className="px-5 py-4 text-xs font-medium text-[var(--aw-blue-700)]">
+                  <td className="px-5 py-4 text-xs font-medium text-(--aw-blue-700)">
                     PNG export oficial
                   </td>
                   <td className="px-5 py-4">
                     Renderiza em qualquer cliente sem fonte/CSS. Cores fixas pré-aprovadas.
                   </td>
                 </tr>
-                <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-                  <td className="px-5 py-4 text-[var(--fg-primary)]">
+                <tr className="border-b border-(--border-subtle) last:border-b-0 align-top">
+                  <td className="px-5 py-4 text-(--fg-primary)">
                     Marketing site externo (Next/Image), hero hardcoded
                   </td>
-                  <td className="px-5 py-4 text-xs font-medium text-[var(--aw-blue-700)]">
+                  <td className="px-5 py-4 text-xs font-medium text-(--aw-blue-700)">
                     SVG estático
                   </td>
                   <td className="px-5 py-4">
@@ -328,7 +328,7 @@ export default function LogosPage() {
           title="Anatomia"
           lead="A altura do mark é a unidade-raiz (x). Todas as regras de espaço e tamanho derivam dela."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10 flex items-center gap-12 flex-wrap">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10 flex items-center gap-12 flex-wrap">
             <span style={{ color: "var(--aw-blue-600)", display: "inline-flex" }}>
               <AwLogo variant="mark" height={96} />
             </span>
@@ -437,7 +437,7 @@ export default function LogosPage() {
 />
 
 // Sobre superfície escura — o parent já tem text-[var(--dark-fg-primary)].
-<header className="text-[var(--dark-fg-primary)]">
+<header className="text-(--dark-fg-primary)">
   <AwLogo variant="wordmark" height={20} />
 </header>`}</CodeExample>
         </Section>
@@ -449,7 +449,7 @@ export default function LogosPage() {
           lead="Dez arquivos. Cada um com tom e fundo previsto. Use o nome exato — nenhum recolore. Servidos de /public/assets/brand/."
         >
           <div>
-            <h3 className="text-[var(--h5-size)] font-medium mb-3">Mark (4 tons)</h3>
+            <h3 className="text-(--h5-size) font-medium mb-3">Mark (4 tons)</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {MARKS.map((m) => (
                 <LogoCard key={m.src} item={m} />
@@ -458,7 +458,7 @@ export default function LogosPage() {
           </div>
 
           <div className="mt-10">
-            <h3 className="text-[var(--h5-size)] font-medium mb-3">
+            <h3 className="text-(--h5-size) font-medium mb-3">
               Wordmark · fundo claro
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -469,7 +469,7 @@ export default function LogosPage() {
           </div>
 
           <div className="mt-10">
-            <h3 className="text-[var(--h5-size)] font-medium mb-3">
+            <h3 className="text-(--h5-size) font-medium mb-3">
               Wordmark · fundo escuro
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -490,7 +490,7 @@ export default function LogosPage() {
             {SVG_EXPORTS.map((s) => (
               <div
                 key={s.src}
-                className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden flex flex-col"
+                className="rounded-lg border border-(--border-subtle) overflow-hidden flex flex-col"
                 style={{
                   background: s.needsDarkBg
                     ? "var(--dark-bg)"
@@ -508,8 +508,8 @@ export default function LogosPage() {
                     }}
                   />
                 </div>
-                <div className="px-4 py-3 border-t border-[var(--border-subtle)] bg-[var(--bg-raised)] flex flex-col gap-1">
-                  <code className="mono text-xs text-[var(--fg-primary)]">
+                <div className="px-4 py-3 border-t border-(--border-subtle) bg-(--bg-raised) flex flex-col gap-1">
+                  <code className="mono text-xs text-(--fg-primary)">
                     {s.label}
                   </code>
                   <p className="caption">{s.note}</p>
@@ -525,7 +525,7 @@ export default function LogosPage() {
           title="Tamanhos mínimos"
           lead="Abaixo destes, o contrapeso do A desaparece. Nunca use menor."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-10 flex flex-wrap items-end gap-10">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10 flex flex-wrap items-end gap-10">
             <div className="flex flex-col items-center gap-3">
               <img
                 src={AW_LOGO_ASSETS.svg.mark}
@@ -587,7 +587,7 @@ export default function LogosPage() {
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div
-              className="rounded-[var(--radius-lg)] overflow-hidden flex flex-col"
+              className="rounded-lg overflow-hidden flex flex-col"
               style={{ background: "var(--dark-bg)" }}
             >
               <div className="flex-1 flex items-center justify-center p-10 min-h-[200px]">
@@ -598,7 +598,7 @@ export default function LogosPage() {
                   height={48}
                 />
               </div>
-              <div className="px-4 py-3 border-t border-[var(--dark-border)]">
+              <div className="px-4 py-3 border-t border-(--dark-border)">
                 <div
                   className="text-sm font-medium"
                   style={{ color: "var(--dark-fg-primary)" }}
@@ -613,7 +613,7 @@ export default function LogosPage() {
                 </div>
               </div>
             </div>
-            <div className="rounded-[var(--radius-lg)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] overflow-hidden flex flex-col">
+            <div className="rounded-lg bg-(--bg-raised) border border-(--border-subtle) overflow-hidden flex flex-col">
               <div className="flex-1 flex items-center justify-center p-10 min-h-[200px]">
                 <img
                   src={AW_LOGO_ASSETS.svg.wordmarkBrand}
@@ -621,13 +621,13 @@ export default function LogosPage() {
                   style={{ height: 40, width: "auto" }}
                 />
               </div>
-              <div className="px-4 py-3 border-t border-[var(--border-subtle)]">
+              <div className="px-4 py-3 border-t border-(--border-subtle)">
                 <div className="text-sm font-medium">Hero light</div>
                 <div className="caption">Wordmark brand sobre branco</div>
               </div>
             </div>
             <div
-              className="rounded-[var(--radius-lg)] overflow-hidden flex flex-col"
+              className="rounded-lg overflow-hidden flex flex-col"
               style={{
                 background:
                   "linear-gradient(135deg, var(--aw-blue-600) 0%, var(--aw-purple-600) 100%)",
@@ -668,9 +668,9 @@ export default function LogosPage() {
           lead="A logo é informativa quando identifica o produto; decorativa quando reforça um cabeçalho já rotulado. Cada caso pede tratamento distinto pra screen readers."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
               <div className="aw-eyebrow">informativa</div>
-              <p className="text-sm text-[var(--fg-secondary)]">
+              <p className="text-sm text-(--fg-secondary)">
                 Quando a logo é a única identificação do produto na tela (sidebar
                 collapsed, header inicial), ela deve ter rótulo lido em voz alta.
               </p>
@@ -684,9 +684,9 @@ export default function LogosPage() {
   height={24}
 />`}</CodeExample>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
               <div className="aw-eyebrow">decorativa</div>
-              <p className="text-sm text-[var(--fg-secondary)]">
+              <p className="text-sm text-(--fg-secondary)">
                 Quando o cabeçalho já tem texto &quot;AwSales&quot; ao lado, a logo é
                 redundante para screen readers — esconda do AT.
               </p>

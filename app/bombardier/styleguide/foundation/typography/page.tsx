@@ -167,36 +167,36 @@ export default function TypographyPage() {
           lead="Duas. Carregadas via Google Fonts no layout raiz — sem CDN externo, sem FOUT. Geist é onipresente; Geist Mono é dosada."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
               <div className="aw-eyebrow">--font-sans · principal</div>
-              <div className="text-[64px] leading-none tracking-[-0.025em] font-light text-[var(--fg-primary)]">
+              <div className="text-[64px] leading-none tracking-tight font-light text-(--fg-primary)">
                 Geist
               </div>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Sans-serif geométrica com personalidade neutra. É a família
                 principal da interface — usada em <strong>tudo</strong>:
                 títulos, body, botões, navegação, números. Carregamos todos os
                 pesos (100 → 900).
               </p>
-              <code className="mono text-xs text-[var(--fg-tertiary)]">
+              <code className="mono text-xs text-(--fg-tertiary)">
                 font-family: Geist, ui-sans-serif, system-ui, …
               </code>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
               <div className="aw-eyebrow">--font-mono · auxiliar</div>
               <div
-                className="text-[64px] leading-none font-medium text-[var(--fg-primary)]"
+                className="text-[64px] leading-none font-medium text-(--fg-primary)"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 Geist Mono
               </div>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Monospace pareada. Largura constante facilita leitura técnica.
                 Use <strong>só</strong> em código, tokens (
                 <code className="mono">--accent-brand</code>), IDs,
                 timestamps e paths. <strong>Nunca</strong> em texto humano.
               </p>
-              <code className="mono text-xs text-[var(--fg-tertiary)]">
+              <code className="mono text-xs text-(--fg-tertiary)">
                 font-family: &apos;Geist Mono&apos;, ui-monospace, SF Mono, Menlo, …
               </code>
             </div>
@@ -209,24 +209,24 @@ export default function TypographyPage() {
           title="Pesos"
           lead="Carregamos toda a faixa, do mais fino ao mais grosso. A aplicabilidade fina de cada peso ainda está em definição — por enquanto, display em Light (300), body em Regular (400) e heading em Medium (500) cobrem o essencial."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-5">
               {GEIST_WEIGHTS.map((w) => (
                 <div
                   key={w.value}
-                  className="flex items-baseline justify-between gap-4 border-b border-[var(--border-subtle)] pb-3 last:border-b-0"
+                  className="flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-3 last:border-b-0"
                 >
                   <span
-                    className="text-[40px] leading-none tracking-[-0.015em] text-[var(--fg-primary)]"
+                    className="text-[40px] leading-none tracking-[-0.015em] text-(--fg-primary)"
                     style={{ fontWeight: w.value }}
                   >
                     Agent studio
                   </span>
                   <span className="shrink-0 text-right flex flex-col gap-0.5">
-                    <code className="mono text-xs text-[var(--aw-blue-700)]">
+                    <code className="mono text-xs text-(--aw-blue-700)">
                       {w.value}
                     </code>
-                    <span className="text-[11px] text-[var(--fg-tertiary)]">
+                    <span className="text-[11px] text-(--fg-tertiary)">
                       {w.name}
                     </span>
                   </span>
@@ -234,7 +234,7 @@ export default function TypographyPage() {
               ))}
             </div>
           </div>
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 mt-4 text-sm text-(--aw-blue-900)">
             Os 9 pesos estão disponíveis. Quais entram no produto, e onde, vai
             sendo decidido conforme as telas pedem.
           </div>
@@ -292,7 +292,7 @@ export default function TypographyPage() {
             ))}
           </SpecCard>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <strong>
               Headings nunca usam color decorativa — sempre{" "}
               <code className="mono">--fg-primary</code> herdado do contexto.
@@ -323,7 +323,7 @@ export default function TypographyPage() {
                 weight={b.weight}
                 use={b.use}
                 sample={
-                  <p className={`${b.name} m-0 text-[var(--fg-primary)]`}>
+                  <p className={`${b.name} m-0 text-(--fg-primary)`}>
                     A navigation sidebar é a espinha dorsal da arquitetura de
                     informação da plataforma.
                   </p>
@@ -346,19 +346,19 @@ export default function TypographyPage() {
           title="Mono"
           lead="Reservado: código, tokens, IDs, timestamps, paths, valores monoespaçados. Nunca em texto humano."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
-            <code className="mono text-[var(--mono-md-size)] bg-[var(--bg-surface)] px-3 py-2 rounded-[var(--radius-sm)] w-fit">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
+            <code className="mono text-(--mono-md-size) bg-(--bg-surface) px-3 py-2 rounded-sm w-fit">
               --accent-brand: var(--aw-blue-600);
             </code>
-            <code className="mono text-[var(--mono-sm-size)] bg-[var(--bg-surface)] px-3 py-2 rounded-[var(--radius-sm)] w-fit text-[var(--fg-secondary)]">
+            <code className="mono text-(--mono-sm-size) bg-(--bg-surface) px-3 py-2 rounded-sm w-fit text-(--fg-secondary)">
               run_id: 01HX7K9DQNP7TC4PVAFQ3GZQY3
             </code>
-            <code className="mono text-[var(--mono-sm-size)] bg-[var(--bg-surface)] px-3 py-2 rounded-[var(--radius-sm)] w-fit text-[var(--fg-secondary)]">
+            <code className="mono text-(--mono-sm-size) bg-(--bg-surface) px-3 py-2 rounded-sm w-fit text-(--fg-secondary)">
               2026-05-12T15:14:00.000Z
             </code>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec
               k="mono-md"
               v="14px · lh 1.4 · ls 0 · 500"
@@ -386,22 +386,22 @@ export default function TypographyPage() {
           lead="Duas classes globais que poupam ctrl+c/ctrl+v. Existem porque aparecem em todo lugar."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
               <div className="caption">Caption · 12px · lh 1.4</div>
-              <code className="mono text-xs text-[var(--fg-tertiary)]">
+              <code className="mono text-xs text-(--fg-tertiary)">
                 .caption
               </code>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 12 px · <code className="mono">--fg-tertiary</code> ·
                 line-height 1.4. Metadata abaixo de cards, footnotes em forms.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-3">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-3">
               <div className="aw-eyebrow">overline / eyebrow · 10px · 700</div>
-              <code className="mono text-xs text-[var(--fg-tertiary)]">
+              <code className="mono text-xs text-(--fg-tertiary)">
                 .aw-eyebrow
               </code>
-              <p className="body-sm m-0 text-[var(--fg-secondary)]">
+              <p className="body-sm m-0 text-(--fg-secondary)">
                 Uppercase, letter-spacing 0.12em, peso bold (700). Headers de
                 tabela, labels de Spec/PropRow.
               </p>
@@ -415,10 +415,10 @@ export default function TypographyPage() {
           title="Tokens"
           lead="Todos os tamanhos saem destes vars. Mudar lá muda em cascata."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">token</th>
                   <th className="pb-2 aw-eyebrow">value</th>
                 </tr>
@@ -433,12 +433,12 @@ export default function TypographyPage() {
                 ].map((t) => (
                   <tr
                     key={t.token}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
-                    <td className="py-2 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="py-2 pr-4 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {t.token}
                     </td>
-                    <td className="py-2 text-xs font-medium text-[var(--fg-primary)]">
+                    <td className="py-2 text-xs font-medium text-(--fg-primary)">
                       {t.value}
                     </td>
                   </tr>
@@ -584,19 +584,19 @@ function Principle({
   body: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
-      <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
+      <span className="text-xs text-(--fg-tertiary)">{n}</span>
+      <div className="text-sm font-medium text-(--fg-primary)">
         {title}
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }
 
 function SpecCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-6">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-col gap-6">
       {children}
     </div>
   )
@@ -622,30 +622,30 @@ function SpecRow({
   sample: React.ReactNode
 }) {
   return (
-    <div className="flex items-baseline gap-6 border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0">
+    <div className="flex items-baseline gap-6 border-b border-(--border-subtle) pb-6 last:border-b-0 last:pb-0">
       <div className="w-44 shrink-0 flex flex-col gap-0.5 pt-1">
-        <code className="mono text-xs text-[var(--fg-primary)]">{name}</code>
-        <code className="mono text-[10px] text-[var(--aw-blue-700)]">
+        <code className="mono text-xs text-(--fg-primary)">{name}</code>
+        <code className="mono text-[10px] text-(--aw-blue-700)">
           {token}
         </code>
-        <div className="mt-1.5 flex flex-col gap-0.5 text-[11px] text-[var(--fg-tertiary)] leading-tight">
+        <div className="mt-1.5 flex flex-col gap-0.5 text-[11px] text-(--fg-tertiary) leading-tight">
           <span>
-            <span className="text-[var(--fg-secondary)]">size</span> · {size}px
+            <span className="text-(--fg-secondary)">size</span> · {size}px
           </span>
           <span>
-            <span className="text-[var(--fg-secondary)]">line-height</span> ·{" "}
+            <span className="text-(--fg-secondary)">line-height</span> ·{" "}
             {leading}
           </span>
           <span>
-            <span className="text-[var(--fg-secondary)]">tracking</span> ·{" "}
+            <span className="text-(--fg-secondary)">tracking</span> ·{" "}
             {tracking}
           </span>
           <span>
-            <span className="text-[var(--fg-secondary)]">weight</span> ·{" "}
+            <span className="text-(--fg-secondary)">weight</span> ·{" "}
             {weight}
           </span>
         </div>
-        <span className="mt-1.5 text-[11px] text-[var(--fg-tertiary)]">
+        <span className="mt-1.5 text-[11px] text-(--fg-tertiary)">
           {use}
         </span>
       </div>
@@ -666,7 +666,7 @@ function UsagePattern({
   return (
     <div className="mt-4">
       {label && (
-        <div className="text-xs text-[var(--fg-tertiary)] mb-2 mono">
+        <div className="text-xs text-(--fg-tertiary) mb-2 mono">
           {label}
         </div>
       )}

@@ -37,7 +37,7 @@ export default function ConviteLinkCanceladoPage() {
             name="block"
             size={16}
             fill={1}
-            className="mt-0.5 flex-shrink-0"
+            className="mt-0.5 shrink-0"
           />
           <span>
             Este convite foi removido pela organização e não pode mais ser

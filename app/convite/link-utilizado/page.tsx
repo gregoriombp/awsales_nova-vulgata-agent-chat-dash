@@ -38,7 +38,7 @@ export default function ConviteLinkUtilizadoPage() {
           <Icon
             name="lock"
             size={16}
-            className="mt-0.5 flex-shrink-0 text-fg-tertiary"
+            className="mt-0.5 shrink-0 text-fg-tertiary"
           />
           <span>
             Por segurança, cada convite só pode ser aberto uma vez — assim

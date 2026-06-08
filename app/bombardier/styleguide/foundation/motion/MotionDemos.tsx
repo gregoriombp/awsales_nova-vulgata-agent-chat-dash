@@ -22,17 +22,17 @@ export function DurationProbe() {
         {cases.map((c) => (
           <div
             key={c.name}
-            className="flex items-center gap-4 p-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]"
+            className="flex items-center gap-4 p-4 rounded-md border border-(--border-subtle) bg-(--bg-raised)"
           >
             <div className="min-w-[140px]">
-              <div className="mono text-sm text-[var(--fg-primary)]">
+              <div className="mono text-sm text-(--fg-primary)">
                 {c.name}
               </div>
-              <div className="text-xs text-[var(--fg-tertiary)]">
+              <div className="text-xs text-(--fg-tertiary)">
                 {c.value}
               </div>
             </div>
-            <div className="flex-1 relative h-6 rounded-full bg-[var(--bg-muted)] overflow-hidden">
+            <div className="flex-1 relative h-6 rounded-full bg-(--bg-muted) overflow-hidden">
               <div
                 style={{
                   position: "absolute",
@@ -72,17 +72,17 @@ export function EasingProbe() {
         {cases.map((c) => (
           <div
             key={c.name}
-            className="flex items-center gap-4 p-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]"
+            className="flex items-center gap-4 p-4 rounded-md border border-(--border-subtle) bg-(--bg-raised)"
           >
             <div className="min-w-[150px]">
-              <div className="mono text-sm text-[var(--fg-primary)]">
+              <div className="mono text-sm text-(--fg-primary)">
                 {c.name}
               </div>
-              <div className="mono text-[10px] text-[var(--fg-tertiary)]">
+              <div className="mono text-[10px] text-(--fg-tertiary)">
                 {c.value}
               </div>
             </div>
-            <div className="flex-1 relative h-12 rounded-full bg-[var(--bg-muted)]">
+            <div className="flex-1 relative h-12 rounded-full bg-(--bg-muted)">
               <div
                 style={{
                   position: "absolute",
@@ -106,13 +106,13 @@ export function EasingProbe() {
 
 export function ThinkingPulse() {
   return (
-    <div className="flex items-center gap-3 p-4 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] max-w-[320px]">
+    <div className="flex items-center gap-3 p-4 rounded-md border border-(--border-subtle) bg-(--bg-raised) max-w-[320px]">
       <span
         className="aw-pill aw-pill--ai"
       >
         <span className="aw-pill__dot" /> Pensando
       </span>
-      <span className="text-sm text-[var(--fg-secondary)]">
+      <span className="text-sm text-(--fg-secondary)">
         — 2.2 s loop
       </span>
     </div>

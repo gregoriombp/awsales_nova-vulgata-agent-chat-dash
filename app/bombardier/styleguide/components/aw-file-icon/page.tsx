@@ -39,14 +39,14 @@ export default function FileIconPage() {
         e por aí vai.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
-        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mb-10 text-sm text-[var(--aw-blue-900)]">
+        <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mb-10 text-sm text-(--aw-blue-900)">
           <strong>AwFileIcon vs AwBrandLogo.</strong> Use{" "}
           <code className="mono">AwFileIcon</code> para representar formato de
           arquivo (PDF, XLS, JSON…). Para meios de pagamento (Pix, boleto,
           cartão) e marcas de terceiros (Stripe, WhatsApp…), use{" "}
           <a
             href="/bombardier/styleguide/components/brand-logo"
-            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+            className="underline underline-offset-2 hover:text-(--aw-blue-700)"
           >
             AwBrandLogo
           </a>
@@ -105,14 +105,14 @@ export default function FileIconPage() {
               {ATTACHMENTS.map((f) => (
                 <div
                   key={f.name}
-                  className="flex w-full max-w-[420px] items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2.5"
+                  className="flex w-full max-w-[420px] items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-surface) p-2.5"
                 >
                   <AwFileIcon ext={f.ext} size="md" />
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-[var(--fg-primary)]">
+                    <div className="truncate text-sm font-medium text-(--fg-primary)">
                       {f.name}
                     </div>
-                    <div className="text-xs text-[var(--fg-tertiary)]">
+                    <div className="text-xs text-(--fg-tertiary)">
                       {f.meta}
                     </div>
                   </div>
@@ -144,7 +144,7 @@ export default function FileIconPage() {
               ].map((file) => (
                 <div
                   key={file}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                 >
                   <AwFileIcon ext={file} size="md" />
                   <span className="mono">{file}</span>
@@ -161,11 +161,11 @@ export default function FileIconPage() {
             title="Registry"
             lead={`${AW_FILE_ICON_REGISTRY.length} tipos disponíveis. Para adicionar, edite o objeto TYPES em components/ui/AwFileIcon.tsx — uma entrada (id → bg + mark inline).`}
           >
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               {AW_FILE_ICON_REGISTRY.map((id) => (
                 <div
                   key={id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                 >
                   <AwFileIcon type={id} size="md" />
                   <span className="mono">{id}</span>
@@ -179,7 +179,7 @@ export default function FileIconPage() {
             title="Anatomia"
             lead="Tile + glifo. Cor do tile usa tokens da paleta AwSales (var(--aw-red-600), var(--aw-emerald-600)…) — nada de hex hardcoded. Glifo interno sempre branco."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec k="tile sm" v="32 × 32 px" d="Glifo: ~55% do tile" />
               <Spec k="tile md" v="40 × 40 px" d="Default. glifo: ~22px" />
               <Spec k="tile lg" v="56 × 56 px" d="Glifo: ~31px" />

@@ -23,7 +23,7 @@ export default function UxFlowIndex() {
   const totalScreens = FLOW_META.reduce((sum, f) => sum + f.screens, 0)
 
   return (
-    <main className="min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
+    <main className="min-h-screen bg-(--bg-canvas) text-(--fg-primary)">
       <div className="max-w-5xl mx-auto px-8 py-16">
         <Link href="/bombardier" className="no-underline">
           <AwButton variant="ghost" size="sm" iconLeft="arrow_back">
@@ -34,7 +34,7 @@ export default function UxFlowIndex() {
         <header className="mt-6 mb-10">
           <p className="aw-eyebrow mb-3">UX Flow</p>
           <h1 className="text-5xl font-semibold tracking-tight mb-3">Fluxos</h1>
-          <p className="text-lg text-[var(--fg-secondary)] max-w-2xl">
+          <p className="text-lg text-(--fg-secondary) max-w-2xl">
             Cada fluxo conecta as telas do produto num mapa navegável, estilo Figma
             prototype. Abra um pra explorar, comentar ou sugerir mudanças.
           </p>
@@ -65,7 +65,7 @@ export default function UxFlowIndex() {
                   >
                     <div className="flex items-start justify-between">
                       <span
-                        className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)]"
+                        className="inline-flex items-center justify-center rounded-md bg-(--bg-surface)"
                         style={{ width: 44, height: 44 }}
                       >
                         <Icon name="account_tree" size={24} />
@@ -74,12 +74,12 @@ export default function UxFlowIndex() {
                     </div>
                     <div className="flex flex-col gap-1">
                       <h3 className="text-xl font-semibold">{f.title}</h3>
-                      <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">
+                      <p className="text-sm text-(--fg-secondary) leading-relaxed">
                         {f.description}
                       </p>
                     </div>
                     <div className="mt-auto pt-2 flex items-center justify-between gap-3">
-                      <span className="inline-flex items-center gap-1.5 text-[11px] text-[var(--fg-tertiary)]">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] text-(--fg-tertiary)">
                         <Icon name="schedule" size={13} />
                         Atualizado em {formatDate(f.updatedAt)}
                       </span>

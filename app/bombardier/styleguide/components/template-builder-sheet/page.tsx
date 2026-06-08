@@ -113,7 +113,7 @@ export default function TemplateBuilderSheetPage() {
               lead="Valor que o componente devolveu pelo onSaveDraft / onSubmit (útil pra debug do contrato)."
             >
               <Stage label="Returned payload">
-                <pre className="m-0 max-h-[280px] w-full overflow-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 font-mono text-[12px] text-[var(--fg-secondary)]">
+                <pre className="m-0 max-h-[280px] w-full overflow-auto rounded-md border border-(--border-subtle) bg-(--bg-canvas) p-4 font-mono text-[12px] text-(--fg-secondary)">
                   {JSON.stringify(lastSaved, null, 2)}
                 </pre>
               </Stage>

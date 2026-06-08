@@ -49,14 +49,14 @@ const sections: HubSection[] = [
 
 export default function BombardierHub() {
   return (
-    <main className="min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
+    <main className="min-h-screen bg-(--bg-canvas) text-(--fg-primary)">
       <div className="max-w-5xl mx-auto px-8 py-16">
         <header className="mb-12">
           <p className="aw-eyebrow mb-3">Product Builder Platform</p>
           <h1 className="text-5xl font-semibold tracking-tight mb-3">
             Bombardier
           </h1>
-          <p className="text-lg text-[var(--fg-secondary)] max-w-2xl">
+          <p className="text-lg text-(--fg-secondary) max-w-2xl">
             Crie páginas e flows direto no código, reutilizando o design system
             — sem passar pelo Figma.
           </p>
@@ -75,7 +75,7 @@ export default function BombardierHub() {
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
                 <span
-                  className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-white/10"
+                  className="inline-flex items-center justify-center rounded-md bg-white/10"
                   style={{ width: 52, height: 52 }}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -86,7 +86,7 @@ export default function BombardierHub() {
                   />
                 </span>
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-2xl font-semibold tracking-tight text-[var(--fg-on-inverse)]">
+                  <h2 className="text-2xl font-semibold tracking-tight text-(--fg-on-inverse)">
                     AwSales
                   </h2>
                   <p className="text-sm text-white/70 leading-relaxed max-w-xl">
@@ -121,12 +121,12 @@ export default function BombardierHub() {
               <AwCard
                 key={s.title}
                 interactive={ready}
-                className="p-6 flex flex-col gap-4 bg-[var(--bg-raised)]"
+                className="p-6 flex flex-col gap-4 bg-(--bg-raised)"
                 style={{ borderRadius: "var(--radius-2xl)" }}
               >
                 <div className="flex items-start justify-between">
                   <span
-                    className="inline-flex items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)]"
+                    className="inline-flex items-center justify-center rounded-md bg-(--bg-surface)"
                     style={{ width: 44, height: 44 }}
                   >
                     <Icon name={s.icon} size={24} />
@@ -135,7 +135,7 @@ export default function BombardierHub() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <h2 className="text-xl font-semibold">{s.title}</h2>
-                  <p className="text-sm text-[var(--fg-secondary)] leading-relaxed">
+                  <p className="text-sm text-(--fg-secondary) leading-relaxed">
                     {s.description}
                   </p>
                 </div>

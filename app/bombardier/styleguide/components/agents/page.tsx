@@ -155,7 +155,7 @@ export default function AgentsPage() {
                 {AGENT_CORES.map((c) => (
                   <div
                     key={c.n}
-                    className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                    className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                   >
                     <AwAgentCore src={agentCoreSrc(c.n)} alt={c.label} size={88} />
                     <span className="mono">{c.label}</span>
@@ -165,7 +165,7 @@ export default function AgentsPage() {
               <p className="caption m-0">
                 Anatomia, tamanhos e API em{" "}
                 <a
-                  className="underline text-[var(--aw-blue-700)]"
+                  className="underline text-(--aw-blue-700)"
                   href="/bombardier/styleguide/components/agent-core"
                 >
                   Agent Core →
@@ -191,7 +191,7 @@ export default function AgentsPage() {
                   Cada agente é um círculo animado. Veja ao vivo, os estados e a
                   regra de cor em{" "}
                   <a
-                    className="underline text-[var(--aw-blue-700)]"
+                    className="underline text-(--aw-blue-700)"
                     href="/bombardier/styleguide/components/user-agent"
                   >
                     Agente do Usuário →
@@ -203,7 +203,7 @@ export default function AgentsPage() {
                 {USER_AGENTS.map((u) => (
                   <div
                     key={u.seed}
-                    className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                    className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                   >
                     <AwUserAgentOrbStatic seed={u.seed} size={88} />
                     <span className="mono">{u.label}</span>
@@ -221,7 +221,7 @@ export default function AgentsPage() {
             <Stage
               label="Cortex · idle, sempre ativo"
               hint="Renderizado pelo componente AwCopilotOrb — máscara SVG sharp + shader Synthesis."
-              gridClassName="flex items-center justify-center gap-10 bg-[var(--bg-canvas)]"
+              gridClassName="flex items-center justify-center gap-10 bg-(--bg-canvas)"
             >
               <AwCopilotOrb size={56} />
               <AwCopilotOrb size={88} />
@@ -243,28 +243,28 @@ export default function AgentsPage() {
               {CORTEX_STATES.map((s) => (
                 <div
                   key={s.state}
-                  className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4"
+                  className="flex flex-col gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4"
                 >
                   <div className="flex items-center justify-center py-2">
                     <AwCopilotOrb size={120} state={s.state} />
                   </div>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                      <code className="mono text-[11px] text-[var(--aw-blue-700)]">
+                      <code className="mono text-[11px] text-(--aw-blue-700)">
                         state=&quot;{s.state}&quot;
                       </code>
                     </div>
-                    <div className="text-sm font-medium text-[var(--fg-primary)]">
+                    <div className="text-sm font-medium text-(--fg-primary)">
                       {s.label}
                     </div>
                     <p className="caption m-0">
-                      <strong className="text-[var(--fg-secondary)]">
+                      <strong className="text-(--fg-secondary)">
                         Dispara:
                       </strong>{" "}
                       {s.trigger}
                     </p>
                     <p className="caption m-0">
-                      <strong className="text-[var(--fg-secondary)]">
+                      <strong className="text-(--fg-secondary)">
                         Sensação:
                       </strong>{" "}
                       {s.feel}
@@ -274,10 +274,10 @@ export default function AgentsPage() {
               ))}
             </Stage>
 
-            <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+            <div className="mt-6 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
               <p className="caption m-0 mb-4">
-                <strong className="text-[var(--fg-secondary)]">Standard:</strong>{" "}
-                <code className="mono text-[11px] text-[var(--fg-tertiary)]">
+                <strong className="text-(--fg-secondary)">Standard:</strong>{" "}
+                <code className="mono text-[11px] text-(--fg-tertiary)">
                   scale 2.8 · complexity 8 · distortion 1.6 · glow 0 · flow 2 · contrast 1.0
                 </code>
                 . Estados variam só o que precisa pra comunicar o ciclo — o
@@ -285,7 +285,7 @@ export default function AgentsPage() {
               </p>
               <table className="w-full text-left">
                 <thead>
-                  <tr className="border-b border-[var(--border-subtle)]">
+                  <tr className="border-b border-(--border-subtle)">
                     <th className="pb-2 aw-eyebrow">state</th>
                     <th className="pb-2 aw-eyebrow">speed</th>
                     <th className="pb-2 aw-eyebrow">complex</th>
@@ -304,34 +304,34 @@ export default function AgentsPage() {
                     return (
                       <tr
                         key={s.state}
-                        className="border-b border-[var(--border-subtle)] last:border-b-0 align-middle"
+                        className="border-b border-(--border-subtle) last:border-b-0 align-middle"
                       >
-                        <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
                           {s.state}
                         </td>
-                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                           {p.speed}
                         </td>
-                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                           {p.complexity}
                         </td>
-                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                           {p.distortion}
                         </td>
-                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                           {p.flowFrequency}
                         </td>
-                        <td className="py-3 pr-4 mono text-xs text-[var(--fg-secondary)] whitespace-nowrap">
+                        <td className="py-3 pr-4 mono text-xs text-(--fg-secondary) whitespace-nowrap">
                           {p.glowIntensity}
                         </td>
                         {[p.color1, p.color2, p.color3, p.bg].map((c, i) => (
                           <td key={`${s.state}-c-${i}`} className="py-3 pr-4 whitespace-nowrap">
                             <span className="inline-flex items-center gap-2">
                               <span
-                                className="inline-block w-4 h-4 rounded-sm border border-[var(--border-subtle)]"
+                                className="inline-block w-4 h-4 rounded-sm border border-(--border-subtle)"
                                 style={{ backgroundColor: c }}
                               />
-                              <code className="mono text-[11px] text-[var(--fg-tertiary)]">
+                              <code className="mono text-[11px] text-(--fg-tertiary)">
                                 {c}
                               </code>
                             </span>
@@ -491,7 +491,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="aw-eyebrow">Agent Core</div>
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
-                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                       <AwAgentCore src={agentCoreSrc(1)} alt={`Core ${s.label}`} size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
@@ -503,7 +503,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="aw-eyebrow">Agente do Usuário</div>
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
-                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                       <AwUserAgentOrbStatic seed="agent-01" size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
@@ -515,7 +515,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="aw-eyebrow">Cortex</div>
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
-                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+                    <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                       <AwCopilotOrb size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
@@ -524,7 +524,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
               </div>
             </Stage>
 
-            <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+            <div className="mt-6 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
               {SIZE_SCALE.map((s) => (
                 <Spec key={s.key} k={s.label} v={`${s.px}px`} d={s.note} />
               ))}
@@ -537,15 +537,15 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             lead="Cada visual tem um lugar canônico na interface. A consistência ensina o usuário a ler a hierarquia."
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <AwAgentCore src={agentCoreSrc(3)} alt="Agent Core" size={48} />
                   <div>
-                    <div className="text-sm font-medium text-[var(--fg-primary)]">Agent Core</div>
+                    <div className="text-sm font-medium text-(--fg-primary)">Agent Core</div>
                     <div className="caption">Infraestrutura proprietária</div>
                   </div>
                 </div>
-                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
+                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-secondary)">
                   <li>Catálogo de Cores disponíveis no workspace.</li>
                   <li>Indicador de qual Core está ativo numa execução.</li>
                   <li>Diagrama de arquitetura do agente do usuário.</li>
@@ -553,15 +553,15 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 </ul>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <AwUserAgentOrbStatic seed="agent-03" size={48} />
                   <div>
-                    <div className="text-sm font-medium text-[var(--fg-primary)]">Agente do Usuário</div>
+                    <div className="text-sm font-medium text-(--fg-primary)">Agente do Usuário</div>
                     <div className="caption">Customizável pelo usuário</div>
                   </div>
                 </div>
-                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
+                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-secondary)">
                   <li>Avatar do agente na lista de agentes do workspace.</li>
                   <li>Identidade no header da conversa com o agente.</li>
                   <li>No fluxo de criação — ao lado do Agent Core escolhido.</li>
@@ -569,15 +569,15 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 </ul>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 flex flex-col gap-4">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
                   <AwCopilotOrb size={48} />
                   <div>
-                    <div className="text-sm font-medium text-[var(--fg-primary)]">Cortex</div>
+                    <div className="text-sm font-medium text-(--fg-primary)">Cortex</div>
                     <div className="caption">Cérebro do sistema</div>
                   </div>
                 </div>
-                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
+                <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-secondary)">
                   <li>Sempre presente no canto direito do topbar.</li>
                   <li>Header do drawer / painel do copilot.</li>
                   <li>Estado de raciocínio durante uma execução do agente.</li>
@@ -592,7 +592,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
             title="Anatomia"
             lead="As três peças coexistem na mesma tela. A combinação shape + tratamento (estático × animado) é a regra que separa cada categoria."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="Agent Core"
                 v="diamante · colorido · estático"

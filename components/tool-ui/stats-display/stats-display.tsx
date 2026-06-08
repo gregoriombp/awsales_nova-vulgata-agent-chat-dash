@@ -239,9 +239,9 @@ export function StatsDisplay({
         className,
       )}
     >
-      <Card className={cn("overflow-clip !pb-0 !pt-2", hasHeader && "!gap-0")}>
+      <Card className={cn("overflow-clip pb-0! pt-2!", hasHeader && "gap-0!")}>
         {hasHeader && (
-          <CardHeader className="border-b border-border !pt-3 !pb-4">
+          <CardHeader className="border-b border-border pt-3! pb-4!">
             {title && <CardTitle className="text-pretty">{title}</CardTitle>}
             {description && (
               <CardDescription className="text-pretty">

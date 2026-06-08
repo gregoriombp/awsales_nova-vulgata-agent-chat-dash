@@ -120,7 +120,7 @@ export default function IntegrationCardPage() {
             title="Anatomia"
             lead="Anatomia rígida — alterar slots quebra o reconhecimento."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <Spec k="container" v="AwCard interactive" d="Card padrão; ganha cursor/role=button quando há onClick." />
               <Spec k="header" v="logo + heading" d="Logo (lg) à esquerda; nome + domínio à direita." />
               <Spec k="logo" v="AwBrandLogo size=lg, bare" d="Sem tile/background — usa o asset bruto." />

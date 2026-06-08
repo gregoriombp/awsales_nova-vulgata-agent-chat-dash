@@ -453,17 +453,17 @@ function slugify(value: string): string {
 function typeColor(t: FieldType): string {
   switch (t) {
     case "datetime":
-      return "text-[var(--accent-brand)]";
+      return "text-(--accent-brand)";
     case "number":
-      return "text-[var(--accent-success)]";
+      return "text-(--accent-success)";
     case "enum":
-      return "text-[var(--accent-warning)]";
+      return "text-(--accent-warning)";
     case "array":
     case "object":
-      return "text-[var(--fg-secondary)]";
+      return "text-(--fg-secondary)";
     case "string":
     default:
-      return "text-[var(--fg-tertiary)]";
+      return "text-(--fg-tertiary)";
   }
 }
 
@@ -496,9 +496,9 @@ function CopyButton({ value, label = "Copiar" }: { value: string; label?: string
 
 function FieldRow({ field }: { field: SchemaField }) {
   return (
-    <li className="flex flex-col gap-1.5 border-t border-[var(--border-subtle)] py-3.5 first:border-t-0">
+    <li className="flex flex-col gap-1.5 border-t border-(--border-subtle) py-3.5 first:border-t-0">
       <div className="flex flex-wrap items-center gap-2">
-        <code className="mono-sm font-medium text-[var(--fg-primary)]">
+        <code className="mono-sm font-medium text-(--fg-primary)">
           {field.name}
         </code>
         {field.required ? (
@@ -519,7 +519,7 @@ function FieldRow({ field }: { field: SchemaField }) {
           {field.type}
         </span>
       </div>
-      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+      <p className="m-0 body-xs text-(--fg-secondary)">
         {field.description}
       </p>
       {field.values && (
@@ -527,7 +527,7 @@ function FieldRow({ field }: { field: SchemaField }) {
           {field.values.map((v) => (
             <code
               key={v}
-              className="rounded-md border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-1.5 py-0.5 mono-sm text-[var(--fg-secondary)]"
+              className="rounded-md border border-(--border-subtle) bg-(--bg-canvas) px-1.5 py-0.5 mono-sm text-(--fg-secondary)"
             >
               {v}
             </code>
@@ -546,7 +546,7 @@ function FieldRow({ field }: { field: SchemaField }) {
 function SchemaGroupBlock({ group }: { group: SchemaGroup }) {
   return (
     <section aria-label={group.title} className="mt-7 first:mt-0">
-      <h6 className="m-0 mb-2 body-sm font-medium text-[var(--fg-primary)]">
+      <h6 className="m-0 mb-2 body-sm font-medium text-(--fg-primary)">
         {group.title}
       </h6>
       <ul className="m-0 list-none p-0">
@@ -566,7 +566,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
         ? "var(--accent-warning)"
         : "var(--accent-danger)";
   return (
-    <li className="flex items-start gap-3 border-t border-[var(--border-subtle)] py-3 first:border-t-0">
+    <li className="flex items-start gap-3 border-t border-(--border-subtle) py-3 first:border-t-0">
       <span
         className="mt-0.5 inline-flex min-w-[44px] justify-center rounded-md px-1.5 py-0.5 mono-sm font-medium"
         style={{
@@ -576,7 +576,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
       >
         {entry.code}
       </span>
-      <span className="body-xs text-[var(--fg-secondary)]">
+      <span className="body-xs text-(--fg-secondary)">
         {entry.description}
       </span>
     </li>
@@ -586,7 +586,7 @@ function StatusCodeRow({ entry }: { entry: StatusCode }) {
 function CodeBlock({ value }: { value: string }) {
   return (
     <div className="relative">
-      <pre className="m-0 max-h-[520px] overflow-auto rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 mono-sm text-[var(--fg-secondary)]">
+      <pre className="m-0 max-h-[520px] overflow-auto rounded-lg border border-(--border-subtle) bg-(--bg-canvas) p-4 mono-sm text-(--fg-secondary)">
         <code>{value}</code>
       </pre>
       <div className="absolute right-3 top-3">
@@ -629,16 +629,16 @@ export default function CustomCheckoutIntegrationPage() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+      <div className="-m-8 min-h-full bg-(--bg-canvas)">
         <div className="w-full px-10 pt-10 pb-32">
           {/* Header */}
-          <header className="mb-8 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
+          <header className="mb-8 flex items-end justify-between gap-6 border-b border-(--border-subtle) pb-6">
             <div>
-              <h4 className="m-0 mb-1.5 flex items-center gap-2.5 text-[var(--fg-primary)]">
+              <h4 className="m-0 mb-1.5 flex items-center gap-2.5 text-(--fg-primary)">
                 <Icon name="webhook" size={26} />
                 Integração personalizada
               </h4>
-              <p className="m-0 max-w-[640px] body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 max-w-[640px] body-sm text-(--fg-secondary)">
                 Conecte qualquer checkout via webhook. Defina um nome único, gere
                 o endpoint e envie eventos de transação no formato esperado pelo
                 AwSales.
@@ -759,7 +759,7 @@ export default function CustomCheckoutIntegrationPage() {
                     <p className="aw-card__description">
                       Inclui campos opcionais — recomendado para relatórios
                       detalhados. Substitua{" "}
-                      <code className="mono-sm text-[var(--fg-primary)]">
+                      <code className="mono-sm text-(--fg-primary)">
                         {ORG_ID_PLACEHOLDER}
                       </code>{" "}
                       pela ID da sua organização antes de testar.
@@ -786,7 +786,7 @@ export default function CustomCheckoutIntegrationPage() {
           </div>
 
           {/* Footer actions */}
-          <footer className="mt-10 flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] pt-6">
+          <footer className="mt-10 flex items-center justify-end gap-2 border-t border-(--border-subtle) pt-6">
             <AwButton
               variant="secondary"
               size="md"

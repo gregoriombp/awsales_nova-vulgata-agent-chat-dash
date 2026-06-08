@@ -57,7 +57,7 @@ function StepMarker({
   }
   if (status === "current") {
     return (
-      <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-[0_0_0_4px_var(--bg-raised)]">
+      <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) shadow-[0_0_0_4px_var(--bg-raised)]">
         <span className="text-[13px] font-semibold tabular-nums">
           {index + 1}
         </span>
@@ -65,7 +65,7 @@ function StepMarker({
     )
   }
   return (
-    <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full border border-[var(--border-default)] bg-[var(--bg-raised)] text-[var(--fg-tertiary)] shadow-[0_0_0_4px_var(--bg-raised)]">
+    <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full border border-(--border-default) bg-(--bg-raised) text-(--fg-tertiary) shadow-[0_0_0_4px_var(--bg-raised)]">
       <span className="text-[13px] font-medium tabular-nums">{index + 1}</span>
     </span>
   )
@@ -97,14 +97,14 @@ function StepRow({
         className={cn(
           "group flex w-full items-center justify-between gap-3 rounded-md text-left",
           "transition-colors",
-          isDone ? "text-[var(--fg-tertiary)]" : "text-[var(--fg-primary)]",
+          isDone ? "text-(--fg-tertiary)" : "text-(--fg-primary)",
         )}
         aria-expanded={isExpanded}
       >
         <span
           className={cn(
             "min-h-8 flex items-center body-md font-medium leading-tight",
-            isDone && "line-through decoration-[var(--border-default)]",
+            isDone && "line-through decoration-(--border-default)",
           )}
         >
           {step.title}
@@ -113,7 +113,7 @@ function StepRow({
           name="chevron_right"
           size={20}
           className={cn(
-            "shrink-0 text-[var(--fg-tertiary)] transition-all duration-200 group-hover:text-[var(--fg-primary)]",
+            "shrink-0 text-(--fg-tertiary) transition-all duration-200 group-hover:text-(--fg-primary)",
             isExpanded ? "rotate-90 opacity-0" : "rotate-0 opacity-100",
           )}
         />
@@ -144,14 +144,14 @@ function StepRow({
             }}
           >
             {step.description && (
-              <p className="m-0 max-w-[520px] body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 max-w-[520px] body-sm text-(--fg-secondary)">
                 {step.description}
                 {step.helpLink && (
                   <>
                     {" "}
                     <a
                       href={step.helpLink.href}
-                      className="text-[var(--fg-primary)] underline decoration-[var(--border-default)] underline-offset-2 transition-colors hover:decoration-[var(--fg-primary)]"
+                      className="text-(--fg-primary) underline decoration-(--border-default) underline-offset-2 transition-colors hover:decoration-(--fg-primary)"
                     >
                       {step.helpLink.label}
                     </a>
@@ -214,14 +214,14 @@ export function AwOnboardingTimeline({
 
   return (
     <section className={cn("flex flex-col gap-6", className)}>
-      <h2 className="m-0 text-[length:var(--h2-size)] font-semibold leading-[1.15] tracking-[-0.02em] text-[var(--fg-primary)]">
+      <h2 className="m-0 text-(length:--h2-size) font-semibold leading-[1.15] tracking-[-0.02em] text-(--fg-primary)">
         {title}
       </h2>
 
       {eyebrow && (
-        <div className="flex items-center gap-3 text-[var(--fg-secondary)]">
-          <span className="grid h-5 w-5 place-items-center rounded-full border border-[var(--border-default)]" />
-          <span className="body-sm font-medium text-[var(--fg-primary)]">
+        <div className="flex items-center gap-3 text-(--fg-secondary)">
+          <span className="grid h-5 w-5 place-items-center rounded-full border border-(--border-default)" />
+          <span className="body-sm font-medium text-(--fg-primary)">
             {eyebrow}
           </span>
         </div>
@@ -233,11 +233,11 @@ export function AwOnboardingTimeline({
           preview && "lg:grid-cols-[minmax(0,1fr)_minmax(0,360px)]",
         )}
       >
-        <div className="flex min-h-[560px] flex-col rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 md:p-10">
+        <div className="flex min-h-[560px] flex-col rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 md:p-10">
           <ol className="relative m-0 list-none p-0">
             <span
               aria-hidden
-              className="absolute left-4 top-4 bottom-4 w-px -translate-x-px bg-[var(--border-subtle)]"
+              className="absolute left-4 top-4 bottom-4 w-px -translate-x-px bg-(--border-subtle)"
             />
             {steps.map((step, index) => (
               <StepRow
@@ -257,7 +257,7 @@ export function AwOnboardingTimeline({
 
         {preview && (
           <div className="hidden lg:flex lg:items-stretch lg:pl-6">
-            <div className="flex w-full overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <div className="flex w-full overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-surface)">
               <div className="flex h-full w-full flex-col">{preview}</div>
             </div>
           </div>

@@ -65,7 +65,7 @@ export default function InputsPage() {
           title="Field (input + label + helper/erro)"
           lead="AwField é o padrão para formulários — label sempre acima, erro ou helper abaixo."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[760px]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[760px]">
             <AwField
               label="Nome do agente"
               htmlFor="agent-name"
@@ -115,7 +115,7 @@ export default function InputsPage() {
         <Section
           id="states"
           title="Estados"
-          lead="Focus ring: 3px rgba(71,138,255,.18). Erro substitui borda por --aw-red-700 e muda o ring para vermelho."
+          lead="Focus ring-3: 3px rgba(71,138,255,.18). Erro substitui borda por --aw-red-700 e muda o ring-3 para vermelho."
         >
           <Stage
             label="Default · focus · invalid · disabled"
@@ -147,7 +147,7 @@ export default function InputsPage() {
           title="Anatomia"
           lead="Todos os valores vêm de tokens em globals.css."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="altura"
               v="default 42 · dense 34"
@@ -159,7 +159,7 @@ export default function InputsPage() {
               d="Mesmo dos botões por alinhamento visual."
             />
             <Spec
-              k="focus ring"
+              k="focus ring-3"
               v="3 px rgba(71,138,255,.18)"
               d="Vermelho 18% quando invalid."
             />
@@ -186,7 +186,7 @@ export default function InputsPage() {
           title="API"
           lead={`Import: import { AwInput, AwField } from "@/components/ui/AwInput".`}
         >
-          <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
             AwInput
           </h3>
           <ApiTable>
@@ -199,7 +199,7 @@ export default function InputsPage() {
               prop="invalid"
               type="boolean"
               def="false"
-              doc="Borda e ring vermelhos. Usar junto com Field.error."
+              doc="Borda e ring-3 vermelhos. Usar junto com Field.error."
             />
             <PropRow
               prop="dense"
@@ -220,7 +220,7 @@ export default function InputsPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwField
           </h3>
           <ApiTable>
@@ -247,7 +247,7 @@ export default function InputsPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             Modificadores booleanos (<code className="mono">invalid</code>,{" "}
             <code className="mono">dense</code>) viram tokens na{" "}
             <code className="mono">className</code>; props com valor (

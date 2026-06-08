@@ -4,7 +4,7 @@ import { PageHero, Section } from "../../_primitives"
 
 function Kbd({ children }: { children: React.ReactNode }) {
   return (
-    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] text-[var(--fg-primary)] text-[11px] mx-0.5">
+    <kbd className="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-(--bg-muted) border border-(--border-subtle) text-(--fg-primary) text-[11px] mx-0.5">
       {children}
     </kbd>
   )
@@ -21,14 +21,14 @@ function Step({
 }) {
   return (
     <li className="flex gap-4">
-      <span className="shrink-0 h-7 w-7 rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] text-xs font-semibold inline-flex items-center justify-center">
+      <span className="shrink-0 h-7 w-7 rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) text-xs font-semibold inline-flex items-center justify-center">
         {number}
       </span>
       <div className="flex-1">
-        <h3 className="m-0 text-base font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 text-base font-semibold text-(--fg-primary)">
           {title}
         </h3>
-        <p className="mt-1 mb-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+        <p className="mt-1 mb-0 text-sm text-(--fg-secondary) leading-relaxed">
           {children}
         </p>
       </div>
@@ -50,20 +50,20 @@ export default function ReviewModeFoundationPage() {
         title="Como ativar"
         lead="O Review Mode fica sempre montado — sem env flag. Ele se auto-gateia pelo estado do store, então é só abrir."
       >
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-4">
+        <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-4">
           <div className="flex items-start gap-3">
             <Icon
               name="draw"
               size={20}
-              className="text-[var(--fg-tertiary)] mt-0.5"
+              className="text-(--fg-tertiary) mt-0.5"
             />
-            <p className="m-0 text-sm text-[var(--fg-secondary)]">
+            <p className="m-0 text-sm text-(--fg-secondary)">
               Abra a <strong>bolota do Bombardier</strong> (canto inferior) e
               escolha <strong>Entrar no Review Mode</strong> — ou aperte{" "}
               <Kbd>⌘</Kbd>+<Kbd>⇧</Kbd>+<Kbd>Y</Kbd>. Sem env flag, sem rebuild.
             </p>
           </div>
-          <p className="m-0 text-sm text-[var(--fg-secondary)]">
+          <p className="m-0 text-sm text-(--fg-secondary)">
             Pra sincronizar com o time na LAN, suba o servidor com{" "}
             <code className="font-mono text-xs">npm run review-bridge</code> e
             sete <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL</code>{" "}
@@ -116,16 +116,16 @@ export default function ReviewModeFoundationPage() {
         lead="Quando o time inteiro está no escritório, suba o review-bridge na sua máquina e os comentários aparecem em tempo real no navegador de cada um. Sem internet, sem cloud."
       >
         <div className="flex flex-col gap-5">
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-3">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <AwPill variant="ai" dot={false}>
                 Servidor
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 review-bridge/
               </span>
             </div>
-            <ol className="list-decimal pl-5 m-0 text-sm text-[var(--fg-secondary)] space-y-1.5 leading-relaxed">
+            <ol className="list-decimal pl-5 m-0 text-sm text-(--fg-secondary) space-y-1.5 leading-relaxed">
               <li>
                 <code className="font-mono text-xs">npm run review-bridge:install</code>{" "}
                 (uma vez).
@@ -162,24 +162,24 @@ export default function ReviewModeFoundationPage() {
             </ol>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-3">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
             <div className="flex items-center gap-2">
               <AwPill variant="beta" dot={false}>
                 Frontend
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 .env.local
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)]">
+            <p className="m-0 text-sm text-(--fg-secondary)">
               Seta as duas vars abaixo e o overlay troca automaticamente do
               localStorage pro bridge. Apague pra voltar pro modo local.
             </p>
-            <pre className="m-0 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] border border-[var(--border-subtle)] p-3 text-[12px] font-mono whitespace-pre-wrap">
+            <pre className="m-0 rounded-sm bg-(--bg-muted) border border-(--border-subtle) p-3 text-[12px] font-mono whitespace-pre-wrap">
               {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://<hostname>.local:9878
 NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
             </pre>
-            <p className="m-0 text-xs text-[var(--fg-tertiary)] flex items-start gap-1.5">
+            <p className="m-0 text-xs text-(--fg-tertiary) flex items-start gap-1.5">
               <Icon name="info" size={13} className="mt-0.5" />
               <span>
                 Se você já tinha comentários no localStorage, o overlay
@@ -189,16 +189,16 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
             </p>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
             <div className="flex items-center gap-2">
               <AwPill variant="error" dot={false}>
                 Segurança
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 LAN-only, não exponha pra internet
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
               Auth é só um token compartilhado em header (
               <code className="font-mono text-xs">X-Review-Token</code>). É
               uma barreira de bom senso pra LAN do escritório, não segurança
@@ -215,8 +215,8 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
         title="Atalhos"
         lead="Tudo pelo teclado pra não atrapalhar a navegação no produto."
       >
-        <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-          <ul className="divide-y divide-[var(--border-subtle)] m-0 p-0 list-none">
+        <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+          <ul className="divide-y divide-(--border-subtle) m-0 p-0 list-none">
             {[
               {
                 keys: (
@@ -251,7 +251,7 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
                 key={i}
                 className="flex items-center justify-between gap-4 px-5 py-3"
               >
-                <span className="text-sm text-[var(--fg-secondary)]">
+                <span className="text-sm text-(--fg-secondary)">
                   {row.desc}
                 </span>
                 <span className="flex items-center text-[11px]">
@@ -269,62 +269,62 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
         lead="A v1 prioriza simplicidade — alguns trade-offs documentados pra você decidir quando confiar nela."
       >
         <div className="grid sm:grid-cols-2 gap-4">
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="draft" dot={false}>
                 Stale
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 Anchor pode dessincar
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
               Coords são salvas em % do viewport + scrollY. Se o conteúdo
               da tela mudou (lista cresceu, dado novo carregou), o anchor
               pode ficar fora do lugar. Marcamos como <strong>stale</strong>{" "}
               quando a altura do documento mudou +20%.
             </p>
           </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="neutral" dot={false}>
                 Local-only
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 Sem sync entre máquinas
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
               Tudo no localStorage do seu navegador. Pra compartilhar:
               exporte o JSON. A v2 sobe um servidor local em LAN com sync
               entre revisores via SSE.
             </p>
           </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="neutral" dot={false}>
                 Sem auth
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 Identidade é só nome
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
               Você digita o nome uma vez. Não há login real. Aceitável
               porque a v1 só roda quando você liga a flag manualmente em
               dev.
             </p>
           </div>
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="neutral" dot={false}>
                 Coexistência
               </AwPill>
-              <span className="text-xs text-[var(--fg-tertiary)]">
+              <span className="text-xs text-(--fg-tertiary)">
                 Convive com Claude Edit
               </span>
             </div>
-            <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+            <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
               Todas as camadas do Review carregam{" "}
               <code className="font-mono text-xs">
                 data-bombardier-review

@@ -211,14 +211,14 @@ function PageRail({
   return (
     <aside
       aria-label="Páginas do Messenger conectadas"
-      className="hidden w-[280px] flex-shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-canvas)] md:flex"
+      className="hidden w-[280px] shrink-0 flex-col border-r border-(--border-subtle) bg-(--bg-canvas) md:flex"
     >
-      <header className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] px-4 py-4">
+      <header className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Páginas
           </h3>
-          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[var(--fg-primary)] px-1.5 body-xs font-semibold text-[var(--bg-raised)]">
+          <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-(--fg-primary) px-1.5 body-xs font-semibold text-(--bg-raised)">
             {pages.length}
           </span>
         </div>
@@ -247,20 +247,20 @@ function PageRail({
                 aria-selected={allActive}
                 onClick={() => onSelect(ALL_KEY)}
                 className={
-                  "flex w-full items-start gap-3 rounded-[var(--radius-md)] border px-2.5 py-2.5 text-left transition-colors " +
+                  "flex w-full items-start gap-3 rounded-md border px-2.5 py-2.5 text-left transition-colors " +
                   (allActive
-                    ? "border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-xs)]"
-                    : "border-transparent hover:bg-[var(--bg-surface)]")
+                    ? "border-(--border-default) bg-(--bg-raised) shadow-(--shadow-xs)"
+                    : "border-transparent hover:bg-(--bg-surface)")
                 }
               >
-                <span className="grid h-[32px] w-[32px] flex-shrink-0 place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-[var(--bg-raised)]">
+                <span className="grid h-[32px] w-[32px] shrink-0 place-items-center rounded-md bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-(--bg-raised)">
                   <Icon name="dashboard" size={18} fill={1} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-(--fg-primary)">
                     Todas as páginas
                   </span>
-                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-(--fg-tertiary)">
                     {pages.length} {pages.length === 1 ? "página" : "páginas"} ·{" "}
                     {totalConvs} {totalConvs === 1 ? "conversa aberta" : "conversas abertas"}
                   </span>
@@ -271,7 +271,7 @@ function PageRail({
         })()}
         <li
           aria-hidden="true"
-          className="my-1.5 border-t border-[var(--border-subtle)]"
+          className="my-1.5 border-t border-(--border-subtle)"
         />
         {pages.map((p) => {
           const meta = STATUS_PILL[p.status];
@@ -284,13 +284,13 @@ function PageRail({
                 aria-selected={active}
                 onClick={() => onSelect(p.id)}
                 className={
-                  "flex w-full items-start gap-3 rounded-[var(--radius-md)] border px-2.5 py-2.5 text-left transition-colors " +
+                  "flex w-full items-start gap-3 rounded-md border px-2.5 py-2.5 text-left transition-colors " +
                   (active
-                    ? "border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-xs)]"
-                    : "border-transparent hover:bg-[var(--bg-surface)]")
+                    ? "border-(--border-default) bg-(--bg-raised) shadow-(--shadow-xs)"
+                    : "border-transparent hover:bg-(--bg-surface)")
                 }
               >
-                <span className="relative flex-shrink-0">
+                <span className="relative shrink-0">
                   <AwAvatar
                     size="md"
                     src={p.avatarSrc}
@@ -310,10 +310,10 @@ function PageRail({
                   />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate body-xs font-semibold text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-semibold text-(--fg-primary)">
                     {p.name}
                   </span>
-                  <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
+                  <span className="mt-0.5 block truncate body-xs text-(--fg-tertiary)">
                     {p.category}
                   </span>
                   {p.status !== "active" && (
@@ -328,7 +328,7 @@ function PageRail({
         })}
       </ul>
 
-      <footer className="border-t border-[var(--border-subtle)] p-3">
+      <footer className="border-t border-(--border-subtle) p-3">
         <AwButton
           variant="secondary"
           size="md"
@@ -361,7 +361,7 @@ function PanelHeader({
   const fbInboxUrl = `https://business.facebook.com/latest/inbox/all?asset_id=${page.pageId}`;
 
   return (
-    <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-5">
+    <header className="flex items-start justify-between gap-4 border-b border-(--border-subtle) px-7 py-5">
       <div className="flex min-w-0 items-center gap-3.5">
         <div className="relative">
           <AwAvatar
@@ -375,23 +375,23 @@ function PanelHeader({
               .map((s) => s[0]?.toUpperCase())
               .join("")}
           />
-          <span className="absolute -bottom-1 -right-1 rounded-full bg-[var(--bg-canvas)] p-0.5">
+          <span className="absolute -bottom-1 -right-1 rounded-full bg-(--bg-canvas) p-0.5">
             <AwBrandLogo brand="messenger" size="sm" bare />
           </span>
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
               {page.name}
             </h2>
             <AwPill variant={meta.variant}>{page.statusLabel}</AwPill>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-(--fg-tertiary)">
             <span>{page.category}</span>
             <span aria-hidden>·</span>
             <span className="inline-flex items-center gap-1">
               Page ID
-              <code className="rounded bg-[var(--bg-surface)] px-1.5 py-px mono body-xs text-[var(--fg-secondary)]">
+              <code className="rounded bg-(--bg-surface) px-1.5 py-px mono body-xs text-(--fg-secondary)">
                 {page.pageId}
               </code>
             </span>
@@ -401,10 +401,10 @@ function PanelHeader({
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 items-center gap-3">
+      <div className="flex shrink-0 items-center gap-3">
         <label
           htmlFor={toggleId}
-          className="flex cursor-pointer items-center gap-2 body-xs font-medium text-[var(--fg-secondary)]"
+          className="flex cursor-pointer items-center gap-2 body-xs font-medium text-(--fg-secondary)"
         >
           <span>{enabled ? "Ativa" : "Desativada"}</span>
           <AwToggle
@@ -414,7 +414,7 @@ function PanelHeader({
             label="Ativar ou desativar a integração"
           />
         </label>
-        <span aria-hidden className="h-6 w-px bg-[var(--border-subtle)]" />
+        <span aria-hidden className="h-6 w-px bg-(--border-subtle)" />
         <AwButton
           variant="secondary"
           size="sm"
@@ -470,7 +470,7 @@ function IssuesBanner({ page }: { page: Page }) {
 
   return (
     <AwAlert variant={issues.some((i) => i.sev === "high") ? "danger" : "warning"}>
-      <strong className="body-xs font-semibold text-[var(--fg-primary)]">
+      <strong className="body-xs font-semibold text-(--fg-primary)">
         {issues.length}{" "}
         {issues.length === 1 ? "ação necessária" : "ações necessárias"} nesta Página
       </strong>
@@ -478,13 +478,13 @@ function IssuesBanner({ page }: { page: Page }) {
         {issues.map((it, i) => (
           <li
             key={i}
-            className="flex items-start justify-between gap-3 rounded-[var(--radius-sm)] bg-[color-mix(in_srgb,var(--bg-raised)_60%,transparent)] px-2.5 py-2"
+            className="flex items-start justify-between gap-3 rounded-sm bg-[color-mix(in_srgb,var(--bg-raised)_60%,transparent)] px-2.5 py-2"
           >
             <div className="min-w-0 flex-1">
-              <div className="body-xs font-medium text-[var(--fg-primary)]">
+              <div className="body-xs font-medium text-(--fg-primary)">
                 {it.title}
               </div>
-              <div className="mt-0.5 body-xs text-[var(--fg-secondary)]">
+              <div className="mt-0.5 body-xs text-(--fg-secondary)">
                 {it.desc}
               </div>
             </div>
@@ -518,7 +518,7 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Saúde da página
           </div>
           <div className="flex items-baseline gap-1">
@@ -535,10 +535,10 @@ function OverviewTab({
             >
               {page.health}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-(--fg-tertiary)">/100</span>
           </div>
           <AwProgress value={page.health} variant={healthVariant} />
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             {healthVariant === "success"
               ? "Tudo certo para escalar"
               : healthVariant === "warning"
@@ -548,30 +548,30 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Janelas 24h ativas
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-(--fg-primary)">
               {page.activeWindows}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">
+            <span className="body-xs text-(--fg-tertiary)">
               / {page.openConversations} conversas
             </span>
           </div>
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             Fora da janela, só tags de mensagem ou agentes humanos podem responder.
           </div>
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Conversas (30d)
           </div>
-          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-(--fg-primary)">
             {page.conversations30d.toLocaleString("pt-BR")}
           </div>
-          <div className="flex items-center gap-2 body-xs text-[var(--fg-tertiary)]">
+          <div className="flex items-center gap-2 body-xs text-(--fg-tertiary)">
             <AwPill
               variant={page.conversationsTrend.startsWith("+") ? "live" : "error"}
               dot={false}
@@ -583,17 +583,17 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Tempo de resposta
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-(--fg-primary)">
               {page.responseTimeMin}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">min · médio</span>
+            <span className="body-xs text-(--fg-tertiary)">min · médio</span>
           </div>
-          <div className="body-xs text-[var(--fg-tertiary)]">
-            Taxa de resposta: <b className="text-[var(--fg-primary)]">{page.responseRate}%</b>
+          <div className="body-xs text-(--fg-tertiary)">
+            Taxa de resposta: <b className="text-(--fg-primary)">{page.responseRate}%</b>
           </div>
         </AwCard>
       </div>
@@ -605,7 +605,7 @@ function OverviewTab({
 
       <section>
         <div className="mb-2 flex items-baseline justify-between">
-          <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
+          <h3 className="m-0 body-xs font-semibold text-(--fg-primary)">
             Atalhos
           </h3>
         </div>
@@ -671,14 +671,14 @@ function ShortcutCard({
       }}
       className="flex items-start gap-3 p-3.5"
     >
-      <span className="grid h-9 w-9 flex-shrink-0 place-items-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-(--bg-surface) text-(--fg-secondary)">
         <Icon name={icon} size={18} />
       </span>
       <div className="min-w-0">
-        <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
+        <div className="truncate body-xs font-semibold text-(--fg-primary)">
           {title}
         </div>
-        <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 truncate body-xs text-(--fg-tertiary)">
           {desc}
         </div>
       </div>
@@ -706,7 +706,7 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
       value: page.ageGated ? (
         <AwPill variant="beta">18+</AwPill>
       ) : (
-        <span className="text-[var(--fg-tertiary)]">Não</span>
+        <span className="text-(--fg-tertiary)">Não</span>
       ),
     },
     {
@@ -718,8 +718,8 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
 
   return (
     <AwCard className="flex flex-col">
-      <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
+      <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
+        <h3 className="m-0 body-xs font-semibold text-(--fg-primary)">
           Configuração da integração
         </h3>
         <AwButton variant="ghost" size="sm" onClick={onEdit}>
@@ -731,13 +731,13 @@ function ConfigCard({ page, onEdit }: { page: Page; onEdit: () => void }) {
           <li
             key={r.label}
             className={
-              "flex items-center gap-3 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
-              (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+              "flex items-center gap-3 px-4 py-2.5 body-xs text-(--fg-secondary) " +
+              (i > 0 ? "border-t border-(--border-subtle)" : "")
             }
           >
-            <Icon name={r.icon} size={14} className="text-[var(--fg-tertiary)]" />
+            <Icon name={r.icon} size={14} className="text-(--fg-tertiary)" />
             <span className="flex-1">{r.label}</span>
-            <span className="text-[var(--fg-primary)]">{r.value}</span>
+            <span className="text-(--fg-primary)">{r.value}</span>
           </li>
         ))}
       </ul>
@@ -771,8 +771,8 @@ const ACTIVITY: { dot: AwStatusDotVariant; title: React.ReactNode; meta: string 
 function ActivityCard() {
   return (
     <AwCard className="flex flex-col">
-      <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
+      <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
+        <h3 className="m-0 body-xs font-semibold text-(--fg-primary)">
           Atividade recente
         </h3>
       </header>
@@ -782,15 +782,15 @@ function ActivityCard() {
             key={i}
             className={
               "flex items-start gap-3 px-4 py-3 body-xs " +
-              (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+              (i > 0 ? "border-t border-(--border-subtle)" : "")
             }
           >
             <span className="mt-1.5">
               <AwStatusDot variant={a.dot} size="xs" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[var(--fg-primary)]">{a.title}</div>
-              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
+              <div className="text-(--fg-primary)">{a.title}</div>
+              <div className="mt-0.5 body-xs text-(--fg-tertiary)">
                 {a.meta}
               </div>
             </div>
@@ -834,7 +834,7 @@ function PagesTab({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <span className="body-xs text-[var(--fg-tertiary)]">
+        <span className="body-xs text-(--fg-tertiary)">
           {pages.length} {pages.length === 1 ? "Página conectada" : "Páginas conectadas"}
         </span>
       </div>
@@ -864,24 +864,24 @@ function PagesTab({
               </AwPill>
             </div>
             <div>
-              <div className="body-sm font-semibold text-[var(--fg-primary)]">
+              <div className="body-sm font-semibold text-(--fg-primary)">
                 {p.name}
               </div>
-              <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 body-xs text-(--fg-tertiary)">
                 {p.category}
               </div>
-              <div className="mt-1 mono body-xs text-[var(--fg-tertiary)]">
+              <div className="mt-1 mono body-xs text-(--fg-tertiary)">
                 {p.pageId}
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2 border-t border-[var(--border-subtle)] pt-3">
+            <div className="grid grid-cols-3 gap-2 border-t border-(--border-subtle) pt-3">
               <PageStat label="Janelas 24h">
-                <span className="body-xs font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-(--fg-primary)">
                   {p.activeWindows}
                 </span>
               </PageStat>
               <PageStat label="Resposta">
-                <span className="body-xs font-semibold text-[var(--fg-primary)]">
+                <span className="body-xs font-semibold text-(--fg-primary)">
                   {p.responseRate}%
                 </span>
               </PageStat>
@@ -905,7 +905,7 @@ function PageStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs uppercase tracking-[0.06em] text-(--fg-tertiary)">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -921,10 +921,10 @@ function ConversationTab({ page }: { page: Page }) {
   return (
     <div className="flex flex-col gap-6">
       <AwAlert variant="info">
-        <strong className="body-xs font-semibold text-[var(--fg-primary)]">
+        <strong className="body-xs font-semibold text-(--fg-primary)">
           Como o Messenger inicia conversa
         </strong>
-        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
           A saudação aparece antes da primeira mensagem. O botão{" "}
           <b>Iniciar</b> dispara um postback. <b>Ice breakers</b> e o{" "}
           <b>menu persistente</b> ficam sempre visíveis dentro do chat. Tudo isso
@@ -1000,17 +1000,17 @@ function ConversationTab({ page }: { page: Page }) {
               key={ib.payload}
               className={
                 "flex items-center gap-3 px-4 py-3 " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
-              <span className="grid h-7 w-7 flex-shrink-0 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-(--bg-surface) body-xs font-semibold text-(--fg-secondary)">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-(--fg-primary)">
                   {ib.question}
                 </div>
-                <div className="mt-0.5 truncate mono body-xs text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate mono body-xs text-(--fg-tertiary)">
                   → {ib.payload}
                 </div>
               </div>
@@ -1024,7 +1024,7 @@ function ConversationTab({ page }: { page: Page }) {
             </li>
           ))}
           {page.iceBreakers.length === 0 && (
-            <li className="px-4 py-6 text-center body-xs text-[var(--fg-tertiary)]">
+            <li className="px-4 py-6 text-center body-xs text-(--fg-tertiary)">
               Sem ice breakers. Adicione perguntas curtas pra agilizar o início da
               conversa.
             </li>
@@ -1046,19 +1046,19 @@ function ConversationTab({ page }: { page: Page }) {
               key={m.label}
               className={
                 "flex items-center gap-3 px-4 py-3 " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
               <Icon
                 name={m.type === "url" ? "open_in_new" : "bolt"}
                 size={16}
-                className="text-[var(--fg-tertiary)]"
+                className="text-(--fg-tertiary)"
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-(--fg-primary)">
                   {m.label}
                 </div>
-                <div className="mt-0.5 truncate mono body-xs text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate mono body-xs text-(--fg-tertiary)">
                   {m.target}
                 </div>
               </div>
@@ -1152,7 +1152,7 @@ function AccountTab({ page }: { page: Page }) {
               page.ageGated ? (
                 <AwPill variant="beta">18+</AwPill>
               ) : (
-                <span className="text-[var(--fg-tertiary)]">Sem restrição</span>
+                <span className="text-(--fg-tertiary)">Sem restrição</span>
               )
             }
           />
@@ -1165,27 +1165,27 @@ function AccountTab({ page }: { page: Page }) {
             <li
               key={p.label}
               className={
-                "flex items-center gap-2.5 px-4 py-2.5 body-xs text-[var(--fg-secondary)] " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                "flex items-center gap-2.5 px-4 py-2.5 body-xs text-(--fg-secondary) " +
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
               {p.granted ? (
                 <Icon
                   name="check_circle"
                   size={16}
-                  className="text-[var(--aw-emerald-700)]"
+                  className="text-(--aw-emerald-700)"
                   fill={1}
                 />
               ) : (
                 <Icon
                   name="cancel"
                   size={16}
-                  className="text-[var(--fg-tertiary)]"
+                  className="text-(--fg-tertiary)"
                 />
               )}
-              <span className="flex-1 text-[var(--fg-primary)]">{p.label}</span>
+              <span className="flex-1 text-(--fg-primary)">{p.label}</span>
               {p.note && (
-                <span className="body-xs text-[var(--fg-tertiary)]">
+                <span className="body-xs text-(--fg-tertiary)">
                   ({p.note})
                 </span>
               )}
@@ -1208,17 +1208,17 @@ function AccountTab({ page }: { page: Page }) {
               key={u.email}
               className={
                 "flex items-center gap-3 px-4 py-2.5 " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-[var(--bg-surface)] body-xs font-semibold text-[var(--fg-secondary)]">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-(--bg-surface) body-xs font-semibold text-(--fg-secondary)">
                 {u.initials}
               </span>
               <div className="min-w-0 flex-1">
-                <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-medium text-(--fg-primary)">
                   {u.name}
                 </div>
-                <div className="truncate body-xs text-[var(--fg-tertiary)]">
+                <div className="truncate body-xs text-(--fg-tertiary)">
                   {u.email}
                 </div>
               </div>
@@ -1263,19 +1263,19 @@ function SectionCard({
   return (
     <section
       className={
-        "overflow-hidden rounded-[var(--radius-md)] border bg-[var(--bg-raised)] " +
+        "overflow-hidden rounded-md border bg-(--bg-raised) " +
         (tone === "danger"
-          ? "border-[var(--aw-red-300,#FECDCA)]"
-          : "border-[var(--border-subtle)]")
+          ? "border-(--aw-red-300,#FECDCA)"
+          : "border-(--border-subtle)")
       }
     >
-      <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
+      <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
         <h3
           className={
             "m-0 body-xs font-semibold " +
             (tone === "danger"
-              ? "text-[var(--aw-red-700,#B42318)]"
-              : "text-[var(--fg-primary)]")
+              ? "text-(--aw-red-700,#B42318)"
+              : "text-(--fg-primary)")
           }
         >
           {title}
@@ -1300,13 +1300,13 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+      <span className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
         <span
           className={
-            "body-xs text-[var(--fg-primary)] " +
+            "body-xs text-(--fg-primary) " +
             (mono ? "mono body-xs" : "")
           }
         >
@@ -1335,12 +1335,12 @@ function DangerRow({
   cta: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-4 py-3.5 last:border-b-0">
+    <div className="flex items-start justify-between gap-4 border-b border-(--border-subtle) px-4 py-3.5 last:border-b-0">
       <div className="min-w-0 flex-1">
-        <div className="body-xs font-semibold text-[var(--fg-primary)]">
+        <div className="body-xs font-semibold text-(--fg-primary)">
           {title}
         </div>
-        <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
+        <div className="mt-0.5 body-xs text-(--fg-tertiary)">
           {desc}
         </div>
       </div>
@@ -1362,10 +1362,10 @@ function DeveloperTab({ page }: { page: Page }) {
   return (
     <div className="flex flex-col gap-6">
       <AwCard className="p-4">
-        <h3 className="m-0 mb-1 body-xs font-semibold text-[var(--fg-primary)]">
+        <h3 className="m-0 mb-1 body-xs font-semibold text-(--fg-primary)">
           Webhook & API
         </h3>
-        <p className="m-0 mb-3 body-xs text-[var(--fg-tertiary)]">
+        <p className="m-0 mb-3 body-xs text-(--fg-tertiary)">
           Endpoint dedicado para receber eventos do Messenger Platform. Use o
           segredo para validar o cabeçalho{" "}
           <code className="mono body-xs">X-Hub-Signature-256</code>.
@@ -1425,7 +1425,7 @@ function DeveloperTab({ page }: { page: Page }) {
                 key={evt}
                 className={
                   "flex items-center gap-3 px-4 py-2.5 " +
-                  (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                  (i > 0 ? "border-t border-(--border-subtle)" : "")
                 }
               >
                 <Icon
@@ -1433,16 +1433,16 @@ function DeveloperTab({ page }: { page: Page }) {
                   size={16}
                   className={
                     active
-                      ? "text-[var(--aw-emerald-700)]"
-                      : "text-[var(--fg-tertiary)]"
+                      ? "text-(--aw-emerald-700)"
+                      : "text-(--fg-tertiary)"
                   }
                   fill={active ? 1 : 0}
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="body-xs font-medium text-[var(--fg-primary)]">
+                  <div className="body-xs font-medium text-(--fg-primary)">
                     {SUBSCRIPTION_LABELS[evt]}
                   </div>
-                  <div className="mt-0.5 mono body-xs text-[var(--fg-tertiary)]">
+                  <div className="mt-0.5 mono body-xs text-(--fg-tertiary)">
                     {evt}
                   </div>
                 </div>
@@ -1458,10 +1458,10 @@ function DeveloperTab({ page }: { page: Page }) {
 
       <AwCard className="flex items-center justify-between gap-4 p-4">
         <div className="min-w-0">
-          <div className="body-xs font-semibold text-[var(--fg-primary)]">
+          <div className="body-xs font-semibold text-(--fg-primary)">
             Testar webhook
           </div>
-          <div className="mt-0.5 body-xs text-[var(--fg-tertiary)]">
+          <div className="mt-0.5 body-xs text-(--fg-tertiary)">
             Dispara um evento sintético de mensagem para validar a entrega.
           </div>
         </div>
@@ -1483,14 +1483,14 @@ function AggregatedHeader({ pages }: { pages: Page[] }) {
   const issuesCount = pages.filter((p) => p.status !== "active").length;
 
   return (
-    <header className="flex items-start justify-between gap-4 border-b border-[var(--border-subtle)] px-7 py-6">
+    <header className="flex items-start justify-between gap-4 border-b border-(--border-subtle) px-7 py-6">
       <div className="flex min-w-0 items-center gap-3.5">
-        <div className="grid h-[56px] w-[56px] place-items-center rounded-[10px] bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-[var(--bg-raised)]">
+        <div className="grid h-[56px] w-[56px] place-items-center rounded-md bg-[color-mix(in_srgb,var(--fg-primary)_92%,transparent)] text-(--bg-raised)">
           <Icon name="dashboard" size={28} fill={1} />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-[var(--fg-primary)]">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
               Todas as páginas do Messenger
             </h2>
             {issuesCount > 0 && (
@@ -1500,7 +1500,7 @@ function AggregatedHeader({ pages }: { pages: Page[] }) {
               </AwPill>
             )}
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-[var(--fg-tertiary)]">
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 body-xs text-(--fg-tertiary)">
             <span>{pages.length} páginas conectadas</span>
             <span aria-hidden>·</span>
             <span>
@@ -1535,14 +1535,14 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+            <span className="body-xl font-semibold leading-none text-(--fg-primary)">
               {avgHealth}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)]">/100</span>
+            <span className="body-xs text-(--fg-tertiary)">/100</span>
           </div>
           <AwProgress
             value={avgHealth}
@@ -1550,35 +1550,35 @@ function AggregatedOverviewTab({
           />
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Conversas (30d)
           </div>
-          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-(--fg-primary)">
             {totalConvs30.toLocaleString("pt-BR")}
           </div>
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             soma das páginas
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Janelas 24h ativas
           </div>
-          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-(--fg-primary)">
             {totalActiveWindows}
           </div>
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             podem responder agora sem tag
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Taxa de resposta média
           </div>
-          <div className="body-xl font-semibold leading-none text-[var(--fg-primary)]">
+          <div className="body-xl font-semibold leading-none text-(--fg-primary)">
             {avgResponse}%
           </div>
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             calculada pelas páginas
           </div>
         </AwCard>
@@ -1599,8 +1599,8 @@ function AggregatedOverviewTab({
                 }
               }}
               className={
-                "flex w-full cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)] " +
-                (i > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                "flex w-full cursor-pointer items-center gap-3 px-4 py-3 transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover) " +
+                (i > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
               <AwAvatar
@@ -1615,10 +1615,10 @@ function AggregatedOverviewTab({
                   .join("")}
               />
               <div className="min-w-0 flex-1">
-                <div className="truncate body-xs font-semibold text-[var(--fg-primary)]">
+                <div className="truncate body-xs font-semibold text-(--fg-primary)">
                   {p.name}
                 </div>
-                <div className="mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
+                <div className="mt-0.5 truncate body-xs text-(--fg-tertiary)">
                   {p.category} · {p.activeWindows} janelas 24h ·{" "}
                   {p.responseRate}% resposta
                 </div>
@@ -1629,7 +1629,7 @@ function AggregatedOverviewTab({
               <Icon
                 name="arrow_forward"
                 size={16}
-                className="text-[var(--fg-tertiary)]"
+                className="text-(--fg-tertiary)"
               />
             </li>
           ))}
@@ -1648,25 +1648,25 @@ function EmptyState({ onAddPage }: { onAddPage: () => void }) {
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand="messenger" size="lg" />
-        <h1 className="m-0 mt-6 body-xl font-semibold tracking-[-0.01em] text-[var(--fg-primary)]">
+        <h1 className="m-0 mt-6 body-xl font-semibold tracking-[-0.01em] text-(--fg-primary)">
           Conecte uma Página do Facebook
         </h1>
-        <p className="m-0 mt-2 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 mt-2 body-sm text-(--fg-secondary)">
           O Messenger usa Páginas para identificar quem está respondendo. Conecte
           a primeira página pra começar a atender por aqui.
         </p>
 
-        <div className="mt-8 flex w-full items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-left">
+        <div className="mt-8 flex w-full items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 text-left">
           <Icon
             name="info"
             size={20}
-            className="mt-0.5 text-[var(--fg-secondary)]"
+            className="mt-0.5 text-(--fg-secondary)"
           />
           <div>
-            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-(--fg-primary)">
               O que você precisa
             </p>
-            <ul className="m-0 mt-1 list-disc pl-5 body-xs text-[var(--fg-secondary)]">
+            <ul className="m-0 mt-1 list-disc pl-5 body-xs text-(--fg-secondary)">
               <li>Ser admin da Página no Business Manager</li>
               <li>Permissões pages_messaging e pages_manage_metadata</li>
               <li>App da Meta com Webhooks habilitados</li>
@@ -1820,7 +1820,7 @@ export function AwMessengerPanel({
         </div>
 
         {!isAll && (
-          <footer className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-7 py-4">
+          <footer className="flex items-center justify-end gap-2 border-t border-(--border-subtle) px-7 py-4">
             <AwButton variant="secondary" size="md" onClick={onCancel}>
               Cancelar
             </AwButton>

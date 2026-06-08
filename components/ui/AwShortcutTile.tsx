@@ -45,25 +45,25 @@ export const AwShortcutTile = React.forwardRef<
       data-slot="shortcut-tile"
       className={cn(
         "aw-shortcut-tile",
-        "group flex items-start gap-3 rounded-[var(--radius-md)] px-3 py-3 transition-colors duration-aw-fast",
-        "hover:bg-[var(--bg-muted)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2",
+        "group flex items-start gap-3 rounded-md px-3 py-3 transition-colors duration-aw-fast",
+        "hover:bg-(--bg-muted)",
+        "focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2",
         className,
       )}
       {...rest}
     >
       <span
         aria-hidden="true"
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] transition-colors"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-(--bg-inverse) text-(--fg-on-inverse) transition-colors"
       >
         <Icon name={icon} size={22} />
       </span>
       <span className="min-w-0 flex-1 pt-1">
-        <span className="block body-sm font-medium text-[var(--fg-primary)]">
+        <span className="block body-sm font-medium text-(--fg-primary)">
           {title}
         </span>
         {description && (
-          <span className="mt-0.5 block body-xs text-[var(--fg-secondary)]">
+          <span className="mt-0.5 block body-xs text-(--fg-secondary)">
             {description}
           </span>
         )}

@@ -140,7 +140,7 @@ export default function GridPage() {
             <IntentScaleDemo />
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Regra de bolso.</strong> Se você está hesitando entre dois
             intents, o conteúdo provavelmente tá <em>pedindo o menor</em> — o
             maior só parece certo porque cabe na tela. Espaço sobrando ≠
@@ -154,10 +154,10 @@ export default function GridPage() {
           title="Tokens"
           lead="Cada intent é uma CSS var. Use sempre via var(--content-*) — nunca hardcode 720/1200/1440."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">token</th>
                   <th className="pb-2 aw-eyebrow">value</th>
                   <th className="pb-2 aw-eyebrow">role</th>
@@ -173,7 +173,7 @@ export default function GridPage() {
             </table>
           </div>
 
-          <CodeExample label="container em código" lang="tsx">{`<div className="mx-auto w-full max-w-[var(--content-default)] px-[var(--content-px)] pb-14 flex flex-col gap-16">
+          <CodeExample label="container em código" lang="tsx">{`<div className="mx-auto w-full max-w-(--content-default) px-(--content-px) pb-14 flex flex-col gap-16">
   {/* sections */}
 </div>`}</CodeExample>
         </Section>
@@ -184,7 +184,7 @@ export default function GridPage() {
           title="Regra do ultrawide"
           lead="Acima do limite do intent, o canvas centra. Sem painéis fantasma, sem estiramento. A página em 1920 e a página em 3440 ocupam o mesmo espaço visual."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <div className="grid grid-cols-2 gap-6">
               <UltrawideFrame
                 viewport={1280}
@@ -217,7 +217,7 @@ export default function GridPage() {
             </div>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-red-300)] bg-[var(--aw-red-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-red-900)]">
+          <div className="rounded-md border border-(--aw-red-300) bg-(--aw-red-100) px-5 py-4 mt-4 text-sm text-(--aw-red-900)">
             <strong>Por que não esticar?</strong> Densidade cognitiva. Um gráfico
             de 12 meses esticado em 2400px tem cada mês com 200px — o olho não
             ancora. Em 1200px, cada mês ocupa ~100px, ainda dentro da fóvea
@@ -244,14 +244,14 @@ export default function GridPage() {
             <LateralExample
               kind="no-rail"
               title="Settings · sem rail"
-              tw={`<div className="mx-auto max-w-[var(--content-default)] px-[var(--content-px)]">
+              tw={`<div className="mx-auto max-w-(--content-default) px-(--content-px)">
   {/* conteúdo flui linear */}
 </div>`}
               description="Mesma página em 1920 ou 3440: nunca ganha um painel só porque tem espaço. Whitespace lateral é o estado correto."
             />
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Quando justifica um rail?</strong> O conteúdo do rail é{" "}
             <em>específico daquela página</em> (observer do dashboard, copilot
             do agent studio). Se for genérico tipo "notificações", isso vai pro
@@ -275,8 +275,8 @@ export default function GridPage() {
             ]}
           />
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-6">
-            <p className="m-0 mb-4 aw-eyebrow text-[var(--fg-tertiary)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 mt-6">
+            <p className="m-0 mb-4 aw-eyebrow text-(--fg-tertiary)">
               Layouts canônicos · col-span
             </p>
             <div className="flex flex-col gap-2">
@@ -289,7 +289,7 @@ export default function GridPage() {
             </div>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Atalho.</strong> Pra "cards iguais", use{" "}
             <code className="mono">grid-cols-3 gap-6</code> direto — não{" "}
             <code className="mono">grid-cols-12 col-span-4</code>. Mais simples,
@@ -325,7 +325,7 @@ export default function GridPage() {
             />
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Como ler.</strong> Os tons rosados são as 12 colunas. As
             faixas brancas no meio são os gutters de 24px. O espaço cinza fora
             do container é whitespace — é desktop respirando, não tela
@@ -339,10 +339,10 @@ export default function GridPage() {
           title="Gutters &amp; gaps"
           lead="A escala existe pra ser usada. gap-2 em tudo é tão errado quanto gap-[19px]. Cada nível tem uma intenção."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">class</th>
                   <th className="pb-2 aw-eyebrow">value</th>
                   <th className="pb-2 aw-eyebrow">quando usar</th>
@@ -352,15 +352,15 @@ export default function GridPage() {
                 {GAPS.map((g) => (
                   <tr
                     key={g.name}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
-                    <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
                       {g.name}
                     </td>
-                    <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {g.value}
                     </td>
-                    <td className="py-3 text-sm text-[var(--fg-secondary)]">
+                    <td className="py-3 text-sm text-(--fg-secondary)">
                       {g.use}
                     </td>
                   </tr>
@@ -369,7 +369,7 @@ export default function GridPage() {
             </table>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Regra de bolso.</strong> Quanto maior o componente, maior o
             gap entre eles: chips colam em <code className="mono">gap-2</code>,
             cards respiram em <code className="mono">gap-6</code>, seções em{" "}
@@ -384,10 +384,10 @@ export default function GridPage() {
           title="Viewports do produto"
           lead="AwSales é desktop. Floor é lg (1024px), alvo principal é xl (1280px). Não existe layout mobile/tablet — abaixo de lg não é cenário de produto."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">prefix</th>
                   <th className="pb-2 aw-eyebrow">min-width</th>
                   <th className="pb-2 aw-eyebrow">papel</th>
@@ -397,15 +397,15 @@ export default function GridPage() {
                 {VIEWPORTS.map((b) => (
                   <tr
                     key={b.name + b.value}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
-                    <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
                       {b.name}
                     </td>
-                    <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
                       {b.value}
                     </td>
-                    <td className="py-3 text-sm text-[var(--fg-secondary)]">
+                    <td className="py-3 text-sm text-(--fg-secondary)">
                       {b.use}
                     </td>
                   </tr>
@@ -414,7 +414,7 @@ export default function GridPage() {
             </table>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Sem prefixos pequenos no produto.</strong> Não use{" "}
             <code className="mono">sm:</code> nem <code className="mono">md:</code>{" "}
             em código de página — eles miram viewports abaixo do floor. Use{" "}
@@ -424,7 +424,7 @@ export default function GridPage() {
             <code className="mono">lg:</code>).
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-amber-300)] bg-[var(--aw-amber-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-amber-900)]">
+          <div className="rounded-md border border-(--aw-amber-300) bg-(--aw-amber-100) px-5 py-4 mt-4 text-sm text-(--aw-amber-900)">
             <strong>Abaixo de 1024.</strong> Quando a viewport encolhe pra menos
             que <code className="mono">--breakpoint-lg</code>, o app monta um
             blocker fullscreen pedindo pro usuário voltar num desktop ou tablet.
@@ -440,19 +440,19 @@ export default function GridPage() {
           title="Em código"
           lead="Snippets canônicos. Sempre via tokens, nunca hardcoded."
         >
-          <CodeExample label="container narrow (forms, perfil)">{`<div className="mx-auto w-full max-w-[var(--content-narrow)] px-[var(--content-px)] pb-14 flex flex-col gap-16">
+          <CodeExample label="container narrow (forms, perfil)">{`<div className="mx-auto w-full max-w-(--content-narrow) px-(--content-px) pb-14 flex flex-col gap-16">
   {/* form fields, single-column reading */}
 </div>`}</CodeExample>
 
-          <CodeExample label="container default (a maioria das páginas)">{`<div className="mx-auto w-full max-w-[var(--content-default)] px-[var(--content-px)] pb-14 flex flex-col gap-16">
+          <CodeExample label="container default (a maioria das páginas)">{`<div className="mx-auto w-full max-w-(--content-default) px-(--content-px) pb-14 flex flex-col gap-16">
   {/* docs, catálogos, settings, billing overview */}
 </div>`}</CodeExample>
 
-          <CodeExample label="container wide (dashboard, agent studio)">{`<div className="mx-auto w-full max-w-[var(--content-wide)] px-[var(--content-px)] pb-14 flex flex-col gap-16">
+          <CodeExample label="container wide (dashboard, agent studio)">{`<div className="mx-auto w-full max-w-(--content-wide) px-(--content-px) pb-14 flex flex-col gap-16">
   {/* KPIs, charts, big tables */}
 </div>`}</CodeExample>
 
-          <CodeExample label="dashboard wide + observer rail (page-local)">{`<div className="mx-auto w-full max-w-[var(--content-wide)] px-[var(--content-px)] pb-14">
+          <CodeExample label="dashboard wide + observer rail (page-local)">{`<div className="mx-auto w-full max-w-(--content-wide) px-(--content-px) pb-14">
   <div className="grid grid-cols-1 xl:grid-cols-[1fr_360px] gap-6">
     <main className="flex flex-col gap-6">{/* canvas */}</main>
     <aside className="flex flex-col gap-4">{/* observer */}</aside>
@@ -478,10 +478,10 @@ export default function GridPage() {
           title="Larguras hoje → recomendado"
           lead="Auditoria das larguras que aparecem no código hoje, com o intent que a página deveria adotar. Não migra tudo de uma vez — converte por página, quando você tocar nela."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">largura atual</th>
                   <th className="pb-2 aw-eyebrow">ocorrências</th>
                   <th className="pb-2 aw-eyebrow">onde</th>
@@ -492,19 +492,19 @@ export default function GridPage() {
                 {REAL_WIDTHS.map((row) => (
                   <tr
                     key={row.width}
-                    className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
                   >
-                    <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
                       {row.width}
                     </td>
-                    <td className="py-3 pr-4 mono text-xs text-[var(--fg-tertiary)] whitespace-nowrap">
+                    <td className="py-3 pr-4 mono text-xs text-(--fg-tertiary) whitespace-nowrap">
                       {row.count}×
                     </td>
-                    <td className="py-3 pr-4 text-sm text-[var(--fg-secondary)]">
+                    <td className="py-3 pr-4 text-sm text-(--fg-secondary)">
                       {row.where}
                     </td>
                     <td className="py-3 mono text-xs whitespace-nowrap">
-                      <code className="px-2 py-0.5 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] text-[var(--aw-blue-900)]">
+                      <code className="px-2 py-0.5 rounded-sm bg-(--aw-blue-100) text-(--aw-blue-900)">
                         {row.intent}
                       </code>
                     </td>
@@ -514,7 +514,7 @@ export default function GridPage() {
             </table>
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Estratégia.</strong> Cada vez que você tocar numa página
             que ainda usa largura hardcoded, troque pelo intent. Não fazer big
             bang. O sistema antigo (1200 universal) e o novo coexistem sem
@@ -602,7 +602,7 @@ const ACCENT_FG: Record<Intent["accent"], string> = {
 function IntentCard({ intent }: { intent: Intent }) {
   return (
     <div
-      className="rounded-[var(--radius-lg)] border bg-[var(--bg-raised)] p-5 flex flex-col gap-3"
+      className="rounded-lg border bg-(--bg-raised) p-5 flex flex-col gap-3"
       style={{ borderColor: ACCENT_BORDER[intent.accent] }}
     >
       <div className="flex items-baseline justify-between">
@@ -612,21 +612,21 @@ function IntentCard({ intent }: { intent: Intent }) {
         >
           {intent.title}
         </div>
-        <code className="mono text-xs text-[var(--fg-tertiary)]">
+        <code className="mono text-xs text-(--fg-tertiary)">
           {intent.max}px
         </code>
       </div>
       <div>
-        <div className="text-base font-medium text-[var(--fg-primary)]">
+        <div className="text-base font-medium text-(--fg-primary)">
           {intent.purpose}
         </div>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           {intent.token}
         </code>
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{intent.when}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{intent.when}</p>
       <div
-        className="rounded-[var(--radius-sm)] px-3 py-2 text-xs"
+        className="rounded-sm px-3 py-2 text-xs"
         style={{
           backgroundColor: ACCENT_BG[intent.accent],
           color: ACCENT_FG[intent.accent],
@@ -635,7 +635,7 @@ function IntentCard({ intent }: { intent: Intent }) {
         <div className="aw-eyebrow mb-1" style={{ color: ACCENT_FG[intent.accent] }}>
           exemplos
         </div>
-        <div className="text-[var(--fg-primary)]">
+        <div className="text-(--fg-primary)">
           {intent.examples.join(" · ")}
         </div>
       </div>
@@ -654,10 +654,10 @@ function IntentCard({ intent }: { intent: Intent }) {
 function IntentScaleDemo() {
   const viewport = 1600
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex items-baseline justify-between">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+      <div className="px-5 py-3 border-b border-(--border-subtle) flex items-baseline justify-between">
         <div>
-          <div className="text-sm font-medium text-[var(--fg-primary)]">
+          <div className="text-sm font-medium text-(--fg-primary)">
             Mesma página em três intents
           </div>
           <div className="caption mt-0.5">
@@ -666,7 +666,7 @@ function IntentScaleDemo() {
           </div>
         </div>
       </div>
-      <div className="p-6 flex flex-col gap-4 bg-[var(--bg-surface)]">
+      <div className="p-6 flex flex-col gap-4 bg-(--bg-surface)">
         {INTENTS.map((i) => (
           <IntentFrame key={i.key} intent={i} viewport={viewport} />
         ))}
@@ -683,13 +683,13 @@ function IntentFrame({ intent, viewport }: { intent: Intent; viewport: number })
         <div className="aw-eyebrow" style={{ color: ACCENT_FG[intent.accent] }}>
           {intent.title}
         </div>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           {intent.max}px · {Math.round(widthPct)}% do viewport
         </code>
       </div>
-      <div className="relative h-14 rounded-[var(--radius-sm)] border border-dashed border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden">
+      <div className="relative h-14 rounded-sm border border-dashed border-(--border-subtle) bg-(--bg-canvas) overflow-hidden">
         <div
-          className="absolute top-0 bottom-0 rounded-[var(--radius-sm)] flex items-center justify-center"
+          className="absolute top-0 bottom-0 rounded-sm flex items-center justify-center"
           style={{
             left: `${(100 - widthPct) / 2}%`,
             width: `${widthPct}%`,
@@ -733,15 +733,15 @@ function UltrawideFrame({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-baseline justify-between">
-        <div className="text-sm font-medium text-[var(--fg-primary)]">
+        <div className="text-sm font-medium text-(--fg-primary)">
           {label}
         </div>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           {viewport}px
         </code>
       </div>
       <div
-        className="relative h-20 rounded-[var(--radius-sm)] border bg-[var(--bg-canvas)] overflow-hidden mx-auto"
+        className="relative h-20 rounded-sm border bg-(--bg-canvas) overflow-hidden mx-auto"
         style={{
           width: `${viewportPct}%`,
           borderColor: isWrong ? "var(--aw-red-300)" : "var(--border-subtle)",
@@ -789,16 +789,16 @@ function LateralExample({
   description: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden flex flex-col">
-      <div className="px-5 py-4 border-b border-[var(--border-subtle)]">
-        <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden flex flex-col">
+      <div className="px-5 py-4 border-b border-(--border-subtle)">
+        <div className="text-sm font-medium text-(--fg-primary)">
           {title}
         </div>
-        <p className="mt-1 mb-0 body-sm text-[var(--fg-secondary)]">
+        <p className="mt-1 mb-0 body-sm text-(--fg-secondary)">
           {description}
         </p>
       </div>
-      <div className="p-6 bg-[var(--bg-surface)] flex-1 flex items-center justify-center">
+      <div className="p-6 bg-(--bg-surface) flex-1 flex items-center justify-center">
         {kind === "dashboard" ? (
           <div className="w-full max-w-[420px] grid grid-cols-[1fr_120px] gap-3">
             <div className="flex flex-col gap-2">
@@ -806,28 +806,28 @@ function LateralExample({
                 {Array.from({ length: 4 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-8 rounded-[var(--radius-xs)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]"
+                    className="h-8 rounded-xs bg-(--bg-raised) border border-(--border-subtle)"
                   />
                 ))}
               </div>
-              <div className="h-24 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]" />
+              <div className="h-24 rounded-sm bg-(--bg-raised) border border-(--border-subtle)" />
             </div>
-            <div className="rounded-[var(--radius-sm)] border border-dashed border-[var(--aw-blue-300)] bg-[var(--aw-blue-100)] flex items-center justify-center text-[10px] text-[var(--aw-blue-900)] font-medium">
+            <div className="rounded-sm border border-dashed border-(--aw-blue-300) bg-(--aw-blue-100) flex items-center justify-center text-[10px] text-(--aw-blue-900) font-medium">
               observer
             </div>
           </div>
         ) : (
           <div className="w-full max-w-[420px] flex flex-col gap-2">
-            <div className="h-8 rounded-[var(--radius-xs)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]" />
-            <div className="h-24 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]" />
+            <div className="h-8 rounded-xs bg-(--bg-raised) border border-(--border-subtle)" />
+            <div className="h-24 rounded-sm bg-(--bg-raised) border border-(--border-subtle)" />
             <div className="grid grid-cols-2 gap-2">
-              <div className="h-16 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]" />
-              <div className="h-16 rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)]" />
+              <div className="h-16 rounded-sm bg-(--bg-raised) border border-(--border-subtle)" />
+              <div className="h-16 rounded-sm bg-(--bg-raised) border border-(--border-subtle)" />
             </div>
           </div>
         )}
       </div>
-      <div className="p-6 border-t border-[var(--border-subtle)]">
+      <div className="p-6 border-t border-(--border-subtle)">
         <CodeExample label="tailwind" lang="tsx">
           {tw}
         </CodeExample>
@@ -838,14 +838,14 @@ function LateralExample({
 
 function TokenRow({ t, v, r }: { t: string; v: string; r: string }) {
   return (
-    <tr className="border-b border-[var(--border-subtle)] last:border-b-0 align-top">
-      <td className="py-3 pr-4 mono text-sm text-[var(--fg-primary)] whitespace-nowrap">
+    <tr className="border-b border-(--border-subtle) last:border-b-0 align-top">
+      <td className="py-3 pr-4 mono text-sm text-(--fg-primary) whitespace-nowrap">
         {t}
       </td>
-      <td className="py-3 pr-4 mono text-xs text-[var(--aw-blue-700)] whitespace-nowrap">
+      <td className="py-3 pr-4 mono text-xs text-(--aw-blue-700) whitespace-nowrap">
         {v}
       </td>
-      <td className="py-3 text-sm text-[var(--fg-secondary)]">{r}</td>
+      <td className="py-3 text-sm text-(--fg-secondary)">{r}</td>
     </tr>
   )
 }
@@ -857,14 +857,14 @@ function ColumnExample({ spans, label }: { spans: number[]; label: string }) {
         {spans.map((s, i) => (
           <div
             key={i}
-            className="h-8 rounded-[var(--radius-sm)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-[10px] font-medium text-[var(--aw-blue-900)]"
+            className="h-8 rounded-sm bg-(--aw-blue-100) border border-(--aw-blue-200) flex items-center justify-center text-[10px] font-medium text-(--aw-blue-900)"
             style={{ gridColumn: `span ${s} / span ${s}` }}
           >
             {s}
           </div>
         ))}
       </div>
-      <div className="text-[10px] text-[var(--fg-tertiary)]">{label}</div>
+      <div className="text-[10px] text-(--fg-tertiary)">{label}</div>
     </div>
   )
 }
@@ -898,14 +898,14 @@ function OverlayRow({
   frames: OverlayFrame[]
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-      <div className="px-5 py-3 border-b border-[var(--border-subtle)]">
-        <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+      <div className="px-5 py-3 border-b border-(--border-subtle)">
+        <div className="text-sm font-medium text-(--fg-primary)">
           {title}
         </div>
         <div className="caption mt-0.5">{caption}</div>
       </div>
-      <div className="p-6 bg-[var(--bg-surface)] flex flex-col gap-5">
+      <div className="p-6 bg-(--bg-surface) flex flex-col gap-5">
         {frames.map((f, i) => (
           <GridOverlayFrame key={i} {...f} />
         ))}
@@ -934,16 +934,16 @@ function GridOverlayFrame({ viewport, contentMax, intent, note }: OverlayFrame) 
           <span className="aw-eyebrow" style={{ color: tint.fg }}>
             {intent}
           </span>
-          <span className="text-xs text-[var(--fg-secondary)]">
+          <span className="text-xs text-(--fg-secondary)">
             container <span className="mono">{contentMax}px</span>
           </span>
         </div>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           viewport {viewport}px
         </code>
       </div>
       <div
-        className="relative rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
+        className="relative rounded-sm border border-(--border-subtle) bg-(--bg-canvas) overflow-hidden"
         style={{ height: 88 }}
       >
         {/* container */}
@@ -984,7 +984,7 @@ function GridOverlayFrame({ viewport, contentMax, intent, note }: OverlayFrame) 
         {/* padding label, only if there's room */}
         {containerPct < 95 && (
           <div
-            className="absolute top-1/2 -translate-y-1/2 mono text-[9px] text-[var(--fg-tertiary)]"
+            className="absolute top-1/2 -translate-y-1/2 mono text-[9px] text-(--fg-tertiary)"
             style={{ left: 8 }}
           >
             {Math.round(((viewport - contentMax) / 2))}px
@@ -992,7 +992,7 @@ function GridOverlayFrame({ viewport, contentMax, intent, note }: OverlayFrame) 
         )}
       </div>
       <div className="flex items-center justify-between">
-        <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+        <code className="mono text-[10px] text-(--fg-tertiary)">
           12 cols · gap {gutter}px · padding {padding}px · inner {innerWidth}px ·
           col ≈ {Math.round((innerWidth - (gutter * 11)) / 12)}px
         </code>

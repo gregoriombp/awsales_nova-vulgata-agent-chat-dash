@@ -361,7 +361,7 @@ export default function ColorPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {SEMANTIC_GROUPS.map((group) => (
               <div key={group.title}>
-                <h3 className="text-[var(--h6-size)] font-medium mb-3">
+                <h3 className="text-(--h6-size) font-medium mb-3">
                   {group.title}
                 </h3>
                 <div className="flex flex-col gap-2">
@@ -380,10 +380,10 @@ export default function ColorPage() {
           title="Mapping primitivo → semântico"
           lead="Como o sistema decide. Light mode usa o topo da escala (cores claras como fundo); dark mode inverte. Mudar o mapping aqui muda em cascata."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 overflow-x-auto">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="border-b border-[var(--border-subtle)]">
+                <tr className="border-b border-(--border-subtle)">
                   <th className="pb-2 aw-eyebrow">semantic</th>
                   <th className="pb-2 aw-eyebrow">light</th>
                   <th className="pb-2 aw-eyebrow">dark</th>
@@ -395,9 +395,9 @@ export default function ColorPage() {
                   g.items.map((item) => (
                     <tr
                       key={item.token}
-                      className="border-b border-[var(--border-subtle)] last:border-b-0 align-top"
+                      className="border-b border-(--border-subtle) last:border-b-0 align-top"
                     >
-                      <td className="py-2 pr-4 mono text-xs text-[var(--fg-primary)] whitespace-nowrap">
+                      <td className="py-2 pr-4 mono text-xs text-(--fg-primary) whitespace-nowrap">
                         {item.token}
                       </td>
                       <td className="py-2 pr-4 whitespace-nowrap">
@@ -406,7 +406,7 @@ export default function ColorPage() {
                       <td className="py-2 pr-4 whitespace-nowrap">
                         <MappingValueCell value={item.darkValue} />
                       </td>
-                      <td className="py-2 text-sm text-[var(--fg-secondary)]">
+                      <td className="py-2 text-sm text-(--fg-secondary)">
                         {item.role}
                       </td>
                     </tr>
@@ -434,7 +434,7 @@ export default function ColorPage() {
             />
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-blue-900)]">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mt-4 text-sm text-(--aw-blue-900)">
             <strong>Como ativar.</strong> O dark mode usa{" "}
             <code className="mono">class=&quot;dark&quot;</code> em algum
             ancestor — o styleguide alterna no <code className="mono">html</code>{" "}
@@ -476,7 +476,7 @@ export default function ColorPage() {
             />
           </div>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-amber-300)] bg-[var(--aw-amber-100)] px-5 py-4 mt-4 text-sm text-[var(--aw-amber-900)]">
+          <div className="rounded-md border border-(--aw-amber-300) bg-(--aw-amber-100) px-5 py-4 mt-4 text-sm text-(--aw-amber-900)">
             <strong>Cuidado com fg-muted.</strong> Não passa AA. Use só pra
             texto decorativo (placeholder, disabled label). Nunca pra
             conteúdo lido pelo usuário.
@@ -639,22 +639,22 @@ function Principle({
   body: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 flex flex-col gap-2">
-      <span className="text-xs text-[var(--fg-tertiary)]">{n}</span>
-      <div className="text-sm font-medium text-[var(--fg-primary)]">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-2">
+      <span className="text-xs text-(--fg-tertiary)">{n}</span>
+      <div className="text-sm font-medium text-(--fg-primary)">
         {title}
       </div>
-      <p className="body-sm m-0 text-[var(--fg-secondary)]">{body}</p>
+      <p className="body-sm m-0 text-(--fg-secondary)">{body}</p>
     </div>
   )
 }
 
 function SwatchStrip({ scale }: { scale: Scale }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-raised)]">
-      <div className="px-4 py-3 border-b border-[var(--border-subtle)] flex items-baseline justify-between gap-4">
+    <div className="rounded-lg border border-(--border-subtle) overflow-hidden bg-(--bg-raised)">
+      <div className="px-4 py-3 border-b border-(--border-subtle) flex items-baseline justify-between gap-4">
         <div>
-          <div className="font-medium text-[var(--fg-primary)]">
+          <div className="font-medium text-(--fg-primary)">
             {scale.title}
           </div>
           <div
@@ -662,11 +662,11 @@ function SwatchStrip({ scale }: { scale: Scale }) {
             dangerouslySetInnerHTML={{ __html: scale.description }}
           />
           <div
-            className="text-xs text-[var(--fg-tertiary)] mt-1 italic"
+            className="text-xs text-(--fg-tertiary) mt-1 italic"
             dangerouslySetInnerHTML={{ __html: scale.intent }}
           />
         </div>
-        <div className="text-xs text-[var(--fg-tertiary)] shrink-0">
+        <div className="text-xs text-(--fg-tertiary) shrink-0">
           {scale.swatches.length} steps
         </div>
       </div>
@@ -703,9 +703,9 @@ function SemanticRow({
   const isBorder = item.token.startsWith("--border-")
 
   return (
-    <div className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+    <div className="flex items-center gap-3 p-3 rounded-md border border-(--border-subtle) bg-(--bg-raised)">
       <div
-        className="w-10 h-10 rounded-[var(--radius-sm)] shrink-0 flex items-center justify-center"
+        className="w-10 h-10 rounded-sm shrink-0 flex items-center justify-center"
         style={{
           backgroundColor: isBg ? `var(${item.token})` : "var(--bg-surface)",
           color: isFg ? `var(${item.token})` : "var(--fg-primary)",
@@ -717,10 +717,10 @@ function SemanticRow({
         {isFg && <span className="text-sm font-semibold">Aa</span>}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="mono text-xs text-[var(--fg-primary)] truncate">
+        <div className="mono text-xs text-(--fg-primary) truncate">
           {item.token}
         </div>
-        <div className="text-xs text-[var(--fg-tertiary)] truncate">
+        <div className="text-xs text-(--fg-tertiary) truncate">
           {item.role}
         </div>
       </div>
@@ -732,20 +732,20 @@ function SurfaceCard({ label, dark }: { label: string; dark: boolean }) {
   return (
     <div className={dark ? "dark" : ""}>
       <div
-        className="rounded-[var(--radius-lg)] border overflow-hidden flex flex-col"
+        className="rounded-lg border overflow-hidden flex flex-col"
         style={{
           background: "var(--bg-canvas)",
           color: "var(--fg-primary)",
           borderColor: "var(--border-subtle)",
         }}
       >
-        <div className="px-5 py-3 border-b border-[var(--border-subtle)] flex items-center justify-between">
+        <div className="px-5 py-3 border-b border-(--border-subtle) flex items-center justify-between">
           <span className="text-sm font-medium">{label}</span>
           <span className="aw-eyebrow">{dark ? "dark" : "light"}</span>
         </div>
         <div className="p-6 flex flex-col gap-3">
           <div
-            className="p-4 rounded-[var(--radius-md)] border"
+            className="p-4 rounded-md border"
             style={{
               background: "var(--bg-raised)",
               borderColor: "var(--border-subtle)",
@@ -760,7 +760,7 @@ function SurfaceCard({ label, dark }: { label: string; dark: boolean }) {
             </div>
           </div>
           <div
-            className="p-4 rounded-[var(--radius-md)]"
+            className="p-4 rounded-md"
             style={{ background: "var(--bg-surface)" }}
           >
             <div className="text-sm font-medium">Surface</div>
@@ -782,13 +782,13 @@ function MappingValueCell({ value }: { value: string }) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className="w-4 h-4 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] shrink-0"
+        className="w-4 h-4 rounded-sm border border-(--border-subtle) shrink-0"
         style={{ backgroundColor: hex }}
         aria-hidden
       />
       <div className="flex flex-col leading-tight">
-        <code className="mono text-xs text-[var(--fg-secondary)]">{value}</code>
-        <code className="mono text-[10px] text-[var(--fg-tertiary)] uppercase">
+        <code className="mono text-xs text-(--fg-secondary)">{value}</code>
+        <code className="mono text-[10px] text-(--fg-tertiary) uppercase">
           {hex}
         </code>
       </div>
@@ -808,7 +808,7 @@ function ContrastCard({
   ratio: string
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden flex flex-col">
+    <div className="rounded-lg border border-(--border-subtle) overflow-hidden flex flex-col">
       <div
         className="p-6 flex items-center justify-center"
         style={{
@@ -819,15 +819,15 @@ function ContrastCard({
       >
         <span className="text-xl font-medium">Aa · Texto Exemplar</span>
       </div>
-      <div className="px-4 py-3 bg-[var(--bg-raised)] border-t border-[var(--border-subtle)] flex flex-col gap-1">
-        <span className="text-sm font-medium text-[var(--fg-primary)]">
+      <div className="px-4 py-3 bg-(--bg-raised) border-t border-(--border-subtle) flex flex-col gap-1">
+        <span className="text-sm font-medium text-(--fg-primary)">
           {label}
         </span>
         <div className="flex items-center justify-between">
-          <code className="mono text-[10px] text-[var(--fg-tertiary)]">
+          <code className="mono text-[10px] text-(--fg-tertiary)">
             {fg} on {bg}
           </code>
-          <span className="aw-eyebrow text-[var(--aw-emerald-700)]">
+          <span className="aw-eyebrow text-(--aw-emerald-700)">
             {ratio}
           </span>
         </div>

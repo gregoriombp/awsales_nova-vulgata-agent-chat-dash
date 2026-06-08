@@ -35,7 +35,7 @@ export default function PillsPage() {
           </Stage>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="live">Live</AwPill>
               </div>
@@ -43,7 +43,7 @@ export default function PillsPage() {
                 Agente publicado e servindo tráfego. Verde emerald.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="draft">Draft</AwPill>
               </div>
@@ -51,7 +51,7 @@ export default function PillsPage() {
                 Rascunho / não publicado. Cinza neutro.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="beta">Beta</AwPill>
               </div>
@@ -59,7 +59,7 @@ export default function PillsPage() {
                 Feature em disponibilidade restrita. Amber.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="error">Error</AwPill>
               </div>
@@ -67,7 +67,7 @@ export default function PillsPage() {
                 Falha de autenticação, sync ou execução. Vermelho.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="neutral">Neutral</AwPill>
               </div>
@@ -75,7 +75,7 @@ export default function PillsPage() {
                 Categoria, tag ou filtro sem semântica de status.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="flex items-center gap-3 mb-2">
                 <AwPill variant="ai">AI</AwPill>
               </div>
@@ -113,7 +113,7 @@ export default function PillsPage() {
           title="Anatomia"
           lead="Todos os valores vêm de tokens. Pulse é exclusividade da variante ai."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="altura"
               v="22 px"
@@ -172,7 +172,7 @@ export default function PillsPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">variant</code> e modificadores booleanos
             (<code className="mono">dot=&#123;false&#125;</code>) viram tokens
             na <code className="mono">className</code> do exemplo. Esquerda é

@@ -75,11 +75,11 @@ function Section({
   return (
     <section id={id} className="scroll-mt-16">
       <div className="mb-6">
-        <h2 className="text-[var(--h2-size)] font-medium tracking-[-0.015em]">
+        <h2 className="text-(--h2-size) font-medium tracking-[-0.015em]">
           {title}
         </h2>
         {lead && (
-          <p className="text-[var(--body-md-size)] text-[var(--fg-secondary)] mt-2 max-w-2xl">
+          <p className="text-(--body-md-size) text-(--fg-secondary) mt-2 max-w-2xl">
             {lead}
           </p>
         )}
@@ -99,9 +99,9 @@ function FoundationSummary({
   facts: Array<{ k: string; v: string }>
 }) {
   return (
-    <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+    <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_280px]">
-        <div className="p-6 border-b lg:border-b-0 lg:border-r border-[var(--border-subtle)] bg-[var(--bg-surface)] flex items-center justify-center min-h-[200px]">
+        <div className="p-6 border-b lg:border-b-0 lg:border-r border-(--border-subtle) bg-(--bg-surface) flex items-center justify-center min-h-[200px]">
           {sample}
         </div>
         <div className="p-6 flex flex-col gap-4">
@@ -109,7 +109,7 @@ function FoundationSummary({
             {facts.map((f) => (
               <div key={f.k} className="flex flex-col gap-0.5">
                 <dt className="aw-eyebrow">{f.k}</dt>
-                <dd className="text-[13px] font-medium text-[var(--fg-primary)] m-0">
+                <dd className="text-[13px] font-medium text-(--fg-primary) m-0">
                   {f.v}
                 </dd>
               </div>
@@ -117,7 +117,7 @@ function FoundationSummary({
           </dl>
           <Link
             href={href}
-            className="text-sm text-[var(--aw-blue-700)] hover:underline mt-auto"
+            className="text-sm text-(--aw-blue-700) hover:underline mt-auto"
           >
             Ver completo →
           </Link>
@@ -163,7 +163,7 @@ export default function StyleguidePage() {
                     ].map((t) => (
                       <div
                         key={t}
-                        className="h-10 rounded-[var(--radius-xs)] border border-[var(--border-subtle)]"
+                        className="h-10 rounded-xs border border-(--border-subtle)"
                         style={{ backgroundColor: `var(${t})` }}
                         title={t}
                       />
@@ -184,7 +184,7 @@ export default function StyleguidePage() {
                     ].map((t) => (
                       <div
                         key={t}
-                        className="h-10 rounded-[var(--radius-xs)] border border-[var(--border-subtle)]"
+                        className="h-10 rounded-xs border border-(--border-subtle)"
                         style={{ backgroundColor: `var(${t})` }}
                         title={t}
                       />
@@ -216,14 +216,14 @@ export default function StyleguidePage() {
                   <p className="body-md m-0">
                     Body padrão · 16 px · Geist Regular · line-height 1.5.
                   </p>
-                  <p className="body-sm m-0 text-[var(--fg-secondary)]">
+                  <p className="body-sm m-0 text-(--fg-secondary)">
                     Body small · 14 px — usado em meta, captions de tabela e
                     suporte secundário.
                   </p>
                   <p className="caption m-0">
                     CAPTION · 12 PX · LABEL DE METADADOS
                   </p>
-                  <code className="mono text-xs bg-[var(--bg-surface)] px-2 py-1 rounded-[var(--radius-sm)] w-fit">
+                  <code className="mono text-xs bg-(--bg-surface) px-2 py-1 rounded-sm w-fit">
                     --accent-brand: var(--aw-blue-600);
                   </code>
                 </div>
@@ -248,14 +248,14 @@ export default function StyleguidePage() {
                 <div className="flex flex-col gap-2">
                   {spacing.map((s) => (
                     <div key={s.token} className="flex items-center gap-3">
-                      <div className="w-10 text-[11px] font-medium text-[var(--fg-secondary)]">
+                      <div className="w-10 text-[11px] font-medium text-(--fg-secondary)">
                         {s.name}
                       </div>
                       <div
-                        className="h-2 rounded-[var(--radius-xs)] bg-[var(--aw-blue-500)]"
+                        className="h-2 rounded-xs bg-(--aw-blue-500)"
                         style={{ width: s.value }}
                       />
-                      <div className="text-[11px] text-[var(--fg-tertiary)]">
+                      <div className="text-[11px] text-(--fg-tertiary)">
                         {s.value}
                       </div>
                     </div>
@@ -283,7 +283,7 @@ export default function StyleguidePage() {
                   {Array.from({ length: 12 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-10 rounded-[var(--radius-xs)] bg-[var(--aw-blue-100)] border border-[var(--aw-blue-200)] flex items-center justify-center text-[10px] font-medium text-[var(--aw-blue-900)]"
+                      className="h-10 rounded-xs bg-(--aw-blue-100) border border-(--aw-blue-200) flex items-center justify-center text-[10px] font-medium text-(--aw-blue-900)"
                     >
                       {i + 1}
                     </div>
@@ -308,15 +308,15 @@ export default function StyleguidePage() {
               {radii.map((r) => (
                 <div
                   key={r.name}
-                  className="flex flex-col items-center gap-3 p-4 border border-[var(--border-subtle)] rounded-[var(--radius-md)] bg-[var(--bg-raised)]"
+                  className="flex flex-col items-center gap-3 p-4 border border-(--border-subtle) rounded-md bg-(--bg-raised)"
                 >
                   <div
-                    className="w-16 h-16 bg-[var(--aw-gray-1200)]"
+                    className="w-16 h-16 bg-(--aw-gray-1200)"
                     style={{ borderRadius: `var(${r.token})` }}
                   />
                   <div className="text-center">
                     <div className="text-sm font-medium">{r.name}</div>
-                    <div className="text-xs text-[var(--fg-tertiary)] mt-0.5">
+                    <div className="text-xs text-(--fg-tertiary) mt-0.5">
                       {r.value}
                     </div>
                     <div className="caption mt-1">{r.use}</div>
@@ -335,11 +335,11 @@ export default function StyleguidePage() {
               {shadows.map((s) => (
                 <div
                   key={s.name}
-                  className="h-28 rounded-[var(--radius-lg)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex flex-col items-center justify-center p-4"
+                  className="h-28 rounded-lg bg-(--bg-raised) border border-(--border-subtle) flex flex-col items-center justify-center p-4"
                   style={{ boxShadow: `var(${s.token})` }}
                 >
                   <div className="text-sm font-medium">{s.name}</div>
-                  <code className="mono text-xs text-[var(--fg-tertiary)] mt-1">
+                  <code className="mono text-xs text-(--fg-tertiary) mt-1">
                     {s.token}
                   </code>
                   <div className="caption text-center mt-1">{s.use}</div>
@@ -353,15 +353,15 @@ export default function StyleguidePage() {
             title="Movimento"
             lead="Rápido, utilitário. Durações de 120 a 280 ms. Sem bounces, sem overshoot. A única animação expressiva é o drift do mesh iridescente da IA."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-              <ul className="divide-y divide-[var(--border-subtle)]">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
+              <ul className="divide-y divide-(--border-subtle)">
                 {motion.map((m) => (
                   <li
                     key={m.name}
                     className="flex items-center justify-between px-4 py-3"
                   >
                     <code className="mono text-sm">--{m.name}</code>
-                    <span className="text-xs text-[var(--fg-tertiary)]">
+                    <span className="text-xs text-(--fg-tertiary)">
                       {m.value}
                     </span>
                   </li>
@@ -379,14 +379,14 @@ export default function StyleguidePage() {
               href="/bombardier/styleguide/foundation/gradient"
               sample={
                 <div className="flex flex-col gap-3 w-full">
-                  <div className="aw-gradient-iridescent h-14 rounded-[var(--radius-full)] flex items-center justify-center text-sm font-medium text-[var(--aw-gray-1200)]">
+                  <div className="aw-gradient-iridescent h-14 rounded-full flex items-center justify-center text-sm font-medium text-(--aw-gray-1200)">
                     fill · iridescent
                   </div>
-                  <div className="aw-gradient-iridescent-soft h-14 rounded-[var(--radius-md)] border border-[var(--border-subtle)] flex items-center justify-center text-sm font-medium text-[var(--fg-primary)]">
+                  <div className="aw-gradient-iridescent-soft h-14 rounded-md border border-(--border-subtle) flex items-center justify-center text-sm font-medium text-(--fg-primary)">
                     soft mesh
                   </div>
                   <div
-                    className="aw-gradient-iridescent-border h-14 rounded-[var(--radius-full)] flex items-center justify-center text-sm font-medium text-[var(--fg-primary)]"
+                    className="aw-gradient-iridescent-border h-14 rounded-full flex items-center justify-center text-sm font-medium text-(--fg-primary)"
                     style={
                       {
                         "--aw-iridescent-fill": "var(--bg-canvas)",
@@ -412,7 +412,7 @@ export default function StyleguidePage() {
             lead="A sidebar e o shell do produto vivem em uma superfície escura permanente. Esses tokens não viram com o modo escuro — eles descrevem o chrome."
           >
             <div
-              className="rounded-[var(--radius-xl)] p-8 flex flex-col gap-4"
+              className="rounded-xl p-8 flex flex-col gap-4"
               style={{
                 backgroundColor: "var(--dark-bg)",
                 color: "var(--dark-fg-primary)",
@@ -438,7 +438,7 @@ export default function StyleguidePage() {
               </div>
               <div className="flex gap-3">
                 <div
-                  className="flex-1 h-12 rounded-[var(--radius-md)] flex items-center justify-center text-sm"
+                  className="flex-1 h-12 rounded-md flex items-center justify-center text-sm"
                   style={{
                     backgroundColor: "var(--dark-bg-raised)",
                     color: "var(--dark-fg-primary)",
@@ -447,7 +447,7 @@ export default function StyleguidePage() {
                   --dark-bg-raised
                 </div>
                 <div
-                  className="flex-1 h-12 rounded-[var(--radius-md)] flex items-center justify-center text-sm"
+                  className="flex-1 h-12 rounded-md flex items-center justify-center text-sm"
                   style={{
                     backgroundColor: "var(--dark-bg-hover)",
                     color: "var(--dark-fg-primary)",
@@ -465,7 +465,7 @@ export default function StyleguidePage() {
             lead="Superfícies demo compostas só de tokens. Cada componente tem página própria com API e states no padrão canônico."
           >
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">AwButton</div>
                 <div className="flex flex-col gap-3">
                   <div className="flex flex-wrap gap-2">
@@ -499,7 +499,7 @@ export default function StyleguidePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">AwCard</div>
                 <AwCard>
                   <AwCardHeader>
@@ -524,7 +524,7 @@ export default function StyleguidePage() {
                 </AwCard>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">AwPill</div>
                 <div className="flex flex-wrap gap-2">
                   <AwPill variant="neutral">Neutral</AwPill>
@@ -536,7 +536,7 @@ export default function StyleguidePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">AwInput · AwField</div>
                 <div className="flex flex-col gap-4">
                   <AwField
@@ -566,7 +566,7 @@ export default function StyleguidePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">AwAlert</div>
                 <div className="flex flex-col gap-2">
                   <AwAlert variant="success" title="Agente aprovado.">
@@ -587,7 +587,7 @@ export default function StyleguidePage() {
                 </div>
               </div>
 
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
                 <div className="aw-eyebrow mb-4">
                   AwCard · variant=&quot;ai&quot;
                 </div>

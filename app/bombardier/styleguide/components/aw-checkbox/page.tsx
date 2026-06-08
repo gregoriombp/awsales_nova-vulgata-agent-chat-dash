@@ -52,7 +52,7 @@ export default function CheckboxPage() {
             <CheckboxRow id="st-dis"       label="Desabilitado"    checked={false} disabled />
           </Stage>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <Spec k="unchecked" v="borda default"    d="Estado neutro. Nenhum valor selecionado." />
             <Spec k="checked"   v="bg fg-primary"    d="Selecionado. Ícone check em bg-raised." />
             <Spec k="indeterminate" v="bg fg-primary" d="Seleção parcial em grupo. Ícone remove." />
@@ -71,7 +71,7 @@ export default function CheckboxPage() {
           </Stage>
 
           <CodeExample label="padrão">{`<AwCheckbox id="terms" checked={checked} onChange={setChecked} />
-<label htmlFor="terms" className="body-sm text-[var(--fg-primary)]">
+<label htmlFor="terms" className="body-sm text-(--fg-primary)">
   Aceitar termos e condições
 </label>`}</CodeExample>
         </Section>
@@ -89,10 +89,10 @@ export default function CheckboxPage() {
           <CodeExample label="com descrição">{`<div className="flex items-start gap-3">
   <AwCheckbox id="notify" checked={checked} onChange={setChecked} />
   <div className="flex flex-col gap-1">
-    <label htmlFor="notify" className="body-sm font-medium text-[var(--fg-primary)]">
+    <label htmlFor="notify" className="body-sm font-medium text-(--fg-primary)">
       Receber notificações
     </label>
-    <p className="caption text-[var(--fg-secondary)]">
+    <p className="caption text-(--fg-secondary)">
       Você pode desativar a qualquer momento nas configurações.
     </p>
   </div>
@@ -111,7 +111,7 @@ export default function CheckboxPage() {
           </Stage>
 
           <CodeExample label="disabled">{`<AwCheckbox id="feature" checked={false} disabled />
-<label htmlFor="feature" className="body-sm text-[var(--fg-secondary)] cursor-not-allowed">
+<label htmlFor="feature" className="body-sm text-(--fg-secondary) cursor-not-allowed">
   Funcionalidade indisponível
 </label>`}</CodeExample>
         </Section>
@@ -128,16 +128,16 @@ export default function CheckboxPage() {
 
           <CodeExample label="card clicável">{`<label
   htmlFor="plan-pro"
-  className="flex items-start gap-3 rounded-[var(--radius-lg)] border border-[var(--border-default)]
-    bg-[var(--bg-raised)] p-4 cursor-pointer transition-colors
-    hover:bg-[var(--bg-surface)]
-    has-[[aria-checked=true]]:border-[var(--fg-primary)]
-    has-[[aria-checked=true]]:bg-[var(--bg-surface)]"
+  className="flex items-start gap-3 rounded-lg border border-(--border-default)
+    bg-(--bg-raised) p-4 cursor-pointer transition-colors
+    hover:bg-(--bg-surface)
+    has-aria-checked:border-(--fg-primary)
+    has-aria-checked:bg-(--bg-surface)"
 >
   <AwCheckbox id="plan-pro" checked={checked} onChange={setChecked} />
   <div className="flex flex-col gap-0.5">
-    <span className="body-sm font-medium text-[var(--fg-primary)]">Pro</span>
-    <span className="caption text-[var(--fg-secondary)]">Até 10 agentes e 50 GB</span>
+    <span className="body-sm font-medium text-(--fg-primary)">Pro</span>
+    <span className="caption text-(--fg-secondary)">Até 10 agentes e 50 GB</span>
   </div>
 </label>`}</CodeExample>
         </Section>
@@ -215,7 +215,7 @@ const toggle = (i: number) =>
         <Section
           id="keyboard"
           title="Acessibilidade"
-          lead="O Radix Checkbox.Root herda role=checkbox do padrão ARIA. Focus-visible com ring fg-primary. Sempre associe um label visível via htmlFor — o aria-label é fallback, não substituto."
+          lead="O Radix Checkbox.Root herda role=checkbox do padrão ARIA. Focus-visible com ring-3 fg-primary. Sempre associe um label visível via htmlFor — o aria-label é fallback, não substituto."
         >
           <KeyboardTable
             rows={[
@@ -224,15 +224,15 @@ const toggle = (i: number) =>
               { keys: ["Space"],        action: "Alterna o estado (checked ↔ unchecked)." },
             ]}
           />
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5 mt-4 body-sm text-[var(--fg-secondary)] flex flex-col gap-2">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 mt-4 body-sm text-(--fg-secondary) flex flex-col gap-2">
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">label obrigatório.</strong>{" "}
+              <strong className="text-(--fg-primary)">label obrigatório.</strong>{" "}
               Sempre use <code className="mono">htmlFor</code> + <code className="mono">id</code> ou
               a prop <code className="mono">label</code> (aria-label). Checkbox bare sem texto
               acessível é falha de a11y.
             </p>
             <p className="m-0">
-              <strong className="text-[var(--fg-primary)]">indeterminate.</strong>{" "}
+              <strong className="text-(--fg-primary)">indeterminate.</strong>{" "}
               Screen readers anunciam como &quot;misto&quot; (<em>mixed</em>). Sempre acompanhe de
               label que indique o que está parcialmente selecionado.
             </p>
@@ -294,8 +294,8 @@ function CheckboxRow({
         className={[
           "body-sm",
           disabled
-            ? "text-[var(--fg-tertiary)] cursor-not-allowed"
-            : "text-[var(--fg-primary)] cursor-pointer",
+            ? "text-(--fg-tertiary) cursor-not-allowed"
+            : "text-(--fg-primary) cursor-pointer",
         ].join(" ")}
       >
         {label}
@@ -309,7 +309,7 @@ function DefaultDemo() {
   return (
     <div className="flex items-center gap-3">
       <AwCheckbox id="default-demo" checked={checked} onChange={setChecked} />
-      <label htmlFor="default-demo" className="body-sm text-[var(--fg-primary)] cursor-pointer">
+      <label htmlFor="default-demo" className="body-sm text-(--fg-primary) cursor-pointer">
         Aceitar termos e condições
       </label>
     </div>
@@ -322,10 +322,10 @@ function WithTextDemo() {
     <div className="flex items-start gap-3">
       <AwCheckbox id="with-text-demo" checked={checked} onChange={setChecked} />
       <div className="flex flex-col gap-1">
-        <label htmlFor="with-text-demo" className="body-sm font-medium text-[var(--fg-primary)] cursor-pointer leading-none">
+        <label htmlFor="with-text-demo" className="body-sm font-medium text-(--fg-primary) cursor-pointer leading-none">
           Receber notificações por e-mail
         </label>
-        <p className="caption text-[var(--fg-secondary)] m-0">
+        <p className="caption text-(--fg-secondary) m-0">
           Você pode desativar a qualquer momento nas configurações da conta.
         </p>
       </div>
@@ -353,16 +353,16 @@ function CardCheckboxDemo() {
             key={p.id}
             htmlFor={p.id}
             className={[
-              "flex items-start gap-3 rounded-[var(--radius-lg)] border p-4 cursor-pointer transition-colors",
+              "flex items-start gap-3 rounded-lg border p-4 cursor-pointer transition-colors",
               isChecked
-                ? "border-[var(--fg-primary)] bg-[var(--bg-surface)]"
-                : "border-[var(--border-default)] bg-[var(--bg-raised)] hover:bg-[var(--bg-surface)]",
+                ? "border-(--fg-primary) bg-(--bg-surface)"
+                : "border-(--border-default) bg-(--bg-raised) hover:bg-(--bg-surface)",
             ].join(" ")}
           >
             <AwCheckbox id={p.id} checked={isChecked} onChange={() => toggle(p.id)} />
             <div className="flex flex-col gap-0.5">
-              <span className="body-sm font-medium text-[var(--fg-primary)]">{p.title}</span>
-              <span className="caption text-[var(--fg-secondary)]">{p.desc}</span>
+              <span className="body-sm font-medium text-(--fg-primary)">{p.title}</span>
+              <span className="caption text-(--fg-secondary)">{p.desc}</span>
             </div>
           </label>
         )
@@ -388,9 +388,9 @@ function GroupDemo() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-3 pb-3 border-b border-[var(--border-subtle)]">
+      <div className="flex items-center gap-3 pb-3 border-b border-(--border-subtle)">
         <AwCheckbox id="group-parent" checked={parentState} onChange={toggleAll} />
-        <label htmlFor="group-parent" className="body-sm font-medium text-[var(--fg-primary)] cursor-pointer">
+        <label htmlFor="group-parent" className="body-sm font-medium text-(--fg-primary) cursor-pointer">
           Notificações
         </label>
       </div>
@@ -398,7 +398,7 @@ function GroupDemo() {
         {options.map((opt, i) => (
           <div key={opt} className="flex items-center gap-3">
             <AwCheckbox id={`group-item-${i}`} checked={items[i]} onChange={() => toggle(i)} />
-            <label htmlFor={`group-item-${i}`} className="body-sm text-[var(--fg-primary)] cursor-pointer">
+            <label htmlFor={`group-item-${i}`} className="body-sm text-(--fg-primary) cursor-pointer">
               {opt}
             </label>
           </div>

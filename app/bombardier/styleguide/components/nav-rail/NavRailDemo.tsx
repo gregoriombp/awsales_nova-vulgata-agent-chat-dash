@@ -136,7 +136,7 @@ export function LiveDemo() {
       </div>
 
       <div
-        className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] p-6 flex"
+        className="rounded-lg border border-(--border-subtle) p-6 flex"
         style={{
           background:
             theme === "dark" ? "var(--dark-bg)" : "var(--bg-surface)",

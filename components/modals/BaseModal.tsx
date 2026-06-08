@@ -60,7 +60,7 @@ export default function BaseModal({
 
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center p-6"
+      className="fixed inset-0 z-1000 flex items-center justify-center p-6"
       onClick={onClose}
       style={{
         background: "rgba(0, 0, 0, 0.55)",
@@ -70,7 +70,7 @@ export default function BaseModal({
       }}
     >
       <div
-        className={`relative flex max-h-[90vh] w-full ${sizeClasses[size]} flex-col overflow-hidden rounded-[var(--radius-xl)] bg-[var(--bg-raised)] text-[var(--fg-primary)]`}
+        className={`relative flex max-h-[90vh] w-full ${sizeClasses[size]} flex-col overflow-hidden rounded-xl bg-(--bg-raised) text-(--fg-primary)`}
         onClick={(e) => e.stopPropagation()}
         style={{
           boxShadow: "var(--shadow-overlay)",

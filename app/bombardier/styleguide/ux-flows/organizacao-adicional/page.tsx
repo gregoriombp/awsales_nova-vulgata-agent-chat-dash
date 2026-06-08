@@ -327,7 +327,7 @@ export default function OrganizacaoAdicionalFlowPage() {
         Subflow disparado a partir do{" "}
         <Link
           href="/bombardier/styleguide/ux-flows/login-auth"
-          className="text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+          className="text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
         >
           login
         </Link>
@@ -350,23 +350,23 @@ export default function OrganizacaoAdicionalFlowPage() {
           title="Cada tela"
           lead="Propósito, decisões e link direto pro protótipo de cada uma."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-(--border-subtle)">
               {screens.map((s) => (
                 <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
-                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                    <span className="aw-eyebrow text-(--aw-blue-700)">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-(--fg-primary)">{s.title}</h3>
                   </div>
-                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">{s.purpose}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
                     <span className="caption">
-                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      <span className="font-medium text-(--fg-secondary)">Decisões: </span>
                       {s.decisions}
                     </span>
                     <Link
                       href={s.href}
-                      className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                      className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
                     >
                       Abrir protótipo →
                     </Link>
@@ -383,15 +383,15 @@ export default function OrganizacaoAdicionalFlowPage() {
           lead="Por que esse subflow existe separado do primeiro acesso."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Perfil já existe — não pergunta de novo</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Nome, telefone, foto e destinatários de fatura já foram coletados no primeiro acesso. Pedir de novo é fricção sem retorno. O contrato e a cobrança são por organização, então essas duas etapas continuam.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Adiar é uma opção, não uma pendência ignorada</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Quem comprou o plano correndo pode entrar na plataforma usando outra organização. O banner persistente em /inicio garante que a pendência fique visível até ser resolvida — sem bloquear o trabalho.
               </p>
             </div>

@@ -58,7 +58,7 @@ export default function AwGroupCardPage() {
           >
             <Stage
               label="Grupo cheio"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <AwGroupCard
@@ -90,7 +90,7 @@ export default function AwGroupCardPage() {
           >
             <Stage
               label="memberCount > maxAvatars"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <div className="max-w-[420px]">
                 <AwGroupCard
@@ -113,7 +113,7 @@ export default function AwGroupCardPage() {
           >
             <Stage
               label="Fallback sem imagem"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <div className="max-w-[420px]">
                 <AwGroupCard
@@ -135,7 +135,7 @@ export default function AwGroupCardPage() {
           >
             <Stage
               label="Singular"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <div className="max-w-[420px]">
                 <AwGroupCard

@@ -22,9 +22,9 @@ function renderItem(
   const content = (
     <span className="inline-flex items-center gap-2">
       {data.icon && (
-        <span className="flex-shrink-0 text-[var(--fg-primary)]">{data.icon}</span>
+        <span className="shrink-0 text-(--fg-primary)">{data.icon}</span>
       )}
-      <span className={isLast ? "text-[var(--fg-tertiary)]" : "text-[var(--fg-primary)]"}>
+      <span className={isLast ? "text-(--fg-tertiary)" : "text-(--fg-primary)"}>
         {data.label}
       </span>
     </span>
@@ -36,7 +36,7 @@ function renderItem(
         {hasLink ? (
           <Link
             href={data.href!}
-            className="body-sm leading-5 hover:underline hover:text-[var(--fg-primary)] focus:outline-none focus:underline"
+            className="body-sm leading-5 hover:underline hover:text-(--fg-primary) focus:outline-hidden focus:underline"
           >
             {content}
           </Link>
@@ -51,7 +51,7 @@ function renderItem(
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="text-[var(--fg-tertiary)] flex-shrink-0"
+          className="text-(--fg-tertiary) shrink-0"
           aria-hidden="true"
         >
           <path
@@ -91,7 +91,7 @@ export function AwBreadcrumbsBar({
   // label just duplicates the page header, so we hide the bar entirely.
   if (!items || items.length <= 1) return null;
   return (
-    <div className="flex h-11 shrink-0 items-center bg-[var(--bg-raised)]">
+    <div className="flex h-11 shrink-0 items-center bg-(--bg-raised)">
       <div className={innerClassName ?? "w-full px-8"}>
         <AwBreadcrumbs items={items} />
       </div>

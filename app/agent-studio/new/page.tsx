@@ -248,7 +248,7 @@ function VariableChipEditor({
     if (!value) return <div className={`${className} text-fg-tertiary`} style={{ minHeight }}>{placeholder}</div>;
     const segments = parseVariableSegments(value);
     return (
-      <div className={`${className} whitespace-pre-wrap break-words`} style={{ minHeight }}>
+      <div className={`${className} whitespace-pre-wrap wrap-break-word`} style={{ minHeight }}>
         {segments.map((seg, i) =>
           seg.type === "text" ? (
             <span key={i}>{seg.content}</span>
@@ -268,7 +268,7 @@ function VariableChipEditor({
       contentEditable
       suppressContentEditableWarning
       data-placeholder={placeholder}
-      className={`${className} whitespace-pre-wrap break-words outline-none empty:before:content-[attr(data-placeholder)] empty:before:text-fg-tertiary`}
+      className={`${className} whitespace-pre-wrap wrap-break-word outline-hidden empty:before:content-[attr(data-placeholder)] empty:before:text-fg-tertiary`}
       style={{ minHeight }}
       onInput={handleInput}
       onKeyDown={handleKeyDown}
@@ -668,19 +668,19 @@ const ModuleTag = ({ module }: { module: PromptModule }) => {
   const colors: Record<string, { bg: string; text: string; border: string }> = {
     variable: { bg: "bg-bg-surface", text: "text-fg-primary", border: "border-border" },
     action: {
-      bg: "bg-[var(--aw-emerald-150)]",
-      text: "text-[var(--aw-emerald-900)]",
-      border: "border-[var(--aw-emerald-300)]",
+      bg: "bg-(--aw-emerald-150)",
+      text: "text-(--aw-emerald-900)",
+      border: "border-(--aw-emerald-300)",
     },
     condition: {
-      bg: "bg-[var(--aw-amber-150)]",
-      text: "text-[var(--aw-amber-900)]",
-      border: "border-[var(--aw-amber-300)]",
+      bg: "bg-(--aw-amber-150)",
+      text: "text-(--aw-amber-900)",
+      border: "border-(--aw-amber-300)",
     },
     loop: {
-      bg: "bg-[var(--aw-blue-150)]",
-      text: "text-[var(--aw-blue-900)]",
-      border: "border-[var(--aw-blue-300)]",
+      bg: "bg-(--aw-blue-150)",
+      text: "text-(--aw-blue-900)",
+      border: "border-(--aw-blue-300)",
     },
   };
 
@@ -689,7 +689,7 @@ const ModuleTag = ({ module }: { module: PromptModule }) => {
   return (
     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-md ${style.bg} ${style.text} border ${style.border} font-mono text-xs`}>
       {module.type === "action" && (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-[var(--aw-emerald-900)]">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="text-(--aw-emerald-900)">
           <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
         </svg>
       )}
@@ -803,9 +803,9 @@ const FlowNodeComponent = ({
     switch (type) {
       case "trigger":
         return {
-          bg: "bg-[var(--bg-inverse)]",
-          border: "border-[var(--bg-inverse)]",
-          text: "text-[var(--fg-on-inverse)]",
+          bg: "bg-(--bg-inverse)",
+          border: "border-(--bg-inverse)",
+          text: "text-(--fg-on-inverse)",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="12" cy="12" r="10"/>
@@ -815,9 +815,9 @@ const FlowNodeComponent = ({
       case "greeting":
       case "message":
         return {
-          bg: "bg-[var(--bg-raised)]",
-          border: "border-[var(--border-default)]",
-          text: "text-[var(--fg-primary)]",
+          bg: "bg-(--bg-raised)",
+          border: "border-(--border-default)",
+          text: "text-(--fg-primary)",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -826,9 +826,9 @@ const FlowNodeComponent = ({
         };
       case "action":
         return {
-          bg: "bg-[var(--bg-raised)]",
-          border: "border-[var(--border-default)]",
-          text: "text-[var(--fg-primary)]",
+          bg: "bg-(--bg-raised)",
+          border: "border-(--border-default)",
+          text: "text-(--fg-primary)",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
@@ -838,9 +838,9 @@ const FlowNodeComponent = ({
       case "condition":
       case "decision":
         return {
-          bg: "bg-[var(--aw-amber-100)]",
-          border: "border-[var(--aw-amber-300)]",
-          text: "text-[var(--aw-amber-900)]",
+          bg: "bg-(--aw-amber-100)",
+          border: "border-(--aw-amber-300)",
+          text: "text-(--aw-amber-900)",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M12 2L2 12l10 10 10-10L12 2z"/>
@@ -849,9 +849,9 @@ const FlowNodeComponent = ({
         };
       case "loop":
         return {
-          bg: "bg-[var(--aw-blue-100)]",
-          border: "border-[var(--aw-blue-300)]",
-          text: "text-[var(--aw-blue-900)]",
+          bg: "bg-(--aw-blue-100)",
+          border: "border-(--aw-blue-300)",
+          text: "text-(--aw-blue-900)",
           icon: (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
@@ -860,9 +860,9 @@ const FlowNodeComponent = ({
         };
       default:
         return {
-          bg: "bg-[var(--bg-raised)]",
-          border: "border-[var(--border-default)]",
-          text: "text-[var(--fg-primary)]",
+          bg: "bg-(--bg-raised)",
+          border: "border-(--border-default)",
+          text: "text-(--fg-primary)",
           icon: null,
         };
     }
@@ -894,7 +894,7 @@ const FlowNodeComponent = ({
         `}
       >
         <div className="flex items-start gap-2">
-          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-[var(--fg-on-inverse)]" : "text-fg-tertiary"}`}>
+          <div className={`shrink-0 mt-0.5 ${node.type === "trigger" ? "text-(--fg-on-inverse)" : "text-fg-tertiary"}`}>
             {style.icon}
           </div>
           <div className="flex-1 min-w-0">
@@ -902,7 +902,7 @@ const FlowNodeComponent = ({
               {node.label}
             </div>
             {node.description && (
-              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-[var(--aw-gray-400)]" : "text-fg-tertiary"}`}>
+              <div className={`text-xs leading-snug ${node.type === "trigger" ? "text-(--aw-gray-400)" : "text-fg-tertiary"}`}>
                 {node.description}
               </div>
             )}
@@ -911,7 +911,7 @@ const FlowNodeComponent = ({
       </div>
 
       {/* Connection point (bottom) */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-aw-gray-300 rounded-full border-2 border-[var(--bg-raised)]" />
+      <div className="absolute left-1/2 -translate-x-1/2 bottom-0 translate-y-1/2 w-3 h-3 bg-aw-gray-300 rounded-full border-2 border-(--bg-raised)" />
     </div>
   );
 };
@@ -1693,7 +1693,7 @@ const ModularFlowVisualization = () => {
                   <textarea
                     value={selectedNode.config.message}
                     readOnly
-                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-fg-primary focus:outline-none focus:border-aw-gray-1200 resize-none"
+                    className="w-full px-3 py-2 border border-border rounded-lg text-sm text-fg-primary focus:outline-hidden focus:border-aw-gray-1200 resize-none"
                     rows={3}
                   />
                   <p className="mt-2 text-xs text-fg-tertiary">
@@ -2274,12 +2274,12 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   // Step 7: Loading Screen
   if (currentStep === 7) {
     return (
-      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
+      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
           {/* Subtle gradient background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-white via-fuchsia-50 to-purple-50 opacity-50" />
-          <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-gradient-to-br from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 animate-pulse" />
-          <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
+          <div className="absolute inset-0 bg-linear-to-br from-white via-fuchsia-50 to-purple-50 opacity-50" />
+          <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-linear-to-br from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 animate-pulse" />
+          <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-linear-to-br from-blue-100 to-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
           
           <div className="relative z-10 flex flex-col items-center gap-8">
             <SparkleIcon />
@@ -2304,10 +2304,10 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
     const goalTitle = GOAL_OPTIONS.find(g => g.id === selectedGoal)?.title || customGoal;
 
     return (
-      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0!">
         <div className="min-h-full w-full flex">
           {/* Left sidebar - light card style (Insert a Simple Poll style) */}
-          <aside className="w-[260px] flex-shrink-0 bg-bg-surface rounded-l-2xl flex flex-col min-h-0">
+          <aside className="w-[260px] shrink-0 bg-bg-surface rounded-l-2xl flex flex-col min-h-0">
             {/* Header: title + description */}
             <div className="p-4 pb-3 border-b border-border-subtle">
               <div className="flex items-start gap-2">
@@ -2331,7 +2331,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     key={item.id}
                     type="button"
                     onClick={() => setAgentStudioTab(item.id)}
-                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm transition-colors ${
+                    className={`w-full text-left flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors ${
                       isActive
                         ? "bg-bg-surface text-fg-secondary font-medium"
                         : "text-fg-secondary hover:bg-bg-muted hover:text-fg-secondary"
@@ -2385,8 +2385,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     <h1 className="font-heading text-[32px] font-medium text-fg-primary tracking-[-0.5px]">
                       {agentName || "Agente"}
                     </h1>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--aw-amber-300)] bg-[var(--aw-amber-150)] px-2.5 py-0.5 text-xs font-medium text-[var(--aw-amber-900)]">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[var(--aw-amber-600)]" />
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-150) px-2.5 py-0.5 text-xs font-medium text-(--aw-amber-900)">
+                      <span className="h-1.5 w-1.5 rounded-full bg-(--aw-amber-600)" />
                       Rascunho · não publicado
                     </span>
                   </div>
@@ -2428,7 +2428,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       </button>
                       <button
                         type="button"
-                        className="w-full px-4 py-2 text-left text-sm text-aw-red-600 hover:bg-[var(--aw-red-100)] transition-colors"
+                        className="w-full px-4 py-2 text-left text-sm text-aw-red-600 hover:bg-(--aw-red-100) transition-colors"
                         onClick={() => { setHeaderMenuOpen(false); /* Excluir */ }}
                       >
                         Excluir agente
@@ -2482,7 +2482,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     <div className="flex items-center gap-2">
                       <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-fg-primary underline decoration-dotted underline-offset-4 hover:no-underline">
                         Prompt do Agente
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="shrink-0">
                           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
@@ -2519,7 +2519,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       onChange={(v) => handleEditorChange(v, setAgentPrompt, "prompt")}
                       readOnly={!isPromptEditing}
                       placeholder="Defina a personalidade do agente: quem ele é, como fala, tom de voz..."
-                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none transition-colors ${
+                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-hidden transition-colors ${
                         promptEditorExpanded ? "min-h-[300px]" : "min-h-[160px]"
                       } ${
                         isPromptEditing
@@ -2547,7 +2547,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                     <div className="flex items-center gap-2">
                       <a href="#" className="flex items-center gap-1.5 text-sm font-medium text-fg-primary underline decoration-dotted underline-offset-4 hover:no-underline">
                         Checkpoint do Agente
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="flex-shrink-0">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" className="shrink-0">
                           <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                       </a>
@@ -2584,7 +2584,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                       onChange={(v) => handleEditorChange(v, setCheckpointContent, "checkpoint")}
                       readOnly={!isCheckpointEditing}
                       placeholder="Defina as etapas de execução: # Etapa 1, objetivos, critérios de avanço, @ações..."
-                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-none transition-colors ${
+                      className={`w-full p-5 pr-10 text-sm leading-relaxed font-sans border-0 outline-hidden transition-colors ${
                         checkpointEditorExpanded ? "min-h-[500px]" : "min-h-[280px]"
                       } ${
                         isCheckpointEditing
@@ -2610,7 +2610,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               </div>
 
               {/* Right Sidebar (Figma wireframe: Variáveis + Tools) */}
-              <div className="w-[360px] flex-shrink-0 space-y-6">
+              <div className="w-[360px] shrink-0 space-y-6">
                 {/* Variáveis */}
                 <div>
                   <button
@@ -2648,7 +2648,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   onChange={(e) => setSidebarVariableValues((prev) => ({ ...prev, [v.id]: e.target.value }))}
                                   onBlur={() => setEditingSidebarVariableId(null)}
                                   onKeyDown={(e) => { if (e.key === "Enter") setEditingSidebarVariableId(null); }}
-                                  className="w-full rounded border border-border px-2 py-0.5 text-sm outline-none focus:border-aw-gray-1200"
+                                  className="w-full rounded border border-border px-2 py-0.5 text-sm outline-hidden focus:border-aw-gray-1200"
                                   autoFocus
                                 />
                               ) : (
@@ -2751,8 +2751,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   <p className="text-xs text-fg-tertiary mt-0.5 line-clamp-2">{tool.description}</p>
                                   <div className="flex flex-wrap gap-1.5 mt-2">
                                     {tool.activeCount > 0 && (
-                                      <span className="inline-flex items-center gap-1 text-xs bg-[var(--aw-emerald-150)] text-[var(--aw-emerald-900)] px-1.5 py-0.5 rounded">
-                                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--aw-emerald-600)]" />
+                                      <span className="inline-flex items-center gap-1 text-xs bg-(--aw-emerald-150) text-(--aw-emerald-900) px-1.5 py-0.5 rounded">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-(--aw-emerald-600)" />
                                         {tool.activeCount} Ativas
                                       </span>
                                     )}
@@ -2797,7 +2797,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
 
           {/* Variable config modal (full screen, card) */}
         {variableModalOpen && selectedVariable && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50">
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/50">
             <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col">
               <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <h3 className="font-heading text-lg font-medium text-fg-primary">
@@ -2866,7 +2866,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
         {showPublishOptionsModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-xs"
               onClick={() => setShowPublishOptionsModal(false)}
             />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
@@ -2895,7 +2895,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
         {showPublishConfirmModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div
-              className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/50 backdrop-blur-xs"
               onClick={() => setShowPublishConfirmModal(false)}
             />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
@@ -2948,7 +2948,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   }
 
   return (
-    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0 !overflow-hidden">
+    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
         <div className={`w-full ${currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
@@ -3120,7 +3120,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   : "bg-white border-border hover:border-aw-gray-400"
                             }`}
                           >
-                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
                               isSelected ? "bg-white/10" : "bg-bg-muted"
                             }`}>
                               {/* Ícone "library" (prédio de colunas) p/ base de conhecimento — review cmt-091c */}
@@ -3177,7 +3177,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                               </div>
                             </div>
 
-                            <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                               isSelected ? "bg-white" : "border-2 border-aw-gray-400"
                             }`}>
                               {isSelected && (
@@ -3230,7 +3230,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             : "border-border hover:border-aw-gray-400"
                         }`}
                       >
-                        <span className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-bg-muted">
+                        <span className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 bg-bg-muted">
                           <Icon name="account_balance" fill={1} size={18} style={{ color: "var(--aw-gray-600)" }} />
                         </span>
                         <span className="flex-1 min-w-0">
@@ -3419,7 +3419,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                 : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
                           }`}
                         >
-                          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted">
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bg-muted">
                             <IntegrationIcon type={c.icon} />
                           </div>
                           <div className="min-w-0 flex-1">
@@ -3428,11 +3428,11 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                 {c.name}
                               </h4>
                               {soon ? (
-                                <span className="inline-flex flex-shrink-0 items-center rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-fg-tertiary">
+                                <span className="inline-flex shrink-0 items-center rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-fg-tertiary">
                                   Em breve
                                 </span>
                               ) : (
-                                <span className="inline-flex flex-shrink-0 items-center gap-1 text-xs text-aw-emerald-700">
+                                <span className="inline-flex shrink-0 items-center gap-1 text-xs text-aw-emerald-700">
                                   <span className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500" />
                                   Ativo
                                 </span>
@@ -3444,7 +3444,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           </div>
                           {!soon && (
                             <span
-                              className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                              className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
                                 sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
                               }`}
                             >
@@ -3513,7 +3513,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                     {n.name}
                                   </h4>
                                   {n.avatar && (
-                                    <span className="inline-flex flex-shrink-0 items-center gap-0.5 text-xs text-aw-emerald-700">
+                                    <span className="inline-flex shrink-0 items-center gap-0.5 text-xs text-aw-emerald-700">
                                       <Icon name="trending_up" size={13} />
                                       Alta
                                     </span>
@@ -3524,7 +3524,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                 </p>
                               </div>
                               <span
-                                className={`flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
                                   sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
                                 }`}
                               >
@@ -3563,7 +3563,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                       : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
                                 }`}
                               >
-                                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
                                   <Icon name="chat_bubble" size={18} fill={1} />
                                 </div>
                                 <div className="min-w-0 flex-1">
@@ -3572,7 +3572,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                       {t.name}
                                     </h4>
                                     <span
-                                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
                                         pending
                                           ? "bg-aw-amber-100 text-aw-amber-800"
                                           : "bg-aw-emerald-100 text-aw-emerald-800"
@@ -3586,7 +3586,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                   </p>
                                 </div>
                                 <span
-                                  className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
                                     sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
                                   }`}
                                 >
@@ -3747,7 +3747,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                         </p>
                       </div>
                       <span
-                        className={`mt-0.5 flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 ${
+                        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
                           sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
                         }`}
                       >
@@ -3796,7 +3796,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
       {/* Exit Confirmation Modal */}
       {showExitModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowExitModal(false)} />
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-xs" onClick={() => setShowExitModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
             <h2 className="font-heading text-xl font-medium text-fg-primary mb-2">
               Você está prestes a sair
@@ -3876,7 +3876,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               {preview.kind === "skill" ? (
                 <AwBrandLogo brand={preview.item.brand} size="lg" />
               ) : (
-                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-bg-muted text-fg-secondary">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-bg-muted text-fg-secondary">
                   <Icon name={preview.item.icon} size={24} fill={1} />
                 </div>
               )}
@@ -3897,7 +3897,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </p>
 
             <div className="flex items-start gap-2 rounded-lg bg-bg-surface px-3 py-2.5 text-xs text-fg-tertiary">
-              <Icon name="lock" size={14} className="mt-px flex-shrink-0" />
+              <Icon name="lock" size={14} className="mt-px shrink-0" />
               <span>
                 Já configurado a nível de conta — aqui você só dá permissão pra
                 este agente acessar.

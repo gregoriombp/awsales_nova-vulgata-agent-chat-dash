@@ -47,7 +47,7 @@ export default function LinkExpiradoPage() {
 
         {status !== "sent" && (
           <div className="flex items-start gap-2.5 rounded-md border border-aw-amber-500/40 bg-aw-amber-100 px-3.5 py-2.5 body-xs text-aw-amber-700">
-            <Icon name="schedule" size={16} fill={1} className="mt-0.5 flex-shrink-0" />
+            <Icon name="schedule" size={16} fill={1} className="mt-0.5 shrink-0" />
             <div className="flex flex-col gap-0.5">
               <span>
                 Este link foi enviado em{" "}
@@ -68,7 +68,7 @@ export default function LinkExpiradoPage() {
               name="check_circle"
               size={16}
               fill={1}
-              className="mt-0.5 flex-shrink-0 text-aw-emerald-700"
+              className="mt-0.5 shrink-0 text-aw-emerald-700"
             />
             <div className="flex flex-col gap-0.5">
               <div className="body-xs font-medium text-fg-primary">

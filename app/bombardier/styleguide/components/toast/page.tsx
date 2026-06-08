@@ -25,7 +25,7 @@ export default function ToastPage() {
           title="Demo"
           lead="Clique pra disparar. Toasts empilham no canto inferior direito, até 3 visíveis."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <ToastDemo />
           </div>
         </Section>
@@ -35,7 +35,7 @@ export default function ToastPage() {
           title="Variantes"
           lead="5 variantes. Cor só aparece no ícone e no link de ação inline — o corpo do toast continua neutro em ambos os modos."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="success"
               v="check_circle · emerald-600"
@@ -69,7 +69,7 @@ export default function ToastPage() {
           title="Anatomia"
           lead="Dois rótulos no máximo — título verbal + uma linha de detalhe ou ação."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="posição"
               v="bottom-right · 20 px gap"
@@ -123,7 +123,7 @@ export default function ToastPage() {
           title="API"
           lead={`Import: import { useToast, AwToastProvider } from "@/components/ui/AwToast". Envolva o app em <AwToastProvider> uma vez (layout raiz).`}
         >
-          <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
             useToast().push(opts)
           </h3>
           <ApiTable>
@@ -161,7 +161,7 @@ export default function ToastPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">variant</code> vira token de{" "}
             <code className="mono">className</code>; title, description e
             action viram filhos com classes próprias. O toast é instanciado

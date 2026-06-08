@@ -175,7 +175,7 @@ export default function IntegrationDetailPage({
           "Não encontrada",
         ]}
       >
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)] px-10 py-16">
+        <div className="-m-8 min-h-full bg-(--bg-canvas) px-10 py-16">
           <AwAlert
             variant="warning"
             title="Conexão não encontrada"
@@ -221,7 +221,7 @@ export default function IntegrationDetailPage({
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+      <div className="-m-8 min-h-full bg-(--bg-canvas)">
         <div className="w-full px-10 pt-8 pb-24">
           <div className="flex gap-6">
             {/* Connections sidebar — only when multi-account */}
@@ -318,7 +318,7 @@ export default function IntegrationDetailPage({
 
               {/* Tabs + content */}
               <div>
-                <div className="border-b border-[var(--border-subtle)]">
+                <div className="border-b border-(--border-subtle)">
                   <TabBar value={activeTab} onChange={setActiveTab} />
                 </div>
                 <div className="pt-6">
@@ -382,7 +382,7 @@ export default function IntegrationDetailPage({
           </>
         }
       >
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           Os agentes que usam essa conexão vão perder acesso aos dados
           do {integration.name} imediatamente. Você pode reconectar
           depois a qualquer momento.
@@ -410,8 +410,8 @@ function ConnectionsSidebar({
   onAddAccount: () => void;
 }) {
   return (
-    <aside className="w-[260px] flex-shrink-0">
-      <div className="px-1 pb-2 pt-1 aw-eyebrow text-[var(--fg-tertiary)]">
+    <aside className="w-[260px] shrink-0">
+      <div className="px-1 pb-2 pt-1 aw-eyebrow text-(--fg-tertiary)">
         {accounts.length} conexões
       </div>
       <ul className="flex flex-col gap-1">
@@ -429,21 +429,21 @@ function ConnectionsSidebar({
                 type="button"
                 onClick={() => onSelect(i)}
                 className={
-                  "flex w-full items-center gap-2.5 rounded-[var(--radius-md)] px-2.5 py-2 text-left transition-colors " +
+                  "flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition-colors " +
                   (active
-                    ? "bg-[var(--bg-raised)] ring-1 ring-[var(--border-strong)]"
-                    : "hover:bg-[var(--bg-raised)]")
+                    ? "bg-(--bg-raised) ring-1 ring-(--border-strong)"
+                    : "hover:bg-(--bg-raised)")
                 }
               >
-                <span className="relative inline-flex flex-shrink-0">
+                <span className="relative inline-flex shrink-0">
                   <AwBrandLogo brand={integration.id} size="sm" bare />
                   <AwStatusDot variant={dotVariant} size="sm" ring absolute />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate body-xs font-medium text-[var(--fg-primary)]">
+                  <div className="truncate body-xs font-medium text-(--fg-primary)">
                     {a.name}
                   </div>
-                  <div className="body-xs text-[var(--fg-tertiary)]">
+                  <div className="body-xs text-(--fg-tertiary)">
                     {a.lastEvent}
                   </div>
                 </div>
@@ -455,7 +455,7 @@ function ConnectionsSidebar({
       <button
         type="button"
         onClick={onAddAccount}
-        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-2.5 py-2 body-xs font-medium text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-raised)] hover:text-[var(--fg-primary)]"
+        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-(--border-subtle) px-2.5 py-2 body-xs font-medium text-(--fg-secondary) transition-colors hover:bg-(--bg-raised) hover:text-(--fg-primary)"
       >
         <Icon name="add" size={14} />
         Adicionar conta
@@ -507,17 +507,17 @@ function DetailHeader({
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
-            <h5 className="m-0 truncate text-[var(--fg-primary)]">
+            <h5 className="m-0 truncate text-(--fg-primary)">
               {integration.name} · {account.name}
             </h5>
             <AwPill variant={status.variant}>{status.label}</AwPill>
           </div>
-          <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
             {CATEGORY_LABELS[integration.cat]} · {AUTH_LABELS[integration.auth]}
           </p>
         </div>
       </div>
-      <div className="flex flex-shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <AwButton
           variant="secondary"
           size="sm"
@@ -598,13 +598,13 @@ function TabBar({
             className={
               "relative px-4 py-3 body-xs font-medium transition-colors " +
               (active
-                ? "text-[var(--fg-primary)]"
-                : "text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]")
+                ? "text-(--fg-primary)"
+                : "text-(--fg-tertiary) hover:text-(--fg-secondary)")
             }
           >
             {t.label}
             {active && (
-              <span className="absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-[var(--fg-primary)]" />
+              <span className="absolute inset-x-3 -bottom-px h-[2px] rounded-full bg-(--fg-primary)" />
             )}
           </button>
         );
@@ -640,7 +640,7 @@ function OverviewTab({
             {
               k: "Saúde",
               v: (
-                <span className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]">
+                <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
                   <AwStatusDot
                     variant={
                       account.health === "healthy"
@@ -658,19 +658,19 @@ function OverviewTab({
             {
               k: "Último evento",
               v: (
-                <span className="body-xs text-[var(--fg-secondary)]">
+                <span className="body-xs text-(--fg-secondary)">
                   {account.lastEvent} (compra criada · #4321)
                 </span>
               ),
             },
             {
               k: "Eventos hoje",
-              v: <span className="body-xs text-[var(--fg-secondary)]">127</span>,
+              v: <span className="body-xs text-(--fg-secondary)">127</span>,
             },
             {
               k: "Conectada em",
               v: (
-                <span className="body-xs text-[var(--fg-secondary)]">
+                <span className="body-xs text-(--fg-secondary)">
                   {account.connectedOn}
                 </span>
               ),
@@ -678,7 +678,7 @@ function OverviewTab({
             {
               k: "Habilidades ativas",
               v: (
-                <span className="body-xs text-[var(--fg-secondary)]">
+                <span className="body-xs text-(--fg-secondary)">
                   4 nativas · 2 custom
                 </span>
               ),
@@ -783,14 +783,14 @@ function PermissionsTab({
               key={s.label}
               className={
                 "flex items-start justify-between gap-4 py-3 " +
-                (idx > 0 ? "border-t border-[var(--border-subtle)]" : "")
+                (idx > 0 ? "border-t border-(--border-subtle)" : "")
               }
             >
               <div className="min-w-0 flex-1">
-                <div className="body-xs font-medium text-[var(--fg-primary)]">
+                <div className="body-xs font-medium text-(--fg-primary)">
                   {s.label}
                 </div>
-                <p className="m-0 mt-0.5 body-xs text-[var(--fg-tertiary)]">
+                <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
                   {s.desc}
                 </p>
               </div>
@@ -847,20 +847,20 @@ function PermissionMenu({
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="inline-flex h-8 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 body-xs text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-raised)]"
+        className="inline-flex h-8 items-center gap-2 rounded-md border border-(--border-subtle) bg-(--bg-surface) px-2.5 body-xs text-(--fg-primary) transition-colors hover:bg-(--bg-raised)"
       >
         <Icon name={current.icon} size={16} />
         <span>{current.label}</span>
         <Icon
           name="expand_more"
           size={16}
-          className="text-[var(--fg-tertiary)]"
+          className="text-(--fg-tertiary)"
         />
       </button>
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1 shadow-lg"
+          className="absolute right-0 top-full z-20 mt-1 min-w-[200px] overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-surface) py-1 shadow-lg"
         >
           {PERMISSION_OPTIONS.map((opt) => {
             const active = opt.id === value;
@@ -874,10 +874,10 @@ function PermissionMenu({
                   setOpen(false);
                 }}
                 className={
-                  "flex w-full items-center gap-2 px-3 py-2 text-left body-xs transition-colors hover:bg-[var(--bg-canvas)] " +
+                  "flex w-full items-center gap-2 px-3 py-2 text-left body-xs transition-colors hover:bg-(--bg-canvas) " +
                   (active
-                    ? "text-[var(--fg-primary)]"
-                    : "text-[var(--fg-secondary)]")
+                    ? "text-(--fg-primary)"
+                    : "text-(--fg-secondary)")
                 }
               >
                 <Icon name={opt.icon} size={16} />
@@ -904,7 +904,7 @@ function ObjectsTab({
   if (integration.auth === "webhook") {
     return (
       <SectionCard title="Objetos">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Conexões webhook-only não importam objetos do provider.
         </p>
       </SectionCard>
@@ -946,16 +946,16 @@ function ObjectsTab({
             <tr key={id}>
               <td className="aw-table__name">{name}</td>
               <td className="aw-table__mono">{id}</td>
-              <td className="text-[var(--fg-tertiary)]">2 dias atrás</td>
+              <td className="text-(--fg-tertiary)">2 dias atrás</td>
             </tr>
           ))}
         </tbody>
       </AwTable>
-      <div className="mt-3 flex items-center justify-between body-xs text-[var(--fg-tertiary)]">
+      <div className="mt-3 flex items-center justify-between body-xs text-(--fg-tertiary)">
         <span>Mostrando 1–5 de 14</span>
         <span className="inline-flex items-center gap-2">
           <AwButton variant="ghost" size="sm" iconOnly="chevron_left" aria-label="Anterior" />
-          <span className="text-[var(--fg-primary)] font-medium">1</span>
+          <span className="text-(--fg-primary) font-medium">1</span>
           <span>2</span>
           <span>3</span>
           <AwButton variant="ghost" size="sm" iconOnly="chevron_right" aria-label="Próximo" />
@@ -1030,9 +1030,9 @@ function WebhooksTab({
   return (
     <div className="flex flex-col gap-5">
       <SectionCard title="URL do webhook">
-        <div className="flex items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-3 py-2">
+        <div className="flex items-center gap-2 rounded-md border border-(--border-subtle) bg-(--bg-surface) px-3 py-2">
           <Icon name="link" size={16} />
-          <span className="flex-1 truncate mono-sm text-[var(--fg-primary)]">
+          <span className="flex-1 truncate mono-sm text-(--fg-primary)">
             {url}
           </span>
           <AwButton variant="ghost" size="sm" iconLeft="content_copy">
@@ -1049,8 +1049,8 @@ function WebhooksTab({
               className={
                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 body-xs " +
                 (e.on
-                  ? "border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--fg-primary)]"
-                  : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-tertiary)]")
+                  ? "border-(--border-subtle) bg-(--bg-surface) text-(--fg-primary)"
+                  : "border-(--border-subtle) bg-(--bg-raised) text-(--fg-tertiary)")
               }
             >
               {e.on ? (
@@ -1078,7 +1078,7 @@ function WebhooksTab({
           <tbody>
             {events.map((e) => (
               <tr key={e.time + e.id}>
-                <td className="text-[var(--fg-secondary)]">{e.time}</td>
+                <td className="text-(--fg-secondary)">{e.time}</td>
                 <td>
                   <span className="inline-flex items-center gap-1.5">
                     <AwStatusDot
@@ -1088,10 +1088,10 @@ function WebhooksTab({
                     <span className="mono-sm">{e.status}</span>
                   </span>
                 </td>
-                <td className="mono-sm text-[var(--fg-secondary)]">
+                <td className="mono-sm text-(--fg-secondary)">
                   {e.type}
                 </td>
-                <td className="text-[var(--fg-tertiary)]">{e.id}</td>
+                <td className="text-(--fg-tertiary)">{e.id}</td>
                 <td>
                   <AwButton variant="ghost" size="sm">
                     Ver
@@ -1266,7 +1266,7 @@ function ToolsTab({
                   <td>
                     <ToolAgentsCell agents={n.agents} />
                   </td>
-                  <td className="body-xs text-[var(--fg-secondary)]">
+                  <td className="body-xs text-(--fg-secondary)">
                     {TOOL_CAT_PERMISSION[n.cat]}
                   </td>
                   <td className="aw-table__num">{n.exec}</td>
@@ -1283,7 +1283,7 @@ function ToolsTab({
             })}
           </tbody>
         </AwTable>
-        <p className="mt-3 m-0 body-xs italic text-[var(--fg-tertiary)]">
+        <p className="mt-3 m-0 body-xs italic text-(--fg-tertiary)">
           Habilidades desabilitadas estão com escopo insuficiente ou
           não são suportadas pelo provider ainda.
         </p>
@@ -1315,7 +1315,7 @@ function ToolsTab({
                 <td>
                   <ToolAgentsCell agents={c.agents} />
                 </td>
-                <td className="body-xs text-[var(--fg-secondary)]">
+                <td className="body-xs text-(--fg-secondary)">
                   {TOOL_CAT_PERMISSION[c.cat]}
                 </td>
                 <td className="aw-table__num">
@@ -1353,15 +1353,15 @@ function ToolNameCell({
       className="group flex items-start gap-3 text-left"
     >
       <span
-        className="mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]"
+        className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-surface) text-(--fg-secondary)"
       >
         <Icon name={TOOL_CAT_ICON[tool.cat]} size={16} />
       </span>
       <span className="min-w-0 flex flex-col">
-        <span className="mono-sm font-medium text-[var(--fg-primary)] group-hover:underline">
+        <span className="mono-sm font-medium text-(--fg-primary) group-hover:underline">
           {tool.name}
         </span>
-        <span className="body-xs text-[var(--fg-tertiary)]">
+        <span className="body-xs text-(--fg-tertiary)">
           {tool.desc}
         </span>
       </span>
@@ -1372,7 +1372,7 @@ function ToolNameCell({
 function ToolAgentsCell({ agents }: { agents: string[] }) {
   if (agents.length === 0) {
     return (
-      <span className="body-xs italic text-[var(--fg-tertiary)]">
+      <span className="body-xs italic text-(--fg-tertiary)">
         nenhum
       </span>
     );
@@ -1382,7 +1382,7 @@ function ToolAgentsCell({ agents }: { agents: string[] }) {
       {agents.map((a) => (
         <span
           key={a}
-          className="inline-flex items-center rounded-full bg-[var(--bg-surface)] px-2 py-0.5 body-xs font-medium text-[var(--fg-secondary)]"
+          className="inline-flex items-center rounded-full bg-(--bg-surface) px-2 py-0.5 body-xs font-medium text-(--fg-secondary)"
         >
           {a}
         </span>
@@ -1424,19 +1424,19 @@ function ToolDetailModal({
       {tool && (
         <div className="flex flex-col gap-3">
           <div className="flex items-start gap-3">
-            <span className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-surface)] text-[var(--fg-secondary)]">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-surface) text-(--fg-secondary)">
               <Icon name={TOOL_CAT_ICON[tool.cat]} size={18} />
             </span>
             <div className="min-w-0">
-              <div className="mono-sm font-medium text-[var(--fg-primary)]">
+              <div className="mono-sm font-medium text-(--fg-primary)">
                 {tool.name}
               </div>
-              <div className="body-xs text-[var(--fg-tertiary)]">
+              <div className="body-xs text-(--fg-tertiary)">
                 {tool.desc}
               </div>
             </div>
           </div>
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             Aqui na integração você só vê o status da habilidade. Para
             mudar comportamento, parâmetros ou autenticação, abra a
             página <strong>Habilidades</strong> — é lá que mora a
@@ -1497,8 +1497,8 @@ function AuditTab() {
         <tbody>
           {rows.map((r, i) => (
             <tr key={i}>
-              <td className="text-[var(--fg-secondary)]">{r.when}</td>
-              <td className="text-[var(--fg-secondary)]">{r.who}</td>
+              <td className="text-(--fg-secondary)">{r.when}</td>
+              <td className="text-(--fg-secondary)">{r.who}</td>
               <td>{r.what}</td>
             </tr>
           ))}
@@ -1527,11 +1527,11 @@ function SectionCard({
     <section>
       <header className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-baseline gap-2">
-          <h6 className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+          <h6 className="m-0 body-sm font-medium text-(--fg-primary)">
             {title}
           </h6>
           {meta && (
-            <span className="body-xs text-[var(--fg-tertiary)]">{meta}</span>
+            <span className="body-xs text-(--fg-tertiary)">{meta}</span>
           )}
         </div>
         {action}
@@ -1546,7 +1546,7 @@ function KvList({ rows }: { rows: { k: string; v: React.ReactNode }[] }) {
     <dl className="grid grid-cols-[160px_1fr] gap-x-6 gap-y-3">
       {rows.map((r) => (
         <div key={r.k} className="contents">
-          <dt className="body-xs text-[var(--fg-tertiary)]">{r.k}</dt>
+          <dt className="body-xs text-(--fg-tertiary)">{r.k}</dt>
           <dd className="m-0">{r.v}</dd>
         </div>
       ))}

@@ -121,7 +121,7 @@ export default function IntegrationCatalogPage() {
             title="Demo"
             lead="Clique para abrir. Filtro por categoria e busca textual; clique em qualquer card para o callback onSelect."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex justify-center">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex justify-center">
               <AwButton
                 variant="primary"
                 iconLeft="add"
@@ -146,21 +146,21 @@ export default function IntegrationCatalogPage() {
             lead="Catálogo de seleção rápida — três pré-condições antes de optar por essa estrutura."
           >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <h5 className="m-0 mb-1">10+ opções</h5>
                 <p className="body-sm m-0">
                   Menos do que isso, um menu ou um grid simples na própria
                   página resolve.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <h5 className="m-0 mb-1">Categorizável</h5>
                 <p className="body-sm m-0">
                   Itens agrupáveis em 4–10 categorias. Sem agrupamento, vire
                   apenas grid + busca.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <h5 className="m-0 mb-1">Seleção, não config</h5>
                 <p className="body-sm m-0">
                   O modal escolhe — a configuração acontece no próximo passo
@@ -175,7 +175,7 @@ export default function IntegrationCatalogPage() {
             title="Anatomia"
             lead="Header bandeado, body em duas colunas. Footer só aparece se você precisar — o default é fechar pelo X ou Esc."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <Spec
                 k="max width"
                 v="1080 px"

@@ -126,10 +126,10 @@ export default function AuditoriaPage() {
   return (
     <div className="flex flex-col gap-6">
       <section>
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+        <h6 className="m-0 mb-1 text-(--fg-primary)">
           Histórico de atividades
         </h6>
-        <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
           Eventos de plano, cartão, fatura, cupom e voucher — feitos por
           AwSales, cliente ou sistema.
         </p>
@@ -147,7 +147,7 @@ export default function AuditoriaPage() {
       />
 
       {filtered.length === 0 ? (
-        <AwCard className="!p-0">
+        <AwCard className="p-0!">
           <div className="px-6 py-10">
             <AwEmpty>
               <AwEmptyHeader>
@@ -163,7 +163,7 @@ export default function AuditoriaPage() {
           </div>
         </AwCard>
       ) : (
-        <AwCard className="!p-0">
+        <AwCard className="p-0!">
           <AwTable>
             <tbody>
               {filtered.map((event) => (
@@ -282,7 +282,7 @@ function TypeChips({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 body-xs font-medium text-[var(--fg-tertiary)]">
+      <span className="mr-1 body-xs font-medium text-(--fg-tertiary)">
         Tipo
       </span>
       {options.map((t) => {
@@ -294,10 +294,10 @@ function TypeChips({
             onClick={() => onToggle(t)}
             aria-pressed={on}
             className={
-              "inline-flex items-center gap-1 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-none " +
+              "inline-flex items-center gap-1 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-hidden " +
               (on
-                ? "bg-[var(--fg-primary)] text-[var(--bg-raised)] hover:bg-[var(--fg-secondary)]"
-                : "border border-[var(--border-subtle)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
+                ? "bg-(--fg-primary) text-(--bg-raised) hover:bg-(--fg-secondary)"
+                : "border border-(--border-subtle) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
             }
           >
             {on && <Icon name="check" size={12} />}
@@ -325,7 +325,7 @@ function ActorFilterMenu({
       trigger={
         <button
           type="button"
-          className="inline-flex h-10 items-center gap-2 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 body-xs font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]"
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-default) hover:text-(--fg-primary)"
         >
           <Icon name="person" size={16} />
           <span>Executor{count > 0 ? ` · ${count}` : ""}</span>
@@ -341,7 +341,7 @@ function ActorFilterMenu({
               src={p.avatar}
               alt={p.actor}
               initials={getInitials(p.actor)}
-              className={p.actor === "Cortex" ? "!border-0" : undefined}
+              className={p.actor === "Cortex" ? "border-0!" : undefined}
             />
             <span>{p.actor}</span>
           </span>
@@ -373,17 +373,17 @@ function EventRow({
             src={event.actorAvatar}
             alt={event.actor}
             initials={getInitials(event.actor)}
-            className={isCortex ? "!border-0" : undefined}
+            className={isCortex ? "border-0!" : undefined}
           />
           <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="body-sm text-[var(--fg-secondary)]">
-              <span className="font-medium text-[var(--fg-primary)]">
+            <span className="body-sm text-(--fg-secondary)">
+              <span className="font-medium text-(--fg-primary)">
                 {event.actor}
               </span>{" "}
               {event.action}
             </span>
             {event.meta && (
-              <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+              <p className="m-0 body-xs text-(--fg-tertiary)">
                 <MetaWithInvoiceLink
                   meta={event.meta}
                   onOpenInvoice={onOpenInvoice}
@@ -395,10 +395,10 @@ function EventRow({
       </td>
       <td className="text-right align-top">
         <div className="flex flex-col items-end">
-          <span className="body-xs tabular-nums text-[var(--fg-secondary)]">
+          <span className="body-xs tabular-nums text-(--fg-secondary)">
             {event.date}
           </span>
-          <span className="body-xs text-[var(--fg-tertiary)]">
+          <span className="body-xs text-(--fg-tertiary)">
             {executorRole(event.executor)}
           </span>
         </div>
@@ -430,7 +430,7 @@ function MetaWithInvoiceLink({
       <button
         type="button"
         onClick={() => onOpenInvoice(invId)}
-        className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-[var(--accent-brand)] hover:no-underline"
+        className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
       >
         {invId}
       </button>

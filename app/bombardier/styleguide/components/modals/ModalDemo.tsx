@@ -151,10 +151,10 @@ export function ModalDemo() {
                 <button
                   key={item}
                   type="button"
-                  className={`text-left px-3 py-2 rounded-[var(--radius-sm)] ${
+                  className={`text-left px-3 py-2 rounded-sm ${
                     i === 0
-                      ? "bg-[var(--bg-surface)] text-[var(--fg-primary)] font-medium"
-                      : "text-[var(--fg-secondary)] hover:bg-[var(--bg-surface)]"
+                      ? "bg-(--bg-surface) text-(--fg-primary) font-medium"
+                      : "text-(--fg-secondary) hover:bg-(--bg-surface)"
                   }`}
                 >
                   {item}

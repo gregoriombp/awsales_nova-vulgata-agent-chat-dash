@@ -5,7 +5,7 @@ Plataforma de agentes de IA para vendas, atendimento e CX para empresas Enterpri
 ## Stack
 
 - **Next.js 16 + React 19 + TypeScript**
-- **Tailwind CSS v3.4** — tokens via `tailwind.config.ts` + CSS variables em `app/globals.css`
+- **Tailwind CSS v4** — tokens em `@theme` + CSS variables em `app/globals.css` (sem `tailwind.config.ts`)
 - **Geist + Geist Mono + Material Symbols Rounded**
 - **Estado:** Zustand
 - **Forms:** react-hook-form + zod

@@ -57,14 +57,14 @@ export function AwCapabilityTile({
         "group flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast",
         disabled
           ? "cursor-not-allowed opacity-50"
-          : "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--fg-primary)] focus-visible:ring-offset-2",
+          : "cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-2",
         selected
           ? "border-aw-gray-1200 bg-aw-gray-1200"
           : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface",
         className,
       )}
     >
-      <div className="flex-shrink-0">{icon}</div>
+      <div className="shrink-0">{icon}</div>
 
       <div className="min-w-0 flex-1">
         {onPreview ? (
@@ -75,7 +75,7 @@ export function AwCapabilityTile({
               onPreview();
             }}
             className={cn(
-              "block max-w-full truncate text-left body-sm font-medium underline-offset-2 hover:underline focus-visible:underline focus-visible:outline-none",
+              "block max-w-full truncate text-left body-sm font-medium underline-offset-2 hover:underline focus-visible:underline focus-visible:outline-hidden",
               selected ? "text-white" : "text-fg-primary",
             )}
           >
@@ -105,7 +105,7 @@ export function AwCapabilityTile({
 
       <span
         className={cn(
-          "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
           selected ? "border-white bg-white" : "border-aw-gray-400",
         )}
       >

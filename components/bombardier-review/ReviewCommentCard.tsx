@@ -51,19 +51,19 @@ export function ReplyRow({ reply }: { reply: ReviewReply }) {
       />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 leading-tight">
-          <span className="body-xs font-medium text-[var(--fg-primary)] truncate">
+          <span className="body-xs font-medium text-(--fg-primary) truncate">
             {reply.authorName}
           </span>
           {isAgent && (
-            <span className="body-xs px-1 py-0 rounded-[var(--radius-xs)] bg-[var(--bg-muted)] text-[var(--fg-tertiary)]">
+            <span className="body-xs px-1 py-0 rounded-xs bg-(--bg-muted) text-(--fg-tertiary)">
               agente
             </span>
           )}
-          <span className="body-xs text-[var(--fg-tertiary)]">
+          <span className="body-xs text-(--fg-tertiary)">
             {formatRelative(reply.createdAt)}
           </span>
         </div>
-        <p className="m-0 body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
+        <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
           {reply.text}
         </p>
       </div>
@@ -209,10 +209,10 @@ export function ReviewCommentCard({
     <article
       onClick={navigateToAnchor}
       className={[
-        "group rounded-[var(--radius-md)] border p-3 cursor-pointer transition-colors",
+        "group rounded-md border p-3 cursor-pointer transition-colors",
         selected
-          ? "border-[var(--accent-brand)] bg-[var(--bg-hover)]"
-          : "border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:border-[var(--border-default)]",
+          ? "border-(--accent-brand) bg-(--bg-hover)"
+          : "border-(--border-subtle) bg-(--bg-raised) hover:border-(--border-default)",
       ].join(" ")}
     >
       <header className="flex items-center gap-2 mb-2">
@@ -226,7 +226,7 @@ export function ReviewCommentCard({
             }}
             onClick={(e) => e.stopPropagation()}
             aria-label="Selecionar"
-            className="accent-[var(--accent-brand)] mr-0.5"
+            className="accent-(--accent-brand) mr-0.5"
           />
         )}
         <ReviewAvatar
@@ -236,11 +236,11 @@ export function ReviewCommentCard({
           size={24}
         />
         <div className="flex flex-col leading-tight min-w-0">
-          <span className="body-xs font-medium text-[var(--fg-primary)] truncate">
+          <span className="body-xs font-medium text-(--fg-primary) truncate">
             {comment.authorName}
           </span>
           <span
-            className="body-xs text-[var(--fg-tertiary)] tabular-nums"
+            className="body-xs text-(--fg-tertiary) tabular-nums"
             title={new Date(comment.createdAt).toISOString()}
           >
             {formatFullTimestamp(comment.createdAt)}
@@ -260,7 +260,7 @@ export function ReviewCommentCard({
                 type="button"
                 onClick={(e) => e.stopPropagation()}
                 aria-label="Ações"
-                className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)]"
+                className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)"
               >
                 <Icon name="more_horiz" size={14} />
               </button>
@@ -271,7 +271,7 @@ export function ReviewCommentCard({
       </header>
 
       {comment.text.length > 0 && (
-        <p className="body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
+        <p className="body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
           {comment.text}
         </p>
       )}
@@ -286,7 +286,7 @@ export function ReviewCommentCard({
                 e.stopPropagation()
                 window.open(src, "_blank", "noopener")
               }}
-              className="rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors focus:outline-none"
+              className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
               aria-label={`Ver imagem ${idx + 1}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -303,7 +303,7 @@ export function ReviewCommentCard({
           navigateToAnchor()
         }}
         title={`Ir para ${comment.url}`}
-        className="mt-2 w-full body-xs text-[var(--fg-tertiary)] flex items-center gap-1 rounded-[var(--radius-xs)] hover:text-[var(--accent-brand)] transition-colors text-left"
+        className="mt-2 w-full body-xs text-(--fg-tertiary) flex items-center gap-1 rounded-xs hover:text-(--accent-brand) transition-colors text-left"
       >
         <Icon name="link" size={11} />
         <span className="truncate underline-offset-2 group-hover:underline">
@@ -316,7 +316,7 @@ export function ReviewCommentCard({
 
       {comment.resolution?.summary && (
         <p
-          className="m-0 mt-2 body-xs text-[var(--fg-tertiary)] italic"
+          className="m-0 mt-2 body-xs text-(--fg-tertiary) italic"
           title={
             comment.resolution.approvedAt
               ? `Aprovado em ${new Date(
@@ -330,7 +330,7 @@ export function ReviewCommentCard({
       )}
 
       {replies.length > 0 && (
-        <div className="mt-3 pt-2 border-t border-[var(--border-subtle)] flex flex-col divide-y divide-[var(--border-subtle)]">
+        <div className="mt-3 pt-2 border-t border-(--border-subtle) flex flex-col divide-y divide-(--border-subtle)">
           {replies.map((r) => (
             <ReplyRow key={r.id} reply={r} />
           ))}
@@ -369,7 +369,7 @@ export function ReviewCommentCard({
           <button
             type="button"
             onClick={() => setReplyOpen((v) => !v)}
-            className="inline-flex items-center gap-1 text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]"
+            className="inline-flex items-center gap-1 text-(--fg-secondary) hover:text-(--fg-primary)"
           >
             <Icon name="reply" size={11} />
             {replyOpen ? "Cancelar resposta" : "Responder"}
@@ -377,7 +377,7 @@ export function ReviewCommentCard({
           <button
             type="button"
             onClick={() => setHistoryOpen((v) => !v)}
-            className="inline-flex items-center gap-1 text-[var(--fg-tertiary)] hover:text-[var(--fg-secondary)]"
+            className="inline-flex items-center gap-1 text-(--fg-tertiary) hover:text-(--fg-secondary)"
             aria-expanded={historyOpen}
           >
             <Icon name={historyOpen ? "expand_less" : "expand_more"} size={11} />
@@ -396,7 +396,7 @@ export function ReviewCommentCard({
             onChange={(e) => setReplyText(e.target.value)}
             placeholder="Escreva uma resposta…"
             rows={2}
-            className="w-full rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-2 body-sm text-[var(--fg-primary)] focus:outline-none focus:border-[var(--accent-brand)] resize-none"
+            className="w-full rounded-sm border border-(--border-subtle) bg-(--bg-surface) p-2 body-sm text-(--fg-primary) focus:outline-hidden focus:border-(--accent-brand) resize-none"
             onKeyDown={(e) => {
               if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
                 void submitReply()
@@ -430,18 +430,18 @@ export function ReviewCommentCard({
       {historyOpen && (
         <div
           onClick={(e) => e.stopPropagation()}
-          className="mt-2 rounded-[var(--radius-sm)] bg-[var(--bg-surface)] border border-[var(--border-subtle)] p-2 flex flex-col gap-1 body-xs text-[var(--fg-secondary)]"
+          className="mt-2 rounded-sm bg-(--bg-surface) border border-(--border-subtle) p-2 flex flex-col gap-1 body-xs text-(--fg-secondary)"
         >
           <div>
-            <span className="text-[var(--fg-primary)]">Criado</span> ·{" "}
-            <span className="text-[var(--fg-tertiary)]">
+            <span className="text-(--fg-primary)">Criado</span> ·{" "}
+            <span className="text-(--fg-tertiary)">
               {formatFullTimestamp(comment.createdAt)} por {comment.authorName}
             </span>
           </div>
           {replies.map((r) => (
             <div key={r.id}>
-              <span className="text-[var(--fg-primary)]">Resposta</span> ·{" "}
-              <span className="text-[var(--fg-tertiary)]">
+              <span className="text-(--fg-primary)">Resposta</span> ·{" "}
+              <span className="text-(--fg-tertiary)">
                 {formatFullTimestamp(r.createdAt)} por {r.authorName}
                 {r.authorKind === "agent" ? " (agente)" : ""}
               </span>
@@ -449,8 +449,8 @@ export function ReviewCommentCard({
           ))}
           {comment.resolution?.at && (
             <div>
-              <span className="text-[var(--fg-primary)]">Em revisão</span> ·{" "}
-              <span className="text-[var(--fg-tertiary)]">
+              <span className="text-(--fg-primary)">Em revisão</span> ·{" "}
+              <span className="text-(--fg-tertiary)">
                 {formatFullTimestamp(comment.resolution.at)} por{" "}
                 {comment.resolution.actor.name}
                 {comment.resolution.actor.kind === "agent" ? " (agente)" : ""}
@@ -459,8 +459,8 @@ export function ReviewCommentCard({
           )}
           {comment.resolution?.approvedAt && comment.resolution.approvedBy && (
             <div>
-              <span className="text-[var(--fg-primary)]">Aprovado</span> ·{" "}
-              <span className="text-[var(--fg-tertiary)]">
+              <span className="text-(--fg-primary)">Aprovado</span> ·{" "}
+              <span className="text-(--fg-tertiary)">
                 {formatFullTimestamp(comment.resolution.approvedAt)} por{" "}
                 {comment.resolution.approvedBy.name}
               </span>

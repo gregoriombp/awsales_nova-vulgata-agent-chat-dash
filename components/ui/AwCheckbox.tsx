@@ -29,11 +29,11 @@ export const AwCheckbox = React.forwardRef<
       disabled={disabled}
       aria-label={label}
       className={cn(
-        "peer inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-raised)] outline-none transition-colors duration-aw-fast",
-        "hover:border-[var(--fg-primary)]",
-        "focus-visible:ring-2 focus-visible:ring-[var(--fg-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-raised)]",
-        "data-[state=checked]:border-[var(--fg-primary)] data-[state=checked]:bg-[var(--fg-primary)] data-[state=checked]:text-[var(--bg-raised)]",
-        "data-[state=indeterminate]:border-[var(--fg-primary)] data-[state=indeterminate]:bg-[var(--fg-primary)] data-[state=indeterminate]:text-[var(--bg-raised)]",
+        "peer inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border border-(--border-default) bg-(--bg-raised) outline-hidden transition-colors duration-aw-fast",
+        "hover:border-(--fg-primary)",
+        "focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-raised)",
+        "data-[state=checked]:border-(--fg-primary) data-[state=checked]:bg-(--fg-primary) data-[state=checked]:text-(--bg-raised)",
+        "data-[state=indeterminate]:border-(--fg-primary) data-[state=indeterminate]:bg-(--fg-primary) data-[state=indeterminate]:text-(--bg-raised)",
         "disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}

@@ -45,7 +45,7 @@ export function InvoiceDetailsSheet({
           <AwPill variant={statusVariant(invoice.status)}>
             {invoice.status}
           </AwPill>
-          <span className="body-xs text-[var(--fg-secondary)]">
+          <span className="body-xs text-(--fg-secondary)">
             {invoice.refMonth} · {invoice.description}
           </span>
         </div>
@@ -68,21 +68,21 @@ export function InvoiceDetailsSheet({
     >
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-1">
-          <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+          <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
             Valor líquido
           </p>
-          <h2 className="m-0 text-[var(--fg-primary)] tabular-nums">
+          <h2 className="m-0 text-(--fg-primary) tabular-nums">
             {brl(invoice.net)}
           </h2>
-          <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
             Vencimento em{" "}
-            <strong className="font-medium text-[var(--fg-primary)]">
+            <strong className="font-medium text-(--fg-primary)">
               {invoice.dueAt}
             </strong>
             {invoice.paidAt ? (
               <>
                 {" "}· pago em{" "}
-                <strong className="font-medium text-[var(--fg-primary)]">
+                <strong className="font-medium text-(--fg-primary)">
                   {invoice.paidAt}
                 </strong>
               </>
@@ -91,10 +91,10 @@ export function InvoiceDetailsSheet({
         </section>
 
         <section>
-          <p className="m-0 mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
+          <p className="m-0 mb-2 aw-eyebrow text-(--fg-tertiary)">
             Composição
           </p>
-          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
+          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-(--fg-primary) divide-y divide-(--border-subtle)">
             <Row label="Valor bruto" value={brl(invoice.gross)} />
             {invoice.discount ? (
               <Row
@@ -116,10 +116,10 @@ export function InvoiceDetailsSheet({
         </section>
 
         <section>
-          <p className="m-0 mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
+          <p className="m-0 mb-2 aw-eyebrow text-(--fg-tertiary)">
             Pagamento
           </p>
-          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-[var(--fg-primary)] divide-y divide-[var(--border-subtle)]">
+          <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-(--fg-primary) divide-y divide-(--border-subtle)">
             <Row label="Forma de pagamento" value={invoice.paymentMethod} />
             <Row
               label="Mês de referência"
@@ -129,14 +129,14 @@ export function InvoiceDetailsSheet({
           </ul>
         </section>
 
-        <section className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-4 py-3">
+        <section className="rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
           <div className="flex items-start gap-2.5">
             <Icon
               name="info"
               size={16}
-              className="mt-0.5 shrink-0 text-[var(--fg-tertiary)]"
+              className="mt-0.5 shrink-0 text-(--fg-tertiary)"
             />
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               A fatura em PDF e o recibo (quando aplicável) são gerados pelo
               processador no momento do download — espelham exatamente o que
               foi cobrado no cartão / boleto.
@@ -159,15 +159,15 @@ function Row({
 }) {
   return (
     <li className="flex items-baseline justify-between gap-3 py-2">
-      <span className="text-[var(--fg-secondary)]">{label}</span>
+      <span className="text-(--fg-secondary)">{label}</span>
       <span
         className={
           "tabular-nums " +
           (emphasis === "success"
-            ? "text-[var(--accent-success)]"
+            ? "text-(--accent-success)"
             : emphasis === "strong"
-              ? "font-semibold text-[var(--fg-primary)]"
-              : "font-medium text-[var(--fg-primary)]")
+              ? "font-semibold text-(--fg-primary)"
+              : "font-medium text-(--fg-primary)")
         }
       >
         {value}

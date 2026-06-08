@@ -25,7 +25,7 @@ export default function WhatsAppPanelPage() {
           >
             <Stage label="Full panel" gridClassName="block">
               <div
-                className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
+                className="rounded-xl border border-(--border-subtle) bg-(--bg-canvas) overflow-hidden"
                 style={{ height: 720 }}
               >
                 <AwWhatsAppPanel />
@@ -40,7 +40,7 @@ export default function WhatsAppPanelPage() {
           >
             <Stage label="Empty state" gridClassName="block">
               <div
-                className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] overflow-hidden"
+                className="rounded-xl border border-(--border-subtle) bg-(--bg-canvas) overflow-hidden"
                 style={{ height: 480 }}
               >
                 <AwWhatsAppPanel wabas={[]} />

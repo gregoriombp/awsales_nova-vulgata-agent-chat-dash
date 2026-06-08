@@ -186,7 +186,7 @@ export default function CardsPage() {
             </Stage>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <div className="aw-eyebrow mb-2">default</div>
                 <p className="body-sm m-0">
                   Fundo <code className="mono">--bg-raised</code>, borda{" "}
@@ -194,7 +194,7 @@ export default function CardsPage() {
                   qualquer agrupamento — KPIs, listas, formulários, conteúdo.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <div className="aw-eyebrow mb-2">ai</div>
                 <p className="body-sm m-0">
                   Gradient-mesh radial blue → purple a 8–10% de opacidade.
@@ -202,7 +202,7 @@ export default function CardsPage() {
                   insights. Nunca em KPI estático.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <div className="aw-eyebrow mb-2">ai-warm</div>
                 <p className="body-sm m-0">
                   Gradient-mesh peach a ~14% sobre{" "}
@@ -212,7 +212,7 @@ export default function CardsPage() {
                   CTA.
                 </p>
               </div>
-              <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+              <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-5">
                 <div className="aw-eyebrow mb-2">ai-cortex</div>
                 <p className="body-sm m-0">
                   Silver mesh inspirado no cubo de mármore da marca — base
@@ -229,10 +229,10 @@ export default function CardsPage() {
           <Section
             id="interactive"
             title="Interativo"
-            lead="Com interactive={true}, o card vira alvo clicável: hover eleva 2 px, borda escurece para --fg-primary, focus-visible ganha ring azul."
+            lead="Com interactive={true}, o card vira alvo clicável: hover eleva 2 px, borda escurece para --fg-primary, focus-visible ganha ring-3 azul."
           >
             <Stage
-              label="interactive · hover para ver o lift · Tab para focus ring"
+              label="interactive · hover para ver o lift · Tab para focus ring-3"
               gridClassName="grid grid-cols-1 md:grid-cols-3 gap-3"
             >
               <AwCard
@@ -287,7 +287,7 @@ export default function CardsPage() {
                   <AwCardDescription>Agentes em produção</AwCardDescription>
                   <AwCardTitle className="display-sm">12</AwCardTitle>
                 </AwCardHeader>
-                <AwCardContent className="caption text-[var(--aw-emerald-700)]">
+                <AwCardContent className="caption text-(--aw-emerald-700)">
                   +2 esta semana
                 </AwCardContent>
               </AwCard>
@@ -296,7 +296,7 @@ export default function CardsPage() {
                   <AwCardDescription>Taxa de deflecção</AwCardDescription>
                   <AwCardTitle className="display-sm">74%</AwCardTitle>
                 </AwCardHeader>
-                <AwCardContent className="caption text-[var(--aw-red-700)]">
+                <AwCardContent className="caption text-(--aw-red-700)">
                   −1.2 pts vs. 7d
                 </AwCardContent>
               </AwCard>
@@ -305,7 +305,7 @@ export default function CardsPage() {
                   <AwCardDescription>Conversas resolvidas</AwCardDescription>
                   <AwCardTitle className="display-sm">1.4k</AwCardTitle>
                 </AwCardHeader>
-                <AwCardContent className="caption text-[var(--fg-tertiary)]">
+                <AwCardContent className="caption text-(--fg-tertiary)">
                   Últimas 24h
                 </AwCardContent>
               </AwCard>
@@ -472,7 +472,7 @@ export default function CardsPage() {
             title="Tokens"
             lead="Todos os valores saem de tokens em globals.css. Nunca hardcodar — ajuste o token, nunca o componente."
           >
-            <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec
                 k="padding"
                 v="20 px · 24 px"
@@ -562,7 +562,7 @@ export default function CardsPage() {
               />
             </ApiTable>
 
-            <div className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 mt-4 body-sm">
+            <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6 mt-4 body-sm">
               <div className="aw-eyebrow mb-2">Subcomponentes</div>
               <ul className="m-0 pl-4 list-disc flex flex-col gap-1">
                 <li>
@@ -598,7 +598,7 @@ export default function CardsPage() {
               </ul>
             </div>
 
-            <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+            <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
               <code className="mono">variant</code>,{" "}
               <code className="mono">interactive</code> e os slots viram tokens
               de <code className="mono">className</code>{" "}

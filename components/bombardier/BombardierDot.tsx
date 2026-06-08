@@ -107,7 +107,7 @@ export function BombardierDot() {
   ];
 
   return (
-    <div className="fixed bottom-4 right-4 z-[60] pointer-events-none">
+    <div className="fixed bottom-4 right-4 z-60 pointer-events-none">
       <AwDropdownMenu
         align="end"
         side="top"
@@ -117,7 +117,7 @@ export function BombardierDot() {
           <button
             type="button"
             aria-label="Atalhos do Bombardier"
-            className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)] shadow-[var(--shadow-md)] outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-[var(--ring-focus)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-canvas)]"
+            className="pointer-events-auto flex h-9 w-9 items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) shadow-(--shadow-md) outline-hidden transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-(--ring-focus) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-canvas)"
           >
             <AwLogo variant="mark" height={14} aria-label="Bombardier" />
           </button>

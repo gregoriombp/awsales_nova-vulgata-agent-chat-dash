@@ -167,7 +167,7 @@ function MediaDropzone({
 
   if (media) {
     return (
-      <div className="relative overflow-hidden rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-surface)]">
+      <div className="relative overflow-hidden rounded-md border border-(--border-default) bg-(--bg-surface)">
         {header === "image" ? (
           // Object URLs are local previews; <img> is fine here.
           // eslint-disable-next-line @next/next/no-img-element
@@ -177,7 +177,7 @@ function MediaDropzone({
             className="block h-[160px] w-full object-cover"
           />
         ) : (
-          <div className="flex h-[120px] items-center justify-center text-[var(--fg-tertiary)]">
+          <div className="flex h-[120px] items-center justify-center text-(--fg-tertiary)">
             <Icon
               name={header === "video" ? "movie" : "description"}
               size={32}
@@ -188,7 +188,7 @@ function MediaDropzone({
           type="button"
           onClick={onClear}
           aria-label="Remover mídia"
-          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-[color-mix(in_srgb,var(--fg-primary)_85%,transparent)] text-[var(--bg-raised)] transition-opacity hover:opacity-90"
+          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-[color-mix(in_srgb,var(--fg-primary)_85%,transparent)] text-(--bg-raised) transition-opacity hover:opacity-90"
         >
           <Icon name="close" size={14} />
         </button>
@@ -207,16 +207,16 @@ function MediaDropzone({
         e.preventDefault();
         handleFile(e.dataTransfer.files?.[0]);
       }}
-      className="flex w-full flex-col items-center justify-center gap-1.5 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-canvas)] px-4 py-8 text-center transition-colors hover:border-[var(--fg-primary)] hover:bg-[var(--bg-surface)]"
+      className="flex w-full flex-col items-center justify-center gap-1.5 rounded-md border border-dashed border-(--border-default) bg-(--bg-canvas) px-4 py-8 text-center transition-colors hover:border-(--fg-primary) hover:bg-(--bg-surface)"
     >
-      <Icon name="image" size={22} className="text-[var(--fg-tertiary)]" />
-      <span className="body-xs text-[var(--fg-secondary)]">
+      <Icon name="image" size={22} className="text-(--fg-tertiary)" />
+      <span className="body-xs text-(--fg-secondary)">
         Arraste uma {label} ou{" "}
-        <span className="font-semibold text-[var(--aw-blue-600,#1A73E8)] underline underline-offset-2">
+        <span className="font-semibold text-(--aw-blue-600,#1A73E8) underline underline-offset-2">
           selecione
         </span>
       </span>
-      <span className="body-xs text-[var(--fg-tertiary)]">{helper}</span>
+      <span className="body-xs text-(--fg-tertiary)">{helper}</span>
       <input
         ref={inputRef}
         type="file"
@@ -345,7 +345,7 @@ function PhonePreview({
 
   return (
     <div className="relative mx-auto w-[260px]">
-      <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[#075E54] shadow-[var(--shadow-md)]">
+      <div className="overflow-hidden rounded-lg border border-(--border-subtle) bg-[#075E54] shadow-(--shadow-md)">
         {/* Status bar */}
         <div className="flex h-[18px] items-center justify-end bg-[#075E54] px-3 body-xs font-medium text-white/90">
           9:41
@@ -375,10 +375,10 @@ function PhonePreview({
           }}
         >
           {/* Message bubble */}
-          <div className="ml-1 max-w-[260px] rounded-[10px] rounded-tl-[3px] bg-white px-2 pb-1.5 pt-2 shadow-[0_1px_0_rgba(0,0,0,0.08)]">
+          <div className="ml-1 max-w-[260px] rounded-md rounded-tl-[3px] bg-white px-2 pb-1.5 pt-2 shadow-[0_1px_0_rgba(0,0,0,0.08)]">
             {/* Header preview */}
             {showHeader && (
-              <div className="mb-1.5 overflow-hidden rounded-[6px]">
+              <div className="mb-1.5 overflow-hidden rounded-xs">
                 {draft.header === "image" && draft.headerMedia ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -403,7 +403,7 @@ function PhonePreview({
               </div>
             )}
             {/* Body */}
-            <div className="whitespace-pre-wrap break-words body-xs text-[#111B21]">
+            <div className="whitespace-pre-wrap wrap-break-word body-xs text-[#111B21]">
               {parts.length === 0 ? (
                 <span className="text-[#9AA0A6]">Comece a digitar o corpo…</span>
               ) : (
@@ -423,7 +423,7 @@ function PhonePreview({
           </div>
           {/* Inline buttons */}
           {draft.buttons.length > 0 && (
-            <div className="ml-1 mt-1 flex max-w-[260px] flex-col gap-px overflow-hidden rounded-[8px] bg-white body-xs">
+            <div className="ml-1 mt-1 flex max-w-[260px] flex-col gap-px overflow-hidden rounded-sm bg-white body-xs">
               {draft.buttons.map((b, i) => {
                 const icon =
                   b.type === "url"
@@ -533,7 +533,7 @@ export function AwTemplateBuilderSheet({
       title="Novo template"
       footer={
         <div className="flex items-center justify-between gap-3">
-          <div className="body-xs text-[var(--fg-tertiary)]">
+          <div className="body-xs text-(--fg-tertiary)">
             Tempo médio de aprovação pela Meta: 12 min
           </div>
           <div className="flex items-center gap-2">
@@ -643,19 +643,19 @@ export function AwTemplateBuilderSheet({
               onChange={(e) => setField("body", e.target.value)}
               rows={6}
               placeholder="Olá, {{1}}! 👋 Bem-vindo(a) à {{nome_empresa}}. Estamos com {{2}} ativo até {{horario_atendimento}}."
-              className="w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2.5 body-xs text-[var(--fg-primary)] outline-none transition-colors placeholder:text-[var(--fg-tertiary)] focus:border-[var(--aw-blue-500)]"
+              className="w-full resize-y rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2.5 body-xs text-(--fg-primary) outline-hidden transition-colors placeholder:text-(--fg-tertiary) focus:border-(--aw-blue-500)"
             />
           </AwField>
 
           <div>
             <div className="mb-2 flex items-baseline justify-between">
-              <h3 className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
+              <h3 className="m-0 body-xs font-semibold text-(--fg-primary)">
                 Botões{" "}
-                <span className="body-xs font-normal text-[var(--fg-tertiary)]">
+                <span className="body-xs font-normal text-(--fg-tertiary)">
                   (até {MAX_BUTTONS})
                 </span>
               </h3>
-              <span className="body-xs text-[var(--fg-tertiary)]">
+              <span className="body-xs text-(--fg-tertiary)">
                 {draft.buttons.length}/{MAX_BUTTONS}
               </span>
             </div>
@@ -683,12 +683,12 @@ export function AwTemplateBuilderSheet({
         </div>
 
         {/* Preview column */}
-        <aside className="flex flex-col gap-3 border-l border-[var(--border-subtle)] pl-8">
-          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-[var(--fg-tertiary)]">
+        <aside className="flex flex-col gap-3 border-l border-(--border-subtle) pl-8">
+          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
             Pré-visualização
           </div>
           <PhonePreview draft={draft} accountName={accountName} />
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 body-xs text-[var(--fg-tertiary)]">
+          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 body-xs text-(--fg-tertiary)">
             <span>
               {variables.total}{" "}
               {variables.total === 1 ? "variável" : "variáveis"}

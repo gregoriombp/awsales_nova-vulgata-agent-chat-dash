@@ -100,14 +100,14 @@ export function AwMembersTable({
             const inner = (
               <>
                 {col.icon && (
-                  <span className="inline-flex h-5 w-5 items-center justify-center text-[var(--fg-tertiary)]">
+                  <span className="inline-flex h-5 w-5 items-center justify-center text-(--fg-tertiary)">
                     <Icon name={col.icon} size={16} />
                   </span>
                 )}
                 <span>{col.label}</span>
                 {col.help && (
                   <span
-                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[var(--fg-tertiary)]"
+                    className="inline-flex h-4 w-4 items-center justify-center rounded-full text-(--fg-tertiary)"
                     aria-label={col.help}
                   >
                     <Icon name="help" size={13} />
@@ -224,7 +224,7 @@ export function AwMembersTablePersonCell({
         </span>
         <span className="flex min-w-0 flex-col gap-0.5">
           <span className="flex items-center gap-2">
-            <span className="truncate text-[length:var(--body-sm-size)] font-medium text-[var(--fg-primary)]">
+            <span className="truncate text-(length:--body-sm-size) font-medium text-(--fg-primary)">
               {name}
             </span>
             {tag && (
@@ -234,12 +234,12 @@ export function AwMembersTablePersonCell({
             )}
           </span>
           {email && (
-            <span className="truncate text-[12.5px] text-[var(--fg-secondary)]">
+            <span className="truncate text-[12.5px] text-(--fg-secondary)">
               {email}
             </span>
           )}
           {subtitle && (
-            <span className="truncate text-[11.5px] text-[var(--fg-tertiary)]">
+            <span className="truncate text-[11.5px] text-(--fg-tertiary)">
               {subtitle}
             </span>
           )}
@@ -297,7 +297,7 @@ export function AwMembersTableTextCell({
   return (
     <td
       className={cn(
-        muted ? "text-[var(--fg-secondary)]" : "text-[var(--fg-primary)]",
+        muted ? "text-(--fg-secondary)" : "text-(--fg-primary)",
         className
       )}
       {...rest}

@@ -54,10 +54,10 @@ function FilterPopover({
       </PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-56 rounded-[var(--radius-lg)] border-[var(--border-subtle)] p-1"
+        className="w-56 rounded-lg border-(--border-subtle) p-1"
       >
         {options.length === 0 ? (
-          <p className="px-2.5 py-2 text-[13px] text-[var(--fg-tertiary)]">
+          <p className="px-2.5 py-2 text-[13px] text-(--fg-tertiary)">
             Sem opções
           </p>
         ) : (
@@ -68,14 +68,14 @@ function FilterPopover({
                 key={opt}
                 type="button"
                 onClick={() => onChange(toggle(selected, opt))}
-                className="flex w-full items-center justify-between gap-2 rounded-[var(--radius-md)] px-2.5 py-2 text-left text-[13px] text-[var(--fg-primary)] transition-colors hover:bg-[var(--bg-hover)]"
+                className="flex w-full items-center justify-between gap-2 rounded-md px-2.5 py-2 text-left text-[13px] text-(--fg-primary) transition-colors hover:bg-(--bg-hover)"
               >
                 <span className="truncate">{opt}</span>
                 {active && (
                   <Icon
                     name="check"
                     size={16}
-                    className="flex-shrink-0 text-[var(--accent-brand)]"
+                    className="shrink-0 text-(--accent-brand)"
                   />
                 )}
               </button>
@@ -187,7 +187,7 @@ export function KnowledgeBaseExplorer({ bases }: { bases: KnowledgeBase[] }) {
 
       {/* Resultado */}
       {filtered.length === 0 ? (
-        <div className="rounded-[var(--radius-xl)] border border-dashed border-[var(--border-subtle)] py-16 text-center text-[13px] text-[var(--fg-tertiary)]">
+        <div className="rounded-xl border border-dashed border-(--border-subtle) py-16 text-center text-[13px] text-(--fg-tertiary)">
           Nenhuma base encontrada para os filtros atuais.
         </div>
       ) : view === "cards" ? (

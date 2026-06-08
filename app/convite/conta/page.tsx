@@ -149,7 +149,7 @@ function AuthOption({
       disabled={disabled}
       className="flex w-full items-center gap-3.5 rounded-lg border border-border bg-bg-raised px-4 py-3.5 text-left transition-colors duration-aw-fast hover:border-border-strong hover:bg-bg-surface disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-border disabled:hover:bg-bg-raised"
     >
-      <span className="flex-shrink-0">{icon}</span>
+      <span className="shrink-0">{icon}</span>
       <span className="min-w-0 flex-1">
         <span className="block body-sm font-medium text-fg-primary">
           {label}
@@ -161,13 +161,13 @@ function AuthOption({
       {loading ? (
         <span
           aria-hidden="true"
-          className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-fg-tertiary border-r-transparent"
+          className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-[1.5px] border-fg-tertiary border-r-transparent"
         />
       ) : (
         <Icon
           name="arrow_forward"
           size={16}
-          className="flex-shrink-0 text-fg-tertiary"
+          className="shrink-0 text-fg-tertiary"
         />
       )}
     </button>

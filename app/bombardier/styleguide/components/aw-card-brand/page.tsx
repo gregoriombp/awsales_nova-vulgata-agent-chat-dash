@@ -44,7 +44,7 @@ export default function CardBrandPage() {
         renderizar a logo automaticamente enquanto o usuário digita o número.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
-        <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-5 py-4 mb-10 text-sm text-[var(--aw-blue-900)]">
+        <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-5 py-4 mb-10 text-sm text-(--aw-blue-900)">
           <strong>AwCardBrand vs AwBrandLogo.</strong> Use{" "}
           <code className="mono">AwCardBrand</code> exclusivamente pra
           bandeiras de cartão (Visa/Master/Amex…). Pra meios de pagamento mais
@@ -52,7 +52,7 @@ export default function CardBrandPage() {
           (Stripe, Hotmart), use{" "}
           <a
             href="/bombardier/styleguide/components/brand-logo"
-            className="underline underline-offset-2 hover:text-[var(--aw-blue-700)]"
+            className="underline underline-offset-2 hover:text-(--aw-blue-700)"
           >
             AwBrandLogo
           </a>
@@ -66,7 +66,7 @@ export default function CardBrandPage() {
             lead="Digite um número de cartão. O componente resolve a bandeira via BIN match e troca a logo conforme você digita. Ideal pra colocar dentro do input de cartão num checkout."
           >
             <Stage label="prop pan resolve a brand automaticamente" gridClassName="flex flex-col items-start gap-4">
-              <div className="flex w-full max-w-[480px] items-center gap-2.5 rounded-md border border-[var(--border-default)] bg-[var(--bg-raised)] pl-2.5 pr-3.5 h-11 focus-within:border-[var(--fg-primary)]">
+              <div className="flex w-full max-w-[480px] items-center gap-2.5 rounded-md border border-(--border-default) bg-(--bg-raised) pl-2.5 pr-3.5 h-11 focus-within:border-(--fg-primary)">
                 <AwCardBrand pan={pan} size="md" />
                 <input
                   value={pan}
@@ -81,7 +81,7 @@ export default function CardBrandPage() {
                   }}
                 />
                 <span
-                  className="text-[var(--fg-tertiary)]"
+                  className="text-(--fg-tertiary)"
                   style={{ fontSize: 10, letterSpacing: "0.06em", textTransform: "uppercase" }}
                 >
                   {detected === "unknown" ? "—" : detected}
@@ -93,7 +93,7 @@ export default function CardBrandPage() {
                     key={s.pan}
                     type="button"
                     onClick={() => setPan(s.pan)}
-                    className="rounded-sm border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1 text-[var(--fg-secondary)] hover:border-[var(--fg-primary)]"
+                    className="rounded-sm border border-(--border-subtle) bg-(--bg-surface) px-2.5 py-1 text-(--fg-secondary) hover:border-(--fg-primary)"
                     style={{ fontSize: 11 }}
                   >
                     {s.label}
@@ -120,17 +120,17 @@ export default function CardBrandPage() {
             title="Registry"
             lead={`${AW_CARD_BRAND_REGISTRY.length} bandeiras + estado "unknown" (placeholder dashed). Cores oficiais por brand. Pra adicionar bandeira, edite components/ui/AwCardBrand.tsx.`}
           >
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               {AW_CARD_BRAND_REGISTRY.map((id) => (
                 <div
                   key={id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                 >
                   <AwCardBrand brand={id} size="lg" />
                   <span className="mono">{id}</span>
                 </div>
               ))}
-              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                 <AwCardBrand brand="unknown" size="lg" />
                 <span className="mono">unknown</span>
               </div>
@@ -142,7 +142,7 @@ export default function CardBrandPage() {
             title="Anatomia"
             lead="Chip retangular com proporção 1.5:1 (igual ao aspect físico de um cartão). Bg = cor oficial da brand. Visa, Master e Discover usam tile branco com hairline border (logos coloridas dentro)."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               <Spec k="chip sm" v="28 × 18 px" d="Logo: ~78%" />
               <Spec k="chip md" v="36 × 24 px" d="Default · logo: ~78%" />
               <Spec k="chip lg" v="48 × 32 px" d="Logo: ~78%" />

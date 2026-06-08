@@ -202,9 +202,9 @@ export function VariableSpendingBlock() {
             />
           </div>
           <div className="flex items-center gap-3">
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Acumulado:{" "}
-              <strong className="tabular-nums text-[var(--fg-primary)]">
+              <strong className="tabular-nums text-(--fg-primary)">
                 {brl(accumulated)}
               </strong>
             </p>
@@ -281,27 +281,27 @@ function PeriodPicker({
         <button
           type="button"
           aria-label="Selecionar período"
-          className="inline-flex items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-1.5 body-xs font-medium text-[var(--fg-primary)] transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+          className="inline-flex items-center gap-1.5 rounded-sm border border-(--border-subtle) bg-(--bg-raised) px-3 py-1.5 body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
         >
           <Icon
             name="calendar_month"
             size={14}
-            className="text-[var(--fg-tertiary)]"
+            className="text-(--fg-tertiary)"
           />
           {triggerLabel}
           <Icon
             name="expand_more"
             size={14}
-            className="text-[var(--fg-tertiary)]"
+            className="text-(--fg-tertiary)"
           />
         </button>
       </PopoverTrigger>
       <PopoverContent
         align="end"
         sideOffset={6}
-        className="flex w-auto gap-0 border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-0 shadow-lg"
+        className="flex w-auto gap-0 border border-(--border-subtle) bg-(--bg-raised) p-0 shadow-lg"
       >
-        <div className="flex w-44 flex-col border-r border-[var(--border-subtle)] py-1.5">
+        <div className="flex w-44 flex-col border-r border-(--border-subtle) py-1.5">
           {SPENDING_PERIODS.map((p) => {
             const active = selection.kind === "preset" && selection.id === p.id;
             return (
@@ -316,8 +316,8 @@ function PeriodPicker({
                 className={
                   "flex items-center justify-between gap-2 px-3 py-2 text-left body-xs transition-colors duration-aw-fast " +
                   (active
-                    ? "bg-[var(--bg-muted)] font-medium text-[var(--fg-primary)]"
-                    : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]")
+                    ? "bg-(--bg-muted) font-medium text-(--fg-primary)"
+                    : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)")
                 }
               >
                 {p.label}
@@ -325,14 +325,14 @@ function PeriodPicker({
                   <Icon
                     name="check"
                     size={14}
-                    className="text-[var(--fg-primary)]"
+                    className="text-(--fg-primary)"
                   />
                 )}
               </button>
             );
           })}
-          <div className="my-1 mx-3 h-px bg-[var(--border-subtle)]" />
-          <span className="px-3 pt-1 aw-eyebrow text-[var(--fg-tertiary)]">
+          <div className="my-1 mx-3 h-px bg-(--border-subtle)" />
+          <span className="px-3 pt-1 aw-eyebrow text-(--fg-tertiary)">
             Personalizado
           </span>
         </div>
@@ -350,8 +350,8 @@ function PeriodPicker({
             numberOfMonths={2}
             captionLayout="dropdown"
           />
-          <div className="flex items-center justify-between gap-3 border-t border-[var(--border-subtle)] pt-3">
-            <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+          <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3">
+            <p className="m-0 body-xs text-(--fg-tertiary)">
               {range.from && range.to
                 ? formatRangeShort(range.from, range.to)
                 : "Selecione início e fim"}
@@ -395,7 +395,7 @@ function SegmentedToggle<T extends string>({
     <div
       role="tablist"
       aria-label="Agrupar gastos variáveis"
-      className="inline-flex items-center gap-1 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] p-1"
+      className="inline-flex items-center gap-1 rounded-md border border-(--border-subtle) bg-(--bg-muted) p-1"
     >
       {options.map((opt) => {
         const active = opt.value === value;
@@ -407,10 +407,10 @@ function SegmentedToggle<T extends string>({
             aria-selected={active}
             onClick={() => onChange(opt.value)}
             className={
-              "rounded-[var(--radius-sm)] px-3 py-1 body-xs font-medium transition-colors duration-aw-fast " +
+              "rounded-sm px-3 py-1 body-xs font-medium transition-colors duration-aw-fast " +
               (active
-                ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-[var(--shadow-xs)]"
-                : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]")
+                ? "bg-(--bg-raised) text-(--fg-primary) shadow-(--shadow-xs)"
+                : "text-(--fg-secondary) hover:text-(--fg-primary)")
             }
           >
             {opt.label}
@@ -517,12 +517,12 @@ function DailySpendingChart({
           content={
             <ChartTooltipContent
               indicator="dot"
-              className="bg-[var(--bg-raised)]"
+              className="bg-(--bg-raised)"
               formatter={(value, name) => {
                 const cat = categories.find((c) => c.id === name);
                 return (
                   <div className="flex w-full items-center justify-between gap-3">
-                    <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
+                    <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
                       <span
                         aria-hidden="true"
                         className="inline-block h-2 w-2 rounded-full"
@@ -530,7 +530,7 @@ function DailySpendingChart({
                       />
                       {cat?.label ?? String(name)}
                     </span>
-                    <span className="body-xs font-medium tabular-nums text-[var(--fg-primary)]">
+                    <span className="body-xs font-medium tabular-nums text-(--fg-primary)">
                       {brl(Number(value))}
                     </span>
                   </div>
@@ -589,14 +589,14 @@ function Legend({
       {visible.map((c) => (
         <span
           key={c.id}
-          className="inline-flex items-center gap-2 body-xs text-[var(--fg-secondary)]"
+          className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)"
         >
           {grouping === "agent" && c.avatar ? (
             <span className="relative inline-block">
               <AwAvatar size="sm" src={c.avatar} alt={c.label} />
               <span
                 aria-hidden="true"
-                className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[var(--bg-canvas)]"
+                className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-(--bg-canvas)"
                 style={{ background: c.colorVar }}
               />
             </span>
@@ -737,7 +737,7 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
                 <Icon
                   name={r.icon}
                   size={18}
-                  className="text-[var(--fg-tertiary)]"
+                  className="text-(--fg-tertiary)"
                 />
                 {r.label}
               </span>
@@ -746,7 +746,7 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
               {formatQuantity(r.quantity, r.quantityFormat)}
             </td>
             <td className="tabular-nums">{r.unitPriceLabel}</td>
-            <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
+            <td className="text-right font-medium tabular-nums text-(--fg-primary)">
               {brl(r.total)}
             </td>
           </tr>
@@ -754,10 +754,10 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3} className="text-right text-[var(--fg-secondary)]">
+          <td colSpan={3} className="text-right text-(--fg-secondary)">
             Total
           </td>
-          <td className="text-right font-semibold tabular-nums text-[var(--fg-primary)]">
+          <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
           </td>
         </tr>
@@ -891,7 +891,7 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             <td>
               <span className="inline-flex items-center gap-2">
                 <AwAvatar size="sm" src={r.avatar} alt={r.label} />
-                <span className="font-medium text-[var(--fg-primary)]">
+                <span className="font-medium text-(--fg-primary)">
                   {r.label}
                 </span>
               </span>
@@ -900,7 +900,7 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             <td>
               <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
             </td>
-            <td className="text-right font-medium tabular-nums text-[var(--fg-primary)]">
+            <td className="text-right font-medium tabular-nums text-(--fg-primary)">
               {brl(r.total)}
             </td>
           </tr>
@@ -908,10 +908,10 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3} className="text-right text-[var(--fg-secondary)]">
+          <td colSpan={3} className="text-right text-(--fg-secondary)">
             Total
           </td>
-          <td className="text-right font-semibold tabular-nums text-[var(--fg-primary)]">
+          <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
           </td>
         </tr>
@@ -946,15 +946,15 @@ function SortableHeader({
           "group inline-flex items-center gap-1 transition-colors duration-aw-fast " +
           (align === "right" ? "flex-row-reverse " : "") +
           (active
-            ? "text-[var(--fg-primary)]"
-            : "text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)]")
+            ? "text-(--fg-primary)"
+            : "text-(--fg-tertiary) hover:text-(--fg-primary)")
         }
       >
         {label}
         <Icon
           name={active ? (dir === "asc" ? "arrow_upward" : "arrow_downward") : "unfold_more"}
           size={12}
-          className={active ? "text-[var(--fg-secondary)]" : "opacity-0 group-hover:opacity-100"}
+          className={active ? "text-(--fg-secondary)" : "opacity-0 group-hover:opacity-100"}
         />
       </button>
     </th>

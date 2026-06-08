@@ -62,9 +62,9 @@ export default function NavListPage() {
         <Section
           id="anatomy"
           title="Anatomia"
-          lead="Estado ativo usa --bg-surface; hover usa o mesmo fill, diferenciado apenas pelo focus ring em navegação via teclado."
+          lead="Estado ativo usa --bg-surface; hover usa o mesmo fill, diferenciado apenas pelo focus ring-3 em navegação via teclado."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="padding item"
               v="8 · 10"

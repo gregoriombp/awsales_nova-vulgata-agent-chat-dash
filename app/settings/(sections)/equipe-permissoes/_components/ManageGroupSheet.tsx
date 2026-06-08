@@ -88,7 +88,7 @@ export function ManageGroupSheet({
       }
       meta={
         group ? (
-          <span className="body-xs text-[var(--fg-secondary)]">
+          <span className="body-xs text-(--fg-secondary)">
             {currentMembers.length} membro{currentMembers.length === 1 ? "" : "s"}
           </span>
         ) : undefined
@@ -100,7 +100,7 @@ export function ManageGroupSheet({
             variant="ghost"
             iconLeft="delete"
             onClick={() => setConfirmingDelete((v) => !v)}
-            className="!text-[var(--accent-danger)]"
+            className="text-(--accent-danger)!"
           >
             Excluir grupo
           </AwButton>
@@ -124,7 +124,7 @@ export function ManageGroupSheet({
       {group && (
         <div className="flex flex-col gap-6">
           <section className="flex flex-col gap-3">
-            <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            <h3 className="m-0 aw-eyebrow text-(--fg-tertiary)">
               Identidade
             </h3>
             <AwField label="Nome" htmlFor="manage-group-name">
@@ -137,7 +137,7 @@ export function ManageGroupSheet({
             <AwField label="Descrição" htmlFor="manage-group-description">
               <textarea
                 id="manage-group-description"
-                className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 body-xs text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+                className="min-h-[68px] w-full resize-y rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-2 body-xs text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
@@ -147,13 +147,13 @@ export function ManageGroupSheet({
 
           <section className="flex flex-col gap-3">
             <header className="flex items-baseline justify-between">
-              <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+              <h3 className="m-0 aw-eyebrow text-(--fg-tertiary)">
                 Membros · {currentMembers.length}
               </h3>
             </header>
 
             {currentMembers.length === 0 ? (
-              <p className="m-0 rounded-[var(--radius-md)] border border-dashed border-[var(--border-subtle)] px-3 py-4 text-center body-xs text-[var(--fg-secondary)]">
+              <p className="m-0 rounded-md border border-dashed border-(--border-subtle) px-3 py-4 text-center body-xs text-(--fg-secondary)">
                 Esse grupo ainda não tem membros. Adicione abaixo.
               </p>
             ) : (
@@ -161,7 +161,7 @@ export function ManageGroupSheet({
                 {currentMembers.map((m) => (
                   <li
                     key={m.id}
-                    className="flex items-center gap-3 rounded-[var(--radius-md)] px-2 py-2 hover:bg-[var(--bg-hover)]"
+                    className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-(--bg-hover)"
                   >
                     <AwAvatar
                       size="sm"
@@ -170,10 +170,10 @@ export function ManageGroupSheet({
                       alt={m.name}
                     />
                     <div className="min-w-0 flex-1">
-                      <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                      <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                         {m.name}
                       </p>
-                      <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                      <p className="m-0 truncate body-xs text-(--fg-secondary)">
                         {m.role}
                       </p>
                     </div>
@@ -191,7 +191,7 @@ export function ManageGroupSheet({
           </section>
 
           <section className="flex flex-col gap-3">
-            <h3 className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+            <h3 className="m-0 aw-eyebrow text-(--fg-tertiary)">
               Adicionar pessoas
             </h3>
             <AwInput
@@ -200,9 +200,9 @@ export function ManageGroupSheet({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="max-h-[260px] overflow-y-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)]">
+            <div className="max-h-[260px] overflow-y-auto rounded-md border border-(--border-subtle)">
               {availableMembers.length === 0 ? (
-                <p className="m-0 px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
+                <p className="m-0 px-3 py-4 text-center body-xs text-(--fg-tertiary)">
                   {memberIds.length === MEMBERS.length
                     ? "Todo mundo já está no grupo."
                     : "Nenhuma pessoa encontrada."}
@@ -214,7 +214,7 @@ export function ManageGroupSheet({
                       <button
                         type="button"
                         onClick={() => addMember(m.id)}
-                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-[var(--bg-hover)]"
+                        className="flex w-full items-center gap-3 px-3 py-2 text-left hover:bg-(--bg-hover)"
                       >
                         <AwAvatar
                           size="sm"
@@ -223,17 +223,17 @@ export function ManageGroupSheet({
                           alt={m.name}
                         />
                         <div className="min-w-0 flex-1">
-                          <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                          <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                             {m.name}
                           </p>
-                          <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                          <p className="m-0 truncate body-xs text-(--fg-secondary)">
                             {m.role}
                           </p>
                         </div>
                         <Icon
                           name="add"
                           size={16}
-                          className="text-[var(--fg-tertiary)]"
+                          className="text-(--fg-tertiary)"
                         />
                       </button>
                     </li>
@@ -244,11 +244,11 @@ export function ManageGroupSheet({
           </section>
 
           {confirmingDelete && (
-            <div className="rounded-[var(--radius-md)] border border-[var(--accent-danger)] bg-[var(--bg-muted)] p-4">
-              <p className="m-0 body-xs font-semibold text-[var(--fg-primary)]">
+            <div className="rounded-md border border-(--accent-danger) bg-(--bg-muted) p-4">
+              <p className="m-0 body-xs font-semibold text-(--fg-primary)">
                 Excluir esse grupo?
               </p>
-              <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
                 Os membros não são removidos, mas perdem os acessos concedidos
                 via grupo. Essa ação não pode ser desfeita.
               </p>

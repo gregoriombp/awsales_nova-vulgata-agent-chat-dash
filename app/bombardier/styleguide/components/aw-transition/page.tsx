@@ -180,7 +180,7 @@ function Reveal({ open }: { open: boolean }) {
             title="Tokens usados"
             lead="Defaults vêm dos tokens do design system. Sobreponha por prop quando precisar."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-2 md:grid-cols-3 gap-6">
               <Spec
                 k="duration · default"
                 v="240ms"
@@ -241,7 +241,7 @@ function PresetsGrid() {
                 {(styles) => (
                   <div
                     style={styles}
-                    className="flex h-16 w-32 items-center justify-center rounded-md border border-[var(--border-default)] bg-[var(--bg-canvas)] text-[var(--fg-primary)]"
+                    className="flex h-16 w-32 items-center justify-center rounded-md border border-(--border-default) bg-(--bg-canvas) text-(--fg-primary)"
                   >
                     <span className="mono text-xs">{preset.id}</span>
                   </div>
@@ -286,7 +286,7 @@ function DurationGrid() {
                 {(styles) => (
                   <div
                     style={styles}
-                    className="flex h-16 w-32 items-center justify-center rounded-md bg-[var(--fg-primary)] text-[var(--bg-canvas)]"
+                    className="flex h-16 w-32 items-center justify-center rounded-md bg-(--fg-primary) text-(--bg-canvas)"
                   >
                     <span className="mono text-xs">{d.ms}ms</span>
                   </div>
@@ -325,15 +325,15 @@ function ExitAsymmetricExample() {
             {(styles) => (
               <div
                 style={styles}
-                className="flex h-20 w-64 items-center gap-3 rounded-md border border-[var(--border-default)] bg-[var(--bg-raised)] px-4"
+                className="flex h-20 w-64 items-center gap-3 rounded-md border border-(--border-default) bg-(--bg-raised) px-4"
               >
                 <Icon
                   name="bookmark"
                   size={20}
-                  className="text-[var(--aw-blue-700)]"
+                  className="text-(--aw-blue-700)"
                 />
                 <div>
-                  <div className="text-sm font-medium text-[var(--fg-primary)]">
+                  <div className="text-sm font-medium text-(--fg-primary)">
                     Salvo no histórico
                   </div>
                   <div className="caption">Há um instante</div>
@@ -381,7 +381,7 @@ function KeepMountedExample() {
                 style={styles}
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                className="h-10 w-72 rounded-md border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 text-sm text-[var(--fg-primary)] outline-none focus:border-[var(--fg-primary)]"
+                className="h-10 w-72 rounded-md border border-(--border-default) bg-(--bg-raised) px-3 text-sm text-(--fg-primary) outline-hidden focus:border-(--fg-primary)"
               />
             )}
           </AwTransition>

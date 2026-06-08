@@ -13,9 +13,9 @@ export type MediaFit = z.infer<typeof MediaFitSchema>;
 export const RATIO_CLASS_MAP: Record<AspectRatio, string> = {
   auto: "",
   "1:1": "aspect-square",
-  "4:3": "aspect-[4/3]",
+  "4:3": "aspect-4/3",
   "16:9": "aspect-video",
-  "9:16": "aspect-[9/16]",
+  "9:16": "aspect-9/16",
 };
 
 export function getRatioClass(ratio: AspectRatio): string {

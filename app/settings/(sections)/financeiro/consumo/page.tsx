@@ -145,19 +145,19 @@ function ConsumptionHero({
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <p className="m-0 aw-eyebrow text-[var(--fg-tertiary)]">
+        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
           Consumo variável · ciclo atual
         </p>
         <MoneyHeading value={accumulated} size="md" as="h1" />
-        <p className="m-0 max-w-[600px] body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[600px] body-xs text-(--fg-secondary)">
           Seu limite é de{" "}
-          <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+          <strong className="font-medium tabular-nums text-(--fg-primary)">
             {brl(limit)}
           </strong>
           {couponBonus > 0 && (
             <>
               {" "}— estendido para{" "}
-              <strong className="font-medium tabular-nums text-[var(--fg-primary)]">
+              <strong className="font-medium tabular-nums text-(--fg-primary)">
                 {brl(extended)}
               </strong>{" "}
               com cupons aplicados
@@ -168,7 +168,7 @@ function ConsumptionHero({
           <button
             type="button"
             onClick={onRequestIncrease}
-            className="font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+            className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:no-underline"
           >
             Solicitar aumento de limite
           </button>
@@ -182,16 +182,16 @@ function ConsumptionHero({
           extendedLimit={extended}
         />
         <div className="flex items-center justify-between gap-3 body-xs tabular-nums">
-          <span className="text-[var(--fg-secondary)]">
+          <span className="text-(--fg-secondary)">
             {pct}% de {brl(extended)}
           </span>
           <span
             className={
               overExtended
-                ? "text-[var(--accent-danger)]"
+                ? "text-(--accent-danger)"
                 : overBase
-                  ? "text-[var(--accent-warning)]"
-                  : "text-[var(--fg-tertiary)]"
+                  ? "text-(--accent-warning)"
+                  : "text-(--fg-tertiary)"
             }
           >
             {overExtended
@@ -236,15 +236,15 @@ function ConsumptionBar({
       <Tooltip>
         <TooltipTrigger asChild>
           <div className="relative h-2.5 w-full" aria-label="Consumo do ciclo">
-            <div className="absolute inset-0 rounded-full bg-[var(--bg-muted)]" />
+            <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
 
             <div
               className={
                 "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
                 (fullBar ? "rounded-full" : "rounded-l-full") +
                 (overExtended
-                  ? " bg-[var(--aw-red-600)]"
-                  : " bg-[var(--aw-emerald-600)]")
+                  ? " bg-(--aw-red-600)"
+                  : " bg-(--aw-emerald-600)")
               }
               style={{ width: `${Math.min(fillPct, 100)}%` }}
             />
@@ -269,30 +269,30 @@ function ConsumptionBar({
         </TooltipTrigger>
         <TooltipContent
           side="top"
-          className="border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-primary)]"
+          className="border-(--border-subtle) bg-(--bg-raised) text-(--fg-primary)"
         >
           <div className="flex flex-col gap-1.5 py-0.5 text-xs">
             <div className="flex items-center justify-between gap-6">
-              <span className="text-[var(--fg-secondary)]">
+              <span className="text-(--fg-secondary)">
                 Limite concedido
               </span>
               <span className="tabular-nums">{brl(baseLimit)}</span>
             </div>
             {hasBonus && (
               <div className="flex items-center justify-between gap-6">
-                <span className="text-[var(--fg-secondary)]">
+                <span className="text-(--fg-secondary)">
                   Estendido por cupons
                 </span>
-                <span className="tabular-nums text-[var(--accent-success)]">
+                <span className="tabular-nums text-(--accent-success)">
                   +{brl(bonus)}
                 </span>
               </div>
             )}
-            <div className="mt-1 flex items-center justify-between gap-6 border-t border-[var(--border-subtle)] pt-1.5 font-medium">
+            <div className="mt-1 flex items-center justify-between gap-6 border-t border-(--border-subtle) pt-1.5 font-medium">
               <span>Limite de uso</span>
               <span className="tabular-nums">{brl(extendedLimit)}</span>
             </div>
-            <div className="flex items-center justify-between gap-6 text-[var(--fg-secondary)]">
+            <div className="flex items-center justify-between gap-6 text-(--fg-secondary)">
               <span>Consumido até agora</span>
               <span className="tabular-nums">{brl(consumed)}</span>
             </div>
@@ -319,7 +319,7 @@ function ConsumptionNeedle({
       role="presentation"
       aria-label={label}
       title={label}
-      className="pointer-events-auto absolute -top-1 bottom-[-4px] z-[1]"
+      className="pointer-events-auto absolute -top-1 bottom-[-4px] z-1"
       style={{ left: `${leftPct}%` }}
     >
       <span
@@ -351,17 +351,17 @@ function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
     <section className="flex flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Vouchers</h6>
-          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+          <h6 className="m-0 mb-1 text-(--fg-primary)">Vouchers</h6>
+          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
             Créditos emitidos pela AwSales que descontam dos{" "}
-            <strong className="font-medium text-[var(--fg-primary)]">
+            <strong className="font-medium text-(--fg-primary)">
               gastos variáveis
             </strong>{" "}
             do ciclo — disparos, tokens, telefonia.
           </p>
           {vouchers.length > 0 && (
-            <p className="m-0 mt-2 body-xs tabular-nums text-[var(--fg-tertiary)]">
-              <span className="font-medium text-[var(--fg-primary)]">
+            <p className="m-0 mt-2 body-xs tabular-nums text-(--fg-tertiary)">
+              <span className="font-medium text-(--fg-primary)">
                 {brl(totalAvailable)}
               </span>{" "}
               disponíveis · de {brl(totalGranted)}
@@ -374,14 +374,14 @@ function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
       </header>
 
       {vouchers.length === 0 ? (
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Nenhum voucher ativo no momento.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[var(--border-subtle)]">
+              <tr className="border-b border-(--border-subtle)">
                 <Th>Voucher</Th>
                 <Th>Valor</Th>
                 <Th>Status</Th>
@@ -425,17 +425,17 @@ function CouponsTable({
     <section className="flex flex-col gap-5">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">Cupons</h6>
-          <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+          <h6 className="m-0 mb-1 text-(--fg-primary)">Cupons</h6>
+          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
             Códigos aplicados que descontam no{" "}
-            <strong className="font-medium text-[var(--fg-primary)]">
+            <strong className="font-medium text-(--fg-primary)">
               valor fixo
             </strong>{" "}
             da próxima fatura — plano, implementação, taxas.
           </p>
           {totalDiscount > 0 && (
-            <p className="m-0 mt-2 body-xs tabular-nums text-[var(--fg-tertiary)]">
-              <span className="font-medium text-[var(--accent-success)]">
+            <p className="m-0 mt-2 body-xs tabular-nums text-(--fg-tertiary)">
+              <span className="font-medium text-(--accent-success)">
                 −{brl(totalDiscount)}
               </span>{" "}
               em cupons aplicados
@@ -445,14 +445,14 @@ function CouponsTable({
       </header>
 
       {sorted.length === 0 ? (
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Nenhum cupom aplicado.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
-              <tr className="border-b border-[var(--border-subtle)]">
+              <tr className="border-b border-(--border-subtle)">
                 <Th>Cupom</Th>
                 <Th>Desconto</Th>
                 <Th>Status</Th>
@@ -481,7 +481,7 @@ function VoucherRowEl({ row }: { row: VoucherRow }) {
   const expiringSoon = days <= 30 && !isExpired;
 
   return (
-    <tr className="border-b border-[var(--border-subtle)] last:border-b-0">
+    <tr className="border-b border-(--border-subtle) last:border-b-0">
       <Td>
         <CreditCell
           kind="voucher"
@@ -490,10 +490,10 @@ function VoucherRowEl({ row }: { row: VoucherRow }) {
         />
       </Td>
       <Td>
-        <span className="block tabular-nums text-[var(--fg-primary)]">
+        <span className="block tabular-nums text-(--fg-primary)">
           {brl(row.total)}
         </span>
-        <span className="block body-xs tabular-nums text-[var(--fg-tertiary)]">
+        <span className="block body-xs tabular-nums text-(--fg-tertiary)">
           Consumido {brl(row.consumed)}
         </span>
       </Td>
@@ -502,10 +502,10 @@ function VoucherRowEl({ row }: { row: VoucherRow }) {
           <AwPill variant={isExpired ? "neutral" : "live"} dot={false}>
             {isExpired ? "Expirado" : "Ativo"}
           </AwPill>
-          <span className="body-xs text-[var(--fg-tertiary)]">
+          <span className="body-xs text-(--fg-tertiary)">
             Vence {formatExpiry(row.expiresAt)}
             {expiringSoon && (
-              <span className="ml-1 text-[var(--accent-warning)]">
+              <span className="ml-1 text-(--accent-warning)">
                 · em {days} dia{days !== 1 ? "s" : ""}
               </span>
             )}
@@ -526,7 +526,7 @@ function CouponRowEl({
 }) {
   const invoiceExists = INVOICE_HISTORY.some((r) => r.id === row.invoiceId);
   return (
-    <tr className="border-b border-[var(--border-subtle)] last:border-b-0">
+    <tr className="border-b border-(--border-subtle) last:border-b-0">
       <Td>
         <CreditCell
           kind="coupon"
@@ -535,19 +535,19 @@ function CouponRowEl({
         />
       </Td>
       <Td>
-        <span className="block font-medium tabular-nums text-[var(--accent-success)]">
+        <span className="block font-medium tabular-nums text-(--accent-success)">
           −{brl(row.discount)}
         </span>
-        <span className="block body-xs text-[var(--fg-tertiary)]">
+        <span className="block body-xs text-(--fg-tertiary)">
           Uso único
         </span>
       </Td>
       <Td>
-        <span className="inline-flex items-center gap-1.5 body-xs text-[var(--fg-secondary)]">
+        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
           <Icon
             name="check_circle"
             size={14}
-            className="text-[var(--accent-success)]"
+            className="text-(--accent-success)"
           />
           Aplicado
           {invoiceExists ? (
@@ -556,7 +556,7 @@ function CouponRowEl({
               <button
                 type="button"
                 onClick={() => onOpenInvoice(row.invoiceId)}
-                className="font-medium text-[var(--fg-primary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--accent-brand)] hover:no-underline"
+                className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--accent-brand) hover:no-underline"
               >
                 {row.invoiceId}
               </button>
@@ -585,7 +585,7 @@ function CreditCell({
     <span className="flex items-center gap-3">
       <span
         aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)"
       >
         <Icon
           name={isVoucher ? "card_giftcard" : "local_offer"}
@@ -594,11 +594,11 @@ function CreditCell({
         />
       </span>
       <span className="flex min-w-0 flex-col">
-        <span className="truncate body-sm font-medium text-[var(--fg-primary)]">
+        <span className="truncate body-sm font-medium text-(--fg-primary)">
           {title}
         </span>
         {subtitle && (
-          <span className="truncate body-xs text-[var(--fg-tertiary)]">
+          <span className="truncate body-xs text-(--fg-tertiary)">
             {subtitle}
           </span>
         )}
@@ -611,7 +611,7 @@ function Th({ children }: { children: React.ReactNode }) {
   return (
     <th
       scope="col"
-      className="px-0 py-3 pr-6 text-left aw-eyebrow font-medium text-[var(--fg-tertiary)] last:pr-0"
+      className="px-0 py-3 pr-6 text-left aw-eyebrow font-medium text-(--fg-tertiary) last:pr-0"
     >
       {children}
     </th>
@@ -629,7 +629,7 @@ function Td({
     <td
       className={
         "px-0 py-4 pr-6 align-top body-xs last:pr-0 " +
-        (muted ? "text-[var(--fg-secondary)]" : "text-[var(--fg-primary)]")
+        (muted ? "text-(--fg-secondary)" : "text-(--fg-primary)")
       }
     >
       {children}
@@ -643,12 +643,12 @@ function Td({
 
 function DetailsSection() {
   return (
-    <section className="flex flex-col gap-4 border-t border-[var(--border-subtle)] pt-8">
+    <section className="flex flex-col gap-4 border-t border-(--border-subtle) pt-8">
       <header>
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+        <h6 className="m-0 mb-1 text-(--fg-primary)">
           Detalhes de consumo
         </h6>
-        <p className="m-0 max-w-[560px] body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
           Gráfico por dia, com breakdown por serviço ou por agente. Use o
           filtro de período pra investigar o que está consumindo.
         </p>
@@ -694,13 +694,13 @@ function RequestLimitIncreaseModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Limites são ajustados direto pelo seu account manager. Manda um
           recado pro {amFirstName} pelo canal que preferir — ele avalia e
           devolve a próxima faixa disponível.
         </p>
 
-        <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 py-2.5">
+        <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
           <AwAvatar
             size="md"
             src={am.photo}
@@ -708,10 +708,10 @@ function RequestLimitIncreaseModal({
             initials={am.initials}
           />
           <div className="min-w-0 flex-1">
-            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
               {am.name}
             </p>
-            <p className="m-0 body-xs text-[var(--fg-tertiary)]">{am.role}</p>
+            <p className="m-0 body-xs text-(--fg-tertiary)">{am.role}</p>
           </div>
         </div>
 
@@ -720,23 +720,23 @@ function RequestLimitIncreaseModal({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-3 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+            className="flex items-center gap-3 rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-3 transition-colors hover:border-(--border-strong) hover:bg-(--bg-surface)"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--aw-emerald-500)] text-[var(--aw-white)]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-500) text-(--aw-white)">
               <Icon name="chat" size={18} fill={1} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block body-sm font-medium text-[var(--fg-primary)]">
+              <span className="block body-sm font-medium text-(--fg-primary)">
                 Falar no WhatsApp
               </span>
-              <span className="block body-xs tabular-nums text-[var(--fg-tertiary)]">
+              <span className="block body-xs tabular-nums text-(--fg-tertiary)">
                 {am.phone}
               </span>
             </span>
             <Icon
               name="arrow_outward"
               size={16}
-              className="text-[var(--fg-tertiary)]"
+              className="text-(--fg-tertiary)"
             />
           </a>
 
@@ -744,23 +744,23 @@ function RequestLimitIncreaseModal({
             href={slackUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-3 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-surface)]"
+            className="flex items-center gap-3 rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-3 transition-colors hover:border-(--border-strong) hover:bg-(--bg-surface)"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--aw-purple-600)] text-[var(--aw-white)]">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--aw-purple-600) text-(--aw-white)">
               <Icon name="tag" size={18} fill={1} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block body-sm font-medium text-[var(--fg-primary)]">
+              <span className="block body-sm font-medium text-(--fg-primary)">
                 Falar no Slack
               </span>
-              <span className="block body-xs text-[var(--fg-tertiary)]">
+              <span className="block body-xs text-(--fg-tertiary)">
                 @{am.email.split("@")[0]}
               </span>
             </span>
             <Icon
               name="arrow_outward"
               size={16}
-              className="text-[var(--fg-tertiary)]"
+              className="text-(--fg-tertiary)"
             />
           </a>
         </div>

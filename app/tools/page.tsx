@@ -139,7 +139,7 @@ function ToolRow({
         }
       }}
       className={
-        "flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)] " +
+        "flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover) " +
         (dimmed ? "opacity-55" : "")
       }
     >
@@ -148,7 +148,7 @@ function ToolRow({
        * on every row. The container reserves a fixed slot so names
        * align across rows even when the icon glyph differs in width. */}
       <div
-        className="flex flex-shrink-0 items-center justify-center text-[var(--fg-secondary)]"
+        className="flex shrink-0 items-center justify-center text-(--fg-secondary)"
         style={{ width: 28, height: 28 }}
       >
         <Icon name={row.icon} size={20} />
@@ -159,17 +159,17 @@ function ToolRow({
         <Highlight
           text={row.name}
           query={query}
-          className="block truncate body-sm font-medium text-[var(--fg-primary)]"
+          className="block truncate body-sm font-medium text-(--fg-primary)"
         />
         <Highlight
           text={row.description}
           query={query}
-          className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]"
+          className="mt-0.5 block truncate body-xs text-(--fg-tertiary)"
         />
       </div>
 
       {/* Kind pill — always visible. */}
-      <div className="hidden flex-shrink-0 md:block">
+      <div className="hidden shrink-0 md:block">
         <AwPill variant={KIND_PILL_VARIANT[row.kind]} dot={false}>
           {KIND_LABELS[row.kind]}
         </AwPill>
@@ -177,7 +177,7 @@ function ToolRow({
 
       {/* Toggle — always visible. */}
       <div
-        className="flex-shrink-0"
+        className="shrink-0"
         onClick={(e) => {
           e.stopPropagation();
         }}
@@ -192,7 +192,7 @@ function ToolRow({
       {/* Delete (custom only) — always visible. */}
       {onDelete && (
         <div
-          className="flex-shrink-0"
+          className="shrink-0"
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -230,7 +230,7 @@ function Highlight({
   return (
     <span className={className}>
       {text.slice(0, idx)}
-      <mark className="rounded bg-[var(--aw-blue-150)] px-0.5 text-[var(--aw-blue-800)]">
+      <mark className="rounded bg-(--aw-blue-150) px-0.5 text-(--aw-blue-800)">
         {text.slice(idx, idx + q.length)}
       </mark>
       {text.slice(idx + q.length)}
@@ -288,35 +288,35 @@ function IntegrationGroup({
           <AwBrandLogo brand={brand} size="md" />
         ) : (
           <div
-            className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+            className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
             style={{ width: 40, height: 40 }}
           >
             <Icon name={customIcon ?? "bolt"} size={20} />
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="m-0 truncate body-md font-medium text-[var(--fg-primary)]">
+          <h3 className="m-0 truncate body-md font-medium text-(--fg-primary)">
             {title}
           </h3>
           {subtitle && (
-            <p className="m-0 mt-0.5 truncate body-xs text-[var(--fg-tertiary)]">
+            <p className="m-0 mt-0.5 truncate body-xs text-(--fg-tertiary)">
               {subtitle}
             </p>
           )}
         </div>
-        <div className="hidden flex-shrink-0 flex-col items-end text-right sm:flex">
+        <div className="hidden shrink-0 flex-col items-end text-right sm:flex">
           {showAccountCount && (
-            <span className="body-xs font-medium tabular-nums text-[var(--fg-secondary)]">
+            <span className="body-xs font-medium tabular-nums text-(--fg-secondary)">
               {accountCount} contas
             </span>
           )}
-          <span className="body-xs tabular-nums text-[var(--fg-tertiary)]">
+          <span className="body-xs tabular-nums text-(--fg-tertiary)">
             {activeSkills}/{totalSkills} habilidades ativas
           </span>
         </div>
         {headerRight && (
           <div
-            className="flex-shrink-0"
+            className="shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
             {headerRight}
@@ -330,7 +330,7 @@ function IntegrationGroup({
             e.stopPropagation();
             setOpen((v) => !v);
           }}
-          className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-(--fg-secondary) transition-colors hover:bg-(--bg-hover)"
         >
           <Icon
             name="expand_more"
@@ -344,7 +344,7 @@ function IntegrationGroup({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)]">
+          <div className="border-t border-(--border-subtle) divide-y divide-(--border-subtle)">
             {children}
           </div>
         </div>
@@ -392,10 +392,10 @@ function InstancePack({
       >
         <AwBrandLogo brand={brand} size="sm" />
         <div className="min-w-0 flex-1">
-          <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
+          <span className="block truncate body-sm font-medium text-(--fg-primary)">
             {instanceName}
           </span>
-          <div className="mt-0.5 flex items-center gap-1.5 body-xs text-[var(--fg-tertiary)]">
+          <div className="mt-0.5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
             <span className="tabular-nums">
               {active}/{total} habilidades ativas
             </span>
@@ -403,7 +403,7 @@ function InstancePack({
               <>
                 <span aria-hidden>·</span>
                 <span
-                  className="inline-flex items-center gap-1 text-[var(--aw-red-700)]"
+                  className="inline-flex items-center gap-1 text-(--aw-red-700)"
                   title={attentionReason}
                 >
                   <Icon name="warning" size={12} />
@@ -413,11 +413,11 @@ function InstancePack({
             )}
           </div>
         </div>
-        <span className="hidden flex-shrink-0 body-xs font-medium tabular-nums text-[var(--fg-tertiary)] sm:inline-block">
+        <span className="hidden shrink-0 body-xs font-medium tabular-nums text-(--fg-tertiary) sm:inline-block">
           {active}/{total}
         </span>
         <div
-          className="flex-shrink-0"
+          className="shrink-0"
           onClick={(e) => e.stopPropagation()}
         >
           <AwButton
@@ -437,7 +437,7 @@ function InstancePack({
             e.stopPropagation();
             setOpen((v) => !v);
           }}
-          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)]"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-(--fg-secondary) transition-colors hover:bg-(--bg-hover)"
         >
           <Icon
             name="expand_more"
@@ -451,7 +451,7 @@ function InstancePack({
         aria-hidden={!open}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-[var(--border-subtle)] divide-y divide-[var(--border-subtle)] pl-6">
+          <div className="border-t border-(--border-subtle) divide-y divide-(--border-subtle) pl-6">
             {children}
           </div>
         </div>
@@ -521,7 +521,7 @@ function ToolDetailModal({
             <AwBrandLogo brand={row.brand} size="md" />
           ) : (
             <div
-              className="flex flex-shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+              className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
               style={{ width: 40, height: 40 }}
             >
               <Icon name={row.icon} size={20} />
@@ -529,14 +529,14 @@ function ToolDetailModal({
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="truncate mono body-xs text-[var(--fg-secondary)]">
+              <span className="truncate mono body-xs text-(--fg-secondary)">
                 {row.catalog?.id ?? row.id}
               </span>
               <AwPill variant={KIND_PILL_VARIANT[row.kind]} dot={false}>
                 {KIND_LABELS[row.kind]}
               </AwPill>
             </div>
-            <div className="mt-0.5 flex items-center gap-1.5 body-xs text-[var(--fg-tertiary)]">
+            <div className="mt-0.5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
               {integration ? (
                 <span>
                   {integration.name}
@@ -556,12 +556,12 @@ function ToolDetailModal({
         </div>
 
         {/* Description */}
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           {row.description}
         </p>
 
         {/* Stats line */}
-        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 body-xs text-[var(--fg-tertiary)]">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-2 body-xs text-(--fg-tertiary)">
           <span className="inline-flex items-center gap-1.5">
             <Icon name="smart_toy" size={14} />
             {agents === 0
@@ -586,10 +586,10 @@ function ToolDetailModal({
         {/* Params */}
         {params.length > 0 && (
           <div>
-            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-(--fg-tertiary)">
               Parâmetros de entrada
             </div>
-            <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)]">
+            <div className="overflow-hidden rounded-xl border border-(--border-subtle)">
               {params.map((p, i) => (
                 <ParamRow key={p.name} param={p} divider={i > 0} />
               ))}
@@ -600,11 +600,11 @@ function ToolDetailModal({
         {/* Custom tool extras */}
         {row.custom && (
           <div>
-            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-(--fg-tertiary)">
               Endpoint
             </div>
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 mono body-xs text-[var(--fg-primary)]">
-              <span className="mr-2 inline-block aw-eyebrow text-[var(--fg-tertiary)]">
+            <div className="rounded-xl border border-(--border-subtle) bg-(--bg-canvas) px-3 py-2.5 mono body-xs text-(--fg-primary)">
+              <span className="mr-2 inline-block aw-eyebrow text-(--fg-tertiary)">
                 {row.custom.method}
               </span>
               {row.custom.url}
@@ -615,10 +615,10 @@ function ToolDetailModal({
         {/* Returns */}
         {returns && (
           <div>
-            <div className="mb-2 aw-eyebrow text-[var(--fg-tertiary)]">
+            <div className="mb-2 aw-eyebrow text-(--fg-tertiary)">
               Retorno
             </div>
-            <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-3 py-2.5 mono body-xs text-[var(--fg-primary)]">
+            <div className="rounded-xl border border-(--border-subtle) bg-(--bg-canvas) px-3 py-2.5 mono body-xs text-(--fg-primary)">
               {returns}
             </div>
           </div>
@@ -633,24 +633,24 @@ function ParamRow({ param, divider }: { param: ToolParam; divider: boolean }) {
     <div
       className={
         "flex items-start gap-3 px-4 py-3 " +
-        (divider ? "border-t border-[var(--border-subtle)]" : "")
+        (divider ? "border-t border-(--border-subtle)" : "")
       }
     >
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="mono body-xs text-[var(--fg-primary)]">
+          <span className="mono body-xs text-(--fg-primary)">
             {param.name}
           </span>
           {param.required && (
-            <span className="rounded bg-[var(--aw-red-150)] px-1.5 py-0.5 aw-eyebrow text-[var(--aw-red-700)]">
+            <span className="rounded bg-(--aw-red-150) px-1.5 py-0.5 aw-eyebrow text-(--aw-red-700)">
               obrigatório
             </span>
           )}
-          <span className="mono text-[var(--fg-tertiary)]">
+          <span className="mono text-(--fg-tertiary)">
             {param.type}
           </span>
         </div>
-        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
           {param.description}
         </p>
         {param.values && param.values.length > 0 && (
@@ -658,7 +658,7 @@ function ParamRow({ param, divider }: { param: ToolParam; divider: boolean }) {
             {param.values.map((v) => (
               <span
                 key={v}
-                className="rounded-full border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-2 py-0.5 mono body-xs text-[var(--fg-secondary)]"
+                className="rounded-full border border-(--border-subtle) bg-(--bg-canvas) px-2 py-0.5 mono body-xs text-(--fg-secondary)"
               >
                 {v}
               </span>
@@ -941,7 +941,7 @@ export default function ToolsPage() {
   if (!hydrated) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+        <div className="-m-8 min-h-full bg-(--bg-canvas)" />
       </AwDashboardLayout>
     );
   }
@@ -963,22 +963,22 @@ export default function ToolsPage() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+      <div className="-m-8 min-h-full bg-(--bg-canvas)">
         <div className="w-full px-10 pt-12 pb-24">
           {/* ---------------- Header ---------------- */}
-          <header className="mb-8 flex items-end justify-between gap-6 border-b border-[var(--border-subtle)] pb-6">
+          <header className="mb-8 flex items-end justify-between gap-6 border-b border-(--border-subtle) pb-6">
             <div>
-              <h3 className="m-0 mb-1.5 text-[var(--fg-primary)]">
+              <h3 className="m-0 mb-1.5 text-(--fg-primary)">
                 Habilidades
               </h3>
-              <p className="m-0 max-w-[600px] body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 max-w-[600px] body-sm text-(--fg-secondary)">
                 Cada habilidade é uma ação que seus agentes podem
                 chamar — buscar uma transação, agendar uma reunião,
                 disparar um contrato. Conecte uma integração e o pacote
                 de habilidades dela aparece aqui automaticamente.
               </p>
             </div>
-            <div className="flex flex-shrink-0 gap-2">
+            <div className="flex shrink-0 gap-2">
               <Link href="/integrations">
                 <AwButton
                   variant="secondary"
@@ -1141,7 +1141,7 @@ export default function ToolsPage() {
                   level, then by connected account inside. Two Hotmart
                   accounts share one Hotmart parent, each with its own
                   inner pack and toggles. */}
-              <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+              <div className="flex flex-col divide-y divide-(--border-subtle)">
               {showNative &&
                 (() => {
                   const groups = new Map<
@@ -1334,7 +1334,7 @@ export default function ToolsPage() {
                 showCustom &&
                 !filterInstanceId && (
                   <div
-                    className="my-4 border-t-2 border-[var(--border-subtle)]"
+                    className="my-4 border-t-2 border-(--border-subtle)"
                     aria-hidden
                   />
                 )}
@@ -1345,7 +1345,7 @@ export default function ToolsPage() {
                   connection has no "accounts" sub-level — the
                   connection itself IS the account). */}
               {showCustom && (
-                <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+                <div className="flex flex-col divide-y divide-(--border-subtle)">
                   {visibleCustomIntegrations.map((c) => {
                     if (filterInstanceId && filterInstanceId !== c.id) {
                       return null;
@@ -1492,7 +1492,7 @@ export default function ToolsPage() {
           </>
         }
       >
-        <p className="m-0 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 body-sm text-(--fg-secondary)">
           Os agentes que usam essa habilidade vão perder acesso ao endpoint
           imediatamente. Essa ação não pode ser desfeita.
         </p>
@@ -1516,13 +1516,13 @@ function NoConnectionsHero({
   onConnect: () => void;
 }) {
   return (
-    <section className="rounded-3xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-raised)] px-8 py-16 text-center">
+    <section className="rounded-3xl border border-dashed border-(--border-subtle) bg-(--bg-raised) px-8 py-16 text-center">
       <div className="mx-auto flex max-w-[480px] flex-col items-center">
         <div className="flex items-center justify-center gap-3">
           <AwBrandLogo brand="hotmart" size="md" />
           <AwBrandLogo brand="calendly" size="md" />
           <div
-            className="flex items-center justify-center rounded-[10px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+            className="flex items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
             style={{ width: 40, height: 40 }}
           >
             <Icon name="bolt" size={22} />
@@ -1530,10 +1530,10 @@ function NoConnectionsHero({
           <AwBrandLogo brand="hubspot" size="md" />
           <AwBrandLogo brand="claude" size="md" />
         </div>
-        <h4 className="m-0 mt-7 text-[var(--fg-primary)]">
+        <h4 className="m-0 mt-7 text-(--fg-primary)">
           Conecte uma integração pra liberar habilidades
         </h4>
-        <p className="m-0 mt-3 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 mt-3 body-sm text-(--fg-secondary)">
           Cada integração ativa traz um pacote de habilidades nativas
           que os agentes podem usar — pesquisar transação, agendar
           reunião, atualizar deal no CRM. Você também pode criar uma
@@ -1572,12 +1572,12 @@ function NoConnectionsHero({
 
 function CustomEmptyHint({ onCreate }: { onCreate: () => void }) {
   return (
-    <div className="px-6 py-8 text-center body-xs text-[var(--fg-tertiary)]">
+    <div className="px-6 py-8 text-center body-xs text-(--fg-tertiary)">
       Nenhuma habilidade nessa conexão ainda.{" "}
       <button
         type="button"
         onClick={onCreate}
-        className="font-medium text-[var(--fg-primary)] underline-offset-2 hover:underline"
+        className="font-medium text-(--fg-primary) underline-offset-2 hover:underline"
       >
         Criar a primeira
       </button>

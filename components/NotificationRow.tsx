@@ -58,24 +58,24 @@ export function NotificationRow({
             className={
               "min-w-0 flex-1 truncate body-sm " +
               (isNew
-                ? "font-medium text-[var(--fg-primary)]"
-                : "font-normal text-[var(--fg-secondary)]")
+                ? "font-medium text-(--fg-primary)"
+                : "font-normal text-(--fg-secondary)")
             }
           >
             {notification.title}
           </span>
-          <span className="shrink-0 body-xs tabular-nums text-[var(--fg-tertiary)]">
+          <span className="shrink-0 body-xs tabular-nums text-(--fg-tertiary)">
             {notification.timeLabel}
           </span>
         </span>
-        <span className="mt-0.5 line-clamp-2 block body-xs text-[var(--fg-secondary)]">
+        <span className="mt-0.5 line-clamp-2 block body-xs text-(--fg-secondary)">
           {notification.description}
         </span>
       </span>
       <Icon
         name="chevron_right"
         size={18}
-        className="mt-0.5 shrink-0 self-start text-[var(--fg-tertiary)]"
+        className="mt-0.5 shrink-0 self-start text-(--fg-tertiary)"
       />
     </>
   );
@@ -88,7 +88,7 @@ export function NotificationRow({
         type="button"
         onClick={() => onActivate(notification)}
         aria-label={`Abrir notificação: ${notification.title}`}
-        className={`${base} hover:bg-[var(--bg-muted)]`}
+        className={`${base} hover:bg-(--bg-muted)`}
       >
         {inner}
       </button>
@@ -99,7 +99,7 @@ export function NotificationRow({
     return (
       <Link
         href={notification.href}
-        className={`${base} hover:bg-[var(--bg-muted)]`}
+        className={`${base} hover:bg-(--bg-muted)`}
       >
         {inner}
       </Link>

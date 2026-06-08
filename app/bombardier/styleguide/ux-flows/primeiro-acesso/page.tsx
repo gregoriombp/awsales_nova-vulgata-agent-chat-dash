@@ -479,23 +479,23 @@ export default function PrimeiroAcessoFlowPage() {
           title="Cada tela"
           lead="Propósito, decisões e link direto pro protótipo de cada uma."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
-            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-[var(--border-subtle)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
+            <ul className="m-0 p-0 list-none flex flex-col divide-y divide-(--border-subtle)">
               {screens.map((s) => (
                 <li key={s.step + s.title} className="p-5 flex flex-col gap-2">
                   <div className="flex items-baseline gap-3">
-                    <span className="aw-eyebrow text-[var(--aw-blue-700)]">{s.step}</span>
-                    <h3 className="m-0 text-base font-medium text-[var(--fg-primary)]">{s.title}</h3>
+                    <span className="aw-eyebrow text-(--aw-blue-700)">{s.step}</span>
+                    <h3 className="m-0 text-base font-medium text-(--fg-primary)">{s.title}</h3>
                   </div>
-                  <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">{s.purpose}</p>
+                  <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">{s.purpose}</p>
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 mt-1">
                     <span className="caption">
-                      <span className="font-medium text-[var(--fg-secondary)]">Decisões: </span>
+                      <span className="font-medium text-(--fg-secondary)">Decisões: </span>
                       {s.decisions}
                     </span>
                     <Link
                       href={s.href}
-                      className="text-sm font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                      className="text-sm font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
                     >
                       Abrir protótipo →
                     </Link>
@@ -512,22 +512,22 @@ export default function PrimeiroAcessoFlowPage() {
           lead="Por que o fluxo está estruturado desse jeito."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Autenticar antes de tudo</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 O cliente cria a conta na etapa 02 — antes de aceitar o contrato e antes de qualquer pagamento. Ninguém concorda com contrato ou paga sem uma identidade verificada por trás.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">OAuth como caminho preferido</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
                 Google/Microsoft no topo, senha como terceira opção. Usuário corporativo (público-alvo) prefere SSO. Reduz reset de senha no longo prazo.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Três motivos pra um link falhar</div>
-              <p className="m-0 text-sm text-[var(--fg-secondary)] leading-relaxed">
-                Links de primeiro acesso são one-time e expiram após 10 dias. Em vez de cair numa única tela genérica de erro, cada motivo tem sua própria tela explicativa: <b className="font-medium text-[var(--fg-primary)]">expirado</b> oferece reenvio direto, <b className="font-medium text-[var(--fg-primary)]">já utilizado</b> e <b className="font-medium text-[var(--fg-primary)]">cancelado</b> direcionam pro suporte — porque exigem verificação de identidade ou contato com a organização.
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
+                Links de primeiro acesso são one-time e expiram após 10 dias. Em vez de cair numa única tela genérica de erro, cada motivo tem sua própria tela explicativa: <b className="font-medium text-(--fg-primary)">expirado</b> oferece reenvio direto, <b className="font-medium text-(--fg-primary)">já utilizado</b> e <b className="font-medium text-(--fg-primary)">cancelado</b> direcionam pro suporte — porque exigem verificação de identidade ou contato com a organização.
               </p>
             </div>
           </div>

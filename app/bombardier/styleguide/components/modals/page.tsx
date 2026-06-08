@@ -25,7 +25,7 @@ export default function ModalsPage() {
           title="Demo"
           lead="Clique para abrir. Use Esc ou clique fora para fechar (exceto no não-dismissible)."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <ModalDemo />
           </div>
         </Section>
@@ -36,27 +36,27 @@ export default function ModalsPage() {
           lead="Quatro tipos cobrem 99% dos usos no produto."
         >
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h5 className="m-0 mb-1">Confirmação</h5>
               <p className="body-sm m-0">
                 Copy curto, footer com <em>Cancelar</em> (ghost) e ação
                 principal (primary).
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h5 className="m-0 mb-1">Formulário</h5>
               <p className="body-sm m-0">
                 2–4 campos no máximo. Mais que isso vira página ou cockpit.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h5 className="m-0 mb-1">Destrutivo</h5>
               <p className="body-sm m-0">
                 Ação principal vira <em>danger</em>. Nunca auto-fechar no
                 sucesso — user precisa ver o efeito.
               </p>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h5 className="m-0 mb-1">Cockpit (760 px)</h5>
               <p className="body-sm m-0">
                 Configurações complexas com sidebar interna. Reservado a
@@ -71,7 +71,7 @@ export default function ModalsPage() {
           title="Tamanhos"
           lead="Duas larguras. md é o default; cockpit é a extensão para painéis com sub-navegação interna."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <Spec
               k='size="md"'
               v="520 px · radius-xl"
@@ -88,9 +88,9 @@ export default function ModalsPage() {
         <Section
           id="anatomy"
           title="Anatomia"
-          lead="Scrim preto 55% com blur 8px. Sombra do modal: --shadow-overlay."
+          lead="Scrim preto 55% com blur-sm 8px. Sombra do modal: --shadow-overlay."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="max width"
               v="520 px"
@@ -108,7 +108,7 @@ export default function ModalsPage() {
             />
             <Spec
               k="scrim"
-              v="rgba(0,0,0,.55) + blur 8px"
+              v="rgba(0,0,0,.55) + blur-sm 8px"
               d="Single focus — conteúdo atrás fica legível mas fora de foco."
             />
             <Spec
@@ -178,7 +178,7 @@ export default function ModalsPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             <code className="mono">size</code> e modificadores booleanos
             (<code className="mono">closeOnOverlay=&#123;false&#125;</code>{" "}
             → <code className="mono">overlay-locked</code>) viram tokens na{" "}

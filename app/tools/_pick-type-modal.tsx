@@ -41,7 +41,7 @@ export function PickTypeModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Toda habilidade pertence a uma integração — ela herda a
           credencial. Comece escolhendo o tipo da integração pai.
         </p>
@@ -50,7 +50,7 @@ export function PickTypeModal({
           <TypeCard
             leading={
               <div
-                className="flex items-center justify-center rounded-[12px] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] text-[var(--fg-primary)]"
+                className="flex items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-canvas) text-(--fg-primary)"
                 style={{ width: 56, height: 56 }}
               >
                 <Icon name="extension" size={26} />
@@ -65,7 +65,7 @@ export function PickTypeModal({
           <TypeCard
             leading={
               <div
-                className="flex items-center justify-center rounded-[12px] bg-gradient-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+                className="flex items-center justify-center rounded-lg bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
                 style={{ width: 56, height: 56 }}
               >
                 <Icon name="bolt" size={28} />
@@ -99,29 +99,29 @@ function TypeCard({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-start gap-4 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
+      className="flex w-full items-start gap-4 rounded-2xl border border-(--border-subtle) bg-(--bg-canvas) p-5 text-left transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover)"
     >
       <div
-        className="flex flex-shrink-0 items-center justify-center"
+        className="flex shrink-0 items-center justify-center"
         style={{ width: 56, height: 56 }}
       >
         {leading}
       </div>
       <div className="min-w-0 flex-1">
-        <span className="block body-sm font-medium text-[var(--fg-primary)]">
+        <span className="block body-sm font-medium text-(--fg-primary)">
           {title}
         </span>
-        <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
           {description}
         </p>
-        <span className="mt-2 block body-xs text-[var(--fg-tertiary)]">
+        <span className="mt-2 block body-xs text-(--fg-tertiary)">
           {footnote}
         </span>
       </div>
       <Icon
         name="arrow_forward"
         size={20}
-        className="flex-shrink-0 self-center text-[var(--fg-tertiary)]"
+        className="shrink-0 self-center text-(--fg-tertiary)"
       />
     </button>
   );

@@ -19,24 +19,24 @@ export function ChannelComingSoonPanel({
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand={brand} size="lg" />
-        <h4 className="m-0 mt-6 text-[var(--fg-primary)]">
+        <h4 className="m-0 mt-6 text-(--fg-primary)">
           {name}
         </h4>
-        <p className="m-0 mt-2 body-sm text-[var(--fg-secondary)]">
+        <p className="m-0 mt-2 body-sm text-(--fg-secondary)">
           {description}
         </p>
 
-        <div className="mt-8 flex w-full items-start gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-4 text-left">
+        <div className="mt-8 flex w-full items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4 text-left">
           <Icon
             name="construction"
             size={20}
-            className="mt-0.5 text-[var(--fg-secondary)]"
+            className="mt-0.5 text-(--fg-secondary)"
           />
           <div>
-            <p className="m-0 body-xs font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-xs font-medium text-(--fg-primary)">
               Painel de configuração em construção
             </p>
-            <p className="m-0 mt-1 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
               Em breve você vai gerenciar contas, permissões e respostas
               automáticas do {name} direto por aqui.
             </p>

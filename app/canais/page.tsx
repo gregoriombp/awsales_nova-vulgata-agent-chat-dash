@@ -123,7 +123,7 @@ function QuickPickPill({
     <button
       type="button"
       onClick={onClick}
-      className="group inline-flex items-center gap-2 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-surface)] py-1.5 pl-2 pr-5 body-xs font-medium text-[var(--fg-primary)] transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-canvas)]"
+      className="group inline-flex items-center gap-2 rounded-full border border-(--border-subtle) bg-(--bg-surface) py-1.5 pl-2 pr-5 body-xs font-medium text-(--fg-primary) transition-colors hover:border-(--border-strong) hover:bg-(--bg-canvas)"
     >
       <AwBrandLogo brand={brand} size="sm" bare />
       <span>{name}</span>
@@ -186,7 +186,7 @@ function ChannelGroup({
               onOpenChannel();
             }
           }}
-          className="flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-[var(--bg-hover)] focus:outline-none focus-visible:bg-[var(--bg-hover)]"
+          className="flex w-full cursor-pointer items-center gap-3 px-6 py-3.5 text-left transition-colors hover:bg-(--bg-hover) focus:outline-hidden focus-visible:bg-(--bg-hover)"
         >
           <AwAvatar
             size="md"
@@ -195,11 +195,11 @@ function ChannelGroup({
             initials={getAccountInitials(account.name)}
           />
           <div className="min-w-0 flex-1">
-            <span className="block truncate body-sm font-medium text-[var(--fg-primary)]">
+            <span className="block truncate body-sm font-medium text-(--fg-primary)">
               {account.name}
             </span>
             {account.subtitle && (
-              <span className="mt-0.5 block truncate body-xs text-[var(--fg-tertiary)]">
+              <span className="mt-0.5 block truncate body-xs text-(--fg-tertiary)">
                 {account.subtitle}
               </span>
             )}
@@ -316,7 +316,7 @@ export default function CanaisPage() {
   if (!hydrated) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs}>
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]" />
+        <div className="-m-8 min-h-full bg-(--bg-canvas)" />
       </AwDashboardLayout>
     );
   }
@@ -324,7 +324,7 @@ export default function CanaisPage() {
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
       {variant !== "first-run" ? (
-        <div className="-m-8 min-h-full bg-[var(--bg-canvas)]">
+        <div className="-m-8 min-h-full bg-(--bg-canvas)">
           <div className="w-full px-10 pt-12 pb-24">
             <AwPageHeader
               title="Canais"
@@ -344,7 +344,7 @@ export default function CanaisPage() {
             {variant === "populated" ? (
               <section aria-label="Seus canais">
                 <div className="mb-5 flex items-center justify-between gap-4">
-                  <h6 className="m-0 text-[var(--fg-primary)]">
+                  <h6 className="m-0 text-(--fg-primary)">
                     Seus canais
                   </h6>
                   <div className="w-full max-w-[320px]">
@@ -359,11 +359,11 @@ export default function CanaisPage() {
                 </div>
 
                 {totalAfterSearch === 0 ? (
-                  <div className="rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-6 py-10 text-center">
-                    <p className="m-0 body-sm text-[var(--fg-secondary)]">
+                  <div className="rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-surface) px-6 py-10 text-center">
+                    <p className="m-0 body-sm text-(--fg-secondary)">
                       Nenhum canal ou conta encontrado para
                       {" "}
-                      <strong className="text-[var(--fg-primary)]">
+                      <strong className="text-(--fg-primary)">
                         “{search}”
                       </strong>
                       .
@@ -385,15 +385,15 @@ export default function CanaisPage() {
             ) : (
               <section
                 aria-label="Você não tem canais conectados"
-                className="flex flex-col items-center rounded-2xl border border-dashed border-[var(--border-subtle)] bg-[var(--bg-surface)] px-8 py-14 text-center"
+                className="flex flex-col items-center rounded-2xl border border-dashed border-(--border-subtle) bg-(--bg-surface) px-8 py-14 text-center"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-canvas)] text-[var(--fg-secondary)]">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-canvas) text-(--fg-secondary)">
                   <Icon name="link_off" size={24} />
                 </div>
-                <h5 className="m-0 mt-5 text-[var(--fg-primary)]">
+                <h5 className="m-0 mt-5 text-(--fg-primary)">
                   Você não tem canais conectados
                 </h5>
-                <p className="m-0 mt-2 max-w-[420px] body-sm text-[var(--fg-secondary)]">
+                <p className="m-0 mt-2 max-w-[420px] body-sm text-(--fg-secondary)">
                   Reconecte um canal ou abra o catálogo para escolher por
                   onde os agentes vão atender.
                 </p>
@@ -410,7 +410,7 @@ export default function CanaisPage() {
                 <button
                   type="button"
                   onClick={() => setAddOpen(true)}
-                  className="mt-5 body-xs font-medium text-[var(--fg-secondary)] underline-offset-2 hover:underline"
+                  className="mt-5 body-xs font-medium text-(--fg-secondary) underline-offset-2 hover:underline"
                 >
                   Ver todos os canais
                 </button>
@@ -419,7 +419,7 @@ export default function CanaisPage() {
           </div>
         </div>
       ) : (
-        <div className="-m-8 flex min-h-full items-center justify-center bg-[var(--bg-canvas)] px-10 py-16">
+        <div className="-m-8 flex min-h-full items-center justify-center bg-(--bg-canvas) px-10 py-16">
           <section
             aria-label="Conecte seu primeiro canal"
             className="w-full max-w-[760px]"
@@ -431,10 +431,10 @@ export default function CanaisPage() {
             </div>
 
             <div className="mt-10 flex flex-col items-center text-center">
-              <h3 className="m-0 max-w-[520px] text-[var(--fg-primary)]">
+              <h3 className="m-0 max-w-[520px] text-(--fg-primary)">
                 Conecte seu primeiro canal
               </h3>
-              <p className="m-0 mt-3 max-w-[480px] body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 mt-3 max-w-[480px] body-sm text-(--fg-secondary)">
                 WhatsApp, Instagram, Messenger… escolha por onde seus
                 agentes vão conversar com seus clientes.
               </p>
@@ -458,15 +458,15 @@ export default function CanaisPage() {
               </AwButton>
             </div>
 
-            <div className="mt-10 mb-5 flex items-center gap-3 body-xs text-[var(--fg-tertiary)]">
+            <div className="mt-10 mb-5 flex items-center gap-3 body-xs text-(--fg-tertiary)">
               <span
                 aria-hidden="true"
-                className="h-px flex-1 bg-[var(--border-subtle)]"
+                className="h-px flex-1 bg-(--border-subtle)"
               />
               <span>ou comece pelos mais usados</span>
               <span
                 aria-hidden="true"
-                className="h-px flex-1 bg-[var(--border-subtle)]"
+                className="h-px flex-1 bg-(--border-subtle)"
               />
             </div>
 

@@ -39,7 +39,7 @@ export default function PlaygroundPage() {
   const [draft, setDraft] = useState("");
 
   return (
-    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="!p-0">
+    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0!">
       <div className="flex h-full min-h-0 w-full">
         <ConfigPanel
           instructions={instructions}
@@ -62,34 +62,34 @@ function ConfigPanel({
   onResetInstructions: () => void;
 }) {
   return (
-    <aside className="flex h-full w-[340px] flex-shrink-0 flex-col border-r border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+    <aside className="flex h-full w-[340px] shrink-0 flex-col border-r border-(--border-subtle) bg-(--bg-raised)">
       <header className="px-6 pb-4 pt-6">
-        <h1 className="m-0 text-[length:var(--h3-size)] font-semibold tracking-[-0.02em] text-[var(--fg-primary)]">
+        <h1 className="m-0 text-(length:--h3-size) font-semibold tracking-[-0.02em] text-(--fg-primary)">
           Playground
         </h1>
-        <p className="mt-1 text-[13px] leading-relaxed text-[var(--fg-secondary)]">
+        <p className="mt-1 text-[13px] leading-relaxed text-(--fg-secondary)">
           Teste o agente antes de publicar. Mudanças aqui não afetam produção.
         </p>
       </header>
 
       <div className="flex-1 overflow-y-auto px-6 pb-8">
         <div className="flex flex-col gap-5">
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3">
-            <div className="flex items-center gap-2 text-[13px] font-medium text-[var(--fg-primary)]">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3">
+            <div className="flex items-center gap-2 text-[13px] font-medium text-(--fg-primary)">
               <AwStatusDot variant="live" size="sm" />
               Treinado
             </div>
-            <div className="mt-1 text-[12px] text-[var(--fg-tertiary)]">
+            <div className="mt-1 text-[12px] text-(--fg-tertiary)">
               Última sincronização há 3 dias
             </div>
           </div>
 
-          <div className="flex items-center justify-between rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] px-4 py-3">
+          <div className="flex items-center justify-between rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-[var(--fg-primary)]">
+              <div className="text-[13px] font-medium text-(--fg-primary)">
                 Comparar modelos
               </div>
-              <div className="mt-0.5 text-[12px] text-[var(--fg-tertiary)]">
+              <div className="mt-0.5 text-[12px] text-(--fg-tertiary)">
                 Rode o mesmo prompt em dois lados
               </div>
             </div>
@@ -110,17 +110,17 @@ function ConfigPanel({
           <FieldGroup label="Ações">
             <button
               type="button"
-              className="flex w-full items-center justify-between rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--bg-hover)]"
+              className="flex w-full items-center justify-between rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2.5 text-left transition-colors hover:bg-(--bg-hover)"
               aria-label="Ver ferramentas conectadas"
             >
               <span className="flex items-center gap-2.5">
                 <span
-                  className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] bg-[var(--aw-blue-150)] text-[var(--aw-blue-700)]"
+                  className="flex h-7 w-7 items-center justify-center rounded-sm bg-(--aw-blue-150) text-(--aw-blue-700)"
                   aria-hidden="true"
                 >
                   <Icon name="extension" size={16} />
                 </span>
-                <span className="text-[13px] text-[var(--fg-primary)]">
+                <span className="text-[13px] text-(--fg-primary)">
                   1 ferramenta ativa
                 </span>
               </span>
@@ -135,7 +135,7 @@ function ConfigPanel({
                 type="button"
                 aria-label="Restaurar persona padrão"
                 onClick={onResetInstructions}
-                className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] text-[var(--fg-secondary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-(--border-default) bg-(--bg-canvas) text-(--fg-secondary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
               >
                 <Icon name="restart_alt" size={16} />
               </button>
@@ -149,7 +149,7 @@ function ConfigPanel({
                 value={instructions}
                 onChange={(e) => onInstructionsChange(e.target.value)}
                 rows={9}
-                className="w-full resize-none rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2.5 text-[13px] leading-relaxed text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+                className="w-full resize-none rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2.5 text-[13px] leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
                 placeholder="Descreva o papel, tom de voz e diretrizes do agente."
               />
             </div>
@@ -172,7 +172,7 @@ function FieldGroup({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <label className="text-[12px] font-medium text-[var(--fg-secondary)]">
+        <label className="text-[12px] font-medium text-(--fg-secondary)">
           {label}
         </label>
         {action}
@@ -191,7 +191,7 @@ function ChatPreview({
 }) {
   return (
     <section
-      className="flex h-full min-w-0 flex-1 flex-col items-stretch bg-[var(--dark-bg)]"
+      className="flex h-full min-w-0 flex-1 flex-col items-stretch bg-(--dark-bg)"
       style={{
         backgroundImage:
           "radial-gradient(circle, var(--dark-border) 1px, transparent 1px)",
@@ -200,8 +200,8 @@ function ChatPreview({
       }}
     >
       <div className="mx-auto flex h-full w-full max-w-[560px] flex-col px-6 py-8">
-        <div className="flex flex-1 flex-col overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)]">
-          <header className="flex items-center justify-between border-b border-[var(--border-subtle)] px-5 py-4">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised) shadow-(--shadow-sm)">
+          <header className="flex items-center justify-between border-b border-(--border-subtle) px-5 py-4">
             <div className="flex items-center gap-2.5">
               <span
                 className="inline-flex h-7 w-7 items-center justify-center overflow-hidden rounded-full"
@@ -215,14 +215,14 @@ function ChatPreview({
                   className="h-full w-full object-cover"
                 />
               </span>
-              <span className="text-[14px] font-semibold text-[var(--fg-primary)]">
+              <span className="text-[14px] font-semibold text-(--fg-primary)">
                 Agente Vendas · AwSales
               </span>
             </div>
             <button
               type="button"
               aria-label="Reiniciar conversa"
-              className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
             >
               <Icon name="restart_alt" size={18} />
             </button>
@@ -293,26 +293,26 @@ function ChatPreview({
             </AwChatBubble>
           </div>
 
-          <footer className="border-t border-[var(--border-subtle)] px-4 py-3">
+          <footer className="border-t border-(--border-subtle) px-4 py-3">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 onDraftChange("");
               }}
-              className="flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-4 py-2"
+              className="flex items-center gap-2 rounded-full border border-(--border-default) bg-(--bg-canvas) px-4 py-2"
             >
               <input
                 type="text"
                 value={draft}
                 onChange={(e) => onDraftChange(e.target.value)}
                 placeholder="Pergunte ao agente…"
-                className="flex-1 border-0 bg-transparent text-[14px] text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)]"
+                className="flex-1 border-0 bg-transparent text-[14px] text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary)"
                 aria-label="Mensagem para o agente"
               />
               <button
                 type="button"
                 aria-label="Gravar áudio"
-                className="flex h-8 w-8 items-center justify-center rounded-full text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
               >
                 <Icon name="mic" size={18} />
               </button>
@@ -320,7 +320,7 @@ function ChatPreview({
                 type="submit"
                 aria-label="Enviar mensagem"
                 disabled={!draft.trim()}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--fg-primary)] text-[var(--fg-on-inverse)] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-(--fg-primary) text-(--fg-on-inverse) transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Icon name="arrow_upward" size={18} />
               </button>

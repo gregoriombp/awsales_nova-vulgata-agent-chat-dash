@@ -30,7 +30,7 @@ export default function MotionPage() {
         >
           <DurationProbe />
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="--dur-fast"
               v="120 ms"
@@ -56,7 +56,7 @@ export default function MotionPage() {
         >
           <EasingProbe />
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="--ease-out"
               v="cubic-bezier(0.22, 0.61, 0.36, 1)"
@@ -81,36 +81,36 @@ export default function MotionPage() {
           lead="Quatro padrões de animação presentes no produto."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Thinking pulse</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0 mb-4">
+              <p className="body-sm text-(--fg-secondary) m-0 mb-4">
                 Único pulse expressivo do sistema. Exclusivo da variante AI
                 (pill, dot, avatar). Loop de 2.2 s, opacity 1 ⟷ 0.4.
               </p>
               <ThinkingPulse />
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Skeleton shimmer</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0 mb-4">
+              <p className="body-sm text-(--fg-secondary) m-0 mb-4">
                 Feedback de loading em listas e formulários. Gradient linear
                 percorrendo a largura em 1.4 s, ease-in-out.
               </p>
               <ShimmerDemo />
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Modal enter</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0">
+              <p className="body-sm text-(--fg-secondary) m-0">
                 Scrim fade-in (opacity 0 → 1) em paralelo com modal{" "}
                 translateY(8px) → 0, ambos em{" "}
                 <code className="mono">180 ms ease-out</code>. Exit é symm.
               </p>
             </div>
 
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Button hover</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0">
+              <p className="body-sm text-(--fg-secondary) m-0">
                 <code className="mono">translateY(-1px)</code> em{" "}
                 <code className="mono">180 ms</code> — sem scale, sem bounce.
                 Feedback discreto suficiente para um alvo clicável.
@@ -124,7 +124,7 @@ export default function MotionPage() {
           title="Regras gerais"
           lead="Diretrizes que valem pra toda animação que entrar no produto."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
             <Spec
               k="duração"
               v="120–280 ms"

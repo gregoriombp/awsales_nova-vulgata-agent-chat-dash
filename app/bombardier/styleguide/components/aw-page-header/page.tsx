@@ -34,7 +34,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Canais"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 icon="forum"
@@ -56,7 +56,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="hero · default · compact"
-              gridClassName="flex flex-col gap-10 bg-[var(--bg-canvas)] p-8"
+              gridClassName="flex flex-col gap-10 bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="hero"
@@ -101,7 +101,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Breadcrumb · pill · label simples"
-              gridClassName="flex flex-col gap-10 bg-[var(--bg-canvas)] p-8"
+              gridClassName="flex flex-col gap-10 bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="default"
@@ -149,7 +149,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Busca + filtro inline"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="hero"
@@ -189,7 +189,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Três ações"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="default"
@@ -220,7 +220,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Title-only"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="default"
@@ -242,7 +242,7 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="Config object · ReactNode"
-              gridClassName="flex flex-col gap-10 bg-[var(--bg-canvas)] p-8"
+              gridClassName="flex flex-col gap-10 bg-(--bg-canvas) p-8"
             >
               <AwPageHeader
                 size="hero"
@@ -258,7 +258,7 @@ export default function PageHeaderPage() {
               <AwPageHeader
                 size="default"
                 icon={
-                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--aw-blue-100)] text-[var(--aw-blue-800)]">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--aw-blue-100) text-(--aw-blue-800)">
                     <Icon name="rocket_launch" size={22} weight={400} />
                   </span>
                 }
@@ -280,9 +280,9 @@ export default function PageHeaderPage() {
           >
             <Stage
               label="divider={false}"
-              gridClassName="block w-full bg-[var(--bg-canvas)] p-8"
+              gridClassName="block w-full bg-(--bg-canvas) p-8"
             >
-              <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-6">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-6">
                 <AwPageHeader
                   size="compact"
                   icon="folder"
@@ -410,7 +410,7 @@ export default function PageHeaderPage() {
               />
               <Spec
                 k="actions"
-                v="flex-shrink-0 · gap-2"
+                v="shrink-0 · gap-2"
                 d="Não quebra linha — usa scroll ou ellipsis nos botões se faltar espaço."
               />
               <Spec

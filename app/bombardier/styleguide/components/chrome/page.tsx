@@ -95,7 +95,7 @@ export default function ChromePage() {
             </Stage>
           </div>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="tamanhos"
               v="sm 24 · md 36 · lg 48"
@@ -156,7 +156,7 @@ export default function ChromePage() {
             />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="separador"
               v="/ default"
@@ -187,7 +187,7 @@ export default function ChromePage() {
             <AwSelect disabled>Bloqueado</AwSelect>
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="altura"
               v="38 px"
@@ -235,7 +235,7 @@ export default function ChromePage() {
             />
           </Stage>
 
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
             <Spec
               k="altura"
               v="6 px"
@@ -259,7 +259,7 @@ export default function ChromePage() {
           title="API"
           lead="Quatro imports independentes — cada um em components/ui/."
         >
-          <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
             AwAvatar
           </h3>
           <ApiTable>
@@ -269,7 +269,7 @@ export default function ChromePage() {
             <PropRow prop="src" type="string" doc="URL da imagem; cobre 100% do círculo." />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwBreadcrumb
           </h3>
           <ApiTable>
@@ -286,7 +286,7 @@ export default function ChromePage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwSelect
           </h3>
           <ApiTable>
@@ -302,7 +302,7 @@ export default function ChromePage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwProgress
           </h3>
           <ApiTable>

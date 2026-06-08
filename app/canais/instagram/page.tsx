@@ -15,7 +15,7 @@ export default function InstagramConfigPage() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 h-full min-h-full bg-[var(--bg-canvas)]">
+      <div className="-m-8 h-full min-h-full bg-(--bg-canvas)">
         <AwInstagramPanel
           onAddAccount={() => router.push("/canais")}
           onCancel={() => router.push("/canais")}

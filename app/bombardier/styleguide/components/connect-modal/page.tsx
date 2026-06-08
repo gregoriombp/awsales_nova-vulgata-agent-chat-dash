@@ -96,32 +96,32 @@ export default function ConnectModalPage() {
             title="Os três fluxos"
             lead="Cada integração de terceiro cai em um destes — escolha o que combina com o método de autenticação."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-[var(--fg-secondary)]">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-5 text-sm text-(--fg-secondary)">
               <div className="flex flex-col gap-2">
-                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                <div className="text-(--fg-primary) font-semibold text-[14px]">
                   OAuth
                 </div>
-                <p className="m-0 text-[13px] leading-[1.5]">
+                <p className="m-0 text-[13px] leading-normal">
                   Lista de escopos com check + URL de redirecionamento. Botão{" "}
                   <em>Permitir acesso</em>. Padrão para HubSpot, Linear,
                   Calendly, Pipedrive.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
-                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                <div className="text-(--fg-primary) font-semibold text-[14px]">
                   Webhook
                 </div>
-                <p className="m-0 text-[13px] leading-[1.5]">
+                <p className="m-0 text-[13px] leading-normal">
                   Stepper horizontal + slider que avança por instruções
                   (copiar URL, configurar no painel do parceiro, salvar,
                   testar). Padrão para Hubla, Ticto, LastLink.
                 </p>
               </div>
               <div className="flex flex-col gap-2">
-                <div className="text-[var(--fg-primary)] font-semibold text-[14px]">
+                <div className="text-(--fg-primary) font-semibold text-[14px]">
                   API key
                 </div>
-                <p className="m-0 text-[13px] leading-[1.5]">
+                <p className="m-0 text-[13px] leading-normal">
                   Campos numerados em coluna única (clientId, secret,
                   token…). Asterisco em obrigatórios e link inline pro
                   passo a passo do parceiro. Padrão para Hotmart, Stripe,
@@ -137,7 +137,7 @@ export default function ConnectModalPage() {
             title="Anatomia"
             lead="O hero é constante. O miolo varia por kind."
           >
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[var(--fg-secondary)]">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-(--fg-secondary)">
               <ul className="m-0 pl-4 list-disc flex flex-col gap-1.5">
                 <li>
                   <strong>Hero (sempre).</strong> Logo do produto · conector ·

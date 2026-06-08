@@ -15,7 +15,7 @@ import {
 
 function ApiHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="m-0 mb-3 mt-8 text-[14px] font-semibold text-[var(--fg-primary)]">
+    <h3 className="m-0 mb-3 mt-8 text-[14px] font-semibold text-(--fg-primary)">
       {children}
     </h3>
   )
@@ -241,7 +241,7 @@ export default function MembersTablePage() {
                     colSpan={4}
                     style={{ padding: "48px 20px", textAlign: "center" }}
                   >
-                    <p className="m-0 text-[13px] text-[var(--fg-secondary)]">
+                    <p className="m-0 text-[13px] text-(--fg-secondary)">
                       Ninguém por aqui ainda. Convide alguém pelo botão acima.
                     </p>
                   </td>
@@ -355,13 +355,13 @@ export default function MembersTablePage() {
             title="Quando usar"
             lead="Esse pattern serve pra qualquer tabela de pessoas onde os atributos da direita são editáveis ou referenciam catálogos curtos (papel, plano, status)."
           >
-            <ul className="list-disc pl-6 text-[13px] leading-[1.7] text-[var(--fg-secondary)]">
+            <ul className="list-disc pl-6 text-[13px] leading-[1.7] text-(--fg-secondary)">
               <li>Equipe &amp; permissões — membros do workspace.</li>
               <li>Convidados pendentes — emails sem conta ainda.</li>
               <li>Operadores conectados a integrações.</li>
               <li>Auditoria — quem fez o quê, com colunas read-only.</li>
             </ul>
-            <p className="mt-3 text-[12.5px] text-[var(--fg-tertiary)]">
+            <p className="mt-3 text-[12.5px] text-(--fg-tertiary)">
               Para tabelas densas com muitas colunas numéricas/data, prefira o{" "}
               <code className="mono">AwTable</code> sem a variante airy
               (chrome compacto, padding menor).

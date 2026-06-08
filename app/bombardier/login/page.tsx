@@ -53,7 +53,7 @@ export default function BombardierLogin() {
             <div className="flex flex-col gap-2">
               <label
                 htmlFor="email"
-                className="text-xs font-medium text-[var(--fg-secondary)]"
+                className="text-xs font-medium text-(--fg-secondary)"
               >
                 E-mail
               </label>
@@ -73,13 +73,13 @@ export default function BombardierLogin() {
               <div className="flex items-center justify-between">
                 <label
                   htmlFor="password"
-                  className="text-xs font-medium text-[var(--fg-secondary)]"
+                  className="text-xs font-medium text-(--fg-secondary)"
                 >
                   Senha
                 </label>
                 <Link
                   href="#"
-                  className="text-xs text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] no-underline"
+                  className="text-xs text-(--fg-secondary) hover:text-(--fg-primary) no-underline"
                 >
                   Esqueci a senha
                 </Link>

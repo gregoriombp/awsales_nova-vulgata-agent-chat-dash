@@ -63,9 +63,9 @@ export default function OrganizationSettingsPage() {
             trigger={
               <button
                 type="button"
-                className="inline-flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-[var(--border-default)] hover:bg-[var(--bg-hover)]"
+                className="inline-flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
               >
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-[var(--radius-sm)] bg-[var(--bg-muted)]">
+                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted)">
                   <img
                     src={currentOrg.data.logo}
                     alt=""
@@ -74,13 +74,13 @@ export default function OrganizationSettingsPage() {
                     style={{ objectFit: "cover" }}
                   />
                 </span>
-                <span className="body-sm font-medium text-[var(--fg-primary)]">
+                <span className="body-sm font-medium text-(--fg-primary)">
                   {currentOrg.data.name}
                 </span>
                 <Icon
                   name="expand_more"
                   size={18}
-                  className="text-[var(--fg-tertiary)]"
+                  className="text-(--fg-tertiary)"
                 />
               </button>
             }
@@ -94,9 +94,9 @@ export default function OrganizationSettingsPage() {
         }
       />
 
-      <AwCard className="!p-0">
-        <div className="flex items-center gap-4 border-b border-[var(--border-subtle)] px-6 py-5">
-          <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-[var(--bg-muted)]">
+      <AwCard className="p-0!">
+        <div className="flex items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
+          <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-(--bg-muted)">
             <img
               src={currentOrg.data.logo}
               alt={orgName}
@@ -106,10 +106,10 @@ export default function OrganizationSettingsPage() {
             />
           </span>
           <div className="flex-1">
-            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
               Logo da organização
             </p>
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Usada na navegação e nos canais conectados.
             </p>
           </div>
@@ -158,7 +158,7 @@ export default function OrganizationSettingsPage() {
           title="Dados contratuais"
           description="Cadastrados pela equipe AwSales no fechamento do contrato. Para alterar, abra um chamado com seu Account Manager."
         />
-        <AwCard className="!p-0">
+        <AwCard className="p-0!">
           <dl className="m-0">
             {companyRows.map((row, i) => (
               <div
@@ -166,15 +166,15 @@ export default function OrganizationSettingsPage() {
                 className={
                   "grid grid-cols-[200px_1fr_auto] items-center gap-4 px-6 py-3.5" +
                   (i < companyRows.length - 1
-                    ? " border-b border-[var(--border-subtle)]"
+                    ? " border-b border-(--border-subtle)"
                     : "")
                 }
               >
-                <dt className="m-0 body-xs text-[var(--fg-tertiary)]">
+                <dt className="m-0 body-xs text-(--fg-tertiary)">
                   {row.label}
                 </dt>
                 <dd
-                  className="m-0 body-xs font-medium text-[var(--fg-primary)]"
+                  className="m-0 body-xs font-medium text-(--fg-primary)"
                   style={
                     row.tabular ? { fontVariantNumeric: "tabular-nums" } : undefined
                   }
@@ -182,7 +182,7 @@ export default function OrganizationSettingsPage() {
                   {row.value}
                 </dd>
                 <span
-                  className="text-[var(--fg-tertiary)]"
+                  className="text-(--fg-tertiary)"
                   title="Campo somente leitura — definido em contrato"
                 >
                   <Icon name="lock" size={14} />
@@ -190,11 +190,11 @@ export default function OrganizationSettingsPage() {
               </div>
             ))}
           </dl>
-          <div className="flex items-center gap-2 border-t border-[var(--border-subtle)] px-6 py-3 text-[var(--fg-secondary)]">
+          <div className="flex items-center gap-2 border-t border-(--border-subtle) px-6 py-3 text-(--fg-secondary)">
             <Icon name="warning" size={14} />
             <a
               href="#"
-              className="body-xs font-medium text-[var(--accent-brand)] underline-offset-2 hover:underline"
+              className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
             >
               Algo está errado?
             </a>

@@ -170,11 +170,11 @@ function InlineText({
   if (!editing) {
     return (
       <span
-        className={`${className} cursor-text rounded-[var(--radius-xs)] -mx-1 px-1 hover:bg-[var(--aw-blue-100)]`}
+        className={`${className} cursor-text rounded-xs -mx-1 px-1 hover:bg-(--aw-blue-100)`}
         onDoubleClick={(e) => { e.stopPropagation(); startEditing() }}
         title="Clique duplo pra editar"
       >
-        {value || <span className="italic text-[var(--fg-tertiary)]">{placeholder ?? "…"}</span>}
+        {value || <span className="italic text-(--fg-tertiary)">{placeholder ?? "…"}</span>}
       </span>
     )
   }
@@ -194,7 +194,7 @@ function InlineText({
     }
     e.stopPropagation()
   }
-  const cls = `nodrag nopan w-full rounded-[var(--radius-xs)] border border-[var(--aw-blue-400)] bg-[var(--bg-canvas)] px-1 py-0.5 outline-none ${inputClassName}`
+  const cls = `nodrag nopan w-full rounded-xs border border-(--aw-blue-400) bg-(--bg-canvas) px-1 py-0.5 outline-hidden ${inputClassName}`
 
   return multiline ? (
     <textarea
@@ -236,7 +236,7 @@ function LinkPopover({ href, onCommit }: { href: string; onCommit: (next: string
           onPointerDown={(e) => e.stopPropagation()}
           onClick={(e) => e.stopPropagation()}
           title={linked ? `Link: ${href}` : "Definir link (rota do protótipo)"}
-          className={`nodrag absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border bg-[var(--bg-raised)] transition ${linked ? "border-[var(--aw-blue-300)] text-[var(--aw-blue-700)]" : "border-[var(--border-default)] text-[var(--fg-tertiary)] hover:border-[var(--aw-blue-400)] hover:text-[var(--aw-blue-700)]"}`}
+          className={`nodrag absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-sm border bg-(--bg-raised) transition ${linked ? "border-(--aw-blue-300) text-(--aw-blue-700)" : "border-(--border-default) text-(--fg-tertiary) hover:border-(--aw-blue-400) hover:text-(--aw-blue-700)"}`}
         >
           <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6.8 9.2l2.4-2.4M7 4.6l1-1a2.4 2.4 0 013.4 3.4l-1 1M9 11.4l-1 1a2.4 2.4 0 01-3.4-3.4l1-1" />
@@ -248,7 +248,7 @@ function LinkPopover({ href, onCommit }: { href: string; onCommit: (next: string
         className="w-64 p-2.5"
         onPointerDown={(e) => e.stopPropagation()}
       >
-        <label className="text-[11px] font-medium text-[var(--fg-secondary)]">Link (rota do protótipo)</label>
+        <label className="text-[11px] font-medium text-(--fg-secondary)">Link (rota do protótipo)</label>
         <input
           value={val}
           onChange={(e) => setVal(e.target.value)}
@@ -258,7 +258,7 @@ function LinkPopover({ href, onCommit }: { href: string; onCommit: (next: string
             e.stopPropagation()
           }}
           placeholder="/rota ou #"
-          className="nodrag mt-1 w-full rounded-[var(--radius-sm)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-2 py-1 text-xs outline-none focus:border-[var(--aw-blue-400)]"
+          className="nodrag mt-1 w-full rounded-sm border border-(--border-default) bg-(--bg-canvas) px-2 py-1 text-xs outline-hidden focus:border-(--aw-blue-400)"
         />
       </PopoverContent>
     </Popover>
@@ -274,19 +274,19 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
   const editing = mode === "edit"
   const cursor = mode === "view" ? "cursor-pointer" : ""
   return (
-    <div className={`relative block w-[200px] rounded-[var(--radius-lg)] border border-[var(--border-default)] bg-[var(--bg-raised)] shadow-[var(--shadow-sm)] hover:border-[var(--aw-blue-400)] hover:shadow-[var(--shadow-md)] transition ${cursor}`}>
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
+    <div className={`relative block w-[200px] rounded-lg border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-sm) hover:border-(--aw-blue-400) hover:shadow-(--shadow-md) transition ${cursor}`}>
+      <Handle type="target" position={Position.Top} className="bg-(--aw-blue-500)! border-0! w-2! h-2!" />
       <div className="px-4 py-3 flex flex-col gap-1">
-        <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="aw-eyebrow text-[var(--aw-blue-700)]" inputClassName="aw-eyebrow text-[var(--aw-blue-700)]" />
-        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da tela" className="text-sm font-medium text-[var(--fg-primary)] leading-tight" inputClassName="text-sm font-medium text-[var(--fg-primary)]" autoEdit={autoEditId === id} />
+        <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="aw-eyebrow text-(--aw-blue-700)" inputClassName="aw-eyebrow text-(--aw-blue-700)" />
+        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da tela" className="text-sm font-medium text-(--fg-primary) leading-tight" inputClassName="text-sm font-medium text-(--fg-primary)" autoEdit={autoEditId === id} />
         {(editing || data.note) && (
-          <InlineText value={data.note ?? ""} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { note: v })} placeholder="Descrição…" className="caption text-[var(--fg-tertiary)]" inputClassName="caption text-[var(--fg-tertiary)]" />
+          <InlineText value={data.note ?? ""} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { note: v })} placeholder="Descrição…" className="caption text-(--fg-tertiary)" inputClassName="caption text-(--fg-tertiary)" />
         )}
       </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-blue-500)] !border-0 !w-2 !h-2" />
+      <Handle type="source" position={Position.Bottom} className="bg-(--aw-blue-500)! border-0! w-2! h-2!" />
       {/* Saídas laterais — invisíveis, só ancoram arestas que saem pro lado. */}
-      <Handle id="left"  type="source" position={Position.Left}  style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
-      <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0 }} className="!w-2 !h-2 !border-0" />
+      <Handle id="left"  type="source" position={Position.Left}  style={{ opacity: 0 }} className="w-2! h-2! border-0!" />
+      <Handle id="right" type="source" position={Position.Right} style={{ opacity: 0 }} className="w-2! h-2! border-0!" />
       {editing && <LinkPopover href={data.href} onCommit={(v) => onUpdateNodeData(id, { href: v })} />}
     </div>
   )
@@ -294,15 +294,15 @@ export function ScreenNode({ id, data }: NodeProps<Node<ScreenData>>) {
 
 export function DecisionNode({ id, data }: NodeProps<Node<DecisionData>>) {
   const { mode, onUpdateNodeData, autoEditId } = useContext(FlowEditorContext)
-  const hCls = "!bg-[var(--aw-amber-500)] !border-0 !w-2 !h-2"
+  const hCls = "bg-(--aw-amber-500)! border-0! w-2! h-2!"
   return (
-    <div className="relative w-[240px] rounded-[var(--radius-lg)] border-2 border-dashed border-[var(--aw-amber-400)] bg-[var(--aw-amber-100)] px-4 py-3 flex flex-col gap-1">
+    <div className="relative w-[240px] rounded-lg border-2 border-dashed border-(--aw-amber-400) bg-(--aw-amber-100) px-4 py-3 flex flex-col gap-1">
       <Handle type="target" position={Position.Top} className={hCls} />
-      <span className="aw-eyebrow text-[var(--aw-amber-800)]">
-        decisão · <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="text-[var(--aw-amber-800)]" inputClassName="aw-eyebrow text-[var(--aw-amber-800)]" />
+      <span className="aw-eyebrow text-(--aw-amber-800)">
+        decisão · <InlineText value={data.step} mode={mode} onCommit={(v) => onUpdateNodeData(id, { step: v })} placeholder="etapa" className="text-(--aw-amber-800)" inputClassName="aw-eyebrow text-(--aw-amber-800)" />
       </span>
-      <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da decisão" className="text-sm font-medium text-[var(--aw-amber-900)] leading-tight" inputClassName="text-sm font-medium text-[var(--aw-amber-900)]" autoEdit={autoEditId === id} />
-      <InlineText value={data.question} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { question: v })} placeholder="Qual condição o fluxo avalia aqui?" className="text-xs text-[var(--aw-amber-800)] leading-snug" inputClassName="text-xs text-[var(--aw-amber-800)]" />
+      <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Título da decisão" className="text-sm font-medium text-(--aw-amber-900) leading-tight" inputClassName="text-sm font-medium text-(--aw-amber-900)" autoEdit={autoEditId === id} />
+      <InlineText value={data.question} mode={mode} multiline onCommit={(v) => onUpdateNodeData(id, { question: v })} placeholder="Qual condição o fluxo avalia aqui?" className="text-xs text-(--aw-amber-800) leading-snug" inputClassName="text-xs text-(--aw-amber-800)" />
       <Handle id="left"   type="source" position={Position.Left}   className={hCls} />
       <Handle id="bottom" type="source" position={Position.Bottom} className={hCls} />
       <Handle id="right"  type="source" position={Position.Right}  className={hCls} />
@@ -321,18 +321,18 @@ export function CrossFlowNode({ id, data }: NodeProps<Node<ScreenData>>) {
   const cursor = mode === "view" ? "cursor-pointer" : ""
   return (
     <div className={`group relative w-[184px] h-[150px] ${cursor}`}>
-      <Handle type="target" position={Position.Top} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
-      <div className="absolute left-1/2 top-1/2 h-[106px] w-[106px] -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-[var(--radius-md)] border-2 border-[var(--aw-purple-400)] bg-[var(--aw-purple-100)] shadow-[var(--shadow-sm)] transition group-hover:border-[var(--aw-purple-500)] group-hover:bg-[var(--aw-purple-150)] group-hover:shadow-[var(--shadow-md)]" />
+      <Handle type="target" position={Position.Top} className="bg-(--aw-purple-500)! border-0! w-2! h-2! z-20!" />
+      <div className="absolute left-1/2 top-1/2 h-[106px] w-[106px] -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-md border-2 border-(--aw-purple-400) bg-(--aw-purple-100) shadow-(--shadow-sm) transition group-hover:border-(--aw-purple-500) group-hover:bg-(--aw-purple-150) group-hover:shadow-(--shadow-md)" />
       <div className={`absolute inset-0 flex flex-col items-center justify-center gap-0.5 px-6 text-center ${editing ? "" : "pointer-events-none"}`}>
-        <span className="aw-eyebrow inline-flex items-center gap-1 text-[var(--aw-purple-700)]">
+        <span className="aw-eyebrow inline-flex items-center gap-1 text-(--aw-purple-700)">
           <svg width="11" height="11" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           outro fluxo
         </span>
-        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Nome do fluxo" className="text-[13px] font-semibold leading-tight text-[var(--aw-purple-900)]" inputClassName="text-[13px] font-semibold text-[var(--aw-purple-900)] text-center" autoEdit={autoEditId === id} />
+        <InlineText value={data.title} mode={mode} onCommit={(v) => onUpdateNodeData(id, { title: v })} placeholder="Nome do fluxo" className="text-[13px] font-semibold leading-tight text-(--aw-purple-900)" inputClassName="text-[13px] font-semibold text-(--aw-purple-900) text-center" autoEdit={autoEditId === id} />
       </div>
-      <Handle type="source" position={Position.Bottom} className="!bg-[var(--aw-purple-500)] !border-0 !w-2 !h-2 !z-20" />
+      <Handle type="source" position={Position.Bottom} className="bg-(--aw-purple-500)! border-0! w-2! h-2! z-20!" />
       {editing && <LinkPopover href={data.href} onCommit={(v) => onUpdateNodeData(id, { href: v })} />}
     </div>
   )
@@ -461,7 +461,7 @@ function StatusPill({ status }: { status: SuggestionStatus }) {
   const s = map[status]
   return (
     <span
-      className="inline-flex items-center rounded-[var(--radius-sm)] border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
+      className="inline-flex items-center rounded-sm border px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide"
       style={{ background: s.bg, color: s.fg, borderColor: s.border }}
     >
       {s.label}
@@ -1023,12 +1023,12 @@ export function FlowDiagram({
 
   return (
     <FlowEditorContext.Provider value={ctxValue}>
-      <div className={isFullscreen ? "fixed inset-0 z-40 bg-[var(--bg-canvas)]" : "relative"}>
+      <div className={isFullscreen ? "fixed inset-0 z-40 bg-(--bg-canvas)" : "relative"}>
         <div
           className={
             isFullscreen
               ? "overflow-hidden"
-              : "rounded-[var(--radius-lg)] border border-[var(--border-subtle)] overflow-hidden"
+              : "rounded-lg border border-(--border-subtle) overflow-hidden"
           }
           style={{ backgroundColor: "var(--bg-muted)", height: isFullscreen ? "100vh" : 800 }}
         >
@@ -1086,9 +1086,9 @@ export function FlowDiagram({
               <Panel position="top-right">
                 <button
                   onClick={() => setShowReview(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-amber-100)] border border-[var(--aw-amber-300)] text-xs font-medium text-[var(--aw-amber-800)] hover:bg-[var(--aw-amber-200)] transition shadow-[var(--shadow-sm)]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-(--aw-amber-100) border border-(--aw-amber-300) text-xs font-medium text-(--aw-amber-800) hover:bg-(--aw-amber-200) transition shadow-(--shadow-sm)"
                 >
-                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold">
+                  <span className="inline-flex items-center justify-center w-4 h-4 rounded-full bg-(--aw-amber-500) text-white text-[10px] font-bold">
                     {suggestions.length}
                   </span>
                   {suggestions.length === 1 ? "sugestão" : "sugestões"}
@@ -1100,17 +1100,17 @@ export function FlowDiagram({
                 shows in fullscreen. Lifted above the global Review dot, which
                 also docks bottom-center. Mover / Comentar / Sugerir edição. */}
             {!editMode && !previewSugg && (
-              <Panel position="bottom-center" className="!bottom-16">
+              <Panel position="bottom-center" className="bottom-16!">
 
-                <div className="flex items-center gap-1 rounded-full bg-[var(--bg-raised)] border border-[var(--border-default)] shadow-[var(--shadow-md)] px-1.5 py-1.5">
+                <div className="flex items-center gap-1 rounded-full bg-(--bg-raised) border border-(--border-default) shadow-(--shadow-md) px-1.5 py-1.5">
                   <button
                     onClick={exitCommentMode}
                     aria-pressed={!commentMode}
                     title="Mover / navegar"
                     className={
                       !commentMode
-                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-[var(--aw-blue-100)] text-[var(--aw-blue-700)] transition"
-                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-(--aw-blue-100) text-(--aw-blue-700) transition"
+                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-muted) transition"
                     }
                   >
                     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
@@ -1123,19 +1123,19 @@ export function FlowDiagram({
                     title="Comentar (estilo FigJam) — vai pro review com chip UX Flow"
                     className={
                       commentMode
-                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-[var(--aw-purple-600)] text-white transition"
-                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                        ? "h-8 w-8 inline-flex items-center justify-center rounded-full bg-(--aw-purple-600) text-white transition"
+                        : "h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-muted) transition"
                     }
                   >
                     <svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M2.5 3.5h11v7h-7l-3 2.5z" />
                     </svg>
                   </button>
-                  <span className="w-px h-5 bg-[var(--border-default)] mx-0.5" />
+                  <span className="w-px h-5 bg-(--border-default) mx-0.5" />
                   <button
                     onClick={enterEdit}
                     title="Sugerir edição"
-                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] hover:text-[var(--aw-blue-700)] transition"
+                    className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium text-(--fg-secondary) hover:bg-(--bg-muted) hover:text-(--aw-blue-700) transition"
                   >
                     <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M11.5 1.5l3 3-9 9H2.5v-3l9-9z" />
@@ -1147,45 +1147,45 @@ export function FlowDiagram({
             )}
 
             {editMode && (
-              <Panel position="bottom-center" className="!bottom-16">
-                <div className="flex items-center gap-1.5 rounded-full border border-[var(--border-default)] bg-[var(--bg-raised)] px-2 py-1.5 text-xs shadow-[var(--shadow-md)]">
-                  <button onClick={() => addNode("screen")} className="rounded-full border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-2.5 py-1 font-medium text-[var(--aw-blue-800)] transition hover:bg-[var(--aw-blue-200)]">
+              <Panel position="bottom-center" className="bottom-16!">
+                <div className="flex items-center gap-1.5 rounded-full border border-(--border-default) bg-(--bg-raised) px-2 py-1.5 text-xs shadow-(--shadow-md)">
+                  <button onClick={() => addNode("screen")} className="rounded-full border border-(--aw-blue-200) bg-(--aw-blue-100) px-2.5 py-1 font-medium text-(--aw-blue-800) transition hover:bg-(--aw-blue-200)">
                     + Tela
                   </button>
-                  <button onClick={() => addNode("decision")} className="rounded-full border border-[var(--aw-amber-300)] bg-[var(--aw-amber-100)] px-2.5 py-1 font-medium text-[var(--aw-amber-900)] transition hover:bg-[var(--aw-amber-200)]">
+                  <button onClick={() => addNode("decision")} className="rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2.5 py-1 font-medium text-(--aw-amber-900) transition hover:bg-(--aw-amber-200)">
                     + Decisão
                   </button>
-                  <button onClick={() => addNode("crossflow")} className="rounded-full border border-[var(--aw-purple-200)] bg-[var(--aw-purple-100)] px-2.5 py-1 font-medium text-[var(--aw-purple-800)] transition hover:bg-[var(--aw-purple-150)]">
+                  <button onClick={() => addNode("crossflow")} className="rounded-full border border-(--aw-purple-200) bg-(--aw-purple-100) px-2.5 py-1 font-medium text-(--aw-purple-800) transition hover:bg-(--aw-purple-150)">
                     + Outro fluxo
                   </button>
 
-                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
+                  <span className="mx-0.5 h-4 w-px bg-(--border-default)" />
 
-                  <button onClick={undo} disabled={!canUndo} title="Desfazer (⌘Z)" aria-label="Desfazer" className="rounded-full px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↶</button>
-                  <button onClick={redo} disabled={!canRedo} title="Refazer (⌘⇧Z)" aria-label="Refazer" className="rounded-full px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↷</button>
+                  <button onClick={undo} disabled={!canUndo} title="Desfazer (⌘Z)" aria-label="Desfazer" className="rounded-full px-2 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted) hover:text-(--fg-primary) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↶</button>
+                  <button onClick={redo} disabled={!canRedo} title="Refazer (⌘⇧Z)" aria-label="Refazer" className="rounded-full px-2 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted) hover:text-(--fg-primary) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent">↷</button>
 
                   <button
                     onClick={() => setSnapEnabled((v) => !v)}
                     title={snapEnabled ? "Snap ligado" : "Snap desligado"}
                     className={
                       snapEnabled
-                        ? "rounded-full border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-2 py-1 font-medium text-[var(--aw-blue-800)] transition"
-                        : "rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)]"
+                        ? "rounded-full border border-(--aw-blue-200) bg-(--aw-blue-100) px-2 py-1 font-medium text-(--aw-blue-800) transition"
+                        : "rounded-full border border-transparent px-2 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted)"
                     }
                   >
                     Snap
                   </button>
-                  <button onClick={applyAutoLayout} title="Reorganizar os cards em colunas" className="rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)]">
+                  <button onClick={applyAutoLayout} title="Reorganizar os cards em colunas" className="rounded-full border border-transparent px-2 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted) hover:text-(--fg-primary)">
                     Organizar
                   </button>
 
-                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
+                  <span className="mx-0.5 h-4 w-px bg-(--border-default)" />
 
                   <button
                     onClick={duplicateSelected}
                     disabled={selectedCount === 0}
                     title="Duplicar selecionado (⌘D)"
-                    className="rounded-full border border-transparent px-2 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)] hover:text-[var(--fg-primary)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                    className="rounded-full border border-transparent px-2 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted) hover:text-(--fg-primary) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
                   >
                     Duplicar
                   </button>
@@ -1193,28 +1193,28 @@ export function FlowDiagram({
                     onClick={deleteSelected}
                     disabled={selectedCount === 0}
                     title="Excluir selecionado (Delete)"
-                    className="rounded-full border border-transparent px-2 py-1 font-medium text-[var(--aw-red-700)] transition hover:bg-[var(--aw-red-100)] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
+                    className="rounded-full border border-transparent px-2 py-1 font-medium text-(--aw-red-700) transition hover:bg-(--aw-red-100) disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent"
                   >
                     Excluir{selectedCount > 1 ? ` (${selectedCount})` : ""}
                   </button>
 
-                  <span className="mx-0.5 h-4 w-px bg-[var(--border-default)]" />
+                  <span className="mx-0.5 h-4 w-px bg-(--border-default)" />
 
-                  <button onClick={cancelEdit} className="rounded-full px-2.5 py-1 text-[var(--fg-secondary)] transition hover:bg-[var(--bg-muted)]">Cancelar</button>
-                  <button onClick={() => setShowSave(true)} className="rounded-full bg-[var(--aw-blue-600)] px-3 py-1 font-medium text-white transition hover:bg-[var(--aw-blue-700)]">Salvar</button>
+                  <button onClick={cancelEdit} className="rounded-full px-2.5 py-1 text-(--fg-secondary) transition hover:bg-(--bg-muted)">Cancelar</button>
+                  <button onClick={() => setShowSave(true)} className="rounded-full bg-(--aw-blue-600) px-3 py-1 font-medium text-white transition hover:bg-(--aw-blue-700)">Salvar</button>
                 </div>
               </Panel>
             )}
 
             {previewSugg && (
               <Panel position="top-center">
-                <div className="flex items-center gap-3 bg-[var(--bg-raised)] border border-[var(--border-default)] rounded-[var(--radius-md)] px-4 py-2 text-sm shadow-[var(--shadow-md)]">
-                  <span className="text-[var(--fg-tertiary)] text-xs uppercase tracking-wide font-medium">Sugestão</span>
-                  <code className="text-[10px] font-mono px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">{previewSugg.id}</code>
+                <div className="flex items-center gap-3 bg-(--bg-raised) border border-(--border-default) rounded-md px-4 py-2 text-sm shadow-(--shadow-md)">
+                  <span className="text-(--fg-tertiary) text-xs uppercase tracking-wide font-medium">Sugestão</span>
+                  <code className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-(--bg-muted) text-(--fg-secondary)">{previewSugg.id}</code>
                   <StatusPill status={previewSugg.status} />
-                  <span className="text-[var(--fg-primary)] font-medium max-w-xs truncate">{previewSugg.description}</span>
-                  <span className="text-[var(--fg-tertiary)]">·</span>
-                  <button onClick={() => setPreviewSugg(null)} className="text-[var(--aw-blue-700)] font-medium hover:underline whitespace-nowrap">Voltar ao fluxo oficial</button>
+                  <span className="text-(--fg-primary) font-medium max-w-xs truncate">{previewSugg.description}</span>
+                  <span className="text-(--fg-tertiary)">·</span>
+                  <button onClick={() => setPreviewSugg(null)} className="text-(--aw-blue-700) font-medium hover:underline whitespace-nowrap">Voltar ao fluxo oficial</button>
                 </div>
               </Panel>
             )}
@@ -1222,19 +1222,19 @@ export function FlowDiagram({
         </div>
 
         {errorMessage && (
-          <p className="mt-2 text-xs text-[var(--aw-red-700)]">{errorMessage}</p>
+          <p className="mt-2 text-xs text-(--aw-red-700)">{errorMessage}</p>
         )}
       </div>
 
       {showSave && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => !saving && setShowSave(false)}>
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-(--bg-raised) rounded-lg border border-(--border-subtle) shadow-(--shadow-lg) w-full max-w-md mx-4 p-6 flex flex-col gap-4" onClick={(e) => e.stopPropagation()}>
             <div>
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Salvar sugestão</h2>
-              <p className="text-sm text-[var(--fg-secondary)] mt-1 m-0">Descreva o que muda nesse fluxo. O Claude lê isso pra entender a intenção da edição.</p>
+              <h2 className="text-base font-semibold text-(--fg-primary) m-0">Salvar sugestão</h2>
+              <p className="text-sm text-(--fg-secondary) mt-1 m-0">Descreva o que muda nesse fluxo. O Claude lê isso pra entender a intenção da edição.</p>
             </div>
             <textarea
-              className="w-full rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-canvas)] px-3 py-2 text-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--aw-blue-400)] resize-none"
+              className="w-full rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2 text-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden focus:border-(--aw-blue-400) resize-none"
               placeholder="Ex: adicionei bloqueio de conta após 5 tentativas inválidas…"
               rows={3} value={desc} onChange={(e) => setDesc(e.target.value)} autoFocus
             />
@@ -1242,13 +1242,13 @@ export function FlowDiagram({
               <button
                 onClick={() => { setShowSave(false); setShowPromptModal(true) }}
                 disabled={saving}
-                className="text-xs font-medium text-[var(--fg-tertiary)] underline-offset-2 hover:text-[var(--aw-blue-700)] hover:underline disabled:opacity-40"
+                className="text-xs font-medium text-(--fg-tertiary) underline-offset-2 hover:text-(--aw-blue-700) hover:underline disabled:opacity-40"
               >
                 ou copiar prompt pro chat
               </button>
               <div className="flex gap-2">
-                <button onClick={() => setShowSave(false)} disabled={saving} className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition disabled:opacity-40">Cancelar</button>
-                <button onClick={confirmSave} disabled={!desc.trim() || saving} className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] disabled:opacity-40 disabled:cursor-not-allowed transition">
+                <button onClick={() => setShowSave(false)} disabled={saving} className="px-4 py-2 rounded-md border border-(--border-default) text-sm font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition disabled:opacity-40">Cancelar</button>
+                <button onClick={confirmSave} disabled={!desc.trim() || saving} className="px-4 py-2 rounded-md bg-(--aw-blue-600) text-white text-sm font-medium hover:bg-(--aw-blue-700) disabled:opacity-40 disabled:cursor-not-allowed transition">
                   {saving ? "Salvando…" : "Salvar"}
                 </button>
               </div>
@@ -1259,36 +1259,36 @@ export function FlowDiagram({
 
       {showReview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowReview(false)}>
-          <div className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-lg mx-4 p-6 flex flex-col gap-4 max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-(--bg-raised) rounded-lg border border-(--border-subtle) shadow-(--shadow-lg) w-full max-w-lg mx-4 p-6 flex flex-col gap-4 max-h-[80vh]" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">
+              <h2 className="text-base font-semibold text-(--fg-primary) m-0">
                 Sugestões
-                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[var(--aw-amber-500)] text-white text-[10px] font-bold align-middle">{suggestions.length}</span>
+                <span className="ml-2 inline-flex items-center justify-center w-5 h-5 rounded-full bg-(--aw-amber-500) text-white text-[10px] font-bold align-middle">{suggestions.length}</span>
               </h2>
-              <button onClick={() => setShowReview(false)} className="text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] text-lg leading-none">×</button>
+              <button onClick={() => setShowReview(false)} className="text-(--fg-tertiary) hover:text-(--fg-primary) text-lg leading-none">×</button>
             </div>
-            <p className="text-xs text-[var(--fg-secondary)] m-0 -mt-2">
+            <p className="text-xs text-(--fg-secondary) m-0 -mt-2">
               Sugestões ficam salvas no repo (<code className="text-[10px] font-mono">flow-bridge/data/suggestions.json</code>). Mande o ID pro Claude no chat (<em>&quot;avalia a sugestão X do flow {flow}&quot;</em>) pra ele propor a aplicação. Aprovar arquiva, rejeitar volta pra aberta.
             </p>
             <ul className="flex flex-col gap-3 overflow-y-auto m-0 p-0 list-none">
               {suggestions.map((s) => (
-                <li key={s.id} className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)] p-4 flex flex-col gap-2">
+                <li key={s.id} className="rounded-md border border-(--border-subtle) bg-(--bg-canvas) p-4 flex flex-col gap-2">
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <code className="text-[10px] font-mono px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">{s.id}</code>
+                    <code className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm bg-(--bg-muted) text-(--fg-secondary)">{s.id}</code>
                     <StatusPill status={s.status} />
-                    <span className="caption text-[var(--fg-tertiary)]">
+                    <span className="caption text-(--fg-tertiary)">
                       {new Date(s.createdAt).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <p className="m-0 text-sm font-medium text-[var(--fg-primary)] leading-snug">{s.description}</p>
+                  <p className="m-0 text-sm font-medium text-(--fg-primary) leading-snug">{s.description}</p>
                   {s.resolution && (
-                    <p className="m-0 caption text-[var(--fg-tertiary)] italic">{s.resolution.summary}</p>
+                    <p className="m-0 caption text-(--fg-tertiary) italic">{s.resolution.summary}</p>
                   )}
                   <div className="flex gap-2 mt-1 flex-wrap">
-                    <button onClick={() => viewSugg(s)} className="px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--aw-blue-600)] text-white text-xs font-medium hover:bg-[var(--aw-blue-700)] transition">Visualizar</button>
+                    <button onClick={() => viewSugg(s)} className="px-3 py-1.5 rounded-sm bg-(--aw-blue-600) text-white text-xs font-medium hover:bg-(--aw-blue-700) transition">Visualizar</button>
                     <button
                       onClick={() => navigator.clipboard?.writeText(`avalia a sugestão ${s.id} do flow ${flow}`)}
-                      className="px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                      className="px-3 py-1.5 rounded-sm border border-(--border-default) text-xs font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition"
                     >
                       Copiar prompt
                     </button>
@@ -1296,13 +1296,13 @@ export function FlowDiagram({
                       <>
                         <button
                           onClick={() => void transition(s.id, "apply")}
-                          className="px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--aw-emerald-700)] text-white text-xs font-medium hover:bg-[var(--aw-emerald-800)] transition"
+                          className="px-3 py-1.5 rounded-sm bg-(--aw-emerald-700) text-white text-xs font-medium hover:bg-(--aw-emerald-800) transition"
                         >
                           Aprovar
                         </button>
                         <button
                           onClick={() => void transition(s.id, "reject")}
-                          className="px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                          className="px-3 py-1.5 rounded-sm border border-(--border-default) text-xs font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition"
                         >
                           Rejeitar
                         </button>
@@ -1310,7 +1310,7 @@ export function FlowDiagram({
                     )}
                     <button
                       onClick={() => void transition(s.id, "discard")}
-                      className="px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--border-default)] text-xs font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+                      className="px-3 py-1.5 rounded-sm border border-(--border-default) text-xs font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition"
                     >
                       Descartar
                     </button>
@@ -1318,7 +1318,7 @@ export function FlowDiagram({
                 </li>
               ))}
               {suggestions.length === 0 && (
-                <li className="text-sm text-[var(--fg-tertiary)] text-center py-6">Nenhuma sugestão ativa.</li>
+                <li className="text-sm text-(--fg-tertiary) text-center py-6">Nenhuma sugestão ativa.</li>
               )}
             </ul>
           </div>
@@ -1394,33 +1394,33 @@ function FlowConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onCancel}>
       <div
-        className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-md mx-4 p-6 flex flex-col gap-5"
+        className="bg-(--bg-raised) rounded-lg border border-(--border-subtle) shadow-(--shadow-lg) w-full max-w-md mx-4 p-6 flex flex-col gap-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-3.5">
-          <span className="flex-shrink-0 mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] bg-[var(--aw-purple-100)] text-[var(--aw-purple-700)]">
+          <span className="shrink-0 mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-md bg-(--aw-purple-100) text-(--aw-purple-700)">
             <svg width="18" height="18" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M3.5 12.5L12.5 3.5M12.5 3.5H6M12.5 3.5V10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
           <div className="flex flex-col gap-1">
-            <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Ir para outro fluxo?</h2>
-            <p className="text-sm text-[var(--fg-secondary)] m-0 leading-relaxed">
+            <h2 className="text-base font-semibold text-(--fg-primary) m-0">Ir para outro fluxo?</h2>
+            <p className="text-sm text-(--fg-secondary) m-0 leading-relaxed">
               Você vai sair deste fluxo e abrir o fluxo{" "}
-              <b className="font-medium text-[var(--fg-primary)]">{target.title}</b>. Dá pra voltar a qualquer momento.
+              <b className="font-medium text-(--fg-primary)">{target.title}</b>. Dá pra voltar a qualquer momento.
             </p>
           </div>
         </div>
         <div className="flex justify-end gap-2">
           <button
             onClick={onCancel}
-            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+            className="px-4 py-2 rounded-md border border-(--border-default) text-sm font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition"
           >
             Cancelar
           </button>
           <button
             onClick={onConfirm}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-purple-600)] text-white text-sm font-medium hover:bg-[var(--aw-purple-700)] transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-md bg-(--aw-purple-600) text-white text-sm font-medium hover:bg-(--aw-purple-700) transition"
           >
             Ir para {target.title}
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -1517,24 +1517,24 @@ function CopyPromptModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
       <div
-        className="bg-[var(--bg-raised)] rounded-[var(--radius-lg)] border border-[var(--border-subtle)] shadow-[var(--shadow-lg)] w-full max-w-xl mx-4 flex flex-col max-h-[85vh] overflow-hidden"
+        className="bg-(--bg-raised) rounded-lg border border-(--border-subtle) shadow-(--shadow-lg) w-full max-w-xl mx-4 flex flex-col max-h-[85vh] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 pb-0 flex flex-col gap-1.5">
-          <h2 className="text-base font-semibold text-[var(--fg-primary)] m-0">Copiar prompt pro Claude</h2>
-          <p className="text-sm text-[var(--fg-secondary)] m-0 leading-relaxed">
+          <h2 className="text-base font-semibold text-(--fg-primary) m-0">Copiar prompt pro Claude</h2>
+          <p className="text-sm text-(--fg-secondary) m-0 leading-relaxed">
             Cola no chat com o Claude. O JSON dos nós e arestas vai dentro do prompt.
           </p>
         </div>
 
         <div className="px-6 pt-4 flex flex-col gap-2">
-          <span className="text-xs font-medium text-[var(--fg-secondary)] uppercase tracking-wide">O que o Claude deve fazer?</span>
+          <span className="text-xs font-medium text-(--fg-secondary) uppercase tracking-wide">O que o Claude deve fazer?</span>
           <div className="flex flex-col gap-1.5">
             <label
               className={
                 mode === "flow-update"
-                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--aw-blue-400)] bg-[var(--aw-blue-100)] transition"
-                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--border-default)] hover:bg-[var(--bg-muted)] transition"
+                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-md border border-(--aw-blue-400) bg-(--aw-blue-100) transition"
+                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-md border border-(--border-default) hover:bg-(--bg-muted) transition"
               }
             >
               <input
@@ -1544,9 +1544,9 @@ function CopyPromptModal({
                 className="mt-0.5"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-[var(--fg-primary)]">Atualizar este flow no styleguide</span>
-                <span className="text-xs text-[var(--fg-secondary)] leading-snug">
-                  Substitui <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">NODES</code> e <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">EDGES</code> no <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">page.tsx</code> deste flow e adiciona entrada em <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">updates</code>.
+                <span className="text-sm font-medium text-(--fg-primary)">Atualizar este flow no styleguide</span>
+                <span className="text-xs text-(--fg-secondary) leading-snug">
+                  Substitui <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-(--bg-muted)">NODES</code> e <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-(--bg-muted)">EDGES</code> no <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-(--bg-muted)">page.tsx</code> deste flow e adiciona entrada em <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-(--bg-muted)">updates</code>.
                 </span>
               </span>
             </label>
@@ -1554,8 +1554,8 @@ function CopyPromptModal({
             <label
               className={
                 mode === "product-routes"
-                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--aw-blue-400)] bg-[var(--aw-blue-100)] transition"
-                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-[var(--radius-md)] border border-[var(--border-default)] hover:bg-[var(--bg-muted)] transition"
+                  ? "flex items-start gap-2.5 cursor-pointer p-3 rounded-md border border-(--aw-blue-400) bg-(--aw-blue-100) transition"
+                  : "flex items-start gap-2.5 cursor-pointer p-3 rounded-md border border-(--border-default) hover:bg-(--bg-muted) transition"
               }
             >
               <input
@@ -1565,9 +1565,9 @@ function CopyPromptModal({
                 className="mt-0.5"
               />
               <span className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-[var(--fg-primary)]">Criar rotas do produto</span>
-                <span className="text-xs text-[var(--fg-secondary)] leading-snug">
-                  Scaffold <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-[var(--bg-muted)]">app/&lt;href&gt;/page.tsx</code> pra cada screen. Decisões não viram página.
+                <span className="text-sm font-medium text-(--fg-primary)">Criar rotas do produto</span>
+                <span className="text-xs text-(--fg-secondary) leading-snug">
+                  Scaffold <code className="font-mono text-[10px] px-1 py-0.5 rounded bg-(--bg-muted)">app/&lt;href&gt;/page.tsx</code> pra cada screen. Decisões não viram página.
                 </span>
               </span>
             </label>
@@ -1575,24 +1575,24 @@ function CopyPromptModal({
         </div>
 
         <details className="px-6 pt-4">
-          <summary className="cursor-pointer text-xs font-medium text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] select-none">
+          <summary className="cursor-pointer text-xs font-medium text-(--fg-secondary) hover:text-(--fg-primary) select-none">
             Preview do prompt
           </summary>
-          <pre className="mt-2 text-[10px] leading-relaxed bg-[var(--bg-canvas)] border border-[var(--border-subtle)] rounded-[var(--radius-sm)] p-3 max-h-48 overflow-auto whitespace-pre-wrap break-words font-mono text-[var(--fg-secondary)]">
+          <pre className="mt-2 text-[10px] leading-relaxed bg-(--bg-canvas) border border-(--border-subtle) rounded-sm p-3 max-h-48 overflow-auto whitespace-pre-wrap wrap-break-word font-mono text-(--fg-secondary)">
             {prompt}
           </pre>
         </details>
 
-        <div className="mt-4 p-4 px-6 flex justify-end gap-2 border-t border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+        <div className="mt-4 p-4 px-6 flex justify-end gap-2 border-t border-(--border-subtle) bg-(--bg-canvas)">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--border-default)] text-sm font-medium text-[var(--fg-secondary)] hover:bg-[var(--bg-muted)] transition"
+            className="px-4 py-2 rounded-md border border-(--border-default) text-sm font-medium text-(--fg-secondary) hover:bg-(--bg-muted) transition"
           >
             Fechar
           </button>
           <button
             onClick={copy}
-            className="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-sm font-medium hover:bg-[var(--aw-blue-700)] transition"
+            className="px-4 py-2 rounded-md bg-(--aw-blue-600) text-white text-sm font-medium hover:bg-(--aw-blue-700) transition"
           >
             {copied ? "Copiado!" : "Copiar prompt"}
           </button>
@@ -1634,14 +1634,14 @@ function ScreenPreviewDrawer({
       meta={
         screen ? (
           <span className="flex items-baseline gap-2 flex-wrap">
-            <span className="aw-eyebrow text-[var(--aw-blue-700)]">{screen.step}</span>
+            <span className="aw-eyebrow text-(--aw-blue-700)">{screen.step}</span>
             {hasPrototype && (
-              <span className="text-xs text-[var(--fg-tertiary)]">{href}</span>
+              <span className="text-xs text-(--fg-tertiary)">{href}</span>
             )}
             {hasPrototype && !external && (
               <a
                 href={href}
-                className="text-xs font-medium text-[var(--aw-blue-700)] hover:text-[var(--aw-blue-800)] no-underline hover:underline"
+                className="text-xs font-medium text-(--aw-blue-700) hover:text-(--aw-blue-800) no-underline hover:underline"
               >
                 Abrir em página inteira →
               </a>
@@ -1652,29 +1652,29 @@ function ScreenPreviewDrawer({
     >
       {!hasPrototype ? (
         <div className="flex flex-col items-center justify-center text-center gap-2 py-12">
-          <p className="m-0 text-sm font-medium text-[var(--fg-primary)]">Sem protótipo ainda</p>
-          <p className="m-0 text-sm text-[var(--fg-secondary)] max-w-sm leading-relaxed">
+          <p className="m-0 text-sm font-medium text-(--fg-primary)">Sem protótipo ainda</p>
+          <p className="m-0 text-sm text-(--fg-secondary) max-w-sm leading-relaxed">
             Essa tela ainda não tem link pra um protótipo navegável. Adicione um href na
             sugestão de edição quando o protótipo existir.
           </p>
         </div>
       ) : external ? (
         <div className="flex flex-col items-center justify-center text-center gap-3 py-12">
-          <p className="m-0 text-sm font-medium text-[var(--fg-primary)]">Link externo</p>
-          <p className="m-0 text-sm text-[var(--fg-secondary)] max-w-sm leading-relaxed">
+          <p className="m-0 text-sm font-medium text-(--fg-primary)">Link externo</p>
+          <p className="m-0 text-sm text-(--fg-secondary) max-w-sm leading-relaxed">
             Esse passo aponta pra um endereço fora da plataforma. Abra em uma nova aba pra ver.
           </p>
           <a
             href={href}
             target="_blank"
             rel="noreferrer"
-            className="px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--aw-blue-600)] text-white text-xs font-medium hover:bg-[var(--aw-blue-700)] transition no-underline"
+            className="px-3 py-1.5 rounded-md bg-(--aw-blue-600) text-white text-xs font-medium hover:bg-(--aw-blue-700) transition no-underline"
           >
             Abrir em nova aba ↗
           </a>
         </div>
       ) : (
-        <div className="w-full h-full rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden bg-[var(--bg-canvas)]">
+        <div className="w-full h-full rounded-md border border-(--border-subtle) overflow-hidden bg-(--bg-canvas)">
           <iframe
             key={href}
             src={href}

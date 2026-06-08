@@ -77,10 +77,10 @@ export default function GroupDetailPage() {
     return (
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-(--fg-primary)">
             Equipe não encontrada
           </h3>
-          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
             A equipe que você tentou abrir não existe mais.
           </p>
         </header>
@@ -115,10 +115,10 @@ export default function GroupDetailPage() {
     <>
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-(--fg-primary)">
             Equipe &amp; permissões
           </h3>
-          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -127,7 +127,7 @@ export default function GroupDetailPage() {
         <TeamTabs />
 
         {/* Cover */}
-        <div className="relative h-[220px] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)]">
+        <div className="relative h-[220px] overflow-hidden rounded-lg border border-(--border-subtle)">
           <div
             aria-hidden="true"
             className="absolute inset-0 bg-cover bg-center"
@@ -149,7 +149,7 @@ export default function GroupDetailPage() {
                 <button
                   type="button"
                   aria-label="Mais opções da equipe"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(13,13,15,0.55)] text-white backdrop-blur-sm transition-colors hover:bg-[rgba(13,13,15,0.75)]"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(13,13,15,0.55)] text-white backdrop-blur-xs transition-colors hover:bg-[rgba(13,13,15,0.75)]"
                 >
                   <Icon name="more_vert" size={18} />
                 </button>
@@ -186,7 +186,7 @@ export default function GroupDetailPage() {
           </div>
           <div className="absolute bottom-5 left-5 flex items-end gap-4">
             <span
-              className="flex h-20 w-20 items-center justify-center rounded-full text-[var(--fg-primary)] shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
+              className="flex h-20 w-20 items-center justify-center rounded-full text-(--fg-primary) shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
               style={{ background: groupIconColor }}
             >
               <Icon name={groupIcon} size={36} />
@@ -242,11 +242,11 @@ export default function GroupDetailPage() {
             </div>
           }
         >
-          <p className="m-0 body-xs text-[var(--fg-primary)]">
+          <p className="m-0 body-xs text-(--fg-primary)">
             Você está prestes a excluir a equipe{" "}
             <strong className="font-medium">{group.name}</strong>. Essa ação não pode ser desfeita.
           </p>
-          <p className="m-0 mt-2 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 mt-2 body-xs text-(--fg-secondary)">
             Os membros continuam com acesso individual ao workspace — apenas a equipe será removida.
           </p>
         </AwModal>
@@ -262,10 +262,10 @@ export default function GroupDetailPage() {
           <section>
             <header className="mb-3 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+                <h6 className="m-0 mb-1 text-(--fg-primary)">
                   Membros · {members.length}
                 </h6>
-                <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
                   Pessoas que herdam as permissões dessa equipe automaticamente.
                 </p>
               </div>
@@ -280,8 +280,8 @@ export default function GroupDetailPage() {
             </header>
 
             {members.length === 0 ? (
-              <AwCard className="!px-5 !py-6">
-                <p className="m-0 text-center body-xs text-[var(--fg-secondary)]">
+              <AwCard className="px-5! py-6!">
+                <p className="m-0 text-center body-xs text-(--fg-secondary)">
                   Nenhum membro nessa equipe ainda.
                 </p>
               </AwCard>
@@ -300,7 +300,7 @@ export default function GroupDetailPage() {
                         m.isYou ? (
                           <>
                             {m.name}{" "}
-                            <span className="text-[var(--fg-tertiary)]">
+                            <span className="text-(--fg-tertiary)">
                               (você)
                             </span>
                           </>
@@ -350,10 +350,10 @@ export default function GroupDetailPage() {
           <section>
             <header className="mb-4 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+                <h6 className="m-0 mb-1 text-(--fg-primary)">
                   Atividade recente
                 </h6>
-                <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
                   Eventos mais recentes da equipe — entradas, saídas, mudanças
                   de função e personalizações.
                 </p>
@@ -361,7 +361,7 @@ export default function GroupDetailPage() {
               <button
                 type="button"
                 onClick={() => setActivityView("all")}
-                className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+                className="body-xs font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:no-underline"
               >
                 Ver todas as atividades
               </button>
@@ -370,17 +370,17 @@ export default function GroupDetailPage() {
           </section>
 
           {/* Footer meta — resumo + danger inline */}
-          <section className="flex flex-wrap items-center justify-between gap-6 border-t border-[var(--border-subtle)] pt-6">
+          <section className="flex flex-wrap items-center justify-between gap-6 border-t border-(--border-subtle) pt-6">
             <dl className="m-0 flex flex-wrap items-center gap-x-8 gap-y-2 body-xs">
               <div className="flex items-center gap-2">
-                <dt className="m-0 text-[var(--fg-tertiary)]">Membros</dt>
-                <dd className="m-0 font-medium text-[var(--fg-primary)]">
+                <dt className="m-0 text-(--fg-tertiary)">Membros</dt>
+                <dd className="m-0 font-medium text-(--fg-primary)">
                   {members.length}
                 </dd>
               </div>
               <div className="flex items-center gap-2">
-                <dt className="m-0 text-[var(--fg-tertiary)]">ID</dt>
-                <dd className="m-0 mono text-[11px] text-[var(--fg-primary)]">
+                <dt className="m-0 text-(--fg-tertiary)">ID</dt>
+                <dd className="m-0 mono text-[11px] text-(--fg-primary)">
                   {group.id}
                 </dd>
               </div>
@@ -390,7 +390,7 @@ export default function GroupDetailPage() {
               variant="ghost"
               iconLeft="delete"
               onClick={() => setDeleteOpen(true)}
-              className="text-[var(--accent-danger)] hover:!bg-[var(--aw-red-100)]"
+              className="text-(--accent-danger) hover:bg-(--aw-red-100)!"
             >
               Excluir equipe
             </AwButton>
@@ -456,7 +456,7 @@ export default function GroupDetailPage() {
       >
         {removeMember && (
           <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2">
+            <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2">
               <AwAvatar
                 size="sm"
                 src={removeMember.avatar}
@@ -464,15 +464,15 @@ export default function GroupDetailPage() {
                 initials={removeMember.initials}
               />
               <div className="min-w-0 flex-1">
-                <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                   {removeMember.name}
                 </p>
-                <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 truncate body-xs text-(--fg-secondary)">
                   {removeMember.email}
                 </p>
               </div>
             </div>
-            <p className="m-0 body-xs text-[var(--fg-primary)]">
+            <p className="m-0 body-xs text-(--fg-primary)">
               Você está prestes a remover{" "}
               <strong className="font-medium">{removeMember.name}</strong> da
               equipe <strong className="font-medium">{groupName}</strong>. O
@@ -492,7 +492,7 @@ function CoverEditButton({ onClick }: { onClick: () => void }) {
       type="button"
       onClick={onClick}
       aria-label="Personalizar capa"
-      className="group flex h-9 items-center gap-1.5 rounded-full bg-[rgba(13,13,15,0.55)] px-2.5 text-white backdrop-blur-sm transition-[padding,background-color] duration-aw-fast hover:bg-[rgba(13,13,15,0.75)] hover:pl-3 hover:pr-3.5"
+      className="group flex h-9 items-center gap-1.5 rounded-full bg-[rgba(13,13,15,0.55)] px-2.5 text-white backdrop-blur-xs transition-[padding,background-color] duration-aw-fast hover:bg-[rgba(13,13,15,0.75)] hover:pl-3 hover:pr-3.5"
     >
       <Icon name="edit" size={18} />
       <span className="max-w-0 overflow-hidden whitespace-nowrap text-[12.5px] font-medium transition-[max-width,margin] duration-aw-fast group-hover:ml-0.5 group-hover:max-w-[140px]">
@@ -507,21 +507,21 @@ function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
     <ol className="relative m-0 flex list-none flex-col gap-4 p-0">
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute bottom-2 left-[15px] top-2 w-px bg-[var(--border-subtle)]"
+        className="pointer-events-none absolute bottom-2 left-[15px] top-2 w-px bg-(--border-subtle)"
       />
       {events.map((event) => (
         <li key={event.id} className="m-0 flex items-start gap-4">
           <span
             aria-hidden="true"
-            className="relative z-[1] flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)]"
+            className="relative z-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)"
           >
             <Icon name={activityIcon(event.kind)} size={16} />
           </span>
           <span className="min-w-0 flex-1 pt-0.5">
-            <span className="block body-sm text-[var(--fg-primary)]">
+            <span className="block body-sm text-(--fg-primary)">
               {event.text}
             </span>
-            <span className="mt-0.5 block body-xs text-[var(--fg-tertiary)]">
+            <span className="mt-0.5 block body-xs text-(--fg-tertiary)">
               {event.when}
             </span>
           </span>
@@ -543,23 +543,23 @@ function ActivityFullView({
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 self-start rounded-[var(--radius-sm)] px-2 py-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
+        className="inline-flex items-center gap-1.5 self-start rounded-sm px-2 py-1 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast outline-hidden hover:bg-(--bg-hover) hover:text-(--fg-primary) focus-visible:bg-(--bg-hover)"
       >
         <Icon name="arrow_back" size={14} />
         Voltar para a equipe
       </button>
 
       <header>
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+        <h6 className="m-0 mb-1 text-(--fg-primary)">
           Atividade da equipe
         </h6>
-        <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
           Linha do tempo completa de tudo que aconteceu nessa equipe — entradas,
           saídas, mudanças de função, permissões e personalizações.
         </p>
       </header>
 
-      <AwCard className="!rounded-[var(--radius-xl)]">
+      <AwCard className="rounded-xl!">
         <ActivityTimeline events={events} />
       </AwCard>
     </section>
@@ -606,7 +606,7 @@ function RenameGroupModal({
       <div className="flex flex-col gap-2">
         <label
           htmlFor="rename-group"
-          className="aw-eyebrow text-[var(--fg-tertiary)]"
+          className="aw-eyebrow text-(--fg-tertiary)"
         >
           Nome da equipe
         </label>
@@ -694,9 +694,9 @@ function ChangeIconModal({
     >
       <div className="flex flex-col gap-5">
         {/* Live preview */}
-        <div className="flex items-center justify-center rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] py-6">
+        <div className="flex items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-muted) py-6">
           <span
-            className="flex h-16 w-16 items-center justify-center rounded-full text-[var(--fg-primary)] shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
+            className="flex h-16 w-16 items-center justify-center rounded-full text-(--fg-primary) shadow-[0_4px_16px_rgba(0,0,0,0.15)]"
             style={{ background: color }}
           >
             <Icon name={icon} size={28} />
@@ -704,7 +704,7 @@ function ChangeIconModal({
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="m-0 body-xs font-medium text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs font-medium text-(--fg-secondary)">
             Ícone
           </p>
           <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
@@ -717,10 +717,10 @@ function ChangeIconModal({
                   onClick={() => setIcon(iconName)}
                   aria-pressed={active}
                   className={
-                    "flex aspect-square items-center justify-center rounded-[var(--radius-md)] border transition-colors duration-aw-fast " +
+                    "flex aspect-square items-center justify-center rounded-md border transition-colors duration-aw-fast " +
                     (active
-                      ? "border-[var(--fg-primary)] bg-[var(--bg-muted)] text-[var(--fg-primary)]"
-                      : "border-[var(--border-subtle)] bg-[var(--bg-raised)] text-[var(--fg-secondary)] hover:border-[var(--border-default)] hover:text-[var(--fg-primary)]")
+                      ? "border-(--fg-primary) bg-(--bg-muted) text-(--fg-primary)"
+                      : "border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
                   }
                 >
                   <Icon name={iconName} size={22} />
@@ -731,7 +731,7 @@ function ChangeIconModal({
         </div>
 
         <div className="flex flex-col gap-2">
-          <p className="m-0 body-xs font-medium text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs font-medium text-(--fg-secondary)">
             Cor
           </p>
           <div className="flex flex-wrap gap-2">
@@ -747,12 +747,12 @@ function ChangeIconModal({
                   className={
                     "flex h-9 w-9 items-center justify-center rounded-full border-2 transition-colors duration-aw-fast " +
                     (active
-                      ? "border-[var(--fg-primary)]"
-                      : "border-transparent hover:border-[var(--border-default)]")
+                      ? "border-(--fg-primary)"
+                      : "border-transparent hover:border-(--border-default)")
                   }
                 >
                   <span
-                    className="flex h-7 w-7 items-center justify-center rounded-full border border-[var(--border-subtle)]"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border border-(--border-subtle)"
                     style={{ background: c.value }}
                   >
                     {active && <Icon name="check" size={14} />}
@@ -840,7 +840,7 @@ function AddMembersToGroupModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 body-xs text-(--fg-secondary)">
           Escolha pessoas da organização ou convide alguém novo. Membros já
           parte da equipe não aparecem na lista.
         </p>
@@ -851,14 +851,14 @@ function AddMembersToGroupModal({
           onChange={(e) => setSearch(e.target.value)}
         />
         {candidates.length === 0 ? (
-          <p className="m-0 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-muted)] px-3 py-4 text-center body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-4 text-center body-xs text-(--fg-secondary)">
             Todas as pessoas da organização já estão nessa equipe. Convide
             alguém novo pra adicionar.
           </p>
         ) : (
           <ul className="m-0 max-h-[320px] overflow-y-auto p-0">
             {filtered.length === 0 && (
-              <li className="m-0 list-none px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
+              <li className="m-0 list-none px-3 py-4 text-center body-xs text-(--fg-tertiary)">
                 Nenhuma pessoa encontrada.
               </li>
             )}
@@ -867,13 +867,13 @@ function AddMembersToGroupModal({
               return (
                 <li
                   key={m.id}
-                  className="m-0 list-none border-b border-[var(--border-subtle)] last:border-b-0"
+                  className="m-0 list-none border-b border-(--border-subtle) last:border-b-0"
                 >
                   <button
                     type="button"
                     onClick={() => toggle(m.id)}
                     aria-pressed={on}
-                    className="flex w-full items-center gap-3 px-1 py-2.5 text-left outline-none transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] focus-visible:bg-[var(--bg-hover)]"
+                    className="flex w-full items-center gap-3 px-1 py-2.5 text-left outline-hidden transition-colors duration-aw-fast hover:bg-(--bg-hover) focus-visible:bg-(--bg-hover)"
                   >
                     <AwAvatar
                       size="sm"
@@ -882,20 +882,20 @@ function AddMembersToGroupModal({
                       initials={m.initials}
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+                      <span className="block truncate body-xs font-medium text-(--fg-primary)">
                         {m.name}
                       </span>
-                      <span className="block truncate body-xs text-[var(--fg-tertiary)]">
+                      <span className="block truncate body-xs text-(--fg-tertiary)">
                         {m.email} · {m.role}
                       </span>
                     </span>
                     <span
                       aria-hidden="true"
                       className={
-                        "flex h-5 w-5 items-center justify-center rounded-[var(--radius-sm)] border transition-colors duration-aw-fast " +
+                        "flex h-5 w-5 items-center justify-center rounded-sm border transition-colors duration-aw-fast " +
                         (on
-                          ? "border-[var(--fg-primary)] bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                          : "border-[var(--border-default)] bg-[var(--bg-raised)]")
+                          ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+                          : "border-(--border-default) bg-(--bg-raised)")
                       }
                     >
                       {on && <Icon name="check" size={12} />}
@@ -922,10 +922,10 @@ function CoverPicker({
     <AwCard>
       <div className="flex flex-col gap-3">
         <div>
-          <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+          <h6 className="m-0 mb-1 text-(--fg-primary)">
             Escolha uma nova capa
           </h6>
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             Selecione uma das opções abaixo. A imagem aparece pra todos os
             membros da equipe.
           </p>
@@ -940,10 +940,10 @@ function CoverPicker({
                   onClick={() => onChange(bg)}
                   aria-pressed={isActive}
                   className={[
-                    "relative block aspect-[3/2] w-full overflow-hidden rounded-[var(--radius-md)] transition-shadow duration-aw-fast",
+                    "relative block aspect-3/2 w-full overflow-hidden rounded-md transition-shadow duration-aw-fast",
                     isActive
-                      ? "ring-2 ring-[var(--fg-primary)] ring-offset-2 ring-offset-[var(--bg-raised)]"
-                      : "hover:ring-1 hover:ring-[var(--border-default)]",
+                      ? "ring-2 ring-(--fg-primary) ring-offset-2 ring-offset-(--bg-raised)"
+                      : "hover:ring-1 hover:ring-(--border-default)",
                   ].join(" ")}
                 >
                   <span
@@ -952,7 +952,7 @@ function CoverPicker({
                     style={{ backgroundImage: `url(${bg})` }}
                   />
                   {isActive && (
-                    <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fg-primary)] text-[var(--bg-raised)]">
+                    <span className="absolute right-2 top-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--fg-primary) text-(--bg-raised)">
                       <Icon name="check" size={12} weight={700} />
                     </span>
                   )}

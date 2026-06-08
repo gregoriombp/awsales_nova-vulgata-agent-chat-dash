@@ -23,8 +23,8 @@ export default function StyleguideLayout({
 
   return (
     <AwToastProvider>
-    <div className="flex min-h-screen bg-[var(--bg-canvas)] text-[var(--fg-primary)]">
-      <aside className="aw-sg-sidebar w-64 border-r border-[var(--border-subtle)] p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
+    <div className="flex min-h-screen bg-(--bg-canvas) text-(--fg-primary)">
+      <aside className="aw-sg-sidebar w-64 border-r border-(--border-subtle) p-6 flex flex-col gap-8 fixed top-0 left-0 h-screen overflow-y-auto">
         <Link
           href="/bombardier/styleguide"
           aria-label="AwSales Design System — voltar ao índice"
@@ -44,7 +44,7 @@ export default function StyleguideLayout({
             return (
             <div key={section.title} className="flex flex-col gap-3">
               {showGroupHeading && (
-                <h2 className="m-0 mt-3 mb-0.5 px-0 text-[15px] font-semibold tracking-tight text-[var(--fg-primary)]">
+                <h2 className="m-0 mt-3 mb-0.5 px-0 text-[15px] font-semibold tracking-tight text-(--fg-primary)">
                   {section.group}
                 </h2>
               )}
@@ -55,14 +55,14 @@ export default function StyleguideLayout({
                   <Icon
                     name="expand_more"
                     size={16}
-                    className="text-[var(--fg-tertiary)] transition-transform duration-150 group-data-[state=closed]:-rotate-90"
+                    className="text-(--fg-tertiary) transition-transform duration-150 group-data-[state=closed]:-rotate-90"
                   />
                 </Collapsible.Trigger>
               </h3>
               <Collapsible.Content className="aw-sg-collapsible-content">
                 <ul className="flex flex-col gap-1">
                   {section.items.length === 0 && (
-                    <li className="text-xs text-[var(--fg-tertiary)] italic px-3 py-2">
+                    <li className="text-xs text-(--fg-tertiary) italic px-3 py-2">
                       — em breve —
                     </li>
                   )}
@@ -75,8 +75,8 @@ export default function StyleguideLayout({
                           className={cn(
                             "block px-3 py-2 rounded-md text-sm no-underline transition-colors duration-150",
                             active
-                              ? "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]"
-                              : "text-[var(--fg-secondary)] hover:bg-[var(--bg-surface)] hover:text-[var(--fg-primary)]"
+                              ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                              : "text-(--fg-secondary) hover:bg-(--bg-surface) hover:text-(--fg-primary)"
                           )}
                         >
                           {item.name}
@@ -92,7 +92,7 @@ export default function StyleguideLayout({
           })}
         </nav>
 
-        <div className="mt-auto text-xs text-[var(--fg-tertiary)] leading-relaxed">
+        <div className="mt-auto text-xs text-(--fg-tertiary) leading-relaxed">
           AwSales Design System
           <br />
           Geist · Geist Mono

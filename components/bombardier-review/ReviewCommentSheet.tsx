@@ -113,7 +113,7 @@ export function ReviewCommentSheet() {
       zIndex={REVIEW_Z.sheet}
       title="Comentários"
       meta={
-        <span className="body-xs text-[var(--fg-tertiary)]">
+        <span className="body-xs text-(--fg-tertiary)">
           {scope === "page" ? "Nesta tela" : "Em todas as telas"} ·{" "}
           {visible.length}
         </span>
@@ -123,7 +123,7 @@ export function ReviewCommentSheet() {
           {...{ [OVERLAY_DATA_ATTR]: "" }}
           className="flex items-center justify-between gap-2"
         >
-          <span className="body-xs text-[var(--fg-tertiary)]">
+          <span className="body-xs text-(--fg-tertiary)">
             Total: {allComments.length}
           </span>
           <AwButton
@@ -144,7 +144,7 @@ export function ReviewCommentSheet() {
         {...{ [OVERLAY_DATA_ATTR]: "" }}
         className="flex flex-col gap-3 h-full"
       >
-        <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--bg-muted)] self-start body-xs font-medium">
+        <div className="flex items-center gap-1 p-1 rounded-full bg-(--bg-muted) self-start body-xs font-medium">
           {(["page", "all"] as Scope[]).map((s) => (
             <button
               key={s}
@@ -153,8 +153,8 @@ export function ReviewCommentSheet() {
               className={[
                 "px-3 py-1 rounded-full transition-colors",
                 scope === s
-                  ? "bg-[var(--bg-raised)] text-[var(--fg-primary)] shadow-sm"
-                  : "text-[var(--fg-secondary)] hover:text-[var(--fg-primary)]",
+                  ? "bg-(--bg-raised) text-(--fg-primary) shadow-sm"
+                  : "text-(--fg-secondary) hover:text-(--fg-primary)",
               ].join(" ")}
             >
               {s === "page" ? "Esta tela" : "Tudo"}
@@ -171,8 +171,8 @@ export function ReviewCommentSheet() {
               className={[
                 "px-2.5 py-1 rounded-full transition-colors inline-flex items-center gap-1.5",
                 tab === t
-                  ? "bg-[var(--bg-inverse)] text-[var(--fg-on-inverse)]"
-                  : "text-[var(--fg-secondary)] hover:bg-[var(--bg-hover)]",
+                  ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                  : "text-(--fg-secondary) hover:bg-(--bg-hover)",
               ].join(" ")}
             >
               {TAB_LABEL[t]}
@@ -181,8 +181,8 @@ export function ReviewCommentSheet() {
                   className={[
                     "min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full body-xs font-semibold tabular-nums",
                     tab === t
-                      ? "bg-[var(--bg-raised)] text-[var(--fg-primary)]"
-                      : "bg-[var(--aw-amber-100)] text-[var(--aw-amber-700)]",
+                      ? "bg-(--bg-raised) text-(--fg-primary)"
+                      : "bg-(--aw-amber-100) text-(--aw-amber-700)",
                   ].join(" ")}
                 >
                   {inReviewCount}
@@ -193,8 +193,8 @@ export function ReviewCommentSheet() {
         </div>
 
         {showBulkBar && (
-          <div className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-[var(--radius-sm)] bg-[var(--bg-muted)] body-xs">
-            <span className="text-[var(--fg-secondary)]">
+          <div className="flex items-center justify-between gap-2 px-2 py-1.5 rounded-sm bg-(--bg-muted) body-xs">
+            <span className="text-(--fg-secondary)">
               {selectedIds.size} selecionado{selectedIds.size === 1 ? "" : "s"}
             </span>
             <div className="flex items-center gap-1">
@@ -262,7 +262,7 @@ export function ReviewCommentSheet() {
                 <button
                   type="button"
                   onClick={() => void loadArchivePage(false)}
-                  className="mt-2 body-xs text-[var(--accent-brand)] hover:underline self-center"
+                  className="mt-2 body-xs text-(--accent-brand) hover:underline self-center"
                 >
                   Carregar mais arquivados
                 </button>

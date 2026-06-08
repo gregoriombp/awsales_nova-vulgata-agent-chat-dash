@@ -26,7 +26,7 @@ function Contrast({
         ? { text: "AA large", color: "var(--aw-amber-700)", bg: "var(--aw-amber-100)" }
         : { text: "fail", color: "var(--aw-red-700)", bg: "var(--aw-red-100)" }
   return (
-    <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] overflow-hidden flex flex-col">
+    <div className="rounded-md border border-(--border-subtle) overflow-hidden flex flex-col">
       <div
         style={{ background: bg, color: fg }}
         className="p-5 flex items-center justify-between"
@@ -34,12 +34,12 @@ function Contrast({
         <span className="text-sm font-medium">{label}</span>
         <span className="text-xs font-medium">{ratio}</span>
       </div>
-      <div className="px-4 py-2 bg-[var(--bg-raised)] border-t border-[var(--border-subtle)] flex items-center justify-between">
-        <span className="text-[10px] text-[var(--fg-tertiary)]">
+      <div className="px-4 py-2 bg-(--bg-raised) border-t border-(--border-subtle) flex items-center justify-between">
+        <span className="text-[10px] text-(--fg-tertiary)">
           <code className="mono">{fg}</code> on <code className="mono">{bg}</code>
         </span>
         <span
-          className="aw-eyebrow px-2 py-0.5 rounded-[var(--radius-xs)]"
+          className="aw-eyebrow px-2 py-0.5 rounded-xs"
           style={{ color: tag.color, background: tag.bg }}
         >
           {tag.text}
@@ -65,7 +65,7 @@ export default function AccessibilityPage() {
           title="Alvos numéricos"
           lead="Metas mensuráveis do sistema. Desvios precisam de justificativa técnica."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="contraste texto"
               v="≥ 4.5 : 1"
@@ -87,7 +87,7 @@ export default function AccessibilityPage() {
               d="Garantido via espaço ao redor em controles pequenos."
             />
             <Spec
-              k="focus ring"
+              k="focus ring-3"
               v="3 px · 30% opacity"
               d="Visível em TODOS os controles via teclado."
             />
@@ -161,9 +161,9 @@ export default function AccessibilityPage() {
           title="Foco visível, sempre"
           lead="Navegação por teclado é a única forma de descobrir que um controle é interativo quando o mouse falha. Nunca esconda o outline — customize."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8 flex flex-col gap-4 max-w-[480px]">
-            <p className="body-sm text-[var(--fg-secondary)] m-0">
-              Foque via <kbd className="text-xs px-1.5 py-0.5 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">Tab</kbd>{" "}
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-col gap-4 max-w-[480px]">
+            <p className="body-sm text-(--fg-secondary) m-0">
+              Foque via <kbd className="text-xs px-1.5 py-0.5 rounded-xs border border-(--border-default) bg-(--bg-surface)">Tab</kbd>{" "}
               nos controles abaixo — cada um tem o mesmo padrão de ring 3 px
               azul a 30%.
             </p>
@@ -176,14 +176,14 @@ export default function AccessibilityPage() {
               </button>
               <input
                 type="text"
-                placeholder="Input com focus ring"
+                placeholder="Input com focus ring-3"
                 className="aw-input"
                 style={{ height: 38, flex: 1, minWidth: 200, padding: "0 12px" }}
               />
             </div>
           </div>
 
-          <CodeExample label="padrão de focus ring" lang="css">{`/* Mesmo padrão em todos os controles */
+          <CodeExample label="padrão de focus ring-3" lang="css">{`/* Mesmo padrão em todos os controles */
 :focus-visible {
   outline: 0;
   box-shadow: 0 0 0 3px rgba(71, 138, 255, 0.30);
@@ -200,17 +200,17 @@ export default function AccessibilityPage() {
           title="Atalhos de teclado"
           lead="Padrões esperados em qualquer produto moderno. Implementar em todos os fluxos transacionais."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden">
             <table className="w-full text-sm">
               <thead>
                 <tr>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle)">
                     Atalho
                   </th>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle)">
                     Efeito
                   </th>
-                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-[var(--border-subtle)]">
+                  <th className="text-left px-4 py-3 aw-eyebrow border-b border-(--border-subtle)">
                     Contexto
                   </th>
                 </tr>
@@ -226,16 +226,16 @@ export default function AccessibilityPage() {
                   ["⌘ / Ctrl + K", "Abre command palette (quando existir)", "Global"],
                   ["/", "Foca busca global", "Dashboard"],
                 ].map(([k, effect, ctx]) => (
-                  <tr key={k as string} className="border-b border-[var(--border-subtle)] last:border-b-0">
+                  <tr key={k as string} className="border-b border-(--border-subtle) last:border-b-0">
                     <td className="px-4 py-3">
-                      <kbd className="text-xs px-2 py-1 rounded-[var(--radius-xs)] border border-[var(--border-default)] bg-[var(--bg-surface)]">
+                      <kbd className="text-xs px-2 py-1 rounded-xs border border-(--border-default) bg-(--bg-surface)">
                         {k}
                       </kbd>
                     </td>
-                    <td className="px-4 py-3 text-[var(--fg-primary)]">
+                    <td className="px-4 py-3 text-(--fg-primary)">
                       {effect}
                     </td>
-                    <td className="px-4 py-3 text-[var(--fg-tertiary)] text-xs">
+                    <td className="px-4 py-3 text-(--fg-tertiary) text-xs">
                       {ctx}
                     </td>
                   </tr>
@@ -251,9 +251,9 @@ export default function AccessibilityPage() {
           lead="Duas frentes: respeitar prefers-reduced-motion e garantir que aria-* comunique o que a UI mostra visualmente."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Reduced motion</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0">
+              <p className="body-sm text-(--fg-secondary) m-0">
                 Windows/macOS expõem a preferência. Todo container que tem
                 loop (shimmer, thinking pulse, gradient mesh) deve zerar
                 animation dentro do media query.
@@ -266,14 +266,14 @@ export default function AccessibilityPage() {
   }
 }`}</CodeExample>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               <h4 className="m-0 mb-2">Leitores de tela</h4>
-              <p className="body-sm text-[var(--fg-secondary)] m-0 mb-3">
+              <p className="body-sm text-(--fg-secondary) m-0 mb-3">
                 Sempre que a UI comunica algo via cor, forma ou movimento, um{" "}
                 <code className="mono">aria-*</code> correspondente é
                 obrigatório.
               </p>
-              <ul className="body-sm flex flex-col gap-2 list-disc pl-4 text-[var(--fg-secondary)]">
+              <ul className="body-sm flex flex-col gap-2 list-disc pl-4 text-(--fg-secondary)">
                 <li>
                   Ícones sem label → <code className="mono">aria-label</code>{" "}
                   explícito.
@@ -305,11 +305,11 @@ export default function AccessibilityPage() {
           title="Lista de revisão"
           lead="Antes de mandar pro repo, verifique cada item. Se algum falhar, não bloqueie — mas abra a issue."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
             <ul className="flex flex-col gap-3 list-none m-0 p-0">
               {[
                 "Todo texto de conteúdo passa AA (≥ 4.5:1).",
-                "Focus ring visível em todos os controles interativos (teclado).",
+                "Focus ring-3 visível em todos os controles interativos (teclado).",
                 "Nenhuma info comunicada apenas por cor (forma, label ou ícone duplicam).",
                 "Modais fecham em Esc. Clique-fora quando dismissible.",
                 "Hit target ≥ 44 px em elementos clicáveis (ou padding garante).",
@@ -321,7 +321,7 @@ export default function AccessibilityPage() {
               ].map((item, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 text-sm text-[var(--fg-primary)]"
+                  className="flex items-start gap-3 text-sm text-(--fg-primary)"
                 >
                   <span
                     className="text-xs mt-0.5"

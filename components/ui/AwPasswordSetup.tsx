@@ -153,7 +153,7 @@ export function AwPasswordSetup({
         <div className="mt-5 flex items-center gap-3.5 rounded-lg border border-border-subtle bg-bg-surface px-4 py-3.5">
           <span
             aria-hidden="true"
-            className="inline-block h-4 w-4 flex-shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
+            className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-[1.5px] border-brand border-r-transparent"
           />
           <div className="body-xs font-medium text-fg-primary">
             Criando sua conta segura…

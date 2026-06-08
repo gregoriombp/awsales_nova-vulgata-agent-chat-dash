@@ -153,7 +153,7 @@ export default function MemoryBaseIndexPage() {
 
   // Recorrente (vazio ou populado): chrome padrão do dashboard.
   return (
-    <AwDashboardLayout mainClassName="!p-0">
+    <AwDashboardLayout mainClassName="p-0!">
       <div className="mx-auto w-full max-w-[1600px] px-6 pb-20 pt-6 sm:px-10">
         <AwPageHeader
           size="hero"
@@ -161,7 +161,7 @@ export default function MemoryBaseIndexPage() {
             <MemoryBaseIcon
               width={26}
               height={28}
-              className="text-[var(--fg-primary)]"
+              className="text-(--fg-primary)"
             />
           }
           title="Memory Base"
@@ -208,13 +208,13 @@ function WelcomeState({
   const palette = resolvedTheme === "dark" ? SHADER.dark : SHADER.light;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[var(--bg-surface)]">
+    <div className="flex h-screen overflow-hidden bg-(--bg-surface)">
       <AwSidebar forcedCollapsed />
 
       {/* Mesmo container arredondado que toda página usa (espelha AwDashboardLayout):
           painel flutuante com cantos --radius-xl + borda; a surface aparece nas bordas. */}
       <div className="flex flex-1 min-w-0 flex-col overflow-hidden">
-        <main className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-white dark:bg-[#05070d]">
+        <main className="relative my-2 mr-2 flex flex-1 min-w-0 flex-col items-center justify-center overflow-hidden rounded-xl border border-(--border-subtle) bg-white dark:bg-[#05070d]">
           {/* Fundo animado — shader Synthesis (@react-three/fiber). Paleta clara/escura. */}
           {mounted && <AwCortexSynthesis {...palette} />}
 
@@ -247,7 +247,7 @@ function WelcomeState({
               <h1 className="font-heading text-[2.5rem] leading-none text-fg-primary">
                 Bem-vindo à Memory Base
               </h1>
-              <p className="text-base leading-relaxed tracking-tight text-[#5e5e5e] dark:text-[#ececec]">
+              <p className="text-base leading-relaxed tracking-tight text-aw-gray-800 dark:text-[#ececec]">
                 O Memory Base é onde você organiza todo o conhecimento dos seus
                 agentes. Crie bases de conhecimento para armazenar documentos,
                 URLs, snippets e integrações que alimentarão suas conversas
@@ -258,7 +258,7 @@ function WelcomeState({
                 type="button"
                 onClick={onCreate}
                 disabled={creating}
-                className="inline-flex h-[50px] items-center justify-center gap-2 rounded-2xl bg-[#0d0d0d] pl-4 pr-6 font-heading font-medium text-white transition-colors hover:bg-[#262626] disabled:opacity-60 dark:bg-white dark:text-[#0d0d0d] dark:hover:bg-[#f2f2f2]"
+                className="inline-flex h-[50px] items-center justify-center gap-2 rounded-2xl bg-[#0d0d0d] pl-4 pr-6 font-heading font-medium text-white transition-colors hover:bg-[#262626] disabled:opacity-60 dark:bg-white dark:text-[#0d0d0d] dark:hover:bg-aw-gray-200"
               >
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
                   <path
@@ -290,11 +290,11 @@ function EmptyState({
   onCreate: () => void;
 }) {
   return (
-    <div className="mt-10 rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-canvas)]">
+    <div className="mt-10 rounded-xl border border-(--border-subtle) bg-(--bg-canvas)">
       <AwEmpty>
         <AwEmptyHeader>
           <AwEmptyMedia variant="default">
-            <AwMemoryBaseLogo size={72} className="text-[var(--fg-primary)]" />
+            <AwMemoryBaseLogo size={72} className="text-(--fg-primary)" />
           </AwEmptyMedia>
           <AwEmptyTitle>Você ainda não tem bases de conhecimento</AwEmptyTitle>
           <AwEmptyDescription>

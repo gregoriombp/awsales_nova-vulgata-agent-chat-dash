@@ -36,8 +36,8 @@ export default function NotificationsPage() {
       <div className="mx-auto w-full max-w-[880px]">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h3 className="m-0 text-[var(--fg-primary)]">Notificações</h3>
-            <p className="m-0 mt-1 body-sm text-[var(--fg-secondary)]">
+            <h3 className="m-0 text-(--fg-primary)">Notificações</h3>
+            <p className="m-0 mt-1 body-sm text-(--fg-secondary)">
               Aprovações de agente, cobrança, equipe e segurança — tudo que
               pediu sua atenção no workspace.
             </p>
@@ -72,20 +72,20 @@ export default function NotificationsPage() {
           />
         </div>
 
-        <AwCard className="!p-0">
+        <AwCard className="p-0!">
           {visible.length === 0 ? (
             <div className="flex flex-col items-center gap-2 px-4 py-16 text-center">
               <Icon
                 name="notifications_off"
                 size={24}
-                className="text-[var(--fg-tertiary)]"
+                className="text-(--fg-tertiary)"
               />
-              <p className="m-0 body-sm text-[var(--fg-secondary)]">
+              <p className="m-0 body-sm text-(--fg-secondary)">
                 Você está em dia — nenhuma notificação não lida.
               </p>
             </div>
           ) : (
-            <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
+            <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
               {visible.map((n) => (
                 <li key={n.id} className="m-0">
                   <NotificationRow notification={n} />

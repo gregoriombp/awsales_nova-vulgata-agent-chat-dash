@@ -94,10 +94,10 @@ export default function GroupsPage() {
     <>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-(--fg-primary)">
             Equipe &amp; permissões
           </h3>
-          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -125,7 +125,7 @@ export default function GroupsPage() {
         </div>
 
         {filtered.length === 0 ? (
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-12">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-12">
             <AwEmpty>
               <AwEmptyHeader>
                 <AwEmptyMedia variant="icon">
@@ -213,14 +213,14 @@ export default function GroupsPage() {
         {membersGroup && (
           <div className="flex flex-col gap-2">
             {membersGroupMembers.length === 0 ? (
-              <p className="m-0 body-xs text-[var(--fg-secondary)]">
+              <p className="m-0 body-xs text-(--fg-secondary)">
                 Nenhum membro nessa equipe ainda.
               </p>
             ) : (
               membersGroupMembers.map((m) => (
                 <div
                   key={m.id}
-                  className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+                  className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
                 >
                   <AwAvatar
                     size="sm"
@@ -229,14 +229,14 @@ export default function GroupsPage() {
                     initials={m.initials}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                    <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                       {m.name}
                     </p>
-                    <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                    <p className="m-0 truncate body-xs text-(--fg-secondary)">
                       {m.email}
                     </p>
                   </div>
-                  <span className="body-xs text-[var(--fg-tertiary)]">
+                  <span className="body-xs text-(--fg-tertiary)">
                     {m.role}
                   </span>
                 </div>

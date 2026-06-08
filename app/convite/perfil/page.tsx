@@ -141,7 +141,7 @@ function PerfilContent() {
         </div>
 
         <div className="mt-6 flex items-start gap-3 rounded-xl border border-border-subtle bg-bg-raised p-4">
-          <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-bg-muted text-fg-secondary">
             <Icon name="headset_mic" size={18} />
           </span>
           <div className="min-w-0 flex-1">
@@ -212,7 +212,7 @@ function Field({
     <label className="flex flex-col gap-1.5">
       <span className="flex items-center gap-1 body-xs font-medium text-fg-secondary">
         {label}
-        {required && <span className="text-[var(--accent-danger)]">*</span>}
+        {required && <span className="text-(--accent-danger)">*</span>}
       </span>
       <span
         className={`flex h-[42px] items-center gap-2 rounded-md border border-border px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary ${
@@ -228,7 +228,7 @@ function Field({
           type={type}
           required={required}
           readOnly={readOnly}
-          className={`flex-1 border-0 bg-transparent body-sm outline-none focus:outline-none focus-visible:outline-none ${
+          className={`flex-1 border-0 bg-transparent body-sm outline-hidden focus:outline-hidden focus-visible:outline-hidden ${
             readOnly ? "text-fg-secondary" : ""
           }`}
         />

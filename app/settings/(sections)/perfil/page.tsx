@@ -125,7 +125,7 @@ export default function ProfileSettingsPage() {
         <div className="relative mx-auto w-full max-w-[1440px] px-10 pt-8">
           <div
             className={[
-              "group/cover relative h-[280px] w-full overflow-hidden rounded-t-[var(--radius-lg)]",
+              "group/cover relative h-[280px] w-full overflow-hidden rounded-t-lg",
               repositioning ? "cursor-ns-resize select-none" : "",
             ].join(" ")}
             onMouseDown={repositioning ? handleRepoDragStart : undefined}
@@ -151,7 +151,7 @@ export default function ProfileSettingsPage() {
 
             {repositioning && (
               <div className="absolute inset-0 flex flex-col items-center justify-between py-3 pointer-events-none">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-xs">
                   <Icon name="swap_vert" size={14} aria-hidden="true" />
                   Arraste para reposicionar
                 </div>
@@ -159,14 +159,14 @@ export default function ProfileSettingsPage() {
                   <button
                     type="button"
                     onClick={cancelReposition}
-                    className="rounded-[var(--radius-md)] bg-black/50 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-sm hover:bg-black/70 transition-colors"
+                    className="rounded-md bg-black/50 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-xs hover:bg-black/70 transition-colors"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={saveReposition}
-                    className="rounded-[var(--radius-md)] bg-white px-3 py-1.5 text-[13px] font-medium text-[var(--fg-primary)] hover:bg-white/90 transition-colors"
+                    className="rounded-md bg-white px-3 py-1.5 text-[13px] font-medium text-(--fg-primary) hover:bg-white/90 transition-colors"
                   >
                     Salvar posição
                   </button>
@@ -232,7 +232,7 @@ export default function ProfileSettingsPage() {
                 type="button"
                 onClick={() => setPhotoOpen(true)}
                 aria-label="Editar foto de perfil"
-                className="group/avatar relative -mt-[96px] ml-6 shrink-0 rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)] focus-visible:ring-offset-2"
+                className="group/avatar relative mt-[-96px] ml-6 shrink-0 rounded-full bg-(--bg-raised) p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2"
                 style={{ lineHeight: 0 }}
               >
                 <AwAvatar
@@ -240,7 +240,7 @@ export default function ProfileSettingsPage() {
                   src="/assets/users/greg.jpg"
                   alt={fullName}
                   initials="GP"
-                  className="!h-[144px] !w-[144px] !text-[40px]"
+                  className="h-[144px]! w-[144px]! text-[40px]!"
                 />
                 <span
                   aria-hidden="true"
@@ -254,12 +254,12 @@ export default function ProfileSettingsPage() {
               </button>
               <div className="flex flex-col gap-2 pt-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="m-0 text-[var(--fg-primary)]">{fullName}</h3>
+                  <h3 className="m-0 text-(--fg-primary)">{fullName}</h3>
                   <a
                     href="https://wa.me/5511987654321"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-[var(--aw-gray-100)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:bg-[var(--aw-gray-150)] hover:text-[var(--fg-primary)]"
+                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
                   >
                     <WhatsAppIcon size={12} />
                     <span>+55 11 98765-4321</span>
@@ -268,13 +268,13 @@ export default function ProfileSettingsPage() {
                     href="https://slack.com/app_redirect?channel=greg.pinheiro"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-[var(--aw-gray-100)] px-2 py-0.5 text-[11px] font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast hover:bg-[var(--aw-gray-150)] hover:text-[var(--fg-primary)]"
+                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
                   >
                     <SlackIcon size={12} />
                     <span>@greg.pinheiro</span>
                   </a>
                 </div>
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">Head of Sales · RevOps</p>
+                <p className="m-0 body-xs text-(--fg-secondary)">Head of Sales · RevOps</p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 pt-1">
@@ -334,7 +334,7 @@ export default function ProfileSettingsPage() {
                 title="Últimas notificações"
                 description="Atividades recentes que pediram sua atenção."
               />
-              <ul className="m-0 list-none divide-y divide-[var(--border-subtle)] p-0">
+              <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
                 {latestNotifications.map((n) => (
                   <li key={n.id} className="m-0">
                     <NotificationRow
@@ -392,10 +392,10 @@ export default function ProfileSettingsPage() {
             initials="GP"
           />
           <div className="flex-1">
-            <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
               Foto de perfil
             </p>
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               PNG ou JPG, mínimo 200×200 px.
             </p>
           </div>
@@ -506,7 +506,7 @@ function PhotoEditModal({
       <div className="flex flex-col gap-5">
         <div className="flex justify-center">
           <div
-            className="rounded-full bg-[var(--bg-raised)] p-1 shadow-[0_4px_18px_rgba(6,22,61,0.14)]"
+            className="rounded-full bg-(--bg-raised) p-1 shadow-[0_4px_18px_rgba(6,22,61,0.14)]"
             style={{ lineHeight: 0 }}
           >
             <AwAvatar
@@ -514,7 +514,7 @@ function PhotoEditModal({
               src={removed ? undefined : preview}
               alt={fullName}
               initials={initials}
-              className="!h-[120px] !w-[120px] !text-[36px]"
+              className="h-[120px]! w-[120px]! text-[36px]!"
             />
           </div>
         </div>
@@ -546,8 +546,8 @@ function PhotoEditModal({
           onChange={(e) => handleFile(e.target.files?.[0])}
         />
 
-        <div className="rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5">
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+        <div className="rounded-md bg-(--bg-muted) px-3 py-2.5">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             PNG ou JPG, mínimo 200×200 px. A foto aparece pra todos os membros
             do workspace e na barra de navegação.
           </p>
@@ -614,22 +614,22 @@ function NotificationConfirmModal({
     >
       {notification && (
         <div className="flex flex-col gap-3">
-          <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
             {notification.title}
           </p>
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             {notification.description}
           </p>
           {hasHref ? (
-            <p className="m-0 rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 rounded-md bg-(--bg-muted) px-3 py-2.5 body-xs text-(--fg-secondary)">
               Você vai para{" "}
-              <strong className="font-medium text-[var(--fg-primary)]">
+              <strong className="font-medium text-(--fg-primary)">
                 {dest?.label}
               </strong>{" "}
               para {dest?.verb}.
             </p>
           ) : (
-            <p className="m-0 rounded-[var(--radius-md)] bg-[var(--bg-muted)] px-3 py-2.5 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 rounded-md bg-(--bg-muted) px-3 py-2.5 body-xs text-(--fg-secondary)">
               Esta notificação é informativa — não tem ação associada. Use
               como referência ou marque como lida.
             </p>
@@ -680,11 +680,11 @@ function InfoCard({
 }) {
   return (
     <div
-      className="overflow-hidden rounded-[var(--radius-xl)]"
+      className="overflow-hidden rounded-xl"
       style={{ background: "var(--aw-gray-100)" }}
     >
       <div className="flex items-center justify-between gap-2 px-4 pt-3.5 pb-1">
-        <h6 className="m-0 text-[var(--fg-primary)]">{title}</h6>
+        <h6 className="m-0 text-(--fg-primary)">{title}</h6>
         {action}
       </div>
       <ul className="m-0 flex list-none flex-col px-2 pb-3 pt-1">
@@ -697,10 +697,10 @@ function InfoCard({
               <Icon
                 name={row.icon!}
                 size={16}
-                className="shrink-0 text-[var(--fg-secondary)]"
+                className="shrink-0 text-(--fg-secondary)"
               />
             )}
-            <span className="min-w-0 truncate body-sm text-[var(--fg-primary)]">
+            <span className="min-w-0 truncate body-sm text-(--fg-primary)">
               {row.text}
             </span>
           </li>
@@ -742,8 +742,8 @@ function CoverPicker({
   };
 
   return (
-    <div className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] shadow-[0_18px_50px_rgba(6,22,61,0.24)]">
-      <div className="flex items-center justify-between gap-2 border-b border-[var(--border-subtle)] pl-3 pr-2">
+    <div className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised) shadow-[0_18px_50px_rgba(6,22,61,0.24)]">
+      <div className="flex items-center justify-between gap-2 border-b border-(--border-subtle) pl-3 pr-2">
         <AwTabs
           variant="underline"
           aria-label="Origem da capa"
@@ -776,10 +776,10 @@ function CoverPicker({
                     onClick={() => onChange(bg)}
                     aria-pressed={isActive}
                     className={
-                      "relative block aspect-[3/2] w-full overflow-hidden rounded-[var(--radius-md)] transition-shadow duration-aw-fast " +
+                      "relative block aspect-3/2 w-full overflow-hidden rounded-md transition-shadow duration-aw-fast " +
                       (isActive
-                        ? "ring-2 ring-[var(--fg-primary)] ring-offset-2 ring-offset-[var(--bg-raised)]"
-                        : "hover:ring-1 hover:ring-[var(--border-default)]")
+                        ? "ring-2 ring-(--fg-primary) ring-offset-2 ring-offset-(--bg-raised)"
+                        : "hover:ring-1 hover:ring-(--border-default)")
                     }
                   >
                     <span
@@ -788,7 +788,7 @@ function CoverPicker({
                       style={{ backgroundImage: `url(${bg})` }}
                     />
                     {isActive && (
-                      <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-[var(--fg-primary)] text-[var(--bg-raised)]">
+                      <span className="absolute right-1.5 top-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-(--fg-primary) text-(--bg-raised)">
                         <Icon name="check" size={12} weight={700} />
                       </span>
                     )}
@@ -804,15 +804,15 @@ function CoverPicker({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="flex flex-col items-center justify-center gap-2 rounded-[var(--radius-md)] border border-dashed border-[var(--border-default)] bg-[var(--bg-muted)] px-4 py-8 text-center transition-colors hover:bg-[var(--bg-hover)]"
+              className="flex flex-col items-center justify-center gap-2 rounded-md border border-dashed border-(--border-default) bg-(--bg-muted) px-4 py-8 text-center transition-colors hover:bg-(--bg-hover)"
             >
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--bg-raised)] text-[var(--fg-primary)]">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--bg-raised) text-(--fg-primary)">
                 <Icon name="upload" size={18} />
               </span>
-              <span className="body-xs font-medium text-[var(--fg-primary)]">
+              <span className="body-xs font-medium text-(--fg-primary)">
                 Escolha uma imagem do computador
               </span>
-              <span className="body-xs text-[var(--fg-secondary)]">
+              <span className="body-xs text-(--fg-secondary)">
                 PNG ou JPG · recomendado 1500×400 px
               </span>
             </button>
@@ -841,15 +841,15 @@ function CoverPicker({
             >
               Aplicar
             </AwButton>
-            <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+            <p className="m-0 body-xs text-(--fg-tertiary)">
               Insira o URL direto de uma imagem pública.
             </p>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-2 border-t border-[var(--border-subtle)] px-3 py-2">
-        <span className="body-xs text-[var(--fg-tertiary)]">
+      <div className="flex items-center justify-between gap-2 border-t border-(--border-subtle) px-3 py-2">
+        <span className="body-xs text-(--fg-tertiary)">
           Visível para todos os membros do workspace.
         </span>
         <AwButton

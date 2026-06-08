@@ -94,7 +94,7 @@ export default function ChatPage() {
           title="Anatomia"
           lead="Tokens vêm todos de globals.css. O único elemento com cor própria é a bolha do usuário (sempre --fg-primary)."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="max width"
               v="520 px"

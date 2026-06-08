@@ -14,8 +14,8 @@ export function MoneyHeading({
   const Tag = as;
   const cls = size === "md" ? "display-md" : "display-sm";
   return (
-    <Tag className={`m-0 ${cls} tabular-nums text-[var(--fg-primary)]`}>
-      <span className="mr-1 text-[0.45em] font-normal text-[var(--fg-tertiary)]">
+    <Tag className={`m-0 ${cls} tabular-nums text-(--fg-primary)`}>
+      <span className="mr-1 text-[0.45em] font-normal text-(--fg-tertiary)">
         R$
       </span>
       {brl(value).replace(/^R\$\s*/, "")}

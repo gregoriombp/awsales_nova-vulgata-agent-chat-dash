@@ -70,11 +70,11 @@ export function SectionHeading({
   return (
     <div className="mb-4 flex items-end justify-between gap-4">
       <div>
-        <h6 className="m-0 mb-1 text-[var(--fg-primary)]">
+        <h6 className="m-0 mb-1 text-(--fg-primary)">
           {title}
         </h6>
         {description && (
-          <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
             {description}
           </p>
         )}
@@ -92,8 +92,8 @@ export function NotifGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border-b border-[var(--border-subtle)] pb-6 last:border-b-0 last:pb-0">
-      <h4 className="m-0 mb-3 mt-6 first:mt-0 text-[var(--fg-primary)] text-base font-medium">
+    <div className="border-b border-(--border-subtle) pb-6 last:border-b-0 last:pb-0">
+      <h4 className="m-0 mb-3 mt-6 first:mt-0 text-(--fg-primary) text-base font-medium">
         {label}
       </h4>
       <div className="flex flex-col gap-1">{children}</div>
@@ -103,7 +103,7 @@ export function NotifGroup({
 
 export function SaveBar() {
   return (
-    <div className="flex items-center justify-end gap-2 border-t border-[var(--border-subtle)] px-6 py-3">
+    <div className="flex items-center justify-end gap-2 border-t border-(--border-subtle) px-6 py-3">
       <AwButton size="sm" variant="ghost">
         Cancelar
       </AwButton>
@@ -152,11 +152,11 @@ export function SettingsPageHeader({
   return (
     <header className="mb-10 flex items-start justify-between gap-6">
       <div className="min-w-0">
-        <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+        <h3 className="m-0 mb-2 text-(--fg-primary)">
           {title}
         </h3>
         {description && (
-          <p className="m-0 max-w-[520px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
             {description}
           </p>
         )}

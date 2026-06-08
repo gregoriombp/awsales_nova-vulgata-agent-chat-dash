@@ -109,7 +109,7 @@ export default function HistoricoFaturasPage() {
     <div className="flex flex-col gap-8">
       {showPaymentAlert && (
         <AwAlert variant="warning" title="Regularize seu pagamento">
-          <p className="m-0 body-xs text-[var(--fg-primary)]">
+          <p className="m-0 body-xs text-(--fg-primary)">
             {overdueCount > 0 && (
               <>
                 {overdueCount === 1
@@ -189,15 +189,15 @@ function MonthSection({
 }) {
   return (
     <section>
-      <header className="mb-3 flex items-baseline justify-between gap-4 border-b border-[var(--border-subtle)] pb-2">
+      <header className="mb-3 flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-2">
         <div className="flex items-baseline gap-3">
-          <h6 className="m-0 text-[var(--fg-primary)]">{group.refMonth}</h6>
-          <span className="body-xs text-[var(--fg-tertiary)]">
+          <h6 className="m-0 text-(--fg-primary)">{group.refMonth}</h6>
+          <span className="body-xs text-(--fg-tertiary)">
             {group.rows.length}{" "}
             {group.rows.length === 1 ? "fatura" : "faturas"}
           </span>
         </div>
-        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
           {brl(group.total)}
         </span>
       </header>
@@ -229,26 +229,26 @@ function InvoiceRow({
       <button
         type="button"
         onClick={onOpen}
-        className="group grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-[var(--radius-md)] px-3 py-3 text-left transition-colors hover:bg-[var(--bg-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-brand)]"
+        className="group grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-md px-3 py-3 text-left transition-colors hover:bg-(--bg-hover) focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand)"
       >
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="body-sm font-medium text-[var(--fg-primary)]">
+            <span className="body-sm font-medium text-(--fg-primary)">
               {row.description}
             </span>
             <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
           </div>
-          <p className="m-0 mt-0.5 body-xs tabular-nums text-[var(--fg-tertiary)]">
+          <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
             {row.id} · {row.paymentMethod} · {dateLabel}
           </p>
         </div>
-        <span className="body-sm font-medium tabular-nums text-[var(--fg-primary)]">
+        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
           {brl(row.net)}
         </span>
         <Icon
           name="chevron_right"
           size={18}
-          className="text-[var(--fg-tertiary)] transition-transform group-hover:translate-x-0.5"
+          className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
         />
       </button>
     </li>
@@ -338,16 +338,16 @@ function PeriodFilter({
 
 function EmptyResults() {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-[var(--radius-lg)] border border-dashed border-[var(--border-subtle)] px-6 py-12 text-center">
+    <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-(--border-subtle) px-6 py-12 text-center">
       <Icon
         name="search_off"
         size={24}
-        className="text-[var(--fg-tertiary)]"
+        className="text-(--fg-tertiary)"
       />
-      <p className="m-0 body-sm font-medium text-[var(--fg-primary)]">
+      <p className="m-0 body-sm font-medium text-(--fg-primary)">
         Nenhuma fatura corresponde aos filtros
       </p>
-      <p className="m-0 body-xs text-[var(--fg-secondary)]">
+      <p className="m-0 body-xs text-(--fg-secondary)">
         Tente outro termo ou amplie o período.
       </p>
     </div>

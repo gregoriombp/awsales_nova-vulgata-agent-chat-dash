@@ -103,7 +103,7 @@ export function CreateGroupModal({
     >
       {mode === "form" ? (
         <div className="flex flex-col gap-5">
-          <p className="m-0 body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 body-xs text-(--fg-secondary)">
             Grupos funcionam como departamentos: agrupam pessoas que
             compartilham contexto e responsabilidades. Você pode editar tudo
             depois.
@@ -123,7 +123,7 @@ export function CreateGroupModal({
           <AwField label="Descrição" htmlFor="group-description">
             <textarea
               id="group-description"
-              className="min-h-[68px] w-full resize-y rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] px-3 py-2 body-xs text-[var(--fg-primary)] outline-none placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)]"
+              className="min-h-[68px] w-full resize-y rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-2 body-xs text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
               placeholder="Para que esse grupo existe? (opcional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -142,9 +142,9 @@ export function CreateGroupModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <div className="mt-2 max-h-[220px] overflow-y-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)]">
+            <div className="mt-2 max-h-[220px] overflow-y-auto rounded-md border border-(--border-subtle)">
               {filteredMembers.length === 0 ? (
-                <p className="m-0 px-3 py-4 text-center body-xs text-[var(--fg-tertiary)]">
+                <p className="m-0 px-3 py-4 text-center body-xs text-(--fg-tertiary)">
                   Nenhuma pessoa encontrada.
                 </p>
               ) : (
@@ -153,7 +153,7 @@ export function CreateGroupModal({
                     const checked = memberIds.includes(m.id);
                     return (
                       <li key={m.id}>
-                        <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-[var(--bg-hover)]">
+                        <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-(--bg-hover)">
                           <AwCheckbox
                             checked={checked}
                             onChange={() => toggleMember(m.id)}
@@ -166,10 +166,10 @@ export function CreateGroupModal({
                             alt={m.name}
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                            <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                               {m.name}
                             </p>
-                            <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                            <p className="m-0 truncate body-xs text-(--fg-secondary)">
                               {m.role}
                             </p>
                           </div>
@@ -184,13 +184,13 @@ export function CreateGroupModal({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--accent-success)]">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
             <Icon name="check" size={28} />
           </span>
-          <h6 className="m-0 text-[var(--fg-primary)]">
+          <h6 className="m-0 text-(--fg-primary)">
             Grupo criado!
           </h6>
-          <p className="m-0 max-w-[360px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
             {memberCount > 0
               ? `O grupo "${name}" foi criado com ${memberCount} membro${memberCount === 1 ? "" : "s"}.`
               : `O grupo "${name}" foi criado. Você pode adicionar membros a qualquer momento.`}

@@ -25,30 +25,30 @@ function Pattern({
   return (
     <section
       id={`p-${number}`}
-      className="rounded-[var(--radius-xl)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden"
+      className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) overflow-hidden"
     >
-      <header className="px-6 py-5 border-b border-[var(--border-subtle)] flex items-start justify-between gap-4">
+      <header className="px-6 py-5 border-b border-(--border-subtle) flex items-start justify-between gap-4">
         <div>
-          <h2 className="m-0 text-[var(--h3-size)]">
-            <span className="text-[var(--fg-tertiary)] text-[var(--h6-size)] mr-2 font-medium">
+          <h2 className="m-0 text-(--h3-size)">
+            <span className="text-(--fg-tertiary) text-(--h6-size) mr-2 font-medium">
               {number} ·
             </span>
             {title}
           </h2>
-          <p className="mt-2 mb-0 body-sm text-[var(--fg-secondary)] max-w-2xl">
+          <p className="mt-2 mb-0 body-sm text-(--fg-secondary) max-w-2xl">
             {lead}
           </p>
         </div>
         <span className="aw-eyebrow whitespace-nowrap">{tag}</span>
       </header>
-      <div className="p-8 bg-[var(--bg-surface)] border-b border-[var(--border-subtle)]">
+      <div className="p-8 bg-(--bg-surface) border-b border-(--border-subtle)">
         {children}
       </div>
-      <ul className="flex flex-col divide-y divide-[var(--border-subtle)]">
+      <ul className="flex flex-col divide-y divide-(--border-subtle)">
         {dos.map((d, i) => (
           <li
             key={`d-${i}`}
-            className="flex items-start gap-3 px-6 py-3 text-sm text-[var(--fg-primary)]"
+            className="flex items-start gap-3 px-6 py-3 text-sm text-(--fg-primary)"
           >
             <span
               className="text-sm mt-0.5"
@@ -63,7 +63,7 @@ function Pattern({
         {donts?.map((d, i) => (
           <li
             key={`x-${i}`}
-            className="flex items-start gap-3 px-6 py-3 text-sm text-[var(--fg-secondary)]"
+            className="flex items-start gap-3 px-6 py-3 text-sm text-(--fg-secondary)"
           >
             <span
               className="text-sm mt-0.5"
@@ -87,27 +87,27 @@ function SelectableRow({
 }) {
   const surface =
     state === "default"
-      ? "bg-[var(--bg-raised)] border-[var(--border-subtle)]"
+      ? "bg-(--bg-raised) border-(--border-subtle)"
       : state === "hover"
-        ? "bg-[var(--bg-hover)] border-[var(--border-subtle)]"
-        : "bg-[var(--bg-selected)] border-transparent"
+        ? "bg-(--bg-hover) border-(--border-subtle)"
+        : "bg-(--bg-selected) border-transparent"
   const stateLabel =
     state === "default" ? "Default" : state === "hover" ? "Hover" : "Selected"
   return (
     <div
       className={
-        "flex items-center gap-4 rounded-[var(--radius-lg)] border px-4 py-3 transition-colors duration-aw-fast " +
+        "flex items-center gap-4 rounded-lg border px-4 py-3 transition-colors duration-aw-fast " +
         surface
       }
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)">
         <Icon name="person" size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="m-0 text-[13.5px] font-medium text-[var(--fg-primary)]">
+        <p className="m-0 text-[13.5px] font-medium text-(--fg-primary)">
           Item da lista
         </p>
-        <p className="m-0 text-[12px] text-[var(--fg-secondary)]">
+        <p className="m-0 text-[12px] text-(--fg-secondary)">
           item@exemplo.com
         </p>
       </div>
@@ -148,50 +148,50 @@ export default function PatternsPage() {
             <>Não colocar logo no header — a marca vive no topo da sidebar.</>,
           ]}
         >
-          <div className="relative rounded-[var(--radius-xl)] border border-[var(--border-default)] bg-[var(--bg-surface)] overflow-hidden h-[400px] flex">
+          <div className="relative rounded-xl border border-(--border-default) bg-(--bg-surface) overflow-hidden h-[400px] flex">
             {/* Sidebar primária 320 light (proporcional ao mockup: ~140) */}
-            <aside className="w-[140px] shrink-0 bg-[var(--bg-surface)] p-3 flex flex-col gap-3">
-              <div className="rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] h-9 flex items-center px-2 text-[11px] font-medium text-[var(--fg-primary)]">
+            <aside className="w-[140px] shrink-0 bg-(--bg-surface) p-3 flex flex-col gap-3">
+              <div className="rounded-md border border-(--border-subtle) bg-(--bg-raised) h-9 flex items-center px-2 text-[11px] font-medium text-(--fg-primary)">
                 AwSales
               </div>
-              <div className="rounded-[var(--radius-sm)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] h-6" />
-              <div className="aw-eyebrow text-[9px] text-[var(--fg-tertiary)] px-1 mt-1">
+              <div className="rounded-sm bg-(--bg-raised) border border-(--border-subtle) h-6" />
+              <div className="aw-eyebrow text-[9px] text-(--fg-tertiary) px-1 mt-1">
                 Geral
               </div>
               <div className="flex flex-col gap-1">
-                <div className="rounded-[var(--radius-sm)] bg-[var(--bg-raised)] h-7 flex items-center px-2 text-[11px] font-medium text-[var(--fg-primary)]">
+                <div className="rounded-sm bg-(--bg-raised) h-7 flex items-center px-2 text-[11px] font-medium text-(--fg-primary)">
                   Dashboard
                 </div>
-                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                <div className="rounded-sm h-7 flex items-center px-2 text-[11px] text-(--fg-secondary)">
                   Agentes
                 </div>
               </div>
-              <div className="aw-eyebrow text-[9px] text-[var(--fg-tertiary)] px-1 mt-1">
+              <div className="aw-eyebrow text-[9px] text-(--fg-tertiary) px-1 mt-1">
                 Dados
               </div>
               <div className="flex flex-col gap-1">
-                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                <div className="rounded-sm h-7 flex items-center px-2 text-[11px] text-(--fg-secondary)">
                   Fontes
                 </div>
-                <div className="rounded-[var(--radius-sm)] h-7 flex items-center px-2 text-[11px] text-[var(--fg-secondary)]">
+                <div className="rounded-sm h-7 flex items-center px-2 text-[11px] text-(--fg-secondary)">
                   Conversas
                 </div>
               </div>
-              <div className="mt-auto rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] h-9" />
+              <div className="mt-auto rounded-md border border-(--border-subtle) bg-(--bg-raised) h-9" />
             </aside>
             {/* Outer flex containing content panel + cortex zone */}
             <div className="relative flex-1 py-2 pr-2 flex">
               {/* Content panel rounded */}
-              <div className="flex-1 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] overflow-hidden flex flex-col">
+              <div className="flex-1 rounded-lg border border-(--border-subtle) bg-(--bg-raised) overflow-hidden flex flex-col">
                 {/* Breadcrumbs bar */}
-                <header className="h-[28px] px-4 flex items-center border-b border-[var(--border-subtle)] text-[11px] text-[var(--fg-tertiary)] gap-1.5">
+                <header className="h-[28px] px-4 flex items-center border-b border-(--border-subtle) text-[11px] text-(--fg-tertiary) gap-1.5">
                   <span>Agentes</span>
                   <span className="opacity-50">›</span>
-                  <span className="text-[var(--fg-primary)]">
+                  <span className="text-(--fg-primary)">
                     Atendimento FAQ
                   </span>
                 </header>
-                <div className="flex-1 p-4 grid grid-cols-2 gap-3 bg-[var(--bg-canvas)]">
+                <div className="flex-1 p-4 grid grid-cols-2 gap-3 bg-(--bg-canvas)">
                   <AwCard>
                     <div className="caption">Conversas 24h</div>
                     <div className="text-xl font-semibold mt-1">1.840</div>
@@ -212,7 +212,7 @@ export default function PatternsPage() {
               </div>
               {/* Cortex zone — ghost indicator on the right */}
               <div
-                className="ml-2 w-[60px] rounded-[var(--radius-lg)] border border-dashed flex flex-col items-center justify-start pt-3 gap-2 opacity-60"
+                className="ml-2 w-[60px] rounded-lg border border-dashed flex flex-col items-center justify-start pt-3 gap-2 opacity-60"
                 style={{
                   borderColor: "var(--aw-purple-400)",
                   background:
@@ -225,20 +225,20 @@ export default function PatternsPage() {
                   size={14}
                   style={{ color: "var(--aw-purple-500)" }}
                 />
-                <span className="text-[8px] text-center text-[var(--aw-purple-700)] leading-tight px-1">
+                <span className="text-[8px] text-center text-(--aw-purple-700) leading-tight px-1">
                   Cortex 405 px
                 </span>
               </div>
               {/* Floating header — top right */}
               <div className="absolute right-4 top-4 flex gap-1.5">
-                <span className="h-7 w-7 rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex items-center justify-center shadow-sm">
+                <span className="h-7 w-7 rounded-full bg-(--bg-raised) border border-(--border-subtle) flex items-center justify-center shadow-sm">
                   <Icon
                     name="search"
                     size={14}
                     style={{ color: "var(--fg-secondary)" }}
                   />
                 </span>
-                <span className="h-7 w-7 rounded-full bg-[var(--bg-raised)] border border-[var(--border-subtle)] flex items-center justify-center shadow-sm">
+                <span className="h-7 w-7 rounded-full bg-(--bg-raised) border border-(--border-subtle) flex items-center justify-center shadow-sm">
                   <Icon
                     name="notifications"
                     size={14}
@@ -278,7 +278,7 @@ export default function PatternsPage() {
               </div>
               <div>
                 <h4 className="m-0 mb-2">Seu primeiro agente</h4>
-                <p className="body-sm m-0 text-[var(--fg-secondary)] max-w-[32ch] mx-auto">
+                <p className="body-sm m-0 text-(--fg-secondary) max-w-[32ch] mx-auto">
                   Um agente é um atendimento com papel claro, conhecimento
                   próprio e permissões. Comece do zero ou deixe a IA sugerir a
                   partir dos seus dados.
@@ -345,19 +345,19 @@ export default function PatternsPage() {
           donts={[<>Não aplique automaticamente — mesmo com alta confiança.</>]}
         >
           <div className="max-w-[640px] mx-auto flex flex-col gap-3">
-            <div className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] p-4 body-sm text-[var(--fg-tertiary)] line-through leading-relaxed">
+            <div className="rounded-md border border-(--border-default) bg-(--bg-raised) p-4 body-sm text-(--fg-tertiary) line-through leading-relaxed">
               No momento estamos com dificuldades técnicas e por isso
               infelizmente não é possível processar seu pedido agora, pedimos
               desculpas pelo transtorno.
             </div>
             <div
-              className="rounded-[var(--radius-md)] p-[1px]"
+              className="rounded-md p-px"
               style={{
                 background:
                   "linear-gradient(135deg, var(--aw-blue-500), var(--aw-purple-500))",
               }}
             >
-              <div className="rounded-[calc(var(--radius-md)-1px)] bg-[var(--bg-raised)] p-4 flex flex-col gap-3">
+              <div className="rounded-[calc(var(--radius-md)-1px)] bg-(--bg-raised) p-4 flex flex-col gap-3">
                 <div className="flex items-start gap-2">
                   <Icon
                     name="auto_awesome"
@@ -370,7 +370,7 @@ export default function PatternsPage() {
                     e-mail quando estiver pronto.&rdquo;
                   </div>
                 </div>
-                <div className="flex items-center gap-2 text-[11px] text-[var(--fg-tertiary)] pl-6">
+                <div className="flex items-center gap-2 text-[11px] text-(--fg-tertiary) pl-6">
                   <span>
                     Tom: <strong style={{ color: "var(--fg-secondary)" }}>resolutivo</strong>
                   </span>
@@ -473,7 +473,7 @@ export default function PatternsPage() {
             ].map((t, i) => (
               <div
                 key={i}
-                className="rounded-[var(--radius-md)] border border-[var(--border-default)] bg-[var(--bg-raised)] p-[14px] flex gap-3 items-start"
+                className="rounded-md border border-(--border-default) bg-(--bg-raised) p-[14px] flex gap-3 items-start"
                 style={{ boxShadow: "var(--shadow-lg)" }}
               >
                 <Icon name={t.icon} size={18} style={{ color: t.iconColor }} />
@@ -481,12 +481,12 @@ export default function PatternsPage() {
                   <div className="text-[13px] font-medium font-heading">
                     {t.title}
                   </div>
-                  <div className="text-[12px] text-[var(--fg-tertiary)]">
+                  <div className="text-[12px] text-(--fg-tertiary)">
                     {t.desc}
                   </div>
                 </div>
                 <span
-                  className="text-xs text-[var(--fg-tertiary)]"
+                  className="text-xs text-(--fg-tertiary)"
                   aria-hidden="true"
                 >
                   ×
@@ -585,13 +585,13 @@ export default function PatternsPage() {
           title="Princípio geral de composição"
           lead="Quando em dúvida entre dois padrões, escolha o que expõe mais o raciocínio do agente."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6">
-            <p className="body-md m-0 text-[var(--fg-primary)] leading-relaxed">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
+            <p className="body-md m-0 text-(--fg-primary) leading-relaxed">
               Padrões existem para serem repetidos. Se você precisa de um novo,
               primeiro pergunte:{" "}
               <strong>algum dos 6 acima serve com um pequeno ajuste?</strong>
             </p>
-            <p className="body-md m-0 mt-3 text-[var(--fg-secondary)] leading-relaxed">
+            <p className="body-md m-0 mt-3 text-(--fg-secondary) leading-relaxed">
               Se sim, ajuste. Se não serve de verdade, proponha o novo padrão
               antes de codificar — documente no styleguide junto com um
               exemplo, uma razão de existir e uma regra de quando não usar.
@@ -616,7 +616,7 @@ export default function PatternsPage() {
               <Link
                 key={p.href}
                 href={p.href}
-                className="block px-4 py-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] hover:bg-[var(--bg-surface)] text-sm text-[var(--fg-primary)] no-underline transition-colors duration-150"
+                className="block px-4 py-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) hover:bg-(--bg-surface) text-sm text-(--fg-primary) no-underline transition-colors duration-150"
               >
                 <div className="flex items-center justify-between">
                   <span>{p.label}</span>

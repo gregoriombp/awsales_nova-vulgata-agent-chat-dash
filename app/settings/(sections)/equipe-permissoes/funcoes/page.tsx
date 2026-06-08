@@ -113,10 +113,10 @@ export default function RolesPage() {
     <>
       <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-6 px-10 pb-20 pt-12">
         <header>
-          <h3 className="m-0 mb-2 text-[var(--fg-primary)]">
+          <h3 className="m-0 mb-2 text-(--fg-primary)">
             Equipe &amp; permissões
           </h3>
-          <p className="m-0 max-w-[640px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
             Gerencie quem tem acesso ao workspace, convide novas pessoas e
             organize permissões por função e projeto.
           </p>
@@ -202,14 +202,14 @@ function RoleMembersModal({
       {role && (
         <div className="flex flex-col gap-2">
           {members.length === 0 ? (
-            <p className="m-0 body-xs text-[var(--fg-secondary)]">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Nenhum membro com essa função ainda.
             </p>
           ) : (
             members.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] px-3 py-2"
+                className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
               >
                 <AwAvatar
                   size="sm"
@@ -218,10 +218,10 @@ function RoleMembersModal({
                   initials={m.initials}
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="m-0 truncate body-xs font-medium text-[var(--fg-primary)]">
+                  <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
                     {m.name}
                   </p>
-                  <p className="m-0 truncate body-xs text-[var(--fg-secondary)]">
+                  <p className="m-0 truncate body-xs text-(--fg-secondary)">
                     {m.email}
                   </p>
                 </div>
@@ -297,7 +297,7 @@ function RoleTable({
                 colSpan={5}
                 style={{ padding: "48px 20px", textAlign: "center" }}
               >
-                <p className="m-0 body-xs text-[var(--fg-secondary)]">
+                <p className="m-0 body-xs text-(--fg-secondary)">
                   Nenhuma função encontrada.
                 </p>
               </td>
@@ -350,14 +350,14 @@ function RoleTableRow({
           <div className="flex items-center gap-3">
             <RoleIconTile role={role} size="sm" />
             <div className="min-w-0">
-              <span className="body-xs font-medium text-[var(--fg-primary)]">
+              <span className="body-xs font-medium text-(--fg-primary)">
                 {role.name}
               </span>
             </div>
           </div>
         </td>
         <td>
-          <p className="m-0 line-clamp-1 max-w-[420px] body-xs text-[var(--fg-secondary)]">
+          <p className="m-0 line-clamp-1 max-w-[420px] body-xs text-(--fg-secondary)">
             {role.description}
           </p>
         </td>
@@ -369,9 +369,9 @@ function RoleTableRow({
           />
         </td>
         <td>
-          <span className="body-xs text-[var(--fg-primary)]">
+          <span className="body-xs text-(--fg-primary)">
             {role.capabilities.length}
-            <span className="text-[var(--fg-secondary)]">
+            <span className="text-(--fg-secondary)">
               {" "}
               / {total}
             </span>
@@ -379,7 +379,7 @@ function RoleTableRow({
         </td>
         <td>
           <span
-            className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)]"
+            className="inline-flex h-7 w-7 items-center justify-center rounded-sm text-(--fg-tertiary)"
             aria-hidden="true"
           >
             <Icon name="chevron_right" size={16} />
@@ -403,7 +403,7 @@ function RoleMemberStack({
 
   if (memberCount === 0) {
     return (
-      <span className="body-xs text-[var(--fg-tertiary)]">Ninguém ainda</span>
+      <span className="body-xs text-(--fg-tertiary)">Ninguém ainda</span>
     );
   }
 
@@ -425,7 +425,7 @@ function RoleMemberStack({
                     src={m.avatar}
                     initials={m.initials}
                     alt={m.name}
-                    className="ring-2 ring-[var(--bg-raised)]"
+                    className="ring-2 ring-(--bg-raised)"
                   />
                 </span>
               </TooltipTrigger>
@@ -436,7 +436,7 @@ function RoleMemberStack({
           ))}
           {overflow > 0 && (
             <span
-              className="aw-avatar aw-avatar--sm -ml-2 ring-2 ring-[var(--bg-raised)] !bg-[var(--bg-muted)] !text-[var(--fg-secondary)]"
+              className="aw-avatar aw-avatar--sm -ml-2 ring-2 ring-(--bg-raised) bg-(--bg-muted)! text-(--fg-secondary)!"
               aria-label={`Mais ${overflow}`}
             >
               +{overflow}
@@ -447,7 +447,7 @@ function RoleMemberStack({
       <button
         type="button"
         onClick={onOpenAll}
-        className="body-xs font-medium text-[var(--fg-secondary)] underline decoration-dotted underline-offset-2 transition-colors hover:text-[var(--fg-primary)] hover:no-underline"
+        className="body-xs font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:no-underline"
       >
         Ver todos
       </button>
@@ -467,16 +467,16 @@ function CompactRoleList({
   onCreate: () => void;
 }) {
   return (
-    <aside className="flex flex-col self-start divide-y divide-[var(--border-subtle)] overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
-      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-4 py-3">
-        <p className="m-0 text-[13px] font-semibold tracking-tight text-[var(--fg-primary)]">
+    <aside className="flex flex-col self-start divide-y divide-(--border-subtle) overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
+      <div className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
+        <p className="m-0 text-[13px] font-semibold tracking-tight text-(--fg-primary)">
           Funções · {roles.length}
         </p>
         <button
           type="button"
           onClick={onCreate}
           aria-label="Criar função"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)]"
+          className="inline-flex h-7 w-7 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
         >
           <Icon name="add" size={16} />
         </button>
@@ -491,18 +491,18 @@ function CompactRoleList({
                 onClick={() => onSelect(r.id)}
                 aria-pressed={active}
                 className={
-                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-none focus-visible:bg-[var(--bg-hover)] " +
+                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-hidden focus-visible:bg-(--bg-hover) " +
                   (active
-                    ? "bg-[var(--bg-selected)]"
-                    : "hover:bg-[var(--bg-hover)]")
+                    ? "bg-(--bg-selected)"
+                    : "hover:bg-(--bg-hover)")
                 }
               >
                 <RoleIconTile role={r} size="sm" />
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate body-xs font-medium text-[var(--fg-primary)]">
+                  <span className="block truncate body-xs font-medium text-(--fg-primary)">
                     {r.name}
                   </span>
-                  <span className="block truncate body-xs text-[var(--fg-secondary)]">
+                  <span className="block truncate body-xs text-(--fg-secondary)">
                     {r.memberCount} membro{r.memberCount === 1 ? "" : "s"}
                   </span>
                 </span>
@@ -561,13 +561,13 @@ function RoleDetail({
         type="button"
         onClick={onBack}
         aria-label="Fechar"
-        className="inline-flex items-center gap-1.5 self-end rounded-[var(--radius-sm)] px-2 py-1 body-xs font-medium text-[var(--fg-secondary)] transition-colors duration-aw-fast outline-none hover:bg-[var(--bg-hover)] hover:text-[var(--fg-primary)] focus-visible:bg-[var(--bg-hover)]"
+        className="inline-flex items-center gap-1.5 self-end rounded-sm px-2 py-1 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast outline-hidden hover:bg-(--bg-hover) hover:text-(--fg-primary) focus-visible:bg-(--bg-hover)"
       >
         Fechar
         <Icon name="close" size={14} />
       </button>
 
-      <section className="flex w-full flex-col overflow-hidden rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)]">
+      <section className="flex w-full flex-col overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
         <RoleHeader
           role={role}
           editable={editable}
@@ -575,8 +575,8 @@ function RoleDetail({
           onDelete={onDelete}
         />
 
-        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] px-6 py-3">
-          <p className="m-0 body-xs text-[var(--fg-tertiary)]">
+        <div className="flex items-center justify-between border-b border-(--border-subtle) px-6 py-3">
+          <p className="m-0 body-xs text-(--fg-tertiary)">
             Permissões por escopo
           </p>
           {editable && (
@@ -601,7 +601,7 @@ function RoleDetail({
           )}
         </div>
 
-        <div className="flex flex-col divide-y divide-[var(--border-subtle)]">
+        <div className="flex flex-col divide-y divide-(--border-subtle)">
           {SCOPES.map((scope) => (
             <ScopeBlock
               key={scope.id}
@@ -614,7 +614,7 @@ function RoleDetail({
           ))}
         </div>
 
-        <footer className="flex items-center justify-end gap-3 border-t border-[var(--border-subtle)] bg-[var(--bg-muted)] px-6 py-3">
+        <footer className="flex items-center justify-end gap-3 border-t border-(--border-subtle) bg-(--bg-muted) px-6 py-3">
           <AwButton size="sm" variant="ghost" onClick={onBack}>
             Cancelar
           </AwButton>
@@ -650,7 +650,7 @@ function RoleHeader({
   onDelete: () => void;
 }) {
   return (
-    <header className="flex flex-col gap-3 border-b border-[var(--border-subtle)] p-6">
+    <header className="flex flex-col gap-3 border-b border-(--border-subtle) p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 flex-1 items-start gap-3">
           <RoleIconTile role={role} size="lg" />
@@ -659,13 +659,13 @@ function RoleHeader({
               <EditableText
                 value={role.name}
                 onChange={(name) => onPatch({ name })}
-                className="text-[var(--fg-primary)]"
+                className="text-(--fg-primary)"
                 placeholder="Nome da função"
               />
             ) : (
-              <h6 className="m-0 text-[var(--fg-primary)]">{role.name}</h6>
+              <h6 className="m-0 text-(--fg-primary)">{role.name}</h6>
             )}
-            <div className="mt-1 flex flex-wrap items-center gap-2 body-xs text-[var(--fg-secondary)]">
+            <div className="mt-1 flex flex-wrap items-center gap-2 body-xs text-(--fg-secondary)">
               <span>
                 {role.memberCount} membro{role.memberCount === 1 ? "" : "s"}
               </span>
@@ -697,12 +697,12 @@ function RoleHeader({
         <EditableText
           value={role.description}
           onChange={(description) => onPatch({ description })}
-          className="body-xs text-[var(--fg-secondary)]"
+          className="body-xs text-(--fg-secondary)"
           placeholder="Adicione uma descrição…"
           multiline
         />
       ) : (
-        <p className="m-0 max-w-[680px] body-xs text-[var(--fg-secondary)]">
+        <p className="m-0 max-w-[680px] body-xs text-(--fg-secondary)">
           {role.description}
         </p>
       )}
@@ -726,7 +726,7 @@ function RoleIconTile({
   const icon = size === "sm" ? 14 : size === "md" ? 18 : 22;
   return (
     <span
-      className="flex shrink-0 items-center justify-center rounded-[var(--radius-md)]"
+      className="flex shrink-0 items-center justify-center rounded-md"
       style={{
         width: dim,
         height: dim,
@@ -787,7 +787,7 @@ function EditableText({
           rows={2}
           placeholder={placeholder}
           className={
-            "m-0 w-full resize-none rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] px-2 py-1.5 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
+            "m-0 w-full resize-none rounded-sm bg-(--bg-canvas) px-2 py-1.5 outline-hidden ring-1 ring-(--border-default) focus:ring-(--fg-primary) " +
             (className ?? "")
           }
         />
@@ -811,7 +811,7 @@ function EditableText({
         }}
         placeholder={placeholder}
         className={
-          "m-0 w-full rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] px-2 py-1 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
+          "m-0 w-full rounded-sm bg-(--bg-canvas) px-2 py-1 outline-hidden ring-1 ring-(--border-default) focus:ring-(--fg-primary) " +
           (className ?? "")
         }
       />
@@ -823,12 +823,12 @@ function EditableText({
       type="button"
       onClick={() => setEditing(true)}
       className={
-        "m-0 w-full rounded-[var(--radius-sm)] px-2 py-1 text-left transition-colors duration-aw-fast hover:bg-[var(--bg-hover)] " +
+        "m-0 w-full rounded-sm px-2 py-1 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover) " +
         (className ?? "")
       }
     >
       {value || (
-        <span className="text-[var(--fg-tertiary)]">{placeholder}</span>
+        <span className="text-(--fg-tertiary)">{placeholder}</span>
       )}
     </button>
   );
@@ -872,7 +872,7 @@ function ScopeBlock({
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-none"
+          className="flex min-w-0 flex-1 items-center gap-3 text-left outline-hidden"
           aria-expanded={open}
         >
           <Icon
@@ -884,11 +884,11 @@ function ScopeBlock({
               transitionTimingFunction: "var(--ease-in-out)",
             }}
           />
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-md)] bg-[var(--bg-muted)] text-[var(--fg-secondary)]">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
             <Icon name={scope.icon} size={16} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate body-sm font-semibold text-[var(--fg-primary)]">
+            <span className="block truncate body-sm font-semibold text-(--fg-primary)">
               {scope.name}
             </span>
           </span>
@@ -956,7 +956,7 @@ function PermissionGroupBlock({
         return (
           <li
             key={p.id}
-            className="flex items-start gap-3 rounded-[var(--radius-sm)] px-2 py-2 hover:bg-[var(--bg-hover)]"
+            className="flex items-start gap-3 rounded-sm px-2 py-2 hover:bg-(--bg-hover)"
             onClick={(e) => {
               if (!editable) return;
               if ((e.target as HTMLElement).closest('[role="checkbox"]')) return;
@@ -975,10 +975,10 @@ function PermissionGroupBlock({
             ) : (
               <span
                 className={
-                  "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] " +
+                  "mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm " +
                   (has
-                    ? "bg-[var(--fg-primary)] text-[var(--bg-raised)]"
-                    : "border border-[var(--border-default)] text-[var(--fg-tertiary)]")
+                    ? "bg-(--fg-primary) text-(--bg-raised)"
+                    : "border border-(--border-default) text-(--fg-tertiary)")
                 }
                 aria-label={has ? "Permitido" : "Negado"}
               >
@@ -990,14 +990,14 @@ function PermissionGroupBlock({
                 className={
                   "block " +
                   (has
-                    ? "font-medium text-[var(--fg-primary)]"
-                    : "text-[var(--fg-secondary)]")
+                    ? "font-medium text-(--fg-primary)"
+                    : "text-(--fg-secondary)")
                 }
               >
                 {p.label}
               </span>
               {p.description && (
-                <span className="block body-xs text-[var(--fg-tertiary)]">
+                <span className="block body-xs text-(--fg-tertiary)">
                   {p.description}
                 </span>
               )}

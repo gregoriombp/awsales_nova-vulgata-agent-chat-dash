@@ -103,10 +103,10 @@ function Swatch({ hex, label }: { hex: string; label?: string }) {
   return (
     <span className="inline-flex items-center gap-2">
       <span
-        className="inline-block w-4 h-4 rounded-sm border border-[var(--border-subtle)]"
+        className="inline-block w-4 h-4 rounded-sm border border-(--border-subtle)"
         style={{ backgroundColor: hex }}
       />
-      <code className="mono text-[11px] text-[var(--fg-tertiary)]">
+      <code className="mono text-[11px] text-(--fg-tertiary)">
         {hex}
         {label ? ` · ${label}` : ""}
       </code>
@@ -124,7 +124,7 @@ export default function UserAgentPage() {
         <code className="mono">@react-three/fiber</code>), o mesmo motor do
         Cortex. Ao criar o agente, o usuário escolhe um{" "}
         <a
-          className="underline text-[var(--aw-blue-700)]"
+          className="underline text-(--aw-blue-700)"
           href="/bombardier/styleguide/components/agent-core"
         >
           Agent Core
@@ -195,7 +195,7 @@ export default function UserAgentPage() {
             {FAMILY.map((seed) => (
               <div
                 key={seed}
-                className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
               >
                 <AwUserAgentOrb seed={seed} size={96} />
                 <span className="mono">{seed}</span>
@@ -220,18 +220,18 @@ export default function UserAgentPage() {
                   <AwUserAgentOrb seed="agent-04" state={s.state} size={104} />
                 </div>
                 <div className="flex flex-col gap-1">
-                  <code className="mono text-[11px] text-[var(--aw-blue-700)]">
+                  <code className="mono text-[11px] text-(--aw-blue-700)">
                     state=&quot;{s.state}&quot;
                   </code>
-                  <div className="text-sm font-medium text-[var(--fg-primary)]">
+                  <div className="text-sm font-medium text-(--fg-primary)">
                     {s.label}
                   </div>
                   <p className="caption m-0">
-                    <strong className="text-[var(--fg-secondary)]">Dispara:</strong>{" "}
+                    <strong className="text-(--fg-secondary)">Dispara:</strong>{" "}
                     {s.trigger}
                   </p>
                   <p className="caption m-0">
-                    <strong className="text-[var(--fg-secondary)]">Sensação:</strong>{" "}
+                    <strong className="text-(--fg-secondary)">Sensação:</strong>{" "}
                     {s.feel}
                   </p>
                 </div>
@@ -256,13 +256,13 @@ export default function UserAgentPage() {
             {RULE_PILLARS.map((s) => (
               <div
                 key={s.label}
-                className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-4 flex flex-col gap-1"
+                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4 flex flex-col gap-1"
               >
                 <div className="flex items-baseline justify-between gap-2">
-                  <div className="text-sm font-medium text-[var(--fg-primary)]">
+                  <div className="text-sm font-medium text-(--fg-primary)">
                     {s.label}
                   </div>
-                  <code className="mono text-[11px] text-[var(--aw-blue-700)] whitespace-nowrap">
+                  <code className="mono text-[11px] text-(--aw-blue-700) whitespace-nowrap">
                     {s.tag}
                   </code>
                 </div>
@@ -281,11 +281,11 @@ export default function UserAgentPage() {
               return (
                 <div
                   key={seed}
-                  className="flex items-center gap-3 rounded-[var(--radius-md)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-3"
+                  className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-surface) p-3"
                 >
                   <AwUserAgentOrbStatic seed={seed} size={44} />
                   <div className="flex flex-col gap-1 min-w-0">
-                    <code className="mono text-[11px] text-[var(--fg-secondary)] truncate">
+                    <code className="mono text-[11px] text-(--fg-secondary) truncate">
                       {seed} · {p.hue}°
                     </code>
                     <Swatch hex={p.color2} label={`S${p.sat2} suave`} />
@@ -324,7 +324,7 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
             {SIZE_SCALE.map((s) => (
               <div
                 key={s.key}
-                className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
               >
                 <AwUserAgentOrb seed="agent-04" size={s.px} />
                 <span className="mono">
@@ -334,7 +334,7 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
             ))}
           </Stage>
 
-          <div className="mt-6 rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
+          <div className="mt-6 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-5 gap-6">
             {SIZE_SCALE.map((s) => (
               <Spec key={s.key} k={s.key} v={`${s.px}px`} d={s.note} />
             ))}
@@ -351,11 +351,11 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
             hint="Mesma silhueta e mesma paleta seeded. O estático usa um gradient mesh (vários radiais: highlight branco + viva + recessos profundos + um vizinho de hue) pra puxar o espectro pra perto do animado."
             gridClassName="flex flex-wrap items-center gap-10"
           >
-            <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+            <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
               <AwUserAgentOrb seed="agent-02" size={88} />
               <span className="mono">animado · WebGL</span>
             </div>
-            <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+            <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
               <AwUserAgentOrbStatic seed="agent-02" size={88} />
               <span className="mono">estático · CSS</span>
             </div>
@@ -381,7 +381,7 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
             gridClassName="flex flex-col gap-10"
           >
             <div className="flex flex-wrap items-end gap-10">
-              <div className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]">
+              <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
                 <AwAgentAvatar
                   agentSeed="agent-04"
                   coreSrc={agentCoreSrc(3)}
@@ -403,7 +403,7 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
               ].map(({ a, c }) => (
                 <div
                   key={a}
-                  className="flex flex-col items-center gap-2 text-[11px] text-[var(--fg-tertiary)]"
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                 >
                   <AwAgentAvatar
                     agentSeed={a}
@@ -437,7 +437,7 @@ import { agentCoreSrc } from "@/components/ui/AwAgentCore"
           title="Anatomia"
           lead="Círculo simples (border-radius total) sobre o canvas do Synthesis. A silhueta redonda é o que separa o agente do usuário do Core (diamante) e do Cortex (hex). (Preview estático aqui por orçamento de WebGL — o fill real é o shader.)"
         >
-          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8">
+          <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <div className="flex items-center justify-center">
               <AwUserAgentOrbStatic seed="agent-01" size={140} />
             </div>

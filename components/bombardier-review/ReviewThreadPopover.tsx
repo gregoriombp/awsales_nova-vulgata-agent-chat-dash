@@ -185,22 +185,22 @@ export function ReviewThreadPopover() {
       style={{ zIndex: REVIEW_Z.popover, left, width: THREAD_WIDTH, ...vertical }}
     >
       <div
-        className="pointer-events-auto flex flex-col rounded-[var(--radius-lg)] bg-[var(--bg-raised)] border border-[var(--border-subtle)] shadow-lg overflow-hidden"
+        className="pointer-events-auto flex flex-col rounded-lg bg-(--bg-raised) border border-(--border-subtle) shadow-lg overflow-hidden"
         style={{ maxHeight }}
       >
         {/* Header */}
-        <header className="flex items-center gap-2 px-3 py-2.5 border-b border-[var(--border-subtle)]">
+        <header className="flex items-center gap-2 px-3 py-2.5 border-b border-(--border-subtle)">
           <span
-            className="h-6 w-6 shrink-0 rounded-full flex items-center justify-center body-xs font-semibold text-[var(--fg-on-inverse)]"
+            className="h-6 w-6 shrink-0 rounded-full flex items-center justify-center body-xs font-semibold text-(--fg-on-inverse)"
             style={{ background: comment.authorColorToken }}
           >
             {comment.authorName.charAt(0).toUpperCase()}
           </span>
           <div className="flex flex-col leading-tight min-w-0">
-            <span className="body-xs font-medium text-[var(--fg-primary)] truncate">
+            <span className="body-xs font-medium text-(--fg-primary) truncate">
               {comment.authorName}
             </span>
-            <span className="body-xs text-[var(--fg-tertiary)] tabular-nums">
+            <span className="body-xs text-(--fg-tertiary) tabular-nums">
               {formatFullTimestamp(comment.createdAt)}
             </span>
           </div>
@@ -211,7 +211,7 @@ export function ReviewThreadPopover() {
             <button
               type="button"
               onClick={() => setSheetOpen(true)}
-              className="inline-flex items-center gap-1 px-1.5 h-7 rounded-[var(--radius-sm)] body-xs text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+              className="inline-flex items-center gap-1 px-1.5 h-7 rounded-sm body-xs text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
               title="Abrir no painel lateral"
             >
               <Icon name="open_in_full" size={11} />
@@ -223,7 +223,7 @@ export function ReviewThreadPopover() {
                 onClick={() => void archiveDirect(comment.id)}
                 aria-label="Marcar como resolvido"
                 title="Marcar como resolvido"
-                className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--accent-success)] hover:bg-[var(--bg-hover)] transition-colors"
+                className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--accent-success) hover:bg-(--bg-hover) transition-colors"
               >
                 <Icon name="check_circle" size={15} />
               </button>
@@ -234,7 +234,7 @@ export function ReviewThreadPopover() {
                 <button
                   type="button"
                   aria-label="Ações"
-                  className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+                  className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
                 >
                   <Icon name="more_horiz" size={15} />
                 </button>
@@ -245,7 +245,7 @@ export function ReviewThreadPopover() {
               type="button"
               onClick={closeThread}
               aria-label="Fechar"
-              className="h-7 w-7 inline-flex items-center justify-center rounded-[var(--radius-sm)] text-[var(--fg-tertiary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-hover)] transition-colors"
+              className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
             >
               <Icon name="close" size={15} />
             </button>
@@ -255,7 +255,7 @@ export function ReviewThreadPopover() {
         {/* Body: comment + replies */}
         <div ref={bodyRef} className="flex-1 overflow-y-auto px-3 py-2.5">
           {comment.text.length > 0 && (
-            <p className="m-0 body-sm text-[var(--fg-primary)] whitespace-pre-wrap leading-relaxed">
+            <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
               {comment.text}
             </p>
           )}
@@ -272,7 +272,7 @@ export function ReviewThreadPopover() {
                   key={idx}
                   type="button"
                   onClick={() => window.open(src, "_blank", "noopener")}
-                  className="rounded-[var(--radius-sm)] overflow-hidden border border-[var(--border-subtle)] hover:border-[var(--border-strong)] transition-colors focus:outline-none"
+                  className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
                   aria-label={`Ver imagem ${idx + 1}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -283,13 +283,13 @@ export function ReviewThreadPopover() {
           )}
 
           {comment.resolution?.summary && (
-            <p className="m-0 mt-2 body-xs text-[var(--fg-tertiary)] italic">
+            <p className="m-0 mt-2 body-xs text-(--fg-tertiary) italic">
               {comment.resolution.summary}
             </p>
           )}
 
           {replies.length > 0 && (
-            <div className="mt-2 pt-1 border-t border-[var(--border-subtle)] flex flex-col divide-y divide-[var(--border-subtle)]">
+            <div className="mt-2 pt-1 border-t border-(--border-subtle) flex flex-col divide-y divide-(--border-subtle)">
               {replies.map((r) => (
                 <ReplyRow key={r.id} reply={r} />
               ))}
@@ -298,7 +298,7 @@ export function ReviewThreadPopover() {
         </div>
 
         {/* Footer: approve/reject when in review, then the reply composer */}
-        <div className="border-t border-[var(--border-subtle)] p-2 flex flex-col gap-2">
+        <div className="border-t border-(--border-subtle) p-2 flex flex-col gap-2">
           {isInReview && (
             <div className="flex items-center gap-1.5">
               <AwButton
@@ -335,14 +335,14 @@ export function ReviewThreadPopover() {
               }}
               placeholder="Responder…"
               rows={1}
-              className="flex-1 resize-none rounded-[var(--radius-sm)] border border-[var(--border-subtle)] bg-[var(--bg-surface)] px-2.5 py-1.5 body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:outline-none focus:border-[var(--accent-brand)] max-h-24"
+              className="flex-1 resize-none rounded-sm border border-(--border-subtle) bg-(--bg-surface) px-2.5 py-1.5 body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden focus:border-(--accent-brand) max-h-24"
             />
             <button
               type="button"
               onClick={() => void submitReply()}
               disabled={!replyText.trim() || submitting}
               aria-label="Enviar resposta"
-              className="h-8 w-8 shrink-0 inline-flex items-center justify-center rounded-full bg-[var(--accent-brand)] text-[var(--fg-on-inverse)] disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
+              className="h-8 w-8 shrink-0 inline-flex items-center justify-center rounded-full bg-(--accent-brand) text-(--fg-on-inverse) disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
               style={identity ? { background: identity.colorToken } : undefined}
             >
               <Icon name="arrow_upward" size={15} />

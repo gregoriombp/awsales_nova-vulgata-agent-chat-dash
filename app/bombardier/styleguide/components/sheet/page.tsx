@@ -25,7 +25,7 @@ export default function SheetPage() {
           title="Demo"
           lead="Abra o sheet, use ↑/↓ para navegar entre conversas, e Esc para fechar."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-8">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <SheetDemo />
           </div>
         </Section>
@@ -35,7 +35,7 @@ export default function SheetPage() {
           title="Anatomia"
           lead="Top com título + meta + close. Tabs opcionais. Body com rows de key/value padronizadas. Footer opcional com ações."
         >
-          <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <Spec
               k="largura"
               v="520 px"
@@ -74,7 +74,7 @@ export default function SheetPage() {
           title="API"
           lead={`Import: import { AwSheet, AwSheetTab, AwSheetRow } from "@/components/ui/AwSheet".`}
         >
-          <h3 className="text-[var(--h5-size)] font-medium mt-4 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-4 mb-3">
             AwSheet
           </h3>
           <ApiTable>
@@ -126,7 +126,7 @@ export default function SheetPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwSheetTab
           </h3>
           <ApiTable>
@@ -143,7 +143,7 @@ export default function SheetPage() {
             />
           </ApiTable>
 
-          <h3 className="text-[var(--h5-size)] font-medium mt-8 mb-3">
+          <h3 className="text-(--h5-size) font-medium mt-8 mb-3">
             AwSheetRow
           </h3>
           <ApiTable>
@@ -165,7 +165,7 @@ export default function SheetPage() {
             />
           </ApiTable>
 
-          <div className="rounded-[var(--radius-md)] border border-[var(--aw-blue-200)] bg-[var(--aw-blue-100)] px-4 py-3 text-sm text-[var(--aw-blue-900)] mt-4">
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 text-sm text-(--aw-blue-900) mt-4">
             Modificadores booleanos da AwSheetRow (
             <code className="mono">mono</code>) viram tokens na{" "}
             <code className="mono">className</code> do filho;{" "}
@@ -285,9 +285,9 @@ const [tab, setTab] = useState("resumo")
           lead="Heurística para não errar a escolha."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h4 className="m-0 mb-2">Use Sheet quando…</h4>
-              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
+              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-secondary)">
                 <li>O contexto da tela de trás ajuda a entender o item.</li>
                 <li>O usuário vai navegar entre itens de uma lista.</li>
                 <li>
@@ -295,9 +295,9 @@ const [tab, setTab] = useState("resumo")
                 </li>
               </ul>
             </div>
-            <div className="rounded-[var(--radius-lg)] border border-[var(--border-subtle)] bg-[var(--bg-raised)] p-5">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <h4 className="m-0 mb-2">Use Modal quando…</h4>
-              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-[var(--fg-secondary)]">
+              <ul className="body-sm m-0 pl-4 list-disc flex flex-col gap-1 text-(--fg-secondary)">
                 <li>É um fluxo transacional isolado (publicar, confirmar).</li>
                 <li>Precisa do foco total do usuário.</li>
                 <li>O trás não adiciona contexto (tela de lista).</li>

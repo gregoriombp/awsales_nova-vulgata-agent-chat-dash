@@ -43,8 +43,8 @@ export default function SettingsLayout({
   }, [pathname]);
 
   return (
-    <AwDashboardLayout mainClassName="!p-0 !overflow-hidden">
-      <div className="flex h-full min-h-0 bg-[var(--bg-canvas)]">
+    <AwDashboardLayout mainClassName="p-0! overflow-hidden!">
+      <div className="flex h-full min-h-0 bg-(--bg-canvas)">
         <SettingsNav />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <AwBreadcrumbsBar items={breadcrumbs} />
