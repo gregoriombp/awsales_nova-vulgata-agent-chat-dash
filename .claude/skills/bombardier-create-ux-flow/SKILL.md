@@ -20,11 +20,24 @@ from a written description of the flow.
 
 The canonical example lives at:
 ```
-app/bombardier/styleguide/ux-flows/primeiro-acesso/page.tsx
+app/bombardier/styleguide/ux-flows/login-auth/page.tsx
 ```
 Read it **before starting**. It is the source of truth for node types, edge
-styles, layout constants, and page structure. All new flow pages must follow
-the same pattern — no deviations without a reason.
+styles, layout constants, and page structure — and it's the **fullest** example:
+multiple decision branches, convergences, and a `crossflow` jump (`crossEdge`)
+to another flow. All new flow pages must follow the same pattern — no deviations
+without a reason. (`primeiro-acesso/page.tsx` is a good simpler example if the
+flow has no cross-flow jumps.)
+
+### Always the rich `<FlowDiagram>` board — never a simpler diagram
+
+The diagram is **always** `<FlowDiagram>` — the shared rich board that carries
+fullscreen ("Tela cheia"), Comentar, Sugerir edição, the suggestions badge, and
+the side-drawer prototype preview (see the next section). This is the same board
+the login flow uses. **Do not** hand-roll a bare `<ReactFlow>` or a stripped-down
+canvas per page — every flow inherits the full toolset for free by rendering
+`<FlowDiagram>`. The only existing exception (`poc-visao-global`, which embeds raw
+ReactFlow for its focus-lens experiment) is **not** a template to copy.
 
 ---
 
@@ -463,7 +476,7 @@ nodes are clickable, and the dots background is visible.
 
 ## Quick checklist before submitting
 
-- [ ] Read `primeiro-acesso/page.tsx` as reference
+- [ ] Read `login-auth/page.tsx` as reference (fullest example) — diagram is the rich `<FlowDiagram>`, never a bare ReactFlow
 - [ ] Page imports `branchEdge`, `edgeBase`, `FlowDiagram` from `../_components/flow-editor` — never redefines node or edge primitives
 - [ ] `<FlowDiagram flow="…">` **equals the folder slug** (scoping key for comments + suggestions)
 - [ ] Changelog wired: imports from `../_components/flow-updates`, `updates[]` seeded with a "new-page" entry dated today, `trailing={<FlowUpdatesBadge updates={updates} />}` on `PageHero`, `<FlowUpdatesHistorySection updates={updates} />` last
