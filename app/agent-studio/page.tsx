@@ -162,7 +162,7 @@ export default function AgentStudioPage() {
         {state === "welcome" ? (
           <WelcomeState />
         ) : (
-          <div className="mx-auto w-full max-w-[1200px] px-6 pb-16 pt-8 sm:px-10">
+          <div className="w-full px-6 pb-16 pt-8 sm:px-10">
             <AwPageHeader
               size="hero"
               title="Agent Studio"
@@ -193,10 +193,10 @@ function WelcomeState() {
     <div className="flex min-h-full flex-col items-center justify-center px-6 py-16 text-center">
       <AwDotTunnel size={320} />
 
-      <h1 className="mt-12 text-(length:--h1-size) font-light leading-[1.1] tracking-[-0.04em] text-(--fg-primary)">
+      <h1 className="mt-12 text-(length:--h1-size) font-light leading-tight tracking-tight text-(--fg-primary)">
         Bem vindo ao Agent Studio
       </h1>
-      <p className="mt-3 text-[15px] text-(--fg-secondary)">
+      <p className="mt-3 text-sm text-(--fg-secondary)">
         Crie seu primeiro agente em menos de 90 minutos.
       </p>
 
@@ -274,7 +274,7 @@ function Section({
 }) {
   return (
     <section className="mt-10">
-      <h2 className="mb-6 text-[20px] font-medium leading-tight tracking-[-0.01em] text-(--fg-primary)">
+      <h2 className="mb-6 text-xl font-medium leading-tight text-(--fg-primary)">
         {title}
       </h2>
       {children}

@@ -13,6 +13,8 @@ import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
+import { BRAND_COLORS } from "@/lib/brandColors";
 import { Icon } from "@/components/ui/Icon";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -607,61 +609,6 @@ function loadBasesFromStorage(): KnowledgeBase[] {
   }
 }
 
-// Integration icon component
-const IntegrationIcon = ({ type }: { type: string }) => {
-  switch (type) {
-    case "whatsapp":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#25D366"/>
-        </svg>
-      );
-    case "instagram":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" fill="url(#instagram-gradient)"/>
-          <defs>
-            <linearGradient id="instagram-gradient" x1="0" y1="24" x2="24" y2="0">
-              <stop stopColor="#FFDC80"/>
-              <stop offset="0.5" stopColor="#F77737"/>
-              <stop offset="1" stopColor="#C13584"/>
-            </linearGradient>
-          </defs>
-        </svg>
-      );
-    case "messenger":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 4.974 0 11.111c0 3.498 1.744 6.614 4.469 8.654V24l4.088-2.242c1.092.301 2.246.464 3.443.464 6.627 0 12-4.974 12-11.111S18.627 0 12 0zm1.191 14.963l-3.055-3.26-5.963 3.26L10.732 8l3.131 3.259L19.752 8l-6.561 6.963z" fill="#0084FF"/>
-        </svg>
-      );
-    case "telegram":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.252-.242-1.865-.442-.751-.244-1.349-.374-1.297-.789.027-.216.324-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.015 3.333-1.386 4.025-1.627 4.477-1.635.099-.002.321.023.465.141.121.1.154.234.17.331.015.098.034.321.019.495z" fill="#0088CC"/>
-        </svg>
-      );
-    case "email":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" fill="#EA4335"/>
-        </svg>
-      );
-    case "slack":
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zm1.271 0a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zm0 1.271a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zm10.123 2.521a2.528 2.528 0 0 1 2.521-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.521V8.834zm-1.268 0a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.166 0a2.528 2.528 0 0 1 2.523 2.522v6.312zm-2.523 10.123a2.528 2.528 0 0 1 2.523 2.521A2.528 2.528 0 0 1 15.166 24a2.527 2.527 0 0 1-2.52-2.522v-2.521h2.52zm0-1.268a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.166a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#E01E5A"/>
-        </svg>
-      );
-    default:
-      return (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--aw-gray-600)" strokeWidth="1.5"/>
-          <path d="M8 12h8M12 8v8" stroke="var(--aw-gray-600)" strokeWidth="1.5" strokeLinecap="round"/>
-        </svg>
-      );
-  }
-};
 
 // Module tag component for the editor
 const ModuleTag = ({ module }: { module: PromptModule }) => {
@@ -1464,12 +1411,12 @@ const KnowledgeBaseManagement = () => {
                                   {source.name}
                                 </span>
                                 {source.status === "processing" && (
-                                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+                                  <span className="px-2 py-0.5 bg-aw-blue-100 text-aw-blue-700 text-xs rounded-full">
                                     Processando
                                   </span>
                                 )}
                                 {source.status === "error" && (
-                                  <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full">
+                                  <span className="px-2 py-0.5 bg-aw-red-100 text-aw-red-700 text-xs rounded-full">
                                     Erro
                                   </span>
                                 )}
@@ -2277,14 +2224,14 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
       <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
           {/* Subtle gradient background */}
-          <div className="absolute inset-0 bg-linear-to-br from-white via-fuchsia-50 to-purple-50 opacity-50" />
-          <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-linear-to-br from-purple-100 to-pink-100 rounded-full blur-3xl opacity-30 animate-pulse" />
-          <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-linear-to-br from-blue-100 to-indigo-100 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
+          <div className="absolute inset-0 bg-linear-to-br from-white via-aw-purple-100 to-aw-purple-100 opacity-50" />
+          <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-linear-to-br from-aw-purple-100 to-aw-purple-200 rounded-full blur-3xl opacity-30 animate-pulse" />
+          <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-linear-to-br from-aw-blue-100 to-aw-blue-200 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
           
           <div className="relative z-10 flex flex-col items-center gap-8">
             <SparkleIcon />
             <div className="text-center">
-              <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-3">
+              <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-3">
                 Gerando seu Agente
               </h1>
               <p className="text-base text-fg-tertiary font-sans animate-pulse">
@@ -2369,7 +2316,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             {agentStudioTab === "agente" ? (
               <div className="flex flex-col min-h-full">
           {/* Page Header */}
-          <div className="border-b border-border px-4 py-[38px]">
+          <div className="border-b border-border px-4 py-10">
             <div className="max-w-[1280px] mx-auto flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="relative flex items-center justify-center">
@@ -2382,7 +2329,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                 </div>
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
-                    <h1 className="font-heading text-[32px] font-medium text-fg-primary tracking-[-0.5px]">
+                    <h1 className="font-heading text-3xl font-medium text-fg-primary tracking-tight">
                       {agentName || "Agente"}
                     </h1>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-150) px-2.5 py-0.5 text-xs font-medium text-(--aw-amber-900)">
@@ -2718,7 +2665,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                             <button
                               type="button"
                               onClick={() => setSelectedSidebarToolId(tool.id)}
-                              className="w-full text-left p-3 rounded-[14px] border border-border hover:border-aw-gray-400 hover:bg-bg-surface transition-colors"
+                              className="w-full text-left p-3 rounded-xl border border-border hover:border-aw-gray-400 hover:bg-bg-surface transition-colors"
                             >
                               <div className="flex items-start gap-3">
                                 <span className="shrink-0 w-9 h-9 rounded-lg bg-bg-muted flex items-center justify-center">
@@ -2731,16 +2678,16 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                                     </svg>
                                   )}
                                   {tool.icon === "pipedrive" && (
-                                    <span className="text-sm font-bold text-[#00a86b]">P</span>
+                                    <span className="text-sm font-bold" style={{ color: BRAND_COLORS.pipedrive }}>P</span>
                                   )}
                                   {tool.icon === "calendar" && (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#4285F4]">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: BRAND_COLORS.google }}>
                                       <rect x="3" y="6" width="18" height="15" rx="2" stroke="currentColor" strokeWidth="1.5"/>
                                       <path d="M3 10h18M8 2v4M16 2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                                     </svg>
                                   )}
                                   {tool.icon === "sheets" && (
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" className="text-[#0F9D58]">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: BRAND_COLORS.googleSheets }}>
                                       <path d="M4 4h16v16H4z" stroke="currentColor" strokeWidth="1.5"/>
                                       <path d="M4 8h16M4 12h16M4 16h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
                                     </svg>
@@ -2899,8 +2846,8 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
               onClick={() => setShowPublishConfirmModal(false)}
             />
             <div className="relative bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-green-600">
+              <div className="w-12 h-12 rounded-full bg-aw-emerald-100 flex items-center justify-center mb-4">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className="text-aw-emerald-700">
                   <path d="M20 6L9 17l-5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
@@ -2950,14 +2897,14 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className={`w-full ${currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-[18px] px-8 py-10 md:px-14 md:py-11`}>
+        <div className={`w-full ${currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
           {/* Step 1: Goal Selection */}
           {currentStep === 1 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Caso de uso
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
@@ -3042,7 +2989,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 2 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Configure seu agente
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
@@ -3282,7 +3229,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 3 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Habilidades e AOPs
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
@@ -3381,7 +3328,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 4 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Canal de atendimento
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
@@ -3420,7 +3367,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                           }`}
                         >
                           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bg-muted">
-                            <IntegrationIcon type={c.icon} />
+                            <AwChannelIcon channel={c.icon} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
@@ -3627,7 +3574,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 5 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Configurações de conversão
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
@@ -3714,7 +3661,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
           {currentStep === 6 && (
             <>
               <div className="text-left">
-                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-[-0.5px] mb-2">
+                <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
                   Agent Core
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
