@@ -1,5 +1,6 @@
 import { elementBelowOverlayAt } from "@/lib/bombardier-review/scrollOffset"
 import type {
+  ReviewAnchorFingerprint,
   ReviewDrawAnchor,
   ReviewElementAnchor,
   ReviewPoint,
@@ -17,6 +18,47 @@ import type {
 
 function clamp01(n: number): number {
   return n < 0 ? 0 : n > 1 ? 1 : n
+}
+
+/** Texto normalizado de um elemento, recortado — base do fingerprint. */
+function fpText(el: Element): string {
+  return (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60)
+}
+
+/** Pista de identidade (tag + texto) pra recuperar o elemento quando o seletor
+ *  estrutural deslocar. */
+function fingerprintOf(el: Element): ReviewAnchorFingerprint {
+  const text = fpText(el)
+  return { tag: el.tagName.toLowerCase(), text: text || undefined }
+}
+
+/**
+ * Re-resolve o elemento de uma âncora. Tenta o seletor estrutural; se ele
+ * falhar ou divergir do fingerprint (índices nth-of-type deslocam quando uma
+ * sidebar monta/desmonta ou um breakpoint muda o DOM), recupera por um único
+ * elemento da mesma tag com o mesmo texto. Em caso ambíguo (vários iguais) ou
+ * texto volátil (contador ao vivo), fica com o resultado do seletor.
+ */
+function resolveElement(
+  selector: string,
+  fingerprint?: ReviewAnchorFingerprint,
+): Element | null {
+  let bySelector: Element | null = null
+  try {
+    bySelector = document.querySelector(selector)
+  } catch {
+    bySelector = null
+  }
+  // Sem fingerprint (âncoras antigas) → comportamento legado: confia no seletor.
+  if (!fingerprint?.text) return bySelector
+  // Seletor resolveu E o texto bate → melhor caso, sem ambiguidade.
+  if (bySelector && fpText(bySelector) === fingerprint.text) return bySelector
+  // Seletor falhou ou casou outro elemento: tenta recuperar pelo fingerprint.
+  const matches = Array.from(document.querySelectorAll(fingerprint.tag)).filter(
+    (c) => fpText(c) === fingerprint.text,
+  )
+  if (matches.length === 1) return matches[0]
+  return bySelector
 }
 
 // Caminho `body > tag:nth-of-type(n) > …` estável entre toggles de layout (o
@@ -61,6 +103,7 @@ export function captureElementAnchor(
     selector,
     fx: clamp01((clientX - rect.left) / rect.width),
     fy: clamp01((clientY - rect.top) / rect.height),
+    fingerprint: fingerprintOf(el),
   }
 }
 
@@ -69,12 +112,7 @@ export function resolveElementPoint(
   anchor: ReviewElementAnchor,
 ): ReviewPoint | null {
   if (typeof document === "undefined") return null
-  let el: Element | null = null
-  try {
-    el = document.querySelector(anchor.selector)
-  } catch {
-    return null
-  }
+  const el = resolveElement(anchor.selector, anchor.fingerprint)
   if (!el) return null
   const rect = el.getBoundingClientRect()
   if (rect.width <= 0 || rect.height <= 0) return null
@@ -114,6 +152,7 @@ export function captureDrawAnchor(
       fx: (p.x - rect.left) / rect.width,
       fy: (p.y - rect.top) / rect.height,
     })),
+    fingerprint: fingerprintOf(el),
   }
 }
 
@@ -122,12 +161,7 @@ export function resolveDrawPoints(
   anchor: ReviewDrawAnchor,
 ): ReviewPoint[] | null {
   if (typeof document === "undefined") return null
-  let el: Element | null = null
-  try {
-    el = document.querySelector(anchor.selector)
-  } catch {
-    return null
-  }
+  const el = resolveElement(anchor.selector, anchor.fingerprint)
   if (!el) return null
   const rect = el.getBoundingClientRect()
   if (rect.width <= 0 || rect.height <= 0) return null

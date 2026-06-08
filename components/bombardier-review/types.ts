@@ -19,6 +19,19 @@ export interface ReviewDrawPath {
 }
 
 /**
+ * Pista de identidade do elemento ancorado: tag + um trecho do texto. Quando o
+ * `selector` estrutural (nth-of-type) desloca — sidebar colapsável montando, ou
+ * render condicional por breakpoint que muda os índices dos irmãos — ele pode
+ * resolver o elemento ERRADO (ou nenhum). O fingerprint recupera o alvo: se o
+ * seletor falhar ou divergir, procura-se um elemento da mesma tag com o mesmo
+ * texto. Opcional/aditivo — âncoras antigas sem ele seguem só pelo seletor.
+ */
+export interface ReviewAnchorFingerprint {
+  tag: string
+  text?: string
+}
+
+/**
  * Element-relative anchor for a pin. Beyond the absolute `position` (doc
  * coords), a pin can remember the element it was dropped on — a resolvable
  * `selector` plus the fractional offset (0..1) of the click inside that
@@ -30,6 +43,7 @@ export interface ReviewElementAnchor {
   selector: string
   fx: number
   fy: number
+  fingerprint?: ReviewAnchorFingerprint
 }
 
 /**
@@ -46,6 +60,7 @@ export interface ReviewElementAnchor {
 export interface ReviewDrawAnchor {
   selector: string
   points: { fx: number; fy: number }[]
+  fingerprint?: ReviewAnchorFingerprint
 }
 
 export type ReviewAnchor =

@@ -21,15 +21,22 @@ export interface ReviewDrawPath {
 // Element-relative anchors (mirror of components/bombardier-review/types.ts).
 // Additive/optional: they let a pin or stroke re-resolve to the element it was
 // dropped on, so it follows reflow + zoom. The server stores them verbatim.
+export interface ReviewAnchorFingerprint {
+  tag: string
+  text?: string
+}
+
 export interface ReviewElementAnchor {
   selector: string
   fx: number
   fy: number
+  fingerprint?: ReviewAnchorFingerprint
 }
 
 export interface ReviewDrawAnchor {
   selector: string
   points: { fx: number; fy: number }[]
+  fingerprint?: ReviewAnchorFingerprint
 }
 
 export type ReviewAnchor =
