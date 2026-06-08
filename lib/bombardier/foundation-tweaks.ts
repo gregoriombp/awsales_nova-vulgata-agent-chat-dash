@@ -19,7 +19,12 @@ export const FOUNDATION_TWEAK_CATEGORIES = [
 export type FoundationTweakCategory =
   (typeof FOUNDATION_TWEAK_CATEGORIES)[number]["value"]
 
-export type FoundationTweakControlType = "color" | "number" | "shadow"
+export type FoundationTweakControlType = "color" | "number" | "shadow" | "choice"
+
+export type FoundationTweakChoice = {
+  value: string
+  label: string
+}
 
 export type FoundationTweakControl = {
   category: FoundationTweakCategory
@@ -31,7 +36,10 @@ export type FoundationTweakControl = {
   min?: number
   max?: number
   step?: number
-  unit?: "px" | "ms"
+  unit?: "px" | "ms" | "em"
+  choices?: FoundationTweakChoice[]
+  selector?: string
+  cssProperty?: string
 }
 
 export type FoundationTweakValueMap = Record<
@@ -667,6 +675,172 @@ export const FOUNDATION_TWEAK_CONTROLS: FoundationTweakControl[] = [
     unit: "px",
   },
   {
+    category: "type",
+    token: "rule-aw-eyebrow-transform",
+    label: "Eyebrow uppercase",
+    description: "Controla se `.aw-eyebrow` força all caps.",
+    type: "choice",
+    defaults: same("uppercase"),
+    choices: [
+      { value: "uppercase", label: "All caps" },
+      { value: "none", label: "Normal" },
+      { value: "capitalize", label: "Capitalize" },
+    ],
+    selector: ".aw-eyebrow",
+    cssProperty: "text-transform",
+  },
+  {
+    category: "type",
+    token: "rule-aw-eyebrow-tracking",
+    label: "Eyebrow tracking",
+    description: "Espaçamento entre letras do micro-label.",
+    type: "number",
+    defaults: same("0.12em"),
+    min: 0,
+    max: 0.2,
+    step: 0.005,
+    unit: "em",
+    selector: ".aw-eyebrow",
+    cssProperty: "letter-spacing",
+  },
+  {
+    category: "type",
+    token: "rule-aw-eyebrow-weight",
+    label: "Eyebrow weight",
+    description: "Peso tipográfico dos labels pequenos.",
+    type: "number",
+    defaults: same("700"),
+    min: 300,
+    max: 800,
+    step: 100,
+    selector: ".aw-eyebrow",
+    cssProperty: "font-weight",
+  },
+  {
+    category: "type",
+    token: "rule-heading-weight",
+    label: "Heading weight",
+    description: "Peso padrão de `h1` a `h6`.",
+    type: "number",
+    defaults: same("500"),
+    min: 300,
+    max: 800,
+    step: 100,
+    selector: "h1, h2, h3, h4, h5, h6",
+    cssProperty: "font-weight",
+  },
+  {
+    category: "type",
+    token: "rule-heading-tracking",
+    label: "Heading tracking",
+    description: "Tracking base dos headings.",
+    type: "number",
+    defaults: same("-0.01em"),
+    min: -0.06,
+    max: 0.04,
+    step: 0.005,
+    unit: "em",
+    selector: "h1, h2, h3, h4, h5, h6",
+    cssProperty: "letter-spacing",
+  },
+  {
+    category: "type",
+    token: "rule-h1-tracking",
+    label: "H1 tracking",
+    description: "Ajuste fino de letter-spacing do H1.",
+    type: "number",
+    defaults: same("-0.02em"),
+    min: -0.08,
+    max: 0.04,
+    step: 0.005,
+    unit: "em",
+    selector: "h1",
+    cssProperty: "letter-spacing",
+  },
+  {
+    category: "type",
+    token: "rule-h2-tracking",
+    label: "H2 tracking",
+    description: "Ajuste fino de letter-spacing do H2.",
+    type: "number",
+    defaults: same("-0.015em"),
+    min: -0.08,
+    max: 0.04,
+    step: 0.005,
+    unit: "em",
+    selector: "h2",
+    cssProperty: "letter-spacing",
+  },
+  {
+    category: "type",
+    token: "rule-display-weight",
+    label: "Display weight",
+    description: "Peso das utilities `.display-*`.",
+    type: "number",
+    defaults: same("300"),
+    min: 200,
+    max: 700,
+    step: 100,
+    selector:
+      ".display-xxl, .display-xl, .display-lg, .display-md, .display-sm",
+    cssProperty: "font-weight",
+  },
+  {
+    category: "type",
+    token: "rule-display-tracking",
+    label: "Display tracking",
+    description: "Espaçamento entre letras das utilities `.display-*`.",
+    type: "number",
+    defaults: same("-0.025em"),
+    min: -0.08,
+    max: 0.04,
+    step: 0.005,
+    unit: "em",
+    selector:
+      ".display-xxl, .display-xl, .display-lg, .display-md, .display-sm",
+    cssProperty: "letter-spacing",
+  },
+  {
+    category: "type",
+    token: "rule-body-weight",
+    label: "Body weight",
+    description: "Peso padrão das utilities `.body-*`.",
+    type: "number",
+    defaults: same("400"),
+    min: 300,
+    max: 700,
+    step: 100,
+    selector: ".body-xl, .body-lg, .body-md, .body-sm, .body-xs",
+    cssProperty: "font-weight",
+  },
+  {
+    category: "type",
+    token: "rule-body-md-line-height",
+    label: "Body MD line-height",
+    description: "Altura de linha da leitura padrão.",
+    type: "number",
+    defaults: same("1.55"),
+    min: 1.25,
+    max: 1.8,
+    step: 0.05,
+    selector: ".body-md",
+    cssProperty: "line-height",
+  },
+  {
+    category: "type",
+    token: "rule-body-sm-tracking",
+    label: "Body SM tracking",
+    description: "Letter-spacing em textos auxiliares.",
+    type: "number",
+    defaults: same("0em"),
+    min: -0.03,
+    max: 0.08,
+    step: 0.005,
+    unit: "em",
+    selector: ".body-sm",
+    cssProperty: "letter-spacing",
+  },
+  {
     category: "shadow",
     token: "--shadow-xs",
     label: "Shadow XS",
@@ -750,9 +924,17 @@ export const FOUNDATION_TWEAK_CONTROLS: FoundationTweakControl[] = [
   },
 ]
 
-export const FOUNDATION_TWEAK_ALLOWED_TOKENS = FOUNDATION_TWEAK_CONTROLS.map(
-  (control) => control.token,
-)
+export const FOUNDATION_TWEAK_ALLOWED_TOKENS = FOUNDATION_TWEAK_CONTROLS.filter(
+  (control) => !control.selector && !control.cssProperty,
+).map((control) => control.token)
+
+export const FOUNDATION_TWEAK_RULE_CONTROLS = FOUNDATION_TWEAK_CONTROLS.filter(
+  (control) => control.selector && control.cssProperty,
+).map((control) => ({
+  token: control.token,
+  selector: control.selector as string,
+  cssProperty: control.cssProperty as string,
+}))
 
 const SAFE_VALUE_PATTERN = /^[#(),.%\w\s-]+$/
 
@@ -760,9 +942,22 @@ export function isSafeFoundationTweakValue(value: unknown): value is string {
   return (
     typeof value === "string" &&
     value.length > 0 &&
-    value.length < 80 &&
+    value.length < 140 &&
     SAFE_VALUE_PATTERN.test(value)
   )
+}
+
+function isRuleControl(control: FoundationTweakControl) {
+  return Boolean(control.selector && control.cssProperty)
+}
+
+function scopeSelectorForMode(selector: string, mode: FoundationTweakMode) {
+  if (mode === "light") return selector
+
+  return selector
+    .split(",")
+    .map((part) => `.dark ${part.trim()}`)
+    .join(", ")
 }
 
 export function createDefaultFoundationTweakValues(): FoundationTweakValueMap {
@@ -811,8 +1006,9 @@ export function buildFoundationTweaksCss(
 ): string {
   const defaults = createDefaultFoundationTweakValues()
 
-  return FOUNDATION_TWEAK_MODES.map((mode) => {
+  const variableBlocks = FOUNDATION_TWEAK_MODES.map((mode) => {
     const lines = FOUNDATION_TWEAK_CONTROLS.flatMap((control) => {
+      if (isRuleControl(control)) return []
       const value = values[mode]?.[control.token]
       if (!isSafeFoundationTweakValue(value)) return []
       if (options.changedOnly && value === defaults[mode][control.token]) {
@@ -824,8 +1020,31 @@ export function buildFoundationTweaksCss(
     if (lines.length === 0) return ""
     return `${mode === "light" ? ":root" : ".dark"} {\n${lines.join("\n")}\n}`
   })
-    .filter(Boolean)
-    .join("\n\n")
+
+  const ruleBlocks = FOUNDATION_TWEAK_MODES.flatMap((mode) => {
+    const rules = new Map<string, string[]>()
+
+    for (const control of FOUNDATION_TWEAK_CONTROLS) {
+      if (!isRuleControl(control)) continue
+
+      const value = values[mode]?.[control.token]
+      if (!isSafeFoundationTweakValue(value)) continue
+      if (options.changedOnly && value === defaults[mode][control.token]) {
+        continue
+      }
+
+      const selector = scopeSelectorForMode(control.selector as string, mode)
+      const lines = rules.get(selector) ?? []
+      lines.push(`  ${control.cssProperty}: ${value};`)
+      rules.set(selector, lines)
+    }
+
+    return Array.from(rules.entries()).map(
+      ([selector, lines]) => `${selector} {\n${lines.join("\n")}\n}`,
+    )
+  })
+
+  return [...variableBlocks, ...ruleBlocks].filter(Boolean).join("\n\n")
 }
 
 export function countFoundationTweakChanges(

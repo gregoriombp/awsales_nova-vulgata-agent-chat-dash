@@ -157,8 +157,12 @@ function clampValue(value: number, control: FoundationTweakControl): number {
 }
 
 function formatNumberValue(value: number, control: FoundationTweakControl) {
-  const unit = control.unit ?? "px"
-  return `${clampValue(value, control)}${unit}`
+  const unit = control.unit ?? ""
+  const clamped = clampValue(value, control)
+  const normalized = Number.isInteger(clamped)
+    ? String(clamped)
+    : String(Number(clamped.toFixed(3)))
+  return `${normalized}${unit}`
 }
 
 function safeColorValue(value: string, fallback: string) {
@@ -579,32 +583,48 @@ function TokenControl({
   value: string
   onChange: (value: string) => void
 }) {
+  const preview = <ControlInlinePreview control={control} value={value} />
+
+  if (control.type === "choice") {
+    return (
+      <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
+        <ControlHeader control={control} />
+        {preview}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {(control.choices ?? []).map((choice) => {
+            const selected = choice.value === value
+            return (
+              <button
+                key={choice.value}
+                type="button"
+                onClick={() => onChange(choice.value)}
+                className={[
+                  "rounded-full border px-3 py-1.5 text-sm transition-colors duration-aw-fast",
+                  selected
+                    ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
+                    : "border-(--border-default) bg-(--bg-raised) text-(--fg-secondary) hover:text-(--fg-primary)",
+                ].join(" ")}
+              >
+                {choice.label}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   if (control.type === "shadow") {
     return (
       <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <h3 className="m-0 text-base">{control.label}</h3>
-            <p className="m-0 mt-1 text-sm leading-relaxed text-(--fg-secondary)">
-              {control.description}
-            </p>
-          </div>
-          <code className="mono text-xs text-(--fg-tertiary)">
-            {control.token}
-          </code>
-        </div>
+        <ControlHeader control={control} />
+        {preview}
         <textarea
           aria-label={control.label}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="mono min-h-24 w-full resize-y rounded-md border border-(--border-default) bg-(--bg-raised) p-3 text-xs text-(--fg-primary) outline-none focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
+          className="mono mt-4 min-h-24 w-full resize-y rounded-md border border-(--border-default) bg-(--bg-raised) p-3 text-xs text-(--fg-primary) outline-none focus-visible:ring-2 focus-visible:ring-(--ring-focus)"
         />
-        <div
-          className="mt-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4 text-sm text-(--fg-secondary)"
-          style={{ boxShadow: value }}
-        >
-          Preview da elevação com este shadow token.
-        </div>
       </div>
     )
   }
@@ -615,17 +635,8 @@ function TokenControl({
 
     return (
       <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div>
-            <h3 className="m-0 text-base">{control.label}</h3>
-            <p className="m-0 mt-1 text-sm leading-relaxed text-(--fg-secondary)">
-              {control.description}
-            </p>
-          </div>
-          <code className="mono text-xs text-(--fg-tertiary)">
-            {control.token}
-          </code>
-        </div>
+        <ControlHeader control={control} />
+        {preview}
         <div className="flex items-center gap-3">
           <input
             aria-label={control.label}
@@ -653,17 +664,8 @@ function TokenControl({
 
   return (
     <div className="rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
-      <div className="mb-4 flex items-start justify-between gap-4">
-        <div>
-          <h3 className="m-0 text-base">{control.label}</h3>
-          <p className="m-0 mt-1 text-sm leading-relaxed text-(--fg-secondary)">
-            {control.description}
-          </p>
-        </div>
-        <code className="mono text-xs text-(--fg-tertiary)">
-          {control.token}
-        </code>
-      </div>
+      <ControlHeader control={control} />
+      {preview}
       <AwSlider
         min={control.min}
         max={control.max}
@@ -692,6 +694,112 @@ function TokenControl({
       </div>
     </div>
   )
+}
+
+function ControlHeader({ control }: { control: FoundationTweakControl }) {
+  const meta =
+    control.selector && control.cssProperty
+      ? `${control.selector} · ${control.cssProperty}`
+      : control.token
+
+  return (
+    <div className="mb-4 flex items-start justify-between gap-4">
+      <div>
+        <h3 className="m-0 text-base">{control.label}</h3>
+        <p className="m-0 mt-1 text-sm leading-relaxed text-(--fg-secondary)">
+          {control.description}
+        </p>
+      </div>
+      <code className="mono text-xs text-(--fg-tertiary) text-right">
+        {meta}
+      </code>
+    </div>
+  )
+}
+
+function ControlInlinePreview({
+  control,
+  value,
+}: {
+  control: FoundationTweakControl
+  value: string
+}) {
+  const style = getControlPreviewStyle(control, value)
+
+  return (
+    <div className="mb-4 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-4">
+      <div className="aw-eyebrow mb-2">preview</div>
+      <div
+        className="min-h-10 rounded-md border border-(--border-subtle) bg-(--bg-canvas) p-3 text-(--fg-primary)"
+        style={style}
+      >
+        {getControlPreviewText(control)}
+      </div>
+    </div>
+  )
+}
+
+function getControlPreviewText(control: FoundationTweakControl) {
+  if (control.cssProperty === "text-transform") return "eyebrow label"
+  if (control.cssProperty === "letter-spacing") return "Letter spacing sample"
+  if (control.cssProperty === "font-weight") return "Weight sample"
+  if (control.cssProperty === "line-height") {
+    return "Linha de texto para avaliar altura de linha em leitura padrão."
+  }
+  if (control.type === "color") return control.token
+  if (control.type === "shadow") return "Preview da elevação"
+  if (control.category === "radius") return "Radius preview"
+  if (control.category === "spacing" || control.category === "layout") {
+    return "Spacing preview"
+  }
+  if (control.category === "type") return "Aa Typography preview"
+  return "Foundation preview"
+}
+
+function getControlPreviewStyle(
+  control: FoundationTweakControl,
+  value: string,
+): React.CSSProperties {
+  const style: React.CSSProperties = {}
+
+  if (control.cssProperty === "text-transform") {
+    style.textTransform = value as React.CSSProperties["textTransform"]
+  }
+  if (control.cssProperty === "letter-spacing") {
+    style.letterSpacing = value
+  }
+  if (control.cssProperty === "font-weight") {
+    style.fontWeight = value
+  }
+  if (control.cssProperty === "line-height") {
+    style.lineHeight = value
+  }
+  if (control.type === "color") {
+    style.background = value
+    style.color = "var(--fg-on-inverse)"
+  }
+  if (control.type === "shadow") {
+    style.boxShadow = value
+  }
+  if (control.category === "radius") {
+    style.borderRadius = value
+  }
+  if (control.category === "spacing") {
+    style.padding = value
+  }
+  if (control.category === "layout") {
+    style.maxWidth = value
+  }
+  if (
+    control.category === "type" &&
+    !control.cssProperty &&
+    control.token.endsWith("-size")
+  ) {
+    style.fontSize = value
+    style.lineHeight = 1.15
+  }
+
+  return style
 }
 
 function PreviewPanel({
