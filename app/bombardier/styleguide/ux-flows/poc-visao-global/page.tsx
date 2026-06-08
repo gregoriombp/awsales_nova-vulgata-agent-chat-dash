@@ -59,7 +59,10 @@ const FOCI: { id: Focus; label: string }[] = [
 
 /* ─── Node data ─────────────────────────────────────────────────────── */
 
-type ScreenData = { step?: string; title: string; note?: string; href?: string; personas: Persona[]; _comments?: number }
+/* `variants`: telas que representam vários estados terminais num card só
+   (ex: link expirado / usado / cancelado). O modal lista um link por estado. */
+type ScreenVariant = { label: string; href: string }
+type ScreenData = { step?: string; title: string; note?: string; href?: string; variants?: ScreenVariant[]; personas: Persona[]; _comments?: number }
 type DecisionData = { step?: string; title: string; question?: string; personas: Persona[]; _comments?: number }
 type SectionData = { title: string; persona: Persona }
 
@@ -211,7 +214,11 @@ const BASE_NODES: Node[] = [
   S("pa-entrada", OL, 0, { step: "entrada", title: "E-mail de primeiro acesso", note: "magic link da Aswork", href: "/primeiro-acesso/verificacao", personas: PA }),
   S("cv-entrada", OR, 0, { step: "entrada", title: "E-mail de convite", note: "magic link do admin", href: "/convite", personas: CV }),
   D("dec-link", OM, 180, { title: "O link ainda funciona?", question: "Dentro do prazo, não usado e não cancelado? (PA 10 dias · convite 7)", personas: ["primeiro-acesso", "convite"] }),
-  S("link-erros", OR + 40, 200, { step: "erro", title: "Link expirado / usado / cancelado", note: "3 telas terminais → reenvio ou suporte", href: "/primeiro-acesso/link-expirado", personas: ["primeiro-acesso", "convite"] }),
+  S("link-erros", OR + 40, 200, { step: "erro", title: "Link expirado / usado / cancelado", note: "3 telas terminais → reenvio ou suporte", href: "/primeiro-acesso/link-expirado", variants: [
+    { label: "Expirado", href: "/primeiro-acesso/link-expirado" },
+    { label: "Usado", href: "/primeiro-acesso/link-utilizado" },
+    { label: "Cancelado", href: "/primeiro-acesso/link-cancelado" },
+  ], personas: ["primeiro-acesso", "convite"] }),
   S("boas-vindas", OM, 360, { step: "01", title: "Boas-vindas", note: "org, quem convidou, função", href: "/primeiro-acesso/verificacao", personas: ["primeiro-acesso", "convite"] }),
   S("conta", OM, 540, { step: "02", title: "Sua conta", note: "cria a conta: Google · Microsoft · senha", href: "/primeiro-acesso/conta", personas: ["primeiro-acesso", "convite"] }),
   S("perfil", OM, 720, { step: "03", title: "Seu perfil", note: "nome, foto, telefone · campos condicionais: fatura (quem paga) · e-mail travado (convidado)", href: "/primeiro-acesso/perfil", personas: ["primeiro-acesso", "convite"] }),
@@ -336,7 +343,8 @@ type CommentMap = Record<string, CardComment[]>
 
 export default function PocVisaoGlobalPage() {
   const [focus, setFocus] = useState<Focus>("all")
-  const [openScreen, setOpenScreen] = useState<{ title: string; href: string } | null>(null)
+  const [openScreen, setOpenScreen] = useState<{ title: string; variants: ScreenVariant[] } | null>(null)
+  const [screenVariant, setScreenVariant] = useState(0)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [commentMode, setCommentMode] = useState(false)
   const [comments, setComments] = useState<CommentMap>({})
@@ -535,7 +543,11 @@ export default function PocVisaoGlobalPage() {
                   setComposer({ id: node.id, title: d.title })
                   return
                 }
-                if (node.type === "screen" && d.href) setOpenScreen({ title: d.title, href: d.href })
+                if (node.type === "screen" && (d.variants?.length || d.href)) {
+                  const variants = d.variants?.length ? d.variants : [{ label: d.title, href: d.href! }]
+                  setScreenVariant(0)
+                  setOpenScreen({ title: d.title, variants })
+                }
               }}
             >
               <Background color="var(--border-default)" gap={24} size={1.5} />
@@ -637,16 +649,45 @@ export default function PocVisaoGlobalPage() {
       </div>
 
       {/* Modal de tela (≥768px → o produto desktop-only renderiza normal) */}
-      {openScreen && (
+      {openScreen && (() => {
+        const active = openScreen.variants[screenVariant] ?? openScreen.variants[0]
+        const multi = openScreen.variants.length > 1
+        return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-6" onClick={() => setOpenScreen(null)}>
           <div className="flex h-[84vh] w-full max-w-[1040px] flex-col overflow-hidden rounded-xl border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-lg)" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between gap-2 border-b border-(--border-default) px-4 py-2.5">
-              <div className="flex min-w-0 flex-col">
+            <div className="flex items-center justify-between gap-3 border-b border-(--border-default) px-4 py-2.5">
+              <div className="flex min-w-0 flex-col gap-1.5">
                 <span className="text-sm font-medium text-(--fg-primary)">{openScreen.title}</span>
-                <span className="caption truncate text-(--fg-tertiary)">{openScreen.href}</span>
+                {multi ? (
+                  /* Um link por estado terminal — clica pra trocar a tela no preview */
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {openScreen.variants.map((v, i) => {
+                      const on = i === screenVariant
+                      return (
+                        <button
+                          key={v.href}
+                          type="button"
+                          onClick={() => setScreenVariant(i)}
+                          title={v.href}
+                          className={
+                            "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-medium transition " +
+                            (on
+                              ? "border-(--aw-blue-300) bg-(--aw-blue-100) text-(--aw-blue-800)"
+                              : "border-(--border-default) bg-(--bg-canvas) text-(--fg-secondary) hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)")
+                          }
+                        >
+                          {v.label}
+                          <span className="text-(--fg-tertiary)">{v.href}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <span className="caption truncate text-(--fg-tertiary)">{active.href}</span>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                <a href={openScreen.href} target="_blank" rel="noreferrer" className="rounded-md border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1 text-xs font-medium text-(--fg-secondary) transition hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)">
+                <a href={active.href} target="_blank" rel="noreferrer" className="rounded-md border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1 text-xs font-medium text-(--fg-secondary) transition hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)">
                   Abrir em nova aba ↗
                 </a>
                 <button type="button" onClick={() => setOpenScreen(null)} className="rounded-md border border-(--border-default) bg-(--bg-canvas) px-2.5 py-1 text-xs font-medium text-(--fg-secondary) transition hover:border-(--aw-blue-300) hover:text-(--aw-blue-700)">
@@ -654,10 +695,11 @@ export default function PocVisaoGlobalPage() {
                 </button>
               </div>
             </div>
-            <iframe key={openScreen.href} src={openScreen.href} title={openScreen.title} className="min-h-0 w-full flex-1 bg-white" />
+            <iframe key={active.href} src={active.href} title={`${openScreen.title} · ${active.label}`} className="min-h-0 w-full flex-1 bg-white" />
           </div>
         </div>
-      )}
+        )
+      })()}
 
       {/* Composer de comentário — a nota vai pro /api/flow-suggestions, que o Claude lê. */}
       {composer && (
