@@ -38,6 +38,14 @@ const sections: HubSection[] = [
     status: "ready",
   },
   {
+    title: "Design System Tweaks",
+    description:
+      "Ajuste foundations visualmente, valide o impacto nos componentes e exporte um patch de tokens.",
+    icon: "tune",
+    href: "/bombardier/design-system-tweaks",
+    status: "ready",
+  },
+  {
     title: "UX Flow",
     description:
       "Conecte páginas em fluxos navegáveis, estilo Figma prototype.",
