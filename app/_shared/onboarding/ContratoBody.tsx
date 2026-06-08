@@ -8,12 +8,6 @@ import { AwCheckbox } from "@/components/ui/AwCheckbox"
 import { AwFileIcon } from "@/components/ui/AwFileIcon"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
   ONBOARDING_ORG,
   ONBOARDING_USER,
   fmtBRL,
@@ -84,43 +78,27 @@ export function ContratoBody({
           <KV
             label="Plano"
             value={
-              <span className="inline-flex flex-wrap items-center gap-1.5">
-                <span>
-                  <b className="font-medium">{org.plan}</b>
-                  <span className="font-normal text-fg-tertiary">
-                    {" "}
-                    · {org.contractTerm} · {org.fidelidade}
-                  </span>
+              <span>
+                <b className="font-medium">{org.plan}</b>
+                <span className="font-normal text-fg-tertiary">
+                  {" "}
+                  · {org.contractTerm}
                 </span>
-                <MultaInfo />
               </span>
             }
           />
           <KV label="Implementação" value={fmtBRL(org.valorImplementacao)} emph />
           <KV
-            label="Mensalidade cheia"
+            label="Mensalidade"
             value={
-              <>
-                <span className="tabular-nums">
-                  {fmtBRL(org.valorMensal)}
-                </span>
-                <span className="font-normal text-fg-tertiary"> /mês</span>
-              </>
-            }
-          />
-          <KV
-            label="1ª mensalidade (prorrata)"
-            value={
-              <>
-                <span className="tabular-nums">
-                  {fmtBRL(org.valorMensalProrrata)}
-                </span>
+              <span className="inline-flex flex-wrap items-baseline gap-x-1.5">
+                <span className="tabular-nums">{fmtBRL(org.valorMensal)}</span>
+                <span className="font-normal text-fg-tertiary">/mês</span>
                 <span className="font-normal text-fg-tertiary">
-                  {" "}
-                  · {org.diasRestantesMesAtual} dias restantes · vence{" "}
-                  {org.dataPrimeiroVencimento}
+                  · 1ª {fmtBRL(org.valorMensalProrrata)} (prorrata, vence{" "}
+                  {org.dataPrimeiroVencimento})
                 </span>
-              </>
+              </span>
             }
           />
           {org.descontoMensal && (
@@ -289,29 +267,6 @@ function KV({
         {value}
       </dd>
     </div>
-  )
-}
-
-function MultaInfo() {
-  return (
-    <TooltipProvider delayDuration={150}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            type="button"
-            aria-label="Como a multa de fidelidade é calculada"
-            className="inline-flex h-4 w-4 items-center justify-center rounded-full text-fg-tertiary transition-colors hover:text-fg-secondary"
-          >
-            <Icon name="info" size={14} />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent className="max-w-[260px]">
-          Multa de 50% sobre o saldo das mensalidades restantes até o fim da
-          fidelidade, em caso de cancelamento antecipado. Detalhes completos no
-          contrato.
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
   )
 }
 
