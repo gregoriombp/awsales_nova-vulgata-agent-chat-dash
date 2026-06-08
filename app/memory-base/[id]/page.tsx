@@ -14,7 +14,6 @@ import AddSnippetModal from "@/components/modals/AddSnippetModal";
 import CreateFolderModal from "@/components/modals/CreateFolderModal";
 import RenameFolderModal from "@/components/modals/RenameFolderModal";
 import ActivateIntegrationsModal, { type IntegrationItem, DEFAULT_INTEGRATIONS } from "@/components/modals/ActivateIntegrationsModal";
-import OnboardingTour, { type OnboardingStep } from "@/components/OnboardingTour";
 import {
   TbFileTypePdf,
   TbFileTypeDoc,
@@ -405,46 +404,6 @@ function getFolderPath(folderId: string | null, folders: Folder[]): Folder[] {
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
 const MEMORY_BASE_NAME_KEY_PREFIX = "memory-base-name-";
-const KB_TOUR_COMPLETED_KEY_PREFIX = "kb-tour-completed-";
-
-const KB_ONBOARDING_STEPS: OnboardingStep[] = [
-  {
-    target: "kb-header",
-    title: "Visão geral da Base",
-    description: "Esta é a sua Base de Conhecimento. Tudo que seus agentes sabem vem daqui.",
-  },
-  {
-    target: "add-sources",
-    title: "Adicionar Fontes",
-    description: "Comece adicionando conhecimento. Você pode enviar arquivos, URLs ou snippets de texto.",
-  },
-  {
-    target: "activate-integrations",
-    title: "Integrações",
-    description: "Conecte ferramentas externas para manter sua base sempre atualizada.",
-  },
-  {
-    target: "knowledge-layers",
-    title: "Knowledge Layers",
-    description: "As Knowledge Layers organizam e refinam como o conhecimento é usado pelos agentes.",
-  },
-  {
-    target: "used-by-agents",
-    title: "Uso por Agentes",
-    description: "Depois de configurada, esta base pode ser usada por um ou vários agentes.",
-  },
-  {
-    target: "kb-sidebar",
-    title: "Navegação lateral",
-    description: "Aqui você gerencia documentos, faz buscas semânticas e ajusta configurações.",
-  },
-  {
-    target: "final",
-    title: "Pronto para começar",
-    description: "Sua base está pronta para crescer. Comece adicionando fontes.",
-    primaryButtonLabel: "Adicionar fontes",
-  },
-];
 
 function getBaseNameFromStorage(id: string): string {
   if (typeof window === "undefined" || !id) return "";
@@ -568,7 +527,6 @@ function MemoryBaseDirectoryContent() {
   ]);
 
   const [storedName, setStoredName] = useState<string | null>(null);
-  const [hasCompletedTour, setHasCompletedTour] = useState<boolean | null>(null);
 
   // Mock de agentes que usam essa base (objectiveBoundLayers = placeholder até integração)
   const connectedAgents = rows.length > 0 ? [
@@ -703,34 +661,6 @@ function MemoryBaseDirectoryContent() {
     if (!id) return;
     saveFoldersToStorage(id, folders);
   }, [params?.id, folders]);
-
-  // Tour: só exibe na primeira vez ou até ser concluído (persistido por base)
-  useEffect(() => {
-    const id = typeof params?.id === "string" ? params.id : "";
-    if (!id) {
-      setHasCompletedTour(true);
-      return;
-    }
-    try {
-      const completed = window.localStorage.getItem(KB_TOUR_COMPLETED_KEY_PREFIX + id) === "1";
-      setHasCompletedTour(completed);
-    } catch {
-      setHasCompletedTour(false);
-    }
-  }, [params?.id]);
-
-  const isNewKnowledgeBase = isNewFromUrl || nameFromUrl != null;
-  const showTour = Boolean(isNewKnowledgeBase && hasCompletedTour === false && typeof params?.id === "string");
-
-  const handleTourComplete = () => {
-    const id = typeof params?.id === "string" ? params.id : "";
-    if (id) {
-      try {
-        window.localStorage.setItem(KB_TOUR_COMPLETED_KEY_PREFIX + id, "1");
-      } catch (_) {}
-    }
-    setHasCompletedTour(true);
-  };
 
   const breadcrumbs = useMemo((): BreadcrumbItem[] => {
     const base: BreadcrumbItem[] = [
@@ -873,13 +803,6 @@ function MemoryBaseDirectoryContent() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <OnboardingTour
-        steps={KB_ONBOARDING_STEPS}
-        isActive={showTour}
-        onComplete={handleTourComplete}
-        onSkip={handleTourComplete}
-        onPrimaryAction={() => setIsSendFileOpen(true)}
-      />
       {/* Override DashboardLayout padding/background */}
       <div className="-m-8">
         {/* Header area */}
