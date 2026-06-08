@@ -15,30 +15,29 @@ import {
  * Layout constants
  * ──────────────────────────────────────────────────────────────────── */
 
-const COL = 280
-const COL_D = 260
+const COL = 280 // screen node (200px) → centro 380
+const COL_D = 260 // decision node (240px) → centro 380
 
-// 2-branch (novo · existente) simétrico em torno de 380
-const LEFT_X = 80
-const RIGHT_X = 480
+// 2 ramos simétricos em torno de 380
+const LEFT_X = 80 // centro 180
+const RIGHT_X = 480 // centro 580
 
 const Y = {
   entrada: 0,
   nome: 160,
-  objetivo: 320,
-  segmento: 480,
-  envio: 640,
-  decProduto: 800,
-  produtoRow: 1000,
-  decCatalogo: 1180,
-  catalogoRow: 1380,
-  decPlaybook: 1560,
-  playbookRow: 1760,
-  baseCriada: 1940,
+  criada: 320,
+  decConfig: 480,
+  branchConfig: 680, // "Depois" (terminal) + "Configurar" (objetivo) lado a lado
+  segmento: 840,
+  decEnvio: 1000,
+  envioRow: 1200, // Padrão / Catálogo
+  basePronta: 1400,
 }
 
 /* ─────────────────────────────────────────────────────────────────────
- * Nodes
+ * Nodes — espelham o /memory-base/new já construído (wizard full-screen).
+ * As fases do wizard moram numa única rota, então as telas internas
+ * apontam todas pra /memory-base/new (o drawer abre o wizard ao vivo).
  * ──────────────────────────────────────────────────────────────────── */
 
 export const NODES: Node[] = [
@@ -46,91 +45,120 @@ export const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Memory Base (lista)", href: "/memory-base", note: 'Clica em "Criar base" pra começar o wizard.' },
+    data: {
+      step: "entrada",
+      title: "Bases de conhecimento",
+      href: "/memory-base",
+      note: 'Lista das bases. Clica em "Nova base" pra abrir o wizard full-screen.',
+    },
   },
   {
     id: "nome",
     type: "screen",
     position: { x: COL, y: Y.nome },
-    data: { step: "01", title: "Nome", href: "#", note: "Nome da base de conhecimento." },
+    data: {
+      step: "01",
+      title: "Nome da base",
+      href: "/memory-base/new",
+      note: "Nomeia a base e clica Criar — a base nasce já neste passo.",
+    },
+  },
+  {
+    id: "criada",
+    type: "screen",
+    position: { x: COL, y: Y.criada },
+    data: {
+      step: "02",
+      title: "Base criada",
+      href: "/memory-base/new",
+      note: 'Celebração: a base já existe e está salva. "Configurar" surge em fade.',
+    },
+  },
+  {
+    id: "decConfig",
+    type: "decision",
+    position: { x: COL_D, y: Y.decConfig },
+    data: {
+      step: "03",
+      title: "Classificar agora?",
+      question: "Configurar a base agora ou voltar pra lista e classificar depois?",
+    },
+  },
+  {
+    id: "depois",
+    type: "screen",
+    position: { x: LEFT_X, y: Y.branchConfig },
+    data: {
+      step: "→ lista",
+      title: "Base na lista",
+      href: "/memory-base",
+      note: "Fechar (X) a qualquer momento deixa a base criada, sem classificação, esperando na lista.",
+    },
   },
   {
     id: "objetivo",
     type: "screen",
-    position: { x: COL, y: Y.objetivo },
-    data: { step: "02", title: "Objetivo", href: "#", note: "Pra que serve a base (Vendas, Suporte…)." },
+    position: { x: COL, y: Y.branchConfig },
+    data: {
+      step: "04",
+      title: "Objetivo",
+      href: "/memory-base/new",
+      note: "5 cards: Vendas, Onboarding, Suporte, CS / Lançamento, Captação de lead.",
+    },
   },
   {
     id: "segmento",
     type: "screen",
     position: { x: COL, y: Y.segmento },
-    data: { step: "03", title: "Tipo de segmento", href: "#", note: "Segmento de negócio da base." },
+    data: {
+      step: "05",
+      title: "Segmento",
+      href: "/memory-base/new",
+      note: "3 cards: Educação, Produto físico, Serviços.",
+    },
   },
   {
-    id: "envio",
-    type: "screen",
-    position: { x: COL, y: Y.envio },
-    data: { step: "04", title: "Tipo de envio de dados", href: "#", note: "Como os dados entram na base." },
-  },
-  {
-    id: "decProduto",
+    id: "decEnvio",
     type: "decision",
-    position: { x: COL_D, y: Y.decProduto },
-    data: { step: "05", title: "Produto", question: "Cadastrar um produto novo ou usar um existente?" },
+    position: { x: COL_D, y: Y.decEnvio },
+    data: {
+      step: "06",
+      title: "Formato de envio",
+      question: "Como os dados dos produtos chegam na base?",
+    },
   },
   {
-    id: "novoProduto",
+    id: "padrao",
     type: "screen",
-    position: { x: LEFT_X, y: Y.produtoRow },
-    data: { step: "05a", title: "Novo produto", href: "#", note: "Cadastra o produto do zero." },
+    position: { x: LEFT_X, y: Y.envioRow },
+    data: {
+      step: "06a",
+      title: "Padrão",
+      href: "/memory-base/new",
+      note: "Dados produto a produto — links e documentos individuais.",
+    },
   },
   {
-    id: "produtoExistente",
+    id: "catalogo",
     type: "screen",
-    position: { x: RIGHT_X, y: Y.produtoRow },
-    data: { step: "05b", title: "Produto existente", href: "#", note: "Seleciona um produto já cadastrado." },
+    position: { x: RIGHT_X, y: Y.envioRow },
+    data: {
+      step: "06b",
+      title: "Catálogo",
+      href: "/memory-base/new",
+      note: "Dados em lote — CSV ou integração, estrutura padronizada.",
+    },
   },
   {
-    id: "decCatalogo",
-    type: "decision",
-    position: { x: COL_D, y: Y.decCatalogo },
-    data: { step: "05c", title: "Catálogo", question: "Subir uma base de produtos (XLS) nova ou usar um catálogo existente?" },
-  },
-  {
-    id: "novoCatalogo",
+    id: "basePronta",
     type: "screen",
-    position: { x: LEFT_X, y: Y.catalogoRow },
-    data: { step: "05d", title: "Novo catálogo (XLS)", href: "#", note: "Upload da planilha de produtos (.xlsx/.csv)." },
-  },
-  {
-    id: "catalogoExistente",
-    type: "screen",
-    position: { x: RIGHT_X, y: Y.catalogoRow },
-    data: { step: "05e", title: "Catálogo existente", href: "#", note: "Reusa um catálogo já importado." },
-  },
-  {
-    id: "decPlaybook",
-    type: "decision",
-    position: { x: COL_D, y: Y.decPlaybook },
-    data: { step: "06", title: "Playbook", question: "Criar um playbook novo ou usar um existente?" },
-  },
-  {
-    id: "novoPlaybook",
-    type: "screen",
-    position: { x: LEFT_X, y: Y.playbookRow },
-    data: { step: "06a", title: "Novo playbook", href: "#", note: "Cria o playbook do zero." },
-  },
-  {
-    id: "playbookExistente",
-    type: "screen",
-    position: { x: RIGHT_X, y: Y.playbookRow },
-    data: { step: "06b", title: "Playbook existente", href: "#", note: "Reusa um playbook já criado." },
-  },
-  {
-    id: "baseCriada",
-    type: "screen",
-    position: { x: COL, y: Y.baseCriada },
-    data: { step: "→ base", title: "Base criada", href: "/memory-base", note: "Vai pra /memory-base/[id] — base nova com tour + Adicione Fontes." },
+    position: { x: COL, y: Y.basePronta },
+    data: {
+      step: "→ base",
+      title: "Base pronta",
+      href: "/memory-base",
+      note: "Vai pra /memory-base/[id]?new=1 — a base nova aberta, pronta pra receber fontes.",
+    },
   },
 ]
 
@@ -145,26 +173,20 @@ const labelProps = {
 }
 
 export const EDGES: Edge[] = [
-  { ...edgeBase, id: "e-entrada-nome", source: "entrada", target: "nome", label: "Criar base", ...labelProps },
-  { ...edgeBase, id: "e-nome-objetivo", source: "nome", target: "objetivo" },
+  { ...edgeBase, id: "e-entrada-nome", source: "entrada", target: "nome", label: "Nova base", ...labelProps },
+  { ...edgeBase, id: "e-nome-criada", source: "nome", target: "criada", label: "Criar", ...labelProps },
+  { ...edgeBase, id: "e-criada-decConfig", source: "criada", target: "decConfig" },
+
+  { ...branchEdge, id: "e-decConfig-depois", source: "decConfig", target: "depois", sourceHandle: "left", label: "Depois", ...labelProps },
+  { ...branchEdge, id: "e-decConfig-objetivo", source: "decConfig", target: "objetivo", sourceHandle: "bottom", label: "Configurar", ...labelProps },
+
   { ...edgeBase, id: "e-objetivo-segmento", source: "objetivo", target: "segmento" },
-  { ...edgeBase, id: "e-segmento-envio", source: "segmento", target: "envio" },
-  { ...edgeBase, id: "e-envio-decProduto", source: "envio", target: "decProduto" },
+  { ...edgeBase, id: "e-segmento-decEnvio", source: "segmento", target: "decEnvio" },
 
-  { ...branchEdge, id: "e-decProduto-novo", source: "decProduto", target: "novoProduto", sourceHandle: "left", label: "Novo", ...labelProps },
-  { ...branchEdge, id: "e-decProduto-existente", source: "decProduto", target: "produtoExistente", sourceHandle: "right", label: "Existente", ...labelProps },
-  { ...edgeBase, id: "e-novoProduto-decCatalogo", source: "novoProduto", target: "decCatalogo" },
-  { ...edgeBase, id: "e-produtoExistente-decCatalogo", source: "produtoExistente", target: "decCatalogo" },
-
-  { ...branchEdge, id: "e-decCatalogo-novo", source: "decCatalogo", target: "novoCatalogo", sourceHandle: "left", label: "Novo · XLS", ...labelProps },
-  { ...branchEdge, id: "e-decCatalogo-existente", source: "decCatalogo", target: "catalogoExistente", sourceHandle: "right", label: "Existente", ...labelProps },
-  { ...edgeBase, id: "e-novoCatalogo-decPlaybook", source: "novoCatalogo", target: "decPlaybook" },
-  { ...edgeBase, id: "e-catalogoExistente-decPlaybook", source: "catalogoExistente", target: "decPlaybook" },
-
-  { ...branchEdge, id: "e-decPlaybook-novo", source: "decPlaybook", target: "novoPlaybook", sourceHandle: "left", label: "Novo", ...labelProps },
-  { ...branchEdge, id: "e-decPlaybook-existente", source: "decPlaybook", target: "playbookExistente", sourceHandle: "right", label: "Existente", ...labelProps },
-  { ...edgeBase, id: "e-novoPlaybook-baseCriada", source: "novoPlaybook", target: "baseCriada" },
-  { ...edgeBase, id: "e-playbookExistente-baseCriada", source: "playbookExistente", target: "baseCriada" },
+  { ...branchEdge, id: "e-decEnvio-padrao", source: "decEnvio", target: "padrao", sourceHandle: "left", label: "Padrão", ...labelProps },
+  { ...branchEdge, id: "e-decEnvio-catalogo", source: "decEnvio", target: "catalogo", sourceHandle: "right", label: "Catálogo", ...labelProps },
+  { ...edgeBase, id: "e-padrao-basePronta", source: "padrao", target: "basePronta" },
+  { ...edgeBase, id: "e-catalogo-basePronta", source: "catalogo", target: "basePronta" },
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -174,59 +196,45 @@ export const EDGES: Edge[] = [
 const screens = [
   {
     step: "01",
-    title: "Nome",
-    href: "#",
-    purpose: "Primeira etapa do wizard de criação. O usuário dá um nome à base de conhecimento. Foco único — só o nome.",
-    decisions: "Avançar → Objetivo.",
+    title: "Nome da base",
+    href: "/memory-base/new",
+    purpose: "Primeira tela do wizard. Foco único: o nome. Clicar Criar já cria a base — a classificação vem depois.",
+    decisions: "Criar → Base criada.",
   },
   {
     step: "02",
-    title: "Objetivo",
-    href: "#",
-    purpose: "Pra que a base serve (Vendas, Suporte, RH…). Classifica a base pra organização e filtro na lista.",
-    decisions: "Avançar → Tipo de segmento.",
-  },
-  {
-    step: "03",
-    title: "Tipo de segmento",
-    href: "#",
-    purpose: "Segmento de negócio da base (Produto físico, SaaS, Serviços…).",
-    decisions: "Avançar → Tipo de envio de dados.",
+    title: "Base criada",
+    href: "/memory-base/new",
+    purpose: "Celebração cinematográfica: a base já existe e está salva. Depois de ~1,3s, o botão Configurar surge em fade.",
+    decisions: "Configurar → Objetivo · Fechar (X) → lista (base sem classificação).",
   },
   {
     step: "04",
-    title: "Tipo de envio de dados",
-    href: "#",
-    purpose: "Define como os dados entram na base (catálogo, documentação, scripts…).",
-    decisions: "Avançar → Produto (etapa 5).",
+    title: "Objetivo",
+    href: "/memory-base/new",
+    purpose: "Pra que a base serve (Vendas, Onboarding, Suporte, CS, Captação). Faz patch na base recém-criada.",
+    decisions: "Avançar → Segmento.",
   },
   {
     step: "05",
-    title: "Produto",
-    href: "#",
-    purpose: "Vincula um produto à base. Ramo novo/existente: cadastra do zero ou reusa um já cadastrado.",
-    decisions: "Novo produto / Produto existente → Catálogo.",
-  },
-  {
-    step: "05c",
-    title: "Catálogo (base de produtos XLS)",
-    href: "#",
-    purpose: "Sobe a base de produtos. Novo catálogo = upload da planilha (.xlsx/.csv) que vira o catálogo da base — é a tela de upload de produtos que faltava no produto hoje.",
-    decisions: "Novo catálogo (XLS) / Catálogo existente → Playbook.",
+    title: "Segmento",
+    href: "/memory-base/new",
+    purpose: "Segmento de negócio (Educação, Produto físico, Serviços).",
+    decisions: "Avançar → Formato de envio.",
   },
   {
     step: "06",
-    title: "Playbook",
-    href: "#",
-    purpose: "Vincula um playbook à base. Ramo novo/existente: cria do zero ou reusa um já criado.",
-    decisions: "Novo playbook / Playbook existente → base criada.",
+    title: "Formato de envio",
+    href: "/memory-base/new",
+    purpose: "Como os dados dos produtos chegam: Padrão (produto a produto) ou Catálogo (lote via CSV/integração). É o único fork de conteúdo do wizard.",
+    decisions: "Padrão / Catálogo → Base pronta.",
   },
   {
     step: "→ base",
-    title: "Base criada",
+    title: "Base pronta",
     href: "/memory-base",
-    purpose: "Fim do wizard: a base nasce e o usuário cai em /memory-base/[id] — com tour de onboarding e o painel Adicione Fontes pra continuar enriquecendo.",
-    decisions: "Continua dentro da base (Adicione Fontes).",
+    purpose: "Fim do wizard: cai em /memory-base/[id]?new=1 — a base nova aberta, pronta pra receber fontes (arquivos, sites, integrações).",
+    decisions: "Continua dentro da base.",
   },
 ]
 
@@ -237,9 +245,15 @@ const screens = [
 
 const updates: FlowUpdate[] = [
   {
+    date: "2026-06-08",
+    summary:
+      "Reescrito pra refletir o /memory-base/new já CONSTRUÍDO (wizard full-screen): Nome → Base criada (a base nasce aqui) → Objetivo → Segmento → Envio (Padrão/Catálogo) → base. Substitui o mapa do spec do Figma (Produto/Catálogo/Playbook), que não foi o que se implementou. Telas apontam pra rota real (previewáveis no drawer).",
+    tags: ["flow-rework"],
+  },
+  {
     date: "2026-06-07",
     summary:
-      "Flow mapeado no styleguide a partir do Figma (Flow library AW) — 6 etapas (Nome · Objetivo · Tipo de segmento · Tipo de envio · Produto · Catálogo/XLS · Playbook) com ramos novo/existente. Status: a desenvolver (hoje só existe um modal v0).",
+      "Flow mapeado a partir do Figma (Flow library AW) — 6 etapas com ramos novo/existente (Produto · Catálogo/XLS · Playbook). Status à época: a desenvolver (só existia modal v0).",
     tags: ["new-page"],
   },
 ]
@@ -255,28 +269,28 @@ export default function CriarBaseDeConhecimentoFlowPage() {
         title="Criar base de conhecimento"
         trailing={<FlowUpdatesBadge updates={updates} />}
       >
-        Wizard de criação de uma base de conhecimento dentro da Memory Base.
-        Mapeado a partir do Figma — <b className="font-medium text-(--fg-primary)">a desenvolver</b>:
-        hoje o produto só tem um modal v0 de criação. O alvo é um wizard
-        full-screen (rota <code>/memory-base/new</code>), não modal.
+        Wizard full-screen de criação de uma base de conhecimento na Memory Base
+        (rota <code>/memory-base/new</code>). Mapeia o fluxo{" "}
+        <b className="font-medium text-(--fg-primary)">já construído</b> — a base
+        nasce cedo (no passo do nome) e a classificação vem depois, opcional.
       </PageHero>
 
       <div className="max-w-[1400px] mx-auto px-10 pb-14 flex flex-col gap-16">
         <p className="text-sm text-(--fg-secondary) leading-relaxed max-w-2xl -mt-8">
-          São 6 etapas sequenciais no Figma: as quatro primeiras classificam a base
-          (Nome, Objetivo, Tipo de segmento, Tipo de envio de dados) e as duas
-          últimas vinculam as fontes-âncora (Produto, Catálogo/XLS e Playbook),
-          cada uma com um ramo <b className="font-medium text-(--fg-primary)">novo vs. existente</b>.
-          O fluxo converge na base recém-criada. Veja em "Decisões de design" a
-          proposta de enxugar isso pra 3 telas.
+          São 5 telas com 2 pontos de decisão. O detalhe central: a base é{" "}
+          <b className="font-medium text-(--fg-primary)">criada já no passo do nome</b>{" "}
+          (botão Criar) — a celebração que segue confirma que ela existe. A
+          classificação (Objetivo · Segmento · Envio) é opcional: dá pra fechar a
+          qualquer momento e a base fica salva na lista. O único fork de conteúdo
+          é o formato de envio (Padrão vs. Catálogo), que converge na base pronta.
         </p>
 
         <Section
           id="flow"
           title="Fluxograma"
-          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral (as telas do wizard ainda não têm protótipo — abrem um placeholder). Caixas tracejadas em âmbar são decisões — onde o usuário escolhe entre novo e existente. Setas âmbar são os ramos. Na barra embaixo dá pra comentar (vai pro review com chip UX Flow), sugerir edição ou ver em tela cheia."
+          lead="Clique em qualquer tela pra abrir o protótipo num painel lateral — as telas internas abrem o /memory-base/new ao vivo. Caixas tracejadas em âmbar são decisões; setas âmbar são os ramos. Na barra embaixo dá pra comentar (vai pro review com chip UX Flow), sugerir edição ou ver em tela cheia."
         >
-          <FlowDiagram flow="criar-base-de-conhecimento" nodes={NODES} edges={EDGES} height={2200} />
+          <FlowDiagram flow="criar-base-de-conhecimento" nodes={NODES} edges={EDGES} height={1600} />
         </Section>
 
         <Section
@@ -314,31 +328,31 @@ export default function CriarBaseDeConhecimentoFlowPage() {
         <Section
           id="design-notes"
           title="Decisões de design"
-          lead="Como simplificar o fluxo do Figma sem perder o essencial."
+          lead="Por que o fluxo está estruturado desse jeito."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
               <div className="aw-eyebrow mb-2">Wizard full-screen, não modal</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                A criação ocupa a tela inteira (rota <code>/memory-base/new</code>), no padrão do Agent Studio — etapas com progresso. O wizard (enxuto: 3 telas + loading) substitui o modal de criação v0, que foi aposentado.
+                A criação ocupa a tela inteira (<code>/memory-base/new</code>), no padrão cinematográfico do Agent Studio. Substituiu o modal de criação v0, que foi aposentado.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Alvo: 6 telas → 3</div>
+              <div className="aw-eyebrow mb-2">A base nasce antes da classificação</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                Enxugar pra <b className="font-medium text-(--fg-primary)">(1) Identidade &amp; objetivo</b> (funde Nome + Objetivo + Tipo de segmento + Tipo de envio), <b className="font-medium text-(--fg-primary)">(2) Fontes-âncora</b> (produto + catálogo/XLS + playbook numa tela só) e <b className="font-medium text-(--fg-primary)">(3) Revisão &amp; criar</b>.
+                Criar acontece no passo do nome — por isso a celebração "Base criada" vem <b className="font-medium text-(--fg-primary)">antes</b> de Objetivo/Segmento/Envio. Reduz o atrito: o usuário já tem a base, e classifica quando quiser.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Novo/existente vira toggle</div>
+              <div className="aw-eyebrow mb-2">Classificar é opcional</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                Os ramos "novo vs. existente" de produto, catálogo e playbook não precisam de tela própria cada — viram um toggle (segmented) dentro do bloco correspondente na tela de Fontes-âncora.
+                O X (fechar) está em todas as etapas. Fechar deixa a base salva na lista, sem classificação — as escolhas são patch na base, não pré-requisito da criação.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">A base de produtos (XLS) é o catálogo</div>
+              <div className="aw-eyebrow mb-2">Padrão vs. Catálogo</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                A tela de upload de uma planilha de produtos que faltava no produto é o ramo <b className="font-medium text-(--fg-primary)">Novo catálogo</b> da etapa 5 — sobe um <code>.xlsx/.csv</code> que vira o catálogo da base. Fontes extras (URL, snippet, integrações) ficam fora do wizard, dentro da base.
+                O único fork de conteúdo: <b className="font-medium text-(--fg-primary)">Padrão</b> (dados produto a produto, individuais) ou <b className="font-medium text-(--fg-primary)">Catálogo</b> (lote via CSV/integração). Define o <code>tipoDados</code> da base; ambos convergem na base pronta.
               </p>
             </div>
           </div>
