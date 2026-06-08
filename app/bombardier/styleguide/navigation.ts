@@ -76,6 +76,7 @@ export const navigation: NavSection[] = [
     group: "Biblioteca",
     title: "Componentes",
     items: [
+      { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
