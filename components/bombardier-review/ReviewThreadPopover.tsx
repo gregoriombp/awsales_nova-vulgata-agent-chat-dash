@@ -13,7 +13,10 @@ import {
   useCumulativeScrollOffset,
   useLayoutVersion,
 } from "@/lib/bombardier-review/scrollOffset"
-import { resolveElementPoint } from "@/lib/bombardier-review/elementAnchor"
+import {
+  resolveDrawPoints,
+  resolveElementPoint,
+} from "@/lib/bombardier-review/elementAnchor"
 import { formatFullTimestamp } from "@/lib/bombardier-review/format"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReplyRow } from "./ReviewCommentCard"
@@ -87,12 +90,20 @@ export function ReviewThreadPopover() {
   // While composing a new comment, the compose popover takes over.
   if (!comment || pendingAnchor || typeof window === "undefined") return null
 
-  // Acompanha o pin quando ele segue o reflow (âncora de elemento resolvida).
+  // Acompanha o marcador quando ele segue o reflow/zoom (âncora resolvida):
+  // pin → ponto do elemento; traço → centroide dos pontos re-resolvidos.
   void layoutVersion
-  const elPoint =
-    comment.anchor.kind === "pin" && comment.anchor.el
-      ? resolveElementPoint(comment.anchor.el)
-      : null
+  let elPoint: ReviewPoint | null = null
+  if (comment.anchor.kind === "pin" && comment.anchor.el) {
+    elPoint = resolveElementPoint(comment.anchor.el)
+  } else if (comment.anchor.kind === "draw" && comment.anchor.el) {
+    const pts = resolveDrawPoints(comment.anchor.el)
+    if (pts && pts.length > 0) {
+      const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length
+      const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length
+      elPoint = { x: cx, y: cy }
+    }
+  }
   const point = elPoint
     ? { x: elPoint.x + scroll.x, y: elPoint.y + scroll.y }
     : anchorPoint(comment)

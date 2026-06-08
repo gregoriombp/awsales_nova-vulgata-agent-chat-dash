@@ -10,7 +10,9 @@ import {
   useLayoutVersion,
 } from "@/lib/bombardier-review/scrollOffset"
 import {
+  captureDrawAnchor,
   captureElementAnchor,
+  resolveDrawPoints,
   resolveElementPoint,
 } from "@/lib/bombardier-review/elementAnchor"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
@@ -28,6 +30,17 @@ function pointFromEvent(e: PointerEvent | React.PointerEvent): ReviewPoint {
 
 function pointsToPolyline(points: ReviewPoint[]): string {
   return points.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(" ")
+}
+
+function centroidOf(points: ReviewPoint[]): ReviewPoint {
+  if (points.length === 0) return { x: 0, y: 0 }
+  let x = 0
+  let y = 0
+  for (const p of points) {
+    x += p.x
+    y += p.y
+  }
+  return { x: x / points.length, y: y / points.length }
 }
 
 function PathPolyline({
@@ -59,96 +72,141 @@ export function ReviewCanvas() {
   const pendingAnchor = useReviewStore((s) => s.pendingAnchor)
   const selectedCommentId = useReviewStore((s) => s.selectedCommentId)
 
-  const startDraw = useReviewStore((s) => s.startDraw)
-  const appendDrawPoint = useReviewStore((s) => s.appendDrawPoint)
-  const endDraw = useReviewStore((s) => s.endDraw)
-  const placePin = useReviewStore((s) => s.placePin)
   const openThread = useReviewStore((s) => s.openThread)
 
   const url = useCurrentUrl()
   const comments = useCommentsForUrl(url)
 
+  const svgRef = React.useRef<SVGSVGElement>(null)
   const isDrawingRef = React.useRef(false)
   const rafRef = React.useRef<number | null>(null)
   const pendingPointRef = React.useRef<ReviewPoint | null>(null)
   const scroll = useCumulativeScrollOffset()
   const layoutVersion = useLayoutVersion()
+  // Latest scroll for the native pointer handlers (attached once, read fresh).
+  const scrollRef = React.useRef(scroll)
+  React.useEffect(() => {
+    scrollRef.current = scroll
+  }, [scroll])
 
-  // Posição renderizada de cada pin, em coords do grupo (que já é transladado
-  // por -scroll). Quando o pin tem âncora de elemento e o elemento resolve, a
-  // posição segue o reflow horizontal; senão, cai na coord absoluta salva.
-  // `layoutVersion` força recálculo quando o layout muda sem scroll/resize.
-  const pinPositions = React.useMemo(() => {
+  // Posições renderizadas, em coords do grupo (que já é transladado por
+  // -scroll). Quando a âncora de elemento resolve, pins e traços seguem o
+  // reflow horizontal (sidebars) e o zoom do browser (o box escala junto);
+  // senão, caímos nas coords absolutas salvas. `layoutVersion` força recálculo
+  // quando o layout muda sem scroll/resize.
+  //   `pins`  — ponto do marcador de cada comentário (pin ou centroide do traço)
+  //   `draws` — pontos da polyline de cada marcação livre
+  const rendered = React.useMemo(() => {
     void layoutVersion
-    const map = new Map<string, ReviewPoint>()
+    const pins = new Map<string, ReviewPoint>()
+    const draws = new Map<string, ReviewPoint[]>()
     for (const c of comments) {
       if (c.origin === "ux-flow") continue
       if (c.anchor.kind === "pin") {
         const vp = c.anchor.el ? resolveElementPoint(c.anchor.el) : null
-        map.set(
+        pins.set(
           c.id,
           vp ? { x: vp.x + scroll.x, y: vp.y + scroll.y } : c.anchor.position,
         )
       } else {
-        map.set(c.id, c.anchor.centroid)
+        const vps = c.anchor.el ? resolveDrawPoints(c.anchor.el) : null
+        const docPts = vps
+          ? vps.map((p) => ({ x: p.x + scroll.x, y: p.y + scroll.y }))
+          : c.anchor.path.points
+        draws.set(c.id, docPts)
+        pins.set(c.id, vps ? centroidOf(docPts) : c.anchor.centroid)
       }
     }
-    return map
+    return { pins, draws }
   }, [comments, scroll.x, scroll.y, layoutVersion])
 
   const captureMode =
     pendingAnchor === null && (mode === "draw" || mode === "pin")
 
-  const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!identity) return
-    if (mode === "draw") {
-      isDrawingRef.current = true
-      const point = pointFromEvent(e)
-      startDraw(point, identity.colorToken)
-      ;(e.target as Element).setPointerCapture?.(e.pointerId)
-    } else if (mode === "pin") {
-      const point = pointFromEvent(e)
-      const el = captureElementAnchor(e.clientX, e.clientY)
-      placePin(point, el ?? undefined)
-    }
-  }
-
-  const flushPoint = React.useCallback(() => {
-    rafRef.current = null
-    const p = pendingPointRef.current
-    if (p) {
-      appendDrawPoint(p)
-      pendingPointRef.current = null
-    }
-  }, [appendDrawPoint])
-
-  const onPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!isDrawingRef.current || mode !== "draw") return
-    pendingPointRef.current = pointFromEvent(e)
-    if (rafRef.current === null) {
-      rafRef.current = requestAnimationFrame(flushPoint)
-    }
-  }
-
-  const onPointerUp = () => {
-    if (!isDrawingRef.current) return
-    isDrawingRef.current = false
-    if (rafRef.current !== null) {
-      cancelAnimationFrame(rafRef.current)
-      rafRef.current = null
-    }
-    if (pendingPointRef.current) {
-      appendDrawPoint(pendingPointRef.current)
-      pendingPointRef.current = null
-    }
-    endDraw()
-  }
-
+  // Pointer handling is done with NATIVE listeners on the <svg>, not React's
+  // onPointer* props. React 19 delegates events from `document` — the same node
+  // a Radix dialog's outside-dismiss listener lives on — so a synthetic
+  // stopPropagation runs too late to keep the modal open while you annotate it.
+  // A real listener on the element stops the event during the svg's own bubble
+  // step, before it reaches `document`. Handlers read live store state via
+  // getState() so the listeners can be attached once.
   React.useEffect(() => {
-    return () => {
-      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+    const svg = svgRef.current
+    if (!svg) return
+
+    const flush = () => {
+      rafRef.current = null
+      const p = pendingPointRef.current
+      if (p) {
+        useReviewStore.getState().appendDrawPoint(p)
+        pendingPointRef.current = null
+      }
     }
-  }, [])
+
+    const onDown = (e: PointerEvent) => {
+      // Shield underlying Radix dialogs from dismissing on the annotation press.
+      e.stopPropagation()
+      const s = useReviewStore.getState()
+      if (!s.identity) return
+      if (s.mode === "draw") {
+        isDrawingRef.current = true
+        s.startDraw(pointFromEvent(e), s.identity.colorToken)
+        ;(e.target as Element).setPointerCapture?.(e.pointerId)
+      } else if (s.mode === "pin") {
+        const el = captureElementAnchor(e.clientX, e.clientY)
+        s.placePin(pointFromEvent(e), el ?? undefined)
+      }
+    }
+
+    const onMove = (e: PointerEvent) => {
+      if (!isDrawingRef.current || useReviewStore.getState().mode !== "draw")
+        return
+      pendingPointRef.current = pointFromEvent(e)
+      if (rafRef.current === null) {
+        rafRef.current = requestAnimationFrame(flush)
+      }
+    }
+
+    const onUp = () => {
+      if (!isDrawingRef.current) return
+      isDrawingRef.current = false
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+      const s = useReviewStore.getState()
+      if (pendingPointRef.current) {
+        s.appendDrawPoint(pendingPointRef.current)
+        pendingPointRef.current = null
+      }
+      // Ancora o traço ao elemento sob o centroide (em coords de viewport) pra
+      // que sobreviva a zoom e reflow das sidebars, como os pins. Os pontos
+      // salvos estão em doc coords; tira o scroll atual pra voltar ao viewport.
+      const path = useReviewStore.getState().drawingPath
+      const sc = scrollRef.current
+      const el = path
+        ? captureDrawAnchor(
+            path.map((p) => ({ x: p.x - sc.x, y: p.y - sc.y })),
+          )
+        : null
+      s.endDraw(el ?? undefined)
+    }
+
+    svg.addEventListener("pointerdown", onDown)
+    svg.addEventListener("pointermove", onMove)
+    svg.addEventListener("pointerup", onUp)
+    svg.addEventListener("pointercancel", onUp)
+    return () => {
+      svg.removeEventListener("pointerdown", onDown)
+      svg.removeEventListener("pointermove", onMove)
+      svg.removeEventListener("pointerup", onUp)
+      svg.removeEventListener("pointercancel", onUp)
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current)
+        rafRef.current = null
+      }
+    }
+  }, [active])
 
   if (!active) return null
 
@@ -157,6 +215,7 @@ export function ReviewCanvas() {
 
   return (
     <svg
+      ref={svgRef}
       {...{ [OVERLAY_DATA_ATTR]: "" }}
       className="fixed inset-0"
       width="100%"
@@ -168,10 +227,6 @@ export function ReviewCanvas() {
         touchAction: captureMode ? "none" : "auto",
         overflow: "visible",
       }}
-      onPointerDown={onPointerDown}
-      onPointerMove={onPointerMove}
-      onPointerUp={onPointerUp}
-      onPointerCancel={onPointerUp}
     >
       <g transform={`translate(${-scroll.x} ${-scroll.y})`}>
         {/* ux-flow comments live on the diagram canvas (rendered by the flow
@@ -181,11 +236,14 @@ export function ReviewCanvas() {
             return (
               <g key={c.id} style={{ pointerEvents: "auto" }}>
                 <PathPolyline
-                  path={c.anchor.path}
+                  path={{
+                    ...c.anchor.path,
+                    points: rendered.draws.get(c.id) ?? c.anchor.path.points,
+                  }}
                   opacity={c.status === "resolved" ? 0.3 : 0.85}
                 />
                 <ReviewPinMarker
-                  position={pinPositions.get(c.id) ?? c.anchor.centroid}
+                  position={rendered.pins.get(c.id) ?? c.anchor.centroid}
                   comment={c}
                   selected={selectedCommentId === c.id}
                   onClick={(e) => {
@@ -199,7 +257,7 @@ export function ReviewCanvas() {
           return (
             <ReviewPinMarker
               key={c.id}
-              position={pinPositions.get(c.id) ?? c.anchor.position}
+              position={rendered.pins.get(c.id) ?? c.anchor.position}
               comment={c}
               selected={selectedCommentId === c.id}
               onClick={(e) => {

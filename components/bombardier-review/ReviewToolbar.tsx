@@ -4,6 +4,7 @@ import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
+import { useStopDismiss } from "@/lib/bombardier-review/useStopDismiss"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewAvatar } from "./ReviewAvatar"
 import type { ReviewMode } from "./types"
@@ -53,11 +54,13 @@ export function ReviewToolbar() {
   const pageComments = useCommentsForUrl(url)
   const openCount = pageComments.filter((c) => c.status === "open").length
   const inReviewCount = allComments.filter((c) => c.status === "in_review").length
+  const stopDismiss = useStopDismiss<HTMLDivElement>()
 
   if (!active) {
     return (
       <div
         {...{ [OVERLAY_DATA_ATTR]: "" }}
+        ref={stopDismiss}
         className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
         style={{ zIndex: REVIEW_Z.toolbar }}
       >
@@ -78,6 +81,7 @@ export function ReviewToolbar() {
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
+      ref={stopDismiss}
       className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
       style={{ zIndex: REVIEW_Z.toolbar }}
     >

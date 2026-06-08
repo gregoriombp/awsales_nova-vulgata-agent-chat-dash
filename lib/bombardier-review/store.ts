@@ -9,6 +9,7 @@ import type {
   ReviewActor,
   ReviewAnchor,
   ReviewComment,
+  ReviewDrawAnchor,
   ReviewDrawPath,
   ReviewElementAnchor,
   ReviewIdentity,
@@ -90,7 +91,7 @@ type ReviewState = {
 
   startDraw: (point: ReviewPoint, colorToken: string) => void
   appendDrawPoint: (point: ReviewPoint) => void
-  endDraw: () => void
+  endDraw: (el?: ReviewDrawAnchor) => void
   placePin: (point: ReviewPoint, el?: ReviewElementAnchor) => void
   cancelPending: () => void
   saveComment: (text: string, images?: string[]) => Promise<void>
@@ -247,7 +248,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     set({ drawingPath: [...path, point] })
   },
 
-  endDraw: () => {
+  endDraw: (el) => {
     const path = get().drawingPath
     const identity = get().identity
     if (!path || path.length < 2 || !identity) {
@@ -263,6 +264,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       kind: "draw",
       path: drawPath,
       centroid: centroidOf(path),
+      ...(el ? { el } : {}),
     }
     set({ drawingPath: null, pendingAnchor: anchor })
   },

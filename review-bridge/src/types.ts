@@ -18,9 +18,28 @@ export interface ReviewDrawPath {
   strokeWidth: number
 }
 
+// Element-relative anchors (mirror of components/bombardier-review/types.ts).
+// Additive/optional: they let a pin or stroke re-resolve to the element it was
+// dropped on, so it follows reflow + zoom. The server stores them verbatim.
+export interface ReviewElementAnchor {
+  selector: string
+  fx: number
+  fy: number
+}
+
+export interface ReviewDrawAnchor {
+  selector: string
+  points: { fx: number; fy: number }[]
+}
+
 export type ReviewAnchor =
-  | { kind: "pin"; position: ReviewPoint }
-  | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint }
+  | { kind: "pin"; position: ReviewPoint; el?: ReviewElementAnchor }
+  | {
+      kind: "draw"
+      path: ReviewDrawPath
+      centroid: ReviewPoint
+      el?: ReviewDrawAnchor
+    }
 
 export type ReviewCommentStatus = "open" | "in_review" | "resolved"
 

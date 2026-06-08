@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
+import { OVERLAY_DATA_ATTR } from "./constants"
 import { ReviewCanvas } from "./ReviewCanvas"
 import { ReviewCommentPopover } from "./ReviewCommentPopover"
 import { ReviewCommentSheet } from "./ReviewCommentSheet"
@@ -77,6 +78,30 @@ export function ReviewModeProvider() {
     // Defer scroll until after the overlay mounts.
     requestAnimationFrame(scroll)
   }, [comments, pathname, setActive, setSheetOpen, selectComment])
+
+  // A Radix Dialog (AwModal/AwSheet) com `modal` mantém um focus trap que puxa
+  // o foco de volta pra dentro dele sempre que algo de fora ganha foco. Isso
+  // impediria digitar no popover de comentário enquanto se revisa um modal.
+  // Interceptamos focusin/focusout na FASE DE CAPTURA: quando o alvo (ou o
+  // related) é uma superfície do review, paramos o evento antes que o handler
+  // de bubble do Radix o veja — o foco em si não é afetado, só a "puxada".
+  React.useEffect(() => {
+    if (!active || typeof document === "undefined") return
+    const within = (n: EventTarget | null) =>
+      n instanceof Element && !!n.closest(`[${OVERLAY_DATA_ATTR}]`)
+    const onFocusIn = (e: FocusEvent) => {
+      if (within(e.target)) e.stopImmediatePropagation()
+    }
+    const onFocusOut = (e: FocusEvent) => {
+      if (within(e.relatedTarget)) e.stopImmediatePropagation()
+    }
+    document.addEventListener("focusin", onFocusIn, true)
+    document.addEventListener("focusout", onFocusOut, true)
+    return () => {
+      document.removeEventListener("focusin", onFocusIn, true)
+      document.removeEventListener("focusout", onFocusOut, true)
+    }
+  }, [active])
 
   useGlobalHotkey({ key: "y", meta: true, shift: true }, () => toggleActive())
 

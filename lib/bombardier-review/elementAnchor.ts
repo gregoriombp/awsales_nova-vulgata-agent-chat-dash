@@ -1,5 +1,9 @@
 import { elementBelowOverlayAt } from "@/lib/bombardier-review/scrollOffset"
-import type { ReviewElementAnchor, ReviewPoint } from "@/components/bombardier-review/types"
+import type {
+  ReviewDrawAnchor,
+  ReviewElementAnchor,
+  ReviewPoint,
+} from "@/components/bombardier-review/types"
 
 // Pins guardam uma posição absoluta (doc coords), mas quando um painel lateral
 // abre/fecha (Cortex, sidebars) o `<main>` muda de largura e o conteúdo reflui
@@ -78,4 +82,57 @@ export function resolveElementPoint(
     x: rect.left + anchor.fx * rect.width,
     y: rect.top + anchor.fy * rect.height,
   }
+}
+
+/**
+ * Captura a âncora-de-elemento de uma marcação livre. Recebe os pontos JÁ em
+ * coords de viewport, escolhe o elemento sob o centroide como referência e
+ * guarda, pra cada ponto, sua fração (fx, fy) dentro do box desse elemento.
+ * Frações NÃO são clampeadas: o traço pode (e costuma) extrapolar o box.
+ */
+export function captureDrawAnchor(
+  viewportPoints: ReviewPoint[],
+): ReviewDrawAnchor | null {
+  if (viewportPoints.length === 0) return null
+  let cx = 0
+  let cy = 0
+  for (const p of viewportPoints) {
+    cx += p.x
+    cy += p.y
+  }
+  cx /= viewportPoints.length
+  cy /= viewportPoints.length
+  const el = elementBelowOverlayAt(cx, cy)
+  if (!el) return null
+  const rect = el.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return null
+  const selector = cssPath(el)
+  if (!selector) return null
+  return {
+    selector,
+    points: viewportPoints.map((p) => ({
+      fx: (p.x - rect.left) / rect.width,
+      fy: (p.y - rect.top) / rect.height,
+    })),
+  }
+}
+
+/** Re-resolve a marcação livre pros pontos de viewport atuais, ou null. */
+export function resolveDrawPoints(
+  anchor: ReviewDrawAnchor,
+): ReviewPoint[] | null {
+  if (typeof document === "undefined") return null
+  let el: Element | null = null
+  try {
+    el = document.querySelector(anchor.selector)
+  } catch {
+    return null
+  }
+  if (!el) return null
+  const rect = el.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return null
+  return anchor.points.map((p) => ({
+    x: rect.left + p.fx * rect.width,
+    y: rect.top + p.fy * rect.height,
+  }))
 }

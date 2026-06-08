@@ -5,6 +5,7 @@ import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCumulativeScrollOffset } from "@/lib/bombardier-review/scrollOffset"
+import { useStopDismiss } from "@/lib/bombardier-review/useStopDismiss"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import type { ReviewPoint } from "./types"
 
@@ -44,6 +45,7 @@ export function ReviewCommentPopover() {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const scroll = useCumulativeScrollOffset()
+  const stopDismiss = useStopDismiss<HTMLDivElement>()
 
   React.useEffect(() => {
     if (pendingAnchor) {
@@ -118,6 +120,7 @@ export function ReviewCommentPopover() {
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
+      ref={stopDismiss}
       className="fixed pointer-events-none"
       style={{
         zIndex: REVIEW_Z.popover,

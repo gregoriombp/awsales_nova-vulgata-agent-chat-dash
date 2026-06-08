@@ -32,9 +32,25 @@ export interface ReviewElementAnchor {
   fy: number
 }
 
+/**
+ * Element-relative anchor for a freehand stroke. Same idea as
+ * {@link ReviewElementAnchor}, but a whole path: one reference element (the
+ * element under the stroke's centroid) plus, for every point, its fractional
+ * offset (fx, fy) inside that element's box. Re-resolving the element on render
+ * makes the stroke follow horizontal reflow (sidebar toggles) AND browser zoom
+ * (the box scales, so the fractions scale with it) — the absolute `path.points`
+ * can't survive either. Fractions are NOT clamped: a stroke legitimately spills
+ * outside its reference box. Optional/additive — strokes without it fall back to
+ * `path.points`.
+ */
+export interface ReviewDrawAnchor {
+  selector: string
+  points: { fx: number; fy: number }[]
+}
+
 export type ReviewAnchor =
   | { kind: "pin"; position: ReviewPoint; el?: ReviewElementAnchor }
-  | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint }
+  | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint; el?: ReviewDrawAnchor }
 
 export type ReviewCommentStatus = "open" | "in_review" | "resolved"
 
