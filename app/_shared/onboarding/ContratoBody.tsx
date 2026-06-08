@@ -11,7 +11,6 @@ import {
   ONBOARDING_ORG,
   ONBOARDING_USER,
   fmtBRL,
-  type OnboardingContact,
 } from "@/app/primeiro-acesso/_data"
 
 type Org = typeof ONBOARDING_ORG
@@ -36,7 +35,10 @@ export function ContratoBody({
   const fidelidadeMeses = org.contractTerm.replace(" meses", "")
 
   return (
-    <AwOnboardingShell org={org}>
+    <AwOnboardingShell
+      org={org}
+      team={[org.accountManager, org.representanteComercial]}
+    >
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">{heading}</h3>
 
@@ -130,17 +132,7 @@ export function ContratoBody({
           />
         </ContratoSection>
 
-        <div className="mt-4 rounded-lg border border-border-subtle bg-bg-surface px-3.5 py-3">
-          <span className="block body-xs font-medium text-fg-secondary">
-            Seu time Aswork
-          </span>
-          <div className="mt-3 flex flex-wrap items-center gap-4">
-            <TeamMember person={org.accountManager} />
-            <TeamMember person={org.representanteComercial} />
-          </div>
-        </div>
-
-        <div className="mt-3 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">
+        <div className="mt-4 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">
           <AwFileIcon type="pdf" size="sm" />
           <span className="min-w-0 flex-1">
             <span className="block body-xs font-medium text-fg-primary">
@@ -266,25 +258,6 @@ function KV({
       >
         {value}
       </dd>
-    </div>
-  )
-}
-
-function TeamMember({ person }: { person: OnboardingContact }) {
-  return (
-    <div className="inline-flex min-w-0 items-center gap-2">
-      <AwAvatar
-        src={person.photo}
-        initials={person.initials}
-        alt={person.name}
-        style={{ width: 28, height: 28, fontSize: 11 }}
-      />
-      <div className="min-w-0">
-        <div className="body-xs font-medium leading-tight text-fg-primary">
-          {person.name}
-        </div>
-        <div className="mt-px text-[10px] text-fg-tertiary">{person.role}</div>
-      </div>
     </div>
   )
 }

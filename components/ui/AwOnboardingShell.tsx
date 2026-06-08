@@ -2,8 +2,16 @@
 
 import * as React from "react"
 import { AwLogo } from "./AwLogo"
+import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwNeuralPattern } from "@/components/ui/AwNeuralPattern"
 import { cn } from "@/lib/utils"
+
+export type AwOnboardingTeamMember = {
+  name: string
+  role: string
+  photo?: string
+  initials: string
+}
 
 export type AwOnboardingOrg = {
   name: string
@@ -29,6 +37,8 @@ export type AwOnboardingShellProps = {
    * layouts de duas colunas, como o resumo das cobranças no pagamento.
    */
   size?: "default" | "wide"
+  /** Time de atendimento (AM + comercial) exibido no brand pane, acima do card da org. */
+  team?: AwOnboardingTeamMember[]
 }
 
 export function AwOnboardingShell({
@@ -37,6 +47,7 @@ export function AwOnboardingShell({
   brandBackground = AW_ONBOARDING_BRAND_BACKGROUND,
   showOrgCard = true,
   size = "default",
+  team,
 }: AwOnboardingShellProps) {
   const wide = size === "wide"
   return (
@@ -45,6 +56,7 @@ export function AwOnboardingShell({
         org={org}
         background={brandBackground}
         showOrgCard={showOrgCard}
+        team={team}
       />
       <main className="flex-1 overflow-auto bg-bg-canvas">
         <div
@@ -64,10 +76,12 @@ function OnboardingBrandPane({
   org,
   background,
   showOrgCard,
+  team,
 }: {
   org: AwOnboardingOrg
   background?: string
   showOrgCard: boolean
+  team?: AwOnboardingTeamMember[]
 }) {
   const hasImage = Boolean(background)
 
@@ -108,7 +122,43 @@ function OnboardingBrandPane({
 
       <div className="relative z-10 flex-1" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col gap-3">
+        {team && team.length > 0 && showOrgCard && (
+          <div>
+            <div
+              className="mb-2.5 uppercase text-aw-gray-700"
+              style={{ fontSize: 10, letterSpacing: "0.06em" }}
+            >
+              Seu time Aswork
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              {team.map((p) => (
+                <div
+                  key={p.name}
+                  className="flex items-center gap-2.5 rounded-lg border border-aw-gray-1000 bg-white/[0.04] px-3 py-2.5 backdrop-blur-md"
+                >
+                  <AwAvatar
+                    src={p.photo}
+                    initials={p.initials}
+                    alt={p.name}
+                    style={{ width: 32, height: 32, fontSize: 12 }}
+                  />
+                  <div className="min-w-0">
+                    <div className="truncate body-xs font-medium text-white">
+                      {p.name}
+                    </div>
+                    <div
+                      className="truncate text-aw-gray-500"
+                      style={{ fontSize: 10 }}
+                    >
+                      {p.role}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {showOrgCard ? (
           <div className="rounded-xl border border-aw-gray-1000 bg-aw-gray-1200/55 p-4 backdrop-blur-md">
             <div
