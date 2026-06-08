@@ -226,9 +226,9 @@ const config: Config = {
   			]
   		},
   		borderRadius: {
-  			xs: '4px',
-  			sm: '6px',
-  			md: '8px',
+  			xs: '6px',
+  			sm: '8px',
+  			md: '10px',
   			lg: '12px',
   			xl: '16px',
   			'2xl': '24px',
