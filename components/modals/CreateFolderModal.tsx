@@ -42,17 +42,17 @@ export default function CreateFolderModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="sm">
       <form onSubmit={handleSubmit} className="flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-[#f2f2f2]">
+        <div className="flex items-center justify-between p-6 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#f2f2f2] flex items-center justify-center text-[#2f2f2f]">
+            <div className="w-10 h-10 rounded-xl bg-[var(--bg-muted)] flex items-center justify-center text-[var(--fg-primary)]">
               <TbFolderPlus className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="body-lg font-semibold text-[#1a1a1a]">
+              <h2 className="body-lg font-semibold text-[var(--fg-primary)]">
                 Nova Pasta
               </h2>
               {parentFolderName && (
-                <p className="body-xs text-[#5e5e5e]">
+                <p className="body-xs text-[var(--fg-secondary)]">
                   Dentro de: {parentFolderName}
                 </p>
               )}
@@ -61,7 +61,7 @@ export default function CreateFolderModal({
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 text-[#5e5e5e] hover:text-[#1a1a1a] hover:bg-[#f2f2f2] rounded-lg transition-colors"
+            className="p-2 text-[var(--fg-secondary)] hover:text-[var(--fg-primary)] hover:bg-[var(--bg-muted)] rounded-lg transition-colors"
             aria-label="Fechar"
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -81,12 +81,12 @@ export default function CreateFolderModal({
           <div>
             <label
               htmlFor="folder-name"
-              className="block body-xs font-medium text-[#2f2f2f] mb-2"
+              className="block body-xs font-medium text-[var(--fg-primary)] mb-2"
             >
               Nome da pasta
             </label>
             <div className="relative">
-              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#999]">
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--fg-tertiary)]">
                 <TbFolder className="w-5 h-5" />
               </div>
               <input
@@ -95,20 +95,20 @@ export default function CreateFolderModal({
                 value={folderName}
                 onChange={(e) => setFolderName(e.target.value)}
                 placeholder="Ex: Documentos de Vendas"
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[#e5e5e5] bg-white body-sm text-[#1a1a1a] placeholder:text-[#999] focus:border-[#1a1a1a] focus:outline-none focus:ring-1 focus:ring-[#1a1a1a] transition-colors"
+                className="w-full h-11 pl-10 pr-4 rounded-lg border border-[var(--border-default)] bg-[var(--bg-canvas)] body-sm text-[var(--fg-primary)] placeholder:text-[var(--fg-tertiary)] focus:border-[var(--fg-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--fg-primary)] transition-colors"
                 autoFocus
               />
             </div>
           </div>
 
-          <p className="body-xs text-[#5e5e5e]">
+          <p className="body-xs text-[var(--fg-secondary)]">
             As pastas ajudam a organizar seus arquivos, URLs, snippets e
             integrações dentro da base de conhecimento.
           </p>
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 p-6 border-t border-[#f2f2f2]">
+        <div className="flex items-center justify-end gap-3 p-6 border-t border-[var(--border-subtle)]">
           <AwButton
             type="button"
             variant="secondary"
