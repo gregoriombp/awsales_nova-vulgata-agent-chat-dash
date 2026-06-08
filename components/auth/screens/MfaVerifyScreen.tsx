@@ -47,7 +47,7 @@ export function MfaVerifyScreen({
   const isComplete = otp.every((d) => d !== "");
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <div className="flex justify-center mb-5">
         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-aw-gray-150 text-aw-gray-1200">
           <Icon name="shield_lock" size={24} />

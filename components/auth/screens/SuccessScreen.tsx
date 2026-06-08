@@ -17,7 +17,7 @@ export function SuccessScreen({ locale }: { locale: Locale }) {
   }, [router]);
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <div className="w-14 h-14 rounded-full bg-aw-emerald-500 flex items-center justify-center mb-5 text-white ring-8 ring-aw-emerald-500/15">
         <Icon name="check" size={28} />
       </div>

@@ -30,7 +30,7 @@ export function MfaBackupCodesScreen({
   const [confirmed, setConfirmed] = useState(false);
 
   return (
-    <div className="w-full max-w-[360px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-5">{c.sub}</p>
 

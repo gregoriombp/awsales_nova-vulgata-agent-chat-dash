@@ -21,7 +21,7 @@ export function WorkspaceScreen({
   const [selected, setSelected] = useState(0);
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <h3 className="text-aw-gray-1200 mb-2.5 text-center">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-6 text-center">{c.sub}</p>
 

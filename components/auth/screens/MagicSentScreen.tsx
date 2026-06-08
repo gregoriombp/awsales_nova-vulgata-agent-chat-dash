@@ -25,7 +25,7 @@ export function MagicSentScreen({
   }, [countdown]);
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <BackButton onClick={() => goTo("email")} label={c.back} />
 
       <div className="flex justify-center mb-4">

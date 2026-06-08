@@ -38,7 +38,7 @@ export function ResetScreen({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[380px] animate-fadeInUp">
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-6">{c.sub}</p>
 

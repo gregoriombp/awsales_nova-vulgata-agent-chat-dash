@@ -26,7 +26,7 @@ export function MfaRecoveryScreen({
   };
 
   return (
-    <form onSubmit={onSubmit} className="w-full max-w-[340px] animate-fadeInUp">
+    <form onSubmit={onSubmit} className="w-full max-w-[380px] animate-fadeInUp">
       <div className="flex justify-center mb-5">
         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-aw-gray-150 text-aw-gray-1200">
           <Icon name="key" size={24} />

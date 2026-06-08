@@ -21,7 +21,7 @@ export function SsoConnectingScreen({
   }, [goTo]);
 
   return (
-    <div className="w-full max-w-[340px] animate-fadeInUp flex flex-col items-center text-center">
+    <div className="w-full max-w-[380px] animate-fadeInUp flex flex-col items-center text-center">
       <span
         aria-hidden="true"
         className="block w-9 h-9 rounded-full border-2 border-aw-gray-300 border-t-aw-gray-1200 animate-spin mb-6"

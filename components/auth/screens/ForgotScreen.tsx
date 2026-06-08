@@ -38,7 +38,7 @@ export function ForgotScreen({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[340px] animate-fadeInUp">
+    <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-[380px] animate-fadeInUp">
       <BackButton onClick={() => goTo("email")} label={c.back} />
 
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>

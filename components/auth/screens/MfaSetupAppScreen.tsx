@@ -84,7 +84,7 @@ export function MfaSetupAppScreen({
   const isComplete = otp.every((d) => d !== "");
 
   return (
-    <div className="w-full max-w-[360px] animate-fadeInUp">
+    <div className="w-full max-w-[380px] animate-fadeInUp">
       <BackButton onClick={() => goTo("mfaGate")} label={c.back} />
 
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
