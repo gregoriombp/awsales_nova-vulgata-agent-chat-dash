@@ -4,6 +4,7 @@ import * as React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { AwButton } from "@/components/ui/AwButton"
+import { BuiltShell } from "@/app/bombardier/projects/_components/BuiltShell"
 import { AwInput } from "@/components/ui/AwInput"
 import { AwPill } from "@/components/ui/AwPill"
 import { Icon } from "@/components/ui/Icon"
@@ -27,30 +28,9 @@ export default function EditarKnowledgeLayer() {
   const dirty = true
 
   return (
-    <div className="flex min-h-screen flex-col bg-(--bg-canvas) text-(--fg-primary)">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--border-subtle) px-6 py-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <Link href="/bombardier/projects/memory-base" className="no-underline">
-            <AwButton variant="ghost" size="sm" iconLeft="arrow_back">
-              Memory Base
-            </AwButton>
-          </Link>
-          <span className="text-sm text-(--fg-secondary)">
-            Reconstruído de{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              Tela 10 · Edição de Knowledge Layer
-            </strong>
-          </span>
-          <AwPill variant="live">No design system atual</AwPill>
-        </div>
-        <a href={FIGMA_URL} target="_blank" rel="noopener noreferrer" className="no-underline">
-          <AwButton variant="ghost" size="sm" iconRight="open_in_new">
-            Original no Figma
-          </AwButton>
-        </a>
-      </div>
+    <BuiltShell breadcrumbs={[{ label: "Projetos", href: "/bombardier/projects" }, { label: "Memory Base", href: "/bombardier/projects/memory-base" }, "Edição de Knowledge Layer"]}>
 
-      <main className="mx-auto w-full max-w-[1100px] px-8 py-10">
+      <div className="mx-auto w-full max-w-[1100px]">
         <div className="flex items-start justify-between gap-4">
           <div>
             <Link
@@ -154,7 +134,7 @@ export default function EditarKnowledgeLayer() {
             ))}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </BuiltShell>
   )
 }
