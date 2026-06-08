@@ -787,7 +787,7 @@ function EditableText({
           rows={2}
           placeholder={placeholder}
           className={
-            "m-0 w-full resize-none rounded-[var(--radius-sm)] bg-[var(--bg-input)] px-2 py-1.5 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
+            "m-0 w-full resize-none rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] px-2 py-1.5 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
             (className ?? "")
           }
         />
@@ -811,7 +811,7 @@ function EditableText({
         }}
         placeholder={placeholder}
         className={
-          "m-0 w-full rounded-[var(--radius-sm)] bg-[var(--bg-input)] px-2 py-1 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
+          "m-0 w-full rounded-[var(--radius-sm)] bg-[var(--bg-canvas)] px-2 py-1 outline-none ring-1 ring-[var(--border-default)] focus:ring-[var(--fg-primary)] " +
           (className ?? "")
         }
       />

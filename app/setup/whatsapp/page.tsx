@@ -79,7 +79,7 @@ function PrereqRow({
       <a
         href="#"
         onClick={(e) => e.preventDefault()}
-        className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 body-xs font-medium text-[var(--accent-fg)] hover:underline"
+        className="mt-0.5 inline-flex flex-shrink-0 items-center gap-1 body-xs font-medium text-[var(--accent-brand)] hover:underline"
       >
         {helpLabel}
         <Icon name="north_east" size={14} />
@@ -255,7 +255,7 @@ export default function WhatsAppSetupPage() {
             <a
               href="#"
               onClick={(e) => e.preventDefault()}
-              className="font-medium text-[var(--accent-fg)] hover:underline"
+              className="font-medium text-[var(--accent-brand)] hover:underline"
             >
               Falar com suporte
             </a>

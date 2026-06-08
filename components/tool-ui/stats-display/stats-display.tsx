@@ -166,7 +166,7 @@ function StatCard({
   isSingle = false,
   index = 0,
 }: StatCardProps) {
-  const sparklineColor = stat.sparkline?.color ?? "var(--muted-foreground)";
+  const sparklineColor = stat.sparkline?.color ?? "var(--fg-tertiary)";
   const hasSparkline = Boolean(stat.sparkline);
   const baseDelay = index * 175;
 

@@ -194,7 +194,7 @@ export default function OrganizationSettingsPage() {
             <Icon name="warning" size={14} />
             <a
               href="#"
-              className="body-xs font-medium text-[var(--accent-primary)] underline-offset-2 hover:underline"
+              className="body-xs font-medium text-[var(--accent-brand)] underline-offset-2 hover:underline"
             >
               Algo está errado?
             </a>
