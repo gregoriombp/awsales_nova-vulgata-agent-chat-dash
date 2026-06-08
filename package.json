@@ -12,10 +12,7 @@
     "typecheck": "tsc --noEmit",
     "review-bridge": "npm --prefix review-bridge start",
     "review-bridge:dev": "npm --prefix review-bridge run dev",
-    "review-bridge:install": "npm --prefix review-bridge install",
-    "flow-bridge": "npm --prefix flow-bridge start",
-    "flow-bridge:dev": "npm --prefix flow-bridge run dev",
-    "flow-bridge:install": "npm --prefix flow-bridge install"
+    "review-bridge:install": "npm --prefix review-bridge install"
   },
   "keywords": [],
   "author": "",
