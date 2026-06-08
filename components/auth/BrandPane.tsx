@@ -1,15 +1,13 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis";
+import { AwBeams } from "@/components/ui/AwBeams";
 
 // Painel direito do fluxo de auth. Antes era um banco de fotos em escala de
-// cinza (uma por etapa); agora é o shader Synthesis (@react-three/fiber). Uma
-// única instância persiste entre as telas do fluxo, então o fundo flui de
-// forma contínua conforme o usuário avança (login → e-mail → MFA → …) em vez
-// de trocar de imagem a cada passo. Preset claro espelhando os controles do
-// Synthesis (color1/2/3, animation speed, complexity, zoom scale, distortion,
-// glow, flow frequency).
+// cinza (uma por etapa); agora é o fundo Beams — feixes de luz volumétricos
+// (WebGL, portado do reactbits.dev). Uma única instância persiste entre as
+// telas do fluxo, então o fundo flui contínuo conforme o usuário avança
+// (login → e-mail → MFA → …). Presets vindos dos controles do reactbits.
 export default function BrandPane() {
   // O Canvas WebGL é client-only; `mounted` fica false no SSR e true no
   // cliente (mesmo padrão da welcome do memory-base), evitando divergência de
@@ -22,19 +20,18 @@ export default function BrandPane() {
 
   return (
     <section className="relative hidden lg:flex items-center justify-center min-h-screen bg-white p-2 xl:p-3">
-      <div className="relative h-full w-full overflow-hidden rounded-2xl bg-aw-gray-200">
+      <div className="relative h-full w-full overflow-hidden rounded-2xl bg-(--bg-inverse)">
         {mounted && (
-          <AwCortexSynthesis
-            backgroundColor="#ffffff"
-            color1="#ffffff"
-            color2="#f5fcff"
-            color3="#cfd9dd"
-            speed={0.2}
-            complexity={6}
-            scale={0.8}
-            distortion={0}
-            glowIntensity={0.7}
-            flowFrequency={0.5}
+          <AwBeams
+            backgroundColor="#000000"
+            beamWidth={5.5}
+            beamHeight={30}
+            beamNumber={29}
+            lightColor="#ffffff"
+            speed={2}
+            noiseIntensity={1.75}
+            scale={0.2}
+            rotation={0}
           />
         )}
       </div>
