@@ -29,11 +29,11 @@ export type ConviteRole = {
 }
 
 export const CONVITE_ORG: ConviteOrg = {
-  name: "Aswork",
-  cnpj: "33.456.789/0001-12",
+  name: "Fyntra Tecnologia",
+  cnpj: "12.345.678/0001-90",
   plan: "Pro",
   contractTerm: "12 meses",
-  logo: undefined,
+  logo: "/assets/icon_artificial_concord_organization.png",
   brandBackground: "/assets/group-backgrounds/group-bg-17.jpg",
 }
 
