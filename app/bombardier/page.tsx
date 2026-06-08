@@ -16,10 +16,10 @@ const sections: HubSection[] = [
   {
     title: "Projetos",
     description:
-      "Lista dos seus projetos salvos em disco. Crie novos, abra, duplique ou delete.",
+      "Flows importados do Figma — navegue tela por tela, peça uma atualização pro design system e mande construir no repo.",
     icon: "folder_open",
     href: "/bombardier/projects",
-    status: "soon",
+    status: "ready",
   },
   {
     title: "Review Bridge",
