@@ -122,6 +122,11 @@ Each lives in `.claude/skills/<name>/SKILL.md` (except `bombardier-generate.md`,
 | `bombardier-pg-create-flow` | Create a NEW flow from a `.awflow.json` (designer/PG export). |
 | `bombardier-pg-merge-flow` | Merge a `.awflow.json` into a flow that already exists. |
 
+**Content / UX Writing**
+| Skill | When to use |
+|---|---|
+| `bombardier-ux-writing` | In-product UX-writing pass on a route / several routes / pasted links: reads the page's real strings, audits them against the AwSales **product** voice (resolve, não vende — inspired by ElevenLabs + OpenAI), proposes rewrites with rationale, applies **text-only** edits after approval. NOT marketing voice (that's the global `awsales-brand-voice`), NOT layout/structure (that's `ux-page-rework`). |
+
 **Bridges (LAN collaboration)**
 | Skill | When to use |
 |---|---|
@@ -139,6 +144,7 @@ The DS skills are **generic and Aw-prefix-blind** — they emit `components/Cust
 | Build a page | `bombardier-new-page` | `design-system-new-page` |
 | Bootstrap DS / tokens | `bombardier-design-system-foundation` | `setup-design-system-from-*` |
 | Audit consistency | `bombardier-design-system-audit` | — |
+| Revise in-product copy / microcopy | `bombardier-ux-writing` | `ux-copy` (generic, EN), `awsales-brand-voice` (marketing voice) |
 
 ## How the agent should combine skill + convention
 
