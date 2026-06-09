@@ -58,6 +58,7 @@ export const navigation: NavSection[] = [
       { name: "Checkbox", href: "/bombardier/styleguide/components/aw-checkbox" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
+      { name: "Dropzone", href: "/bombardier/styleguide/components/aw-dropzone" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
