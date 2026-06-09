@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { Icon } from "@/components/ui/Icon";
 import { createMemoryBase, updateMemoryBase } from "@/lib/memory-base/create";
+import { ProdutosStep } from "@/components/memory-base/wizard/ProdutosStep";
+import { CatalogoStep } from "@/components/memory-base/wizard/CatalogoStep";
+import { PlaybookStep } from "@/components/memory-base/wizard/PlaybookStep";
 import { cn } from "@/lib/utils";
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -12,18 +15,28 @@ import { cn } from "@/lib/utils";
  *
  * A base nasce no passo "name" (botão Criar) e a celebração mostra que ela já
  * existe. "Configurar" então abre a classificação — objetivo → segmento → envio —
- * que faz patch na base recém-criada. As escolhas são decorativas (repo é
- * preview de UX, sem backend); ver docs/memory-base-creation-wizard.md.
+ * que faz patch na base recém-criada, e segue pras fontes (produtos/catálogo) e
+ * playbook. As escolhas são decorativas (repo é preview de UX, sem backend);
+ * ver docs/memory-base-creation-wizard.md.
  *
  *   name      → input do nome + Criar               (Tela 02)
  *   created   → celebração + "Configurar" em fade   (Tela 03)
  *   objetivo  → 5 cards                              (Tela 04/05)
  *   segmento  → 3 cards
  *   envio     → Padrão / Catálogo                    (Tela 06/07)
+ *   fontes    → Produtos (Padrão) | Catálogo (CSV)   (Tela 06 ramo / Tela 07)
+ *   playbook  → fontes do playbook + "Criar base"    (Tela 08)
  *   → /memory-base/[id]?new=1
  * ───────────────────────────────────────────────────────────────────────── */
 
-type Phase = "name" | "created" | "objetivo" | "segmento" | "envio";
+type Phase =
+  | "name"
+  | "created"
+  | "objetivo"
+  | "segmento"
+  | "envio"
+  | "fontes"
+  | "playbook";
 
 type Opt = { id: string; icon: string };
 
@@ -139,8 +152,21 @@ export default function CreateMemoryBasePage() {
             value={envio}
             onChange={setEnvio}
             onBack={() => setPhase("segmento")}
-            onNext={finish}
+            onNext={() => setPhase("fontes")}
           />
+        )}
+
+        {/* Etapa 5 — ramificada pela escolha de envio: Catálogo (CSV) ou Produtos. */}
+        {phase === "fontes" &&
+          (envio === "Catálogo" ? (
+            <CatalogoStep onBack={() => setPhase("envio")} onNext={() => setPhase("playbook")} />
+          ) : (
+            <ProdutosStep onBack={() => setPhase("envio")} onNext={() => setPhase("playbook")} />
+          ))}
+
+        {/* Etapa 6 — Playbook; "Criar base" conclui e abre a base recém-criada. */}
+        {phase === "playbook" && (
+          <PlaybookStep onBack={() => setPhase("fontes")} onNext={finish} />
         )}
       </main>
     </div>
