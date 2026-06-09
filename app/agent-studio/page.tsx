@@ -6,7 +6,7 @@ import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwAvatar } from "@/components/ui/AwAvatar";
-import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
+import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwDotTunnel } from "@/components/ui/AwDotTunnel";
 import {
@@ -14,7 +14,7 @@ import {
   AwMembersTablePersonCell,
   AwMembersTableTextCell,
 } from "@/components/ui/AwMembersTable";
-import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import {
   AwEmpty,
@@ -25,128 +25,13 @@ import {
   AwEmptyContent,
 } from "@/components/ui/AwEmpty";
 import { getOrbForAgent } from "@/lib/agentOrbs";
+import {
+  AGENT_STATUS_META,
+  ALL_AGENTES,
+  TODOS_OS_AGENTES,
+  type Agent,
+} from "@/lib/agentStudio";
 
-type AgentStatus = "active" | "draft" | "paused";
-
-type Agent = {
-  id: string;
-  title: string;
-  /** Objetivo curto do agente (uma linha). */
-  objetivo: string;
-  status: AgentStatus;
-  /** Nome do Agent Core (framework) que o agente roda. */
-  coreName: string;
-  /** PNG do Core (1–20). */
-  coreSrc: string;
-  author: { name: string; initials: string };
-  createdAt: string;
-  knowledgeBase: string;
-};
-
-const STATUS_META: Record<
-  AgentStatus,
-  { label: string; variant: AwPillVariant }
-> = {
-  active: { label: "Ativo", variant: "live" },
-  draft: { label: "Rascunho", variant: "draft" },
-  paused: { label: "Pausado", variant: "neutral" },
-};
-
-const MEUS_AGENTES: Agent[] = [
-  {
-    id: "leads-recovery",
-    title: "Agente de recuperação de leads",
-    objetivo: "Recuperar leads",
-    status: "active",
-    coreName: "Upsell Specialist",
-    coreSrc: agentCoreSrc(3),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
-    createdAt: "9 fev 2026, 20:21",
-    knowledgeBase: "Fyntra | Dados Gerais 2026",
-  },
-  {
-    id: "sales",
-    title: "Agente de vendas",
-    objetivo: "Qualificar lead e agendar demo",
-    status: "active",
-    coreName: "Closer Pro",
-    coreSrc: agentCoreSrc(7),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
-    createdAt: "2 fev 2026, 11:08",
-    knowledgeBase: "Fyntra | Playbook comercial",
-  },
-  {
-    id: "customer-support",
-    title: "Agente de suporte",
-    objetivo: "Resolver tickets de nível 1",
-    status: "active",
-    coreName: "Empathy Core",
-    coreSrc: agentCoreSrc(12),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
-    createdAt: "28 jan 2026, 16:42",
-    knowledgeBase: "Fyntra | Central de ajuda",
-  },
-  {
-    id: "hr",
-    title: "Agente de RH",
-    objetivo: "Onboarding e dúvidas de políticas",
-    status: "draft",
-    coreName: "People Ops",
-    coreSrc: agentCoreSrc(15),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
-    createdAt: "24 jan 2026, 09:15",
-    knowledgeBase: "Fyntra | Manual interno",
-  },
-];
-
-const TODOS_OS_AGENTES: Agent[] = [
-  {
-    id: "research",
-    title: "Agente de research",
-    objetivo: "Sintetizar briefs de mercado",
-    status: "active",
-    coreName: "Insight Engine",
-    coreSrc: agentCoreSrc(5),
-    author: { name: "Bea Costa", initials: "BC" },
-    createdAt: "18 jan 2026, 14:30",
-    knowledgeBase: "Fyntra | Inteligência de mercado",
-  },
-  {
-    id: "qa",
-    title: "Agente de QA",
-    objetivo: "Checar regressões antes do deploy",
-    status: "paused",
-    coreName: "Guardian",
-    coreSrc: agentCoreSrc(9),
-    author: { name: "Carlos Sun", initials: "CS" },
-    createdAt: "15 jan 2026, 10:00",
-    knowledgeBase: "Fyntra | Release notes",
-  },
-  {
-    id: "onboarding",
-    title: "Agente de onboarding",
-    objetivo: "Guiar os primeiros 90 dias",
-    status: "active",
-    coreName: "Pathfinder",
-    coreSrc: agentCoreSrc(2),
-    author: { name: "Dani Rocha", initials: "DR" },
-    createdAt: "12 jan 2026, 08:45",
-    knowledgeBase: "Fyntra | Onboarding workspace",
-  },
-  {
-    id: "data",
-    title: "Agente de dados",
-    objetivo: "Rodar queries e montar dashboards",
-    status: "active",
-    coreName: "Data Forge",
-    coreSrc: agentCoreSrc(18),
-    author: { name: "Eva Lima", initials: "EL" },
-    createdAt: "9 jan 2026, 17:20",
-    knowledgeBase: "Fyntra | Data warehouse",
-  },
-];
-
-const ALL_AGENTES: Agent[] = [...MEUS_AGENTES, ...TODOS_OS_AGENTES];
 
 type StudioState = "welcome" | "populated" | "returning";
 
@@ -304,7 +189,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
       ]}
     >
       {agents.map((agent) => {
-        const status = STATUS_META[agent.status];
+        const status = AGENT_STATUS_META[agent.status];
         const href = `/agent-studio/${agent.id}`;
         return (
           <tr
