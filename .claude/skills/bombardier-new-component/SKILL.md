@@ -18,7 +18,7 @@ description: >
 
 # Bombardier — Prompt 2: Component Development
 
-> **Repo override (AwSales): there is no "Playground"/quarantine area.** Ignore any step below that places a new or experimental component under a `playground/` path or in a "Playground" nav section — it was removed. New components go to `components/ui/Aw[Name].tsx` + showcase at `app/bombardier/styleguide/components/aw-[name]/`, registered in `navigation.ts`. Source of truth: `AGENTS.md`.
+> **Repo override (AwSales): there is no "Playground"/quarantine area.** Ignore any step below that places a new or experimental component under a `playground/` path or in a "Playground" nav section — it was removed. New components go to `components/ui/Aw[Name].tsx` + showcase at `app/bombardier/styleguide/components/aw-[name]/`, registered in `navigation.ts`. If the new component belongs to an existing family with multiple concrete items (tables, modals, sheets/drawers, agent visuals), add it as a `children` entry under the family hub and update the hub page to show it inline; do not create another top-level sidebar entry. Source of truth: `AGENTS.md`.
 
 Add a `[COMPONENT NAME]` to the project using shadcn/ui as a foundation and
 **only existing project tokens** for styling.

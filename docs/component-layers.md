@@ -69,6 +69,17 @@ Registre o componente em `navigation.ts` na seção da sua camada, em ordem
 alfabética. **Nenhum `href` muda** ao mudar de camada — o agrupamento é só
 governança de navegação.
 
+Quando uma família tem mais de um item concreto, use um item-mãe com
+`children` em vez de criar várias entradas top-level. O item-mãe aponta para o
+hub canônico; os filhos apontam para subpáginas técnicas ou anchors dentro do
+hub. Exemplos atuais:
+
+- `Tabelas` → `AwTable`, `Data table`, `Members table`
+- `Modais e dialogs` → `AwModal`, `Connect modal`, `Contact channel modal`,
+  `Welcome modal`, `Add integration modal`
+- `Sheets e drawers` → `AwSheet`, `Template builder sheet`
+- `Visual dos agentes` → `Agent Core`, `Agente do Usuário`, `Cortex`
+
 ## Mapeamento atual (auditoria)
 
 Espelha `app/bombardier/styleguide/navigation.ts` — consulte a nav para o inventário vivo (a contagem muda; não fixamos número aqui).
@@ -77,17 +88,20 @@ Espelha `app/bombardier/styleguide/navigation.ts` — consulte a nav para o inve
 Controles · Dropdown menu · Empty · File icon · Inputs · Pills · Progress ·
 Select · Skeleton · Slider · Status dot · Tabs · Toast · Transition
 
-**Componentes (20)** — Card brand · Cards · Chat bubbles · Chrome · Data table ·
-Dot tunnel · Group card · List group · Members table · Modais · Nav list ·
-Nav rail · Option list · Page header · Payment method card · Sheet ·
-Shortcut tile · Stat card · Stats display · Tabela
+**Componentes** — Beams · Card brand · Cards · Channel icon · Chat bubbles ·
+Chrome · Dot tunnel · Group card · List group · Modais e dialogs
+(`AwModal`, `Connect modal`, `Contact channel modal`, `Welcome modal`,
+`Add integration modal`) · Nav list · Nav rail · Notificações · Option list ·
+Page header · Payment method card · Sheets e drawers (`AwSheet`,
+`Template builder sheet`) · Shortcut tile · Stat card · Stats display ·
+Tabelas (`AwTable`, `Data table`, `Members table`)
 
-**Padrões (9)** — Backup codes · Connect modal · Integration catalog ·
-Onboarding shell · Onboarding timeline · Password setup · QR placeholder ·
-Template builder sheet · Welcome modal
+**Padrões** — Backup codes · Integration catalog · Onboarding shell ·
+Onboarding timeline · Password setup · QR placeholder
 
-**Domínio (7)** — Agent tile · Banner de plano adicional · Brand logo ·
-Integration card · Specialists pair · Visual dos agentes · WhatsApp panel
+**Domínio** — Agent tile · Banner de plano adicional · Brand logo ·
+Capability tile · Integration card · Specialists pair · Visual dos agentes
+(`Agent Core`, `Agente do Usuário`, `Cortex`) · WhatsApp panel
 
 ### Fronteiras revisadas (2026-05)
 

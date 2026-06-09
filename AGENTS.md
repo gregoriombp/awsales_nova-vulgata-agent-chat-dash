@@ -26,6 +26,15 @@ Every design system component **must** start with `Aw`. No exceptions within the
 > folders** — doing so breaks live routes. The `name` field in `navigation.ts` uses
 > descriptive labels (in PT-BR or EN), not the raw `Aw[Name]` identifier.
 
+> **Styleguide family hubs:** when a component family has more than one concrete
+> implementation or variant page (for example `Tabelas` → `AwTable`, `Data table`,
+> `Members table`; `Modais e dialogs` → `AwModal`, `Connect modal`, `Welcome modal`),
+> keep one parent entry in the sidebar and list the concrete items as
+> `children` in `navigation.ts`. The parent page must show all concrete items
+> inline before long API guidance. Put "quando usar / quando não usar" guidance
+> near the end as a table, not as top-of-page cards. Do not create duplicate
+> top-level sidebar entries for family members.
+
 **Correct examples:**
 
 ```

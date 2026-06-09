@@ -15,7 +15,12 @@ Esta página fixa **a ordem das seções** e **quais primitivos usar em cada
 uma**. A intenção é que um dev novo encontre a mesma informação no mesmo
 lugar, qualquer componente que abrir.
 
-## Estrutura de uma página de **componente** (14 seções)
+## Estrutura de uma página de **componente individual** (15 seções)
+
+Use este padrão para uma página que documenta **um** componente específico
+(`AwButton`, `AwSelect`, `AwAgentTile`, etc.). Para uma página-mãe que agrupa
+várias implementações da mesma família, use a seção "página-hub de família"
+abaixo.
 
 A ordem é fixa. Seções podem ser **puladas** quando não se aplicam (ex: um
 componente puramente visual sem interação pula `States`, `Accessibility` fica
@@ -39,7 +44,40 @@ mais curto). Nunca **reordene**.
 | 14 | DoDont — regras visuais | `DoDont` | Nunca |
 | 15 | RelatedLinks — navegação contextual | `RelatedLinks` | Nunca (mínimo 2 itens) |
 
-## Estrutura de uma página de **foundation** (8 seções)
+## Estrutura de uma **página-hub de família**
+
+Use quando a sidebar tem um item-mãe com mais de um filho, por exemplo:
+
+- `Tabelas` → `AwTable`, `Data table`, `Members table`
+- `Modais e dialogs` → `AwModal`, `Connect modal`, `Welcome modal`
+- `Visual dos agentes` → `Agent Core`, `Agente do Usuário`, `Cortex`
+
+A página-hub serve para decisão rápida e comparação visual. Ela não deve
+começar com cards de "quando usar / quando não usar"; primeiro mostra o
+inventário inteiro.
+
+| # | Seção | Primitivo | Observação |
+|---|---|---|---|
+| 1 | PageHero | `PageHero` | Explica a família, não um item específico |
+| 2 | Toc | `Toc` | Sempre que a página tiver mais de 3 seções |
+| 3 | Inventário inline | `Section` + previews reais/estáticos | Mostre todos os filhos na mesma página, sem depender de botões que abrem overlays |
+| 4 | Anatomia / padrões compartilhados | `Section` + `Spec` | Só o que vale para a família inteira |
+| 5 | API do item base | `ApiTable` + `PropRow` | Quando há primitivo-base (`AwModal`, `AwTable`) |
+| 6 | Quando usar | tabela HTML | Colunas mínimas: componente, quando usar, quando não usar, observação |
+| 7 | RelatedLinks | `RelatedLinks` | Links para subpáginas técnicas dos filhos |
+
+Regras da página-hub:
+
+- O item-mãe é a entrada principal na sidebar.
+- Cada filho aparece como `children` no item-mãe de `navigation.ts`.
+- Subpáginas técnicas dos filhos podem continuar existindo, mas não competem
+  com o hub na sidebar como top-level.
+- Mostre todos os filhos inline no hub; em modais, não obrigue o usuário a
+  clicar num botão para entender qual modal existe.
+- A decisão "quando usar / quando não usar" fica no fim em formato de tabela,
+  não em `Tldr` no topo.
+
+## Estrutura de uma página de **foundation** (10 seções)
 
 Foundations (cor, typography, spacing, grid, motion, iconography, logos…)
 documentam *tokens* e *princípios*, não props.
