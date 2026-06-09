@@ -249,6 +249,18 @@ export function isEditorTabId(value: string | null): value is EditorTabId {
  * Dados estendidos do editor
  * ───────────────────────────────────────────────────────────────────────── */
 
+/**
+ * Checkpoint — etapa do guia de execução do agente.
+ *
+ * `objetivo` e cada linha de `itens` são texto livre que aceita dois tokens
+ * inline, serializados como string:
+ *   - `@[id]`      → menção a uma habilidade configurada (HabilidadeConfigurada.id)
+ *   - `{{nome}}`   → variável do agente
+ *
+ * As habilidades exibidas no card e no diagrama são DERIVADAS das menções `@[…]`
+ * presentes no texto — não existe mais campo `habilidades` armazenado.
+ * Helpers de parse/derivação: components/agent-studio/editor/checkpointTokens.ts.
+ */
 export type Checkpoint = {
   id: string;
   numero: number;
@@ -256,12 +268,10 @@ export type Checkpoint = {
   objetivo: string;
   /** Chips de análise ("Analise o Histórico do Usuário"). */
   analises?: string[];
-  /** Bullets de orientação do checkpoint. */
+  /** Bullets de orientação do checkpoint (suportam tokens `@[id]` e `{{var}}`). */
   itens: string[];
   /** Bloco de marcação — o agente classifica a resposta do lead. */
   marque?: { rotulo: string; opcoes: string[] };
-  /** Habilidades referenciadas via @ neste checkpoint. */
-  habilidades?: string[];
 };
 
 export type HabilidadeConfigurada = {
@@ -380,6 +390,7 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     analises: ["Analise o Histórico do Usuário"],
     itens: [
       "Agradecer pelo interesse demonstrado do {{lead_name}}.",
+      "Recuperar o histórico da conversa com @[contexto] antes da primeira mensagem.",
       "Perguntar se ainda tem interesse em avançar enquanto o processo segue.",
       "Tom consultivo e não invasivo.",
     ],
@@ -392,7 +403,6 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
         "Sem resposta inicial",
       ],
     },
-    habilidades: ["Contexto"],
   },
   {
     id: "cp-2",
@@ -402,10 +412,9 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     analises: ["Capture o Tom das Primeiras Palavras do Lead"],
     itens: [
       "Perguntar de forma aberta o que impediu o avanço.",
-      "Não rebater a primeira objeção — registrar e aprofundar.",
-      "Identificar se o bloqueio é de tempo, confiança ou prioridade.",
+      "Não rebater a primeira objeção — registrar no @[fluxo] e aprofundar.",
+      "Identificar com @[aops] se o bloqueio é de tempo, confiança ou prioridade.",
     ],
-    habilidades: ["Fluxo", "AOPs"],
   },
   {
     id: "cp-3",
@@ -415,10 +424,9 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
       "Reconectar a oferta ao objetivo original do lead com base no contexto coletado.",
     itens: [
       "Citar o benefício mais aderente ao motivo identificado no checkpoint anterior.",
-      "Usar a base de conhecimento para responder dúvidas de produto.",
+      "Responder dúvidas de produto consultando a @[base-conhecimento].",
       "Evitar repetir argumentos que o lead já recebeu.",
     ],
-    habilidades: ["Base de conhecimento"],
   },
   {
     id: "cp-4",
@@ -426,15 +434,14 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     titulo: "Tratamento de Objeções",
     objetivo: "Responder objeções com dados e casos reais, sem pressionar.",
     itens: [
-      "Consultar cases relevantes para o segmento do lead.",
+      "Consultar cases relevantes para o segmento do lead em @[aops].",
       "Se a objeção for financeira, apresentar condições disponíveis.",
-      "Escalar para atendimento humano se a objeção fugir do escopo.",
+      "Escalar com @[atendimento-humano] se a objeção fugir do escopo.",
     ],
     marque: {
       rotulo: "o Tipo de Objeção",
       opcoes: ["Preço", "Tempo", "Confiança", "Sem objeção"],
     },
-    habilidades: ["AOPs", "Atendimento humano"],
   },
   {
     id: "cp-5",
@@ -442,11 +449,10 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     titulo: "Encaminhamento e Agendamento",
     objetivo: "Converter o reengajamento em um próximo passo concreto.",
     itens: [
-      "Propor horários reais a partir da agenda conectada.",
+      "Propor horários reais via @[google-calendar] a partir da agenda conectada.",
       "Confirmar canal preferido do lead para o follow-up.",
-      "Registrar o desfecho da conversa no CRM.",
+      "Registrar o desfecho da conversa no CRM com @[pipedrive].",
     ],
-    habilidades: ["Google Calendar", "Pipedrive"],
   },
 ];
 
@@ -473,6 +479,18 @@ const HABILIDADES_CONFIGURADAS: HabilidadeConfigurada[] = [
     id: "aops",
     nome: "AOPs",
     descricao: "Procedimentos operacionais do agente.",
+    grupo: "nativo",
+  },
+  {
+    id: "base-conhecimento",
+    nome: "Base de conhecimento",
+    descricao: "Consulta às bases conectadas ao agente.",
+    grupo: "nativo",
+  },
+  {
+    id: "atendimento-humano",
+    nome: "Atendimento humano",
+    descricao: "Transferência da conversa para um atendente.",
     grupo: "nativo",
   },
   {
