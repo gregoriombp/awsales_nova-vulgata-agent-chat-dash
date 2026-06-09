@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AgentEditorShell } from "@/components/agent-studio/editor/AgentEditorShell";
@@ -18,6 +18,7 @@ import { PreferenciasTab } from "@/components/agent-studio/editor/tabs/Preferenc
 import {
   getAgentEditorData,
   isEditorTabId,
+  type Checkpoint,
   type EditorTabId,
 } from "@/lib/agentStudio";
 
@@ -25,6 +26,10 @@ import {
  * Editor do agente. A seção ativa vive na URL (?tab=…) — deep-link funciona,
  * o browser back anda entre seções e o Review Mode (escopado por URL) separa
  * os comentários por seção.
+ *
+ * Prompt e checkpoints são estado da PÁGINA (não das tabs): editar na seção
+ * Prompt e Checkpoint sobrevive à troca de seção e a Visualização modular
+ * deriva o diagrama do mesmo estado.
  */
 export default function AgentEditorPage() {
   const params = useParams<{ id: string }>();
@@ -32,6 +37,10 @@ export default function AgentEditorPage() {
   const searchParams = useSearchParams();
 
   const data = getAgentEditorData(params.id);
+  const [checkpoints, setCheckpoints] = useState<Checkpoint[]>(
+    data.checkpoints
+  );
+  const [prompt, setPrompt] = useState(data.prompt);
   const tabParam = searchParams.get("tab");
   const activeTab: EditorTabId = isEditorTabId(tabParam)
     ? tabParam
@@ -57,9 +66,17 @@ export default function AgentEditorPage() {
         onTabChange={handleTabChange}
       >
         {activeTab === "visao-geral" && <VisaoGeralTab data={data} />}
-        {activeTab === "prompt-checkpoint" && <PromptCheckpointTab data={data} />}
+        {activeTab === "prompt-checkpoint" && (
+          <PromptCheckpointTab
+            data={data}
+            checkpoints={checkpoints}
+            onCheckpointsChange={setCheckpoints}
+            prompt={prompt}
+            onPromptChange={setPrompt}
+          />
+        )}
         {activeTab === "visualizacao-modular" && (
-          <VisualizacaoModularTab data={data} />
+          <VisualizacaoModularTab data={data} checkpoints={checkpoints} />
         )}
         {activeTab === "base-conhecimento" && <BaseConhecimentoTab data={data} />}
         {activeTab === "aops" && <AopsTab data={data} />}

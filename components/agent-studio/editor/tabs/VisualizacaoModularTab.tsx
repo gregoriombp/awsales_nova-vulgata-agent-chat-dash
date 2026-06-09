@@ -18,6 +18,10 @@ import {
 import "@xyflow/react/dist/style.css";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
+import {
+  checkpointTexts,
+  deriveHabilidades,
+} from "@/components/agent-studio/editor/checkpointTokens";
 import type { AgentEditorData, Checkpoint } from "@/lib/agentStudio";
 
 /**
@@ -25,13 +29,18 @@ import type { AgentEditorData, Checkpoint } from "@/lib/agentStudio";
  * read-only. Cada checkpoint vira um nó; as arestas seguem a ordem
  * 1→2→…→N entre o início da conversa e a conversão registrada.
  *
+ * Os checkpoints chegam por props do estado da página — qualquer edição
+ * feita na seção Prompt e Checkpoint (título, objetivo, habilidades @)
+ * aparece aqui ao trocar de seção. As habilidades de cada nó são derivadas
+ * das menções @ presentes no texto do checkpoint.
+ *
  * Clicar em um checkpoint abre o painel de detalhes com o atalho para
  * editar a etapa na seção Prompt e Checkpoint.
  */
 
 /* ─── Layout ───────────────────────────────────────────────────────────── */
 
-const ROW_H = 190;
+const ROW_H = 200;
 /** Zigue-zague suave: alterna o x dos checkpoints entre duas colunas. */
 const ZIG_X = [40, 200] as const;
 /** Pills de início/fim centralizadas em relação às duas colunas. */
@@ -50,13 +59,17 @@ function pad(n: number) {
 
 /* ─── Nós custom ───────────────────────────────────────────────────────── */
 
-type CheckpointNodeData = { checkpoint: Checkpoint };
+type CheckpointNodeData = { checkpoint: Checkpoint; habilidades: string[] };
+
+/** Máximo de chips de habilidade visíveis por nó — o resto vira "+N". */
+const NODE_MAX_CHIPS = 3;
 
 function CheckpointNode(props: NodeProps) {
-  const { checkpoint } = props.data as unknown as CheckpointNodeData;
+  const { checkpoint, habilidades } =
+    props.data as unknown as CheckpointNodeData;
   return (
     <div
-      className={`w-[280px] cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition-colors duration-aw-fast ${
+      className={`w-[280px] cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition-[border-color,box-shadow] duration-aw-fast ${
         props.selected
           ? "border-(--border-strong) ring-2 ring-(--accent-brand)"
           : "border-(--border-subtle) hover:border-(--border-default)"
@@ -75,6 +88,24 @@ function CheckpointNode(props: NodeProps) {
       <p className="mt-1 truncate text-xs text-(--fg-tertiary)">
         {checkpoint.objetivo}
       </p>
+      {habilidades.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {habilidades.slice(0, NODE_MAX_CHIPS).map((nome) => (
+            <span
+              key={nome}
+              className="inline-flex max-w-32 items-center gap-0.5 rounded bg-(--bg-hover) px-1.5 py-0.5 text-xs font-medium text-(--fg-secondary)"
+            >
+              <Icon name="alternate_email" size={11} className="shrink-0" />
+              <span className="truncate">{nome}</span>
+            </span>
+          ))}
+          {habilidades.length > NODE_MAX_CHIPS && (
+            <span className="inline-flex items-center rounded bg-(--bg-hover) px-1.5 py-0.5 text-xs font-medium text-(--fg-tertiary)">
+              +{habilidades.length - NODE_MAX_CHIPS}
+            </span>
+          )}
+        </div>
+      )}
       <Handle type="source" position={Position.Bottom} style={HANDLE_STYLE} />
     </div>
   );
@@ -102,11 +133,32 @@ const nodeTypes = { checkpoint: CheckpointNode, endpoint: EndpointNode };
 
 /* ─── Tab ──────────────────────────────────────────────────────────────── */
 
-export function VisualizacaoModularTab({ data }: { data: AgentEditorData }) {
+export function VisualizacaoModularTab({
+  data,
+  checkpoints,
+}: {
+  data: AgentEditorData;
+  checkpoints: Checkpoint[];
+}) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
+  /** Nomes das habilidades derivadas das menções @ de cada checkpoint. */
+  const habilidadesPorCheckpoint = React.useMemo(() => {
+    const map = new Map<string, string[]>();
+    for (const cp of checkpoints) {
+      map.set(
+        cp.id,
+        deriveHabilidades(
+          checkpointTexts(cp),
+          data.habilidadesConfiguradas,
+        ).map((h) => h.nome),
+      );
+    }
+    return map;
+  }, [checkpoints, data.habilidadesConfiguradas]);
+
   const { nodes, edges } = React.useMemo(() => {
-    const cps = data.checkpoints;
+    const cps = checkpoints;
 
     const nodes: Node[] = [
       {
@@ -124,7 +176,10 @@ export function VisualizacaoModularTab({ data }: { data: AgentEditorData }) {
         id: cp.id,
         type: "checkpoint",
         position: { x: ZIG_X[i % 2], y: 110 + i * ROW_H },
-        data: { checkpoint: cp },
+        data: {
+          checkpoint: cp,
+          habilidades: habilidadesPorCheckpoint.get(cp.id) ?? [],
+        },
       })),
       {
         id: "conversao",
@@ -156,10 +211,12 @@ export function VisualizacaoModularTab({ data }: { data: AgentEditorData }) {
     }));
 
     return { nodes, edges };
-  }, [data.checkpoints]);
+  }, [checkpoints, habilidadesPorCheckpoint]);
 
-  const selected =
-    data.checkpoints.find((cp) => cp.id === selectedId) ?? null;
+  const selected = checkpoints.find((cp) => cp.id === selectedId) ?? null;
+  const selectedHabilidades = selected
+    ? (habilidadesPorCheckpoint.get(selected.id) ?? [])
+    : [];
 
   return (
     <div className="overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
@@ -174,7 +231,7 @@ export function VisualizacaoModularTab({ data }: { data: AgentEditorData }) {
           </p>
         </div>
         <span className="shrink-0 text-xs text-(--fg-tertiary)">
-          {data.checkpoints.length} checkpoints
+          {checkpoints.length} checkpoints
         </span>
       </div>
 
@@ -239,15 +296,14 @@ export function VisualizacaoModularTab({ data }: { data: AgentEditorData }) {
                       </dd>
                     </div>
                   )}
-                  {selected.habilidades &&
-                    selected.habilidades.length > 0 && (
-                      <div className="flex items-center justify-between gap-3">
-                        <dt className="text-(--fg-tertiary)">Habilidades</dt>
-                        <dd className="truncate font-medium text-(--fg-primary)">
-                          {selected.habilidades.join(", ")}
-                        </dd>
-                      </div>
-                    )}
+                  {selectedHabilidades.length > 0 && (
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-(--fg-tertiary)">Habilidades</dt>
+                      <dd className="truncate font-medium text-(--fg-primary)">
+                        {selectedHabilidades.join(", ")}
+                      </dd>
+                    </div>
+                  )}
                 </dl>
 
                 <AwButton

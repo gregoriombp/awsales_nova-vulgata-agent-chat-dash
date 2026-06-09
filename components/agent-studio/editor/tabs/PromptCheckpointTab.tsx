@@ -6,46 +6,33 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import {
+  CheckpointRichTextEditor,
+  TokenText,
+  type CheckpointRichTextHandle,
+} from "@/components/agent-studio/editor/CheckpointRichText";
+import { deriveHabilidades } from "@/components/agent-studio/editor/checkpointTokens";
 import type {
   AgentEditorData,
+  AgentVariable,
   Checkpoint,
   HabilidadeConfigurada,
 } from "@/lib/agentStudio";
 
 /**
  * Prompt e Checkpoint — personalidade do agente (prompt) + guia de execução
- * (checkpoints ordenados). Quando um checkpoint entra em edição, o painel
- * lateral "Habilidades configuradas" aparece à direita, como no Figma.
+ * (checkpoints ordenados).
  *
- * Todo o estado é local (protótipo): salvar/cancelar/duplicar/excluir
- * operam sobre cópias dos dados de `lib/agentStudio`.
+ * O estado de prompt e checkpoints vive na página (/agent-studio/[id]) e
+ * chega por props — editar aqui reflete imediatamente na Visualização
+ * modular ao trocar de seção.
+ *
+ * O corpo do checkpoint é texto livre estilo Notion: `@` insere chips de
+ * habilidade, `{{` insere chips de variável (CheckpointRichTextEditor).
+ * As habilidades do card são derivadas das menções `@` presentes no texto.
  */
 
 /* ─── Helpers ──────────────────────────────────────────────────────────── */
-
-/** Renderiza texto com as {{variáveis}} como chips inline. */
-function TextWithVariables({ text }: { text: string }) {
-  const parts = text.split(/({{[^}]+}})/g);
-  return (
-    <>
-      {parts.map((part, i) =>
-        /^{{[^}]+}}$/.test(part) ? (
-          <span
-            key={i}
-            className="inline-flex items-center rounded bg-(--bg-hover) px-1.5 text-xs font-medium text-(--fg-secondary)"
-          >
-            {part.replace(/[{}]/g, "")}
-          </span>
-        ) : (
-          <React.Fragment key={i}>{part}</React.Fragment>
-        ),
-      )}
-    </>
-  );
-}
-
-const textareaClasses =
-  "w-full resize-y rounded-lg border border-(--border-default) bg-(--bg-raised) px-3.5 py-3 text-sm leading-relaxed text-(--fg-primary) outline-none transition-colors duration-aw-fast placeholder:text-(--fg-tertiary) focus:border-(--border-strong)";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -55,15 +42,41 @@ function renumber(list: Checkpoint[]): Checkpoint[] {
   return list.map((cp, i) => ({ ...cp, numero: i + 1 }));
 }
 
+/** Ids locais para checkpoints novos/duplicados (estado de protótipo). */
+let checkpointIdSeq = 0;
+function nextCheckpointId(prefix: string): string {
+  checkpointIdSeq += 1;
+  return `${prefix}-${checkpointIdSeq}`;
+}
+
+function splitItens(text: string): string[] {
+  return text
+    .split("\n")
+    .map((linha) => linha.trim())
+    .filter(Boolean);
+}
+
+/** Registro do editor ativo — o painel de habilidades insere o @ por aqui. */
+type InsertMentionFn = (habilidadeId: string) => void;
+
 /* ─── Bloco A — Prompt do agente ───────────────────────────────────────── */
 
-function PromptCard({ initialPrompt }: { initialPrompt: string }) {
-  const [prompt, setPrompt] = React.useState(initialPrompt);
-  const [draft, setDraft] = React.useState(initialPrompt);
+function PromptCard({
+  prompt,
+  onPromptChange,
+  variaveis,
+  onCreateVariable,
+}: {
+  prompt: string;
+  onPromptChange: (next: string) => void;
+  variaveis: AgentVariable[];
+  onCreateVariable: (nome: string) => void;
+}) {
+  const [draft, setDraft] = React.useState(prompt);
   const [editing, setEditing] = React.useState(false);
 
   return (
-    <section className="rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
+    <section className="rounded-xl border border-(--border-subtle) bg-(--bg-surface) transition-colors duration-aw-fast hover:border-(--border-default)">
       <header className="flex items-center justify-between gap-4 border-b border-(--border-subtle) px-6 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <h2 className="font-heading text-base font-medium text-(--fg-primary)">
@@ -90,7 +103,7 @@ function PromptCard({ initialPrompt }: { initialPrompt: string }) {
               variant="primary"
               size="sm"
               onClick={() => {
-                setPrompt(draft);
+                onPromptChange(draft);
                 setEditing(false);
               }}
             >
@@ -115,18 +128,28 @@ function PromptCard({ initialPrompt }: { initialPrompt: string }) {
 
       <div className="px-6 py-5">
         {editing ? (
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            rows={8}
-            className={textareaClasses}
-            aria-label="Prompt do agente"
-          />
+          <div className="space-y-2">
+            <CheckpointRichTextEditor
+              value={draft}
+              onChange={setDraft}
+              habilidades={[]}
+              allowMentions={false}
+              variaveis={variaveis}
+              onCreateVariable={onCreateVariable}
+              placeholder="Descreva a personalidade e o tom do agente…"
+              aria-label="Prompt do agente"
+              className="min-h-40"
+            />
+            <p className="flex items-center gap-1.5 text-xs text-(--fg-tertiary)">
+              <Icon name="data_object" size={13} />
+              {"Digite {{ para inserir uma variável."}
+            </p>
+          </div>
         ) : (
           <div className="space-y-4 text-sm leading-relaxed text-(--fg-secondary)">
             {prompt.split(/\n\n+/).map((paragraph, i) => (
               <p key={i}>
-                <TextWithVariables text={paragraph} />
+                <TokenText text={paragraph} habilidades={[]} />
               </p>
             ))}
           </div>
@@ -141,6 +164,7 @@ function PromptCard({ initialPrompt }: { initialPrompt: string }) {
 type CheckpointDraft = {
   titulo: string;
   objetivo: string;
+  /** Itens serializados — uma linha por item, tokens inline. */
   itens: string;
 };
 
@@ -165,6 +189,10 @@ function HabilidadeChip({ children }: { children: React.ReactNode }) {
 function CheckpointCard({
   checkpoint,
   editing,
+  habilidades,
+  variaveis,
+  onCreateVariable,
+  registerActiveEditor,
   onStartEdit,
   onSave,
   onCancel,
@@ -173,6 +201,10 @@ function CheckpointCard({
 }: {
   checkpoint: Checkpoint;
   editing: boolean;
+  habilidades: HabilidadeConfigurada[];
+  variaveis: AgentVariable[];
+  onCreateVariable: (nome: string) => void;
+  registerActiveEditor: (fn: InsertMentionFn) => void;
   onStartEdit: () => void;
   onSave: (draft: CheckpointDraft) => void;
   onCancel: () => void;
@@ -185,6 +217,9 @@ function CheckpointCard({
     itens: checkpoint.itens.join("\n"),
   });
 
+  const objetivoRef = React.useRef<CheckpointRichTextHandle>(null);
+  const itensRef = React.useRef<CheckpointRichTextHandle>(null);
+
   // Re-sincroniza o rascunho sempre que o card entra em edição.
   React.useEffect(() => {
     if (editing) {
@@ -193,14 +228,36 @@ function CheckpointCard({
         objetivo: checkpoint.objetivo,
         itens: checkpoint.itens.join("\n"),
       });
+      // O editor de orientações nasce como alvo do painel de habilidades.
+      registerActiveEditor((id) => itensRef.current?.insertMention(id));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editing]);
 
+  const derivadasView = React.useMemo(
+    () =>
+      deriveHabilidades(
+        [checkpoint.objetivo, ...checkpoint.itens],
+        habilidades,
+      ),
+    [checkpoint.objetivo, checkpoint.itens, habilidades],
+  );
+
+  const derivadasDraft = React.useMemo(
+    () =>
+      deriveHabilidades(
+        [draft.objetivo, ...splitItens(draft.itens)],
+        habilidades,
+      ),
+    [draft.objetivo, draft.itens, habilidades],
+  );
+
   return (
     <article
-      className={`rounded-xl border bg-(--bg-surface) transition-colors duration-aw-fast ${
-        editing ? "border-(--border-strong)" : "border-(--border-subtle)"
+      className={`rounded-xl border bg-(--bg-surface) transition-[border-color,box-shadow] duration-aw-fast ${
+        editing
+          ? "border-(--border-strong) shadow-sm"
+          : "border-(--border-subtle) hover:border-(--border-default)"
       }`}
     >
       {/* Linha de título + ações */}
@@ -291,16 +348,30 @@ function CheckpointCard({
             Objetivo
           </span>
           {editing ? (
-            <textarea
-              value={draft.objetivo}
-              onChange={(e) => setDraft({ ...draft, objetivo: e.target.value })}
-              rows={2}
-              className={textareaClasses}
-              aria-label="Objetivo do checkpoint"
-            />
+            <div className="min-w-0 flex-1">
+              <CheckpointRichTextEditor
+                ref={objetivoRef}
+                value={draft.objetivo}
+                onChange={(v) => setDraft((d) => ({ ...d, objetivo: v }))}
+                habilidades={habilidades}
+                variaveis={variaveis}
+                onCreateVariable={onCreateVariable}
+                multiline={false}
+                placeholder="O que este checkpoint precisa alcançar…"
+                aria-label="Objetivo do checkpoint"
+                onFocus={() =>
+                  registerActiveEditor((id) =>
+                    objetivoRef.current?.insertMention(id),
+                  )
+                }
+              />
+            </div>
           ) : (
             <p className="pt-0.5 text-sm leading-relaxed text-(--fg-secondary)">
-              {checkpoint.objetivo}
+              <TokenText
+                text={checkpoint.objetivo}
+                habilidades={habilidades}
+              />
             </p>
           )}
         </div>
@@ -318,18 +389,31 @@ function CheckpointCard({
         {editing ? (
           <div>
             <label
-              htmlFor={`itens-${checkpoint.id}`}
+              id={`itens-label-${checkpoint.id}`}
               className="mb-1.5 block text-xs font-medium text-(--fg-secondary)"
             >
               Orientações — um item por linha
             </label>
-            <textarea
-              id={`itens-${checkpoint.id}`}
+            <CheckpointRichTextEditor
+              ref={itensRef}
               value={draft.itens}
-              onChange={(e) => setDraft({ ...draft, itens: e.target.value })}
-              rows={4}
-              className={textareaClasses}
+              onChange={(v) => setDraft((d) => ({ ...d, itens: v }))}
+              habilidades={habilidades}
+              variaveis={variaveis}
+              onCreateVariable={onCreateVariable}
+              placeholder="Escreva as orientações do agente…"
+              aria-label="Orientações do checkpoint"
+              className="min-h-28"
+              onFocus={() =>
+                registerActiveEditor((id) =>
+                  itensRef.current?.insertMention(id),
+                )
+              }
             />
+            <p className="mt-1.5 flex items-center gap-1.5 text-xs text-(--fg-tertiary)">
+              <Icon name="alternate_email" size={13} />
+              {"Digite @ para habilidades e {{ para variáveis."}
+            </p>
           </div>
         ) : (
           checkpoint.itens.length > 0 && (
@@ -344,7 +428,7 @@ function CheckpointCard({
                     className="mt-2 h-1 w-1 shrink-0 rounded-full bg-(--fg-tertiary)"
                   />
                   <span>
-                    <TextWithVariables text={item} />
+                    <TokenText text={item} habilidades={habilidades} />
                   </span>
                 </li>
               ))}
@@ -386,11 +470,14 @@ function CheckpointCard({
           </div>
         )}
 
-        {/* Habilidades referenciadas via @ */}
-        {checkpoint.habilidades && checkpoint.habilidades.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {checkpoint.habilidades.map((hab) => (
-              <HabilidadeChip key={hab}>{hab}</HabilidadeChip>
+        {/* Habilidades derivadas das menções @ no texto */}
+        {(editing ? derivadasDraft : derivadasView).length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 border-t border-(--border-subtle) pt-3.5">
+            <span className="text-xs text-(--fg-tertiary)">
+              Habilidades neste checkpoint
+            </span>
+            {(editing ? derivadasDraft : derivadasView).map((hab) => (
+              <HabilidadeChip key={hab.id}>{hab.nome}</HabilidadeChip>
             ))}
           </div>
         )}
@@ -403,8 +490,10 @@ function CheckpointCard({
 
 function HabilidadesPanel({
   habilidades,
+  onInsert,
 }: {
   habilidades: HabilidadeConfigurada[];
+  onInsert: (habilidadeId: string) => void;
 }) {
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
 
@@ -422,8 +511,8 @@ function HabilidadesPanel({
           </h3>
         </div>
         <p className="mt-1.5 text-xs leading-relaxed text-(--fg-tertiary)">
-          Habilidades que já estão configuradas para este agente. Para utilizar
-          no checkpoint, digite @.
+          Habilidades que já estão configuradas para este agente. Para
+          utilizar no checkpoint, digite @ ou insira por aqui.
         </p>
 
         <ul className="mt-4 space-y-1.5">
@@ -432,41 +521,59 @@ function HabilidadesPanel({
             return (
               <li
                 key={hab.id}
-                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised)"
+                className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) transition-colors duration-aw-fast hover:border-(--border-default)"
               >
-                <button
-                  type="button"
-                  aria-expanded={expanded}
-                  onClick={() => setExpandedId(expanded ? null : hab.id)}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)"
-                >
-                  <Icon
-                    name={hab.grupo === "integracao" ? "cable" : "smart_toy"}
-                    size={16}
-                    className="shrink-0 text-(--fg-tertiary)"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm font-medium text-(--fg-primary)">
-                      {hab.nome}
+                <div className="flex items-center gap-1 pr-1.5">
+                  <button
+                    type="button"
+                    aria-expanded={expanded}
+                    onClick={() => setExpandedId(expanded ? null : hab.id)}
+                    className="flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)"
+                  >
+                    <Icon
+                      name={hab.grupo === "integracao" ? "cable" : "smart_toy"}
+                      size={16}
+                      className="shrink-0 text-(--fg-tertiary)"
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-sm font-medium text-(--fg-primary)">
+                        {hab.nome}
+                      </span>
+                      <span className="block truncate text-xs text-(--fg-tertiary)">
+                        {hab.descricao}
+                      </span>
                     </span>
-                    <span className="block truncate text-xs text-(--fg-tertiary)">
-                      {hab.descricao}
-                    </span>
-                  </span>
-                  <Icon
-                    name={expanded ? "expand_less" : "expand_more"}
-                    size={18}
-                    className="shrink-0 text-(--fg-tertiary)"
+                    <Icon
+                      name={expanded ? "expand_less" : "expand_more"}
+                      size={18}
+                      className="shrink-0 text-(--fg-tertiary)"
+                    />
+                  </button>
+                  <AwButton
+                    variant="ghost"
+                    size="sm"
+                    iconOnly="alternate_email"
+                    aria-label={`Inserir @${hab.nome} no editor`}
+                    onClick={() => onInsert(hab.id)}
                   />
-                </button>
+                </div>
                 {expanded && (
-                  <div className="border-t border-(--border-subtle) px-3 py-2.5">
+                  <div className="space-y-2.5 border-t border-(--border-subtle) px-3 py-2.5">
                     <p className="text-xs leading-relaxed text-(--fg-secondary)">
                       Para utilizar no checkpoint, digite{" "}
                       <span className="inline-flex items-center rounded bg-(--bg-hover) px-1.5 text-xs font-medium text-(--fg-secondary)">
                         @{hab.nome}
                       </span>
                     </p>
+                    <AwButton
+                      variant="secondary"
+                      size="sm"
+                      block
+                      iconLeft="alternate_email"
+                      onClick={() => onInsert(hab.id)}
+                    >
+                      Inserir no editor
+                    </AwButton>
                   </div>
                 )}
               </li>
@@ -480,24 +587,62 @@ function HabilidadesPanel({
 
 /* ─── Tab ──────────────────────────────────────────────────────────────── */
 
-export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
-  const [checkpoints, setCheckpoints] = React.useState<Checkpoint[]>(
-    data.checkpoints,
-  );
+export function PromptCheckpointTab({
+  data,
+  checkpoints,
+  onCheckpointsChange,
+  prompt,
+  onPromptChange,
+}: {
+  data: AgentEditorData;
+  checkpoints: Checkpoint[];
+  onCheckpointsChange: (next: Checkpoint[]) => void;
+  prompt: string;
+  onPromptChange: (next: string) => void;
+}) {
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+
+  /* Variáveis criadas pelo menu {{ — somam-se às do agente nos menus. */
+  const [variaveisCriadas, setVariaveisCriadas] = React.useState<
+    AgentVariable[]
+  >([]);
+  const variaveis = React.useMemo(
+    () => [...data.variaveis, ...variaveisCriadas],
+    [data.variaveis, variaveisCriadas],
+  );
+  const createVariable = React.useCallback((nome: string) => {
+    setVariaveisCriadas((prev) =>
+      prev.some((v) => v.nome === `{{${nome}}}`)
+        ? prev
+        : [
+            ...prev,
+            {
+              nome: `{{${nome}}}`,
+              tipo: "Texto",
+              descricao: "Variável criada no editor de checkpoints.",
+            },
+          ],
+    );
+  }, []);
+
+  /* Editor ativo — alvo do "Inserir no editor" do painel de habilidades. */
+  const activeEditorInsert = React.useRef<InsertMentionFn | null>(null);
+  const registerActiveEditor = React.useCallback((fn: InsertMentionFn) => {
+    activeEditorInsert.current = fn;
+  }, []);
 
   const deleteTarget = checkpoints.find((cp) => cp.id === deleteId) ?? null;
   const panelVisible = editingId !== null;
 
   const addCheckpoint = () => {
-    const id = `cp-novo-${Date.now()}`;
-    setCheckpoints((prev) =>
+    const id = nextCheckpointId("cp-novo");
+    onCheckpointsChange(
       renumber([
-        ...prev,
+        ...checkpoints,
         {
           id,
-          numero: prev.length + 1,
+          numero: checkpoints.length + 1,
           titulo: "",
           objetivo: "",
           itens: [],
@@ -508,17 +653,14 @@ export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
   };
 
   const saveCheckpoint = (id: string, draft: CheckpointDraft) => {
-    setCheckpoints((prev) =>
-      prev.map((cp) =>
+    onCheckpointsChange(
+      checkpoints.map((cp) =>
         cp.id === id
           ? {
               ...cp,
               titulo: draft.titulo.trim() || "Checkpoint sem título",
               objetivo: draft.objetivo.trim(),
-              itens: draft.itens
-                .split("\n")
-                .map((linha) => linha.trim())
-                .filter(Boolean),
+              itens: splitItens(draft.itens),
             }
           : cp,
       ),
@@ -528,48 +670,37 @@ export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
 
   const cancelEdit = (id: string) => {
     // Checkpoint recém-criado e nunca salvo é descartado no cancelamento.
-    setCheckpoints((prev) => {
-      const cp = prev.find((c) => c.id === id);
-      if (
-        cp &&
-        cp.titulo === "" &&
-        cp.objetivo === "" &&
-        cp.itens.length === 0
-      ) {
-        return renumber(prev.filter((c) => c.id !== id));
-      }
-      return prev;
-    });
+    const cp = checkpoints.find((c) => c.id === id);
+    if (cp && cp.titulo === "" && cp.objetivo === "" && cp.itens.length === 0) {
+      onCheckpointsChange(renumber(checkpoints.filter((c) => c.id !== id)));
+    }
     setEditingId(null);
   };
 
   const duplicateCheckpoint = (id: string) => {
-    setCheckpoints((prev) => {
-      const index = prev.findIndex((cp) => cp.id === id);
-      if (index === -1) return prev;
-      const original = prev[index];
-      const copy: Checkpoint = {
-        ...original,
-        id: `${original.id}-copia-${Date.now()}`,
-        titulo: `${original.titulo} (cópia)`,
-        analises: original.analises ? [...original.analises] : undefined,
-        itens: [...original.itens],
-        marque: original.marque
-          ? { ...original.marque, opcoes: [...original.marque.opcoes] }
-          : undefined,
-        habilidades: original.habilidades
-          ? [...original.habilidades]
-          : undefined,
-      };
-      const next = [...prev];
-      next.splice(index + 1, 0, copy);
-      return renumber(next);
-    });
+    const index = checkpoints.findIndex((cp) => cp.id === id);
+    if (index === -1) return;
+    const original = checkpoints[index];
+    const copy: Checkpoint = {
+      ...original,
+      id: nextCheckpointId(`${original.id}-copia`),
+      titulo: `${original.titulo} (cópia)`,
+      analises: original.analises ? [...original.analises] : undefined,
+      itens: [...original.itens],
+      marque: original.marque
+        ? { ...original.marque, opcoes: [...original.marque.opcoes] }
+        : undefined,
+    };
+    const next = [...checkpoints];
+    next.splice(index + 1, 0, copy);
+    onCheckpointsChange(renumber(next));
   };
 
   const confirmDelete = () => {
     if (!deleteId) return;
-    setCheckpoints((prev) => renumber(prev.filter((cp) => cp.id !== deleteId)));
+    onCheckpointsChange(
+      renumber(checkpoints.filter((cp) => cp.id !== deleteId)),
+    );
     if (editingId === deleteId) setEditingId(null);
     setDeleteId(null);
   };
@@ -577,24 +708,36 @@ export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
   return (
     <div className="flex items-start gap-8">
       <div
-        className={`min-w-0 flex-1 space-y-8 ${
+        className={`min-w-0 flex-1 space-y-10 ${
           panelVisible ? "" : "mx-auto max-w-[840px]"
         }`}
       >
         {/* Bloco A — personalidade */}
-        <PromptCard initialPrompt={data.prompt} />
+        <PromptCard
+          prompt={prompt}
+          onPromptChange={onPromptChange}
+          variaveis={variaveis}
+          onCreateVariable={createVariable}
+        />
 
         {/* Bloco B — checkpoints */}
         <section>
-          <header className="mb-4 flex items-center justify-between gap-4">
-            <div className="flex items-baseline gap-2">
-              <h2 className="font-heading text-base font-medium text-(--fg-primary)">
-                Checkpoints
-              </h2>
-              <span className="text-sm text-(--fg-tertiary)">
-                {checkpoints.length}{" "}
-                {checkpoints.length === 1 ? "etapa" : "etapas"}
-              </span>
+          <header className="mb-4 flex items-end justify-between gap-4">
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-2">
+                <h2 className="font-heading text-base font-medium text-(--fg-primary)">
+                  Checkpoints
+                </h2>
+                <span className="text-sm text-(--fg-tertiary)">
+                  {checkpoints.length}{" "}
+                  {checkpoints.length === 1 ? "etapa" : "etapas"}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-(--fg-tertiary)">
+                {
+                  "Etapas que guiam a conversa. No texto, digite @ para habilidades e {{ para variáveis."
+                }
+              </p>
             </div>
             <AwButton
               variant="secondary"
@@ -612,6 +755,10 @@ export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
                 key={cp.id}
                 checkpoint={cp}
                 editing={editingId === cp.id}
+                habilidades={data.habilidadesConfiguradas}
+                variaveis={variaveis}
+                onCreateVariable={createVariable}
+                registerActiveEditor={registerActiveEditor}
                 onStartEdit={() => setEditingId(cp.id)}
                 onSave={(draft) => saveCheckpoint(cp.id, draft)}
                 onCancel={() => cancelEdit(cp.id)}
@@ -636,7 +783,10 @@ export function PromptCheckpointTab({ data }: { data: AgentEditorData }) {
 
       {/* Painel lateral — visível só durante a edição de um checkpoint */}
       {panelVisible && (
-        <HabilidadesPanel habilidades={data.habilidadesConfiguradas} />
+        <HabilidadesPanel
+          habilidades={data.habilidadesConfiguradas}
+          onInsert={(id) => activeEditorInsert.current?.(id)}
+        />
       )}
 
       {/* Confirmação de exclusão */}
