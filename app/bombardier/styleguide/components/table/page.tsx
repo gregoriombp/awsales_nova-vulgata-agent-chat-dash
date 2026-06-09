@@ -7,26 +7,115 @@ import {
   ApiTable,
   CodeExample,
   DoDont,
+  Tldr,
+  Toc,
+  RelatedLinks,
 } from "../../_primitives"
+
+const tableDecision = [
+  {
+    need: "Markup nativo, células customizadas e controle total",
+    component: "AwTable",
+    route: "/bombardier/styleguide/components/table",
+    note: "Default para produto. Você escreve thead, tbody e células com componentes Aw*.",
+  },
+  {
+    need: "JSON de tool, formatters declarativos, sort, filter e paginação",
+    component: "DataTable",
+    route: "/bombardier/styleguide/components/data-table",
+    note: "Use para resultado de agente/tool-ui. O schema decide a apresentação.",
+  },
+  {
+    need: "Tabela de pessoas, permissões, presença e papel no workspace",
+    component: "AwMembersTable",
+    route: "/bombardier/styleguide/components/aw-members-table",
+    note: "Padrão de domínio para membros. Não use como tabela genérica.",
+  },
+]
 
 export default function TablePage() {
   return (
     <>
-      <PageHero title="Tabela">
-        Lista densa de entidades. Bordas sutis, hover discreto,{" "}
-          <strong>zero zebra</strong>. Dados numéricos e técnicos em mono,
-          alinhados à direita. Pra tabela com sort + responsive auto +
-          formatters declarativos, veja{" "}
-        <a className="underline" href="/bombardier/styleguide/components/data-table">
-          Data table
-        </a>{" "}
-        (surface tool-ui).
+      <PageHero title="Tabelas">
+        Hub canônico para tabelas do produto. Use esta página para escolher
+        entre <code className="mono">AwTable</code>,{" "}
+        <code className="mono">DataTable</code> e{" "}
+        <code className="mono">AwMembersTable</code> antes de criar markup novo.
+        A regra visual comum é densidade sóbria, bordas sutis, hover discreto e{" "}
+        <strong>zero zebra</strong>.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
 <div className="flex flex-col gap-16">
+        <Tldr
+          use={[
+            <>Use <code className="mono">AwTable</code> como tabela base de produto.</>,
+            <>Use <code className="mono">DataTable</code> quando a entrada é schema + dados de uma tool.</>,
+            <>Use <code className="mono">AwMembersTable</code> só para pessoas, permissões e times.</>,
+          ]}
+          dontUse={[
+            <>Não criar uma tabela nova para cada feature.</>,
+            <>Não usar DataTable para layouts com células altamente customizadas.</>,
+            <>Não usar AwMembersTable fora de contexto de membros/pessoas.</>,
+          ]}
+        />
+
+        <Toc
+          items={[
+            { id: "decision", label: "Qual usar" },
+            { id: "default", label: "AwTable" },
+            { id: "columns", label: "Tipos de coluna" },
+            { id: "anatomy", label: "Anatomia" },
+            { id: "sort", label: "Sort" },
+            { id: "api", label: "API" },
+            { id: "do-dont", label: "Do / Don't" },
+            { id: "related", label: "Relacionados" },
+          ]}
+        />
+
+        <Section
+          id="decision"
+          title="Qual usar"
+          lead="Uma família, três níveis. AwTable é o primitivo; DataTable é uma surface declarativa; AwMembersTable é um padrão de domínio."
+        >
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="border-b border-(--border-subtle)">
+                  <th className="pb-2 aw-eyebrow">necessidade</th>
+                  <th className="pb-2 aw-eyebrow">componente</th>
+                  <th className="pb-2 aw-eyebrow">regra</th>
+                </tr>
+              </thead>
+              <tbody>
+                {tableDecision.map((row) => (
+                  <tr
+                    key={row.component}
+                    className="border-b border-(--border-subtle) last:border-b-0 align-top"
+                  >
+                    <td className="py-3 pr-4 text-sm text-(--fg-primary)">
+                      {row.need}
+                    </td>
+                    <td className="py-3 pr-4 whitespace-nowrap">
+                      <a
+                        href={row.route}
+                        className="mono text-sm text-(--aw-blue-700) no-underline hover:underline"
+                      >
+                        {row.component}
+                      </a>
+                    </td>
+                    <td className="py-3 text-sm text-(--fg-secondary)">
+                      {row.note}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Section>
+
         <Section
           id="default"
-          title="Exemplo"
+          title="AwTable"
           lead="Headers sortable de verdade — clique pra ciclar none → asc → desc. Coluna ativa fica em --fg-primary com a direção; as outras mostram ⇅ esmaecido. Sort vem do hook useTableSort (documentado abaixo)."
         >
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
@@ -240,6 +329,31 @@ import { AwPill } from "@/components/ui/AwPill"
               <>Zebra striping. A estética é sóbria, lista densa.</>,
               <>Ações inline por linha que não tenham ícone-only (vira ruído).</>,
               <>Tabela com paginação em lugar onde cabe uma lista de 8 itens.</>,
+            ]}
+          />
+        </Section>
+
+        <Section id="related" title="Relacionados">
+          <RelatedLinks
+            items={[
+              {
+                name: "Data table",
+                href: "/bombardier/styleguide/components/data-table",
+                description:
+                  "Subpágina técnica da surface tool-ui para JSON, formatters, busca e paginação.",
+              },
+              {
+                name: "Members table",
+                href: "/bombardier/styleguide/components/aw-members-table",
+                description:
+                  "Subpágina técnica do padrão de membros, permissões e presença.",
+              },
+              {
+                name: "Pills",
+                href: "/bombardier/styleguide/components/pills",
+                description:
+                  "Status em tabela deve usar AwPill, não texto colorido solto.",
+              },
             ]}
           />
         </Section>

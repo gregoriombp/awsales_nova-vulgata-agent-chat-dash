@@ -75,6 +75,30 @@ const SIZE_SCALE: Array<{ key: string; label: string; px: number; note: string }
   { key: "xl", label: "xl", px: 120, note: "Hero da página do agente, onboarding." },
 ]
 
+const AGENT_DECISION = [
+  {
+    subject: "Framework proprietário que o usuário escolhe",
+    visual: "Agent Core",
+    component: "AwAgentCore",
+    shape: "diamante estático",
+    rule: "Use para catálogo, configuração e indicação do framework ativo.",
+  },
+  {
+    subject: "Agente criado pelo usuário",
+    visual: "Agente do Usuário",
+    component: "AwUserAgentOrb",
+    shape: "círculo animado",
+    rule: "Use como avatar/identidade do agente em listas, conversa e criação.",
+  },
+  {
+    subject: "Cérebro central da plataforma",
+    visual: "Cortex",
+    component: "AwCopilotOrb",
+    shape: "hex animado",
+    rule: "Use apenas para o sistema raciocinando, topbar e drawer do copilot.",
+  },
+]
+
 export default function AgentsPage() {
   return (
     <>
@@ -128,6 +152,7 @@ export default function AgentsPage() {
 
           <Toc
             items={[
+              { id: "decision", label: "Qual visual usar" },
               { id: "agent-core", label: "Agent Core" },
               { id: "user-agent", label: "Agente do Usuário" },
               { id: "cortex", label: "Cortex" },
@@ -140,6 +165,50 @@ export default function AgentsPage() {
               { id: "related", label: "Relacionados" },
             ]}
           />
+
+          <Section
+            id="decision"
+            title="Qual visual usar"
+            lead="Esta é a decisão canônica. As rotas individuais de Agent Core e Agente do Usuário continuam existindo como subpáginas técnicas, mas a escolha entre Core, agente e Cortex deve começar aqui."
+          >
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 overflow-x-auto">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-(--border-subtle)">
+                    <th className="pb-2 aw-eyebrow">quando fala de</th>
+                    <th className="pb-2 aw-eyebrow">visual</th>
+                    <th className="pb-2 aw-eyebrow">componente</th>
+                    <th className="pb-2 aw-eyebrow">silhueta</th>
+                    <th className="pb-2 aw-eyebrow">regra</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {AGENT_DECISION.map((row) => (
+                    <tr
+                      key={row.component}
+                      className="border-b border-(--border-subtle) last:border-b-0 align-top"
+                    >
+                      <td className="py-3 pr-4 text-sm text-(--fg-primary)">
+                        {row.subject}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-(--fg-primary)">
+                        {row.visual}
+                      </td>
+                      <td className="py-3 pr-4 mono text-sm text-(--aw-blue-700) whitespace-nowrap">
+                        {row.component}
+                      </td>
+                      <td className="py-3 pr-4 text-sm text-(--fg-secondary) whitespace-nowrap">
+                        {row.shape}
+                      </td>
+                      <td className="py-3 text-sm text-(--fg-secondary)">
+                        {row.rule}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Section>
 
           <Section
             id="agent-core"
@@ -673,6 +742,18 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
           <Section id="related" title="Relacionados">
             <RelatedLinks
               items={[
+                {
+                  name: "Agent Core",
+                  href: "/bombardier/styleguide/components/agent-core",
+                  description:
+                    "Subpágina técnica do AwAgentCore: galeria, tamanhos e API do diamante estático.",
+                },
+                {
+                  name: "Agente do Usuário",
+                  href: "/bombardier/styleguide/components/user-agent",
+                  description:
+                    "Subpágina técnica do AwUserAgentOrb: shader, seed de cor e estados do agente vivo.",
+                },
                 {
                   name: "Specialists pair",
                   href: "/bombardier/styleguide/components/aw-specialists-pair",

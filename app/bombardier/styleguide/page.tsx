@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/AwCard"
 import { AwField, AwInput } from "@/components/ui/AwInput"
 import { AwPill } from "@/components/ui/AwPill"
-import { PageHero } from "./_primitives"
+import { PageHero, Spec } from "./_primitives"
 
 /*
  * Home da styleguide = "Design tokens hub".
@@ -59,6 +59,27 @@ const motion = [
   { name: "dur-slow", value: "280ms" },
   { name: "ease-out", value: "cubic-bezier(0.22, 0.61, 0.36, 1)" },
   { name: "ease-in-out", value: "cubic-bezier(0.4, 0, 0.2, 1)" },
+]
+
+const canonicalFamilies = [
+  {
+    title: "Modais e dialogs",
+    href: "/bombardier/styleguide/components/modals",
+    decision: "AwModal primeiro; wrappers de domínio só quando o fluxo já existe.",
+    aliases: "Connect modal, Welcome modal, Contact channel modal",
+  },
+  {
+    title: "Tabelas",
+    href: "/bombardier/styleguide/components/table",
+    decision: "AwTable para produto, DataTable para JSON de tool, AwMembersTable para pessoas.",
+    aliases: "Data table, Members table",
+  },
+  {
+    title: "Visual dos agentes",
+    href: "/bombardier/styleguide/components/agents",
+    decision: "Core é diamante, agente do usuário é círculo, Cortex é hex.",
+    aliases: "Agent Core, User Agent, Cortex",
+  },
 ]
 
 function Section({
@@ -139,6 +160,53 @@ export default function StyleguidePage() {
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-20">
+          <Section
+            id="best-practices"
+            title="Como usar este styleguide"
+            lead="O primeiro objetivo é decisão rápida. Antes de abrir subpáginas técnicas, encontre a família canônica e siga a regra de escolha."
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {canonicalFamilies.map((family) => (
+                <Link
+                  key={family.href}
+                  href={family.href}
+                  className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 no-underline transition-colors hover:border-(--border-default) hover:bg-(--bg-hover)"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h4 className="m-0 text-(--fg-primary)">{family.title}</h4>
+                    <AwPill variant="neutral">hub</AwPill>
+                  </div>
+                  <p className="body-sm m-0 mt-3 text-(--fg-secondary)">
+                    {family.decision}
+                  </p>
+                  <p className="caption m-0 mt-3">
+                    Busca cobre: {family.aliases}
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <Spec
+                  k="1 · procure a família"
+                  v="hub canônico"
+                  d="A sidebar lista a decisão principal. Variações antigas ficam como aliases e links relacionados."
+                />
+                <Spec
+                  k="2 · reuse o Aw*"
+                  v="components/ui"
+                  d="Produto importa wrapper Aw*. Shadcn primitive só fica por baixo do wrapper."
+                />
+                <Spec
+                  k="3 · não crie token"
+                  v="globals.css fechado"
+                  d="Se faltar cor, spacing, radius ou shadow, reporte. Só a foundation cria tokens."
+                />
+              </div>
+            </div>
+          </Section>
+
           <Section
             id="color"
             title="Cor"

@@ -1,6 +1,8 @@
 export interface NavItem {
   name: string
   href: string
+  /** Hidden search terms that should route to this canonical page. */
+  aliases?: string[]
 }
 
 export interface NavSection {
@@ -83,23 +85,55 @@ export const navigation: NavSection[] = [
       { name: "Channel icon", href: "/bombardier/styleguide/components/aw-channel-icon" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
-      { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
       { name: "Dot tunnel", href: "/bombardier/styleguide/components/aw-dot-tunnel" },
       { name: "Group card", href: "/bombardier/styleguide/components/aw-group-card" },
       { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
-      { name: "Members table", href: "/bombardier/styleguide/components/aw-members-table" },
-      { name: "Modais", href: "/bombardier/styleguide/components/modals" },
+      {
+        name: "Modais e dialogs",
+        href: "/bombardier/styleguide/components/modals",
+        aliases: [
+          "AwModal",
+          "Connect modal",
+          "AwConnectModal",
+          "Welcome modal",
+          "AwWelcomeModal",
+          "Contact channel modal",
+          "AwContactChannelModal",
+          "AwAddIntegrationModal",
+        ],
+      },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
       { name: "Notificações", href: "/bombardier/styleguide/components/aw-notifications-panel" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
       { name: "Payment method card", href: "/bombardier/styleguide/components/payment-method-card" },
-      { name: "Sheet", href: "/bombardier/styleguide/components/sheet" },
+      {
+        name: "Sheets e drawers",
+        href: "/bombardier/styleguide/components/sheet",
+        aliases: [
+          "AwSheet",
+          "Template builder sheet",
+          "AwTemplateBuilderSheet",
+          "Drawer",
+          "Painel lateral",
+        ],
+      },
       { name: "Shortcut tile", href: "/bombardier/styleguide/components/aw-shortcut-tile" },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
       { name: "Stats display", href: "/bombardier/styleguide/components/stats-display" },
-      { name: "Tabela", href: "/bombardier/styleguide/components/table" },
+      {
+        name: "Tabelas",
+        href: "/bombardier/styleguide/components/table",
+        aliases: [
+          "AwTable",
+          "Data table",
+          "DataTable",
+          "Members table",
+          "AwMembersTable",
+          "tool-ui data-table",
+        ],
+      },
     ],
   },
   {
@@ -107,15 +141,11 @@ export const navigation: NavSection[] = [
     title: "Padrões",
     items: [
       { name: "Backup codes", href: "/bombardier/styleguide/components/aw-backup-codes" },
-      { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
-      { name: "Contact channel modal", href: "/bombardier/styleguide/components/aw-contact-channel-modal" },
       { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
       { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
       { name: "Password setup", href: "/bombardier/styleguide/components/aw-password-setup" },
       { name: "QR placeholder", href: "/bombardier/styleguide/components/aw-qr-placeholder" },
-      { name: "Template builder sheet", href: "/bombardier/styleguide/components/template-builder-sheet" },
-      { name: "Welcome modal", href: "/bombardier/styleguide/components/aw-welcome-modal" },
     ],
   },
   {
@@ -126,15 +156,25 @@ export const navigation: NavSection[] = [
     // AwNeuralPattern são internos — consumidos por AwDashboardLayout e
     // AwOnboardingShell, sem showcase próprio de propósito.
     items: [
-      { name: "Agent Core", href: "/bombardier/styleguide/components/agent-core" },
       { name: "Agent tile", href: "/bombardier/styleguide/components/aw-agent-tile" },
-      { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
       { name: "Capability tile", href: "/bombardier/styleguide/components/aw-capability-tile" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
-      { name: "Visual dos agentes", href: "/bombardier/styleguide/components/agents" },
+      {
+        name: "Visual dos agentes",
+        href: "/bombardier/styleguide/components/agents",
+        aliases: [
+          "Agent Core",
+          "AwAgentCore",
+          "Agente do Usuário",
+          "User agent",
+          "AwUserAgentOrb",
+          "Cortex",
+          "AwCopilotOrb",
+        ],
+      },
       { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
     ],
   },

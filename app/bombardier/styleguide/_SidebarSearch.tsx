@@ -10,6 +10,7 @@ type Hit = {
   name: string
   href: string
   section: string
+  aliases?: string[]
 }
 
 const ALL_ITEMS: Hit[] = navigation.flatMap((section) =>
@@ -17,6 +18,7 @@ const ALL_ITEMS: Hit[] = navigation.flatMap((section) =>
     name: item.name,
     href: item.href,
     section: section.title,
+    aliases: item.aliases,
   }))
 )
 
@@ -34,7 +36,9 @@ export function SidebarSearch() {
 
   const q = normalize(query.trim())
   const hits: Hit[] = q.length < 1 ? [] : ALL_ITEMS.filter((item) =>
-    normalize(item.name).includes(q) || normalize(item.section).includes(q)
+    normalize(item.name).includes(q) ||
+    normalize(item.section).includes(q) ||
+    item.aliases?.some((alias) => normalize(alias).includes(q))
   )
 
   const navigate = useCallback((href: string) => {
@@ -42,10 +46,6 @@ export function SidebarSearch() {
     setOpen(false)
     router.push(href)
   }, [router])
-
-  useEffect(() => {
-    setCursor(0)
-  }, [query])
 
   useEffect(() => {
     if (!open) return
@@ -84,7 +84,11 @@ export function SidebarSearch() {
           ref={inputRef}
           type="text"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setCursor(0)
+            setOpen(true)
+          }}
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={handleKeyDown}
@@ -94,7 +98,12 @@ export function SidebarSearch() {
         {query && (
           <button
             type="button"
-            onMouseDown={(e) => { e.preventDefault(); setQuery(""); inputRef.current?.focus() }}
+            onMouseDown={(e) => {
+              e.preventDefault()
+              setQuery("")
+              setCursor(0)
+              inputRef.current?.focus()
+            }}
             className="flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-secondary) transition-colors"
           >
             <Icon name="cancel" size={14} />
