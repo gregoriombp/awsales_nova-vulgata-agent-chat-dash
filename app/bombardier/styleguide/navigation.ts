@@ -168,4 +168,11 @@ export const navigation: NavSection[] = [
       { name: "Criar base de conhecimento", href: "/bombardier/styleguide/ux-flows/criar-base-de-conhecimento" },
     ],
   },
+  {
+    group: "UX Flows",
+    title: "Canais",
+    items: [
+      { name: "Canais", href: "/bombardier/styleguide/ux-flows/canais" },
+    ],
+  },
 ]
