@@ -13,6 +13,12 @@ import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { Icon } from "@/components/ui/Icon";
 import { OriginsConversionsStep } from "@/components/agent-studio/OriginsConversionsStep";
+import {
+  WizardInterview,
+  WizardInterviewBackdrop,
+  INTERVIEW_TOTAL,
+  type InterviewAnswer,
+} from "@/components/agent-studio/WizardInterview";
 import { getOrbForAgent } from "@/lib/agentOrbs";
 
 // Icon components for each goal
@@ -282,14 +288,28 @@ export default function AgentStudioNewPage() {
   // URL) separa os comentários por etapa. Sem ?step válido, começa no 1.
   const searchParams = useSearchParams();
   const stepParam = Number(searchParams.get("step"));
-  const currentStep = stepParam >= 1 && stepParam <= 7 ? stepParam : 1;
+  const currentStep = stepParam >= 1 && stepParam <= 8 ? stepParam : 1;
+
+  // Passo 7 (entrevista de calibragem): a pergunta atual também vive na URL
+  // (?step=7&q=1..3) — o Review Mode escopa comentários por URL, então cada
+  // pergunta vira um endereço próprio. q inválido cai na pergunta 1.
+  const qParam = Number(searchParams.get("q"));
+  const currentQuestion = qParam >= 1 && qParam <= INTERVIEW_TOTAL ? qParam : 1;
 
   // Navega entre passos escrevendo na URL (push: browser back volta um passo).
-  // O loader (passo 7) é o fim do wizard — ele entrega no editor real do agente
+  // O loader (passo 8) é o fim do wizard — ele entrega no editor real do agente
   // via router.replace, pra tela de loading não virar entrada de histórico.
   const goToStep = useCallback(
     (n: number) => {
       router.push(`/agent-studio/new?step=${n}`, { scroll: false });
+    },
+    [router]
+  );
+
+  // Navega entre as perguntas da entrevista (passo 7) mantendo q na URL.
+  const goToQuestion = useCallback(
+    (n: number) => {
+      router.push(`/agent-studio/new?step=7&q=${n}`, { scroll: false });
     },
     [router]
   );
@@ -327,7 +347,12 @@ export default function AgentStudioNewPage() {
   const [selectedAgentCore, setSelectedAgentCore] = useState<string | null>(null);
   const [showAllCores, setShowAllCores] = useState(false);
 
-  // Step 7 (Loading) state
+  // Step 7 (Entrevista de calibragem) — respostas por pergunta (1..3).
+  const [interviewAnswers, setInterviewAnswers] = useState<
+    Record<number, InterviewAnswer>
+  >({});
+
+  // Step 8 (Loading) state
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
   // Load knowledge bases on mount
@@ -337,7 +362,7 @@ export default function AgentStudioNewPage() {
 
   // Loading message rotation
   useEffect(() => {
-    if (currentStep === 7) {
+    if (currentStep === 8) {
       const interval = setInterval(() => {
         setLoadingMessageIndex(prev => (prev + 1) % LOADING_MESSAGES.length);
       }, 1500);
@@ -402,8 +427,8 @@ export default function AgentStudioNewPage() {
       // Conversão (opcional) → Agent Core
       goToStep(6);
     } else if (currentStep === 6) {
-      // Agent Core → tela de loading
-      goToStep(7);
+      // Agent Core → entrevista de calibragem (3 perguntas)
+      goToQuestion(1);
     }
   };
 
@@ -424,16 +449,38 @@ export default function AgentStudioNewPage() {
 
   const isOtherSelected = selectedGoal === "outro";
 
-  // Step 7: Loading Screen
+  // Step 7: Entrevista de calibragem — tela própria (sem o card largo dos
+  // passos 1–6): card branco centrado sobre o gradiente animado.
   if (currentStep === 7) {
     return (
       <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
+        <WizardInterview
+          question={currentQuestion}
+          answers={interviewAnswers}
+          onAnswerChange={(question, answer) =>
+            setInterviewAnswers((prev) => ({ ...prev, [question]: answer }))
+          }
+          onBack={() =>
+            currentQuestion === 1 ? goToStep(6) : goToQuestion(currentQuestion - 1)
+          }
+          onAdvance={() =>
+            currentQuestion === INTERVIEW_TOTAL
+              ? goToStep(8)
+              : goToQuestion(currentQuestion + 1)
+          }
+        />
+      </AwDashboardLayout>
+    );
+  }
+
+  // Step 8: Loading Screen — herda o gradiente animado da entrevista
+  // (continuidade visual entre calibragem e geração).
+  if (currentStep === 8) {
+    return (
+      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
         <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
-          {/* Subtle gradient background */}
-          <div className="absolute inset-0 bg-linear-to-br from-white via-aw-purple-100 to-aw-purple-100 opacity-50" />
-          <div className="absolute top-1/4 -left-1/4 w-[600px] h-[600px] bg-linear-to-br from-aw-purple-100 to-aw-purple-200 rounded-full blur-3xl opacity-30 animate-pulse" />
-          <div className="absolute bottom-1/4 -right-1/4 w-[600px] h-[600px] bg-linear-to-br from-aw-blue-100 to-aw-blue-200 rounded-full blur-3xl opacity-30 animate-pulse" style={{ animationDelay: "1s" }} />
-          
+          <WizardInterviewBackdrop />
+
           <div className="relative z-10 flex flex-col items-center gap-8">
             <SparkleIcon />
             <div className="text-center">
