@@ -14,12 +14,22 @@ type Hit = {
 }
 
 const ALL_ITEMS: Hit[] = navigation.flatMap((section) =>
-  section.items.map((item) => ({
-    name: item.name,
-    href: item.href,
-    section: section.title,
-    aliases: item.aliases,
-  }))
+  section.items.flatMap((item) => {
+    const parent = {
+      name: item.name,
+      href: item.href,
+      section: section.title,
+      aliases: item.aliases,
+    }
+    const children =
+      item.children?.map((child) => ({
+        name: child.name,
+        href: child.href,
+        section: `${section.title} / ${item.name}`,
+        aliases: child.aliases,
+      })) ?? []
+    return [parent, ...children]
+  })
 )
 
 function normalize(s: string) {

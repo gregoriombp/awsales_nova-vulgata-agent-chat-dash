@@ -14,6 +14,10 @@ function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ")
 }
 
+function hrefPath(href: string) {
+  return href.split("#")[0]
+}
+
 export default function StyleguideLayout({
   children,
 }: {
@@ -67,7 +71,10 @@ export default function StyleguideLayout({
                     </li>
                   )}
                   {section.items.map((item) => {
-                    const active = pathname === item.href
+                    const itemPath = hrefPath(item.href)
+                    const active =
+                      pathname === itemPath ||
+                      !!item.children?.some((child) => pathname === hrefPath(child.href))
                     return (
                       <li key={item.href}>
                         <Link
@@ -81,6 +88,28 @@ export default function StyleguideLayout({
                         >
                           {item.name}
                         </Link>
+                        {item.children && item.children.length > 0 ? (
+                          <ul className="mt-1 mb-1 ml-3 flex flex-col gap-0.5 border-l border-(--border-subtle) pl-2">
+                            {item.children.map((child) => {
+                              const childActive = pathname === hrefPath(child.href)
+                              return (
+                                <li key={child.href}>
+                                  <Link
+                                    href={child.href}
+                                    className={cn(
+                                      "block rounded-sm px-2 py-1.5 text-[13px] no-underline transition-colors duration-150",
+                                      childActive
+                                        ? "bg-(--bg-surface) text-(--fg-primary)"
+                                        : "text-(--fg-tertiary) hover:bg-(--bg-surface) hover:text-(--fg-primary)"
+                                    )}
+                                  >
+                                    {child.name}
+                                  </Link>
+                                </li>
+                              )
+                            })}
+                          </ul>
+                        ) : null}
                       </li>
                     )
                   })}

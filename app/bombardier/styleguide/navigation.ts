@@ -3,6 +3,7 @@ export interface NavItem {
   href: string
   /** Hidden search terms that should route to this canonical page. */
   aliases?: string[]
+  children?: NavItem[]
 }
 
 export interface NavSection {
@@ -101,6 +102,13 @@ export const navigation: NavSection[] = [
           "AwContactChannelModal",
           "AwAddIntegrationModal",
         ],
+        children: [
+          { name: "AwModal", href: "/bombardier/styleguide/components/modals#aw-modal" },
+          { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
+          { name: "Contact channel modal", href: "/bombardier/styleguide/components/aw-contact-channel-modal" },
+          { name: "Welcome modal", href: "/bombardier/styleguide/components/aw-welcome-modal" },
+          { name: "Add integration modal", href: "/bombardier/styleguide/components/integration-catalog" },
+        ],
       },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
@@ -118,6 +126,10 @@ export const navigation: NavSection[] = [
           "Drawer",
           "Painel lateral",
         ],
+        children: [
+          { name: "AwSheet", href: "/bombardier/styleguide/components/sheet" },
+          { name: "Template builder sheet", href: "/bombardier/styleguide/components/template-builder-sheet" },
+        ],
       },
       { name: "Shortcut tile", href: "/bombardier/styleguide/components/aw-shortcut-tile" },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
@@ -132,6 +144,11 @@ export const navigation: NavSection[] = [
           "Members table",
           "AwMembersTable",
           "tool-ui data-table",
+        ],
+        children: [
+          { name: "AwTable", href: "/bombardier/styleguide/components/table#aw-table" },
+          { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
+          { name: "Members table", href: "/bombardier/styleguide/components/aw-members-table" },
         ],
       },
     ],
@@ -173,6 +190,11 @@ export const navigation: NavSection[] = [
           "AwUserAgentOrb",
           "Cortex",
           "AwCopilotOrb",
+        ],
+        children: [
+          { name: "Agent Core", href: "/bombardier/styleguide/components/agent-core" },
+          { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
+          { name: "Cortex", href: "/bombardier/styleguide/components/agents#cortex" },
         ],
       },
       { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
