@@ -7,8 +7,6 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwAddIntegrationModal } from "@/components/ui/AwAddIntegrationModal";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwSelect } from "@/components/ui/AwSelect";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
@@ -16,6 +14,7 @@ import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { BRAND_COLORS } from "@/lib/brandColors";
 import { Icon } from "@/components/ui/Icon";
+import { OriginsConversionsStep } from "@/components/agent-studio/OriginsConversionsStep";
 import { AGENT_ORBS, getOrbForAgent } from "@/lib/agentOrbs";
 
 // Parse text into segments: plain text, @logic (chip), {{interpolation}} (chip)
@@ -561,23 +560,6 @@ const AGENT_CORES: AgentCoreOption[] = [
 ];
 
 const CORES_VISIVEIS = 6;
-
-/* ───────── Config de conversão (step 5, opcional) ───────── */
-const CONVERSION_ORIGINS = [
-  "Anúncio · Meta Ads",
-  "Anúncio · Google Ads",
-  "Orgânico / Direto",
-  "Link de campanha",
-  "Indicação",
-];
-
-const CONVERSION_EVENTS = [
-  "Lead respondeu a 1ª mensagem",
-  "Reunião agendada",
-  "Compra realizada",
-  "Cadastro completo",
-  "Proposta aceita",
-];
 
 const MEMORY_BASES_STORAGE_KEY = "memory-bases-list";
 const MAX_VISIBLE_BASES = 4;
@@ -1754,9 +1736,9 @@ export default function AgentStudioNewPage() {
   const [integrations, setIntegrations] = useState<Integration[]>(MOCK_INTEGRATIONS);
   const [addIntegrationOpen, setAddIntegrationOpen] = useState(false);
 
-  // Step 5 state (Config de conversão) — opcional
-  const [conversionOrigin, setConversionOrigin] = useState<string | null>(null);
-  const [conversionEvent, setConversionEvent] = useState<string | null>(null);
+  // Step 5 (Origens e Conversões) — opcional. A etapa gerencia o próprio estado;
+  // só reportamos pro wizard se há ao menos uma config concluída (habilita Avançar).
+  const [step5HasConfig, setStep5HasConfig] = useState(false);
 
   // Step 6 state (Agent Core)
   const [selectedAgentCore, setSelectedAgentCore] = useState<string | null>(null);
@@ -2897,7 +2879,7 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className={`w-full ${currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
+        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
           {/* Step 1: Goal Selection */}
@@ -3570,63 +3552,21 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
             </>
           )}
 
-          {/* Step 5: Configurações de conversão (opcional) */}
+          {/* Step 5: Origens e Conversões (opcional) */}
           {currentStep === 5 && (
             <>
               <div className="text-left">
                 <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-2">
-                  Configurações de conversão
+                  Origens e Conversões
                 </h1>
                 <p className="text-base text-fg-tertiary font-sans">
-                  Opcional. Defina de onde vem o lead e o que conta como conversão
-                  pro sistema disparar o evento. Pode pular — sem isso, o agente só
-                  age quando alguém entra em contato.
+                  Configure de onde vem o seu cliente e seus eventos de conversão.
+                  Etapa opcional — pode pular e o agente segue agindo quando alguém
+                  entra em contato.
                 </p>
               </div>
 
-              <div className="flex flex-col gap-4">
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium text-fg-primary">Origem</span>
-                  <AwDropdownMenu
-                    align="start"
-                    trigger={
-                      <AwSelect className="w-full">
-                        <span className={conversionOrigin ? "text-fg-primary" : "text-fg-tertiary"}>
-                          {conversionOrigin ?? "De onde vem o contato"}
-                        </span>
-                      </AwSelect>
-                    }
-                    items={CONVERSION_ORIGINS.map((o) => ({
-                      id: o,
-                      label: o,
-                      checked: conversionOrigin === o,
-                      onSelect: () => setConversionOrigin(o),
-                    }))}
-                  />
-                </label>
-
-                <label className="flex flex-col gap-1.5">
-                  <span className="text-sm font-medium text-fg-primary">
-                    Evento de conversão
-                  </span>
-                  <AwDropdownMenu
-                    align="start"
-                    trigger={
-                      <AwSelect className="w-full">
-                        <span className={conversionEvent ? "text-fg-primary" : "text-fg-tertiary"}>
-                          {conversionEvent ?? "O que dispara a conversão"}
-                        </span>
-                      </AwSelect>
-                    }
-                    items={CONVERSION_EVENTS.map((e) => ({
-                      id: e,
-                      label: e,
-                      checked: conversionEvent === e,
-                      onSelect: () => setConversionEvent(e),
-                    }))}
-                  />
-                </label>
-              </div>
+              <OriginsConversionsStep onValidityChange={setStep5HasConfig} />
 
               <div className="flex items-center justify-between pt-4">
                 <AwButton
@@ -3638,18 +3578,15 @@ Regra de ouro: Adapte o ritmo, pule etapas quando fizer sentido, priorize natura
                   Voltar
                 </AwButton>
                 <div className="flex items-center gap-2">
-                  <AwButton
-                    variant="ghost"
-                    size="md"
-                    onClick={() => {
-                      setConversionOrigin(null);
-                      setConversionEvent(null);
-                      handleAdvance();
-                    }}
-                  >
-                    Pular etapa
+                  <AwButton variant="ghost" size="md" onClick={handleAdvance}>
+                    Pular esta etapa
                   </AwButton>
-                  <AwButton variant="primary" size="md" onClick={handleAdvance}>
+                  <AwButton
+                    variant="primary"
+                    size="md"
+                    disabled={!step5HasConfig}
+                    onClick={handleAdvance}
+                  >
                     Avançar
                   </AwButton>
                 </div>

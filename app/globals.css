@@ -362,8 +362,8 @@
    * would otherwise add a stroke above the text. */
   font-family: var(--font-body);
   font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 500;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--fg-tertiary);
   text-decoration: none;
