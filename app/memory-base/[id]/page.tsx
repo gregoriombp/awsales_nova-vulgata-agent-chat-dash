@@ -48,6 +48,8 @@ import {
   TbTrendingUp,
 } from "react-icons/tb";
 import { getOrbForAgent } from "@/lib/agentOrbs";
+import { KnowledgeLayersTab } from "@/components/memory-base/KnowledgeLayersTab";
+import { ProductsTab } from "@/components/memory-base/ProductsTab";
 
 /** Gera um UUID determinístico a partir do id da linha (para exibição como ID do arquivo). */
 function idToFileUuid(id: string): string {
@@ -471,6 +473,9 @@ function MemoryBaseDirectoryContent() {
   const isNewFromUrl = searchParams.get("new") === "1";
 
   const [search, setSearch] = useState("");
+  // Aba ativa do detalhe da base. "documentos" = visão de Fontes (existente);
+  // "playbook"/"produtos" = visões de Knowledge Layers e produtos (flow do Figma).
+  const [activeTab, setActiveTab] = useState<"documentos" | "playbook" | "produtos">("documentos");
   const [isDirectoryActive, setIsDirectoryActive] = useState(true);
   const [isDirMenuOpen, setIsDirMenuOpen] = useState(false);
   const dirMenuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -1077,15 +1082,42 @@ function MemoryBaseDirectoryContent() {
               </div>
             </div>
 
-            {/* Tabs da base — substituem a sidebar contextual (legacy). */}
+            {/* Tabs da base — Documentos (Fontes, existente) + Playbook/Produtos
+                (Knowledge Layers e produtos, do flow do Figma) + rotas auxiliares. */}
             <div className="mt-7 flex items-center gap-1">
-              <span className="inline-flex items-center gap-2 rounded-md bg-white/10 px-3 py-2 text-[13px] font-medium text-white">
+              <button
+                type="button"
+                onClick={() => setActiveTab("documentos")}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
+                  activeTab === "documentos" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
                 <Icon name="description" size={16} weight={300} />
                 Documentos
                 <span className="ml-0.5 rounded-full bg-white/15 px-1.5 text-[11px] tabular-nums text-white/80">
                   {rows.length}
                 </span>
-              </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("playbook")}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
+                  activeTab === "playbook" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <Icon name="menu_book" size={16} weight={300} />
+                Playbook
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("produtos")}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
+                  activeTab === "produtos" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
+                }`}
+              >
+                <Icon name="inventory_2" size={16} weight={300} />
+                Produtos
+              </button>
               <button
                 type="button"
                 onClick={() => router.push(`/memory-base/${params?.id}/semantic-search`)}
@@ -1108,6 +1140,7 @@ function MemoryBaseDirectoryContent() {
 
         {/* Content */}
         <div className="bg-(--bg-raised)">
+          {activeTab === "documentos" && (
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
             <div className="space-y-4" data-tour="add-sources">
@@ -1459,6 +1492,19 @@ function MemoryBaseDirectoryContent() {
             </div>
 
           </div>
+          )}
+
+          {activeTab === "playbook" && (
+            <div className="w-full px-12 pt-10 pb-14">
+              <KnowledgeLayersTab baseId={typeof params?.id === "string" ? params.id : ""} />
+            </div>
+          )}
+
+          {activeTab === "produtos" && (
+            <div className="w-full px-12 pt-10 pb-14">
+              <ProductsTab />
+            </div>
+          )}
         </div>
       </div>
 
