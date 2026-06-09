@@ -6,6 +6,9 @@ import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwInput } from "@/components/ui/AwInput";
+import { AwToggle } from "@/components/ui/AwToggle";
+import { AwDropzone } from "@/components/ui/AwDropzone";
 import BaseModal from "@/components/modals/BaseModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import AddUrlFlow from "@/components/modals/AddUrlFlow";
@@ -14,6 +17,7 @@ import AddSnippetModal from "@/components/modals/AddSnippetModal";
 import CreateFolderModal from "@/components/modals/CreateFolderModal";
 import RenameFolderModal from "@/components/modals/RenameFolderModal";
 import ActivateIntegrationsModal, { type IntegrationItem, DEFAULT_INTEGRATIONS } from "@/components/modals/ActivateIntegrationsModal";
+import AddCatalogModal from "@/components/modals/AddCatalogModal";
 import {
   TbFileTypePdf,
   TbFileTypeDoc,
@@ -40,6 +44,8 @@ import {
   TbPencil,
   TbTrash,
   TbFolderOpen,
+  TbDatabase,
+  TbTrendingUp,
 } from "react-icons/tb";
 import { getOrbForAgent } from "@/lib/agentOrbs";
 
@@ -224,6 +230,13 @@ const FILE_TYPE_STYLES = {
 function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) {
   const size = 16;
 
+  if (typeLabel === "Catálogo") {
+    return (
+      <div className="h-8 w-8 rounded-sm border border-(--border-subtle) flex items-center justify-center bg-(--bg-muted) text-(--fg-secondary)">
+        <TbDatabase size={size} strokeWidth={1.5} />
+      </div>
+    );
+  }
   if (typeLabel === "URL") {
     const s = FILE_TYPE_STYLES.url;
     return (
@@ -352,6 +365,15 @@ const MOCK_ROWS: SourceRow[] = [
 const SOURCES_STORAGE_KEY_PREFIX = "memory-base-sources-";
 const FOLDERS_STORAGE_KEY_PREFIX = "memory-base-folders-";
 
+/** Qualidade/saúde de um Knowledge Layer — cores mapeadas aos accents do DS. */
+type KLQuality = "Muito alta" | "Alta" | "Razoável" | "Péssimo";
+const QUALITY_COLOR: Record<KLQuality, string> = {
+  "Muito alta": "var(--accent-success)",
+  Alta: "var(--accent-success)",
+  Razoável: "var(--accent-warning)",
+  Péssimo: "var(--accent-danger)",
+};
+
 function getSourcesStorageKey(id: string): string {
   return SOURCES_STORAGE_KEY_PREFIX + id;
 }
@@ -479,6 +501,7 @@ function MemoryBaseDirectoryContent() {
   const [isSendFileOpen, setIsSendFileOpen] = useState(false);
   const [isAddSnippetOpen, setIsAddSnippetOpen] = useState(false);
   const [isActivateIntegrationsOpen, setIsActivateIntegrationsOpen] = useState(false);
+  const [isAddCatalogOpen, setIsAddCatalogOpen] = useState(false);
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false);
   const [isRenameFolderOpen, setIsRenameFolderOpen] = useState(false);
   const [isDeleteFolderOpen, setIsDeleteFolderOpen] = useState(false);
@@ -510,20 +533,22 @@ function MemoryBaseDirectoryContent() {
   } | null>(null);
 
   const [layersRowMenuIndex, setLayersRowMenuIndex] = useState<number | null>(null);
+  const [editingQAId, setEditingQAId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<{ question: string; answer: string; status: "Ativo" | "Desativado" }>({ question: "", answer: "", status: "Ativo" });
   const layersRowMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [drawerLayersQA, setDrawerLayersQA] = useState<
-    { id: string; question: string; answer: string; status: "Ativo" | "Desativado" }[]
+    { id: string; question: string; answer: string; status: "Ativo" | "Desativado"; quality: KLQuality }[]
   >(() => [
-    { id: "qa-1", question: "O que é o Artificial Concord segundo o documento?", answer: "É uma iniciativa educacional focada em Inteligência Artificial, iniciada no YouTube e planejada para expansão multiplataforma.", status: "Desativado" },
-    { id: "qa-2", question: "Qual é a missão principal do projeto?", answer: "Democratizar o uso prático, ético e criativo da IA para a comunidade lusófona, especialmente no Brasil.", status: "Ativo" },
-    { id: "qa-3", question: "Qual é o público-alvo descrito?", answer: "Comunidade lusófona, com foco em profissionais e entusiastas no Brasil que buscam aplicar IA de forma ética e criativa.", status: "Ativo" },
-    { id: "qa-4", question: "O projeto possui validação externa relevante?", answer: "Sim. O documento menciona reconhecimento e parcerias que validam a relevância da iniciativa.", status: "Ativo" },
-    { id: "qa-5", question: "Qual foi o crescimento orgânico alcançado?", answer: "O documento descreve métricas de crescimento orgânico da audiência e do engajamento nas plataformas.", status: "Ativo" },
-    { id: "qa-6", question: "O projeto possui reconhecimento institucional?", answer: "Sim. Há menção a reconhecimento institucional e possíveis parcerias com instituições.", status: "Ativo" },
-    { id: "qa-7", question: "Por que a parceria com a Fasul foi recusada?", answer: "O documento indica motivos estratégicos ou de alinhamento para a decisão em relação à parceria com a Fasul.", status: "Ativo" },
-    { id: "qa-8", question: "Qual é a estratégia de conteúdo descrita?", answer: "Expansão multiplataforma, conteúdo educativo em IA e foco na comunidade lusófona.", status: "Ativo" },
-    { id: "qa-9", question: "Como o documento descreve o posicionamento profissional do criador?", answer: "Como um educador e divulgador de IA, com foco em uso prático, ético e criativo da tecnologia.", status: "Ativo" },
+    { id: "qa-1", question: "O que é o Artificial Concord segundo o documento?", answer: "É uma iniciativa educacional focada em Inteligência Artificial, iniciada no YouTube e planejada para expansão multiplataforma.", status: "Desativado", quality: "Péssimo" },
+    { id: "qa-2", question: "Qual é a missão principal do projeto?", answer: "Democratizar o uso prático, ético e criativo da IA para a comunidade lusófona, especialmente no Brasil.", status: "Ativo", quality: "Muito alta" },
+    { id: "qa-3", question: "Qual é o público-alvo descrito?", answer: "Comunidade lusófona, com foco em profissionais e entusiastas no Brasil que buscam aplicar IA de forma ética e criativa.", status: "Ativo", quality: "Alta" },
+    { id: "qa-4", question: "O projeto possui validação externa relevante?", answer: "Sim. O documento menciona reconhecimento e parcerias que validam a relevância da iniciativa.", status: "Ativo", quality: "Alta" },
+    { id: "qa-5", question: "Qual foi o crescimento orgânico alcançado?", answer: "O documento descreve métricas de crescimento orgânico da audiência e do engajamento nas plataformas.", status: "Ativo", quality: "Muito alta" },
+    { id: "qa-6", question: "O projeto possui reconhecimento institucional?", answer: "Sim. Há menção a reconhecimento institucional e possíveis parcerias com instituições.", status: "Ativo", quality: "Alta" },
+    { id: "qa-7", question: "Por que a parceria com a Fasul foi recusada?", answer: "O documento indica motivos estratégicos ou de alinhamento para a decisão em relação à parceria com a Fasul.", status: "Ativo", quality: "Razoável" },
+    { id: "qa-8", question: "Qual é a estratégia de conteúdo descrita?", answer: "Expansão multiplataforma, conteúdo educativo em IA e foco na comunidade lusófona.", status: "Ativo", quality: "Muito alta" },
+    { id: "qa-9", question: "Como o documento descreve o posicionamento profissional do criador?", answer: "Como um educador e divulgador de IA, com foco em uso prático, ético e criativo da tecnologia.", status: "Ativo", quality: "Alta" },
   ]);
 
   const [storedName, setStoredName] = useState<string | null>(null);
@@ -1167,6 +1192,17 @@ function MemoryBaseDirectoryContent() {
                     onClick={() => setIsActivateIntegrationsOpen(true)}
                   />
                 </div>
+                <ActionCard
+                  label="Adicionar Catálogo"
+                  icon={
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                      <ellipse cx="12" cy="6" rx="7.5" ry="3" stroke="currentColor" strokeWidth="2" />
+                      <path d="M4.5 6v12c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3V6" stroke="currentColor" strokeWidth="2" />
+                      <path d="M4.5 12c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3" stroke="currentColor" strokeWidth="2" />
+                    </svg>
+                  }
+                  onClick={() => setIsAddCatalogOpen(true)}
+                />
               </div>
             </div>
 
@@ -1582,7 +1618,73 @@ function MemoryBaseDirectoryContent() {
                       </p>
                     </div>
                   )}
-                  {drawerTab === "layers" && (
+                  {drawerTab === "layers" && (editingQAId ? (
+                    <div className="flex flex-col h-full min-h-0 gap-5 overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={() => setEditingQAId(null)}
+                        className="inline-flex w-fit items-center gap-1.5 text-[13px] text-(--fg-secondary) hover:text-(--fg-primary)"
+                      >
+                        <TbArrowLeft className="w-4 h-4" /> Voltar para a lista
+                      </button>
+                      <div className="text-[15px] font-semibold text-(--fg-primary)">Editar Knowledge Layer</div>
+                      <label className="flex flex-col gap-1.5">
+                        <span className="text-[13px] font-medium text-(--fg-primary)">Pergunta</span>
+                        <AwInput
+                          value={editDraft.question}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, question: e.target.value }))}
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1.5">
+                        <span className="text-[13px] font-medium text-(--fg-primary)">Resposta</span>
+                        <textarea
+                          value={editDraft.answer}
+                          onChange={(e) => setEditDraft((d) => ({ ...d, answer: e.target.value }))}
+                          rows={6}
+                          className="w-full resize-y rounded-xl border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-[13px] leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
+                        />
+                        <span className="text-[11px] text-(--fg-tertiary)">Digite {"{}"} para ver as variáveis disponíveis.</span>
+                      </label>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-[13px] font-medium text-(--fg-primary)">Status</div>
+                          <div className="text-[12px] text-(--fg-tertiary)">
+                            {editDraft.status === "Ativo" ? "Ativo — em uso pelos agentes" : "Desativado"}
+                          </div>
+                        </div>
+                        <AwToggle
+                          checked={editDraft.status === "Ativo"}
+                          onChange={(v) => setEditDraft((d) => ({ ...d, status: v ? "Ativo" : "Desativado" }))}
+                          label="Status do Knowledge Layer"
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <span className="text-[13px] font-medium text-(--fg-primary)">Anexos</span>
+                        <AwDropzone variant="compact" accept=".pdf,.png,.jpg" maxSizeMb={10} />
+                      </div>
+                      <div className="mt-auto flex items-center justify-end gap-2 pt-2">
+                        <AwButton variant="ghost" onClick={() => setEditingQAId(null)}>
+                          Cancelar
+                        </AwButton>
+                        <AwButton
+                          variant="primary"
+                          iconLeft="check"
+                          onClick={() => {
+                            setDrawerLayersQA((prev) =>
+                              prev.map((q) =>
+                                q.id === editingQAId
+                                  ? { ...q, question: editDraft.question, answer: editDraft.answer, status: editDraft.status }
+                                  : q
+                              )
+                            );
+                            setEditingQAId(null);
+                          }}
+                        >
+                          Salvar alterações
+                        </AwButton>
+                      </div>
+                    </div>
+                  ) : (
                     <div className="flex flex-col h-full min-h-0">
                       {/* Controles – conforme Figma node 40000350-17422 */}
                       <div className="flex items-center gap-3 mb-4 shrink-0">
@@ -1616,6 +1718,7 @@ function MemoryBaseDirectoryContent() {
                             </svg>
                           </span>
                         </div>
+                        <div className="w-[100px] shrink-0">Qualidade</div>
                         <div className="w-[88px] shrink-0 text-right">Status</div>
                         <div className="w-8 shrink-0" aria-hidden />
                       </div>
@@ -1628,6 +1731,12 @@ function MemoryBaseDirectoryContent() {
                               <p className="text-[13px] font-semibold text-(--fg-primary) leading-snug">{item.question}</p>
                               <p className="text-[13px] text-(--fg-secondary) leading-snug mt-0.5">{item.answer}</p>
                             </div>
+                            <span
+                              className="w-[100px] shrink-0 inline-flex items-center gap-1 text-[12px] font-medium"
+                              style={{ color: QUALITY_COLOR[item.quality] }}
+                            >
+                              <TbTrendingUp size={14} strokeWidth={2} /> {item.quality}
+                            </span>
                             <span
                               className={`shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium ${
                                 item.status === "Ativo"
@@ -1671,7 +1780,11 @@ function MemoryBaseDirectoryContent() {
                                   <button
                                     type="button"
                                     className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
-                                    onClick={() => setLayersRowMenuIndex(null)}
+                                    onClick={() => {
+                                      setEditDraft({ question: item.question, answer: item.answer, status: item.status });
+                                      setEditingQAId(item.id);
+                                      setLayersRowMenuIndex(null);
+                                    }}
                                   >
                                     Editar
                                   </button>
@@ -1706,7 +1819,7 @@ function MemoryBaseDirectoryContent() {
                         Exemplo de demonstração — perguntas e respostas reais virão do pipeline de Knowledge Layers.
                       </p>
                     </div>
-                  )}
+                  ))}
                   {drawerTab === "visualizar" && (() => {
                     const isUrl = drawerRow.typeLabel === "URL";
                     if (isUrl) {
@@ -1971,6 +2084,23 @@ function MemoryBaseDirectoryContent() {
             createdAt: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
           }));
           setRows((prev) => [...newRows, ...prev]);
+        }}
+      />
+
+      <AddCatalogModal
+        isOpen={isAddCatalogOpen}
+        onClose={() => setIsAddCatalogOpen(false)}
+        onComplete={(catalog) => {
+          const newRow: SourceRow = {
+            id: `cat-${Date.now()}`,
+            name: catalog.fileName || `${catalog.name}.csv`,
+            typeLabel: "Catálogo",
+            status: "Ativo",
+            layersLabel: catalog.via === "csv" ? "Catálogo CSV" : "Catálogo · integração",
+            createdAt: new Date().toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" }),
+            folderId: currentFolderId,
+          };
+          setRows((prev) => [newRow, ...prev]);
         }}
       />
     </AwDashboardLayout>
