@@ -11,7 +11,8 @@ export type IntegrationCategory =
   | "crms"
   | "marketplaces"
   | "ai"
-  | "signatures";
+  | "signatures"
+  | "comms";
 
 export type AuthMethod = "oauth" | "webhook" | "apiKey";
 
@@ -32,6 +33,7 @@ export const ADD_MODAL_CATEGORIES: { id: IntegrationCategory; label: string }[] 
   { id: "forms", label: "Formulários" },
   { id: "meetings", label: "Reuniões" },
   { id: "crms", label: "CRMs" },
+  { id: "comms", label: "Comunicação" },
   { id: "marketplaces", label: "Marketplaces" },
   { id: "signatures", label: "Assinaturas" },
 ];
@@ -45,6 +47,7 @@ export const CATEGORY_LABELS: Record<IntegrationCategory, string> = {
   marketplaces: "Marketplace",
   ai: "IA",
   signatures: "Assinaturas",
+  comms: "Comunicação",
 };
 
 export const AUTH_LABELS: Record<AuthMethod, string> = {
@@ -180,6 +183,20 @@ export const INTEGRATION_CATALOG: IntegrationCatalogItem[] = [
       "Acessar contatos e empresas",
       "Criar e atualizar deals do pipeline",
       "Disparar workflows quando uma oportunidade fechar",
+    ],
+  },
+  // Comunicação
+  {
+    id: "slack",
+    cat: "comms",
+    name: "Slack",
+    domain: "slack.com",
+    desc: "Receba eventos e dispare mensagens nos canais do Slack.",
+    auth: "oauth",
+    permissions: [
+      "Ler canais e mensagens do workspace",
+      "Enviar mensagens em seu nome",
+      "Receber eventos de novas mensagens e menções",
     ],
   },
   // AI Providers

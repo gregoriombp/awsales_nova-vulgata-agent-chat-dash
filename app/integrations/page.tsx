@@ -44,7 +44,8 @@ type IntegrationCategory =
   | "crms"
   | "marketplaces"
   | "ai"
-  | "signatures";
+  | "signatures"
+  | "comms";
 
 /** Channels live in /canais now. We keep the ids here only so any
  *  legacy localStorage instances created before the split are filtered
@@ -70,6 +71,7 @@ const ADD_MODAL_CATS: { id: IntegrationCategory; label: string }[] = [
   { id: "forms", label: "Formulários" },
   { id: "meetings", label: "Reuniões" },
   { id: "crms", label: "CRMs" },
+  { id: "comms", label: "Comunicação" },
   { id: "marketplaces", label: "Marketplaces" },
   { id: "signatures", label: "Assinaturas" },
 ];
@@ -215,6 +217,20 @@ const ITEMS: Integration[] = [
       "Acessar contatos e empresas",
       "Criar e atualizar deals do pipeline",
       "Disparar workflows quando uma oportunidade fechar",
+    ],
+  },
+  // Comunicação
+  {
+    id: "slack",
+    cat: "comms",
+    name: "Slack",
+    domain: "slack.com",
+    desc: "Receba eventos e dispare mensagens nos canais do Slack.",
+    auth: "oauth",
+    permissions: [
+      "Ler canais e mensagens do workspace",
+      "Enviar mensagens em seu nome",
+      "Receber eventos de novas mensagens e menções",
     ],
   },
   // AI Providers

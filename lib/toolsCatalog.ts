@@ -426,6 +426,41 @@ const signaturesPack: Pack = (b) => [
   },
 ];
 
+const commsPack: Pack = (b) => [
+  {
+    id: `${b.id}.send-message`,
+    integrationId: b.id,
+    name: "Enviar mensagem",
+    description: `Publica uma mensagem em um canal ou conversa direta no ${b.name}.`,
+    kind: "action",
+    icon: "send",
+    params: [
+      { name: "channel", type: "string", required: true, description: "Canal ou usuário de destino." },
+      { name: "text", type: "string", required: true, description: "Conteúdo da mensagem." },
+    ],
+  },
+  {
+    id: `${b.id}.list-channels`,
+    integrationId: b.id,
+    name: "Listar canais",
+    description: `Retorna os canais disponíveis no workspace do ${b.name}.`,
+    kind: "read",
+    icon: "tag",
+  },
+  {
+    id: `${b.id}.read-messages`,
+    integrationId: b.id,
+    name: "Ler mensagens",
+    description: `Busca as mensagens recentes de um canal no ${b.name}.`,
+    kind: "read",
+    icon: "forum",
+    params: [
+      { name: "channel", type: "string", required: true, description: "Canal a consultar." },
+      { name: "limit", type: "number", description: "Quantidade de mensagens. Default 50." },
+    ],
+  },
+];
+
 const PACKS: Record<IntegrationCategory, Pack> = {
   checkouts: checkoutsPack,
   meetings: meetingsPack,
@@ -435,6 +470,7 @@ const PACKS: Record<IntegrationCategory, Pack> = {
   marketplaces: marketplacesPack,
   ai: aiPack,
   signatures: signaturesPack,
+  comms: commsPack,
 };
 
 /* Build the catalog by walking every integration and asking its pack
