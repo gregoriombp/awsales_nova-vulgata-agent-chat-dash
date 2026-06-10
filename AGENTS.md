@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Conventions for any AI agent (Claude Code, Codex, Cursor, etc.) working in this repository. **This is the single source of truth — read it before starting.** It holds the complete rules; `CLAUDE.md` is a thin pointer back here (Claude Code auto-loads `CLAUDE.md` and lands on these same rules). **Keep every rule HERE — never add rules to `CLAUDE.md`**, so the two can never diverge.
+Conventions for any AI Agent (Claude Code, Codex, Cursor, etc.) working in this repository. **This is the single source of truth — read it before starting.** It holds the complete rules; `CLAUDE.md` is a thin pointer back here (Claude Code auto-loads `CLAUDE.md` and lands on these same rules). **Keep every rule HERE — never add rules to `CLAUDE.md`**, so the two can never diverge.
 
 > For product context (what AwSales is, voice, vocabulary) see `AWSALES_CONTEXT.md`. For styleguide page structure see `docs/`. The conventions, tokens, stack rules and skills below are authoritative.
 
