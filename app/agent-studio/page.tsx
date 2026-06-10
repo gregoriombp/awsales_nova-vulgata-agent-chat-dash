@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -48,23 +47,78 @@ export default function AgentStudioPage() {
           <WelcomeState />
         ) : (
           <div className="w-full px-6 pb-16 pt-8 sm:px-10">
-            <AwPageHeader
-              size="hero"
-              title="Agent Studio"
-              description="Descubra e crie agentes customizados que combinam instruções, conhecimento extra e qualquer combinação de tarefas."
-              actions={
-                <AwButton asChild variant="primary" size="md" iconLeft="add">
-                  <Link href="/agent-studio/new">Criar agente</Link>
-                </AwButton>
-              }
-              divider={false}
-            />
+            <StudioHero />
 
             {state === "populated" ? <PopulatedState /> : <ReturningEmptyState />}
           </div>
         )}
       </AwDashboardLayout>
     </>
+  );
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+ * Hero do studio — banda com gradiente azul em mesh (tratamento Arcade):
+ * radiais azuis concentradas no canto inferior direito sobre a superfície,
+ * texto e CTA respirando na metade clara. Os orbs dos agentes ativos entram
+ * como prévia viva do que o time já construiu.
+ * ───────────────────────────────────────────────────────────────────────── */
+function StudioHero() {
+  const orbs = ALL_AGENTES.slice(0, 5);
+
+  return (
+    <section className="relative overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--bg-surface)">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background: [
+            "radial-gradient(900px 420px at 92% 130%, var(--aw-blue-500) 0%, transparent 62%)",
+            "radial-gradient(680px 340px at 70% 115%, var(--aw-blue-300) 0%, transparent 58%)",
+            "radial-gradient(540px 320px at 100% 55%, var(--aw-blue-200) 0%, transparent 62%)",
+            "linear-gradient(180deg, transparent 30%, var(--aw-blue-100) 100%)",
+          ].join(", "),
+        }}
+      />
+
+      <div className="relative flex items-center justify-between gap-8 px-8 py-9 sm:px-10">
+        <div className="min-w-0 max-w-[620px]">
+          <h1 className="font-heading text-3xl font-medium tracking-tight text-(--fg-primary)">
+            Agent Studio
+          </h1>
+          <p className="mt-2.5 text-sm leading-relaxed text-(--fg-secondary)">
+            Descubra e crie agentes customizados que combinam instruções,
+            conhecimento extra e qualquer combinação de tarefas.
+          </p>
+          <div className="mt-6 flex items-center gap-3">
+            <AwButton asChild variant="primary" size="md" iconLeft="add">
+              <Link href="/agent-studio/new">Criar agente</Link>
+            </AwButton>
+            <span className="text-xs text-(--fg-tertiary)">
+              Leva menos de 10 minutos do objetivo à publicação.
+            </span>
+          </div>
+        </div>
+
+        {/* Prévia dos agentes do workspace */}
+        <div className="hidden shrink-0 flex-col items-end gap-3 lg:flex">
+          <div className="flex -space-x-3">
+            {orbs.map((agent) => (
+              <img
+                key={agent.id}
+                src={getOrbForAgent(agent.id)}
+                alt=""
+                title={agent.title}
+                className="h-12 w-12 rounded-full border-2 border-(--bg-surface) object-cover shadow-sm"
+              />
+            ))}
+          </div>
+          <p className="text-xs text-(--fg-secondary)">
+            {ALL_AGENTES.length} agentes operando neste workspace
+          </p>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -184,7 +238,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
         { label: "Agente core" },
         { label: "Criado por", icon: "person" },
         { label: "Criado em", icon: "schedule" },
-        { label: "Base de conhecimento", icon: "database" },
+        { label: "Base de conhecimento", icon: "account_balance" },
         { label: "", width: 52 },
       ]}
     >
@@ -246,7 +300,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
             <AwMembersTableTextCell muted>
               <span className="flex items-center gap-2">
                 <Icon
-                  name="database"
+                  name="account_balance"
                   size={15}
                   className="shrink-0 text-(--fg-tertiary)"
                 />
