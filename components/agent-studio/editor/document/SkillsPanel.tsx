@@ -192,7 +192,7 @@ function SkillCard({
         <span className="block truncate text-[13px] font-medium text-(--fg-primary)">
           {skill.nome}
         </span>
-        <span className="block truncate text-[11px] text-(--aw-blue-600)">
+        <span className="block truncate text-[11px] text-(--aw-slate-600)">
           @{skill.id}
         </span>
       </span>
@@ -293,6 +293,8 @@ export function SkillsPanel({
   agentId,
   groups,
   variaveis,
+  integrationsOpen: integrationsOpenProp,
+  onIntegrationsOpenChange,
   onInsertSkill,
   onInsertVariable,
   onCreateVariable,
@@ -301,6 +303,9 @@ export function SkillsPanel({
   agentId: string;
   groups: SkillGroup[];
   variaveis: AgentVariable[];
+  /** Modal de integrações controlado de fora (ex.: aberto pelo menu @). */
+  integrationsOpen?: boolean;
+  onIntegrationsOpenChange?: (open: boolean) => void;
   onInsertSkill: (id: string) => void;
   onInsertVariable: (nome: string) => void;
   onCreateVariable: (nome: string) => void;
@@ -309,7 +314,13 @@ export function SkillsPanel({
   const [expanded, setExpanded] = React.useState<Set<string>>(
     () => new Set(["agente", "aops"]),
   );
-  const [integrationsOpen, setIntegrationsOpen] = React.useState(false);
+  const [integrationsOpenInternal, setIntegrationsOpenInternal] =
+    React.useState(false);
+  const integrationsOpen = integrationsOpenProp ?? integrationsOpenInternal;
+  const setIntegrationsOpen = (open: boolean) => {
+    setIntegrationsOpenInternal(open);
+    onIntegrationsOpenChange?.(open);
+  };
   const [varFormOpen, setVarFormOpen] = React.useState(false);
   const [varName, setVarName] = React.useState("");
 

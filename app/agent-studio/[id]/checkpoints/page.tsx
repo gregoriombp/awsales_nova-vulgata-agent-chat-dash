@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwModal } from "@/components/ui/AwModal";
-import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/AwToast";
 import {
   CheckpointDocument,
@@ -37,42 +36,6 @@ import {
  * disponível na visualização modular.
  */
 
-/* ─── Toolbar de formatação ────────────────────────────────────────────── */
-
-function ToolbarButton({
-  icon,
-  label,
-  shortcut,
-  onAction,
-}: {
-  icon: string;
-  label: string;
-  shortcut?: string;
-  onAction: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      title={shortcut ? `${label} (${shortcut})` : label}
-      aria-label={label}
-      // mousedown + preventDefault: o foco (e a seleção) ficam no editor.
-      onMouseDown={(e) => {
-        e.preventDefault();
-        onAction();
-      }}
-      className="flex h-9 w-9 items-center justify-center rounded-lg text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-    >
-      <Icon name={icon} size={19} />
-    </button>
-  );
-}
-
-function ToolbarDivider() {
-  return (
-    <span aria-hidden="true" className="mx-1.5 h-5 w-px bg-(--border-subtle)" />
-  );
-}
-
 /* ─── Página ───────────────────────────────────────────────────────────── */
 
 export default function CheckpointDocumentPage() {
@@ -96,6 +59,9 @@ export default function CheckpointDocumentPage() {
   const [confirmLeave, setConfirmLeave] = React.useState(false);
   const [verifying, setVerifying] = React.useState(false);
   const [chipModal, setChipModal] = React.useState<TokenClick | null>(null);
+  /* Catálogo de integrações — abre pelo painel OU pelo "+ Nova Integração"
+   * do menu @ dentro do texto. */
+  const [integrationsOpen, setIntegrationsOpen] = React.useState(false);
 
   /* Rascunho compartilhado com /agent-studio/[id] — carrega após o mount
    * (localStorage não existe no SSR). A microtask tira o setState do corpo
@@ -219,47 +185,13 @@ export default function CheckpointDocumentPage() {
           </div>
         </header>
 
-        {/* Toolbar sticky — formatação à esquerda, salvar sempre à mão */}
+        {/* Barra sticky — sem controles de formatação (negrito/itálico ficam
+            nos atalhos ⌘B/⌘I; @ e {{ digitam-se no texto). Só as ações. */}
         <div className="sticky top-0 z-20 border-y border-(--border-subtle) bg-(--bg-canvas)/90 backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-[1280px] items-center gap-0.5 px-10 py-2">
-            <ToolbarButton
-              icon="format_bold"
-              label="Negrito"
-              shortcut="⌘B"
-              onAction={() => document.execCommand("bold")}
-            />
-            <ToolbarButton
-              icon="format_italic"
-              label="Itálico"
-              shortcut="⌘I"
-              onAction={() => document.execCommand("italic")}
-            />
-            <ToolbarDivider />
-            <ToolbarButton
-              icon="alternate_email"
-              label="Inserir tool ou AOP"
-              shortcut="@"
-              onAction={() => document.execCommand("insertText", false, "@")}
-            />
-            <ToolbarButton
-              icon="data_object"
-              label="Inserir variável"
-              shortcut="{{"
-              onAction={() => document.execCommand("insertText", false, "{{")}
-            />
-            <ToolbarDivider />
-            <ToolbarButton
-              icon="undo"
-              label="Desfazer"
-              shortcut="⌘Z"
-              onAction={() => document.execCommand("undo")}
-            />
-            <ToolbarButton
-              icon="redo"
-              label="Refazer"
-              shortcut="⇧⌘Z"
-              onAction={() => document.execCommand("redo")}
-            />
+          <div className="mx-auto flex w-full max-w-[1280px] items-center px-10 py-2">
+            <p className="text-xs text-(--fg-tertiary)">
+              {"@ insere tools e AOPs · {{ insere variáveis"}
+            </p>
             <div className="ml-auto flex items-center gap-2">
               <AwButton
                 variant="ghost"
@@ -290,7 +222,9 @@ export default function CheckpointDocumentPage() {
                 onChange={handleCheckpointsChange}
                 habilidades={habilidades}
                 variaveis={variaveis}
+                grupos={groups}
                 onCreateVariable={createVariable}
+                onRequestNewIntegration={() => setIntegrationsOpen(true)}
                 onEditorFocus={registerActiveEditor}
                 onTokenClick={setChipModal}
               />
@@ -302,6 +236,8 @@ export default function CheckpointDocumentPage() {
                   agentId={params.id}
                   groups={groups}
                   variaveis={variaveis}
+                  integrationsOpen={integrationsOpen}
+                  onIntegrationsOpenChange={setIntegrationsOpen}
                   onInsertSkill={(id) =>
                     activeEditor.current?.insertMention(id)
                   }

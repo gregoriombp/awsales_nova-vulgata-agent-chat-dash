@@ -6,7 +6,7 @@ import { AwChatBubble } from "@/components/ui/AwChatBubble";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
 import type { AgentEditorData } from "@/lib/agentStudio";
 
@@ -118,7 +118,7 @@ export function PlaygroundTab({ data }: { data: AgentEditorData }) {
   };
 
   const orbAvatar = (
-    <AwUserAgentOrbStatic seed={data.agent.id} size={32} />
+    <AwUserAgentOrb seed={data.agent.id} state="responding" size={32} />
   );
 
   return (
@@ -179,7 +179,11 @@ export function PlaygroundTab({ data }: { data: AgentEditorData }) {
         /* Interface de chat */
         <div className="flex flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
           <header className="flex items-center gap-3 border-b border-(--border-subtle) px-5 py-3.5">
-            <AwUserAgentOrbStatic seed={data.agent.id} size={36} />
+            <AwUserAgentOrb
+              seed={data.agent.id}
+              state={typing ? "thinking" : "responding"}
+              size={36}
+            />
             <span className="min-w-0 truncate body-sm font-medium text-(--fg-primary)">
               {data.agent.title}
             </span>

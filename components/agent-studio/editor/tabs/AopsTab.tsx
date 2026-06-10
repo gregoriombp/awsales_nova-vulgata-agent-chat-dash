@@ -311,7 +311,7 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
                   {detalhe.atualizadoEm}
                 </AwSheetRow>
                 <AwSheetRow label="Menção no editor">
-                  <span className="text-(--aw-blue-600)">
+                  <span className="text-(--aw-slate-600)">
                     @aop.{detalhe.id.replace(/^aop-/, "")}
                   </span>
                 </AwSheetRow>

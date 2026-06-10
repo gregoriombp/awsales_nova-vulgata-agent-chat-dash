@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import {
   AwCheckpointChip,
   AW_CHECKPOINT_CHIP_BASE_CLASS,
@@ -11,12 +10,12 @@ import {
   GOOGLE_CALENDAR_ICON_SRC,
   type AwCheckpointChipTone,
 } from "@/components/ui/AwCheckpointChip";
-import { Icon } from "@/components/ui/Icon";
+import { AwMentionMenu } from "@/components/ui/AwMentionMenu";
 import {
   skillTone,
-  SKILL_TONE_CLASSES,
   type AgentVariable,
   type HabilidadeConfigurada,
+  type SkillGroup,
 } from "@/lib/agentStudio";
 import {
   parseTokenSegments,
@@ -221,14 +220,12 @@ type MenuState = {
 
 type SuggestionItem = {
   key: string;
-  kind: "mention" | "variable" | "create";
-  /** id da habilidade ou nome (sem chaves) da variável. */
+  kind: "mention" | "variable" | "create" | "integration" | "new-integration";
+  /** id da habilidade, nome (sem chaves) da variável ou id do grupo. */
   value: string;
   label: string;
   descricao: string;
   icon: string;
-  /** Classes do tile do ícone (tom do grupo). */
-  tileClass: string;
   brand?: string;
 };
 
@@ -270,8 +267,16 @@ export type CheckpointRichTextEditorProps = {
   onChange: (value: string) => void;
   habilidades: HabilidadeConfigurada[];
   variaveis: AgentVariable[];
+  /**
+   * Grupos da DSL — separa tools nativas de integrações no menu `@`
+   * (integrações viram drill-in com o logo da marca). Sem isso, o menu
+   * mostra a lista corrida de habilidades.
+   */
+  grupos?: SkillGroup[];
   /** Disparado quando o usuário cria uma variável nova pelo menu `{{`. */
   onCreateVariable?: (nome: string) => void;
+  /** "+ Nova Integração" no rodapé do menu `@` — abre o catálogo. */
+  onRequestNewIntegration?: () => void;
   /** Desliga o menu `@` (ex.: prompt de personalidade). */
   allowMentions?: boolean;
   /** Permite quebras de linha com Enter. */
@@ -302,7 +307,9 @@ export const CheckpointRichTextEditor = React.forwardRef<
     onChange,
     habilidades,
     variaveis,
+    grupos,
     onCreateVariable,
+    onRequestNewIntegration,
     allowMentions = true,
     multiline = true,
     chrome = "field",
@@ -323,11 +330,14 @@ export const CheckpointRichTextEditor = React.forwardRef<
 
   const [menu, setMenuState] = React.useState<MenuState | null>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
+  /* Drill-in de integração no menu @ (id do grupo aberto). */
+  const [submenu, setSubmenu] = React.useState<string | null>(null);
   /* Espelho síncrono do menu — permite comparar kind/query fora do updater. */
   const menuRef = React.useRef<MenuState | null>(null);
   const setMenu = React.useCallback((next: MenuState | null) => {
     menuRef.current = next;
     setMenuState(next);
+    if (!next) setSubmenu(null);
   }, []);
 
   const habById = React.useMemo(
@@ -418,7 +428,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
     const wrapRect = wrapper.getBoundingClientRect();
     const left = Math.max(
       0,
-      Math.min(rect.left - wrapRect.left, wrapper.clientWidth - 296),
+      Math.min(rect.left - wrapRect.left, wrapper.clientWidth - 264),
     );
     const prev = menuRef.current;
     const next: MenuState = {
@@ -429,32 +439,82 @@ export const CheckpointRichTextEditor = React.forwardRef<
     };
     if (!prev || prev.kind !== next.kind || prev.query !== next.query) {
       setActiveIndex(0);
+      // Digitar uma busca sai do drill-in — a query varre tudo.
+      if (next.query) setSubmenu(null);
     }
     setMenu(next);
   }, [getTriggerContext, setMenu]);
 
   /* ── Itens do menu (filtrados pela query) ── */
 
+  const integracaoGrupos = React.useMemo(
+    () => (grupos ?? []).filter((g) => Boolean(g.brand)),
+    [grupos],
+  );
+  const integracaoIds = React.useMemo(
+    () => new Set(integracaoGrupos.map((g) => g.id)),
+    [integracaoGrupos],
+  );
+
+  const skillItem = React.useCallback(
+    (h: HabilidadeConfigurada): SuggestionItem => ({
+      key: `hab-${h.id}`,
+      kind: "mention",
+      value: h.id,
+      label: h.nome,
+      descricao: `@${h.id}`,
+      icon: h.icon ?? "alternate_email",
+      brand: skillBrand(h),
+    }),
+    [],
+  );
+
   const items = React.useMemo<SuggestionItem[]>(() => {
     if (!menu) return [];
     const q = menu.query.trim().toLowerCase();
     if (menu.kind === "mention") {
-      return habilidades
-        .filter(
-          (h) =>
-            h.nome.toLowerCase().includes(q) || h.id.toLowerCase().includes(q),
-        )
-        .slice(0, 12)
-        .map((h) => ({
-          key: `hab-${h.id}`,
-          kind: "mention" as const,
-          value: h.id,
-          label: h.nome,
-          descricao: `@${h.id}`,
-          icon: h.icon ?? "alternate_email",
-          tileClass: SKILL_TONE_CLASSES[skillTone(h)].tile,
-          brand: skillBrand(h),
-        }));
+      // Digitando: busca corrida em TODAS as habilidades (inclusive de
+      // integrações) — o drill-in só organiza o modo de navegação.
+      if (q) {
+        return habilidades
+          .filter(
+            (h) =>
+              h.nome.toLowerCase().includes(q) ||
+              h.id.toLowerCase().includes(q),
+          )
+          .slice(0, 12)
+          .map(skillItem);
+      }
+      // Drill-in: habilidades da integração aberta.
+      if (submenu) {
+        return habilidades.filter((h) => h.grupo === submenu).map(skillItem);
+      }
+      // Navegação: nativas no topo, integrações como drill-in, ação no fim.
+      const nativas = habilidades
+        .filter((h) => !integracaoIds.has(h.grupo))
+        .map(skillItem);
+      const integracoes: SuggestionItem[] = integracaoGrupos.map((g) => ({
+        key: `int-${g.id}`,
+        kind: "integration",
+        value: g.id,
+        label: g.nome,
+        descricao: g.descricao,
+        icon: g.icon,
+        brand: g.brand,
+      }));
+      const acao: SuggestionItem[] = onRequestNewIntegration
+        ? [
+            {
+              key: "new-integration",
+              kind: "new-integration",
+              value: "",
+              label: "Nova Integração",
+              descricao: "Conectar uma nova plataforma.",
+              icon: "add",
+            },
+          ]
+        : [];
+      return [...nativas, ...integracoes, ...acao];
     }
     const list: SuggestionItem[] = variaveis
       .filter((v) => {
@@ -470,7 +530,6 @@ export const CheckpointRichTextEditor = React.forwardRef<
           label: `{{${nome}}}`,
           descricao: v.descricao,
           icon: "data_object",
-          tileClass: "bg-(--bg-hover) text-(--fg-secondary)",
         };
       });
     const created = sanitizeVariableName(menu.query);
@@ -484,12 +543,20 @@ export const CheckpointRichTextEditor = React.forwardRef<
         value: created,
         label: `Criar variável "{{${created}}}"`,
         descricao: "Fica disponível para este agente.",
-        icon: "add",
-        tileClass: "bg-(--bg-hover) text-(--fg-secondary)",
+        icon: "auto_awesome",
       });
     }
     return list;
-  }, [menu, habilidades, variaveis]);
+  }, [
+    menu,
+    submenu,
+    habilidades,
+    variaveis,
+    integracaoGrupos,
+    integracaoIds,
+    skillItem,
+    onRequestNewIntegration,
+  ]);
 
   const clampedIndex = Math.min(activeIndex, Math.max(items.length - 1, 0));
 
@@ -529,6 +596,17 @@ export const CheckpointRichTextEditor = React.forwardRef<
 
   const selectItem = React.useCallback(
     (item: SuggestionItem) => {
+      // Itens de navegação não inserem nada no texto.
+      if (item.kind === "integration") {
+        setSubmenu(item.value);
+        setActiveIndex(0);
+        return;
+      }
+      if (item.kind === "new-integration") {
+        setMenu(null);
+        onRequestNewIntegration?.();
+        return;
+      }
       const div = divRef.current;
       if (!div) return;
       const ctx = getTriggerContext();
@@ -560,6 +638,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
       habById,
       insertChipAtRange,
       onCreateVariable,
+      onRequestNewIntegration,
       commitChange,
       setMenu,
     ],
@@ -683,6 +762,17 @@ export const CheckpointRichTextEditor = React.forwardRef<
           selectItem(items[clampedIndex]);
           return;
         }
+        if (e.key === "ArrowRight" && items[clampedIndex]?.kind === "integration") {
+          e.preventDefault();
+          selectItem(items[clampedIndex]);
+          return;
+        }
+        if (e.key === "ArrowLeft" && submenu) {
+          e.preventDefault();
+          setSubmenu(null);
+          setActiveIndex(0);
+          return;
+        }
         if (e.key === "Escape") {
           e.preventDefault();
           setMenu(null);
@@ -710,6 +800,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
       items,
       clampedIndex,
       selectItem,
+      submenu,
       multiline,
       handleInput,
       setMenu,
@@ -761,13 +852,13 @@ export const CheckpointRichTextEditor = React.forwardRef<
           chrome === "field"
             ? `rounded-lg border bg-(--bg-raised) px-3.5 py-3 focus:border-(--border-strong) ${
                 dropActive
-                  ? "border-(--accent-brand) bg-(--aw-blue-100)"
+                  ? "border-(--accent-brand) bg-(--aw-slate-100)"
                   : "border-(--border-default)"
               }`
             : `-mx-1.5 rounded-md border px-1.5 py-0.5 ${
                 dropActive
-                  ? "border-(--accent-brand) bg-(--aw-blue-100)"
-                  : "border-transparent hover:bg-(--bg-hover)/60 focus:bg-transparent"
+                  ? "border-(--accent-brand) bg-(--aw-slate-100)"
+                  : "border-transparent"
               }`
         } ${className ?? ""}`}
         onInput={handleInput}
@@ -798,62 +889,63 @@ export const CheckpointRichTextEditor = React.forwardRef<
       />
 
       {menu && items.length > 0 && (
-        <div
-          role="listbox"
+        <AwMentionMenu
           aria-label={`Sugestões de ${menuTitle.toLowerCase()}`}
-          className="absolute z-30 w-72 overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised) shadow-lg"
+          className="absolute z-30"
           style={{ top: menu.top, left: menu.left }}
-        >
-          <p className="border-b border-(--border-subtle) px-3 py-1.5 text-xs font-medium text-(--fg-tertiary)">
-            {menuTitle}
-          </p>
-          <ul className="max-h-56 overflow-y-auto p-1">
-            {items.map((item, i) => (
-              <li key={item.key}>
-                <button
-                  type="button"
-                  role="option"
-                  aria-selected={i === clampedIndex}
-                  tabIndex={-1}
-                  className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors duration-aw-fast ${
-                    i === clampedIndex
-                      ? "bg-(--bg-hover)"
-                      : "hover:bg-(--bg-hover)"
-                  }`}
-                  onMouseDown={(e) => {
-                    // Mantém o foco/caret no editor durante o clique.
-                    e.preventDefault();
-                    selectItem(item);
-                  }}
-                  onMouseEnter={() => setActiveIndex(i)}
-                >
-                  <span
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${item.tileClass}`}
-                  >
-                    {item.brand ? (
-                      <AwBrandLogo
-                        brand={item.brand}
-                        size="sm"
-                        bare
-                        style={{ width: 20, height: 20, borderRadius: 5 }}
-                      />
-                    ) : (
-                      <Icon name={item.icon} size={15} />
-                    )}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-(--fg-primary)">
-                      {item.label}
-                    </span>
-                    <span className="block truncate text-xs text-(--fg-tertiary)">
-                      {item.descricao}
-                    </span>
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
+          activeKey={items[clampedIndex]?.key}
+          onHover={(key) => {
+            const i = items.findIndex((item) => item.key === key);
+            if (i >= 0) setActiveIndex(i);
+          }}
+          onPick={(key) => {
+            const item = items.find((it) => it.key === key);
+            if (item) selectItem(item);
+          }}
+          header={
+            submenu
+              ? {
+                  label:
+                    integracaoGrupos.find((g) => g.id === submenu)?.nome ??
+                    "Integração",
+                  onBack: () => {
+                    setSubmenu(null);
+                    setActiveIndex(0);
+                  },
+                }
+              : undefined
+          }
+          sections={[
+            {
+              entries: items
+                .filter((it) => it.kind !== "integration" && it.kind !== "new-integration")
+                .map((it) => ({
+                  key: it.key,
+                  label: it.label,
+                  icon: it.icon,
+                  brand: it.brand,
+                  accent: it.kind === "create" ? ("purple" as const) : undefined,
+                })),
+            },
+            {
+              label: "Integrações",
+              entries: items
+                .filter((it) => it.kind === "integration")
+                .map((it) => ({
+                  key: it.key,
+                  label: it.label,
+                  icon: it.icon,
+                  brand: it.brand,
+                  chevron: true,
+                })),
+            },
+          ]}
+          footer={
+            items.some((it) => it.kind === "new-integration")
+              ? { key: "new-integration", label: "Nova Integração" }
+              : undefined
+          }
+        />
       )}
     </div>
   );
