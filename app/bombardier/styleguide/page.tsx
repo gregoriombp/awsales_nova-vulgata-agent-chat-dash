@@ -223,21 +223,21 @@ export default function StyleguidePage() {
                     Your company, working beyond itself.
                   </p>
                 </div>
+                {/* Botões manuais: o painel é escuro fixo (não flipa com o tema),
+                    então as variants do AwButton (tokens semânticos) somem aqui. */}
                 <div className="flex flex-wrap gap-3">
-                  <AwButton asChild variant="secondary" className="w-auto border-0">
-                    <Link href="/bombardier/styleguide/marca/sobre" className="no-underline">
-                      Conhecer a marca
-                    </Link>
-                  </AwButton>
-                  <AwButton
-                    asChild
-                    variant="ghost"
-                    className="w-auto text-aw-gray-300 hover:text-aw-gray-25"
+                  <Link
+                    href="/bombardier/styleguide/marca/sobre"
+                    className="inline-flex h-10 items-center rounded-full bg-aw-gray-25 px-5 text-sm font-medium text-aw-gray-1200 no-underline transition-colors hover:bg-white"
                   >
-                    <Link href="/bombardier/styleguide/marca/tom-de-voz" className="no-underline">
-                      Tom de voz
-                    </Link>
-                  </AwButton>
+                    Conhecer a marca
+                  </Link>
+                  <Link
+                    href="/bombardier/styleguide/marca/tom-de-voz"
+                    className="inline-flex h-10 items-center rounded-full border border-white/20 px-5 text-sm font-medium text-aw-gray-200 no-underline transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    Tom de voz
+                  </Link>
                 </div>
               </div>
               <div className="hidden items-center justify-center lg:flex">
