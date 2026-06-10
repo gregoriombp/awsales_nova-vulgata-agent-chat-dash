@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
@@ -8,6 +9,7 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwDotTunnel } from "@/components/ui/AwDotTunnel";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPageHeader } from "@/components/ui/AwPageHeader";
 import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import {
@@ -17,6 +19,7 @@ import {
 } from "@/components/ui/AwMembersTable";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/AwToast";
 import {
   AwEmpty,
   AwEmptyHeader,
@@ -28,18 +31,143 @@ import {
 import {
   AGENT_STATUS_META,
   ALL_AGENTES,
-  TODOS_OS_AGENTES,
   type Agent,
+  type AgentStatus,
 } from "@/lib/agentStudio";
-
+import {
+  AGENT_LIST_OVERRIDES_EVENT,
+  applyAgentListOverrides,
+  emptyAgentListOverrides,
+  loadAgentListOverrides,
+  saveAgentListOverrides,
+  type AgentListOverrides,
+} from "@/lib/agentStudioStore";
 
 type StudioState = "welcome" | "populated" | "returning";
 
+/** Dono do workspace no protótipo — separa "meus" agentes dos da organização. */
+const OWNER_NAME = "Gregório Pinheiro";
+
+const MESES_CURTOS = [
+  "jan", "fev", "mar", "abr", "mai", "jun",
+  "jul", "ago", "set", "out", "nov", "dez",
+];
+
+function agoraFormatado(): string {
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${d.getDate()} ${MESES_CURTOS[d.getMonth()]} ${d.getFullYear()}, ${hh}:${mm}`;
+}
+
 export default function AgentStudioPage() {
-  // Em produção o estado vem do backend (tem agente? primeiro login?). No
-  // protótipo o studio aparece já populado — os outros estados (welcome / sem
-  // agentes) ficam documentados no styleguide do Bombardier.
-  const state = "populated" as StudioState;
+  const { push } = useToast();
+
+  // Overlay local sobre o registry mock (duplicar/pausar/arquivar/excluir).
+  // Hidrata depois do mount — o primeiro paint usa só o registry, igual ao SSR.
+  const [overrides, setOverrides] = React.useState<AgentListOverrides | null>(
+    null
+  );
+  React.useEffect(() => {
+    const sync = () => setOverrides(loadAgentListOverrides());
+    sync();
+    // Mutações vindas de outros componentes (ex.: "Desfazer" de um toast das
+    // Preferências clicado já na listagem) também atualizam a tabela.
+    window.addEventListener(AGENT_LIST_OVERRIDES_EVENT, sync);
+    return () => window.removeEventListener(AGENT_LIST_OVERRIDES_EVENT, sync);
+  }, []);
+
+  const agents = React.useMemo(
+    () =>
+      applyAgentListOverrides(
+        ALL_AGENTES,
+        overrides ?? emptyAgentListOverrides()
+      ),
+    [overrides]
+  );
+
+  const mutate = React.useCallback(
+    (fn: (o: AgentListOverrides) => AgentListOverrides) => {
+      setOverrides((prev) => {
+        const next = fn(prev ?? emptyAgentListOverrides());
+        saveAgentListOverrides(next);
+        return next;
+      });
+    },
+    []
+  );
+
+  // Estado derivado dos dados — excluir/arquivar leva de verdade aos vazios:
+  // sem nenhum agente → boas-vindas; sem agentes próprios → empty de recorrente.
+  const meus = agents.filter((a) => a.author.name === OWNER_NAME);
+  const state: StudioState =
+    agents.length === 0
+      ? "welcome"
+      : meus.length === 0
+        ? "returning"
+        : "populated";
+
+  const [agentToDelete, setAgentToDelete] = React.useState<Agent | null>(null);
+
+  function handleDuplicate(agent: Agent) {
+    // Cópia de cópia ancora no agente raiz — o id resolve via getAgentById.
+    const rootId = agent.id.replace(/(-copia(?:-\d+)?)+$/, "");
+    const base = `${rootId}-copia`;
+    mutate((o) => {
+      const taken = new Set([
+        ...ALL_AGENTES.map((a) => a.id),
+        ...o.duplicates.map((d) => d.id),
+      ]);
+      let id = base;
+      let n = 2;
+      while (taken.has(id)) id = `${base}-${n++}`;
+      return {
+        ...o,
+        duplicates: [
+          ...o.duplicates,
+          { sourceId: rootId, id, createdAt: agoraFormatado() },
+        ],
+      };
+    });
+    push({
+      title: "Agente duplicado",
+      description: `A cópia de “${agent.title}” entrou na lista como rascunho.`,
+    });
+  }
+
+  function handleToggleStatus(agent: Agent) {
+    const next: AgentStatus = agent.status === "active" ? "paused" : "active";
+    mutate((o) => ({
+      ...o,
+      statusOverrides: { ...o.statusOverrides, [agent.id]: next },
+    }));
+    push({
+      title: next === "paused" ? "Agente pausado" : "Agente ativado",
+      description:
+        next === "paused"
+          ? `“${agent.title}” não inicia novas conversas até você reativar.`
+          : `“${agent.title}” voltou a operar normalmente.`,
+    });
+  }
+
+  function confirmDelete() {
+    const agent = agentToDelete;
+    if (!agent) return;
+    setAgentToDelete(null);
+    mutate((o) => ({ ...o, removed: [...o.removed, agent.id] }));
+    // Sem "Desfazer": o modal promete exclusão permanente — arquivar é o
+    // caminho restaurável.
+    push({
+      title: "Agente excluído",
+      description: `“${agent.title}” e todas as configurações dele foram removidos.`,
+    });
+  }
+
+  const tableActions = {
+    onDuplicate: handleDuplicate,
+    onToggleStatus: handleToggleStatus,
+    onDelete: setAgentToDelete,
+  };
 
   return (
     <>
@@ -48,18 +176,47 @@ export default function AgentStudioPage() {
           <WelcomeState />
         ) : (
           <div className="mx-auto w-full max-w-[1600px] px-6 pb-20 pt-6 sm:px-10">
-            <StudioHeader />
+            <StudioHeader agents={agents} />
 
-            {state === "populated" ? <PopulatedState /> : <ReturningEmptyState />}
+            {state === "populated" ? (
+              <Section title="Seus agentes">
+                <AgentsTable agents={agents} {...tableActions} />
+              </Section>
+            ) : (
+              <ReturningEmptyState agents={agents} {...tableActions} />
+            )}
           </div>
         )}
       </AwDashboardLayout>
+
+      {/* Confirmação — excluir agente (mesma copy da zona de risco do editor) */}
+      <AwModal
+        open={agentToDelete !== null}
+        onClose={() => setAgentToDelete(null)}
+        title="Excluir agente"
+        footer={
+          <>
+            <AwButton variant="ghost" onClick={() => setAgentToDelete(null)}>
+              Cancelar
+            </AwButton>
+            <AwButton variant="danger" iconLeft="delete" onClick={confirmDelete}>
+              Excluir agente
+            </AwButton>
+          </>
+        }
+      >
+        <p className="text-sm leading-relaxed text-(--fg-secondary)">
+          O agente <strong>{agentToDelete?.title}</strong> e todas as
+          configurações dele serão removidos de forma permanente. Esta ação não
+          pode ser desfeita.
+        </p>
+      </AwModal>
     </>
   );
 }
 
-function StudioHeader() {
-  const orbs = ALL_AGENTES.slice(0, 5);
+function StudioHeader({ agents }: { agents: Agent[] }) {
+  const orbs = agents.slice(0, 5);
 
   return (
     <AwPageHeader
@@ -83,7 +240,9 @@ function StudioHeader() {
             ))}
           </div>
           <p className="text-xs text-(--fg-secondary)">
-            {ALL_AGENTES.length} agentes operando neste workspace
+            {agents.length === 1
+              ? "1 agente operando neste workspace"
+              : `${agents.length} agentes operando neste workspace`}
           </p>
           </div>
           <AwButton asChild variant="primary" size="md" iconLeft="add">
@@ -106,7 +265,7 @@ function WelcomeState() {
       <AwDotTunnel size={320} />
 
       <h1 className="mt-12 text-(length:--h1-size) font-light leading-tight tracking-tight text-(--fg-primary)">
-        Bem vindo ao Agent Studio
+        Bem-vindo ao Agent Studio
       </h1>
       <p className="mt-3 text-sm text-(--fg-secondary)">
         Crie seu primeiro agente em menos de 90 minutos.
@@ -126,24 +285,14 @@ function WelcomeState() {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Estado 2 — populated (usuário já tem agentes)
- * Lista em tabela: cada linha é um agente com objetivo, status, Core,
- * autoria, data e base de conhecimento. Clicar na linha abre o agente.
- * ───────────────────────────────────────────────────────────────────────── */
-function PopulatedState() {
-  return (
-    <Section title="Seus agentes">
-      <AgentsTable agents={ALL_AGENTES} />
-    </Section>
-  );
-}
-
-/* ─────────────────────────────────────────────────────────────────────────
  * Estado 3 — empty state pra usuário recorrente (não é o primeiro acesso,
- * mas não tem nenhum agente próprio). Mantém o chrome do studio e já oferece
- * os modelos da organização logo abaixo — diferente da tela de boas-vindas.
+ * mas não tem nenhum agente próprio). Mantém o chrome do studio e mostra os
+ * agentes restantes da organização — diferente da tela de boas-vindas.
  * ───────────────────────────────────────────────────────────────────────── */
-function ReturningEmptyState() {
+function ReturningEmptyState({
+  agents,
+  ...actions
+}: { agents: Agent[] } & AgentsTableActions) {
   return (
     <>
       <Section title="Meus agentes">
@@ -171,7 +320,7 @@ function ReturningEmptyState() {
       <div className="mt-14 border-t border-(--border-subtle)" />
 
       <Section title="Todos os agentes">
-        <AgentsTable agents={TODOS_OS_AGENTES} />
+        <AgentsTable agents={agents} {...actions} />
       </Section>
     </>
   );
@@ -199,7 +348,18 @@ function Section({
  * text cell) + AwPill (status) + AwAgentCore (Core) + AwDropdownMenu (ações).
  * Mesma receita usada em Equipe & permissões, adaptada pra agentes.
  * ───────────────────────────────────────────────────────────────────────── */
-function AgentsTable({ agents }: { agents: Agent[] }) {
+type AgentsTableActions = {
+  onDuplicate: (agent: Agent) => void;
+  onToggleStatus: (agent: Agent) => void;
+  onDelete: (agent: Agent) => void;
+};
+
+function AgentsTable({
+  agents,
+  onDuplicate,
+  onToggleStatus,
+  onDelete,
+}: { agents: Agent[] } & AgentsTableActions) {
   const router = useRouter();
 
   return (
@@ -308,7 +468,14 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                         id: "duplicate",
                         label: "Duplicar",
                         icon: "content_copy",
-                        onSelect: () => {},
+                        onSelect: () => onDuplicate(agent),
+                      },
+                      {
+                        id: "toggle-status",
+                        label: agent.status === "active" ? "Pausar" : "Ativar",
+                        icon:
+                          agent.status === "active" ? "pause" : "play_arrow",
+                        onSelect: () => onToggleStatus(agent),
                       },
                       { id: "sep", separator: true },
                       {
@@ -316,7 +483,7 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
                         label: "Excluir",
                         icon: "delete",
                         danger: true,
-                        onSelect: () => {},
+                        onSelect: () => onDelete(agent),
                       },
                     ]}
                   />

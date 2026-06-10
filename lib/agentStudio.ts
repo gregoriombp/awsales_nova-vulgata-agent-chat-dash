@@ -136,7 +136,22 @@ export const TODOS_OS_AGENTES: Agent[] = [
 export const ALL_AGENTES: Agent[] = [...MEUS_AGENTES, ...TODOS_OS_AGENTES];
 
 export function getAgentById(id: string): Agent {
-  return ALL_AGENTES.find((a) => a.id === id) ?? ALL_AGENTES[0];
+  const found = ALL_AGENTES.find((a) => a.id === id);
+  if (found) return found;
+  // Cópias criadas na listagem usam o id da origem + sufixo "-copia[-n]".
+  // Resolver aqui (e não via localStorage) mantém a função pura — mesmo
+  // resultado no servidor e no cliente, sem risco de hidratação divergente.
+  const copia = id.match(/^(.*)-copia(?:-\d+)?$/);
+  if (copia) {
+    const origem = getAgentById(copia[1]);
+    return {
+      ...origem,
+      id,
+      title: `${origem.title} (cópia)`,
+      status: "draft",
+    };
+  }
+  return ALL_AGENTES[0];
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
