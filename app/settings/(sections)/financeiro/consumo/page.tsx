@@ -80,8 +80,9 @@ export default function ConsumoPage() {
   const [requestOpen, setRequestOpen] = React.useState(false);
 
   const accumulated = OVERVIEW_KPIS.accumulated;
-  const couponBonus = React.useMemo(
-    () => COUPONS_APPLIED.reduce((s, c) => s + c.discount, 0),
+  // Créditos (vouchers) abatem o consumo do ciclo — nunca mudam o limite.
+  const creditsApplied = React.useMemo(
+    () => VOUCHERS.reduce((s, v) => s + v.consumed, 0),
     [],
   );
   const openInvoice =
@@ -92,7 +93,7 @@ export default function ConsumoPage() {
       <ConsumptionHero
         accumulated={accumulated}
         limit={limit}
-        couponBonus={couponBonus}
+        creditsApplied={creditsApplied}
         onRequestIncrease={() => setRequestOpen(true)}
       />
 
@@ -127,20 +128,18 @@ export default function ConsumoPage() {
 function ConsumptionHero({
   accumulated,
   limit,
-  couponBonus,
+  creditsApplied,
   onRequestIncrease,
 }: {
   accumulated: number;
   limit: number;
-  couponBonus: number;
+  creditsApplied: number;
   onRequestIncrease: () => void;
 }) {
-  const extended = limit + couponBonus;
-  const pct =
-    extended > 0 ? Math.min(Math.round((accumulated / extended) * 100), 999) : 0;
-  const remainingBase = Math.max(limit - accumulated, 0);
-  const overBase = accumulated > limit;
-  const overExtended = accumulated > extended;
+  const net = Math.max(accumulated - creditsApplied, 0);
+  const pct = limit > 0 ? Math.min(Math.round((net / limit) * 100), 999) : 0;
+  const remaining = Math.max(limit - net, 0);
+  const overLimit = net > limit;
 
   return (
     <section className="flex flex-col gap-6">
@@ -148,23 +147,27 @@ function ConsumptionHero({
         <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
           Consumo variável · ciclo atual
         </p>
-        <MoneyHeading value={accumulated} size="md" as="h1" />
+        <MoneyHeading value={accumulated} size="sm" as="h1" />
+        {creditsApplied > 0 && (
+          <p className="m-0 body-xs tabular-nums text-(--fg-secondary)">
+            <span className="font-medium text-(--accent-success)">
+              −{brl(creditsApplied)}
+            </span>{" "}
+            abatidos por créditos ·{" "}
+            <strong className="font-medium text-(--fg-primary)">
+              {brl(net)}
+            </strong>{" "}
+            a cobrar
+          </p>
+        )}
         <p className="m-0 max-w-[600px] body-xs text-(--fg-secondary)">
           Seu limite é de{" "}
           <strong className="font-medium tabular-nums text-(--fg-primary)">
             {brl(limit)}
-          </strong>
-          {couponBonus > 0 && (
-            <>
-              {" "}— estendido para{" "}
-              <strong className="font-medium tabular-nums text-(--fg-primary)">
-                {brl(extended)}
-              </strong>{" "}
-              com cupons aplicados
-            </>
-          )}
-          . Quando o consumo atinge esse teto, o montante é cobrado
-          automaticamente.{" "}
+          </strong>{" "}
+          por ciclo. Vouchers e cupons abatem o consumo antes da cobrança —
+          eles não mudam o limite. Quando o valor a cobrar atinge esse teto,
+          o montante é cobrado automaticamente.{" "}
           <button
             type="button"
             onClick={onRequestIncrease}
@@ -177,28 +180,22 @@ function ConsumptionHero({
 
       <div className="flex flex-col gap-2.5">
         <ConsumptionBar
-          consumed={accumulated}
-          baseLimit={limit}
-          extendedLimit={extended}
+          gross={accumulated}
+          credits={creditsApplied}
+          limit={limit}
         />
         <div className="flex items-center justify-between gap-3 body-xs tabular-nums">
           <span className="text-(--fg-secondary)">
-            {pct}% de {brl(extended)}
+            {pct}% do limite utilizado
           </span>
           <span
             className={
-              overExtended
-                ? "text-(--accent-danger)"
-                : overBase
-                  ? "text-(--accent-warning)"
-                  : "text-(--fg-tertiary)"
+              overLimit ? "text-(--accent-danger)" : "text-(--fg-tertiary)"
             }
           >
-            {overExtended
+            {overLimit
               ? `Limite atingido — cobrança automática em curso`
-              : overBase
-                ? `Em zona estendida por cupons — restam ${brl(extended - accumulated)}`
-                : `Restam ${brl(remainingBase)} antes da cobrança`}
+              : `Restam ${brl(remaining)} antes da cobrança`}
           </span>
         </div>
       </div>
@@ -207,29 +204,27 @@ function ConsumptionHero({
 }
 
 /* -----------------------------------------------------------------
- * Consumption bar — green fill with two needles (base + extended)
- * - Ponta direita reta quando consumo < 100% do limite estendido
- * - Agulha 1 (verde escuro): limite base
- * - Agulha 2 (cinza): limite + cupons (só renderiza se houver bonus)
+ * Consumption bar — limite fixo; créditos abatem o consumo
+ * - Trecho sólido: valor líquido a cobrar
+ * - Trecho claro: parte do consumo já abatida por créditos
+ * - Agulha: limite do ciclo (só aparece se o consumo passa do limite)
  * ----------------------------------------------------------------- */
 
 function ConsumptionBar({
-  consumed,
-  baseLimit,
-  extendedLimit,
+  gross,
+  credits,
+  limit,
 }: {
-  consumed: number;
-  baseLimit: number;
-  extendedLimit: number;
+  gross: number;
+  credits: number;
+  limit: number;
 }) {
-  const scaleMax = Math.max(extendedLimit, consumed);
-  const fillPct = scaleMax > 0 ? (consumed / scaleMax) * 100 : 0;
-  const basePct = scaleMax > 0 ? (baseLimit / scaleMax) * 100 : 0;
-  const extPct = scaleMax > 0 ? (extendedLimit / scaleMax) * 100 : 0;
-  const hasBonus = extendedLimit > baseLimit;
-  const fullBar = fillPct >= 100;
-  const overExtended = consumed > extendedLimit;
-  const bonus = extendedLimit - baseLimit;
+  const net = Math.max(gross - credits, 0);
+  const scaleMax = Math.max(limit, gross);
+  const netPct = scaleMax > 0 ? (net / scaleMax) * 100 : 0;
+  const grossPct = scaleMax > 0 ? (gross / scaleMax) * 100 : 0;
+  const limitPct = scaleMax > 0 ? (limit / scaleMax) * 100 : 0;
+  const overLimit = net > limit;
 
   return (
     <TooltipProvider delayDuration={120}>
@@ -238,31 +233,35 @@ function ConsumptionBar({
           <div className="relative h-2.5 w-full" aria-label="Consumo do ciclo">
             <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
 
+            {/* consumo bruto — a faixa entre líquido e bruto é o abatido */}
             <div
               className={
                 "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
-                (fullBar ? "rounded-full" : "rounded-l-full") +
-                (overExtended
-                  ? " bg-(--aw-red-600)"
-                  : " bg-(--aw-emerald-600)")
+                (grossPct >= 100 ? "rounded-full" : "rounded-l-full")
               }
-              style={{ width: `${Math.min(fillPct, 100)}%` }}
+              style={{
+                width: `${Math.min(grossPct, 100)}%`,
+                background: overLimit
+                  ? "color-mix(in srgb, var(--aw-red-600) 35%, transparent)"
+                  : "color-mix(in srgb, var(--aw-emerald-600) 35%, transparent)",
+              }}
             />
 
-            {basePct > 0 && basePct < 100 && (
-              <ConsumptionNeedle
-                leftPct={basePct}
-                color="var(--aw-emerald-700)"
-                label={`Limite base · ${brl(baseLimit)}`}
-              />
-            )}
+            {/* valor líquido a cobrar */}
+            <div
+              className={
+                "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
+                (netPct >= 100 ? "rounded-full" : "rounded-l-full") +
+                (overLimit ? " bg-(--aw-red-600)" : " bg-(--aw-emerald-600)")
+              }
+              style={{ width: `${Math.min(netPct, 100)}%` }}
+            />
 
-            {hasBonus && extPct > 0 && extPct < 100 && (
+            {limitPct > 0 && limitPct < 100 && (
               <ConsumptionNeedle
-                leftPct={extPct}
-                color="var(--fg-tertiary)"
-                dashed
-                label={`Limite + cupons · ${brl(extendedLimit)}`}
+                leftPct={limitPct}
+                color="var(--fg-primary)"
+                label={`Limite do ciclo · ${brl(limit)}`}
               />
             )}
           </div>
@@ -273,28 +272,26 @@ function ConsumptionBar({
         >
           <div className="flex flex-col gap-1.5 py-0.5 text-xs">
             <div className="flex items-center justify-between gap-6">
-              <span className="text-(--fg-secondary)">
-                Limite concedido
-              </span>
-              <span className="tabular-nums">{brl(baseLimit)}</span>
+              <span className="text-(--fg-secondary)">Consumo bruto</span>
+              <span className="tabular-nums">{brl(gross)}</span>
             </div>
-            {hasBonus && (
+            {credits > 0 && (
               <div className="flex items-center justify-between gap-6">
                 <span className="text-(--fg-secondary)">
-                  Estendido por cupons
+                  Abatido por créditos
                 </span>
                 <span className="tabular-nums text-(--accent-success)">
-                  +{brl(bonus)}
+                  −{brl(credits)}
                 </span>
               </div>
             )}
             <div className="mt-1 flex items-center justify-between gap-6 border-t border-(--border-subtle) pt-1.5 font-medium">
-              <span>Limite de uso</span>
-              <span className="tabular-nums">{brl(extendedLimit)}</span>
+              <span>A cobrar</span>
+              <span className="tabular-nums">{brl(net)}</span>
             </div>
             <div className="flex items-center justify-between gap-6 text-(--fg-secondary)">
-              <span>Consumido até agora</span>
-              <span className="tabular-nums">{brl(consumed)}</span>
+              <span>Limite do ciclo</span>
+              <span className="tabular-nums">{brl(limit)}</span>
             </div>
           </div>
         </TooltipContent>

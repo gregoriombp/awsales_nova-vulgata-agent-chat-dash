@@ -9,6 +9,7 @@ import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { MoneyHeading } from "../_components/MoneyHeading";
+import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   AUDIT_EVENTS,
   brl,
@@ -36,15 +37,35 @@ export default function VisaoGeralPage() {
         <InvoiceCard />
         <SpendingHero limit={VARIABLE_SPENDING_LIMIT} />
       </div>
+      <ConsumptionDetails />
       <ShortcutGrid />
     </div>
+  );
+}
+
+/* ---------- consumption details (gráfico + breakdown, mesmo bloco do Consumo) ---------- */
+
+function ConsumptionDetails() {
+  return (
+    <section className="flex flex-col gap-4 border-t border-(--border-subtle) pt-8">
+      <header>
+        <h6 className="m-0 mb-1 text-(--fg-primary)">Detalhes de consumo</h6>
+        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
+          Gráfico por dia, com breakdown por serviço ou por agente. Use o
+          filtro de período pra investigar o que está consumindo.
+        </p>
+      </header>
+      <VariableSpendingBlock />
+    </section>
   );
 }
 
 /* ---------- invoice card (panel with the upcoming total + actions) ---------- */
 
 function InvoiceCard() {
-  const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated;
+  const discount = OVERVIEW_KPIS.monthSavings;
+  const total =
+    CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const days = daysUntil(CURRENT_INVOICE.dueAt);
 
   return (
@@ -68,12 +89,18 @@ function InvoiceCard() {
             {brl(OVERVIEW_KPIS.accumulated)}
           </strong>
         </p>
+        {discount > 0 && (
+          <p className="m-0 inline-flex items-center gap-1.5 body-sm text-(--accent-success)">
+            <Icon name="local_offer" size={14} />
+            Descontos aplicados neste ciclo{" "}
+            <strong className="font-medium tabular-nums">
+              −{brl(discount)}
+            </strong>
+          </p>
+        )}
       </div>
 
       <div className="mt-auto flex flex-wrap items-center gap-2">
-        <AwButton variant="primary" size="sm">
-          Pagar agora
-        </AwButton>
         <AwButton variant="secondary" size="sm">
           Adiantar pagamento
         </AwButton>
