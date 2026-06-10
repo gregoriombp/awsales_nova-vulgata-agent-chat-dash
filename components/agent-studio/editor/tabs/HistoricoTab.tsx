@@ -204,6 +204,7 @@ export function HistoricoTab({ data }: { data: AgentEditorData }) {
                         <div className="flex min-w-0 items-start gap-3">
                           <AwAvatar
                             size="md"
+                            src={entrada.autor.avatar}
                             initials={entrada.autor.initials}
                             alt={entrada.autor.name}
                           />
