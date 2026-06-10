@@ -167,12 +167,6 @@ export type EditorTab = {
 
 export const EDITOR_TABS: EditorTab[] = [
   {
-    id: "visao-geral",
-    label: "Visão geral",
-    icon: "dashboard",
-    description: "Resumo de tudo que define este agente.",
-  },
-  {
     id: "prompt-checkpoint",
     label: "Prompt e Checkpoint",
     icon: "terminal",
@@ -187,7 +181,7 @@ export const EDITOR_TABS: EditorTab[] = [
   {
     id: "base-conhecimento",
     label: "Base de conhecimento",
-    icon: "database",
+    icon: "account_balance",
     description: "Selecione as bases de conhecimento utilizadas pelo agente.",
   },
   {
@@ -239,6 +233,14 @@ export const EDITOR_TABS: EditorTab[] = [
     description:
       "Configurações gerais do agente, incluindo identidade e status.",
   },
+  // Visão geral aparece quando o agente é publicado pela primeira vez —
+  // por enquanto fica na última posição da navegação.
+  {
+    id: "visao-geral",
+    label: "Visão geral",
+    icon: "dashboard",
+    description: "Resumo de tudo que define este agente.",
+  },
 ];
 
 export function isEditorTabId(value: string | null): value is EditorTabId {
@@ -246,19 +248,360 @@ export function isEditorTabId(value: string | null): value is EditorTabId {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
+ * Catálogo de habilidades
+ *
+ * Espelha o painel "Habilidades disponíveis" do editor de checkpoint: grupos
+ * nativos (Agente, Fluxo, Contexto, AOPs) + integrações conectadas. Cada
+ * habilidade tem um token namespaced (@agent.thinkOutLoud) que é o id usado
+ * na serialização `@[id]` dos textos de checkpoint.
+ * ───────────────────────────────────────────────────────────────────────── */
+
+export type SkillTone = "teal" | "purple" | "amber" | "pink" | "blue";
+
+/**
+ * Classes literais por tom — Tailwind só gera o que enxerga no fonte.
+ * `chip` veste menções inline; `tile` veste o quadradinho de ícone no painel.
+ */
+export const SKILL_TONE_CLASSES: Record<
+  SkillTone,
+  { chip: string; tile: string }
+> = {
+  teal: {
+    chip: "bg-(--aw-teal-100) text-(--aw-teal-800)",
+    tile: "bg-(--aw-teal-100) text-(--aw-teal-800)",
+  },
+  purple: {
+    chip: "bg-(--aw-purple-100) text-(--aw-purple-800)",
+    tile: "bg-(--aw-purple-100) text-(--aw-purple-800)",
+  },
+  amber: {
+    chip: "bg-(--aw-amber-100) text-(--aw-amber-900)",
+    tile: "bg-(--aw-amber-100) text-(--aw-amber-900)",
+  },
+  pink: {
+    chip: "bg-(--aw-pink-100) text-(--aw-pink-800)",
+    tile: "bg-(--aw-pink-100) text-(--aw-pink-800)",
+  },
+  blue: {
+    chip: "bg-(--aw-blue-100) text-(--aw-blue-800)",
+    tile: "bg-(--aw-blue-100) text-(--aw-blue-800)",
+  },
+};
+
+export type HabilidadeConfigurada = {
+  /** Token namespaced — também é o id serializado em `@[id]`. */
+  id: string;
+  nome: string;
+  descricao: string;
+  /** Id do grupo no catálogo (SKILL_GROUPS). */
+  grupo: string;
+  /** Material Symbol exibido no painel e no menu @. */
+  icon?: string;
+  /** Subgrupo opcional dentro do painel ("Usuário", "Conversa"…). */
+  subgrupo?: string;
+};
+
+export type SkillGroup = {
+  id: string;
+  nome: string;
+  descricao: string;
+  /** Material Symbol do header do grupo. */
+  icon: string;
+  tone: SkillTone;
+  /** Brand key do AwBrandLogo — presente apenas em grupos de integração. */
+  brand?: string;
+  skills: HabilidadeConfigurada[];
+};
+
+function skill(
+  grupo: string,
+  id: string,
+  nome: string,
+  descricao: string,
+  icon: string,
+  subgrupo?: string,
+): HabilidadeConfigurada {
+  return { id, nome, descricao, grupo, icon, subgrupo };
+}
+
+export const SKILL_GROUPS: SkillGroup[] = [
+  {
+    id: "agente",
+    nome: "Agente",
+    descricao: "Ações nativas do agente durante a conversa.",
+    icon: "smart_toy",
+    tone: "teal",
+    skills: [
+      skill(
+        "agente",
+        "agent.thinkOutLoud",
+        "Pensar em voz alta",
+        "Raciocina internamente antes de responder ao usuário.",
+        "graphic_eq",
+      ),
+      skill(
+        "agente",
+        "agent.searchKnowledge",
+        "Consultar base de conhecimento",
+        "Busca a resposta nas bases conectadas ao agente.",
+        "account_balance",
+      ),
+      skill(
+        "agente",
+        "agent.loadUserData",
+        "Carregar dados do usuário",
+        "Puxa os dados do usuário das integrações conectadas.",
+        "person_search",
+      ),
+      skill(
+        "agente",
+        "agent.memorize",
+        "Memorizar",
+        "Guarda uma informação da conversa na memória do agente.",
+        "bookmark_add",
+      ),
+      skill(
+        "agente",
+        "agent.learn",
+        "Aprender",
+        "Registra um aprendizado para os próximos atendimentos.",
+        "school",
+      ),
+      skill(
+        "agente",
+        "agent.mark",
+        "Registrar marcação",
+        "Marca uma das opções de classificação do checkpoint.",
+        "rule",
+      ),
+      skill(
+        "agente",
+        "agent.updateStatus",
+        "Atualizar status",
+        "Atualiza o status do lead no fluxo e no CRM conectado.",
+        "sync_alt",
+      ),
+      skill(
+        "agente",
+        "agent.handoffToHuman",
+        "Transferir para humano",
+        "Encaminha a conversa para um atendente humano.",
+        "support_agent",
+        "Colaboração e transferência",
+      ),
+      skill(
+        "agente",
+        "agent.handoffToAgent",
+        "Transferir para outro agente",
+        "Passa a conversa para outro agente com o contexto completo.",
+        "swap_horiz",
+        "Colaboração e transferência",
+      ),
+      skill(
+        "agente",
+        "agent.askAgent",
+        "Consultar outro agente",
+        "Pede apoio de outro agente sem transferir a conversa.",
+        "forum",
+        "Colaboração e transferência",
+      ),
+      skill(
+        "agente",
+        "agent.addToBlacklist",
+        "Adicionar à lista negra",
+        "Marca o contato para não receber novas abordagens.",
+        "block",
+        "Colaboração e transferência",
+      ),
+    ],
+  },
+  {
+    id: "fluxo",
+    nome: "Fluxo",
+    descricao: "Controles de fluxo entre as etapas.",
+    icon: "conversion_path",
+    tone: "purple",
+    skills: [
+      skill(
+        "fluxo",
+        "flow.goTo",
+        "Ir para etapa",
+        "Redireciona a execução para outra etapa do checkpoint.",
+        "arrow_forward",
+      ),
+      skill(
+        "fluxo",
+        "flow.waitForUser",
+        "Aguardar resposta",
+        "Pausa o fluxo até receber resposta do usuário.",
+        "hourglass_empty",
+      ),
+      skill(
+        "fluxo",
+        "flow.wait",
+        "Aguardar tempo",
+        "Tempo de espera antes de prosseguir. Ideal para follow-ups.",
+        "schedule",
+      ),
+      skill(
+        "fluxo",
+        "flow.endConversation",
+        "Encerrar conversa",
+        "Finaliza explicitamente a execução do agente.",
+        "stop_circle",
+      ),
+    ],
+  },
+  {
+    id: "google-calendar",
+    nome: "Google Calendar",
+    descricao: "Habilidades do Google Calendar disponíveis.",
+    icon: "event",
+    tone: "blue",
+    brand: "googlecal",
+    skills: [
+      skill(
+        "google-calendar",
+        "googlecal.createEvent",
+        "Criar evento",
+        "Cria um evento na agenda conectada.",
+        "event",
+      ),
+      skill(
+        "google-calendar",
+        "googlecal.checkAvailability",
+        "Consultar disponibilidade",
+        "Lista horários livres na agenda conectada.",
+        "event_available",
+      ),
+    ],
+  },
+  {
+    id: "pipedrive",
+    nome: "Pipedrive",
+    descricao: "Habilidades do Pipedrive disponíveis.",
+    icon: "monitoring",
+    tone: "blue",
+    brand: "pipedrive",
+    skills: [
+      skill(
+        "pipedrive",
+        "pipedrive.updateDeal",
+        "Atualizar negócio",
+        "Atualiza o estágio do negócio no funil.",
+        "monitoring",
+      ),
+      skill(
+        "pipedrive",
+        "pipedrive.logActivity",
+        "Registrar atividade",
+        "Registra a conversa como atividade no CRM.",
+        "edit_note",
+      ),
+    ],
+  },
+];
+
+/**
+ * Grupo de habilidades derivado dos AOPs ativos do agente — cada protocolo
+ * personalizado vira uma menção `@[aop.…]` disponível no editor.
+ */
+export function buildAopSkillGroup(aops: AgentAop[]): SkillGroup {
+  return {
+    id: "aops",
+    nome: "AOPs",
+    descricao: "Protocolos personalizados criados pela sua equipe.",
+    icon: "description",
+    tone: "pink",
+    skills: aops
+      .filter((a) => a.status === "ativo")
+      .map((a) =>
+        skill(
+          "aops",
+          `aop.${a.id.replace(/^aop-/, "")}`,
+          a.nome,
+          a.descricao,
+          "description",
+        ),
+      ),
+  };
+}
+
+/** Catálogo completo de um agente: grupos nativos + integrações + AOPs ativos. */
+export function buildSkillGroups(aops: AgentAop[]): SkillGroup[] {
+  const base = [...SKILL_GROUPS];
+  const aopGroup = buildAopSkillGroup(aops);
+  // AOPs entram depois de Fluxo, antes das integrações.
+  base.splice(2, 0, aopGroup);
+  return base;
+}
+
+/** Lista plana do catálogo base — resolve menções `@[id]` em qualquer texto. */
+export const ALL_SKILLS: HabilidadeConfigurada[] = SKILL_GROUPS.flatMap(
+  (g) => g.skills,
+);
+
+const SKILL_TONE_BY_GROUP: Record<string, SkillTone> = {
+  agente: "teal",
+  fluxo: "purple",
+  aops: "pink",
+};
+
+const SKILL_GROUP_BY_ID = new Map(SKILL_GROUPS.map((g) => [g.id, g]));
+
+export function getSkillGroup(grupoId: string): SkillGroup | undefined {
+  return SKILL_GROUP_BY_ID.get(grupoId);
+}
+
+/** Tom (cor) de uma habilidade — herdado do grupo; integrações caem em blue. */
+export function skillTone(hab: { grupo: string } | undefined): SkillTone {
+  if (!hab) return "teal";
+  return (
+    SKILL_TONE_BY_GROUP[hab.grupo] ??
+    SKILL_GROUP_BY_ID.get(hab.grupo)?.tone ??
+    "blue"
+  );
+}
+
+/** Grupos de integração têm brand (logo real) — os demais são nativos. */
+export function isIntegrationGroup(grupoId: string): boolean {
+  return Boolean(SKILL_GROUP_BY_ID.get(grupoId)?.brand);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
  * Dados estendidos do editor
  * ───────────────────────────────────────────────────────────────────────── */
 
 /**
+ * Regra condicional do checkpoint — "Se [condição] então [ação]".
+ * A condição é texto livre em linguagem natural (estilo procedures do
+ * Intercom Fin); a ação é texto token-rich (`@[flow.goTo] Fechamento`).
+ */
+export type CheckpointRegra = {
+  id: string;
+  /** Condição em linguagem natural (aceita tokens e **negrito**). */
+  se: string;
+  /** Ação executada quando a condição bate (token-rich). */
+  entao: string;
+};
+
+export type CheckpointMarqueOpcao = {
+  texto: string;
+  /** Ações encadeadas quando o agente marca esta opção (texto token-rich). */
+  acoes?: string;
+};
+
+/**
  * Checkpoint — etapa do guia de execução do agente.
  *
- * `objetivo` e cada linha de `itens` são texto livre que aceita dois tokens
- * inline, serializados como string:
- *   - `@[id]`      → menção a uma habilidade configurada (HabilidadeConfigurada.id)
- *   - `{{nome}}`   → variável do agente
+ * O `corpo` é a instrução em LINGUAGEM NATURAL: texto livre, multiline, com
+ * tokens inline. Todos os campos de texto aceitam:
+ *   - `@[id]`      → menção a uma tool/AOP do catálogo (ALL_SKILLS)
+ *   - `{{nome}}`   → variável ou dado de contexto
+ *   - `**texto**`  → negrito · `*texto*` → itálico
  *
  * As habilidades exibidas no card e no diagrama são DERIVADAS das menções `@[…]`
- * presentes no texto — não existe mais campo `habilidades` armazenado.
+ * presentes no texto — não existe campo `habilidades` armazenado.
  * Helpers de parse/derivação: components/agent-studio/editor/checkpointTokens.ts.
  */
 export type Checkpoint = {
@@ -266,20 +609,17 @@ export type Checkpoint = {
   numero: number;
   titulo: string;
   objetivo: string;
-  /** Chips de análise ("Analise o Histórico do Usuário"). */
-  analises?: string[];
-  /** Bullets de orientação do checkpoint (suportam tokens `@[id]` e `{{var}}`). */
-  itens: string[];
+  /** Instruções em linguagem natural — parágrafos livres com tokens inline. */
+  corpo: string;
   /** Bloco de marcação — o agente classifica a resposta do lead. */
-  marque?: { rotulo: string; opcoes: string[] };
-};
-
-export type HabilidadeConfigurada = {
-  id: string;
-  nome: string;
-  descricao: string;
-  /** Grupos nativos vêm do core; integrações vêm das conexões da org. */
-  grupo: "nativo" | "integracao";
+  marque?: {
+    /** Verbo do chip ("Marque" classifica; "Escolha" seleciona abordagem). */
+    verbo?: "Marque" | "Escolha";
+    rotulo: string;
+    opcoes: CheckpointMarqueOpcao[];
+  };
+  /** Regras condicionais avaliadas ao fim do checkpoint. */
+  regras?: CheckpointRegra[];
 };
 
 export type AgentIntegration = {
@@ -309,7 +649,7 @@ export type FollowUpRule = {
 
 export type HistoryEntry = {
   id: string;
-  autor: { name: string; initials: string };
+  autor: { name: string; initials: string; avatar?: string };
   acao: string;
   quando: string;
 };
@@ -323,6 +663,8 @@ export type AgentVariable = {
   nome: string;
   tipo: string;
   descricao: string;
+  /** Agrupa o menu {{ — "Personalizadas" (default), "Lead", "Conversa". */
+  grupo?: string;
 };
 
 export type AgentEditorData = {
@@ -387,20 +729,16 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     titulo: "Abertura e Contextualização",
     objetivo:
       "Estabelecer conexão calorosa e contextualizar o motivo do contato.",
-    analises: ["Analise o Histórico do Usuário"],
-    itens: [
-      "Agradecer pelo interesse demonstrado do {{lead_name}}.",
-      "Recuperar o histórico da conversa com @[contexto] antes da primeira mensagem.",
-      "Perguntar se ainda tem interesse em avançar enquanto o processo segue.",
-      "Tom consultivo e não invasivo.",
-    ],
+    corpo: `Analise o histórico do usuário e capture o tom das primeiras palavras antes de responder.
+Agradeça pelo interesse demonstrado do {{lead_name}} e recupere o contexto com @[agent.loadUserData] antes da primeira mensagem.
+Pergunte se ainda tem interesse em receber o adiantamento enquanto o processo segue — tom consultivo, nunca invasivo.`,
     marque: {
       rotulo: "a Resposta Inicial do Lead",
       opcoes: [
-        "Receptivo: demonstra interesse, responde positivamente",
-        "Neutro: responde mas sem entusiasmo claro",
-        "Resistente: demonstra pressa ou desinteresse",
-        "Sem resposta inicial",
+        { texto: "**Receptivo:** demonstra interesse, responde positivamente" },
+        { texto: "**Neutro:** responde, mas sem entusiasmo claro" },
+        { texto: "**Resistente:** demonstra pressa ou desinteresse" },
+        { texto: "Sem resposta inicial" },
       ],
     },
   },
@@ -408,102 +746,140 @@ const CHECKPOINTS_PADRAO: Checkpoint[] = [
     id: "cp-2",
     numero: 2,
     titulo: "Descoberta do Motivo da Não-Ação",
-    objetivo: "Entender genuinamente por que não avançou após ser aprovado.",
-    analises: ["Capture o Tom das Primeiras Palavras do Lead"],
-    itens: [
-      "Perguntar de forma aberta o que impediu o avanço.",
-      "Não rebater a primeira objeção — registrar no @[fluxo] e aprofundar.",
-      "Identificar com @[aops] se o bloqueio é de tempo, confiança ou prioridade.",
+    objetivo: "Entender genuinamente por que não agendou após ser aprovado.",
+    corpo: `Use o tom {{conversation.voiceTone}} **natural e empático** na abordagem de descoberta:
+*"Vi que você demonstrou interesse, mas não chegou a agendar a reunião. Aconteceu alguma coisa? Surgiu alguma dúvida que posso esclarecer?"*`,
+    marque: {
+      rotulo: "o Motivo Principal Identificado",
+      opcoes: [
+        { texto: '**Agenda/Tempo:** "Estou sem tempo", "Agenda complicada"' },
+        {
+          texto:
+            '**Dúvida sobre valor:** "Não sei se é para mim", "Preciso entender melhor"',
+        },
+        {
+          texto:
+            '**Questão financeira:** "Preciso ver valores primeiro", "Momento financeiro"',
+        },
+        { texto: '**Aprovação:** "Preciso falar com sócio/equipe"' },
+        {
+          texto:
+            '**Prioridades:** "Não é prioridade agora", "Tenho outras urgências"',
+        },
+        { texto: '**Esquecimento:** "Acabei esquecendo", "Passou batido"' },
+        { texto: "Outro" },
+      ],
+    },
+    regras: [
+      {
+        id: "r-cp2-outro",
+        se: "o motivo identificado for **Outro**",
+        entao: "@[agent.memorize] o motivo relatado pelo lead",
+      },
     ],
   },
   {
     id: "cp-3",
     numero: 3,
-    titulo: "Reapresentação de Valor",
+    titulo: "Quebra de Objeções Inicial",
     objetivo:
-      "Reconectar a oferta ao objetivo original do lead com base no contexto coletado.",
-    itens: [
-      "Citar o benefício mais aderente ao motivo identificado no checkpoint anterior.",
-      "Responder dúvidas de produto consultando a @[base-conhecimento].",
-      "Evitar repetir argumentos que o lead já recebeu.",
+      "Tentar quebrar a objeção inicial com elementos da base de conhecimento.",
+    corpo:
+      "Responda a objeção consultando @[agent.searchKnowledge] antes de argumentar — nunca improvise dados.",
+    marque: {
+      rotulo: "a Resposta à Quebra Inicial",
+      opcoes: [{ texto: "Convencido" }, { texto: "Ainda resistente" }],
+    },
+    regras: [
+      {
+        id: "r-cp3-convencido",
+        se: "o lead estiver **convencido**",
+        entao: "@[flow.goTo] Fechamento",
+      },
+      {
+        id: "r-cp3-resistente",
+        se: "o lead seguir **resistente**",
+        entao: "@[flow.goTo] Etapa 04",
+      },
     ],
   },
   {
     id: "cp-4",
     numero: 4,
-    titulo: "Tratamento de Objeções",
-    objetivo: "Responder objeções com dados e casos reais, sem pressionar.",
-    itens: [
-      "Consultar cases relevantes para o segmento do lead em @[aops].",
-      "Se a objeção for financeira, apresentar condições disponíveis.",
-      "Escalar com @[atendimento-humano] se a objeção fugir do escopo.",
-    ],
-    marque: {
-      rotulo: "o Tipo de Objeção",
-      opcoes: ["Preço", "Tempo", "Confiança", "Sem objeção"],
-    },
+    titulo: "Descoberta da Motivação Inicial",
+    objetivo:
+      "Reconectar com o interesse inicial que levou ao preenchimento do formulário.",
+    corpo: `Se ainda houver interesse, faça a pergunta de reconexão:
+*"Me ajuda a entender: o que especificamente te fez se interessar pela Fyntra?"*
+@[agent.learn] a dor central verbalizada pelo usuário.`,
   },
   {
     id: "cp-5",
     numero: 5,
-    titulo: "Encaminhamento e Agendamento",
-    objetivo: "Converter o reengajamento em um próximo passo concreto.",
-    itens: [
-      "Propor horários reais via @[google-calendar] a partir da agenda conectada.",
-      "Confirmar canal preferido do lead para o follow-up.",
-      "Registrar o desfecho da conversa no CRM com @[pipedrive].",
-    ],
-  },
-];
-
-const HABILIDADES_CONFIGURADAS: HabilidadeConfigurada[] = [
-  {
-    id: "agente",
-    nome: "Agente",
-    descricao: "Configurações e ações do agente.",
-    grupo: "nativo",
+    titulo: "Demonstração de Valor com Cases",
+    objetivo: "Conectar a dor específica com um case relevante da Fyntra.",
+    corpo:
+      "Use @[aop.cases] e escolha o case que mais se adapta ao perfil do cliente.",
   },
   {
-    id: "fluxo",
-    nome: "Fluxo",
-    descricao: "Controles de fluxo comportamental do checkpoint.",
-    grupo: "nativo",
+    id: "cp-6",
+    numero: 6,
+    titulo: "Criação de Urgência",
+    objetivo:
+      "Conectar o problema a uma consequência negativa real para criar urgência.",
+    corpo:
+      "Conecte o problema do lead a uma consequência concreta de não agir agora.",
+    marque: {
+      verbo: "Escolha",
+      rotulo: "um ângulo para focar",
+      opcoes: [
+        {
+          texto:
+            '**Custo do tempo perdido:** "E enquanto você não resolve isso, quanto tempo mais você acha que vai levar para ter seus primeiros resultados?"',
+        },
+        {
+          texto:
+            '**Custo da oportunidade perdida:** "Enquanto isso, outras pessoas estão conseguindo adiantamentos para cobrir suas contas. Você sente que está ficando para trás?"',
+        },
+        {
+          texto:
+            '**Custo da frustração:** "Esse sentimento de estar travado não é frustrante? O risco não é acabar desistindo do seu objetivo?"',
+        },
+        {
+          texto:
+            "**Consequência negativa verbalizada:** o que o lead perde ao não agir?",
+        },
+      ],
+    },
   },
   {
-    id: "contexto",
-    nome: "Contexto",
-    descricao: "Medidas relacionadas ao contexto da conversa.",
-    grupo: "nativo",
-  },
-  {
-    id: "aops",
-    nome: "AOPs",
-    descricao: "Procedimentos operacionais do agente.",
-    grupo: "nativo",
-  },
-  {
-    id: "base-conhecimento",
-    nome: "Base de conhecimento",
-    descricao: "Consulta às bases conectadas ao agente.",
-    grupo: "nativo",
-  },
-  {
-    id: "atendimento-humano",
-    nome: "Atendimento humano",
-    descricao: "Transferência da conversa para um atendente.",
-    grupo: "nativo",
-  },
-  {
-    id: "google-calendar",
-    nome: "Google Calendar",
-    descricao: "Habilidades do Google Calendar disponíveis.",
-    grupo: "integracao",
-  },
-  {
-    id: "pipedrive",
-    nome: "Pipedrive",
-    descricao: "Habilidades do Pipedrive disponíveis.",
-    grupo: "integracao",
+    id: "cp-7",
+    numero: 7,
+    titulo: "Call to Action e Agendamento",
+    objetivo: "Converter o interesse em compromisso concreto com a reunião.",
+    corpo: `Use o tom {{conversation.voiceTone}} **natural e empático** na abordagem de fechamento:
+*"{{lead_name}}, baseado no que conversamos — seu desafio com pressão financeira durante o processo e como pessoas em casos similares conseguiram adiantamentos de até US$ 50.000 sem risco — faz sentido separarmos 15 minutos para você ver exatamente como isso funciona no seu caso?"*`,
+    marque: {
+      rotulo: "o Status do CTA",
+      opcoes: [
+        {
+          texto: "Aceito",
+          acoes: '@[googlecal.createEvent] + @[agent.updateStatus] para "agendado".',
+        },
+        {
+          texto: "Hesitante",
+          acoes: "Reforçar valor + @[flow.waitForUser]",
+        },
+        {
+          texto: "Recusado",
+          acoes: "@[agent.thinkOutLoud] + faça uma última tentativa",
+        },
+        {
+          texto: "Situação complexa",
+          acoes: "@[agent.handoffToHuman]",
+        },
+      ],
+    },
   },
 ];
 
@@ -559,25 +935,42 @@ const AOPS_PADRAO: AgentAop[] = [
   },
 ];
 
+/* Autores mock do workspace — os mesmos usuários (e fotos) do AwSidebar. */
+const PESSOA_GREG = {
+  name: "Gregório Pinheiro",
+  initials: "GP",
+  avatar: "/assets/users/greg.jpg",
+};
+const PESSOA_GABRIEL = {
+  name: "Gabriel Lima",
+  initials: "GL",
+  avatar: "/assets/users/gabriel_lima.jpg",
+};
+const PESSOA_JOSE = {
+  name: "José Almeida",
+  initials: "JA",
+  avatar: "/assets/users/jose.jpg",
+};
+
 const HISTORICO_PADRAO: HistoryDay[] = [
   {
     data: "10 fev 2026",
     entradas: [
       {
         id: "h-1",
-        autor: { name: "Pedro Ramalho", initials: "PR" },
+        autor: PESSOA_JOSE,
         acao: "Alterou o Checkpoint 02 — Descoberta do Motivo da Não-Ação.",
         quando: "5 min atrás",
       },
       {
         id: "h-2",
-        autor: { name: "Ana Carolina", initials: "AC" },
+        autor: PESSOA_GABRIEL,
         acao: "Alterou a base de conhecimento para “Políticas oficiais”.",
         quando: "45 min atrás",
       },
       {
         id: "h-3",
-        autor: { name: "Arthur Veras", initials: "AV" },
+        autor: PESSOA_GREG,
         acao: "Alterou o Prompt do agente.",
         quando: "1 hora atrás",
       },
@@ -588,13 +981,13 @@ const HISTORICO_PADRAO: HistoryDay[] = [
     entradas: [
       {
         id: "h-4",
-        autor: { name: "Gregório Pinheiro", initials: "GP" },
+        autor: PESSOA_GREG,
         acao: "Ativou o AOP Análise de Risco do Usuário.",
         quando: "18:47",
       },
       {
         id: "h-5",
-        autor: { name: "Gregório Pinheiro", initials: "GP" },
+        autor: PESSOA_GABRIEL,
         acao: "Conectou a integração Google Calendar.",
         quando: "15:12",
       },
@@ -605,7 +998,7 @@ const HISTORICO_PADRAO: HistoryDay[] = [
     entradas: [
       {
         id: "h-6",
-        autor: { name: "Gregório Pinheiro", initials: "GP" },
+        autor: PESSOA_GREG,
         acao: "Criou o agente a partir do Agent Studio.",
         quando: "09:30",
       },
@@ -618,21 +1011,80 @@ const VARIAVEIS_PADRAO: AgentVariable[] = [
     nome: "{{agent_name}}",
     tipo: "Texto",
     descricao: "Nome social usado pelo agente nas conversas.",
+    grupo: "Personalizadas",
   },
   {
     nome: "{{lead_name}}",
     tipo: "Texto",
     descricao: "Primeiro nome do lead em atendimento.",
+    grupo: "Personalizadas",
   },
   {
     nome: "{{lead_phone}}",
     tipo: "Telefone",
     descricao: "Telefone principal do lead.",
+    grupo: "Personalizadas",
   },
   {
     nome: "{{company_name}}",
     tipo: "Texto",
     descricao: "Nome da empresa exibido nas mensagens.",
+    grupo: "Personalizadas",
+  },
+];
+
+/**
+ * Dados de contexto lidos em tempo real — entram no menu {{ junto com as
+ * variáveis do agente. São leitura (o canal/conversa preenche), não config.
+ */
+export const CONTEXT_VARIABLES: AgentVariable[] = [
+  {
+    nome: "{{user.email}}",
+    tipo: "Texto",
+    descricao: "E-mail principal do usuário identificado.",
+    grupo: "Lead",
+  },
+  {
+    nome: "{{user.language}}",
+    tipo: "Texto",
+    descricao: "Idioma detectado nas mensagens.",
+    grupo: "Lead",
+  },
+  {
+    nome: "{{user.timezone}}",
+    tipo: "Texto",
+    descricao: "Fuso horário estimado do usuário.",
+    grupo: "Lead",
+  },
+  {
+    nome: "{{user.lastMessageAt}}",
+    tipo: "Data",
+    descricao: "Momento da última mensagem recebida.",
+    grupo: "Lead",
+  },
+  {
+    nome: "{{conversation.goal}}",
+    tipo: "Texto",
+    descricao: "Objetivo ativo da conversa neste momento.",
+    grupo: "Conversa",
+  },
+  {
+    nome: "{{conversation.voiceTone}}",
+    tipo: "Texto",
+    descricao: "Tom de comunicação configurado para o agente.",
+    grupo: "Conversa",
+  },
+  {
+    nome: "{{conversation.step}}",
+    tipo: "Texto",
+    descricao: "Etapa atual do fluxo dentro do checkpoint.",
+    grupo: "Conversa",
+  },
+  {
+    nome: "{{conversation.lastIntent}}",
+    tipo: "Texto",
+    descricao: "Intenção mais recente identificada no input do usuário.",
+    grupo: "Conversa",
   },
 ];
 
@@ -672,6 +1124,10 @@ Use a base de conhecimento conectada para responder dúvidas de produto. Quando 
 export function getAgentEditorData(id: string): AgentEditorData {
   const agent = getAgentById(id);
   const isLeadsRecovery = agent.id === "leads-recovery";
+  const habilidades = [
+    ...ALL_SKILLS,
+    ...buildAopSkillGroup(AOPS_PADRAO).skills,
+  ];
 
   return {
     agent,
@@ -691,7 +1147,7 @@ export function getAgentEditorData(id: string): AgentEditorData {
     basesDisponiveis: BASES_DISPONIVEIS,
     prompt: PROMPT_PADRAO(agent),
     checkpoints: CHECKPOINTS_PADRAO,
-    habilidadesConfiguradas: HABILIDADES_CONFIGURADAS,
+    habilidadesConfiguradas: habilidades,
     integracoes: INTEGRACOES_PADRAO,
     aops: AOPS_PADRAO,
     followUps: isLeadsRecovery ? FOLLOW_UPS_LEADS_RECOVERY : [],

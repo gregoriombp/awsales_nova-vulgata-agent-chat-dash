@@ -2,7 +2,12 @@
 
 import * as React from "react";
 import { Icon } from "@/components/ui/Icon";
-import type { AgentVariable, HabilidadeConfigurada } from "@/lib/agentStudio";
+import {
+  skillTone,
+  SKILL_TONE_CLASSES,
+  type AgentVariable,
+  type HabilidadeConfigurada,
+} from "@/lib/agentStudio";
 import {
   parseTokenSegments,
   sanitizeVariableName,
@@ -12,25 +17,32 @@ import {
 /**
  * Editor de texto livre estilo Notion para o corpo do checkpoint.
  *
- * - `@` abre o menu de habilidades configuradas; selecionar insere um chip
+ * - `@` abre o menu de habilidades do catálogo; selecionar insere um chip
  *   inline serializado como `@[id]`.
  * - `{{` abre o menu de variáveis (com a opção de criar uma nova); selecionar
  *   insere um chip serializado como `{{nome}}`.
+ * - Cards do painel de habilidades podem ser ARRASTADOS para o texto — o chip
+ *   entra na posição do cursor de drop (drag and drop nativo).
+ * - Negrito/itálico (toolbar ou ⌘B/⌘I) serializam como `**…**` / `*…*`.
  * - Os chips são spans `contenteditable=false` — apagam como um caractere só.
  * - O valor trafega sempre como string serializada (tokens inline), então o
  *   estado da página continua um `Checkpoint` simples.
- *
- * Resgatado do padrão VariableChipEditor do wizard antigo (parse → HTML com
- * chips → serialize do DOM), com menus ancorados no caret e navegação por
- * teclado (setas + Enter, Esc fecha).
  */
 
 /* ─── Visual dos chips ─────────────────────────────────────────────────── */
 
-const MENTION_CHIP_CLASS =
-  "inline-flex items-center gap-1 rounded-md bg-(--aw-purple-100) px-1.5 text-xs font-medium text-(--aw-purple-800) align-baseline select-none";
-const VARIABLE_CHIP_CLASS =
-  "inline-flex items-center gap-1 rounded bg-(--bg-hover) px-1.5 text-xs font-medium text-(--fg-secondary) align-baseline select-none";
+/** MIME do drag de habilidade (painel → editor). */
+export const SKILL_DRAG_MIME = "application/x-aw-skill";
+
+const CHIP_BASE_CLASS =
+  "inline-flex items-center gap-1 rounded-md px-1.5 text-xs font-medium align-baseline select-none";
+/** Variáveis são dados, não ações — chip cinza neutro. */
+const VARIABLE_CHIP_CLASS = `${CHIP_BASE_CLASS} bg-(--bg-hover) text-(--fg-secondary)`;
+
+function mentionChipClass(hab: HabilidadeConfigurada | undefined): string {
+  const tone = skillTone(hab);
+  return `${CHIP_BASE_CLASS} ${SKILL_TONE_CLASSES[tone].chip}`;
+}
 
 /** Réplica inline do <Icon /> para uso dentro de strings de HTML do editor. */
 const CHIP_ICON_STYLE =
@@ -48,15 +60,36 @@ function chipIconHtml(name: string): string {
   return `<span class="material-symbols-rounded" style="${CHIP_ICON_STYLE}" aria-hidden="true">${name}</span>`;
 }
 
-function mentionChipHtml(id: string, nome: string): string {
-  return `<span contenteditable="false" data-token="@[${escapeHtml(id)}]" class="${MENTION_CHIP_CLASS}">${chipIconHtml("alternate_email")}${escapeHtml(nome)}</span>`;
+function mentionChipHtml(
+  id: string,
+  hab: HabilidadeConfigurada | undefined,
+): string {
+  const nome = hab?.nome ?? id;
+  const icon = hab?.icon ?? "alternate_email";
+  return `<span contenteditable="false" data-token="@[${escapeHtml(id)}]" title="Clique para ver as propriedades" class="${mentionChipClass(hab)} cursor-pointer transition-[filter] duration-aw-fast hover:brightness-95">${chipIconHtml(icon)}${escapeHtml(nome)}</span>`;
 }
 
 function variableChipHtml(name: string): string {
-  return `<span contenteditable="false" data-token="{{${escapeHtml(name)}}}" class="${VARIABLE_CHIP_CLASS}">${chipIconHtml("data_object")}${escapeHtml(name)}</span>`;
+  return `<span contenteditable="false" data-token="{{${escapeHtml(name)}}}" title="Clique para ver as propriedades" class="${VARIABLE_CHIP_CLASS} cursor-pointer transition-[filter] duration-aw-fast hover:brightness-95">${chipIconHtml("data_object")}${escapeHtml(name)}</span>`;
 }
 
 /* ─── Render read-only (React) ─────────────────────────────────────────── */
+
+/** Chip de menção standalone — mesmas cores do editor, para usos em React. */
+export function MentionChip({
+  hab,
+  id,
+}: {
+  hab: HabilidadeConfigurada | undefined;
+  id: string;
+}) {
+  return (
+    <span className={mentionChipClass(hab)}>
+      <Icon name={hab?.icon ?? "alternate_email"} size={12} />
+      {hab?.nome ?? id}
+    </span>
+  );
+}
 
 /** Texto com tokens renderizados como chips — para os cards fora de edição. */
 export function TokenText({
@@ -76,13 +109,18 @@ export function TokenText({
         if (seg.type === "text") {
           return <React.Fragment key={i}>{seg.content}</React.Fragment>;
         }
-        if (seg.type === "mention") {
+        if (seg.type === "bold") {
           return (
-            <span key={i} className={MENTION_CHIP_CLASS}>
-              <Icon name="alternate_email" size={12} />
-              {byId.get(seg.id)?.nome ?? seg.id}
-            </span>
+            <strong key={i} className="font-medium text-(--fg-primary)">
+              {seg.content}
+            </strong>
           );
+        }
+        if (seg.type === "italic") {
+          return <em key={i}>{seg.content}</em>;
+        }
+        if (seg.type === "mention") {
+          return <MentionChip key={i} id={seg.id} hab={byId.get(seg.id)} />;
         }
         return (
           <span key={i} className={VARIABLE_CHIP_CLASS}>
@@ -106,8 +144,10 @@ function valueToHtml(
       if (seg.type === "text") {
         return escapeHtml(seg.content).replace(/\n/g, "<br>");
       }
+      if (seg.type === "bold") return `<b>${escapeHtml(seg.content)}</b>`;
+      if (seg.type === "italic") return `<i>${escapeHtml(seg.content)}</i>`;
       if (seg.type === "mention") {
-        return mentionChipHtml(seg.id, habById.get(seg.id)?.nome ?? seg.id);
+        return mentionChipHtml(seg.id, habById.get(seg.id));
       }
       return variableChipHtml(seg.name);
     })
@@ -123,6 +163,13 @@ function serializeNode(node: Node): string {
   node.childNodes.forEach((child) => {
     out += serializeNode(child);
   });
+  // Formatação aplicada pelo execCommand vira marcação leve no valor.
+  if (node.tagName === "B" || node.tagName === "STRONG") {
+    return out.trim() ? `**${out}**` : out;
+  }
+  if (node.tagName === "I" || node.tagName === "EM") {
+    return out.trim() ? `*${out}*` : out;
+  }
   // Browsers às vezes embrulham linhas em <div> — vira quebra de linha.
   if (node.tagName === "DIV" || node.tagName === "P") out = `\n${out}`;
   return out;
@@ -133,7 +180,7 @@ function serializeEditorDom(root: HTMLElement): string {
   root.childNodes.forEach((child) => {
     out += serializeNode(child);
   });
-  return out.replace(/\u00a0/g, " ");
+  return out.replace(/ /g, " ");
 }
 
 /* ─── Menu de sugestões ────────────────────────────────────────────────── */
@@ -155,6 +202,8 @@ type SuggestionItem = {
   label: string;
   descricao: string;
   icon: string;
+  /** Classes do tile do ícone (tom do grupo). */
+  tileClass: string;
 };
 
 type TriggerContext = {
@@ -172,8 +221,23 @@ type TriggerContext = {
 export type CheckpointRichTextHandle = {
   /** Insere uma menção `@[id]` na posição atual do caret (ou no fim). */
   insertMention: (habilidadeId: string) => void;
+  /** Insere uma variável `{{nome}}` na posição atual do caret (ou no fim). */
+  insertVariable: (nome: string) => void;
   focus: () => void;
 };
+
+/** Token clicado dentro do editor — abre o modal de propriedades. */
+export type TokenClick =
+  | { kind: "mention"; id: string }
+  | { kind: "variable"; name: string };
+
+export function parseTokenAttr(token: string): TokenClick | null {
+  const mention = /^@\[([\w.-]+)\]$/.exec(token);
+  if (mention) return { kind: "mention", id: mention[1] };
+  const variable = /^\{\{([^{}]+)\}\}$/.exec(token);
+  if (variable) return { kind: "variable", name: variable[1].trim() };
+  return null;
+}
 
 export type CheckpointRichTextEditorProps = {
   value: string;
@@ -186,6 +250,17 @@ export type CheckpointRichTextEditorProps = {
   allowMentions?: boolean;
   /** Permite quebras de linha com Enter. */
   multiline?: boolean;
+  /**
+   * Visual do campo: `field` é o input com borda; `bare` é edição inline no
+   * documento (sem chrome — o bloco ao redor dá o contexto).
+   */
+  chrome?: "field" | "bare";
+  /** Enter num editor single-line (ex.: cria o próximo item da lista). */
+  onEnterKey?: () => void;
+  /** Backspace com o editor vazio (ex.: remove o item e foca o anterior). */
+  onBackspaceEmpty?: () => void;
+  /** Clique num chip dentro do texto (abre propriedades). */
+  onTokenClick?: (token: TokenClick) => void;
   placeholder?: string;
   className?: string;
   "aria-label"?: string;
@@ -204,6 +279,10 @@ export const CheckpointRichTextEditor = React.forwardRef<
     onCreateVariable,
     allowMentions = true,
     multiline = true,
+    chrome = "field",
+    onEnterKey,
+    onBackspaceEmpty,
+    onTokenClick,
     placeholder,
     className,
     "aria-label": ariaLabel,
@@ -214,6 +293,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const divRef = React.useRef<HTMLDivElement>(null);
   const savedRangeRef = React.useRef<Range | null>(null);
+  const [dropActive, setDropActive] = React.useState(false);
 
   const [menu, setMenuState] = React.useState<MenuState | null>(null);
   const [activeIndex, setActiveIndex] = React.useState(0);
@@ -262,7 +342,9 @@ export const CheckpointRichTextEditor = React.forwardRef<
     const offset = sel.anchorOffset;
     const before = (node.textContent ?? "").slice(0, offset);
 
-    const atMatch = allowMentions ? /(?:^|[^\w@])@([\w-]*)$/.exec(before) : null;
+    const atMatch = allowMentions
+      ? /(?:^|[^\w@])@([\w.-]*)$/.exec(before)
+      : null;
     const varMatch = /\{\{([^{}]*)$/.exec(before);
 
     const atStart = atMatch ? before.lastIndexOf("@", offset) : -1;
@@ -336,13 +418,15 @@ export const CheckpointRichTextEditor = React.forwardRef<
           (h) =>
             h.nome.toLowerCase().includes(q) || h.id.toLowerCase().includes(q),
         )
+        .slice(0, 12)
         .map((h) => ({
           key: `hab-${h.id}`,
           kind: "mention" as const,
           value: h.id,
           label: h.nome,
-          descricao: h.descricao,
-          icon: h.grupo === "integracao" ? "cable" : "smart_toy",
+          descricao: `@${h.id}`,
+          icon: h.icon ?? "alternate_email",
+          tileClass: SKILL_TONE_CLASSES[skillTone(h)].tile,
         }));
     }
     const list: SuggestionItem[] = variaveis
@@ -359,6 +443,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
           label: `{{${nome}}}`,
           descricao: v.descricao,
           icon: "data_object",
+          tileClass: "bg-(--bg-hover) text-(--fg-secondary)",
         };
       });
     const created = sanitizeVariableName(menu.query);
@@ -373,6 +458,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
         label: `Criar variável "{{${created}}}"`,
         descricao: "Fica disponível para este agente.",
         icon: "add",
+        tileClass: "bg-(--bg-hover) text-(--fg-secondary)",
       });
     }
     return list;
@@ -401,7 +487,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
       range.deleteContents();
       range.insertNode(chip);
       // Espaço NBSP depois do chip mantém o caret visível e a digitação fluida.
-      const space = document.createTextNode("\u00a0");
+      const space = document.createTextNode(" ");
       chip.after(space);
       placeCaretAfter(space);
     },
@@ -435,7 +521,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
       }
       const html =
         item.kind === "mention"
-          ? mentionChipHtml(item.value, habById.get(item.value)?.nome ?? item.value)
+          ? mentionChipHtml(item.value, habById.get(item.value))
           : variableChipHtml(item.value);
       insertChipAtRange(range, html);
       if (item.kind === "create") onCreateVariable?.(item.value);
@@ -452,6 +538,21 @@ export const CheckpointRichTextEditor = React.forwardRef<
     ],
   );
 
+  /** Range no fim do conteúdo ou no caret salvo — alvo de inserções externas. */
+  const fallbackRange = React.useCallback((): Range => {
+    const div = divRef.current as HTMLDivElement;
+    const saved = savedRangeRef.current;
+    const range = document.createRange();
+    if (saved && div.contains(saved.startContainer)) {
+      range.setStart(saved.startContainer, saved.startOffset);
+      range.collapse(true);
+    } else {
+      range.selectNodeContents(div);
+      range.collapse(false);
+    }
+    return range;
+  }, []);
+
   React.useImperativeHandle(
     ref,
     () => ({
@@ -459,27 +560,75 @@ export const CheckpointRichTextEditor = React.forwardRef<
         const div = divRef.current;
         if (!div) return;
         div.focus();
-        const saved = savedRangeRef.current;
-        const range = document.createRange();
-        if (saved && div.contains(saved.startContainer)) {
-          range.setStart(saved.startContainer, saved.startOffset);
-          range.collapse(true);
-        } else {
-          range.selectNodeContents(div);
-          range.collapse(false);
-        }
         insertChipAtRange(
-          range,
-          mentionChipHtml(
-            habilidadeId,
-            habById.get(habilidadeId)?.nome ?? habilidadeId,
-          ),
+          fallbackRange(),
+          mentionChipHtml(habilidadeId, habById.get(habilidadeId)),
         );
+        commitChange();
+      },
+      insertVariable: (nome: string) => {
+        const div = divRef.current;
+        if (!div) return;
+        div.focus();
+        insertChipAtRange(fallbackRange(), variableChipHtml(nome));
         commitChange();
       },
       focus: () => divRef.current?.focus(),
     }),
-    [habById, insertChipAtRange, commitChange],
+    [habById, insertChipAtRange, commitChange, fallbackRange],
+  );
+
+  /* ── Drag and drop do painel de habilidades ── */
+
+  const rangeFromPoint = React.useCallback(
+    (x: number, y: number): Range | null => {
+      type CaretDoc = Document & {
+        caretRangeFromPoint?: (x: number, y: number) => Range | null;
+        caretPositionFromPoint?: (
+          x: number,
+          y: number,
+        ) => { offsetNode: Node; offset: number } | null;
+      };
+      const doc = document as CaretDoc;
+      if (doc.caretRangeFromPoint) return doc.caretRangeFromPoint(x, y);
+      const pos = doc.caretPositionFromPoint?.(x, y);
+      if (!pos) return null;
+      const range = document.createRange();
+      range.setStart(pos.offsetNode, pos.offset);
+      range.collapse(true);
+      return range;
+    },
+    [],
+  );
+
+  const handleDragOver = React.useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      if (!allowMentions) return;
+      if (!e.dataTransfer.types.includes(SKILL_DRAG_MIME)) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      setDropActive(true);
+    },
+    [allowMentions],
+  );
+
+  const handleDrop = React.useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      setDropActive(false);
+      const skillId = e.dataTransfer.getData(SKILL_DRAG_MIME);
+      if (!skillId) return;
+      e.preventDefault();
+      const div = divRef.current;
+      if (!div) return;
+      div.focus();
+      let range = rangeFromPoint(e.clientX, e.clientY);
+      if (!range || !div.contains(range.startContainer)) {
+        range = fallbackRange();
+      }
+      insertChipAtRange(range, mentionChipHtml(skillId, habById.get(skillId)));
+      commitChange();
+    },
+    [rangeFromPoint, fallbackRange, insertChipAtRange, habById, commitChange],
   );
 
   /* ── Eventos do editor ── */
@@ -519,10 +668,28 @@ export const CheckpointRichTextEditor = React.forwardRef<
           // <br> em vez do <div> default — serialização previsível.
           document.execCommand("insertLineBreak");
           handleInput();
+        } else {
+          onEnterKey?.();
         }
+        return;
+      }
+      if (e.key === "Backspace" && value === "") {
+        e.preventDefault();
+        onBackspaceEmpty?.();
       }
     },
-    [menu, items, clampedIndex, selectItem, multiline, handleInput, setMenu],
+    [
+      menu,
+      items,
+      clampedIndex,
+      selectItem,
+      multiline,
+      handleInput,
+      setMenu,
+      onEnterKey,
+      onBackspaceEmpty,
+      value,
+    ],
   );
 
   const handleKeyUp = React.useCallback(
@@ -540,7 +707,11 @@ export const CheckpointRichTextEditor = React.forwardRef<
       // Cola sempre como texto puro — markup externo quebraria a serialização.
       e.preventDefault();
       const text = e.clipboardData.getData("text/plain");
-      document.execCommand("insertText", false, multiline ? text : text.replace(/\n+/g, " "));
+      document.execCommand(
+        "insertText",
+        false,
+        multiline ? text : text.replace(/\n+/g, " "),
+      );
       handleInput();
     },
     [multiline, handleInput],
@@ -559,7 +730,19 @@ export const CheckpointRichTextEditor = React.forwardRef<
         aria-label={ariaLabel}
         data-placeholder={placeholder ?? ""}
         spellCheck={false}
-        className={`w-full whitespace-pre-wrap break-words rounded-lg border border-(--border-default) bg-(--bg-raised) px-3.5 py-3 text-sm leading-relaxed text-(--fg-primary) outline-none transition-colors duration-aw-fast focus:border-(--border-strong) empty:before:text-(--fg-tertiary) empty:before:content-[attr(data-placeholder)] ${className ?? ""}`}
+        className={`w-full whitespace-pre-wrap break-words text-sm leading-relaxed text-(--fg-primary) outline-none transition-colors duration-aw-fast empty:before:text-(--fg-tertiary) empty:before:content-[attr(data-placeholder)] ${
+          chrome === "field"
+            ? `rounded-lg border bg-(--bg-raised) px-3.5 py-3 focus:border-(--border-strong) ${
+                dropActive
+                  ? "border-(--accent-brand) bg-(--aw-blue-100)"
+                  : "border-(--border-default)"
+              }`
+            : `-mx-1.5 rounded-md border px-1.5 py-0.5 ${
+                dropActive
+                  ? "border-(--accent-brand) bg-(--aw-blue-100)"
+                  : "border-transparent hover:bg-(--bg-hover)/60 focus:bg-transparent"
+              }`
+        } ${className ?? ""}`}
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         onKeyUp={handleKeyUp}
@@ -573,6 +756,18 @@ export const CheckpointRichTextEditor = React.forwardRef<
           saveSelection();
           setMenu(null);
         }}
+        onClick={(e) => {
+          if (!onTokenClick) return;
+          const chip = (e.target as HTMLElement).closest?.("[data-token]");
+          if (!chip) return;
+          const parsed = parseTokenAttr(
+            (chip as HTMLElement).dataset.token ?? "",
+          );
+          if (parsed) onTokenClick(parsed);
+        }}
+        onDragOver={handleDragOver}
+        onDragLeave={() => setDropActive(false)}
+        onDrop={handleDrop}
       />
 
       {menu && items.length > 0 && (
@@ -593,8 +788,10 @@ export const CheckpointRichTextEditor = React.forwardRef<
                   role="option"
                   aria-selected={i === clampedIndex}
                   tabIndex={-1}
-                  className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-left transition-colors duration-aw-fast ${
-                    i === clampedIndex ? "bg-(--bg-hover)" : "hover:bg-(--bg-hover)"
+                  className={`flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors duration-aw-fast ${
+                    i === clampedIndex
+                      ? "bg-(--bg-hover)"
+                      : "hover:bg-(--bg-hover)"
                   }`}
                   onMouseDown={(e) => {
                     // Mantém o foco/caret no editor durante o clique.
@@ -603,11 +800,11 @@ export const CheckpointRichTextEditor = React.forwardRef<
                   }}
                   onMouseEnter={() => setActiveIndex(i)}
                 >
-                  <Icon
-                    name={item.icon}
-                    size={16}
-                    className="shrink-0 text-(--fg-tertiary)"
-                  />
+                  <span
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${item.tileClass}`}
+                  >
+                    <Icon name={item.icon} size={15} />
+                  </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm text-(--fg-primary)">
                       {item.label}

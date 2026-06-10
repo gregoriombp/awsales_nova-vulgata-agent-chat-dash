@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AgentEditorShell } from "@/components/agent-studio/editor/AgentEditorShell";
@@ -21,6 +21,7 @@ import {
   type Checkpoint,
   type EditorTabId,
 } from "@/lib/agentStudio";
+import { loadAgentDraft, saveAgentDraft } from "@/lib/agentStudioStore";
 
 /**
  * Editor do agente. A seção ativa vive na URL (?tab=…) — deep-link funciona,
@@ -41,10 +42,43 @@ export default function AgentEditorPage() {
     data.checkpoints
   );
   const [prompt, setPrompt] = useState(data.prompt);
+
+  // Rascunho compartilhado com o editor de documento (/checkpoints) —
+  // carrega após o mount (localStorage não existe no SSR). A microtask
+  // tira o setState do corpo síncrono do effect (evita cascading render).
+  useEffect(() => {
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (cancelled) return;
+      const draft = loadAgentDraft(params.id);
+      if (draft) {
+        setCheckpoints(draft.checkpoints);
+        setPrompt(draft.prompt);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [params.id]);
+
+  const persistPrompt = useCallback(
+    (next: string) => {
+      setPrompt(next);
+      const draft = loadAgentDraft(params.id);
+      saveAgentDraft(params.id, {
+        prompt: next,
+        checkpoints: draft?.checkpoints ?? checkpoints,
+        variaveisCriadas: draft?.variaveisCriadas ?? [],
+        gruposExtras: draft?.gruposExtras ?? [],
+      });
+    },
+    [params.id, checkpoints]
+  );
+
   const tabParam = searchParams.get("tab");
   const activeTab: EditorTabId = isEditorTabId(tabParam)
     ? tabParam
-    : "visao-geral";
+    : "prompt-checkpoint";
 
   const handleTabChange = useCallback(
     (tab: EditorTabId) => {
@@ -72,7 +106,7 @@ export default function AgentEditorPage() {
             checkpoints={checkpoints}
             onCheckpointsChange={setCheckpoints}
             prompt={prompt}
-            onPromptChange={setPrompt}
+            onPromptChange={persistPrompt}
           />
         )}
         {activeTab === "visualizacao-modular" && (
