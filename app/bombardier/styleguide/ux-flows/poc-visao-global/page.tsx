@@ -203,10 +203,10 @@ const BASE_NODES: Node[] = [
   S("l-sso", SX, 525, { step: "SSO", title: "Conectando à empresa", note: "SAML/OIDC · IdP autentica e devolve a sessão", href: "/awsales/login?screen=ssoConnecting", personas: L }),
   S("l-senha", MX, 525, { step: "01", title: "E-mail + senha", note: "e-mail pré-preenchido · 'manter conectado'", href: "/awsales/login?screen=email", personas: L }),
   D("l-valid", MX, 700, { title: "Credenciais válidas?", question: "A senha confere?", personas: L }),
-  S("l-erro", GX, 700, { step: "inline", title: "Senha incorreta", note: "estado inline da tela de senha", href: "/awsales/login?screen=email", personas: L }),
+  S("l-erro", GX, 700, { step: "inline", title: "Credencial inválida", note: "erro inline genérico ('E-mail ou senha incorretos.')", href: "/awsales/login?screen=email&error=1", personas: L }),
   S("l-verify", MX, 875, { step: "02", title: "Verificação por e-mail", note: "código de 6 dígitos", href: "/awsales/login?screen=verify", personas: L }),
   S("l-magic", SX, 700, { step: "alt", title: "Magic link enviado", note: "link de acesso por e-mail (15 min)", href: "/awsales/login?screen=magicSent", personas: L }),
-  S("l-forgot", GX, 875, { step: "rec", title: "Esqueci a senha", note: "envia código → define nova senha", href: "/awsales/login?screen=forgot", personas: L }),
+  S("l-forgot", GX, 875, { step: "rec", title: "Esqueci a senha", note: "resposta neutra → link de redefinição → nova senha (sem auto-login)", href: "/awsales/login?screen=forgot", personas: L }),
   D("l-workspaceDec", MX, 1060, { title: "Pertence a mais de uma org?", question: "O usuário tem acesso a mais de uma organização?", personas: L }),
   S("l-workspace", MX, 1235, { step: "03", title: "Seletor de organização", note: "lista as orgs do usuário", href: "/awsales/login?screen=workspace", personas: L }),
 

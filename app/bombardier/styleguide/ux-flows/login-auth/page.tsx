@@ -49,7 +49,10 @@ const Y = {
   oauthRow:       1000,   // oauthGoogle | workspaceDec (centre) | oauthMs
   recEmail:       1000,   // tela "Esqueci a senha" (ERRO_X)
   workspace:      1160,
-  resetSenha:     1160,   // tela "Definir nova senha" — fora do flow demo (ERRO_X)
+  noAccessRow:    1160,   // "sem acesso por este método" (à direita do seletor, SSO_X)
+  resetLinkSent:  1160,   // confirmação de envio do link de reset (ERRO_X)
+  resetSenha:     1320,   // tela "Definir nova senha" — alcançada pelo link (ERRO_X)
+  resetSuccess:   1480,   // "Senha redefinida" — fim do reset, sem auto-login (ERRO_X)
   policyDec:      1320,   // decisão de verificação extra por org — checa 2FA per-org
   // ── 2FA inline ──
   mfaGateRow:    1480,   // mfaGate (setup, esquerda) | mfaVerify (direita) — mesma linha
@@ -72,7 +75,7 @@ export const NODES: Node[] = [
     id: "entrada",
     type: "screen",
     position: { x: COL, y: Y.entrada },
-    data: { step: "entrada", title: "Login", href: "/awsales/login?screen=login", note: "Tela inicial: input de email + 'Continuar', com Google e Microsoft abaixo do 'ou'." },
+    data: { step: "entrada", title: "Login", href: "/awsales/login?screen=login", note: "Tela inicial: input de email + 'Continuar', com Google e Microsoft abaixo do 'ou' e um atalho de link de acesso (magic link)." },
   },
   {
     id: "metodo",
@@ -90,7 +93,7 @@ export const NODES: Node[] = [
     id: "ssoConnecting",
     type: "screen",
     position: { x: SSO_X, y: Y.ssoConnectingRow },
-    data: { step: "01c", title: "Conectando ao login da empresa", href: "/awsales/login?screen=ssoConnecting", note: "Loader 'Te direcionando pro acesso da [Empresa]' antes de cair no login corporativo." },
+    data: { step: "01c", title: "Conectando ao login da empresa", href: "/awsales/login?screen=ssoConnecting", note: "Loader 'Abrindo o acesso da [Empresa]' antes de cair no login corporativo. Avisa 'Não feche esta janela' e oferece Cancelar. SSO autentica no provedor, mas NÃO pula o seletor nem o 2FA por padrão." },
   },
   {
     id: "credenciais",
@@ -108,7 +111,7 @@ export const NODES: Node[] = [
     id: "verify",
     type: "screen",
     position: { x: COL, y: Y.verifyRow },
-    data: { step: "04", title: "Verificação por e-mail", href: "/awsales/login?screen=verify", note: "Campo de código de 6 dígitos enviado ao e-mail, com countdown de reenvio." },
+    data: { step: "04", title: "Verificação por e-mail", href: "/awsales/login?screen=verify", note: "Campo de código de 6 dígitos enviado ao e-mail, com countdown de reenvio. Step-up por código (não é segundo fator forte). Só no login — a recuperação é por link." },
   },
   {
     id: "magicLink",
@@ -120,19 +123,19 @@ export const NODES: Node[] = [
     id: "workspaceDec",
     type: "decision",
     position: { x: COL_D, y: Y.oauthRow },
-    data: { step: "05", title: "Pertence a mais de uma organização?", question: "O usuário tem acesso a mais de uma organização?" },
+    data: { step: "05", title: "Quantas organizações aceitam este método?", question: "Filtra as orgs do usuário pelo método usado pra entrar (senha/social/SSO). Quantas são compatíveis? Nenhuma → sem acesso por este método; uma → segue; mais de uma → seletor." },
   },
   {
     id: "workspace",
     type: "screen",
     position: { x: COL, y: Y.workspace },
-    data: { step: "06", title: "Seletor de organização", href: "/awsales/login?screen=workspace", note: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano)." },
+    data: { step: "06", title: "Seletor de organização", href: "/awsales/login?screen=workspace", note: "Lista só as orgs compatíveis com o método, com avatar, nome e meta incluindo a função do usuário (ex.: '12 membros · admin')." },
   },
   {
     id: "policyDec",
     type: "decision",
     position: { x: COL_D, y: Y.policyDec },
-    data: { step: "06b", title: "A organização exige verificação extra?", question: "A organização exige uma segunda etapa de verificação antes de liberar o acesso? Cada organização tem suas próprias regras de segurança." },
+    data: { step: "06b", title: "A organização exige verificação extra?", question: "A organização exige uma segunda etapa de verificação antes de liberar o acesso? Cada org tem suas regras. No SSO, o 2FA do app só é pulado quando a org delega o MFA ao IdP." },
   },
   // ── Verificação em duas etapas (2FA) inline — gate/setup à esquerda, verify/recovery à direita ──
   {
@@ -214,19 +217,38 @@ export const NODES: Node[] = [
     id: "erro",
     type: "screen",
     position: { x: ERRO_X, y: Y.verifyRow },
-    data: { step: "→ inline", title: "Senha incorreta (na própria tela)", href: "/awsales/login?screen=email", note: 'Estado inline da tela de senha: mensagem "Senha incorreta" abaixo do campo, não é tela separada.' },
+    data: { step: "→ inline", title: "Credencial inválida (na própria tela)", href: "/awsales/login?screen=email&error=1", note: 'Estado inline e genérico da tela de senha: "E-mail ou senha incorretos." abaixo do campo, sem revelar se o e-mail existe. Não é tela separada.' },
   },
   {
     id: "recEmail",
     type: "screen",
     position: { x: ERRO_X, y: Y.recEmail },
-    data: { step: "B1", title: "Esqueci a senha", href: "/awsales/login?screen=forgot", note: "Campo de e-mail cadastrado que dispara o código e reusa a verificação do login." },
+    data: { step: "B1", title: "Esqueci a senha", href: "/awsales/login?screen=forgot", note: "Campo de e-mail que dispara um link de redefinição. Resposta sempre neutra (não confirma se a conta existe)." },
+  },
+  {
+    id: "resetLinkSent",
+    type: "screen",
+    position: { x: ERRO_X, y: Y.resetLinkSent },
+    data: { step: "B2", title: "Link de redefinição enviado", href: "/awsales/login?screen=resetLinkSent", note: "Confirmação neutra: 'Se existir uma conta com este e-mail, enviamos um link'. O usuário define a senha pelo link recebido." },
   },
   {
     id: "resetSenha",
     type: "screen",
     position: { x: ERRO_X, y: Y.resetSenha },
-    data: { step: "B2", title: "Definir nova senha", href: "/awsales/login?screen=reset", note: "Campos nova senha + confirmar com validação de força (mín. 10 caracteres, bloqueio de senhas vazadas)." },
+    data: { step: "B3", title: "Definir nova senha", href: "/awsales/login?screen=reset", note: "Nova senha + confirmar, com validação: 10–64 caracteres (limite é decisão de produto), frase secreta OK, e bloqueio visual de senhas vazadas." },
+  },
+  {
+    id: "resetSuccess",
+    type: "screen",
+    position: { x: ERRO_X, y: Y.resetSuccess },
+    data: { step: "B4", title: "Senha redefinida", href: "/awsales/login?screen=resetSuccess", note: "Fim do reset SEM auto-login: CTA único 'Ir para o login'. Backend encerra as sessões antigas." },
+  },
+  // ── Terminal: sem acesso por este método (à direita do seletor) ────
+  {
+    id: "noAccessForMethod",
+    type: "screen",
+    position: { x: SSO_X, y: Y.noAccessRow },
+    data: { step: "→ terminal", title: "Sem acesso por este método", href: "/awsales/login?screen=noAccessForMethod", note: "Nenhuma org aceita o método usado. Não lista as orgs existentes; orienta a tentar e-mail corporativo, SSO ou falar com o admin." },
   },
 ]
 
@@ -248,12 +270,13 @@ export const EDGES: Edge[] = [
   { ...branchEdge, id: "e-metodo-google",     source: "metodo",     target: "oauthGoogle",      sourceHandle: "left",   label: "Google",      ...labelProps },
   { ...branchEdge, id: "e-metodo-discover",   source: "metodo",     target: "decDiscover",      sourceHandle: "bottom", label: "Continuar",   ...labelProps },
   { ...branchEdge, id: "e-metodo-ms",         source: "metodo",     target: "oauthMs",          sourceHandle: "right",  label: "Microsoft",   ...labelProps },
+  { ...branchEdge, id: "e-metodo-magiclink",  source: "metodo",     target: "magicLink",        sourceHandle: "left",   label: "Link de acesso", ...labelProps },
 
   // ── Detecção por domínio — decide se vai pro login corporativo ou pra senha ────────
   { ...branchEdge, id: "e-discover-sso",      source: "decDiscover", target: "ssoConnecting",   sourceHandle: "right",  label: "E-mail de empresa",  ...labelProps },
   { ...branchEdge, id: "e-discover-cred",     source: "decDiscover", target: "credenciais",     sourceHandle: "bottom", label: "E-mail comum",       ...labelProps },
-  // ── Login corporativo já fez a verificação no provedor: pula o seletor + a verificação em duas etapas ──
-  { ...edgeBase,   id: "e-sso-primacesso",    source: "ssoConnecting", target: "primeiroAcessoDec", label: "Verificação já feita no provedor", ...labelProps },
+  // ── Login corporativo autentica no provedor, mas segue pelo seletor de org (o 2FA do app só é pulado quando a org delega ao IdP) ──
+  { ...edgeBase,   id: "e-sso-workspacedec",  source: "ssoConnecting", target: "workspaceDec", label: "Autenticado pelo provedor", ...labelProps },
 
   // ── Email+senha path ───────────────────────────────────────────────
   { ...edgeBase,   id: "e-cred-valid",        source: "credenciais",target: "valid" },
@@ -269,9 +292,10 @@ export const EDGES: Edge[] = [
   { ...edgeBase,   id: "e-google-workspacedec",   source:"oauthGoogle", target: "workspaceDec" },
   { ...edgeBase,   id: "e-ms-workspacedec",       source:"oauthMs",     target: "workspaceDec" },
 
-  // ── Workspace decision: >1 org passa pelo seletor; 1 só pula direto ──
-  { ...branchEdge, id: "e-workspacedec-workspace", source: "workspaceDec", target: "workspace",          sourceHandle: "bottom", label: "Mais de 1 org", ...labelProps },
-  { ...branchEdge, id: "e-workspacedec-policy",    source: "workspaceDec", target: "policyDec",          sourceHandle: "left",   label: "Só 1 org",      ...labelProps },
+  // ── Filtro por método: 0 compatível → sem acesso; 1 → segue; >1 → seletor ──
+  { ...branchEdge, id: "e-workspacedec-workspace", source: "workspaceDec", target: "workspace",          sourceHandle: "bottom", label: "Mais de 1 compatível", ...labelProps },
+  { ...branchEdge, id: "e-workspacedec-policy",    source: "workspaceDec", target: "policyDec",          sourceHandle: "left",   label: "Só 1 compatível",     ...labelProps },
+  { ...branchEdge, id: "e-workspacedec-noaccess",  source: "workspaceDec", target: "noAccessForMethod",  sourceHandle: "right",  label: "Nenhuma compatível",  ...labelProps },
   { ...edgeBase,   id: "e-workspace-policy",       source: "workspace",    target: "policyDec" },
 
   // ── Verificação extra por org — 2FA inline (gate/setup à esquerda, verify/recovery à direita) ──
@@ -290,18 +314,17 @@ export const EDGES: Edge[] = [
   { ...branchEdge, id: "e-mfaverify-mfarecovery", source: "mfaVerify",   target: "mfaRecovery",       label: "Usar backup", ...labelProps },
   { ...edgeBase,   id: "e-mfarecovery-primacesso", source: "mfaRecovery", target: "primeiroAcessoDec" },
 
-  // ── Recuperação de senha: verify bifurca por modo (login → workspace, reset → resetSenha) ──
-  { ...branchEdge, id: "e-verify-reset",            source: "verify",       target: "resetSenha",         sourceHandle: "right", label: "Recuperação", ...labelProps },
-
   // ── Post-auth decisions (D7 onboarding | D8 nova org adicional) ──
   { ...crossEdge,  id: "e-primacesso-onboarding", source: "primeiroAcessoDec", target: "primeiroAcesso", sourceHandle: "left",   label: "Primeiro acesso", ...labelProps },
   { ...branchEdge, id: "e-primacesso-novaorgdec", source: "primeiroAcessoDec", target: "novaOrgDec",     sourceHandle: "bottom", label: "Já cadastrado",   ...labelProps },
   { ...crossEdge,  id: "e-novaorgdec-config",     source: "novaOrgDec",        target: "novaOrgConfig",  sourceHandle: "right",  label: "Configurar agora", ...labelProps },
   { ...branchEdge, id: "e-novaorgdec-platform",   source: "novaOrgDec",        target: "platform",       sourceHandle: "bottom", label: "Mais tarde",      ...labelProps },
 
-  // ── Recovery: erro inline → "Esqueci a senha" → verify (em modo reset) → resetSenha ──
-  { ...branchEdge, id: "e-erro-recemail",     source: "erro",       target: "recEmail",         label: "Esqueci a senha", ...labelProps },
-  { ...edgeBase,   id: "e-recemail-verify",   source: "recEmail",   target: "verify",           label: "Enviado",          ...labelProps },
+  // ── Recovery por LINK: erro inline → "Esqueci a senha" → link enviado → definir nova senha → senha redefinida (sem auto-login) ──
+  { ...branchEdge, id: "e-erro-recemail",          source: "erro",          target: "recEmail",      label: "Esqueci a senha", ...labelProps },
+  { ...edgeBase,   id: "e-recemail-resetlink",     source: "recEmail",      target: "resetLinkSent", label: "Enviar link",     ...labelProps },
+  { ...edgeBase,   id: "e-resetlink-resetsenha",   source: "resetLinkSent", target: "resetSenha",    label: "Clica no link",   ...labelProps },
+  { ...edgeBase,   id: "e-resetsenha-resetsuccess",source: "resetSenha",    target: "resetSuccess",  label: "Salvar",          ...labelProps },
 ]
 
 /* ─────────────────────────────────────────────────────────────────────
@@ -313,8 +336,8 @@ const screens = [
     step: "entrada",
     title: "Login",
     href: "/awsales/login?screen=login",
-    purpose: "Ponto de entrada da plataforma. Input de email + 'Continuar' como ação principal. Abaixo do separador 'ou', Google e Microsoft como secundários. Sem affordance de signup direto na tela — quem foi convidado entra pelo link de e-mail do primeiro acesso.",
-    decisions: "Digitar email + Continuar → backend (mockado) detecta se o domínio usa SSO empresarial. Senão, vai pra tela de senha com email pré-preenchido. Google ou Microsoft → workspace direto.",
+    purpose: "Ponto de entrada da plataforma. Input de email + 'Continuar' como ação principal. Abaixo do separador 'ou', Google e Microsoft como secundários, e um atalho 'Receba um link de acesso por e-mail' (magic link) que reaproveita o e-mail digitado. Sem affordance de signup direto na tela — quem foi convidado entra pelo link de e-mail do primeiro acesso.",
+    decisions: "Digitar email + Continuar → backend (mockado) detecta se o domínio usa SSO empresarial. Senão, vai pra tela de senha com email pré-preenchido. Google ou Microsoft → seletor de organização. Link de acesso → tela de link enviado.",
   },
   {
     step: "01b",
@@ -327,8 +350,8 @@ const screens = [
     step: "01c",
     title: "Conectando ao login da empresa",
     href: "/awsales/login?screen=ssoConnecting",
-    purpose: "Tela de transição com spinner e texto 'Te direcionando pro acesso da [Empresa]'. No mockup, 2 segundos depois entra direto. Leva pro login corporativo da empresa, que faz a verificação de quem é a pessoa.",
-    decisions: "Automático após ~2s → entra direto (a verificação extra já foi feita no login corporativo, então pula a segunda etapa).",
+    purpose: "Tela de transição com spinner e texto 'Abrindo o acesso da [Empresa]', aviso 'Não feche esta janela' e ação 'Cancelar'. No mockup, ~2s depois segue. Leva pro login corporativo da empresa, que autentica quem é a pessoa.",
+    decisions: "Automático após ~2s → seletor de organização (o provedor autenticou, mas o 2FA do app só é pulado quando a org delega o MFA ao IdP). Cancelar → volta ao login.",
   },
   {
     step: "02a / 02c",
@@ -341,43 +364,43 @@ const screens = [
     step: "02",
     title: "E-mail + senha",
     href: "/awsales/login?screen=email",
-    purpose: "Formulário com e-mail, senha (mostrar/ocultar), 'Manter conectado' e link 'Esqueci a senha'. Abaixo do botão Entrar, um link secundário 'Receba um link de acesso no email' permite pular a senha.",
-    decisions: "Credenciais corretas → verificação por e-mail. Inválidas → tela de erro. Pedir magic link → tela de link enviado.",
+    purpose: "Formulário com e-mail, senha (mostrar/ocultar com aria-pressed), 'Manter conectado' e link 'Esqueci a senha'. Abaixo do botão Entrar, um link 'Receba um link de acesso por e-mail' permite pular a senha (magic link disponível também na tela inicial).",
+    decisions: "Credenciais corretas → verificação por e-mail. Inválidas → erro inline genérico ('E-mail ou senha incorretos.') na própria tela, sem revelar se o e-mail existe. Pedir magic link → tela de link enviado.",
   },
   {
     step: "04",
     title: "Verificação por e-mail",
     href: "/awsales/login?screen=verify",
-    purpose: "Código de 6 dígitos enviado ao e-mail informado, com countdown de reenvio. Aceita colar o código direto do clipboard. Aplica-se sempre após e-mail+senha; OAuth e magic link pulam esse passo. A tela é usada tanto pelo login normal quanto pelo 'Esqueci a senha' — o modo (login/recuperação) é passado pelo contexto e decide pra onde o código válido leva.",
-    decisions: "Código válido (modo login) → seletor de organização. Código válido (modo recuperação) → 'Definir nova senha'. Trocar e-mail → volta para o ponto de origem (login ou 'Esqueci a senha').",
+    purpose: "Código de 6 dígitos enviado ao e-mail informado, com countdown de reenvio. Campos com aria-label individual ('Dígito 1 de 6') e paste inteligente. É step-up por código após e-mail+senha — não um segundo fator forte; OAuth e magic link pulam esse passo. Só no login: a recuperação de senha agora é por link e não passa mais por aqui.",
+    decisions: "Código válido → seletor de organização. Voltar → tela de senha. Usar outro e-mail → volta ao login.",
   },
   {
     step: "04b",
     title: "Link de acesso enviado",
     href: "/awsales/login?screen=magicSent",
-    purpose: "Confirma que o link de acesso foi enviado pro e-mail do usuário. Mostra o endereço destinatário em destaque, dica de tempo de expiração (15min) e botão de reenvio com countdown. O usuário sai dessa tela ao clicar no link recebido no e-mail.",
-    decisions: "Clica no link no e-mail → seletor de organização (pula verificação por código). Trocar e-mail → volta pra tela de e-mail.",
+    purpose: "Confirma o envio do link de acesso com resposta neutra ('Se este e-mail puder acessar a Aswork, enviamos um link'). Mostra o endereço, expiração (15min) e reenvio com countdown. O usuário sai dessa tela ao clicar no link recebido no e-mail.",
+    decisions: "Clica no link no e-mail → seletor de organização (pula verificação por código). Voltar ao login / Usar outro e-mail → tela inicial.",
   },
   {
     step: "05",
-    title: "Pertence a mais de uma organização?",
+    title: "Quantas organizações aceitam este método?",
     href: "/",
-    purpose: "O produto verifica se o usuário tem acesso a mais de uma org. Transparente — não é uma tela. Quando há só uma org, o seletor é pulado.",
-    decisions: "Mais de 1 → seletor de organização. Só 1 → é a primeira vez deste usuário aqui?.",
+    purpose: "Filtro por método: das orgs do usuário, quais aceitam o método usado pra entrar (senha/social/SSO)? Orgs SSO-only não aparecem num login por senha — evita expor a relação org↔usuário e impede escolher um caminho que nunca autorizaria. Transparente, não é uma tela.",
+    decisions: "Nenhuma compatível → 'Sem acesso por este método'. Só 1 → segue direto. Mais de 1 → seletor de organização.",
   },
   {
     step: "06",
     title: "Seletor de organização",
     href: "/awsales/login?screen=workspace",
-    purpose: "Lista as orgs do usuário com avatar, nome e meta (cargo/plano). User escolhe uma e segue. Só aparece quando o usuário pertence a mais de uma.",
+    purpose: "Lista só as orgs compatíveis com o método, com avatar, nome e meta incluindo a função do usuário (ex.: '12 membros · admin'). Estados de contratação/setup não aparecem aqui — configurar org pendente é jornada pós-login.",
     decisions: "Selecionar org → a organização exige verificação extra?.",
   },
   {
     step: "06b",
     title: "A organização exige verificação extra?",
     href: "/",
-    purpose: "Antes de a pessoa entrar na plataforma pela primeira vez, o produto verifica se a organização exige uma segunda etapa de verificação. Cada organização define suas próprias regras de segurança — quem decide é o admin da org.",
-    decisions: "Exige 2FA e ainda não configurou → 'Ativar verificação em duas etapas'. Exige 2FA e já tem o app → 'Confirmar código'. Sem verificação extra → é a primeira vez deste usuário aqui?.",
+    purpose: "Antes de a pessoa entrar na plataforma, o produto verifica se a organização exige uma segunda etapa de verificação. Cada org define suas regras — quem decide é o admin. No SSO, o 2FA do app só é pulado quando a org delega o MFA ao IdP; sem delegação, o desafio acontece normalmente.",
+    decisions: "Exige 2FA e ainda não configurou → 'Ativar verificação em duas etapas'. Exige 2FA e já tem o app → 'Confirmar código'. SSO com MFA delegado ao IdP, ou sem verificação extra → é a primeira vez deste usuário aqui?.",
   },
   {
     step: "06c",
@@ -390,21 +413,21 @@ const screens = [
     step: "06d",
     title: "Configurar app de verificação",
     href: "/awsales/login?screen=mfaSetupApp",
-    purpose: "QR code pra escanear no app de verificação do celular, com o código em texto pra copiar. Campo de 6 dígitos pra confirmar que o app foi pareado.",
-    decisions: "Código correto → códigos de backup. Voltar → 'Ativar verificação em duas etapas'.",
+    purpose: "QR code pra escanear no app de verificação do celular, com o código em texto pra copiar e ação 'Gerar novo QR code'. Campo de 6 dígitos (aria-label por dígito) pra confirmar que o app foi pareado.",
+    decisions: "Código correto → códigos de backup. Gerar novo QR code → novo segredo. Voltar → 'Ativar verificação em duas etapas'.",
   },
   {
     step: "06e",
     title: "Códigos de backup",
     href: "/awsales/login?screen=mfaBackupCodes",
-    purpose: "Apresenta 10 códigos de backup de uso único em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar com aviso de risco. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
+    purpose: "Apresenta 10 códigos de backup de uso único (prefixo DEMO- no protótipo) em grid de 2 colunas. Ações 'Copiar todos' e 'Baixar .txt'. Callout âmbar avisando que os códigos aparecem só uma vez. Checkbox obrigatório 'salvei em lugar seguro' antes do botão liberar.",
     decisions: "Marcar checkbox + Concluir → é a primeira vez deste usuário aqui?.",
   },
   {
     step: "06f",
     title: "Confirmar código",
     href: "/awsales/login?screen=mfaVerify",
-    purpose: "Pra quem já tem o app de verificação configurado em outra organização. Campo de 6 dígitos do app. Link 'Usar código de backup' como fallback.",
+    purpose: "Pra quem já tem o app de verificação configurado. Campo de 6 dígitos do app, com checkbox 'Confiar neste dispositivo por 30 dias'. Link 'Usar código de backup' como fallback.",
     decisions: "Código correto → é a primeira vez deste usuário aqui?. Usar código de backup → 'Usar código de backup'.",
   },
   {
@@ -416,9 +439,9 @@ const screens = [
   },
   {
     step: "→ inline",
-    title: "Senha incorreta (na própria tela)",
-    href: "/awsales/login?screen=email",
-    purpose: "Estado da tela de e-mail+senha quando as credenciais estão inválidas. Não é tela separada — uma mensagem 'Senha incorreta' aparece embaixo do campo de senha. Mensagem é genérica, não revela se o e-mail existe.",
+    title: "Credencial inválida (na própria tela)",
+    href: "/awsales/login?screen=email&error=1",
+    purpose: "Estado inline da tela de e-mail+senha quando a credencial é inválida. Não é tela separada — a mensagem genérica 'E-mail ou senha incorretos.' aparece embaixo do campo, sem revelar se o e-mail existe. No hi-fi é alcançável: a senha 'errada' dispara o erro, e o deep-link ?error=1 já abre a tela nesse estado.",
     decisions: "Tentar novamente → volta ao formulário. Esqueci a senha → tela 'Esqueci a senha'. Magic link → tela de link enviado.",
   },
   {
@@ -436,18 +459,39 @@ const screens = [
     decisions: "Configurar agora → /organizacao-adicional (contrato + pagamento, sem perfil). Mais tarde → /inicio com banner persistente até configurar.",
   },
   {
+    step: "→ terminal",
+    title: "Sem acesso por este método",
+    href: "/awsales/login?screen=noAccessForMethod",
+    purpose: "Tela terminal quando nenhuma organização aceita o método usado pra entrar (ex.: login por senha numa org SSO-only). Por design NÃO lista as orgs existentes — só orienta a tentar o e-mail corporativo, o SSO ou falar com o admin.",
+    decisions: "Tentar com outro e-mail → volta ao login. Falar com o admin → contato.",
+  },
+  {
     step: "B1",
     title: "Esqueci a senha",
     href: "/awsales/login?screen=forgot",
-    purpose: "Usuário informa o e-mail cadastrado. Ao submeter, um código de 6 dígitos é enviado e a tela de verificação por e-mail abre — a MESMA do login. Ou seja, recuperar senha = entrar pelo código por e-mail, sem precisar passar pela tela de senha. Quem esqueceu a senha entra normalmente; redefinir senha em si é uma ação separada disponível depois.",
-    decisions: "Enviar → verificação por e-mail (compartilhada com login).",
+    purpose: "Usuário informa o e-mail. Ao submeter, a resposta é sempre neutra (não confirma se a conta existe) e a tela de confirmação de envio abre. A recuperação é por LINK: define-se a nova senha clicando no link recebido, não por código aqui.",
+    decisions: "Enviar → 'Link de redefinição enviado'.",
   },
   {
     step: "B2",
+    title: "Link de redefinição enviado",
+    href: "/awsales/login?screen=resetLinkSent",
+    purpose: "Confirmação de envio com resposta neutra: 'Se existir uma conta com este e-mail, enviamos um link de redefinição'. Mostra o endereço, expiração (30min) e reenvio com countdown. O usuário sai daqui clicando no link recebido no e-mail.",
+    decisions: "Clica no link no e-mail → 'Definir nova senha'. Usar outro e-mail → 'Esqueci a senha'. Voltar ao login → tela inicial.",
+  },
+  {
+    step: "B3",
     title: "Definir nova senha",
     href: "/awsales/login?screen=reset",
-    purpose: "Tela de redefinição com 2 campos (nova senha + confirmar) e validação de força: mínimo 10 caracteres, frase secreta permitida e bloqueio de senhas vazadas. Alcançada quando o usuário entra no 'Esqueci a senha' e valida o código — verify identifica o modo recuperação e direciona pra cá.",
-    decisions: "Salvar → tela de sucesso.",
+    purpose: "Redefinição com 2 campos (nova senha + confirmar) e validação: entre 10 e 64 caracteres (o teto é decisão de produto, não exigência da NIST), frase secreta permitida e bloqueio visual de senhas vazadas (blocklist). Alcançada pelo link de redefinição.",
+    decisions: "Salvar → 'Senha redefinida'.",
+  },
+  {
+    step: "B4",
+    title: "Senha redefinida",
+    href: "/awsales/login?screen=resetSuccess",
+    purpose: "Fim da redefinição, SEPARADO do sucesso de login: não faz auto-login nem vai pra /inicio. CTA único 'Ir para o login' — o usuário entra pelo fluxo normal (que pode ter org/SSO/2FA). No backend, salvar a nova senha encerra as sessões antigas.",
+    decisions: "Ir para o login → tela inicial.",
   },
 ]
 
@@ -457,6 +501,12 @@ const screens = [
  * ──────────────────────────────────────────────────────────────────── */
 
 const updates: FlowUpdate[] = [
+  {
+    date: "2026-06-10",
+    summary:
+      "Rework a partir da revisão de segurança do login. Recuperação virou reset por LINK: 'Esqueci a senha' → confirmação neutra ('Se existir uma conta…') → 'Definir nova senha' → 'Senha redefinida' (tela nova, SEM auto-login; antes caía no sucesso de login e ia pra /inicio). Erro de credencial agora é inline, genérico ('E-mail ou senha incorretos.') e alcançável no hi-fi (senha 'errada' ou ?error=1). Seletor de organização passou a filtrar por método de login, com tela terminal 'Sem acesso por este método' quando nenhuma org é compatível, e mostra a função do usuário no card. SSO deixou de pular o 2FA de forma global — só pula quando a org delega o MFA ao IdP. Magic link ganhou entrada na tela inicial e na de senha. Limite de senha 10–64 (teto como decisão de produto) + bloqueio visual de senha vazada. A verificação por e-mail virou exclusiva do login (a recuperação não passa mais por ela).",
+    tags: ["flow-rework", "new-page", "new-branch", "removed-page"],
+  },
   {
     date: "2026-06-03",
     summary:
@@ -598,27 +648,33 @@ export default function LoginAuthFlowPage() {
         <Section id="design-notes" title="Decisões de design" lead="Por que o fluxo está estruturado desse jeito.">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Login corporativo sem fricção</div>
+              <div className="aw-eyebrow mb-2">Login corporativo: provedor autentica, app decide o 2FA</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                Quem usa email corporativo de uma org com login corporativo obrigatório pula a tela de senha, a verificação por código e a verificação em duas etapas — a empresa já fez essa verificação no próprio login. O usuário vê apenas uma tela curta 'Te direcionando pro acesso da [Empresa]' antes de entrar direto. No mockup, 2 domínios disparam o login corporativo (awsales.com, fyntra.com.br).
+                Quem usa e-mail corporativo de uma org com login obrigatório pula a tela de senha e a verificação por código — a empresa já autenticou. Mas o 2FA do app só é pulado quando a organização delega o MFA ao IdP; sem delegação, o desafio acontece normalmente. SSO não é, por si só, um passe livre. No mockup, 2 domínios disparam o login corporativo (awsales.com, fyntra.com.br).
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Verificação por e-mail acontece sempre após senha</div>
+              <div className="aw-eyebrow mb-2">Verificação por e-mail é step-up, não 2FA forte</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                O código de 6 dígitos é forçado após e-mail+senha — não há gate 'MFA ativo?'. Só pulam quem já foi autenticado por outro meio: Google, Microsoft e magic link.
+                O código de 6 dígitos após e-mail+senha é uma verificação adicional de login, não um segundo fator forte (não é AAL2). Só pulam quem já foi autenticado por outro meio: Google, Microsoft e magic link. A recuperação de senha não passa mais por aqui — virou reset por link.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Magic link como alternativa à senha</div>
+              <div className="aw-eyebrow mb-2">Magic link nos dois pontos de entrada</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                O link clicado no e-mail entra direto, sem verificação adicional. Reduz fricção pra quem não quer digitar senha e cobre quem esqueceu a senha mas não quer passar pelo fluxo completo de redefinição.
+                O link de acesso aparece na tela inicial e na tela de senha, sempre reaproveitando o e-mail já digitado (sem 2ª tela de pedido). A confirmação é neutra (“Se este e-mail puder acessar, enviamos um link”) e o link clicado entra direto. Reduz fricção pra quem não quer digitar senha.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
-              <div className="aw-eyebrow mb-2">Recuperação reusa o código por e-mail do login</div>
+              <div className="aw-eyebrow mb-2">Recuperação por link, fim sem auto-login</div>
               <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-                "Esqueci a senha" abre a mesma tela de verificação por e-mail do login. A diferença é o contexto: a tela carrega em modo recuperação e, depois do código válido, direciona pra "Definir nova senha" em vez do seletor de organização. Uma tela só, dois destinos.
+                “Esqueci a senha” responde sempre de forma neutra e envia um link de redefinição. Ao definir a nova senha, o fluxo termina em “Senha redefinida” com CTA “Ir para o login” — não loga automaticamente nem vai pra /inicio. O usuário reentra pelo fluxo normal (org/SSO/2FA) e o backend encerra as sessões antigas (OWASP Forgot Password).
+              </p>
+            </div>
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
+              <div className="aw-eyebrow mb-2">Respostas uniformes contra enumeração</div>
+              <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
+                Recuperação, magic link e erro de credencial usam mensagens que não confirmam se um e-mail tem conta: “Se existir uma conta…”, “Se este e-mail puder acessar…” e o genérico “E-mail ou senha incorretos.” O seletor de organização também filtra por método e nunca lista orgs incompatíveis — quando não há nenhuma, a tela “Sem acesso por este método” orienta sem expor a relação org↔usuário.
               </p>
             </div>
             <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
