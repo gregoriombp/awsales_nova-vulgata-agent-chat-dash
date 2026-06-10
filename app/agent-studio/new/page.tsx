@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
@@ -280,7 +280,17 @@ function loadBasesFromStorage(): KnowledgeBase[] {
   }
 }
 
+// useSearchParams exige um boundary de Suspense no prerender (next build) —
+// mesmo padrão de /tools/new e /canais/whatsapp.
 export default function AgentStudioNewPage() {
+  return (
+    <Suspense fallback={null}>
+      <AgentStudioNewContent />
+    </Suspense>
+  );
+}
+
+function AgentStudioNewContent() {
   const router = useRouter();
   // A URL é a fonte de verdade do passo (?step=N). O wizard inteiro vive em
   // /agent-studio/new, mas cada etapa vira um endereço próprio — deep-link
