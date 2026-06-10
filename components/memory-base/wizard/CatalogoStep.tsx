@@ -34,6 +34,31 @@ const COLUNAS = [
 
 const VARIAVEIS = ["preço (coluna D)", "estoque (coluna F)", "link_produto (coluna H)"];
 
+/** Gera e baixa o modelo CSV com o cabeçalho das colunas + uma linha de exemplo. */
+function downloadCsvTemplate() {
+  const header = COLUNAS.map((c) => c.col).join(";");
+  const exemplo = [
+    "SKU-0001",
+    "Camiseta básica algodão",
+    "UN",
+    "1",
+    "Vestuário",
+    "10",
+    "https://exemplo.com/imagens/sku-0001.jpg",
+    "camiseta;básico;algodão",
+  ].join(";");
+  // ﻿ (BOM) faz o Excel abrir o arquivo como UTF-8 sem quebrar acentos.
+  const blob = new Blob(["\uFEFF" + header + "\n" + exemplo + "\n"], {
+    type: "text/csv;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "modelo-catalogo.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 const EXISTENTES = Array.from({ length: 4 }, (_, i) => ({
   id: `cat-${i}`,
   name: "Fyntra catalog",
@@ -357,7 +382,7 @@ export function CatalogoStep({
         title="Instruções para arquivo CSV"
         zIndex={1100}
         footer={
-          <AwButton variant="secondary" block iconLeft="download">
+          <AwButton variant="secondary" block iconLeft="download" onClick={downloadCsvTemplate}>
             Baixar modelo CSV
           </AwButton>
         }

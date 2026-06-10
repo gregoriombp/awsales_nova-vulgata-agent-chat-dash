@@ -10,7 +10,9 @@ import { AwToggle } from "@/components/ui/AwToggle";
 import { AwDropzone } from "@/components/ui/AwDropzone";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { Icon } from "@/components/ui/Icon";
+import { useToast } from "@/components/ui/AwToast";
 import { getKnowledgeLayer } from "@/components/memory-base/knowledgeLayers";
+import { MOCK_KNOWLEDGE_BASES } from "@/components/memory-base/knowledgeBases";
 
 /**
  * Edição de Knowledge Layer (Tela 10 · seção "Editar Knowledge Layer" do flow do
@@ -22,8 +24,11 @@ import { getKnowledgeLayer } from "@/components/memory-base/knowledgeLayers";
 function getBaseName(id: string): string {
   if (typeof window === "undefined" || !id) return "Base de conhecimento";
   try {
-    const saved = window.localStorage.getItem(`memory-base-name-${id}`);
-    return saved || "Base de conhecimento";
+    return (
+      window.localStorage.getItem(`memory-base-name-${id}`) ||
+      MOCK_KNOWLEDGE_BASES.find((b) => b.id === id)?.name ||
+      "Base de conhecimento"
+    );
   } catch {
     return "Base de conhecimento";
   }
@@ -31,6 +36,7 @@ function getBaseName(id: string): string {
 
 export default function EditKnowledgeLayerPage() {
   const params = useParams<{ id: string; layerId: string }>();
+  const { push } = useToast();
   const baseId = typeof params?.id === "string" ? params.id : "";
   const layerId = typeof params?.layerId === "string" ? params.layerId : "";
 
@@ -80,7 +86,20 @@ export default function EditKnowledgeLayerPage() {
               <Icon name="layers" size={26} /> Edição de Knowledge Layer
             </h1>
           </div>
-          <AwButton variant="primary" className="w-auto" disabled={!dirty} iconLeft="check">
+          <AwButton
+            variant="primary"
+            className="w-auto"
+            disabled={!dirty}
+            iconLeft="check"
+            onClick={() => {
+              setDirty(false);
+              push({
+                variant: "success",
+                title: "Knowledge Layer atualizado",
+                description: "As alterações já valem para os agentes que usam esta base.",
+              });
+            }}
+          >
             Salvar alterações
           </AwButton>
         </div>

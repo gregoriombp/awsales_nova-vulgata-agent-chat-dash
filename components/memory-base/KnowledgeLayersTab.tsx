@@ -30,6 +30,8 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
   const [menuId, setMenuId] = React.useState<string | null>(null);
   const [detail, setDetail] = React.useState<KnowledgeLayer | null>(null);
   const [rows, setRows] = React.useState<KnowledgeLayer[]>(KNOWLEDGE_LAYERS);
+  // Layers inativadas em sessão (mock sem backend — o tipo não tem status).
+  const [inactiveIds, setInactiveIds] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     if (!menuId) return;
@@ -41,6 +43,31 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
   const filtered = rows.filter((r) =>
     r.title.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const duplicateLayer = (id: string) => {
+    setRows((list) => {
+      const idx = list.findIndex((x) => x.id === id);
+      if (idx === -1) return list;
+      const src = list[idx];
+      const copy: KnowledgeLayer = {
+        ...src,
+        id: `${src.id}-copia-${Date.now().toString(36)}`,
+        title: `${src.title} (cópia)`,
+      };
+      return [...list.slice(0, idx + 1), copy, ...list.slice(idx + 1)];
+    });
+    setMenuId(null);
+  };
+
+  const toggleActive = (id: string) => {
+    setInactiveIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setMenuId(null);
+  };
 
   return (
     <div>
@@ -82,7 +109,11 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
                   <p className="truncate text-sm font-medium">{r.title}</p>
                   <p className="truncate text-[11px] text-(--fg-tertiary)">{r.desc}</p>
                 </div>
-                <AwPill variant="live">Ativo</AwPill>
+                <span>
+                  <AwPill variant={inactiveIds.has(r.id) ? "neutral" : "live"}>
+                    {inactiveIds.has(r.id) ? "Inativo" : "Ativo"}
+                  </AwPill>
+                </span>
                 <span className="inline-flex items-center gap-1.5 truncate text-xs text-(--fg-secondary)">
                   <Icon name="picture_as_pdf" size={14} /> {r.fonte}
                 </span>
@@ -97,9 +128,12 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
                 <RowMenu
                   baseId={baseId}
                   layerId={r.id}
+                  inactive={inactiveIds.has(r.id)}
                   open={menuId === r.id}
                   onToggle={() => setMenuId(menuId === r.id ? null : r.id)}
                   onView={() => { setDetail(r); setMenuId(null); }}
+                  onDuplicate={() => duplicateLayer(r.id)}
+                  onToggleActive={() => toggleActive(r.id)}
                   onDelete={() => { setRows((l) => l.filter((x) => x.id !== r.id)); setMenuId(null); }}
                 />
               </div>
@@ -150,11 +184,11 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
         footer={
           detail && (
             <div className="flex items-center justify-end">
-              <Link href={`/memory-base/${baseId}/layers/${detail.id}`} className="no-underline">
-                <AwButton variant="primary" className="w-auto" iconLeft="edit">
+              <AwButton asChild variant="primary" className="w-auto" iconLeft="edit">
+                <Link href={`/memory-base/${baseId}/layers/${detail.id}`} className="no-underline">
                   Editar
-                </AwButton>
-              </Link>
+                </Link>
+              </AwButton>
             </div>
           )
         }
@@ -174,7 +208,9 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
             <div className="grid grid-cols-3 gap-3 border-t border-(--border-subtle) pt-3 text-xs">
               <div>
                 <p className="text-(--fg-tertiary)">Status</p>
-                <AwPill variant="live">Ativo</AwPill>
+                <AwPill variant={inactiveIds.has(detail.id) ? "neutral" : "live"}>
+                  {inactiveIds.has(detail.id) ? "Inativo" : "Ativo"}
+                </AwPill>
               </div>
               <div>
                 <p className="text-(--fg-tertiary)">Qualidade</p>
@@ -237,16 +273,22 @@ function ViewToggle({ active, onClick, icon, label }: { active: boolean; onClick
 function RowMenu({
   baseId,
   layerId,
+  inactive,
   open,
   onToggle,
   onView,
+  onDuplicate,
+  onToggleActive,
   onDelete,
 }: {
   baseId: string;
   layerId: string;
+  inactive: boolean;
   open: boolean;
   onToggle: () => void;
   onView: () => void;
+  onDuplicate: () => void;
+  onToggleActive: () => void;
   onDelete: () => void;
 }) {
   return (
@@ -272,11 +314,11 @@ function RowMenu({
               <Icon name="edit" size={16} /> Editar
             </span>
           </Link>
-          <button type="button" className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-(--fg-primary) hover:bg-(--bg-hover)">
+          <button type="button" onClick={onDuplicate} className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-(--fg-primary) hover:bg-(--bg-hover)">
             <Icon name="content_copy" size={16} /> Duplicar
           </button>
-          <button type="button" className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-(--fg-primary) hover:bg-(--bg-hover)">
-            <Icon name="block" size={16} /> Inativar
+          <button type="button" onClick={onToggleActive} className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-(--fg-primary) hover:bg-(--bg-hover)">
+            <Icon name={inactive ? "play_circle" : "block"} size={16} /> {inactive ? "Reativar" : "Inativar"}
           </button>
           <button type="button" onClick={onDelete} className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm text-(--accent-danger) hover:bg-(--bg-hover)">
             <Icon name="delete" size={16} /> Excluir
