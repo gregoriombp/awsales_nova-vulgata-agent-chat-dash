@@ -67,7 +67,7 @@ export function BaseConhecimentoTab({ data }: { data: AgentEditorData }) {
           <div className="flex items-start justify-between gap-6">
             <div className="min-w-0">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-(--dark-border) bg-(--dark-bg-raised) text-(--fg-on-inverse)">
-                <Icon name="grid_on" size={20} />
+                <Icon name="account_balance" size={20} />
               </span>
 
               <div className="mt-4 flex items-center gap-3">
