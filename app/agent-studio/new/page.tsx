@@ -338,6 +338,9 @@ export default function AgentStudioNewPage() {
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const [selectedNumber, setSelectedNumber] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  // Escolher o número já traz a primeira mensagem padrão — a lista completa
+  // de templates só abre quando o usuário clica em "Alterar".
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
 
   // Step 5 (Origens e Conversões) — opcional. A etapa gerencia o próprio estado;
   // só reportamos pro wizard se há ao menos uma config concluída (habilita Avançar).
@@ -500,7 +503,7 @@ export default function AgentStudioNewPage() {
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep === 3 || currentStep === 4 ? "max-w-[1040px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
+        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 2 && currentStep <= 4 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
           {/* Step 1: Goal Selection */}
@@ -965,16 +968,24 @@ export default function AgentStudioNewPage() {
                             soon
                               ? "cursor-not-allowed border-border bg-white opacity-60"
                               : sel
-                                ? "border-fg-primary bg-bg-raised"
+                                ? "border-(--bg-inverse) bg-(--bg-inverse)"
                                 : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
                           }`}
                         >
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-bg-muted">
+                          <div
+                            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
+                              sel ? "bg-white/10" : "bg-bg-muted"
+                            }`}
+                          >
                             <AwChannelIcon channel={c.icon} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2">
-                              <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
+                              <h4
+                                className={`truncate font-heading text-sm font-medium ${
+                                  sel ? "text-(--fg-on-inverse)" : "text-fg-primary"
+                                }`}
+                              >
                                 {c.name}
                               </h4>
                               {soon ? (
@@ -982,20 +993,32 @@ export default function AgentStudioNewPage() {
                                   Em breve
                                 </span>
                               ) : (
-                                <span className="inline-flex shrink-0 items-center gap-1 text-xs text-aw-emerald-700">
+                                <span
+                                  className={`inline-flex shrink-0 items-center gap-1 text-xs ${
+                                    sel ? "text-aw-emerald-400" : "text-aw-emerald-700"
+                                  }`}
+                                >
                                   <span className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500" />
                                   Ativo
                                 </span>
                               )}
                             </div>
-                            <p className="truncate text-xs text-fg-tertiary">
+                            <p
+                              className={`truncate text-xs ${
+                                sel
+                                  ? "text-(--fg-on-inverse) opacity-70"
+                                  : "text-fg-tertiary"
+                              }`}
+                            >
                               {c.description}
                             </p>
                           </div>
                           {!soon && (
                             <span
                               className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                                sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                                sel
+                                  ? "border-white bg-white text-(--bg-inverse)"
+                                  : "border-aw-gray-400"
                               }`}
                             >
                               {sel && <Icon name="check" size={12} />}
@@ -1044,7 +1067,19 @@ export default function AgentStudioNewPage() {
                             <button
                               key={n.id}
                               type="button"
-                              onClick={() => setSelectedNumber(n.id)}
+                              onClick={() => {
+                                setSelectedNumber(n.id);
+                                // Primeira mensagem padrão entra na hora; o
+                                // usuário só abre o picker se quiser alterar.
+                                setTemplatePickerOpen(false);
+                                if (!selectedTemplate) {
+                                  setSelectedTemplate(
+                                    WHATS_TEMPLATES.find(
+                                      (t) => t.status === "aprovado",
+                                    )?.id ?? null,
+                                  );
+                                }
+                              }}
                               className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
                                 sel
                                   ? "border-fg-primary bg-bg-raised"
@@ -1085,18 +1120,42 @@ export default function AgentStudioNewPage() {
                         })}
                       </div>
 
-                      {/* Primeira mensagem — aparece após escolher o número */}
+                      {/* Primeira mensagem — escolher o número já traz o
+                          template padrão; "Alterar" abre as outras opções */}
                       {selectedNumber && (
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-medium text-fg-primary">
-                            Primeira mensagem
-                          </label>
+                          <div className="flex items-center justify-between gap-3">
+                            <label className="text-sm font-medium text-fg-primary">
+                              Primeira mensagem
+                            </label>
+                            {!templatePickerOpen && (
+                              <AwButton
+                                variant="ghost"
+                                size="sm"
+                                iconLeft="swap_horiz"
+                                onClick={() => setTemplatePickerOpen(true)}
+                              >
+                                Alterar
+                              </AwButton>
+                            )}
+                          </div>
                           <p className="-mt-1 text-xs text-fg-tertiary">
-                            Template aprovado que abre a conversa. As variáveis{" "}
-                            <code className="font-mono text-[11px]">{"{{1}}"}</code>{" "}
-                            entram na hora do disparo.
+                            {templatePickerOpen
+                              ? "Escolha o template aprovado que abre a conversa."
+                              : "Template aprovado que abre a conversa. As variáveis "}
+                            {!templatePickerOpen && (
+                              <code className="font-mono text-[11px]">
+                                {"{{1}}"}
+                              </code>
+                            )}
+                            {!templatePickerOpen && " entram na hora do disparo."}
                           </p>
-                          {WHATS_TEMPLATES.map((t) => {
+                          {(templatePickerOpen
+                            ? WHATS_TEMPLATES
+                            : WHATS_TEMPLATES.filter(
+                                (t) => t.id === selectedTemplate,
+                              )
+                          ).map((t) => {
                             const sel = selectedTemplate === t.id;
                             const pending = t.status === "pendente";
                             return (
@@ -1104,7 +1163,14 @@ export default function AgentStudioNewPage() {
                                 key={t.id}
                                 type="button"
                                 disabled={pending}
-                                onClick={() => setSelectedTemplate(t.id)}
+                                onClick={() => {
+                                  if (templatePickerOpen) {
+                                    setSelectedTemplate(t.id);
+                                    setTemplatePickerOpen(false);
+                                  } else {
+                                    setTemplatePickerOpen(true);
+                                  }
+                                }}
                                 className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
                                   pending
                                     ? "cursor-not-allowed border-border bg-white opacity-60"

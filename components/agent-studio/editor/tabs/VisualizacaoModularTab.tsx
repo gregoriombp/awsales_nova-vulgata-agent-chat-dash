@@ -11,6 +11,7 @@ import {
   Panel,
   Position,
   ReactFlow,
+  useNodesState,
   type Edge,
   type Node,
   type NodeProps,
@@ -25,17 +26,14 @@ import {
 import type { AgentEditorData, Checkpoint } from "@/lib/agentStudio";
 
 /**
- * Visualização modular — o guia de execução do agente como diagrama
- * read-only. Cada checkpoint vira um nó; as arestas seguem a ordem
- * 1→2→…→N entre o início da conversa e a conversão registrada.
+ * Visualização modular — o fluxo confirmado no editor de checkpoints como
+ * diagrama. Cada checkpoint vira um card arrastável; as arestas seguem a
+ * ordem 1→2→…→N entre o início da conversa e a conversão registrada.
  *
- * Os checkpoints chegam por props do estado da página — qualquer edição
- * feita na seção Prompt e Checkpoint (título, objetivo, habilidades @)
- * aparece aqui ao trocar de seção. As habilidades de cada nó são derivadas
- * das menções @ presentes no texto do checkpoint.
- *
- * Clicar em um checkpoint abre o painel de detalhes com o atalho para
- * editar a etapa na seção Prompt e Checkpoint.
+ * Os checkpoints chegam por props do estado da página — o que for salvo no
+ * editor de documento aparece aqui. As habilidades de cada nó são derivadas
+ * das menções @ presentes no texto. Há modo tela cheia para trabalhar o
+ * fluxo com mais espaço; a edição do conteúdo vive no documento.
  */
 
 /* ─── Layout ───────────────────────────────────────────────────────────── */
@@ -141,6 +139,17 @@ export function VisualizacaoModularTab({
   checkpoints: Checkpoint[];
 }) {
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [fullscreen, setFullscreen] = React.useState(false);
+
+  // Esc sai da tela cheia.
+  React.useEffect(() => {
+    if (!fullscreen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFullscreen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [fullscreen]);
 
   /** Nomes das habilidades derivadas das menções @ de cada checkpoint. */
   const habilidadesPorCheckpoint = React.useMemo(() => {
@@ -157,7 +166,7 @@ export function VisualizacaoModularTab({
     return map;
   }, [checkpoints, data.habilidadesConfiguradas]);
 
-  const { nodes, edges } = React.useMemo(() => {
+  const { nodes: computedNodes, edges } = React.useMemo(() => {
     const cps = checkpoints;
 
     const nodes: Node[] = [
@@ -213,38 +222,75 @@ export function VisualizacaoModularTab({
     return { nodes, edges };
   }, [checkpoints, habilidadesPorCheckpoint]);
 
+  /* Nós em estado próprio — os cards são arrastáveis e a posição persiste
+   * enquanto a tab está aberta; mudanças nos checkpoints recalculam o layout. */
+  const [nodes, setNodes, onNodesChange] = useNodesState(computedNodes);
+  React.useEffect(() => {
+    setNodes(computedNodes);
+  }, [computedNodes, setNodes]);
+
   const selected = checkpoints.find((cp) => cp.id === selectedId) ?? null;
   const selectedHabilidades = selected
     ? (habilidadesPorCheckpoint.get(selected.id) ?? [])
     : [];
 
   return (
-    <div className="overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
+    <div
+      className={
+        fullscreen
+          ? "fixed inset-0 z-50 flex flex-col bg-(--bg-surface)"
+          : "overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)"
+      }
+    >
       <div className="flex items-center justify-between gap-4 border-b border-(--border-subtle) px-6 py-4">
         <div>
           <h2 className="font-heading text-base font-medium text-(--fg-primary)">
             Fluxo de checkpoints
           </h2>
           <p className="mt-0.5 text-xs text-(--fg-tertiary)">
-            Visualização somente leitura. Selecione um checkpoint para ver os
-            detalhes da etapa.
+            Arraste os cards para organizar o fluxo. O conteúdo das etapas é
+            editado no documento de checkpoints.
           </p>
         </div>
-        <span className="shrink-0 text-xs text-(--fg-tertiary)">
-          {checkpoints.length} checkpoints
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-xs text-(--fg-tertiary)">
+            {checkpoints.length} checkpoints
+          </span>
+          <AwButton
+            asChild
+            variant="secondary"
+            size="sm"
+            iconLeft="edit_note"
+          >
+            <Link href={`/agent-studio/${data.agent.id}/checkpoints`}>
+              Editar checkpoints
+            </Link>
+          </AwButton>
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconOnly={fullscreen ? "close_fullscreen" : "open_in_full"}
+            aria-label={
+              fullscreen ? "Sair da tela cheia" : "Abrir em tela cheia"
+            }
+            onClick={() => setFullscreen((v) => !v)}
+          />
+        </div>
       </div>
 
-      <div className="h-[640px] w-full bg-(--bg-canvas)">
+      <div
+        className={`w-full bg-(--bg-canvas) ${fullscreen ? "flex-1" : "h-[640px]"}`}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
+          onNodesChange={onNodesChange}
           fitView
           fitViewOptions={{ padding: 0.15 }}
           minZoom={0.4}
           maxZoom={1.5}
-          nodesDraggable={false}
+          nodesDraggable
           nodesConnectable={false}
           edgesFocusable={false}
           proOptions={{ hideAttribution: true }}
@@ -283,22 +329,34 @@ export function VisualizacaoModularTab({
 
                 <dl className="mt-3 space-y-1.5 border-t border-(--border-subtle) pt-3 text-xs">
                   <div className="flex items-center justify-between gap-3">
-                    <dt className="text-(--fg-tertiary)">Orientações</dt>
+                    <dt className="text-(--fg-tertiary)">Instruções</dt>
                     <dd className="font-medium text-(--fg-primary)">
-                      {selected.itens.length}
+                      {selected.corpo.split("\n").filter(Boolean).length}{" "}
+                      {selected.corpo.split("\n").filter(Boolean).length === 1
+                        ? "linha"
+                        : "linhas"}
                     </dd>
                   </div>
+                  {selected.regras && selected.regras.length > 0 && (
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-(--fg-tertiary)">Regras</dt>
+                      <dd className="font-medium text-(--fg-primary)">
+                        {selected.regras.length}
+                      </dd>
+                    </div>
+                  )}
                   {selected.marque && (
                     <div className="flex items-center justify-between gap-3">
                       <dt className="text-(--fg-tertiary)">Classificação</dt>
                       <dd className="truncate font-medium text-(--fg-primary)">
-                        Marque {selected.marque.rotulo}
+                        {selected.marque.verbo ?? "Marque"}{" "}
+                        {selected.marque.rotulo}
                       </dd>
                     </div>
                   )}
                   {selectedHabilidades.length > 0 && (
                     <div className="flex items-center justify-between gap-3">
-                      <dt className="text-(--fg-tertiary)">Habilidades</dt>
+                      <dt className="text-(--fg-tertiary)">Tools</dt>
                       <dd className="truncate font-medium text-(--fg-primary)">
                         {selectedHabilidades.join(", ")}
                       </dd>
@@ -311,13 +369,13 @@ export function VisualizacaoModularTab({
                   variant="secondary"
                   size="sm"
                   block
-                  iconLeft="edit"
+                  iconLeft="edit_note"
                   className="mt-4"
                 >
                   <Link
-                    href={`/agent-studio/${data.agent.id}?tab=prompt-checkpoint`}
+                    href={`/agent-studio/${data.agent.id}/checkpoints#cp-${selected.id}`}
                   >
-                    Editar no Prompt e Checkpoint
+                    Editar no documento
                   </Link>
                 </AwButton>
               </div>

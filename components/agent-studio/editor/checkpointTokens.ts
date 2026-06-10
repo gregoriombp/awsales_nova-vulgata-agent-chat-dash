@@ -4,23 +4,27 @@ import type { Checkpoint, HabilidadeConfigurada } from "@/lib/agentStudio";
  * Tokens inline do corpo do checkpoint (e do prompt do agente).
  *
  * Serialização canônica (a que vive no `Checkpoint`):
- *   - `@[id]`     → menção a uma habilidade configurada (id estável)
- *   - `{{nome}}`  → variável do agente
+ *   - `@[id]`      → menção a uma habilidade do catálogo (id namespaced,
+ *                    ex.: `agent.thinkOutLoud`)
+ *   - `{{nome}}`   → variável do agente
+ *   - `**texto**`  → negrito · `*texto*` → itálico
  *
  * Estes helpers são puros (sem DOM) — o editor contentEditable e os renders
- * read-only em PromptCheckpointTab/VisualizacaoModularTab consomem daqui.
+ * read-only consomem daqui.
  */
 
 export type TokenSegment =
   | { type: "text"; content: string }
+  | { type: "bold"; content: string }
+  | { type: "italic"; content: string }
   | { type: "mention"; id: string }
   | { type: "variable"; name: string };
 
 function tokenRegex() {
-  return /@\[([\w-]+)\]|\{\{([^{}]+)\}\}/g;
+  return /@\[([\w.-]+)\]|\{\{([^{}]+)\}\}|\*\*([^*\n]+)\*\*|\*([^*\n]+)\*/g;
 }
 
-/** Quebra o texto serializado em segmentos de texto + tokens. */
+/** Quebra o texto serializado em segmentos de texto, formatação e tokens. */
 export function parseTokenSegments(text: string): TokenSegment[] {
   const segments: TokenSegment[] = [];
   const re = tokenRegex();
@@ -31,7 +35,9 @@ export function parseTokenSegments(text: string): TokenSegment[] {
       segments.push({ type: "text", content: text.slice(lastIndex, m.index) });
     }
     if (m[1]) segments.push({ type: "mention", id: m[1] });
-    else segments.push({ type: "variable", name: m[2].trim() });
+    else if (m[2]) segments.push({ type: "variable", name: m[2].trim() });
+    else if (m[3]) segments.push({ type: "bold", content: m[3] });
+    else segments.push({ type: "italic", content: m[4] });
     lastIndex = re.lastIndex;
   }
   if (lastIndex < text.length) {
@@ -67,14 +73,19 @@ export function deriveHabilidades(
         id,
         nome: id,
         descricao: "Habilidade não configurada neste agente.",
-        grupo: "nativo" as const,
+        grupo: "agente",
       },
   );
 }
 
 /** Textos de um checkpoint que participam da derivação de habilidades. */
 export function checkpointTexts(cp: Checkpoint): string[] {
-  return [cp.objetivo, ...cp.itens];
+  return [
+    cp.objetivo,
+    cp.corpo,
+    ...(cp.marque?.opcoes.flatMap((o) => [o.texto, o.acoes ?? ""]) ?? []),
+    ...(cp.regras?.flatMap((r) => [r.se, r.entao]) ?? []),
+  ];
 }
 
 /** Remove as chaves de exibição de `{{nome}}` → `nome`. */
