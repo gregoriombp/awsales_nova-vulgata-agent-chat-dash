@@ -32,6 +32,7 @@ import {
   ROLE_DEFINITIONS,
   ROLE_OPTIONS,
   SCOPES,
+  SUPPORT_CONTACTS,
   type Invitation,
   type Member,
   type Role,
@@ -293,7 +294,7 @@ function MembersTableState({
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
 }) {
-  const [contactOpen, setContactOpen] = useState(false);
+  const [contactTarget, setContactTarget] = useState<string | null>(null);
   const openCopilot = useCopilotDrawer((s) => s.setOpen);
   const managers = members.filter((m) => m.role === MANAGER_ROLE);
   const others = members.filter((m) => m.role !== MANAGER_ROLE);
@@ -325,15 +326,26 @@ function MembersTableState({
           <AwSpecialistsPair
             title="Especialistas dedicados à sua conta"
             description="O time humano e o agente de IA que acompanham sua operação dia a dia — fale com eles pra tirar dúvidas, abrir solicitações ou pedir ajustes."
-            human={{
-              name: manager.name,
-              role: "Gerente de contas",
-              avatarSrc: manager.avatar,
-              initials: manager.initials,
-              ctaLabel: "Conversar",
-              ctaIcon: "chat_bubble",
-              onCtaClick: () => setContactOpen(true),
-            }}
+            humans={[
+              {
+                name: manager.name,
+                role: "Gerente de contas",
+                avatarSrc: manager.avatar,
+                initials: manager.initials,
+                ctaLabel: "Conversar",
+                ctaIcon: "chat_bubble",
+                onCtaClick: () => setContactTarget(manager.name),
+              },
+              ...SUPPORT_CONTACTS.map((contact) => ({
+                name: contact.name,
+                role: contact.role,
+                avatarSrc: contact.avatar,
+                initials: contact.initials,
+                ctaLabel: "Conversar",
+                ctaIcon: "chat_bubble",
+                onCtaClick: () => setContactTarget(contact.name),
+              })),
+            ]}
             ai={{ ...CORTEX, onCtaClick: () => openCopilot(true) }}
           />
         )}
@@ -352,9 +364,9 @@ function MembersTableState({
         />
       </div>
       <AwContactChannelModal
-        open={contactOpen}
-        onClose={() => setContactOpen(false)}
-        managerName={manager?.name}
+        open={contactTarget !== null}
+        onClose={() => setContactTarget(null)}
+        managerName={contactTarget ?? undefined}
       />
     </>
   );
@@ -681,7 +693,21 @@ function MemberDetail({
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-2 gap-4 border-b border-(--border-subtle) px-6 py-5">
           <DetailStat label="Função" value={member.role} />
+          <DetailStat label="Cargo" value={member.cargo} />
+          <DetailStat label="E-mail" value={member.email} />
+          <DetailStat label="Telefone" value={member.phone} />
           <DetailStat label="Último acesso" value={member.lastActive} />
+          <div className="min-w-0">
+            <p className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
+              Autenticação MFA
+            </p>
+            <AwPill
+              variant={member.mfaEnabled ? "live" : "warning"}
+              dot={false}
+            >
+              {member.mfaEnabled ? "Ativa" : "Não configurada"}
+            </AwPill>
+          </div>
         </div>
 
         <DetailSection title="Permissões por escopo">
@@ -707,26 +733,29 @@ function MemberDetail({
               Sem eventos registrados para este membro.
             </p>
           ) : (
-            <ul className="flex flex-col gap-2">
+            <ol className="m-0 flex list-none flex-col p-0">
               {member.activity.map((entry, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
-                >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-(--bg-muted) text-(--fg-secondary)">
+                <li key={i} className="relative flex gap-3 pb-5 last:pb-0">
+                  {i < member.activity.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-0 left-[13px] top-8 w-px bg-(--border-subtle)"
+                    />
+                  )}
+                  <span className="z-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
                     <Icon name={inferActivityIcon(entry.description)} size={14} />
                   </span>
-                  <span className="min-w-0 flex-1">
+                  <span className="min-w-0 flex-1 pt-0.5">
                     <span className="block body-xs text-(--fg-primary)">
                       {entry.description}
                     </span>
-                    <span className="block aw-eyebrow text-(--fg-tertiary)">
+                    <span className="mt-0.5 block aw-eyebrow text-(--fg-tertiary)">
                       {entry.time}
                     </span>
                   </span>
                 </li>
               ))}
-            </ul>
+            </ol>
           )}
         </DetailSection>
       </div>

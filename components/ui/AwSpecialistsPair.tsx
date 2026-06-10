@@ -29,7 +29,10 @@ export type AwSpecialistRole = {
 export type AwSpecialistsPairProps = {
   title?: string
   description?: string
-  human: AwSpecialistRole
+  /** Um único especialista humano (uso clássico, par humano + IA). */
+  human?: AwSpecialistRole
+  /** Vários especialistas humanos — quando presente, supersede `human`. */
+  humans?: AwSpecialistRole[]
   ai: AwSpecialistRole
   className?: string
 }
@@ -38,9 +41,11 @@ export function AwSpecialistsPair({
   title,
   description,
   human,
+  humans,
   ai,
   className,
 }: AwSpecialistsPairProps) {
+  const humanList = humans ?? (human ? [human] : [])
   return (
     <section className={cn("flex flex-col gap-4", className)}>
       {(title || description) && (
@@ -59,7 +64,9 @@ export function AwSpecialistsPair({
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <SpecialistCard data={human} kind="human" />
+        {humanList.map((person) => (
+          <SpecialistCard key={person.name} data={person} kind="human" />
+        ))}
         <SpecialistCard data={ai} kind="ai" />
       </div>
     </section>

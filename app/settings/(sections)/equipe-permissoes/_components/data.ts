@@ -418,6 +418,11 @@ export type Member = {
   name: string;
   email: string;
   role: Role;
+  /** Cargo na empresa — distinto da função de acesso (role). */
+  cargo: string;
+  phone: string;
+  /** Autenticação em 2 fatores ativa na conta do membro. */
+  mfaEnabled: boolean;
   initials: string;
   avatar?: string;
   isYou?: boolean;
@@ -693,6 +698,34 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
  * Members
  * ----------------------------------------------------------------- */
 
+/** Pessoas da Aswork dedicadas a esta conta — aparecem na seção de
+ *  especialistas junto com o Cortex. O gerente de contas vem de MEMBERS
+ *  (role "Gerente da conta"); estes são os demais canais humanos. */
+export type SupportContact = {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  initials: string;
+};
+
+export const SUPPORT_CONTACTS: SupportContact[] = [
+  {
+    id: "ai-analyst",
+    name: "Marina Lopes",
+    role: "AI Analyst",
+    avatar: "/assets/ui-faces/female-9.jpg",
+    initials: "ML",
+  },
+  {
+    id: "cx",
+    name: "Rafael Duarte",
+    role: "Customer Experience",
+    avatar: "/assets/ui-faces/male-8.jpg",
+    initials: "RD",
+  },
+];
+
 export const MEMBERS: Member[] = [
   {
     id: "u-greg",
@@ -707,6 +740,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "agora mesmo",
     joinedAt: "12/01/2026",
+    cargo: "CEO",
+    phone: "+55 11 99876-1001",
+    mfaEnabled: true,
     permissions: ADMINISTRADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
@@ -727,6 +763,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 12 minutos",
     joinedAt: "11/04/2023",
+    cargo: "Gerente de Contas",
+    phone: "+55 11 99876-1002",
+    mfaEnabled: true,
     permissions: GERENTE_DA_CONTA_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -745,6 +784,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 1 hora",
     joinedAt: "31/08/2022",
+    cargo: "Coordenadora de Operações",
+    phone: "+55 11 99876-1003",
+    mfaEnabled: true,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -763,6 +805,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "07/02/2024",
+    cargo: "Analista de CRM",
+    phone: "+55 11 99876-1004",
+    mfaEnabled: true,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -781,6 +826,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 5 horas",
     joinedAt: "22/11/2023",
+    cargo: "Analista de Marketing",
+    phone: "+55 11 99876-1005",
+    mfaEnabled: false,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp", "checkout"],
     activity: [
@@ -800,6 +848,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 14 minutos",
     joinedAt: "14/01/2023",
+    cargo: "Coordenadora de CS",
+    phone: "+55 11 99876-1006",
+    mfaEnabled: true,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -819,6 +870,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 3 horas",
     joinedAt: "19/08/2022",
+    cargo: "Supervisor de Vendas",
+    phone: "+55 11 99876-1007",
+    mfaEnabled: false,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -838,6 +892,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 25 minutos",
     joinedAt: "08/05/2022",
+    cargo: "Engenheiro de Prompt",
+    phone: "+55 11 99876-1008",
+    mfaEnabled: true,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -856,6 +913,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 50 minutos",
     joinedAt: "16/09/2022",
+    cargo: "Analista de Campanhas",
+    phone: "+55 11 99876-1009",
+    mfaEnabled: true,
     permissions: ANALISTA_SENIOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -875,6 +935,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 30 minutos",
     joinedAt: "04/06/2023",
+    cargo: "Analista de Automação",
+    phone: "+55 11 99876-1010",
+    mfaEnabled: false,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -893,6 +956,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 4 horas",
     joinedAt: "13/10/2023",
+    cargo: "Analista de Pré-venda",
+    phone: "+55 11 99876-1011",
+    mfaEnabled: false,
     permissions: ANALISTA_PLENO_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -911,6 +977,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 1 dia",
     joinedAt: "02/02/2024",
+    cargo: "Consultora externa",
+    phone: "+55 21 98765-2201",
+    mfaEnabled: false,
     permissions: COLABORADOR_EXTERNO_PERMISSIONS,
     integrations: [],
     activity: [
@@ -929,6 +998,9 @@ export const MEMBERS: Member[] = [
     status: "invited",
     lastActive: "—",
     joinedAt: "09/03/2024",
+    cargo: "Atendente",
+    phone: "+55 11 99876-1012",
+    mfaEnabled: false,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [
@@ -947,6 +1019,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 8 minutos",
     joinedAt: "27/07/2023",
+    cargo: "Atendente",
+    phone: "+55 11 99876-1013",
+    mfaEnabled: true,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -965,6 +1040,9 @@ export const MEMBERS: Member[] = [
     status: "active",
     lastActive: "há 2 horas",
     joinedAt: "15/12/2023",
+    cargo: "Atendente",
+    phone: "+55 11 99876-1014",
+    mfaEnabled: false,
     permissions: OPERADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [
@@ -983,6 +1061,9 @@ export const MEMBERS: Member[] = [
     status: "inactive",
     lastActive: "há 3 meses",
     joinedAt: "31/10/2021",
+    cargo: "Atendente",
+    phone: "+55 11 99876-1015",
+    mfaEnabled: false,
     permissions: OPERADOR_PERMISSIONS,
     integrations: [],
     activity: [

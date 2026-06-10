@@ -13,6 +13,7 @@ import {
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
@@ -250,16 +251,7 @@ function Toolbar({
             Limpar
           </AwButton>
         )}
-        <AwButton
-          size="md"
-          variant="ghost"
-          iconLeft="download"
-          onClick={() =>
-            alert("Exportação iniciada — você receberá o CSV por e-mail.")
-          }
-        >
-          Exportar CSV
-        </AwButton>
+        <ExportCsvButton />
       </div>
 
       <TypeChips
@@ -268,6 +260,111 @@ function Toolbar({
         onToggle={toggleType}
       />
     </div>
+  );
+}
+
+/* ---------- exportar CSV — aviso LGPD + entrega por e-mail ---------- */
+
+const EXPORT_RECIPIENT = "greg@awsales.io";
+
+function ExportCsvButton() {
+  const [open, setOpen] = React.useState(false);
+  const [mode, setMode] = React.useState<"confirm" | "done">("confirm");
+
+  const close = () => setOpen(false);
+
+  return (
+    <>
+      <AwButton
+        size="md"
+        variant="ghost"
+        iconLeft="download"
+        onClick={() => {
+          setMode("confirm");
+          setOpen(true);
+        }}
+      >
+        Exportar CSV
+      </AwButton>
+
+      <AwModal
+        open={open}
+        onClose={close}
+        title={mode === "confirm" ? "Exportar histórico" : undefined}
+        footer={
+          mode === "confirm" ? (
+            <>
+              <AwButton size="sm" variant="ghost" onClick={close}>
+                Cancelar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                iconLeft="outgoing_mail"
+                onClick={() => setMode("done")}
+              >
+                Gerar relatório
+              </AwButton>
+            </>
+          ) : (
+            <AwButton size="sm" variant="primary" onClick={close}>
+              Fechar
+            </AwButton>
+          )
+        }
+      >
+        {mode === "confirm" ? (
+          <div className="flex flex-col gap-4">
+            <p className="m-0 body-xs text-(--fg-secondary)">
+              O relatório reúne todos os eventos do histórico em um CSV,
+              respeitando os filtros aplicados.
+            </p>
+
+            <div className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
+                <Icon name="shield_lock" size={16} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-xs font-medium text-(--fg-primary)">
+                  Este arquivo contém dados pessoais
+                </p>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                  Nomes e ações de quem mexeu no faturamento aparecem no
+                  relatório. Ao exportar, você se responsabiliza por tratar
+                  esses dados conforme a LGPD e a política de privacidade da
+                  sua organização.
+                </p>
+              </div>
+            </div>
+
+            <p className="m-0 inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
+              <Icon name="mail" size={14} className="text-(--fg-tertiary)" />
+              <span>
+                O CSV é gerado em segundo plano e enviado para{" "}
+                <strong className="font-medium text-(--fg-primary)">
+                  {EXPORT_RECIPIENT}
+                </strong>
+                {" "}— nada é baixado agora.
+              </span>
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 py-6 text-center">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
+              <Icon name="mark_email_read" size={26} />
+            </span>
+            <h6 className="m-0 text-(--fg-primary)">Relatório em geração</h6>
+            <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
+              Em alguns minutos você recebe o CSV em{" "}
+              <strong className="font-medium text-(--fg-primary)">
+                {EXPORT_RECIPIENT}
+              </strong>
+              . Pode fechar esta janela — o processo segue sozinho.
+            </p>
+          </div>
+        )}
+      </AwModal>
+    </>
   );
 }
 

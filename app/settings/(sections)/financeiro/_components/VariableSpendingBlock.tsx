@@ -85,6 +85,12 @@ const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
   tokens: ["tokens-in", "tokens-out"],
 };
 
+// Padrão GCP billing: o gráfico mostra no máximo as N maiores séries do
+// período; o resto vira uma série agregada "Outros". A tabela continua
+// listando todo mundo — o cap é só visual, pro gráfico não virar spaghetti
+// quando a organização tem dezenas de agentes.
+const MAX_CHART_SERIES = 5;
+
 export function VariableSpendingBlock() {
   const [grouping, setGrouping] = React.useState<SpendingGrouping>("service");
   const [selection, setSelection] = React.useState<PeriodSelection>({
@@ -166,6 +172,47 @@ export function VariableSpendingBlock() {
     return set;
   }, [grouping, visibleIds, isAll]);
 
+  // Top-N + "Outros" (padrão GCP): re-indexa o daily pras categorias
+  // visíveis e, passando do cap, agrega as menores numa série única.
+  const chartModel = React.useMemo(() => {
+    const visible = categories
+      .map((cat, idx) => ({
+        cat,
+        idx,
+        total: daily.reduce((s, day) => s + (day[idx] ?? 0), 0),
+      }))
+      .filter((v) => visibleIds.has(v.cat.id));
+
+    if (visible.length <= MAX_CHART_SERIES + 1) {
+      return {
+        categories: visible.map((v) => v.cat),
+        data: daily.map((day) => visible.map((v) => day[v.idx] ?? 0)),
+      };
+    }
+
+    const ranked = [...visible].sort((a, b) => b.total - a.total);
+    const top = ranked.slice(0, MAX_CHART_SERIES);
+    top.sort((a, b) => a.idx - b.idx);
+    const rest = ranked.slice(MAX_CHART_SERIES);
+    const othersCat: SpendingCategory = {
+      id: "__others__",
+      label: `Outros · ${rest.length}`,
+      colorVar: "var(--aw-gray-500)",
+    };
+    return {
+      categories: [...top.map((v) => v.cat), othersCat],
+      data: daily.map((day) => [
+        ...top.map((v) => day[v.idx] ?? 0),
+        rest.reduce((s, v) => s + (day[v.idx] ?? 0), 0),
+      ]),
+    };
+  }, [daily, categories, visibleIds]);
+
+  const chartIds = React.useMemo(
+    () => new Set(chartModel.categories.map((c) => c.id)),
+    [chartModel],
+  );
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3">
@@ -213,15 +260,15 @@ export function VariableSpendingBlock() {
         </div>
 
         <Legend
-          categories={categories}
-          visibleIds={visibleIds}
+          categories={chartModel.categories}
+          visibleIds={chartIds}
           grouping={grouping}
         />
 
         <DailySpendingChart
-          data={daily}
-          categories={categories}
-          visibleIds={visibleIds}
+          data={chartModel.data}
+          categories={chartModel.categories}
+          visibleIds={chartIds}
           period={chartPeriod}
         />
       </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
-import { AwField } from "@/components/ui/AwInput";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
@@ -19,6 +19,8 @@ export function InviteModal({
   const [emails, setEmails] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [role, setRole] = useState<Role | null>(null);
+  const [cargo, setCargo] = useState("");
+  const [telefone, setTelefone] = useState("");
   const [mode, setMode] = useState<"form" | "success">("form");
 
   /* Reset modal state every time it (re)opens so the user never sees stale
@@ -28,6 +30,8 @@ export function InviteModal({
       setEmails([]);
       setDraft("");
       setRole(null);
+      setCargo("");
+      setTelefone("");
       setMode("form");
     }
   }, [open]);
@@ -96,7 +100,7 @@ export function InviteModal({
 
           {/* E-mail field — chips wrap em linhas independentes */}
           <AwField label="E-mail" htmlFor="invite-emails">
-            <div className="aw-input items-start">
+            <div className="aw-input h-auto! min-h-[42px] items-start py-1">
               <Icon
                 name="mail"
                 size={16}
@@ -200,6 +204,29 @@ export function InviteModal({
               ]}
             />
           </AwField>
+
+          {/* Cargo + telefone — contexto extra do convite, opcionais */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <AwField label="Cargo (opcional)" htmlFor="invite-cargo">
+              <AwInput
+                id="invite-cargo"
+                iconLeft="badge"
+                placeholder="Ex.: Analista de CRM"
+                value={cargo}
+                onChange={(e) => setCargo(e.target.value)}
+              />
+            </AwField>
+            <AwField label="Telefone (opcional)" htmlFor="invite-telefone">
+              <AwInput
+                id="invite-telefone"
+                iconLeft="call"
+                type="tel"
+                placeholder="+55 11 90000-0000"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+              />
+            </AwField>
+          </div>
 
           {/* Role description card */}
           {selectedRoleDef && (

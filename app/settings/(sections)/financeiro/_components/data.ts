@@ -23,7 +23,16 @@ export const BILLING_PROFILE = {
   legalName: "Aswork Tecnologia Ltda.",
   taxId: "47.382.519/0001-04",
   stateRegistration: "Isento",
-  email: "financeiro@awsales.com.br",
+  /** Quem recebe as faturas por e-mail. Único campo editável pelo cliente. */
+  billingRecipients: [
+    "financeiro@awsales.com.br",
+    "greg@awsales.io",
+    "controladoria@awsales.com.br",
+    "ana.azevedo@awsales.com.br",
+    "bruno.costa@awsales.com.br",
+    "fiscal@awsales.com.br",
+    "contabilidade@awsales.com.br",
+  ],
   address: {
     line1: "Av. Brigadeiro Faria Lima, 3477",
     line2: "12º andar · Itaim Bibi",
@@ -90,6 +99,54 @@ export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> =
       colorVar: "var(--aw-purple-500)",
       avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
     },
+    {
+      id: "iris",
+      label: "Íris",
+      colorVar: "var(--aw-teal-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png",
+    },
+    {
+      id: "theo",
+      label: "Theo",
+      colorVar: "var(--aw-pink-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_03-1.png",
+    },
+    {
+      id: "luma",
+      label: "Luma",
+      colorVar: "var(--aw-red-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_04-1.png",
+    },
+    {
+      id: "kai",
+      label: "Kai",
+      colorVar: "var(--aw-lime-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_06-1.png",
+    },
+    {
+      id: "vega",
+      label: "Vega",
+      colorVar: "var(--aw-slate-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_07-1.png",
+    },
+    {
+      id: "milo",
+      label: "Milo",
+      colorVar: "var(--aw-blue-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_09-1.png",
+    },
+    {
+      id: "sol",
+      label: "Sol",
+      colorVar: "var(--aw-amber-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_10-1.png",
+    },
+    {
+      id: "bria",
+      label: "Bria",
+      colorVar: "var(--aw-emerald-500)",
+      avatar: "/assets/agent_imgs/orbs/orb_model-a_12-1.png",
+    },
   ],
 };
 
@@ -134,12 +191,13 @@ const PERIOD_TOTAL: Record<SpendingPeriod, number> = {
 };
 
 // Pseudoaleatório determinístico — fixture parecer real sem ser ruído.
-function genDaily(seed: number, n: number): number[][] {
+// `cats` = quantas categorias (séries) cada dia carrega.
+function genDaily(seed: number, n: number, cats: number): number[][] {
   const out: number[][] = [];
   let s = seed;
   for (let i = 0; i < n; i++) {
     const v: number[] = [];
-    for (let c = 0; c < 4; c++) {
+    for (let c = 0; c < cats; c++) {
       s = (s * 9301 + 49297) % 233280;
       const r = s / 233280;
       v.push(Math.round((r * 14 + 2) * 100) / 100);
@@ -154,7 +212,11 @@ export function getDailySpending(
   period: SpendingPeriod,
 ): number[][] {
   const seed = grouping === "service" ? 7 : 13;
-  const raw = genDaily(seed, PERIOD_BARS[period]);
+  const raw = genDaily(
+    seed,
+    PERIOD_BARS[period],
+    SPENDING_CATEGORIES[grouping].length,
+  );
   const rawTotal = raw.reduce(
     (s, day) => s + day.reduce((s2, v) => s2 + v, 0),
     0,
@@ -203,7 +265,7 @@ export function getCustomDailySpending(
 ): number[][] {
   const bars = Math.max(1, Math.min(dayCount, 90));
   const seed = grouping === "service" ? 7 : 13;
-  const raw = genDaily(seed, bars);
+  const raw = genDaily(seed, bars, SPENDING_CATEGORIES[grouping].length);
   const target = customPeriodTotal(bars);
   const rawTotal = raw.reduce(
     (s, day) => s + day.reduce((s2, v) => s2 + v, 0),
@@ -301,7 +363,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     avatar: "/assets/agent_imgs/orbs/orb_model-a_01-1.png",
     role: "SDR · Aquisição",
     status: "Ativo",
-    total: 312.45,
+    total: 156.32,
   },
   {
     id: "atlas",
@@ -309,7 +371,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     avatar: "/assets/agent_imgs/orbs/orb_model-a_05-1.png",
     role: "CS · Reativação",
     status: "Ativo",
-    total: 248.9,
+    total: 124.9,
   },
   {
     id: "nova",
@@ -317,7 +379,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     avatar: "/assets/agent_imgs/orbs/orb_model-a_08-1.png",
     role: "Outbound",
     status: "Pausado",
-    total: 198.18,
+    total: 98.18,
   },
   {
     id: "stella",
@@ -325,7 +387,71 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     avatar: "/assets/agent_imgs/orbs/orb_model-a_11-1.png",
     role: "Onboarding",
     status: "Treinando",
-    total: 132.1,
+    total: 87.45,
+  },
+  {
+    id: "iris",
+    label: "Íris",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_02-1.png",
+    role: "SDR · Inbound",
+    status: "Ativo",
+    total: 76.02,
+  },
+  {
+    id: "theo",
+    label: "Theo",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_03-1.png",
+    role: "Qualificação",
+    status: "Ativo",
+    total: 68.54,
+  },
+  {
+    id: "luma",
+    label: "Luma",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_04-1.png",
+    role: "CS · Suporte",
+    status: "Ativo",
+    total: 59.83,
+  },
+  {
+    id: "kai",
+    label: "Kai",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_06-1.png",
+    role: "Follow-up",
+    status: "Ativo",
+    total: 52.17,
+  },
+  {
+    id: "vega",
+    label: "Vega",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_07-1.png",
+    role: "Cobrança",
+    status: "Pausado",
+    total: 47.6,
+  },
+  {
+    id: "milo",
+    label: "Milo",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_09-1.png",
+    role: "Agendamento",
+    status: "Ativo",
+    total: 43.92,
+  },
+  {
+    id: "sol",
+    label: "Sol",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_10-1.png",
+    role: "Pesquisa · NPS",
+    status: "Treinando",
+    total: 40.28,
+  },
+  {
+    id: "bria",
+    label: "Bria",
+    avatar: "/assets/agent_imgs/orbs/orb_model-a_12-1.png",
+    role: "Reengajamento",
+    status: "Ativo",
+    total: 36.42,
   },
 ];
 
