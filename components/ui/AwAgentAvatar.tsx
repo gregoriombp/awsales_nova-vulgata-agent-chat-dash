@@ -15,6 +15,8 @@ export interface AwAgentAvatarProps {
   state?: UserAgentState;
   /** Diameter of the agent circle in px. The core badge scales from it. */
   size?: number;
+  /** Repassado ao orb: "css" anima sem contexto WebGL (listas/grids densos). */
+  renderer?: "webgl" | "css";
   className?: string;
 }
 
@@ -39,6 +41,7 @@ export function AwAgentAvatar({
   coreAlt = "",
   state = "idle",
   size = 72,
+  renderer = "webgl",
   className,
 }: AwAgentAvatarProps) {
   const coreSize = Math.round(size * 0.42);
@@ -51,7 +54,7 @@ export function AwAgentAvatar({
       className={cn("relative shrink-0", className)}
       style={{ width: size, height: size }}
     >
-      <AwUserAgentOrb seed={agentSeed} state={state} size={size} />
+      <AwUserAgentOrb seed={agentSeed} state={state} size={size} renderer={renderer} />
       {/* Core badge. The bg-canvas diamond behind the core is the rim that
           separates it from the orb (like the ring around a status dot). */}
       <div

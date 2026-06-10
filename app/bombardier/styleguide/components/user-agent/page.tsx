@@ -19,11 +19,17 @@ import {
 
 const seedOf = (i: number) => `agent-${String(i + 1).padStart(2, "0")}`
 
-// Live WebGL budget for this page (~16 contexts max on Chrome): FAMILY(3) +
-// STATES(5) + SIZE_SCALE(5) + avatar hero(1) + avatar samples(2) = 16. O agente
-// do usuário SÓ existe animado (a variante estática foi removida em
-// 2026-06-10) — então o orçamento se gerencia reduzindo a amostra visível.
-const FAMILY = Array.from({ length: 3 }, (_, i) => seedOf(i))
+// Live WebGL budget for this page (~16 contexts max on Chrome): FAMILY(2) +
+// STATES(5) + SIZE_SCALE(5) + avatar hero(1) + anatomia(1) + comparação
+// webgl/css(1) = 15. Os avatar samples pequenos usam renderer="css" (zero
+// WebGL). O agente do usuário SÓ existe animado (a variante estática foi
+// removida em 2026-06-10); para densidade use renderer="css" — animado por
+// transform, sem contexto WebGL, sem limite prático.
+const FAMILY = Array.from({ length: 2 }, (_, i) => seedOf(i))
+
+// Grid do renderer CSS: 24 orbs animados, zero WebGL — prova do range novo da
+// paleta (monocromática + ~30% análoga estendida) sem estourar o orçamento.
+const CSS_GRID = Array.from({ length: 24 }, (_, i) => seedOf(i))
 
 // Color-rule gallery mostra só as paletas (swatches CSS, sem orb) — assim a
 // variedade de hues aparece sem custo de WebGL.
@@ -304,9 +310,55 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
 // color1 === "#ffffff"   (branco fixo)
 // color2  = mesma hue, mais suave   → companion
 // color3  = mesma hue, viva         → domina flow + glow
+// ~30% dos seeds estendem o drift à zona análoga (até 62°) —
+// mais variedade entre agentes, nunca complementar.
 
 // O componente já faz isso internamente — basta o seed:
 <AwUserAgentOrb seed="agent-03" size={96} />`}
+          </CodeExample>
+        </Section>
+
+        <Section
+          id="renderer-css"
+          title="Renderer leve (CSS)"
+          lead='Cada orb WebGL é um contexto — o Chrome corta em ~16 por página. Para listas, grids e telas densas, renderer="css" anima o MESMO mesh do seed só com transform (compositor): custo ~zero, sem limite prático, e o orb continua sempre vivo — a regra de produto não muda.'
+        >
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Stage
+              label='renderer="webgl" (default)'
+              hint="Shader Synthesis — herói de página, drawers, momentos de identidade."
+              dark
+            >
+              <AwUserAgentOrb seed="agent-07" size={120} />
+            </Stage>
+            <Stage
+              label='renderer="css"'
+              hint="Mesmo seed, mesmas cores — mesh animado por transform."
+              dark
+            >
+              <AwUserAgentOrb seed="agent-07" size={120} renderer="css" />
+            </Stage>
+          </div>
+
+          <div className="mt-4">
+            <Stage
+              label="24 agentes simultâneos — zero WebGL"
+              hint="Impossível no renderer padrão (estoura o limite de contextos). No css, cada um continua animado e com a paleta do próprio seed — incluindo a família análoga nova."
+              dark
+              gridClassName="grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-12 gap-3 place-items-center"
+            >
+              {CSS_GRID.map((seed) => (
+                <AwUserAgentOrb key={seed} seed={seed} size={40} renderer="css" />
+              ))}
+            </Stage>
+          </div>
+
+          <CodeExample label="quando usar cada um" lang="tsx">
+            {`// Herói, drawer do Cortex, telas com ≤ ~8 orbs visíveis:
+<AwUserAgentOrb seed={agent.id} size={120} />
+
+// Listas, tabelas, grids, pickers — qualquer densidade:
+<AwUserAgentOrb seed={agent.id} size={32} renderer="css" />`}
           </CodeExample>
         </Section>
 
@@ -376,6 +428,7 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
                     coreSrc={agentCoreSrc(c)}
                     coreAlt={`Core ${String(c).padStart(2, "0")}`}
                     size={76}
+                    renderer="css"
                   />
                   <span className="mono">
                     {a} · Core {String(c).padStart(2, "0")}
