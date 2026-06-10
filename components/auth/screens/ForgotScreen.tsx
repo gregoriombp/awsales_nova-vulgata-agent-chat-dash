@@ -5,7 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { forgotPasswordSchema, type ForgotPasswordFormData } from "@/lib/validations";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
-import type { Locale, AuthScreen, VerifyMode } from "../_types";
+import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 import { BackButton } from "../_atoms";
 
@@ -13,12 +13,10 @@ export function ForgotScreen({
   locale,
   goTo,
   defaultEmail,
-  setVerifyMode,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
   defaultEmail?: string;
-  setVerifyMode: (m: VerifyMode) => void;
 }) {
   const c = COPY.forgot[locale];
 
@@ -31,10 +29,12 @@ export function ForgotScreen({
     defaultValues: { email: defaultEmail ?? "" },
   });
 
+  // Reset por link: envia para a confirmação de envio (resposta neutra,
+  // sem confirmar se a conta existe). O usuário define a nova senha pelo
+  // link recebido, não por código aqui.
   const onSubmit = async (data: ForgotPasswordFormData) => {
     console.log("Forgot:", data);
-    setVerifyMode("reset");
-    goTo("verify");
+    goTo("resetLinkSent");
   };
 
   return (

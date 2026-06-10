@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { resetPasswordSchema, type ResetPasswordFormData } from "@/lib/validations";
-import { evaluatePassword } from "@/lib/password-policy";
+import { evaluatePassword, isLeakedPassword } from "@/lib/password-policy";
 import { AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
 import { Icon } from "@/components/ui/Icon";
@@ -31,10 +31,13 @@ export function ResetScreen({
   const pw = watch("password", "");
   const ev = evaluatePassword(pw);
   const strength = ev.score;
+  const leaked = pw.length > 0 && isLeakedPassword(pw);
 
+  // Reset termina em "Senha redefinida" (sem auto-login), NÃO no sucesso de
+  // login. O usuário volta ao login normal (org/SSO/2FA).
   const onSubmit = async (data: ResetPasswordFormData) => {
     console.log("Reset:", data);
-    goTo("success");
+    goTo("resetSuccess");
   };
 
   return (
@@ -82,8 +85,14 @@ export function ResetScreen({
         <span className="flex items-center gap-2 text-aw-gray-700">
           <Icon name="key" size={14} /> {c.rule2}
         </span>
-        <span className="flex items-center gap-2 text-aw-gray-700">
-          <Icon name="shield" size={14} /> {c.rule3}
+        <span
+          className={cn(
+            "flex items-center gap-2",
+            leaked ? "font-medium text-aw-red-700" : "text-aw-gray-700"
+          )}
+        >
+          <Icon name={leaked ? "block" : "shield"} size={14} />{" "}
+          {leaked ? c.rule3Blocked : c.rule3}
         </span>
       </div>
 

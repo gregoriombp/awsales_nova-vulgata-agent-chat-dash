@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { Icon } from "@/components/ui/Icon";
-import { cn } from "@/lib/utils";
 import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 import { BackButton } from "../_atoms";
+import { CodeInput } from "../CodeInput";
 
-const SECRET = "JBSWY3DPEHPK3PXP";
+// Segredos mockados — "Gerar novo QR code" cicla entre eles.
+const SECRETS = ["JBSWY3DPEHPK3PXP", "KRSXG5CTMVRXEZLU", "MFRGGZDFMZTWQ2LK"];
 const formatSecret = (s: string) => s.match(/.{1,4}/g)?.join(" ") ?? s;
 
 function FakeQrCode() {
@@ -38,7 +39,10 @@ export function MfaSetupAppScreen({
   const c = COPY.mfaSetupApp[locale];
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [copied, setCopied] = useState(false);
-  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const [secretIdx, setSecretIdx] = useState(0);
+  const [regenerated, setRegenerated] = useState(false);
+
+  const secret = SECRETS[secretIdx];
 
   useEffect(() => {
     if (!copied) return;
@@ -46,39 +50,25 @@ export function MfaSetupAppScreen({
     return () => clearTimeout(id);
   }, [copied]);
 
-  const handleChange = (idx: number, value: string) => {
-    if (!/^\d?$/.test(value)) return;
-    const next = [...otp];
-    next[idx] = value;
-    setOtp(next);
-    if (value && idx < 5) inputsRef.current[idx + 1]?.focus();
-  };
-
-  const handleKeyDown = (idx: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
-      inputsRef.current[idx - 1]?.focus();
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    const text = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
-    if (!text) return;
-    e.preventDefault();
-    const next = [...otp];
-    text.split("").forEach((ch, i) => {
-      next[i] = ch;
-    });
-    setOtp(next);
-    inputsRef.current[Math.min(text.length, 5)]?.focus();
-  };
+  useEffect(() => {
+    if (!regenerated) return;
+    const id = setTimeout(() => setRegenerated(false), 1800);
+    return () => clearTimeout(id);
+  }, [regenerated]);
 
   const copySecret = async () => {
     try {
-      await navigator.clipboard.writeText(SECRET);
+      await navigator.clipboard.writeText(secret);
       setCopied(true);
     } catch {
       setCopied(true);
     }
+  };
+
+  const regenerate = () => {
+    setSecretIdx((i) => (i + 1) % SECRETS.length);
+    setOtp(["", "", "", "", "", ""]);
+    setRegenerated(true);
   };
 
   const isComplete = otp.every((d) => d !== "");
@@ -90,8 +80,16 @@ export function MfaSetupAppScreen({
       <h3 className="text-aw-gray-1200 mb-2.5">{c.title}</h3>
       <p className="body-sm text-aw-gray-800 mb-5">{c.sub}</p>
 
-      <div className="flex justify-center mb-5">
+      <div className="flex flex-col items-center gap-2 mb-5">
         <FakeQrCode />
+        <button
+          type="button"
+          onClick={regenerate}
+          className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+        >
+          <Icon name={regenerated ? "check" : "refresh"} size={14} />
+          {regenerated ? c.regenerated : c.regenerate}
+        </button>
       </div>
 
       <div className="mb-5">
@@ -100,7 +98,7 @@ export function MfaSetupAppScreen({
         </label>
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-aw-gray-300 bg-aw-gray-150">
           <code className="flex-1 min-w-0 text-[13px] tracking-wider tabular-nums text-aw-gray-1200 overflow-x-auto">
-            {formatSecret(SECRET)}
+            {formatSecret(secret)}
           </code>
           <button
             type="button"
@@ -117,31 +115,7 @@ export function MfaSetupAppScreen({
         <label className="block body-xs font-medium text-aw-gray-900 mb-1.5">
           {c.codeLabel}
         </label>
-        <div className="flex gap-2">
-          {otp.map((digit, i) => (
-            <input
-              key={i}
-              ref={(el) => {
-                inputsRef.current[i] = el;
-              }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={(e) => handleChange(i, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(i, e)}
-              onPaste={i === 0 ? handlePaste : undefined}
-              className={cn(
-                "w-11 h-13 border rounded-lg text-center tabular-nums body-xl font-medium text-aw-gray-1200 outline-hidden transition-all duration-150",
-                "focus:border-aw-blue-600 focus:ring-2 focus:ring-aw-blue-500/25",
-                digit
-                  ? "bg-aw-gray-150 border-aw-gray-300"
-                  : "bg-white border-aw-gray-300"
-              )}
-              style={{ height: 52 }}
-            />
-          ))}
-        </div>
+        <CodeInput value={otp} onChange={setOtp} groupLabel={c.codeLabel} compact />
       </div>
 
       <AwButton

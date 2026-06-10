@@ -30,6 +30,7 @@ export function PasswordInput({
         type="button"
         onClick={() => setShow(!show)}
         aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+        aria-pressed={show}
         className="flex items-center justify-center w-7 h-7 rounded-md text-aw-gray-700 hover:bg-aw-gray-200 hover:text-aw-gray-1200 transition-colors shrink-0"
       >
         <Icon name={show ? "visibility_off" : "visibility"} size={18} />

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
+import { Icon } from "@/components/ui/Icon";
 import type { Locale, AuthScreen, AuthMethod } from "../_types";
 import { detectSso } from "../_types";
 import { COPY } from "../_copy";
@@ -46,6 +47,8 @@ export function LoginScreen({
   const c = COPY.login[locale];
   const [emailInput, setEmailInput] = useState("");
 
+  const emailValid = emailInput.includes("@");
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = emailInput.trim();
@@ -60,6 +63,17 @@ export function LoginScreen({
       setAuthMethod("password");
       goTo("email");
     }
+  };
+
+  // Magic link a partir da tela inicial: reaproveita o e-mail já digitado
+  // (sem 2ª tela de pedido). Passwordless por e-mail filtra as mesmas orgs
+  // do login por senha.
+  const handleMagic = () => {
+    const trimmed = emailInput.trim();
+    if (!trimmed.includes("@")) return;
+    setEmail(trimmed);
+    setAuthMethod("password");
+    goTo("magicSent");
   };
 
   return (
@@ -81,7 +95,7 @@ export function LoginScreen({
         </AwField>
       </div>
 
-      <AwButton variant="primary" size="md" block type="submit" disabled={!emailInput.includes("@")}>
+      <AwButton variant="primary" size="md" block type="submit" disabled={!emailValid}>
         {c.cta}
       </AwButton>
 
@@ -95,6 +109,18 @@ export function LoginScreen({
         <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
         <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
       </div>
+
+      <p className="mt-5 text-center">
+        <button
+          type="button"
+          onClick={handleMagic}
+          disabled={!emailValid}
+          className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px] disabled:cursor-not-allowed disabled:text-aw-gray-700 disabled:no-underline"
+        >
+          <Icon name="mail" size={14} />
+          {c.magicLink}
+        </button>
+      </p>
     </form>
   );
 }

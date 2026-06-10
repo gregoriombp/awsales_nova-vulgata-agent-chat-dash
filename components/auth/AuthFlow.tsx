@@ -7,10 +7,13 @@ import { AwLogo } from "@/components/ui/AwLogo";
 import { LoginScreen } from "./screens/LoginScreen";
 import { EmailLoginScreen } from "./screens/EmailLoginScreen";
 import { ForgotScreen } from "./screens/ForgotScreen";
+import { ResetLinkSentScreen } from "./screens/ResetLinkSentScreen";
 import { ResetScreen } from "./screens/ResetScreen";
+import { ResetSuccessScreen } from "./screens/ResetSuccessScreen";
 import { VerifyScreen } from "./screens/VerifyScreen";
 import { MagicSentScreen } from "./screens/MagicSentScreen";
 import { SsoConnectingScreen } from "./screens/SsoConnectingScreen";
+import { NoAccessForMethodScreen } from "./screens/NoAccessForMethodScreen";
 import { WorkspaceScreen } from "./screens/WorkspaceScreen";
 import { MfaGateScreen } from "./screens/MfaGateScreen";
 import { MfaSetupAppScreen } from "./screens/MfaSetupAppScreen";
@@ -19,7 +22,7 @@ import { MfaVerifyScreen } from "./screens/MfaVerifyScreen";
 import { MfaRecoveryScreen } from "./screens/MfaRecoveryScreen";
 import { SuccessScreen } from "./screens/SuccessScreen";
 import { AUTH_SCREENS } from "./_types";
-import type { AuthScreen, Locale, VerifyMode, AuthMethod } from "./_types";
+import type { AuthScreen, Locale, AuthMethod } from "./_types";
 
 export type { AuthScreen };
 
@@ -34,14 +37,15 @@ export function AuthFlow() {
   const screenParam = searchParams.get("screen") as AuthScreen | null;
   const screen: AuthScreen =
     screenParam && AUTH_SCREENS.includes(screenParam) ? screenParam : "login";
+  // Deep-link do estado de erro inline da tela de senha: `?screen=email&error=1`.
+  const initialError = searchParams.get("error") === "1";
 
-  // Dados efêmeros do fluxo NÃO vão pra URL — e-mail/modo não são "endereço"
+  // Dados efêmeros do fluxo NÃO vão pra URL — e-mail/método não são "endereço"
   // (e expor e-mail na barra não faz sentido). Ficam em estado local, que
   // sobrevive à troca de tela porque o segmento de rota não remonta.
   const [locale] = useState<Locale>("pt");
   const [email, setEmail] = useState("");
   const [ssoOrg, setSsoOrg] = useState("");
-  const [verifyMode, setVerifyMode] = useState<VerifyMode>("login");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("password");
 
   const goTo = useCallback(
@@ -54,14 +58,17 @@ export function AuthFlow() {
 
   const renderScreen = () => {
     switch (screen) {
-      case "login":         return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} setAuthMethod={setAuthMethod} />;
-      case "email":         return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
-      case "forgot":        return <ForgotScreen locale={locale} goTo={goTo} defaultEmail={email} setVerifyMode={setVerifyMode} />;
-      case "reset":         return <ResetScreen locale={locale} goTo={goTo} />;
-      case "verify":        return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} mode={verifyMode} />;
-      case "magicSent":     return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@empresa.com"} />;
-      case "ssoConnecting": return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg || "sua organização"} />;
-      case "workspace":     return <WorkspaceScreen locale={locale} goTo={goTo} skipMfa={authMethod === "sso"} />;
+      case "login":            return <LoginScreen locale={locale} goTo={goTo} setEmail={setEmail} setSsoOrg={setSsoOrg} setAuthMethod={setAuthMethod} />;
+      case "email":            return <EmailLoginScreen locale={locale} goTo={goTo} defaultEmail={email} initialError={initialError} />;
+      case "forgot":           return <ForgotScreen locale={locale} goTo={goTo} defaultEmail={email} />;
+      case "resetLinkSent":    return <ResetLinkSentScreen locale={locale} goTo={goTo} email={email || "voce@example.com"} />;
+      case "reset":            return <ResetScreen locale={locale} goTo={goTo} />;
+      case "resetSuccess":     return <ResetSuccessScreen locale={locale} goTo={goTo} />;
+      case "verify":           return <VerifyScreen locale={locale} goTo={goTo} email={email || "voce@example.com"} />;
+      case "magicSent":        return <MagicSentScreen locale={locale} goTo={goTo} email={email || "voce@example.com"} />;
+      case "ssoConnecting":    return <SsoConnectingScreen locale={locale} goTo={goTo} orgName={ssoOrg || "sua organização"} />;
+      case "noAccessForMethod": return <NoAccessForMethodScreen locale={locale} goTo={goTo} />;
+      case "workspace":        return <WorkspaceScreen locale={locale} goTo={goTo} authMethod={authMethod} />;
       case "mfaGate":        return <MfaGateScreen locale={locale} goTo={goTo} />;
       case "mfaSetupApp":    return <MfaSetupAppScreen locale={locale} goTo={goTo} />;
       case "mfaBackupCodes": return <MfaBackupCodesScreen locale={locale} goTo={goTo} />;

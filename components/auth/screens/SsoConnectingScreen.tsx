@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { Icon } from "@/components/ui/Icon";
 import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 
@@ -30,7 +31,20 @@ export function SsoConnectingScreen({
       <h3 className="text-aw-gray-1200 mb-2.5">
         {c.title} <b>{orgName}</b>
       </h3>
-      <p className="body-sm text-aw-gray-800">{c.sub}</p>
+      <p className="body-sm text-aw-gray-800 mb-3">{c.sub}</p>
+
+      <p className="inline-flex items-center gap-1.5 body-xs text-aw-gray-700 mb-6">
+        <Icon name="info" size={14} />
+        {c.warn}
+      </p>
+
+      <button
+        type="button"
+        onClick={() => goTo("login")}
+        className="body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+      >
+        {c.cancel}
+      </button>
     </div>
   );
 }

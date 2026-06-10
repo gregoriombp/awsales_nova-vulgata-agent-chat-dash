@@ -60,7 +60,7 @@ export default function BombardierLogin() {
               <AwInput
                 id="email"
                 type="email"
-                placeholder="voce@empresa.com"
+                placeholder="voce@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 iconLeft="mail"
