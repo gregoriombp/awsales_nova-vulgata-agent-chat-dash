@@ -1,104 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data";
-import { ADDITIONAL_ORG } from "@/app/organizacao-adicional/_data";
 import { SaveBar, SectionHeading, SettingsPageHeader } from "../_components/shared";
 
-const ORGS = [
-  { id: "fyntra", slug: "artificial-concord", data: ONBOARDING_ORG },
-  { id: "nucleo", slug: "nucleo-performance", data: ADDITIONAL_ORG },
-] as const;
-
-type OrgId = (typeof ORGS)[number]["id"];
-
-function buildCompanyRows(data: (typeof ORGS)[number]["data"]) {
-  return [
-    { label: "Razão social", value: data.razaoSocial },
-    { label: "CNPJ", value: data.cnpj, tabular: true },
-    { label: "Segmento", value: data.segmento },
-    { label: "Porte", value: data.porte },
-    {
-      label: "Plano contratado",
-      value: `${data.plan} · ${data.intervaloPlano} · ${fmtBRL(data.valorMensal).replace(",00", "")}/mês`,
-    },
-    { label: "Data de criação", value: "11 de mai. 2026" },
-  ];
-}
+const COMPANY_ROWS = [
+  { label: "Razão social", value: ONBOARDING_ORG.razaoSocial },
+  { label: "CNPJ", value: ONBOARDING_ORG.cnpj, tabular: true },
+  { label: "Segmento", value: ONBOARDING_ORG.segmento },
+  {
+    label: "Plano contratado",
+    value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${fmtBRL(ONBOARDING_ORG.valorMensal).replace(",00", "")}/mês`,
+  },
+  { label: "Data de criação", value: "11 de mai. 2026" },
+];
 
 export default function OrganizationSettingsPage() {
-  const [selectedOrgId, setSelectedOrgId] = useState<OrgId>("fyntra");
-  const currentOrg = useMemo(
-    () => ORGS.find((o) => o.id === selectedOrgId) ?? ORGS[0],
-    [selectedOrgId],
-  );
-
-  const [orgName, setOrgName] = useState<string>(currentOrg.data.name);
-  const [orgSlug, setOrgSlug] = useState<string>(currentOrg.slug);
-
-  useEffect(() => {
-    setOrgName(currentOrg.data.name);
-    setOrgSlug(currentOrg.slug);
-  }, [currentOrg]);
-
-  const companyRows = useMemo(
-    () => buildCompanyRows(currentOrg.data),
-    [currentOrg],
-  );
+  const [orgName, setOrgName] = useState<string>(ONBOARDING_ORG.name);
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Organização"
         description="Como sua empresa aparece nos agentes, conversas e exportações."
-        trailing={
-          <AwDropdownMenu
-            align="end"
-            trigger={
-              <button
-                type="button"
-                className="inline-flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) py-2 pl-2 pr-3 text-left transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
-              >
-                <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted)">
-                  <img
-                    src={currentOrg.data.logo}
-                    alt=""
-                    width={32}
-                    height={32}
-                    style={{ objectFit: "cover" }}
-                  />
-                </span>
-                <span className="body-sm font-medium text-(--fg-primary)">
-                  {currentOrg.data.name}
-                </span>
-                <Icon
-                  name="expand_more"
-                  size={18}
-                  className="text-(--fg-tertiary)"
-                />
-              </button>
-            }
-            items={ORGS.map((o) => ({
-              id: o.id,
-              label: o.data.name,
-              checked: o.id === selectedOrgId,
-              onSelect: () => setSelectedOrgId(o.id),
-            }))}
-          />
-        }
       />
 
       <AwCard className="p-0!">
         <div className="flex items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
           <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-(--bg-muted)">
             <img
-              src={currentOrg.data.logo}
+              src={ONBOARDING_ORG.logo}
               alt={orgName}
               width={48}
               height={48}
@@ -125,29 +61,11 @@ export default function OrganizationSettingsPage() {
               onChange={(e) => setOrgName(e.target.value)}
             />
           </AwField>
-          <AwField
-            label="Identificador (URL)"
-            htmlFor="org-slug"
-            helper={`app.awsales.io/${orgSlug}`}
-          >
-            <AwInput
-              id="org-slug"
-              value={orgSlug}
-              onChange={(e) =>
-                setOrgSlug(
-                  e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
-                )
-              }
-            />
-          </AwField>
           <AwField label="Indústria">
             <AwSelect>Educação / Infoprodutos</AwSelect>
           </AwField>
           <AwField label="Tamanho do time">
             <AwSelect>11 — 50 pessoas</AwSelect>
-          </AwField>
-          <AwField label="Fuso padrão" className="md:col-span-2">
-            <AwSelect>(GMT−03:00) Brasília · São Paulo</AwSelect>
           </AwField>
         </div>
         <SaveBar />
@@ -160,12 +78,12 @@ export default function OrganizationSettingsPage() {
         />
         <AwCard className="p-0!">
           <dl className="m-0">
-            {companyRows.map((row, i) => (
+            {COMPANY_ROWS.map((row, i) => (
               <div
                 key={row.label}
                 className={
                   "grid grid-cols-[200px_1fr_auto] items-center gap-4 px-6 py-3.5" +
-                  (i < companyRows.length - 1
+                  (i < COMPANY_ROWS.length - 1
                     ? " border-b border-(--border-subtle)"
                     : "")
                 }
@@ -190,14 +108,19 @@ export default function OrganizationSettingsPage() {
               </div>
             ))}
           </dl>
-          <div className="flex items-center gap-2 border-t border-(--border-subtle) px-6 py-3 text-(--fg-secondary)">
-            <Icon name="warning" size={14} />
-            <a
-              href="#"
-              className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
-            >
-              Algo está errado?
-            </a>
+          <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) px-6 py-3">
+            <span className="flex items-center gap-2 text-(--fg-secondary)">
+              <Icon name="warning" size={14} />
+              <a
+                href="#"
+                className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
+              >
+                Algo está errado?
+              </a>
+            </span>
+            <AwButton size="sm" variant="secondary" iconLeft="download">
+              Baixar contrato
+            </AwButton>
           </div>
         </AwCard>
       </div>
