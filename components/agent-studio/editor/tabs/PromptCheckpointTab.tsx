@@ -126,7 +126,9 @@ function PromptSection({
           </p>
         </div>
       ) : (
-        <div className="space-y-4 text-sm leading-relaxed text-(--fg-secondary)">
+        /* Leitura com o mesmo chrome do campo — o stroke existe sempre,
+           não só durante a edição. */
+        <div className="space-y-4 rounded-lg border border-(--border-default) bg-(--bg-raised) px-3.5 py-3 text-sm leading-relaxed text-(--fg-secondary)">
           {prompt.split(/\n\n+/).map((paragraph, i) => (
             <p key={i}>
               <TokenText text={paragraph} habilidades={[]} />
@@ -138,9 +140,9 @@ function PromptSection({
   );
 }
 
-/* ─── Seção B — card de checkpoint (leitura) ───────────────────────────── */
+/* ─── Seção B — checkpoint em leitura, dentro do documento contínuo ────── */
 
-function CheckpointCard({
+function CheckpointReadSection({
   checkpoint,
   habilidades,
   editorHref,
@@ -155,9 +157,9 @@ function CheckpointCard({
   );
 
   return (
-    <article className="group/card rounded-xl border border-(--border-subtle) bg-(--bg-surface) transition-[border-color,box-shadow] duration-aw-fast hover:border-(--border-default) hover:shadow-xs">
+    <section className="group/card px-6 py-5">
       {/* Linha de título + ação */}
-      <header className="flex items-center justify-between gap-4 px-6 pt-5">
+      <header className="flex items-center justify-between gap-4">
         <div className="flex min-w-0 flex-1 items-center gap-2.5">
           <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-(--bg-hover) text-xs font-medium text-(--fg-secondary)">
             {pad(checkpoint.numero)}
@@ -177,7 +179,7 @@ function CheckpointCard({
         </AwButton>
       </header>
 
-      <div className="space-y-4 px-6 pb-6 pt-3.5">
+      <div className="space-y-4 pt-3.5">
         {/* Objetivo */}
         <div className="flex items-start gap-2.5">
           <AwCheckpointChip tone="inverse" icon="target" className="shrink-0">
@@ -269,7 +271,7 @@ function CheckpointCard({
 
         {/* Habilidades derivadas das menções @ no texto */}
         {derivadas.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1.5 border-t border-(--border-subtle) pt-3.5">
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <span className="text-xs text-(--fg-tertiary)">
               Tools neste checkpoint
             </span>
@@ -279,7 +281,7 @@ function CheckpointCard({
           </div>
         )}
       </div>
-    </article>
+    </section>
   );
 }
 
@@ -365,15 +367,21 @@ export function PromptCheckpointTab({
           </AwButton>
         </header>
 
-        <div className="space-y-4">
-          {checkpoints.map((cp) => (
-            <CheckpointCard
-              key={cp.id}
-              checkpoint={cp}
-              habilidades={data.habilidadesConfiguradas}
-              editorHref={`${editorBase}#cp-${cp.id}`}
-            />
-          ))}
+        {/* Documento contínuo — um único campo branco com stroke; os
+            checkpoints fluem dentro dele, sem cards nem divisores. */}
+        {checkpoints.length > 0 && (
+          <div className="rounded-xl border border-(--border-default) bg-(--bg-raised) py-1.5">
+            {checkpoints.map((cp) => (
+              <CheckpointReadSection
+                key={cp.id}
+                checkpoint={cp}
+                habilidades={data.habilidadesConfiguradas}
+                editorHref={`${editorBase}#cp-${cp.id}`}
+              />
+            ))}
+          </div>
+        )}
+        <div>
           {checkpoints.length === 0 && (
             <div className="rounded-xl border border-dashed border-(--border-default) px-6 py-10 text-center">
               <p className="text-sm text-(--fg-secondary)">

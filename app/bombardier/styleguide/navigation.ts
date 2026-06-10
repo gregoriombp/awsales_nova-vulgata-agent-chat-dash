@@ -24,9 +24,29 @@ export const navigation: NavSection[] = [
   },
   {
     group: "Base",
-    title: "Brand",
+    title: "Marca",
     items: [
+      {
+        name: "A marca",
+        href: "/bombardier/styleguide/marca/sobre",
+        aliases: ["brand", "história", "manifesto", "sobre", "aswork", "posicionamento"],
+      },
+      {
+        name: "Tom de voz",
+        href: "/bombardier/styleguide/marca/tom-de-voz",
+        aliases: ["voz", "voice", "confiança silenciosa", "posturas", "copy de marca"],
+      },
       { name: "Logo", href: "/bombardier/styleguide/foundation/logos" },
+      {
+        name: "Imageria",
+        href: "/bombardier/styleguide/marca/imageria",
+        aliases: ["fotografia", "imagens", "texturas", "whitefield", "lunar"],
+      },
+      {
+        name: "Ilustrações",
+        href: "/bombardier/styleguide/marca/ilustracoes",
+        aliases: ["AwBrandIllustration", "line-art", "layers", "ignition", "constellation"],
+      },
     ],
   },
   {
@@ -87,6 +107,11 @@ export const navigation: NavSection[] = [
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
       { name: "Dot tunnel", href: "/bombardier/styleguide/components/aw-dot-tunnel" },
+      {
+        name: "Gráficos",
+        href: "/bombardier/styleguide/components/aw-chart",
+        aliases: ["AwChart", "charts", "data-viz", "recharts", "gráfico", "dataviz"],
+      },
       { name: "Group card", href: "/bombardier/styleguide/components/aw-group-card" },
       { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
       {
@@ -178,6 +203,7 @@ export const navigation: NavSection[] = [
       { name: "Capability tile", href: "/bombardier/styleguide/components/aw-capability-tile" },
       { name: "Checkpoint chip", href: "/bombardier/styleguide/components/aw-checkpoint-chip" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
+      { name: "Mention menu", href: "/bombardier/styleguide/components/aw-mention-menu" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       {
         name: "Visual dos agentes",

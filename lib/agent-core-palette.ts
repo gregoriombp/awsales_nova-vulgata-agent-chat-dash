@@ -52,15 +52,22 @@ export interface AgentCorePalette {
 // distinct for as many agents as you add.
 const GOLDEN_ANGLE = 137.50776405; // even, low-discrepancy hue spread by index
 const HUE_DRIFT_MIN = 8; // color3 sits this many degrees off color2 …
-const HUE_DRIFT_MAX = 30; // … up to here — a tight, single-hue zone
+const HUE_DRIFT_MAX = 34; // … up to here — a tight, single-hue zone
+// Família "análoga" (2026-06-10, range ampliado): ~30% dos seeds estendem o
+// drift até a zona análoga vizinha — mais variedade percebida entre agentes,
+// sem nunca chegar perto do complementar (180°), que era o que injetava azul
+// em famílias quentes e desalinhava gradiente estático vs shader.
+const HUE_DRIFT_EXT_MIN = 38;
+const HUE_DRIFT_EXT_MAX = 62;
+const ANALOGOUS_SHARE = 0.3; // fração determinística de seeds na zona estendida
 const SAT_SOFT_MIN = 10; // color2: lower saturation (companion)
 const SAT_SOFT_MAX = 70;
-const SAT_VIVID_MIN = 20; // color3: high saturation (hero)
+const SAT_VIVID_MIN = 35; // color3: high saturation (hero) — piso subiu em 2026-06-10
 const SAT_VIVID_MAX = 100;
 const LIGHT_SOFT_MIN = 90; // both stay bright …
 const LIGHT_SOFT_MAX = 100; // … color2 a touch lighter (it's less saturated)
-const LIGHT_VIVID_MIN = 55;
-const LIGHT_VIVID_MAX = 60;
+const LIGHT_VIVID_MIN = 48; // range de luminosidade ampliado (era 55–60):
+const LIGHT_VIVID_MAX = 66; // heros mais profundos E mais luminosos na família
 
 // ── Deterministic RNG ────────────────────────────────────────────────────────
 // FNV-1a hash → mulberry32. Tiny, dependency-free, stable across server/client.
@@ -130,9 +137,15 @@ interface AgentHsl {
 function deriveAgent(seed: string | number): AgentHsl {
   const hue = (((indexFromSeed(seed) * GOLDEN_ANGLE) % 360) + 360) % 360;
   const rnd = mulberry32(hashSeed(seed));
+  // Sorteio da família ANTES dos demais draws para não deslocar a sequência
+  // entre famílias (mesma quantidade de rnd() em todos os caminhos).
+  const analogous = rnd() < ANALOGOUS_SHARE;
+  const driftT = rnd();
   return {
     hue,
-    drift: lerp(HUE_DRIFT_MIN, HUE_DRIFT_MAX, rnd()),
+    drift: analogous
+      ? lerp(HUE_DRIFT_EXT_MIN, HUE_DRIFT_EXT_MAX, driftT)
+      : lerp(HUE_DRIFT_MIN, HUE_DRIFT_MAX, driftT),
     sat2: lerp(SAT_SOFT_MIN, SAT_SOFT_MAX, rnd()),
     lig2: lerp(LIGHT_SOFT_MIN, LIGHT_SOFT_MAX, rnd()),
     sat3: lerp(SAT_VIVID_MIN, SAT_VIVID_MAX, rnd()),

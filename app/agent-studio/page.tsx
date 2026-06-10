@@ -9,7 +9,7 @@ import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwDotTunnel } from "@/components/ui/AwDotTunnel";
 import { AwPageHeader } from "@/components/ui/AwPageHeader";
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import {
   AwMembersTable,
   AwMembersTablePersonCell,
@@ -64,7 +64,7 @@ function StudioHeader() {
   return (
     <AwPageHeader
       size="hero"
-      icon={<AwUserAgentOrbStatic seed="agent-studio" size={48} />}
+      icon="agent_studio"
       title="Agent Studio"
       description="Descubra e crie agentes customizados que combinam instruções, conhecimento extra e qualquer combinação de tarefas."
       divider={false}
@@ -73,9 +73,10 @@ function StudioHeader() {
           <div className="flex shrink-0 flex-col items-end gap-2">
           <div className="flex -space-x-3">
             {orbs.map((agent) => (
-              <AwUserAgentOrbStatic
+              <AwUserAgentOrb
                 key={agent.id}
                 seed={agent.id}
+                state="responding"
                 size={40}
                 className="border-2 border-(--bg-canvas) shadow-sm"
               />
@@ -225,7 +226,9 @@ function AgentsTable({ agents }: { agents: Agent[] }) {
           >
             <AwMembersTablePersonCell
               name={agent.title}
-              avatar={<AwUserAgentOrbStatic seed={agent.id} size={40} />}
+              avatar={
+                <AwUserAgentOrb seed={agent.id} state="responding" size={40} />
+              }
             />
 
             <AwMembersTableTextCell muted>

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import {
   AGENT_STATUS_META,
   EDITOR_TABS,
@@ -35,6 +35,7 @@ export function AgentEditorShell({
   const { agent } = data;
   const tab = EDITOR_TABS.find((t) => t.id === activeTab) ?? EDITOR_TABS[0];
   const status = AGENT_STATUS_META[agent.status];
+  const orbState = agent.status === "paused" ? "paused" : "responding";
   const [collapsed, setCollapsed] = React.useState(false);
 
   return (
@@ -51,11 +52,16 @@ export function AgentEditorShell({
           }`}
         >
           <div className="flex items-start justify-between gap-2">
-            <AwUserAgentOrbStatic
-              seed={agent.id}
-              size={collapsed ? 36 : 48}
+            <span
+              className="inline-flex shrink-0"
               title={collapsed ? agent.title : undefined}
-            />
+            >
+              <AwUserAgentOrb
+                seed={agent.id}
+                state={orbState}
+                size={collapsed ? 36 : 48}
+              />
+            </span>
             {!collapsed && (
               <button
                 type="button"

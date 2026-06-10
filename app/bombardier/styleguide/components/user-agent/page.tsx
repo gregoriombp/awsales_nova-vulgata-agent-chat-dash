@@ -1,7 +1,4 @@
-import {
-  AwUserAgentOrb,
-  AwUserAgentOrbStatic,
-} from "@/components/ui/AwUserAgentOrb"
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb"
 import { AwAgentAvatar } from "@/components/ui/AwAgentAvatar"
 import { agentCoreSrc } from "@/components/ui/AwAgentCore"
 import { agentCorePalette } from "@/lib/agent-core-palette"
@@ -22,12 +19,20 @@ import {
 
 const seedOf = (i: number) => `agent-${String(i + 1).padStart(2, "0")}`
 
-// Live WebGL budget for this page (~16 contexts max on Chrome): FAMILY(3) +
-// STATES(5) + SIZE_SCALE(5) + estatico(1) + avatar hero(1) = 15. Keep these
-// loops small — each live AwUserAgentOrb / animated AwAgentAvatar is 1 context.
-const FAMILY = Array.from({ length: 3 }, (_, i) => seedOf(i))
+// Live WebGL budget for this page (~16 contexts max on Chrome): FAMILY(2) +
+// STATES(5) + SIZE_SCALE(5) + avatar hero(1) + anatomia(1) + comparação
+// webgl/css(1) = 15. Os avatar samples pequenos usam renderer="css" (zero
+// WebGL). O agente do usuário SÓ existe animado (a variante estática foi
+// removida em 2026-06-10); para densidade use renderer="css" — animado por
+// transform, sem contexto WebGL, sem limite prático.
+const FAMILY = Array.from({ length: 2 }, (_, i) => seedOf(i))
 
-// Color-rule gallery uses the *static* variant (no WebGL), so it can show many.
+// Grid do renderer CSS: 24 orbs animados, zero WebGL — prova do range novo da
+// paleta (monocromática + ~30% análoga estendida) sem estourar o orçamento.
+const CSS_GRID = Array.from({ length: 24 }, (_, i) => seedOf(i))
+
+// Color-rule gallery mostra só as paletas (swatches CSS, sem orb) — assim a
+// variedade de hues aparece sem custo de WebGL.
 const RULE_SAMPLE = Array.from({ length: 12 }, (_, i) => seedOf(i))
 
 const SIZE_SCALE = [
@@ -144,11 +149,13 @@ export default function UserAgentPage() {
             </>,
             <>
               Use <code className="mono">AwUserAgentOrb</code> (animado) em
-              heros, header da conversa e identidade do agente.
+              heros, header da conversa, listas e identidade do agente — o
+              agente do usuário só existe animado.
             </>,
             <>
-              Use <code className="mono">AwUserAgentOrbStatic</code> em listas,
-              tabelas e pickers — onde abrir dezenas de canvas WebGL é inviável.
+              Em telas com muitos agentes, <strong>reduza a amostra
+              visível</strong> (ex.: 5 orbs + contador) — cada orb ao vivo é um
+              contexto WebGL e o navegador limita ~16 por página.
             </>,
           ]}
           dontUse={[
@@ -173,7 +180,6 @@ export default function UserAgentPage() {
             { id: "estados", label: "Estados" },
             { id: "regra-cor", label: "Regra de cor" },
             { id: "tamanhos", label: "Tamanhos" },
-            { id: "estatico", label: "Estático vs animado" },
             { id: "avatar", label: "Agente + Core" },
             { id: "anatomia", label: "Anatomia" },
             { id: "controles", label: "Controles" },
@@ -273,7 +279,7 @@ export default function UserAgentPage() {
 
           <Stage
             label="seed → paleta (color1 branco fixo)"
-            hint="Círculos estáticos (AwUserAgentOrbStatic) pra mostrar muitos sem custo de WebGL. Repare: cada agente é uma hue distinta, e dentro dele color2/color3 são a mesma hue — só muda a saturação."
+            hint="Só as paletas (swatches), sem orb — a variedade de hues aparece sem custo de WebGL. Repare: cada agente é uma hue distinta, e dentro dele color2/color3 são a mesma hue — só muda a saturação."
             gridClassName="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
           >
             {RULE_SAMPLE.map((seed) => {
@@ -283,7 +289,6 @@ export default function UserAgentPage() {
                   key={seed}
                   className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-surface) p-3"
                 >
-                  <AwUserAgentOrbStatic seed={seed} size={44} />
                   <div className="flex flex-col gap-1 min-w-0">
                     <code className="mono text-[11px] text-(--fg-secondary) truncate">
                       {seed} · {p.hue}°
@@ -305,9 +310,55 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
 // color1 === "#ffffff"   (branco fixo)
 // color2  = mesma hue, mais suave   → companion
 // color3  = mesma hue, viva         → domina flow + glow
+// ~30% dos seeds estendem o drift à zona análoga (até 62°) —
+// mais variedade entre agentes, nunca complementar.
 
 // O componente já faz isso internamente — basta o seed:
 <AwUserAgentOrb seed="agent-03" size={96} />`}
+          </CodeExample>
+        </Section>
+
+        <Section
+          id="renderer-css"
+          title="Renderer leve (CSS)"
+          lead='Cada orb WebGL é um contexto — o Chrome corta em ~16 por página. Para listas, grids e telas densas, renderer="css" anima o MESMO mesh do seed só com transform (compositor): custo ~zero, sem limite prático, e o orb continua sempre vivo — a regra de produto não muda.'
+        >
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Stage
+              label='renderer="webgl" (default)'
+              hint="Shader Synthesis — herói de página, drawers, momentos de identidade."
+              dark
+            >
+              <AwUserAgentOrb seed="agent-07" size={120} />
+            </Stage>
+            <Stage
+              label='renderer="css"'
+              hint="Mesmo seed, mesmas cores — mesh animado por transform."
+              dark
+            >
+              <AwUserAgentOrb seed="agent-07" size={120} renderer="css" />
+            </Stage>
+          </div>
+
+          <div className="mt-4">
+            <Stage
+              label="24 agentes simultâneos — zero WebGL"
+              hint="Impossível no renderer padrão (estoura o limite de contextos). No css, cada um continua animado e com a paleta do próprio seed — incluindo a família análoga nova."
+              dark
+              gridClassName="grid grid-cols-6 sm:grid-cols-8 lg:grid-cols-12 gap-3 place-items-center"
+            >
+              {CSS_GRID.map((seed) => (
+                <AwUserAgentOrb key={seed} seed={seed} size={40} renderer="css" />
+              ))}
+            </Stage>
+          </div>
+
+          <CodeExample label="quando usar cada um" lang="tsx">
+            {`// Herói, drawer do Cortex, telas com ≤ ~8 orbs visíveis:
+<AwUserAgentOrb seed={agent.id} size={120} />
+
+// Listas, tabelas, grids, pickers — qualquer densidade:
+<AwUserAgentOrb seed={agent.id} size={32} renderer="css" />`}
           </CodeExample>
         </Section>
 
@@ -342,42 +393,13 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
         </Section>
 
         <Section
-          id="estatico"
-          title="Estático vs animado"
-          lead="Cada AwUserAgentOrb ao vivo é um contexto WebGL — e o navegador limita ~16 por página. Em qualquer grid/lista/picker use a variante estática; reserve a animada para focos individuais. Pra não destoar do animado, o estático não é um gradiente linear de 2 cores — é um gradient mesh."
-        >
-          <Stage
-            label="AwUserAgentOrb (ao vivo) · AwUserAgentOrbStatic (CSS)"
-            hint="Mesma silhueta e mesma paleta seeded. O estático usa um gradient mesh (vários radiais: highlight branco + viva + recessos profundos + um vizinho de hue) pra puxar o espectro pra perto do animado."
-            gridClassName="flex flex-wrap items-center gap-10"
-          >
-            <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
-              <AwUserAgentOrb seed="agent-02" size={88} />
-              <span className="mono">animado · WebGL</span>
-            </div>
-            <div className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
-              <AwUserAgentOrbStatic seed="agent-02" size={88} />
-              <span className="mono">estático · CSS</span>
-            </div>
-          </Stage>
-
-          <CodeExample label="quando usar cada um" lang="tsx">
-            {`// Foco individual (hero, header da conversa) → animado:
-<AwUserAgentOrb seed={agent.id} size={120} />
-
-// Densidade (lista de agentes, tabela, picker) → estático, sem custo de GPU:
-{agents.map((a) => <AwUserAgentOrbStatic key={a.id} seed={a.id} size={28} />)}`}
-          </CodeExample>
-        </Section>
-
-        <Section
           id="avatar"
           title="Agente + Core"
           lead="O agente roda em cima de um Agent Core — e a gente mostra isso como um avatar + 'status dot': o círculo do agente com o Core (diamante) preso na ponta inferior direita. Bate o olho e sabe qual framework cada agente usa. Componente: AwAgentAvatar."
         >
           <Stage
             label="AwAgentAvatar · círculo do agente + Core no canto inferior direito"
-            hint="Hero ao vivo + exemplos estáticos (densidade). O diamante é o Core que o agente escolheu na criação."
+            hint="Todos ao vivo — o agente do usuário só existe animado. O diamante é o Core que o agente escolheu na criação."
             gridClassName="flex flex-col gap-10"
           >
             <div className="flex flex-wrap items-end gap-10">
@@ -387,7 +409,6 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
                   coreSrc={agentCoreSrc(3)}
                   coreAlt="Core 03"
                   size={132}
-                  animated={true}
                 />
                 <span className="mono">ao vivo · agente azul + Core 03</span>
               </div>
@@ -397,9 +418,6 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
               {[
                 { a: "agent-01", c: 5 },
                 { a: "agent-02", c: 11 },
-                { a: "agent-08", c: 2 },
-                { a: "agent-12", c: 17 },
-                { a: "agent-06", c: 9 },
               ].map(({ a, c }) => (
                 <div
                   key={a}
@@ -409,8 +427,8 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
                     agentSeed={a}
                     coreSrc={agentCoreSrc(c)}
                     coreAlt={`Core ${String(c).padStart(2, "0")}`}
-                    animated={false}
                     size={76}
+                    renderer="css"
                   />
                   <span className="mono">
                     {a} · Core {String(c).padStart(2, "0")}
@@ -425,21 +443,18 @@ const { color1, color2, color3, hue } = agentCorePalette("agent-03")
 import { agentCoreSrc } from "@/components/ui/AwAgentCore"
 
 // O agente (círculo animado) + o Core que ele usa (diamante, no canto):
-<AwAgentAvatar agentSeed={agent.id} coreSrc={agentCoreSrc(agent.coreId)} size={72} />
-
-// Em listas/tabelas, sem custo de GPU:
-<AwAgentAvatar agentSeed={agent.id} coreSrc={agentCoreSrc(agent.coreId)} animated={false} size={32} />`}
+<AwAgentAvatar agentSeed={agent.id} coreSrc={agentCoreSrc(agent.coreId)} size={72} />`}
           </CodeExample>
         </Section>
 
         <Section
           id="anatomia"
           title="Anatomia"
-          lead="Círculo simples (border-radius total) sobre o canvas do Synthesis. A silhueta redonda é o que separa o agente do usuário do Core (diamante) e do Cortex (hex). (Preview estático aqui por orçamento de WebGL — o fill real é o shader.)"
+          lead="Círculo simples (border-radius total) sobre o canvas do Synthesis, com o plano do shader levemente ampliado dentro da máscara (zoom) pra esfera nunca aparecer cortada. A silhueta redonda é o que separa o agente do usuário do Core (diamante) e do Cortex (hex)."
         >
           <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8">
             <div className="flex items-center justify-center">
-              <AwUserAgentOrbStatic seed="agent-01" size={140} />
+              <AwUserAgentOrb seed="agent-01" size={140} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <Spec
@@ -546,12 +561,6 @@ import { agentCoreSrc } from "@/components/ui/AwAgentCore"
             />
           </ApiTable>
 
-          <p className="caption mt-4">
-            <code className="mono">AwUserAgentOrbStatic</code> aceita só{" "}
-            <code className="mono">seed</code>, <code className="mono">size</code>{" "}
-            e <code className="mono">className</code> — sem eixos de shader, já
-            que é puro CSS.
-          </p>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">
@@ -562,8 +571,9 @@ import { agentCoreSrc } from "@/components/ui/AwAgentCore"
                 — assim a cor vira identidade fixa daquele agente.
               </>,
               <>
-                Troque para <code className="mono">AwUserAgentOrbStatic</code> em
-                grids e listas; mantenha o animado em focos individuais.
+                Em grids e listas longas, mostre uma <strong>amostra</strong> dos
+                orbs (+ contador) — o agente só existe animado, então o
+                orçamento de WebGL se gerencia pela quantidade visível.
               </>,
               <>
                 Deixe <code className="mono">color1</code> em branco — é o que dá

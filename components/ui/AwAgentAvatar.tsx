@@ -1,10 +1,7 @@
 "use client";
 
 import { AwAgentCore, DIAMOND_MASK_STYLE } from "@/components/ui/AwAgentCore";
-import {
-  AwUserAgentOrb,
-  AwUserAgentOrbStatic,
-} from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { type UserAgentState } from "@/lib/user-agent-presets";
 import { cn } from "@/lib/utils";
 
@@ -18,8 +15,8 @@ export interface AwAgentAvatarProps {
   state?: UserAgentState;
   /** Diameter of the agent circle in px. The core badge scales from it. */
   size?: number;
-  /** Live WebGL orb (true) or static mesh (false — for lists/pickers). */
-  animated?: boolean;
+  /** Repassado ao orb: "css" anima sem contexto WebGL (listas/grids densos). */
+  renderer?: "webgl" | "css";
   className?: string;
 }
 
@@ -29,8 +26,9 @@ export interface AwAgentAvatarProps {
  * the canonical way to show *which Core an agent runs on*: the living circle is
  * the agent, the diamond badge is the framework it was created against.
  *
- * Uses one live WebGL context when `animated` (the orb); the core badge is a
- * static PNG. For dense lists pass `animated={false}` to drop the context.
+ * Uses one live WebGL context (the orb); the core badge is a static PNG.
+ * O agente do usuário só existe animado — em listas densas, reduza a amostra
+ * visível em vez de congelar o orb.
  *
  * Note: `state` is forwarded to the orb, so `state="thinking"` runs the shape
  * morph. At small sizes a morph corner can peek beside the badge (the badge is
@@ -43,7 +41,7 @@ export function AwAgentAvatar({
   coreAlt = "",
   state = "idle",
   size = 72,
-  animated = true,
+  renderer = "webgl",
   className,
 }: AwAgentAvatarProps) {
   const coreSize = Math.round(size * 0.42);
@@ -56,11 +54,7 @@ export function AwAgentAvatar({
       className={cn("relative shrink-0", className)}
       style={{ width: size, height: size }}
     >
-      {animated ? (
-        <AwUserAgentOrb seed={agentSeed} state={state} size={size} />
-      ) : (
-        <AwUserAgentOrbStatic seed={agentSeed} size={size} />
-      )}
+      <AwUserAgentOrb seed={agentSeed} state={state} size={size} renderer={renderer} />
       {/* Core badge. The bg-canvas diamond behind the core is the rim that
           separates it from the orb (like the ring around a status dot). */}
       <div

@@ -9,17 +9,58 @@ import {
   AwCardTitle,
 } from "@/components/ui/AwCard"
 import { AwField, AwInput } from "@/components/ui/AwInput"
+import { AwLogo } from "@/components/ui/AwLogo"
+import { AwBrandIllustration } from "@/components/ui/AwBrandIllustration"
+import { Icon } from "@/components/ui/Icon"
 import { AwPill } from "@/components/ui/AwPill"
 import { PageHero, Spec } from "./_primitives"
 
 /*
- * Home da styleguide = "Design tokens hub".
+ * Home da styleguide = porta de entrada da apresentação do sistema.
  *
- * Conteúdo profundo de cor, typography, spacing e grid migrou pras páginas
- * dedicadas em `foundation/*` (padrão canônico 2026-05). Esta home mantém
- * uma vista panorâmica + as sections que ainda não viraram página própria
- * (radius, shadows, motion, gradient, dark shell, components overview).
+ * Abre com a marca (manifesto + entradas por área), segue para a vista
+ * panorâmica de tokens. Conteúdo profundo de cor, typography, spacing e grid
+ * mora nas páginas dedicadas em `foundation/*` (padrão canônico 2026-05);
+ * a história completa da marca mora em `marca/*`.
  */
+
+const ENTRY_CARDS = [
+  {
+    href: "/bombardier/styleguide/marca/sobre",
+    icon: "auto_awesome",
+    title: "Marca",
+    desc: "História, tom de voz, logo, imageria e ilustrações.",
+    tint: "var(--aw-blue-600)",
+  },
+  {
+    href: "/bombardier/styleguide/foundation/color",
+    icon: "palette",
+    title: "Foundations",
+    desc: "Cor, tipografia, grid, movimento — os tokens do sistema.",
+    tint: "var(--aw-slate-600)",
+  },
+  {
+    href: "/bombardier/styleguide/components/buttons",
+    icon: "widgets",
+    title: "Biblioteca",
+    desc: "De primitivos a componentes de domínio, com API e estados.",
+    tint: "var(--aw-purple-500)",
+  },
+  {
+    href: "/bombardier/styleguide/ux-flows/primeiro-acesso",
+    icon: "route",
+    title: "UX Flows",
+    desc: "As jornadas do produto mapeadas tela a tela.",
+    tint: "var(--aw-teal-600)",
+  },
+]
+
+const SYSTEM_STATS = [
+  { v: "60+", k: "componentes Aw*" },
+  { v: "10", k: "foundations" },
+  { v: "26", k: "integrações com ícone" },
+  { v: "2", k: "temas · light e dark" },
+]
 
 const radii = [
   { name: "xs", token: "--radius-xs", value: "4px", use: "Chips, tags" },
@@ -151,15 +192,104 @@ function FoundationSummary({
 export default function StyleguidePage() {
   return (
     <>
-      <PageHero title="Design tokens">
+      <PageHero title="Aswork Design System">
         Minimalismo geométrico ancorado em grayscale, pontuado por um único
         acento azul — a &ldquo;voz&rdquo; da IA. Cinza é estrutura; o gradiente
-        iridescente é subjetividade. Cada token abaixo mora em{" "}
-        <code className="mono">app/globals.css</code> — variável funcional do
-        sistema, inspecionável no DevTools.
+        é subjetividade. Este styleguide é a fonte de verdade da marca e do
+        produto: da história ao token, tudo inspecionável e pronto para
+        reuso.
       </PageHero>
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-20">
+          {/* ── Hero de apresentação ───────────────────────────────────── */}
+          <div className="relative overflow-hidden rounded-2xl bg-aw-gray-1200 text-aw-gray-25">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(56% 78% at 86% 4%, color-mix(in srgb, var(--aw-blue-600) 24%, transparent) 0%, color-mix(in srgb, var(--aw-blue-1000) 16%, transparent) 52%, transparent 100%)",
+              }}
+            />
+            <div className="relative grid grid-cols-1 gap-10 px-12 py-14 lg:grid-cols-[1.5fr_1fr]">
+              <div className="flex flex-col justify-between gap-10">
+                <AwLogo variant="mark" height={36} className="text-aw-gray-25" />
+                <div>
+                  <p className="m-0 max-w-[640px] font-heading text-[clamp(26px,3vw,40px)] font-medium leading-[1.14] tracking-[-0.015em]">
+                    Aswork is an artificial workforce layer for revenue
+                    operations.
+                  </p>
+                  <p className="mb-0 mt-4 text-[16px] text-aw-gray-500">
+                    Your company, working beyond itself.
+                  </p>
+                </div>
+                {/* Botões manuais: o painel é escuro fixo (não flipa com o tema),
+                    então as variants do AwButton (tokens semânticos) somem aqui. */}
+                <div className="flex flex-wrap gap-3">
+                  <Link
+                    href="/bombardier/styleguide/marca/sobre"
+                    className="inline-flex h-10 items-center rounded-full bg-aw-gray-25 px-5 text-sm font-medium text-aw-gray-1200 no-underline transition-colors hover:bg-white"
+                  >
+                    Conhecer a marca
+                  </Link>
+                  <Link
+                    href="/bombardier/styleguide/marca/tom-de-voz"
+                    className="inline-flex h-10 items-center rounded-full border border-white/20 px-5 text-sm font-medium text-aw-gray-200 no-underline transition-colors hover:bg-white/10 hover:text-white"
+                  >
+                    Tom de voz
+                  </Link>
+                </div>
+              </div>
+              <div className="hidden items-center justify-center lg:flex">
+                <AwBrandIllustration name="layers" size={280} className="opacity-90" />
+              </div>
+            </div>
+            <div className="relative grid grid-cols-2 border-t border-white/10 md:grid-cols-4">
+              {SYSTEM_STATS.map((s) => (
+                <div
+                  key={s.k}
+                  className="border-r border-white/10 px-8 py-6 last:border-r-0"
+                >
+                  <div className="font-heading text-[26px] font-medium">{s.v}</div>
+                  <div className="mt-0.5 text-[12px] text-aw-gray-500">{s.k}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Comece por aqui ───────────────────────────────────────── */}
+          <Section
+            id="entradas"
+            title="Comece por aqui"
+            lead="Quatro áreas, uma sidebar. A busca cobre aliases — procure pelo nome que você conhece."
+          >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {ENTRY_CARDS.map((c) => (
+                <Link
+                  key={c.href}
+                  href={c.href}
+                  className="group rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 no-underline transition-all hover:-translate-y-0.5 hover:border-(--border-default) hover:shadow-(--shadow-sm)"
+                >
+                  <span
+                    className="flex h-10 w-10 items-center justify-center rounded-lg"
+                    style={{
+                      background: `color-mix(in srgb, ${c.tint} 12%, transparent)`,
+                      color: c.tint,
+                    }}
+                  >
+                    <Icon name={c.icon} size={20} weight={300} />
+                  </span>
+                  <h3 className="mb-0 mt-4 text-[15px] font-semibold text-(--fg-primary)">
+                    {c.title}
+                  </h3>
+                  <p className="mb-0 mt-1.5 text-sm leading-relaxed text-(--fg-secondary)">
+                    {c.desc}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </Section>
+
           <Section
             id="best-practices"
             title="Como usar este styleguide"

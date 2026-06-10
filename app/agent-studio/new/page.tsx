@@ -9,7 +9,7 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { Icon } from "@/components/ui/Icon";
@@ -709,7 +709,7 @@ function AgentStudioNewContent() {
                                   <div className="flex items-center gap-2">
                                     <div className="flex -space-x-1.5">
                                       {["sales", "customer-support"].map((id) => (
-                                        <AwUserAgentOrbStatic
+                                        <AwUserAgentOrb
                                           key={id}
                                           seed={id}
                                           size={20}

@@ -11,7 +11,7 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
 import {
   getAgentEditorData,
@@ -566,8 +566,9 @@ function PublishedModal({
             }}
           />
           <span className="relative inline-flex">
-            <AwUserAgentOrbStatic
+            <AwUserAgentOrb
               seed={agentId}
+              state="responding"
               size={80}
               className="border-2 border-white shadow-md"
             />

@@ -16,6 +16,7 @@ import type {
   Checkpoint,
   CheckpointRegra,
   HabilidadeConfigurada,
+  SkillGroup,
 } from "@/lib/agentStudio";
 
 /**
@@ -55,7 +56,11 @@ export type ActiveEditorHandle = Pick<
 type EditorCommonProps = {
   habilidades: HabilidadeConfigurada[];
   variaveis: AgentVariable[];
+  /** Grupos da DSL — o menu @ separa nativas de integrações (drill-in). */
+  grupos?: SkillGroup[];
   onCreateVariable: (nome: string) => void;
+  /** "+ Nova Integração" no menu @ — abre o catálogo de integrações. */
+  onRequestNewIntegration?: () => void;
   onEditorFocus: (handle: ActiveEditorHandle | null) => void;
   onTokenClick: (token: TokenClick) => void;
 };
@@ -73,7 +78,9 @@ function InlineEditor({
   editorRef,
   habilidades,
   variaveis,
+  grupos,
   onCreateVariable,
+  onRequestNewIntegration,
   onEditorFocus,
   onTokenClick,
 }: EditorCommonProps & {
@@ -106,7 +113,9 @@ function InlineEditor({
       onChange={onChange}
       habilidades={habilidades}
       variaveis={variaveis}
+      grupos={grupos}
       onCreateVariable={onCreateVariable}
+      onRequestNewIntegration={onRequestNewIntegration}
       chrome="bare"
       multiline={multiline}
       onEnterKey={onEnterKey}
@@ -489,7 +498,7 @@ function CheckpointSection({
   return (
     <section
       id={`cp-${cp.id}`}
-      className="group/cp scroll-mt-32 px-9 py-8 first:pt-9 last:pb-10"
+      className="group/cp scroll-mt-32 px-9 py-5 first:pt-9"
     >
       {/* Header da seção */}
       <header className="flex items-center gap-3">
@@ -501,7 +510,7 @@ function CheckpointSection({
           onChange={(e) => onPatch({ titulo: e.target.value })}
           placeholder="Título do checkpoint"
           aria-label={`Título do checkpoint ${pad(cp.numero)}`}
-          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-[17px] font-medium tracking-tight text-(--fg-primary) outline-none transition-colors duration-aw-fast placeholder:text-(--fg-tertiary) hover:bg-(--bg-hover)/60 focus:bg-transparent"
+          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-[17px] font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-tertiary)"
         />
         <div className="shrink-0 opacity-0 transition-opacity duration-aw-fast focus-within:opacity-100 group-hover/cp:opacity-100">
           <AwDropdownMenu
@@ -701,12 +710,12 @@ export function CheckpointDocument({
     setDeleteId(null);
   };
 
-  const addCheckpoint = (afterId?: string) => {
+  const addCheckpoint = (afterId?: string, titulo = "") => {
     const id = nextId("cp-novo");
     const novo: Checkpoint = {
       id,
       numero: 0,
-      titulo: "",
+      titulo,
       objetivo: "",
       corpo: "",
     };
@@ -717,14 +726,19 @@ export function CheckpointDocument({
     next.splice(at === 0 ? next.length : at, 0, novo);
     onChange(renumber(next));
     requestAnimationFrame(() => {
-      document
-        .getElementById(`cp-${id}`)
-        ?.scrollIntoView({ behavior: "smooth", block: "center" });
+      const section = document.getElementById(`cp-${id}`);
+      section?.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Continua a digitação no título recém-criado, com o caret no fim.
+      const input = section?.querySelector("input");
+      if (input) {
+        input.focus();
+        input.setSelectionRange(input.value.length, input.value.length);
+      }
     });
   };
 
   return (
-    <div className="aw-sheen-border rounded-2xl border border-(--border-subtle) bg-(--bg-surface) shadow-xs">
+    <div className="aw-sheen-border rounded-2xl border border-(--border-subtle) bg-(--bg-raised) shadow-xs">
       {/* Anel em gradiente MEGA sutil circulando a borda (tratamento Gemini).
           O ::before desenha só o anel de 1px via mask composite; o sweep
           azul→roxo gira devagar por cima da borda estática do container.
@@ -767,7 +781,9 @@ export function CheckpointDocument({
           .aw-sheen-border::before { animation: none; }
         }
       `}</style>
-      <div className="divide-y divide-(--border-subtle)">
+      {/* Documento contínuo — os checkpoints fluem como um único campo de
+          texto, sem divisores nem cards entre eles. */}
+      <div>
         {checkpoints.map((cp, i) => (
           <CheckpointSection
             key={cp.id}
@@ -784,15 +800,25 @@ export function CheckpointDocument({
         ))}
       </div>
 
-      <div className="px-9 pb-8">
-        <button
-          type="button"
-          onClick={() => addCheckpoint()}
-          className="flex w-full items-center justify-center gap-1.5 rounded-xl border border-dashed border-(--border-default) px-4 py-3 text-sm font-medium text-(--fg-tertiary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-secondary)"
+      {/* Linha-fantasma — o próximo checkpoint nasce digitando, como num
+          campo de texto contínuo. O primeiro caractere vira o título. */}
+      <div className="flex items-center gap-3 px-9 pb-9 pt-3">
+        <span
+          aria-hidden="true"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-heading text-[13px] font-medium text-(--fg-muted)"
         >
-          <Icon name="add" size={16} />
-          Adicionar checkpoint
-        </button>
+          {pad(checkpoints.length + 1)}
+        </span>
+        <input
+          value=""
+          onChange={(e) => {
+            const titulo = e.target.value;
+            if (titulo.trim()) addCheckpoint(undefined, titulo);
+          }}
+          placeholder="Escreva para criar o próximo checkpoint…"
+          aria-label="Criar novo checkpoint digitando o título"
+          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-[17px] font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-muted)"
+        />
       </div>
 
       {/* Confirmação de exclusão */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { type HTMLAttributes, useMemo } from "react";
+import { useMemo } from "react";
 import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis";
 import { agentCorePalette, agentMeshBackground } from "@/lib/agent-core-palette";
 import {
@@ -38,6 +38,16 @@ export interface AwUserAgentOrbProps {
   state?: UserAgentState;
   /** Diameter in px. */
   size?: number;
+  /**
+   * "webgl" (default) — shader Synthesis, 1 contexto WebGL por instância
+   * (limite ~16/página no Chrome). "css" — mesh animado por transform
+   * (compositor-only, custo ~zero): use em listas, grids e qualquer tela com
+   * muitos orbs. Ambos derivam as cores do MESMO seed. O modo css continua
+   * SEMPRE animado — a decisão de produto de 2026-06-10 proíbe orb congelado;
+   * a única exceção é prefers-reduced-motion (acessibilidade), que pausa o
+   * movimento e mantém o mesh.
+   */
+  renderer?: "webgl" | "css";
   className?: string;
   // ── Shader overrides ──────────────────────────────────────────────────────
   // Palette is seeded and the state preset tunes the motion; pass these only
@@ -67,13 +77,14 @@ export interface AwUserAgentOrbProps {
  *  - `error` goes mostly grayscale with a muted red.
  *
  * Each instance is its own WebGL context. Browsers cap active contexts
- * (~16 on Chrome), so don't render large grids of these on one page — use
- * {@link AwUserAgentOrbStatic} for dense lists, tables and pickers.
+ * (~16 on Chrome) — in dense lists/grids show a reduced sample of orbs
+ * (plus a counter) instead of one orb per row.
  */
 export function AwUserAgentOrb({
   seed = "agent",
   state = "idle",
   size = 64,
+  renderer = "webgl",
   className,
   color2,
   color3,
@@ -87,6 +98,10 @@ export function AwUserAgentOrb({
 }: AwUserAgentOrbProps) {
   const palette = useMemo(() => agentCorePalette(seed), [seed]);
   const preset = USER_AGENT_STATE_PRESETS[state];
+
+  if (renderer === "css") {
+    return <CssOrb seed={seed} state={state} size={size} className={className} />;
+  }
 
   // Size-aware density, same as AwCopilotOrb: at small sizes the standard
   // complexity/scale crams too many swirls into a few pixels and reads as
@@ -104,23 +119,30 @@ export function AwUserAgentOrb({
         state === "thinking" && "aw-agent-think",
         className,
       )}
-      style={{ width: size, height: size }}
+      // Black circle behind the shader — any transient gap during the
+      // thinking morph/rotation reads as the orb's own dark core.
+      style={{ width: size, height: size, background: USER_AGENT_BASE.bg }}
       aria-hidden="true"
     >
-      <AwCortexSynthesis
-        speed={speed ?? preset.speed ?? USER_AGENT_BASE.speed}
-        color1={palette.color1}
-        color2={color2 ?? preset.color2 ?? palette.color2}
-        color3={color3 ?? preset.color3 ?? palette.color3}
-        scale={scale ?? preset.scale ?? autoScale}
-        complexity={complexity ?? preset.complexity ?? autoComplexity}
-        distortion={distortion ?? preset.distortion ?? autoDistortion}
-        glowIntensity={glowIntensity ?? preset.glowIntensity ?? USER_AGENT_BASE.glowIntensity}
-        flowFrequency={flowFrequency ?? preset.flowFrequency ?? USER_AGENT_BASE.flowFrequency}
-        contrast={contrast ?? preset.contrast ?? USER_AGENT_BASE.contrast}
-        hueSpeed={preset.hueSpeed ?? 0}
-        backgroundColor={USER_AGENT_BASE.bg}
-      />
+      {/* Zoom: the shader plane is oversized inside the circular mask so the
+          painted sphere never shows a cut edge — especially while the
+          thinking state morphs and rotates the silhouette. */}
+      <div className="absolute" style={{ inset: "-18%" }}>
+        <AwCortexSynthesis
+          speed={speed ?? preset.speed ?? USER_AGENT_BASE.speed}
+          color1={palette.color1}
+          color2={color2 ?? preset.color2 ?? palette.color2}
+          color3={color3 ?? preset.color3 ?? palette.color3}
+          scale={scale ?? preset.scale ?? autoScale}
+          complexity={complexity ?? preset.complexity ?? autoComplexity}
+          distortion={distortion ?? preset.distortion ?? autoDistortion}
+          glowIntensity={glowIntensity ?? preset.glowIntensity ?? USER_AGENT_BASE.glowIntensity}
+          flowFrequency={flowFrequency ?? preset.flowFrequency ?? USER_AGENT_BASE.flowFrequency}
+          contrast={contrast ?? preset.contrast ?? USER_AGENT_BASE.contrast}
+          hueSpeed={preset.hueSpeed ?? 0}
+          backgroundColor={USER_AGENT_BASE.bg}
+        />
+      </div>
       {/* Inner glow rim — borderRadius:inherit so it tracks the thinking morph. */}
       <span
         className="absolute inset-0 pointer-events-none"
@@ -130,43 +152,115 @@ export function AwUserAgentOrb({
   );
 }
 
-export interface AwUserAgentOrbStaticProps
-  extends HTMLAttributes<HTMLDivElement> {
-  seed?: string | number;
-  size?: number;
-}
+/* ── Renderer CSS (renderer="css") ────────────────────────────────────────────
+ * O mesh em radial-gradients do MESMO seed (agentMeshBackground), animado só
+ * por transform em duas camadas contra-rotativas — compositor-only, custo
+ * ~zero, sem contexto WebGL. Não é a "variante estática" removida em
+ * 2026-06-10: continua sempre animado; reduced-motion é a única exceção. */
 
-/**
- * AwUserAgentOrbStatic — the same circle silhouette and seeded palette as
- * {@link AwUserAgentOrb}, rendered with a CSS gradient *mesh* (no WebGL).
- *
- * Use it wherever the animated version is impractical: dense lists, tables,
- * pickers, or any view that would otherwise spawn dozens of canvases. The mesh
- * ({@link agentMeshBackground}) layers white highlights, the vivid hero, soft
- * mids, deep recesses and a touch of a neighbouring hue so it reads close to
- * the animated spectrum — not a flat two-color gradient.
- */
-export function AwUserAgentOrbStatic({
-  seed = "agent",
-  size = 40,
+const CSS_ORB_SPIN_S: Record<UserAgentState, number> = {
+  idle: 18,
+  thinking: 7,
+  responding: 11,
+  paused: 0, // pausado de fato (animation-play-state)
+  error: 22,
+};
+
+function CssOrb({
+  seed,
+  state,
+  size,
   className,
-  style,
-  ...rest
-}: AwUserAgentOrbStaticProps) {
-  const background = useMemo(() => agentMeshBackground(seed), [seed]);
+}: {
+  seed: string | number;
+  state: UserAgentState;
+  size: number;
+  className?: string;
+}) {
+  const mesh = useMemo(() => agentMeshBackground(seed), [seed]);
+  const spin = CSS_ORB_SPIN_S[state];
+  const playState = state === "paused" ? "paused" : "running";
 
   return (
     <div
-      className={cn("relative shrink-0 rounded-full", className)}
+      className={cn(
+        "aw-css-orb relative shrink-0 overflow-hidden rounded-full",
+        state === "thinking" && "aw-agent-think",
+        className,
+      )}
       style={{
         width: size,
         height: size,
-        background,
-        boxShadow: INNER_GLOW,
-        ...style,
+        background: USER_AGENT_BASE.bg,
+        opacity: state === "paused" ? 0.85 : undefined,
+        filter: state === "paused" ? "saturate(0.35)" : undefined,
       }}
       aria-hidden="true"
-      {...rest}
-    />
+    >
+      <style>{`
+        @keyframes aw-css-orb-spin { to { transform: rotate(360deg); } }
+        @keyframes aw-css-orb-spin-rev { to { transform: rotate(-360deg); } }
+        @keyframes aw-css-orb-breathe {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.06); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .aw-css-orb * { animation: none !important; }
+        }
+      `}</style>
+      {/* Camada 1: o mesh do seed, girando devagar dentro da máscara circular. */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          inset: "-22%",
+          background: mesh,
+          animation:
+            spin > 0 ? `aw-css-orb-spin ${spin}s linear infinite` : undefined,
+          animationPlayState: playState,
+        }}
+      />
+      {/* Camada 2: brilho líquido contra-rotativo (conic suave + blur). */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          inset: "-12%",
+          background:
+            "conic-gradient(from 40deg, rgba(255,255,255,0) 0deg, rgba(255,255,255,0.55) 52deg, rgba(255,255,255,0) 132deg, rgba(255,255,255,0.18) 236deg, rgba(255,255,255,0) 320deg)",
+          filter: "blur(6px)",
+          mixBlendMode: "soft-light",
+          animation:
+            spin > 0
+              ? `aw-css-orb-spin-rev ${spin * 1.6}s linear infinite`
+              : undefined,
+          animationPlayState: playState,
+        }}
+      />
+      {/* Núcleo claro fixo — o highlight que o shader pinta com color1. */}
+      <div
+        className="absolute rounded-full"
+        style={{
+          inset: "14%",
+          background:
+            "radial-gradient(58% 58% at 38% 32%, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0) 62%)",
+          animation:
+            state === "responding"
+              ? "aw-css-orb-breathe 2.6s var(--ease-out) infinite"
+              : undefined,
+        }}
+      />
+      {/* Tinta de erro — vermelho contido por cima do mesh. */}
+      {state === "error" && (
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: "color-mix(in srgb, var(--accent-danger) 26%, transparent)",
+          }}
+        />
+      )}
+      <span
+        className="pointer-events-none absolute inset-0"
+        style={{ boxShadow: INNER_GLOW, borderRadius: "inherit" }}
+      />
+    </div>
   );
 }
