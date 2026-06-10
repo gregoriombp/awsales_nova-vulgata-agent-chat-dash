@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
-import { AwInput } from "@/components/ui/AwInput";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
@@ -24,6 +24,7 @@ import {
   SCOPES,
   getRoleColor,
   type Member,
+  type RoleColorId,
   type RoleDefinition,
   type Scope,
   type ScopeGroup,
@@ -37,7 +38,7 @@ import { TeamTabs } from "../_components/TeamTabs";
 export default function RolesPage() {
   const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [newRoleId, setNewRoleId] = useState<string | null>(null);
+  const [wizardOpen, setWizardOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [memberModalRoleId, setMemberModalRoleId] = useState<string | null>(null);
 
@@ -56,25 +57,41 @@ export default function RolesPage() {
     );
   }, [roles, search]);
 
-  const handleCreateRole = useCallback(() => {
-    const usedColors = new Set(roles.map((r) => r.color));
-    const nextColor =
-      ROLE_COLORS.find((c) => !usedColors.has(c.id))?.id ?? "blue";
-    const id = `r-custom-${Date.now()}`;
-    const role: RoleDefinition = {
-      id,
-      name: "Nova função",
-      description: "Função personalizada — defina permissões à direita.",
-      memberCount: 0,
-      capabilities: [],
-      isSystem: false,
-      color: nextColor,
-      icon: DEFAULT_CUSTOM_ROLE_ICON,
-    };
-    setRoles((prev) => [...prev, role]);
-    setSelectedId(id);
-    setNewRoleId(id);
+  // Cor sugerida pro wizard: primeira ainda não usada por outra função.
+  const suggestedColor = useMemo<RoleColorId>(() => {
+    const used = new Set(roles.map((r) => r.color));
+    return ROLE_COLORS.find((c) => !used.has(c.id))?.id ?? "blue";
   }, [roles]);
+
+  const handleCreateRole = useCallback(() => {
+    setWizardOpen(true);
+  }, []);
+
+  const handleWizardCreate = useCallback(
+    (data: {
+      name: string;
+      description: string;
+      color: RoleColorId;
+      icon: string;
+      capabilities: string[];
+    }) => {
+      const id = `r-custom-${Date.now()}`;
+      const role: RoleDefinition = {
+        id,
+        name: data.name,
+        description: data.description,
+        memberCount: 0,
+        capabilities: data.capabilities,
+        isSystem: false,
+        color: data.color,
+        icon: data.icon,
+      };
+      setRoles((prev) => [...prev, role]);
+      setSelectedId(id);
+      setWizardOpen(false);
+    },
+    []
+  );
 
   const handlePatchRole = useCallback(
     (id: string, patch: Partial<RoleDefinition>) => {
@@ -162,8 +179,7 @@ export default function RolesPage() {
               {selected && (
                 <RoleDetail
                   role={selected}
-                  isNew={selected.id === newRoleId}
-                  onBack={() => { setSelectedId(null); setNewRoleId(null); }}
+                  onBack={() => setSelectedId(null)}
                   onPatch={(patch) => handlePatchRole(selected.id, patch)}
                   onDelete={() => handleDeleteRole(selected.id)}
                 />
@@ -179,6 +195,13 @@ export default function RolesPage() {
           memberModalRole ? membersByRole.get(memberModalRole.name) ?? [] : []
         }
         onClose={() => setMemberModalRoleId(null)}
+      />
+
+      <CreateRoleWizard
+        open={wizardOpen}
+        suggestedColor={suggestedColor}
+        onClose={() => setWizardOpen(false)}
+        onCreate={handleWizardCreate}
       />
     </>
   );
@@ -231,6 +254,387 @@ function RoleMembersModal({
         </div>
       )}
     </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Create role wizard — modal sequencial em 3 etapas:
+ * identidade → permissões → revisão.
+ * ----------------------------------------------------------------- */
+
+const WIZARD_STEPS = [
+  { id: "identity", label: "Identidade" },
+  { id: "permissions", label: "Permissões" },
+  { id: "review", label: "Revisão" },
+] as const;
+
+const ROLE_ICON_OPTIONS = [
+  "badge",
+  "support_agent",
+  "smart_toy",
+  "campaign",
+  "forum",
+  "verified",
+  "person",
+  "lock",
+];
+
+function CreateRoleWizard({
+  open,
+  suggestedColor,
+  onClose,
+  onCreate,
+}: {
+  open: boolean;
+  suggestedColor: RoleColorId;
+  onClose: () => void;
+  onCreate: (data: {
+    name: string;
+    description: string;
+    color: RoleColorId;
+    icon: string;
+    capabilities: string[];
+  }) => void;
+}) {
+  const [step, setStep] = useState(0);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [color, setColor] = useState<RoleColorId>(suggestedColor);
+  const [icon, setIcon] = useState(DEFAULT_CUSTOM_ROLE_ICON);
+  const [granted, setGranted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (open) {
+      setStep(0);
+      setName("");
+      setDescription("");
+      setColor(suggestedColor);
+      setIcon(DEFAULT_CUSTOM_ROLE_ICON);
+      setGranted(new Set());
+    }
+  }, [open, suggestedColor]);
+
+  const togglePermission = (id: string, next: boolean) => {
+    setGranted((prev) => {
+      const out = new Set(prev);
+      if (next) out.add(id);
+      else out.delete(id);
+      return out;
+    });
+  };
+
+  const setScopeAll = (scope: Scope, next: boolean) => {
+    const ids = scope.groups.flatMap((g) => g.permissions.map((p) => p.id));
+    setGranted((prev) => {
+      const out = new Set(prev);
+      ids.forEach((id) => (next ? out.add(id) : out.delete(id)));
+      return out;
+    });
+  };
+
+  const canAdvance = step === 0 ? name.trim().length > 0 : true;
+  const isLast = step === WIZARD_STEPS.length - 1;
+
+  const handlePrimary = () => {
+    if (!canAdvance) return;
+    if (!isLast) {
+      setStep((s) => s + 1);
+      return;
+    }
+    onCreate({
+      name: name.trim(),
+      description:
+        description.trim() ||
+        "Função personalizada — ajuste permissões quando precisar.",
+      color,
+      icon,
+      capabilities: Array.from(granted),
+    });
+  };
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      size="cockpit"
+      title="Criar função"
+      footer={
+        <>
+          {step > 0 ? (
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft="arrow_back"
+              onClick={() => setStep((s) => s - 1)}
+            >
+              Voltar
+            </AwButton>
+          ) : (
+            <AwButton size="sm" variant="ghost" onClick={onClose}>
+              Cancelar
+            </AwButton>
+          )}
+          <span className="flex-1" />
+          <AwButton
+            size="sm"
+            variant="primary"
+            iconLeft={isLast ? "add" : undefined}
+            iconRight={isLast ? undefined : "arrow_forward"}
+            disabled={!canAdvance}
+            onClick={handlePrimary}
+          >
+            {isLast ? "Criar função" : "Continuar"}
+          </AwButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <WizardStepIndicator current={step} />
+
+        {step === 0 && (
+          <div className="flex flex-col gap-5">
+            <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md"
+                style={{
+                  background: `color-mix(in srgb, ${getRoleColor(color).token} 18%, transparent)`,
+                  color: getRoleColor(color).token,
+                }}
+                aria-hidden="true"
+              >
+                <Icon name={icon} size={20} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
+                  {name.trim() || "Nova função"}
+                </p>
+                <p className="m-0 truncate body-xs text-(--fg-secondary)">
+                  {description.trim() || "A descrição aparece aqui."}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <AwField label="Nome da função" htmlFor="wizard-role-name">
+                <AwInput
+                  id="wizard-role-name"
+                  autoFocus
+                  placeholder="Ex.: Analista de Qualidade"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </AwField>
+              <AwField label="Descrição (opcional)" htmlFor="wizard-role-desc">
+                <AwInput
+                  id="wizard-role-desc"
+                  placeholder="O que essa função faz no dia a dia"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
+              </AwField>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <p className="m-0 mb-2 body-xs font-medium text-(--fg-primary)">
+                  Cor
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {ROLE_COLORS.map((c) => {
+                    const active = c.id === color;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        aria-label={`Cor ${c.label}`}
+                        aria-pressed={active}
+                        onClick={() => setColor(c.id)}
+                        className={
+                          "flex h-7 w-7 items-center justify-center rounded-full transition-shadow duration-aw-fast " +
+                          (active
+                            ? "ring-2 ring-(--fg-primary) ring-offset-2 ring-offset-(--bg-raised)"
+                            : "hover:ring-2 hover:ring-(--border-default) hover:ring-offset-2 hover:ring-offset-(--bg-raised)")
+                        }
+                        style={{ background: c.token }}
+                      >
+                        {active && (
+                          <Icon
+                            name="check"
+                            size={14}
+                            className="text-(--aw-white)"
+                          />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div>
+                <p className="m-0 mb-2 body-xs font-medium text-(--fg-primary)">
+                  Ícone
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  {ROLE_ICON_OPTIONS.map((opt) => {
+                    const active = opt === icon;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        aria-label={`Ícone ${opt}`}
+                        aria-pressed={active}
+                        onClick={() => setIcon(opt)}
+                        className={
+                          "flex h-8 w-8 items-center justify-center rounded-md border transition-colors duration-aw-fast " +
+                          (active
+                            ? "border-(--fg-primary) bg-(--bg-selected) text-(--fg-primary)"
+                            : "border-(--border-subtle) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
+                        }
+                      >
+                        <Icon name={opt} size={16} />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 1 && (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-3">
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                <strong className="font-medium text-(--fg-primary)">
+                  {granted.size}
+                </strong>{" "}
+                de {ALL_PERMISSION_IDS.length} permissões selecionadas
+              </p>
+              <div className="flex items-center gap-2">
+                <AwButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setGranted(new Set(ALL_PERMISSION_IDS))}
+                >
+                  Marcar tudo
+                </AwButton>
+                <AwButton
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setGranted(new Set())}
+                >
+                  Limpar
+                </AwButton>
+              </div>
+            </div>
+            <div className="max-h-[min(52vh,520px)] overflow-y-auto rounded-md border border-(--border-subtle)">
+              <div className="flex flex-col divide-y divide-(--border-subtle)">
+                {SCOPES.map((scope) => (
+                  <ScopeBlock
+                    key={scope.id}
+                    scope={scope}
+                    granted={granted}
+                    editable
+                    onToggle={togglePermission}
+                    onToggleAll={(next) => setScopeAll(scope, next)}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+              <span
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md"
+                style={{
+                  background: `color-mix(in srgb, ${getRoleColor(color).token} 18%, transparent)`,
+                  color: getRoleColor(color).token,
+                }}
+                aria-hidden="true"
+              >
+                <Icon name={icon} size={20} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
+                  {name.trim()}
+                </p>
+                <p className="m-0 truncate body-xs text-(--fg-secondary)">
+                  {description.trim() ||
+                    "Função personalizada — ajuste permissões quando precisar."}
+                </p>
+              </div>
+              <AwPill variant={granted.size > 0 ? "live" : "neutral"} dot={false}>
+                {granted.size} permiss{granted.size === 1 ? "ão" : "ões"}
+              </AwPill>
+            </div>
+
+            <ul className="m-0 flex list-none flex-col divide-y divide-(--border-subtle) rounded-md border border-(--border-subtle) p-0">
+              {SCOPES.map((scope) => {
+                const ids = scope.groups.flatMap((g) =>
+                  g.permissions.map((p) => p.id)
+                );
+                const count = ids.filter((id) => granted.has(id)).length;
+                return (
+                  <li
+                    key={scope.id}
+                    className="flex items-center gap-3 px-4 py-2.5"
+                  >
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-(--bg-muted) text-(--fg-secondary)">
+                      <Icon name={scope.icon} size={14} />
+                    </span>
+                    <span className="min-w-0 flex-1 truncate body-xs font-medium text-(--fg-primary)">
+                      {scope.name}
+                    </span>
+                    <span
+                      className={
+                        "body-xs tabular-nums " +
+                        (count > 0
+                          ? "text-(--fg-primary)"
+                          : "text-(--fg-tertiary)")
+                      }
+                    >
+                      {count}/{ids.length}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            <p className="m-0 body-xs text-(--fg-tertiary)">
+              Dá pra ajustar nome, cor e permissões depois, abrindo a função na
+              listagem.
+            </p>
+          </div>
+        )}
+      </div>
+    </AwModal>
+  );
+}
+
+function WizardStepIndicator({ current }: { current: number }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between gap-3">
+        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
+          Etapa {current + 1} de {WIZARD_STEPS.length} ·{" "}
+          {WIZARD_STEPS[current].label}
+        </p>
+      </div>
+      <div className="flex items-center gap-1.5">
+        {WIZARD_STEPS.map((s, i) => (
+          <span
+            key={s.id}
+            aria-hidden="true"
+            className={
+              "h-1 flex-1 rounded-full transition-colors duration-aw-fast " +
+              (i <= current ? "bg-(--fg-primary)" : "bg-(--bg-muted)")
+            }
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -521,13 +925,11 @@ function CompactRoleList({
 
 function RoleDetail({
   role,
-  isNew,
   onBack,
   onPatch,
   onDelete,
 }: {
   role: RoleDefinition;
-  isNew?: boolean;
   onBack: () => void;
   onPatch: (patch: Partial<RoleDefinition>) => void;
   onDelete: () => void;
@@ -622,10 +1024,10 @@ function RoleDetail({
             <AwButton
               size="sm"
               variant="primary"
-              iconLeft={isNew ? "add" : "check"}
+              iconLeft="check"
               onClick={onBack}
             >
-              {isNew ? "Criar função" : "Salvar alterações"}
+              Salvar alterações
             </AwButton>
           )}
         </footer>
