@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
-import { getOrbForAgent } from "@/lib/agentOrbs";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import {
   AGENT_STATUS_META,
   type AgentEditorData,
@@ -25,13 +26,20 @@ export function VisaoGeralTab({ data }: { data: AgentEditorData }) {
   return (
     <div>
       {/* Hero */}
-      <section className="flex flex-col items-center pb-10 pt-4 text-center">
-        <img
-          src={getOrbForAgent(agent.id)}
-          alt=""
-          className="h-16 w-16 rounded-full object-cover"
+      <section className="relative flex flex-col items-center pb-10 pt-4 text-center">
+        {/* Halo suave atrás do orb — eco discreto do gradiente do studio. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-1/2 top-0 h-32 w-[380px] -translate-x-1/2 opacity-60 blur-2xl"
+          style={{
+            background:
+              "radial-gradient(closest-side, var(--aw-blue-200) 0%, transparent 72%)",
+          }}
         />
-        <h2 className="mt-4 font-heading text-2xl font-medium tracking-tight text-(--fg-primary)">
+        <div className="relative shadow-sm" style={{ borderRadius: 9999 }}>
+          <AwUserAgentOrb seed={agent.id} size={64} />
+        </div>
+        <h2 className="relative mt-4 font-heading text-2xl font-medium tracking-tight text-(--fg-primary)">
           {agent.title}
         </h2>
       </section>
@@ -69,7 +77,7 @@ export function VisaoGeralTab({ data }: { data: AgentEditorData }) {
       {/* Cards de resumo */}
       <div className="mt-4 grid grid-cols-2 gap-4">
         <SummaryCard
-          icon="database"
+          icon="account_balance"
           title="Base de conhecimento"
           agentId={agent.id}
           tab="base-conhecimento"
@@ -99,9 +107,8 @@ export function VisaoGeralTab({ data }: { data: AgentEditorData }) {
                 key={integracao.id}
                 className="flex items-center gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-3 py-2.5"
               >
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-hover) text-sm font-medium text-(--fg-secondary)">
-                  {integracao.nome.charAt(0).toUpperCase()}
-                </span>
+                <AwBrandLogo brand={integracao.id} size="sm" />
+
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-medium text-(--fg-primary)">
                     {integracao.nome}
