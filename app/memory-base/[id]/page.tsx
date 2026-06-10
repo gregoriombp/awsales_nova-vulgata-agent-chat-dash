@@ -42,6 +42,7 @@ import { getOrbForAgent } from "@/lib/agentOrbs";
 import { useToast } from "@/components/ui/AwToast";
 import { KnowledgeLayersTab } from "@/components/memory-base/KnowledgeLayersTab";
 import { ProductsTab } from "@/components/memory-base/ProductsTab";
+import { MemoryBaseSidebar } from "@/components/memory-base/MemoryBaseSidebar";
 
 /** Gera um UUID determinístico a partir do id da linha (para exibição como ID do arquivo). */
 function idToFileUuid(id: string): string {
@@ -1076,20 +1077,22 @@ function MemoryBaseDirectoryContent() {
                 <Icon name="search" size={16} weight={300} />
                 Busca semântica
               </button>
-              <button
-                type="button"
-                onClick={() => router.push(`/memory-base/${params?.id}/settings`)}
-                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                <Icon name="settings" size={16} weight={300} />
-                Configurações
-              </button>
+              {/* Configurações saiu daqui — agora vive na sidebar lateral
+                  (MemoryBaseSidebar). Review cmt-d083418c. */}
             </div>
           </div>
         </div>
 
-        {/* Content */}
-        <div className="bg-(--bg-raised)">
+        {/* Content — sidebar lateral (Insights, Configurações, métricas) +
+            área principal das abas. Review cmt-d083418c. */}
+        <div className="flex items-start bg-(--bg-raised)">
+          <MemoryBaseSidebar
+            fileCount={rows.length}
+            layersCount={totalKnowledgeLayers}
+            onInsights={() => router.push("/insights")}
+            onSettings={() => router.push(`/memory-base/${params?.id}/settings`)}
+          />
+          <div className="min-w-0 flex-1">
           {activeTab === "documentos" && (
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
@@ -1097,7 +1100,7 @@ function MemoryBaseDirectoryContent() {
               <div className="text-[18px] font-bold text-(--fg-primary)">
                 Adicione Fontes
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
                 <ActionCard
                   label="Enviar arquivos"
                   icon={<TintTile icon="upload_file" tint="var(--aw-blue-600)" size={40} />}
@@ -1406,6 +1409,7 @@ function MemoryBaseDirectoryContent() {
               <ProductsTab />
             </div>
           )}
+          </div>
         </div>
       </div>
 
