@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
@@ -15,9 +16,10 @@ import {
 /**
  * Shell do editor de agente (/agent-studio/[id]).
  *
- * Sidebar própria do agente (identidade + navegação entre seções) e um
- * header de seção com o CTA "Revisar" — que leva ao fluxo de revisão e
- * publicação. O conteúdo de cada seção entra como children.
+ * Sidebar própria do agente (identidade + navegação entre seções) com
+ * colapso para modo ícone, e um header de seção com o CTA "Revisar" — que
+ * leva ao fluxo de revisão e publicação. O conteúdo de cada seção entra
+ * como children.
  */
 export function AgentEditorShell({
   data,
@@ -33,28 +35,68 @@ export function AgentEditorShell({
   const { agent } = data;
   const tab = EDITOR_TABS.find((t) => t.id === activeTab) ?? EDITOR_TABS[0];
   const status = AGENT_STATUS_META[agent.status];
+  const [collapsed, setCollapsed] = React.useState(false);
 
   return (
     <div className="flex min-h-full w-full">
-      {/* Sidebar do agente */}
-      <aside className="flex w-[264px] shrink-0 flex-col border-r border-(--border-subtle) bg-(--bg-surface)">
-        <div className="border-b border-(--border-subtle) px-5 pb-5 pt-6">
-          <img
-            src={getOrbForAgent(agent.id)}
-            alt=""
-            className="h-12 w-12 rounded-full object-cover"
-          />
-          <h2 className="mt-3 text-sm font-medium leading-snug text-(--fg-primary)">
-            {agent.title}
-          </h2>
-          <p className="mt-0.5 text-xs text-(--fg-tertiary)">{agent.objetivo}</p>
-          <div className="mt-3">
-            <AwPill variant={status.variant}>{status.label}</AwPill>
+      {/* Sidebar do agente — colapsa para modo ícone */}
+      <aside
+        className={`flex shrink-0 flex-col border-r border-(--border-subtle) bg-(--bg-surface) transition-[width] duration-aw-base ${
+          collapsed ? "w-[68px]" : "w-[264px]"
+        }`}
+      >
+        <div
+          className={`border-b border-(--border-subtle) ${
+            collapsed ? "px-3 pb-4 pt-5" : "px-5 pb-5 pt-6"
+          }`}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <img
+              src={getOrbForAgent(agent.id)}
+              alt=""
+              title={collapsed ? agent.title : undefined}
+              className={`rounded-full object-cover ${
+                collapsed ? "h-9 w-9" : "h-12 w-12"
+              }`}
+            />
+            {!collapsed && (
+              <button
+                type="button"
+                aria-label="Colapsar navegação do agente"
+                onClick={() => setCollapsed(true)}
+                className="rounded-md p-1.5 text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+              >
+                <Icon name="left_panel_close" size={18} />
+              </button>
+            )}
           </div>
+          {!collapsed && (
+            <>
+              <h2 className="mt-3 text-sm font-medium leading-snug text-(--fg-primary)">
+                {agent.title}
+              </h2>
+              <p className="mt-0.5 text-xs text-(--fg-tertiary)">
+                {agent.objetivo}
+              </p>
+              <div className="mt-3">
+                <AwPill variant={status.variant}>{status.label}</AwPill>
+              </div>
+            </>
+          )}
+          {collapsed && (
+            <button
+              type="button"
+              aria-label="Expandir navegação do agente"
+              onClick={() => setCollapsed(false)}
+              className="mt-3 flex w-full items-center justify-center rounded-md p-1.5 text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+            >
+              <Icon name="left_panel_open" size={18} />
+            </button>
+          )}
         </div>
 
         <nav
-          className="flex-1 overflow-y-auto p-3"
+          className={`flex-1 overflow-y-auto ${collapsed ? "p-2" : "p-3"}`}
           aria-label="Seções do agente"
         >
           <ul className="space-y-0.5">
@@ -66,7 +108,12 @@ export function AgentEditorShell({
                     type="button"
                     onClick={() => onTabChange(item.id)}
                     aria-current={isActive ? "page" : undefined}
-                    className={`flex w-full items-center gap-3 rounded-md px-3 py-2 text-left text-sm transition-colors duration-aw-fast ${
+                    title={collapsed ? item.label : undefined}
+                    className={`flex w-full items-center rounded-md text-left text-sm transition-colors duration-aw-fast ${
+                      collapsed
+                        ? "justify-center px-0 py-2.5"
+                        : "gap-3 px-3 py-2"
+                    } ${
                       isActive
                         ? "bg-(--bg-hover) font-medium text-(--fg-primary)"
                         : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
@@ -81,7 +128,9 @@ export function AgentEditorShell({
                           : "shrink-0 text-(--fg-tertiary)"
                       }
                     />
-                    <span className="min-w-0 truncate">{item.label}</span>
+                    {!collapsed && (
+                      <span className="min-w-0 truncate">{item.label}</span>
+                    )}
                   </button>
                 </li>
               );
