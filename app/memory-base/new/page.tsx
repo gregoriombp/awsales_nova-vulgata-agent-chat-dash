@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwMemoryBaseLogo } from "@/components/ui/AwMemoryBaseLogo";
 import { Icon } from "@/components/ui/Icon";
 import { createMemoryBase, updateMemoryBase } from "@/lib/memory-base/create";
 import { ProdutosStep } from "@/components/memory-base/wizard/ProdutosStep";
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
  *   envio     → Padrão / Catálogo                    (Tela 06/07)
  *   fontes    → Produtos (Padrão) | Catálogo (CSV)   (Tela 06 ramo / Tela 07)
  *   playbook  → fontes do playbook + "Criar base"    (Tela 08)
+ *   building  → "Construindo sua base…"              (Tela 09)
  *   → /memory-base/[id]?new=1
  * ───────────────────────────────────────────────────────────────────────── */
 
@@ -36,7 +38,8 @@ type Phase =
   | "segmento"
   | "envio"
   | "fontes"
-  | "playbook";
+  | "playbook"
+  | "building";
 
 type Opt = { id: string; icon: string };
 
@@ -91,6 +94,8 @@ export default function CreateMemoryBasePage() {
     setPhase("created");
   };
 
+  // Playbook concluído → fase de construção; o redirect acontece quando a
+  // sequência de mensagens termina (BuildingStep → onDone).
   const finish = () => {
     if (!baseId) return;
     updateMemoryBase(baseId, {
@@ -98,20 +103,30 @@ export default function CreateMemoryBasePage() {
       segmento,
       tipoDados: envio === "Catálogo" ? "Catálogo" : "Documentação",
     });
-    router.push(`/memory-base/${baseId}?new=1&name=${encodeURIComponent(name.trim())}`);
+    router.prefetch(`/memory-base/${baseId}`);
+    setPhase("building");
+  };
+
+  const openBase = () => {
+    if (!baseId) return;
+    // replace: voltar da base não deve cair de novo na tela de construção.
+    router.replace(`/memory-base/${baseId}?new=1&name=${encodeURIComponent(name.trim())}`);
   };
 
   return (
     <div className="relative flex h-screen flex-col overflow-hidden bg-(--bg-raised)">
-      {/* Fechar — volta pra lista. A base criada (se houver) já está salva. */}
-      <button
-        type="button"
-        onClick={() => router.push("/memory-base")}
-        aria-label="Fechar"
-        className="absolute right-6 top-6 z-10 flex h-9 w-9 items-center justify-center rounded-full text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-secondary)"
-      >
-        <Icon name="close" size={20} />
-      </button>
+      {/* Fechar — volta pra lista. A base criada (se houver) já está salva.
+          Some durante a construção: a saída é o redirect pra própria base. */}
+      {phase !== "building" && (
+        <button
+          type="button"
+          onClick={() => router.push("/memory-base")}
+          aria-label="Fechar"
+          className="absolute right-6 top-6 z-10 flex h-9 w-9 items-center justify-center rounded-full text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-secondary)"
+        >
+          <Icon name="close" size={20} />
+        </button>
+      )}
 
       {/* key={phase} re-dispara a entrada suave (.aw-wizard-step) a cada troca. */}
       <main key={phase} className="aw-wizard-step flex flex-1 flex-col items-center justify-center overflow-y-auto px-8 py-16">
@@ -164,11 +179,91 @@ export default function CreateMemoryBasePage() {
             <ProdutosStep onBack={() => setPhase("envio")} onNext={() => setPhase("playbook")} />
           ))}
 
-        {/* Etapa 6 — Playbook; "Criar base" conclui e abre a base recém-criada. */}
+        {/* Etapa 6 — Playbook; "Criar base" dispara a construção. */}
         {phase === "playbook" && (
           <PlaybookStep onBack={() => setPhase("fontes")} onNext={finish} />
         )}
+
+        {/* Tela 09 — construção da base; ao terminar, abre a base recém-criada. */}
+        {phase === "building" && <BuildingStep onDone={openBase} />}
       </main>
+    </div>
+  );
+}
+
+/* ── Tela 09 — Construindo a base ─────────────────────────────────────────────
+ * Momento de "processamento" entre o wizard e a base: logo animado sobre um
+ * glow azul + mensagens que avançam em sequência. Sem barra de progresso —
+ * a sequência é curta e o tempo é fixo. */
+
+const BUILDING_MESSAGES = [
+  "Organizando as fontes enviadas…",
+  "Extraindo Knowledge Layers…",
+  "Conectando integrações e agentes…",
+  "Preparando a base para conversas…",
+];
+
+const BUILDING_MESSAGE_MS = 1050;
+
+function BuildingStep({ onDone }: { onDone: () => void }) {
+  const [msgIndex, setMsgIndex] = useState(0);
+
+  useEffect(() => {
+    if (msgIndex >= BUILDING_MESSAGES.length - 1) {
+      // Última mensagem respira um pouco mais antes do redirect.
+      const t = window.setTimeout(onDone, BUILDING_MESSAGE_MS + 450);
+      return () => window.clearTimeout(t);
+    }
+    const t = window.setTimeout(() => setMsgIndex((i) => i + 1), BUILDING_MESSAGE_MS);
+    return () => window.clearTimeout(t);
+  }, [msgIndex, onDone]);
+
+  return (
+    <div className="relative flex w-full flex-1 flex-col items-center justify-center">
+      {/* CSS local da feature — globals.css não recompila no dev server do time. */}
+      <style>{`
+        @keyframes mbnew-msg-in {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .mbnew-msg {
+          animation: mbnew-msg-in var(--dur-slow) var(--ease-out) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .mbnew-msg { animation: none; }
+        }
+      `}</style>
+
+      {/* Glow azul — mesmo tratamento da busca semântica, centrado no logo. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 dark:hidden"
+        style={{
+          background:
+            "radial-gradient(34% 42% at 50% 44%, color-mix(in srgb, var(--aw-blue-300) 34%, transparent) 0%, color-mix(in srgb, var(--aw-blue-150) 26%, transparent) 55%, transparent 100%)",
+        }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 hidden dark:block"
+        style={{
+          background:
+            "radial-gradient(34% 42% at 50% 44%, color-mix(in srgb, var(--aw-blue-800) 30%, transparent) 0%, color-mix(in srgb, var(--aw-blue-1100) 26%, transparent) 58%, transparent 100%)",
+        }}
+      />
+
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <AwMemoryBaseLogo size={140} className="text-(--fg-primary)" />
+        <h1 className="mt-10 font-heading text-[28px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+          Construindo sua base de conhecimento
+        </h1>
+        {/* Altura fixa: a troca de mensagem não move o layout. */}
+        <div className="mt-3 flex h-6 items-center justify-center">
+          <p key={msgIndex} className="mbnew-msg text-[15px] text-(--fg-secondary)">
+            {BUILDING_MESSAGES[msgIndex]}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

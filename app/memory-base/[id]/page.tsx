@@ -48,6 +48,7 @@ import {
   TbTrendingUp,
 } from "react-icons/tb";
 import { getOrbForAgent } from "@/lib/agentOrbs";
+import { useToast } from "@/components/ui/AwToast";
 import { KnowledgeLayersTab } from "@/components/memory-base/KnowledgeLayersTab";
 import { ProductsTab } from "@/components/memory-base/ProductsTab";
 
@@ -468,6 +469,7 @@ function MemoryBaseDirectoryContent() {
   const params = useParams<{ id: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { push: pushToast } = useToast();
 
   const nameFromUrl = searchParams.get("name");
   const isNewFromUrl = searchParams.get("new") === "1";
@@ -537,9 +539,23 @@ function MemoryBaseDirectoryContent() {
     objectiveBoundLayers: number;
   } | null>(null);
 
-  const [layersRowMenuIndex, setLayersRowMenuIndex] = useState<number | null>(null);
+  // Menu de ações por linha do drawer de layers — guarda o id do item (não o
+  // índice) para sobreviver à busca/filtro sem apontar pra linha errada.
+  const [layersRowMenuIndex, setLayersRowMenuIndex] = useState<string | null>(null);
   const [editingQAId, setEditingQAId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<{ question: string; answer: string; status: "Ativo" | "Desativado" }>({ question: "", answer: "", status: "Ativo" });
+  const [qaSearch, setQaSearch] = useState("");
+  const [qaStatusFilter, setQaStatusFilter] = useState<"Todos" | "Ativo" | "Desativado">("Todos");
+
+  const matchesQAFilters = useCallback(
+    (item: { question: string; answer: string; status: "Ativo" | "Desativado" }) => {
+      if (qaStatusFilter !== "Todos" && item.status !== qaStatusFilter) return false;
+      const q = qaSearch.trim().toLowerCase();
+      if (!q) return true;
+      return item.question.toLowerCase().includes(q) || item.answer.toLowerCase().includes(q);
+    },
+    [qaSearch, qaStatusFilter],
+  );
   const layersRowMenuRef = useRef<HTMLDivElement | null>(null);
 
   const [drawerLayersQA, setDrawerLayersQA] = useState<
@@ -1737,20 +1753,32 @@ function MemoryBaseDirectoryContent() {
                         <div className="flex-1 relative">
                           <input
                             type="text"
-                            placeholder="Pesquisar arquivo"
+                            placeholder="Pesquisar pergunta ou resposta"
+                            value={qaSearch}
+                            onChange={(e) => setQaSearch(e.target.value)}
                             className="w-full rounded-lg border border-(--border-default) bg-(--bg-raised) py-2 pl-3 pr-9 text-[13px] text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--fg-primary) focus:outline-hidden focus:ring-1 focus:ring-(--fg-primary)"
-                            readOnly
-                            aria-label="Pesquisar arquivo"
+                            aria-label="Pesquisar pergunta ou resposta"
                           />
                           <TbSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--fg-tertiary) pointer-events-none" />
                         </div>
+                        {/* Filtro de status — cicla Todos → Ativo → Desativado. */}
                         <button
                           type="button"
-                          className="flex items-center gap-2 rounded-lg border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-[13px] text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
+                          onClick={() =>
+                            setQaStatusFilter((prev) =>
+                              prev === "Todos" ? "Ativo" : prev === "Ativo" ? "Desativado" : "Todos"
+                            )
+                          }
+                          aria-pressed={qaStatusFilter !== "Todos"}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
+                            qaStatusFilter !== "Todos"
+                              ? "border-(--fg-primary) bg-(--bg-inverse) text-(--fg-on-inverse)"
+                              : "border-(--border-default) bg-(--bg-raised) text-(--fg-primary) hover:bg-(--bg-hover)"
+                          }`}
                         >
-                          <TbFilter className="w-4 h-4 text-(--fg-secondary)" />
-                          <span>Status</span>
-                          <TbChevronDown className="w-4 h-4 text-(--fg-secondary)" />
+                          <TbFilter className="w-4 h-4" />
+                          <span>{qaStatusFilter === "Todos" ? "Status" : qaStatusFilter}</span>
+                          <TbChevronDown className="w-4 h-4" />
                         </button>
                       </div>
 
@@ -1769,9 +1797,10 @@ function MemoryBaseDirectoryContent() {
                         <div className="w-8 shrink-0" aria-hidden />
                       </div>
 
-                      {/* Lista de perguntas e respostas geradas – conforme Figma */}
+                      {/* Lista de perguntas e respostas geradas – conforme Figma.
+                          Filtrada pela busca e pelo status; ações resolvem por id. */}
                       <ul className="flex-1 overflow-y-auto min-h-0 divide-y divide-(--border-subtle) -mx-6 px-6">
-                        {drawerLayersQA.map((item, index) => (
+                        {drawerLayersQA.filter(matchesQAFilters).map((item) => (
                           <li key={item.id} className="py-3 flex items-start gap-4">
                             <div className="flex-1 min-w-0">
                               <p className="text-[13px] font-semibold text-(--fg-primary) leading-snug">{item.question}</p>
@@ -1794,26 +1823,26 @@ function MemoryBaseDirectoryContent() {
                             </span>
                             <div
                               className="relative shrink-0"
-                              ref={layersRowMenuIndex === index ? layersRowMenuRef : null}
+                              ref={layersRowMenuIndex === item.id ? layersRowMenuRef : null}
                             >
                               <button
                                 type="button"
-                                onClick={() => setLayersRowMenuIndex((prev) => (prev === index ? null : index))}
+                                onClick={() => setLayersRowMenuIndex((prev) => (prev === item.id ? null : item.id))}
                                 className="p-1 text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded transition-colors"
                                 aria-label="Mais opções"
-                                aria-expanded={layersRowMenuIndex === index}
+                                aria-expanded={layersRowMenuIndex === item.id}
                               >
                                 <Ellipsis16 />
                               </button>
-                              {layersRowMenuIndex === index && (
+                              {layersRowMenuIndex === item.id && (
                                 <div className="absolute right-0 top-full mt-1 z-20 w-[180px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                                   <button
                                     type="button"
                                     className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) =>
-                                        prev.map((q, i) =>
-                                          i === index
+                                        prev.map((q) =>
+                                          q.id === item.id
                                             ? { ...q, status: q.status === "Ativo" ? "Desativado" : "Ativo" }
                                             : q
                                         )
@@ -1839,7 +1868,11 @@ function MemoryBaseDirectoryContent() {
                                     className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
                                     onClick={() => {
                                       setLayersRowMenuIndex(null);
-                                      // Reanalisar: a IA fará uma análise nova (integração futura)
+                                      pushToast({
+                                        variant: "ai",
+                                        title: "Reanálise agendada",
+                                        description: "A IA vai reprocessar este Knowledge Layer com as fontes atuais.",
+                                      });
                                     }}
                                   >
                                     Reanalisar
@@ -1848,7 +1881,7 @@ function MemoryBaseDirectoryContent() {
                                     type="button"
                                     className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--accent-danger) hover:bg-(--aw-red-100)"
                                     onClick={() => {
-                                      setDrawerLayersQA((prev) => prev.filter((_, i) => i !== index));
+                                      setDrawerLayersQA((prev) => prev.filter((q) => q.id !== item.id));
                                       setLayersRowMenuIndex(null);
                                     }}
                                   >
@@ -1859,6 +1892,11 @@ function MemoryBaseDirectoryContent() {
                             </div>
                           </li>
                         ))}
+                        {drawerLayersQA.filter(matchesQAFilters).length === 0 && (
+                          <li className="py-10 text-center text-[13px] text-(--fg-tertiary)">
+                            Nenhum Knowledge Layer corresponde à busca ou ao filtro.
+                          </li>
+                        )}
                       </ul>
 
                       <p className="text-[12px] text-(--fg-tertiary) mt-3 shrink-0">
