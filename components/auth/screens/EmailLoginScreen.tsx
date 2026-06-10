@@ -7,7 +7,8 @@ import { loginSchema, type LoginFormData } from "@/lib/validations";
 import { AwField } from "@/components/ui/AwInput";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwButton } from "@/components/ui/AwButton";
-import type { Locale, AuthScreen, VerifyMode } from "../_types";
+import { Icon } from "@/components/ui/Icon";
+import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 import { PasswordInput, BackButton } from "../_atoms";
 
@@ -15,16 +16,17 @@ export function EmailLoginScreen({
   locale,
   goTo,
   defaultEmail,
-  setVerifyMode,
+  initialError,
 }: {
   locale: Locale;
   goTo: (s: AuthScreen) => void;
   defaultEmail?: string;
-  setVerifyMode: (m: VerifyMode) => void;
+  /** Pré-acende o erro inline de credencial (deep-link `?error=1` no hi-fi). */
+  initialError?: boolean;
 }) {
   const c = COPY.email[locale];
   const [isLoading, setIsLoading] = useState(false);
-  const [serverError, setServerError] = useState(false);
+  const [serverError, setServerError] = useState(!!initialError);
   const [keepSigned, setKeepSigned] = useState(true);
 
   const {
@@ -39,16 +41,16 @@ export function EmailLoginScreen({
   const onSubmit = async (data: LoginFormData) => {
     setServerError(false);
     setIsLoading(true);
-    try {
-      await new Promise((r) => setTimeout(r, 1500));
-      console.log("Login:", data);
-      setVerifyMode("login");
-      goTo("verify");
-    } catch {
+    await new Promise((r) => setTimeout(r, 900));
+    setIsLoading(false);
+    // Hi-fi: a senha "errada" representa credencial inválida — leva ao erro
+    // inline (genérico). Qualquer outra senha segue pro fluxo normal. Assim o
+    // botão NÃO vai sempre pra verify e o estado de erro é alcançável.
+    if (data.password.trim().toLowerCase() === "errada") {
       setServerError(true);
-    } finally {
-      setIsLoading(false);
+      return;
     }
+    goTo("verify");
   };
 
   const pwError = errors.password?.message ?? (serverError ? c.errPw : undefined);
@@ -103,6 +105,23 @@ export function EmailLoginScreen({
       <AwButton variant="primary" size="md" block type="submit" loading={isLoading}>
         {isLoading ? c.loadingCta : c.cta}
       </AwButton>
+
+      <div className="mt-5 flex items-center gap-3" aria-hidden="true">
+        <span className="flex-1 h-px bg-aw-gray-200" />
+        <span className="body-xs text-aw-gray-700">{c.or}</span>
+        <span className="flex-1 h-px bg-aw-gray-200" />
+      </div>
+
+      <p className="mt-4 text-center">
+        <button
+          type="button"
+          onClick={() => goTo("magicSent")}
+          className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
+        >
+          <Icon name="mail" size={14} />
+          {c.magicLink}
+        </button>
+      </p>
     </form>
   );
 }

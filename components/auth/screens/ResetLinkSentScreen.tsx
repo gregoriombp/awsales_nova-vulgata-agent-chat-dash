@@ -6,7 +6,13 @@ import type { Locale, AuthScreen } from "../_types";
 import { COPY } from "../_copy";
 import { BackButton } from "../_atoms";
 
-export function MagicSentScreen({
+/**
+ * Confirmação de envio do link de redefinição (reset por link). Resposta
+ * neutra contra enumeração: não confirma se a conta existe — "Se existir uma
+ * conta com este e-mail, enviamos um link". O usuário sai daqui clicando no
+ * link recebido, que abre "Definir nova senha".
+ */
+export function ResetLinkSentScreen({
   locale,
   goTo,
   email,
@@ -15,7 +21,7 @@ export function MagicSentScreen({
   goTo: (s: AuthScreen) => void;
   email: string;
 }) {
-  const c = COPY.magicSent[locale];
+  const c = COPY.resetLinkSent[locale];
   const [countdown, setCountdown] = useState(30);
 
   useEffect(() => {
@@ -56,7 +62,7 @@ export function MagicSentScreen({
         </span>
         <button
           type="button"
-          onClick={() => goTo("login")}
+          onClick={() => goTo("forgot")}
           className="body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           {c.change}

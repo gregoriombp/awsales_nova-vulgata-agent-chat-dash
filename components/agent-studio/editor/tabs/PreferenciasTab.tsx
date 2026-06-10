@@ -1,13 +1,21 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwInput, AwField } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { useToast } from "@/components/ui/AwToast";
 import {
   type AgentEditorData,
   type AgentStatus,
 } from "@/lib/agentStudio";
+import {
+  clearAgentDraft,
+  loadAgentListOverrides,
+  saveAgentListOverrides,
+  type AgentListOverrides,
+} from "@/lib/agentStudioStore";
 
 /**
  * Preferências — configurações gerais do agente.
@@ -50,7 +58,23 @@ function statusInicialFrom(status: AgentStatus): StatusInicial {
   return "inativo";
 }
 
+// O registry só tem active/draft/paused — na listagem, suspenso e inativo
+// aparecem ambos como "Pausado".
+const STATUS_PARA_LISTAGEM: Record<StatusInicial, AgentStatus> = {
+  ativo: "active",
+  suspenso: "paused",
+  inativo: "paused",
+};
+
+function mutateListOverrides(
+  fn: (o: AgentListOverrides) => AgentListOverrides,
+): void {
+  saveAgentListOverrides(fn(loadAgentListOverrides()));
+}
+
 export function PreferenciasTab({ data }: { data: AgentEditorData }) {
+  const router = useRouter();
+  const { push } = useToast();
   const defaults = React.useMemo(
     () => ({
       status: statusInicialFrom(data.agent.status),
@@ -85,9 +109,54 @@ export function PreferenciasTab({ data }: { data: AgentEditorData }) {
 
   function handleSave() {
     setBaseline({ status, nomeSocial, empresa });
+    // Reflete o status salvo na listagem (/agent-studio).
+    mutateListOverrides((o) => ({
+      ...o,
+      statusOverrides: {
+        ...o.statusOverrides,
+        [data.agent.id]: STATUS_PARA_LISTAGEM[status],
+      },
+    }));
     setSaved(true);
     if (savedTimer.current !== null) window.clearTimeout(savedTimer.current);
     savedTimer.current = window.setTimeout(() => setSaved(false), 2000);
+  }
+
+  function handleArchive() {
+    setArchiveOpen(false);
+    mutateListOverrides((o) => ({
+      ...o,
+      archived: [...o.archived, data.agent.id],
+    }));
+    push({
+      title: "Agente arquivado",
+      description: `“${data.agent.title}” saiu da listagem e parou de operar.`,
+      action: {
+        label: "Desfazer",
+        onClick: () =>
+          mutateListOverrides((o) => ({
+            ...o,
+            archived: o.archived.filter((id) => id !== data.agent.id),
+          })),
+      },
+    });
+    router.push("/agent-studio");
+  }
+
+  function handleDelete() {
+    setDeleteOpen(false);
+    clearAgentDraft(data.agent.id);
+    mutateListOverrides((o) => ({
+      ...o,
+      removed: [...o.removed, data.agent.id],
+    }));
+    // Sem "Desfazer": o modal promete exclusão permanente — arquivar é o
+    // caminho restaurável.
+    push({
+      title: "Agente excluído",
+      description: `“${data.agent.title}” e todas as configurações dele foram removidos.`,
+    });
+    router.push("/agent-studio");
   }
 
   return (
@@ -239,7 +308,7 @@ export function PreferenciasTab({ data }: { data: AgentEditorData }) {
             <AwButton
               variant="primary"
               iconLeft="archive"
-              onClick={() => setArchiveOpen(false)}
+              onClick={handleArchive}
             >
               Arquivar agente
             </AwButton>
@@ -266,7 +335,7 @@ export function PreferenciasTab({ data }: { data: AgentEditorData }) {
             <AwButton
               variant="danger"
               iconLeft="delete"
-              onClick={() => setDeleteOpen(false)}
+              onClick={handleDelete}
             >
               Excluir agente
             </AwButton>
