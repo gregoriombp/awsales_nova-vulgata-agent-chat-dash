@@ -12,6 +12,7 @@ import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { Icon } from "@/components/ui/Icon";
+import { getOrbForAgent } from "@/lib/agentOrbs";
 import {
   getAgentEditorData,
   type AgentEditorData,
@@ -92,6 +93,8 @@ export default function AgentReviewPage() {
         open={published}
         onClose={() => setPublished(false)}
         agentHref={editorHref}
+        agentId={params.id}
+        agentTitle={data.agent.title}
       />
     </AwDashboardLayout>
   );
@@ -307,7 +310,7 @@ function BaseConhecimentoCard({
 }) {
   return (
     <ReviewCard
-      icon="database"
+      icon="account_balance"
       title="Base de conhecimento"
       headerExtra={<AwPill variant="live">Alta compatibilidade</AwPill>}
       edit={
@@ -320,7 +323,7 @@ function BaseConhecimentoCard({
     >
       <div className="flex items-center gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-4">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-canvas) text-(--fg-secondary)">
-          <Icon name="folder" size={20} />
+          <Icon name="account_balance" size={20} />
         </span>
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-(--fg-primary)">
@@ -529,29 +532,58 @@ function QualidadeCard({ data }: { data: AgentEditorData }) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
- * Modal de sucesso da publicação
+ * Modal de sucesso da publicação — momento de celebração: banda com o
+ * gradiente azul em mesh (tratamento Arcade) e o orb do agente em destaque.
  * ───────────────────────────────────────────────────────────────────────── */
 function PublishedModal({
   open,
   onClose,
   agentHref,
+  agentId,
+  agentTitle,
 }: {
   open: boolean;
   onClose: () => void;
   agentHref: string;
+  agentId: string;
+  agentTitle: string;
 }) {
   return (
     <AwModal open={open} onClose={onClose}>
-      <div className="flex flex-col items-center px-4 py-6 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--aw-emerald-150) text-(--aw-emerald-700)">
-          <Icon name="check" size={30} />
-        </span>
+      <div className="flex flex-col items-center pb-6 text-center">
+        {/* Banda de celebração */}
+        <div className="relative flex h-36 w-full items-center justify-center overflow-hidden rounded-xl">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background: [
+                "radial-gradient(420px 240px at 18% 120%, var(--aw-blue-600) 0%, transparent 65%)",
+                "radial-gradient(460px 260px at 85% -25%, var(--aw-blue-300) 0%, transparent 60%)",
+                "radial-gradient(380px 220px at 70% 130%, var(--aw-blue-400) 0%, transparent 62%)",
+                "linear-gradient(135deg, var(--aw-blue-100) 0%, var(--aw-blue-200) 100%)",
+              ].join(", "),
+            }}
+          />
+          <span className="relative inline-flex">
+            <img
+              src={getOrbForAgent(agentId)}
+              alt=""
+              className="h-20 w-20 rounded-full border-[3px] border-white object-cover shadow-md"
+            />
+            <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-(--aw-emerald-600) text-white">
+              <Icon name="check" size={16} />
+            </span>
+          </span>
+        </div>
+
         <h2 className="mt-5 font-heading text-xl font-medium text-(--fg-primary)">
           Seu agente foi publicado
         </h2>
-        <p className="mt-2 max-w-[360px] text-sm leading-normal text-(--fg-secondary)">
-          O agente já está ativo e pronto para operar nos canais configurados.
-          Acompanhe as conversas e o desempenho pelo Agent Studio.
+        <p className="mt-2 max-w-[380px] text-sm leading-normal text-(--fg-secondary)">
+          {agentTitle} já está ativo e pronto para operar nos canais
+          configurados. Acompanhe as conversas e o desempenho pelo Agent
+          Studio.
         </p>
         <div className="mt-6 flex items-center gap-2">
           <AwButton asChild variant="secondary" size="md">
