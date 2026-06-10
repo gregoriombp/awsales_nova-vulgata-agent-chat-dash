@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import BrandPane from "./BrandPane";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { LoginScreen } from "./screens/LoginScreen";
 import { EmailLoginScreen } from "./screens/EmailLoginScreen";
 import { ForgotScreen } from "./screens/ForgotScreen";
@@ -74,8 +75,7 @@ export function AuthFlow() {
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-[2fr_3fr]">
       <aside className="flex flex-col bg-white px-8 py-8 xl:px-12 min-h-screen">
         <div className="mb-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/brand/aswork-wordmark-brand.svg" alt="Aswork" className="h-5 w-auto" />
+          <AwLogo variant="horizontal" height={20} className="text-aw-gray-1200" />
         </div>
 
         <div className="flex-1 flex items-center justify-center min-h-0">

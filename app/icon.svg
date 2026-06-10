@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-19.5 0 300 300">
+  <style>
+    polygon { fill: #0D0D0D; }
+    @media (prefers-color-scheme: dark) { polygon { fill: #FFFFFF; } }
+  </style>
+  <polygon points="0,300 62.12,300 142.50,0 80.39,0"/>
+  <polygon points="62.12,300 126.39,300 209.30,84 145.03,84"/>
+  <polygon points="126.39,300 193.73,300 260.98,168 193.64,168"/>
+</svg>

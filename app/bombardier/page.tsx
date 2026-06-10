@@ -2,6 +2,7 @@ import Link from "next/link"
 import { AwCard } from "@/components/ui/AwCard"
 import { AwPill } from "@/components/ui/AwPill"
 import { AwButton } from "@/components/ui/AwButton"
+import { AwLogo } from "@/components/ui/AwLogo"
 import { Icon } from "@/components/ui/Icon"
 
 type HubSection = {
@@ -86,11 +87,10 @@ export default function BombardierHub() {
                   className="inline-flex items-center justify-center rounded-md bg-white/10"
                   style={{ width: 52, height: 52 }}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/assets/brand/aswork-mark-white.svg"
-                    alt="Aswork"
-                    style={{ width: 30, height: 30 }}
+                  <AwLogo
+                    variant="mark"
+                    height={30}
+                    style={{ color: "#ffffff" }}
                   />
                 </span>
                 <div className="flex flex-col gap-1">
