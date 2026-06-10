@@ -17,6 +17,7 @@ import {
   AwMembersTableTextCell,
 } from "@/components/ui/AwMembersTable";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwSheet, AwSheetRow } from "@/components/ui/AwSheet";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import type { AgentAop, AgentEditorData } from "@/lib/agentStudio";
@@ -26,12 +27,41 @@ const AOP_STATUS_META = {
   desativado: { label: "Desativado", variant: "neutral" as const },
 };
 
+/** Passos mock do protocolo — exibidos no drawer de detalhes. */
+const AOP_PASSOS: Record<string, string[]> = {
+  "aop-risco": [
+    "Carregue o histórico de transações e sinalizações do usuário.",
+    "Classifique o risco em baixo, médio ou alto conforme a política vigente.",
+    "Risco alto: não avance — transfira para o time de segurança.",
+    "Registre a classificação na conversa para os próximos checkpoints.",
+  ],
+  "aop-cases": [
+    "Identifique o segmento e a dor principal verbalizada pelo lead.",
+    "Selecione até 2 cases do mesmo segmento na biblioteca aprovada.",
+    "Apresente resultado concreto (número) antes da história completa.",
+    "Nunca cite clientes sem autorização pública de uso.",
+  ],
+  "aop-cadastro": [
+    "Confirme a identidade do usuário antes de alterar qualquer dado.",
+    "Atualize apenas os campos solicitados, um por vez.",
+    "Releia o dado atualizado para o usuário confirmar.",
+    "Registre a alteração no CRM conectado.",
+  ],
+};
+
+const AOP_PASSOS_DEFAULT = [
+  "Leia o contexto da conversa antes de iniciar o procedimento.",
+  "Siga as instruções do protocolo na ordem definida.",
+  "Em situação fora do escopo, transfira para atendimento humano.",
+];
+
 /**
  * AOPs — seção do editor de agente.
  *
- * Tabela na mesma receita da listagem do Agent Studio (AwMembersTable +
- * AwPill + AwDropdownMenu). Ativar/desativar e excluir agem só no estado
- * local; "Adicionar AOP" leva à página global de AOPs do produto.
+ * Tabela na mesma receita da listagem do Agent Studio; clicar numa linha
+ * abre o DRAWER de detalhes do protocolo (passos, status, meta). Ativar/
+ * desativar e excluir agem só no estado local; "Adicionar AOP" leva à
+ * página global de AOPs do produto.
  */
 export function AopsTab({ data }: { data: AgentEditorData }) {
   const [aops, setAops] = React.useState<AgentAop[]>(data.aops);
@@ -110,7 +140,11 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
             {aops.map((aop) => {
               const status = AOP_STATUS_META[aop.status];
               return (
-                <tr key={aop.id}>
+                <tr
+                  key={aop.id}
+                  className="aw-row-clickable"
+                  onClick={() => setDetalhe(aop)}
+                >
                   <td>
                     <span className="flex items-center gap-3">
                       <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-surface) text-(--fg-secondary)">
@@ -140,7 +174,10 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
                   </AwMembersTableTextCell>
 
                   <td>
-                    <div className="flex items-center justify-end">
+                    <div
+                      className="flex items-center justify-end"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <AwDropdownMenu
                         align="end"
                         trigger={
@@ -188,49 +225,101 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
         </div>
       )}
 
-      {/* ── Modal: detalhes ────────────────────────────────────────── */}
-      <AwModal
+      {/* ── Drawer: detalhes do protocolo ──────────────────────────── */}
+      <AwSheet
         open={detalhe !== null}
         onClose={() => setDetalhe(null)}
-        title={detalhe?.nome ?? "Detalhes do AOP"}
+        title={
+          <span className="flex items-center gap-3">
+            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--aw-pink-100) text-(--aw-pink-800)">
+              <Icon name="description" size={18} />
+            </span>
+            {detalhe?.nome ?? "Detalhes do AOP"}
+          </span>
+        }
+        meta={
+          detalhe && (
+            <AwPill variant={AOP_STATUS_META[detalhe.status].variant}>
+              {AOP_STATUS_META[detalhe.status].label}
+            </AwPill>
+          )
+        }
         footer={
-          <AwButton variant="secondary" onClick={() => setDetalhe(null)}>
-            Fechar
-          </AwButton>
+          detalhe && (
+            <div className="flex w-full items-center justify-between gap-3">
+              <AwButton
+                variant="ghost"
+                size="md"
+                iconLeft={
+                  detalhe.status === "ativo" ? "toggle_off" : "toggle_on"
+                }
+                onClick={() => {
+                  toggleStatus(detalhe.id);
+                  setDetalhe((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          status:
+                            prev.status === "ativo" ? "desativado" : "ativo",
+                        }
+                      : prev,
+                  );
+                }}
+              >
+                {detalhe.status === "ativo" ? "Desativar" : "Ativar"}
+              </AwButton>
+              <AwButton asChild variant="secondary" size="md" iconLeft="edit">
+                <Link href="/aops">Editar na página de AOPs</Link>
+              </AwButton>
+            </div>
+          )
         }
       >
         {detalhe && (
-          <div className="space-y-5">
+          <div className="space-y-6">
             <p className="text-sm leading-relaxed text-(--fg-secondary)">
               {detalhe.descricao}
             </p>
-            <dl className="space-y-3 border-t border-(--border-subtle) pt-4">
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-xs text-(--fg-tertiary)">Status</dt>
-                <dd>
-                  <AwPill variant={AOP_STATUS_META[detalhe.status].variant}>
-                    {AOP_STATUS_META[detalhe.status].label}
-                  </AwPill>
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-xs text-(--fg-tertiary)">Criado por</dt>
-                <dd className="text-sm text-(--fg-primary)">
-                  {detalhe.criadoPor}
-                </dd>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <dt className="text-xs text-(--fg-tertiary)">
-                  Última atualização
-                </dt>
-                <dd className="text-sm text-(--fg-primary)">
+
+            <div>
+              <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+                Instruções do protocolo
+              </h3>
+              <ol className="mt-3 space-y-2.5">
+                {(AOP_PASSOS[detalhe.id] ?? AOP_PASSOS_DEFAULT).map(
+                  (passo, i) => (
+                    <li key={i} className="flex items-start gap-3">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--bg-hover) text-[11px] font-medium text-(--fg-secondary)">
+                        {i + 1}
+                      </span>
+                      <span className="text-sm leading-relaxed text-(--fg-secondary)">
+                        {passo}
+                      </span>
+                    </li>
+                  ),
+                )}
+              </ol>
+            </div>
+
+            <div>
+              <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+                Sobre
+              </h3>
+              <div className="mt-2">
+                <AwSheetRow label="Criado por">{detalhe.criadoPor}</AwSheetRow>
+                <AwSheetRow label="Última atualização">
                   {detalhe.atualizadoEm}
-                </dd>
+                </AwSheetRow>
+                <AwSheetRow label="Menção no editor">
+                  <span className="text-(--aw-blue-600)">
+                    @aop.{detalhe.id.replace(/^aop-/, "")}
+                  </span>
+                </AwSheetRow>
               </div>
-            </dl>
+            </div>
           </div>
         )}
-      </AwModal>
+      </AwSheet>
 
       {/* ── Modal: confirmação de exclusão ─────────────────────────── */}
       <AwModal
