@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill } from "@/components/ui/AwPill";
-import { getOrbForAgent } from "@/lib/agentOrbs";
+import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
 import {
   AGENT_STATUS_META,
   EDITOR_TABS,
@@ -51,13 +51,10 @@ export function AgentEditorShell({
           }`}
         >
           <div className="flex items-start justify-between gap-2">
-            <img
-              src={getOrbForAgent(agent.id)}
-              alt=""
+            <AwUserAgentOrbStatic
+              seed={agent.id}
+              size={collapsed ? 36 : 48}
               title={collapsed ? agent.title : undefined}
-              className={`rounded-full object-cover ${
-                collapsed ? "h-9 w-9" : "h-12 w-12"
-              }`}
             />
             {!collapsed && (
               <button

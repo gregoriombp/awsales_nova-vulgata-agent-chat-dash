@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { type HTMLAttributes, useMemo } from "react";
 import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis";
 import { agentCorePalette, agentMeshBackground } from "@/lib/agent-core-palette";
 import {
@@ -130,10 +130,10 @@ export function AwUserAgentOrb({
   );
 }
 
-export interface AwUserAgentOrbStaticProps {
+export interface AwUserAgentOrbStaticProps
+  extends HTMLAttributes<HTMLDivElement> {
   seed?: string | number;
   size?: number;
-  className?: string;
 }
 
 /**
@@ -150,14 +150,23 @@ export function AwUserAgentOrbStatic({
   seed = "agent",
   size = 40,
   className,
+  style,
+  ...rest
 }: AwUserAgentOrbStaticProps) {
   const background = useMemo(() => agentMeshBackground(seed), [seed]);
 
   return (
     <div
       className={cn("relative shrink-0 rounded-full", className)}
-      style={{ width: size, height: size, background, boxShadow: INNER_GLOW }}
+      style={{
+        width: size,
+        height: size,
+        background,
+        boxShadow: INNER_GLOW,
+        ...style,
+      }}
       aria-hidden="true"
+      {...rest}
     />
   );
 }

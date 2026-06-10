@@ -18,7 +18,7 @@ lugar, qualquer componente que abrir.
 ## Estrutura de uma página de **componente individual** (15 seções)
 
 Use este padrão para uma página que documenta **um** componente específico
-(`AwButton`, `AwSelect`, `AwAgentTile`, etc.). Para uma página-mãe que agrupa
+(`AwButton`, `AwSelect`, `AwCheckpointChip`, etc.). Para uma página-mãe que agrupa
 várias implementações da mesma família, use a seção "página-hub de família"
 abaixo.
 

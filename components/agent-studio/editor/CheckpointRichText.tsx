@@ -1,6 +1,16 @@
 "use client";
 
 import * as React from "react";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import {
+  AwCheckpointChip,
+  AW_CHECKPOINT_CHIP_BASE_CLASS,
+  AW_CHECKPOINT_CHIP_INTERACTIVE_CLASS,
+  AW_CHECKPOINT_CHIP_TONE_CLASS,
+  GOOGLE_CALENDAR_BRAND,
+  GOOGLE_CALENDAR_ICON_SRC,
+  type AwCheckpointChipTone,
+} from "@/components/ui/AwCheckpointChip";
 import { Icon } from "@/components/ui/Icon";
 import {
   skillTone,
@@ -34,19 +44,28 @@ import {
 /** MIME do drag de habilidade (painel → editor). */
 export const SKILL_DRAG_MIME = "application/x-aw-skill";
 
-const CHIP_BASE_CLASS =
-  "inline-flex items-center gap-1 rounded-md px-1.5 text-xs font-medium align-baseline select-none";
 /** Variáveis são dados, não ações — chip cinza neutro. */
-const VARIABLE_CHIP_CLASS = `${CHIP_BASE_CLASS} bg-(--bg-hover) text-(--fg-secondary)`;
+const VARIABLE_CHIP_CLASS = `${AW_CHECKPOINT_CHIP_BASE_CLASS} ${AW_CHECKPOINT_CHIP_TONE_CLASS.neutral}`;
+
+function skillChipTone(hab: HabilidadeConfigurada | undefined): AwCheckpointChipTone {
+  return skillTone(hab) as AwCheckpointChipTone;
+}
+
+function skillBrand(hab: HabilidadeConfigurada | undefined): string | undefined {
+  if (hab?.grupo === "google-calendar" || hab?.id.startsWith("googlecal.")) {
+    return GOOGLE_CALENDAR_BRAND;
+  }
+  return undefined;
+}
 
 function mentionChipClass(hab: HabilidadeConfigurada | undefined): string {
-  const tone = skillTone(hab);
-  return `${CHIP_BASE_CLASS} ${SKILL_TONE_CLASSES[tone].chip}`;
+  const tone = skillChipTone(hab);
+  return `${AW_CHECKPOINT_CHIP_BASE_CLASS} ${AW_CHECKPOINT_CHIP_TONE_CLASS[tone]}`;
 }
 
 /** Réplica inline do <Icon /> para uso dentro de strings de HTML do editor. */
 const CHIP_ICON_STYLE =
-  "font-size:12px;line-height:1;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 12";
+  "font-size:14px;line-height:1;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 14";
 
 function escapeHtml(value: string): string {
   return value
@@ -56,7 +75,10 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function chipIconHtml(name: string): string {
+function chipIconHtml(name: string, brand?: string): string {
+  if (brand === GOOGLE_CALENDAR_BRAND) {
+    return `<span class="inline-flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-sm border border-(--border-subtle) bg-white" aria-hidden="true"><img src="${GOOGLE_CALENDAR_ICON_SRC}" alt="" class="block h-full w-full object-cover" /></span>`;
+  }
   return `<span class="material-symbols-rounded" style="${CHIP_ICON_STYLE}" aria-hidden="true">${name}</span>`;
 }
 
@@ -66,11 +88,12 @@ function mentionChipHtml(
 ): string {
   const nome = hab?.nome ?? id;
   const icon = hab?.icon ?? "alternate_email";
-  return `<span contenteditable="false" data-token="@[${escapeHtml(id)}]" title="Clique para ver as propriedades" class="${mentionChipClass(hab)} cursor-pointer transition-[filter] duration-aw-fast hover:brightness-95">${chipIconHtml(icon)}${escapeHtml(nome)}</span>`;
+  const brand = skillBrand(hab);
+  return `<span contenteditable="false" data-token="@[${escapeHtml(id)}]" title="Clique para ver as propriedades" class="${mentionChipClass(hab)} ${AW_CHECKPOINT_CHIP_INTERACTIVE_CLASS}">${chipIconHtml(icon, brand)}${escapeHtml(nome)}</span>`;
 }
 
 function variableChipHtml(name: string): string {
-  return `<span contenteditable="false" data-token="{{${escapeHtml(name)}}}" title="Clique para ver as propriedades" class="${VARIABLE_CHIP_CLASS} cursor-pointer transition-[filter] duration-aw-fast hover:brightness-95">${chipIconHtml("data_object")}${escapeHtml(name)}</span>`;
+  return `<span contenteditable="false" data-token="{{${escapeHtml(name)}}}" title="Clique para ver as propriedades" class="${VARIABLE_CHIP_CLASS} ${AW_CHECKPOINT_CHIP_INTERACTIVE_CLASS}">${chipIconHtml("data_object")}${escapeHtml(name)}</span>`;
 }
 
 /* ─── Render read-only (React) ─────────────────────────────────────────── */
@@ -84,10 +107,13 @@ export function MentionChip({
   id: string;
 }) {
   return (
-    <span className={mentionChipClass(hab)}>
-      <Icon name={hab?.icon ?? "alternate_email"} size={12} />
+    <AwCheckpointChip
+      tone={skillChipTone(hab)}
+      brand={skillBrand(hab)}
+      icon={hab?.icon ?? "alternate_email"}
+    >
       {hab?.nome ?? id}
-    </span>
+    </AwCheckpointChip>
   );
 }
 
@@ -123,10 +149,9 @@ export function TokenText({
           return <MentionChip key={i} id={seg.id} hab={byId.get(seg.id)} />;
         }
         return (
-          <span key={i} className={VARIABLE_CHIP_CLASS}>
-            <Icon name="data_object" size={12} />
+          <AwCheckpointChip key={i} tone="neutral" icon="data_object">
             {seg.name}
-          </span>
+          </AwCheckpointChip>
         );
       })}
     </>
@@ -204,6 +229,7 @@ type SuggestionItem = {
   icon: string;
   /** Classes do tile do ícone (tom do grupo). */
   tileClass: string;
+  brand?: string;
 };
 
 type TriggerContext = {
@@ -427,6 +453,7 @@ export const CheckpointRichTextEditor = React.forwardRef<
           descricao: `@${h.id}`,
           icon: h.icon ?? "alternate_email",
           tileClass: SKILL_TONE_CLASSES[skillTone(h)].tile,
+          brand: skillBrand(h),
         }));
     }
     const list: SuggestionItem[] = variaveis
@@ -803,7 +830,16 @@ export const CheckpointRichTextEditor = React.forwardRef<
                   <span
                     className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${item.tileClass}`}
                   >
-                    <Icon name={item.icon} size={15} />
+                    {item.brand ? (
+                      <AwBrandLogo
+                        brand={item.brand}
+                        size="sm"
+                        bare
+                        style={{ width: 20, height: 20, borderRadius: 5 }}
+                      />
+                    ) : (
+                      <Icon name={item.icon} size={15} />
+                    )}
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm text-(--fg-primary)">

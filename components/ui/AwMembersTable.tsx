@@ -174,6 +174,7 @@ export type AwMembersTablePersonCellProps =
     /** Optional third line below email (e.g. organization name). */
     subtitle?: string
     avatarSrc?: string
+    avatar?: React.ReactNode
     /** Required when `name` is not a string. */
     initials?: string
     avatarSize?: AwAvatarSize
@@ -189,6 +190,7 @@ export function AwMembersTablePersonCell({
   email,
   subtitle,
   avatarSrc,
+  avatar,
   initials,
   avatarSize = "md",
   tag,
@@ -212,12 +214,14 @@ export function AwMembersTablePersonCell({
     <td className={className} {...rest}>
       <span className="flex items-center gap-3">
         <span className="relative inline-block">
-          <AwAvatar
-            size={avatarSize}
-            src={avatarSrc}
-            initials={fallbackInitials}
-            alt={typeof name === "string" ? name : undefined}
-          />
+          {avatar ?? (
+            <AwAvatar
+              size={avatarSize}
+              src={avatarSrc}
+              initials={fallbackInitials}
+              alt={typeof name === "string" ? name : undefined}
+            />
+          )}
           {presence && (
             <AwStatusDot variant={presence} size="sm" ring absolute />
           )}

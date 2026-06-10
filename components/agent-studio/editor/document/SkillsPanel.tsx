@@ -4,6 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
+import {
+  AwCheckpointChip,
+  GOOGLE_CALENDAR_BRAND,
+} from "@/components/ui/AwCheckpointChip";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import {
@@ -95,6 +99,13 @@ const INTEGRATION_CATALOG: AwAddIntegrationItem[] = [
   },
 ];
 
+function skillBrand(skill: SkillGroup["skills"][number]): string | undefined {
+  if (skill.grupo === "google-calendar" || skill.id.startsWith("googlecal.")) {
+    return GOOGLE_CALENDAR_BRAND;
+  }
+  return undefined;
+}
+
 /** Habilidades default de uma integração recém-conectada (demo). */
 export function defaultIntegrationGroup(
   item: AwAddIntegrationItem,
@@ -146,6 +157,7 @@ function SkillCard({
   onInsert: (id: string) => void;
 }) {
   const [dragging, setDragging] = React.useState(false);
+  const brand = skillBrand(skill);
   return (
     <button
       type="button"
@@ -159,15 +171,23 @@ function SkillCard({
       onDragEnd={() => setDragging(false)}
       onClick={() => onInsert(skill.id)}
       title={`${skill.descricao} Clique para inserir — ou arraste para o ponto exato do texto.`}
-      className={`group/skill flex w-full cursor-grab items-center gap-3 rounded-lg px-2 py-2 text-left transition-[background-color,opacity] duration-aw-fast hover:bg-(--bg-hover) active:cursor-grabbing ${
+      className={`group/skill flex w-full cursor-grab items-center gap-3 rounded-xl border border-transparent px-2.5 py-2.5 text-left transition-[background-color,border-color,opacity] duration-aw-fast hover:border-(--border-subtle) hover:bg-(--bg-hover) focus-visible:border-(--accent-brand) focus-visible:outline-none active:cursor-grabbing ${
         dragging ? "opacity-40" : ""
       }`}
     >
-      <span
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[tone].tile}`}
-      >
-        <Icon name={skill.icon ?? "bolt"} size={17} />
-      </span>
+      {brand ? (
+        <AwBrandLogo
+          brand={brand}
+          size="sm"
+          style={{ width: 32, height: 32, borderRadius: 8 }}
+        />
+      ) : (
+        <span
+          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[tone].tile}`}
+        >
+          <Icon name={skill.icon ?? "bolt"} size={17} />
+        </span>
+      )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-medium text-(--fg-primary)">
           {skill.nome}
@@ -212,7 +232,7 @@ function SkillGroupBlock({
         type="button"
         aria-expanded={expanded}
         onClick={onToggle}
-        className="-mx-2 flex w-full items-center gap-3 rounded-lg px-2 py-2 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)"
+        className="flex w-full items-center gap-3 rounded-xl border border-transparent px-2.5 py-2.5 text-left transition-[background-color,border-color] duration-aw-fast hover:border-(--border-subtle) hover:bg-(--bg-hover) focus-visible:border-(--accent-brand) focus-visible:outline-none"
       >
         {group.brand ? (
           <AwBrandLogo
@@ -420,16 +440,17 @@ export function SkillsPanel({
                 {vars.map((v) => {
                   const nome = v.nome.replace(/[{}]/g, "");
                   return (
-                    <button
+                    <AwCheckpointChip
                       key={v.nome}
-                      type="button"
+                      as="button"
                       onClick={() => onInsertVariable(nome)}
                       title={v.descricao}
-                      className="inline-flex items-center gap-1 rounded-md bg-(--bg-hover) px-2 py-1 text-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--bg-selected) hover:text-(--fg-primary)"
+                      tone="neutral"
+                      icon="data_object"
+                      interactive
                     >
-                      <Icon name="data_object" size={12} />
                       {nome}
-                    </button>
+                    </AwCheckpointChip>
                   );
                 })}
               </div>

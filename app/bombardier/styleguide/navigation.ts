@@ -173,10 +173,10 @@ export const navigation: NavSection[] = [
     // AwNeuralPattern são internos — consumidos por AwDashboardLayout e
     // AwOnboardingShell, sem showcase próprio de propósito.
     items: [
-      { name: "Agent tile", href: "/bombardier/styleguide/components/aw-agent-tile" },
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
       { name: "Capability tile", href: "/bombardier/styleguide/components/aw-capability-tile" },
+      { name: "Checkpoint chip", href: "/bombardier/styleguide/components/aw-checkpoint-chip" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
       { name: "Specialists pair", href: "/bombardier/styleguide/components/aw-specialists-pair" },
       {

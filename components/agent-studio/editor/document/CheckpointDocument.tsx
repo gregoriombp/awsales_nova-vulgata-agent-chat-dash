@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCheckpointChip } from "@/components/ui/AwCheckpointChip";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import {
@@ -88,7 +89,7 @@ function InlineEditor({
 }) {
   const innerRef = React.useRef<CheckpointRichTextHandle>(null);
   const ref = editorRef ?? innerRef;
-  const registerFocus = React.useCallback(() => {
+  const registerFocus = () => {
     const handle = ref.current;
     if (handle) {
       onEditorFocus({
@@ -96,7 +97,7 @@ function InlineEditor({
         insertVariable: (nome) => handle.insertVariable(nome),
       });
     }
-  }, [ref, onEditorFocus]);
+  };
 
   return (
     <CheckpointRichTextEditor
@@ -248,10 +249,9 @@ function MarqueBlock({
   return (
     <div className="group/marque relative rounded-xl border border-(--border-subtle) p-4 transition-colors duration-aw-fast hover:border-(--border-default)">
       <div className="flex items-center gap-2.5 pr-8">
-        <span className="inline-flex shrink-0 items-center gap-1 rounded-md bg-(--aw-amber-100) px-2 py-0.5 text-xs font-medium text-(--aw-amber-900)">
-          <Icon name="checklist" size={13} />
+        <AwCheckpointChip tone="amber" icon="checklist" className="shrink-0">
           {verbo}
-        </span>
+        </AwCheckpointChip>
         <div className="min-w-0 flex-1 text-sm font-medium text-(--fg-primary)">
           <InlineEditor
             value={marque.rotulo}
@@ -367,10 +367,9 @@ function RuleRow({
 }) {
   return (
     <div className="group/regra -mx-2 flex items-start gap-2 rounded-lg px-2 py-1 transition-colors duration-aw-fast hover:bg-(--bg-hover)/50">
-      <span className="mt-[3px] inline-flex shrink-0 items-center gap-1 rounded-md bg-(--aw-purple-100) px-2 py-0.5 text-xs font-medium text-(--aw-purple-800)">
-        <Icon name="alt_route" size={13} />
+      <AwCheckpointChip tone="purple" icon="alt_route" className="mt-px shrink-0">
         Se
-      </span>
+      </AwCheckpointChip>
       <div className="min-w-0 flex-[1.2] text-(--fg-secondary)">
         <InlineEditor
           value={regra.se}
@@ -523,10 +522,9 @@ function CheckpointSection({
       <div className="mt-4 space-y-4 pl-10">
         {/* Objetivo */}
         <div className="flex items-start gap-2.5">
-          <span className="mt-[3px] inline-flex shrink-0 items-center gap-1 rounded-full bg-(--bg-inverse) px-2.5 py-0.5 text-xs font-medium text-(--fg-on-inverse)">
-            <Icon name="target" size={13} />
+          <AwCheckpointChip tone="inverse" icon="target" className="mt-px shrink-0">
             Objetivo
-          </span>
+          </AwCheckpointChip>
           <div className="min-w-0 flex-1 text-(--fg-secondary)">
             <InlineEditor
               value={cp.objetivo}
@@ -643,14 +641,15 @@ function BlockAdder({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <AwCheckpointChip
+      as="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-medium text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-secondary)"
+      tone="neutral"
+      icon={icon}
+      interactive
     >
-      <Icon name={icon} size={14} />
       {label}
-    </button>
+    </AwCheckpointChip>
   );
 }
 

@@ -9,6 +9,7 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwCapabilityTile } from "@/components/ui/AwCapabilityTile";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
+import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { Icon } from "@/components/ui/Icon";
@@ -19,7 +20,6 @@ import {
   INTERVIEW_TOTAL,
   type InterviewAnswer,
 } from "@/components/agent-studio/WizardInterview";
-import { getOrbForAgent } from "@/lib/agentOrbs";
 
 // Icon components for each goal
 const SalesIcon = ({ color = "currentColor" }: { color?: string }) => (
@@ -333,7 +333,6 @@ function AgentStudioNewContent() {
   const [agentName, setAgentName] = useState("");
   const [selectedBaseId, setSelectedBaseId] = useState<string | null>(null);
   const [knowledgeBases, setKnowledgeBases] = useState<KnowledgeBase[]>([]);
-  const [showAllBases, setShowAllBases] = useState(false);
   const [basesModalOpen, setBasesModalOpen] = useState(false);
   const [showExitModal, setShowExitModal] = useState(false);
 
@@ -370,7 +369,9 @@ function AgentStudioNewContent() {
 
   // Load knowledge bases on mount
   useEffect(() => {
-    setKnowledgeBases(loadBasesFromStorage());
+    queueMicrotask(() => {
+      setKnowledgeBases(loadBasesFromStorage());
+    });
   }, []);
 
   // Loading message rotation
@@ -403,7 +404,7 @@ function AgentStudioNewContent() {
   const canAdvanceStep2 = agentName.trim() && selectedBaseId;
 
   // Visible bases
-  const visibleBases = showAllBases ? knowledgeBases : knowledgeBases.slice(0, MAX_VISIBLE_BASES);
+  const visibleBases = knowledgeBases.slice(0, MAX_VISIBLE_BASES);
   const hasMoreBases = knowledgeBases.length > MAX_VISIBLE_BASES;
 
   const handleGoalSelect = (goalId: string) => {
@@ -708,11 +709,11 @@ function AgentStudioNewContent() {
                                   <div className="flex items-center gap-2">
                                     <div className="flex -space-x-1.5">
                                       {["sales", "customer-support"].map((id) => (
-                                        <img
+                                        <AwUserAgentOrbStatic
                                           key={id}
-                                          src={getOrbForAgent(id)}
-                                          alt=""
-                                          className="h-5 w-5 rounded-full ring-2 ring-bg-raised"
+                                          seed={id}
+                                          size={20}
+                                          className="ring-2 ring-bg-raised"
                                         />
                                       ))}
                                     </div>

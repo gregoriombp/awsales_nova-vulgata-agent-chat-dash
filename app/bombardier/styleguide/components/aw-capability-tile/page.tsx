@@ -71,7 +71,8 @@ export default function AwCapabilityTilePage() {
             </>,
             <>
               Card de navegação. Pra abrir uma rota, use{" "}
-              <code className="mono">AwAgentTile</code> / um link.
+              <code className="mono">AwUserAgentOrb</code> dentro de um link
+              do produto.
             </>,
           ]}
         />

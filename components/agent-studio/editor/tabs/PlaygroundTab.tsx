@@ -6,8 +6,8 @@ import { AwChatBubble } from "@/components/ui/AwChatBubble";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
+import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
-import { getOrbForAgent } from "@/lib/agentOrbs";
 import type { AgentEditorData } from "@/lib/agentStudio";
 
 type ChatMessage = {
@@ -27,8 +27,6 @@ function agora(): string {
 }
 
 export function PlaygroundTab({ data }: { data: AgentEditorData }) {
-  const orbSrc = getOrbForAgent(data.agent.id);
-
   const [mode, setMode] = useState<"inicio" | "chat">("inicio");
   const [customOpen, setCustomOpen] = useState(false);
   const [leadNome, setLeadNome] = useState("");
@@ -120,11 +118,7 @@ export function PlaygroundTab({ data }: { data: AgentEditorData }) {
   };
 
   const orbAvatar = (
-    <img
-      src={orbSrc}
-      alt=""
-      className="h-full w-full rounded-full object-cover"
-    />
+    <AwUserAgentOrbStatic seed={data.agent.id} size={32} />
   );
 
   return (
@@ -185,11 +179,7 @@ export function PlaygroundTab({ data }: { data: AgentEditorData }) {
         /* Interface de chat */
         <div className="flex flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-surface)">
           <header className="flex items-center gap-3 border-b border-(--border-subtle) px-5 py-3.5">
-            <img
-              src={orbSrc}
-              alt=""
-              className="h-9 w-9 rounded-full object-cover"
-            />
+            <AwUserAgentOrbStatic seed={data.agent.id} size={36} />
             <span className="min-w-0 truncate body-sm font-medium text-(--fg-primary)">
               {data.agent.title}
             </span>

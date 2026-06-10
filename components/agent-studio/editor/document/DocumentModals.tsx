@@ -9,6 +9,8 @@ import { AwInput } from "@/components/ui/AwInput";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { GOOGLE_CALENDAR_BRAND } from "@/components/ui/AwCheckpointChip";
 import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import type { TokenClick } from "@/components/agent-studio/editor/CheckpointRichText";
 import { stripVariableBraces } from "@/components/agent-studio/editor/checkpointTokens";
@@ -136,6 +138,13 @@ const VARIABLE_FIELDS: FieldDef[] = [
   },
 ];
 
+function skillBrand(hab: HabilidadeConfigurada | undefined): string | undefined {
+  if (hab?.grupo === "google-calendar" || hab?.id.startsWith("googlecal.")) {
+    return GOOGLE_CALENDAR_BRAND;
+  }
+  return undefined;
+}
+
 /* ─── Modal de propriedades do chip ────────────────────────────────────── */
 
 export function ChipPropertiesModal({
@@ -183,6 +192,7 @@ export function ChipPropertiesModal({
 
   const grupo = hab ? getSkillGroup(hab.grupo) : undefined;
   const tone = token?.kind === "mention" ? skillTone(hab) : null;
+  const brand = token?.kind === "mention" ? skillBrand(hab) : undefined;
 
   const titulo =
     token?.kind === "mention"
@@ -199,19 +209,29 @@ export function ChipPropertiesModal({
           <div className="flex items-center gap-3.5">
             <span
               className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                tone
+                brand
+                  ? "bg-white"
+                  : tone
                   ? SKILL_TONE_CLASSES[tone].tile
                   : "bg-(--bg-hover) text-(--fg-secondary)"
               }`}
             >
-              <Icon
-                name={
-                  token.kind === "mention"
-                    ? (hab?.icon ?? "alternate_email")
-                    : "data_object"
-                }
-                size={22}
-              />
+              {brand ? (
+                <AwBrandLogo
+                  brand={brand}
+                  size="sm"
+                  style={{ width: 32, height: 32, borderRadius: 8 }}
+                />
+              ) : (
+                <Icon
+                  name={
+                    token.kind === "mention"
+                      ? (hab?.icon ?? "alternate_email")
+                      : "data_object"
+                  }
+                  size={22}
+                />
+              )}
             </span>
             <div className="min-w-0">
               <h2 className="truncate font-heading text-lg font-medium text-(--fg-primary)">

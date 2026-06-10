@@ -11,8 +11,8 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAgentCore } from "@/components/ui/AwAgentCore";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
-import { getOrbForAgent } from "@/lib/agentOrbs";
 import {
   getAgentEditorData,
   type AgentEditorData,
@@ -566,10 +566,10 @@ function PublishedModal({
             }}
           />
           <span className="relative inline-flex">
-            <img
-              src={getOrbForAgent(agentId)}
-              alt=""
-              className="h-20 w-20 rounded-full border-[3px] border-white object-cover shadow-md"
+            <AwUserAgentOrbStatic
+              seed={agentId}
+              size={80}
+              className="border-2 border-white shadow-md"
             />
             <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-white bg-(--aw-emerald-600) text-white">
               <Icon name="check" size={16} />

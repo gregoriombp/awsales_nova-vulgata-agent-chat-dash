@@ -29,8 +29,8 @@ mais específico e amarrado ao produto (topo).
 ```
 
 **Regra de dependência:** cada camada só depende das camadas **abaixo** dela, nunca
-das de cima. Um `Botões` (primitivo) jamais importa um `Agent tile` (domínio); um
-`Agent tile` é livre pra usar `Botões`, `Avatar`, `Pills`. É isso que mantém a base
+das de cima. Um `Botões` (primitivo) jamais importa um `Integration card` (domínio); um
+`Integration card` é livre pra usar `Botões`, `Avatar`, `Pills`. É isso que mantém a base
 estável — mexer num primitivo propaga pra todo mundo; mexer numa peça de domínio o
 estrago é local.
 
@@ -41,7 +41,7 @@ estrago é local.
 | **Primitivos** | É um tijolo de propósito único, composto só de tokens + HTML/Radix? | Não | Botões, Inputs, Select, Checkbox, Avatar, Pills, Toast, Skeleton |
 | **Componentes** | Combina primitivos num bloco genérico, reutilizável em qualquer produto? | Não | Cards, Modais, Sheet, Tabela, Nav rail, Page header, Stat card |
 | **Padrões** | Orquestra um fluxo ou região inteira de tela, mas ainda genérico? | Pouco | Onboarding shell, Welcome modal, Connect modal, Password setup |
-| **Domínio** | Está amarrado a um conceito de negócio da AwSales (agente, integração, billing, brand)? | Sim | Agent tile, Specialists pair, Integration card, WhatsApp panel |
+| **Domínio** | Está amarrado a um conceito de negócio da AwSales (agente, integração, billing, brand)? | Sim | Visual dos agentes, Specialists pair, Integration card, WhatsApp panel |
 
 ### Regras de desempate
 
@@ -99,7 +99,7 @@ Tabelas (`AwTable`, `Data table`, `Members table`)
 **Padrões** — Backup codes · Integration catalog · Onboarding shell ·
 Onboarding timeline · Password setup · QR placeholder
 
-**Domínio** — Agent tile · Banner de plano adicional · Brand logo ·
+**Domínio** — Banner de plano adicional · Brand logo ·
 Capability tile · Integration card · Specialists pair · Visual dos agentes
 (`Agent Core`, `Agente do Usuário`, `Cortex`) · WhatsApp panel
 
@@ -116,8 +116,8 @@ AwSales"*:
 - **Empty** / **Alertas** → *Primitivos*. Compõem sub-partes, mas têm propósito
   único de feedback; ficam na base por reutilização.
 
-Resultado: **Domínio** fica só com o inequivocamente AwSales — agentes (Agent tile,
-Specialists pair, Visual dos agentes), integrações (Integration card, Brand logo,
+Resultado: **Domínio** fica só com o inequivocamente AwSales — agentes
+(Specialists pair, Visual dos agentes), integrações (Integration card, Brand logo,
 WhatsApp panel) e comercial (Banner de plano adicional).
 
 ## Escopo desta fase

@@ -20,10 +20,20 @@ import "@xyflow/react/dist/style.css";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import {
+  AwCheckpointChip,
+  GOOGLE_CALENDAR_BRAND,
+} from "@/components/ui/AwCheckpointChip";
+import {
   checkpointTexts,
   deriveHabilidades,
 } from "@/components/agent-studio/editor/checkpointTokens";
-import type { AgentEditorData, Checkpoint } from "@/lib/agentStudio";
+import { TokenText } from "@/components/agent-studio/editor/CheckpointRichText";
+import {
+  skillTone,
+  type AgentEditorData,
+  type Checkpoint,
+  type HabilidadeConfigurada,
+} from "@/lib/agentStudio";
 
 /**
  * Visualização modular — o fluxo confirmado no editor de checkpoints como
@@ -38,7 +48,7 @@ import type { AgentEditorData, Checkpoint } from "@/lib/agentStudio";
 
 /* ─── Layout ───────────────────────────────────────────────────────────── */
 
-const ROW_H = 200;
+const ROW_H = 128;
 /** Zigue-zague suave: alterna o x dos checkpoints entre duas colunas. */
 const ZIG_X = [40, 200] as const;
 /** Pills de início/fim centralizadas em relação às duas colunas. */
@@ -55,9 +65,19 @@ function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
+function skillBrand(hab: HabilidadeConfigurada): string | undefined {
+  if (hab.grupo === "google-calendar" || hab.id.startsWith("googlecal.")) {
+    return GOOGLE_CALENDAR_BRAND;
+  }
+  return undefined;
+}
+
 /* ─── Nós custom ───────────────────────────────────────────────────────── */
 
-type CheckpointNodeData = { checkpoint: Checkpoint; habilidades: string[] };
+type CheckpointNodeData = {
+  checkpoint: Checkpoint;
+  habilidades: HabilidadeConfigurada[];
+};
 
 /** Máximo de chips de habilidade visíveis por nó — o resto vira "+N". */
 const NODE_MAX_CHIPS = 3;
@@ -88,19 +108,21 @@ function CheckpointNode(props: NodeProps) {
       </p>
       {habilidades.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {habilidades.slice(0, NODE_MAX_CHIPS).map((nome) => (
-            <span
-              key={nome}
-              className="inline-flex max-w-32 items-center gap-0.5 rounded bg-(--bg-hover) px-1.5 py-0.5 text-xs font-medium text-(--fg-secondary)"
+          {habilidades.slice(0, NODE_MAX_CHIPS).map((hab) => (
+            <AwCheckpointChip
+              key={hab.id}
+              tone={skillTone(hab)}
+              brand={skillBrand(hab)}
+              icon={hab.icon ?? "alternate_email"}
+              className="max-w-32"
             >
-              <Icon name="alternate_email" size={11} className="shrink-0" />
-              <span className="truncate">{nome}</span>
-            </span>
+              <span className="truncate">{hab.nome}</span>
+            </AwCheckpointChip>
           ))}
           {habilidades.length > NODE_MAX_CHIPS && (
-            <span className="inline-flex items-center rounded bg-(--bg-hover) px-1.5 py-0.5 text-xs font-medium text-(--fg-tertiary)">
+            <AwCheckpointChip tone="neutral">
               +{habilidades.length - NODE_MAX_CHIPS}
-            </span>
+            </AwCheckpointChip>
           )}
         </div>
       )}
@@ -129,6 +151,149 @@ function EndpointNode(props: NodeProps) {
 
 const nodeTypes = { checkpoint: CheckpointNode, endpoint: EndpointNode };
 
+function CheckpointInspector({
+  checkpoint,
+  habilidades,
+  allHabilidades,
+  editorHref,
+}: {
+  checkpoint: Checkpoint | null;
+  habilidades: HabilidadeConfigurada[];
+  allHabilidades: HabilidadeConfigurada[];
+  editorHref: string;
+}) {
+  if (!checkpoint) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center px-8 text-center">
+        <Icon
+          name="conversion_path"
+          size={28}
+          className="text-(--fg-tertiary)"
+        />
+        <p className="mt-3 text-sm text-(--fg-secondary)">
+          Selecione um checkpoint no canvas para ver instruções e tools.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-(--border-subtle) px-5 py-4">
+        <div className="flex items-center gap-2">
+          <Icon name="flag" size={15} className="text-(--fg-tertiary)" />
+          <span className="text-xs font-medium text-(--fg-tertiary)">
+            Checkpoint {pad(checkpoint.numero)}
+          </span>
+        </div>
+        <h3 className="mt-2 font-heading text-lg font-medium leading-tight text-(--fg-primary)">
+          {checkpoint.titulo}
+        </h3>
+        <p className="mt-2 text-sm leading-relaxed text-(--fg-secondary)">
+          <TokenText text={checkpoint.objetivo} habilidades={allHabilidades} />
+        </p>
+      </div>
+
+      <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5">
+        {habilidades.length > 0 && (
+          <section>
+            <p className="mb-2 text-xs font-medium text-(--fg-tertiary)">
+              Tools neste checkpoint
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {habilidades.map((hab) => (
+                <AwCheckpointChip
+                  key={hab.id}
+                  tone={skillTone(hab)}
+                  brand={skillBrand(hab)}
+                  icon={hab.icon ?? "alternate_email"}
+                >
+                  {hab.nome}
+                </AwCheckpointChip>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {checkpoint.corpo && (
+          <section>
+            <p className="mb-2 text-xs font-medium text-(--fg-tertiary)">
+              Instruções
+            </p>
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-(--fg-secondary)">
+              <TokenText text={checkpoint.corpo} habilidades={allHabilidades} />
+            </p>
+          </section>
+        )}
+
+        {checkpoint.marque && (
+          <section className="rounded-xl border border-(--border-subtle) p-4">
+            <div className="flex items-center gap-2">
+              <AwCheckpointChip tone="amber" icon="checklist">
+                {checkpoint.marque.verbo ?? "Marque"}
+              </AwCheckpointChip>
+              <span className="text-sm font-medium text-(--fg-primary)">
+                <TokenText
+                  text={checkpoint.marque.rotulo}
+                  habilidades={allHabilidades}
+                />
+              </span>
+            </div>
+            <ul className="mt-3 space-y-2 text-sm text-(--fg-secondary)">
+              {checkpoint.marque.opcoes.map((opcao, i) => (
+                <li key={i} className="flex items-start gap-2">
+                  <Icon
+                    name="radio_button_unchecked"
+                    size={15}
+                    className="mt-px shrink-0 text-(--border-strong)"
+                  />
+                  <span className="min-w-0">
+                    <TokenText
+                      text={opcao.texto}
+                      habilidades={allHabilidades}
+                    />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {checkpoint.regras && checkpoint.regras.length > 0 && (
+          <section>
+            <p className="mb-2 text-xs font-medium text-(--fg-tertiary)">
+              Regras
+            </p>
+            <div className="space-y-2">
+              {checkpoint.regras.map((regra) => (
+                <p
+                  key={regra.id}
+                  className="flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-(--fg-secondary)"
+                >
+                  <AwCheckpointChip tone="purple" icon="alt_route">
+                    Se
+                  </AwCheckpointChip>
+                  <TokenText text={regra.se} habilidades={allHabilidades} />
+                  <span className="text-(--fg-tertiary)">então</span>
+                  <TokenText text={regra.entao} habilidades={allHabilidades} />
+                </p>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <div className="border-t border-(--border-subtle) px-5 py-4">
+        <AwButton asChild variant="secondary" size="sm" iconLeft="edit_note">
+          <Link href={`${editorHref}#cp-${checkpoint.id}`}>
+            Editar checkpoint
+          </Link>
+        </AwButton>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Tab ──────────────────────────────────────────────────────────────── */
 
 export function VisualizacaoModularTab({
@@ -151,16 +316,16 @@ export function VisualizacaoModularTab({
     return () => window.removeEventListener("keydown", onKey);
   }, [fullscreen]);
 
-  /** Nomes das habilidades derivadas das menções @ de cada checkpoint. */
+  /** Habilidades derivadas das menções @ de cada checkpoint. */
   const habilidadesPorCheckpoint = React.useMemo(() => {
-    const map = new Map<string, string[]>();
+    const map = new Map<string, HabilidadeConfigurada[]>();
     for (const cp of checkpoints) {
       map.set(
         cp.id,
         deriveHabilidades(
           checkpointTexts(cp),
           data.habilidadesConfiguradas,
-        ).map((h) => h.nome),
+        ),
       );
     }
     return map;
@@ -230,9 +395,13 @@ export function VisualizacaoModularTab({
   }, [computedNodes, setNodes]);
 
   const selected = checkpoints.find((cp) => cp.id === selectedId) ?? null;
-  const selectedHabilidades = selected
-    ? (habilidadesPorCheckpoint.get(selected.id) ?? [])
+  const inspectorCheckpoint = fullscreen
+    ? (selected ?? checkpoints[0] ?? null)
+    : selected;
+  const inspectorHabilidades = inspectorCheckpoint
+    ? (habilidadesPorCheckpoint.get(inspectorCheckpoint.id) ?? [])
     : [];
+  const editorHref = `/agent-studio/${data.agent.id}/checkpoints`;
 
   return (
     <div
@@ -279,8 +448,11 @@ export function VisualizacaoModularTab({
       </div>
 
       <div
-        className={`w-full bg-(--bg-canvas) ${fullscreen ? "flex-1" : "h-[640px]"}`}
+        className={`w-full bg-(--bg-canvas) ${
+          fullscreen ? "flex min-h-0 flex-1" : "h-[640px]"
+        }`}
       >
+        <div className="min-w-0 flex-1">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -307,81 +479,31 @@ export function VisualizacaoModularTab({
           />
           <Controls showInteractive={false} />
 
-          {selected && (
+          {selected && !fullscreen && (
             <Panel position="top-right">
-              <div className="w-[300px] rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-4 shadow-md">
-                <div className="flex items-center gap-1.5">
-                  <Icon
-                    name="flag"
-                    size={14}
-                    className="shrink-0 text-(--fg-tertiary)"
-                  />
-                  <span className="text-xs font-medium text-(--fg-tertiary)">
-                    Checkpoint {pad(selected.numero)}
-                  </span>
-                </div>
-                <h3 className="mt-1 text-sm font-medium leading-snug text-(--fg-primary)">
-                  {selected.titulo}
-                </h3>
-                <p className="mt-2 text-xs leading-relaxed text-(--fg-secondary)">
-                  {selected.objetivo}
-                </p>
-
-                <dl className="mt-3 space-y-1.5 border-t border-(--border-subtle) pt-3 text-xs">
-                  <div className="flex items-center justify-between gap-3">
-                    <dt className="text-(--fg-tertiary)">Instruções</dt>
-                    <dd className="font-medium text-(--fg-primary)">
-                      {selected.corpo.split("\n").filter(Boolean).length}{" "}
-                      {selected.corpo.split("\n").filter(Boolean).length === 1
-                        ? "linha"
-                        : "linhas"}
-                    </dd>
-                  </div>
-                  {selected.regras && selected.regras.length > 0 && (
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-(--fg-tertiary)">Regras</dt>
-                      <dd className="font-medium text-(--fg-primary)">
-                        {selected.regras.length}
-                      </dd>
-                    </div>
-                  )}
-                  {selected.marque && (
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-(--fg-tertiary)">Classificação</dt>
-                      <dd className="truncate font-medium text-(--fg-primary)">
-                        {selected.marque.verbo ?? "Marque"}{" "}
-                        {selected.marque.rotulo}
-                      </dd>
-                    </div>
-                  )}
-                  {selectedHabilidades.length > 0 && (
-                    <div className="flex items-center justify-between gap-3">
-                      <dt className="text-(--fg-tertiary)">Tools</dt>
-                      <dd className="truncate font-medium text-(--fg-primary)">
-                        {selectedHabilidades.join(", ")}
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-
-                <AwButton
-                  asChild
-                  variant="secondary"
-                  size="sm"
-                  block
-                  iconLeft="edit_note"
-                  className="mt-4"
-                >
-                  <Link
-                    href={`/agent-studio/${data.agent.id}/checkpoints#cp-${selected.id}`}
-                  >
-                    Editar no documento
-                  </Link>
-                </AwButton>
+              <div className="h-96 w-96 overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised) shadow-md">
+                <CheckpointInspector
+                  checkpoint={selected}
+                  habilidades={inspectorHabilidades}
+                  allHabilidades={data.habilidadesConfiguradas}
+                  editorHref={editorHref}
+                />
               </div>
             </Panel>
           )}
         </ReactFlow>
+        </div>
+
+        {fullscreen && (
+          <aside className="w-96 shrink-0 border-l border-(--border-subtle) bg-(--bg-raised)">
+            <CheckpointInspector
+              checkpoint={inspectorCheckpoint}
+              habilidades={inspectorHabilidades}
+              allHabilidades={data.habilidadesConfiguradas}
+              editorHref={editorHref}
+            />
+          </aside>
+        )}
       </div>
     </div>
   );

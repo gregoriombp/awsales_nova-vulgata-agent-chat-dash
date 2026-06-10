@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCheckpointChip } from "@/components/ui/AwCheckpointChip";
 import {
   CheckpointRichTextEditor,
   MentionChip,
@@ -58,10 +59,9 @@ function PromptSection({
             <h2 className="font-heading text-base font-medium text-(--fg-primary)">
               Prompt do agente
             </h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-(--bg-hover) px-2.5 py-0.5 text-xs font-medium text-(--fg-secondary)">
-              <Icon name="person" size={13} />
+            <AwCheckpointChip tone="neutral" icon="person">
               Personalidade
-            </span>
+            </AwCheckpointChip>
           </div>
           <p className="mt-1 text-xs text-(--fg-tertiary)">
             Como o agente se apresenta e conversa — vale para todos os
@@ -180,10 +180,9 @@ function CheckpointCard({
       <div className="space-y-4 px-6 pb-6 pt-3.5">
         {/* Objetivo */}
         <div className="flex items-start gap-2.5">
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-(--bg-inverse) px-2.5 py-0.5 text-xs font-medium text-(--fg-on-inverse)">
-            <Icon name="target" size={13} />
+          <AwCheckpointChip tone="inverse" icon="target" className="shrink-0">
             Objetivo
-          </span>
+          </AwCheckpointChip>
           <p className="pt-0.5 text-sm leading-relaxed text-(--fg-secondary)">
             <TokenText text={checkpoint.objetivo} habilidades={habilidades} />
           </p>
@@ -200,10 +199,9 @@ function CheckpointCard({
         {checkpoint.marque && (
           <div className="rounded-xl border border-(--border-subtle) p-4">
             <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-md bg-(--aw-amber-100) px-2 py-0.5 text-xs font-medium text-(--aw-amber-900)">
-                <Icon name="checklist" size={13} />
+              <AwCheckpointChip tone="amber" icon="checklist">
                 {checkpoint.marque.verbo ?? "Marque"}
-              </span>
+              </AwCheckpointChip>
               <span className="text-sm font-medium text-(--fg-primary)">
                 <TokenText
                   text={checkpoint.marque.rotulo}
@@ -258,10 +256,9 @@ function CheckpointCard({
                 key={regra.id}
                 className="flex flex-wrap items-center gap-1.5 text-sm leading-relaxed text-(--fg-secondary)"
               >
-                <span className="inline-flex items-center gap-1 rounded-md bg-(--aw-purple-100) px-1.5 py-0.5 text-xs font-medium text-(--aw-purple-800)">
-                  <Icon name="alt_route" size={12} />
+                <AwCheckpointChip tone="purple" icon="alt_route">
                   Se
-                </span>
+                </AwCheckpointChip>
                 <TokenText text={regra.se} habilidades={habilidades} />
                 <span className="text-(--fg-tertiary)">então</span>
                 <TokenText text={regra.entao} habilidades={habilidades} />
