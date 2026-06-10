@@ -767,11 +767,21 @@ function MemoryBaseDirectoryContent() {
   };
 
   return (
-    <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      {/* Override DashboardLayout padding/background */}
-      <div className="-m-8">
+    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
+      <div className="flex h-full min-h-0">
+        <MemoryBaseSidebar
+          title={directoryName}
+          fileCount={rows.length}
+          layersCount={totalKnowledgeLayers}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onSemanticSearch={() => router.push(`/memory-base/${params?.id}/semantic-search`)}
+          onInsights={() => router.push("/insights")}
+          onSettings={() => router.push(`/memory-base/${params?.id}/settings`)}
+        />
+        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-raised)">
         {/* Header area — faixa escura com o glow azul da marca no canto. */}
-        <div className="relative overflow-hidden bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
+        <div className="relative shrink-0 overflow-hidden bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0"
@@ -783,9 +793,7 @@ function MemoryBaseDirectoryContent() {
           <div className="relative mx-auto max-w-[1544px] px-12 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10 text-white">
-                  <Icon name="account_balance" size={20} weight={300} />
-                </div>
+                <Icon name="account_balance" size={32} weight={300} className="shrink-0 text-white" />
                 <h1 className="text-[28px] font-semibold tracking-tight text-white leading-none">
                   {directoryName}
                 </h1>
@@ -1033,66 +1041,11 @@ function MemoryBaseDirectoryContent() {
               </div>
             </div>
 
-            {/* Tabs da base — Documentos (Fontes, existente) + Playbook/Produtos
-                (Knowledge Layers e produtos, do flow do Figma) + rotas auxiliares. */}
-            <div className="mt-6 flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={() => setActiveTab("documentos")}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
-                  activeTab === "documentos" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon name="description" size={16} weight={300} />
-                Documentos
-                <span className="ml-0.5 rounded-full bg-white/15 px-1.5 text-[11px] tabular-nums text-white/80">
-                  {rows.length}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("playbook")}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
-                  activeTab === "playbook" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon name="menu_book" size={16} weight={300} />
-                Playbook
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("produtos")}
-                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium transition-colors ${
-                  activeTab === "produtos" ? "bg-white/10 text-white" : "text-gray-400 hover:bg-white/5 hover:text-white"
-                }`}
-              >
-                <Icon name="inventory_2" size={16} weight={300} />
-                Produtos
-              </button>
-              <button
-                type="button"
-                onClick={() => router.push(`/memory-base/${params?.id}/semantic-search`)}
-                className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-[13px] font-medium text-gray-400 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                <Icon name="search" size={16} weight={300} />
-                Busca semântica
-              </button>
-              {/* Configurações saiu daqui — agora vive na sidebar lateral
-                  (MemoryBaseSidebar). Review cmt-d083418c. */}
-            </div>
           </div>
         </div>
 
-        {/* Content — sidebar lateral (Insights, Configurações, métricas) +
-            área principal das abas. Review cmt-d083418c. */}
-        <div className="flex items-start bg-(--bg-raised)">
-          <MemoryBaseSidebar
-            fileCount={rows.length}
-            layersCount={totalKnowledgeLayers}
-            onInsights={() => router.push("/insights")}
-            onSettings={() => router.push(`/memory-base/${params?.id}/settings`)}
-          />
-          <div className="min-w-0 flex-1">
+        {/* Conteúdo das abas — scroll independente do header e da sidebar. */}
+        <div className="min-h-0 flex-1 overflow-y-auto">
           {activeTab === "documentos" && (
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
@@ -1409,7 +1362,7 @@ function MemoryBaseDirectoryContent() {
               <ProductsTab />
             </div>
           )}
-          </div>
+        </div>
         </div>
       </div>
 
