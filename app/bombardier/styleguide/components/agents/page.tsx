@@ -1,5 +1,5 @@
 import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore"
-import { AwUserAgentOrbStatic } from "@/components/ui/AwUserAgentOrb"
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb"
 import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer"
 import {
   CORTEX_STATE_PRESETS,
@@ -251,14 +251,14 @@ export default function AgentsPage() {
           >
             <Stage
               label="Agentes do usuário · círculo animado"
-              hint="color1 branco; cada agente uma hue própria. Previews estáticos (gradient mesh) por densidade — cada um anima ao vivo na página dedicada."
+              hint="color1 branco; cada agente uma hue própria. O agente só existe animado — amostra reduzida aqui pelo orçamento de WebGL; a variedade completa de hues está na página dedicada."
               gridClassName="flex flex-col gap-6"
             >
               <div className="flex items-center gap-4 flex-wrap">
-                <AwUserAgentOrbStatic seed="agent-01" size={96} />
+                <AwUserAgentOrb seed="agent-01" size={96} />
                 <p className="caption m-0 max-w-md">
-                  Cada agente é um círculo animado. Veja ao vivo, os estados e a
-                  regra de cor em{" "}
+                  Cada agente é um círculo animado. Veja os estados e a regra de
+                  cor em{" "}
                   <a
                     className="underline text-(--aw-blue-700)"
                     href="/bombardier/styleguide/components/user-agent"
@@ -268,13 +268,13 @@ export default function AgentsPage() {
                   .
                 </p>
               </div>
-              <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-6 gap-5">
-                {USER_AGENTS.map((u) => (
+              <div className="flex flex-wrap gap-5">
+                {USER_AGENTS.slice(0, 3).map((u) => (
                   <div
                     key={u.seed}
                     className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
                   >
-                    <AwUserAgentOrbStatic seed={u.seed} size={88} />
+                    <AwUserAgentOrb seed={u.seed} size={88} />
                     <span className="mono">{u.label}</span>
                   </div>
                 ))}
@@ -573,7 +573,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
                 <div className="flex flex-wrap items-end gap-6">
                   {SIZE_SCALE.map((s) => (
                     <div key={s.key} className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)">
-                      <AwUserAgentOrbStatic seed="agent-01" size={s.px} />
+                      <AwUserAgentOrb seed="agent-01" size={s.px} />
                       <span className="mono">{s.label} · {s.px}px</span>
                     </div>
                   ))}
@@ -624,7 +624,7 @@ function CortexBadge({ phase }: { phase: ConversationPhase }) {
 
               <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6 flex flex-col gap-4">
                 <div className="flex items-center gap-3">
-                  <AwUserAgentOrbStatic seed="agent-03" size={48} />
+                  <AwUserAgentOrb seed="agent-03" size={48} />
                   <div>
                     <div className="text-sm font-medium text-(--fg-primary)">Agente do Usuário</div>
                     <div className="caption">Customizável pelo usuário</div>

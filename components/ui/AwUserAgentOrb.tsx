@@ -1,8 +1,8 @@
 "use client";
 
-import { type HTMLAttributes, useMemo } from "react";
+import { useMemo } from "react";
 import { AwCortexSynthesis } from "@/components/ui/AwCortexSynthesis";
-import { agentCorePalette, agentMeshBackground } from "@/lib/agent-core-palette";
+import { agentCorePalette } from "@/lib/agent-core-palette";
 import {
   USER_AGENT_STATE_PRESETS,
   type UserAgentState,
@@ -67,8 +67,8 @@ export interface AwUserAgentOrbProps {
  *  - `error` goes mostly grayscale with a muted red.
  *
  * Each instance is its own WebGL context. Browsers cap active contexts
- * (~16 on Chrome), so don't render large grids of these on one page — use
- * {@link AwUserAgentOrbStatic} for dense lists, tables and pickers.
+ * (~16 on Chrome) — in dense lists/grids show a reduced sample of orbs
+ * (plus a counter) instead of one orb per row.
  */
 export function AwUserAgentOrb({
   seed = "agent",
@@ -104,23 +104,30 @@ export function AwUserAgentOrb({
         state === "thinking" && "aw-agent-think",
         className,
       )}
-      style={{ width: size, height: size }}
+      // Black circle behind the shader — any transient gap during the
+      // thinking morph/rotation reads as the orb's own dark core.
+      style={{ width: size, height: size, background: USER_AGENT_BASE.bg }}
       aria-hidden="true"
     >
-      <AwCortexSynthesis
-        speed={speed ?? preset.speed ?? USER_AGENT_BASE.speed}
-        color1={palette.color1}
-        color2={color2 ?? preset.color2 ?? palette.color2}
-        color3={color3 ?? preset.color3 ?? palette.color3}
-        scale={scale ?? preset.scale ?? autoScale}
-        complexity={complexity ?? preset.complexity ?? autoComplexity}
-        distortion={distortion ?? preset.distortion ?? autoDistortion}
-        glowIntensity={glowIntensity ?? preset.glowIntensity ?? USER_AGENT_BASE.glowIntensity}
-        flowFrequency={flowFrequency ?? preset.flowFrequency ?? USER_AGENT_BASE.flowFrequency}
-        contrast={contrast ?? preset.contrast ?? USER_AGENT_BASE.contrast}
-        hueSpeed={preset.hueSpeed ?? 0}
-        backgroundColor={USER_AGENT_BASE.bg}
-      />
+      {/* Zoom: the shader plane is oversized inside the circular mask so the
+          painted sphere never shows a cut edge — especially while the
+          thinking state morphs and rotates the silhouette. */}
+      <div className="absolute" style={{ inset: "-18%" }}>
+        <AwCortexSynthesis
+          speed={speed ?? preset.speed ?? USER_AGENT_BASE.speed}
+          color1={palette.color1}
+          color2={color2 ?? preset.color2 ?? palette.color2}
+          color3={color3 ?? preset.color3 ?? palette.color3}
+          scale={scale ?? preset.scale ?? autoScale}
+          complexity={complexity ?? preset.complexity ?? autoComplexity}
+          distortion={distortion ?? preset.distortion ?? autoDistortion}
+          glowIntensity={glowIntensity ?? preset.glowIntensity ?? USER_AGENT_BASE.glowIntensity}
+          flowFrequency={flowFrequency ?? preset.flowFrequency ?? USER_AGENT_BASE.flowFrequency}
+          contrast={contrast ?? preset.contrast ?? USER_AGENT_BASE.contrast}
+          hueSpeed={preset.hueSpeed ?? 0}
+          backgroundColor={USER_AGENT_BASE.bg}
+        />
+      </div>
       {/* Inner glow rim — borderRadius:inherit so it tracks the thinking morph. */}
       <span
         className="absolute inset-0 pointer-events-none"
@@ -130,43 +137,7 @@ export function AwUserAgentOrb({
   );
 }
 
-export interface AwUserAgentOrbStaticProps
-  extends HTMLAttributes<HTMLDivElement> {
-  seed?: string | number;
-  size?: number;
-}
-
-/**
- * AwUserAgentOrbStatic — the same circle silhouette and seeded palette as
- * {@link AwUserAgentOrb}, rendered with a CSS gradient *mesh* (no WebGL).
- *
- * Use it wherever the animated version is impractical: dense lists, tables,
- * pickers, or any view that would otherwise spawn dozens of canvases. The mesh
- * ({@link agentMeshBackground}) layers white highlights, the vivid hero, soft
- * mids, deep recesses and a touch of a neighbouring hue so it reads close to
- * the animated spectrum — not a flat two-color gradient.
- */
-export function AwUserAgentOrbStatic({
-  seed = "agent",
-  size = 40,
-  className,
-  style,
-  ...rest
-}: AwUserAgentOrbStaticProps) {
-  const background = useMemo(() => agentMeshBackground(seed), [seed]);
-
-  return (
-    <div
-      className={cn("relative shrink-0 rounded-full", className)}
-      style={{
-        width: size,
-        height: size,
-        background,
-        boxShadow: INNER_GLOW,
-        ...style,
-      }}
-      aria-hidden="true"
-      {...rest}
-    />
-  );
-}
+// NOTA: a variante estática (CSS mesh, sem WebGL) foi removida em 2026-06-10
+// por decisão de produto — o agente do usuário SÓ existe animado. Se uma tela
+// precisar de dezenas de orbs simultâneos, reduza a amostra visível em vez de
+// reintroduzir uma versão congelada.
