@@ -9,6 +9,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { AwDropzone } from "@/components/ui/AwDropzone";
+import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import BaseModal from "@/components/modals/BaseModal";
 import ConfirmationModal from "@/components/modals/ConfirmationModal";
 import AddUrlFlow from "@/components/modals/AddUrlFlow";
@@ -19,15 +20,6 @@ import RenameFolderModal from "@/components/modals/RenameFolderModal";
 import ActivateIntegrationsModal, { type IntegrationItem, DEFAULT_INTEGRATIONS } from "@/components/modals/ActivateIntegrationsModal";
 import AddCatalogModal from "@/components/modals/AddCatalogModal";
 import {
-  TbFileTypePdf,
-  TbFileTypeDoc,
-  TbFileTypeDocx,
-  TbFileTypeXls,
-  TbFileTypeTxt,
-  TbFileCode,
-  TbFile,
-  TbLink,
-  TbCode,
   TbPlug,
   TbSettings,
   TbX,
@@ -44,7 +36,6 @@ import {
   TbPencil,
   TbTrash,
   TbFolderOpen,
-  TbDatabase,
   TbTrendingUp,
 } from "react-icons/tb";
 import { getOrbForAgent } from "@/lib/agentOrbs";
@@ -179,25 +170,6 @@ function CheckboxSquare16() {
   );
 }
 
-function FileIcon16() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9l-8-6Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M14 3v6h8"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function getFileExtension(name: string): string {
   const lastDot = name.lastIndexOf(".");
   if (lastDot === -1) return "";
@@ -212,63 +184,60 @@ function getIntegrationIconUrl(integrationName: string): string | undefined {
   return found?.icon;
 }
 
-// Grayscale-only (pedido de review): o tipo do arquivo se distingue pelo glifo
-// do ícone, não pela cor. Tokens themeáveis (claro/escuro).
-const FILE_TYPE_CHIP = {
-  bg: "bg-(--bg-muted)",
-  icon: "text-(--fg-secondary)",
-} as const;
-const FILE_TYPE_STYLES = {
-  pdf: FILE_TYPE_CHIP,
-  word: FILE_TYPE_CHIP,
-  excel: FILE_TYPE_CHIP,
-  text: FILE_TYPE_CHIP,
-  code: FILE_TYPE_CHIP,
-  url: FILE_TYPE_CHIP,
-  snippet: FILE_TYPE_CHIP,
-  integration: FILE_TYPE_CHIP,
-  default: FILE_TYPE_CHIP,
-} as const;
+/**
+ * Tile tintado 32px para fontes que não são arquivo (URL/Snippet/Catálogo).
+ * color-mix sobre transparente funciona em fundo claro e escuro.
+ */
+function TintTile({
+  icon,
+  tint,
+  size = 32,
+}: {
+  icon: string;
+  tint: string;
+  size?: number;
+}) {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-center rounded-lg"
+      style={{
+        width: size,
+        height: size,
+        background: `color-mix(in srgb, ${tint} 14%, transparent)`,
+        color: tint,
+      }}
+    >
+      <Icon name={icon} size={Math.round(size * 0.53)} weight={300} />
+    </div>
+  );
+}
 
+// Cor no background por tipo de fonte (2026-06-10, pedido de produto — o
+// grayscale anterior achatava a tabela): arquivos usam o AwFileIcon do DS
+// (tile colorido por formato), URL/Snippet/Catálogo usam tiles tintados nos
+// accents, integrações mantêm o feixe em gradiente com o logo da marca.
 function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) {
-  const size = 16;
-
   if (typeLabel === "Catálogo") {
-    return (
-      <div className="h-8 w-8 rounded-sm border border-(--border-subtle) flex items-center justify-center bg-(--bg-muted) text-(--fg-secondary)">
-        <TbDatabase size={size} strokeWidth={1.5} />
-      </div>
-    );
+    return <TintTile icon="database" tint="var(--aw-amber-500)" />;
   }
   if (typeLabel === "URL") {
-    const s = FILE_TYPE_STYLES.url;
-    return (
-      <div className={`h-8 w-8 rounded-sm border border-(--border-subtle) flex items-center justify-center ${s.bg} ${s.icon}`}>
-        <TbLink size={size} strokeWidth={1.5} />
-      </div>
-    );
+    return <TintTile icon="language" tint="var(--aw-teal-600)" />;
   }
   if (typeLabel === "Snippet") {
-    const s = FILE_TYPE_STYLES.snippet;
-    return (
-      <div className={`h-8 w-8 rounded-sm border border-(--border-subtle) flex items-center justify-center ${s.bg} ${s.icon}`}>
-        <TbCode size={size} strokeWidth={1.5} />
-      </div>
-    );
+    return <TintTile icon="data_object" tint="var(--aw-purple-500)" />;
   }
   if (typeLabel === "Integração") {
-    const s = FILE_TYPE_STYLES.integration;
     const integrationIcon = getIntegrationIconUrl(name);
     return (
       <div className="relative h-8 w-8 rounded-sm overflow-hidden shrink-0">
         {/* Só o feixe em gradiente gira no perímetro; o quadrado fica fixo */}
         <div className="absolute inset-0 rounded-sm integration-icon-gradient-border" aria-hidden />
-        <div className={`absolute inset-[2px] rounded-xs ${s.bg} z-1`} />
+        <div className="absolute inset-[2px] rounded-xs bg-(--bg-raised) z-1" />
         <div className="absolute inset-0 flex items-center justify-center z-2">
           {integrationIcon ? (
             <img src={integrationIcon} alt="" className="w-5 h-5 object-contain" />
           ) : (
-            <TbPlug size={size} strokeWidth={1.5} className={s.icon} />
+            <TbPlug size={16} strokeWidth={1.5} className="text-(--fg-secondary)" />
           )}
         </div>
       </div>
@@ -276,50 +245,7 @@ function FileTypeIcon({ name, typeLabel }: { name: string; typeLabel: string }) 
   }
 
   const ext = getFileExtension(name);
-  let Icon = TbFile;
-  let style: (typeof FILE_TYPE_STYLES)[keyof typeof FILE_TYPE_STYLES] = FILE_TYPE_STYLES.default;
-
-  switch (ext) {
-    case "pdf":
-      Icon = TbFileTypePdf;
-      style = FILE_TYPE_STYLES.pdf;
-      break;
-    case "doc":
-      Icon = TbFileTypeDoc;
-      style = FILE_TYPE_STYLES.word;
-      break;
-    case "docx":
-      Icon = TbFileTypeDocx;
-      style = FILE_TYPE_STYLES.word;
-      break;
-    case "xls":
-    case "xlsx":
-      Icon = TbFileTypeXls;
-      style = FILE_TYPE_STYLES.excel;
-      break;
-    case "txt":
-      Icon = TbFileTypeTxt;
-      style = FILE_TYPE_STYLES.text;
-      break;
-    case "md":
-    case "json":
-    case "xml":
-    case "html":
-    case "css":
-    case "js":
-    case "ts":
-      Icon = TbFileCode;
-      style = FILE_TYPE_STYLES.code;
-      break;
-    default:
-      style = FILE_TYPE_STYLES.default;
-  }
-
-  return (
-    <div className={`h-8 w-8 rounded-sm border border-(--border-subtle) flex items-center justify-center ${style.bg} ${style.icon}`}>
-      <Icon size={size} strokeWidth={1.5} />
-    </div>
-  );
+  return <AwFileIcon ext={ext || undefined} size="sm" alt={name} />;
 }
 
 function ActionCard({
@@ -843,15 +769,23 @@ function MemoryBaseDirectoryContent() {
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
       {/* Override DashboardLayout padding/background */}
       <div className="-m-8">
-        {/* Header area */}
-        <div className="bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
-          <div className="mx-auto max-w-[1544px] px-12 py-8">
+        {/* Header area — faixa escura com o glow azul da marca no canto. */}
+        <div className="relative overflow-hidden bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                "radial-gradient(40% 90% at 88% 0%, color-mix(in srgb, var(--aw-blue-700) 14%, transparent) 0%, transparent 100%)",
+            }}
+          />
+          <div className="relative mx-auto max-w-[1544px] px-12 py-8">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10 text-white">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/10 text-white">
                   <Icon name="account_balance" size={20} weight={300} />
                 </div>
-                <h1 className="text-[40px] font-normal text-white leading-none">
+                <h1 className="text-[28px] font-semibold tracking-tight text-white leading-none">
                   {directoryName}
                 </h1>
               </div>
@@ -895,9 +829,9 @@ function MemoryBaseDirectoryContent() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-start gap-3 text-[14px] text-gray-400">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px] text-gray-400">
               {/* Status */}
-              <div className="flex items-center gap-2 pr-3 border-r border-gray-600">
+              <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5">
                 <span
                   className={`inline-block h-[6px] w-[6px] rounded-full ${
                     isDirectoryActive ? "bg-(--accent-success)" : "bg-(--fg-muted)"
@@ -907,7 +841,7 @@ function MemoryBaseDirectoryContent() {
               </div>
 
               {/* Agentes */}
-              <div className="relative pr-3 border-r border-gray-600" ref={agentsPopoverRef} data-tour="used-by-agents">
+              <div className="relative" ref={agentsPopoverRef} data-tour="used-by-agents">
                 <button
                   type="button"
                   onClick={() => {
@@ -915,7 +849,7 @@ function MemoryBaseDirectoryContent() {
                     setIsSourcesPopoverOpen(false);
                     setIsLayersPopoverOpen(false);
                   }}
-                  className="flex items-center gap-2 hover:text-white transition-colors"
+                  className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   {connectedAgents.length > 0 ? (
                     <span className="flex -space-x-1.5">
@@ -999,7 +933,7 @@ function MemoryBaseDirectoryContent() {
               </div>
 
               {/* Fontes */}
-              <div className="relative pr-3 border-r border-gray-600" ref={sourcesPopoverRef}>
+              <div className="relative" ref={sourcesPopoverRef}>
                 <button
                   type="button"
                   onClick={() => {
@@ -1007,7 +941,7 @@ function MemoryBaseDirectoryContent() {
                     setIsAgentsPopoverOpen(false);
                     setIsLayersPopoverOpen(false);
                   }}
-                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
@@ -1044,7 +978,7 @@ function MemoryBaseDirectoryContent() {
               </div>
 
               {/* Knowledge Layers */}
-              <div className="relative pr-3" ref={layersPopoverRef} data-tour="knowledge-layers">
+              <div className="relative" ref={layersPopoverRef} data-tour="knowledge-layers">
                 <button
                   type="button"
                   onClick={() => {
@@ -1052,7 +986,7 @@ function MemoryBaseDirectoryContent() {
                     setIsAgentsPopoverOpen(false);
                     setIsSourcesPopoverOpen(false);
                   }}
-                  className="flex items-center gap-1.5 hover:text-white transition-colors"
+                  className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <img
                     src="/assets/icons/knowledge-layers_icon.svg"
@@ -1100,7 +1034,7 @@ function MemoryBaseDirectoryContent() {
 
             {/* Tabs da base — Documentos (Fontes, existente) + Playbook/Produtos
                 (Knowledge Layers e produtos, do flow do Figma) + rotas auxiliares. */}
-            <div className="mt-7 flex items-center gap-1">
+            <div className="mt-6 flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => setActiveTab("documentos")}
@@ -1166,60 +1100,17 @@ function MemoryBaseDirectoryContent() {
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
                 <ActionCard
                   label="Enviar arquivos"
-                  icon={<FileIcon16 />}
+                  icon={<TintTile icon="upload_file" tint="var(--aw-blue-600)" size={40} />}
                   onClick={() => setIsSendFileOpen(true)}
                 />
                 <ActionCard
                   label="Adicionar URL"
-                  icon={
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <circle
-                        cx="12"
-                        cy="12"
-                        r="9"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      />
-                      <path
-                        d="M3.5 12h17"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M12 3c3 3 3 15 0 18"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                      <path
-                        d="M12 3c-3 3-3 15 0 18"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  }
+                  icon={<TintTile icon="language" tint="var(--aw-teal-600)" size={40} />}
                   onClick={() => setIsAddUrlOpen(true)}
                 />
                 <ActionCard
                   label="Adicionar Snippet"
-                  icon={
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <path
-                        d="M7 4h10v16H7V4Z"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M9 8h6M9 12h6M9 16h4"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                  }
+                  icon={<TintTile icon="data_object" tint="var(--aw-purple-500)" size={40} />}
                   onClick={() => setIsAddSnippetOpen(true)}
                 />
                 <div data-tour="activate-integrations">
@@ -1243,13 +1134,7 @@ function MemoryBaseDirectoryContent() {
                 </div>
                 <ActionCard
                   label="Adicionar Catálogo"
-                  icon={
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                      <ellipse cx="12" cy="6" rx="7.5" ry="3" stroke="currentColor" strokeWidth="2" />
-                      <path d="M4.5 6v12c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3V6" stroke="currentColor" strokeWidth="2" />
-                      <path d="M4.5 12c0 1.66 3.36 3 7.5 3s7.5-1.34 7.5-3" stroke="currentColor" strokeWidth="2" />
-                    </svg>
-                  }
+                  icon={<TintTile icon="database" tint="var(--aw-amber-500)" size={40} />}
                   onClick={() => setIsAddCatalogOpen(true)}
                 />
               </div>
