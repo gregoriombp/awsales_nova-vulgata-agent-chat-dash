@@ -33,6 +33,56 @@ const ALL_TYPES: AuditEventType[] = [
   "Voucher",
 ];
 
+/** Identidade visual por tipo de evento. Cupom e voucher ganham ícone e cor
+ *  próprios para saltarem aos olhos no histórico; o resto fica neutro. */
+const TYPE_META: Record<
+  AuditEventType,
+  { icon: string; badgeClass: string; accentClass?: string }
+> = {
+  Plano: {
+    icon: "workspace_premium",
+    badgeClass:
+      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+  },
+  Cartão: {
+    icon: "credit_card",
+    badgeClass:
+      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+  },
+  Fatura: {
+    icon: "receipt_long",
+    badgeClass:
+      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+  },
+  Cupom: {
+    icon: "local_offer",
+    badgeClass:
+      "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
+    accentClass: "text-(--aw-emerald-700)",
+  },
+  Voucher: {
+    icon: "card_giftcard",
+    badgeClass:
+      "border-(--aw-purple-300) bg-(--aw-purple-150) text-(--aw-purple-800)",
+    accentClass: "text-(--aw-purple-700)",
+  },
+};
+
+function TypeBadge({ type }: { type: AuditEventType }) {
+  const meta = TYPE_META[type];
+  return (
+    <span
+      className={
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium " +
+        meta.badgeClass
+      }
+    >
+      <Icon name={meta.icon} size={13} />
+      {type}
+    </span>
+  );
+}
+
 const INV_PATTERN = /\bINV-\d{4}-\d{2}-\d{4}\b/;
 
 function getInitials(name: string): string {
@@ -384,6 +434,7 @@ function TypeChips({
       </span>
       {options.map((t) => {
         const on = selected.includes(t);
+        const meta = TYPE_META[t];
         return (
           <button
             key={t}
@@ -391,13 +442,17 @@ function TypeChips({
             onClick={() => onToggle(t)}
             aria-pressed={on}
             className={
-              "inline-flex items-center gap-1 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-hidden " +
+              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-hidden " +
               (on
                 ? "bg-(--fg-primary) text-(--bg-raised) hover:bg-(--fg-secondary)"
                 : "border border-(--border-subtle) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
             }
           >
-            {on && <Icon name="check" size={12} />}
+            <Icon
+              name={meta.icon}
+              size={13}
+              className={on ? undefined : meta.accentClass}
+            />
             {t}
           </button>
         );
@@ -489,6 +544,9 @@ function EventRow({
             )}
           </span>
         </span>
+      </td>
+      <td className="align-top">
+        <TypeBadge type={event.type} />
       </td>
       <td className="text-right align-top">
         <div className="flex flex-col items-end">

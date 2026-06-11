@@ -11,6 +11,12 @@ import { AwTable } from "@/components/ui/AwTable";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
@@ -187,6 +193,7 @@ export function VariableSpendingBlock() {
       return {
         categories: visible.map((v) => v.cat),
         data: daily.map((day) => visible.map((v) => day[v.idx] ?? 0)),
+        othersLabels: [] as string[],
       };
     }
 
@@ -205,6 +212,9 @@ export function VariableSpendingBlock() {
         ...top.map((v) => day[v.idx] ?? 0),
         rest.reduce((s, v) => s + (day[v.idx] ?? 0), 0),
       ]),
+      // Quem foi agregado na série "Outros", em ordem de gasto — alimenta o
+      // tooltip informativo da legenda.
+      othersLabels: rest.map((v) => v.cat.label),
     };
   }, [daily, categories, visibleIds]);
 
@@ -215,62 +225,47 @@ export function VariableSpendingBlock() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <SegmentedToggle
-              options={[
-                { value: "service", label: "Serviço" },
-                { value: "agent", label: "Agente" },
-              ]}
-              value={grouping}
-              onChange={setGrouping}
-            />
-            <AwDropdownMenu
-              align="start"
-              trigger={<AwSelect>{filterLabel}</AwSelect>}
-              items={[
-                {
-                  id: "__all__",
-                  label: filterAllLabel,
-                  checked: isAll,
-                  closeOnSelect: false,
-                  onSelect: selectAllFilter,
-                },
-                { id: "__sep__", separator: true },
-                ...categories.map((c) => ({
-                  id: c.id,
-                  label: c.label,
-                  checked: visibleIds.has(c.id),
-                  closeOnSelect: false,
-                  onSelect: () => toggleFilter(c.id),
-                })),
-              ]}
-            />
-          </div>
-          <div className="flex items-center gap-3">
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              Acumulado:{" "}
-              <strong className="tabular-nums text-(--fg-primary)">
-                {brl(accumulated)}
-              </strong>
-            </p>
-            <PeriodPicker selection={selection} onChange={setSelection} />
-          </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <SegmentedToggle
+            options={[
+              { value: "service", label: "Serviço" },
+              { value: "agent", label: "Agente" },
+            ]}
+            value={grouping}
+            onChange={setGrouping}
+          />
+          <AwDropdownMenu
+            align="start"
+            trigger={<AwSelect>{filterLabel}</AwSelect>}
+            items={[
+              {
+                id: "__all__",
+                label: filterAllLabel,
+                checked: isAll,
+                closeOnSelect: false,
+                onSelect: selectAllFilter,
+              },
+              { id: "__sep__", separator: true },
+              ...categories.map((c) => ({
+                id: c.id,
+                label: c.label,
+                checked: visibleIds.has(c.id),
+                closeOnSelect: false,
+                onSelect: () => toggleFilter(c.id),
+              })),
+            ]}
+          />
         </div>
-
-        <Legend
-          categories={chartModel.categories}
-          visibleIds={chartIds}
-          grouping={grouping}
-        />
-
-        <DailySpendingChart
-          data={chartModel.data}
-          categories={chartModel.categories}
-          visibleIds={chartIds}
-          period={chartPeriod}
-        />
+        <div className="flex items-center gap-3">
+          <p className="m-0 body-xs text-(--fg-secondary)">
+            Acumulado:{" "}
+            <strong className="tabular-nums text-(--fg-primary)">
+              {brl(accumulated)}
+            </strong>
+          </p>
+          <PeriodPicker selection={selection} onChange={setSelection} />
+        </div>
       </div>
 
       {selection.kind === "custom" ? (
@@ -290,6 +285,23 @@ export function VariableSpendingBlock() {
       ) : (
         <AgentTable period={selection.id} allowedRowIds={allowedRowIds} />
       )}
+
+      {/* Gráfico fecha a seção ocupando 100% da largura disponível. */}
+      <div className="flex w-full flex-col gap-3">
+        <Legend
+          categories={chartModel.categories}
+          visibleIds={chartIds}
+          grouping={grouping}
+          othersLabels={chartModel.othersLabels}
+        />
+
+        <DailySpendingChart
+          data={chartModel.data}
+          categories={chartModel.categories}
+          visibleIds={chartIds}
+          period={chartPeriod}
+        />
+      </div>
     </div>
   );
 }
@@ -624,39 +636,81 @@ function Legend({
   categories,
   visibleIds,
   grouping,
+  othersLabels = [],
 }: {
   categories: SpendingCategory[];
   visibleIds: Set<string>;
   grouping: SpendingGrouping;
+  /** Nomes agregados na série "Outros" — exibidos em tooltip no hover. */
+  othersLabels?: string[];
 }) {
   const visible = categories.filter((c) => visibleIds.has(c.id));
   if (visible.length === 0) return null;
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-      {visible.map((c) => (
-        <span
-          key={c.id}
-          className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)"
-        >
-          {grouping === "agent" && c.avatar ? (
-            <span className="relative inline-block">
-              <AwAvatar size="sm" src={c.avatar} alt={c.label} />
+      {visible.map((c) => {
+        const isOthers = c.id === "__others__" && othersLabels.length > 0;
+        const item = (
+          <span
+            className={
+              "inline-flex items-center gap-2 body-xs text-(--fg-secondary)" +
+              (isOthers ? " cursor-default" : "")
+            }
+          >
+            {grouping === "agent" && c.avatar ? (
+              <span className="relative inline-block">
+                <AwAvatar size="sm" src={c.avatar} alt={c.label} />
+                <span
+                  aria-hidden="true"
+                  className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-(--bg-canvas)"
+                  style={{ background: c.colorVar }}
+                />
+              </span>
+            ) : (
               <span
                 aria-hidden="true"
-                className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-(--bg-canvas)"
+                className="inline-block h-2.5 w-2.5 rounded-full"
                 style={{ background: c.colorVar }}
               />
-            </span>
-          ) : (
-            <span
-              aria-hidden="true"
-              className="inline-block h-2.5 w-2.5 rounded-full"
-              style={{ background: c.colorVar }}
-            />
-          )}
-          {c.label}
-        </span>
-      ))}
+            )}
+            {c.label}
+            {isOthers && (
+              <Icon name="info" size={13} className="text-(--fg-tertiary)" />
+            )}
+          </span>
+        );
+
+        if (!isOthers) {
+          return <React.Fragment key={c.id}>{item}</React.Fragment>;
+        }
+
+        return (
+          <TooltipProvider key={c.id} delayDuration={120}>
+            <Tooltip>
+              <TooltipTrigger asChild>{item}</TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="border-(--border-subtle) bg-(--bg-raised)"
+              >
+                <div className="flex flex-col gap-1.5 py-0.5">
+                  <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
+                    {grouping === "agent"
+                      ? "Agentes agrupados em Outros"
+                      : "Serviços agrupados em Outros"}
+                  </p>
+                  <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+                    {othersLabels.map((label) => (
+                      <li key={label} className="body-xs text-(--fg-primary)">
+                        {label}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
+      })}
     </div>
   );
 }

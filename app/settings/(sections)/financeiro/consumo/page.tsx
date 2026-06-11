@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCard } from "@/components/ui/AwCard";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
@@ -15,7 +16,6 @@ import {
 } from "@/components/ui/tooltip";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import { MoneyHeading } from "../_components/MoneyHeading";
-import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   brl,
   COUPONS_APPLIED,
@@ -57,13 +57,6 @@ function formatShort(d: Date): string {
   return `${MONTHS_PT[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
 }
 
-function inferReceivedDate(voucher: VoucherRow): string {
-  const expires = parseBR(voucher.expiresAt);
-  const received = new Date(expires);
-  received.setMonth(received.getMonth() - 12);
-  return formatShort(received);
-}
-
 function formatExpiry(br: string): string {
   return formatShort(parseBR(br));
 }
@@ -97,14 +90,11 @@ export default function ConsumoPage() {
         onRequestIncrease={() => setRequestOpen(true)}
       />
 
-      <VouchersTable vouchers={VOUCHERS} />
-
-      <CouponsTable
+      <CreditsSection
+        vouchers={VOUCHERS}
         coupons={COUPONS_APPLIED}
         onOpenInvoice={setOpenInvoiceId}
       />
-
-      <DetailsSection />
 
       <InvoiceDetailsSheet
         invoice={openInvoice}
@@ -333,76 +323,133 @@ function ConsumptionNeedle({
 }
 
 /* -----------------------------------------------------------------
- * Vouchers — abatem gastos variáveis. Tabela própria, separada dos
- * cupons (que mexem no valor fixo).
+ * Créditos — voucher e cupom lado a lado, cada um com identidade
+ * própria. Ambos abatem o que será cobrado; nenhum aumenta o limite.
+ * O gráfico de consumo mora na Visão geral — aqui o foco é entender
+ * de onde vem cada abatimento.
  * ----------------------------------------------------------------- */
 
-function VouchersTable({ vouchers }: { vouchers: VoucherRow[] }) {
-  const totalGranted = vouchers.reduce((s, v) => s + v.total, 0);
+function CreditsSection({
+  vouchers,
+  coupons,
+  onOpenInvoice,
+}: {
+  vouchers: VoucherRow[];
+  coupons: CouponRow[];
+  onOpenInvoice: (id: string) => void;
+}) {
+  return (
+    <section className="flex flex-col gap-5">
+      <header>
+        <h6 className="m-0 mb-1 text-(--fg-primary)">Créditos</h6>
+        <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
+          Dois tipos de crédito abatem o que você consome — nenhum deles
+          aumenta o limite do ciclo.
+        </p>
+      </header>
+
+      <div className="grid grid-cols-2 items-stretch gap-6">
+        <VoucherCard vouchers={vouchers} />
+        <CouponCard coupons={coupons} onOpenInvoice={onOpenInvoice} />
+      </div>
+    </section>
+  );
+}
+
+function VoucherCard({ vouchers }: { vouchers: VoucherRow[] }) {
   const totalAvailable = vouchers.reduce(
     (s, v) => s + (v.total - v.consumed),
     0,
   );
 
   return (
-    <section className="flex flex-col gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h6 className="m-0 mb-1 text-(--fg-primary)">Vouchers</h6>
-          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Créditos emitidos pela Aswork que descontam dos{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              gastos variáveis
-            </strong>{" "}
-            do ciclo — disparos, tokens, telefonia.
+    <AwCard className="flex h-full flex-col gap-4 p-5!">
+      <header className="flex items-start gap-3">
+        <span
+          aria-hidden="true"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-(--aw-purple-300) bg-(--aw-purple-150) text-(--aw-purple-700)"
+        >
+          <Icon name="card_giftcard" size={20} fill={0} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            Voucher
           </p>
-          {vouchers.length > 0 && (
-            <p className="m-0 mt-2 body-xs tabular-nums text-(--fg-tertiary)">
-              <span className="font-medium text-(--fg-primary)">
-                {brl(totalAvailable)}
-              </span>{" "}
-              disponíveis · de {brl(totalGranted)}
-            </p>
-          )}
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+            Concedido pela Aswork — POC, cortesia ou bônus de contrato. Abate
+            dos gastos variáveis até a validade.
+          </p>
         </div>
-        <AwButton size="md" variant="primary" iconLeft="add">
-          Adicionar voucher
-        </AwButton>
       </header>
 
       {vouchers.length === 0 ? (
-        <p className="m-0 body-xs text-(--fg-secondary)">
+        <p className="m-0 body-xs text-(--fg-tertiary)">
           Nenhum voucher ativo no momento.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-(--border-subtle)">
-                <Th>Voucher</Th>
-                <Th>Valor</Th>
-                <Th>Status</Th>
-                <Th>Recebido</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {vouchers.map((v) => (
-                <VoucherRowEl key={v.id} row={v} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="m-0 flex list-none flex-col p-0">
+          {vouchers.map((v) => {
+            const isExpired = v.status === "Expirado";
+            const days = daysUntil(v.expiresAt);
+            const expiringSoon = days >= 0 && days <= 30 && !isExpired;
+            return (
+              <li
+                key={v.id}
+                className="flex items-start justify-between gap-4 border-t border-(--border-subtle) py-3"
+              >
+                <div className="min-w-0">
+                  <p className="m-0 flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
+                    {v.description}
+                    {isExpired && (
+                      <AwPill variant="neutral" dot={false}>
+                        Expirado
+                      </AwPill>
+                    )}
+                  </p>
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                    Válido até {formatExpiry(v.expiresAt)}
+                    {expiringSoon && (
+                      <span className="text-(--accent-warning)">
+                        {" "}
+                        · em {days} dia{days !== 1 ? "s" : ""}
+                      </span>
+                    )}{" "}
+                    · {v.applicableTo}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  {v.consumed > 0 ? (
+                    <p className="m-0 body-sm font-medium tabular-nums text-(--accent-success)">
+                      −{brl(v.consumed)}
+                    </p>
+                  ) : (
+                    <p className="m-0 body-sm text-(--fg-tertiary)">
+                      Sem uso até agora
+                    </p>
+                  )}
+                  <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
+                    {brl(v.total - v.consumed)} disponíveis
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
-    </section>
+
+      <footer className="mt-auto flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3">
+        <span className="body-xs text-(--fg-secondary)">
+          Disponível para abater
+        </span>
+        <span className="body-xs font-medium tabular-nums text-(--fg-primary)">
+          {brl(totalAvailable)}
+        </span>
+      </footer>
+    </AwCard>
   );
 }
 
-/* -----------------------------------------------------------------
- * Cupons — impactam o valor fixo (plano/implementação). Tabela
- * separada dos vouchers.
- * ----------------------------------------------------------------- */
-
-function CouponsTable({
+function CouponCard({
   coupons,
   onOpenInvoice,
 }: {
@@ -413,245 +460,91 @@ function CouponsTable({
   const sorted = React.useMemo(
     () =>
       [...coupons].sort(
-        (a, b) => parseBR(b.appliedAt).getTime() - parseBR(a.appliedAt).getTime(),
+        (a, b) =>
+          parseBR(b.appliedAt).getTime() - parseBR(a.appliedAt).getTime(),
       ),
     [coupons],
   );
 
   return (
-    <section className="flex flex-col gap-5">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h6 className="m-0 mb-1 text-(--fg-primary)">Cupons</h6>
-          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Códigos aplicados que descontam no{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              valor fixo
-            </strong>{" "}
-            da próxima fatura — plano, implementação, taxas.
+    <AwCard className="flex h-full flex-col gap-4 p-5!">
+      <header className="flex items-start gap-3">
+        <span
+          aria-hidden="true"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-700)"
+        >
+          <Icon name="local_offer" size={20} fill={0} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">Cupom</p>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+            Código promocional aplicado por você — abate uma única vez do
+            valor da fatura.
           </p>
-          {totalDiscount > 0 && (
-            <p className="m-0 mt-2 body-xs tabular-nums text-(--fg-tertiary)">
-              <span className="font-medium text-(--accent-success)">
-                −{brl(totalDiscount)}
-              </span>{" "}
-              em cupons aplicados
-            </p>
-          )}
         </div>
       </header>
 
       {sorted.length === 0 ? (
-        <p className="m-0 body-xs text-(--fg-secondary)">
+        <p className="m-0 body-xs text-(--fg-tertiary)">
           Nenhum cupom aplicado.
         </p>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="border-b border-(--border-subtle)">
-                <Th>Cupom</Th>
-                <Th>Desconto</Th>
-                <Th>Status</Th>
-                <Th>Aplicado</Th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted.map((c) => (
-                <CouponRowEl
-                  key={c.id}
-                  row={c}
-                  onOpenInvoice={onOpenInvoice}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </section>
-  );
-}
-
-function VoucherRowEl({ row }: { row: VoucherRow }) {
-  const isExpired = row.status === "Expirado";
-  const days = daysUntil(row.expiresAt);
-  const expiringSoon = days <= 30 && !isExpired;
-
-  return (
-    <tr className="border-b border-(--border-subtle) last:border-b-0">
-      <Td>
-        <CreditCell
-          kind="voucher"
-          title={row.description}
-          subtitle={`Voucher · ${row.applicableTo}`}
-        />
-      </Td>
-      <Td>
-        <span className="block tabular-nums text-(--fg-primary)">
-          {brl(row.total)}
-        </span>
-        <span className="block body-xs tabular-nums text-(--fg-tertiary)">
-          Consumido {brl(row.consumed)}
-        </span>
-      </Td>
-      <Td>
-        <div className="flex flex-col items-start gap-1">
-          <AwPill variant={isExpired ? "neutral" : "live"} dot={false}>
-            {isExpired ? "Expirado" : "Ativo"}
-          </AwPill>
-          <span className="body-xs text-(--fg-tertiary)">
-            Vence {formatExpiry(row.expiresAt)}
-            {expiringSoon && (
-              <span className="ml-1 text-(--accent-warning)">
-                · em {days} dia{days !== 1 ? "s" : ""}
-              </span>
-            )}
-          </span>
-        </div>
-      </Td>
-      <Td muted>{inferReceivedDate(row)}</Td>
-    </tr>
-  );
-}
-
-function CouponRowEl({
-  row,
-  onOpenInvoice,
-}: {
-  row: CouponRow;
-  onOpenInvoice: (id: string) => void;
-}) {
-  const invoiceExists = INVOICE_HISTORY.some((r) => r.id === row.invoiceId);
-  return (
-    <tr className="border-b border-(--border-subtle) last:border-b-0">
-      <Td>
-        <CreditCell
-          kind="coupon"
-          title={row.description}
-          subtitle={`Cupom · ${row.code}`}
-        />
-      </Td>
-      <Td>
-        <span className="block font-medium tabular-nums text-(--accent-success)">
-          −{brl(row.discount)}
-        </span>
-        <span className="block body-xs text-(--fg-tertiary)">
-          Uso único
-        </span>
-      </Td>
-      <Td>
-        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-          <Icon
-            name="check_circle"
-            size={14}
-            className="text-(--accent-success)"
-          />
-          Aplicado
-          {invoiceExists ? (
-            <>
-              {" em "}
-              <button
-                type="button"
-                onClick={() => onOpenInvoice(row.invoiceId)}
-                className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--accent-brand) hover:no-underline"
+        <ul className="m-0 flex list-none flex-col p-0">
+          {sorted.map((c) => {
+            const invoiceExists = INVOICE_HISTORY.some(
+              (r) => r.id === c.invoiceId,
+            );
+            return (
+              <li
+                key={c.id}
+                className="flex items-start justify-between gap-4 border-t border-(--border-subtle) py-3"
               >
-                {row.invoiceId}
-              </button>
-            </>
-          ) : (
-            <> em {row.invoiceId}</>
-          )}
+                <div className="min-w-0">
+                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                    {c.code}
+                    <span className="font-normal text-(--fg-tertiary)">
+                      {" "}
+                      · {c.description}
+                    </span>
+                  </p>
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                    Aplicado em {formatShort(parseBR(c.appliedAt))} · fatura{" "}
+                    {invoiceExists ? (
+                      <button
+                        type="button"
+                        onClick={() => onOpenInvoice(c.invoiceId)}
+                        className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 hover:text-(--fg-primary) hover:no-underline"
+                      >
+                        {c.invoiceId}
+                      </button>
+                    ) : (
+                      c.invoiceId
+                    )}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="m-0 body-sm font-medium tabular-nums text-(--accent-success)">
+                    −{brl(c.discount)}
+                  </p>
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                    {c.application}
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <footer className="mt-auto flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3">
+        <span className="body-xs text-(--fg-secondary)">
+          Abatido em cupons
         </span>
-      </Td>
-      <Td muted>{formatShort(parseBR(row.appliedAt))}</Td>
-    </tr>
-  );
-}
-
-function CreditCell({
-  kind,
-  title,
-  subtitle,
-}: {
-  kind: "voucher" | "coupon";
-  title: string;
-  subtitle?: string;
-}) {
-  const isVoucher = kind === "voucher";
-  return (
-    <span className="flex items-center gap-3">
-      <span
-        aria-hidden="true"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)"
-      >
-        <Icon
-          name={isVoucher ? "card_giftcard" : "local_offer"}
-          size={20}
-          fill={0}
-        />
-      </span>
-      <span className="flex min-w-0 flex-col">
-        <span className="truncate body-sm font-medium text-(--fg-primary)">
-          {title}
+        <span className="body-xs font-medium tabular-nums text-(--accent-success)">
+          −{brl(totalDiscount)}
         </span>
-        {subtitle && (
-          <span className="truncate body-xs text-(--fg-tertiary)">
-            {subtitle}
-          </span>
-        )}
-      </span>
-    </span>
-  );
-}
-
-function Th({ children }: { children: React.ReactNode }) {
-  return (
-    <th
-      scope="col"
-      className="px-0 py-3 pr-6 text-left aw-eyebrow font-medium text-(--fg-tertiary) last:pr-0"
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({
-  children,
-  muted,
-}: {
-  children: React.ReactNode;
-  muted?: boolean;
-}) {
-  return (
-    <td
-      className={
-        "px-0 py-4 pr-6 align-top body-xs last:pr-0 " +
-        (muted ? "text-(--fg-secondary)" : "text-(--fg-primary)")
-      }
-    >
-      {children}
-    </td>
-  );
-}
-
-/* -----------------------------------------------------------------
- * Details — chart + breakdown shown naturally
- * ----------------------------------------------------------------- */
-
-function DetailsSection() {
-  return (
-    <section className="flex flex-col gap-4 border-t border-(--border-subtle) pt-8">
-      <header>
-        <h6 className="m-0 mb-1 text-(--fg-primary)">
-          Detalhes de consumo
-        </h6>
-        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Gráfico por dia, com breakdown por serviço ou por agente. Use o
-          filtro de período pra investigar o que está consumindo.
-        </p>
-      </header>
-      <VariableSpendingBlock />
-    </section>
+      </footer>
+    </AwCard>
   );
 }
 
@@ -692,8 +585,8 @@ function RequestLimitIncreaseModal({
     >
       <div className="flex flex-col gap-4">
         <p className="m-0 body-xs text-(--fg-secondary)">
-          Limites são ajustados direto pelo seu account manager. Manda um
-          recado pro {amFirstName} pelo canal que preferir — ele avalia e
+          Limites são ajustados direto pelo seu account manager. Mande um
+          recado para o {amFirstName} pelo canal que preferir — ele avalia e
           devolve a próxima faixa disponível.
         </p>
 
