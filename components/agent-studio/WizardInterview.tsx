@@ -201,8 +201,7 @@ export function WizardInterview({
         className="aw-wizard-step relative z-10 w-full max-w-[640px] rounded-2xl border border-border bg-white p-8 shadow-xl"
       >
         <p className="text-xs font-medium text-fg-tertiary">
-          Pergunta {question} de {INTERVIEW_TOTAL} · geradas a partir do objetivo
-          do agente
+          Pergunta {question} de {INTERVIEW_TOTAL}
         </p>
         <h1 className="mt-2 font-heading text-xl font-medium tracking-tight text-fg-primary">
           {q.title}

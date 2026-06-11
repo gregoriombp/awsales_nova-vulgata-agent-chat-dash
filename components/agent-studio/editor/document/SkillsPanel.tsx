@@ -179,21 +179,21 @@ function SkillCard({
         <AwBrandLogo
           brand={brand}
           size="sm"
-          style={{ width: 32, height: 32, borderRadius: 8 }}
+          style={{ width: 40, height: 40, borderRadius: 10 }}
         />
       ) : (
         <span
-          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[tone].tile}`}
+          className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[tone].tile}`}
         >
-          <Icon name={skill.icon ?? "bolt"} size={17} />
+          <Icon name={skill.icon ?? "bolt"} size={20} />
         </span>
       )}
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13px] font-medium text-(--fg-primary)">
           {skill.nome}
         </span>
-        <span className="block truncate text-[11px] text-(--aw-slate-600)">
-          @{skill.id}
+        <span className="mt-0.5 block text-[11px] leading-snug text-(--fg-tertiary) line-clamp-2">
+          {skill.descricao}
         </span>
       </span>
       <Icon
@@ -238,13 +238,13 @@ function SkillGroupBlock({
           <AwBrandLogo
             brand={group.brand}
             size="sm"
-            style={{ width: 32, height: 32, borderRadius: 8 }}
+            style={{ width: 40, height: 40, borderRadius: 10 }}
           />
         ) : (
           <span
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[group.tone].tile}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SKILL_TONE_CLASSES[group.tone].tile}`}
           >
-            <Icon name={group.icon} size={17} />
+            <Icon name={group.icon} size={20} />
           </span>
         )}
         <span className="min-w-0 flex-1">
