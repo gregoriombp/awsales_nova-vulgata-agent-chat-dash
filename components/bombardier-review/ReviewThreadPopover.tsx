@@ -36,6 +36,14 @@ function anchorPoint(comment: ReviewComment): ReviewPoint {
     : comment.anchor.centroid
 }
 
+function targetSummary(comment: ReviewComment): string | null {
+  const target = comment.context?.target
+  if (!target) return null
+  const detail = target.label ?? target.text ?? target.attributes?.href
+  if (!detail) return target.role ? `${target.tag} · ${target.role}` : target.tag
+  return `${target.tag} · ${detail}`
+}
+
 export function ReviewThreadPopover() {
   const threadCommentId = useReviewStore((s) => s.threadCommentId)
   const comments = useReviewStore((s) => s.comments)
@@ -132,6 +140,7 @@ export function ReviewThreadPopover() {
   const replies = Array.isArray(comment.replies) ? comment.replies : []
   const isResolved = comment.status === "resolved"
   const isInReview = comment.status === "in_review"
+  const target = targetSummary(comment)
 
   const copyPermalink = () => {
     const base = window.location.origin
@@ -279,6 +288,13 @@ export function ReviewThreadPopover() {
                   <img src={src} alt="" className="h-24 w-24 object-cover" />
                 </button>
               ))}
+            </div>
+          )}
+
+          {target && (
+            <div className="mt-2 flex items-center gap-1 body-xs text-(--fg-tertiary)">
+              <Icon name="my_location" size={11} />
+              <span className="truncate">{target}</span>
             </div>
           )}
 

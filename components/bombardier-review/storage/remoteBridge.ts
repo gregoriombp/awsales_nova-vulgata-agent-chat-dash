@@ -52,7 +52,17 @@ export class RemoteBridgeReview implements ReviewStorage {
     if (typeof window !== "undefined") {
       try {
         const parsed = new URL(this.baseUrl)
-        base = `${parsed.protocol}//${window.location.hostname}:${parsed.port}`
+        const configuredHost = parsed.hostname
+        const browserHost = window.location.hostname
+        const configuredIsLoopback =
+          configuredHost === "localhost" ||
+          configuredHost === "127.0.0.1" ||
+          configuredHost === "0.0.0.0"
+        const browserIsLoopback =
+          browserHost === "localhost" || browserHost === "127.0.0.1"
+        if (configuredIsLoopback && !browserIsLoopback) {
+          base = `${parsed.protocol}//${browserHost}:${parsed.port}`
+        }
       } catch {
         // keep configured value
       }
@@ -227,7 +237,18 @@ function resolveBaseUrl(configuredUrl: string): string {
   if (typeof window === "undefined") return configuredUrl
   try {
     const parsed = new URL(configuredUrl)
-    return `${parsed.protocol}//${window.location.hostname}:${parsed.port}`
+    const configuredHost = parsed.hostname
+    const browserHost = window.location.hostname
+    const configuredIsLoopback =
+      configuredHost === "localhost" ||
+      configuredHost === "127.0.0.1" ||
+      configuredHost === "0.0.0.0"
+    const browserIsLoopback =
+      browserHost === "localhost" || browserHost === "127.0.0.1"
+    if (configuredIsLoopback && !browserIsLoopback) {
+      return `${parsed.protocol}//${browserHost}:${parsed.port}`
+    }
+    return configuredUrl
   } catch {
     return configuredUrl
   }

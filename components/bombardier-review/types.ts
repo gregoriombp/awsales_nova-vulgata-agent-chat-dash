@@ -67,6 +67,49 @@ export type ReviewAnchor =
   | { kind: "pin"; position: ReviewPoint; el?: ReviewElementAnchor }
   | { kind: "draw"; path: ReviewDrawPath; centroid: ReviewPoint; el?: ReviewDrawAnchor }
 
+export interface ReviewElementContext {
+  tag: string
+  role?: string
+  label?: string
+  text?: string
+  selector?: string
+}
+
+export interface ReviewElementAttributes {
+  id?: string
+  name?: string
+  type?: string
+  href?: string
+  ariaLabel?: string
+  title?: string
+  placeholder?: string
+  dataSlot?: string
+  dataState?: string
+  dataValue?: string
+}
+
+export interface ReviewElementRect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+export interface ReviewCommentTargetContext extends ReviewElementContext {
+  fingerprint?: ReviewAnchorFingerprint
+  attributes?: ReviewElementAttributes
+  rect?: ReviewElementRect
+  pointer?: { fx: number; fy: number }
+}
+
+export interface ReviewCommentContext {
+  capturedAt: number
+  pageUrl: string
+  pageTitle?: string
+  target?: ReviewCommentTargetContext
+  nearbyText?: string[]
+}
+
 export type ReviewCommentStatus = "open" | "in_review" | "resolved"
 
 export type ReviewActorKind = "agent" | "user"
@@ -128,6 +171,7 @@ export interface ReviewComment {
   scrollY: number
   documentHeight: number
   anchor: ReviewAnchor
+  context?: ReviewCommentContext
   text: string
   images?: string[]
   status: ReviewCommentStatus

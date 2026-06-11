@@ -183,6 +183,38 @@ Replies funcionam em qualquer comment, independente do status (até em arquivado
 > Não busque `GET /comments` sem filtro a menos que você precise mesmo de todos os
 > ativos. O archive não vem por padrão — chame `/comments/archive` explicitamente.
 
+### Contexto visual do alvo
+
+Comentários novos podem carregar um campo opcional `context`, capturado no
+momento em que o pin ou desenho foi criado. Ele existe para reduzir ambiguidade
+em instruções curtas como "remove isso":
+
+```json
+{
+  "context": {
+    "pageUrl": "/bombardier/styleguide/components/buttons",
+    "pageTitle": "AwSales",
+    "target": {
+      "tag": "button",
+      "role": "button",
+      "label": "Salvar",
+      "text": "Salvar",
+      "selector": "body > main:nth-of-type(1) > ...",
+      "fingerprint": { "tag": "button", "text": "Salvar" },
+      "attributes": { "type": "button", "ariaLabel": "Salvar" },
+      "rect": { "x": 420, "y": 216, "width": 88, "height": 32 },
+      "pointer": { "fx": 0.48, "fy": 0.52 }
+    },
+    "nearbyText": ["Cancelar", "Salvar alterações"]
+  }
+}
+```
+
+Ao resolver, use `context.target.text`, `label`, `attributes`, `fingerprint` e
+`nearbyText` para mapear o comentário ao trecho de código antes de editar. As
+coordenadas continuam sendo só apoio visual; não trate `rect` como contrato
+pixel-perfect.
+
 ---
 
 ## Migração v2 → v3

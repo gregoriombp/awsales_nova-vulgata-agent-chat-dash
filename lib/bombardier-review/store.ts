@@ -5,6 +5,7 @@ import { LocalStorageReview } from "@/components/bombardier-review/storage/local
 import { RemoteBridgeReview } from "@/components/bombardier-review/storage/remoteBridge"
 import type { ReviewStorage } from "@/components/bombardier-review/storage/types"
 import { makeId } from "@/components/bombardier-review/storage/utils"
+import { buildReviewCommentContext } from "@/lib/bombardier-review/elementContext"
 import type {
   ReviewActor,
   ReviewAnchor,
@@ -305,6 +306,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       scrollY: window.scrollY,
       documentHeight: document.documentElement.scrollHeight,
       anchor: pendingAnchor,
+      context: buildReviewCommentContext(pendingAnchor),
       text: trimmed,
       ...(images && images.length > 0 ? { images } : {}),
       status: "open",

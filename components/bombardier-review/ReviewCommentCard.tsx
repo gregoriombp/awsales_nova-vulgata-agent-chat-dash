@@ -38,6 +38,14 @@ function StatusPill({ status }: { status: ReviewComment["status"] }) {
   return null
 }
 
+function targetSummary(comment: ReviewComment): string | null {
+  const target = comment.context?.target
+  if (!target) return null
+  const detail = target.label ?? target.text ?? target.attributes?.href
+  if (!detail) return target.role ? `${target.tag} · ${target.role}` : target.tag
+  return `${target.tag} · ${detail}`
+}
+
 export function ReplyRow({ reply }: { reply: ReviewReply }) {
   const isAgent = reply.authorKind === "agent"
   return (
@@ -204,6 +212,7 @@ export function ReviewCommentCard({
   const replies = Array.isArray(comment.replies) ? comment.replies : []
   const showApprovalButtons =
     !archived && comment.status === "in_review" && (context === "sheet" || context === "inbox")
+  const target = targetSummary(comment)
 
   return (
     <article
@@ -293,6 +302,13 @@ export function ReviewCommentCard({
               <img src={src} alt="" className="h-20 w-20 object-cover" />
             </button>
           ))}
+        </div>
+      )}
+
+      {target && (
+        <div className="mt-2 flex items-center gap-1 body-xs text-(--fg-tertiary)">
+          <Icon name="my_location" size={11} />
+          <span className="truncate">{target}</span>
         </div>
       )}
 

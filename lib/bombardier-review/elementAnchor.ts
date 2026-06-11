@@ -1,5 +1,6 @@
 import { elementBelowOverlayAt } from "@/lib/bombardier-review/scrollOffset"
 import type {
+  ReviewAnchor,
   ReviewAnchorFingerprint,
   ReviewDrawAnchor,
   ReviewElementAnchor,
@@ -59,6 +60,13 @@ function resolveElement(
   )
   if (matches.length === 1) return matches[0]
   return bySelector
+}
+
+/** Resolve o elemento alvo de uma âncora usando o mesmo fallback de fingerprint
+ *  que mantém pins/traços presos ao elemento certo no render. */
+export function resolveAnchoredElement(anchor: ReviewAnchor | null): Element | null {
+  if (typeof document === "undefined" || !anchor?.el?.selector) return null
+  return resolveElement(anchor.el.selector, anchor.el.fingerprint)
 }
 
 // Caminho `body > tag:nth-of-type(n) > …` estável entre toggles de layout (o

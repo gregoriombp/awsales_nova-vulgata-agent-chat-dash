@@ -139,6 +139,12 @@ Pra cada comentário marcado como **implementar**:
 1. Ler o arquivo da página (`comment.url` → mapear pra `app/.../page.tsx`
    ou o componente correspondente). Anchor tem `viewportWidth/Height` e
    `scrollY` — use só pra contexto, não pra precisão pixel-perfect.
+   - Antes de editar, leia `comment.context` quando existir. Use
+     `context.target.label`, `context.target.text`, `context.target.attributes`,
+     `context.target.fingerprint` e `context.nearbyText` para identificar o alvo
+     real de pedidos curtos como "remove isso" ou "troca esse texto". Se o
+     contexto contradiz a coordenada visual, confie primeiro no texto/label do
+     alvo e confirme no código da página.
    - **Comentário de UX flow** (`comment.origin === "ux-flow"`): foi deixado
      no diagrama de um flow do styleguide. Tem `flowRef: { flow, nodeId,
      nodeLabel }` — a correção vai nos arrays `NODES`/`EDGES` de
