@@ -53,12 +53,34 @@ export function KnowledgeBaseCard({
         className="absolute inset-0 z-1 rounded-xl focus:outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2 focus-visible:ring-offset-(--bg-canvas)"
       />
 
-      {/* Topo: ícone da base + menu de ações */}
-      <div className="flex items-start justify-between">
-        <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-(--bg-surface) text-(--fg-primary)">
+      {/* Topo: ícone à esquerda · nome + tags + breve descrição · menu de ações.
+          Base recém-criada (sem objetivo/segmento) ganha um selo "Nova". */}
+      <div className="flex items-start gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--bg-surface) text-(--fg-primary)">
           <Icon name={ICON.base} size={22} weight={300} />
         </span>
-        <div className="relative z-2">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <h3 className="text-[16px] font-medium leading-tight text-(--fg-primary)">
+              {base.name}
+            </h3>
+            {tags.length > 0 ? (
+              tags.map((tag) => (
+                <AwPill key={tag} variant="neutral" dot={false}>
+                  {tag}
+                </AwPill>
+              ))
+            ) : (
+              <AwPill variant="draft" dot={false}>
+                Nova
+              </AwPill>
+            )}
+          </div>
+          <p className="mt-1 line-clamp-1 text-[13px] text-(--fg-tertiary)">
+            {base.tipoDados?.trim() || "Base de conhecimento"}
+          </p>
+        </div>
+        <div className="relative z-2 shrink-0">
           <AwDropdownMenu
             align="end"
             aria-label={`Ações de ${base.name}`}
@@ -89,25 +111,6 @@ export function KnowledgeBaseCard({
             ]}
           />
         </div>
-      </div>
-
-      {/* Nome + objetivo · segmento (tipo de dados / produtos vivem no detalhe).
-          Base recém-criada (sem objetivo/segmento) ganha um selo "Nova". */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
-        <h3 className="text-[16px] font-medium leading-tight text-(--fg-primary)">
-          {base.name}
-        </h3>
-        {tags.length > 0 ? (
-          tags.map((tag) => (
-            <AwPill key={tag} variant="neutral" dot={false}>
-              {tag}
-            </AwPill>
-          ))
-        ) : (
-          <AwPill variant="draft" dot={false}>
-            Nova
-          </AwPill>
-        )}
       </div>
 
       {/* Métricas */}
