@@ -106,6 +106,14 @@ export type AwFieldProps = {
   htmlFor?: string
   children: React.ReactNode
   className?: string
+  /**
+   * "default" — label stacked above the field (the system default, used by
+   * dense/multi-field forms). "framed" — notched-outline style where the label
+   * sits on the field's border and the value renders large; reserved for
+   * low-density, high-touch screens (login, account identity). Both pull from
+   * the same tokens — framed is opt-in, never the global default.
+   */
+  variant?: "default" | "framed"
 }
 
 export function AwField({
@@ -115,7 +123,40 @@ export function AwField({
   htmlFor,
   children,
   className,
+  variant = "default",
 }: AwFieldProps) {
+  if (variant === "framed") {
+    // Native <fieldset>/<legend> gives us a real notch — the border genuinely
+    // breaks around the label, so it works on any surface and in dark mode
+    // without matching a background color. The inner AwInput's own frame is
+    // neutralized in CSS; the fieldset owns the border + focus ring.
+    const invalid = Boolean(error)
+    return (
+      <div
+        className={["aw-field-framed-wrap", className].filter(Boolean).join(" ")}
+      >
+        <fieldset
+          className={[
+            "aw-field--framed",
+            invalid && "aw-field--framed-invalid",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          <legend className="aw-field__legend">{label}</legend>
+          {children}
+        </fieldset>
+        {error ? (
+          <div className="aw-field__error">
+            <Icon name="error" size={12} /> {error}
+          </div>
+        ) : helper ? (
+          <div className="aw-field__helper">{helper}</div>
+        ) : null}
+      </div>
+    )
+  }
+
   return (
     <div className={["aw-field", className].filter(Boolean).join(" ")}>
       <label className="aw-field__label" htmlFor={htmlFor}>
