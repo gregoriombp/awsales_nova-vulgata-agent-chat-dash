@@ -28,15 +28,6 @@ const MsIcon = () => (
   </svg>
 )
 
-function SecurityNote() {
-  return (
-    <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-      <Icon name="lock" size={12} />
-      Conexão criptografada
-    </span>
-  )
-}
-
 export default function ConviteContaPage() {
   const router = useRouter()
   const [mode, setMode] = React.useState<"choose" | "password">("choose")
@@ -58,7 +49,6 @@ export default function ConviteContaPage() {
           <AwPasswordSetup
             email={CONVITE_INVITEE.email}
             submitLabel="Criar conta e continuar"
-            showSecurityNote
             onBack={() => {
               setMode("choose")
               setPicked(null)
@@ -117,8 +107,6 @@ export default function ConviteContaPage() {
                 <Icon name="arrow_back" size={16} />
                 <span className="aw-btn__label">Voltar</span>
               </Link>
-              <span className="flex-1" />
-              <SecurityNote />
             </footer>
           </>
         )}

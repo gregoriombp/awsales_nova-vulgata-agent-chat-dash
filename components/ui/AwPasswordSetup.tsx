@@ -2,6 +2,12 @@
 
 import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { evaluatePassword, PASSWORD_MIN_LENGTH } from "@/lib/password-policy"
 
@@ -18,7 +24,11 @@ export type AwPasswordSetupProps = {
   onSubmit: () => void
   /** When provided, renders a back button on the left of the footer. */
   onBack?: () => void
-  /** Shows the "Conexão criptografada" note in the footer. */
+  /**
+   * @deprecated O selo "Conexão criptografada" foi removido por decisão de
+   * review (2026-06-11). A prop é aceita mas não renderiza nada — mantida só
+   * para não quebrar chamadores existentes.
+   */
   showSecurityNote?: boolean
   className?: string
 }
@@ -27,12 +37,13 @@ export type AwPasswordSetupProps = {
  * AwPasswordSetup — the canonical "create a password" block, shared by every
  * onboarding flow (membro, responsável) so the password rule lives in one
  * place. Policy comes from `lib/password-policy` (NIST 800-63-4): minimum
- * length, no complexity rules, passphrase-friendly, breach-check copy, and an
- * advisory strength meter.
+ * length, no complexity rules, passphrase-friendly, and an advisory strength
+ * meter.
  *
- * The component owns the two fields, the requirement, the strength meter, the
- * hints and the footer (back + submit + submitting state). Each flow only
- * passes copy + the `onSubmit`/`onBack` handlers.
+ * The component owns the two fields, the requirement, the strength meter
+ * (icon + colored state label + explainer tooltip) and the footer (back +
+ * submit + submitting state). Each flow only passes copy + the
+ * `onSubmit`/`onBack` handlers.
  */
 export function AwPasswordSetup({
   email,
@@ -43,7 +54,6 @@ export function AwPasswordSetup({
   backLabel = "Outro método",
   onSubmit,
   onBack,
-  showSecurityNote = false,
   className,
 }: AwPasswordSetupProps) {
   const [pwd, setPwd] = React.useState("")
@@ -102,7 +112,7 @@ export function AwPasswordSetup({
         />
       </div>
 
-      {/* NIST: a single hard requirement (length) + advisory strength + hints */}
+      {/* NIST: a single hard requirement (length) + advisory strength meter */}
       <div className="mt-4 flex flex-col gap-3">
         <div className="flex items-center gap-2 body-xs">
           <span
@@ -122,31 +132,7 @@ export function AwPasswordSetup({
           </span>
         </div>
 
-        <div>
-          <div className="flex gap-1" aria-hidden="true">
-            {[0, 1, 2, 3].map((i) => (
-              <i
-                key={i}
-                className={cn(
-                  "h-1 flex-1 rounded-full not-italic",
-                  i < ev.score ? "bg-aw-emerald-500" : "bg-bg-muted"
-                )}
-              />
-            ))}
-          </div>
-          <div className="mt-1.5 flex items-center justify-between gap-3 body-xs text-fg-tertiary">
-            <span>Força: {pwd.length === 0 ? "—" : ev.label}</span>
-            <span className="inline-flex items-center gap-1">
-              <Icon name="shield" size={12} />
-              Bloqueamos senhas que já vazaram
-            </span>
-          </div>
-        </div>
-
-        <p className="m-0 body-xs text-fg-tertiary text-pretty">
-          Dica: uma frase secreta — várias palavras com espaços — costuma ser
-          mais forte e fácil de lembrar que uma senha curta com símbolos.
-        </p>
+        <StrengthMeter score={ev.score} label={ev.label} empty={pwd.length === 0} />
       </div>
 
       {submitting && (
@@ -174,7 +160,6 @@ export function AwPasswordSetup({
           </button>
         )}
         <span className="flex-1" />
-        {showSecurityNote && <SecurityNote />}
         <button
           type="button"
           onClick={submit}
@@ -191,12 +176,211 @@ export function AwPasswordSetup({
   )
 }
 
-function SecurityNote() {
+/* -----------------------------------------------------------------
+ * Strength meter — advisory, never a gate.
+ *
+ * Three visual tiers on top of the 0–4 score: fraca (danger), média
+ * (warning), forte (success). Icon + colored label, explainer tooltip
+ * on hover, and a subtle "AI-thinking" gradient sweep on the label
+ * whenever the tier changes. Colors/durations come straight from the
+ * motion + accent tokens (var(--dur-base) var(--ease-out)).
+ * ----------------------------------------------------------------- */
+
+type StrengthTier = "idle" | "weak" | "medium" | "strong"
+
+const STRENGTH_TIERS: Record<
+  StrengthTier,
+  { icon: string; color: string; soft: string }
+> = {
+  idle: {
+    icon: "shield",
+    color: "var(--fg-tertiary)",
+    soft: "var(--fg-tertiary)",
+  },
+  weak: {
+    icon: "warning",
+    color: "var(--accent-danger)",
+    soft: "var(--aw-red-400)",
+  },
+  medium: {
+    icon: "shield",
+    color: "var(--accent-warning)",
+    soft: "var(--aw-amber-300)",
+  },
+  strong: {
+    icon: "check_circle",
+    color: "var(--accent-success)",
+    soft: "var(--aw-emerald-400)",
+  },
+}
+
+/* Mirrors `calc(var(--dur-slow) * 4)` (4 × 280ms) used by the CSS sweep. */
+const LABEL_SWEEP_MS = 1120
+
+function StrengthMeter({
+  score,
+  label,
+  empty,
+}: {
+  score: 0 | 1 | 2 | 3 | 4
+  label: string
+  empty: boolean
+}) {
+  const tier: StrengthTier = empty
+    ? "idle"
+    : score <= 1
+      ? "weak"
+      : score === 2
+        ? "medium"
+        : "strong"
+  const meta = STRENGTH_TIERS[tier]
+
+  /* Gradient sweep on the label whenever the tier (color state) changes. */
+  const [sweeping, setSweeping] = React.useState(false)
+  const prevTier = React.useRef(tier)
+  React.useEffect(() => {
+    if (prevTier.current === tier) return
+    prevTier.current = tier
+    if (tier === "idle") {
+      setSweeping(false)
+      return
+    }
+    setSweeping(true)
+    const t = window.setTimeout(() => setSweeping(false), LABEL_SWEEP_MS)
+    return () => window.clearTimeout(t)
+  }, [tier])
+
   return (
-    <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
-      <Icon name="lock" size={12} />
-      Conexão criptografada
-    </span>
+    <div
+      style={
+        {
+          "--aw-pwd-tier": meta.color,
+          "--aw-pwd-tier-soft": meta.soft,
+        } as React.CSSProperties
+      }
+    >
+      <style>{`
+        .aw-pwd-strength__bar--on { background-color: var(--aw-pwd-tier); }
+        .aw-pwd-strength__icon,
+        .aw-pwd-strength__label {
+          color: var(--aw-pwd-tier);
+          transition: color var(--dur-base) var(--ease-out);
+        }
+        .aw-pwd-strength__label--sweep {
+          background-image: linear-gradient(
+            100deg,
+            var(--aw-pwd-tier) 25%,
+            var(--aw-pwd-tier-soft) 50%,
+            var(--aw-pwd-tier) 75%
+          );
+          background-size: 250% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: aw-pwd-label-sweep calc(var(--dur-slow) * 4) var(--ease-out) both;
+        }
+        @keyframes aw-pwd-label-sweep {
+          from { background-position: 140% 0; }
+          to { background-position: -40% 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .aw-pwd-strength__label--sweep {
+            animation: none;
+            background-image: none;
+            -webkit-text-fill-color: currentColor;
+          }
+        }
+      `}</style>
+
+      <div className="flex gap-1" aria-hidden="true">
+        {[0, 1, 2, 3].map((i) => (
+          <i
+            key={i}
+            className={cn(
+              "h-1 flex-1 rounded-full not-italic transition-colors duration-aw-base ease-aw-out",
+              i < score ? "aw-pwd-strength__bar--on" : "bg-bg-muted"
+            )}
+          />
+        ))}
+      </div>
+
+      <div className="mt-1.5 flex items-center body-xs text-fg-tertiary">
+        <TooltipProvider delayDuration={150}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="inline-flex cursor-help items-center gap-1.5">
+                <Icon
+                  name={meta.icon}
+                  size={14}
+                  fill={tier === "idle" ? 0 : 1}
+                  className="aw-pwd-strength__icon"
+                />
+                <span>
+                  Força:{" "}
+                  <span
+                    className={cn(
+                      "aw-pwd-strength__label font-medium",
+                      sweeping && "aw-pwd-strength__label--sweep"
+                    )}
+                  >
+                    {empty ? "—" : label}
+                  </span>
+                </span>
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" align="start" className="max-w-[280px]">
+              <div className="flex flex-col gap-2 py-1 body-xs">
+                <p className="m-0 font-medium text-fg-primary">
+                  O que cada nível significa
+                </p>
+                <ul className="m-0 flex list-none flex-col gap-1.5 p-0 text-fg-secondary">
+                  <li className="flex items-start gap-2">
+                    <i
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full not-italic"
+                      style={{ background: "var(--accent-danger)" }}
+                    />
+                    <span>
+                      <span className="font-medium text-fg-primary">
+                        Muito curta / fraca
+                      </span>{" "}
+                      — fácil de adivinhar. Use mais caracteres.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full not-italic"
+                      style={{ background: "var(--accent-warning)" }}
+                    />
+                    <span>
+                      <span className="font-medium text-fg-primary">
+                        Razoável
+                      </span>{" "}
+                      — atende o mínimo. Alongar a senha aumenta a proteção.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <i
+                      className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full not-italic"
+                      style={{ background: "var(--accent-success)" }}
+                    />
+                    <span>
+                      <span className="font-medium text-fg-primary">
+                        Forte / excelente
+                      </span>{" "}
+                      — longa e variada, difícil de quebrar.
+                    </span>
+                  </li>
+                </ul>
+                <p className="m-0 text-fg-tertiary">
+                  O medidor é consultivo: o comprimento conta mais que
+                  símbolos.
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+    </div>
   )
 }
 
