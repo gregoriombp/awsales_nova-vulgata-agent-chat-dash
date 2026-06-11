@@ -172,7 +172,11 @@ export function PagamentoBody({
   }
 
   return (
-    <AwOnboardingShell org={org} size="wide">
+    <AwOnboardingShell
+      org={org}
+      size="wide"
+      team={[org.accountManager, org.representanteComercial]}
+    >
       {phase === "processing" ? (
         <ProcessingPhase
           totalImpl={chargeMeta[0].total}
@@ -253,7 +257,7 @@ export function PagamentoBody({
                 </div>
               )}
 
-              <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+              <footer className="mt-12 flex items-center gap-3">
                 <AwButton asChild variant="ghost" size="md" iconLeft="arrow_back">
                   <Link href={backHref}>Voltar</Link>
                 </AwButton>

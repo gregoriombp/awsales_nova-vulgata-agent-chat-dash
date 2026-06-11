@@ -113,6 +113,44 @@ export default function InputsPage() {
         </Section>
 
         <Section
+          id="framed"
+          title="Framed (notched outline)"
+          lead='Variante opt-in de AwField (variant="framed"): o label monta na borda e o valor cresce para 18px. Reservada a telas de identidade e baixa densidade — login, criar conta, perfil. Não é o default: formulários densos continuam com label empilhado. Sem ícone à esquerda por padrão para manter o campo limpo.'
+        >
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 grid grid-cols-1 md:grid-cols-2 gap-5 max-w-[760px]">
+            <AwField variant="framed" label="Full name" htmlFor="framed-name">
+              <AwInput id="framed-name" defaultValue="Alex Smith" />
+            </AwField>
+
+            <AwField variant="framed" label="Birthday" htmlFor="framed-bday">
+              <AwInput id="framed-bday" defaultValue="02 / 18 / 1995" />
+            </AwField>
+
+            <AwField
+              variant="framed"
+              label="E-mail"
+              htmlFor="framed-email"
+              helper="Usado para entrar e recuperar a conta."
+            >
+              <AwInput
+                id="framed-email"
+                type="email"
+                placeholder="voce@example.com"
+              />
+            </AwField>
+
+            <AwField
+              variant="framed"
+              label="E-mail"
+              htmlFor="framed-email-err"
+              error="Formato inválido. Confira o endereço."
+            >
+              <AwInput id="framed-email-err" defaultValue="alex@@" />
+            </AwField>
+          </div>
+        </Section>
+
+        <Section
           id="states"
           title="Estados"
           lead="Focus ring-3: 3px rgba(71,138,255,.18). Erro substitui borda por --aw-red-700 e muda o ring-3 para vermelho."
@@ -239,6 +277,12 @@ export default function InputsPage() {
               prop="helper"
               type="string"
               doc="Texto auxiliar em cinza terciário."
+            />
+            <PropRow
+              prop="variant"
+              type='"default" | "framed"'
+              def='"default"'
+              doc='"framed" = notched outline (label na borda, valor 18px) para login/identidade. Default = label empilhado.'
             />
             <PropRow
               prop="children"

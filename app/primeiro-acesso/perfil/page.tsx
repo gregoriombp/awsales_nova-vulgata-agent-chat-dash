@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwAvatar } from "@/components/ui/AwAvatar"
 import { AwCheckbox } from "@/components/ui/AwCheckbox"
+import { AwField, AwInput } from "@/components/ui/AwInput"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { ONBOARDING_ORG, ONBOARDING_USER } from "../_data"
 
@@ -98,7 +99,10 @@ function PerfilContent() {
     recipientCoverageOk
 
   return (
-    <AwOnboardingShell org={ONBOARDING_ORG}>
+    <AwOnboardingShell
+      org={ONBOARDING_ORG}
+      team={[ONBOARDING_ORG.accountManager, ONBOARDING_ORG.representanteComercial]}
+    >
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
           Conte um pouco sobre você
@@ -109,42 +113,22 @@ function PerfilContent() {
           Pode ajustar depois nas configurações.
         </p>
 
-        <div className="mb-5 flex items-center gap-5 rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
-          <AwAvatar
-            src={avatarUrl ?? undefined}
-            initials={initials}
-            alt={name}
-            style={{ width: 72, height: 72, fontSize: 24 }}
-          />
-          <div className="min-w-0 flex-1">
-            {ssoPhoto ? (
-              <>
-                <div className="truncate body-sm font-medium text-fg-primary">
-                  {name}
-                </div>
-                <div className="mt-0.5 truncate body-xs text-fg-tertiary">
-                  {email}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="body-sm font-medium text-fg-primary">
-                  Foto de perfil
-                </div>
-                <div className="mt-0.5 body-xs text-fg-tertiary">
-                  Opcional · PNG ou JPG, até 4 MB
-                </div>
-              </>
-            )}
+        <div className="mb-6 flex items-center gap-5">
+          <div className="relative shrink-0">
+            <AwAvatar
+              src={avatarUrl ?? undefined}
+              initials={initials}
+              alt={name}
+              style={{ width: 72, height: 72, fontSize: 24 }}
+            />
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="aw-btn aw-btn--secondary aw-btn--sm mt-2.5"
+              aria-label={avatarUrl ? "Trocar foto" : "Adicionar foto"}
+              title={avatarUrl ? "Trocar foto" : "Adicionar foto"}
+              className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-bg-raised text-fg-secondary shadow-xs hover:border-border-strong hover:text-fg-primary"
             >
-              <Icon name="upload" size={12} />
-              <span className="aw-btn__label">
-                {avatarUrl ? "Trocar foto" : "Adicionar foto"}
-              </span>
+              <Icon name="edit" size={13} />
             </button>
             <input
               ref={fileInputRef}
@@ -154,6 +138,27 @@ function PerfilContent() {
               className="hidden"
               aria-hidden="true"
             />
+          </div>
+          <div className="min-w-0">
+            {ssoPhoto ? (
+              <>
+                <div className="truncate body-md font-medium text-fg-primary">
+                  {name}
+                </div>
+                <div className="mt-0.5 truncate body-sm text-fg-tertiary">
+                  {email}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="body-md font-medium text-fg-primary">
+                  Foto de perfil
+                </div>
+                <div className="mt-0.5 body-sm text-fg-tertiary">
+                  Opcional · PNG ou JPG, até 4 MB
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -313,7 +318,7 @@ function PerfilContent() {
           )}
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <span className="flex-1" />
           {valid ? (
             <Link href={nextHref} className="aw-btn aw-btn--primary aw-btn--md">
@@ -383,9 +388,12 @@ function InvitedEmailRow({
   )
 }
 
+// Identity fields use the framed (notched-outline) variant — low-density,
+// high-touch screen. `icon` is kept in the type so existing call sites stay
+// valid, but framed fields render icon-less by design. Every field here is
+// required, so the per-field asterisk is dropped (it would be on all of them).
 function Field({
   label,
-  icon,
   value,
   onChange,
   placeholder,
@@ -403,23 +411,15 @@ function Field({
   required?: boolean
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-1 body-xs font-medium text-fg-secondary">
-        {label}
-        {required && <span className="text-(--accent-danger)">*</span>}
-      </span>
-      <span className="flex h-[42px] items-center gap-2 rounded-md border border-border bg-bg-raised px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary">
-        <Icon name={icon} size={16} className="text-fg-tertiary" />
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          inputMode={inputMode}
-          type={type}
-          required={required}
-          className="flex-1 border-0 bg-transparent body-sm outline-hidden focus:outline-hidden focus-visible:outline-hidden"
-        />
-      </span>
-    </label>
+    <AwField variant="framed" label={label}>
+      <AwInput
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        inputMode={inputMode}
+        type={type}
+        required={required}
+      />
+    </AwField>
   )
 }

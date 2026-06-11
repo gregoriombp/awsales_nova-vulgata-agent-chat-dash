@@ -56,7 +56,10 @@ export function ConcluidoBody({
   const [contactOpen, setContactOpen] = React.useState(false)
 
   return (
-    <AwOnboardingShell org={org}>
+    <AwOnboardingShell
+      org={org}
+      team={[org.accountManager, org.representanteComercial]}
+    >
       <section className="pt-4 text-center">
         <span className="mx-auto mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
           <Icon name="check_circle" size={40} fill={1} />

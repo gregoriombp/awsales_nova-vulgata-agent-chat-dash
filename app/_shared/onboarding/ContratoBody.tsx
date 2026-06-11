@@ -37,12 +37,13 @@ export function ContratoBody({
   return (
     <AwOnboardingShell
       org={org}
+      size="wide"
       team={[org.accountManager, org.representanteComercial]}
     >
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">{heading}</h3>
 
-        <p className="mb-6 body-sm text-fg-secondary text-pretty">
+        <p className="mb-6 max-w-[640px] body-sm text-fg-secondary text-pretty">
           {intro ?? (
             <>
               Os termos abaixo refletem o contrato firmado com a Aswork. Confira
@@ -52,6 +53,7 @@ export function ContratoBody({
           )}
         </p>
 
+        <div className="grid items-start gap-3 lg:grid-cols-2">
         <ContratoSection title="Dados da empresa">
           <KV label="Razão social" value={org.razaoSocial} />
           <KV
@@ -61,7 +63,7 @@ export function ContratoBody({
           <KV
             label="Admin responsável"
             value={
-              <span className="inline-flex items-center gap-2">
+              <span className="inline-flex flex-wrap items-center gap-2">
                 <AwAvatar
                   initials="RA"
                   alt={user.name}
@@ -131,6 +133,7 @@ export function ContratoBody({
             }
           />
         </ContratoSection>
+        </div>
 
         <div className="mt-4 flex items-center gap-3 rounded-lg border border-border-subtle bg-bg-raised px-4 py-3">
           <AwFileIcon type="pdf" size="sm" />
@@ -189,7 +192,7 @@ export function ContratoBody({
           </span>
         </label>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           {backHref && (
             <Link
               href={backHref}
@@ -229,7 +232,7 @@ function ContratoSection({
   children: React.ReactNode
 }) {
   return (
-    <article className="mt-3 overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
+    <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
       <header className="border-b border-border-subtle px-[18px] pb-3 pt-3.5">
         <h6 className="m-0 text-fg-primary">{title}</h6>
       </header>

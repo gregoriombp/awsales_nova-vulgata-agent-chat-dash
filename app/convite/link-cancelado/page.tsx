@@ -45,7 +45,7 @@ export default function ConviteLinkCanceladoPage() {
           </span>
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <AwButton variant="primary" size="md" iconLeft="mail" asChild>
             <a href={`mailto:${CONVITE_INVITER.email}`}>
               Falar com {CONVITE_INVITER.firstName}

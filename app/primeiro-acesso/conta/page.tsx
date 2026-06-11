@@ -46,7 +46,10 @@ export default function ContaPage() {
   }
 
   return (
-    <AwOnboardingShell org={ONBOARDING_ORG}>
+    <AwOnboardingShell
+      org={ONBOARDING_ORG}
+      team={[ONBOARDING_ORG.accountManager, ONBOARDING_ORG.representanteComercial]}
+    >
       <section>
         {mode === "password" ? (
           <AwPasswordSetup
@@ -104,7 +107,7 @@ export default function ContaPage() {
               hint="Use e-mail e senha para entrar"
             />
 
-            <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+            <footer className="mt-12 flex items-center gap-3">
               <Link
                 href="/primeiro-acesso/verificacao"
                 className="aw-btn aw-btn--ghost aw-btn--md"

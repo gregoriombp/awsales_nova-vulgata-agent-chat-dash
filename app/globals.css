@@ -2070,6 +2070,69 @@
   cursor: not-allowed;
 }
 
+/* Framed variant (AwField variant="framed") — notched outline where the label
+ * rides on the border and the value reads large. Opt-in, low-density screens
+ * only (login, account identity). The <fieldset> owns the border + focus ring;
+ * the inner .aw-input frame is stripped so the two don't double up. */
+.aw-field-framed-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.aw-field--framed {
+  min-width: 0;
+  margin: 0;
+  padding: 7px 18px 12px;
+  background: var(--bg-canvas);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  transition:
+    border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.aw-field__legend {
+  margin-left: -4px;
+  padding: 0 6px;
+  font: 500 13px/1 var(--font-sans);
+  color: var(--fg-tertiary);
+  transition: color var(--dur-base) var(--ease-out);
+}
+.aw-field--framed:hover:not(:focus-within) {
+  border-color: var(--fg-tertiary);
+}
+.aw-field--framed:focus-within {
+  border-color: var(--fg-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--fg-primary) 12%, transparent);
+}
+.aw-field--framed:focus-within .aw-field__legend {
+  color: var(--fg-secondary);
+}
+/* Inner AwInput goes bare — the fieldset is the frame now. */
+.aw-field--framed .aw-input,
+.aw-field--framed .aw-input:hover,
+.aw-field--framed .aw-input:focus-within {
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.aw-field--framed .aw-input input {
+  font: 400 18px/1.5 var(--font-sans);
+}
+.aw-field--framed-invalid,
+.aw-field--framed-invalid:hover:not(:focus-within) {
+  border-color: var(--aw-red-700);
+}
+.aw-field--framed-invalid:focus-within {
+  box-shadow: 0 0 0 3px rgba(168, 34, 34, 0.18);
+}
+.aw-field--framed-invalid .aw-field__legend {
+  color: var(--aw-red-700);
+}
+
 /* Search variant — pill-shaped input with a subtle hairline border on
  * the canvas surface. Replaces the previous liquid-glass treatment with
  * a flatter, calmer look that reads cleanly on any background and

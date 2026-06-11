@@ -26,11 +26,6 @@ export default function ConviteEntradaPage() {
   return (
     <AwOnboardingShell org={CONVITE_ORG}>
       <section>
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-aw-emerald-200 bg-aw-emerald-100 px-2.5 py-1 body-xs text-aw-emerald-800">
-          <Icon name="link" size={12} fill={1} />
-          <span>Link de convite verificado</span>
-        </div>
-
         <h3 className="mb-2 text-fg-primary text-balance">
           Você foi convidada para a {CONVITE_ORG.name}, {CONVITE_INVITEE.firstName}
         </h3>
@@ -103,7 +98,7 @@ export default function ConviteEntradaPage() {
           <span>Este link expira em {CONVITE_EXPIRA_EM}.</span>
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <span className="inline-flex items-center gap-1.5 body-xs text-fg-tertiary">
             <Icon name="lock" size={12} />
             Conexão criptografada

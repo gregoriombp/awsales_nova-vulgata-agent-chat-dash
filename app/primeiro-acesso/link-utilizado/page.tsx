@@ -67,7 +67,7 @@ export default function LinkUtilizadoPage() {
           </span>
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <AwButton
             variant="primary"
             size="md"
