@@ -174,7 +174,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     }),
 
   cycleMode: () => {
-    const order: ReviewMode[] = ["cursor", "draw", "pin"]
+    const order: ReviewMode[] = ["cursor", "draw", "pin", "magic"]
     const idx = order.indexOf(get().mode)
     set({
       mode: order[(idx + 1) % order.length],

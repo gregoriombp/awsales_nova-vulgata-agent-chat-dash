@@ -1,4 +1,4 @@
-export type ReviewMode = "cursor" | "draw" | "pin"
+export type ReviewMode = "cursor" | "draw" | "pin" | "magic"
 
 export interface ReviewIdentity {
   id: string

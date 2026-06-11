@@ -7,6 +7,7 @@ import { useReviewStore } from "@/lib/bombardier-review/store"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
 import { OVERLAY_DATA_ATTR } from "./constants"
 import { ReviewCanvas } from "./ReviewCanvas"
+import { ReviewMagicCursor } from "./ReviewMagicCursor"
 import { ReviewCommentPopover } from "./ReviewCommentPopover"
 import { ReviewCommentSheet } from "./ReviewCommentSheet"
 import { ReviewExportModal } from "./ReviewExportModal"
@@ -139,6 +140,7 @@ export function ReviewModeProvider() {
   return (
     <React.Suspense fallback={null}>
       <ReviewCanvas />
+      <ReviewMagicCursor />
       <ReviewCommentPopover />
       <ReviewThreadPopover />
       <ReviewToolbar />
