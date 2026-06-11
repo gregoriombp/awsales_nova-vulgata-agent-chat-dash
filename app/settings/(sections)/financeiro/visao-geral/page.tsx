@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
@@ -37,8 +38,8 @@ export default function VisaoGeralPage() {
         <InvoiceCard />
         <SpendingHero limit={VARIABLE_SPENDING_LIMIT} />
       </div>
-      <ConsumptionDetails />
       <ShortcutGrid />
+      <ConsumptionDetails />
     </div>
   );
 }
@@ -51,8 +52,9 @@ function ConsumptionDetails() {
       <header>
         <h6 className="m-0 mb-1 text-(--fg-primary)">Detalhes de consumo</h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Gráfico por dia, com breakdown por serviço ou por agente. Use o
-          filtro de período pra investigar o que está consumindo.
+          Breakdown por serviço ou por agente, com o gráfico por dia fechando
+          a seção. Use o filtro de período para investigar o que está
+          consumindo.
         </p>
       </header>
       <VariableSpendingBlock />
@@ -136,14 +138,28 @@ function SpendingHero({ limit }: { limit: number }) {
 
   return (
     <section className="flex flex-col gap-5">
-      <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) px-2.5 py-1 body-xs font-medium text-(--fg-primary)">
-        <Icon
-          name="workspace_premium"
-          size={14}
-          className="text-(--aw-amber-600)"
-        />
-        {CURRENT_PLAN.name}
-      </span>
+      <div className="flex items-center justify-between gap-3 border-b border-(--border-subtle) pb-4">
+        <span className="flex min-w-0 items-center gap-3">
+          <span
+            aria-hidden="true"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-(--aw-amber-200) bg-(--aw-amber-100) text-(--aw-amber-700)"
+          >
+            <Icon name="workspace_premium" size={18} />
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate body-sm font-medium text-(--fg-primary)">
+              {CURRENT_PLAN.name}
+            </span>
+            <span className="body-xs tabular-nums text-(--fg-tertiary)">
+              {brl(CURRENT_PLAN.monthly)} /mês · renova em{" "}
+              {CURRENT_PLAN.nextChargeAt}
+            </span>
+          </span>
+        </span>
+        <AwPill variant="live" dot={false}>
+          {CURRENT_PLAN.status}
+        </AwPill>
+      </div>
       <div className="flex flex-col gap-1">
         <span className="aw-eyebrow text-(--fg-tertiary)">
           Consumo de variáveis
