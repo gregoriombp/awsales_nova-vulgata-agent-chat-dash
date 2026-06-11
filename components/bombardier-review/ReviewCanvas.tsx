@@ -121,7 +121,8 @@ export function ReviewCanvas() {
   }, [comments, scroll.x, scroll.y, layoutVersion])
 
   const captureMode =
-    pendingAnchor === null && (mode === "draw" || mode === "pin")
+    pendingAnchor === null &&
+    (mode === "draw" || mode === "pin" || mode === "magic")
 
   // Pointer handling is done with NATIVE listeners on the <svg>, not React's
   // onPointer* props. React 19 delegates events from `document` — the same node
@@ -152,7 +153,10 @@ export function ReviewCanvas() {
         isDrawingRef.current = true
         s.startDraw(pointFromEvent(e), s.identity.colorToken)
         ;(e.target as Element).setPointerCapture?.(e.pointerId)
-      } else if (s.mode === "pin") {
+      } else if (s.mode === "pin" || s.mode === "magic") {
+        // No modo mágico o pino ancora ao elemento sob o cursor — o mesmo que o
+        // realce destaca (ambos via elementBelowOverlayAt) — então fica grudado
+        // ao elemento e acompanha o reflow, em vez de cair num x/y solto.
         const el = captureElementAnchor(e.clientX, e.clientY)
         s.placePin(pointFromEvent(e), el ?? undefined)
       }
@@ -211,7 +215,13 @@ export function ReviewCanvas() {
   if (!active) return null
 
   const cursor =
-    mode === "draw" ? "crosshair" : mode === "pin" ? "copy" : "default"
+    mode === "draw"
+      ? "crosshair"
+      : mode === "pin"
+        ? "copy"
+        : mode === "magic"
+          ? "crosshair"
+          : "default"
 
   return (
     <svg

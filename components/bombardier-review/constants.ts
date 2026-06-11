@@ -11,6 +11,7 @@ export const OVERLAY_DATA_ATTR = "data-bombardier-review"
  */
 export const REVIEW_Z = {
   canvas: 1050,
+  highlight: 1052,
   toolbar: 1055,
   popover: 1060,
   sheet: 1065,

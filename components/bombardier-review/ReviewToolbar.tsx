@@ -39,6 +39,39 @@ function ModeButton({ mode, icon, label, shortcut }: ModeButtonProps) {
   )
 }
 
+// Ponteiro mágico: localiza elementos/divs no hover (ver ReviewMagicCursor) e
+// ancora o pino ao elemento, reduzindo o drift. Estado ativo ganha um gradiente
+// AI (tokens AwSales) pra se distinguir dos modos comuns.
+function MagicModeButton() {
+  const active = useReviewStore((s) => s.mode === "magic")
+  const setMode = useReviewStore((s) => s.setMode)
+  return (
+    <button
+      type="button"
+      onClick={() => setMode("magic")}
+      aria-label="Ponteiro mágico"
+      aria-pressed={active}
+      title="Ponteiro mágico · localiza elementos"
+      className={[
+        "h-8 w-8 inline-flex items-center justify-center rounded-full transition-colors",
+        active
+          ? "text-(--fg-on-inverse)"
+          : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+      ].join(" ")}
+      style={
+        active
+          ? {
+              background:
+                "linear-gradient(115deg, var(--aw-blue-600), var(--aw-purple-600), var(--aw-pink-600))",
+            }
+          : undefined
+      }
+    >
+      <Icon name="auto_awesome" size={16} fill={active ? 1 : 0} />
+    </button>
+  )
+}
+
 export function ReviewToolbar() {
   const active = useReviewStore((s) => s.active)
   const identity = useReviewStore((s) => s.identity)
@@ -111,6 +144,7 @@ export function ReviewToolbar() {
           shortcut="⌘⇧K"
         />
         <ModeButton mode="pin" icon="location_on" label="Pino" />
+        <MagicModeButton />
 
         <span className="h-5 w-px bg-(--border-subtle)" />
 

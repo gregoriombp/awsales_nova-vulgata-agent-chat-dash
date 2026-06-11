@@ -6,21 +6,20 @@ import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCumulativeScrollOffset } from "@/lib/bombardier-review/scrollOffset"
 import { useStopDismiss } from "@/lib/bombardier-review/useStopDismiss"
+import { fileToHighResDataUrl } from "@/lib/bombardier-review/imageScale"
+import {
+  describeAnchorElement,
+  type ReviewElementContext,
+} from "@/lib/bombardier-review/elementContext"
+import { useVoiceTranscription } from "@/lib/bombardier-review/useVoiceTranscription"
+import { useInlineCompletion } from "@/lib/bombardier-review/useInlineCompletion"
+import { fetchRewrite } from "@/lib/bombardier-review/commentAssist"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import type { ReviewPoint } from "./types"
 
 const POPOVER_WIDTH = 320
 const POPOVER_OFFSET = 16
 const MAX_IMAGES = 4
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
 
 function extractImagesFromClipboard(items: DataTransferItemList): File[] {
   const files: File[] = []
@@ -42,26 +41,115 @@ export function ReviewCommentPopover() {
   const [text, setText] = React.useState("")
   const [images, setImages] = React.useState<string[]>([])
   const [submitting, setSubmitting] = React.useState(false)
+  const [caretAtEnd, setCaretAtEnd] = React.useState(true)
+  const [rewriting, setRewriting] = React.useState(false)
+  const [assistError, setAssistError] = React.useState<string | null>(null)
+  const [undoText, setUndoText] = React.useState<string | null>(null)
+  const [elementCtx, setElementCtx] =
+    React.useState<ReviewElementContext | null>(null)
+
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
+  const mirrorRef = React.useRef<HTMLDivElement>(null)
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const scroll = useCumulativeScrollOffset()
   const stopDismiss = useStopDismiss<HTMLDivElement>()
+
+  // Voz → texto: anexa o reconhecido ao que já estiver escrito.
+  const voice = useVoiceTranscription(
+    React.useCallback((spoken: string) => {
+      setText((prev) => (prev ? `${prev.trimEnd()} ${spoken}` : spoken))
+      requestAnimationFrame(() => textareaRef.current?.focus())
+    }, [])
+  )
+
+  // Autocomplete inline (ghost text). Só ativa com o cursor no fim do texto —
+  // a continuação se cola no fim, como no Cursor.
+  const { ghost, clear: clearGhost } = useInlineCompletion(
+    text,
+    elementCtx,
+    pendingAnchor !== null && caretAtEnd && !rewriting
+  )
+
+  const syncScroll = React.useCallback(() => {
+    const ta = textareaRef.current
+    const m = mirrorRef.current
+    if (ta && m) {
+      m.scrollTop = ta.scrollTop
+      m.scrollLeft = ta.scrollLeft
+    }
+  }, [])
+
+  const acceptGhost = React.useCallback(() => {
+    if (!ghost) return
+    const next = text + ghost
+    setText(next)
+    clearGhost()
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current
+      if (ta) {
+        ta.focus()
+        ta.setSelectionRange(next.length, next.length)
+        setCaretAtEnd(true)
+        syncScroll()
+      }
+    })
+  }, [ghost, text, clearGhost, syncScroll])
+
+  // Varinha mágica: reescreve o comentário inteiro (com desfazer).
+  const handleRewrite = React.useCallback(async () => {
+    if (rewriting || text.trim().length === 0) return
+    setAssistError(null)
+    setRewriting(true)
+    clearGhost()
+    const r = await fetchRewrite({ draft: text, element: elementCtx })
+    setRewriting(false)
+    if (r.status === 503) {
+      setAssistError("Configure OPENAI_API_KEY para usar a varinha.")
+      return
+    }
+    if (!r.ok || !r.text) {
+      setAssistError("Não consegui melhorar agora. Tente de novo.")
+      return
+    }
+    setUndoText(text)
+    setText(r.text)
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current
+      if (ta) {
+        ta.focus()
+        ta.setSelectionRange(r.text!.length, r.text!.length)
+        setCaretAtEnd(true)
+      }
+    })
+  }, [rewriting, text, elementCtx, clearGhost])
+
+  const undoRewrite = React.useCallback(() => {
+    if (undoText === null) return
+    setText(undoText)
+    setUndoText(null)
+  }, [undoText])
 
   React.useEffect(() => {
     if (pendingAnchor) {
       setText("")
       setImages([])
       setSubmitting(false)
+      setCaretAtEnd(true)
+      setUndoText(null)
+      setAssistError(null)
+      clearGhost()
+      // Contexto do elemento ancorado — identidade estável pro hook de assist.
+      setElementCtx(describeAnchorElement(pendingAnchor))
       requestAnimationFrame(() => textareaRef.current?.focus())
     }
-  }, [pendingAnchor])
+  }, [pendingAnchor, clearGhost])
 
   const addImages = React.useCallback(async (files: File[]) => {
     const eligible = files
       .filter((f) => f.type.startsWith("image/"))
       .slice(0, MAX_IMAGES)
     if (eligible.length === 0) return
-    const dataUrls = await Promise.all(eligible.map(readFileAsDataUrl))
+    const dataUrls = await Promise.all(eligible.map(fileToHighResDataUrl))
     setImages((prev) => [...prev, ...dataUrls].slice(0, MAX_IMAGES))
   }, [])
 
@@ -117,6 +205,9 @@ export function ReviewCommentPopover() {
     setSubmitting(false)
   }
 
+  const recording = voice.status === "recording"
+  const transcribing = voice.status === "transcribing"
+
   return (
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
@@ -149,24 +240,72 @@ export function ReviewCommentPopover() {
           </span>
         </div>
 
-        <textarea
-          ref={textareaRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onPaste={handlePaste}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
-              e.preventDefault()
-              void submit()
-            } else if (e.key === "Escape") {
-              e.preventDefault()
-              cancelPending()
-            }
-          }}
-          placeholder="Escreva o feedback… ou cole uma imagem"
-          rows={3}
-          className="w-full resize-none px-3 py-2 bg-transparent body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden"
-        />
+        {/* Textarea + camada-espelho que desenha o ghost text à frente do
+            cursor. O espelho fica ATRÁS (texto transparente só pra empurrar o
+            ghost pra posição certa); o textarea, com fundo transparente, mostra
+            o texto real por cima. Métricas idênticas mantêm tudo alinhado. */}
+        <div className="relative">
+          <div
+            ref={mirrorRef}
+            aria-hidden="true"
+            className="absolute inset-0 px-3 py-2 body-sm whitespace-pre-wrap break-words overflow-hidden pointer-events-none select-none"
+            style={{ color: "transparent" }}
+          >
+            {text}
+            {ghost && <span className="text-(--fg-tertiary)">{ghost}</span>}
+          </div>
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => {
+              setText(e.target.value)
+              setCaretAtEnd(
+                e.target.selectionStart === e.target.value.length
+              )
+              if (undoText !== null) setUndoText(null)
+            }}
+            onSelect={(e) => {
+              const ta = e.currentTarget
+              setCaretAtEnd(
+                ta.selectionStart === ta.value.length &&
+                  ta.selectionEnd === ta.value.length
+              )
+            }}
+            onScroll={syncScroll}
+            onPaste={handlePaste}
+            onKeyDown={(e) => {
+              if (e.key === "Tab" && ghost && !e.shiftKey) {
+                e.preventDefault()
+                acceptGhost()
+              } else if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                e.preventDefault()
+                void submit()
+              } else if (e.key === "Escape") {
+                if (ghost) {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  clearGhost()
+                }
+                // sem ghost: deixa o provider tratar (cancela o pending)
+              }
+            }}
+            placeholder="Escreva o feedback… cole uma imagem, ou dite por voz"
+            rows={3}
+            className="relative w-full resize-none px-3 py-2 bg-transparent body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden"
+            style={{ zIndex: 1 }}
+          />
+        </div>
+
+        {assistError && (
+          <p className="mx-3 mb-2 body-xs text-(--accent-danger)">
+            {assistError}
+          </p>
+        )}
+        {voice.error && (
+          <p className="mx-3 mb-2 body-xs text-(--accent-danger)">
+            {voice.error}
+          </p>
+        )}
 
         {images.length > 0 && (
           <div className="px-3 pb-2 flex flex-wrap gap-2">
@@ -213,10 +352,73 @@ export function ReviewCommentPopover() {
             >
               <Icon name="image" size={14} />
             </button>
-            <span className="body-xs text-(--fg-tertiary) flex items-center gap-1">
-              <Icon name="keyboard_command_key" size={11} />
-              ⌘↵
-            </span>
+            <button
+              type="button"
+              onClick={voice.toggle}
+              disabled={transcribing}
+              aria-label={recording ? "Parar gravação" : "Ditar por voz"}
+              aria-pressed={recording}
+              title={recording ? "Parar gravação" : "Ditar por voz"}
+              className={[
+                "h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors disabled:opacity-60",
+                recording
+                  ? "bg-(--accent-danger) text-(--fg-on-inverse)"
+                  : "text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)",
+              ].join(" ")}
+            >
+              <Icon
+                name={
+                  recording ? "stop" : transcribing ? "progress_activity" : "mic"
+                }
+                size={14}
+                fill={recording ? 1 : 0}
+                className={transcribing ? "animate-spin" : ""}
+              />
+            </button>
+            <button
+              type="button"
+              onClick={handleRewrite}
+              disabled={rewriting || text.trim().length === 0}
+              aria-label="Melhorar o comentário"
+              title="Melhorar o comentário (varinha mágica)"
+              className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors disabled:opacity-50"
+            >
+              <Icon
+                name={rewriting ? "progress_activity" : "auto_fix_high"}
+                size={14}
+                className={rewriting ? "animate-spin" : ""}
+              />
+            </button>
+
+            {recording ? (
+              <span className="body-xs text-(--accent-danger) flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-(--accent-danger) animate-pulse" />
+                Gravando
+              </span>
+            ) : transcribing ? (
+              <span className="body-xs text-(--fg-tertiary)">
+                Transcrevendo…
+              </span>
+            ) : rewriting ? (
+              <span className="body-xs text-(--fg-tertiary)">Melhorando…</span>
+            ) : undoText !== null ? (
+              <button
+                type="button"
+                onClick={undoRewrite}
+                className="body-xs text-(--fg-secondary) hover:text-(--fg-primary) underline underline-offset-2"
+              >
+                Desfazer
+              </button>
+            ) : ghost ? (
+              <span className="body-xs text-(--fg-tertiary)">
+                Tab para completar
+              </span>
+            ) : (
+              <span className="body-xs text-(--fg-tertiary) flex items-center gap-1">
+                <Icon name="keyboard_command_key" size={11} />
+                ⌘↵
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <AwButton
