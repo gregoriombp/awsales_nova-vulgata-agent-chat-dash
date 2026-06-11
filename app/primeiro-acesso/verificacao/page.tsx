@@ -26,7 +26,10 @@ export default function VerificacaoPage() {
   }
 
   return (
-    <AwOnboardingShell org={ONBOARDING_ORG}>
+    <AwOnboardingShell
+      org={ONBOARDING_ORG}
+      team={[ONBOARDING_ORG.accountManager, ONBOARDING_ORG.representanteComercial]}
+    >
       <section>
         <h3 className="mb-2 text-fg-primary text-balance">
           Bem-vindo à Aswork, {ONBOARDING_USER.firstName}
@@ -63,7 +66,7 @@ export default function VerificacaoPage() {
           </ol>
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <span className="flex-1" />
           <button
             type="button"

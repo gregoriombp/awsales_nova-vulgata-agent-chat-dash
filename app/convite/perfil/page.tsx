@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import { Icon } from "@/components/ui/Icon"
 import { AwAvatar } from "@/components/ui/AwAvatar"
+import { AwField, AwInput } from "@/components/ui/AwInput"
 import { AwOnboardingShell } from "@/components/ui/AwOnboardingShell"
 import { CONVITE_INVITEE, CONVITE_ORG, CONVITE_ROLE } from "../_data"
 
@@ -30,19 +31,17 @@ function PerfilContent() {
   const metodo = searchParams.get("metodo")
   const nextHref = `/convite/seguranca${metodo ? `?metodo=${metodo}` : ""}`
 
-  const [name, setName] = React.useState(CONVITE_INVITEE.name)
+  // Quem entrou via SSO (Google/Microsoft) já tem foto de perfil — ela vem
+  // junto. Aqui mockamos isso pré-preenchendo o avatar. (captura real = backend)
+  const ssoPhoto = metodo === "google" || metodo === "microsoft"
   const [cargo, setCargo] = React.useState("")
   const [phone, setPhone] = React.useState("")
-  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(null)
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(
+    ssoPhoto ? CONVITE_INVITEE.photo ?? null : null
+  )
   const fileInputRef = React.useRef<HTMLInputElement>(null)
 
-  const initials =
-    name
-      .split(/\s+/)
-      .filter(Boolean)
-      .slice(0, 2)
-      .map((p) => p[0]?.toUpperCase() ?? "")
-      .join("") || "?"
+  const initials = CONVITE_INVITEE.initials
 
   const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -53,9 +52,7 @@ function PerfilContent() {
   }
 
   const valid =
-    name.trim().length >= 2 &&
-    cargo.trim().length >= 2 &&
-    phone.replace(/\D/g, "").length >= 10
+    cargo.trim().length >= 2 && phone.replace(/\D/g, "").length >= 10
 
   return (
     <AwOnboardingShell org={CONVITE_ORG}>
@@ -69,29 +66,22 @@ function PerfilContent() {
           encontrar. Pode ajustar depois nas configurações.
         </p>
 
-        <div className="mb-5 flex items-center gap-5 rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
-          <AwAvatar
-            src={avatarUrl ?? undefined}
-            initials={initials}
-            alt={name}
-            style={{ width: 72, height: 72, fontSize: 24 }}
-          />
-          <div className="min-w-0 flex-1">
-            <div className="body-sm font-medium text-fg-primary">
-              Foto de perfil
-            </div>
-            <div className="mt-0.5 body-xs text-fg-tertiary">
-              Opcional · PNG ou JPG, até 4 MB
-            </div>
+        <div className="mb-6 flex items-center gap-5">
+          <div className="relative shrink-0">
+            <AwAvatar
+              src={avatarUrl ?? undefined}
+              initials={initials}
+              alt={CONVITE_INVITEE.name}
+              style={{ width: 72, height: 72, fontSize: 24 }}
+            />
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="aw-btn aw-btn--secondary aw-btn--sm mt-2.5"
+              aria-label={avatarUrl ? "Trocar foto" : "Adicionar foto"}
+              title={avatarUrl ? "Trocar foto" : "Adicionar foto"}
+              className="absolute -bottom-0.5 -right-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-border bg-bg-raised text-fg-secondary shadow-xs hover:border-border-strong hover:text-fg-primary"
             >
-              <Icon name="upload" size={12} />
-              <span className="aw-btn__label">
-                {avatarUrl ? "Trocar foto" : "Adicionar foto"}
-              </span>
+              <Icon name="edit" size={13} />
             </button>
             <input
               ref={fileInputRef}
@@ -102,17 +92,17 @@ function PerfilContent() {
               aria-hidden="true"
             />
           </div>
+          <div className="min-w-0">
+            <div className="truncate body-md font-medium text-fg-primary">
+              {CONVITE_INVITEE.name}
+            </div>
+            <div className="mt-0.5 truncate body-sm text-fg-tertiary">
+              {CONVITE_INVITEE.email}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-          <Field
-            label="Seu nome"
-            icon="person"
-            value={name}
-            onChange={setName}
-            placeholder="Como você gosta de ser chamada"
-            required
-          />
           <Field
             label="Cargo"
             icon="badge"
@@ -120,14 +110,6 @@ function PerfilContent() {
             onChange={setCargo}
             placeholder="Ex.: Atendente de pré-venda"
             required
-          />
-          <Field
-            label="E-mail"
-            icon="mail"
-            value={CONVITE_INVITEE.email}
-            onChange={() => {}}
-            readOnly
-            hint="Veio do convite — só o admin pode trocar."
           />
           <Field
             label="Celular"
@@ -148,9 +130,6 @@ function PerfilContent() {
             <div className="body-xs text-fg-tertiary">Sua função</div>
             <div className="body-sm font-medium text-fg-primary">
               {CONVITE_ROLE.name}
-              <span className="ml-2 body-xs font-normal text-fg-tertiary">
-                · definido pelo admin
-              </span>
             </div>
             <p className="mt-1 body-xs text-fg-secondary text-pretty">
               {CONVITE_ROLE.description}
@@ -158,7 +137,7 @@ function PerfilContent() {
           </div>
         </div>
 
-        <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+        <footer className="mt-12 flex items-center gap-3">
           <Link href="/convite/conta" className="aw-btn aw-btn--ghost aw-btn--md">
             <Icon name="arrow_back" size={16} />
             <span className="aw-btn__label">Voltar</span>
@@ -185,17 +164,18 @@ function PerfilContent() {
   )
 }
 
+// Identity fields use the framed (notched-outline) variant — low-density,
+// high-touch screen. `icon` is kept in the type so existing call sites stay
+// valid, but framed fields render icon-less by design. Every field here is
+// required, so the per-field asterisk is dropped (it would be on all of them).
 function Field({
   label,
-  icon,
   value,
   onChange,
   placeholder,
   inputMode,
   type = "text",
   required,
-  readOnly,
-  hint,
 }: {
   label: string
   icon: string
@@ -205,38 +185,17 @@ function Field({
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
   type?: string
   required?: boolean
-  readOnly?: boolean
-  hint?: string
 }) {
   return (
-    <label className="flex flex-col gap-1.5">
-      <span className="flex items-center gap-1 body-xs font-medium text-fg-secondary">
-        {label}
-        {required && <span className="text-(--accent-danger)">*</span>}
-      </span>
-      <span
-        className={`flex h-[42px] items-center gap-2 rounded-md border border-border px-3.5 transition-colors duration-aw-fast focus-within:border-fg-primary ${
-          readOnly ? "bg-bg-surface" : "bg-bg-raised"
-        }`}
-      >
-        <Icon name={icon} size={16} className="text-fg-tertiary" />
-        <input
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder={placeholder}
-          inputMode={inputMode}
-          type={type}
-          required={required}
-          readOnly={readOnly}
-          className={`flex-1 border-0 bg-transparent body-sm outline-hidden focus:outline-hidden focus-visible:outline-hidden ${
-            readOnly ? "text-fg-secondary" : ""
-          }`}
-        />
-        {readOnly && (
-          <Icon name="lock" size={14} className="text-fg-tertiary" />
-        )}
-      </span>
-      {hint && <span className="body-xs text-fg-tertiary">{hint}</span>}
-    </label>
+    <AwField variant="framed" label={label}>
+      <AwInput
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        inputMode={inputMode}
+        type={type}
+        required={required}
+      />
+    </AwField>
   )
 }

@@ -107,7 +107,7 @@ function SegurancaContent() {
               <span>O código troca a cada 30 segundos.</span>
             </div>
 
-            <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+            <footer className="mt-12 flex items-center gap-3">
               <AwButton asChild variant="ghost" iconLeft="arrow_back">
                 <Link href="/convite/perfil">Voltar</Link>
               </AwButton>
@@ -147,7 +147,7 @@ function SegurancaContent() {
               }}
             />
 
-            <footer className="mt-7 flex items-center gap-3 border-t border-border-subtle pt-5">
+            <footer className="mt-12 flex items-center gap-3">
               <AwButton
                 variant="ghost"
                 iconLeft="arrow_back"

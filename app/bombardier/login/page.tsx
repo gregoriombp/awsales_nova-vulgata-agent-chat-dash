@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwInput } from "@/components/ui/AwInput";
+import { AwInput, AwField } from "@/components/ui/AwInput";
 
 export default function BombardierLogin() {
   const router = useRouter();
@@ -50,50 +50,36 @@ export default function BombardierLogin() {
 
         <AwCard className="p-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-2">
-              <label
-                htmlFor="email"
-                className="text-xs font-medium text-(--fg-secondary)"
-              >
-                E-mail
-              </label>
+            <AwField variant="framed" label="E-mail" htmlFor="email">
               <AwInput
                 id="email"
                 type="email"
                 placeholder="voce@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                iconLeft="mail"
                 autoComplete="email"
                 required
               />
-            </div>
+            </AwField>
 
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="text-xs font-medium text-(--fg-secondary)"
-                >
-                  Senha
-                </label>
-                <Link
-                  href="#"
-                  className="text-xs text-(--fg-secondary) hover:text-(--fg-primary) no-underline"
-                >
-                  Esqueci a senha
-                </Link>
-              </div>
-              <AwInput
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                iconLeft="lock"
-                autoComplete="current-password"
-                required
-              />
+            <div className="flex flex-col gap-1.5">
+              <AwField variant="framed" label="Senha" htmlFor="password">
+                <AwInput
+                  id="password"
+                  type="password"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="current-password"
+                  required
+                />
+              </AwField>
+              <Link
+                href="#"
+                className="self-end text-xs text-(--fg-secondary) hover:text-(--fg-primary) no-underline"
+              >
+                Esqueci a senha
+              </Link>
             </div>
 
             <AwButton
