@@ -84,6 +84,11 @@ export const navigation: NavSection[] = [
       { name: "Dropzone", href: "/bombardier/styleguide/components/aw-dropzone" },
       { name: "Empty", href: "/bombardier/styleguide/components/empty" },
       { name: "File icon", href: "/bombardier/styleguide/components/aw-file-icon" },
+      {
+        name: "Fluid kit (preview)",
+        href: "/bombardier/styleguide/components/fluid-kit",
+        aliases: ["fluid", "spring", "badge", "accordion", "dialog", "dropdown", "switch", "slider", "checkbox group", "radio group"],
+      },
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Pills", href: "/bombardier/styleguide/components/pills" },
       { name: "Progress", href: "/bombardier/styleguide/components/aw-progress" },
@@ -100,6 +105,11 @@ export const navigation: NavSection[] = [
     group: "Biblioteca",
     title: "Componentes",
     items: [
+      {
+        name: "Ask user questions",
+        href: "/bombardier/styleguide/components/aw-ask-user-questions",
+        aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],
+      },
       { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
@@ -113,6 +123,11 @@ export const navigation: NavSection[] = [
         aliases: ["AwChart", "charts", "data-viz", "recharts", "gráfico", "dataviz"],
       },
       { name: "Group card", href: "/bombardier/styleguide/components/aw-group-card" },
+      {
+        name: "Input message",
+        href: "/bombardier/styleguide/components/aw-input-message",
+        aliases: ["AwInputMessage", "composer", "chat input", "mensagem"],
+      },
       { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
       {
         name: "Modais e dialogs",
@@ -175,6 +190,11 @@ export const navigation: NavSection[] = [
           { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
           { name: "Members table", href: "/bombardier/styleguide/components/aw-members-table" },
         ],
+      },
+      {
+        name: "Thinking steps",
+        href: "/bombardier/styleguide/components/aw-thinking-steps",
+        aliases: ["AwThinkingSteps", "raciocínio", "reasoning", "chain of thought"],
       },
     ],
   },
