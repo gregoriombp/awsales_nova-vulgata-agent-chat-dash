@@ -104,7 +104,8 @@ New components from now on follow the correct flow from day one (primitive + wra
 ### 4. Stack & scope gotchas
 
 - **Tailwind v4.** This repo is Tailwind **v4** (`@import "tailwindcss"` + `@theme` in `app/globals.css`; there is **no `tailwind.config.ts`**). Tokens live in the `@theme` block + `:root` CSS vars in `globals.css`. Enter/exit animations come from `tw-animate-css` (not `tailwindcss-animate`); container queries are core (no plugin). Dark mode is `@custom-variant dark` + the `.dark` class. PostCSS uses `@tailwindcss/postcss` (no autoprefixer — Lightning CSS handles prefixing). The `.claude/` dir is excluded from content-scan via `@source not`.
-- **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the product/DS default. `react-icons` is allowed **only** for brand marks Material Symbols lacks (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` only leaks in via CLI-generated shadcn primitives — don't reach for it in product code.
+- **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the product/DS default. Default weight is a thin **200** (the refined/light look — keep it; only pass a heavier `weight` for a deliberate exception). `react-icons` is allowed **only** for brand marks Material Symbols lacks (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` only leaks in via CLI-generated shadcn primitives — don't reach for it in product code.
+- **Motion is on by default — don't hand-roll it per element.** Interactive elements (`a, button, input, select, textarea, summary, label, [role=button|tab|menuitem|option|switch|checkbox|radio]`) get a smooth paint transition for free via a `@layer base` rule in `globals.css` (color/background/border/shadow/outline/decoration/fill/stroke at `--dur-fast`/`--ease-out`, with a `prefers-reduced-motion` guard). So a plain hover never needs `transition-colors` added by hand. Because it's in `@layer base`, component classes (`.aw-btn`, `.aw-card`…) and Tailwind `transition-*`/`duration-*` utilities both still override it — reach for those (or `var(--dur-*)`/`var(--ease-*)`) only for a *custom* motion (transform, opacity, a different curve/duration). Never blanket-animate `transform`/`opacity` globally — they're reserved for enter animations.
 - **No emoji.** Do not add emoji to product UI, styleguide documentation, generated diagrams, or agent-facing docs unless the user explicitly asks for one or a source asset already contains it.
 - **Feature modules are out of DS scope.** `components/{auth,memory-base}` (and similar app-feature folders) are NOT DS components — they *consume* `Aw*` but are not themselves prefixed/wrapped/showcased. Don't rename them to `Aw*` or migrate them.
 - **Desktop-only.** The product has no mobile. Don't add mobile/tablet breakpoints or flag "missing responsiveness" — `components/DesktopOnlyBlocker.tsx` gates small screens by design.
@@ -149,8 +150,8 @@ The DS skills are **generic and Aw-prefix-blind** — they emit `components/Cust
 
 | Intent | Use this | Avoid |
 |---|---|---|
-| Add a component | `bombardier-new-component` | `design-system-new-component` |
-| Build a page | `bombardier-new-page` | `design-system-new-page` |
+| Add a component | `bombardier-new-component` |
+| Build a page | `bombardier-new-page` | 
 | Bootstrap DS / tokens | `bombardier-design-system-foundation` | `setup-design-system-from-*` |
 | Audit consistency | `bombardier-design-system-audit` | — |
 | Revise in-product copy / microcopy | `bombardier-ux-writing` | `ux-copy` (generic, EN), `awsales-brand-voice` (marketing voice) |
