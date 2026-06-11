@@ -92,10 +92,13 @@ export function InviteModal({
     >
       {mode === "form" ? (
         <div className="flex flex-col gap-5">
-          <p className="m-0 body-xs text-(--fg-secondary)">
-            Convide novos membros para sua organização através do e-mail. Pra
-            adicionar várias pessoas de uma vez, digite o e-mail e aperte{" "}
-            <strong className="font-medium">Enter</strong> entre cada um.
+          <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+            Convide novos membros para sua organização através do e-mail. Para
+            adicionar várias pessoas de uma vez, digite o e-mail e pressione{" "}
+            <kbd className="rounded-xs border border-(--border-subtle) bg-(--bg-muted) px-1.5 font-sans font-medium text-(--fg-primary)">
+              Enter
+            </kbd>{" "}
+            entre cada um.
           </p>
 
           {/* E-mail field — chips wrap em linhas independentes */}
@@ -110,14 +113,14 @@ export function InviteModal({
                 {emails.map((email) => (
                   <span
                     key={email}
-                    className="inline-flex max-w-full items-center gap-1 rounded-sm bg-(--bg-muted) px-2 py-1 body-xs text-(--fg-primary)"
+                    className="inline-flex max-w-full items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) py-0.5 pl-2.5 pr-1 body-xs text-(--fg-primary)"
                   >
                     <span className="truncate">{email}</span>
                     <button
                       type="button"
                       aria-label={`Remover ${email}`}
                       onClick={() => removeEmail(email)}
-                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-xs text-(--fg-tertiary) hover:bg-(--bg-surface) hover:text-(--fg-primary)"
+                      className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-(--fg-tertiary) hover:bg-(--bg-surface) hover:text-(--fg-primary)"
                     >
                       <Icon name="close" size={12} />
                     </button>
@@ -129,7 +132,7 @@ export function InviteModal({
                   className="min-w-[180px] flex-1 border-0 bg-transparent p-0 body-xs text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary)"
                   placeholder={
                     emails.length === 0
-                      ? "Digite o e-mail e aperte 'Enter'."
+                      ? "Digite o e-mail e pressione Enter"
                       : ""
                   }
                   value={draft}
@@ -206,7 +209,7 @@ export function InviteModal({
           </AwField>
 
           {/* Cargo + telefone — contexto extra do convite, opcionais */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-2 gap-4">
             <AwField label="Cargo (opcional)" htmlFor="invite-cargo">
               <AwInput
                 id="invite-cargo"
@@ -230,41 +233,46 @@ export function InviteModal({
 
           {/* Role description card */}
           {selectedRoleDef && (
-            <div className="rounded-md border border-(--border-subtle) bg-(--bg-muted) p-4">
-              <p className="m-0 body-xs font-semibold text-(--fg-primary)">
-                {selectedRoleDef.name}
-              </p>
-              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-muted) p-4">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
+                  <Icon name={selectedRoleDef.icon} size={15} />
+                </span>
+                <p className="m-0 body-xs font-semibold text-(--fg-primary)">
+                  {selectedRoleDef.name}
+                </p>
+                <a
+                  href="/settings/equipe-permissoes/funcoes"
+                  className="ml-auto inline-flex items-center gap-1 body-xs font-medium text-(--accent-brand) hover:underline"
+                >
+                  Saiba mais
+                  <Icon name="arrow_outward" size={12} />
+                </a>
+              </div>
+              <p className="m-0 mt-2.5 body-xs text-(--fg-secondary) text-pretty">
                 {selectedRoleDef.description}
               </p>
               {selectedRoleDef.idealFor && (
                 <p className="m-0 mt-2 body-xs text-(--fg-primary)">
-                  <span className="font-semibold">Função ideal para:</span>{" "}
+                  <span className="font-medium">Função ideal para:</span>{" "}
                   <span className="text-(--fg-secondary)">
                     {selectedRoleDef.idealFor}
                   </span>
                 </p>
               )}
-              <a
-                href="/settings/equipe-permissoes/funcoes"
-                className="mt-2 inline-flex items-center gap-1 body-xs font-medium text-(--accent-brand) hover:underline"
-              >
-                Saiba mais
-                <Icon name="arrow_outward" size={12} />
-              </a>
             </div>
           )}
         </div>
       ) : (
-        <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
-            <Icon name="check" size={28} />
+        <div className="flex flex-col items-center gap-3 py-8 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-muted) text-(--accent-success)">
+            <Icon name="check" size={26} />
           </span>
           <h6 className="m-0 text-(--fg-primary)">
             Convite{emails.length === 1 ? " foi" : "s foram"} enviado
             {emails.length === 1 ? "" : "s"}!
           </h6>
-          <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
+          <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary) text-pretty">
             {emails.length === 1
               ? "O convite foi enviado para o e-mail informado."
               : `Enviamos ${emails.length} convites. Os destinatários receberão o link de acesso por e-mail.`}
