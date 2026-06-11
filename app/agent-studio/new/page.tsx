@@ -30,15 +30,6 @@ const SalesIcon = ({ color = "currentColor" }: { color?: string }) => (
   </svg>
 );
 
-const RecoveryIcon = ({ color = "currentColor" }: { color?: string }) => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 12C3 7.02944 7.02944 3 12 3C14.8273 3 17.35 4.30367 19 6.34267V4" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M21 12C21 16.9706 16.9706 21 12 21C9.17273 21 6.65 19.6963 5 17.6573V20" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-    <circle cx="5" cy="4" r="1" fill={color}/>
-    <circle cx="19" cy="20" r="1" fill={color}/>
-  </svg>
-);
-
 const OnboardingIcon = ({ color = "currentColor" }: { color?: string }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M4 6H20M4 6V18C4 19.1046 4.89543 20 6 20H18C19.1046 20 20 19.1046 20 18V6M4 6L6 4H18L20 6" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -108,16 +99,17 @@ interface GoalOption {
   id: string;
   title: string;
   icon: React.FC<{ color?: string }>;
+  /** Explicação curta exibida no ícone de ajuda do card. */
+  hint: string;
 }
 
 const GOAL_OPTIONS: GoalOption[] = [
-  { id: "vendas", title: "Vendas", icon: SalesIcon },
-  { id: "recuperacao", title: "Recuperação de Vendas", icon: RecoveryIcon },
-  { id: "onboarding", title: "Onboarding", icon: OnboardingIcon },
-  { id: "captacao", title: "Captação de Lead", icon: LeadCaptureIcon },
-  { id: "cs-lancamento", title: "CS / Lançamento", icon: CSLaunchIcon },
-  { id: "agendamento", title: "Agendamento", icon: SchedulingIcon },
-  { id: "suporte", title: "Suporte e Atendimento", icon: SupportIcon },
+  { id: "vendas-recuperacao", title: "Vendas e Recuperação", icon: SalesIcon, hint: "Prospecta e fecha vendas, e reconquista quem abandonou o carrinho ou esfriou." },
+  { id: "onboarding", title: "Onboarding", icon: OnboardingIcon, hint: "Ativa e guia novos clientes nos primeiros passos do produto." },
+  { id: "captacao", title: "Captação de Lead", icon: LeadCaptureIcon, hint: "Capta e qualifica novos leads antes de passar pro time." },
+  { id: "cs-lancamento", title: "CS / Lançamento", icon: CSLaunchIcon, hint: "Sucesso do cliente e apoio a lançamentos e campanhas." },
+  { id: "agendamento", title: "Agendamento", icon: SchedulingIcon, hint: "Oferece horários e confirma reuniões direto na agenda." },
+  { id: "suporte", title: "Suporte e Atendimento", icon: SupportIcon, hint: "Tira dúvidas e resolve chamados de atendimento." },
 ];
 
 interface KnowledgeBase {
@@ -514,7 +506,7 @@ function AgentStudioNewContent() {
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
       <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
-        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 2 && currentStep <= 4 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
+        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 1 && currentStep <= 6 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
           {/* Step 1: Goal Selection */}
@@ -538,12 +530,21 @@ function AgentStudioNewContent() {
                     <button
                       key={goal.id}
                       onClick={() => handleGoalSelect(goal.id)}
-                      className={`flex flex-col items-center justify-center gap-3 px-4 py-6 rounded-2xl border transition-all duration-200 text-center min-h-[120px] ${
+                      className={`relative flex flex-col items-center justify-center gap-3 px-4 py-6 rounded-2xl border transition-all duration-200 text-center min-h-[120px] ${
                         isSelected
                           ? "bg-aw-gray-1200 border-aw-gray-1200"
                           : "bg-white border-border hover:border-aw-gray-400 hover:bg-bg-surface"
                       }`}
                     >
+                      <span
+                        className={`absolute right-2 top-2 inline-flex ${
+                          isSelected ? "text-white/60" : "text-fg-tertiary"
+                        }`}
+                        title={goal.hint}
+                        aria-label={goal.hint}
+                      >
+                        <Icon name="info" size={14} />
+                      </span>
                       <IconComponent color={isSelected ? "var(--aw-white)" : "var(--aw-gray-600)"} />
                       <h3 className={`font-heading font-medium text-sm leading-5 ${
                         isSelected ? "text-white" : "text-fg-primary"
@@ -1315,22 +1316,22 @@ function AgentStudioNewContent() {
                       onClick={() => setSelectedAgentCore(c.id)}
                       className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
                         sel
-                          ? "border-fg-primary bg-bg-raised"
+                          ? "border-aw-gray-1200 bg-aw-gray-1200"
                           : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
                       }`}
                     >
                       <AwAgentCore src={agentCoreSrc(c.core)} alt={c.name} size={44} />
                       <div className="min-w-0 flex-1">
-                        <h4 className="truncate font-heading text-sm font-medium text-fg-primary">
+                        <h4 className={`truncate font-heading text-sm font-medium ${sel ? "text-white" : "text-fg-primary"}`}>
                           {c.name}
                         </h4>
-                        <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
+                        <p className={`mt-0.5 line-clamp-2 text-xs leading-relaxed ${sel ? "text-white/70" : "text-fg-tertiary"}`}>
                           {c.description}
                         </p>
                       </div>
                       <span
                         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                          sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
+                          sel ? "border-white bg-white text-aw-gray-1200" : "border-aw-gray-400"
                         }`}
                       >
                         {sel && <Icon name="check" size={12} />}
