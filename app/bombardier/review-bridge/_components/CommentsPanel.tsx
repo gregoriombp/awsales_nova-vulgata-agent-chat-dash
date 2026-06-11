@@ -339,7 +339,7 @@ export function CommentsPanel() {
 
         <span className="ml-auto inline-flex items-center gap-2 text-[11px] text-(--fg-tertiary)">
           <Icon name={backend === "bridge" ? "cloud_done" : "save"} size={13} />
-          {backend === "bridge" ? "Bridge LAN" : "localStorage"}
+          {backend === "bridge" ? "Bridge local" : "localStorage"}
         </span>
 
         <AwButton

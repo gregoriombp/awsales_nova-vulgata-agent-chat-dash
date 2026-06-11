@@ -48,26 +48,7 @@ export class RemoteBridgeReview implements ReviewStorage {
   }
 
   private url(path: string): string {
-    let base = this.baseUrl
-    if (typeof window !== "undefined") {
-      try {
-        const parsed = new URL(this.baseUrl)
-        const configuredHost = parsed.hostname
-        const browserHost = window.location.hostname
-        const configuredIsLoopback =
-          configuredHost === "localhost" ||
-          configuredHost === "127.0.0.1" ||
-          configuredHost === "0.0.0.0"
-        const browserIsLoopback =
-          browserHost === "localhost" || browserHost === "127.0.0.1"
-        if (configuredIsLoopback && !browserIsLoopback) {
-          base = `${parsed.protocol}//${browserHost}:${parsed.port}`
-        }
-      } catch {
-        // keep configured value
-      }
-    }
-    return `${base}${path}`
+    return `${this.baseUrl}${path}`
   }
 
   async getIdentity(): Promise<ReviewIdentity | null> {
@@ -234,24 +215,7 @@ export interface BridgeStatus {
 }
 
 function resolveBaseUrl(configuredUrl: string): string {
-  if (typeof window === "undefined") return configuredUrl
-  try {
-    const parsed = new URL(configuredUrl)
-    const configuredHost = parsed.hostname
-    const browserHost = window.location.hostname
-    const configuredIsLoopback =
-      configuredHost === "localhost" ||
-      configuredHost === "127.0.0.1" ||
-      configuredHost === "0.0.0.0"
-    const browserIsLoopback =
-      browserHost === "localhost" || browserHost === "127.0.0.1"
-    if (configuredIsLoopback && !browserIsLoopback) {
-      return `${parsed.protocol}//${browserHost}:${parsed.port}`
-    }
-    return configuredUrl
-  } catch {
-    return configuredUrl
-  }
+  return configuredUrl
 }
 
 export async function checkBridgeStatus(

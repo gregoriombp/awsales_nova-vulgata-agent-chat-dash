@@ -55,9 +55,6 @@ type ReviewState = {
   mode: ReviewMode
   sheetOpen: boolean
   exportOpen: boolean
-  /** When false, in_review comments are hidden from the canvas. (Always hidden in default sheet view.) */
-  showResolved: boolean
-
   identity: ReviewIdentity | null
   identityModalOpen: boolean
   identityHydrated: boolean
@@ -80,8 +77,6 @@ type ReviewState = {
   toggleSheet: () => void
   setSheetOpen: (open: boolean) => void
   setExportOpen: (open: boolean) => void
-  toggleShowResolved: () => void
-
   /** Open the Figma-style thread popover anchored to a comment's pin. */
   openThread: (id: string) => void
   closeThread: () => void
@@ -129,8 +124,6 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   mode: "cursor",
   sheetOpen: false,
   exportOpen: false,
-  showResolved: false,
-
   identity: null,
   identityModalOpen: false,
   identityHydrated: false,
@@ -191,8 +184,6 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
   setSheetOpen: (open) =>
     set(open ? { sheetOpen: true, threadCommentId: null } : { sheetOpen: false }),
   setExportOpen: (open) => set({ exportOpen: open }),
-  toggleShowResolved: () => set((s) => ({ showResolved: !s.showResolved })),
-
   openThread: (id) =>
     set({ threadCommentId: id, selectedCommentId: id, sheetOpen: false }),
   closeThread: () => set({ threadCommentId: null }),

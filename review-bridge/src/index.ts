@@ -36,7 +36,7 @@ import {
 } from "./types.js"
 
 const PORT = Number(process.env.BOMBARDIER_REVIEW_PORT ?? 9878)
-const HOST = process.env.BOMBARDIER_REVIEW_HOST ?? "0.0.0.0"
+const HOST = process.env.BOMBARDIER_REVIEW_HOST ?? "127.0.0.1"
 const VERSION = "0.2.0"
 const HEARTBEAT_INTERVAL_MS = 15_000
 
@@ -44,14 +44,19 @@ await initDb()
 
 const app = express()
 
-const lanOriginRegex =
-  /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|[a-z0-9-]+\.local)(:\d+)?$/
+const localOriginRegex = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/
+
+function isLoopbackAddress(address: string | undefined): boolean {
+  if (!address) return false
+  const normalized = address.replace(/^::ffff:/, "")
+  return normalized === "127.0.0.1" || normalized === "::1"
+}
 
 app.use(
   cors({
     origin: (origin, cb) => {
       if (!origin) return cb(null, true)
-      if (lanOriginRegex.test(origin)) return cb(null, true)
+      if (localOriginRegex.test(origin)) return cb(null, true)
       cb(new Error(`Origin not allowed: ${origin}`))
     },
     credentials: false,
@@ -59,6 +64,14 @@ app.use(
   })
 )
 app.use(express.json({ limit: "8mb" }))
+
+app.use((req, res, next) => {
+  if (isLoopbackAddress(req.socket.remoteAddress)) {
+    next()
+    return
+  }
+  res.status(403).json({ error: "local_only" })
+})
 
 app.get("/health", (_req, res) => {
   res.json({

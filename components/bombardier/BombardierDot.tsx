@@ -8,12 +8,6 @@ import {
 } from "@/components/ui/AwDropdownMenu";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { useReviewStore } from "@/lib/bombardier-review/store";
-import { useToast } from "@/components/ui/AwToast";
-
-// Inlined at build time (NEXT_PUBLIC_*). When the review-bridge skill wrote a
-// LAN address here, "Copiar link pra LAN" rebuilds the current page URL on that
-// host so the team can open the exact screen you're reviewing.
-const reviewBridgeUrl = process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL;
 
 export function BombardierDot() {
   const router = useRouter();
@@ -21,35 +15,6 @@ export function BombardierDot() {
   const reviewActive = useReviewStore((s) => s.active);
   const toggleReview = useReviewStore((s) => s.toggleActive);
   const backend = useReviewStore((s) => s.backend);
-  const { push } = useToast();
-
-  const copyLanLink = React.useCallback(() => {
-    if (typeof window === "undefined") return;
-    let host = window.location.hostname;
-    if (reviewBridgeUrl) {
-      try {
-        host = new URL(reviewBridgeUrl).hostname;
-      } catch {
-        /* fall back to the window host */
-      }
-    }
-    const port = window.location.port || "3000";
-    const url = `${window.location.protocol}//${host}:${port}${window.location.pathname}${window.location.search}`;
-    const done = (ok: boolean) =>
-      push({
-        title: ok ? "Link copiado" : "Não consegui copiar",
-        description: url,
-        variant: ok ? "success" : "error",
-      });
-    if (navigator.clipboard?.writeText) {
-      navigator.clipboard.writeText(url).then(
-        () => done(true),
-        () => done(false)
-      );
-    } else {
-      done(false);
-    }
-  }, [push]);
 
   if (!visible) return null;
 
@@ -81,7 +46,7 @@ export function BombardierDot() {
       isLabel: true,
       label:
         backend === "bridge"
-          ? "Review · sincronizando na LAN"
+          ? "Review · bridge local"
           : "Review · local (este navegador)",
     },
     {
@@ -90,12 +55,6 @@ export function BombardierDot() {
       icon: reviewActive ? "rate_review" : "comment",
       checked: reviewActive,
       onSelect: () => toggleReview(),
-    },
-    {
-      id: "review-copy-link",
-      label: "Copiar link pra LAN",
-      icon: "link",
-      onSelect: () => copyLanLink(),
     },
     { id: "sep-hide", separator: true },
     {

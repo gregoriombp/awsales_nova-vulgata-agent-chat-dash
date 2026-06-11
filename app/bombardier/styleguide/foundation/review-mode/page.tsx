@@ -41,8 +41,8 @@ export default function ReviewModeFoundationPage() {
     <div className="flex flex-col gap-12">
       <PageHero title="Review Mode">
         Ferramenta interna do Bombardier pra anotar telas durante reviews ao
-        vivo. Marcação livre e pinos com comentário, salvos local (browser)
-        ou num bridge LAN com sync entre revisores em tempo real.
+        vivo. Marcação livre e pinos com comentário, salvos no navegador ou
+        num bridge local para um agente resolver e devolver para aprovação.
       </PageHero>
 
       <Section
@@ -64,7 +64,7 @@ export default function ReviewModeFoundationPage() {
             </p>
           </div>
           <p className="m-0 text-sm text-(--fg-secondary)">
-            Pra sincronizar com o time na LAN, suba o servidor com{" "}
+            Pra usar o fluxo com agente local, suba o servidor com{" "}
             <code className="font-mono text-xs">npm run review-bridge</code> e
             sete <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL</code>{" "}
             + <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN</code> no{" "}
@@ -82,8 +82,7 @@ export default function ReviewModeFoundationPage() {
         <ol className="list-none p-0 m-0 flex flex-col gap-5">
           <Step number={1} title="Identifique-se">
             Na primeira ativação, escolha um nome e uma cor. Tudo fica salvo
-            no seu navegador. Cada revisor com cor diferente facilita ler a
-            tela cheia de marcações.
+            no seu navegador e aparece nos comentários e nas aprovações.
           </Step>
           <Step number={2} title="Escolha o modo">
             Na barra inferior: <Kbd>cursor</Kbd> não captura,{" "}
@@ -98,22 +97,22 @@ export default function ReviewModeFoundationPage() {
           </Step>
           <Step number={4} title="Revise no painel lateral">
             O ícone <Icon name="forum" size={14} /> abre a lista. Filtre por
-            abertos / resolvidos, pula entre telas, marca como resolvido,
-            deleta. Click num cartão dá scroll suave até o anchor na própria
-            tela.
+            abertos / em revisão / arquivados, pula entre telas, aprova ou
+            rejeita entregas de agente e deleta comentários. Click num cartão
+            dá scroll suave até o anchor na própria tela.
           </Step>
           <Step number={5} title="Exporte">
             <Icon name="ios_share" size={14} /> abre um modal com o JSON
-            completo. Útil pra arquivar uma sessão de review ou pra
-            compartilhar quando você ainda está rodando local-only.
+            completo. Útil pra arquivar uma sessão de review ou inspecionar o
+            payload que o agente está recebendo.
           </Step>
         </ol>
       </Section>
 
       <Section
         id="bridge"
-        title="Bridge LAN (sync entre revisores)"
-        lead="Quando o time inteiro está no escritório, suba o review-bridge na sua máquina e os comentários aparecem em tempo real no navegador de cada um. Sem internet, sem cloud."
+        title="Bridge local (fila para agente)"
+        lead="O bridge roda na própria máquina, em 127.0.0.1, e persiste a fila que os agentes locais leem para resolver comentários. Não é um servidor para outras pessoas da rede."
       >
         <div className="flex flex-col gap-5">
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5 flex flex-col gap-3">
@@ -148,16 +147,7 @@ export default function ReviewModeFoundationPage() {
               </li>
               <li>
                 <code className="font-mono text-xs">npm run review-bridge:dev</code>.
-                Sobe em <code className="font-mono text-xs">0.0.0.0:9878</code>{" "}
-                (escutando a LAN).
-              </li>
-              <li>
-                Pegue seu hostname mDNS (ex.:{" "}
-                <code className="font-mono text-xs">
-                  echo "$(hostname -s).local"
-                </code>{" "}
-                no macOS) e compartilhe com o time — sobrevive a troca de
-                WiFi sem reconfigurar.
+                Sobe em <code className="font-mono text-xs">127.0.0.1:9878</code>.
               </li>
             </ol>
           </div>
@@ -176,7 +166,7 @@ export default function ReviewModeFoundationPage() {
               localStorage pro bridge. Apague pra voltar pro modo local.
             </p>
             <pre className="m-0 rounded-sm bg-(--bg-muted) border border-(--border-subtle) p-3 text-[12px] font-mono whitespace-pre-wrap">
-              {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://<hostname>.local:9878
+              {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878
 NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
             </pre>
             <p className="m-0 text-xs text-(--fg-tertiary) flex items-start gap-1.5">
@@ -195,16 +185,17 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
                 Segurança
               </AwPill>
               <span className="text-xs text-(--fg-tertiary)">
-                LAN-only, não exponha pra internet
+                Local-only, não exponha pra rede
               </span>
             </div>
             <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-              Auth é só um token compartilhado em header (
+              Auth é um token em header (
               <code className="font-mono text-xs">X-Review-Token</code>). É
-              uma barreira de bom senso pra LAN do escritório, não segurança
-              real. Não abra a porta 9878 pro mundo, não use HTTPS público
-              sem proxy reverso adequado, e não coloque dados sensíveis
-              nesses comentários.
+              suficiente para o fluxo local de desenvolvimento, mas não é um
+              modelo de produto público. O servidor deve escutar em{" "}
+              <code className="font-mono text-xs">127.0.0.1</code>; não use{" "}
+              <code className="font-mono text-xs">0.0.0.0</code>, não faça port
+              forwarding e não coloque dados sensíveis nesses comentários.
             </p>
           </div>
         </div>
@@ -288,31 +279,32 @@ NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<mesmo-token-do-servidor>`}
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="neutral" dot={false}>
-                Local-only
+                Bridge local
               </AwPill>
               <span className="text-xs text-(--fg-tertiary)">
-                Sem sync entre máquinas
+                Fila para agente local
               </span>
             </div>
             <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-              Tudo no localStorage do seu navegador. Pra compartilhar:
-              exporte o JSON. A v2 sobe um servidor local em LAN com sync
-              entre revisores via SSE.
+              Sem bridge configurado, tudo fica no localStorage do navegador.
+              Com bridge, os comentários vão para arquivos JSON locais e podem
+              ser consumidos por agentes na mesma máquina. Outras máquinas não
+              são suportadas nesse modo.
             </p>
           </div>
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
             <div className="flex items-center gap-2 mb-2">
               <AwPill variant="neutral" dot={false}>
-                Sem auth
+                Identidade local
               </AwPill>
               <span className="text-xs text-(--fg-tertiary)">
                 Identidade é só nome
               </span>
             </div>
             <p className="m-0 text-sm text-(--fg-secondary) leading-relaxed">
-              Você digita o nome uma vez. Não há login real. Aceitável
-              porque a v1 só roda quando você liga a flag manualmente em
-              dev.
+              Você digita o nome uma vez. Não há login real; a identidade serve
+              para autoria dos comentários e para aprovar ou rejeitar entregas
+              de agente.
             </p>
           </div>
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">

@@ -1,8 +1,8 @@
 # Bombardier Review Bridge
 
-Servidor LAN que sincroniza os comentários visuais do **Review Mode** (Bombardier)
-entre os dispositivos do time. Roda em `http://<seu-ip>:9878`, autenticado por token
-compartilhado. Persiste em arquivos JSON locais (`lowdb`).
+Servidor local que guarda os comentários visuais do **Review Mode** (Bombardier)
+para agentes rodando na mesma máquina. Roda em `http://127.0.0.1:9878`,
+autenticado por token e persistido em arquivos JSON locais (`lowdb`).
 
 > **Como subir:** use a skill `/review-bridge` (`.claude/skills/bombardier-review-bridge/SKILL.md`).
 > Este README cobre arquitetura, ciclo de vida e API — não o passo a passo de boot.
@@ -58,10 +58,10 @@ A separação física do arquivo arquivo existe para que **agentes que leem o JS
 
 ## API HTTP
 
-Base URL: `http://<host>:9878`. Todas as rotas (exceto `/health`) exigem o header:
+Base URL local: `http://127.0.0.1:9878`. Todas as rotas (exceto `/health`) exigem o header:
 
 ```
-X-Review-Token: <token compartilhado>
+X-Review-Token: <token local>
 ```
 
 ### Listagem
@@ -144,7 +144,7 @@ O campo `resolution.summary` é **sempre** uma string no formato:
 Resolvido por <name> em DD/MM/YYYY às HH:MM:SS.
 ```
 
-Outros agentes que lerem esse JSON depois saberão exatamente quem alegou resolver e quando. Use timezone do servidor (horário da máquina rodando o bridge).
+Agentes que lerem esse JSON depois saberão exatamente quem alegou resolver e quando. Use timezone do servidor (horário da máquina rodando o bridge).
 
 ---
 
@@ -249,8 +249,9 @@ Pra subir o servidor, ver `.claude/skills/bombardier-review-bridge/SKILL.md`. Pr
 |---|---|---|
 | `EADDRINUSE :9878` | porta ocupada | `lsof -i :9878` |
 | 401 do `/health` | token errado | comparar `review-bridge/.env` e `.env.local` |
+| 403 `local_only` | request veio de fora do loopback | usar `http://127.0.0.1:9878`; o bridge rejeita rede |
 | Frontend não conecta | `NEXT_PUBLIC_*` velho em cache do Next | reiniciar `npm run dev` |
-| Outras máquinas não enxergam | firewall do macOS | System Settings → Network → Firewall |
+| CORS bloqueia request | app aberto fora de `localhost`/`127.0.0.1` | abra o app localmente; o bridge não aceita origens de rede |
 | Comment "some" depois de aprovar | foi pro archive — esperado | `GET /comments/archive` |
 | Agente alegou resolver mas user não vê em revisão | falta `actor.kind === "agent"` na request | inspecionar curl |
 

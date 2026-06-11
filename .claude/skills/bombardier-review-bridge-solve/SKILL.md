@@ -2,7 +2,7 @@
 name: bombardier-review-bridge-solve
 description: >
   Resolve em lote os comentários do Bombardier Review Mode. Lê do
-  review-bridge (LAN) com filtro escolhido pelo usuário (todos, só de
+  review-bridge local com filtro escolhido pelo usuário (todos, só de
   hoje, só abertos, de uma página específica, IDs explícitos, etc.),
   faz UM PLANO ANTES de mexer em qualquer código, espera aprovação do
   usuário, implementa as correções, e marca cada comentário como
@@ -20,7 +20,7 @@ description: >
 # Bombardier Review Bridge — Resolver em lote
 
 Esta skill é o **agente que resolve** os comentários do Review Mode. Ela
-lê o bridge LAN, planeja correções, implementa, e devolve cada item
+lê o bridge local, planeja correções, implementa, e devolve cada item
 marcado como **em revisão** pra o usuário aprovar pelo inbox.
 
 > Pré-requisito: o servidor já está rodando. Se não estiver, invocar

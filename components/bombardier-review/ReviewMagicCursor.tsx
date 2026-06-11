@@ -135,7 +135,7 @@ export function ReviewMagicCursor() {
 }
 
 // CSS da feature inline via <style> (convenção do repo: globals.css não
-// recompila no dev server compartilhado do time). Gradiente montado só com
+// recompila no dev server local). Gradiente montado só com
 // tokens AwSales (--aw-*), sem hex cru.
 const MAGIC_CSS = `
 @property --aw-magic-angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }

@@ -61,8 +61,8 @@ export function ReviewIdentityModal() {
         className="flex flex-col gap-5"
       >
         <p className="body-sm text-(--fg-secondary) leading-relaxed">
-          Seu nome aparece em cada comentário pra que o time saiba quem
-          escreveu o quê. Fica salvo só no seu navegador.
+          Seu nome aparece em cada comentário e nas respostas do agente. Fica
+          salvo só no seu navegador.
         </p>
 
         <label className="flex flex-col gap-2">

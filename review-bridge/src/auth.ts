@@ -10,8 +10,8 @@ export function tokenConfigured(): boolean {
  * Token shared with the frontend via NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN.
  * Validation is constant-time to avoid trivial timing leaks.
  *
- * If no token is configured, every request is rejected — we never want the
- * bridge to run wide-open, even on LAN.
+ * If no token is configured, every request is rejected — even though the
+ * bridge is local-only by default, it should never run wide-open.
  */
 export function requireToken(
   req: Request,
