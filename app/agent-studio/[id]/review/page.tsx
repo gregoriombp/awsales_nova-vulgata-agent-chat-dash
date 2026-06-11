@@ -51,7 +51,6 @@ export default function AgentReviewPage() {
 
         <AwPageHeader
           size="hero"
-          icon="fact_check"
           title="Revisão"
           description="Confira os detalhes definidos antes de publicar o agente."
           actions={
