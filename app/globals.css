@@ -1226,6 +1226,67 @@
 }
 
 /* ============================================================
+ * Motion default — interactive elements get a smooth paint
+ * transition for free. This is the "persistent transition": you
+ * never have to opt a hover into `transition-colors` by hand.
+ *
+ * Lives in @layer base so it's the FLOOR — component classes
+ * (.aw-btn, .aw-card…, all unlayered) and Tailwind transition
+ * utilities (transition-transform, duration-…, in @layer
+ * utilities) both win over it. So a custom motion still overrides;
+ * a plain element just inherits a calm fade.
+ *
+ * Only PAINT properties animate (color/background/border/shadow/
+ * outline/decoration/fill/stroke) — never transform/opacity, which
+ * are reserved for enter animations and would jank if blanket-set.
+ * ============================================================ */
+@layer base {
+  a,
+  button,
+  summary,
+  label,
+  input,
+  select,
+  textarea,
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  [role="checkbox"],
+  [role="radio"] {
+    transition:
+      color var(--dur-fast) var(--ease-out),
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      box-shadow var(--dur-fast) var(--ease-out),
+      outline-color var(--dur-fast) var(--ease-out),
+      text-decoration-color var(--dur-fast) var(--ease-out),
+      fill var(--dur-fast) var(--ease-out),
+      stroke var(--dur-fast) var(--ease-out);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    a,
+    button,
+    summary,
+    label,
+    input,
+    select,
+    textarea,
+    [role="button"],
+    [role="tab"],
+    [role="menuitem"],
+    [role="option"],
+    [role="switch"],
+    [role="checkbox"],
+    [role="radio"] {
+      transition-duration: 0.01ms;
+    }
+  }
+}
+
+/* ============================================================
  * AwButton — mirrors AwSales Design System (zip) spec exactly.
  * 5 variants · 3 sizes · iconLeft/iconRight · loading.
  * ============================================================ */
@@ -1242,10 +1303,17 @@
     background var(--dur-base) var(--ease-out),
     color var(--dur-base) var(--ease-out),
     border-color var(--dur-base) var(--ease-out),
-    filter var(--dur-base) var(--ease-out);
+    filter var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
   user-select: none;
   white-space: nowrap;
   text-decoration: none;
+}
+/* Tactile press — a hair of downward travel on click. Subtle enough to
+   feel physical without reading as a bounce. */
+.aw-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
 }
 .aw-btn:focus-visible {
   outline: 0;
@@ -1260,10 +1328,11 @@
   pointer-events: none;
 }
 
-/* Sizes — heights 30 / 38 / 46 */
-.aw-btn--sm { height: 30px; padding: 0 12px; font-size: 13px; }
-.aw-btn--md { height: 38px; padding: 0 16px; font-size: 14px; }
-.aw-btn--lg { height: 46px; padding: 0 22px; font-size: 15px; }
+/* Sizes — heights 30 / 38 / 46. Slightly more generous horizontal padding
+   for a calmer, roomier feel (OpenAI-ish breathing room). */
+.aw-btn--sm { height: 30px; padding: 0 14px; font-size: 13px; }
+.aw-btn--md { height: 38px; padding: 0 18px; font-size: 14px; }
+.aw-btn--lg { height: 46px; padding: 0 24px; font-size: 15px; }
 
 /* Full-width variant */
 .aw-btn--block { width: 100%; justify-content: center; }
@@ -1752,12 +1821,17 @@
 .aw-card--interactive {
   transition:
     border-color var(--dur-base) var(--ease-out),
-    background var(--dur-base) var(--ease-out);
+    background var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out);
   cursor: pointer;
 }
 .aw-card--interactive:hover {
   border-color: var(--fg-primary);
   background: var(--bg-surface);
+  /* Subtle lift + soft shadow on hover — the modern/OpenAI card feel. */
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 /* AI card — iridescent mesh: cool blue pocket on one corner, peach/cream
  * pocket on the opposite, lavender drift in the middle. Sits over
@@ -1851,6 +1925,9 @@
 }
 .aw-card--dashed.aw-card--interactive:hover {
   background: var(--bg-surface);
+  /* Placeholder slot stays flat — no shadow under a dashed edge. */
+  box-shadow: none;
+  transform: none;
 }
 
 /* Quiet/explore variant — mirrors the catalog modal card affordance:
@@ -1863,6 +1940,9 @@
 .aw-card--interactive.aw-explore-card:hover {
   border-color: var(--border-default);
   background: var(--bg-surface);
+  /* Quiet variant: shift background only, no lift/shadow. */
+  box-shadow: none;
+  transform: none;
 }
 .aw-card--dashed.aw-explore-card {
   border-color: var(--border-subtle);
@@ -1953,7 +2033,12 @@
   border-radius: var(--radius-md);
   transition:
     border-color var(--dur-base) var(--ease-out),
-    box-shadow var(--dur-base) var(--ease-out);
+    box-shadow var(--dur-base) var(--ease-out),
+    background var(--dur-base) var(--ease-out);
+}
+/* Subtle hover before focus — border firms up a touch on intent. */
+.aw-input:hover:not(:focus-within):not(.aw-input--disabled) {
+  border-color: var(--fg-tertiary);
 }
 .aw-input--dense { height: 34px; padding: 0 10px; }
 .aw-input input {
