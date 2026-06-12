@@ -1,13 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Link from "next/link";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG, fmtBRL } from "@/app/primeiro-acesso/_data";
-import { SaveBar, SectionHeading, SettingsPageHeader } from "../_components/shared";
+import { SectionHeading, SettingsPageHeader } from "../_components/shared";
+
+const ORG_SETOR = "Educação e Infoprodutos";
+const ORG_TEAM = "32 membros";
+const AM = ONBOARDING_ORG.accountManager;
 
 const COMPANY_ROWS = [
   { label: "Razão social", value: ONBOARDING_ORG.razaoSocial },
@@ -20,8 +29,113 @@ const COMPANY_ROWS = [
   { label: "Data de criação", value: "11 de mai. 2026" },
 ];
 
+const INFO_ROWS: {
+  icon: string;
+  label: string;
+  value: string;
+  href?: string;
+}[] = [
+  { icon: "school", label: "Setor", value: ORG_SETOR },
+  {
+    icon: "group",
+    label: "Equipe",
+    value: ORG_TEAM,
+    href: "/settings/equipe-permissoes",
+  },
+];
+
+function InfoRowBody({
+  icon,
+  label,
+  value,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+}) {
+  return (
+    <>
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
+        <Icon name={icon} size={20} />
+      </span>
+      <div className="min-w-0">
+        <p className="m-0 body-xs text-(--fg-tertiary)">{label}</p>
+        <p className="m-0 body-sm font-medium text-(--fg-primary)">{value}</p>
+      </div>
+    </>
+  );
+}
+
 export default function OrganizationSettingsPage() {
+  const toast = useToast();
   const [orgName, setOrgName] = useState<string>(ONBOARDING_ORG.name);
+  const [logoSrc, setLogoSrc] = useState<string>(ONBOARDING_ORG.logo);
+  const [editOpen, setEditOpen] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [draftName, setDraftName] = useState<string>(ONBOARDING_ORG.name);
+  const [draftLogo, setDraftLogo] = useState<string>(ONBOARDING_ORG.logo);
+  const logoFileRef = useRef<HTMLInputElement | null>(null);
+
+  const openEdit = () => {
+    setDraftName(orgName);
+    setDraftLogo(logoSrc);
+    setSaving(false);
+    setEditOpen(true);
+  };
+  const editDirty =
+    draftName.trim() !== orgName || draftLogo !== logoSrc;
+  const saveEdit = () => {
+    if (saving) return;
+    setSaving(true);
+    window.setTimeout(() => {
+      setOrgName(draftName.trim() || orgName);
+      setLogoSrc(draftLogo);
+      setSaving(false);
+      setEditOpen(false);
+      toast.push({
+        variant: "success",
+        title: "Alterações salvas",
+        description: "Nome e logo da organização foram atualizados.",
+      });
+    }, 900);
+  };
+
+  const handleLogoFile = (file: File | undefined) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") setDraftLogo(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDownloadContract = () => {
+    const lines = [
+      "AwSales — Resumo contratual",
+      "",
+      `Razão social: ${ONBOARDING_ORG.razaoSocial}`,
+      `CNPJ: ${ONBOARDING_ORG.cnpj}`,
+      `Segmento: ${ONBOARDING_ORG.segmento}`,
+      `Plano contratado: ${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${fmtBRL(ONBOARDING_ORG.valorMensal).replace(",00", "")}/mês`,
+      `Fidelidade: ${ONBOARDING_ORG.fidelidade}`,
+      "Data de criação: 11 de mai. 2026",
+      "",
+      `Account Manager: ${AM.name} · ${AM.email}`,
+    ];
+    const blob = new Blob([lines.join("\n")], {
+      type: "text/plain;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contrato-fyntra-tecnologia.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -30,46 +144,71 @@ export default function OrganizationSettingsPage() {
         description="Como sua empresa aparece nos agentes, conversas e exportações."
       />
 
-      <AwCard className="p-0!">
-        <div className="flex items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
-          <span className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-lg bg-(--bg-muted)">
+      {/* Identidade da organização + resumo */}
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        <div className="flex items-center gap-4">
+          <span className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-(--bg-muted)">
             <img
-              src={ONBOARDING_ORG.logo}
+              src={logoSrc}
               alt={orgName}
-              width={48}
-              height={48}
+              width={96}
+              height={96}
               style={{ objectFit: "cover" }}
             />
           </span>
-          <div className="flex-1">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              Logo da organização
-            </p>
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              Usada na navegação e nos canais conectados.
+          <div className="min-w-0">
+            <h4 className="m-0 truncate text-(--fg-primary)">{orgName}</h4>
+            <p className="m-0 mt-1 body-sm text-(--fg-secondary)">
+              Plano {ONBOARDING_ORG.plan}
             </p>
           </div>
-          <AwButton size="sm" variant="secondary" iconLeft="upload">
-            Trocar logo
-          </AwButton>
         </div>
-        <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
-          <AwField label="Nome da organização" htmlFor="org-name">
-            <AwInput
-              id="org-name"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-            />
-          </AwField>
-          <AwField label="Indústria">
-            <AwSelect>Educação / Infoprodutos</AwSelect>
-          </AwField>
-          <AwField label="Tamanho do time">
-            <AwSelect>11 — 50 pessoas</AwSelect>
-          </AwField>
-        </div>
-        <SaveBar />
-      </AwCard>
+
+        <AwCard className="p-0!">
+          <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-3">
+            <h6 className="m-0 text-(--fg-primary)">Informações</h6>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="edit"
+              onClick={openEdit}
+            >
+              Editar
+            </AwButton>
+          </div>
+          <ul className="m-0 flex list-none flex-col gap-1 px-4 pb-4">
+            {INFO_ROWS.map((row) => (
+              <li key={row.label}>
+                {row.href ? (
+                  <Link
+                    href={row.href}
+                    className="group/row flex items-center gap-3 rounded-lg px-2 py-2 hover:bg-(--bg-hover)"
+                  >
+                    <InfoRowBody
+                      icon={row.icon}
+                      label={row.label}
+                      value={row.value}
+                    />
+                    <Icon
+                      name="chevron_right"
+                      size={18}
+                      className="ml-auto shrink-0 text-(--fg-tertiary) transition-transform group-hover/row:translate-x-0.5"
+                    />
+                  </Link>
+                ) : (
+                  <div className="flex items-center gap-3 px-2 py-2">
+                    <InfoRowBody
+                      icon={row.icon}
+                      label={row.label}
+                      value={row.value}
+                    />
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+        </AwCard>
+      </div>
 
       <div className="mt-10">
         <SectionHeading
@@ -108,22 +247,171 @@ export default function OrganizationSettingsPage() {
               </div>
             ))}
           </dl>
-          <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) px-6 py-3">
-            <span className="flex items-center gap-2 text-(--fg-secondary)">
-              <Icon name="warning" size={14} />
-              <a
-                href="#"
-                className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
-              >
-                Algo está errado?
-              </a>
-            </span>
-            <AwButton size="sm" variant="secondary" iconLeft="download">
-              Baixar contrato
-            </AwButton>
-          </div>
         </AwCard>
+        <div className="mt-2 flex items-center justify-between gap-4 px-6 py-2">
+          <button
+            type="button"
+            onClick={() => setReportOpen(true)}
+            className="flex items-center gap-2 text-(--fg-secondary) hover:text-(--fg-primary)"
+          >
+            <Icon name="warning" size={14} />
+            <span className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline">
+              Algo está errado?
+            </span>
+          </button>
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="download"
+            onClick={handleDownloadContract}
+          >
+            Baixar contrato
+          </AwButton>
+        </div>
       </div>
+
+      {/* Modal — editar organização */}
+      <AwModal
+        open={editOpen}
+        onClose={() => {
+          if (!saving) setEditOpen(false);
+        }}
+        title="Editar organização"
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              disabled={saving}
+              onClick={() => setEditOpen(false)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              loading={saving}
+              disabled={!editDirty || !draftName.trim()}
+              onClick={saveEdit}
+            >
+              {saving ? "Salvando…" : "Salvar alterações"}
+            </AwButton>
+          </>
+        }
+      >
+        <div className="flex items-center gap-4 pb-5">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-(--bg-muted)">
+            <img
+              src={draftLogo}
+              alt={orgName}
+              width={56}
+              height={56}
+              style={{ objectFit: "cover" }}
+            />
+          </span>
+          <div className="flex-1">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
+              Logo da organização
+            </p>
+            <p className="m-0 body-xs text-(--fg-secondary)">
+              PNG ou JPG, mínimo 200×200 px.
+            </p>
+          </div>
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="upload"
+            onClick={() => logoFileRef.current?.click()}
+          >
+            Trocar logo
+          </AwButton>
+          <input
+            ref={logoFileRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            className="hidden"
+            onChange={(e) => handleLogoFile(e.target.files?.[0])}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <AwField label="Nome da organização" htmlFor="org-name">
+            <AwInput
+              id="org-name"
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+            />
+          </AwField>
+          <AwField label="Setor">
+            <AwSelect>{ORG_SETOR}</AwSelect>
+          </AwField>
+        </div>
+      </AwModal>
+
+      {/* Modal — algo está errado nos dados contratuais */}
+      <AwModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="Algo está errado nos dados?"
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setReportOpen(false)}
+            >
+              Fechar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="chat_bubble"
+              onClick={() => {
+                setReportOpen(false);
+                setContactOpen(true);
+              }}
+            >
+              Falar com o Account Manager
+            </AwButton>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <p className="m-0 body-sm text-(--fg-secondary)">
+            Os dados contratuais são registrados pela equipe Aswork no
+            fechamento do contrato e ficam bloqueados para edição direta. Para
+            corrigir qualquer informação, fale com seu Account Manager — ele
+            abre o chamado de atualização.
+          </p>
+          <div className="flex flex-col gap-3 rounded-lg bg-(--bg-muted) px-4 py-3.5">
+            <div className="flex items-center gap-3">
+              <AwAvatar src={AM.photo} alt={AM.name} initials={AM.initials} />
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  {AM.name}
+                </p>
+                <p className="m-0 body-xs text-(--fg-secondary)">{AM.role}</p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5 border-t border-(--border-subtle) pt-3">
+              <span className="flex items-center gap-2 body-xs text-(--fg-secondary)">
+                <Icon name="mail" size={14} className="shrink-0" />
+                {AM.email}
+              </span>
+              <span className="flex items-center gap-2 body-xs text-(--fg-secondary)">
+                <Icon name="call" size={14} className="shrink-0" />
+                {AM.phone}
+              </span>
+            </div>
+          </div>
+        </div>
+      </AwModal>
+
+      {/* Modal — canal de contato com o Account Manager */}
+      <AwContactChannelModal
+        open={contactOpen}
+        onClose={() => setContactOpen(false)}
+        managerName={AM.name}
+      />
     </div>
   );
 }
