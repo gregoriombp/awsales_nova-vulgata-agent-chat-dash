@@ -1,72 +1,104 @@
 # Bombardier
 
-Mapa operacional do Bombardier neste repo. Este arquivo é curto de propósito:
-documentação antiga de Page Builder, Playground/quarentena e bridges LAN confundia
-agentes e foi removida.
+Bombardier is the visual builder layer for AwSales inside this repository. It
+brings the design system, product screens, UX flows, visual review, and agent
+workflows into one code-native environment for building product UI.
 
-## Fontes de Verdade
+Its purpose is to shorten the distance between product intent and implementation:
+the real design system lives in code, screens are navigable, flows are editable,
+and visual comments become a local work queue that agents can resolve with user
+approval.
 
-- `AGENTS.md`: regras obrigatórias para agentes, componentes, tokens, stack e skills.
-- `AWSALES_CONTEXT.md`: contexto de produto, vocabulário e módulos da AwSales/Aswork.
-- `README.md`: como rodar o projeto e onde encontrar as superfícies principais.
-- `/bombardier/styleguide`: fonte viva do design system renderizada no produto.
+## Current Surfaces
 
-Se houver conflito, `AGENTS.md` vence este arquivo, skills e memória externa.
-
-## Superfícies Atuais
-
-| Superfície | Status | Uso |
+| Surface | Route | Role |
 |---|---|---|
-| `/bombardier/styleguide` | ativo | Foundations, tokens, componentes `Aw*`, padrões e UX flows. |
-| `/bombardier/styleguide/ux-flows` | ativo | Fluxos navegáveis mantidos no repo. |
-| `/bombardier/styleguide/review` | ativo | Inbox dos comentários do Review Mode. |
-| `/bombardier/projects` | ativo | Workbench para projetos/telas importados e build requests. |
-| Review Mode overlay | ativo | Comentários visuais com pin/free-draw, ligados pelo Bombardier Dot ou `Cmd+Shift+Y`. |
+| Styleguide | `/bombardier/styleguide` | Live design system source: foundations, tokens, `Aw*` components, brand, patterns, and UX flows. |
+| Projects | `/bombardier/projects` | Workbench for imported projects/screens, design-system update requests, and build requests. |
+| UX Flow | `/bombardier/ux-flow` | Flow viewer/hub for presenting and navigating UX flows as prototypes. |
+| Styleguide UX Flows | `/bombardier/styleguide/ux-flows` | Editable source for flow graphs, nodes, edges, comments, and changelog entries. |
+| Review Inbox | `/bombardier/styleguide/review` | Inbox for comments created through Review Mode. |
+| Review Bridge | `review-bridge/` | Local comment queue for agents, with user approval after agent work. |
+| Design System Tweaks | `/bombardier/design-system-tweaks` | Controlled foundation/token experiments and visual impact checks. |
 
-## Removido ou Histórico
+## Mental Model
 
-Estas superfícies não são caminho operacional neste repo:
+Bombardier is not separate documentation for the product. It is a product layer
+that runs with the Next.js app.
 
-- `bridge/` na porta `9876`.
-- `bridge-edit/`.
-- `/bombardier/page-builder`.
-- `/bombardier/styleguide/components/playground`.
-- Quarentena `components/playground/` para componentes de IA.
+- **Design system as source of truth:** official components live in
+  `components/ui/Aw*`, use tokens from `app/globals.css`, and are documented in
+  the styleguide.
+- **Builder by composition:** new screens should start from existing `Aw*`
+  components. When a missing piece is reusable, it becomes an official design
+  system component.
+- **Flows as code:** UX flows are React pages with structured nodes and edges,
+  not static images.
+- **Review as work queue:** visual comments carry route and target context, so
+  local agents can resolve them before the user approves or rejects the result.
+- **Skills as execution contracts:** agents use Bombardier skills to follow repo
+  rules instead of inventing file structure.
 
-Não recrie essas estruturas sem pedido explícito. O produto `/app/playground` é uma
-rota de produto separada e não significa Playground do design system.
+## Creating New Work
 
-## Bridges Atuais
+### New Design System Component
 
-### Review Bridge
+Use `bombardier-new-component`.
 
-`npm run dev` prepara o token, sincroniza `.env.local` com `review-bridge/.env`,
-sobe o Next em `127.0.0.1:3000` e mantém o Review Bridge em
-`127.0.0.1:9878`.
+Expected output:
 
-O Review Bridge é uma fila local para agentes resolverem comentários. Não é
-colaboração LAN. Não rode em `0.0.0.0`, não faça port forwarding e não exponha a
-porta `9878` na rede.
+- `components/ui/Aw[Name].tsx`
+- showcase at `app/bombardier/styleguide/components/aw-[name]/page.tsx`
+- entry in `app/bombardier/styleguide/navigation.ts`
+- existing tokens only
+- shadcn primitive installed and wrapped when appropriate
 
-### Flow Suggestions
+### New Screen or Screen Redesign
 
-Sugestões de UX Flow usam a rota same-origin `/api/flow-suggestions`. O diretório
-`flow-bridge/data/` é apenas persistência local/legado; não há servidor Express do
-Flow Bridge para iniciar.
+Use `bombardier-new-page`.
 
-## Como Agentes Devem Usar Este Arquivo
+The agent should first compose the screen with existing `Aw*` components and
+feature modules. If the screen exposes a reusable pattern that the design system
+does not have, create that pattern with `bombardier-new-component`. If it is
+feature-specific, keep it local in `_components` or in the feature module.
 
-1. Leia `AGENTS.md` primeiro.
-2. Use este arquivo apenas para saber o que existe ou não existe no Bombardier atual.
-3. Ignore memórias ou docs antigos que mencionem LAN, `bridge/`, `bridge-edit/`,
-   Page Builder ou Playground/quarentena como caminhos ativos.
-4. Não leia diretórios ignorados como `.next/`, `.agents/`, `.claude/worktrees/`,
-   `node_modules/`, `review-bridge/data/` ou `flow-bridge/data/` para entender a
-   arquitetura.
+### New UX Flow
 
-## Higiene de Contexto
+Use `bombardier-create-ux-flow` or the `bombardier-pg-*` skills, depending on
+the flow source.
 
-Memória de agente é útil só quando curta, estável e subordinada ao repo. Decisões
-temporárias, status de sprint, planos de entrega, links de LAN e workarounds antigos
-devem ficar fora das regras canônicas. Quando uma memória externa divergir deste
-repo, atualize ou ignore a memória.
+The editable file lives at:
+
+```txt
+app/bombardier/styleguide/ux-flows/[slug]/page.tsx
+```
+
+### Review Comments
+
+`npm run dev` prepares and starts Review Bridge at `127.0.0.1:9878`. Review Mode
+comments enter that local queue. Agents should use `bombardier-review-bridge-solve`
+to move work to `in_review`; the user approves or rejects it afterward from the
+inbox.
+
+## Architecture Rules
+
+- `AGENTS.md` is the source of truth for agent rules.
+- `AWSALES_CONTEXT.md` is the product context, voice, and vocabulary source.
+- Do not create tokens outside the foundation skill.
+- Do not create official components without the `Aw` prefix.
+- Do not use `components/playground` as AI staging.
+- Do not expose Review Bridge on the LAN or bind it to `0.0.0.0`.
+- Do not use `.next/`, `.agents/`, `.claude/worktrees/`, `node_modules/`, or
+  runtime data as architecture sources.
+
+## Relationship to the Product
+
+Bombardier exists to accelerate AwSales/Aswork product building without breaking
+the design system. The expected loop is:
+
+1. build with real components;
+2. register reusable patterns in the styleguide;
+3. map relevant journeys as UX flows;
+4. review with visual comments;
+5. let agents apply scoped changes with enough context;
+6. have the user approve the final result.

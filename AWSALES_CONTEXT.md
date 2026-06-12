@@ -43,14 +43,15 @@ Inspirações citadas pelo Greg pra esse modelo:
 - **PG (Paulo Guilherme Graham)** — review (fluxo de Time, Memory Base, Agent Studio)
 - **José Junior (CPTO)** — site Framer, animações, ideação de produto
 
-### Bridges locais
+### Local bridges
 
-| Bridge | Porta | Script | O que faz |
+| Bridge | Port | Script | Role |
 |---|---|---|---|
-| `review-bridge/` | 9878 | `npm run dev` | Fila local dos comentários do Bombardier Review Mode para agentes resolverem (SSE + POST, lowdb, auth por token, loopback only) |
-| `flow-bridge/` | — | — | Legado do fluxo antigo; sugestões de UX Flow hoje passam pela API same-origin `/api/flow-suggestions`. |
+| `review-bridge/` | 9878 | `npm run dev` | Local Review Mode comment queue for agents (SSE + POST, lowdb, token auth, loopback only). |
+| `flow-bridge/` | — | — | Local data directory used by UX Flow suggestions; the app reads/writes suggestions through same-origin `/api/flow-suggestions`. |
 
-Cada designer usa **sua própria conta Claude** via `claude login` — zero chaves no servidor do produto.
+Each designer uses their own local agent/account setup; no product-server secret
+is required for these local builder workflows.
 
 ---
 
@@ -300,14 +301,15 @@ Rotas existentes em `app/` (confirmadas em maio/2026) — cada uma em estado pr�
 - **Agent Studio e Memory Base** — também detalhados completamente no Figma (Flow library AW). Toda iteração deve cruzar com o Figma desse fluxo.
 - **Outras telas** — Figma é direção; protótipo no browser é validação. Pode iterar direto no código.
 
-A rota `bombardier/*` é o toolkit:
-- **`/bombardier/styleguide`** — styleguide canônico (URL pública `/styleguide` redireciona pra cá). Fonte da verdade do DS.
-- **`/bombardier/styleguide/ux-flows`** — UX flows navegáveis dentro do styleguide.
-- **`/bombardier/styleguide/review`** — inbox dos comentários do Review Mode.
-- **`/bombardier/projects`** — workbench de projetos/telas importados e build requests.
+The `bombardier/*` routes are the builder toolkit:
+- **`/bombardier/styleguide`** — canonical styleguide (public `/styleguide` redirects here). Source of truth for the DS.
+- **`/bombardier/styleguide/ux-flows`** — editable UX flows inside the styleguide.
+- **`/bombardier/ux-flow`** — UX flow hub/viewer with links back to the styleguide source.
+- **`/bombardier/styleguide/review`** — Review Mode comment inbox.
+- **`/bombardier/projects`** — imported project/screen workbench and build requests.
 
-Rotas antigas de Page Builder (`/bombardier/page-builder`, `/bombardier/ux-flow`)
-e bridges antigos (`bridge/`, `bridge-edit/`) não são caminho operacional neste repo.
+Current page-building work happens through `bombardier-new-page`,
+`bombardier-new-component`, `/bombardier/projects`, and the styleguide surfaces.
 
 ### Topic ativo (12/05/2026): fluxo de handoff humano
 

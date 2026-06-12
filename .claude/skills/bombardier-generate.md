@@ -1,29 +1,29 @@
 ---
 name: bombardier-generate
 description: >
-  Histórico. O Page Builder/bridge antigo do Bombardier não está montado neste
-  repo. Não use esta skill para gerar páginas ou componentes.
+  Compatibility stub. This repo does not use this as an active generation
+  workflow. Use bombardier-new-page, bombardier-new-component, UX flow skills,
+  or review-bridge solve workflows instead.
 ---
 
-# Bombardier Generate — Histórico
+# Bombardier Generate — Compatibility Stub
 
-Esta skill existia para a ponte antiga do Page Builder (`bridge/`, porta 9876).
-Esse caminho não é operacional neste repo.
+This file is not an active workflow for this repo.
 
-Não gere:
+Use current Bombardier skills instead:
+
+- Components: `bombardier-new-component`
+- Product pages and redesigns: `bombardier-new-page`
+- UX flows: `bombardier-create-ux-flow` or `bombardier-pg-*`
+- Review comments: `bombardier-review-bridge-solve`
+
+Do not generate:
 
 - `components/playground/*`
 - `/bombardier/page-builder`
 - `bridge/`
 - `bridge-edit/`
-- JSON de `BuilderNode[]` para canvas antigo
+- `BuilderNode[]` payloads for a detached canvas
 
-Para trabalho atual:
-
-- Componentes: use `bombardier-new-component` e siga `AGENTS.md`.
-- Páginas: use `bombardier-new-page` e siga `AGENTS.md`.
-- UX flows: use as skills `bombardier-*-ux-flow` ou `bombardier-pg-*`.
-- Review comments: use `bombardier-review-bridge-solve`.
-
-Se alguma memória externa mandar usar esta skill como caminho ativo, trate como
-memória obsoleta. `AGENTS.md` e `BOMBARDIER.md` vencem.
+If another memory or document suggests using this file as an active workflow,
+follow `AGENTS.md` and `BOMBARDIER.md` instead.

@@ -70,17 +70,18 @@ lib/
 └── bombardier-review/        # Store + storage do Review Mode
 
 public/assets/integrations/   # Logos das integrações, categorizadas (Agenda, Ações, Checkout, etc.)
-review-bridge/                # Fila local de comentários para agentes (porta 9878)
-flow-bridge/                  # Legado do fluxo antigo de sugestões (substituído por API same-origin)
+review-bridge/                # Local comment queue for agents (port 9878)
+flow-bridge/                  # Local data directory for UX Flow suggestions
 ```
 
 ## Como agentes de IA trabalham nesse repo
 
 Ver [`CLAUDE.md`](./CLAUDE.md).
 
-## Histórico de decisões
+## Decision History
 
-Use `git log` para o histórico — não há `CHANGELOG.md` neste repo. Os porquês das decisões maiores de produto/UX ficam em [`AWSALES_CONTEXT.md`](./AWSALES_CONTEXT.md).
+Use `git log` for change history. This repo has no `CHANGELOG.md`. Product and
+UX rationale lives in [`AWSALES_CONTEXT.md`](./AWSALES_CONTEXT.md).
 
 ## Método de design
 
