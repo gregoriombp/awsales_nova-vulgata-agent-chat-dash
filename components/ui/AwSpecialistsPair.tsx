@@ -63,7 +63,10 @@ export function AwSpecialistsPair({
         </header>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {/* Fileira única: todos os especialistas lado a lado. O card sob o
+       * cursor (ou com foco interno) cresce e revela o CTA — os vizinhos
+       * cedem espaço suavemente. */}
+      <div className="flex items-stretch gap-3">
         {humanList.map((person) => (
           <SpecialistCard key={person.name} data={person} kind="human" />
         ))}
@@ -86,14 +89,19 @@ function SpecialistCard({
       className={cn(
         "aw-card",
         isAi && "aw-card--ai-cortex",
-        "rounded-full! px-4! py-3! flex items-center gap-4",
+        "group/spec min-w-0 basis-0 grow transition-[flex-grow] hover:grow-[1.9] focus-within:grow-[1.9]",
+        "rounded-full! px-3.5! py-2.5! flex items-center gap-3",
       )}
+      style={{
+        transitionDuration: "var(--dur-slow)",
+        transitionTimingFunction: "var(--ease-in-out)",
+      }}
     >
       {isAi ? (
         <div
           role="img"
           aria-label={data.name}
-          className="relative h-12 w-12 shrink-0 overflow-hidden"
+          className="relative h-11 w-11 shrink-0 overflow-hidden"
           style={{
             maskImage: CORTEX_HEX_MASK,
             WebkitMaskImage: CORTEX_HEX_MASK,
@@ -112,7 +120,7 @@ function SpecialistCard({
           src={data.avatarSrc}
           alt={data.name}
           initials={data.initials}
-          className="h-12! w-12! text-(length:--body-md-size)!"
+          className="h-11! w-11! shrink-0 text-(length:--body-md-size)!"
         />
       )}
 
@@ -125,15 +133,29 @@ function SpecialistCard({
         </span>
       </div>
 
-      <AwButton
-        size="md"
-        variant={isAi ? "primary" : "secondary"}
-        iconLeft={data.ctaIcon}
-        onClick={data.onCtaClick}
-        className="rounded-full! shrink-0"
+      {/* CTA recolhido por padrão; expande no hover/focus do card. O -ml-3
+       * cancela o gap do flex enquanto a coluna está colapsada, pra não
+       * sobrar respiro extra à direita do card em repouso. */}
+      <span
+        className="-ml-3 grid shrink-0 grid-cols-[0fr] opacity-0 transition-[grid-template-columns,opacity,margin-left] group-hover/spec:ml-0 group-hover/spec:grid-cols-[1fr] group-hover/spec:opacity-100 group-focus-within/spec:ml-0 group-focus-within/spec:grid-cols-[1fr] group-focus-within/spec:opacity-100"
+        style={{
+          transitionDuration: "var(--dur-slow)",
+          transitionTimingFunction: "var(--ease-in-out)",
+        }}
       >
-        {data.ctaLabel}
-      </AwButton>
+        <span className="flex min-w-0 justify-end overflow-hidden">
+          <AwButton
+            size="sm"
+            variant={isAi ? "primary" : "secondary"}
+            iconLeft={data.ctaIcon}
+            onClick={data.onCtaClick}
+            tabIndex={0}
+            className="rounded-full! shrink-0 whitespace-nowrap"
+          >
+            {data.ctaLabel}
+          </AwButton>
+        </span>
+      </span>
     </div>
   )
 }

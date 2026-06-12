@@ -30,12 +30,13 @@ export default function SpecialistsPairPage() {
   return (
     <>
       <PageHero title="Specialists pair">
-        Bloco usado nas configurações de equipe para apresentar os dois
-        especialistas que acompanham cada workspace: o Gerente de Contas humano
-        da Aswork e o Cortex, copilot de IA. Cards pill horizontais — humano
-        com gradient warm (peach) e Cortex com o novo gradient{" "}
-        <code className="mono">ai-cortex</code> (silver mesh inspirado no cubo
-        de mármore da marca).
+        Bloco usado nas configurações de equipe para apresentar os
+        especialistas que acompanham cada workspace: o time humano da Aswork e
+        o Cortex, copilot de IA. Cards pill numa fileira única — o CTA fica
+        recolhido e o card sob o cursor (ou com foco) se expande suavemente
+        pra revelá-lo. Humano com gradient warm (peach) e Cortex com o
+        gradient <code className="mono">ai-cortex</code> (silver mesh
+        inspirado no cubo de mármore da marca).
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
@@ -43,7 +44,7 @@ export default function SpecialistsPairPage() {
           <Section
             id="default"
             title="Uso default"
-            lead="Header opcional + dois cards. O lado esquerdo é o humano (gradient warm, CTA secondary) e o direito o Cortex (gradient AI, CTA variant=ai)."
+            lead="Header opcional + cards numa fileira única. Humanos à esquerda (gradient warm, CTA secondary) e o Cortex fechando a fileira (gradient AI, CTA primary). Passe o cursor sobre um card pra ver o CTA aparecer."
           >
             <Stage
               label="Equipe & permissões"
