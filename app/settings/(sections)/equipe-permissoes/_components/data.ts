@@ -488,6 +488,15 @@ export type Group = {
   backgroundImage: string;
 };
 
+/** Autor de uma função personalizada — mostrado na coluna "criada por". */
+export type RoleCreator = {
+  name: string;
+  initials: string;
+  /** Data de criação no formato curto dd/mm/aaaa. */
+  date: string;
+  avatar?: string;
+};
+
 export type RoleDefinition = {
   id: string;
   name: string;
@@ -499,9 +508,11 @@ export type RoleDefinition = {
   isSystem: boolean;
   color: RoleColorId;
   icon: string;
+  /** Preenchido apenas em funções personalizadas — quem criou e quando. */
+  createdBy?: RoleCreator;
 };
 
-export const DEFAULT_CUSTOM_ROLE_ICON = "badge";
+export const DEFAULT_CUSTOM_ROLE_ICON = "tune";
 
 export const ROLE_OPTIONS: Role[] = [
   "Administrador",
@@ -691,6 +702,54 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     isSystem: true,
     color: "pink",
     icon: "headset_mic",
+  },
+];
+
+/* -----------------------------------------------------------------
+ * Funções personalizadas — criadas pela própria operação. Ficam
+ * separadas das funções padrão (somente leitura) na listagem.
+ * ----------------------------------------------------------------- */
+
+export const CUSTOM_ROLE_DEFINITIONS: RoleDefinition[] = [
+  {
+    id: "r-custom-dashboard",
+    name: "Analista de Dashboard",
+    description:
+      "Acompanha métricas e relatórios. Não edita agentes, campanhas nem conversas.",
+    memberCount: 0,
+    capabilities: ["conversas.access"],
+    isSystem: false,
+    color: "red",
+    icon: "monitoring",
+    createdBy: {
+      name: "Ricardo Salles",
+      initials: "RS",
+      date: "16/03/2026",
+      avatar: "/assets/ui-faces/male-9.jpg",
+    },
+  },
+  {
+    id: "r-custom-revisor",
+    name: "Revisor de Disparos",
+    description:
+      "Aprova disparos e templates antes de irem ao ar. Não cria nem edita campanhas.",
+    memberCount: 0,
+    capabilities: [
+      "campanhas.access",
+      "campanhas.approve",
+      "campanhas.publish",
+      "campanhas.pause",
+      "conversas.access",
+    ],
+    isSystem: false,
+    color: "blue",
+    icon: "campaign",
+    createdBy: {
+      name: "Felipe Rocha",
+      initials: "FR",
+      date: "22/04/2026",
+      avatar: "/assets/ui-faces/male-10.jpg",
+    },
   },
 ];
 

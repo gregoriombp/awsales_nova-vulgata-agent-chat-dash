@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   ALL_PERMISSION_IDS,
+  CUSTOM_ROLE_DEFINITIONS,
   DEFAULT_CUSTOM_ROLE_ICON,
   MEMBERS,
   ROLE_COLORS,
@@ -36,7 +37,11 @@ import { TeamTabs } from "../_components/TeamTabs";
  * ----------------------------------------------------------------- */
 
 export default function RolesPage() {
-  const [roles, setRoles] = useState<RoleDefinition[]>(ROLE_DEFINITIONS);
+  const [roles, setRoles] = useState<RoleDefinition[]>([
+    ...ROLE_DEFINITIONS,
+    ...CUSTOM_ROLE_DEFINITIONS,
+  ]);
+  const [members, setMembers] = useState<Member[]>(MEMBERS);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [wizardOpen, setWizardOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -116,10 +121,14 @@ export default function RolesPage() {
 
   const membersByRole = useMemo(() => {
     const map = new Map<string, Member[]>();
-    for (const r of ROLE_DEFINITIONS) {
-      map.set(r.name, MEMBERS.filter((m) => m.role === r.name));
+    for (const r of [...ROLE_DEFINITIONS, ...CUSTOM_ROLE_DEFINITIONS]) {
+      map.set(r.name, members.filter((m) => m.role === r.name));
     }
     return map;
+  }, [members]);
+
+  const handleRemoveMember = useCallback((id: string) => {
+    setMembers((prev) => prev.filter((m) => m.id !== id));
   }, []);
 
   const memberModalRole = memberModalRoleId
@@ -144,7 +153,7 @@ export default function RolesPage() {
         <div className="flex w-full gap-4">
           <div
             className="min-w-0 shrink-0 transition-[width] duration-300 ease-out"
-            style={{ width: isExpanded ? "340px" : "100%" }}
+            style={{ width: isExpanded ? "300px" : "100%" }}
           >
             {!isExpanded ? (
               <RoleTable
@@ -163,6 +172,7 @@ export default function RolesPage() {
                 selectedId={selected!.id}
                 onSelect={setSelectedId}
                 onCreate={handleCreateRole}
+                membersByRole={membersByRole}
               />
             )}
           </div>
@@ -179,9 +189,11 @@ export default function RolesPage() {
               {selected && (
                 <RoleDetail
                   role={selected}
+                  members={membersByRole.get(selected.name) ?? []}
                   onBack={() => setSelectedId(null)}
                   onPatch={(patch) => handlePatchRole(selected.id, patch)}
                   onDelete={() => handleDeleteRole(selected.id)}
+                  onOpenMembers={() => setMemberModalRoleId(selected.id)}
                 />
               )}
             </div>
@@ -194,6 +206,7 @@ export default function RolesPage() {
         members={
           memberModalRole ? membersByRole.get(memberModalRole.name) ?? [] : []
         }
+        onRemoveMember={handleRemoveMember}
         onClose={() => setMemberModalRoleId(null)}
       />
 
@@ -210,50 +223,229 @@ export default function RolesPage() {
 function RoleMembersModal({
   role,
   members,
+  onRemoveMember,
   onClose,
 }: {
   role: RoleDefinition | null;
   members: Member[];
+  onRemoveMember: (id: string) => void;
   onClose: () => void;
 }) {
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [pendingRemove, setPendingRemove] = useState<Member | null>(null);
+
+  // Zera o estado interno toda vez que o modal fecha, pra não reabrir num
+  // detalhe ou numa confirmação de uma função anterior.
+  useEffect(() => {
+    if (!role) {
+      setDetailId(null);
+      setPendingRemove(null);
+    }
+  }, [role]);
+
+  const detailMember = detailId
+    ? members.find((m) => m.id === detailId) ?? null
+    : null;
+
+  const handleConfirmRemove = () => {
+    if (!pendingRemove) return;
+    onRemoveMember(pendingRemove.id);
+    if (detailId === pendingRemove.id) setDetailId(null);
+    setPendingRemove(null);
+  };
+
   return (
-    <AwModal
-      open={role !== null}
-      onClose={onClose}
-      title={role ? `Membros · ${role.name}` : "Membros"}
-    >
-      {role && (
-        <div className="flex flex-col gap-2">
-          {members.length === 0 ? (
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              Nenhum membro com essa função ainda.
-            </p>
-          ) : (
-            members.map((m) => (
-              <div
-                key={m.id}
-                className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
-              >
-                <AwAvatar
-                  size="sm"
-                  src={m.avatar}
-                  alt={m.name}
-                  initials={m.initials}
-                />
-                <div className="min-w-0 flex-1">
-                  <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
-                    {m.name}
-                  </p>
-                  <p className="m-0 truncate body-xs text-(--fg-secondary)">
-                    {m.email}
-                  </p>
+    <>
+      <AwModal
+        open={role !== null}
+        onClose={onClose}
+        title={
+          detailMember
+            ? detailMember.name
+            : role
+            ? `Membros · ${role.name}`
+            : "Membros"
+        }
+      >
+        {role && !detailMember && (
+          <div className="flex flex-col gap-2">
+            {members.length === 0 ? (
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                Nenhum membro com essa função ainda.
+              </p>
+            ) : (
+              members.map((m) => (
+                <div
+                  key={m.id}
+                  className="flex items-center gap-1 rounded-md border border-(--border-subtle) bg-(--bg-raised) pr-2"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setDetailId(m.id)}
+                    className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-3 py-2 text-left outline-hidden transition-colors hover:bg-(--bg-hover) focus-visible:bg-(--bg-hover)"
+                  >
+                    <AwAvatar
+                      size="sm"
+                      src={m.avatar}
+                      alt={m.name}
+                      initials={m.initials}
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
+                        {m.name}
+                      </p>
+                      <p className="m-0 truncate body-xs text-(--fg-secondary)">
+                        {m.email}
+                      </p>
+                    </div>
+                    <Icon
+                      name="chevron_right"
+                      size={16}
+                      className="shrink-0 text-(--fg-tertiary)"
+                    />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPendingRemove(m)}
+                    aria-label={`Remover ${m.name}`}
+                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-(--fg-tertiary) outline-hidden transition-colors hover:bg-(--bg-hover) hover:text-(--accent-danger) focus-visible:bg-(--bg-hover)"
+                  >
+                    <Icon name="person_remove" size={16} />
+                  </button>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            )}
+          </div>
+        )}
+
+        {role && detailMember && (
+          <MemberDetailPanel
+            member={detailMember}
+            onBack={() => setDetailId(null)}
+            onRemove={() => setPendingRemove(detailMember)}
+          />
+        )}
+      </AwModal>
+
+      <AwModal
+        open={pendingRemove !== null}
+        onClose={() => setPendingRemove(null)}
+        title="Remover membro"
+        zIndex={1010}
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setPendingRemove(null)}
+            >
+              Não
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="danger"
+              iconLeft="person_remove"
+              onClick={handleConfirmRemove}
+            >
+              Sim, remover
+            </AwButton>
+          </>
+        }
+      >
+        {pendingRemove && (
+          <p className="m-0 body-xs text-(--fg-primary)">
+            Remover{" "}
+            <strong className="font-semibold">{pendingRemove.name}</strong> do
+            workspace? A pessoa perde o acesso imediatamente e pode ser
+            convidada novamente depois.
+          </p>
+        )}
+      </AwModal>
+    </>
+  );
+}
+
+function MemberDetailPanel({
+  member,
+  onBack,
+  onRemove,
+}: {
+  member: Member;
+  onBack: () => void;
+  onRemove: () => void;
+}) {
+  const rows: { label: string; value: string }[] = [
+    { label: "Cargo", value: member.cargo },
+    { label: "E-mail", value: member.email },
+    { label: "Telefone", value: member.phone },
+    { label: "Função", value: member.role },
+    { label: "Último acesso", value: member.lastActive },
+    { label: "Entrou em", value: member.joinedAt },
+    { label: "2FA", value: member.mfaEnabled ? "Ativa" : "Não configurada" },
+  ];
+  const statusLabel =
+    member.status === "active"
+      ? "Ativo"
+      : member.status === "invited"
+      ? "Convidado"
+      : "Inativo";
+
+  return (
+    <div className="flex flex-col gap-4">
+      <button
+        type="button"
+        onClick={onBack}
+        className="inline-flex items-center gap-1.5 self-start rounded-sm px-2 py-1 body-xs font-medium text-(--fg-secondary) outline-hidden transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary) focus-visible:bg-(--bg-hover)"
+      >
+        <Icon name="arrow_back" size={14} />
+        Membros
+      </button>
+
+      <div className="flex items-center gap-3">
+        <AwAvatar
+          size="md"
+          src={member.avatar}
+          alt={member.name}
+          initials={member.initials}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
+            {member.name}
+          </p>
+          <p className="m-0 truncate body-xs text-(--fg-secondary)">
+            {member.email}
+          </p>
         </div>
-      )}
-    </AwModal>
+        <AwPill
+          variant={member.status === "active" ? "live" : "neutral"}
+          dot={false}
+        >
+          {statusLabel}
+        </AwPill>
+      </div>
+
+      <dl className="m-0 grid grid-cols-[110px_1fr] gap-x-4 gap-y-2.5 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+        {rows.map((r) => (
+          <Fragment key={r.label}>
+            <dt className="m-0 body-xs text-(--fg-tertiary)">{r.label}</dt>
+            <dd className="m-0 truncate body-xs text-(--fg-primary)">
+              {r.value}
+            </dd>
+          </Fragment>
+        ))}
+      </dl>
+
+      <div className="flex justify-end">
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="person_remove"
+          onClick={onRemove}
+        >
+          Remover do workspace
+        </AwButton>
+      </div>
+    </div>
   );
 }
 
@@ -267,17 +459,6 @@ const WIZARD_STEPS = [
   { id: "permissions", label: "Permissões" },
   { id: "review", label: "Revisão" },
 ] as const;
-
-const ROLE_ICON_OPTIONS = [
-  "badge",
-  "support_agent",
-  "smart_toy",
-  "campaign",
-  "forum",
-  "verified",
-  "person",
-  "lock",
-];
 
 function CreateRoleWizard({
   open,
@@ -300,7 +481,7 @@ function CreateRoleWizard({
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [color, setColor] = useState<RoleColorId>(suggestedColor);
-  const [icon, setIcon] = useState(DEFAULT_CUSTOM_ROLE_ICON);
+  const icon = DEFAULT_CUSTOM_ROLE_ICON;
   const [granted, setGranted] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -309,7 +490,6 @@ function CreateRoleWizard({
       setName("");
       setDescription("");
       setColor(suggestedColor);
-      setIcon(DEFAULT_CUSTOM_ROLE_ICON);
       setGranted(new Set());
     }
   }, [open, suggestedColor]);
@@ -392,29 +572,30 @@ function CreateRoleWizard({
         <WizardStepIndicator current={step} />
 
         {step === 0 && (
-          <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+          <div className="flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-2.5 pt-1 text-center">
               <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md"
+                className="flex h-16 w-16 items-center justify-center rounded-2xl"
                 style={{
-                  background: `color-mix(in srgb, ${getRoleColor(color).token} 18%, transparent)`,
+                  background: `color-mix(in srgb, ${getRoleColor(color).token} 16%, transparent)`,
                   color: getRoleColor(color).token,
                 }}
                 aria-hidden="true"
               >
-                <Icon name={icon} size={20} />
+                <AnimatedCustomizeIcon size={30} />
               </span>
-              <div className="min-w-0 flex-1">
-                <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
-                  {name.trim() || "Nova função"}
+              <div>
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  {name.trim() || "Função personalizada"}
                 </p>
-                <p className="m-0 truncate body-xs text-(--fg-secondary)">
-                  {description.trim() || "A descrição aparece aqui."}
+                <p className="m-0 mt-0.5 max-w-[360px] body-xs text-(--fg-secondary)">
+                  Comece pelo nome e uma descrição curta. As permissões vêm na
+                  próxima etapa.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mx-auto flex w-full max-w-[460px] flex-col gap-4">
               <AwField label="Nome da função" htmlFor="wizard-role-name">
                 <AwInput
                   id="wizard-role-name"
@@ -432,70 +613,6 @@ function CreateRoleWizard({
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </AwField>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div>
-                <p className="m-0 mb-2 body-xs font-medium text-(--fg-primary)">
-                  Cor
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {ROLE_COLORS.map((c) => {
-                    const active = c.id === color;
-                    return (
-                      <button
-                        key={c.id}
-                        type="button"
-                        aria-label={`Cor ${c.label}`}
-                        aria-pressed={active}
-                        onClick={() => setColor(c.id)}
-                        className={
-                          "flex h-7 w-7 items-center justify-center rounded-full transition-shadow duration-aw-fast " +
-                          (active
-                            ? "ring-2 ring-(--fg-primary) ring-offset-2 ring-offset-(--bg-raised)"
-                            : "hover:ring-2 hover:ring-(--border-default) hover:ring-offset-2 hover:ring-offset-(--bg-raised)")
-                        }
-                        style={{ background: c.token }}
-                      >
-                        {active && (
-                          <Icon
-                            name="check"
-                            size={14}
-                            className="text-(--aw-white)"
-                          />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <div>
-                <p className="m-0 mb-2 body-xs font-medium text-(--fg-primary)">
-                  Ícone
-                </p>
-                <div className="flex flex-wrap items-center gap-2">
-                  {ROLE_ICON_OPTIONS.map((opt) => {
-                    const active = opt === icon;
-                    return (
-                      <button
-                        key={opt}
-                        type="button"
-                        aria-label={`Ícone ${opt}`}
-                        aria-pressed={active}
-                        onClick={() => setIcon(opt)}
-                        className={
-                          "flex h-8 w-8 items-center justify-center rounded-md border transition-colors duration-aw-fast " +
-                          (active
-                            ? "border-(--fg-primary) bg-(--bg-selected) text-(--fg-primary)"
-                            : "border-(--border-subtle) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
-                        }
-                      >
-                        <Icon name={opt} size={16} />
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
           </div>
         )}
@@ -545,16 +662,12 @@ function CreateRoleWizard({
 
         {step === 2 && (
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+            <div className="flex items-center gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
               <span
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md"
-                style={{
-                  background: `color-mix(in srgb, ${getRoleColor(color).token} 18%, transparent)`,
-                  color: getRoleColor(color).token,
-                }}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)"
                 aria-hidden="true"
               >
-                <Icon name={icon} size={20} />
+                <Icon name={icon} size={24} fill={1} />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
@@ -570,7 +683,7 @@ function CreateRoleWizard({
               </AwPill>
             </div>
 
-            <ul className="m-0 flex list-none flex-col divide-y divide-(--border-subtle) rounded-md border border-(--border-subtle) p-0">
+            <ul className="m-0 flex list-none flex-col divide-y divide-(--border-subtle) rounded-lg border border-(--border-subtle) p-0">
               {SCOPES.map((scope) => {
                 const ids = scope.groups.flatMap((g) =>
                   g.permissions.map((p) => p.id)
@@ -603,8 +716,8 @@ function CreateRoleWizard({
             </ul>
 
             <p className="m-0 body-xs text-(--fg-tertiary)">
-              Dá pra ajustar nome, cor e permissões depois, abrindo a função na
-              listagem.
+              Você pode ajustar nome, descrição e permissões depois, abrindo a
+              função na listagem.
             </p>
           </div>
         )}
@@ -615,26 +728,75 @@ function CreateRoleWizard({
 
 function WizardStepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between gap-3">
-        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
-          Etapa {current + 1} de {WIZARD_STEPS.length} ·{" "}
-          {WIZARD_STEPS[current].label}
-        </p>
-      </div>
-      <div className="flex items-center gap-1.5">
-        {WIZARD_STEPS.map((s, i) => (
-          <span
-            key={s.id}
-            aria-hidden="true"
-            className={
-              "h-1 flex-1 rounded-full transition-colors duration-aw-fast " +
-              (i <= current ? "bg-(--fg-primary)" : "bg-(--bg-muted)")
-            }
-          />
-        ))}
-      </div>
+    <div className="flex items-center gap-1.5">
+      <span className="sr-only" aria-live="polite">
+        Etapa {current + 1} de {WIZARD_STEPS.length} ·{" "}
+        {WIZARD_STEPS[current].label}
+      </span>
+      {WIZARD_STEPS.map((s, i) => (
+        <span
+          key={s.id}
+          aria-hidden="true"
+          className={
+            "h-1 flex-1 rounded-full transition-colors duration-aw-fast " +
+            (i <= current ? "bg-(--fg-primary)" : "bg-(--bg-muted)")
+          }
+        />
+      ))}
     </div>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Ícone de customização animado — sliders estilo "tune" com knobs
+ * que deslizam em loop lento. Herda a cor via currentColor; a
+ * animação é desligada quando o usuário prefere movimento reduzido.
+ * ----------------------------------------------------------------- */
+
+function AnimatedCustomizeIcon({ size = 30 }: { size?: number }) {
+  return (
+    <span
+      className="aw-tune-anim inline-flex"
+      style={{ width: size, height: size }}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 24 24" width={size} height={size} fill="none">
+        <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
+        <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
+        <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
+        <circle className="aw-tune-knob aw-tune-knob--a" cx="8" cy="7" r="2.4" fill="currentColor" />
+        <circle className="aw-tune-knob aw-tune-knob--b" cx="15" cy="12" r="2.4" fill="currentColor" />
+        <circle className="aw-tune-knob aw-tune-knob--c" cx="10" cy="17" r="2.4" fill="currentColor" />
+      </svg>
+      <style>{`
+        .aw-tune-anim .aw-tune-knob {
+          animation-duration: 4.8s;
+          animation-timing-function: var(--ease-in-out, ease-in-out);
+          animation-iteration-count: infinite;
+        }
+        .aw-tune-anim .aw-tune-knob--a { animation-name: aw-tune-slide-a; }
+        .aw-tune-anim .aw-tune-knob--b { animation-name: aw-tune-slide-b; animation-delay: 0.2s; }
+        .aw-tune-anim .aw-tune-knob--c { animation-name: aw-tune-slide-c; animation-delay: 0.4s; }
+        @keyframes aw-tune-slide-a {
+          0%, 14% { transform: translateX(0); }
+          38%, 60% { transform: translateX(8px); }
+          84%, 100% { transform: translateX(0); }
+        }
+        @keyframes aw-tune-slide-b {
+          0%, 18% { transform: translateX(0); }
+          42%, 64% { transform: translateX(-7px); }
+          88%, 100% { transform: translateX(0); }
+        }
+        @keyframes aw-tune-slide-c {
+          0%, 10% { transform: translateX(0); }
+          34%, 56% { transform: translateX(6px); }
+          80%, 100% { transform: translateX(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .aw-tune-anim .aw-tune-knob { animation: none; }
+        }
+      `}</style>
+    </span>
   );
 }
 
@@ -662,6 +824,20 @@ function RoleTable({
   onOpenMembers: (id: string) => void;
 }) {
   const total = ALL_PERMISSION_IDS.length;
+  const systemRoles = roles.filter((r) => r.isSystem);
+  const customRoles = roles.filter((r) => !r.isSystem);
+
+  const renderRow = (r: RoleDefinition) => (
+    <RoleTableRow
+      key={r.id}
+      role={r}
+      total={total}
+      active={selectedId === r.id}
+      onSelect={() => onSelect(r.id)}
+      members={membersByRole.get(r.name) ?? []}
+      onOpenMembers={() => onOpenMembers(r.id)}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -707,24 +883,52 @@ function RoleTable({
               </td>
             </tr>
           ) : (
-            roles.map((r) => {
-              const members = membersByRole.get(r.name) ?? [];
-              return (
-                <RoleTableRow
-                  key={r.id}
-                  role={r}
-                  total={total}
-                  active={selectedId === r.id}
-                  onSelect={() => onSelect(r.id)}
-                  members={members}
-                  onOpenMembers={() => onOpenMembers(r.id)}
-                />
-              );
-            })
+            <>
+              {systemRoles.length > 0 && (
+                <RoleGroupRow label="Funções padrão" />
+              )}
+              {systemRoles.map(renderRow)}
+              {customRoles.length > 0 && (
+                <RoleGroupRow label="Funções personalizadas" spaced />
+              )}
+              {customRoles.map(renderRow)}
+            </>
           )}
         </tbody>
       </AwTable>
+
+      <p className="m-0 px-5 body-xs text-(--fg-tertiary)">
+        Funções padrão não podem ser editadas. Crie quantas funções
+        personalizadas a operação precisar.
+      </p>
     </div>
+  );
+}
+
+function RoleGroupRow({
+  label,
+  spaced,
+}: {
+  label: string;
+  /** Respiro extra acima — usado quando o grupo vem depois de outro. */
+  spaced?: boolean;
+}) {
+  return (
+    <tr aria-hidden="true">
+      <td colSpan={5} style={{ padding: 0 }}>
+        <div
+          className={
+            "flex items-center gap-3 px-5 pb-2 " +
+            (spaced ? "pt-6" : "pt-4")
+          }
+        >
+          <span className="shrink-0 body-xs font-medium text-(--fg-secondary)">
+            {label}
+          </span>
+          <span className="h-px min-w-0 flex-1 bg-(--border-subtle)" />
+        </div>
+      </td>
+    </tr>
   );
 }
 
@@ -754,9 +958,23 @@ function RoleTableRow({
           <div className="flex items-center gap-3">
             <RoleIconTile role={role} size="sm" />
             <div className="min-w-0">
-              <span className="body-xs font-medium text-(--fg-primary)">
+              <span className="block truncate body-xs font-medium text-(--fg-primary)">
                 {role.name}
               </span>
+              {role.createdBy && (
+                <span className="mt-1 flex items-center gap-1.5">
+                  <AwAvatar
+                    size="sm"
+                    src={role.createdBy.avatar}
+                    initials={role.createdBy.initials}
+                    alt={role.createdBy.name}
+                    className="h-[18px]! w-[18px]! text-[10px]!"
+                  />
+                  <span className="truncate body-xs text-(--fg-tertiary)">
+                    {role.createdBy.name.split(" ")[0]} · {role.createdBy.date}
+                  </span>
+                </span>
+              )}
             </div>
           </div>
         </td>
@@ -768,7 +986,7 @@ function RoleTableRow({
         <td onClick={(e) => e.stopPropagation()}>
           <RoleMemberStack
             members={members}
-            memberCount={role.memberCount}
+            memberCount={members.length}
             onOpenAll={onOpenMembers}
           />
         </td>
@@ -864,57 +1082,73 @@ function CompactRoleList({
   selectedId,
   onSelect,
   onCreate,
+  membersByRole,
 }: {
   roles: RoleDefinition[];
   selectedId: string;
   onSelect: (id: string) => void;
   onCreate: () => void;
+  membersByRole: Map<string, Member[]>;
 }) {
   return (
     <aside className="flex flex-col self-start divide-y divide-(--border-subtle) overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
-      <div className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-2.5">
         <p className="m-0 text-[13px] font-semibold tracking-tight text-(--fg-primary)">
           Funções · {roles.length}
         </p>
-        <button
-          type="button"
-          onClick={onCreate}
-          aria-label="Criar função"
-          className="inline-flex h-7 w-7 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-        >
-          <Icon name="add" size={16} />
-        </button>
+        <AwButton size="sm" variant="primary" iconLeft="add" onClick={onCreate}>
+          Criar nova função
+        </AwButton>
       </div>
-      <ul className="flex flex-col">
-        {roles.map((r) => {
-          const active = selectedId === r.id;
-          return (
-            <li key={r.id}>
-              <button
-                type="button"
-                onClick={() => onSelect(r.id)}
-                aria-pressed={active}
-                className={
-                  "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-hidden focus-visible:bg-(--bg-hover) " +
-                  (active
-                    ? "bg-(--bg-selected)"
-                    : "hover:bg-(--bg-hover)")
-                }
-              >
-                <RoleIconTile role={r} size="sm" />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate body-xs font-medium text-(--fg-primary)">
-                    {r.name}
+      <TooltipProvider delayDuration={120}>
+        <ul className="flex flex-col">
+          {roles.map((r) => {
+            const active = selectedId === r.id;
+            const memberCount = (membersByRole.get(r.name) ?? []).length;
+            return (
+              <li key={r.id}>
+                <button
+                  type="button"
+                  onClick={() => onSelect(r.id)}
+                  aria-pressed={active}
+                  className={
+                    "flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors duration-aw-fast outline-hidden focus-visible:bg-(--bg-hover) " +
+                    (active
+                      ? "bg-(--bg-selected)"
+                      : "hover:bg-(--bg-hover)")
+                  }
+                >
+                  <RoleIconTile role={r} size="sm" />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-1.5">
+                      <span className="truncate body-xs font-medium text-(--fg-primary)">
+                        {r.name}
+                      </span>
+                      {!r.isSystem && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="inline-flex shrink-0 text-(--fg-tertiary)">
+                              <Icon name="info" size={14} />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <span className="body-xs">
+                              Função personalizada
+                            </span>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </span>
+                    <span className="block truncate body-xs text-(--fg-secondary)">
+                      {memberCount} membro{memberCount === 1 ? "" : "s"}
+                    </span>
                   </span>
-                  <span className="block truncate body-xs text-(--fg-secondary)">
-                    {r.memberCount} membro{r.memberCount === 1 ? "" : "s"}
-                  </span>
-                </span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </TooltipProvider>
     </aside>
   );
 }
@@ -925,14 +1159,18 @@ function CompactRoleList({
 
 function RoleDetail({
   role,
+  members,
   onBack,
   onPatch,
   onDelete,
+  onOpenMembers,
 }: {
   role: RoleDefinition;
+  members: Member[];
   onBack: () => void;
   onPatch: (patch: Partial<RoleDefinition>) => void;
   onDelete: () => void;
+  onOpenMembers: () => void;
 }) {
   const editable = !role.isSystem;
   const granted = useMemo(() => new Set(role.capabilities), [role.capabilities]);
@@ -959,22 +1197,15 @@ function RoleDetail({
 
   return (
     <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={onBack}
-        aria-label="Fechar"
-        className="inline-flex items-center gap-1.5 self-end rounded-sm px-2 py-1 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast outline-hidden hover:bg-(--bg-hover) hover:text-(--fg-primary) focus-visible:bg-(--bg-hover)"
-      >
-        Fechar
-        <Icon name="close" size={14} />
-      </button>
-
       <section className="flex w-full flex-col overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
         <RoleHeader
           role={role}
+          members={members}
           editable={editable}
           onPatch={onPatch}
           onDelete={onDelete}
+          onOpenMembers={onOpenMembers}
+          onClose={onBack}
         />
 
         <div className="flex items-center justify-between border-b border-(--border-subtle) px-6 py-3">
@@ -1042,15 +1273,24 @@ function RoleDetail({
 
 function RoleHeader({
   role,
+  members,
   editable,
   onPatch,
   onDelete,
+  onOpenMembers,
+  onClose,
 }: {
   role: RoleDefinition;
+  members: Member[];
   editable: boolean;
   onPatch: (patch: Partial<RoleDefinition>) => void;
   onDelete: () => void;
+  onOpenMembers: () => void;
+  onClose: () => void;
 }) {
+  const memberCount = members.length;
+  const facepile = members.slice(0, 4);
+  const facepileOverflow = Math.max(memberCount - facepile.length, 0);
   return (
     <header className="flex flex-col gap-3 border-b border-(--border-subtle) p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -1068,9 +1308,38 @@ function RoleHeader({
               <h6 className="m-0 text-(--fg-primary)">{role.name}</h6>
             )}
             <div className="mt-1 flex flex-wrap items-center gap-2 body-xs text-(--fg-secondary)">
-              <span>
-                {role.memberCount} membro{role.memberCount === 1 ? "" : "s"}
-              </span>
+              <button
+                type="button"
+                onClick={onOpenMembers}
+                disabled={memberCount === 0}
+                className="group/members flex items-center gap-1.5 rounded-sm outline-hidden transition-colors hover:text-(--fg-primary) focus-visible:text-(--fg-primary) disabled:cursor-default disabled:text-(--fg-tertiary)"
+              >
+                {facepile.length > 0 && (
+                  <span className="flex items-center" aria-hidden="true">
+                    {facepile.map((m, i) => (
+                      <AwAvatar
+                        key={m.id}
+                        size="sm"
+                        src={m.avatar}
+                        initials={m.initials}
+                        alt=""
+                        className={
+                          "h-[20px]! w-[20px]! text-[9px]! ring-2 ring-(--bg-raised)" +
+                          (i > 0 ? " -ml-1.5" : "")
+                        }
+                      />
+                    ))}
+                    {facepileOverflow > 0 && (
+                      <span className="aw-avatar aw-avatar--sm -ml-1.5 h-[20px]! w-[20px]! bg-(--bg-muted)! text-[9px]! text-(--fg-secondary)! ring-2 ring-(--bg-raised)">
+                        +{facepileOverflow}
+                      </span>
+                    )}
+                  </span>
+                )}
+                <span className="underline decoration-dotted underline-offset-2 group-hover/members:no-underline group-disabled/members:no-underline">
+                  {memberCount} membro{memberCount === 1 ? "" : "s"}
+                </span>
+              </button>
               <span aria-hidden="true">·</span>
               <span>
                 {role.capabilities.length} permiss
@@ -1081,8 +1350,8 @@ function RoleHeader({
           </div>
         </div>
 
-        {editable && (
-          <div className="flex shrink-0 items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1">
+          {editable && (
             <AwButton
               size="sm"
               variant="ghost"
@@ -1091,8 +1360,15 @@ function RoleHeader({
             >
               Excluir
             </AwButton>
-          </div>
-        )}
+          )}
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconOnly="close"
+            aria-label="Fechar painel da função"
+            onClick={onClose}
+          />
+        </div>
       </div>
 
       {editable ? (
@@ -1124,20 +1400,20 @@ function RoleIconTile({
   size: "sm" | "md" | "lg";
 }) {
   const color = getRoleColor(role.color).token;
-  const dim = size === "sm" ? 28 : size === "md" ? 36 : 44;
-  const icon = size === "sm" ? 14 : size === "md" ? 18 : 22;
+  const dim = size === "sm" ? 36 : size === "md" ? 40 : 48;
+  const icon = size === "sm" ? 22 : size === "md" ? 24 : 28;
   return (
     <span
       className="flex shrink-0 items-center justify-center rounded-md"
       style={{
         width: dim,
         height: dim,
-        background: `color-mix(in srgb, ${color} 18%, transparent)`,
+        background: `color-mix(in srgb, ${color} 24%, transparent)`,
         color,
       }}
       aria-hidden="true"
     >
-      <Icon name={role.icon} size={icon} />
+      <Icon name={role.icon} size={icon} fill={1} />
     </span>
   );
 }
