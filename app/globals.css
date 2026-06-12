@@ -4369,7 +4369,7 @@
 .aw-modal--cockpit .aw-modal__foot {
   padding: 14px 20px;
   border-top: 1px solid var(--border-subtle);
-  background: var(--bg-surface);
+  background: var(--bg-raised);
 }
 
 /* ============================================================
