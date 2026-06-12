@@ -9,7 +9,11 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import {
+  AwDropdownMenu,
+  type AwDropdownItem,
+} from "@/components/ui/AwDropdownMenu";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import {
   AwMembersTable,
@@ -21,22 +25,55 @@ import { InviteModal } from "../../_components/InviteModal";
 import { TeamTabs } from "../../_components/TeamTabs";
 
 type ActivityKind = "join" | "leave" | "role" | "permission" | "cover" | "rename";
+
+/** Pessoa envolvida no evento — quando presente, o timeline mostra a foto
+ *  real em vez do ícone genérico do tipo. */
+type ActivityActor = {
+  name: string;
+  avatar?: string;
+  initials: string;
+};
+
 type ActivityEvent = {
   id: string;
   when: string;
   text: string;
   kind: ActivityKind;
+  /** Distância em dias de hoje — alimenta o agrupamento e o filtro de período. */
+  daysAgo: number;
+  actor?: ActivityActor;
 };
 
 const ACTIVITY_EVENTS: ActivityEvent[] = [
-  { id: "a1", when: "hoje, 09:14", text: "Mariana entrou na equipe", kind: "join" },
-  { id: "a2", when: "ontem, 17:02", text: "Função \"Editor\" herdada por novos membros", kind: "role" },
-  { id: "a3", when: "ontem, 11:48", text: "Permissão \"Acessar relatórios\" liberada para o grupo", kind: "permission" },
-  { id: "a4", when: "2 dias atrás", text: "Capa da equipe atualizada", kind: "cover" },
-  { id: "a5", when: "3 dias atrás", text: "Tiago Alves removido da equipe", kind: "leave" },
-  { id: "a6", when: "5 dias atrás", text: "Equipe renomeada de \"Atendimento Geral\" para \"Atendimento\"", kind: "rename" },
-  { id: "a7", when: "1 semana atrás", text: "Função \"Gerente de Operações\" adicionada ao grupo", kind: "role" },
-  { id: "a8", when: "2 semanas atrás", text: "Carlos Lima entrou na equipe", kind: "join" },
+  {
+    id: "a1",
+    when: "hoje, 09:14",
+    text: "Mariana Castro entrou na equipe",
+    kind: "join",
+    daysAgo: 0,
+    actor: { name: "Mariana Castro", avatar: "/assets/ui-faces/female-10.jpg", initials: "MC" },
+  },
+  { id: "a2", when: "ontem, 17:02", text: "Função \"Editor\" herdada por novos membros", kind: "role", daysAgo: 1 },
+  { id: "a3", when: "ontem, 11:48", text: "Permissão \"Acessar relatórios\" liberada para o grupo", kind: "permission", daysAgo: 1 },
+  { id: "a4", when: "terça, 14:31", text: "Capa da equipe atualizada", kind: "cover", daysAgo: 2 },
+  {
+    id: "a5",
+    when: "segunda, 10:05",
+    text: "Tiago Alves removido da equipe",
+    kind: "leave",
+    daysAgo: 3,
+    actor: { name: "Tiago Alves", avatar: "/assets/ui-faces/male-11.jpg", initials: "TA" },
+  },
+  { id: "a6", when: "7 de jun., 16:20", text: "Equipe renomeada de \"Atendimento Geral\" para \"Atendimento\"", kind: "rename", daysAgo: 5 },
+  { id: "a7", when: "5 de jun., 09:48", text: "Função \"Gerente de Operações\" adicionada ao grupo", kind: "role", daysAgo: 7 },
+  {
+    id: "a8",
+    when: "29 de mai., 14:12",
+    text: "Carlos Lima entrou na equipe",
+    kind: "join",
+    daysAgo: 14,
+    actor: { name: "Carlos Lima", avatar: "/assets/ui-faces/male-3.jpg", initials: "CL" },
+  },
 ];
 
 function activityIcon(kind: ActivityKind): string {
@@ -48,6 +85,56 @@ function activityIcon(kind: ActivityKind): string {
     case "cover": return "image";
     case "rename": return "edit";
   }
+}
+
+/* Agrupamento por data + filtros da linha do tempo completa — mesmo
+ * padrão do histórico de faturas (seções por período + menus suspensos). */
+
+type ActivityCategory = "membros" | "funcoes" | "permissoes" | "personalizacao";
+
+const CATEGORY_OF: Record<ActivityKind, ActivityCategory> = {
+  join: "membros",
+  leave: "membros",
+  role: "funcoes",
+  permission: "permissoes",
+  cover: "personalizacao",
+  rename: "personalizacao",
+};
+
+const CATEGORY_OPTIONS: { id: ActivityCategory; label: string }[] = [
+  { id: "membros", label: "Membros" },
+  { id: "funcoes", label: "Funções" },
+  { id: "permissoes", label: "Permissões" },
+  { id: "personalizacao", label: "Personalização" },
+];
+
+const ALL_CATEGORIES: ActivityCategory[] = CATEGORY_OPTIONS.map((c) => c.id);
+
+const PERIOD_OPTIONS = [
+  { id: "all", label: "Todo o período", maxDays: Infinity },
+  { id: "today", label: "Hoje", maxDays: 0 },
+  { id: "7d", label: "Últimos 7 dias", maxDays: 7 },
+  { id: "30d", label: "Últimos 30 dias", maxDays: 30 },
+] as const;
+
+type PeriodId = (typeof PERIOD_OPTIONS)[number]["id"];
+
+type DayBucket = { id: string; label: string; events: ActivityEvent[] };
+
+function groupByDay(events: ActivityEvent[]): DayBucket[] {
+  const defs: { id: string; label: string; match: (d: number) => boolean }[] = [
+    { id: "today", label: "Hoje", match: (d) => d === 0 },
+    { id: "yesterday", label: "Ontem", match: (d) => d === 1 },
+    { id: "week", label: "Esta semana", match: (d) => d >= 2 && d <= 6 },
+    { id: "earlier", label: "Anteriores", match: (d) => d >= 7 },
+  ];
+  return defs
+    .map((def) => ({
+      id: def.id,
+      label: def.label,
+      events: events.filter((e) => def.match(e.daysAgo)),
+    }))
+    .filter((bucket) => bucket.events.length > 0);
 }
 
 export default function GroupDetailPage() {
@@ -511,12 +598,22 @@ function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
       />
       {events.map((event) => (
         <li key={event.id} className="m-0 flex items-start gap-4">
-          <span
-            aria-hidden="true"
-            className="relative z-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)"
-          >
-            <Icon name={activityIcon(event.kind)} size={16} />
-          </span>
+          {event.actor ? (
+            <AwAvatar
+              size="sm"
+              src={event.actor.avatar}
+              initials={event.actor.initials}
+              alt={event.actor.name}
+              className="relative z-1 h-8! w-8! shrink-0 ring-2 ring-(--bg-canvas)"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="relative z-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)"
+            >
+              <Icon name={activityIcon(event.kind)} size={16} />
+            </span>
+          )}
           <span className="min-w-0 flex-1 pt-0.5">
             <span className="block body-sm text-(--fg-primary)">
               {event.text}
@@ -538,6 +635,27 @@ function ActivityFullView({
   events: ActivityEvent[];
   onBack: () => void;
 }) {
+  const [query, setQuery] = useState("");
+  const [categories, setCategories] = useState<ActivityCategory[]>(ALL_CATEGORIES);
+  const [period, setPeriod] = useState<PeriodId>("all");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const maxDays =
+      PERIOD_OPTIONS.find((p) => p.id === period)?.maxDays ?? Infinity;
+    return events.filter((e) => {
+      if (!categories.includes(CATEGORY_OF[e.kind])) return false;
+      if (e.daysAgo > maxDays) return false;
+      if (!q) return true;
+      return (
+        e.text.toLowerCase().includes(q) ||
+        (e.actor?.name.toLowerCase().includes(q) ?? false)
+      );
+    });
+  }, [events, query, categories, period]);
+
+  const buckets = useMemo(() => groupByDay(filtered), [filtered]);
+
   return (
     <section className="flex flex-col gap-4">
       <button
@@ -559,10 +677,127 @@ function ActivityFullView({
         </p>
       </header>
 
-      <AwCard className="rounded-xl!">
-        <ActivityTimeline events={events} />
-      </AwCard>
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-[240px] flex-1">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar por pessoa ou evento…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <ActivityCategoryFilter selected={categories} onChange={setCategories} />
+        <ActivityPeriodFilter value={period} onChange={setPeriod} />
+      </div>
+
+      {buckets.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-(--border-subtle) px-6 py-12 text-center">
+          <Icon name="search_off" size={24} className="text-(--fg-tertiary)" />
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            Nenhum evento corresponde aos filtros
+          </p>
+          <p className="m-0 body-xs text-(--fg-secondary)">
+            Tente outro termo ou amplie o período.
+          </p>
+        </div>
+      ) : (
+        <div className="mt-2 flex flex-col gap-8">
+          {buckets.map((bucket) => (
+            <section key={bucket.id}>
+              <header className="mb-4 flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-2">
+                <h6 className="m-0 text-(--fg-primary)">{bucket.label}</h6>
+                <span className="body-xs text-(--fg-tertiary)">
+                  {bucket.events.length} evento
+                  {bucket.events.length === 1 ? "" : "s"}
+                </span>
+              </header>
+              <ActivityTimeline events={bucket.events} />
+            </section>
+          ))}
+        </div>
+      )}
     </section>
+  );
+}
+
+function ActivityCategoryFilter({
+  selected,
+  onChange,
+}: {
+  selected: ActivityCategory[];
+  onChange: (v: ActivityCategory[]) => void;
+}) {
+  const toggle = (c: ActivityCategory) => {
+    onChange(
+      selected.includes(c)
+        ? selected.filter((x) => x !== c)
+        : [...selected, c],
+    );
+  };
+
+  const allSelected = selected.length === ALL_CATEGORIES.length;
+  const triggerLabel = allSelected
+    ? "Todos os tipos"
+    : selected.length === 1
+      ? CATEGORY_OPTIONS.find((c) => c.id === selected[0])?.label ?? "Tipos"
+      : selected.length === 0
+        ? "Nenhum tipo"
+        : `Tipos · ${selected.length}`;
+
+  const items: AwDropdownItem[] = [
+    {
+      id: "all",
+      label: "Selecionar todos",
+      icon: "done_all",
+      closeOnSelect: false,
+      onSelect: () => onChange(ALL_CATEGORIES),
+      disabled: allSelected,
+    },
+    { id: "sep", separator: true },
+    ...CATEGORY_OPTIONS.map((c) => ({
+      id: c.id,
+      label: c.label,
+      checked: selected.includes(c.id),
+      closeOnSelect: false,
+      onSelect: () => toggle(c.id),
+    })),
+  ];
+
+  return (
+    <AwDropdownMenu
+      align="start"
+      aria-label="Filtrar por tipo de evento"
+      trigger={<AwSelect>{triggerLabel}</AwSelect>}
+      items={items}
+    />
+  );
+}
+
+function ActivityPeriodFilter({
+  value,
+  onChange,
+}: {
+  value: PeriodId;
+  onChange: (v: PeriodId) => void;
+}) {
+  const items: AwDropdownItem[] = PERIOD_OPTIONS.map((opt) => ({
+    id: opt.id,
+    label: opt.label,
+    checked: opt.id === value,
+    onSelect: () => onChange(opt.id),
+  }));
+
+  return (
+    <AwDropdownMenu
+      align="end"
+      aria-label="Selecionar período"
+      trigger={
+        <AwSelect>
+          {PERIOD_OPTIONS.find((p) => p.id === value)?.label ?? "Período"}
+        </AwSelect>
+      }
+      items={items}
+    />
   );
 }
 
