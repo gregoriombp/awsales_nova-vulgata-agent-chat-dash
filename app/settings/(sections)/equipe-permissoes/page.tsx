@@ -475,10 +475,10 @@ function MemberSection({
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
                           aria-label="Ações"
                         >
-                          <Icon name="more_vert" size={20} />
+                          <Icon name="more_vert" size={20} weight={400} />
                         </button>
                       }
                       items={[
@@ -491,8 +491,9 @@ function MemberSection({
                   </span>
                   <Icon
                     name="chevron_right"
-                    size={16}
-                    className="shrink-0 text-(--fg-tertiary)"
+                    size={18}
+                    weight={400}
+                    className="shrink-0 text-(--fg-secondary)"
                   />
                 </div>
               </td>
@@ -514,10 +515,10 @@ function MemberSection({
                       trigger={
                         <button
                           type="button"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary) transition-colors duration-aw-fast"
                           aria-label="Ações do convite"
                         >
-                          <Icon name="more_vert" size={20} />
+                          <Icon name="more_vert" size={20} weight={400} />
                         </button>
                       }
                       items={[
@@ -527,7 +528,7 @@ function MemberSection({
                       ]}
                     />
                   </span>
-                  <span className="inline-block h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="inline-block h-[18px] w-[18px] shrink-0" aria-hidden="true" />
                 </div>
               </td>
             </tr>
