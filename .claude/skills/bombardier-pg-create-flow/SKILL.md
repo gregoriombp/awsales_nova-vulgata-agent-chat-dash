@@ -245,7 +245,7 @@ npm run typecheck
 Se passar:
 
 - Abra `http://localhost:3000/bombardier/styleguide/ux-flows/<slug>` no
-  browser (se o dev server estiver na LAN, ajuste o host).
+  browser (normalmente `127.0.0.1:3000`).
 - Confirme: PageHero com badge "Atualizado em", diagrama renderiza,
   cards de tela têm o href correto.
 - Confirme que o link na sidebar do styleguide aparece.

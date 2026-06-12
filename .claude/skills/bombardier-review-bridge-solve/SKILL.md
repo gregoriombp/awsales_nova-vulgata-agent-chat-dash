@@ -23,8 +23,8 @@ Esta skill é o **agente que resolve** os comentários do Review Mode. Ela
 lê o bridge local, planeja correções, implementa, e devolve cada item
 marcado como **em revisão** pra o usuário aprovar pelo inbox.
 
-> Pré-requisito: o servidor já está rodando. Se não estiver, invocar
-> `bombardier-review-bridge` primeiro.
+> Pré-requisito: `npm run dev` já está rodando na raiz. Esse comando sobe o
+> Next e o review-bridge local juntos.
 >
 > Arquitetura, endpoints e payloads completos: `review-bridge/README.md`.
 
@@ -72,8 +72,7 @@ BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:9878}
 curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
 ```
 
-Se falhar, parar com mensagem dizendo pra rodar `bombardier-review-bridge`
-primeiro e voltar.
+Se falhar, parar com mensagem dizendo pra rodar `npm run dev` na raiz e voltar.
 
 ### 1. Parsear o filtro da request do usuário
 

@@ -1,12 +1,9 @@
 ---
 name: bombardier-review-bridge
 description: >
-  Sobe o servidor local do Bombardier Review Mode (review-bridge) pra
-  manter a fila local de comentários que agentes resolvem. Cobre: instalar
-  deps se precisar, gerar token de auth se não existir, escrever as duas envs
-  do frontend (URL local + token) no
-  .env.local, iniciar o servidor em background, e validar que /health
-  responde com schema v3. Use quando o usuário pedir
+  Diagnostica ou recupera manualmente o servidor local do Bombardier Review
+  Mode (review-bridge). O fluxo normal é `npm run dev`, que já prepara envs e
+  sobe o bridge. Use esta skill só quando o usuário pedir
   "/bombardier-review-bridge", "subir o review-bridge", "iniciar bridge
   de review", "ligar o servidor de comentários", "começar review com o
   agente", "abrir review-bridge", "/review-bridge", ou similares.
@@ -14,11 +11,15 @@ description: >
   `bombardier-review-bridge-solve`.
 ---
 
-# Bombardier Review Mode — Subir o Bridge
+# Bombardier Review Mode — Diagnosticar o Bridge
 
-Esta skill prepara tudo pro **review-bridge** (servidor Express + lowdb em
-`review-bridge/`) rodar somente em `127.0.0.1`. Ela NÃO resolve comentários —
-só sobe a infra local. Pra resolver/aprovar/responder em lote, use a skill irmã
+O caminho normal é rodar **`npm run dev` na raiz**. Esse comando executa
+`review-bridge:prepare`, sincroniza `review-bridge/.env` + `.env.local`, e sobe
+o Next junto do bridge local em `127.0.0.1:9878`.
+
+Esta skill só existe como fallback/diagnóstico quando o bridge local caiu ou
+quando o usuário pediu explicitamente para mexer nele. Ela NÃO resolve comentários —
+pra resolver/aprovar/responder em lote, use a skill irmã
 `bombardier-review-bridge-solve`.
 
 > **Arquitetura, lifecycle, API completa e exemplos curl pra agentes:**

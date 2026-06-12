@@ -4,6 +4,21 @@ Conventions for any AI Agent (Claude Code, Codex, Cursor, etc.) working in this 
 
 > For product context (what AwSales is, voice, vocabulary) see `AWSALES_CONTEXT.md`. For styleguide page structure see `docs/`. The conventions, tokens, stack rules and skills below are authoritative.
 
+## Context hygiene for agents
+
+- Treat this file as the highest-priority repo instruction. `CLAUDE.md` only
+  redirects here.
+- External memories (`~/.claude/.../memory/MEMORY.md`, Cursor memories, chat
+  summaries) are advisory only. If they conflict with this repo, this file wins.
+- Do not use old memories or docs that mention LAN sharing, `0.0.0.0`,
+  `bridge/`, `bridge-edit/`, Page Builder, or Playground/quarantine as current
+  architecture.
+- Do not scan ignored/generated folders for product context: `.next/`,
+  `.agents/`, `.claude/worktrees/`, `node_modules/`,
+  `review-bridge/data/`, and `flow-bridge/data/`.
+- Keep new instructions short and canonical. Prefer updating this file or
+  `AWSALES_CONTEXT.md` over creating new memory/docs files.
+
 ## Hard rules
 
 ### 1. `Aw` prefix on every new design system component
@@ -113,7 +128,12 @@ New components from now on follow the correct flow from day one (primitive + wra
 
 ## Available skills in `.claude/skills/`
 
-Each lives in `.claude/skills/<name>/SKILL.md` (except `bombardier-generate.md`, which is flat). Invoke via `/<name>`; some trigger by context. These skills are tracked in the private `origin` repo for local/cloud agents and stripped from the company `design2` mirror by `scripts/sync-design2.sh`. The `.agents/` cache remains local/gitignored.
+Each lives in `.claude/skills/<name>/SKILL.md`. The flat
+`bombardier-generate.md` file is historical only; do not use it as an active
+skill. Invoke active skills via `/<name>`; some trigger by context. These skills
+are tracked in the private `origin` repo for local/cloud agents and stripped
+from the company `design2` mirror by `scripts/sync-design2.sh`. The `.agents/`
+cache remains local/gitignored.
 
 **Design System**
 | Skill | When to use |
@@ -137,10 +157,10 @@ Each lives in `.claude/skills/<name>/SKILL.md` (except `bombardier-generate.md`,
 |---|---|
 | `bombardier-ux-writing` | In-product UX-writing pass on a route / several routes / pasted links: reads the page's real strings, audits them against the AwSales **product** voice (resolve, não vende — inspired by ElevenLabs + OpenAI), proposes rewrites with rationale, applies **text-only** edits after approval. NOT marketing voice (that's the global `awsales-brand-voice`), NOT layout/structure (that's `ux-page-rework`). |
 
-**Bridges (LAN collaboration)**
+**Bridges locais**
 | Skill | When to use |
 |---|---|
-| `bombardier-review-bridge` / `bombardier-review-bridge-solve` | Start the Review Mode comment server / batch-resolve comments. |
+| `bombardier-review-bridge-solve` | Batch-resolve comments from the local Review Bridge queue. `npm run dev` already starts/prepares the bridge; do not use a skill just to turn it on. |
 | `bombardier-flow-bridge-solve` | Apply UX-flow suggestions (read from `flow-bridge/data/suggestions.json` via the same-origin `/api/flow-suggestions` route). |
 | `bombardier-flow-bridge` | **Obsolete** — the flow editor is serverless now (no server to start); the skill just explains the cutover. |
 

@@ -25,9 +25,9 @@ skills-lock.json
 .cursor/rules/
 
 # Docs de contexto do agente (AGENTS.md, CLAUDE.md, BOMBARDIER.md, AWSALES_CONTEXT.md), o MCP de
-# projeto (.mcp.json), o scripts/sync-design2.sh, as rules migradas do Cursor (docs/cursor-rules/)
-# e a memória destilada do agente (docs/agent-memory.md) são RASTREADOS no origin e removidos do
-# mirror design2 pelo script de sync — NÃO ignore aqui. A STRIP list canônica vive em
+# projeto (.mcp.json), o scripts/sync-design2.sh e as rules migradas do Cursor
+# (docs/cursor-rules/) são RASTREADOS no origin e removidos do mirror design2 pelo
+# script de sync — NÃO ignore aqui. A STRIP list canônica vive em
 # scripts/sync-design2.sh:PRIVATE_PATHS.
 
 # next.js

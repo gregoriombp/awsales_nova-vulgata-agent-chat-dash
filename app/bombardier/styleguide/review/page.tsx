@@ -488,7 +488,7 @@ export default function ReviewInboxPage() {
       <PageHero title="Review · Inbox">
         Painel completo dos comentários do Review Mode. Filtra por autor,
         status ou texto, agrupa por tela, aprova/rejeita em lote os que estão
-        em revisão. Lê do mesmo storage que o overlay (localStorage ou bridge LAN).
+        em revisão. Lê do mesmo storage que o overlay (localStorage ou bridge local).
       </PageHero>
 
       <div className="max-w-[1200px] mx-auto px-10 pb-14 flex flex-col gap-8">
@@ -583,7 +583,7 @@ export default function ReviewInboxPage() {
             name={backend === "bridge" ? "cloud_done" : "save"}
             size={13}
           />
-          {backend === "bridge" ? "Bridge LAN" : "localStorage"}
+          {backend === "bridge" ? "Bridge local" : "localStorage"}
         </span>
 
         <AwButton

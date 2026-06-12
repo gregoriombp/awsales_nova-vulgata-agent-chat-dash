@@ -4,8 +4,9 @@ Servidor local que guarda os comentários visuais do **Review Mode** (Bombardier
 para agentes rodando na mesma máquina. Roda em `http://127.0.0.1:9878`,
 autenticado por token e persistido em arquivos JSON locais (`lowdb`).
 
-> **Como subir:** use a skill `/review-bridge` (`.claude/skills/bombardier-review-bridge/SKILL.md`).
-> Este README cobre arquitetura, ciclo de vida e API — não o passo a passo de boot.
+> **Como subir:** `npm run dev` na raiz prepara `.env.local`, sincroniza o token
+> com `review-bridge/.env` e sobe o servidor junto com o Next. `npm run
+> review-bridge` é só para rodar o bridge isolado.
 
 ---
 
@@ -243,7 +244,7 @@ os dois arquivos de volta e reescrever `resolvedBy`/`resolvedAt` como flat strin
 
 ## Troubleshooting
 
-Pra subir o servidor, ver `.claude/skills/bombardier-review-bridge/SKILL.md`. Problemas comuns:
+Problemas comuns:
 
 | Sintoma | Causa | Onde checar |
 |---|---|---|

@@ -120,16 +120,16 @@ Estes termos são fixos (Figma + `AWSALES_CONTEXT.md`). Trate como protegidos, n
 
 ### Fase 0 — Contexto (antes de tudo)
 
-1. **Memory do usuário:** `~/.claude/projects/<repo-encoded>/memory/MEMORY.md` — convenções de tom já validadas.
-2. **Regras do repo:** `AGENTS.md` (hard rules) e a seção **"Voz: site ≠ produto"** + vocabulário do `AWSALES_CONTEXT.md`.
+1. **Regras do repo:** `AGENTS.md` (hard rules) e a seção **"Voz: site ≠ produto"** + vocabulário do `AWSALES_CONTEXT.md`.
+2. **Memory do usuário:** `~/.claude/projects/<repo-encoded>/memory/MEMORY.md`, se existir, só como contexto consultivo. Se conflitar com `AGENTS.md`, ignore a memória.
 3. **git status.** Se o working tree estiver sujo, pergunte (commita/stash/ignora). Se ignorar: **nunca** `git add .` / `-A` — sempre arquivo a arquivo.
-4. **Dev server:** se algo roda em `:3000`, deixe quieto (hot reload pega). Não mate (Next 16 bloqueia 2ª instância; o server é compartilhado na LAN).
+4. **Dev server:** se algo roda em `:3000`, deixe quieto (hot reload pega). Não mate (Next 16 bloqueia 2ª instância).
 
 ### Fase 1 — Resolver os alvos
 
 A entrada vem de três jeitos. Classifique cada item:
 
-- **Rota / link interno** (`/agent-studio`, `localhost:3000/...`, IP da LAN, `?step=`) → **ALVO**. Mapeie pro arquivo: `app/<rota>/page.tsx` + `_components/` locais. Se a rota tem tabs/sub-rotas, leia o arquivo de tabs e liste as filhas.
+- **Rota / link interno** (`/agent-studio`, `127.0.0.1:3000/...`, `localhost:3000/...`, `?step=`) → **ALVO**. Mapeie pro arquivo: `app/<rota>/page.tsx` + `_components/` locais. Se a rota tem tabs/sub-rotas, leia o arquivo de tabs e liste as filhas.
 - **Link externo** (elevenlabs.io, openai.com, qualquer site) → **REFERÊNCIA de voz**, nunca alvo. Absorva o princípio, declare que é inferência, e **não edite nada de lá**.
 - **Figma** (`figma.com/...`) → **fonte de copy canônica** do produto. Use o Figma MCP pra ler o texto oficial (Agent Studio / Memory Base têm copy canônica lá) e alinhe a rota a ele.
 - **Texto colado solto** (sem rota) → revise no chat e devolva; só edite arquivo se o usuário apontar onde.
@@ -173,7 +173,7 @@ Feche com **"Deixei como está (já no tom):"** + 2-3 exemplos, pra mostrar que 
 3. **Não crie token nem componente.** Se a copy nova precisar de espaço/quebra que o componente não dá, **reporte** — não force `text-[..]` nem refatore o componente (isso é outra skill).
 4. **Valide antes de fechar:**
    - `npx tsc --noEmit` limpo.
-   - Pra cada rota tocada, se o dev server estiver de pé: `curl -s -o /dev/null -w "%{http_code}\n" http://localhost:3000<rota>` → espera 200/3xx. (Verificação visual, se pedida, é via Playwright MCP apontando pro IP da LAN.)
+   - Pra cada rota tocada, se o dev server estiver de pé: `curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:3000<rota>` → espera 200/3xx. (Verificação visual, se pedida, é via Playwright MCP apontando para `127.0.0.1:3000`.)
 5. **Stage seletivo:** `git add <arquivo>` por arquivo tocado. **Sem commit, sem push** a menos que o usuário peça (aí o estilo é `copy(<rota>): ...`).
 
 ### Fase 5 — Reportar

@@ -28,7 +28,7 @@ em código**, no mesmo espírito do
 
 ## Pré-requisitos
 
-- Dev server da LAN no ar (`:3000`) pra falar com a API. **Não suba um
+- Dev server local no ar (`127.0.0.1:3000`) pra falar com a API. **Não suba um
   segundo** (Next 16 bloqueia).
 - Existe `app/api/project-builds/` (store + rotas) e o manifest
   `app/bombardier/projects/_data/projects.ts`.

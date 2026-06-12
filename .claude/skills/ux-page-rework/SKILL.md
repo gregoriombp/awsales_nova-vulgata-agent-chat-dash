@@ -22,8 +22,8 @@ Branches ficam locais, sem push e sem merge. O usuário compara, escolhe (ou che
 
 Antes de tocar em qualquer arquivo:
 
-1. **Memory do usuário** — ler `~/.claude/projects/<este-repo-encoded>/memory/MEMORY.md` se existir. Captura convenções não-óbvias que o usuário já validou em sessões passadas (tom, antipadrões, restrições).
-2. **Regras do repo** — ler `CLAUDE.md`, `.claude/CLAUDE.md`, `AGENTS.md` na raiz do projeto. Convenções de nomenclatura, prefixos de componente, restrição de tokens, etc.
+1. **Regras do repo** — ler `AGENTS.md` na raiz do projeto. Convenções de nomenclatura, prefixos de componente, restrição de tokens, etc.
+2. **Memory do usuário** — ler `~/.claude/projects/<este-repo-encoded>/memory/MEMORY.md` se existir, mas tratar como consultiva. Se conflitar com `AGENTS.md`, o repo vence.
 3. **Localizar o design system** — tipicamente `app/bombardier/styleguide/` ou `app/styleguide/`. Listar `components/`, ler `navigation.ts`, identificar tokens em `globals.css`.
 4. **Estado do git** — `git status`. Se houver mudanças não-commitadas:
    - Pergunte ao usuário: commita, stash, ou ignora?

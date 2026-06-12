@@ -52,6 +52,6 @@ echo
 echo "Pronto: $count arquivo(s) em  $OUT"
 echo "⚠️  Pode conter segredos colados em conversas — por isso fica FORA do repo."
 echo
-echo "Próximo passo: abra os .md em $OUT, copie os DESTAQUES (decisões, convenções,"
-echo "preferências que você quer que o agente lembre) e cole no chat. Eu transformo"
-echo "em docs/agent-memory.md (rastreado no origin, stripado do design2)."
+echo "Próximo passo: abra os .md em $OUT e copie só DESTAQUES estáveis."
+echo "Preferências/regras duráveis entram em AGENTS.md ou AWSALES_CONTEXT.md."
+echo "Detalhes temporários devem continuar fora do repo."

@@ -17,24 +17,23 @@ Plataforma de agentes de IA para vendas, atendimento e CX para empresas Enterpri
 
 ```bash
 npm install
-npm run dev          # localhost:3000 + acessível na rede local (host 0.0.0.0)
+npm run dev          # 127.0.0.1:3000 + review-bridge local em 127.0.0.1:9878
 ```
 
 ## Design system
 
-Toda a documentação de tokens, foundations, patterns e componentes vive em `/bombardier/styleguide`. Sobe o servidor e abre [http://localhost:3000/bombardier/styleguide](http://localhost:3000/bombardier/styleguide).
+Toda a documentação de tokens, foundations, patterns e componentes vive em `/bombardier/styleguide`. Sobe o servidor e abre [http://127.0.0.1:3000/bombardier/styleguide](http://127.0.0.1:3000/bombardier/styleguide).
 
 Foundations: Design Tokens, Iconografia, Logos, Animação, Acessibilidade, Escrita, Padrões de UI.
 Componentes: 23 registrados oficialmente — entre eles `integration-catalog`, `integration-card`, `connect-modal`, `whatsapp-panel`, `chrome`, `nav-rail`, `nav-list`, `template-builder-sheet`, `chat`, `pills`, `toast`.
 
-## Review Mode (anotação colaborativa)
+## Review Mode
 
 Overlay de comentários (free-draw + pin) **sempre montado**. Ligue/desligue o modo de
 comentar pela **bolota do Bombardier** (canto inferior direito) ou `Cmd+Shift+Y` — não
-precisa de env flag. Sincroniza entre revisores na LAN via `review-bridge` quando
-`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL` + `NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN` estão
-setados no `.env.local` (senão grava no `localStorage`). Servidor: `npm run review-bridge`
-(porta 9878). Skills: `/bombardier-review-bridge` e `/bombardier-review-bridge-solve`.
+precisa de env flag. `npm run dev` prepara `.env.local`, sobe o `review-bridge` local
+em `127.0.0.1:9878` e faz o overlay usar essa fila para agentes locais. Sem bridge,
+o fallback é `localStorage`.
 
 ## Estrutura
 
@@ -71,8 +70,8 @@ lib/
 └── bombardier-review/        # Store + storage do Review Mode
 
 public/assets/integrations/   # Logos das integrações, categorizadas (Agenda, Ações, Checkout, etc.)
-review-bridge/                # Servidor LAN de comentários (porta 9878)
-flow-bridge/                  # Servidor LAN de sugestões de UX flow (porta 9879)
+review-bridge/                # Fila local de comentários para agentes (porta 9878)
+flow-bridge/                  # Legado do fluxo antigo de sugestões (substituído por API same-origin)
 ```
 
 ## Como agentes de IA trabalham nesse repo
@@ -85,14 +84,15 @@ Use `git log` para o histórico — não há `CHANGELOG.md` neste repo. Os porqu
 
 ## Método de design
 
-Esse projeto usa o método **Bombardier** (design-as-product). Manual canônico em `~/Desktop/Projects/Working/Bombardier Skills/Bombardier — Manual.md`.
+Esse projeto usa o método **Bombardier** (design-as-product). O mapa operacional
+do Bombardier neste repo fica em [`BOMBARDIER.md`](./BOMBARDIER.md).
 
 ## Scripts
 
 ```bash
-npm run dev              # dev server localhost:3000 + acessível na LAN (0.0.0.0)
+npm run dev              # dev server loopback-only + review-bridge local
 npm run build            # build de produção
 npm start                # production server
 npm run lint             # ESLint
-npm run review-bridge    # servidor LAN de comentários (porta 9878)
+npm run review-bridge    # só o servidor local de comentários (porta 9878)
 ```

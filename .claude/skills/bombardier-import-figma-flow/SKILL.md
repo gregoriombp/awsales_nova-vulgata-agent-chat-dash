@@ -133,7 +133,7 @@ Em `app/bombardier/page.tsx`, o item "Projetos" deve estar
 npm run typecheck
 ```
 
-O dev server da LAN normalmente já roda em `:3000` — **não suba um
+O dev server local normalmente já roda em `127.0.0.1:3000` — **não suba um
 segundo** (Next 16 bloqueia). Verifique por HTTP (ou peça pro usuário
 abrir no browser dele):
 

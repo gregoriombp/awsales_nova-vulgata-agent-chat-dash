@@ -64,12 +64,10 @@ export default function ReviewModeFoundationPage() {
             </p>
           </div>
           <p className="m-0 text-sm text-(--fg-secondary)">
-            Pra usar o fluxo com agente local, suba o servidor com{" "}
-            <code className="font-mono text-xs">npm run review-bridge</code> e
-            sete <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL</code>{" "}
-            + <code className="font-mono text-xs">NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN</code> no{" "}
-            <code className="font-mono text-xs">.env.local</code>. Sem isso, os
-            comentários ficam no <code className="font-mono text-xs">localStorage</code> do browser.
+            No fluxo normal, <code className="font-mono text-xs">npm run dev</code>{" "}
+            prepara o token, sobe o bridge local e aponta o frontend para{" "}
+            <code className="font-mono text-xs">127.0.0.1:9878</code>. Sem bridge,
+            os comentários ficam no <code className="font-mono text-xs">localStorage</code> do browser.
           </p>
         </div>
       </Section>
@@ -126,28 +124,15 @@ export default function ReviewModeFoundationPage() {
             </div>
             <ol className="list-decimal pl-5 m-0 text-sm text-(--fg-secondary) space-y-1.5 leading-relaxed">
               <li>
-                <code className="font-mono text-xs">npm run review-bridge:install</code>{" "}
-                (uma vez).
+                <code className="font-mono text-xs">npm install</code>{" "}
+                instala as deps da raiz. Se o bridge estiver sem deps, rode{" "}
+                <code className="font-mono text-xs">npm run review-bridge:install</code>.
               </li>
               <li>
-                Gere um token aleatório:{" "}
-                <code className="font-mono text-xs">openssl rand -hex 32</code>.
-              </li>
-              <li>
-                Copie{" "}
-                <code className="font-mono text-xs">
-                  review-bridge/.env.example
-                </code>{" "}
-                pra <code className="font-mono text-xs">.env</code> e cole o
-                token em{" "}
-                <code className="font-mono text-xs">
-                  BOMBARDIER_REVIEW_TOKEN
-                </code>
-                .
-              </li>
-              <li>
-                <code className="font-mono text-xs">npm run review-bridge:dev</code>.
-                Sobe em <code className="font-mono text-xs">127.0.0.1:9878</code>.
+                <code className="font-mono text-xs">npm run dev</code> executa{" "}
+                <code className="font-mono text-xs">review-bridge:prepare</code>,
+                gera ou reaproveita o token e sobe o bridge em{" "}
+                <code className="font-mono text-xs">127.0.0.1:9878</code>.
               </li>
             </ol>
           </div>
@@ -162,8 +147,9 @@ export default function ReviewModeFoundationPage() {
               </span>
             </div>
             <p className="m-0 text-sm text-(--fg-secondary)">
-              Seta as duas vars abaixo e o overlay troca automaticamente do
-              localStorage pro bridge. Apague pra voltar pro modo local.
+              O prepare do <code className="font-mono text-xs">npm run dev</code>{" "}
+              mantém as duas vars abaixo em <code className="font-mono text-xs">.env.local</code>.
+              Com elas, o overlay usa o bridge no lugar do localStorage.
             </p>
             <pre className="m-0 rounded-sm bg-(--bg-muted) border border-(--border-subtle) p-3 text-[12px] font-mono whitespace-pre-wrap">
               {`NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878

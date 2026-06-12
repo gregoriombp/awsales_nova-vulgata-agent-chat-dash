@@ -11,7 +11,7 @@ description: >
   styleguide UX flow page.
 ---
 
-# Bombardier — UX Flow Page Builder
+# Bombardier — UX Flow
 
 Build a UX flow diagram page under `/app/bombardier/styleguide/ux-flows/[flow-slug]/page.tsx`
 from a written description of the flow.

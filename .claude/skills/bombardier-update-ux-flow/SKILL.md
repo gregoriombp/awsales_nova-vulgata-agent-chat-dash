@@ -192,7 +192,7 @@ Rules for `summary`:
 npm run typecheck
 ```
 
-If the dev server is running on the LAN, open the page and confirm:
+If the local dev server is running, open the page and confirm:
 
 - The "Atualizado em <data>" badge appears next to the title.
 - The "Histórico de atualizações" section renders at the bottom with the
