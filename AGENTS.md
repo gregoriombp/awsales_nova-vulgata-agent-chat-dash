@@ -104,7 +104,7 @@ New components from now on follow the correct flow from day one (primitive + wra
 
 ### 2. Tokens are sacred
 
-- Only the `bombardier-design-system-foundation` skill creates tokens. Any other skill, prompt, or manual edit **must not** add new tokens to `globals.css` (the `@theme` block or `:root`).
+- Token authority: only `bombardier-design-system-foundation` (bootstrap from a reference) and `bombardier-foundation-update` (incremental, additive, reviewed) may create or change tokens. Any other skill, prompt, or manual edit **must not** add new tokens to `globals.css` (the `@theme` block or `:root`).
 - Forbidden: `bg-[#hex]`, `text-[#hex]`, `p-[Npx]`, `border-[#hex]`, `rounded-[Npx]`, or any Tailwind arbitrary value for color / spacing / radius / shadow / typography.
 - Allowed: Tailwind classes that reference existing tokens (`bg-primary`, `text-fg-primary`, `border-border`, `rounded-lg`, `shadow-sm`, etc.) and CSS variables (`var(--bg-canvas)`, `var(--accent-brand)`).
 - If a token genuinely does not exist and the work requires it, **report it in the output** instead of creating it — the foundation skill is the only one authorized to extend the token set.
@@ -151,7 +151,8 @@ cache remains local/gitignored.
 **Design System**
 | Skill | When to use |
 |---|---|
-| `bombardier-design-system-foundation` | Bootstrap the DS from a visual reference / design source. **The only skill that creates tokens.** |
+| `bombardier-design-system-foundation` | Bootstrap the DS from a visual reference / design source (may rewrite `globals.css`). One of two skills allowed to touch tokens. |
+| `bombardier-foundation-update` | **Incremental, additive token updates** to the existing foundation (add/extend a scale, fill ramp gaps). No rebootstrap, no clobber; keeps `@theme`+`:root`+dark in sync. The other token-authorized skill. |
 | `bombardier-new-component` | Add a new component to the DS using existing tokens (shadcn wrapper + showcase + nav). Always `Aw*` in `components/ui/`. |
 | `bombardier-new-page` | Build a full page from a screenshot/Figma/brief, reusing DS components. |
 | `bombardier-design-system-audit` | Audit consistency (tokens/components/showcases/nav); optionally sync against a reference. |
