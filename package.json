@@ -10,6 +10,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "ds:check": "node scripts/ds-check.mjs",
     "review-bridge:prepare": "node scripts/ensure-review-bridge-env.mjs",
     "review-bridge:run": "node scripts/run-review-bridge.mjs",
     "review-bridge": "npm --prefix review-bridge start",
