@@ -25,10 +25,29 @@ Use this skill when adding a design system component or touching an existing
   typography.
 - Use Material Symbols via `components/ui/Icon.tsx` for product icons.
 
+## Pre-flight (mandatory — before writing any code)
+
+1. **Open `docs/component-map.md`** and search by intent. What you need probably
+   already exists; the map names it and the near-duplicates to avoid (which card,
+   which table, the Fluid caveat).
+2. **Reuse > extend > create.** If something is close, extend or wrap it. Build new
+   only when nothing fits and the semantics are genuinely new — never duplicate
+   under a new name.
+3. **Compose from primitives.** The new piece is a *recipe* of existing `Aw*`
+   primitives (`AwButton`, `Icon`, `AwInput`, `AwAvatar`, `AwPill`…) — don't
+   re-implement a button/input/icon inline.
+4. **Icons through `Icon`** (Material Symbols). Never a raw `<svg>` or hardcoded
+   glyph; `react-icons` only for brand marks.
+5. **Tokens only** — the semantic tokens in `docs/component-map.md` (`bg-raised`,
+   `text-fg-primary`, `border-subtle`, `rounded-lg`, `shadow-sm`…). No `#hex`, no
+   `w-[37px]`, no arbitrary values. Missing token → report it, don't create it.
+6. When done, run `npm run ds:check` and fix what it flags. Register the new
+   component in `docs/component-map.md`.
+
 ## Workflow
 
 1. Read `AGENTS.md`.
-2. Check existing options before writing:
+2. Check existing options before writing (see Pre-flight):
    - `components/ui/Aw*`
    - legacy `components/*`
    - lowercase shadcn primitives in `components/ui/*.tsx`

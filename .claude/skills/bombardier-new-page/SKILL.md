@@ -23,6 +23,18 @@ Use this skill for product pages, feature screens, and substantial page reworks.
 - Feature modules under `components/{auth,memory-base,...}` consume `Aw*`; they
   are not DS components and should not be renamed to `Aw*`.
 
+## Pre-flight (mandatory — before writing the page)
+
+1. **Open `docs/component-map.md`** and map each element of the screen to an
+   existing `Aw*` component (or feature module) before writing anything.
+2. **Reuse first — a page is assembly, not new primitives.** Compose from existing
+   `Aw*` components; don't inline one-off buttons/cards/inputs.
+3. **Tokens only** (`docs/component-map.md` → token vocabulary): no `#hex`, no
+   arbitrary values. **Icons through `Icon`**, never a raw `<svg>`.
+4. If a reusable DS component is genuinely missing, stop and create it via
+   `bombardier-new-component` first — don't inline a one-off in the page.
+5. When done, run `npm run ds:check`.
+
 ## Workflow
 
 1. Read `AGENTS.md` and, for product voice, the relevant section of
