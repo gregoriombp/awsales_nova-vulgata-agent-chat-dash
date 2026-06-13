@@ -284,7 +284,7 @@ export default function MemoryBaseSettingsPage() {
                     />
                     <span className="flex-1 truncate text-sm font-medium">{agent.name}</span>
                     <span
-                      className="inline-flex items-center gap-1.5 rounded-md bg-(--bg-muted) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary)"
+                      className="inline-flex items-center gap-1.5 rounded-md bg-(--bg-muted) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary)"
                       title="Objective-Bound Knowledge Layers"
                     >
                       <img

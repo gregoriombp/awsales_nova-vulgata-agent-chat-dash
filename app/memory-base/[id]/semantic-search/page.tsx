@@ -426,7 +426,7 @@ function ScoreRing({ score }: { score: number }) {
           }}
         />
       </svg>
-      <span className="absolute text-[11px] font-semibold tabular-nums text-(--fg-primary)">
+      <span className="absolute text-2xs font-semibold tabular-nums text-(--fg-primary)">
         {score}%
       </span>
     </span>
@@ -473,7 +473,7 @@ function TopMatchCard({ baseId, item }: { baseId: string; item: RankedLayer }) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-2">
             <span
-              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-2xs font-semibold"
               style={{
                 background: "color-mix(in srgb, var(--aw-blue-500) 12%, transparent)",
                 color: "var(--aw-blue-600)",
@@ -483,7 +483,7 @@ function TopMatchCard({ baseId, item }: { baseId: string; item: RankedLayer }) {
               Melhor correspondência
             </span>
             {item.weak && (
-              <span className="text-[11px] font-medium text-(--fg-tertiary)">
+              <span className="text-2xs font-medium text-(--fg-tertiary)">
                 correspondência fraca
               </span>
             )}

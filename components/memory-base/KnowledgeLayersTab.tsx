@@ -91,7 +91,7 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
       <div className="mt-5">
         {view === "lista" ? (
           <div className="overflow-hidden rounded-2xl border border-(--border-default)">
-            <div className={cn("grid gap-3 border-b border-(--border-subtle) bg-(--bg-surface) px-4 py-2.5 text-[11px] font-medium uppercase tracking-wide text-(--fg-tertiary)", ROW_GRID)}>
+            <div className={cn("grid gap-3 border-b border-(--border-subtle) bg-(--bg-surface) px-4 py-2.5 text-2xs font-medium uppercase tracking-wide text-(--fg-tertiary)", ROW_GRID)}>
               <span>Knowledge Layer</span>
               <span>Status</span>
               <span>Fonte</span>
@@ -107,7 +107,7 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
               >
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{r.title}</p>
-                  <p className="truncate text-[11px] text-(--fg-tertiary)">{r.desc}</p>
+                  <p className="truncate text-2xs text-(--fg-tertiary)">{r.desc}</p>
                 </div>
                 <span>
                   <AwPill variant={inactiveIds.has(r.id) ? "neutral" : "live"}>
@@ -123,7 +123,7 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
                   <span className="inline-flex items-center gap-1.5 text-xs font-medium" style={{ color: QUALITY_COLOR[r.q] }}>
                     <Icon name="trending_up" size={14} /> {r.q}
                   </span>
-                  <span className="block truncate text-[11px] text-(--fg-tertiary)">{r.qualityNote}</span>
+                  <span className="block truncate text-2xs text-(--fg-tertiary)">{r.qualityNote}</span>
                 </span>
                 <RowMenu
                   baseId={baseId}
@@ -155,12 +155,12 @@ export function KnowledgeLayersTab({ baseId }: { baseId: string }) {
               >
                 <p className="text-sm font-semibold">{r.title}</p>
                 <p className="line-clamp-3 text-xs text-(--fg-secondary)">{r.desc}</p>
-                <span className="mt-1 inline-flex items-center gap-1.5 text-[11px] text-(--fg-tertiary)">
+                <span className="mt-1 inline-flex items-center gap-1.5 text-2xs text-(--fg-tertiary)">
                   <Icon name="picture_as_pdf" size={13} /> {r.fonte}
                 </span>
                 <div className="mt-2 flex items-center justify-between border-t border-(--border-subtle) pt-2">
                   <AgentUsage agents={r.agents} />
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium" style={{ color: QUALITY_COLOR[r.q] }}>
+                  <span className="inline-flex items-center gap-1 text-2xs font-medium" style={{ color: QUALITY_COLOR[r.q] }}>
                     <Icon name="trending_up" size={13} /> {r.q}
                   </span>
                 </div>

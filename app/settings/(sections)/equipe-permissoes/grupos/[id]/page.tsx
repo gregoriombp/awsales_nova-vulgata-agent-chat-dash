@@ -467,7 +467,7 @@ export default function GroupDetailPage() {
               </div>
               <div className="flex items-center gap-2">
                 <dt className="m-0 text-(--fg-tertiary)">ID</dt>
-                <dd className="m-0 mono text-[11px] text-(--fg-primary)">
+                <dd className="m-0 mono text-2xs text-(--fg-primary)">
                   {group.id}
                 </dd>
               </div>

@@ -259,7 +259,7 @@ export default function ProfileSettingsPage() {
                     href="https://wa.me/5511987654321"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
+                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
                   >
                     <WhatsAppIcon size={12} />
                     <span>+55 11 98765-4321</span>
@@ -268,7 +268,7 @@ export default function ProfileSettingsPage() {
                     href="https://slack.com/app_redirect?channel=greg.pinheiro"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
+                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
                   >
                     <SlackIcon size={12} />
                     <span>@greg.pinheiro</span>

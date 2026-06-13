@@ -76,6 +76,10 @@ nunca valores arbitrários para cor/spacing/radius/shadow/tipografia.
 **Acento/semântico:** `accent-brand` (+`-hover`) · `accent-success` ·
 `accent-danger` · `accent-warning` · foco: `ring-focus`
 **Raio:** `rounded-xs|sm|md|lg|xl|2xl|full`  ·  **Sombra:** `shadow-xs|sm|md|lg|overlay`
+**Tipografia (tamanho):** `text-3xs`(10) · `text-2xs`(11) · `text-xs`(12) · `text-sm`(14) ·
+`text-base`(16) · `text-lg`(18) · `text-xl`(20) · `text-2xl`(24) · `text-3xl`(30). Ou as
+utilities semânticas, que já trazem line-height/tracking: `display-{sm…xxl}`, `body-{xs…xl}`,
+`caption`, `aw-eyebrow`. **Nunca `text-[Npx]`.**
 **Paleta crua** (só quando precisar de uma família específica): `aw-{gray,blue,emerald,
 red,purple,teal,amber,pink,lime,slate}-{50…1200}` — ex.: `text-aw-blue-700`.
 

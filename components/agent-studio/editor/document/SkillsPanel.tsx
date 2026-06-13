@@ -141,7 +141,7 @@ export function defaultIntegrationGroup(
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+    <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
       {children}
     </h3>
   );
@@ -192,7 +192,7 @@ function SkillCard({
         <span className="block truncate text-[13px] font-medium text-(--fg-primary)">
           {skill.nome}
         </span>
-        <span className="mt-0.5 block text-[11px] leading-snug text-(--fg-tertiary) line-clamp-2">
+        <span className="mt-0.5 block text-2xs leading-snug text-(--fg-tertiary) line-clamp-2">
           {skill.descricao}
         </span>
       </span>
@@ -267,7 +267,7 @@ function SkillGroupBlock({
           {sections.map(([label, skills]) => (
             <React.Fragment key={label || "principal"}>
               {label && (
-                <p className="px-2 pb-1 pt-2.5 text-[11px] font-medium text-(--fg-tertiary)">
+                <p className="px-2 pb-1 pt-2.5 text-2xs font-medium text-(--fg-tertiary)">
                   {label}
                 </p>
               )}
@@ -364,7 +364,7 @@ export function SkillsPanel({
       <section>
         <div className="flex items-baseline justify-between gap-3">
           <SectionLabel>Tools</SectionLabel>
-          <p className="text-[11px] text-(--fg-tertiary)">
+          <p className="text-2xs text-(--fg-tertiary)">
             clique ou arraste para o texto
           </p>
         </div>
@@ -413,7 +413,7 @@ export function SkillsPanel({
             <SectionLabel>AOPs</SectionLabel>
             <Link
               href={`/agent-studio/${agentId}?tab=aops`}
-              className="text-[11px] font-medium text-(--fg-secondary) underline-offset-4 transition-colors duration-aw-fast hover:text-(--fg-primary) hover:underline"
+              className="text-2xs font-medium text-(--fg-secondary) underline-offset-4 transition-colors duration-aw-fast hover:text-(--fg-primary) hover:underline"
             >
               Gerenciar
             </Link>
@@ -444,7 +444,7 @@ export function SkillsPanel({
         <div className="mt-2.5 space-y-3">
           {variaveisPorGrupo.map(([grupo, vars]) => (
             <div key={grupo}>
-              <p className="pb-1.5 text-[11px] font-medium text-(--fg-tertiary)">
+              <p className="pb-1.5 text-2xs font-medium text-(--fg-tertiary)">
                 {grupo}
               </p>
               <div className="flex flex-wrap gap-1.5">

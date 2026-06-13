@@ -128,7 +128,7 @@ export function CatalogoStep({
             </span>
             <div>
               <p className="text-sm font-medium">{c.name}</p>
-              <p className="text-[11px] text-(--fg-tertiary)">Novo catálogo</p>
+              <p className="text-2xs text-(--fg-tertiary)">Novo catálogo</p>
             </div>
             <button
               type="button"
@@ -142,7 +142,7 @@ export function CatalogoStep({
             <Icon name="table_chart" size={18} />
             <div>
               <p className="text-sm">fyntra_analytics.csv</p>
-              <p className="text-[11px] text-(--fg-tertiary)">100.000 produtos · 10 categorias</p>
+              <p className="text-2xs text-(--fg-tertiary)">100.000 produtos · 10 categorias</p>
             </div>
           </div>
         </div>
@@ -359,8 +359,8 @@ export function CatalogoStep({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{e.name}</span>
-                    <span className="block truncate text-[11px] text-(--fg-tertiary)">{e.meta}</span>
-                    <span className="block truncate text-[11px] text-(--fg-tertiary)">{e.used}</span>
+                    <span className="block truncate text-2xs text-(--fg-tertiary)">{e.meta}</span>
+                    <span className="block truncate text-2xs text-(--fg-tertiary)">{e.used}</span>
                   </span>
                   <Icon
                     name={on ? "radio_button_checked" : "radio_button_unchecked"}

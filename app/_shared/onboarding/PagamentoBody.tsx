@@ -347,7 +347,7 @@ function ChargeCard({
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-bg-raised">
       <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fg-primary text-[11px] font-medium tabular-nums text-white">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fg-primary text-2xs font-medium tabular-nums text-white">
           {index + 1}
         </span>
         <div className="min-w-0 flex-1">
@@ -494,7 +494,7 @@ function MethodGrid({
                 </div>
                 <div
                   className={cn(
-                    "mt-px text-[10px]",
+                    "mt-px text-3xs",
                     sel ? "text-white/65" : "text-fg-tertiary"
                   )}
                 >
@@ -545,7 +545,7 @@ function InstallmentGrid({
               </div>
               <div
                 className={cn(
-                  "mt-0.5 text-[10px] tabular-nums",
+                  "mt-0.5 text-3xs tabular-nums",
                   sel ? "text-white/70" : "text-fg-tertiary"
                 )}
               >
@@ -589,7 +589,7 @@ function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
 function LockedRow({ meta, index }: { meta: ChargeMeta; index: number }) {
   return (
     <article className="flex items-center gap-3 rounded-xl border border-border-subtle bg-bg-surface px-[18px] py-3.5 opacity-70">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-muted text-[11px] font-medium tabular-nums text-fg-tertiary">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-muted text-2xs font-medium tabular-nums text-fg-tertiary">
         {index + 1}
       </span>
       <div className="min-w-0 flex-1">
@@ -674,7 +674,7 @@ function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
             <span className="aw-eyebrow text-fg-tertiary">QR Code Pix</span>
             <span
               className={[
-                "inline-flex items-center gap-1 rounded-full px-2 py-px text-[10px] font-medium tabular-nums",
+                "inline-flex items-center gap-1 rounded-full px-2 py-px text-3xs font-medium tabular-nums",
                 expired
                   ? "bg-aw-red-100 text-aw-red-700"
                   : "bg-aw-amber-100 text-aw-amber-800",
@@ -688,7 +688,7 @@ function PixInstrument({ onConfirmPaid }: { onConfirmPaid: () => void }) {
             Abra o app do seu banco e escaneie ou copie o código abaixo.
           </div>
           <div className="flex items-center gap-1.5 rounded-md border border-border py-1.5 pl-2.5 pr-1.5">
-            <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-[10px] text-fg-tertiary">
+            <code className="flex-1 overflow-hidden whitespace-nowrap text-ellipsis text-3xs text-fg-tertiary">
               {PIX_CODE}
             </code>
             <AwButton variant="secondary" size="sm" iconLeft="content_copy">
@@ -1132,7 +1132,7 @@ function BlockedPhase({ org, onBack }: { org: Org; onBack: () => void }) {
             {org.accountManager.role} · Aswork
           </div>
         </div>
-        <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-0.5 text-[11px] font-medium text-aw-amber-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-0.5 text-2xs font-medium text-aw-amber-800">
           <Icon name="confirmation_number" size={12} />
           Chamado aberto
         </span>

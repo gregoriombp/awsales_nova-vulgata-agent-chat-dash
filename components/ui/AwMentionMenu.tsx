@@ -165,7 +165,7 @@ export function AwMentionMenu({
             section.entries.length > 0 && (
               <React.Fragment key={section.label ?? `sec-${si}`}>
                 {section.label && (
-                  <p className="px-2.5 pb-1 pt-2 text-[11px] font-medium text-(--fg-tertiary)">
+                  <p className="px-2.5 pb-1 pt-2 text-2xs font-medium text-(--fg-tertiary)">
                     {section.label}
                   </p>
                 )}

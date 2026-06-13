@@ -882,7 +882,7 @@ function MemoryBaseDirectoryContent() {
                 </button>
                 {isAgentsPopoverOpen && connectedAgents.length > 0 && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[320px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-3">Agentes conectados</div>
+                    <div className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-3">Agentes conectados</div>
                     <ul className="space-y-1">
                       {connectedAgents.map((agent, index) => (
                         <li key={agent.id}>
@@ -904,7 +904,7 @@ function MemoryBaseDirectoryContent() {
                             <span className="truncate flex-1 min-w-0 font-medium">{agent.name}</span>
                             <div className="flex items-center gap-2 shrink-0">
                               <span
-                                className="flex items-center gap-1 rounded-md bg-(--bg-muted) px-2 py-0.5 text-[11px] font-medium text-(--fg-secondary)"
+                                className="flex items-center gap-1 rounded-md bg-(--bg-muted) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary)"
                                 title="Objective-Bound Knowledge Layers"
                               >
                                 <img
@@ -960,7 +960,7 @@ function MemoryBaseDirectoryContent() {
                 </button>
                 {isSourcesPopoverOpen && rows.length > 0 && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[220px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Resumo de Fontes</div>
+                    <div className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Resumo de Fontes</div>
                     <div className="space-y-1.5 text-[13px] text-(--fg-primary)">
                       <div className="flex items-center justify-between">
                         <span>Arquivos</span>
@@ -1008,7 +1008,7 @@ function MemoryBaseDirectoryContent() {
                 </button>
                 {isLayersPopoverOpen && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[280px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
-                    <div className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Knowledge Layers</div>
+                    <div className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Knowledge Layers</div>
                     <p className="text-[12px] text-(--fg-secondary) mb-3">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
@@ -1256,28 +1256,28 @@ function MemoryBaseDirectoryContent() {
                         <div className="text-[12px] font-medium text-(--fg-primary) truncate">
                           {r.name}
                         </div>
-                        <div className="text-[10px] text-(--fg-secondary)">{r.typeLabel}</div>
+                        <div className="text-3xs text-(--fg-secondary)">{r.typeLabel}</div>
                       </div>
                     </div>
 
                     <div className="min-w-[88px] py-1 flex items-center">
                       {r.status === "Analisando" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--aw-amber-700)">
+                        <span className="inline-flex items-center gap-1.5 text-3xs font-medium text-(--aw-amber-700)">
                           <span className="w-2 h-2 rounded-full bg-(--aw-amber-500) shrink-0" />
                           Analisando
                         </span>
                       ) : r.status === "Ativo" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-aw-emerald-900">
+                        <span className="inline-flex items-center gap-1.5 text-3xs font-medium text-aw-emerald-900">
                           <span className="w-2 h-2 rounded-full bg-(--accent-success) shrink-0" />
                           Ativo
                         </span>
                       ) : r.status === "Erro" ? (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--accent-danger)">
+                        <span className="inline-flex items-center gap-1.5 text-3xs font-medium text-(--accent-danger)">
                           <span className="w-2 h-2 rounded-full bg-(--aw-red-500) shrink-0" />
                           Erro
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-(--fg-secondary)">
+                        <span className="inline-flex items-center gap-1.5 text-3xs font-medium text-(--fg-secondary)">
                           <span className="w-2 h-2 rounded-full bg-(--fg-muted) shrink-0" />
                           Inativo
                         </span>
@@ -1408,7 +1408,7 @@ function MemoryBaseDirectoryContent() {
               {/* Left: metadata */}
               <div className="w-[220px] shrink-0 border-r border-(--border-subtle) p-6 flex flex-col gap-5 overflow-y-auto">
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">ID do arquivo</p>
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">ID do arquivo</p>
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] text-(--fg-primary) truncate" title={idToFileUuid(drawerRow.id)}>
                       {idToFileUuid(drawerRow.id)}
@@ -1424,9 +1424,9 @@ function MemoryBaseDirectoryContent() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Status</p>
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Status</p>
                   <span
-                    className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md ${
+                    className={`inline-flex items-center gap-1.5 text-2xs font-medium px-2 py-1 rounded-md ${
                       drawerRow.status === "Ativo"
                         ? "bg-green-50 text-green-700"
                         : drawerRow.status === "Analisando"
@@ -1444,15 +1444,15 @@ function MemoryBaseDirectoryContent() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Knowledge Layers</p>
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Knowledge Layers</p>
                   <p className="text-[13px] text-(--fg-primary)">{drawerRow.layersLabel}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Adicionado em</p>
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Adicionado em</p>
                   <p className="text-[13px] text-(--fg-primary)">{drawerRow.createdAt}</p>
                 </div>
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Atualizado em</p>
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Atualizado em</p>
                   <div className="flex items-center gap-2">
                     <span className="text-[13px] text-(--fg-primary)">{drawerRow.createdAt}</span>
                     <span className="text-(--fg-tertiary)" title="Última atualização">
@@ -1547,7 +1547,7 @@ function MemoryBaseDirectoryContent() {
                           rows={6}
                           className="w-full resize-y rounded-xl border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-[13px] leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
                         />
-                        <span className="text-[11px] text-(--fg-tertiary)">Digite {"{}"} para ver as variáveis disponíveis.</span>
+                        <span className="text-2xs text-(--fg-tertiary)">Digite {"{}"} para ver as variáveis disponíveis.</span>
                       </label>
                       <div className="flex items-center justify-between">
                         <div>
@@ -1655,7 +1655,7 @@ function MemoryBaseDirectoryContent() {
                               <TbTrendingUp size={14} strokeWidth={2} /> {item.quality}
                             </span>
                             <span
-                              className={`shrink-0 px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                              className={`shrink-0 px-2 py-0.5 rounded-full text-2xs font-medium ${
                                 item.status === "Ativo"
                                   ? "bg-green-50 text-green-700"
                                   : "bg-red-50 text-red-700"
@@ -1867,7 +1867,7 @@ function MemoryBaseDirectoryContent() {
               </div>
               <div className="space-y-4">
                 <div>
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1">
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1">
                     Objective-Bound Knowledge Layers
                   </p>
                   <p className="text-(--fg-primary) flex items-center gap-2">
@@ -1883,7 +1883,7 @@ function MemoryBaseDirectoryContent() {
                   </p>
                 </div>
                 <div className="pt-2">
-                  <p className="text-[11px] font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1">
+                  <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1">
                     Outras configurações
                   </p>
                   <p className="text-sm text-(--fg-secondary)">Em breve. Você poderá ajustar permissões e opções específicas do agente aqui.</p>

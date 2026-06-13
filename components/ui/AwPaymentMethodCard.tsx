@@ -87,7 +87,7 @@ export function AwPaymentMethodCard({
         <div className="flex items-start justify-between gap-3">
           {isDefault ? (
             <span
-              className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-normal text-white/70 backdrop-blur-xs"
+              className="inline-flex items-center rounded-full bg-white/10 px-2 py-0.5 text-3xs font-normal text-white/70 backdrop-blur-xs"
               aria-label="Pagamento principal"
             >
               Pagamento principal

@@ -968,7 +968,7 @@ function RoleTableRow({
                     src={role.createdBy.avatar}
                     initials={role.createdBy.initials}
                     alt={role.createdBy.name}
-                    className="h-[18px]! w-[18px]! text-[10px]!"
+                    className="h-[18px]! w-[18px]! text-3xs!"
                   />
                   <span className="truncate body-xs text-(--fg-tertiary)">
                     {role.createdBy.name.split(" ")[0]} · {role.createdBy.date}

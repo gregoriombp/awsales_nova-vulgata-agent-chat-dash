@@ -54,7 +54,7 @@ function NavRow({
         <>
           <span className="min-w-0 flex-1 truncate">{label}</span>
           {badge != null && (
-            <span className="shrink-0 rounded-full bg-(--bg-muted) px-1.5 text-[11px] tabular-nums text-(--fg-tertiary)">
+            <span className="shrink-0 rounded-full bg-(--bg-muted) px-1.5 text-2xs tabular-nums text-(--fg-tertiary)">
               {badge}
             </span>
           )}
@@ -227,7 +227,7 @@ export function MemoryBaseSidebar({
 
         <div>
           {!collapsed && (
-            <p className="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+            <p className="px-2.5 pb-1 text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
               Resumo
             </p>
           )}

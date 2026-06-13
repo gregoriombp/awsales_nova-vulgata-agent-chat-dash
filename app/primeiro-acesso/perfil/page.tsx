@@ -370,7 +370,7 @@ function InvitedEmailRow({
           <span className="flex-1 truncate body-xs text-fg-primary">
             {value}
           </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-px text-[10px] font-medium text-aw-amber-800">
+          <span className="inline-flex items-center gap-1 rounded-full bg-aw-amber-100 px-2 py-px text-3xs font-medium text-aw-amber-800">
             <Icon name="schedule" size={10} />
             convite pendente
           </span>

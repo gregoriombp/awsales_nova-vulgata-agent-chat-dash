@@ -186,6 +186,14 @@
   --font-display: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: Geist Mono, ui-monospace, SF Mono, Menlo, monospace;
 
+  /* TYPE — degraus finos que faltavam na rampa pequena. O produto usa muito
+   * 10/11px em labels densos, mas a escala parava em text-xs (12px) do Tailwind,
+   * então o código caía em text-[10px]/[11px]. Estes tokens preenchem o buraco;
+   * os demais tamanhos (12..30) já existem como text-xs..3xl. Mantidos pela skill
+   * bombardier-foundation-update. */
+  --text-2xs: 11px;
+  --text-3xs: 10px;
+
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 10px;

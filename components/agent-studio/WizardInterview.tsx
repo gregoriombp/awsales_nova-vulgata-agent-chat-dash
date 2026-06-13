@@ -245,7 +245,7 @@ export function WizardInterview({
                     </span>
                     {opt.recommended && (
                       <span
-                        className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-3xs font-medium ${
                           sel
                             ? "bg-(--fg-on-inverse)/10 text-(--fg-on-inverse)"
                             : "bg-bg-muted text-fg-secondary"

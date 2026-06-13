@@ -121,7 +121,7 @@ export function ProdutosStep({
               </span>
               <div className="min-w-0">
                 <p className="truncate text-sm font-medium">{p.name}</p>
-                <p className="text-[11px] text-(--fg-tertiary)">
+                <p className="text-2xs text-(--fg-tertiary)">
                   {p.fontes} {p.fontes === 1 ? "fonte" : "fontes"} de conhecimento
                 </p>
               </div>
@@ -258,10 +258,10 @@ export function ProdutosStep({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{e.name}</span>
-                    <span className="block truncate text-[11px] text-(--fg-tertiary)">
+                    <span className="block truncate text-2xs text-(--fg-tertiary)">
                       {e.meta}
                     </span>
-                    <span className="block truncate text-[11px] text-(--fg-tertiary)">
+                    <span className="block truncate text-2xs text-(--fg-tertiary)">
                       {e.used}
                     </span>
                   </span>

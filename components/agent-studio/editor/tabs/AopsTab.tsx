@@ -282,14 +282,14 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
             </p>
 
             <div>
-              <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+              <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
                 Instruções do protocolo
               </h3>
               <ol className="mt-3 space-y-2.5">
                 {(AOP_PASSOS[detalhe.id] ?? AOP_PASSOS_DEFAULT).map(
                   (passo, i) => (
                     <li key={i} className="flex items-start gap-3">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--bg-hover) text-[11px] font-medium text-(--fg-secondary)">
+                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-(--bg-hover) text-2xs font-medium text-(--fg-secondary)">
                         {i + 1}
                       </span>
                       <span className="text-sm leading-relaxed text-(--fg-secondary)">
@@ -302,7 +302,7 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
             </div>
 
             <div>
-              <h3 className="text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+              <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
                 Sobre
               </h3>
               <div className="mt-2">

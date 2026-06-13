@@ -88,7 +88,7 @@ export function PlaybookStep({
               <p className="text-sm font-medium">
                 Arquivos anexados ({playbook.files.length + playbook.extra})
               </p>
-              <p className="text-[11px] text-(--fg-tertiary)">Novo</p>
+              <p className="text-2xs text-(--fg-tertiary)">Novo</p>
             </div>
             <button
               type="button"
@@ -107,7 +107,7 @@ export function PlaybookStep({
                 <Icon name="picture_as_pdf" size={18} />
                 <div className="min-w-0">
                   <p className="truncate text-sm">{f}</p>
-                  <p className="text-[11px] text-(--fg-tertiary)">10 MB</p>
+                  <p className="text-2xs text-(--fg-tertiary)">10 MB</p>
                 </div>
               </div>
             ))}
@@ -233,7 +233,7 @@ export function PlaybookStep({
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium">{e.name}</span>
-                    <span className="block truncate text-[11px] text-(--fg-tertiary)">{e.used}</span>
+                    <span className="block truncate text-2xs text-(--fg-tertiary)">{e.used}</span>
                   </span>
                   <Icon
                     name={on ? "radio_button_checked" : "radio_button_unchecked"}

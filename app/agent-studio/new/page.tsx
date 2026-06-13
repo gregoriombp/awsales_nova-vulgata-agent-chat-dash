@@ -1001,7 +1001,7 @@ function AgentStudioNewContent() {
                                 {c.name}
                               </h4>
                               {soon ? (
-                                <span className="inline-flex shrink-0 items-center rounded-full bg-bg-muted px-2 py-0.5 text-[10px] font-medium text-fg-tertiary">
+                                <span className="inline-flex shrink-0 items-center rounded-full bg-bg-muted px-2 py-0.5 text-3xs font-medium text-fg-tertiary">
                                   Em breve
                                 </span>
                               ) : (
@@ -1156,7 +1156,7 @@ function AgentStudioNewContent() {
                               ? "Escolha o template aprovado que abre a conversa."
                               : "Template aprovado que abre a conversa. As variáveis "}
                             {!templatePickerOpen && (
-                              <code className="font-mono text-[11px]">
+                              <code className="font-mono text-2xs">
                                 {"{{1}}"}
                               </code>
                             )}
@@ -1200,7 +1200,7 @@ function AgentStudioNewContent() {
                                       {t.name}
                                     </h4>
                                     <span
-                                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-3xs font-medium ${
                                         pending
                                           ? "bg-aw-amber-100 text-aw-amber-800"
                                           : "bg-aw-emerald-100 text-aw-emerald-800"

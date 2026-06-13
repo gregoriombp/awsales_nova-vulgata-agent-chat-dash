@@ -181,7 +181,7 @@ function ResumoMarker({
   return (
     <span
       className={cn(
-        "relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-medium tabular-nums shadow-[0_0_0_3px_var(--bg-surface)] transition-colors duration-aw-base",
+        "relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full text-2xs font-medium tabular-nums shadow-[0_0_0_3px_var(--bg-surface)] transition-colors duration-aw-base",
         status === "paid"
           ? "bg-aw-emerald-600 text-aw-white"
           : current

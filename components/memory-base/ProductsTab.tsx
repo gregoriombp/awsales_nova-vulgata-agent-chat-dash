@@ -44,7 +44,7 @@ export function ProductsTab() {
       <div className="mt-5">
         {view === "lista" ? (
           <div className="overflow-hidden rounded-2xl border border-(--border-default)">
-            <div className={cn("grid gap-3 border-b border-(--border-subtle) bg-(--bg-surface) px-4 py-2.5 text-[11px] font-medium uppercase tracking-wide text-(--fg-tertiary)", ROW_GRID)}>
+            <div className={cn("grid gap-3 border-b border-(--border-subtle) bg-(--bg-surface) px-4 py-2.5 text-2xs font-medium uppercase tracking-wide text-(--fg-tertiary)", ROW_GRID)}>
               <span>Produto</span>
               <span>ID</span>
               <span>Categoria</span>
@@ -55,7 +55,7 @@ export function ProductsTab() {
               <div key={p.id} className={cn("grid items-center gap-3 border-b border-(--border-subtle) px-4 py-3 last:border-0 hover:bg-(--bg-hover)", ROW_GRID)}>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{p.nome}</p>
-                  <p className="text-[11px] text-(--fg-tertiary)">{p.sub}</p>
+                  <p className="text-2xs text-(--fg-tertiary)">{p.sub}</p>
                 </div>
                 <span className="text-xs text-(--fg-secondary)">{p.id}</span>
                 <span className="text-xs text-(--fg-secondary)">{p.cat}</span>
@@ -80,10 +80,10 @@ export function ProductsTab() {
                   <AwPill variant="neutral">{p.sub}</AwPill>
                 </div>
                 <p className="text-xs text-(--fg-tertiary)">Categoria: {p.cat}</p>
-                <span className="inline-flex items-center gap-1.5 text-[11px] text-(--fg-tertiary)">
+                <span className="inline-flex items-center gap-1.5 text-2xs text-(--fg-tertiary)">
                   <Icon name="picture_as_pdf" size={13} /> {p.arq}
                 </span>
-                <div className="mt-1 flex items-center justify-between border-t border-(--border-subtle) pt-2 text-[11px] text-(--fg-tertiary)">
+                <div className="mt-1 flex items-center justify-between border-t border-(--border-subtle) pt-2 text-2xs text-(--fg-tertiary)">
                   <span>{p.id}</span>
                   <span>{p.preco}</span>
                 </div>

@@ -248,7 +248,7 @@ export function AwDropzone({
         key={item.id}
         className="flex shrink-0 items-start gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3"
       >
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-[10px] font-semibold uppercase text-(--fg-secondary)">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-3xs font-semibold uppercase text-(--fg-secondary)">
           {fileKindLabel(item.name, item.type)}
         </div>
         <div className="min-w-0 flex-1">

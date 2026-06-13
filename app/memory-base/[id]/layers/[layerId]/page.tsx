@@ -129,7 +129,7 @@ export default function EditKnowledgeLayerPage() {
                 rows={6}
                 className="w-full resize-y rounded-xl border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-sm leading-relaxed text-(--fg-primary) outline-none placeholder:text-(--fg-tertiary) focus:border-(--border-strong)"
               />
-              <span className="text-[11px] text-(--fg-tertiary)">
+              <span className="text-2xs text-(--fg-tertiary)">
                 Digite {"{}"} para ver as variáveis disponíveis.
               </span>
             </label>
