@@ -11,6 +11,11 @@ description: >
   inspiração", "design system de referência visual".
 ---
 
+> **[DEPRECADO neste repo — use `bombardier-design-system-foundation`].** O design
+> system e os tokens deste repo já existem; não rebootstrape a partir de uma imagem.
+> Para mexer em tokens/foundation, use **`bombardier-design-system-foundation`**
+> (a única skill autorizada a criar token). Ver tabela "Routing" em `AGENTS.md`.
+
 # Design System Setup — Reference Image
 
 Este skill recebe **uma imagem de referência** (screenshot do Dribbble,

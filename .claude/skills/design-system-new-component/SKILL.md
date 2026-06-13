@@ -11,6 +11,12 @@ description: >
   componente para incluir no styleguide.
 ---
 
+> **[DEPRECADO neste repo — use `bombardier-new-component`].** Esta skill é genérica e
+> **Aw-cega**: gera componente sem prefixo `Aw`, no lugar errado e fora dos tokens
+> AwSales. Não use aqui. Para adicionar/editar componente, use
+> **`bombardier-new-component`** (ver tabela "Routing" em `AGENTS.md` e
+> `docs/component-map.md`).
+
 # Design System — Novo Componente
 
 Adiciona um componente ao projeto seguindo a hierarquia: **shadcn registry →

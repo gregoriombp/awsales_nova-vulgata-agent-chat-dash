@@ -12,6 +12,11 @@ description: >
   screenshot", "transformar mockup em código".
 ---
 
+> **[DEPRECADO neste repo — use `bombardier-new-page`].** Esta skill é genérica e
+> **Aw-cega**: gera página/componentes fora do padrão `Aw*` e dos tokens AwSales.
+> Não use aqui. Para construir/reformular página, use **`bombardier-new-page`**
+> (ver tabela "Routing" em `AGENTS.md` e `docs/component-map.md`).
+
 # Design System — Nova Página
 
 Constrói uma página completa em Next.js (App Router) a partir de um design

@@ -10,6 +10,11 @@ description: >
   vindo do claude.com/design.
 ---
 
+> **[DEPRECADO neste repo — use `bombardier-design-system-foundation`].** O design
+> system e os tokens deste repo já existem; não rebootstrape. Para mexer em
+> tokens/foundation, use **`bombardier-design-system-foundation`** (a única skill
+> autorizada a criar token). Ver tabela "Routing" em `AGENTS.md`.
+
 # Design System Setup — Claude Design Handoff
 
 Este skill recebe um handoff do **Claude Design** (`.zip` baixado **ou** fetch
