@@ -295,7 +295,7 @@ Termos canônicos pra usar em UI:
 
 Rotas existentes em `app/` (confirmadas em maio/2026) — cada uma em estado próprio. **Conferir visualmente antes de assumir** se está pronta, parcial ou stub:
 
-`agent-studio`, `agent-studio-v2`, `aops`, `approvals`, `canais`, `conversations`, `dashboard`, `history`, `inicio` (home logada), `insights`, `integrations`, `knowledge-os`, `library`, `memory-base`, `playground`, `primeiro-acesso`, `settings`, `setup`, `tools`, `triggers`
+`agent-studio`, `agent-studio-v2`, `aops`, `approvals`, `canais`, `conversations`, `dashboard`, `history`, `inicio` (home logada), `insights`, `integrations`, `library`, `memory-base`, `playground`, `primeiro-acesso`, `settings`, `setup`, `tools`, `triggers`
 
 **Onde focar dependendo do contexto**:
 - **Agent Studio e Memory Base** — também detalhados completamente no Figma (Flow library AW). Toda iteração deve cruzar com o Figma desse fluxo.
