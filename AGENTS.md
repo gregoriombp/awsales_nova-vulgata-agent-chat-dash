@@ -5,6 +5,8 @@ Conventions for any AI Agent (Claude Code, Codex, Cursor, etc.) working in this 
 > For product context (what AwSales is, voice, vocabulary) see `AWSALES_CONTEXT.md`. For styleguide page structure see `docs/`. The conventions, tokens, stack rules and skills below are authoritative.
 >
 > **Before building anything, open [`docs/component-map.md`](docs/component-map.md)** — the index of "I need X → use Y → import path → when not to". It is the fastest way to find the right `Aw*` component and avoid recreating one that already exists.
+>
+> Continuing the design-system cleanup? Read [`docs/ds-cleanup-plan.md`](docs/ds-cleanup-plan.md) (what's done, what's left, how to resume) and run `npm run ds:check` for the live debt count.
 
 ## Context hygiene for agents
 
