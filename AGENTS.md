@@ -3,6 +3,8 @@
 Conventions for any AI Agent (Claude Code, Codex, Cursor, etc.) working in this repository. **This is the single source of truth — read it before starting.** It holds the complete rules; `CLAUDE.md` is a thin pointer back here (Claude Code auto-loads `CLAUDE.md` and lands on these same rules). **Keep every rule HERE — never add rules to `CLAUDE.md`**, so the two can never diverge.
 
 > For product context (what AwSales is, voice, vocabulary) see `AWSALES_CONTEXT.md`. For styleguide page structure see `docs/`. The conventions, tokens, stack rules and skills below are authoritative.
+>
+> **Before building anything, open [`docs/component-map.md`](docs/component-map.md)** — the index of "I need X → use Y → import path → when not to". It is the fastest way to find the right `Aw*` component and avoid recreating one that already exists.
 
 ## Context hygiene for agents
 
@@ -107,19 +109,31 @@ New components from now on follow the correct flow from day one (primitive + wra
 - Allowed: Tailwind classes that reference existing tokens (`bg-primary`, `text-fg-primary`, `border-border`, `rounded-lg`, `shadow-sm`, etc.) and CSS variables (`var(--bg-canvas)`, `var(--accent-brand)`).
 - If a token genuinely does not exist and the work requires it, **report it in the output** instead of creating it — the foundation skill is the only one authorized to extend the token set.
 
-### 3. Components before code
+### 3. Components before code — compose, don't recreate
 
-- Before writing a new component, check:
+- **Step 0: open [`docs/component-map.md`](docs/component-map.md)** — the "I need X →
+  use Y → import" index. It names the canonical component and the near-duplicates to
+  avoid (which card, which table, the Fluid caveat). This is the single biggest lever
+  against agents rebuilding what already exists.
+- Then check, in order:
   1. `/components/ui/Aw*` (official)
   2. `/components/*` root (legacy — prefer migrating to `Aw*` instead of duplicating)
   3. `/components/ui/*.tsx` lowercase (shadcn primitives — check if an `Aw` wrapper exists)
-- Reuse and extend > recreate.
+- **Reuse > extend > create.** Extend or wrap an existing component when it's close;
+  build from scratch *only* when nothing fits and the semantics are genuinely new.
+  Never duplicate an existing component under a new name.
+- **Compose from primitives (the recipe rule).** A bigger piece is a *recipe* of `Aw*`
+  primitives: a card / modal / page uses `AwButton` + `Icon` + `AwInput` — it does
+  **not** re-implement a button, icon, or input inline, and never drops a raw `<svg>`
+  or hardcoded glyph where `Icon` belongs. Dependency direction is one-way (see
+  `docs/component-layers.md`): higher layers consume lower ones, never the reverse.
 
 ### 4. Stack & scope gotchas
 
 - **Tailwind v4.** This repo is Tailwind **v4** (`@import "tailwindcss"` + `@theme` in `app/globals.css`; there is **no `tailwind.config.ts`**). Tokens live in the `@theme` block + `:root` CSS vars in `globals.css`. Enter/exit animations come from `tw-animate-css` (not `tailwindcss-animate`); container queries are core (no plugin). Dark mode is `@custom-variant dark` + the `.dark` class. PostCSS uses `@tailwindcss/postcss` (no autoprefixer — Lightning CSS handles prefixing). The `.claude/` dir is excluded from content-scan via `@source not`.
-- **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the product/DS default. Default weight is a thin **200** (the refined/light look — keep it; only pass a heavier `weight` for a deliberate exception). `react-icons` is allowed **only** for brand marks Material Symbols lacks (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` only leaks in via CLI-generated shadcn primitives — don't reach for it in product code.
+- **Icons.** Material Symbols Rounded via `components/ui/Icon.tsx` is the product/DS default. Default weight is a thin **200** (the refined/light look — keep it; only pass a heavier `weight` for a deliberate exception). `react-icons` is allowed **only** for brand marks Material Symbols lacks (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` only leaks in via CLI-generated shadcn primitives — don't reach for it in product code. **Never hand-roll a raw `<svg>` or hardcode a glyph for an icon — go through `Icon`** (raw `<svg>` is reserved for brand illustrations / agent visuals like `AwBrandIllustration`, `AwAgentCore`).
 - **Motion is on by default — don't hand-roll it per element.** Interactive elements (`a, button, input, select, textarea, summary, label, [role=button|tab|menuitem|option|switch|checkbox|radio]`) get a smooth paint transition for free via a `@layer base` rule in `globals.css` (color/background/border/shadow/outline/decoration/fill/stroke at `--dur-fast`/`--ease-out`, with a `prefers-reduced-motion` guard). So a plain hover never needs `transition-colors` added by hand. Because it's in `@layer base`, component classes (`.aw-btn`, `.aw-card`…) and Tailwind `transition-*`/`duration-*` utilities both still override it — reach for those (or `var(--dur-*)`/`var(--ease-*)`) only for a *custom* motion (transform, opacity, a different curve/duration). Never blanket-animate `transform`/`opacity` globally — they're reserved for enter animations.
+- **Fluid kit is a contained motion layer (preview).** `components/ui/fluid/*` ports spring-physics interactions (framer-motion) mapped to AwSales tokens. The `fluid/*` *primitives* (`switch`, `slider`, `checkbox-group`, `dialog`, `dropdown`, `accordion`, `badge`, `tooltip`) **duplicate** the `Aw*` ones and are preview — **don't import them directly; use the `Aw*` equivalent.** Its sanctioned, promoted surface is the three components built on it: `AwInputMessage`, `AwThinkingSteps`, `AwAskUserQuestions`. Folding the motors into the `Aw*` primitives ("leva 2") is future work. See `docs/component-map.md` → Motion.
 - **No emoji.** Do not add emoji to product UI, styleguide documentation, generated diagrams, or agent-facing docs unless the user explicitly asks for one or a source asset already contains it.
 - **Feature modules are out of DS scope.** `components/{auth,memory-base}` (and similar app-feature folders) are NOT DS components — they *consume* `Aw*` but are not themselves prefixed/wrapped/showcased. Don't rename them to `Aw*` or migrate them.
 - **Desktop-only.** The product has no mobile. Don't add mobile/tablet breakpoints or flag "missing responsiveness" — `components/DesktopOnlyBlocker.tsx` gates small screens by design.
