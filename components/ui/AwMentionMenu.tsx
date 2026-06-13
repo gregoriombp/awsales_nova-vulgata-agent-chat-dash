@@ -80,7 +80,7 @@ function EntryRow({
       }}
       onMouseEnter={() => onHover?.(entry.key)}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-[13px] transition-colors duration-aw-fast",
+        "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors duration-aw-fast",
         active
           ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
           : entry.accent === "purple"

@@ -76,7 +76,7 @@ export function KnowledgeBaseCard({
               </AwPill>
             )}
           </div>
-          <p className="mt-1 line-clamp-1 text-[13px] text-(--fg-tertiary)">
+          <p className="mt-1 line-clamp-1 text-sm text-(--fg-tertiary)">
             {base.tipoDados?.trim() || "Base de conhecimento"}
           </p>
         </div>
@@ -114,7 +114,7 @@ export function KnowledgeBaseCard({
       </div>
 
       {/* Métricas */}
-      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-(--fg-secondary)">
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-(--fg-secondary)">
         <Stat icon={ICON.fontes} label={`${base.fontes} fontes`} />
         <Stat icon={ICON.layers} label={`${base.knowledgeLayers} Knowledge Layers`} />
       </div>

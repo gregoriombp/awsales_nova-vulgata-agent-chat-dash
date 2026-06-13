@@ -67,17 +67,17 @@ export function AwListGroup({
             {media && <span className="shrink-0">{media}</span>}
             <span className="min-w-0 flex-1">
               <span className="flex flex-wrap items-center gap-2">
-                <span className="text-[17px] font-semibold tracking-[-0.01em] text-(--fg-primary)">
+                <span className="text-lg font-semibold tracking-[-0.01em] text-(--fg-primary)">
                   {title}
                 </span>
                 {meta && (
-                  <span className="flex flex-wrap items-center gap-2 text-[13px] text-(--fg-tertiary)">
+                  <span className="flex flex-wrap items-center gap-2 text-sm text-(--fg-tertiary)">
                     {meta}
                   </span>
                 )}
               </span>
               {subtitle && (
-                <span className="mt-0.5 block truncate text-[13px] text-(--fg-tertiary)">
+                <span className="mt-0.5 block truncate text-sm text-(--fg-tertiary)">
                   {subtitle}
                 </span>
               )}

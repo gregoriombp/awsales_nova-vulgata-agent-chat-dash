@@ -371,7 +371,7 @@ function Section({
       >
         {title}
       </h2>
-      <p className="mt-1 max-w-[560px] text-[13px] leading-relaxed text-(--fg-tertiary)">
+      <p className="mt-1 max-w-[560px] text-sm leading-relaxed text-(--fg-tertiary)">
         {description}
       </p>
       <div className="mt-5">{children}</div>
@@ -404,7 +404,7 @@ function ChoiceGroup({
               aria-pressed={selected}
               onClick={() => onChange(selected ? "" : o.id)}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors",
+                "inline-flex items-center gap-2 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
                 selected
                   ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-raised)"
                   : "border-(--border-default) bg-(--bg-raised) text-(--fg-secondary) hover:border-(--border-strong) hover:text-(--fg-primary)",

@@ -36,7 +36,7 @@ function NavRow({
       title={collapsed ? label : undefined}
       aria-label={collapsed ? label : undefined}
       aria-current={active ? "page" : undefined}
-      className={`flex w-full items-center rounded-lg text-left text-[13px] font-medium transition-colors duration-aw-fast ${
+      className={`flex w-full items-center rounded-lg text-left text-sm font-medium transition-colors duration-aw-fast ${
         collapsed ? "justify-center px-0 py-2.5" : "gap-2.5 px-2.5 py-2"
       } ${
         active
@@ -93,8 +93,8 @@ function StatRow({
       <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
         {icon}
       </span>
-      <span className="min-w-0 flex-1 truncate text-[13px] text-(--fg-secondary)">{label}</span>
-      <span className="shrink-0 text-[13px] font-medium tabular-nums text-(--fg-primary)">
+      <span className="min-w-0 flex-1 truncate text-sm text-(--fg-secondary)">{label}</span>
+      <span className="shrink-0 text-sm font-medium tabular-nums text-(--fg-primary)">
         {value}
       </span>
     </div>

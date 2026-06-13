@@ -95,7 +95,7 @@ export function ProdutosStep({
       <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
         Produtos
       </h1>
-      <p className="mt-2 text-[15px] text-(--fg-tertiary)">
+      <p className="mt-2 text-base text-(--fg-tertiary)">
         Selecione produtos já utilizados na organização ou crie novos itens para
         adicioná-los a esta base de conhecimento.
       </p>

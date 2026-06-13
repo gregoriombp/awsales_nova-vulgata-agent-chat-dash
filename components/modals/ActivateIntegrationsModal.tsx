@@ -105,12 +105,12 @@ export default function ActivateIntegrationsModal({
             <button
               type="button"
               onClick={selectAll}
-              className="text-[13px] font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
+              className="text-sm font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
             >
               {allSelected ? "Desmarcar todas" : "Selecionar todas"}
             </button>
             {selectedCount > 0 && (
-              <span className="text-[13px] text-(--fg-tertiary)">
+              <span className="text-sm text-(--fg-tertiary)">
                 {selectedCount} selecionada{selectedCount !== 1 ? "s" : ""}
               </span>
             )}

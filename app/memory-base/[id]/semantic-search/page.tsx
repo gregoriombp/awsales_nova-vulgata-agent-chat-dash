@@ -257,7 +257,7 @@ export default function SemanticSearchPage() {
             }`}
           >
             {state === "idle" && (
-              <p className="mbss-reveal mb-8 max-w-[560px] text-center text-[15px] leading-relaxed text-(--fg-secondary)">
+              <p className="mbss-reveal mb-8 max-w-[560px] text-center text-base leading-relaxed text-(--fg-secondary)">
                 Pergunte como um cliente perguntaria. A busca recupera os
                 Knowledge Layers que seus agentes usam para responder em
                 conversas reais.
@@ -284,7 +284,7 @@ export default function SemanticSearchPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ex.: Como funciona a política de reembolso?"
-                  className="h-full flex-1 bg-transparent text-[15px] text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary)"
+                  className="h-full flex-1 bg-transparent text-base text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary)"
                 />
                 {state !== "idle" && (
                   <button
@@ -320,7 +320,7 @@ export default function SemanticSearchPage() {
                       key={s}
                       type="button"
                       onClick={() => runSearch(s)}
-                      className="rounded-full border border-(--border-default) bg-(--bg-raised) px-3.5 py-1.5 text-[13px] text-(--fg-secondary) transition-colors hover:border-(--aw-blue-400) hover:text-(--fg-primary)"
+                      className="rounded-full border border-(--border-default) bg-(--bg-raised) px-3.5 py-1.5 text-sm text-(--fg-secondary) transition-colors hover:border-(--aw-blue-400) hover:text-(--fg-primary)"
                     >
                       {s}
                     </button>
@@ -336,7 +336,7 @@ export default function SemanticSearchPage() {
                         key={r}
                         type="button"
                         onClick={() => runSearch(r)}
-                        className="rounded-full px-3 py-1.5 text-[13px] text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+                        className="rounded-full px-3 py-1.5 text-sm text-(--fg-tertiary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
                       >
                         {r}
                       </button>
@@ -359,7 +359,7 @@ export default function SemanticSearchPage() {
 
             {state === "results" && top && (
               <div className="flex flex-col gap-4">
-                <p className="mbss-reveal text-[13px] text-(--fg-tertiary)">
+                <p className="mbss-reveal text-sm text-(--fg-tertiary)">
                   {results.length}{" "}
                   {results.length === 1 ? "correspondência" : "correspondências"} para{" "}
                   <span className="font-medium text-(--fg-secondary)">“{lastQuery}”</span>{" "}

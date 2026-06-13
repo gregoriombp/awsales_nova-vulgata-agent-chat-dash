@@ -97,7 +97,7 @@ export function MfaSetupAppScreen({
           {c.secretLabel}
         </label>
         <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-aw-gray-300 bg-aw-gray-150">
-          <code className="flex-1 min-w-0 text-[13px] tracking-wider tabular-nums text-aw-gray-1200 overflow-x-auto">
+          <code className="flex-1 min-w-0 text-sm tracking-wider tabular-nums text-aw-gray-1200 overflow-x-auto">
             {formatSecret(secret)}
           </code>
           <button

@@ -64,7 +64,7 @@ export function PlaybookStep({
         Playbook
         <Icon name="info" size={20} />
       </h1>
-      <p className="mt-2 text-[15px] text-(--fg-tertiary)">
+      <p className="mt-2 text-base text-(--fg-tertiary)">
         Insira fontes de conhecimento para gerar novas knowledge layers, ou selecione
         o playbook de outra base de conhecimento.
       </p>

@@ -1093,7 +1093,7 @@ function CompactRoleList({
   return (
     <aside className="flex flex-col self-start divide-y divide-(--border-subtle) overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
       <div className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-2.5">
-        <p className="m-0 text-[13px] font-semibold tracking-tight text-(--fg-primary)">
+        <p className="m-0 text-sm font-semibold tracking-tight text-(--fg-primary)">
           Funções · {roles.length}
         </p>
         <AwButton size="sm" variant="primary" iconLeft="add" onClick={onCreate}>
@@ -1324,13 +1324,13 @@ function RoleHeader({
                         initials={m.initials}
                         alt=""
                         className={
-                          "h-[20px]! w-[20px]! text-[9px]! ring-2 ring-(--bg-raised)" +
+                          "h-[20px]! w-[20px]! text-3xs! ring-2 ring-(--bg-raised)" +
                           (i > 0 ? " -ml-1.5" : "")
                         }
                       />
                     ))}
                     {facepileOverflow > 0 && (
-                      <span className="aw-avatar aw-avatar--sm -ml-1.5 h-[20px]! w-[20px]! bg-(--bg-muted)! text-[9px]! text-(--fg-secondary)! ring-2 ring-(--bg-raised)">
+                      <span className="aw-avatar aw-avatar--sm -ml-1.5 h-[20px]! w-[20px]! bg-(--bg-muted)! text-3xs! text-(--fg-secondary)! ring-2 ring-(--bg-raised)">
                         +{facepileOverflow}
                       </span>
                     )}

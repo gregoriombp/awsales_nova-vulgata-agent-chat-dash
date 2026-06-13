@@ -151,7 +151,7 @@ export default function ProfileSettingsPage() {
 
             {repositioning && (
               <div className="absolute inset-0 flex flex-col items-center justify-between py-3 pointer-events-none">
-                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-xs">
+                <div className="inline-flex items-center gap-1.5 rounded-full bg-black/60 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-xs">
                   <Icon name="swap_vert" size={14} aria-hidden="true" />
                   Arraste para reposicionar
                 </div>
@@ -159,14 +159,14 @@ export default function ProfileSettingsPage() {
                   <button
                     type="button"
                     onClick={cancelReposition}
-                    className="rounded-md bg-black/50 px-3 py-1.5 text-[13px] font-medium text-white backdrop-blur-xs hover:bg-black/70 transition-colors"
+                    className="rounded-md bg-black/50 px-3 py-1.5 text-sm font-medium text-white backdrop-blur-xs hover:bg-black/70 transition-colors"
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
                     onClick={saveReposition}
-                    className="rounded-md bg-white px-3 py-1.5 text-[13px] font-medium text-(--fg-primary) hover:bg-white/90 transition-colors"
+                    className="rounded-md bg-white px-3 py-1.5 text-sm font-medium text-(--fg-primary) hover:bg-white/90 transition-colors"
                   >
                     Salvar posição
                   </button>

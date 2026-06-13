@@ -189,7 +189,7 @@ function SkillCard({
         </span>
       )}
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[13px] font-medium text-(--fg-primary)">
+        <span className="block truncate text-sm font-medium text-(--fg-primary)">
           {skill.nome}
         </span>
         <span className="mt-0.5 block text-2xs leading-snug text-(--fg-tertiary) line-clamp-2">

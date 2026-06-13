@@ -259,7 +259,7 @@ function BuildingStep({ onDone }: { onDone: () => void }) {
         </h1>
         {/* Altura fixa: a troca de mensagem não move o layout. */}
         <div className="mt-3 flex h-6 items-center justify-center">
-          <p key={msgIndex} className="mbnew-msg text-[15px] text-(--fg-secondary)">
+          <p key={msgIndex} className="mbnew-msg text-base text-(--fg-secondary)">
             {BUILDING_MESSAGES[msgIndex]}
           </p>
         </div>
@@ -315,7 +315,7 @@ function NameStep({
             }
           }}
           placeholder="Ex: Brandbook da Marca"
-          className="h-[46px] flex-1 rounded-xl border border-(--border-default) bg-(--bg-raised) px-4 text-[15px] text-(--fg-primary) outline-hidden transition-colors placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
+          className="h-[46px] flex-1 rounded-xl border border-(--border-default) bg-(--bg-raised) px-4 text-base text-(--fg-primary) outline-hidden transition-colors placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
         />
         <AwButton variant="primary" size="lg" className="w-auto" onClick={onCreate} disabled={!canCreate}>
           Criar
@@ -371,7 +371,7 @@ function ChoiceStep({
   return (
     <div className="flex w-full max-w-[1080px] flex-col">
       <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">{title}</h1>
-      <p className="mt-2 text-[15px] text-(--fg-tertiary)">{subtitle}</p>
+      <p className="mt-2 text-base text-(--fg-tertiary)">{subtitle}</p>
 
       <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {options.map((o) => {
@@ -417,7 +417,7 @@ function EnvioStep({
       <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
         Como os dados dos seus produtos serão enviados?
       </h1>
-      <p className="mt-2 text-[15px] text-(--fg-tertiary)">
+      <p className="mt-2 text-base text-(--fg-tertiary)">
         Escolha como os dados dos seus produtos serão enviados para a base de conhecimento.
       </p>
 

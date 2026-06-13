@@ -33,7 +33,7 @@ import {
 
 const headClass =
   "h-11 px-4 text-left align-middle text-[12.5px] font-medium text-(--fg-tertiary) whitespace-nowrap";
-const cellClass = "px-4 py-3.5 align-middle text-[13px] text-(--fg-secondary)";
+const cellClass = "px-4 py-3.5 align-middle text-sm text-(--fg-secondary)";
 const numClass = `${cellClass} text-right tabular-nums`;
 
 export function KnowledgeBaseTable({

@@ -189,7 +189,7 @@ function RuleSuggestionCard({
         size={16}
         className="shrink-0 text-(--aw-purple-700)"
       />
-      <p className="min-w-0 flex-1 truncate text-[13px] text-(--aw-purple-900)">
+      <p className="min-w-0 flex-1 truncate text-sm text-(--aw-purple-900)">
         Encontrei uma condição: <em>“se {suggestion.se}…”</em> — quer
         transformar em regra?
       </p>
@@ -502,7 +502,7 @@ function CheckpointSection({
     >
       {/* Header da seção */}
       <header className="flex items-center gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--bg-hover) font-heading text-[13px] font-medium text-(--fg-secondary)">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-(--bg-hover) font-heading text-sm font-medium text-(--fg-secondary)">
           {pad(cp.numero)}
         </span>
         <input
@@ -510,7 +510,7 @@ function CheckpointSection({
           onChange={(e) => onPatch({ titulo: e.target.value })}
           placeholder="Título do checkpoint"
           aria-label={`Título do checkpoint ${pad(cp.numero)}`}
-          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-[17px] font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-tertiary)"
+          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-lg font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-tertiary)"
         />
         <div className="shrink-0 opacity-0 transition-opacity duration-aw-fast focus-within:opacity-100 group-hover/cp:opacity-100">
           <AwDropdownMenu
@@ -546,7 +546,7 @@ function CheckpointSection({
         </div>
 
         {/* Corpo — instruções em linguagem natural */}
-        <div className="text-[15px] leading-7 text-(--fg-primary)">
+        <div className="text-base leading-7 text-(--fg-primary)">
           <InlineEditor
             value={cp.corpo}
             onChange={(v) => onPatch({ corpo: v })}
@@ -555,7 +555,7 @@ function CheckpointSection({
             placeholder={
               "Escreva as instruções em linguagem natural — @ para tools e AOPs, {{ para variáveis…"
             }
-            className="min-h-14 text-[15px] leading-7"
+            className="min-h-14 text-base leading-7"
             {...editor}
           />
         </div>
@@ -805,7 +805,7 @@ export function CheckpointDocument({
       <div className="flex items-center gap-3 px-9 pb-9 pt-3">
         <span
           aria-hidden="true"
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-heading text-[13px] font-medium text-(--fg-muted)"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg font-heading text-sm font-medium text-(--fg-muted)"
         >
           {pad(checkpoints.length + 1)}
         </span>
@@ -817,7 +817,7 @@ export function CheckpointDocument({
           }}
           placeholder="Escreva para criar o próximo checkpoint…"
           aria-label="Criar novo checkpoint digitando o título"
-          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-[17px] font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-muted)"
+          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-lg font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-muted)"
         />
       </div>
 

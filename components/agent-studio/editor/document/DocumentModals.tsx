@@ -237,7 +237,7 @@ export function ChipPropertiesModal({
               <h2 className="truncate font-heading text-lg font-medium text-(--fg-primary)">
                 {titulo}
               </h2>
-              <p className="truncate text-[13px] text-(--aw-slate-600)">
+              <p className="truncate text-sm text-(--aw-slate-600)">
                 {token.kind === "mention"
                   ? `@${token.id}`
                   : `{{${token.name}}}`}

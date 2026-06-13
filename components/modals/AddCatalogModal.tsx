@@ -150,7 +150,7 @@ export default function AddCatalogModal({
                   <button
                     type="button"
                     onClick={() => setShowInstr(true)}
-                    className="inline-flex w-fit items-center gap-1.5 text-[13px] text-(--fg-secondary) hover:text-(--fg-primary)"
+                    className="inline-flex w-fit items-center gap-1.5 text-sm text-(--fg-secondary) hover:text-(--fg-primary)"
                   >
                     <Icon name="help" size={16} /> Instruções para o arquivo CSV
                   </button>

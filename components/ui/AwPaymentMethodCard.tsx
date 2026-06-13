@@ -107,7 +107,7 @@ export function AwPaymentMethodCard({
             <div className="min-w-0">
               {holderName && (
                 <>
-                  <p className="m-0 text-[9px] font-medium uppercase tracking-widest text-white/55">
+                  <p className="m-0 text-3xs font-medium uppercase tracking-widest text-white/55">
                     Titular
                   </p>
                   <p className="m-0 truncate body-xs font-medium text-white">
@@ -119,7 +119,7 @@ export function AwPaymentMethodCard({
             <div className="text-right">
               {expiresAt && (
                 <>
-                  <p className="m-0 text-[9px] font-medium uppercase tracking-widest text-white/55">
+                  <p className="m-0 text-3xs font-medium uppercase tracking-widest text-white/55">
                     Validade
                   </p>
                   <p className="m-0 body-xs font-medium tabular-nums text-white">

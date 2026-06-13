@@ -103,7 +103,7 @@ export function CatalogoStep({
       <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
         Catálogo
       </h1>
-      <p className="mt-2 text-[15px] text-(--fg-tertiary)">
+      <p className="mt-2 text-base text-(--fg-tertiary)">
         Selecione um catálogo já utilizado na organização ou crie um novo para
         adicioná-lo a esta base de conhecimento.
       </p>

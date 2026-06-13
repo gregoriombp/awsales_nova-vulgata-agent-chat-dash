@@ -838,7 +838,7 @@ function MemoryBaseDirectoryContent() {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px] text-gray-400">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-gray-400">
               {/* Status */}
               <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5">
                 <span
@@ -892,7 +892,7 @@ function MemoryBaseDirectoryContent() {
                               setAgentSettingsModalAgent(agent);
                               setIsAgentsPopoverOpen(false);
                             }}
-                            className="w-full flex items-center gap-3 text-[13px] text-(--fg-primary) rounded-lg px-2 py-2 text-left transition-colors hover:bg-(--bg-muted)"
+                            className="w-full flex items-center gap-3 text-sm text-(--fg-primary) rounded-lg px-2 py-2 text-left transition-colors hover:bg-(--bg-muted)"
                           >
                             <img
                               src={getOrbForAgent(agent.id)}
@@ -961,7 +961,7 @@ function MemoryBaseDirectoryContent() {
                 {isSourcesPopoverOpen && rows.length > 0 && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[220px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                     <div className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Resumo de Fontes</div>
-                    <div className="space-y-1.5 text-[13px] text-(--fg-primary)">
+                    <div className="space-y-1.5 text-sm text-(--fg-primary)">
                       <div className="flex items-center justify-between">
                         <span>Arquivos</span>
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Arquivo").length}</span>
@@ -1012,7 +1012,7 @@ function MemoryBaseDirectoryContent() {
                     <p className="text-[12px] text-(--fg-secondary) mb-3">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
-                    <div className="space-y-1.5 text-[13px] text-(--fg-primary)">
+                    <div className="space-y-1.5 text-sm text-(--fg-primary)">
                       <div className="flex items-center justify-between">
                         <span>Entidades extraídas</span>
                         <span className="font-medium">{Math.floor(totalKnowledgeLayers * 0.4)}</span>
@@ -1106,7 +1106,7 @@ function MemoryBaseDirectoryContent() {
                     <button
                       type="button"
                       onClick={() => navigateToFolder(currentFolder?.parentId ?? null)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-[13px] text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded-lg transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded-lg transition-colors"
                     >
                       <TbArrowLeft className="w-4 h-4" />
                       Voltar
@@ -1114,7 +1114,7 @@ function MemoryBaseDirectoryContent() {
                   )}
                   
                   {/* Breadcrumbs interno das pastas */}
-                  <nav className="flex items-center gap-1 text-[13px]">
+                  <nav className="flex items-center gap-1 text-sm">
                     <button
                       type="button"
                       onClick={() => navigateToFolder(null)}
@@ -1151,7 +1151,7 @@ function MemoryBaseDirectoryContent() {
                 <button
                   type="button"
                   onClick={() => setIsCreateFolderOpen(true)}
-                  className="flex items-center gap-2 px-3 py-2 text-[13px] font-medium text-(--fg-primary) border border-(--border-default) rounded-lg hover:bg-(--bg-hover) transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-(--fg-primary) border border-(--border-default) rounded-lg hover:bg-(--bg-hover) transition-colors"
                 >
                   <TbFolderPlus className="w-4 h-4" />
                   Nova pasta
@@ -1390,7 +1390,7 @@ function MemoryBaseDirectoryContent() {
                   <h2 id="drawer-title" className="text-[18px] font-semibold text-(--fg-primary) truncate">
                     {drawerRow.name}
                   </h2>
-                  <p className="text-[13px] text-(--fg-secondary) mt-0.5">{drawerRow.typeLabel}</p>
+                  <p className="text-sm text-(--fg-secondary) mt-0.5">{drawerRow.typeLabel}</p>
                 </div>
               </div>
               <button
@@ -1410,7 +1410,7 @@ function MemoryBaseDirectoryContent() {
                 <div>
                   <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">ID do arquivo</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] text-(--fg-primary) truncate" title={idToFileUuid(drawerRow.id)}>
+                    <span className="text-sm text-(--fg-primary) truncate" title={idToFileUuid(drawerRow.id)}>
                       {idToFileUuid(drawerRow.id)}
                     </span>
                     <button
@@ -1445,16 +1445,16 @@ function MemoryBaseDirectoryContent() {
                 </div>
                 <div>
                   <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Knowledge Layers</p>
-                  <p className="text-[13px] text-(--fg-primary)">{drawerRow.layersLabel}</p>
+                  <p className="text-sm text-(--fg-primary)">{drawerRow.layersLabel}</p>
                 </div>
                 <div>
                   <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Adicionado em</p>
-                  <p className="text-[13px] text-(--fg-primary)">{drawerRow.createdAt}</p>
+                  <p className="text-sm text-(--fg-primary)">{drawerRow.createdAt}</p>
                 </div>
                 <div>
                   <p className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-1.5">Atualizado em</p>
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] text-(--fg-primary)">{drawerRow.createdAt}</span>
+                    <span className="text-sm text-(--fg-primary)">{drawerRow.createdAt}</span>
                     <span className="text-(--fg-tertiary)" title="Última atualização">
                       <TbRefresh className="w-4 h-4" />
                     </span>
@@ -1468,7 +1468,7 @@ function MemoryBaseDirectoryContent() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("conteudo")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 text-sm font-medium border-b-2 transition-colors ${
                       drawerTab === "conteudo"
                         ? "border-(--fg-primary) text-(--fg-primary)"
                         : "border-transparent text-(--fg-secondary) hover:text-(--fg-primary)"
@@ -1479,7 +1479,7 @@ function MemoryBaseDirectoryContent() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("layers")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 text-sm font-medium border-b-2 transition-colors ${
                       drawerTab === "layers"
                         ? "border-(--fg-primary) text-(--fg-primary)"
                         : "border-transparent text-(--fg-secondary) hover:text-(--fg-primary)"
@@ -1490,7 +1490,7 @@ function MemoryBaseDirectoryContent() {
                   <button
                     type="button"
                     onClick={() => setDrawerTab("visualizar")}
-                    className={`py-3 text-[13px] font-medium border-b-2 transition-colors ${
+                    className={`py-3 text-sm font-medium border-b-2 transition-colors ${
                       drawerTab === "visualizar"
                         ? "border-(--fg-primary) text-(--fg-primary)"
                         : "border-transparent text-(--fg-secondary) hover:text-(--fg-primary)"
@@ -1517,7 +1517,7 @@ function MemoryBaseDirectoryContent() {
                         <strong>3. Conteúdo principal</strong><br />
                         A plataforma extrai automaticamente o texto do documento, identifica seções e entidades relevantes e enriquece o conteúdo com metadados para buscas e recomendações. Este bloco ilustra como um trecho processado seria apresentado ao usuário.
                       </p>
-                      <p className="text-[13px] text-(--fg-secondary)">
+                      <p className="text-sm text-(--fg-secondary)">
                         [Exemplo de demonstração — conteúdo real virá da extração automática.]
                       </p>
                     </div>
@@ -1527,31 +1527,31 @@ function MemoryBaseDirectoryContent() {
                       <button
                         type="button"
                         onClick={() => setEditingQAId(null)}
-                        className="inline-flex w-fit items-center gap-1.5 text-[13px] text-(--fg-secondary) hover:text-(--fg-primary)"
+                        className="inline-flex w-fit items-center gap-1.5 text-sm text-(--fg-secondary) hover:text-(--fg-primary)"
                       >
                         <TbArrowLeft className="w-4 h-4" /> Voltar para a lista
                       </button>
-                      <div className="text-[15px] font-semibold text-(--fg-primary)">Editar Knowledge Layer</div>
+                      <div className="text-base font-semibold text-(--fg-primary)">Editar Knowledge Layer</div>
                       <label className="flex flex-col gap-1.5">
-                        <span className="text-[13px] font-medium text-(--fg-primary)">Pergunta</span>
+                        <span className="text-sm font-medium text-(--fg-primary)">Pergunta</span>
                         <AwInput
                           value={editDraft.question}
                           onChange={(e) => setEditDraft((d) => ({ ...d, question: e.target.value }))}
                         />
                       </label>
                       <label className="flex flex-col gap-1.5">
-                        <span className="text-[13px] font-medium text-(--fg-primary)">Resposta</span>
+                        <span className="text-sm font-medium text-(--fg-primary)">Resposta</span>
                         <textarea
                           value={editDraft.answer}
                           onChange={(e) => setEditDraft((d) => ({ ...d, answer: e.target.value }))}
                           rows={6}
-                          className="w-full resize-y rounded-xl border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-[13px] leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
+                          className="w-full resize-y rounded-xl border border-(--border-default) bg-(--bg-raised) px-3 py-2 text-sm leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
                         />
                         <span className="text-2xs text-(--fg-tertiary)">Digite {"{}"} para ver as variáveis disponíveis.</span>
                       </label>
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-[13px] font-medium text-(--fg-primary)">Status</div>
+                          <div className="text-sm font-medium text-(--fg-primary)">Status</div>
                           <div className="text-[12px] text-(--fg-tertiary)">
                             {editDraft.status === "Ativo" ? "Ativo — em uso pelos agentes" : "Desativado"}
                           </div>
@@ -1563,7 +1563,7 @@ function MemoryBaseDirectoryContent() {
                         />
                       </div>
                       <div className="flex flex-col gap-1.5">
-                        <span className="text-[13px] font-medium text-(--fg-primary)">Anexos</span>
+                        <span className="text-sm font-medium text-(--fg-primary)">Anexos</span>
                         <AwDropzone variant="compact" accept=".pdf,.png,.jpg" maxSizeMb={10} />
                       </div>
                       <div className="mt-auto flex items-center justify-end gap-2 pt-2">
@@ -1598,7 +1598,7 @@ function MemoryBaseDirectoryContent() {
                             placeholder="Pesquisar pergunta ou resposta"
                             value={qaSearch}
                             onChange={(e) => setQaSearch(e.target.value)}
-                            className="w-full rounded-lg border border-(--border-default) bg-(--bg-raised) py-2 pl-3 pr-9 text-[13px] text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--fg-primary) focus:outline-hidden focus:ring-1 focus:ring-(--fg-primary)"
+                            className="w-full rounded-lg border border-(--border-default) bg-(--bg-raised) py-2 pl-3 pr-9 text-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:border-(--fg-primary) focus:outline-hidden focus:ring-1 focus:ring-(--fg-primary)"
                             aria-label="Pesquisar pergunta ou resposta"
                           />
                           <TbSearch className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-(--fg-tertiary) pointer-events-none" />
@@ -1612,7 +1612,7 @@ function MemoryBaseDirectoryContent() {
                             )
                           }
                           aria-pressed={qaStatusFilter !== "Todos"}
-                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-[13px] transition-colors ${
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
                             qaStatusFilter !== "Todos"
                               ? "border-(--fg-primary) bg-(--bg-inverse) text-(--fg-on-inverse)"
                               : "border-(--border-default) bg-(--bg-raised) text-(--fg-primary) hover:bg-(--bg-hover)"
@@ -1645,8 +1645,8 @@ function MemoryBaseDirectoryContent() {
                         {drawerLayersQA.filter(matchesQAFilters).map((item) => (
                           <li key={item.id} className="py-3 flex items-start gap-4">
                             <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-semibold text-(--fg-primary) leading-snug">{item.question}</p>
-                              <p className="text-[13px] text-(--fg-secondary) leading-snug mt-0.5">{item.answer}</p>
+                              <p className="text-sm font-semibold text-(--fg-primary) leading-snug">{item.question}</p>
+                              <p className="text-sm text-(--fg-secondary) leading-snug mt-0.5">{item.answer}</p>
                             </div>
                             <span
                               className="w-[100px] shrink-0 inline-flex items-center gap-1 text-[12px] font-medium"
@@ -1680,7 +1680,7 @@ function MemoryBaseDirectoryContent() {
                                 <div className="absolute right-0 top-full mt-1 z-20 w-[180px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-2 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                                   <button
                                     type="button"
-                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
+                                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--fg-primary) hover:bg-(--bg-muted)"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) =>
                                         prev.map((q) =>
@@ -1696,7 +1696,7 @@ function MemoryBaseDirectoryContent() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
+                                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--fg-primary) hover:bg-(--bg-muted)"
                                     onClick={() => {
                                       setEditDraft({ question: item.question, answer: item.answer, status: item.status });
                                       setEditingQAId(item.id);
@@ -1707,7 +1707,7 @@ function MemoryBaseDirectoryContent() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--fg-primary) hover:bg-(--bg-muted)"
+                                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--fg-primary) hover:bg-(--bg-muted)"
                                     onClick={() => {
                                       setLayersRowMenuIndex(null);
                                       pushToast({
@@ -1721,7 +1721,7 @@ function MemoryBaseDirectoryContent() {
                                   </button>
                                   <button
                                     type="button"
-                                    className="w-full rounded-sm px-3 py-2 text-left text-[13px] text-(--accent-danger) hover:bg-(--aw-red-100)"
+                                    className="w-full rounded-sm px-3 py-2 text-left text-sm text-(--accent-danger) hover:bg-(--aw-red-100)"
                                     onClick={() => {
                                       setDrawerLayersQA((prev) => prev.filter((q) => q.id !== item.id));
                                       setLayersRowMenuIndex(null);
@@ -1735,7 +1735,7 @@ function MemoryBaseDirectoryContent() {
                           </li>
                         ))}
                         {drawerLayersQA.filter(matchesQAFilters).length === 0 && (
-                          <li className="py-10 text-center text-[13px] text-(--fg-tertiary)">
+                          <li className="py-10 text-center text-sm text-(--fg-tertiary)">
                             Nenhum Knowledge Layer corresponde à busca ou ao filtro.
                           </li>
                         )}
@@ -1751,7 +1751,7 @@ function MemoryBaseDirectoryContent() {
                     if (isUrl) {
                       return (
                         <div className="flex flex-col h-full min-h-[400px]">
-                          <p className="text-[13px] text-(--fg-secondary) mb-3">
+                          <p className="text-sm text-(--fg-secondary) mb-3">
                             Visualização da página em nova aba:{" "}
                             <a
                               href={drawerRow.name}

@@ -182,7 +182,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
             )}
           </header>
 
-          <p className="m-0 line-clamp-2 text-[13px] leading-[1.55] text-(--fg-secondary)">
+          <p className="m-0 line-clamp-2 text-sm leading-[1.55] text-(--fg-secondary)">
             {description}
           </p>
 

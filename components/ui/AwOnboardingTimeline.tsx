@@ -58,7 +58,7 @@ function StepMarker({
   if (status === "current") {
     return (
       <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse) shadow-[0_0_0_4px_var(--bg-raised)]">
-        <span className="text-[13px] font-semibold tabular-nums">
+        <span className="text-sm font-semibold tabular-nums">
           {index + 1}
         </span>
       </span>
@@ -66,7 +66,7 @@ function StepMarker({
   }
   return (
     <span className="relative z-10 grid h-8 w-8 place-items-center rounded-full border border-(--border-default) bg-(--bg-raised) text-(--fg-tertiary) shadow-[0_0_0_4px_var(--bg-raised)]">
-      <span className="text-[13px] font-medium tabular-nums">{index + 1}</span>
+      <span className="text-sm font-medium tabular-nums">{index + 1}</span>
     </span>
   )
 }

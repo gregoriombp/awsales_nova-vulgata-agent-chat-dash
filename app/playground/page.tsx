@@ -67,7 +67,7 @@ function ConfigPanel({
         <h1 className="m-0 text-(length:--h3-size) font-semibold tracking-[-0.02em] text-(--fg-primary)">
           Playground
         </h1>
-        <p className="mt-1 text-[13px] leading-relaxed text-(--fg-secondary)">
+        <p className="mt-1 text-sm leading-relaxed text-(--fg-secondary)">
           Teste o agente antes de publicar. Mudanças aqui não afetam produção.
         </p>
       </header>
@@ -75,7 +75,7 @@ function ConfigPanel({
       <div className="flex-1 overflow-y-auto px-6 pb-8">
         <div className="flex flex-col gap-5">
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3">
-            <div className="flex items-center gap-2 text-[13px] font-medium text-(--fg-primary)">
+            <div className="flex items-center gap-2 text-sm font-medium text-(--fg-primary)">
               <AwStatusDot variant="live" size="sm" />
               Treinado
             </div>
@@ -86,7 +86,7 @@ function ConfigPanel({
 
           <div className="flex items-center justify-between rounded-lg border border-(--border-subtle) bg-(--bg-canvas) px-4 py-3">
             <div>
-              <div className="text-[13px] font-medium text-(--fg-primary)">
+              <div className="text-sm font-medium text-(--fg-primary)">
                 Comparar modelos
               </div>
               <div className="mt-0.5 text-[12px] text-(--fg-tertiary)">
@@ -120,7 +120,7 @@ function ConfigPanel({
                 >
                   <Icon name="extension" size={16} />
                 </span>
-                <span className="text-[13px] text-(--fg-primary)">
+                <span className="text-sm text-(--fg-primary)">
                   1 ferramenta ativa
                 </span>
               </span>
@@ -149,7 +149,7 @@ function ConfigPanel({
                 value={instructions}
                 onChange={(e) => onInstructionsChange(e.target.value)}
                 rows={9}
-                className="w-full resize-none rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2.5 text-[13px] leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
+                className="w-full resize-none rounded-md border border-(--border-default) bg-(--bg-canvas) px-3 py-2.5 text-sm leading-relaxed text-(--fg-primary) outline-hidden placeholder:text-(--fg-tertiary) focus:border-(--fg-primary)"
                 placeholder="Descreva o papel, tom de voz e diretrizes do agente."
               />
             </div>
