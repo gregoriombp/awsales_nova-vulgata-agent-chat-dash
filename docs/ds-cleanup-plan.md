@@ -54,11 +54,29 @@ visual.** Em ordem de valor:
 
 | Balde | ~Qtd | Abordagem |
 |---|---|---|
-| **`<svg>` cru → `Icon`** | ~117 | A queixa original nº 1. Por página: identificar o glifo de cada svg → nome do Material Symbol → `<Icon name=… />`. Verificar visual. |
+| **`<svg>` cru — triar** | ~117 | A queixa original nº 1, mas **não é "tudo vira `Icon`"**. Triar cada um (ver _Estratégia de ícones_ abaixo): ícone normal → biblioteca (`Icon`); animação/visual custom → componente próprio. |
 | **Cores cruas** (`text-gray-400`…) | ~64 | Mapear pro token semântico **por papel** (texto secundário → `text-fg-secondary`, borda → `border-subtle`…). |
 | **`text-[Npx]` "no degrau"** (12/14/16/18/20/24/30) | ~64 | Têm token, mas migrar adiciona o line-height do Tailwind → **verificar visual** (ou usar as utilities semânticas `body-*`). |
 | **Spacing `p/gap-[18px]`** | ~16 | Snap pro grid (4px) ou aceitar como exceção. |
 | Notas `w/h-[..]` | ~302 | Baixa prioridade — largura/altura sem token costuma ser intencional. |
+
+### Estratégia de ícones (refina o balde `<svg>` acima)
+
+Os `<svg>` crus em produto **não são todos ícones** — o plano **não** é achatar tudo em
+`Icon`. Triar cada um em dois destinos:
+
+- **Ícone normal** (setas, lixeira, check, chevron, etc.) → trocar pela **biblioteca**
+  (`Icon` / Material Symbols Rounded). Aproveitar a passada pra **enriquecer a cobertura**:
+  o Material Symbols tem muito mais glifo do que se usa hoje — padronizar nele em vez de
+  svgs ad-hoc. É o grosso dos ~117.
+- **Animação / visual custom** (a animação do Agent Studio, visuais da Memory Base, orbs
+  dos agentes, ilustrações de marca) → **não são ícones.** Mantêm SVG/Canvas/WebGL e,
+  quando reusados, viram **componente dedicado `Aw*`** (vários já são — `AwAgentCore`,
+  `AwBrandIllustration`, `AwBeams`…, e por isso o `ds:check` já os allowlista). A tarefa
+  aqui é só avaliar caso-a-caso se falta formalizar algum `<svg>` de página como componente.
+
+Regra: a **triagem** decide o destino de cada `<svg>`; **só os normais viram `Icon`**. Os
+custom/animados nunca são "consertados" pra `Icon` — seriam uma regressão.
 
 ### Backlog maior (fora do escopo "Fundação", decidido adiar)
 - **Fluid "leva 2":** fundir os motores do Fluid nos primitivos `Aw*` (um único
