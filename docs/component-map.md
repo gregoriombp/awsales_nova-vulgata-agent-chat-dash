@@ -122,6 +122,24 @@ input solto, use `AwInput`. Select = `AwSelect`.
 marcas sem equivalente (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` só
 aparece dentro de primitivos shadcn gerados — não puxe em código de produto.
 
+### Primitivos shadcn: usar direto vs. wrapper Aw
+
+Os arquivos minúsculos em `components/ui/*.tsx` são primitivos shadcn (gerados via
+CLI), ligados aos seus tokens por um *compat layer* em `globals.css` — então já
+renderizam com as cores AwSales. **Não são duplicatas pra deletar.** Regra:
+
+- **Tem wrapper Aw → use o wrapper, nunca o primitivo cru:** `card`→`AwCard`,
+  `button`→`AwButton`, `badge`→`AwPill`, `dropdown-menu`→`AwDropdownMenu`. O
+  `ds:check` avisa se um desses vazar pra produto.
+- **Sancionados pra uso direto** (sem wrapper Aw, baixa customização): `tooltip`,
+  `popover`, `collapsible`, `separator`, `calendar`, `accordion`. Importar direto
+  está OK — não criamos wrapper cerimonial só pra renomear.
+- **Casos especiais:** `chart` tem a camada-helper `AwChart` (paleta +
+  `awChartConfig()`) — use os helpers, não recrie a paleta. Tabela: simples →
+  `AwTable`; rica (sort/paginação) → `DataTable`; o `table` cru fica pros adapters.
+- **`tool-ui/` é subsistema vendado** (data-table, stats-display) que consome os
+  primitivos via `_adapter.tsx`. Não migre o interior dele pros `Aw*`.
+
 ---
 
 ## Motion: duas camadas

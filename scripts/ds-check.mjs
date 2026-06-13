@@ -30,6 +30,20 @@ const KNOWN_PRIMITIVES = [
   "dropdown-menu", "popover", "separator", "table", "tooltip",
 ];
 
+// Primitives with a TRUE drop-in Aw wrapper — importing the raw one in product
+// is a real miss, so we flag it with an actionable target. The rest are
+// "sanctioned bare primitives": low-customization Radix utilities already styled
+// via the globals.css compat tokens, with no drop-in Aw to point to (tooltip,
+// popover, collapsible, separator, calendar, accordion). `chart` has the AwChart
+// helper layer, not a drop-in; `table` uses AwTable for simple cases or DataTable
+// for rich ones — neither a 1:1 swap. See docs/component-map.md → primitives.
+const AW_EQUIVALENT = {
+  card: "AwCard",
+  button: "AwButton",
+  badge: "AwPill",
+  "dropdown-menu": "AwDropdownMenu",
+};
+
 // Files where a raw <svg> or a hex literal is legitimately expected:
 // brand marks, illustrations, agent/decorative visuals, the Icon component.
 const RAW_VISUAL_RE =
@@ -136,11 +150,12 @@ for (const file of files) {
   // raw shadcn primitive imported in product code (not a DS wrapper / adapter / showcase)
   if (!inStyleguide && !inUi && !inToolUi) {
     for (const m of src.matchAll(/from\s+["']@\/components\/ui\/([a-z][a-z-]*)["']/g)) {
-      if (KNOWN_PRIMITIVES.includes(m[1])) {
+      const aw = AW_EQUIVALENT[m[1]];
+      if (aw) {
         addFinding(
           "warn", "primitive-import-in-product", file, lineOf(src, m.index),
           `import … "@/components/ui/${m[1]}"`,
-          `Primitivo shadcn cru "${m[1]}" em produto — use o Aw equivalente (docs/component-map.md).`,
+          `Primitivo cru "${m[1]}" em produto — use ${aw} (docs/component-map.md).`,
         );
       }
     }
