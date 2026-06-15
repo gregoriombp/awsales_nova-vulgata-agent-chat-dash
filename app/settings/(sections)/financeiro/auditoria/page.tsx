@@ -551,7 +551,7 @@ function EventRow({
       <td className="text-right align-top">
         <div className="flex flex-col items-end">
           <span className="body-xs tabular-nums text-(--fg-secondary)">
-            {event.date}
+            {event.date} · {event.time}
           </span>
           <span className="body-xs text-(--fg-tertiary)">
             {executorRole(event.executor)}
