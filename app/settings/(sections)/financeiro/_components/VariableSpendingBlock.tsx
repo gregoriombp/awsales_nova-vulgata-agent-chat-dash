@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -268,6 +268,23 @@ export function VariableSpendingBlock() {
         </div>
       </div>
 
+      {/* Gráfico abre a seção (acima da tabela), logo abaixo do controle de período. */}
+      <div className="flex w-full flex-col gap-3">
+        <Legend
+          categories={chartModel.categories}
+          visibleIds={chartIds}
+          grouping={grouping}
+          othersLabels={chartModel.othersLabels}
+        />
+
+        <DailySpendingChart
+          data={chartModel.data}
+          categories={chartModel.categories}
+          visibleIds={chartIds}
+          period={chartPeriod}
+        />
+      </div>
+
       {selection.kind === "custom" ? (
         grouping === "service" ? (
           <ServiceTableCustom
@@ -285,23 +302,6 @@ export function VariableSpendingBlock() {
       ) : (
         <AgentTable period={selection.id} allowedRowIds={allowedRowIds} />
       )}
-
-      {/* Gráfico fecha a seção ocupando 100% da largura disponível. */}
-      <div className="flex w-full flex-col gap-3">
-        <Legend
-          categories={chartModel.categories}
-          visibleIds={chartIds}
-          grouping={grouping}
-          othersLabels={chartModel.othersLabels}
-        />
-
-        <DailySpendingChart
-          data={chartModel.data}
-          categories={chartModel.categories}
-          visibleIds={chartIds}
-          period={chartPeriod}
-        />
-      </div>
     </div>
   );
 }
@@ -534,34 +534,12 @@ function DailySpendingChart({
       config={chartConfig}
       className="aspect-auto h-[320px] w-full"
     >
-      <AreaChart
+      <BarChart
         accessibilityLayer
         data={chartData}
         margin={{ left: 12, right: 12, top: 8 }}
+        barCategoryGap={totalDays <= 12 ? "24%" : "14%"}
       >
-        <defs>
-          {visibleCategories.map((cat) => (
-            <linearGradient
-              key={`grad-${cat.id}`}
-              id={`spending-gradient-${cat.id}`}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="0%"
-                stopColor={`var(--color-${cat.id})`}
-                stopOpacity={0.32}
-              />
-              <stop
-                offset="100%"
-                stopColor={`var(--color-${cat.id})`}
-                stopOpacity={0}
-              />
-            </linearGradient>
-          ))}
-        </defs>
         <CartesianGrid vertical={false} />
         <XAxis
           dataKey="day"
@@ -572,7 +550,7 @@ function DailySpendingChart({
           minTickGap={16}
         />
         <ChartTooltip
-          cursor={false}
+          cursor={{ fill: "var(--bg-hover)" }}
           content={
             <ChartTooltipContent
               indicator="dot"
@@ -598,21 +576,20 @@ function DailySpendingChart({
             />
           }
         />
-        {visibleCategories.map((cat) => (
-          <Area
+        {visibleCategories.map((cat, i) => (
+          <Bar
             key={cat.id}
             dataKey={cat.id}
-            type="monotone"
-            stroke={`var(--color-${cat.id})`}
-            strokeWidth={2}
-            fill={`url(#spending-gradient-${cat.id})`}
-            fillOpacity={1}
-            dot={false}
-            activeDot={{ r: 4 }}
+            stackId="spend"
+            fill={`var(--color-${cat.id})`}
+            maxBarSize={36}
+            radius={
+              i === visibleCategories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]
+            }
             isAnimationActive={false}
           />
         ))}
-      </AreaChart>
+      </BarChart>
     </ChartContainer>
   );
 }

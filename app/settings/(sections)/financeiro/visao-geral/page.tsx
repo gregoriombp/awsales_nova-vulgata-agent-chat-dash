@@ -52,9 +52,9 @@ function ConsumptionDetails() {
       <header>
         <h6 className="m-0 mb-1 text-(--fg-primary)">Detalhes de consumo</h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Breakdown por serviço ou por agente, com o gráfico por dia fechando
-          a seção. Use o filtro de período para investigar o que está
-          consumindo.
+          Breakdown por serviço ou por agente, com o gráfico de gastos por dia
+          logo acima da tabela. Use o filtro de período para investigar o que
+          está consumindo.
         </p>
       </header>
       <VariableSpendingBlock />
