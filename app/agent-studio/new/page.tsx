@@ -163,15 +163,23 @@ const AOPS: Aop[] = [
   { id: "escalar-humano", name: "Escalar para humano", icon: "support_agent", summary: "Transfere a conversa para um atendente quando o assunto sai do escopo do agente." },
 ];
 
-/** Tile fantasma que leva pra lista completa de Habilidades/AOPs. */
-function VerTodasTile({ label, onClick }: { label: string; onClick?: () => void }) {
+/** Tile-ação no grid de Habilidades/AOPs: "ver mais N" ou "adicionar". */
+function VerTodasTile({
+  label,
+  icon = "unfold_more",
+  onClick,
+}: {
+  label: string;
+  icon?: string;
+  onClick?: () => void;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-medium text-fg-secondary transition-colors duration-aw-fast hover:border-aw-gray-400 hover:bg-bg-surface"
+      className="flex h-full items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-medium text-fg-secondary transition-colors duration-aw-fast hover:border-aw-gray-400 hover:bg-bg-surface"
     >
-      <Icon name="open_in_new" size={16} />
+      <Icon name={icon} size={16} />
       {label}
     </button>
   );
@@ -589,6 +597,12 @@ function AgentStudioNewContent() {
   // Step 3 state (Habilidades e AOPs) — permissões que o agente recebe
   const [selectedSkills, setSelectedSkills] = useState<Set<string>>(new Set());
   const [selectedAops, setSelectedAops] = useState<Set<string>>(new Set());
+  /* Step 3: mostra primeiros N + tile "Ver todas" no slot do (N+1);
+   * expandir revela o resto + um tile "+ Adicionar integração" no fim. */
+  const [showAllSkills, setShowAllSkills] = useState(false);
+  const [showAllAops, setShowAllAops] = useState(false);
+  const SKILLS_VISIVEIS = 5;
+  const AOPS_VISIVEIS = 5;
   const [preview, setPreview] = useState<
     { kind: "skill"; item: Habilidade } | { kind: "aop"; item: Aop } | null
   >(null);
@@ -1109,8 +1123,11 @@ function AgentStudioNewContent() {
                     Integrações de terceiro que o agente usa como ferramenta.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {HABILIDADES.map((h) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-3">
+                  {(showAllSkills
+                    ? HABILIDADES
+                    : HABILIDADES.slice(0, SKILLS_VISIVEIS)
+                  ).map((h) => (
                     <AwCapabilityTile
                       key={h.id}
                       icon={<AwBrandLogo brand={h.brand} size="md" />}
@@ -1128,7 +1145,19 @@ function AgentStudioNewContent() {
                       onPreview={() => setPreview({ kind: "skill", item: h })}
                     />
                   ))}
-                  <VerTodasTile label="Ver todas as integrações" />
+                  {!showAllSkills && HABILIDADES.length > SKILLS_VISIVEIS && (
+                    <VerTodasTile
+                      label={`Ver mais ${HABILIDADES.length - SKILLS_VISIVEIS}`}
+                      onClick={() => setShowAllSkills(true)}
+                    />
+                  )}
+                  {showAllSkills && (
+                    <VerTodasTile
+                      label="Recolher"
+                      icon="unfold_less"
+                      onClick={() => setShowAllSkills(false)}
+                    />
+                  )}
                 </div>
               </section>
 
@@ -1142,8 +1171,8 @@ function AgentStudioNewContent() {
                     Processos operacionais padrão que o agente pode executar.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {AOPS.map((a) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-3">
+                  {(showAllAops ? AOPS : AOPS.slice(0, AOPS_VISIVEIS)).map((a) => (
                     <AwCapabilityTile
                       key={a.id}
                       icon={
@@ -1165,7 +1194,19 @@ function AgentStudioNewContent() {
                       onPreview={() => setPreview({ kind: "aop", item: a })}
                     />
                   ))}
-                  <VerTodasTile label="Ver todos os AOPs" />
+                  {!showAllAops && AOPS.length > AOPS_VISIVEIS && (
+                    <VerTodasTile
+                      label={`Ver mais ${AOPS.length - AOPS_VISIVEIS}`}
+                      onClick={() => setShowAllAops(true)}
+                    />
+                  )}
+                  {showAllAops && (
+                    <VerTodasTile
+                      label="Recolher"
+                      icon="unfold_less"
+                      onClick={() => setShowAllAops(false)}
+                    />
+                  )}
                 </div>
               </section>
 
