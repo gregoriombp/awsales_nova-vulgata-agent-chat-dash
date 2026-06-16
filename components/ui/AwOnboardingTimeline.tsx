@@ -160,7 +160,7 @@ function StepRow({
               </p>
             )}
             {step.cta && (
-              <div>
+              <div className="pt-2">
                 {step.cta.href ? (
                   <a
                     href={step.cta.href}
