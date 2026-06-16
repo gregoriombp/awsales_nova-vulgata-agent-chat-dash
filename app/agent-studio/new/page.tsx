@@ -1298,12 +1298,28 @@ function AgentStudioNewContent() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-6">
-                      {/* Telefone */}
+                      {/* Telefone — depois de escolher, as outras opções somem
+                          suavemente e fica só o card selecionado com "Trocar". */}
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-fg-primary">
-                          Telefone
-                        </label>
-                        {WHATS_NUMBERS.map((n) => {
+                        <div className="flex items-center justify-between gap-3">
+                          <label className="text-sm font-medium text-fg-primary">
+                            Telefone
+                          </label>
+                          {selectedNumber && (
+                            <AwButton
+                              variant="ghost"
+                              size="sm"
+                              iconLeft="swap_horiz"
+                              onClick={() => setSelectedNumber(null)}
+                            >
+                              Trocar
+                            </AwButton>
+                          )}
+                        </div>
+                        {(selectedNumber
+                          ? WHATS_NUMBERS.filter((n) => n.id === selectedNumber)
+                          : WHATS_NUMBERS
+                        ).map((n) => {
                           const sel = selectedNumber === n.id;
                           const initials = n.name
                             .split(/\s+/)
@@ -1327,7 +1343,7 @@ function AgentStudioNewContent() {
                                   );
                                 }
                               }}
-                              className={`flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
+                              className={`aw-fade-in flex items-center gap-3 rounded-xl border p-3.5 text-left transition-colors duration-aw-fast ${
                                 sel
                                   ? "border-fg-primary bg-bg-raised"
                                   : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
