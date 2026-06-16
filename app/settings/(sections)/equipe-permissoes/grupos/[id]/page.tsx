@@ -194,19 +194,9 @@ export default function GroupDetailPage() {
     if (group) setGroupMemberIds(group.members);
   }, [group]);
 
-  // A capa imersiva preenche toda a altura visível da área de conteúdo —
-  // medimos o scroller (viewport do settings) e fixamos a altura do hero.
-  const heroRef = React.useRef<HTMLElement>(null);
-  const [heroHeight, setHeroHeight] = useState<number | null>(null);
-  React.useEffect(() => {
-    const scroller = heroRef.current?.parentElement;
-    if (!scroller) return;
-    const measure = () => setHeroHeight(scroller.clientHeight);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(scroller);
-    return () => ro.disconnect();
-  }, []);
+  // A capa imersiva é uma faixa de altura fixa no topo da área de conteúdo;
+  // o conteúdo (membros, atividade) rola logo abaixo.
+  const HERO_HEIGHT = 480;
 
   if (!group) {
     return (
@@ -252,9 +242,8 @@ export default function GroupDetailPage() {
           um layout próprio. A capa preenche toda a altura visível e o
           conteúdo (membros, atividade) rola abaixo. */}
       <section
-        ref={heroRef}
         className="relative w-full overflow-hidden bg-(--bg-muted)"
-        style={{ height: heroHeight ?? undefined, minHeight: 480 }}
+        style={{ height: HERO_HEIGHT }}
       >
         <div
           aria-hidden="true"
