@@ -4258,13 +4258,16 @@
   margin-top: 6px;
 }
 
-/* Section labels in the styleguide sidebar read a notch larger + tighter
- * tracking than the default eyebrow used elsewhere, so the camadas register
- * as proper section headings. Scoped to the sidebar nav on purpose. */
+/* Section labels in the styleguide sidebar — heading font, maior e com
+ * tracking negativo (em vez do eyebrow uppercase). Lê como uma categoria
+ * proper, não como um eyebrow decorativo. Scoped no nav. */
 .aw-sg-sidebar nav .aw-eyebrow {
-  font-size: 12px;
-  letter-spacing: 0.08em;
+  font-family: var(--font-heading);
+  font-size: 14px;
+  letter-spacing: -0.01em;
   font-weight: 500;
+  text-transform: none;
+  color: var(--fg-primary);
 }
 
 /* Smooth height animation for the collapsible nav sections. Radix exposes

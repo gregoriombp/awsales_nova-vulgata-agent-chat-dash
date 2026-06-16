@@ -45,9 +45,6 @@ export default function StyleguideLayout({
           {navigation.map((section, i) => {
             const prevGroup = i > 0 ? navigation[i - 1].group : undefined
             const showGroupHeading = !!section.group && section.group !== prevGroup
-            // Categorias começam encolhidas; só abre a que contém a rota atual,
-            // pra você ver onde está. Resto fica fechado até clicar (pedido de
-            // review: menus suspensos vêm encolhidos, abrem sob demanda).
             const sectionActive = section.items.some(
               (item) =>
                 pathname === hrefPath(item.href) ||
@@ -56,8 +53,9 @@ export default function StyleguideLayout({
             return (
             <div key={section.title} className="flex flex-col gap-3">
               {showGroupHeading && (
-                <h2 className="m-0 mt-3 mb-0.5 px-0 text-[15px] font-semibold tracking-tight text-(--fg-primary)">
-                  {section.group}
+                <h2 className="m-0 mt-3 mb-0.5 px-0 flex items-center justify-between gap-2 font-heading text-[15px] font-semibold tracking-tight text-(--fg-primary)">
+                  <span>{section.group}</span>
+                  <Icon name="expand_more" size={16} className="text-(--fg-tertiary)" />
                 </h2>
               )}
             <Collapsible.Root defaultOpen={sectionActive}>
