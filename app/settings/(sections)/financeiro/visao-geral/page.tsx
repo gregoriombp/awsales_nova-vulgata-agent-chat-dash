@@ -16,7 +16,6 @@ import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   AUDIT_EVENTS,
   brl,
-  CREDITS_KPIS,
   CURRENT_INVOICE,
   CURRENT_PLAN,
   INVOICE_HISTORY,
@@ -37,12 +36,9 @@ function daysUntil(br: string): number {
 export default function VisaoGeralPage() {
   return (
     <div className="flex flex-col gap-10">
-      <header className="flex flex-col gap-6">
-        <div className="grid grid-cols-[1.15fr_1fr] gap-6">
-          <PlanCard />
-          <InvoiceCard />
-        </div>
-        <KpiGrid />
+      <header className="grid grid-cols-[1.15fr_1fr] gap-6">
+        <PlanCard />
+        <InvoiceCard />
       </header>
       <ShortcutGrid />
       <ConsumptionDetails />
@@ -117,28 +113,26 @@ function planKey(name: string): PlanKey {
 }
 
 function PlanCard() {
-  const pct = Math.round(
-    (OVERVIEW_KPIS.accumulated / VARIABLE_SPENDING_LIMIT) * 100,
-  );
-
   return (
     <AwCard className="relative isolate overflow-hidden bg-(--bg-inverse)! p-6! text-(--fg-on-inverse)">
-      <AwPlanIcon
-        plan={planKey(CURRENT_PLAN.name)}
-        variant="dark"
-        className="pointer-events-none absolute -right-6 -top-4 -z-10 h-44 w-44 opacity-[0.20]"
-      />
-
       <div className="flex h-full flex-col gap-6">
         <div className="flex flex-col gap-2">
           <span className="aw-eyebrow text-(--fg-on-inverse) opacity-55">
             Seu plano
           </span>
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <h2 className="m-0 display-sm text-[2rem] text-(--fg-on-inverse)">
-              {CURRENT_PLAN.name}
-            </h2>
-            <AwPill variant="live">{CURRENT_PLAN.status}</AwPill>
+          <div className="flex items-center gap-3">
+            <AwPlanIcon
+              plan={planKey(CURRENT_PLAN.name)}
+              variant="dark"
+              size={40}
+              className="shrink-0"
+            />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+              <h2 className="m-0 display-sm text-(--fg-on-inverse)">
+                {CURRENT_PLAN.name}
+              </h2>
+              <AwPill variant="live">{CURRENT_PLAN.status}</AwPill>
+            </div>
           </div>
           <p className="m-0 body-sm tabular-nums text-(--fg-on-inverse) opacity-65">
             <strong className="font-medium opacity-100">
@@ -247,86 +241,6 @@ function PaymentMethodLink() {
         className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
       />
     </Link>
-  );
-}
-
-/* ---------- kpi grid (resumo do ciclo em três cartões) ---------- */
-
-function KpiGrid() {
-  const usagePct = Math.round(
-    (OVERVIEW_KPIS.accumulated / VARIABLE_SPENDING_LIMIT) * 100,
-  );
-
-  return (
-    <div className="grid grid-cols-3 gap-6">
-      <KpiCard
-        icon="trending_up"
-        accent="blue"
-        label="Consumo variável · ciclo"
-        value={brl(OVERVIEW_KPIS.accumulated)}
-        hint={`${usagePct}% do limite de ${brl(VARIABLE_SPENDING_LIMIT)}`}
-      />
-      <KpiCard
-        icon="redeem"
-        accent="purple"
-        label="Créditos disponíveis"
-        value={brl(CREDITS_KPIS.availableDiscount)}
-        hint={`${CREDITS_KPIS.activeVouchers} vouchers ativos`}
-      />
-      <KpiCard
-        icon="savings"
-        accent="emerald"
-        label="Economia no ciclo"
-        value={`−${brl(OVERVIEW_KPIS.monthSavings)}`}
-        hint="Cupons e créditos aplicados"
-        valueClassName="text-(--accent-success)"
-      />
-    </div>
-  );
-}
-
-const KPI_ACCENTS = {
-  blue: "border-(--aw-blue-200) bg-(--aw-blue-100) text-(--aw-blue-600)",
-  purple: "border-(--aw-purple-200) bg-(--aw-purple-100) text-(--aw-purple-600)",
-  emerald:
-    "border-(--aw-emerald-200) bg-(--aw-emerald-100) text-(--aw-emerald-600)",
-} as const;
-
-function KpiCard({
-  icon,
-  accent,
-  label,
-  value,
-  hint,
-  valueClassName,
-}: {
-  icon: string;
-  accent: keyof typeof KPI_ACCENTS;
-  label: string;
-  value: string;
-  hint: string;
-  valueClassName?: string;
-}) {
-  return (
-    <AwCard className="flex flex-col gap-3 p-5!">
-      <div className="flex items-center gap-2.5">
-        <span
-          aria-hidden="true"
-          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${KPI_ACCENTS[accent]}`}
-        >
-          <Icon name={icon} size={16} />
-        </span>
-        <span className="body-sm text-(--fg-secondary)">{label}</span>
-      </div>
-      <div className="flex flex-col gap-0.5">
-        <span
-          className={`text-[1.75rem] font-medium leading-none tracking-tight tabular-nums text-(--fg-primary) ${valueClassName ?? ""}`}
-        >
-          {value}
-        </span>
-        <span className="body-xs text-(--fg-tertiary)">{hint}</span>
-      </div>
-    </AwCard>
   );
 }
 
