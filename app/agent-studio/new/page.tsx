@@ -844,13 +844,17 @@ function AgentStudioNewContent() {
               </div>
 
               {showCustomInput && (
-                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                  <AwInput
+                /* Quando "Outro" é selecionado, o campo abre full-width inline
+                 * — borda iridescente (mesma do editor de checkpoint) sinaliza
+                 * que é o input do agente que ele está descrevendo. */
+                <div className="aw-fade-in aw-gradient-iridescent-border rounded-2xl">
+                  <input
                     type="text"
                     value={customGoal}
                     onChange={(e) => setCustomGoal(e.target.value)}
                     placeholder="ex.: Qualificação de leads, Onboarding de clientes..."
                     autoFocus
+                    className="w-full rounded-2xl bg-transparent px-5 py-4 text-base text-fg-primary outline-none placeholder:text-fg-tertiary"
                   />
                 </div>
               )}
