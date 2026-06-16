@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwToggle } from "@/components/ui/AwToggle";
+import { AwTabs } from "@/components/ui/AwTabs";
 import { AwDropzone } from "@/components/ui/AwDropzone";
 import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import BaseModal from "@/components/modals/BaseModal";
@@ -649,6 +650,9 @@ function MemoryBaseDirectoryContent() {
       },
     ];
 
+    // Na raiz, o leaf do breadcrumb é o NOME DA BASE (já no crumb anterior) —
+    // não um "Documentos" genérico (pedido de review). Só empilha crumbs de
+    // pasta quando o usuário entra numa subpasta de fato.
     if (currentFolderId) {
       currentFolderPath.forEach((folder) => {
         base.push({
@@ -657,8 +661,6 @@ function MemoryBaseDirectoryContent() {
           icon: <TbFolder className="w-4 h-4" />,
         });
       });
-    } else {
-      base.push({ label: "Documentos", href: "#", icon: <TbFolder className="w-4 h-4" /> });
     }
 
     return base;
@@ -773,8 +775,6 @@ function MemoryBaseDirectoryContent() {
           title={directoryName}
           fileCount={rows.length}
           layersCount={totalKnowledgeLayers}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
           onSemanticSearch={() => router.push(`/memory-base/${params?.id}/semantic-search`)}
           onInsights={() => router.push("/insights")}
           onSettings={() => router.push(`/memory-base/${params?.id}/settings`)}
@@ -1044,6 +1044,25 @@ function MemoryBaseDirectoryContent() {
           </div>
         </div>
 
+        {/* Abas da tabela — Documentos / Playbook / Produtos (movidas da
+            sidebar pro topo do conteúdo, pedido de review). Ficam fixas acima
+            do scroll do conteúdo. */}
+        <div className="shrink-0 border-b border-(--border-subtle) bg-(--bg-raised) px-12 pt-4">
+          <AwTabs
+            variant="underline"
+            aria-label="Seções da base"
+            value={activeTab}
+            onChange={(v) =>
+              setActiveTab(v as "documentos" | "playbook" | "produtos")
+            }
+            items={[
+              { value: "documentos", label: "Documentos", count: rows.length },
+              { value: "playbook", label: "Playbook" },
+              { value: "produtos", label: "Produtos" },
+            ]}
+          />
+        </div>
+
         {/* Conteúdo das abas — scroll independente do header e da sidebar. */}
         <div className="min-h-0 flex-1 overflow-y-auto">
           {activeTab === "documentos" && (
@@ -1053,7 +1072,7 @@ function MemoryBaseDirectoryContent() {
               <div className="text-lg font-bold text-(--fg-primary)">
                 Adicione Fontes
               </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
+              <div className="grid grid-cols-5 gap-8">
                 <ActionCard
                   label="Enviar arquivos"
                   icon={<TintTile icon="upload_file" tint="var(--aw-blue-600)" size={40} />}
@@ -1375,7 +1394,7 @@ function MemoryBaseDirectoryContent() {
             onClick={() => setDrawerRow(null)}
           />
           <div
-            className={`fixed right-0 top-0 bottom-0 z-50 w-full max-w-[min(640px,66.666vw)] bg-(--bg-raised) shadow-2xl flex flex-col transition-transform duration-200 ease-out ${
+            className={`fixed right-0 top-0 bottom-0 z-50 w-full max-w-[min(960px,80vw)] bg-(--bg-raised) shadow-2xl flex flex-col transition-transform duration-200 ease-out ${
                 drawerVisible ? "translate-x-0" : "translate-x-full"
               }`}
             role="dialog"

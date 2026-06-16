@@ -105,8 +105,6 @@ export function MemoryBaseSidebar({
   title,
   fileCount,
   layersCount,
-  activeTab,
-  onTabChange,
   onSemanticSearch,
   onInsights,
   onSettings,
@@ -117,8 +115,10 @@ export function MemoryBaseSidebar({
   fileCount: number;
   /** Nº de Knowledge Layers extraídas. */
   layersCount: number;
-  activeTab: TabId;
-  onTabChange: (tab: TabId) => void;
+  /** @deprecated As seções (Documentos/Playbook/Produtos) viraram abas no
+   *  topo da tabela; a sidebar não controla mais o tab ativo. */
+  activeTab?: TabId;
+  onTabChange?: (tab: TabId) => void;
   onSemanticSearch: () => void;
   onInsights: () => void;
   onSettings: () => void;
@@ -186,28 +186,8 @@ export function MemoryBaseSidebar({
 
       <div className={`flex flex-1 flex-col gap-5 overflow-y-auto ${collapsed ? "px-2 py-4" : "px-3 py-5"}`}>
         <nav className="space-y-0.5" aria-label="Seções da base">
-          <NavRow
-            label="Documentos"
-            icon="description"
-            onClick={() => onTabChange("documentos")}
-            active={activeTab === "documentos"}
-            badge={fileCount}
-            collapsed={collapsed}
-          />
-          <NavRow
-            label="Playbook"
-            icon="menu_book"
-            onClick={() => onTabChange("playbook")}
-            active={activeTab === "playbook"}
-            collapsed={collapsed}
-          />
-          <NavRow
-            label="Produtos"
-            icon="inventory_2"
-            onClick={() => onTabChange("produtos")}
-            active={activeTab === "produtos"}
-            collapsed={collapsed}
-          />
+          {/* Documentos/Playbook/Produtos saíram daqui e viraram abas no topo
+              da tabela (pedido de review). A sidebar fica com as ações. */}
           <NavRow
             label="Busca semântica"
             icon="search"
