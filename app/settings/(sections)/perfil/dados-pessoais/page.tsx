@@ -8,7 +8,6 @@ import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
-import { Icon } from "@/components/ui/Icon";
 import { SettingsPageHeader } from "../../_components/shared";
 
 const INITIAL = {
@@ -84,7 +83,7 @@ export default function DadosPessoaisPage() {
           src={previewSrc ?? "/assets/users/greg.jpg"}
           alt={fullName}
           initials={initials(fullName)}
-          className="h-16 w-16!"
+          className="h-16! w-16!"
         />
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2">
@@ -219,7 +218,7 @@ export default function DadosPessoaisPage() {
             src={previewSrc ?? "/assets/users/greg.jpg"}
             alt={fullName}
             initials={initials(fullName)}
-            className="h-24 w-24!"
+            className="h-24! w-24!"
           />
           <input
             ref={fileRef}
