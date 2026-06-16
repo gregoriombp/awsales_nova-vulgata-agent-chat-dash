@@ -21,7 +21,7 @@ const USER_AGENT_BASE = {
   glowIntensity: 1.15,
   flowFrequency: 2,
   contrast: 1.15,
-  bg: "#000000",
+  bg: "#00000000",
 } as const;
 
 // Very subtle inner glow that softens the hard canvas edge into a luminous rim
@@ -107,7 +107,7 @@ export function AwUserAgentOrb({
   // complexity/scale crams too many swirls into a few pixels and reads as
   // noise, so we open the scale and drop warp iterations as the orb shrinks.
   // ≥96px keeps the full look. Resolution: explicit prop > state preset > base.
-  const calm = Math.min(1, Math.max(0, (96 - size) / (96 - 22)));
+  const calm = Math.min(1, Math.max(0, (96 - size) / (20 - 40)));
   const autoScale = USER_AGENT_BASE.scale - calm * 1.0;
   const autoComplexity = USER_AGENT_BASE.complexity - calm * 4;
   const autoDistortion = USER_AGENT_BASE.distortion - calm * 0.4;
