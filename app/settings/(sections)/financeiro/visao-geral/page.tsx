@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
@@ -47,17 +48,56 @@ export default function VisaoGeralPage() {
 /* ---------- consumption details (gráfico + breakdown, mesmo bloco do Consumo) ---------- */
 
 function ConsumptionDetails() {
+  const [comingSoonOpen, setComingSoonOpen] = React.useState(false);
+
   return (
     <section className="flex flex-col gap-4 border-t border-(--border-subtle) pt-8">
-      <header>
-        <h6 className="m-0 mb-1 text-(--fg-primary)">Detalhes de consumo</h6>
-        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Breakdown por serviço ou por agente, com o gráfico de gastos por dia
-          logo acima da tabela. Use o filtro de período para investigar o que
-          está consumindo.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h6 className="m-0 mb-1 text-(--fg-primary)">Detalhes de consumo</h6>
+          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
+            Breakdown por serviço ou por agente, com o gráfico de gastos por dia
+            logo acima da tabela. Use o filtro de período para investigar o que
+            está consumindo.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setComingSoonOpen(true)}
+          className="mt-0.5 inline-flex shrink-0 items-center gap-1 body-xs font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--fg-primary) hover:no-underline"
+        >
+          <Icon name="open_in_full" size={13} />
+          Visão detalhada
+        </button>
       </header>
       <VariableSpendingBlock />
+
+      <AwModal
+        open={comingSoonOpen}
+        onClose={() => setComingSoonOpen(false)}
+        title="Visão detalhada"
+        footer={
+          <AwButton
+            size="sm"
+            variant="primary"
+            onClick={() => setComingSoonOpen(false)}
+          >
+            Entendi
+          </AwButton>
+        }
+      >
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)">
+            <Icon name="rocket_launch" size={24} />
+          </span>
+          <h6 className="m-0 text-(--fg-primary)">Em breve</h6>
+          <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
+            Estamos preparando uma análise de consumo mais aprofundada — com
+            cruzamentos por serviço, agente e período no mesmo lugar. Em breve
+            ela aparece aqui.
+          </p>
+        </div>
+      </AwModal>
     </section>
   );
 }
