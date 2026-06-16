@@ -12,7 +12,7 @@ const KIND_META: Record<
   { icon: string; bg: string; fg: string }
 > = {
   billing: { icon: "credit_card", ...NEUTRAL },
-  agent: { icon: "smart_toy", ...NEUTRAL },
+  agent: { icon: "agent", ...NEUTRAL },
   team: { icon: "group", ...NEUTRAL },
   security: { icon: "shield", ...NEUTRAL },
   system: { icon: "info", ...NEUTRAL },

@@ -55,7 +55,7 @@ function NavContent({ activeId }: { activeId: string }) {
     { id: "activity", icon: "bolt", label: "Atividade", count: 12 },
   ]
   const agentItems: Array<{ id: string; icon: string; label: string }> = [
-    { id: "studio", icon: "smart_toy", label: "Agent Studio" },
+    { id: "studio", icon: "agent", label: "Agent Studio" },
     { id: "tasks", icon: "done_all", label: "Tarefas" },
     { id: "dispatch", icon: "send", label: "Disparos" },
   ]

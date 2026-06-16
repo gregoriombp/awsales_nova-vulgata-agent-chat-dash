@@ -87,7 +87,7 @@ export function BaseConhecimentoTab({ data }: { data: AgentEditorData }) {
                   {atual.knowledgeLayers} Knowledge Layers
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <Icon name="smart_toy" size={14} />
+                  <Icon name="agent" size={14} />
                   Utilizado por {data.kb.usadoPorAgentes}{" "}
                   {data.kb.usadoPorAgentes === 1 ? "agente" : "agentes"}
                 </span>

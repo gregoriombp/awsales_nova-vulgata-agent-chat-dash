@@ -1062,7 +1062,7 @@ function DmsTab({ account }: { account: IgAccount }) {
             <AwInput
               id={`ig-agent-${account.id}`}
               defaultValue="Mari · agente de IA"
-              iconLeft="smart_toy"
+              iconLeft="agent"
             />
           </AwField>
         </div>

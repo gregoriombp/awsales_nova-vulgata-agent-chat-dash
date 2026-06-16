@@ -18,7 +18,6 @@ const IconCell = ({ name }: { name: string }) => (
 
 const navIcons = [
   "dashboard",
-  "smart_toy",
   "chat",
   "forum",
   "hub",

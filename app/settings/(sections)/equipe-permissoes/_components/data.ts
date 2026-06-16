@@ -167,7 +167,7 @@ export const SCOPES: Scope[] = [
   {
     id: "agentes",
     name: "Agentes",
-    icon: "smart_toy",
+    icon: "agent",
     description: "Criação, edição e publicação de agentes de IA.",
     groups: [
       {

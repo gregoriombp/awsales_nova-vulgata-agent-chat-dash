@@ -30,7 +30,7 @@ export default function NavListPage() {
               <AwNavItem icon="dashboard" active>
                 Dashboard
               </AwNavItem>
-              <AwNavItem icon="smart_toy" count={12}>
+              <AwNavItem icon="agent" count={12}>
                 Agentes
               </AwNavItem>
               <AwNavItem icon="library_books" count={284}>
@@ -138,7 +138,7 @@ export default function NavListPage() {
   <AwNavItem icon="dashboard" href="/dashboard" active>
     Dashboard
   </AwNavItem>
-  <AwNavItem icon="smart_toy" href="/agents" count={12}>
+  <AwNavItem icon="agent" href="/agents" count={12}>
     Agentes
   </AwNavItem>
   <AwNavItem as="button" icon="settings" onClick={openSettings}>
