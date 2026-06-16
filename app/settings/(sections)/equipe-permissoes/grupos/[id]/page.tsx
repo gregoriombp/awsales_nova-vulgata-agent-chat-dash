@@ -53,9 +53,30 @@ const ACTIVITY_EVENTS: ActivityEvent[] = [
     daysAgo: 0,
     actor: { name: "Mariana Castro", avatar: "/assets/ui-faces/female-10.jpg", initials: "MC" },
   },
-  { id: "a2", when: "ontem, 17:02", text: "Função \"Editor\" herdada por novos membros", kind: "role", daysAgo: 1 },
-  { id: "a3", when: "ontem, 11:48", text: "Permissão \"Acessar relatórios\" liberada para o grupo", kind: "permission", daysAgo: 1 },
-  { id: "a4", when: "terça, 14:31", text: "Capa da equipe atualizada", kind: "cover", daysAgo: 2 },
+  {
+    id: "a2",
+    when: "ontem, 17:02",
+    text: "Função \"Editor\" herdada por novos membros",
+    kind: "role",
+    daysAgo: 1,
+    actor: { name: "Mariana Castro", avatar: "/assets/ui-faces/female-10.jpg", initials: "MC" },
+  },
+  {
+    id: "a3",
+    when: "ontem, 11:48",
+    text: "Permissão \"Acessar relatórios\" liberada para o grupo",
+    kind: "permission",
+    daysAgo: 1,
+    actor: { name: "Larissa Pinto", avatar: "/assets/ui-faces/female-2.jpg", initials: "LP" },
+  },
+  {
+    id: "a4",
+    when: "terça, 14:31",
+    text: "Capa da equipe atualizada",
+    kind: "cover",
+    daysAgo: 2,
+    actor: { name: "Gregório Pinheiro", avatar: "/assets/ui-faces/male-1.jpg", initials: "GP" },
+  },
   {
     id: "a5",
     when: "segunda, 10:05",
@@ -64,8 +85,22 @@ const ACTIVITY_EVENTS: ActivityEvent[] = [
     daysAgo: 3,
     actor: { name: "Tiago Alves", avatar: "/assets/ui-faces/male-11.jpg", initials: "TA" },
   },
-  { id: "a6", when: "7 de jun., 16:20", text: "Equipe renomeada de \"Atendimento Geral\" para \"Atendimento\"", kind: "rename", daysAgo: 5 },
-  { id: "a7", when: "5 de jun., 09:48", text: "Função \"Gerente de Operações\" adicionada ao grupo", kind: "role", daysAgo: 7 },
+  {
+    id: "a6",
+    when: "7 de jun., 16:20",
+    text: "Equipe renomeada de \"Atendimento Geral\" para \"Atendimento\"",
+    kind: "rename",
+    daysAgo: 5,
+    actor: { name: "Mariana Castro", avatar: "/assets/ui-faces/female-10.jpg", initials: "MC" },
+  },
+  {
+    id: "a7",
+    when: "5 de jun., 09:48",
+    text: "Função \"Gerente de Operações\" adicionada ao grupo",
+    kind: "role",
+    daysAgo: 7,
+    actor: { name: "Carlos Lima", avatar: "/assets/ui-faces/male-3.jpg", initials: "CL" },
+  },
   {
     id: "a8",
     when: "29 de mai., 14:12",
@@ -619,7 +654,7 @@ function ActivityTimeline({ events }: { events: ActivityEvent[] }) {
               {event.text}
             </span>
             <span className="mt-0.5 block body-xs text-(--fg-tertiary)">
-              {event.when}
+              {event.actor ? `${event.actor.name} · ${event.when}` : event.when}
             </span>
           </span>
         </li>
