@@ -101,6 +101,7 @@ export function ReviewThreadPopover() {
   // Acompanha o marcador quando ele segue o reflow/zoom (âncora resolvida):
   // pin → ponto do elemento; traço → centroide dos pontos re-resolvidos.
   void layoutVersion
+  const anchorEl = comment.anchor.el
   let elPoint: ReviewPoint | null = null
   if (comment.anchor.kind === "pin" && comment.anchor.el) {
     elPoint = resolveElementPoint(comment.anchor.el)
@@ -112,6 +113,10 @@ export function ReviewThreadPopover() {
       elPoint = { x: cx, y: cy }
     }
   }
+  // Comentário ancorado a um elemento que não existe mais (modal fechou): o
+  // marcador some no canvas, então a thread também não deve flutuar solta sobre
+  // o conteúdo/sidebar. Volta quando o elemento reaparece.
+  if (anchorEl && !elPoint) return null
   const point = elPoint
     ? { x: elPoint.x + scroll.x, y: elPoint.y + scroll.y }
     : anchorPoint(comment)

@@ -4,8 +4,6 @@ import * as React from "react"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
 import {
-  cumulativeScrollFromElement,
-  elementBelowOverlayAt,
   useCumulativeScrollOffset,
   useLayoutVersion,
 } from "@/lib/bombardier-review/scrollOffset"
@@ -19,9 +17,15 @@ import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewPinMarker } from "./ReviewPinMarker"
 import type { ReviewDrawPath, ReviewPoint } from "./types"
 
-function pointFromEvent(e: PointerEvent | React.PointerEvent): ReviewPoint {
-  const below = elementBelowOverlayAt(e.clientX, e.clientY)
-  const scroll = cumulativeScrollFromElement(below)
+// Converte o evento de ponteiro pra doc-coords usando a MESMA base de scroll
+// que o render usa (o container de conteúdo principal). Antes usava o scroll
+// por-elemento do alvo, que divergia do render quando um modal/sidebar mudava
+// o scroll-chain — e o pino caía fora. Compartilhar a base garante captura e
+// render coincidirem.
+function pointFromEvent(
+  e: PointerEvent | React.PointerEvent,
+  scroll: ReviewPoint,
+): ReviewPoint {
   return {
     x: e.clientX + scroll.x,
     y: e.clientY + scroll.y,
@@ -96,20 +100,33 @@ export function ReviewCanvas() {
   // quando o layout muda sem scroll/resize.
   //   `pins`  — ponto do marcador de cada comentário (pin ou centroide do traço)
   //   `draws` — pontos da polyline de cada marcação livre
+  //   `hidden`— comentários ancorados a um elemento que NÃO existe mais (ex.: um
+  //             modal fechou). Some o marcador em vez de cair na coord absoluta
+  //             velha — senão o dot fica "fantasma" sobre o conteúdo/sidebar. Se
+  //             o elemento voltar (modal reabre), o seletor resolve e ele volta.
   const rendered = React.useMemo(() => {
     void layoutVersion
     const pins = new Map<string, ReviewPoint>()
     const draws = new Map<string, ReviewPoint[]>()
+    const hidden = new Set<string>()
     for (const c of comments) {
       if (c.origin === "ux-flow") continue
       if (c.anchor.kind === "pin") {
         const vp = c.anchor.el ? resolveElementPoint(c.anchor.el) : null
+        if (c.anchor.el && !vp) {
+          hidden.add(c.id)
+          continue
+        }
         pins.set(
           c.id,
           vp ? { x: vp.x + scroll.x, y: vp.y + scroll.y } : c.anchor.position,
         )
       } else {
         const vps = c.anchor.el ? resolveDrawPoints(c.anchor.el) : null
+        if (c.anchor.el && !vps) {
+          hidden.add(c.id)
+          continue
+        }
         const docPts = vps
           ? vps.map((p) => ({ x: p.x + scroll.x, y: p.y + scroll.y }))
           : c.anchor.path.points
@@ -117,7 +134,7 @@ export function ReviewCanvas() {
         pins.set(c.id, vps ? centroidOf(docPts) : c.anchor.centroid)
       }
     }
-    return { pins, draws }
+    return { pins, draws, hidden }
   }, [comments, scroll.x, scroll.y, layoutVersion])
 
   const captureMode =
@@ -151,21 +168,21 @@ export function ReviewCanvas() {
       if (!s.identity) return
       if (s.mode === "draw") {
         isDrawingRef.current = true
-        s.startDraw(pointFromEvent(e), s.identity.colorToken)
+        s.startDraw(pointFromEvent(e, scrollRef.current), s.identity.colorToken)
         ;(e.target as Element).setPointerCapture?.(e.pointerId)
       } else if (s.mode === "pin" || s.mode === "magic") {
         // No modo mágico o pino ancora ao elemento sob o cursor — o mesmo que o
         // realce destaca (ambos via elementBelowOverlayAt) — então fica grudado
         // ao elemento e acompanha o reflow, em vez de cair num x/y solto.
         const el = captureElementAnchor(e.clientX, e.clientY)
-        s.placePin(pointFromEvent(e), el ?? undefined)
+        s.placePin(pointFromEvent(e, scrollRef.current), el ?? undefined)
       }
     }
 
     const onMove = (e: PointerEvent) => {
       if (!isDrawingRef.current || useReviewStore.getState().mode !== "draw")
         return
-      pendingPointRef.current = pointFromEvent(e)
+      pendingPointRef.current = pointFromEvent(e, scrollRef.current)
       if (rafRef.current === null) {
         rafRef.current = requestAnimationFrame(flush)
       }
@@ -241,7 +258,9 @@ export function ReviewCanvas() {
       <g transform={`translate(${-scroll.x} ${-scroll.y})`}>
         {/* ux-flow comments live on the diagram canvas (rendered by the flow
             editor) — their document-coord pins would drift here, so skip them. */}
-        {comments.filter((c) => c.origin !== "ux-flow").map((c) => {
+        {comments
+          .filter((c) => c.origin !== "ux-flow" && !rendered.hidden.has(c.id))
+          .map((c) => {
           if (c.anchor.kind === "draw") {
             return (
               <g key={c.id} style={{ pointerEvents: "auto" }}>
