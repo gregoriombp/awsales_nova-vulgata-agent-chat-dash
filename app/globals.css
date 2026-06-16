@@ -3897,7 +3897,12 @@
   height: 4px;
   -webkit-appearance: none;
   appearance: none;
-  background: var(--bg-muted);
+  /* --aw-slider-progress (0%–100%) é definido inline pelo componente. */
+  background: linear-gradient(
+    to right,
+    var(--bg-inverse) 0% var(--aw-slider-progress, 0%),
+    var(--bg-muted) var(--aw-slider-progress, 0%) 100%
+  );
   border-radius: var(--radius-full);
   cursor: pointer;
   outline: none;
