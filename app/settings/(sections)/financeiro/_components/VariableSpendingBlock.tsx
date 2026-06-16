@@ -674,19 +674,32 @@ function DailySpendingChart({
   );
 }
 
+// "Hoje" do protótipo — âncora fixa pra os rótulos de data não dependerem do
+// relógio (evita mismatch de hidratação). Trocar por uma data real no dev.
+const CHART_ANCHOR = new Date(2026, 4, 19); // 19/05/2026
+
+function ddmm(d: Date): string {
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+// Cada coluna mostra a DATA correspondente (dd/mm), não um rótulo relativo.
 function dayLabel(
   index: number,
   totalDays: number,
   period: SpendingPeriod,
 ): string {
-  if (period === "today") return "Hoje";
-  if (period === "this-month") return `Dia ${index + 1}`;
-  // Para "last-30" e "last-90", inverte: o último ponto é "hoje", o primeiro é mais antigo.
+  if (period === "today") return ddmm(CHART_ANCHOR);
+  if (period === "this-month") {
+    return ddmm(
+      new Date(CHART_ANCHOR.getFullYear(), CHART_ANCHOR.getMonth(), index + 1),
+    );
+  }
+  // "last-30"/"last-90": o último ponto é a âncora; recua dia a dia (×3 no 90).
   const offset = totalDays - 1 - index;
-  if (offset === 0) return "Hoje";
-  if (offset === 1) return "Ontem";
-  const days = period === "last-90" ? offset * 3 : offset;
-  return `${days} dia${days === 1 ? "" : "s"} atrás`;
+  const daysBack = period === "last-90" ? offset * 3 : offset;
+  const d = new Date(CHART_ANCHOR);
+  d.setDate(d.getDate() - daysBack);
+  return ddmm(d);
 }
 
 function Legend({
