@@ -26,7 +26,7 @@ function WhatsAppConfigContent() {
 
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs}>
-      <div className="-m-8 h-full min-h-full bg-(--bg-canvas)">
+      <div className="-my-8 h-full min-h-full bg-(--bg-canvas)">
         <AwWhatsAppPanel
           onAddWaba={() => router.push("/setup/whatsapp")}
           onCancel={() => router.push("/canais")}
