@@ -40,6 +40,11 @@ export type AwToggleRowProps = {
   onChange?: (next: boolean) => void
   disabled?: boolean
   className?: string
+  /**
+   * "card" (padrão) — cada linha é um cartão com borda e fundo.
+   * "plain" — sem chrome de cartão, para listas separadas por divisores.
+   */
+  variant?: "card" | "plain"
 }
 
 export function AwToggleRow({
@@ -49,9 +54,17 @@ export function AwToggleRow({
   onChange,
   disabled,
   className,
+  variant = "card",
 }: AwToggleRowProps) {
   return (
-    <div className={cn("aw-toggle-row", className)}>
+    <div
+      className={cn(
+        "aw-toggle-row",
+        variant === "plain" &&
+          "border-0! rounded-none! bg-transparent! px-0! py-3.5! min-w-0!",
+        className,
+      )}
+    >
       <div className="aw-toggle-row__copy">
         <div className="aw-toggle-row__copy-title">{title}</div>
         {description && (
