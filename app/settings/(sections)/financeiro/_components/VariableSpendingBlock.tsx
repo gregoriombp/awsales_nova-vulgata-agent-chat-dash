@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { DayButton } from "react-day-picker";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -204,7 +206,7 @@ export function VariableSpendingBlock() {
     const othersCat: SpendingCategory = {
       id: "__others__",
       label: `Outros · ${rest.length}`,
-      colorVar: "var(--aw-gray-500)",
+      colorVar: "var(--aw-gray-400)",
     };
     return {
       categories: [...top.map((v) => v.cat), othersCat],
@@ -408,6 +410,7 @@ function PeriodPicker({
             }
             numberOfMonths={2}
             captionLayout="dropdown"
+            components={{ DayButton: RangeDayButton }}
           />
           <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3">
             <p className="m-0 body-xs text-(--fg-tertiary)">
@@ -436,6 +439,62 @@ function PeriodPicker({
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+/* ---------- range day button ----------
+ * DayButton custom só desta instância: pinta o período selecionado como uma
+ * banda preta contínua (pontas arredondadas) e dá um bg cinza claro aos dias
+ * fora do período, pra a seleção saltar aos olhos. Não toca no primitive
+ * global do Calendar. */
+function RangeDayButton({
+  className,
+  day,
+  modifiers,
+  ...props
+}: React.ComponentProps<typeof DayButton>) {
+  const ref = React.useRef<HTMLButtonElement>(null);
+  React.useEffect(() => {
+    if (modifiers.focused) ref.current?.focus();
+  }, [modifiers.focused]);
+
+  const inRange =
+    modifiers.selected ||
+    modifiers.range_start ||
+    modifiers.range_middle ||
+    modifiers.range_end;
+  const isSingle =
+    (modifiers.range_start && modifiers.range_end) ||
+    (modifiers.selected && !modifiers.range_middle && !modifiers.range_start);
+
+  return (
+    <button
+      ref={ref}
+      data-day={day.date.toLocaleDateString()}
+      className={cn(
+        "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center text-sm font-normal outline-hidden transition-colors duration-aw-fast focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
+        inRange
+          ? "bg-(--fg-primary) font-medium text-(--bg-raised) hover:bg-(--fg-primary)"
+          : "bg-(--bg-muted) text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+        // banda contínua: pontas arredondadas, miolo reto
+        isSingle
+          ? "rounded-md"
+          : modifiers.range_start
+            ? "rounded-l-md rounded-r-none"
+            : modifiers.range_end
+              ? "rounded-r-md rounded-l-none"
+              : modifiers.range_middle
+                ? "rounded-none"
+                : "rounded-md",
+        modifiers.today &&
+          !inRange &&
+          "ring-1 ring-inset ring-(--border-strong)",
+        modifiers.outside && !inRange && "opacity-40",
+        modifiers.disabled && "opacity-30",
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -494,6 +553,8 @@ function DailySpendingChart({
   period: SpendingPeriod;
 }) {
   const totalDays = data.length;
+  // Série sob o cursor — as demais esmaecem pra a pilha em foco saltar.
+  const [hoveredKey, setHoveredKey] = React.useState<string | null>(null);
 
   const visibleCategories = React.useMemo(
     () => categories.filter((c) => visibleIds.has(c.id)),
@@ -532,7 +593,7 @@ function DailySpendingChart({
   return (
     <ChartContainer
       config={chartConfig}
-      className="aspect-auto h-[320px] w-full"
+      className="aspect-auto h-[320px] w-full [&_.recharts-rectangle]:transition-[fill-opacity] [&_.recharts-rectangle]:duration-200 [&_.recharts-rectangle]:ease-out"
     >
       <BarChart
         accessibilityLayer
@@ -554,7 +615,23 @@ function DailySpendingChart({
           content={
             <ChartTooltipContent
               indicator="dot"
-              className="bg-(--bg-raised)"
+              className="min-w-[200px] bg-(--bg-raised)"
+              labelFormatter={(dayLabel, items) => {
+                const total = (items ?? []).reduce(
+                  (sum, it) => sum + (Number(it.value) || 0),
+                  0,
+                );
+                return (
+                  <div className="flex items-center justify-between gap-4 border-b border-(--border-subtle) pb-1.5">
+                    <span className="body-xs font-medium text-(--fg-primary)">
+                      {dayLabel}
+                    </span>
+                    <span className="body-xs font-semibold tabular-nums text-(--fg-primary)">
+                      {brl(total)}
+                    </span>
+                  </div>
+                );
+              }}
               formatter={(value, name) => {
                 const cat = categories.find((c) => c.id === name);
                 return (
@@ -582,6 +659,9 @@ function DailySpendingChart({
             dataKey={cat.id}
             stackId="spend"
             fill={`var(--color-${cat.id})`}
+            fillOpacity={hoveredKey && hoveredKey !== cat.id ? 0.2 : 1}
+            onMouseEnter={() => setHoveredKey(cat.id)}
+            onMouseLeave={() => setHoveredKey(null)}
             maxBarSize={36}
             radius={
               i === visibleCategories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]
