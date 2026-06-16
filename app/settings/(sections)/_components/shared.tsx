@@ -93,10 +93,12 @@ export function NotifGroup({
 }) {
   return (
     <div className="border-b border-(--border-subtle) pb-6 last:border-b-0 last:pb-0">
-      <h4 className="m-0 mb-3 mt-6 first:mt-0 text-(--fg-primary) text-base font-medium">
+      <h4 className="m-0 mb-1 mt-6 first:mt-0 text-(--fg-primary) text-base font-medium">
         {label}
       </h4>
-      <div className="flex flex-col gap-1">{children}</div>
+      <div className="flex flex-col divide-y divide-(--border-subtle)">
+        {children}
+      </div>
     </div>
   );
 }

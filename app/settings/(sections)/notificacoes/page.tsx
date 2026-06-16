@@ -25,24 +25,28 @@ export default function NotificationsSettingsPage() {
       <div>
         <NotifGroup label="Agentes">
           <AwToggleRow
+            variant="plain"
             title="Aprovação pendente"
             description="Quando um agente solicita autorização para executar uma ação."
             checked={notif.approvalsEmail}
             onChange={(v) => setNotif((n) => ({ ...n, approvalsEmail: v }))}
           />
           <AwToggleRow
+            variant="plain"
             title="Notificar também no app"
             description="Mostra um indicador na barra lateral em tempo real."
             checked={notif.approvalsInApp}
             onChange={(v) => setNotif((n) => ({ ...n, approvalsInApp: v }))}
           />
           <AwToggleRow
+            variant="plain"
             title="Agente desconectado de um canal"
             description="WhatsApp, Instagram ou outras integrações que pararam de responder."
             checked={notif.agentDisconnected}
             onChange={(v) => setNotif((n) => ({ ...n, agentDisconnected: v }))}
           />
           <AwToggleRow
+            variant="plain"
             title="Falha em ferramenta"
             description="Tool retornou erro mais de 3 vezes em uma hora."
             checked={notif.toolFailure}
@@ -51,12 +55,14 @@ export default function NotificationsSettingsPage() {
         </NotifGroup>
         <NotifGroup label="Conversas">
           <AwToggleRow
+            variant="plain"
             title="Mensagem urgente flagada"
             description="Cliente pediu humano, mencionou cancelamento ou usou linguagem sensível."
             checked={notif.urgentMessage}
             onChange={(v) => setNotif((n) => ({ ...n, urgentMessage: v }))}
           />
           <AwToggleRow
+            variant="plain"
             title="Conversa transferida para mim"
             checked={notif.conversationHandoff}
             onChange={(v) =>
@@ -66,12 +72,14 @@ export default function NotificationsSettingsPage() {
         </NotifGroup>
         <NotifGroup label="Time">
           <AwToggleRow
+            variant="plain"
             title="Menções"
             description="Quando um colega te marca em uma conversa ou aprovação."
             checked={notif.mentions}
             onChange={(v) => setNotif((n) => ({ ...n, mentions: v }))}
           />
           <AwToggleRow
+            variant="plain"
             title="Resumo semanal por email"
             description="Performance dos agentes, ações executadas e KPIs."
             checked={notif.weeklyDigest}
