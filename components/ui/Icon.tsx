@@ -7,6 +7,9 @@ export type IconProps = {
   fill?: 0 | 1
   weight?: 200 | 300 | 400 | 500 | 600 | 700
   grade?: -25 | 0 | 200
+  /** Only the agent glyph (`name="agent"`) reads this — set `false` to render
+   *  it as a still line (dense lists, perf-sensitive surfaces). Default `true`. */
+  animated?: boolean
   className?: string
   style?: React.CSSProperties
 }
@@ -17,9 +20,23 @@ export function Icon({
   fill = 0,
   weight = 200,
   grade = 0,
+  animated = true,
   className,
   style,
 }: IconProps) {
+  if (name === "agent" || name === "gesture") {
+    // The brand mark for "an Agent" in icon form — replaces the robot
+    // (`smart_toy`). A self-drawing gesture line; see AgentGlyph below.
+    return (
+      <AgentGlyph
+        size={size}
+        weight={weight}
+        animated={animated}
+        className={className}
+        style={style}
+      />
+    )
+  }
   if (name === "agent_studio") {
     return (
       <AgentStudioGlyph size={size} className={className} style={style} />
@@ -102,6 +119,51 @@ function AgentStudioGlyph({
         height={size}
         style={{ display: "block" }}
       />
+    </span>
+  )
+}
+
+/** The "gesture" mark — how an **Agent** is drawn as an icon, the brand
+ *  alternative to a robot/`smart_toy`. One continuous stroke that draws itself
+ *  in an endless loop (the motion lives in `.aw-agent-glyph` in globals.css).
+ *
+ *  It still behaves like any glyph: inherits `currentColor`, scales with
+ *  `size`, and its stroke thickness tracks the `weight` axis so it sits beside
+ *  the Material Symbols set. Exposed through `Icon` so it's a drop-in for
+ *  `<Icon name="smart_toy" />`. The animation auto-stops under
+ *  `prefers-reduced-motion`; pass `animated={false}` to force a still line.
+ *  A sanctioned raw-SVG agent visual (see AGENTS.md → Icons). */
+const AGENT_GESTURE_PATH =
+  "M2.7 15.6 C4.3 11.3 6.6 10.8 8 13.2 C8.95 14.9 8.4 16.8 7.1 16.5 C5.8 16.2 5.9 13.8 8.1 12.9 C10.5 11.9 12.3 13.1 13.5 15 C14.4 16.4 16 16.5 17.3 15.2 C19 13.5 18.3 10.7 16.4 10.9 C15.1 11.05 14.8 12.7 16.1 13.3"
+
+function AgentGlyph({
+  size,
+  weight,
+  animated,
+  className,
+  style,
+}: {
+  size: number
+  weight: NonNullable<IconProps["weight"]>
+  animated: boolean
+  className?: string
+  style?: React.CSSProperties
+}) {
+  // 200 (thin — the Icon default) ≈ 1.5; heavier `weight` reads heavier.
+  const strokeWidth = 1.5 + ((weight - 200) / 100) * 0.3
+  return (
+    <span
+      aria-hidden="true"
+      className={
+        "aw-icon aw-agent-glyph" +
+        (animated ? " is-animated" : "") +
+        (className ? " " + className : "")
+      }
+      style={{ width: size, height: size, ...style }}
+    >
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d={AGENT_GESTURE_PATH} strokeWidth={strokeWidth} pathLength={1} />
+      </svg>
     </span>
   )
 }

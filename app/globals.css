@@ -1233,6 +1233,45 @@
   vertical-align: -0.15em;
 }
 
+/* Agent glyph — the animated "gesture" mark that represents an Agent in icon
+ * form (the brand alternative to a robot). Rendered by <Icon name="agent" />.
+ * One continuous stroke that draws itself in an endless loop. Inherits
+ * currentColor + size like any glyph; stroke-width tracks the weight axis
+ * (set inline by the component). Sanctioned raw-SVG agent visual — see AGENTS.md. */
+.aw-agent-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  flex: none;
+}
+.aw-agent-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.aw-agent-glyph path {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+}
+.aw-agent-glyph.is-animated path {
+  animation: aw-agent-draw 2.6s var(--ease-in-out) infinite;
+}
+@keyframes aw-agent-draw {
+  0% { stroke-dashoffset: 1; }      /* hidden — pen lifted */
+  55%, 70% { stroke-dashoffset: 0; } /* drawn, brief hold */
+  100% { stroke-dashoffset: -1; }   /* sweeps off, ready to redraw */
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-agent-glyph.is-animated path {
+    animation: none;
+    stroke-dashoffset: 0; /* stays fully drawn */
+  }
+}
+
 /* ============================================================
  * Motion default — interactive elements get a smooth paint
  * transition for free. This is the "persistent transition": you

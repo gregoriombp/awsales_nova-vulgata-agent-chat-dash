@@ -563,7 +563,7 @@ function ToolDetailModal({
         {/* Stats line */}
         <div className="flex flex-wrap items-center gap-x-5 gap-y-2 body-xs text-(--fg-tertiary)">
           <span className="inline-flex items-center gap-1.5">
-            <Icon name="smart_toy" size={14} />
+            <Icon name="agent" size={14} />
             {agents === 0
               ? "Nenhum agente usando"
               : agents === 1

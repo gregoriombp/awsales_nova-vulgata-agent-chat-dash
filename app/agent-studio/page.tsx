@@ -365,7 +365,7 @@ function AgentsTable({
   return (
     <AwMembersTable
       columns={[
-        { label: "Nome", icon: "smart_toy" },
+        { label: "Nome", icon: "agent" },
         { label: "Objetivo", icon: "target" },
         { label: "Status" },
         { label: "Agente core" },

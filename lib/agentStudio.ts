@@ -344,7 +344,7 @@ export const SKILL_GROUPS: SkillGroup[] = [
     id: "agente",
     nome: "Agente",
     descricao: "Ações nativas do agente durante a conversa.",
-    icon: "smart_toy",
+    icon: "agent",
     tone: "teal",
     skills: [
       skill(

@@ -274,7 +274,7 @@ export default function PatternsPage() {
                     "radial-gradient(circle at 30% 30%, var(--aw-blue-400), var(--aw-purple-500))",
                 }}
               >
-                <Icon name="smart_toy" size={24} style={{ color: "#fff" }} />
+                <Icon name="agent" size={24} style={{ color: "#fff" }} />
               </div>
               <div>
                 <h4 className="m-0 mb-2">Seu primeiro agente</h4>

@@ -93,7 +93,7 @@ export function VisaoGeralTab({ data }: { data: AgentEditorData }) {
               <KbMeta icon="stacks">
                 {data.kb.knowledgeLayers} Knowledge Layers
               </KbMeta>
-              <KbMeta icon="smart_toy">
+              <KbMeta icon="agent">
                 Utilizada por {data.kb.usadoPorAgentes} agentes
               </KbMeta>
             </div>
