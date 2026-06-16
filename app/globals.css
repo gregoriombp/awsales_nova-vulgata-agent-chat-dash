@@ -4201,9 +4201,8 @@
  * it reads as "chrome" without needing a heavy border. In dark mode stays
  * flat with the canvas (canvas is already dark). */
 .aw-sg-sidebar {
-  background: var(--aw-gray-150);
-}
-.dark .aw-sg-sidebar {
+  /* Sidebar branca em light, superfície escura em dark (bg-raised cobre os
+     dois) — pedido de review: bg white com stroke direito bem claro. */
   background: var(--bg-raised);
 }
 .aw-sg-sidebar__subtitle {
