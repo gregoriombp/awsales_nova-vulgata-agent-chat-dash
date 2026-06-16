@@ -808,15 +808,15 @@ function inferActivityIcon(description: string): string {
 
 function FullAccessBanner() {
   return (
-    <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
+    <div className="flex items-center gap-3 rounded-md bg-(--bg-inverse) px-4 py-3 text-(--fg-on-inverse)">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-raised)/15 text-(--fg-on-inverse)">
         <Icon name="verified" size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="m-0 body-xs font-medium text-(--fg-primary)">
+        <p className="m-0 body-xs font-medium text-(--fg-on-inverse)">
           Acesso total
         </p>
-        <p className="m-0 body-xs text-(--fg-secondary)">
+        <p className="m-0 body-xs text-(--fg-on-inverse)/80">
           Todos os {SCOPES.length} escopos liberados, incluindo ações
           irreversíveis (faturamento, exclusão).
         </p>

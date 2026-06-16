@@ -1,6 +1,13 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Fragment,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
@@ -826,6 +833,7 @@ function RoleTable({
   const total = ALL_PERMISSION_IDS.length;
   const systemRoles = roles.filter((r) => r.isSystem);
   const customRoles = roles.filter((r) => !r.isSystem);
+  const searching = search.trim().length > 0;
 
   const renderRow = (r: RoleDefinition) => (
     <RoleTableRow
@@ -860,44 +868,39 @@ function RoleTable({
         </AwButton>
       </div>
 
-      <AwTable className="aw-table--airy">
-        <thead>
-          <tr>
-            <th>Função</th>
-            <th>Descrição</th>
-            <th style={{ width: 180 }}>Membros</th>
-            <th style={{ width: 160 }}>Permissões</th>
-            <th aria-label="Ações" style={{ width: 56 }} />
-          </tr>
-        </thead>
-        <tbody>
-          {roles.length === 0 ? (
-            <tr>
-              <td
-                colSpan={5}
-                style={{ padding: "48px 20px", textAlign: "center" }}
-              >
-                <p className="m-0 body-xs text-(--fg-secondary)">
-                  Nenhuma função encontrada.
-                </p>
-              </td>
-            </tr>
-          ) : (
-            <>
-              {systemRoles.length > 0 && (
-                <RoleGroupRow label="Funções padrão" />
-              )}
-              {systemRoles.map(renderRow)}
-              {customRoles.length > 0 && (
-                <RoleGroupRow label="Funções personalizadas" spaced />
-              )}
-              {customRoles.map(renderRow)}
-            </>
+      {roles.length === 0 ? (
+        <div className="rounded-lg border border-dashed border-(--border-subtle) px-6 py-12 text-center">
+          <p className="m-0 body-xs text-(--fg-secondary)">
+            Nenhuma função encontrada.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {/* Dois grupos colapsáveis — cada um é a sua própria tabela,
+              expandida/recolhida pelo cabeçalho. Durante a busca os dois
+              ficam abertos pra não esconder resultado. */}
+          {systemRoles.length > 0 && (
+            <RoleTableSection
+              label="Funções padrão"
+              count={systemRoles.length}
+              roles={systemRoles}
+              renderRow={renderRow}
+              forceOpen={searching}
+            />
           )}
-        </tbody>
-      </AwTable>
+          {customRoles.length > 0 && (
+            <RoleTableSection
+              label="Funções personalizadas"
+              count={customRoles.length}
+              roles={customRoles}
+              renderRow={renderRow}
+              forceOpen={searching}
+            />
+          )}
+        </div>
+      )}
 
-      <p className="m-0 px-5 body-xs text-(--fg-tertiary)">
+      <p className="m-0 px-1 body-xs text-(--fg-tertiary)">
         Funções padrão não podem ser editadas. Crie quantas funções
         personalizadas a operação precisar.
       </p>
@@ -905,30 +908,76 @@ function RoleTable({
   );
 }
 
-function RoleGroupRow({
+/** Grupo de funções como tabela colapsável — o cabeçalho exibe/oculta a
+ *  tabela com o truque de grid 0fr→1fr (anima a altura sem clipar conteúdo). */
+function RoleTableSection({
   label,
-  spaced,
+  count,
+  roles,
+  renderRow,
+  forceOpen = false,
 }: {
   label: string;
-  /** Respiro extra acima — usado quando o grupo vem depois de outro. */
-  spaced?: boolean;
+  count: number;
+  roles: RoleDefinition[];
+  renderRow: (r: RoleDefinition) => ReactNode;
+  /** Mantém aberto independentemente do toggle — usado durante a busca. */
+  forceOpen?: boolean;
 }) {
+  const [open, setOpen] = useState(true);
+  const expanded = forceOpen || open;
+
   return (
-    <tr aria-hidden="true">
-      <td colSpan={5} style={{ padding: 0 }}>
-        <div
+    <section className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={expanded}
+        className="flex w-full items-center gap-2.5 px-5 py-3 text-left outline-hidden transition-colors duration-aw-fast hover:bg-(--bg-hover) focus-visible:bg-(--bg-hover)"
+      >
+        <Icon
+          name="chevron_right"
+          size={16}
           className={
-            "flex items-center gap-3 px-5 pb-2 " +
-            (spaced ? "pt-6" : "pt-4")
+            "shrink-0 text-(--fg-tertiary) transition-transform " +
+            (expanded ? "rotate-90" : "")
           }
-        >
-          <span className="shrink-0 body-xs font-medium text-(--fg-secondary)">
-            {label}
-          </span>
-          <span className="h-px min-w-0 flex-1 bg-(--border-subtle)" />
+          style={{
+            transitionDuration: "var(--dur-base)",
+            transitionTimingFunction: "var(--ease-in-out)",
+          }}
+        />
+        <span className="body-xs font-medium text-(--fg-primary)">{label}</span>
+        <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-(--bg-muted) px-1.5 text-2xs font-medium tabular-nums text-(--fg-secondary)">
+          {count}
+        </span>
+      </button>
+      <div
+        className="grid transition-[grid-template-rows]"
+        style={{
+          gridTemplateRows: expanded ? "1fr" : "0fr",
+          transitionDuration: "var(--dur-base)",
+          transitionTimingFunction: "var(--ease-in-out)",
+        }}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="border-t border-(--border-subtle)">
+            <AwTable className="aw-table--airy">
+              <thead>
+                <tr>
+                  <th>Função</th>
+                  <th>Descrição</th>
+                  <th style={{ width: 180 }}>Membros</th>
+                  <th style={{ width: 160 }}>Permissões</th>
+                  <th aria-label="Ações" style={{ width: 56 }} />
+                </tr>
+              </thead>
+              <tbody>{roles.map(renderRow)}</tbody>
+            </AwTable>
+          </div>
         </div>
-      </td>
-    </tr>
+      </div>
+    </section>
   );
 }
 

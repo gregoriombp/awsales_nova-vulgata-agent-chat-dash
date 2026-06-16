@@ -22,7 +22,6 @@ import {
 } from "@/components/ui/AwMembersTable";
 import { GROUP_BACKGROUNDS, GROUPS, MEMBERS, type Member } from "../../_components/data";
 import { InviteModal } from "../../_components/InviteModal";
-import { TeamTabs } from "../../_components/TeamTabs";
 
 type ActivityKind = "join" | "leave" | "role" | "permission" | "cover" | "rename";
 
@@ -195,6 +194,20 @@ export default function GroupDetailPage() {
     if (group) setGroupMemberIds(group.members);
   }, [group]);
 
+  // A capa imersiva preenche toda a altura visível da área de conteúdo —
+  // medimos o scroller (viewport do settings) e fixamos a altura do hero.
+  const heroRef = React.useRef<HTMLElement>(null);
+  const [heroHeight, setHeroHeight] = useState<number | null>(null);
+  React.useEffect(() => {
+    const scroller = heroRef.current?.parentElement;
+    if (!scroller) return;
+    const measure = () => setHeroHeight(scroller.clientHeight);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(scroller);
+    return () => ro.disconnect();
+  }, []);
+
   if (!group) {
     return (
       <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
@@ -235,114 +248,123 @@ export default function GroupDetailPage() {
 
   return (
     <>
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-12">
-        <header>
-          <h3 className="m-0 mb-2 text-(--fg-primary)">
-            Equipe &amp; permissões
-          </h3>
-          <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-            Gerencie quem tem acesso ao workspace, convide novas pessoas e
-            organize permissões por função e projeto.
-          </p>
-        </header>
-
-        <TeamTabs />
-
-        {/* Cover */}
-        <div className="relative h-[220px] overflow-hidden rounded-lg border border-(--border-subtle)">
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${cover})` }}
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(13,13,15,0.05) 0%, rgba(13,13,15,0.55) 100%)",
-            }}
-          />
-          <div className="absolute right-4 top-4 flex items-center gap-2">
-            <CoverEditButton onClick={() => setPickerOpen((v) => !v)} />
-            <AwDropdownMenu
-              align="end"
-              trigger={
-                <button
-                  type="button"
-                  aria-label="Mais opções da equipe"
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(13,13,15,0.55)] text-white backdrop-blur-xs transition-colors hover:bg-[rgba(13,13,15,0.75)]"
-                >
-                  <Icon name="more_vert" size={18} />
-                </button>
-              }
-              items={[
-                {
-                  id: "rename",
-                  label: "Renomear equipe",
-                  icon: "edit",
-                  onSelect: () => setRenameOpen(true),
-                },
-                {
-                  id: "icon",
-                  label: "Alterar ícone e cor",
-                  icon: "palette",
-                  onSelect: () => setIconOpen(true),
-                },
-                {
-                  id: "cover",
-                  label: "Personalizar capa",
-                  icon: "image",
-                  onSelect: () => setPickerOpen(true),
-                },
-                { id: "sep", separator: true },
-                {
-                  id: "delete",
-                  label: "Excluir equipe",
-                  icon: "delete",
-                  danger: true,
-                  onSelect: () => setDeleteOpen(true),
-                },
-              ]}
-            />
-          </div>
-          <div className="absolute bottom-5 left-5 flex items-end gap-4">
-            <span
-              className="flex h-20 w-20 items-center justify-center rounded-full text-(--fg-primary) shadow-[0_8px_24px_rgba(0,0,0,0.25)]"
-              style={{ background: groupIconColor }}
-            >
-              <Icon name={groupIcon} size={36} />
-            </span>
-            <div>
-              <nav
-                aria-label="Navegação contextual"
-                className="mb-1.5 flex items-center gap-1 body-xs text-white/70"
+      {/* Hero imersivo — sem header nem abas: a rota de detalhe da equipe é
+          um layout próprio. A capa preenche toda a altura visível e o
+          conteúdo (membros, atividade) rola abaixo. */}
+      <section
+        ref={heroRef}
+        className="relative w-full overflow-hidden bg-(--bg-muted)"
+        style={{ height: heroHeight ?? undefined, minHeight: 480 }}
+      >
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${cover})` }}
+        />
+        <div
+          aria-hidden="true"
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(13,13,15,0.42) 0%, rgba(13,13,15,0.04) 24%, rgba(13,13,15,0.10) 52%, rgba(13,13,15,0.80) 100%)",
+          }}
+        />
+        <div className="absolute right-5 top-5 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => router.push("/settings/equipe-permissoes/grupos")}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[rgba(13,13,15,0.55)] pl-2.5 pr-3.5 text-white backdrop-blur-xs transition-colors duration-aw-fast hover:bg-[rgba(13,13,15,0.75)]"
+          >
+            <Icon name="arrow_back" size={18} />
+            <span className="text-[12.5px] font-medium">Voltar</span>
+          </button>
+          <CoverEditButton onClick={() => setPickerOpen((v) => !v)} />
+          <AwDropdownMenu
+            align="end"
+            trigger={
+              <button
+                type="button"
+                aria-label="Mais opções da equipe"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[rgba(13,13,15,0.55)] text-white backdrop-blur-xs transition-colors hover:bg-[rgba(13,13,15,0.75)]"
               >
-                <Link
-                  href="/settings/equipe-permissoes/grupos"
-                  className="hover:text-white hover:underline"
-                >
-                  Equipes
-                </Link>
-                <Icon name="chevron_right" size={14} />
-                <span className="text-white">{groupName}</span>
-              </nav>
-              <h2 className="m-0 text-white">{groupName}</h2>
-              <p className="m-0 mt-1 max-w-[640px] body-xs text-white/80">
-                {group.description}
-              </p>
-            </div>
+                <Icon name="more_vert" size={18} />
+              </button>
+            }
+            items={[
+              {
+                id: "rename",
+                label: "Renomear equipe",
+                icon: "edit",
+                onSelect: () => setRenameOpen(true),
+              },
+              {
+                id: "icon",
+                label: "Alterar ícone e cor",
+                icon: "palette",
+                onSelect: () => setIconOpen(true),
+              },
+              {
+                id: "cover",
+                label: "Personalizar capa",
+                icon: "image",
+                onSelect: () => setPickerOpen(true),
+              },
+              { id: "sep", separator: true },
+              {
+                id: "delete",
+                label: "Excluir equipe",
+                icon: "delete",
+                danger: true,
+                onSelect: () => setDeleteOpen(true),
+              },
+            ]}
+          />
+        </div>
+        <div className="absolute bottom-8 left-8 right-8 flex items-end gap-5">
+          <span
+            className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full text-(--fg-primary) shadow-[0_12px_32px_rgba(0,0,0,0.3)]"
+            style={{ background: groupIconColor }}
+          >
+            <Icon name={groupIcon} size={44} />
+          </span>
+          <div className="min-w-0">
+            <nav
+              aria-label="Navegação contextual"
+              className="mb-2 flex items-center gap-1 body-xs text-white/70"
+            >
+              <Link
+                href="/settings/equipe-permissoes/grupos"
+                className="hover:text-white hover:underline"
+              >
+                Equipes
+              </Link>
+              <Icon name="chevron_right" size={14} />
+              <span className="text-white">{groupName}</span>
+            </nav>
+            <h1 className="m-0 text-white">{groupName}</h1>
+            <p className="m-0 mt-2 max-w-[640px] body-sm text-white/85">
+              {group.description}
+            </p>
           </div>
         </div>
+      </section>
+
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-10 pb-20 pt-10">
 
         {pickerOpen && (
-          <CoverPicker
-            value={cover}
-            onChange={(v) => {
-              setCover(v);
-              setPickerOpen(false);
-            }}
-          />
+          <div
+            ref={(el) =>
+              el?.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          >
+            <CoverPicker
+              value={cover}
+              onChange={(v) => {
+                setCover(v);
+                setPickerOpen(false);
+              }}
+            />
+          </div>
         )}
 
         <AwModal
