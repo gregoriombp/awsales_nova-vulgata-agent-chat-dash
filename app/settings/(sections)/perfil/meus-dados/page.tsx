@@ -119,7 +119,7 @@ export default function MeusDadosPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[900px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Meus dados"
         description="Uma cópia dos seus dados pessoais guardados na AwSales. Peça quando precisar — separado das configurações da organização."

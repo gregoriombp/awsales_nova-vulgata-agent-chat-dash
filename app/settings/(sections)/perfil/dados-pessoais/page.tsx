@@ -70,7 +70,7 @@ export default function DadosPessoaisPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[780px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Dados pessoais"
         description="Suas informações de perfil — visíveis para membros da organização."

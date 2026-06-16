@@ -83,7 +83,7 @@ export default function SessoesAtivasPage() {
   const otherCount = sessions.filter((s) => !s.current).length;
 
   return (
-    <div className="mx-auto w-full max-w-[900px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Sessões ativas"
         description="Dispositivos onde sua conta está logada. Encerre qualquer sessão que não reconhecer."

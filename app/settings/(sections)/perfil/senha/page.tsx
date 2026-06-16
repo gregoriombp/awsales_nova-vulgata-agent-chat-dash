@@ -79,7 +79,7 @@ export default function SenhaPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[780px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Senha"
         description="Gerencie o acesso à sua conta — senha e verificação em dois fatores."
