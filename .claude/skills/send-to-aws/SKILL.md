@@ -1,61 +1,55 @@
 ---
 name: send-to-aws
-description: Publica um snapshot FILTRADO do repo local no design2 (repo da awsales/PG) rodando scripts/sync-design2.sh — SEM os arquivos privados (skills, AGENTS.md, settings, o próprio script). Faz dry-run, monta um relatório (branch alvo, +add/~mod/−del, divergência), pede confirmação no chat, empurra pra uma branch datada e reporta o resultado + próximo passo (PR). Use quando o usuário disser "/send-to-aws", "manda pro pg", "envia pro design2", "sincroniza com a awsales", "atualiza o repo do pg", "manda meu trabalho pro PG".
+description: Publica o protótipo do Greg no design2 (repo da awsales/PG) via scripts/sync-design2.sh — barato em token, NÃO reanalisa o repo do PG. O território do PG já está fixo no script (PRESERVE_PATHS); tudo o que não é dele é do Greg e sobe, de forma ADITIVA (nunca apaga o que só o PG tem). Roda em commits atômicos numa branch nova e abre o PR. Use quando o usuário disser "/send-to-aws", "manda pro pg", "envia pro design2", "sincroniza com a awsales", "atualiza o repo do pg", "manda meu trabalho pro PG".
 ---
 
-# /send-to-aws — manda o trabalho pro repo do PG (design2), sem os arquivos privados
+# /send-to-aws — manda o protótipo pro repo do PG (design2)
 
-Envia o estado atual do repo pro `design2` (`awsales/awsales-nova-vulgata-design`) via
-`scripts/sync-design2.sh`, **removendo os arquivos privados** (`.claude/`, `AGENTS.md`,
-`CLAUDE.md`, `BOMBARDIER.md`, `AWSALES_CONTEXT.md`, o próprio script). **Nunca** sobrescreve
-`design2/main` nem usa `--force`: cria uma **branch datada** que o PG mescla via PR.
+Este repo era do Greg; o PG foi alterando por conta própria. O **território do PG já está
+localizado e fixo** em `PRESERVE_PATHS` no `scripts/sync-design2.sh` (review-bridge, prototype-studio,
+supabase, app/auth, app/knowledge-os, flow-bridge, deps…). **Você não precisa analisar o repo do
+PG** — o script só compara localmente e manda o seu delta. É barato em token.
 
-> Contexto do porquê: ver a memória `project-remotes-mirror`. O script é a fonte da verdade da
-> lógica de filtro/segurança — esta skill só o **dirige** e formata o relatório.
+Regra mental: **tudo o que não é do PG é seu e sobe.** O sync é **aditivo** (nunca apaga o que só
+o PG tem), **nunca** toca PRESERVE (fica a versão dele), **nunca** vaza PRIVATE (`.claude/`,
+`AGENTS.md`, etc.), **nunca** empurra pra `design2/main` nem usa `--force`. Sempre **branch + PR**.
+O script tem asserts fail-closed — se algo violar isso, ele aborta e nada é empurrado.
 
-## Passos
+## Fluxo padrão (barato)
 
-1. **Pré-checagem.** `git status --porcelain`. Se houver saída (tree sujo), **PARE** e peça pro
-   usuário commitar ou stashar — o snapshot vem do estado **commitado**, não do working tree.
-
-2. **Dry-run (não empurra nada).** Rode:
+1. **Confere rápido (sem escrever nada):**
    ```
    ./scripts/sync-design2.sh --dry-run
    ```
-   Faz fetch do design2, monta a árvore filtrada, roda a asserção de SAFETY e imprime o relatório
-   (procure a linha `SUMMARY branch=… base=… clean=… add=… mod=… del=…`). Se o script sair com
-   erro (token ausente, fetch falhou, path privado vazou), **relate o erro literal e PARE** — não
-   tente contornar.
+   Imprime 1 linha `SUMMARY …` + o bloco `MANIFEST-BEGIN…END` (os arquivos que vão). Se sair com
+   erro (token/fetch), **relate o erro literal e pare**. Se o manifest vier vazio: **nada a enviar**.
 
-3. **Relatório no chat.** Apresente enxuto, a partir do output do dry-run:
-   - branch de destino + base (`design2/main @ <sha>`)
-   - estado: **ff limpo** ou **DIVERGIU**
-   - contagem **+add / ~mod / −del** — destaque o **−del** em negrito se `del > 0` (são arquivos
-     que o PG tem e que esse snapshot removeria)
-   - confirmação de que os privados foram removidos (assert passou)
-   - se `del > 0` ou DIVERGIU: avise que o ideal é **integrar o PG antes**
-     (`git fetch <design2> main && git merge FETCH_HEAD`, resolver conflitos) e rodar de novo.
+2. **Mostra ao usuário** o resumo (1–2 linhas): branch alvo, `+add/~mod`, e que o resto fica
+   intacto (PG-only preservados). Confirme com ele (a menos que ele já tenha dito "manda").
 
-4. **Confirmação.** Use **AskUserQuestion** (ou pergunta direta) pra confirmar a publicação.
-   Mostre o resumo (branch + contagens) na pergunta. Só prossiga com **sim explícito**.
-   Se `del > 0`, deixe a opção "integrar o PG primeiro" bem visível e trate-a como a recomendada.
-
-5. **Publicar.** Rode:
+3. **Publica:**
    ```
-   ./scripts/sync-design2.sh --yes [branch-opcional]
+   ./scripts/sync-design2.sh --yes
    ```
-   Passe um nome de branch **só** se o usuário pediu um específico; senão use o default datado.
-   **Nunca** passe `main` a menos que o usuário peça explicitamente E o dry-run mostre
-   `clean=1 del=0`.
+   Sem mais nada, o script **agrupa em commits atômicos por área** sozinho, cria a branch e **abre
+   o PR**. Relate a branch, o nº de commits e o **link do PR** (`✓ PR aberto: …`).
 
-6. **Resultado.** Relate a branch criada no `design2` e o próximo passo: **abrir o PR → main** no
-   GitHub do `awsales`. Se o push foi **rejeitado** (divergência de última hora), relate e sugira
-   rodar de novo com outro nome de branch (o script já sugere o comando).
+## Quando quiser mensagens de commit curadas (opcional)
 
-## Regras
+Em vez do agrupamento automático, gere um plano TSV (1 commit por linha:
+`<mensagem>\t<arquivo>\t<arquivo>…`, todo arquivo do MANIFEST em exatamente um grupo) e rode:
+```
+./scripts/sync-design2.sh --yes --commits <plano.tsv> [--branch greg/nome]
+```
 
-- **NUNCA** `--force`. **NUNCA** empurre direto pra `main` por conta própria.
-- Não filtre arquivos manualmente nem edite a `PRIVATE_PATHS` no meio do fluxo — o script cuida do
-  strip e tem uma asserção que falha-fechado se algo privado escapar.
-- Se o usuário pedir "manda direto, sem perguntar", ainda assim rode o **dry-run** primeiro e mostre
-  o relatório (1 linha do SUMMARY basta) antes do `--yes` — a contagem de deleções é a salvaguarda.
+## Notas
+
+- `--branch greg/nome` só se o usuário pediu um nome; senão o default é datado.
+- `--locate-pg` lista o território do PG (use de vez em quando pra ver se ele criou pasta nova que
+  valha adicionar em `PRESERVE_PATHS` — mas o modo aditivo já protege mesmo sem isso).
+- `--prune` só se o usuário quiser propagar deleções dele (o script só apaga arquivos que o PG não
+  tocou desde o fork). Não use por padrão.
+- Snapshot vem do **HEAD commitado** — se for publicar com tree sujo, o script para; peça pra
+  commitar/stashar antes (o `--dry-run` e o `--locate-pg` rodam mesmo com tree sujo).
+- **Não** edite `PRIVATE_PATHS`/`PRESERVE_PATHS` no meio do fluxo. Se um assert disparar, relate e
+  pare — não tente contornar.

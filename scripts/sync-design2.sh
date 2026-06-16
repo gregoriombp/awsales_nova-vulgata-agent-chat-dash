@@ -1,120 +1,310 @@
 #!/usr/bin/env bash
-# scripts/sync-design2.sh — publica um snapshot FILTRADO do main local no repo design2 (PG),
-# SEM os arquivos privados que vivem no origin. Padrão: branch datada (nunca sobrescreve main,
-# nunca clobbera o PG). O PG mescla a branch via PR.
+# scripts/sync-design2.sh — publica o MEU protótipo no repo design2 (PG) de forma ADITIVA.
+#
+# O design2 divergiu MUITO do meu repo (o PG tem dirs inteiros que eu não tenho:
+# prototype-studio/, supabase/, app/auth/, app/knowledge-os/, etc., e está à frente no
+# review-bridge). Snapshot de árvore inteira APAGARIA tudo isso. Este script NÃO faz isso.
+#
+# Em vez disso ele calcula o DELTA REAL de conteúdo (design2/main ↔ meu HEAD) e aplica só
+# os arquivos onde o MEU conteúdo de fato difere — como uma série de COMMITS ATÔMICOS numa
+# branch nova baseada em design2/main — e abre um PR. Garantias fail-closed:
+#   • NUNCA apaga arquivo que só o PG tem (modelo aditivo; deleção só com --prune e mesmo
+#     assim só de arquivos que o PG não mexeu desde o fork).
+#   • NUNCA toca nos caminhos PRESERVE (review-bridge inteiro + package.json/lock = versão do PG).
+#   • NUNCA vaza os caminhos PRIVATE (skills, AGENTS.md, settings, este script…).
+#   • NUNCA empurra pra design2/main nem usa --force. Sempre branch + PR.
+#
+# O território do PG fica fixo em PRESERVE_PATHS (abaixo) — localizado 1x; não precisa reanalisar
+# o repo dele toda vez. "Tudo o que não é do PG é meu e sobe." Saída enxuta por padrão (1 linha
+# SUMMARY); sem --commits, agrupa em commits atômicos por área sozinho — barato em token.
 #
 # Uso:
-#   ./scripts/sync-design2.sh                 # interativo: relatório + confirma + empurra (branch datada)
-#   ./scripts/sync-design2.sh --dry-run       # só o relatório; NÃO empurra (usado pela skill /send-to-aws)
-#   ./scripts/sync-design2.sh --yes           # empurra sem perguntar (skill usa após confirmação no chat)
-#   ./scripts/sync-design2.sh greg/minha-br   # nome de branch custom (combina com --yes/--dry-run)
-#   ./scripts/sync-design2.sh main --yes      # override p/ main (só ff limpo; senão rejeita)
+#   ./scripts/sync-design2.sh --yes                # PADRÃO: commits atômicos auto por área + PR (1 linha de saída)
+#   ./scripts/sync-design2.sh --dry-run            # relatório + MANIFEST do que iria; NÃO escreve nada
+#   ./scripts/sync-design2.sh                      # interativo: confirma antes de publicar
+#   ./scripts/sync-design2.sh --commits PLAN.tsv   # commits atômicos com mensagens curadas (a skill gera)
+#   ./scripts/sync-design2.sh greg/minha-br --yes  # nome de branch custom
+#   ./scripts/sync-design2.sh --no-pr              # cria/empurra a branch mas não abre o PR
+#   ./scripts/sync-design2.sh --locate-pg          # lista o território do PG (p/ revisar PRESERVE_PATHS)
+#   ./scripts/sync-design2.sh --prune              # TAMBÉM propaga MINHAS deleções (só de arquivos
+#                                                  # que o PG não tocou desde o fork) — use com cuidado
 set -euo pipefail
 
-# Lista canônica do que é RASTREADO no origin mas NUNCA vai pro working tree do design2.
-# Cobre o diretório .claude/skills/ INTEIRO — qualquer skill ali (incl. globais copiadas) é
-# removida do design2 automaticamente. Mantida em sincronia com o comentário-âncora no .gitignore.
+# ── Caminhos PRIVATE: rastreados no origin (agentes cloud) mas NUNCA vão pro design2.
+#    Mantida em sincronia com o comentário-âncora no .gitignore.
 PRIVATE_PATHS=(
   ".claude/skills" ".claude/settings.json" ".mcp.json"
   "AGENTS.md" "CLAUDE.md" "AWSALES_CONTEXT.md" "BOMBARDIER.md"
   "scripts/sync-design2.sh"
-  # Artefatos privados migrados do meu Cursor (rules, MCP de projeto, cache de
-  # skills .agents, e o staging temporário do harvest). Rastreados no origin
-  # pros agentes cloud enxergarem — mas NUNCA vão pro design2/awsales:
   "docs/cursor-rules"
-  ".cursor" ".agents" "cursor-import"
+  ".cursor" ".agents" "cursor-import" ".codex"
 )
+
+# ── TERRITÓRIO DO PG (PRESERVE): este repo era meu; o PG foi mexendo por conta própria.
+#    Tudo AQUI fica SEMPRE na versão dele — eu nunca toco. Tudo o que NÃO está aqui é meu e sobe.
+#    Mesmo assim o sync é ADITIVO: nunca apago arquivo do PG fora desta lista (a lista é só pra
+#    proteger os casos em que nós DOIS temos o mesmo arquivo e ele está à frente). Localizado 1x
+#    comparando design2/main ↔ meu HEAD — rode `./scripts/sync-design2.sh --locate-pg` p/ reconferir.
+PRESERVE_PATHS=(
+  # review-mode / bridge — o PG está à frente (auth, backend Supabase dele)
+  "review-bridge"                      # servidor do review-bridge
+  "app/bombardier/review-bridge"       # UI in-app do review
+  "lib/bombardier-review"              # store/engine do review
+  "components/bombardier-review"       # provider/canvas do review
+  # subsistemas que são só do PG (eu nem tenho)
+  "prototype-studio"                   # studio inteiro do PG
+  "supabase"                           # migrations/config do PG
+  "flow-bridge"                        # eu aposentei; o PG mantém
+  "app/auth"                           # auth real do PG
+  "app/knowledge-os"                   # knowledge-os do PG
+  "lib/flow-signoff" "lib/notify" "lib/supabase" "lib/bombardier-team.ts"
+  "middleware.ts"
+  "public/onboarding"
+  "scripts/agent-pin.mjs" "scripts/migrate-bridge-to-supabase.mjs"
+  "docs/greg-onboarding.md" "docs/review-mode-prod.md"
+  # deps — o PG tem supabase etc. no manifesto; não clobbero
+  "package.json" "package-lock.json"
+)
+
 DESIGN2_URL_BASE="github.com/awsales/awsales-nova-vulgata-design.git"
+DESIGN2_REPO="awsales/awsales-nova-vulgata-design"
+DESIGN2_BASE_BRANCH="main"
 SOURCE_REF="HEAD"
 
-# --- args: flags + nome de branch posicional ---
-DRY_RUN=0; ASSUME_YES=0; DEST_BRANCH=""
-for arg in "$@"; do
-  case "$arg" in
+# ── args ──────────────────────────────────────────────────────────────────────
+DRY_RUN=0; ASSUME_YES=0; PRUNE=0; OPEN_PR=1; DEST_BRANCH=""; COMMITS_FILE=""; LOCATE_PG=0
+while [[ $# -gt 0 ]]; do
+  case "$1" in
     -n|--dry-run) DRY_RUN=1 ;;
     -y|--yes)     ASSUME_YES=1 ;;
-    -h|--help)    sed -n '2,11p' "$0"; exit 0 ;;
-    -*)           echo "✗ flag desconhecida: $arg"; exit 1 ;;
-    *)            DEST_BRANCH="$arg" ;;
+    --prune)      PRUNE=1 ;;
+    --no-pr)      OPEN_PR=0 ;;
+    --locate-pg)  LOCATE_PG=1 ;;
+    --commits)    shift; COMMITS_FILE="${1:-}"; [[ -z "$COMMITS_FILE" ]] && { echo "✗ --commits exige um arquivo"; exit 1; } ;;
+    --branch)     shift; DEST_BRANCH="${1:-}" ;;
+    -h|--help)    sed -n '2,30p' "$0"; exit 0 ;;
+    -*)           echo "✗ flag desconhecida: $1"; exit 1 ;;
+    *)            DEST_BRANCH="$1" ;;
   esac
+  shift
 done
 [[ -z "$DEST_BRANCH" ]] && DEST_BRANCH="greg/sync-$(date +%Y%m%d-%H%M)"
 
-# 0. tree limpo (snapshot vem do estado commitado)
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  echo "✗ Working tree sujo — commit ou stash antes."; exit 1
+# helper: $1 é prefixo de algum item de uma lista passada como demais args?
+path_in_list() { local p="$1"; shift; local q; for q in "$@"; do [[ "$p" == "$q" || "$p" == "$q"/* ]] && return 0; done; return 1; }
+
+# 0. tree limpo (o snapshot vem do estado COMMITADO) — exigido só ao publicar
+if [[ "$DRY_RUN" -ne 1 && "$LOCATE_PG" -ne 1 ]] && { ! git diff --quiet || ! git diff --cached --quiet; }; then
+  echo "✗ Working tree sujo — commit ou stash antes (o snapshot vem do HEAD)."; exit 1
 fi
 
-# 1. token (mesmo mecanismo do mirror hook antigo)
+# 1. token greg_awsales (git over https) — mesmo mecanismo do mirror antigo
 TOKEN="$(gh auth token --user greg_awsales 2>/dev/null || true)"
-[[ -z "$TOKEN" ]] && { echo "✗ Token greg_awsales não encontrado (gh auth login)."; exit 1; }
+[[ -z "$TOKEN" ]] && { echo "✗ Token greg_awsales não encontrado (gh auth login -u greg_awsales)."; exit 1; }
 AUTHED="https://greg_awsales:${TOKEN}@${DESIGN2_URL_BASE}"
 
-# 2. fetch design2/main (erros visíveis — repo é privado)
-git fetch "$AUTHED" main || { echo "✗ fetch design2 falhou (veja o erro do git acima)."; exit 1; }
+# 2. fetch design2/main
+git fetch "$AUTHED" "$DESIGN2_BASE_BRANCH" || { echo "✗ fetch design2 falhou (veja o erro acima)."; exit 1; }
 BASE="$(git rev-parse FETCH_HEAD)"
+MB="$(git merge-base "$BASE" "$SOURCE_REF" 2>/dev/null || true)"
 
-# 3. guarda de divergência: design2/main já está no seu histórico local?
-if git merge-base --is-ancestor "$BASE" "$SOURCE_REF"; then CLEAN=1; else CLEAN=0; fi
+# --locate-pg: imprime o território do PG (pastas/arquivos que existem no design2 e não em mim).
+# Use de vez em quando p/ ver se o PG criou pasta nova que valha adicionar em PRESERVE_PATHS.
+if [[ "$LOCATE_PG" -eq 1 ]]; then
+  echo "═══ território do PG (existe no design2/main @ $(git rev-parse --short "$BASE"), não no meu HEAD) ═══"
+  comm -23 \
+    <(git ls-tree -r --name-only "$BASE"        | awk -F/ 'NF>=2{print $1"/"$2}NF==1{print $1}' | sort -u) \
+    <(git ls-tree -r --name-only "$SOURCE_REF"  | awk -F/ 'NF>=2{print $1"/"$2}NF==1{print $1}' | sort -u)
+  echo "── compare com PRESERVE_PATHS no topo deste script; o que não estiver lá ainda é protegido"
+  echo "   pelo modo ADITIVO (nunca apago), mas adicionar deixa o relatório honesto."
+  exit 0
+fi
 
-# 4. árvore filtrada via índice temporário (sem mexer no working tree)
-TMP_INDEX="$(mktemp)"; trap 'rm -f "$TMP_INDEX"' EXIT
-GIT_INDEX_FILE="$TMP_INDEX" git read-tree "$SOURCE_REF"
-for p in "${PRIVATE_PATHS[@]}"; do
-  GIT_INDEX_FILE="$TMP_INDEX" git rm -r --cached --ignore-unmatch --quiet -- "$p" >/dev/null 2>&1 || true
+# 3. estado de divergência
+if [[ -n "$MB" ]] && git merge-base --is-ancestor "$BASE" "$SOURCE_REF"; then CLEAN=1; else CLEAN=0; fi
+
+# 4. DELTA real de conteúdo: design2/main ↔ meu HEAD (só onde o conteúdo difere de fato)
+#    A = só eu tenho · M = ambos têm e difere · D = só o PG tem (candidato a deleção)
+TO_SEND=()        # "A"/"M" <TAB> path  → arquivos que vou aplicar (minha versão)
+SKIP_PRESERVE=()  # mudei, mas é PRESERVE → fica a do PG
+SKIP_PRIVATE=()   # mudei, mas é PRIVATE → nunca vaza
+DEL_CAND=()       # D, fora de PRIVATE/PRESERVE → o PG tem e eu não
+while IFS=$'\t' read -r st path; do
+  [[ -z "${st:-}" ]] && continue
+  st="${st:0:1}"
+  case "$st" in
+    A|M)
+      if   path_in_list "$path" "${PRIVATE_PATHS[@]}";  then SKIP_PRIVATE+=("$path")
+      elif path_in_list "$path" "${PRESERVE_PATHS[@]}"; then SKIP_PRESERVE+=("$path")
+      else TO_SEND+=("$st"$'\t'"$path"); fi ;;
+    D)
+      if path_in_list "$path" "${PRIVATE_PATHS[@]}" || path_in_list "$path" "${PRESERVE_PATHS[@]}"; then :
+      else DEL_CAND+=("$path"); fi ;;
+  esac
+done < <(git diff --name-status "$BASE" "$SOURCE_REF")
+
+# 4b. com --prune: deleção só de arquivos que o PG NÃO tocou desde o fork (BASE:f == MB:f)
+PRUNE_DEL=()
+if [[ "$PRUNE" -eq 1 && -n "$MB" ]]; then
+  for f in "${DEL_CAND[@]+"${DEL_CAND[@]}"}"; do
+    base_blob="$(git rev-parse --quiet --verify "$BASE:$f" 2>/dev/null || true)"
+    mb_blob="$(git rev-parse --quiet --verify "$MB:$f" 2>/dev/null || true)"
+    [[ -n "$base_blob" && "$base_blob" == "$mb_blob" ]] && PRUNE_DEL+=("$f")
+  done
+fi
+
+ADD=0; MOD=0
+for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do
+  if [[ "${e:0:1}" == "A" ]]; then ADD=$((ADD+1)); else MOD=$((MOD+1)); fi
 done
-TREE="$(GIT_INDEX_FILE="$TMP_INDEX" git write-tree)"
-
-# 5. SAFETY: nenhum path privado sobreviveu na árvore (regex com metachars escapados)
-for p in "${PRIVATE_PATHS[@]}"; do
-  esc="$(printf '%s' "$p" | sed 's/[.[\*^$/]/\\&/g')"
-  if git ls-tree -r --name-only "$TREE" | grep -qE "^${esc}(/|\$)"; then
-    echo "✗ ABORT: '$p' ainda presente na árvore filtrada. Nada empurrado."; exit 1
-  fi
-done
-
-# 6. contagens add/mod/del (del = arquivos do PG que este snapshot removeria)
-NS="$(git diff --name-status "$BASE" "$TREE" || true)"
-ADD="$(printf '%s\n' "$NS" | grep -cE '^A' || true)"
-MOD="$(printf '%s\n' "$NS" | grep -cE '^M' || true)"
-DEL="$(printf '%s\n' "$NS" | grep -cE '^D' || true)"
 SHORT_BASE="$(git rev-parse --short "$BASE")"
 SHORT_HEAD="$(git rev-parse --short "$SOURCE_REF")"
 SUBJECT="$(git log -1 --format='%s' "$SOURCE_REF")"
-[[ "$CLEAN" -eq 1 ]] && STATE="ff limpo (você tem todo o trabalho do PG)" \
-                     || STATE="DIVERGIU (design2 tem commits que você não tem)"
+[[ "$CLEAN" -eq 1 ]] && STATE="ff limpo (você tem todo o histórico do PG)" \
+                     || STATE="DIVERGIU (design2 tem ${MB:+commits} que você não tem) — modo ADITIVO protege o PG"
 
-# 7. RELATÓRIO
-echo "═══ sync-design2 — relatório ═══"
-echo "  Origem:   $SHORT_HEAD  \"$SUBJECT\""
-echo "  Destino:  design2 → branch '$DEST_BRANCH'"
-echo "  Base:     design2/main @ $SHORT_BASE"
-echo "  Estado:   $STATE"
-echo "  Mudanças: +${ADD} add   ~${MOD} mod   -${DEL} del"
-echo "  Privados: removidos OK (assert passou)"
-[[ "$DEL" -gt 0 ]] && echo "  ⚠️  APAGA $DEL arquivo(s) presentes no design2/main — revise! (integre o PG antes: git fetch <design2> main && git merge FETCH_HEAD)"
-echo "  SUMMARY branch=$DEST_BRANCH base=$SHORT_BASE clean=$CLEAN add=$ADD mod=$MOD del=$DEL"
-echo "════════════════════════════════"
+# 5. RELATÓRIO — enxuto por padrão (1 linha SUMMARY). MANIFEST detalhado só no --dry-run.
+echo "SUMMARY branch=$DEST_BRANCH base=$SHORT_BASE clean=$CLEAN add=$ADD mod=$MOD preserve=${#SKIP_PRESERVE[@]} pgonly_preservados=${#DEL_CAND[@]} prune=$([[ $PRUNE -eq 1 ]] && echo ${#PRUNE_DEL[@]} || echo 0)"
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "  origem $SHORT_HEAD \"$SUBJECT\" → design2/main @ $SHORT_BASE · $STATE"
+  echo "MANIFEST-BEGIN"
+  for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do printf '%s\n' "$e"; done
+  for f in "${PRUNE_DEL[@]+"${PRUNE_DEL[@]}"}"; do printf 'D\t%s\n' "$f"; done
+  echo "MANIFEST-END"
+fi
 
-# 8. dry-run para aqui (a skill /send-to-aws usa isto pra montar o relatório no chat)
+if [[ ${#TO_SEND[@]} -eq 0 && ${#PRUNE_DEL[@]} -eq 0 ]]; then
+  echo "✓ Nada a enviar — design2 já está em dia com o seu protótipo nesses caminhos."; exit 0
+fi
+
+# 6. dry-run para aqui
 if [[ "$DRY_RUN" -eq 1 ]]; then
   echo "DRY-RUN: nada empurrado. Rode sem --dry-run (ou com --yes) pra publicar."; exit 0
 fi
 
-# 9. confirmação (pulada com --yes)
+# 7. confirmação
 if [[ "$ASSUME_YES" -ne 1 ]]; then
-  read -rp "Empurrar pro design2 como '$DEST_BRANCH'? [y/N] " ans
+  read -rp "Criar branch '$DEST_BRANCH' no design2 (+${ADD}/~${MOD}) e abrir PR? [y/N] " ans
   [[ "$ans" == "y" || "$ans" == "Y" ]] || { echo "Cancelado."; exit 0; }
 fi
 
-# 10. snapshot filtrado (squash) parenteado em design2/main → PR mesclável
-SNAP="$(git commit-tree "$TREE" -p "$BASE" -m "sync from origin: $SUBJECT")"
+# ── lista de TODOS os caminhos aprovados (manifest) — guarda fail-closed ───────
+#    (newline-delimited p/ rodar no bash 3.2 do macOS — sem associative arrays)
+APPROVED_LIST=""
+for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do APPROVED_LIST+="${e#*$'\t'}"$'\n'; done
+for f in "${PRUNE_DEL[@]+"${PRUNE_DEL[@]}"}"; do APPROVED_LIST+="$f"$'\n'; done
+is_approved() { printf '%s' "$APPROVED_LIST" | grep -qxF -- "$1"; }
 
-# 11. push (sem --force; non-ff rejeita limpo)
-if git push "$AUTHED" "${SNAP}:refs/heads/${DEST_BRANCH}"; then
-  echo "✓ design2: branch '$DEST_BRANCH' criada/atualizada — abra PR → main no GitHub."
-  [[ "$CLEAN" -eq 1 && "$DEL" -eq 0 ]] && \
-    echo "  (ff limpo — se quiser direto na main: git push \"\$AUTHED\" ${SNAP}:main)"
+# 8. monta os GRUPOS de commit (atômicos). De um plano (--commits) ou auto por área.
+#    Formato do plano (TSV): <mensagem> \t <arquivo> \t <arquivo> …  (1 commit por linha)
+GROUP_MSGS=(); GROUP_FILES=()   # GROUP_FILES[i] = lista de arquivos separada por \n
+if [[ -n "$COMMITS_FILE" ]]; then
+  [[ -f "$COMMITS_FILE" ]] || { echo "✗ plano de commits não encontrado: $COMMITS_FILE"; exit 1; }
+  PLAN_FILES=""
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ -z "$line" ]] && continue
+    msg="${line%%$'\t'*}"; rest="${line#*$'\t'}"
+    files=""
+    while [[ "$rest" != "$msg" && -n "$rest" ]]; do
+      f="${rest%%$'\t'*}"
+      is_approved "$f" || { echo "✗ ABORT: plano referencia arquivo fora do manifest: '$f'"; exit 1; }
+      files+="$f"$'\n'; PLAN_FILES+="$f"$'\n'
+      [[ "$rest" == *$'\t'* ]] && rest="${rest#*$'\t'}" || rest=""
+    done
+    GROUP_MSGS+=("$msg"); GROUP_FILES+=("$files")
+  done < "$COMMITS_FILE"
+  # todo arquivo aprovado precisa estar em algum grupo
+  while IFS= read -r k; do
+    [[ -z "$k" ]] && continue
+    printf '%s' "$PLAN_FILES" | grep -qxF -- "$k" || { echo "✗ ABORT: arquivo do manifest fora do plano: '$k'"; exit 1; }
+  done < <(printf '%s' "$APPROVED_LIST")
 else
-  echo "✗ Push rejeitado (branch divergiu). Tente outro nome: ./scripts/sync-design2.sh greg/sync-\$(date +%s) --yes"; exit 1
+  # auto: agrupa por área e emite uma mensagem convencional por grupo
+  area_of() { case "$1" in
+      app/bombardier/styleguide/*) echo "styleguide";;
+      app/bombardier/*)            echo "bombardier";;
+      app/settings/*)              echo "settings";;
+      app/*)                       echo "app";;
+      components/ui/*)             echo "components/ui";;
+      components/*)                echo "components";;
+      lib/*)                       echo "lib";;
+      public/*)                    echo "assets";;
+      docs/*)                      echo "docs";;
+      *)                           echo "${1%%/*}";;
+    esac; }
+  # pares "área \t arquivo", preservando ordem de aparição
+  PAIRS=""
+  for e in "${TO_SEND[@]+"${TO_SEND[@]}"}"; do f="${e#*$'\t'}"; PAIRS+="$(area_of "$f")"$'\t'"$f"$'\n'; done
+  for f in "${PRUNE_DEL[@]+"${PRUNE_DEL[@]}"}"; do PAIRS+="$(area_of "$f")"$'\t'"$f"$'\n'; done
+  while IFS= read -r a; do
+    [[ -z "$a" ]] && continue
+    files="$(printf '%s' "$PAIRS" | awk -F'\t' -v a="$a" '$1==a{print $2}')"
+    n="$(printf '%s\n' "$files" | grep -c .)"
+    GROUP_MSGS+=("sync($a): ${n} arquivo(s) do protótipo do Greg")
+    GROUP_FILES+=("$files"$'\n')
+  done < <(printf '%s' "$PAIRS" | cut -f1 | awk 'NF && !seen[$0]++')
+fi
+
+# 9. constrói a cadeia de commits atômicos via plumbing (sem tocar no working tree)
+TMP_INDEX="$(mktemp)"; trap 'rm -f "$TMP_INDEX"' EXIT
+GIT_INDEX_FILE="$TMP_INDEX" git read-tree "$BASE"     # parte da árvore COMPLETA do PG
+PREV="$BASE"
+overlay_file() {  # aplica a MINHA versão (ou remove) de $1 no índice temporário
+  local f="$1"
+  if git cat-file -e "$SOURCE_REF:$f" 2>/dev/null; then
+    local line mode rest sha
+    line="$(git ls-tree "$SOURCE_REF" -- "$f")"   # "<mode> blob <sha>\t<path>"
+    mode="${line%% *}"; rest="${line#* blob }"; sha="${rest%%$'\t'*}"
+    GIT_INDEX_FILE="$TMP_INDEX" git update-index --add --cacheinfo "${mode},${sha},${f}"
+  else
+    GIT_INDEX_FILE="$TMP_INDEX" git update-index --force-remove -- "$f" 2>/dev/null || true
+  fi
+}
+for i in "${!GROUP_MSGS[@]}"; do
+  while IFS= read -r f; do [[ -n "$f" ]] && overlay_file "$f"; done <<<"${GROUP_FILES[$i]}"
+  TREE="$(GIT_INDEX_FILE="$TMP_INDEX" git write-tree)"
+  if [[ "$TREE" == "$(git rev-parse "$PREV^{tree}")" ]]; then continue; fi   # grupo vazio → pula
+  PREV="$(git commit-tree "$TREE" -p "$PREV" -m "${GROUP_MSGS[$i]}")"
+done
+TIP="$PREV"
+[[ "$TIP" == "$BASE" ]] && { echo "✗ Nada commitado (todos os grupos vazios)."; exit 1; }
+
+# 10. SAFETY pós-build: a branch só pode tocar o que foi aprovado, nunca PRESERVE/PRIVATE
+while IFS=$'\t' read -r st path; do
+  [[ -z "${path:-}" ]] && continue
+  if [[ "${st:0:1}" == "D" && "$PRUNE" -ne 1 ]]; then
+    echo "✗ ABORT: deleção inesperada de '$path' sem --prune. Nada empurrado."; exit 1
+  fi
+  if path_in_list "$path" "${PRIVATE_PATHS[@]}"; then
+    echo "✗ ABORT: caminho PRIVATE '$path' vazou pra árvore. Nada empurrado."; exit 1; fi
+  if path_in_list "$path" "${PRESERVE_PATHS[@]}"; then
+    echo "✗ ABORT: caminho PRESERVE '$path' foi modificado. Nada empurrado."; exit 1; fi
+  if ! is_approved "$path"; then
+    echo "✗ ABORT: '$path' mudou mas não está no manifest aprovado. Nada empurrado."; exit 1; fi
+done < <(git diff --name-status "$BASE" "$TIP")
+
+# 11. push da branch (sem --force; non-ff rejeita limpo)
+if ! git push "$AUTHED" "${TIP}:refs/heads/${DEST_BRANCH}"; then
+  echo "✗ Push rejeitado (a branch '$DEST_BRANCH' já existe e divergiu). Rode com outro --branch."; exit 1
+fi
+N_COMMITS="$(git rev-list --count "${BASE}..${TIP}")"
+echo "✓ design2: branch '$DEST_BRANCH' criada com $N_COMMITS commit(s) atômico(s)."
+
+# 12. abre o PR (a menos que --no-pr)
+if [[ "$OPEN_PR" -eq 1 ]]; then
+  PR_TITLE="sync(protótipo do Greg): $SUBJECT"
+  PR_BODY="$(printf 'Sync ADITIVO do protótipo do Greg sobre design2/main @ %s.\n\n- +%d novos / ~%d modificados (só onde o conteúdo difere)\n- review-bridge e deps: PRESERVADOS (versão do PG)\n- %d arquivo(s) que só o PG tem: intactos\n\n%d commit(s) atômico(s). Revisar e mesclar.\n\n🤖 gerado por scripts/sync-design2.sh' "$SHORT_BASE" "$ADD" "$MOD" "${#DEL_CAND[@]}" "$N_COMMITS")"
+  PR_URL="$(GH_TOKEN="$TOKEN" gh pr create --repo "$DESIGN2_REPO" --base "$DESIGN2_BASE_BRANCH" \
+            --head "$DEST_BRANCH" --title "$PR_TITLE" --body "$PR_BODY" 2>/dev/null || true)"
+  if [[ -z "$PR_URL" ]]; then
+    PR_URL="$(curl -fsS -X POST -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" \
+      "https://api.github.com/repos/${DESIGN2_REPO}/pulls" \
+      -d "$(printf '{"title":%s,"head":%s,"base":%s,"body":"sync aditivo do protótipo do Greg — %d commits atômicos"}' \
+            "\"${PR_TITLE//\"/\\\"}\"" "\"${DEST_BRANCH}\"" "\"${DESIGN2_BASE_BRANCH}\"" "$N_COMMITS")" \
+      2>/dev/null | grep -oE '"html_url": *"[^"]*/pull/[0-9]+"' | head -1 | sed -E 's/.*"(https[^"]+)"/\1/' || true)"
+  fi
+  if [[ -n "$PR_URL" ]]; then echo "✓ PR aberto: $PR_URL"
+  else echo "⚠️  Branch no ar, mas não consegui abrir o PR automaticamente. Abra manualmente: https://github.com/${DESIGN2_REPO}/compare/${DESIGN2_BASE_BRANCH}...${DEST_BRANCH}?expand=1"; fi
+else
+  echo "  (--no-pr) Abra o PR: https://github.com/${DESIGN2_REPO}/compare/${DESIGN2_BASE_BRANCH}...${DEST_BRANCH}?expand=1"
 fi
