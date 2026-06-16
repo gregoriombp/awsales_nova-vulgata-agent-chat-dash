@@ -94,6 +94,11 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           funcoes: "Funções",
           grupos: "Equipes",
         },
+        children: [
+          { href: "/settings/equipe-permissoes", label: "Membros" },
+          { href: "/settings/equipe-permissoes/funcoes", label: "Funções" },
+          { href: "/settings/equipe-permissoes/grupos", label: "Equipes" },
+        ],
       },
       { href: "/settings/api", label: "API & desenvolvedores", icon: "key" },
       {
@@ -108,6 +113,16 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           "historico-faturas": "Faturas",
           auditoria: "Atividade",
         },
+        children: [
+          { href: "/settings/financeiro/visao-geral", label: "Visão geral" },
+          { href: "/settings/financeiro/consumo", label: "Consumo" },
+          {
+            href: "/settings/financeiro/metodos-pagamento",
+            label: "Métodos de pagamento",
+          },
+          { href: "/settings/financeiro/historico-faturas", label: "Faturas" },
+          { href: "/settings/financeiro/auditoria", label: "Atividade" },
+        ],
       },
       { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },
     ],
