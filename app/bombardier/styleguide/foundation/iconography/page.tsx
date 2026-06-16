@@ -1,4 +1,5 @@
 import { Icon } from "@/components/ui/Icon"
+import { AwPlanIcon } from "@/components/ui/AwPlanIcon"
 import {
   PageHero,
   Section,
@@ -456,6 +457,37 @@ export default function IconographyPage() {
               </div>
             ))}
           </div>
+        </Section>
+
+        <Section
+          id="plan-icons"
+          title="Ícones de plano"
+          lead={`Glyphs customizados, um por nível de plano. variant="dark" usa stroke/fill branco (superfícies escuras); variant="light" inverte para --fg-primary (fundos brancos). Renderiza via <AwPlanIcon plan="enterprise" />.`}
+        >
+          <div className="grid grid-cols-3 gap-4">
+            {(["starter", "pro", "enterprise"] as const).map((p) => (
+              <div key={p} className="flex flex-col gap-3">
+                <div className="flex items-center justify-center rounded-lg bg-(--bg-inverse) p-10">
+                  <AwPlanIcon plan={p} size={80} variant="dark" />
+                </div>
+                <div className="flex items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-surface) p-10">
+                  <AwPlanIcon plan={p} size={80} variant="light" />
+                </div>
+                <div className="text-center">
+                  <code className="mono text-xs text-(--fg-primary) capitalize">{p}</code>
+                  <span className="ml-2 mono text-3xs text-(--fg-tertiary)">dark / light</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <CodeExample>{`import { AwPlanIcon } from "@/components/ui/AwPlanIcon"
+
+// Dark bg (default) — strokes/fills brancos
+<AwPlanIcon plan="enterprise" />
+
+// Bg claro — inverte para --fg-primary
+<AwPlanIcon plan="starter" variant="light" size={64} />`}</CodeExample>
         </Section>
 
         <Section
