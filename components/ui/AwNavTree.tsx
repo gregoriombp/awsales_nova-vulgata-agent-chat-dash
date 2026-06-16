@@ -145,6 +145,10 @@ function AwNavTreeRow({
   const linkClasses = cn(
     "aw-nav-rail__item",
     item.active && "aw-nav-rail__item--active",
+    // O resting de .aw-nav-rail__item é um cinza fixo (--aw-gray-900) que some
+    // no dark. Itens não-ativos clareiam no tema escuro (o ativo já usa
+    // tokens invertidos que adaptam sozinhos).
+    !item.active && "dark:text-(--aw-gray-400)",
     hasChildren && "pr-9!",
   );
 
