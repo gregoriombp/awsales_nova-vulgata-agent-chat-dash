@@ -314,6 +314,16 @@ function BillingInfoSection() {
         <BillingField label="Razão social" value={legalName} />
         <BillingField label="CNPJ" value={taxId} tabular />
         <BillingField label="Inscrição estadual" value={stateRegistration} />
+        <div className="sm:col-span-2">
+          <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
+            Endereço
+          </dt>
+          <dd className="m-0 flex flex-col gap-0.5 body-sm text-(--fg-primary)">
+            {fullAddress.map((line) => (
+              <span key={line}>{line}</span>
+            ))}
+          </dd>
+        </div>
         <div className="min-w-0">
           <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
             E-mails de faturamento · {recipients.length}
@@ -381,16 +391,6 @@ function BillingInfoSection() {
                 </button>
               </div>
             )}
-          </dd>
-        </div>
-        <div className="sm:col-span-2">
-          <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
-            Endereço
-          </dt>
-          <dd className="m-0 flex flex-col gap-0.5 body-sm text-(--fg-primary)">
-            {fullAddress.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
           </dd>
         </div>
       </dl>
