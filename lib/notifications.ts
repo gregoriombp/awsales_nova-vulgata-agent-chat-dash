@@ -57,7 +57,7 @@ export const NOTIFICATIONS: AppNotification[] = [
     description:
       "Login pelo Chrome em São Paulo, BR. Não reconhece? Revise suas sessões.",
     timeLabel: "ontem · 21:14",
-    href: "/settings/seguranca",
+    href: "/settings/perfil/sessoes-ativas",
     read: true,
   },
   {
