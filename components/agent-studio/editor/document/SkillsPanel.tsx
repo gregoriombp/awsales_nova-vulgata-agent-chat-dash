@@ -256,33 +256,44 @@ function SkillGroupBlock({
           </span>
         </span>
         <Icon
-          name={expanded ? "expand_less" : "expand_more"}
+          name="expand_more"
           size={18}
-          className="shrink-0 text-(--fg-tertiary)"
+          className={`shrink-0 text-(--fg-tertiary) transition-transform duration-aw-base ${
+            expanded ? "rotate-180" : ""
+          }`}
         />
       </button>
 
-      {expanded && (
-        <div className="mt-0.5 space-y-px pl-1">
-          {sections.map(([label, skills]) => (
-            <React.Fragment key={label || "principal"}>
-              {label && (
-                <p className="px-2 pb-1 pt-2.5 text-2xs font-medium text-(--fg-tertiary)">
-                  {label}
-                </p>
-              )}
-              {skills.map((skill) => (
-                <SkillCard
-                  key={skill.id}
-                  skill={skill}
-                  tone={group.tone}
-                  onInsert={onInsert}
-                />
-              ))}
-            </React.Fragment>
-          ))}
+      {/* Animação suave: grid-rows 0fr↔1fr — sem max-height arbitrário, o
+          conteúdo permanece sempre montado e o eixo Y interpola limpo. */}
+      <div
+        className={`grid transition-[grid-template-rows] duration-aw-base ease-aw-out ${
+          expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        }`}
+        aria-hidden={!expanded}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="mt-0.5 space-y-px pl-1">
+            {sections.map(([label, skills]) => (
+              <React.Fragment key={label || "principal"}>
+                {label && (
+                  <p className="px-2 pb-1 pt-2.5 text-2xs font-medium text-(--fg-tertiary)">
+                    {label}
+                  </p>
+                )}
+                {skills.map((skill) => (
+                  <SkillCard
+                    key={skill.id}
+                    skill={skill}
+                    tone={group.tone}
+                    onInsert={onInsert}
+                  />
+                ))}
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
