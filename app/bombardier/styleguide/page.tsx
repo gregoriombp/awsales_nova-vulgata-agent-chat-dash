@@ -203,14 +203,6 @@ export default function StyleguidePage() {
         <div className="flex flex-col gap-20">
           {/* ── Hero de apresentação ───────────────────────────────────── */}
           <div className="relative overflow-hidden rounded-2xl bg-aw-gray-1200 text-aw-gray-25">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(56% 78% at 86% 4%, color-mix(in srgb, var(--aw-blue-600) 24%, transparent) 0%, color-mix(in srgb, var(--aw-blue-1000) 16%, transparent) 52%, transparent 100%)",
-              }}
-            />
             <div className="relative grid grid-cols-1 gap-10 px-12 py-14 lg:grid-cols-[1.5fr_1fr]">
               <div className="flex flex-col justify-between gap-10">
                 <AwLogo variant="mark" height={36} className="text-aw-gray-25" />
