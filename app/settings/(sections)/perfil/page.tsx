@@ -40,8 +40,8 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   {
     href: "/settings/equipe-permissoes",
     icon: "groups",
-    title: "Equipe & permissões",
-    description: "Membros, grupos e convites",
+    title: "Membros & funções",
+    description: "Pessoas, funções e convites",
   },
   {
     href: "/settings/notificacoes",
@@ -50,10 +50,10 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     description: "Canais, regras e silenciamento",
   },
   {
-    href: "/settings/seguranca",
+    href: "/settings/perfil/senha",
     icon: "shield",
-    title: "Segurança",
-    description: "Senha, 2FA e sessões ativas",
+    title: "Senha e acesso",
+    description: "Senha, verificação em duas etapas e códigos de backup",
   },
   {
     href: "/settings/api",
