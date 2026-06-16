@@ -175,7 +175,7 @@ export function SettingsNav() {
         id: group.id,
         label: group.label,
         leading: group.org ? (
-          <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted)">
+          <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted) ring-1 ring-(--border-subtle)">
             <img
               src={ONBOARDING_ORG.logo}
               alt=""

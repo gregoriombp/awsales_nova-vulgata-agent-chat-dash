@@ -93,9 +93,9 @@ export function AwNavTree({
           )}
         >
           {!collapsed && group.label && (
-            <div className="mb-2 flex items-center gap-2 px-1">
+            <div className="mb-2.5 flex items-center gap-2 px-2">
               {group.leading}
-              <span className="body-sm font-medium tracking-tight text-(--fg-tertiary)">
+              <span className="body-sm font-medium tracking-tight text-(--fg-secondary)">
                 {group.label}
               </span>
             </div>
@@ -206,7 +206,7 @@ function AwNavTreeRow({
           <div className="min-h-0 overflow-hidden">
             <ul
               className={cn(
-                "m-0 mt-0.5 mb-1 ml-7 flex list-none flex-col gap-0.5 border-l border-(--border-subtle) p-0 pl-3 transition-opacity duration-aw-base",
+                "m-0 mt-1 mb-1.5 ml-5 flex list-none flex-col gap-0.5 border-l border-(--border-subtle) p-0 pl-6 transition-opacity duration-aw-base",
                 open ? "opacity-100" : "opacity-0",
               )}
             >
@@ -215,10 +215,13 @@ function AwNavTreeRow({
                   {renderLink({
                     href: child.href,
                     className: cn(
+                      // Conector horizontal (ramificação) saindo da guia até a linha.
                       "relative flex h-7 items-center rounded-md px-2 text-xs font-medium transition-colors duration-aw-fast",
+                      "after:absolute after:-left-6 after:top-1/2 after:h-px after:w-2.5 after:-translate-y-1/2 after:content-[''] after:transition-colors after:duration-aw-fast",
                       child.active
-                        ? "bg-(--bg-surface) text-(--fg-primary) before:absolute before:top-1 before:bottom-1 before:-left-3 before:w-0.5 before:rounded-full before:bg-(--fg-primary) before:content-['']"
-                        : "text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-secondary)",
+                        ? // Filho ativo: realce + segmento vertical sólido na guia + conector destacado.
+                          "bg-(--bg-surface) text-(--fg-primary) after:bg-(--fg-primary) before:absolute before:-left-6 before:top-1.5 before:bottom-1.5 before:w-0.5 before:-translate-x-px before:rounded-full before:bg-(--fg-primary) before:content-['']"
+                        : "text-(--fg-secondary) after:bg-(--border-subtle) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
                     ),
                     "aria-current": child.active ? "page" : undefined,
                     children: child.label,
