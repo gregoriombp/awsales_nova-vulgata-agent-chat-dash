@@ -288,7 +288,7 @@ function IntegrationGroup({
           <AwBrandLogo brand={brand} size="md" />
         ) : (
           <div
-            className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+            className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-400 to-aw-blue-800 text-white"
             style={{ width: 40, height: 40 }}
           >
             <Icon name={customIcon ?? "bolt"} size={20} />
@@ -521,7 +521,7 @@ function ToolDetailModal({
             <AwBrandLogo brand={row.brand} size="md" />
           ) : (
             <div
-              className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+              className="flex shrink-0 items-center justify-center rounded-md bg-linear-to-br from-aw-blue-400 to-aw-blue-800 text-white"
               style={{ width: 40, height: 40 }}
             >
               <Icon name={row.icon} size={20} />
@@ -1522,7 +1522,7 @@ function NoConnectionsHero({
           <AwBrandLogo brand="hotmart" size="md" />
           <AwBrandLogo brand="calendly" size="md" />
           <div
-            className="flex items-center justify-center rounded-md bg-linear-to-br from-aw-blue-500 via-aw-purple-500 to-aw-teal-500 text-white"
+            className="flex items-center justify-center rounded-md bg-linear-to-br from-aw-blue-400 to-aw-blue-800 text-white"
             style={{ width: 40, height: 40 }}
           >
             <Icon name="bolt" size={22} />
