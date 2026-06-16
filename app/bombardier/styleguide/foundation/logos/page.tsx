@@ -377,9 +377,9 @@ export default function LogosPage() {
         <Section
           id="context"
           title="Em contexto"
-          lead="Três aplicações canônicas — product shell escuro, hero claro, hero ai-gradient."
+          lead="Duas aplicações canônicas — product shell escuro e hero claro."
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div
               className="rounded-lg overflow-hidden flex flex-col"
               style={{ background: "var(--dark-bg)" }}
@@ -415,36 +415,6 @@ export default function LogosPage() {
               <div className="px-4 py-3 border-t border-(--border-subtle)">
                 <div className="text-sm font-medium">Hero light</div>
                 <div className="caption">Lockup horizontal em tinta sobre branco</div>
-              </div>
-            </div>
-            <div
-              className="rounded-lg overflow-hidden flex flex-col"
-              style={{
-                background:
-                  "linear-gradient(135deg, var(--aw-blue-600) 0%, var(--aw-purple-600) 100%)",
-              }}
-            >
-              <div className="flex-1 flex items-center justify-center p-10 min-h-[200px]">
-                <span style={{ color: "#ffffff" }}>
-                  <AwLogo variant="horizontal" height={36} />
-                </span>
-              </div>
-              <div
-                className="px-4 py-3"
-                style={{ background: "rgba(0,0,0,.4)" }}
-              >
-                <div
-                  className="text-sm font-medium"
-                  style={{ color: "#fff" }}
-                >
-                  Hero ai-gradient
-                </div>
-                <div
-                  className="caption"
-                  style={{ color: "rgba(255,255,255,0.7)" }}
-                >
-                  Lockup branco sobre mesh oficial
-                </div>
               </div>
             </div>
           </div>
