@@ -658,7 +658,7 @@ export const COUPONS_APPLIED: CouponRow[] = [
 
 // ---- Auditoria ----
 
-export type AuditExecutor = "Aswork" | "Cliente" | "Sistema";
+export type AuditExecutor = "Aswork" | "Cliente";
 export type AuditEventType = "Plano" | "Cartão" | "Fatura" | "Cupom" | "Voucher";
 
 export type AuditEvent = {
@@ -700,8 +700,9 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-3",
     date: "11/05/2026",
     time: "11:22",
-    executor: "Sistema",
-    actor: "Sistema",
+    executor: "Cliente",
+    actor: "Rafael Lima",
+    actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Fatura",
     action: "Fatura paga",
     meta: "INV-2026-04-1234 · R$ 1.253,04",
@@ -721,8 +722,9 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-5",
     date: "10/05/2026",
     time: "18:40",
-    executor: "Sistema",
-    actor: "Sistema",
+    executor: "Cliente",
+    actor: "Rafael Lima",
+    actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Voucher",
     action: "Voucher consumido",
     meta: "Crédito Q2 · R$ 250 debitados · saldo restante R$ 750",
@@ -742,8 +744,9 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-7",
     date: "10/05/2026",
     time: "14:15",
-    executor: "Sistema",
-    actor: "Sistema",
+    executor: "Cliente",
+    actor: "Rafael Lima",
+    actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Fatura",
     action: "Fatura emitida",
     meta: "INV-2026-05-0042 · status DRAFT → OPEN",
@@ -752,8 +755,9 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-8",
     date: "10/05/2026",
     time: "12:05",
-    executor: "Sistema",
-    actor: "Sistema",
+    executor: "Cliente",
+    actor: "Rafael Lima",
+    actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Voucher",
     action: "Voucher esgotando rápido",
     meta: "Bônus Black Friday Setup · 2,3× acima do previsto",
@@ -773,8 +777,9 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     id: "a-10",
     date: "22/03/2026",
     time: "16:40",
-    executor: "Sistema",
-    actor: "Sistema",
+    executor: "Cliente",
+    actor: "Rafael Lima",
+    actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Fatura",
     action: "Disputa aceita",
     meta: "INV-2026-03-0987 · favorável à Aswork",

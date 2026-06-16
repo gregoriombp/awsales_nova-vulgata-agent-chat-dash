@@ -99,8 +99,6 @@ function executorRole(executor: AuditExecutor): string {
       return "Account Manager";
     case "Cliente":
       return "Usuário";
-    case "Sistema":
-      return "Agente";
   }
 }
 
@@ -112,7 +110,7 @@ type Person = {
 
 /** Unique people who appear as actors in the audit log — used to populate
  *  the executor filter as a list of real people instead of abstract
- *  category buckets. Order: Aswork first, then Cliente, then Sistema. */
+ *  category buckets. Order: Aswork first, then Cliente. */
 function buildPeople(events: AuditEvent[]): Person[] {
   const seen = new Map<string, Person>();
   for (const e of events) {
@@ -120,7 +118,7 @@ function buildPeople(events: AuditEvent[]): Person[] {
       seen.set(e.actor, { actor: e.actor, avatar: e.actorAvatar, executor: e.executor });
     }
   }
-  const order: AuditExecutor[] = ["Aswork", "Cliente", "Sistema"];
+  const order: AuditExecutor[] = ["Aswork", "Cliente"];
   return Array.from(seen.values()).sort((a, b) => {
     const ai = order.indexOf(a.executor);
     const bi = order.indexOf(b.executor);
@@ -182,7 +180,7 @@ export default function AuditoriaPage() {
         </h6>
         <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
           Eventos de plano, cartão, fatura, cupom e voucher — feitos por
-          Aswork, cliente ou sistema.
+          Aswork ou cliente.
         </p>
       </section>
 
@@ -276,39 +274,36 @@ function Toolbar({
   };
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="min-w-[240px] flex-1">
-          <AwInput
-            iconLeft="search"
-            placeholder="Buscar ator, ação ou referência…"
-            value={query}
-            onChange={(e) => onQueryChange(e.target.value)}
-          />
-        </div>
-        <ActorFilterMenu
-          people={ALL_PEOPLE}
-          selected={selectedActors}
-          onToggle={toggleActor}
+    <div className="flex flex-wrap items-center gap-2">
+      <div className="min-w-[240px] flex-1">
+        <AwInput
+          iconLeft="search"
+          placeholder="Buscar ator, ação ou referência…"
+          value={query}
+          onChange={(e) => onQueryChange(e.target.value)}
         />
-        {hasFilters && (
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconLeft="close"
-            onClick={onClearAll}
-          >
-            Limpar
-          </AwButton>
-        )}
-        <ExportCsvButton />
       </div>
-
-      <TypeChips
+      <ActorFilterMenu
+        people={ALL_PEOPLE}
+        selected={selectedActors}
+        onToggle={toggleActor}
+      />
+      <TypeFilterMenu
         options={ALL_TYPES}
         selected={selectedTypes}
         onToggle={toggleType}
       />
+      {hasFilters && (
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="close"
+          onClick={onClearAll}
+        >
+          Limpar
+        </AwButton>
+      )}
+      <ExportCsvButton />
     </div>
   );
 }
@@ -418,7 +413,7 @@ function ExportCsvButton() {
   );
 }
 
-function TypeChips({
+function TypeFilterMenu({
   options,
   selected,
   onToggle,
@@ -427,37 +422,36 @@ function TypeChips({
   selected: AuditEventType[];
   onToggle: (t: AuditEventType) => void;
 }) {
+  const count = selected.length;
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
-      <span className="mr-1 body-xs font-medium text-(--fg-tertiary)">
-        Tipo
-      </span>
-      {options.map((t) => {
-        const on = selected.includes(t);
+    <AwDropdownMenu
+      align="start"
+      trigger={
+        <button
+          type="button"
+          className="inline-flex h-10 items-center gap-2 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-default) hover:text-(--fg-primary)"
+        >
+          <Icon name="sell" size={16} />
+          <span>Tipo{count > 0 ? ` · ${count}` : ""}</span>
+          <Icon name="expand_more" size={16} />
+        </button>
+      }
+      items={options.map((t) => {
         const meta = TYPE_META[t];
-        return (
-          <button
-            key={t}
-            type="button"
-            onClick={() => onToggle(t)}
-            aria-pressed={on}
-            className={
-              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 body-xs font-medium transition-colors duration-aw-fast outline-hidden " +
-              (on
-                ? "bg-(--fg-primary) text-(--bg-raised) hover:bg-(--fg-secondary)"
-                : "border border-(--border-subtle) text-(--fg-secondary) hover:border-(--border-default) hover:text-(--fg-primary)")
-            }
-          >
-            <Icon
-              name={meta.icon}
-              size={13}
-              className={on ? undefined : meta.accentClass}
-            />
-            {t}
-          </button>
-        );
+        return {
+          id: t,
+          label: (
+            <span className="inline-flex items-center gap-2">
+              <Icon name={meta.icon} size={15} className={meta.accentClass} />
+              <span>{t}</span>
+            </span>
+          ),
+          checked: selected.includes(t),
+          closeOnSelect: false,
+          onSelect: () => onToggle(t),
+        };
       })}
-    </div>
+    />
   );
 }
 
