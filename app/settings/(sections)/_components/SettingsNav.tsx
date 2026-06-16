@@ -13,10 +13,22 @@ export type SettingsNavItem = {
   matchPrefixes?: string[];
   /** Label for sub-route segments — used to build the third breadcrumb. */
   subRoutes?: Record<string, string>;
+  /** Subitens renderizados no nav, debaixo do pai (atalhos rápidos). */
+  children?: { href: string; label: string }[];
 };
 
 export const SETTINGS_NAV_ITEMS: SettingsNavItem[] = [
-  { href: "/settings/perfil", label: "Perfil", icon: "person" },
+  {
+    href: "/settings/perfil",
+    label: "Perfil",
+    icon: "person",
+    children: [
+      { href: "/settings/perfil", label: "Dados pessoais" },
+      { href: "/settings/seguranca#senha", label: "Senha" },
+      { href: "/settings/seguranca#sessoes", label: "Sessões ativas" },
+      { href: "/settings/notificacoes", label: "Notificações" },
+    ],
+  },
   { href: "/settings/organizacao", label: "Organização", icon: "domain" },
   {
     href: "/settings/equipe-permissoes",
@@ -138,18 +150,40 @@ export function SettingsNav() {
                 .filter(Boolean)
                 .join(" ");
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch
-                  aria-current={active ? "page" : undefined}
-                  aria-label={collapsed ? item.label : undefined}
-                  title={collapsed ? item.label : undefined}
-                  className={classes}
-                >
-                  <Icon name={item.icon} size={20} fill={active ? 1 : 0} />
-                  <span className="aw-nav-rail__item-label">{item.label}</span>
-                </Link>
+                <div key={item.href} className="flex flex-col">
+                  <Link
+                    href={item.href}
+                    prefetch
+                    aria-current={active ? "page" : undefined}
+                    aria-label={collapsed ? item.label : undefined}
+                    title={collapsed ? item.label : undefined}
+                    className={classes}
+                  >
+                    <Icon name={item.icon} size={20} fill={active ? 1 : 0} />
+                    <span className="aw-nav-rail__item-label">{item.label}</span>
+                  </Link>
+                  {!collapsed && item.children && (
+                    <div className="ml-9 mt-0.5 flex flex-col gap-px border-l border-(--border-subtle) pl-3">
+                      {item.children.map((child) => {
+                        const childActive = pathname === child.href.split("#")[0];
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            prefetch
+                            className={`flex h-7 items-center rounded-md px-2 text-xs font-medium transition-colors duration-aw-fast ${
+                              childActive
+                                ? "text-(--fg-primary)"
+                                : "text-(--fg-tertiary) hover:text-(--fg-secondary)"
+                            }`}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
