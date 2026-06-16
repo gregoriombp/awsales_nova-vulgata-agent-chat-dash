@@ -274,7 +274,7 @@ function ActionCard({
           {right ?? <Plus24 />}
         </div>
       </div>
-      <div className="text-[14px] font-medium text-(--fg-primary) group-hover:text-aw-gray-150">
+      <div className="text-sm font-medium text-(--fg-primary) group-hover:text-aw-gray-150">
         {label}
       </div>
     </button>
@@ -933,7 +933,7 @@ function MemoryBaseDirectoryContent() {
                         setIsAgentsPopoverOpen(false);
                         router.push("/agent-studio");
                       }}
-                      className="mt-3 w-full text-[12px] font-medium text-(--fg-secondary) hover:text-(--fg-primary) hover:underline text-left transition-colors"
+                      className="mt-3 w-full text-xs font-medium text-(--fg-secondary) hover:text-(--fg-primary) hover:underline text-left transition-colors"
                     >
                       Ver no Agent Studio →
                     </button>
@@ -979,7 +979,7 @@ function MemoryBaseDirectoryContent() {
                         <span className="font-medium">{rows.filter((r) => r.typeLabel === "Integração").length}</span>
                       </div>
                     </div>
-                    <div className="mt-3 pt-2 border-t border-(--border-subtle) text-[12px] text-(--fg-secondary)">
+                    <div className="mt-3 pt-2 border-t border-(--border-subtle) text-xs text-(--fg-secondary)">
                       Clique em uma fonte abaixo para ver detalhes
                     </div>
                   </div>
@@ -1009,7 +1009,7 @@ function MemoryBaseDirectoryContent() {
                 {isLayersPopoverOpen && (
                   <div className="absolute left-0 top-full mt-2 z-30 w-[280px] rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-3 shadow-[0px_0px_0.5px_0px_rgba(0,0,0,0.12),0px_8px_24px_0px_rgba(0,0,0,0.12)]">
                     <div className="text-2xs font-semibold text-(--fg-tertiary) uppercase tracking-wide mb-2">Knowledge Layers</div>
-                    <p className="text-[12px] text-(--fg-secondary) mb-3">
+                    <p className="text-xs text-(--fg-secondary) mb-3">
                       Camadas de conhecimento extraídas automaticamente por IA a partir das fontes desta base.
                     </p>
                     <div className="space-y-1.5 text-sm text-(--fg-primary)">
@@ -1032,7 +1032,7 @@ function MemoryBaseDirectoryContent() {
                         setIsLayersPopoverOpen(false);
                         router.push(`/memory-base/${params?.id}/semantic-search`);
                       }}
-                      className="mt-3 w-full text-[12px] font-medium text-(--fg-secondary) hover:text-(--fg-primary) hover:underline text-left transition-colors"
+                      className="mt-3 w-full text-xs font-medium text-(--fg-secondary) hover:text-(--fg-primary) hover:underline text-left transition-colors"
                     >
                       Explorar via Semantic Search →
                     </button>
@@ -1050,7 +1050,7 @@ function MemoryBaseDirectoryContent() {
           <div className="w-full px-12 pt-10 pb-14 space-y-8">
             {/* Add sources */}
             <div className="space-y-4" data-tour="add-sources">
-              <div className="text-[18px] font-bold text-(--fg-primary)">
+              <div className="text-lg font-bold text-(--fg-primary)">
                 Adicione Fontes
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-8">
@@ -1079,7 +1079,7 @@ function MemoryBaseDirectoryContent() {
                             {int.icon ? (
                               <img src={int.icon} alt="" className="w-full h-full object-contain" />
                             ) : (
-                              <span className="text-[12px] font-bold">{int.shortLabel}</span>
+                              <span className="text-xs font-bold">{int.shortLabel}</span>
                             )}
                           </div>
                         ))}
@@ -1210,7 +1210,7 @@ function MemoryBaseDirectoryContent() {
                     />
                   </div>
                   <div className="flex min-w-0 flex-1 items-center gap-2">
-                  <div className="text-[12px] text-(--fg-tertiary)">Nome do Arquivo</div>
+                  <div className="text-xs text-(--fg-tertiary)">Nome do Arquivo</div>
                   <span className="text-(--fg-tertiary)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
                       <path d="M8 6h10M8 10h6M8 14h10M8 18h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -1220,9 +1220,9 @@ function MemoryBaseDirectoryContent() {
                   </div>
                 </div>
 
-                <div className="min-w-[88px] py-2 text-[12px] text-(--fg-tertiary)">Status</div>
-                <div className="min-w-[140px] py-2 text-[12px] text-(--fg-tertiary)">Knowledge Layers</div>
-                <div className="min-w-[140px] flex items-center gap-2 py-2 text-[12px] text-(--fg-tertiary)">
+                <div className="min-w-[88px] py-2 text-xs text-(--fg-tertiary)">Status</div>
+                <div className="min-w-[140px] py-2 text-xs text-(--fg-tertiary)">Knowledge Layers</div>
+                <div className="min-w-[140px] flex items-center gap-2 py-2 text-xs text-(--fg-tertiary)">
                   Data de adição
                   <span className="text-(--fg-tertiary)">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
@@ -1253,7 +1253,7 @@ function MemoryBaseDirectoryContent() {
                       </div>
                       <FileTypeIcon name={r.name} typeLabel={r.typeLabel} />
                       <div className="flex min-w-0 flex-1 flex-col leading-normal">
-                        <div className="text-[12px] font-medium text-(--fg-primary) truncate">
+                        <div className="text-xs font-medium text-(--fg-primary) truncate">
                           {r.name}
                         </div>
                         <div className="text-3xs text-(--fg-secondary)">{r.typeLabel}</div>
@@ -1284,7 +1284,7 @@ function MemoryBaseDirectoryContent() {
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-[12px] text-(--fg-secondary)">
+                    <div className="min-w-[140px] py-1 flex items-center gap-2 text-xs text-(--fg-secondary)">
                       {r.status === "Analisando" ? (
                         <>
                           <span className="w-4 h-4 border-2 border-(--fg-tertiary) border-t-transparent rounded-full animate-spin shrink-0" />
@@ -1298,7 +1298,7 @@ function MemoryBaseDirectoryContent() {
                       )}
                     </div>
 
-                    <div className="min-w-[140px] py-1 text-[12px] text-(--fg-secondary)">
+                    <div className="min-w-[140px] py-1 text-xs text-(--fg-secondary)">
                       {r.createdAt}
                     </div>
 
@@ -1387,7 +1387,7 @@ function MemoryBaseDirectoryContent() {
               <div className="flex items-start gap-3 min-w-0">
                 <FileTypeIcon name={drawerRow.name} typeLabel={drawerRow.typeLabel} />
                 <div className="min-w-0">
-                  <h2 id="drawer-title" className="text-[18px] font-semibold text-(--fg-primary) truncate">
+                  <h2 id="drawer-title" className="text-lg font-semibold text-(--fg-primary) truncate">
                     {drawerRow.name}
                   </h2>
                   <p className="text-sm text-(--fg-secondary) mt-0.5">{drawerRow.typeLabel}</p>
@@ -1501,7 +1501,7 @@ function MemoryBaseDirectoryContent() {
                 </div>
                 <div className="flex-1 overflow-y-auto p-6">
                   {drawerTab === "conteudo" && (
-                    <div className="text-[14px] text-(--fg-primary) leading-relaxed space-y-4">
+                    <div className="text-sm text-(--fg-primary) leading-relaxed space-y-4">
                       <p>
                         Este é um exemplo de conteúdo extraído e processado pela plataforma. O texto abaixo simula o que seria exibido após a ingestão do documento.
                       </p>
@@ -1552,7 +1552,7 @@ function MemoryBaseDirectoryContent() {
                       <div className="flex items-center justify-between">
                         <div>
                           <div className="text-sm font-medium text-(--fg-primary)">Status</div>
-                          <div className="text-[12px] text-(--fg-tertiary)">
+                          <div className="text-xs text-(--fg-tertiary)">
                             {editDraft.status === "Ativo" ? "Ativo — em uso pelos agentes" : "Desativado"}
                           </div>
                         </div>
@@ -1625,7 +1625,7 @@ function MemoryBaseDirectoryContent() {
                       </div>
 
                       {/* Cabeçalho da tabela */}
-                      <div className="flex items-center gap-4 py-2 border-b border-(--border-subtle) text-[12px] text-(--fg-tertiary) shrink-0">
+                      <div className="flex items-center gap-4 py-2 border-b border-(--border-subtle) text-xs text-(--fg-tertiary) shrink-0">
                         <div className="flex flex-1 min-w-0 items-center gap-1">
                           <span>Título</span>
                           <span className="text-(--fg-tertiary)" aria-hidden>
@@ -1649,7 +1649,7 @@ function MemoryBaseDirectoryContent() {
                               <p className="text-sm text-(--fg-secondary) leading-snug mt-0.5">{item.answer}</p>
                             </div>
                             <span
-                              className="w-[100px] shrink-0 inline-flex items-center gap-1 text-[12px] font-medium"
+                              className="w-[100px] shrink-0 inline-flex items-center gap-1 text-xs font-medium"
                               style={{ color: QUALITY_COLOR[item.quality] }}
                             >
                               <TbTrendingUp size={14} strokeWidth={2} /> {item.quality}
@@ -1741,7 +1741,7 @@ function MemoryBaseDirectoryContent() {
                         )}
                       </ul>
 
-                      <p className="text-[12px] text-(--fg-tertiary) mt-3 shrink-0">
+                      <p className="text-xs text-(--fg-tertiary) mt-3 shrink-0">
                         Exemplo de demonstração — perguntas e respostas reais virão do pipeline de Knowledge Layers.
                       </p>
                     </div>
@@ -1774,7 +1774,7 @@ function MemoryBaseDirectoryContent() {
                       );
                     }
                     return (
-                      <div className="text-[14px] text-(--fg-primary) leading-relaxed">
+                      <div className="text-sm text-(--fg-primary) leading-relaxed">
                         <p>
                           Pré-visualização indisponível para <strong>{drawerRow.typeLabel}</strong> nesta demonstração.
                         </p>
