@@ -9,12 +9,14 @@ import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { Icon } from "@/components/ui/Icon";
+import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { MoneyHeading } from "../_components/MoneyHeading";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   AUDIT_EVENTS,
   brl,
+  CREDITS_KPIS,
   CURRENT_INVOICE,
   CURRENT_PLAN,
   INVOICE_HISTORY,
@@ -35,10 +37,13 @@ function daysUntil(br: string): number {
 export default function VisaoGeralPage() {
   return (
     <div className="flex flex-col gap-10">
-      <div className="grid grid-cols-[1.15fr_1fr] gap-6">
-        <InvoiceCard />
-        <SpendingHero limit={VARIABLE_SPENDING_LIMIT} />
-      </div>
+      <header className="flex flex-col gap-6">
+        <div className="grid grid-cols-[1.15fr_1fr] gap-6">
+          <PlanCard />
+          <InvoiceCard />
+        </div>
+        <KpiGrid />
+      </header>
       <ShortcutGrid />
       <ConsumptionDetails />
     </div>
@@ -102,6 +107,80 @@ function ConsumptionDetails() {
   );
 }
 
+/* ---------- plan card (dark hero — plano atual + consumo do ciclo) ---------- */
+
+function planKey(name: string): PlanKey {
+  const n = name.toLowerCase();
+  if (n.includes("enterprise")) return "enterprise";
+  if (n.includes("pro")) return "pro";
+  return "starter";
+}
+
+function PlanCard() {
+  const pct = Math.round(
+    (OVERVIEW_KPIS.accumulated / VARIABLE_SPENDING_LIMIT) * 100,
+  );
+
+  return (
+    <AwCard className="relative isolate overflow-hidden bg-(--bg-inverse)! p-6! text-(--fg-on-inverse)">
+      <AwPlanIcon
+        plan={planKey(CURRENT_PLAN.name)}
+        variant="dark"
+        className="pointer-events-none absolute -right-6 -top-4 -z-10 h-44 w-44 opacity-[0.20]"
+      />
+
+      <div className="flex h-full flex-col gap-6">
+        <div className="flex flex-col gap-2">
+          <span className="aw-eyebrow text-(--fg-on-inverse) opacity-55">
+            Seu plano
+          </span>
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+            <h2 className="m-0 display-sm text-[2rem] text-(--fg-on-inverse)">
+              {CURRENT_PLAN.name}
+            </h2>
+            <AwPill variant="live">{CURRENT_PLAN.status}</AwPill>
+          </div>
+          <p className="m-0 body-sm tabular-nums text-(--fg-on-inverse) opacity-65">
+            <strong className="font-medium opacity-100">
+              {brl(CURRENT_PLAN.monthly)}
+            </strong>{" "}
+            /mês · renova em {CURRENT_PLAN.nextChargeAt}
+          </p>
+        </div>
+
+        <div className="mt-auto flex flex-col gap-3">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="body-sm text-(--fg-on-inverse) opacity-65">
+                Consumo variável do ciclo
+              </span>
+              <span className="body-sm tabular-nums text-(--fg-on-inverse) opacity-55">
+                <strong className="font-medium opacity-100">
+                  {brl(OVERVIEW_KPIS.accumulated)}
+                </strong>{" "}
+                / {brl(VARIABLE_SPENDING_LIMIT)}
+              </span>
+            </div>
+            <AwProgress
+              value={OVERVIEW_KPIS.accumulated}
+              max={VARIABLE_SPENDING_LIMIT}
+              className="[&_.aw-progress]:bg-(--fg-on-inverse)/15 [&_.aw-progress__fill]:bg-(--fg-on-inverse)!"
+            />
+          </div>
+
+          <Link
+            href="/settings/financeiro/consumo"
+            className="mt-1 inline-flex w-fit items-center gap-2 rounded-full border border-(--border-inverse) px-4 py-2 body-sm font-medium text-(--fg-on-inverse) transition-colors duration-aw-fast hover:bg-(--fg-on-inverse)/10"
+          >
+            <Icon name="compare_arrows" size={16} />
+            Comparar planos
+          </Link>
+        </div>
+      </div>
+    </AwCard>
+  );
+}
+
 /* ---------- invoice card (panel with the upcoming total + actions) ---------- */
 
 function InvoiceCard() {
@@ -111,7 +190,7 @@ function InvoiceCard() {
   const days = daysUntil(CURRENT_INVOICE.dueAt);
 
   return (
-    <AwCard className="flex flex-col gap-5 bg-(--bg-surface)! p-6!">
+    <AwCard className="flex flex-col gap-5 p-6!">
       <div className="flex items-center justify-between gap-3">
         <h6 className="m-0 body-md font-medium text-(--fg-primary)">
           Fatura atual
@@ -134,7 +213,7 @@ function InvoiceCard() {
         {discount > 0 && (
           <p className="m-0 inline-flex items-center gap-1.5 body-sm text-(--accent-success)">
             <Icon name="local_offer" size={14} />
-            Descontos aplicados neste ciclo{" "}
+            Descontos neste ciclo{" "}
             <strong className="font-medium tabular-nums">
               −{brl(discount)}
             </strong>
@@ -171,72 +250,83 @@ function PaymentMethodLink() {
   );
 }
 
-/* ---------- spending hero (variable consumption against the cap) ---------- */
+/* ---------- kpi grid (resumo do ciclo em três cartões) ---------- */
 
-function SpendingHero({ limit }: { limit: number }) {
-  const pct = Math.round((OVERVIEW_KPIS.accumulated / limit) * 100);
+function KpiGrid() {
+  const usagePct = Math.round(
+    (OVERVIEW_KPIS.accumulated / VARIABLE_SPENDING_LIMIT) * 100,
+  );
 
   return (
-    <section className="flex flex-col gap-5">
-      <div className="flex items-center justify-between gap-3 border-b border-(--border-subtle) pb-4">
-        <span className="flex min-w-0 items-center gap-3">
-          <span
-            aria-hidden="true"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-(--aw-amber-200) bg-(--aw-amber-100) text-(--aw-amber-700)"
-          >
-            <Icon name="workspace_premium" size={18} />
-          </span>
-          <span className="flex min-w-0 flex-col">
-            <span className="truncate body-sm font-medium text-(--fg-primary)">
-              {CURRENT_PLAN.name}
-            </span>
-            <span className="body-xs tabular-nums text-(--fg-tertiary)">
-              {brl(CURRENT_PLAN.monthly)} /mês · renova em{" "}
-              {CURRENT_PLAN.nextChargeAt}
-            </span>
-          </span>
-        </span>
-        <AwPill variant="live" dot={false}>
-          {CURRENT_PLAN.status}
-        </AwPill>
-      </div>
-      <div className="flex flex-col gap-1">
-        <span className="aw-eyebrow text-(--fg-tertiary)">
-          Consumo de variáveis
-        </span>
-        <p className="m-0 mt-1 body-sm text-(--fg-secondary)">
-          Cada usuário tem um limite de{" "}
-          <strong className="font-medium tabular-nums text-(--fg-primary)">
-            {brl(limit)}
-          </strong>{" "}
-          em gastos variáveis por ciclo. Quando o montante é atingido, a gente
-          cobra automaticamente.
-        </p>
-      </div>
+    <div className="grid grid-cols-3 gap-6">
+      <KpiCard
+        icon="trending_up"
+        accent="blue"
+        label="Consumo variável · ciclo"
+        value={brl(OVERVIEW_KPIS.accumulated)}
+        hint={`${usagePct}% do limite de ${brl(VARIABLE_SPENDING_LIMIT)}`}
+      />
+      <KpiCard
+        icon="redeem"
+        accent="purple"
+        label="Créditos disponíveis"
+        value={brl(CREDITS_KPIS.availableDiscount)}
+        hint={`${CREDITS_KPIS.activeVouchers} vouchers ativos`}
+      />
+      <KpiCard
+        icon="savings"
+        accent="emerald"
+        label="Economia no ciclo"
+        value={`−${brl(OVERVIEW_KPIS.monthSavings)}`}
+        hint="Cupons e créditos aplicados"
+        valueClassName="text-(--accent-success)"
+      />
+    </div>
+  );
+}
 
-      <div className="mt-auto flex flex-col gap-3">
-        <AwProgress
-          value={OVERVIEW_KPIS.accumulated}
-          max={limit}
-          className="[&_.aw-progress__fill]:bg-(--fg-primary)!"
-        />
-        <div className="flex items-baseline justify-between">
-          <span className="body-xs tabular-nums text-(--fg-tertiary)">
-            {pct}% utilizado
-          </span>
-          <span className="body-md tabular-nums text-(--fg-primary)">
-            <span className="mr-1 body-xs text-(--fg-tertiary)">R$</span>
-            <strong className="font-medium">
-              {brl(OVERVIEW_KPIS.accumulated).replace(/^R\$\s*/, "")}
-            </strong>
-            <span className="body-xs text-(--fg-tertiary)">
-              {" "}
-              / {brl(limit)}
-            </span>
-          </span>
-        </div>
+const KPI_ACCENTS = {
+  blue: "border-(--aw-blue-200) bg-(--aw-blue-100) text-(--aw-blue-600)",
+  purple: "border-(--aw-purple-200) bg-(--aw-purple-100) text-(--aw-purple-600)",
+  emerald:
+    "border-(--aw-emerald-200) bg-(--aw-emerald-100) text-(--aw-emerald-600)",
+} as const;
+
+function KpiCard({
+  icon,
+  accent,
+  label,
+  value,
+  hint,
+  valueClassName,
+}: {
+  icon: string;
+  accent: keyof typeof KPI_ACCENTS;
+  label: string;
+  value: string;
+  hint: string;
+  valueClassName?: string;
+}) {
+  return (
+    <AwCard className="flex flex-col gap-3 p-5!">
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden="true"
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border ${KPI_ACCENTS[accent]}`}
+        >
+          <Icon name={icon} size={16} />
+        </span>
+        <span className="body-sm text-(--fg-secondary)">{label}</span>
       </div>
-    </section>
+      <div className="flex flex-col gap-0.5">
+        <span
+          className={`text-[1.75rem] font-medium leading-none tracking-tight tabular-nums text-(--fg-primary) ${valueClassName ?? ""}`}
+        >
+          {value}
+        </span>
+        <span className="body-xs text-(--fg-tertiary)">{hint}</span>
+      </div>
+    </AwCard>
   );
 }
 
