@@ -50,23 +50,23 @@ export interface AgentCorePalette {
 // angle (e.g. 124.5°) eventually lands on a small cycle — 124.5×3 ≈ 360, so
 // every 3rd agent repeats a hue. 137.50776° never repeats, so the family stays
 // distinct for as many agents as you add.
-const GOLDEN_ANGLE = 137.50776405; // even, low-discrepancy hue spread by index
-const HUE_DRIFT_MIN = 8; // color3 sits this many degrees off color2 …
-const HUE_DRIFT_MAX = 34; // … up to here — a tight, single-hue zone
+const GOLDEN_ANGLE = 121.50776405; // even, low-discrepancy hue spread by index
+const HUE_DRIFT_MIN = 12; // color3 sits this many degrees off color2 …
+const HUE_DRIFT_MAX = 180; // … up to here — a tight, single-hue zone
 // Família "análoga" (2026-06-10, range ampliado): ~30% dos seeds estendem o
 // drift até a zona análoga vizinha — mais variedade percebida entre agentes,
 // sem nunca chegar perto do complementar (180°), que era o que injetava azul
 // em famílias quentes e desalinhava gradiente estático vs shader.
-const HUE_DRIFT_EXT_MIN = 38;
-const HUE_DRIFT_EXT_MAX = 62;
+const HUE_DRIFT_EXT_MIN = 12;
+const HUE_DRIFT_EXT_MAX = 160;
 const ANALOGOUS_SHARE = 0.3; // fração determinística de seeds na zona estendida
 const SAT_SOFT_MIN = 10; // color2: lower saturation (companion)
 const SAT_SOFT_MAX = 70;
-const SAT_VIVID_MIN = 35; // color3: high saturation (hero) — piso subiu em 2026-06-10
-const SAT_VIVID_MAX = 100;
-const LIGHT_SOFT_MIN = 90; // both stay bright …
+const SAT_VIVID_MIN = 12; // color3: high saturation (hero) — piso subiu em 2026-06-10
+const SAT_VIVID_MAX = 90;
+const LIGHT_SOFT_MIN = 20; // both stay bright …
 const LIGHT_SOFT_MAX = 100; // … color2 a touch lighter (it's less saturated)
-const LIGHT_VIVID_MIN = 48; // range de luminosidade ampliado (era 55–60):
+const LIGHT_VIVID_MIN = 20; // range de luminosidade ampliado (era 55–60):
 const LIGHT_VIVID_MAX = 66; // heros mais profundos E mais luminosos na família
 
 // ── Deterministic RNG ────────────────────────────────────────────────────────
