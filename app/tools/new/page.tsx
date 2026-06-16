@@ -27,7 +27,6 @@ import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwField, AwInput } from "@/components/ui/AwInput";
-import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 
 import {
@@ -38,11 +37,7 @@ import {
   loadInstances,
   type IntegrationInstance,
 } from "@/lib/integrationsStore";
-import {
-  KIND_LABELS,
-  KIND_PILL_VARIANT,
-  type ToolKind,
-} from "@/lib/toolsCatalog";
+import { type ToolKind } from "@/lib/toolsCatalog";
 import {
   loadCustom,
   loadCustomIntegrations,
@@ -601,20 +596,23 @@ function KindPicker({
   value: ToolKind;
   onChange: (next: ToolKind) => void;
 }) {
-  const items: { id: ToolKind; label: string; helper: string }[] = [
+  const items: { id: ToolKind; label: string; icon: string; helper: string }[] = [
     {
       id: "read",
       label: "Leitura",
+      icon: "visibility",
       helper: "Consulta dados sem mutar nada.",
     },
     {
       id: "write",
       label: "Escrita",
+      icon: "edit",
       helper: "Cria ou altera um recurso.",
     },
     {
       id: "action",
       label: "Ação",
+      icon: "bolt",
       helper: "Tem efeito visível (envia mensagem, cobra, etc.).",
     },
   ];
@@ -629,16 +627,22 @@ function KindPicker({
             aria-pressed={active}
             onClick={() => onChange(it.id)}
             className={
-              "flex flex-col items-start gap-1.5 rounded-xl border px-3 py-2.5 text-left transition-colors " +
+              "flex flex-col items-start gap-2 rounded-xl border px-4 py-4 text-left transition-colors " +
               (active
-                ? "border-(--fg-primary) bg-(--aw-blue-100)"
-                : "border-(--border-subtle) bg-(--bg-canvas) hover:bg-(--bg-hover)")
+                ? "border-(--bg-inverse) bg-(--bg-inverse) text-(--fg-on-inverse)"
+                : "border-(--border-subtle) bg-(--bg-canvas) text-(--fg-primary) hover:bg-(--bg-hover)")
             }
           >
-            <AwPill variant={KIND_PILL_VARIANT[it.id]} dot={false}>
-              {KIND_LABELS[it.id]}
-            </AwPill>
-            <span className="body-xs text-(--fg-tertiary)">
+            <Icon name={it.icon} size={20} fill={active ? 1 : 0} />
+            <span className="text-sm font-medium">{it.label}</span>
+            <span
+              className={
+                "body-xs " +
+                (active
+                  ? "text-(--fg-on-inverse) opacity-70"
+                  : "text-(--fg-tertiary)")
+              }
+            >
               {it.helper}
             </span>
           </button>
