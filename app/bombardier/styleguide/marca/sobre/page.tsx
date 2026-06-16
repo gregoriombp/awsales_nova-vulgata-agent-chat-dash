@@ -4,6 +4,7 @@ import { AwLogo } from "@/components/ui/AwLogo"
 import { AwBrandIllustration } from "@/components/ui/AwBrandIllustration"
 import { Icon } from "@/components/ui/Icon"
 import { PageHero, Section } from "../../_primitives"
+import { CortexMark } from "./_CortexMark"
 
 /**
  * A marca — a página que abre a apresentação do design system. Conta a
@@ -213,11 +214,7 @@ export default function MarcaSobrePage() {
           <div className="overflow-hidden rounded-2xl bg-aw-gray-1200 text-aw-gray-25">
             <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr]">
               <div className="flex items-center justify-center p-10">
-                <AwBrandIllustration
-                  name="constellation"
-                  size={300}
-                  title="Constelação de agentes ao redor do Cortex"
-                />
+                <CortexMark size={300} />
               </div>
               <div className="flex flex-col justify-center gap-6 border-t border-white/10 p-10 lg:border-l lg:border-t-0">
                 {[
@@ -264,7 +261,7 @@ export default function MarcaSobrePage() {
               className="relative flex min-h-[320px] items-center justify-between gap-10 px-12 py-12 text-aw-gray-25"
               style={{
                 background:
-                  "linear-gradient(168deg, var(--aw-blue-400) 0%, var(--aw-blue-700) 34%, var(--aw-blue-1000) 62%, var(--aw-gray-1200) 100%)",
+                  "linear-gradient(180deg, var(--aw-blue-150) 0%, var(--aw-slate-600) 40%, var(--aw-blue-1000) 75%, var(--aw-gray-1200) 100%)",
               }}
             >
               <div className="max-w-[440px]">
