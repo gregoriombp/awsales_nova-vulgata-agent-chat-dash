@@ -1117,56 +1117,51 @@ function MemoryBaseDirectoryContent() {
 
             {/* Lista de arquivos e pastas – full width */}
             <div className="w-full overflow-hidden bg-(--bg-raised)">
-              {/* Navegação de pastas e ações */}
+              {/* Navegação de pastas e ações — o crumb 'Raiz' some quando
+                  estamos na raiz (é redundante com o título da base). */}
               <div className="px-8 pb-4 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  {/* Botão voltar */}
                   {currentFolderId && (
-                    <button
-                      type="button"
-                      onClick={() => navigateToFolder(currentFolder?.parentId ?? null)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded-lg transition-colors"
-                    >
-                      <TbArrowLeft className="w-4 h-4" />
-                      Voltar
-                    </button>
-                  )}
-                  
-                  {/* Breadcrumbs interno das pastas */}
-                  <nav className="flex items-center gap-1 text-sm">
-                    <button
-                      type="button"
-                      onClick={() => navigateToFolder(null)}
-                      className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-                        !currentFolderId
-                          ? "text-(--fg-primary) font-medium"
-                          : "text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted)"
-                      }`}
-                    >
-                      <TbFolder className="w-4 h-4" />
-                      Raiz
-                    </button>
-                    {currentFolderPath.map((folder, index) => (
-                      <div key={folder.id} className="flex items-center gap-1">
-                        <TbChevronRight className="w-4 h-4 text-(--fg-tertiary)" />
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => navigateToFolder(currentFolder?.parentId ?? null)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded-lg transition-colors"
+                      >
+                        <TbArrowLeft className="w-4 h-4" />
+                        Voltar
+                      </button>
+                      <nav className="flex items-center gap-1 text-sm">
                         <button
                           type="button"
-                          onClick={() => navigateToFolder(folder.id)}
-                          className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
-                            index === currentFolderPath.length - 1
-                              ? "text-(--fg-primary) font-medium"
-                              : "text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted)"
-                          }`}
+                          onClick={() => navigateToFolder(null)}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-md text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) transition-colors"
                         >
                           <TbFolder className="w-4 h-4" />
-                          {folder.name}
+                          Raiz
                         </button>
-                      </div>
-                    ))}
-                  </nav>
+                        {currentFolderPath.map((folder, index) => (
+                          <div key={folder.id} className="flex items-center gap-1">
+                            <TbChevronRight className="w-4 h-4 text-(--fg-tertiary)" />
+                            <button
+                              type="button"
+                              onClick={() => navigateToFolder(folder.id)}
+                              className={`flex items-center gap-1.5 px-2 py-1 rounded-md transition-colors ${
+                                index === currentFolderPath.length - 1
+                                  ? "text-(--fg-primary) font-medium"
+                                  : "text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted)"
+                              }`}
+                            >
+                              <TbFolder className="w-4 h-4" />
+                              {folder.name}
+                            </button>
+                          </div>
+                        ))}
+                      </nav>
+                    </>
+                  )}
                 </div>
-                
-                {/* Botão criar pasta */}
+
                 <button
                   type="button"
                   onClick={() => setIsCreateFolderOpen(true)}
