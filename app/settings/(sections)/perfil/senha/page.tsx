@@ -114,7 +114,7 @@ export default function SenhaPage() {
       <div className="mb-6">
         <SectionHeading title="Autenticação em dois fatores" />
         <AwCard className="p-0!">
-          <div className="border-b border-(--border-subtle) px-6 py-2">
+          <div className="px-6 pt-4 pb-1">
             <AwToggleRow
               title={
                 <span className="flex items-center gap-2">
