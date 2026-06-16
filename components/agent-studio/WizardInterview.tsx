@@ -173,9 +173,8 @@ interface WizardInterviewProps {
   question: number;
   answers: Record<number, InterviewAnswer>;
   onAnswerChange: (question: number, answer: InterviewAnswer) => void;
-  /** Pergunta 1 → volta ao passo 6; demais → pergunta anterior. */
-  onBack: () => void;
-  /** Pergunta 3 → segue à geração (passo 8); demais → próxima pergunta. */
+  /** Pergunta 3 → segue à geração (passo 8); demais → próxima pergunta.
+   *  Voltar vive na casca (WizardShell), não no card. */
   onAdvance: () => void;
 }
 
@@ -183,7 +182,6 @@ export function WizardInterview({
   question,
   answers,
   onAnswerChange,
-  onBack,
   onAdvance,
 }: WizardInterviewProps) {
   const q = INTERVIEW_QUESTIONS[question - 1];
@@ -293,10 +291,7 @@ export function WizardInterview({
           </div>
         )}
 
-        <div className="mt-8 flex items-center justify-between">
-          <AwButton variant="secondary" size="md" iconLeft="chevron_left" onClick={onBack}>
-            Voltar
-          </AwButton>
+        <div className="mt-8 flex items-center justify-end">
           <AwButton variant="primary" size="md" disabled={!canAdvance} onClick={onAdvance}>
             Avançar
           </AwButton>

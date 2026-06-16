@@ -2,7 +2,6 @@
 
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
@@ -12,6 +11,7 @@ import { AwAgentCore, agentCoreSrc } from "@/components/ui/AwAgentCore";
 import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
+import { AwChatBubble } from "@/components/ui/AwChatBubble";
 import { Icon } from "@/components/ui/Icon";
 import { OriginsConversionsStep } from "@/components/agent-studio/OriginsConversionsStep";
 import {
@@ -215,6 +215,264 @@ const WHATS_TEMPLATES: WhatsTemplate[] = [
   { id: "agendamento_demo", name: "agendamento_demo", preview: "Oi {{1}}! Que tal agendar uma demonstração rápida? Tenho horários essa semana.", status: "pendente" },
 ];
 
+/** Realça as variáveis {{n}} do template como chips sutis dentro do balão. */
+function renderTemplateText(text: string) {
+  return text.split(/(\{\{\d+\}\})/g).map((part, i) =>
+    /^\{\{\d+\}\}$/.test(part) ? (
+      <span
+        key={i}
+        className="mx-0.5 rounded bg-aw-blue-100 px-1 font-mono text-aw-blue-700"
+      >
+        {part}
+      </span>
+    ) : (
+      <span key={i}>{part}</span>
+    ),
+  );
+}
+
+/**
+ * Pré-visualização da conversa (step 4). A primeira mensagem do agente "chega"
+ * como um balão de chat dentro de um card de telefone — logo depois de escolher
+ * o número — em vez de viver numa lista de cards. "Alterar" abre os templates
+ * aprovados; escolher um atualiza o balão (que re-anima a entrada).
+ */
+function WhatsConversationPreview({
+  number,
+  templates,
+  selectedTemplate,
+  onSelectTemplate,
+  pickerOpen,
+  setPickerOpen,
+}: {
+  number: WhatsNumber;
+  templates: WhatsTemplate[];
+  selectedTemplate: string | null;
+  onSelectTemplate: (id: string) => void;
+  pickerOpen: boolean;
+  setPickerOpen: (v: boolean) => void;
+}) {
+  const initials = number.name
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? "")
+    .join("");
+  const tpl = templates.find((t) => t.id === selectedTemplate) ?? null;
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-center justify-between gap-3">
+        <label className="text-sm font-medium text-fg-primary">
+          Primeira mensagem
+        </label>
+        {!pickerOpen && (
+          <AwButton
+            variant="ghost"
+            size="sm"
+            iconLeft="swap_horiz"
+            onClick={() => setPickerOpen(true)}
+          >
+            Alterar
+          </AwButton>
+        )}
+      </div>
+
+      {/* Card do telefone — header de contato, conversa, barra de digitação mock */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
+        <div className="flex items-center gap-3 border-b border-(--border-subtle) bg-bg-surface px-4 py-2.5">
+          <AwAvatar
+            src={number.avatar}
+            initials={initials}
+            alt={number.name}
+            style={{ width: 32, height: 32, fontSize: 12 }}
+          />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm font-medium text-fg-primary">
+              {number.name}
+            </div>
+            <div className="flex items-center gap-1 text-2xs text-aw-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-aw-emerald-500" />
+              online
+            </div>
+          </div>
+          <Icon name="videocam" size={18} className="text-fg-tertiary" />
+          <Icon name="call" size={16} className="text-fg-tertiary" />
+        </div>
+
+        <div className="flex flex-col gap-3 px-4 py-5">
+          <span className="mx-auto rounded-full bg-bg-muted px-2.5 py-0.5 text-3xs font-medium text-fg-tertiary">
+            Hoje
+          </span>
+          <div className="flex items-center gap-1.5 text-2xs font-medium text-fg-tertiary">
+            <Icon name="auto_awesome" size={12} />
+            Primeira mensagem do agente
+          </div>
+          <div
+            key={number.id + (selectedTemplate ?? "")}
+            className="aw-fade-in"
+            style={{ animationDelay: "300ms" }}
+          >
+            <AwChatBubble
+              variant="agent"
+              avatar={<Icon name="agent" size={16} />}
+              timestamp="agora"
+            >
+              {tpl ? (
+                renderTemplateText(tpl.preview)
+              ) : (
+                <span className="text-fg-tertiary">
+                  Escolha um template aprovado.
+                </span>
+              )}
+            </AwChatBubble>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 border-t border-(--border-subtle) bg-white px-3 py-2">
+          <div className="flex h-9 flex-1 items-center rounded-full bg-bg-muted px-3.5 text-xs text-fg-tertiary">
+            Mensagem
+          </div>
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse)">
+            <Icon name="send" size={16} />
+          </span>
+        </div>
+      </div>
+
+      {/* Templates — abrem em "Alterar"; escolher atualiza o balão e fecha */}
+      {pickerOpen && (
+        <div className="flex flex-col gap-2 pt-1">
+          <p className="text-xs text-fg-tertiary">
+            Escolha o template aprovado que abre a conversa. As variáveis{" "}
+            <code className="font-mono text-2xs">{"{{1}}"}</code> entram na hora
+            do disparo.
+          </p>
+          {templates.map((t) => {
+            const sel = selectedTemplate === t.id;
+            const pending = t.status === "pendente";
+            return (
+              <button
+                key={t.id}
+                type="button"
+                disabled={pending}
+                onClick={() => {
+                  onSelectTemplate(t.id);
+                  setPickerOpen(false);
+                }}
+                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
+                  pending
+                    ? "cursor-not-allowed border-border bg-white opacity-60"
+                    : sel
+                      ? "border-fg-primary bg-bg-raised"
+                      : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
+                  <Icon name="chat_bubble" size={18} fill={1} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <h4 className="truncate text-sm font-medium text-fg-primary">
+                      {t.name}
+                    </h4>
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-3xs font-medium ${
+                        pending
+                          ? "bg-aw-amber-100 text-aw-amber-800"
+                          : "bg-aw-emerald-100 text-aw-emerald-800"
+                      }`}
+                    >
+                      {pending ? "Em revisão" : "Aprovado"}
+                    </span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
+                    {t.preview}
+                  </p>
+                </div>
+                <span
+                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                    sel
+                      ? "border-fg-primary bg-fg-primary text-white"
+                      : "border-aw-gray-400"
+                  }`}
+                >
+                  {sel && <Icon name="check" size={12} />}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Casca full-screen do fluxo de criação de agente. Tira o chrome do dashboard
+ * (sidebar + header) pra focar no conteúdo e evitar distrações, e traz uma barra
+ * própria: "Voltar" no topo-esquerdo, marca + indicador de passo no centro, e
+ * "Sair" à direita.
+ */
+function WizardShell({
+  onBack,
+  onExit,
+  step,
+  total,
+  stageLabel,
+  children,
+}: {
+  onBack?: () => void;
+  onExit?: () => void;
+  step?: number;
+  total?: number;
+  stageLabel?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="relative flex min-h-screen flex-col bg-(--bg-canvas)">
+      <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-(--border-subtle) bg-(--bg-canvas) px-5 py-3">
+        <div className="flex flex-1 items-center">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="inline-flex items-center gap-1.5 rounded-full py-1.5 pl-2 pr-3.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-bg-hover hover:text-fg-primary"
+            >
+              <Icon name="arrow_back" size={18} />
+              Voltar
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Icon name="agent_studio" size={20} />
+          <span className="text-sm font-medium text-fg-primary">Novo agente</span>
+          {step && total ? (
+            <span className="ml-1 rounded-full bg-bg-muted px-2 py-0.5 text-2xs font-medium text-fg-tertiary tabular-nums">
+              {step} de {total}
+            </span>
+          ) : stageLabel ? (
+            <span className="ml-1 rounded-full bg-bg-muted px-2 py-0.5 text-2xs font-medium text-fg-tertiary">
+              {stageLabel}
+            </span>
+          ) : null}
+        </div>
+        <div className="flex flex-1 items-center justify-end">
+          {onExit && (
+            <button
+              type="button"
+              onClick={onExit}
+              aria-label="Sair"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-fg-tertiary transition-colors hover:bg-bg-hover hover:text-fg-primary"
+            >
+              <Icon name="close" size={20} />
+            </button>
+          )}
+        </div>
+      </header>
+      <main className="flex min-h-0 flex-1 flex-col [&>*]:flex-1">{children}</main>
+    </div>
+  );
+}
+
 /* ───────── Agent Core (step 6) ─────────
  * Framework de agente da Aswork que impulsiona o agente do usuário. Visual:
  * orb diamante estático (AwAgentCore). Mostra 6 inicialmente + "ver mais". */
@@ -386,11 +644,6 @@ function AgentStudioNewContent() {
     }
   }, [currentStep, router]);
 
-  const breadcrumbs = [
-    { label: "Agent Studio", href: "/agent-studio" },
-    "Novo agente",
-  ];
-
   // Validation
   const canAdvanceStep1 = selectedGoal && (selectedGoal !== "outro" || customGoal.trim());
   const canAdvanceStep2 = agentName.trim() && selectedBaseId;
@@ -459,15 +712,18 @@ function AgentStudioNewContent() {
   // passos 1–6): card branco centrado sobre o gradiente animado.
   if (currentStep === 7) {
     return (
-      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
+      <WizardShell
+        onBack={() =>
+          currentQuestion === 1 ? goToStep(6) : goToQuestion(currentQuestion - 1)
+        }
+        onExit={() => router.push("/agent-studio")}
+        stageLabel="Calibragem"
+      >
         <WizardInterview
           question={currentQuestion}
           answers={interviewAnswers}
           onAnswerChange={(question, answer) =>
             setInterviewAnswers((prev) => ({ ...prev, [question]: answer }))
-          }
-          onBack={() =>
-            currentQuestion === 1 ? goToStep(6) : goToQuestion(currentQuestion - 1)
           }
           onAdvance={() =>
             currentQuestion === INTERVIEW_TOTAL
@@ -475,7 +731,7 @@ function AgentStudioNewContent() {
               : goToQuestion(currentQuestion + 1)
           }
         />
-      </AwDashboardLayout>
+      </WizardShell>
     );
   }
 
@@ -483,29 +739,32 @@ function AgentStudioNewContent() {
   // (continuidade visual entre calibragem e geração).
   if (currentStep === 8) {
     return (
-      <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
-        <div className="flex min-h-full w-full items-center justify-center bg-white relative overflow-hidden">
-          <WizardInterviewBackdrop />
+      <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-white">
+        <WizardInterviewBackdrop />
 
-          <div className="relative z-10 flex flex-col items-center gap-8">
-            <SparkleIcon />
-            <div className="text-center">
-              <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-3">
-                Gerando seu Agente
-              </h1>
-              <p className="text-base text-fg-tertiary font-sans animate-pulse">
-                {LOADING_MESSAGES[loadingMessageIndex]}
-              </p>
-            </div>
+        <div className="relative z-10 flex flex-col items-center gap-8">
+          <SparkleIcon />
+          <div className="text-center">
+            <h1 className="font-heading text-2xl md:text-3xl font-medium text-fg-primary tracking-tight mb-3">
+              Gerando seu Agente
+            </h1>
+            <p className="text-base text-fg-tertiary font-sans animate-pulse">
+              {LOADING_MESSAGES[loadingMessageIndex]}
+            </p>
           </div>
         </div>
-      </AwDashboardLayout>
+      </div>
     );
   }
 
   return (
-    <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0! overflow-hidden!">
-      <div className="flex min-h-full w-full items-center justify-center bg-white p-6">
+    <WizardShell
+      onBack={handleBack}
+      onExit={() => router.push("/agent-studio")}
+      step={currentStep}
+      total={6}
+    >
+      <div className="flex min-h-full w-full flex-1 items-start justify-center bg-white px-6 py-12">
         <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 1 && currentStep <= 6 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
@@ -582,15 +841,7 @@ function AgentStudioNewContent() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <AwButton
                   variant="primary"
                   size="md"
@@ -822,15 +1073,7 @@ function AgentStudioNewContent() {
                 </div>
               </AwModal>
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <AwButton
                   variant="primary"
                   size="md"
@@ -926,15 +1169,7 @@ function AgentStudioNewContent() {
                 </div>
               </section>
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <AwButton variant="primary" size="md" onClick={handleAdvance}>
                   Avançar
                 </AwButton>
@@ -1132,113 +1367,26 @@ function AgentStudioNewContent() {
                         })}
                       </div>
 
-                      {/* Primeira mensagem — escolher o número já traz o
-                          template padrão; "Alterar" abre as outras opções */}
+                      {/* Primeira mensagem — preview de conversa dentro do card
+                          do telefone; "Alterar" abre os templates aprovados */}
                       {selectedNumber && (
-                        <div className="flex flex-col gap-2">
-                          <div className="flex items-center justify-between gap-3">
-                            <label className="text-sm font-medium text-fg-primary">
-                              Primeira mensagem
-                            </label>
-                            {!templatePickerOpen && (
-                              <AwButton
-                                variant="ghost"
-                                size="sm"
-                                iconLeft="swap_horiz"
-                                onClick={() => setTemplatePickerOpen(true)}
-                              >
-                                Alterar
-                              </AwButton>
-                            )}
-                          </div>
-                          <p className="-mt-1 text-xs text-fg-tertiary">
-                            {templatePickerOpen
-                              ? "Escolha o template aprovado que abre a conversa."
-                              : "Template aprovado que abre a conversa. As variáveis "}
-                            {!templatePickerOpen && (
-                              <code className="font-mono text-2xs">
-                                {"{{1}}"}
-                              </code>
-                            )}
-                            {!templatePickerOpen && " entram na hora do disparo."}
-                          </p>
-                          {(templatePickerOpen
-                            ? WHATS_TEMPLATES
-                            : WHATS_TEMPLATES.filter(
-                                (t) => t.id === selectedTemplate,
-                              )
-                          ).map((t) => {
-                            const sel = selectedTemplate === t.id;
-                            const pending = t.status === "pendente";
-                            return (
-                              <button
-                                key={t.id}
-                                type="button"
-                                disabled={pending}
-                                onClick={() => {
-                                  if (templatePickerOpen) {
-                                    setSelectedTemplate(t.id);
-                                    setTemplatePickerOpen(false);
-                                  } else {
-                                    setTemplatePickerOpen(true);
-                                  }
-                                }}
-                                className={`flex items-start gap-3 rounded-xl border p-4 text-left transition-colors duration-aw-fast ${
-                                  pending
-                                    ? "cursor-not-allowed border-border bg-white opacity-60"
-                                    : sel
-                                      ? "border-fg-primary bg-bg-raised"
-                                      : "border-border bg-white hover:border-aw-gray-400 hover:bg-bg-surface"
-                                }`}
-                              >
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
-                                  <Icon name="chat_bubble" size={18} fill={1} />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-center gap-2">
-                                    <h4 className="truncate text-sm font-medium text-fg-primary">
-                                      {t.name}
-                                    </h4>
-                                    <span
-                                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-3xs font-medium ${
-                                        pending
-                                          ? "bg-aw-amber-100 text-aw-amber-800"
-                                          : "bg-aw-emerald-100 text-aw-emerald-800"
-                                      }`}
-                                    >
-                                      {pending ? "Em revisão" : "Aprovado"}
-                                    </span>
-                                  </div>
-                                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-fg-tertiary">
-                                    {t.preview}
-                                  </p>
-                                </div>
-                                <span
-                                  className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
-                                    sel ? "border-fg-primary bg-fg-primary text-white" : "border-aw-gray-400"
-                                  }`}
-                                >
-                                  {sel && <Icon name="check" size={12} />}
-                                </span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                        <WhatsConversationPreview
+                          number={
+                            WHATS_NUMBERS.find((n) => n.id === selectedNumber)!
+                          }
+                          templates={WHATS_TEMPLATES}
+                          selectedTemplate={selectedTemplate}
+                          onSelectTemplate={setSelectedTemplate}
+                          pickerOpen={templatePickerOpen}
+                          setPickerOpen={setTemplatePickerOpen}
+                        />
                       )}
                     </div>
                   )}
                 </section>
               </div>
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <AwButton
                   variant="primary"
                   size="md"
@@ -1267,15 +1415,7 @@ function AgentStudioNewContent() {
 
               <OriginsConversionsStep onValidityChange={setStep5HasConfig} />
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <div className="flex items-center gap-2">
                   <AwButton variant="ghost" size="md" onClick={handleAdvance}>
                     Pular esta etapa
@@ -1352,15 +1492,7 @@ function AgentStudioNewContent() {
                 </button>
               )}
 
-              <div className="flex items-center justify-between pt-4">
-                <AwButton
-                  variant="secondary"
-                  size="md"
-                  iconLeft="chevron_left"
-                  onClick={handleBack}
-                >
-                  Voltar
-                </AwButton>
+              <div className="flex items-center justify-end pt-4">
                 <AwButton
                   variant="primary"
                   size="md"
@@ -1489,6 +1621,6 @@ function AgentStudioNewContent() {
           </div>
         )}
       </AwModal>
-    </AwDashboardLayout>
+    </WizardShell>
   );
 }

@@ -929,22 +929,29 @@ export const CheckpointRichTextEditor = React.forwardRef<
             },
             {
               label: "Integrações",
-              entries: items
-                .filter((it) => it.kind === "integration")
-                .map((it) => ({
-                  key: it.key,
-                  label: it.label,
-                  icon: it.icon,
-                  brand: it.brand,
-                  chevron: true,
-                })),
+              entries: [
+                ...items
+                  .filter((it) => it.kind === "integration")
+                  .map((it) => ({
+                    key: it.key,
+                    label: it.label,
+                    icon: it.icon,
+                    brand: it.brand,
+                    chevron: true,
+                  })),
+                // "Nova integração" desce pra última opção da seção — é mais um
+                // item, não uma ação fixa no rodapé.
+                ...items
+                  .filter((it) => it.kind === "new-integration")
+                  .map((it) => ({
+                    key: it.key,
+                    label: it.label,
+                    icon: it.icon,
+                    accent: "purple" as const,
+                  })),
+              ],
             },
           ]}
-          footer={
-            items.some((it) => it.kind === "new-integration")
-              ? { key: "new-integration", label: "Nova Integração" }
-              : undefined
-          }
         />
       )}
     </div>
