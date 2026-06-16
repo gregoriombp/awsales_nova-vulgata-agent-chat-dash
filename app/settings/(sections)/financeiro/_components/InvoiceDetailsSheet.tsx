@@ -1,10 +1,21 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSheet } from "@/components/ui/AwSheet";
+import { AwCardBrand, type AwCardBrandId } from "@/components/ui/AwCardBrand";
 import { Icon } from "@/components/ui/Icon";
 import { brl, type InvoiceHistoryRow } from "./data";
+
+/** Bandeira do cartão a partir do texto "Visa •••• 3012". */
+function paymentBrandId(method: string): AwCardBrandId {
+  const w = method.trim().toLowerCase();
+  if (w.startsWith("visa")) return "visa";
+  if (w.startsWith("master")) return "mastercard";
+  if (w.startsWith("amex") || w.startsWith("american")) return "amex";
+  return "unknown";
+}
 
 function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
   switch (status) {
@@ -120,7 +131,18 @@ export function InvoiceDetailsSheet({
             Pagamento
           </p>
           <ul className="m-0 flex flex-col gap-0 p-0 body-xs text-(--fg-primary) divide-y divide-(--border-subtle)">
-            <Row label="Forma de pagamento" value={invoice.paymentMethod} />
+            <Row
+              label="Forma de pagamento"
+              value={
+                <span className="inline-flex items-center gap-1.5">
+                  <AwCardBrand
+                    brand={paymentBrandId(invoice.paymentMethod)}
+                    size="sm"
+                  />
+                  {invoice.paymentMethod}
+                </span>
+              }
+            />
             <Row
               label="Mês de referência"
               value={invoice.refMonth}
@@ -154,7 +176,7 @@ function Row({
   emphasis,
 }: {
   label: string;
-  value: string;
+  value: ReactNode;
   emphasis?: "success" | "strong";
 }) {
   return (
