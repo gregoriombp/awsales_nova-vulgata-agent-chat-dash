@@ -75,9 +75,14 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
         icon: "domain",
         matchPrefixes: ["/settings/organizacao"],
         subRoutes: {
+          notificacoes: "Notificações",
           auditoria: "Privacidade & auditoria",
         },
         children: [
+          {
+            href: "/settings/organizacao/notificacoes",
+            label: "Notificações",
+          },
           {
             href: "/settings/organizacao/auditoria",
             label: "Privacidade & auditoria",
