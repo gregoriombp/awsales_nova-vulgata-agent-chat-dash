@@ -2,11 +2,13 @@
 
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCardBrand, detectCardBrand } from "@/components/ui/AwCardBrand";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { Icon } from "@/components/ui/Icon";
 import { BR_STATES } from "./data";
 
 const COUNTRIES = ["Brasil", "Estados Unidos", "Portugal", "Argentina", "Chile"];
@@ -119,7 +121,7 @@ function StepIndicator({ step }: { step: Step }) {
   const currentIndex = STEPS.findIndex((s) => s.id === step);
   return (
     <div
-      className="flex items-center gap-2"
+      className="flex w-full items-center gap-3"
       role="progressbar"
       aria-valuenow={currentIndex + 1}
       aria-valuemin={1}
@@ -131,7 +133,7 @@ function StepIndicator({ step }: { step: Step }) {
         const done = i < currentIndex;
         return (
           <React.Fragment key={s.id}>
-            <span className="flex items-center gap-1.5">
+            <span className="flex shrink-0 items-center gap-1.5">
               <span
                 aria-hidden="true"
                 className={
@@ -141,7 +143,7 @@ function StepIndicator({ step }: { step: Step }) {
                     : "bg-(--bg-muted) text-(--fg-tertiary)")
                 }
               >
-                {i + 1}
+                {done ? <Icon name="check" size={12} /> : i + 1}
               </span>
               <span
                 className={
@@ -157,7 +159,10 @@ function StepIndicator({ step }: { step: Step }) {
             {i < STEPS.length - 1 && (
               <span
                 aria-hidden="true"
-                className="h-px w-6 shrink-0 bg-(--border-default)"
+                className={
+                  "h-px flex-1 transition-colors duration-aw-fast " +
+                  (done ? "bg-(--fg-primary)" : "bg-(--border-default)")
+                }
               />
             )}
           </React.Fragment>
@@ -178,6 +183,9 @@ function CardStep() {
       .slice(0, 16)
       .replace(/(\d{4})(?=\d)/g, "$1 ");
 
+  // Resolve a bandeira ao vivo pelo BIN (prefixo) enquanto o usuário digita.
+  const brand = detectCardBrand(number);
+
   return (
     <>
       <p className="m-0 body-xs text-(--fg-secondary)">
@@ -187,16 +195,24 @@ function CardStep() {
 
       <section className="flex flex-col gap-3">
         <AwField label="Número do cartão" htmlFor="card-number">
-          <AwInput
-            id="card-number"
-            placeholder="0000 0000 0000 0000"
-            iconLeft="credit_card"
-            autoComplete="cc-number"
-            inputMode="numeric"
-            value={number}
-            onChange={(e) => setNumber(formatCardNumber(e.target.value))}
-            autoFocus
-          />
+          <div className="relative">
+            <AwInput
+              id="card-number"
+              placeholder="0000 0000 0000 0000"
+              iconLeft="credit_card"
+              autoComplete="cc-number"
+              inputMode="numeric"
+              value={number}
+              onChange={(e) => setNumber(formatCardNumber(e.target.value))}
+              style={{ paddingRight: 44 }}
+              autoFocus
+            />
+            {brand !== "unknown" && (
+              <span className="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                <AwCardBrand brand={brand} size="sm" />
+              </span>
+            )}
+          </div>
         </AwField>
         <div className="grid grid-cols-2 gap-3">
           <AwField label="Validade" htmlFor="card-exp">
