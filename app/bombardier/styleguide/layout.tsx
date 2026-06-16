@@ -45,6 +45,14 @@ export default function StyleguideLayout({
           {navigation.map((section, i) => {
             const prevGroup = i > 0 ? navigation[i - 1].group : undefined
             const showGroupHeading = !!section.group && section.group !== prevGroup
+            // Categorias começam encolhidas; só abre a que contém a rota atual,
+            // pra você ver onde está. Resto fica fechado até clicar (pedido de
+            // review: menus suspensos vêm encolhidos, abrem sob demanda).
+            const sectionActive = section.items.some(
+              (item) =>
+                pathname === hrefPath(item.href) ||
+                !!item.children?.some((child) => pathname === hrefPath(child.href)),
+            )
             return (
             <div key={section.title} className="flex flex-col gap-3">
               {showGroupHeading && (
@@ -52,7 +60,7 @@ export default function StyleguideLayout({
                   {section.group}
                 </h2>
               )}
-            <Collapsible.Root defaultOpen>
+            <Collapsible.Root defaultOpen={sectionActive}>
               <h3 className="aw-eyebrow m-0 mb-2">
                 <Collapsible.Trigger className="group flex w-full items-center justify-between gap-2 text-left">
                   <span>{section.title}</span>
