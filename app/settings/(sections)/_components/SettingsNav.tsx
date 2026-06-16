@@ -1,9 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/Icon";
+import {
+  AwNavTree,
+  type AwNavTreeGroup,
+  type AwNavTreeLinkProps,
+} from "@/components/ui/AwNavTree";
 import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 
 export type SettingsNavItem = {
@@ -126,6 +131,15 @@ export function isSettingsNavItemActive(
 
 const COLLAPSED_STORAGE_KEY = "awsales:settings-nav:collapsed";
 
+/** next/link como renderizador de links da árvore (mantém prefetch + SPA nav). */
+function renderNavLink({ children, ...props }: AwNavTreeLinkProps) {
+  return (
+    <Link prefetch {...props}>
+      {children}
+    </Link>
+  );
+}
+
 export function SettingsNav() {
   const pathname = usePathname() ?? "";
   const [collapsed, setCollapsed] = useState(false);
@@ -152,6 +166,39 @@ export function SettingsNav() {
       return next;
     });
   };
+
+  // Converte a config de navegação no formato da árvore, resolvendo o estado
+  // ativo de cada item/filho a partir da rota atual.
+  const treeGroups = useMemo<AwNavTreeGroup[]>(
+    () =>
+      SETTINGS_NAV_GROUPS.map((group) => ({
+        id: group.id,
+        label: group.label,
+        leading: group.org ? (
+          <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted)">
+            <img
+              src={ONBOARDING_ORG.logo}
+              alt=""
+              width={18}
+              height={18}
+              style={{ objectFit: "cover" }}
+            />
+          </span>
+        ) : undefined,
+        items: group.items.map((item) => ({
+          label: item.label,
+          icon: item.icon,
+          href: item.href,
+          active: isSettingsNavItemActive(pathname, item),
+          children: item.children?.map((child) => ({
+            label: child.label,
+            href: child.href,
+            active: pathname === child.href.split("#")[0],
+          })),
+        })),
+      })),
+    [pathname],
+  );
 
   return (
     <aside
@@ -182,94 +229,11 @@ export function SettingsNav() {
           </button>
         </div>
 
-        <nav
-          className={`aw-nav-rail ${
-            collapsed ? "aw-nav-rail--collapsed" : "aw-nav-rail--expanded"
-          } w-full! p-0! border-0! bg-transparent!`}
-        >
-          {SETTINGS_NAV_GROUPS.map((group, groupIndex) => (
-            <div
-              key={group.id}
-              className={
-                groupIndex > 0
-                  ? collapsed
-                    ? "mt-4 border-t border-(--border-subtle) pt-4"
-                    : "mt-6"
-                  : undefined
-              }
-            >
-              {!collapsed && (
-                <div className="mb-2 flex items-center gap-2 px-1">
-                  {group.org && (
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted)">
-                      <img
-                        src={ONBOARDING_ORG.logo}
-                        alt=""
-                        width={16}
-                        height={16}
-                        style={{ objectFit: "cover" }}
-                      />
-                    </span>
-                  )}
-                  <span className="aw-eyebrow truncate text-(--fg-tertiary)">
-                    {group.label}
-                  </span>
-                </div>
-              )}
-
-              <div className="aw-nav-rail__items">
-                {group.items.map((item) => {
-                  const active = isSettingsNavItemActive(pathname, item);
-                  const classes = [
-                    "aw-nav-rail__item",
-                    active && "aw-nav-rail__item--active",
-                  ]
-                    .filter(Boolean)
-                    .join(" ");
-                  return (
-                    <div key={item.href} className="flex flex-col">
-                      <Link
-                        href={item.href}
-                        prefetch
-                        aria-current={active ? "page" : undefined}
-                        aria-label={collapsed ? item.label : undefined}
-                        title={collapsed ? item.label : undefined}
-                        className={classes}
-                      >
-                        <Icon name={item.icon} size={20} fill={active ? 1 : 0} />
-                        <span className="aw-nav-rail__item-label">
-                          {item.label}
-                        </span>
-                      </Link>
-                      {!collapsed && item.children && active && (
-                        <div className="ml-9 mt-0.5 flex flex-col gap-px border-l border-(--border-subtle) pl-3">
-                          {item.children.map((child) => {
-                            const childActive =
-                              pathname === child.href.split("#")[0];
-                            return (
-                              <Link
-                                key={child.href}
-                                href={child.href}
-                                prefetch
-                                className={`flex h-7 items-center rounded-md px-2 text-xs font-medium transition-colors duration-aw-fast ${
-                                  childActive
-                                    ? "text-(--fg-primary)"
-                                    : "text-(--fg-tertiary) hover:text-(--fg-secondary)"
-                                }`}
-                              >
-                                {child.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </nav>
+        <AwNavTree
+          groups={treeGroups}
+          collapsed={collapsed}
+          renderLink={renderNavLink}
+        />
       </div>
     </aside>
   );
