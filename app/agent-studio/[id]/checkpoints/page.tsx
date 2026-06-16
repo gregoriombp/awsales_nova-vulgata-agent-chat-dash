@@ -171,28 +171,23 @@ export default function CheckpointDocumentPage() {
   return (
     <AwDashboardLayout breadcrumbs={breadcrumbs} mainClassName="p-0!">
       <div className="flex min-h-full flex-col bg-(--bg-canvas)">
-        {/* Header da página */}
+        {/* Header da página — ações Cancelar/Salvar moram aqui, ao lado do
+            título, em vez de numa barra sticky abaixo. Ficam visualmente
+            "logo acima" do primeiro checkpoint, mais próximas do conteúdo
+            editável. */}
         <header className="px-10 pb-6 pt-9">
-          <div className="mx-auto w-full max-w-[1280px]">
-            <h1 className="font-heading text-3xl font-medium tracking-tight text-(--fg-primary)">
-              Editando checkpoints
-            </h1>
-            <p className="mt-2 max-w-[620px] text-sm leading-relaxed text-(--fg-tertiary)">
-              Escreva as instruções em linguagem natural — mencione tools,
-              AOPs e variáveis no meio do texto. O agente segue exatamente o
-              que estiver aqui.
-            </p>
-          </div>
-        </header>
-
-        {/* Barra sticky — sem controles de formatação (negrito/itálico ficam
-            nos atalhos ⌘B/⌘I; @ e {{ digitam-se no texto). Só as ações. */}
-        <div className="sticky top-0 z-20 border-y border-(--border-subtle) bg-(--bg-canvas)/90 backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-[1280px] items-center px-10 py-2">
-            <p className="text-xs text-(--fg-tertiary)">
-              {"@ insere tools e AOPs · {{ insere variáveis"}
-            </p>
-            <div className="ml-auto flex items-center gap-2">
+          <div className="mx-auto flex w-full max-w-[1280px] items-start justify-between gap-6">
+            <div className="min-w-0">
+              <h1 className="font-heading text-3xl font-medium tracking-tight text-(--fg-primary)">
+                Editando checkpoints
+              </h1>
+              <p className="mt-2 max-w-[620px] text-sm leading-relaxed text-(--fg-tertiary)">
+                Escreva as instruções em linguagem natural — mencione tools,
+                AOPs e variáveis no meio do texto. O agente segue exatamente o
+                que estiver aqui.
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2 pt-1">
               <AwButton
                 variant="ghost"
                 size="sm"
@@ -210,6 +205,15 @@ export default function CheckpointDocumentPage() {
                 Salvar checkpoints
               </AwButton>
             </div>
+          </div>
+        </header>
+
+        {/* Dica de uso — sticky discreta, sem as ações. */}
+        <div className="sticky top-0 z-20 border-y border-(--border-subtle) bg-(--bg-canvas)/90 backdrop-blur-md">
+          <div className="mx-auto flex w-full max-w-[1280px] items-center px-10 py-2">
+            <p className="text-xs text-(--fg-tertiary)">
+              {"@ insere tools e AOPs · {{ insere variáveis"}
+            </p>
           </div>
         </div>
 
