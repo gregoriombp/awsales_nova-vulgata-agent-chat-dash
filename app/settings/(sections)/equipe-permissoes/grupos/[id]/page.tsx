@@ -196,7 +196,7 @@ export default function GroupDetailPage() {
 
   // A capa imersiva é uma faixa de altura fixa no topo da área de conteúdo;
   // o conteúdo (membros, atividade) rola logo abaixo.
-  const HERO_HEIGHT = 480;
+  const HERO_HEIGHT = 384;
 
   if (!group) {
     return (
