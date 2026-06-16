@@ -382,25 +382,13 @@ export default function OrganizationSettingsPage() {
             corrigir qualquer informação, fale com seu Account Manager — ele
             abre o chamado de atualização.
           </p>
-          <div className="flex flex-col gap-3 rounded-lg bg-(--bg-muted) px-4 py-3.5">
-            <div className="flex items-center gap-3">
-              <AwAvatar src={AM.photo} alt={AM.name} initials={AM.initials} />
-              <div className="min-w-0 flex-1">
-                <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                  {AM.name}
-                </p>
-                <p className="m-0 body-xs text-(--fg-secondary)">{AM.role}</p>
-              </div>
-            </div>
-            <div className="flex flex-col gap-1.5 border-t border-(--border-subtle) pt-3">
-              <span className="flex items-center gap-2 body-xs text-(--fg-secondary)">
-                <Icon name="mail" size={14} className="shrink-0" />
-                {AM.email}
-              </span>
-              <span className="flex items-center gap-2 body-xs text-(--fg-secondary)">
-                <Icon name="call" size={14} className="shrink-0" />
-                {AM.phone}
-              </span>
+          <div className="flex items-center gap-3 rounded-lg bg-(--bg-muted) px-4 py-3.5">
+            <AwAvatar src={AM.photo} alt={AM.name} initials={AM.initials} />
+            <div className="min-w-0 flex-1">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                {AM.name}
+              </p>
+              <p className="m-0 body-xs text-(--fg-secondary)">{AM.role}</p>
             </div>
           </div>
         </div>
