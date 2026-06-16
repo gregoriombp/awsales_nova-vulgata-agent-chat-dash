@@ -111,6 +111,11 @@ export const navigation: NavSection[] = [
         aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],
       },
       { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
+      {
+        name: "Breadcrumbs bar",
+        href: "/bombardier/styleguide/components/aw-breadcrumbs-bar",
+        aliases: ["AwBreadcrumbsBar", "AwBreadcrumbs", "trilha", "chrome", "navegação"],
+      },
       { name: "Card brand", href: "/bombardier/styleguide/components/aw-card-brand" },
       { name: "Cards", href: "/bombardier/styleguide/components/cards" },
       { name: "Channel icon", href: "/bombardier/styleguide/components/aw-channel-icon" },
@@ -220,6 +225,11 @@ export const navigation: NavSection[] = [
     items: [
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
+      {
+        name: "Memory Base logo",
+        href: "/bombardier/styleguide/components/aw-memory-base-logo",
+        aliases: ["AwMemoryBaseLogo", "memory base", "logo animado", "welcome icon"],
+      },
       { name: "Capability tile", href: "/bombardier/styleguide/components/aw-capability-tile" },
       { name: "Checkpoint chip", href: "/bombardier/styleguide/components/aw-checkpoint-chip" },
       { name: "Integration card", href: "/bombardier/styleguide/components/integration-card" },
@@ -242,6 +252,16 @@ export const navigation: NavSection[] = [
           { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
           { name: "Cortex", href: "/bombardier/styleguide/components/agents#cortex" },
         ],
+      },
+      {
+        name: "Instagram panel",
+        href: "/bombardier/styleguide/components/instagram-panel",
+        aliases: ["AwInstagramPanel", "canais", "DM", "stories", "comentários"],
+      },
+      {
+        name: "Messenger panel",
+        href: "/bombardier/styleguide/components/messenger-panel",
+        aliases: ["AwMessengerPanel", "canais", "facebook", "página", "ice breakers"],
       },
       { name: "WhatsApp panel", href: "/bombardier/styleguide/components/whatsapp-panel" },
     ],
