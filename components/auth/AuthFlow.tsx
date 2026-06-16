@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import BrandPane from "./BrandPane";
 import { AwLogo } from "@/components/ui/AwLogo";
@@ -44,7 +44,29 @@ export function AuthFlow() {
   // (e expor e-mail na barra não faz sentido). Ficam em estado local, que
   // sobrevive à troca de tela porque o segmento de rota não remonta.
   const [locale] = useState<Locale>("pt");
-  const [email, setEmail] = useState("");
+  // E-mail fica fora da URL (não é "endereço"), mas persiste na sessão pra
+  // sobreviver a reload/deep-link — senão telas como `?screen=email` abrem com
+  // "—" quando alguém chega direto nelas.
+  const [email, setEmailState] = useState("");
+  useEffect(() => {
+    // Hidrata 1x do sessionStorage no client (não no SSR) pra não dar mismatch
+    // de hidratação no e-mail. Leitura de store externo no mount é o caso certo.
+    try {
+      const saved = sessionStorage.getItem("aw-auth-email");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (saved) setEmailState(saved);
+    } catch {
+      /* noop */
+    }
+  }, []);
+  const setEmail = useCallback((value: string) => {
+    setEmailState(value);
+    try {
+      sessionStorage.setItem("aw-auth-email", value);
+    } catch {
+      /* noop */
+    }
+  }, []);
   const [ssoOrg, setSsoOrg] = useState("");
   const [authMethod, setAuthMethod] = useState<AuthMethod>("password");
 

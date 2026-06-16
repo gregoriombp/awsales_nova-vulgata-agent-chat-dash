@@ -70,7 +70,12 @@ export function LoginScreen({
   // do login por senha.
   const handleMagic = () => {
     const trimmed = emailInput.trim();
-    if (!trimmed.includes("@")) return;
+    // Sem e-mail válido o botão não ficava clicável (parecia quebrado): agora
+    // ele sempre responde — leva o foco pro campo pra você digitar e seguir.
+    if (!trimmed.includes("@")) {
+      document.getElementById("loginEmail")?.focus();
+      return;
+    }
     setEmail(trimmed);
     setAuthMethod("password");
     goTo("magicSent");
@@ -114,8 +119,7 @@ export function LoginScreen({
         <button
           type="button"
           onClick={handleMagic}
-          disabled={!emailValid}
-          className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px] disabled:cursor-not-allowed disabled:text-aw-gray-700 disabled:no-underline"
+          className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
           <Icon name="mail" size={14} />
           {c.magicLink}
