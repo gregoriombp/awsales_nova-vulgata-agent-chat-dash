@@ -8,6 +8,7 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
+import { AwProgress } from "@/components/ui/AwProgress";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
 import { Calendar } from "@/components/ui/calendar";
@@ -70,6 +71,7 @@ function formatRangeShort(from: Date, to: Date): string {
 type SortKey =
   | "label"
   | "role"
+  | "consumption"
   | "status"
   | "total"
   | "quantity"
@@ -482,9 +484,9 @@ function RangeDayButton({
           : modifiers.range_start
             ? "rounded-l-md rounded-r-none"
             : modifiers.range_end
-              ? "rounded-r-md rounded-l-none"
+              ? "-ml-px rounded-r-md rounded-l-none"
               : modifiers.range_middle
-                ? "rounded-none"
+                ? "-ml-px rounded-none"
                 : "rounded-md",
         modifiers.today &&
           !inRange &&
@@ -992,7 +994,7 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
     rows.sort((a, b) => {
       if (
         sortKey !== "label" &&
-        sortKey !== "role" &&
+        sortKey !== "consumption" &&
         sortKey !== "status" &&
         sortKey !== "total"
       ) {
@@ -1017,7 +1019,7 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(k);
-      setSortDir(k === "total" ? "desc" : "asc");
+      setSortDir(k === "total" || k === "consumption" ? "desc" : "asc");
     }
   };
 
@@ -1033,8 +1035,8 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             onClick={headerClick}
           />
           <SortableHeader
-            label="Função"
-            sortKey="role"
+            label="Consumo"
+            sortKey="consumption"
             current={sortKey}
             dir={sortDir}
             onClick={headerClick}
@@ -1067,7 +1069,14 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
                 </span>
               </span>
             </td>
-            <td>{r.role}</td>
+            <td>
+              <div className="flex min-w-[140px] max-w-[220px] items-center gap-2">
+                <AwProgress value={r.consumption} max={100} className="flex-1" />
+                <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
+                  {r.consumption}%
+                </span>
+              </div>
+            </td>
             <td>
               <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
             </td>

@@ -110,6 +110,7 @@ export const navigation: NavSection[] = [
         href: "/bombardier/styleguide/components/aw-ask-user-questions",
         aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],
       },
+      { name: "Audit type badge", href: "/bombardier/styleguide/components/aw-audit-type-badge" },
       { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
       {
         name: "Breadcrumbs bar",
@@ -121,6 +122,8 @@ export const navigation: NavSection[] = [
       { name: "Channel icon", href: "/bombardier/styleguide/components/aw-channel-icon" },
       { name: "Chat bubbles", href: "/bombardier/styleguide/components/chat" },
       { name: "Chrome", href: "/bombardier/styleguide/components/chrome" },
+      { name: "Consumption bar", href: "/bombardier/styleguide/components/aw-consumption-bar" },
+      { name: "Cost breakdown", href: "/bombardier/styleguide/components/aw-cost-breakdown" },
       { name: "Dot tunnel", href: "/bombardier/styleguide/components/aw-dot-tunnel" },
       {
         name: "Gráficos",
@@ -133,6 +136,9 @@ export const navigation: NavSection[] = [
         href: "/bombardier/styleguide/components/aw-input-message",
         aliases: ["AwInputMessage", "composer", "chat input", "mensagem"],
       },
+      { name: "Invoice forecast card", href: "/bombardier/styleguide/components/aw-invoice-forecast-card" },
+      { name: "Invoice row", href: "/bombardier/styleguide/components/aw-invoice-row" },
+      { name: "Invoice summary card", href: "/bombardier/styleguide/components/aw-invoice-summary-card" },
       { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
       {
         name: "Modais e dialogs",
@@ -162,6 +168,10 @@ export const navigation: NavSection[] = [
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
       { name: "Payment method card", href: "/bombardier/styleguide/components/payment-method-card" },
+      { name: "Payment method chip", href: "/bombardier/styleguide/components/aw-payment-method-chip" },
+      { name: "Payment method row", href: "/bombardier/styleguide/components/aw-payment-method-row" },
+      { name: "Plan summary card", href: "/bombardier/styleguide/components/aw-plan-summary-card" },
+      { name: "Radial progress", href: "/bombardier/styleguide/components/aw-radial-progress" },
       {
         name: "Sheets e drawers",
         href: "/bombardier/styleguide/components/sheet",
@@ -202,6 +212,7 @@ export const navigation: NavSection[] = [
         href: "/bombardier/styleguide/components/aw-thinking-steps",
         aliases: ["AwThinkingSteps", "raciocínio", "reasoning", "chain of thought"],
       },
+      { name: "Trend delta", href: "/bombardier/styleguide/components/aw-trend-delta" },
     ],
   },
   {

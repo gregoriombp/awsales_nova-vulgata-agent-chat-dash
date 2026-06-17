@@ -192,7 +192,14 @@ function FoundationSummary({
 export default function StyleguidePage() {
   return (
     <>
-      <PageHero title="Aswork Design System">
+      <PageHero
+        title={
+          <span className="inline-flex flex-col items-start gap-2.5">
+            <AwLogo variant="mark" height={30} />
+            Aswork Design System
+          </span>
+        }
+      >
         Minimalismo geométrico ancorado em grayscale, pontuado por um único
         acento azul — a &ldquo;voz&rdquo; da IA. Cinza é estrutura; o gradiente
         é subjetividade. Este styleguide é a fonte de verdade da marca e do

@@ -8,6 +8,7 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
+import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { Icon } from "@/components/ui/Icon";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
@@ -36,6 +37,7 @@ function daysUntil(br: string): number {
 export default function VisaoGeralPage() {
   return (
     <div className="flex flex-col gap-10">
+      <ForecastBlock />
       <header className="grid grid-cols-[1.15fr_1fr] gap-6">
         <PlanCard />
         <InvoiceCard />
@@ -43,6 +45,45 @@ export default function VisaoGeralPage() {
       <ShortcutGrid />
       <ConsumptionDetails />
     </div>
+  );
+}
+
+/* ---------- forecast block (previsão da próxima fatura — composto de átomos do DS) ---------- */
+
+function ForecastBlock() {
+  const discount = OVERVIEW_KPIS.monthSavings;
+  const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
+  const breakdown = [
+    { label: "Assinatura", value: CURRENT_PLAN.monthly, kind: "base" as const },
+    { label: "variável", value: OVERVIEW_KPIS.accumulated, kind: "add" as const },
+    ...(discount > 0
+      ? [{ label: "cupom", value: discount, kind: "subtract" as const }]
+      : []),
+  ];
+
+  return (
+    <AwInvoiceForecastCard
+      eyebrow={`Previsão da próxima fatura · ${CURRENT_INVOICE.dueAt}`}
+      monitorLabel="Cortex monitorando custos"
+      total={total}
+      trend={{ value: 4.8, direction: "up", tone: "bad" }}
+      breakdown={breakdown}
+      cta={{
+        label: "Ver fatura detalhada",
+        href: "/settings/financeiro/historico-faturas",
+      }}
+      gauge={{
+        value: OVERVIEW_KPIS.accumulated,
+        max: VARIABLE_SPENDING_LIMIT,
+        caption: (
+          <>
+            do teto
+            <br />
+            {brl(VARIABLE_SPENDING_LIMIT)}
+          </>
+        ),
+      }}
+    />
   );
 }
 
@@ -162,13 +203,6 @@ function PlanCard() {
             />
           </div>
 
-          <Link
-            href="/settings/financeiro/consumo"
-            className="mt-1 inline-flex w-fit items-center gap-2 rounded-full border border-(--border-inverse) px-4 py-2 body-sm font-medium text-(--fg-on-inverse) transition-colors duration-aw-fast hover:bg-(--fg-on-inverse)/10"
-          >
-            <Icon name="compare_arrows" size={16} />
-            Comparar planos
-          </Link>
         </div>
       </div>
     </AwCard>

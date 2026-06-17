@@ -13,6 +13,8 @@ export const COPY = {
       ssoGoogle: "Continuar com Google",
       ssoMs: "Continuar com Microsoft",
       magicLink: "Receba um link de acesso por e-mail",
+      magicCta: "Enviar link para meu email",
+      magicBack: "Entrar com e-mail e senha",
     },
     en: {
       kicker: "Access",
@@ -25,6 +27,8 @@ export const COPY = {
       ssoGoogle: "Continue with Google",
       ssoMs: "Continue with Microsoft",
       magicLink: "Get a sign-in link in your email",
+      magicCta: "Send a link to my email",
+      magicBack: "Sign in with email and password",
     },
   },
   email: {
