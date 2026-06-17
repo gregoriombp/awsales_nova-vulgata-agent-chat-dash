@@ -22,6 +22,7 @@ const COMPANY_ROWS = [
   { label: "Razão social", value: ONBOARDING_ORG.razaoSocial },
   { label: "CNPJ", value: ONBOARDING_ORG.cnpj, tabular: true },
   { label: "Segmento", value: ONBOARDING_ORG.segmento },
+  { label: "Porte", value: ONBOARDING_ORG.porte.replace("FTE", "colaboradores") },
   {
     label: "Plano contratado",
     value: `${ONBOARDING_ORG.plan} · ${ONBOARDING_ORG.intervaloPlano} · ${fmtBRL(ONBOARDING_ORG.valorMensal).replace(",00", "")}/mês`,
@@ -104,6 +105,14 @@ export default function OrganizationSettingsPage() {
 
   const handleLogoFile = (file: File | undefined) => {
     if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.push({
+        variant: "warning",
+        title: "Arquivo muito grande",
+        description: "O logo precisa ter até 2 MB. Tente um arquivo menor.",
+      });
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === "string") setDraftLogo(reader.result);
@@ -248,13 +257,18 @@ export default function OrganizationSettingsPage() {
             ))}
           </dl>
         </AwCard>
-        <div className="mt-2 flex items-center justify-between gap-4 px-6 py-2">
+        <p className="m-0 mt-3 inline-flex items-center gap-1.5 px-6 body-xs text-(--fg-tertiary)">
+          <Icon name="lock" size={14} />
+          O cadeado indica campos somente leitura, cadastrados pela equipe Aswork
+          no contrato.
+        </p>
+        <div className="mt-1 flex items-center justify-between gap-4 px-6 py-2">
           <button
             type="button"
             onClick={() => setReportOpen(true)}
             className="flex items-center gap-2 text-(--fg-secondary) hover:text-(--fg-primary)"
           >
-            <Icon name="warning" size={14} />
+            <Icon name="help" size={14} />
             <span className="body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline">
               Algo está errado?
             </span>
@@ -314,7 +328,7 @@ export default function OrganizationSettingsPage() {
               Logo da organização
             </p>
             <p className="m-0 body-xs text-(--fg-secondary)">
-              PNG ou JPG, mínimo 200×200 px.
+              PNG, JPG ou SVG · até 2 MB · mínimo 200×200 px.
             </p>
           </div>
           <AwButton
@@ -328,7 +342,7 @@ export default function OrganizationSettingsPage() {
           <input
             ref={logoFileRef}
             type="file"
-            accept="image/png,image/jpeg"
+            accept="image/png,image/jpeg,image/svg+xml"
             className="hidden"
             onChange={(e) => handleLogoFile(e.target.files?.[0])}
           />
