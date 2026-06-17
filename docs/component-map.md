@@ -22,7 +22,9 @@
    abaixo. Token faltando → reporte, não crie (só a skill `foundation` cria token).
 4. **Ícone = `Icon`.** Material Symbols via `Icon`. Nunca `<svg>` cru nem outra
    lib de ícone. `react-icons` só para **marcas** que o Material Symbols não tem
-   (Visa, Mastercard, Amex, Slack, WhatsApp).
+   (Visa, Mastercard, Amex, Slack, WhatsApp). **Logo de app/integração** (Google,
+   Chrome, Pipedrive…) não é `Icon` — é `AwBrandLogo`, curado do Iconify `logos`
+   (ver AGENTS.md §4).
 
 ---
 
@@ -31,6 +33,7 @@
 | Preciso de… | Use | Import | Cuidado |
 |---|---|---|---|
 | Ícone | `Icon` | `@/components/ui/Icon` | `<Icon name="..." size={20} />`. Nunca `<svg>` cru. |
+| Logo de app / integração | `AwBrandLogo` | `@/components/ui/AwBrandLogo` | marca de 3rd-party (Google, Chrome, Pipedrive…). Curar do Iconify `logos` → `markSrc`. **Não** é `Icon`. Ver AGENTS.md §4. |
 | Botão | `AwButton` | `@/components/ui/AwButton` | tem `intent`/`size`/slot de `Icon`. Não estilize `<button>` na mão. |
 | Campo de formulário | `AwField` (ou `AwInput`) | `@/components/ui/AwInput` | `AwField` (label + erro + variante `framed`) e `AwInput` saem do mesmo arquivo. |
 | Select | `AwSelect` | `@/components/ui/AwSelect` | |
