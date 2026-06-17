@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
+import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwToggle } from "@/components/ui/AwToggle";
+import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../_components/shared";
@@ -234,23 +236,23 @@ const DELIVERY: DeliveryDef[] = [
   },
 ];
 
-const ENTITY_EXAMPLES: { icon: string; label: string }[] = [
-  { icon: "smart_toy", label: "Aria" },
-  { icon: "forum", label: "Conversa #1245 — Maria Souza" },
-  { icon: "groups", label: "Equipe Comercial" },
-];
-
 /* ===================================================================== *
  * Página
  * ===================================================================== */
 
 export default function NotificationsSettingsPage() {
-  const [items, setItems] = React.useState<
-    Record<string, { on: boolean; channels: ChannelState }>
+  // Cada notificação é controlada pelos 3 canais (No app / E-mail / WhatsApp).
+  // Itens que nasciam "off" começam com todos os canais desmarcados; os
+  // travados pela org mantêm os canais e ficam disabled.
+  const [channelsById, setChannelsById] = React.useState<
+    Record<string, ChannelState>
   >(() =>
     Object.fromEntries(
       SECTIONS.flatMap((s) =>
-        s.items.map((it) => [it.id, { on: it.on, channels: it.channels }]),
+        s.items.map((it) => [
+          it.id,
+          it.on ? it.channels : { app: false, email: false, whatsapp: false },
+        ]),
       ),
     ),
   );
@@ -258,13 +260,8 @@ export default function NotificationsSettingsPage() {
     Object.fromEntries(DELIVERY.map((d) => [d.id, d.on])),
   );
 
-  const toggleItem = (id: string, on: boolean) =>
-    setItems((s) => ({ ...s, [id]: { ...s[id], on } }));
-  const toggleChannel = (id: string, ch: ChannelKey, val: boolean) =>
-    setItems((s) => ({
-      ...s,
-      [id]: { ...s[id], channels: { ...s[id].channels, [ch]: val } },
-    }));
+  const setChannel = (id: string, ch: ChannelKey, val: boolean) =>
+    setChannelsById((s) => ({ ...s, [id]: { ...s[id], [ch]: val } }));
   const toggleDelivery = (id: string, on: boolean) =>
     setDelivery((d) => ({ ...d, [id]: on }));
 
@@ -277,73 +274,44 @@ export default function NotificationsSettingsPage() {
 
       <div className="mt-10 flex flex-col gap-12">
         {SECTIONS.map((section) => (
-          <section key={section.id}>
-            <SectionHeader
-              icon={section.icon}
-              title={section.title}
-              desc={section.desc}
-            />
-            <div className="flex flex-col gap-3">
-              {section.items.map((def) => (
-                <NotifRow
-                  key={def.id}
-                  def={def}
-                  state={items[def.id]}
-                  onToggle={toggleItem}
-                  onChannel={toggleChannel}
-                />
-              ))}
-            </div>
-          </section>
+          <CollapsibleSection
+            key={section.id}
+            icon={section.icon}
+            leading={
+              section.id === "agentes" ? (
+                <AwUserAgentOrb size={36} renderer="css" seed="agentes" />
+              ) : undefined
+            }
+            title={section.title}
+            desc={section.desc}
+          >
+            {section.items.map((def) => (
+              <NotifRow
+                key={def.id}
+                def={def}
+                channels={channelsById[def.id]}
+                onChannel={setChannel}
+              />
+            ))}
+          </CollapsibleSection>
         ))}
 
         {/* Canais de entrega — o teto pessoal de por onde recebe */}
-        <section className="border-t border-(--border-subtle) pt-10">
-          <SectionHeader
-            icon="outbox"
-            title="Canais de entrega"
-            desc="Por onde você quer receber."
-          />
-          <div className="flex flex-col gap-3">
-            {DELIVERY.map((def) => (
-              <DeliveryRow
-                key={def.id}
-                def={def}
-                on={delivery[def.id]}
-                onToggle={toggleDelivery}
-              />
-            ))}
-          </div>
-        </section>
-
-        {/* Alertas por entidade — preview de v2 */}
-        <section className="border-t border-(--border-subtle) pt-10">
-          <SectionHeader
-            icon="track_changes"
-            title="Alertas personalizados por entidade"
-            desc="Siga uma entidade específica — equipe, agente, conversa ou organização (ex.: me avisa quando o agente converter a 1ª vez), até 20 alvos além do que sua função recebe. Chega na v2."
-            trailing={
-              <span className="inline-flex items-center rounded-full border border-(--aw-blue-200) bg-(--aw-blue-100) px-2 py-0.5 text-[11px] font-medium text-(--aw-blue-800)">
-                Em breve
-              </span>
-            }
-          />
-          <div className="flex flex-wrap items-center gap-2 opacity-70">
-            {ENTITY_EXAMPLES.map((e) => (
-              <span
-                key={e.label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-(--border-default) bg-(--bg-raised) px-3 py-1.5 body-xs font-medium text-(--fg-tertiary)"
-              >
-                <Icon name={e.icon} size={14} />
-                {e.label}
-              </span>
-            ))}
-            <span className="inline-flex items-center gap-1 rounded-full border border-dashed border-(--border-default) px-3 py-1.5 body-xs font-medium text-(--fg-tertiary)">
-              <Icon name="add" size={14} />
-              Adicionar alvo
-            </span>
-          </div>
-        </section>
+        <CollapsibleSection
+          icon="outbox"
+          title="Canais de entrega"
+          desc="Por onde você quer receber."
+          className="border-t border-(--border-subtle) pt-10"
+        >
+          {DELIVERY.map((def) => (
+            <DeliveryRow
+              key={def.id}
+              def={def}
+              on={delivery[def.id]}
+              onToggle={toggleDelivery}
+            />
+          ))}
+        </CollapsibleSection>
       </div>
     </div>
   );
@@ -353,32 +321,59 @@ export default function NotificationsSettingsPage() {
  * Peças
  * ===================================================================== */
 
-function SectionHeader({
+function CollapsibleSection({
   icon,
+  leading,
   title,
   desc,
   trailing,
+  defaultOpen = true,
+  className,
+  children,
 }: {
-  icon: string;
+  icon?: string;
+  leading?: React.ReactNode;
   title: string;
   desc: string;
   trailing?: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+  children: React.ReactNode;
 }) {
+  const [open, setOpen] = React.useState(defaultOpen);
   return (
-    <div className="mb-4 flex items-start gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-        <Icon name={icon} size={20} />
-      </span>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="m-0 text-base font-semibold text-(--fg-primary)">
-            {title}
-          </h2>
-          {trailing}
+    <section className={className}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="group flex w-full items-start gap-3 text-left"
+      >
+        {leading ?? (
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+            <Icon name={icon ?? "circle"} size={20} />
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="m-0 text-base font-semibold text-(--fg-primary)">
+              {title}
+            </h2>
+            {trailing}
+          </div>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
         </div>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
-      </div>
-    </div>
+        <span
+          className={cn(
+            "mt-1 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:text-(--fg-secondary)",
+            open && "rotate-180",
+          )}
+        >
+          <Icon name="expand_more" size={20} />
+        </span>
+      </button>
+      {open && <div className="mt-4 flex flex-col gap-3">{children}</div>}
+    </section>
   );
 }
 
@@ -391,86 +386,81 @@ function OrgBadge() {
   );
 }
 
-function ChannelChip({
+function ChannelCheckbox({
+  def,
   channel,
   label,
-  active,
-  onToggle,
+  checked,
+  onChannel,
 }: {
+  def: NotifDef;
   channel: ChannelKey;
   label: string;
-  active: boolean;
-  onToggle: (next: boolean) => void;
+  checked: boolean;
+  onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
+  const id = `${def.id}-${channel}`;
   return (
-    <button
-      type="button"
-      onClick={() => onToggle(!active)}
-      aria-pressed={active}
+    <label
+      htmlFor={id}
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 body-xs font-medium transition-colors duration-aw-fast",
-        active
-          ? "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)"
-          : "border-dashed border-(--border-default) bg-transparent text-(--fg-tertiary) hover:border-(--border-strong) hover:text-(--fg-secondary)",
+        "inline-flex items-center gap-2 select-none",
+        def.orgLocked ? "cursor-not-allowed" : "cursor-pointer",
       )}
     >
-      {channel === "whatsapp" ? (
-        <AwChannelIcon channel="whatsapp" size={13} />
-      ) : (
-        <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />
-      )}
-      {label}
-    </button>
+      <AwCheckbox
+        id={id}
+        checked={checked}
+        disabled={def.orgLocked}
+        onChange={(v) => onChannel(def.id, channel, v)}
+        label={`${def.title} — ${label}`}
+      />
+      <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--fg-secondary)">
+        {channel === "whatsapp" ? (
+          <AwChannelIcon channel="whatsapp" size={13} />
+        ) : (
+          <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />
+        )}
+        {label}
+      </span>
+    </label>
   );
 }
 
 function NotifRow({
   def,
-  state,
-  onToggle,
+  channels,
   onChannel,
 }: {
   def: NotifDef;
-  state: { on: boolean; channels: ChannelState };
-  onToggle: (id: string, on: boolean) => void;
+  channels: ChannelState;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
   return (
-    <div>
-      <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-5 py-4">
-        <div className="flex items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                {def.title}
-              </p>
-              {def.orgLocked && <OrgBadge />}
-            </div>
-            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-              {def.desc}
-            </p>
-          </div>
-          <AwToggle
-            checked={state.on}
-            disabled={def.orgLocked}
-            onChange={(v) => onToggle(def.id, v)}
-            label={def.title}
-          />
-        </div>
+    <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-5 py-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="m-0 body-sm font-medium text-(--fg-primary)">
+          {def.title}
+        </p>
+        {def.orgLocked && <OrgBadge />}
       </div>
-      {state.on && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 pl-1">
-          {CHANNELS.map((ch) => (
-            <ChannelChip
-              key={ch.key}
-              channel={ch.key}
-              label={ch.label}
-              active={state.channels[ch.key]}
-              onToggle={(v) => onChannel(def.id, ch.key, v)}
-            />
-          ))}
-        </div>
-      )}
+
+      {/* Um checkbox por canal — travados pela org ficam disabled. */}
+      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+        {CHANNELS.map((ch) => (
+          <ChannelCheckbox
+            key={ch.key}
+            def={def}
+            channel={ch.key}
+            label={ch.label}
+            checked={channels[ch.key]}
+            onChannel={onChannel}
+          />
+        ))}
+      </div>
+
+      {/* Texto explicativo: esclarece a função desta notificação. */}
+      <p className="m-0 mt-2.5 body-xs text-(--fg-secondary)">{def.desc}</p>
     </div>
   );
 }
