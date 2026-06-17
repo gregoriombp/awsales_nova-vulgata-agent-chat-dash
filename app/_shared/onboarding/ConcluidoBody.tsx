@@ -78,7 +78,7 @@ export function ConcluidoBody({
           )}
         </p>
 
-        <div className="mx-auto mb-6 max-w-[480px] rounded-xl border border-border-subtle bg-bg-surface p-[18px] text-left">
+        <div className="mx-auto mb-6 max-w-[480px] rounded-xl border border-border-subtle bg-bg-surface p-4.5 text-left">
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Resumo</div>
           <ConfirmedRow
             label="Implementação"

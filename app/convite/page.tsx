@@ -37,7 +37,7 @@ export default function ConviteEntradaPage() {
           plataforma — sem código, sem senha temporária.
         </p>
 
-        <div className="mb-3.5 flex items-center gap-3.5 rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
+        <div className="mb-3.5 flex items-center gap-3.5 rounded-xl border border-border-subtle bg-bg-raised p-4.5">
           <AwAvatar
             src={CONVITE_INVITER.photo}
             initials={CONVITE_INVITER.initials}
@@ -55,7 +55,7 @@ export default function ConviteEntradaPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
+        <div className="rounded-xl border border-border-subtle bg-bg-raised p-4.5">
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Seu acesso</div>
 
           <div className="flex items-start gap-3.5">
