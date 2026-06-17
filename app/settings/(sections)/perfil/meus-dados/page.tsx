@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import {
@@ -10,11 +11,25 @@ import {
   AwEmptyMedia,
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 
 const EXPORT_RECIPIENT = "greg@awsales.io";
+
+/** Janela mínima entre dois pedidos de exportação (proteção anti-abuso).
+ *  A próxima cópia só pode ser pedida 24h depois da última. */
+const EXPORT_COOLDOWN_HOURS = 24;
+
+/** O que NÃO entra na cópia — são dados da organização, não da conta pessoal.
+ *  Mostrar isso de antemão corta o ticket "meu export veio incompleto". */
+const EXPORT_EXCLUDES: { icon: string; label: string }[] = [
+  { icon: "chat", label: "Conversas com clientes e leads" },
+  { icon: "receipt_long", label: "Dados de cobrança e faturas da organização" },
+];
 
 /** O que entra na cópia dos dados pessoais — mostrado no card de intro pra
  *  a pessoa saber exatamente o que vai receber antes de pedir. */
@@ -36,14 +51,22 @@ const EXPORT_INCLUDES: { icon: string; label: string; hint: string }[] = [
   },
 ];
 
-type ExportStatus = "Pronto" | "Processando";
+type ExportStatus = "Pronto" | "Processando" | "Expirado";
+
+type ExportFormat = "JSON" | "JSON + CSV";
 
 type ExportRequest = {
   id: string;
   requestedAt: string;
   status: ExportStatus;
+  /** Formato do pacote gerado — pra a pessoa saber se abre num editor ou no Excel. */
+  format: ExportFormat;
   /** Dias até o link de download expirar — só vale quando "Pronto". */
   expiresInDays?: number;
+  /** Código de verificação do arquivo — a pessoa confere que o download
+   *  chegou inteiro, sem ter caído nada no caminho. Só existe depois que
+   *  o arquivo fica "Pronto". (Tecnicamente, um hash SHA-256.) */
+  verifyCode?: string;
 };
 
 const INITIAL_REQUESTS: ExportRequest[] = [
@@ -51,12 +74,24 @@ const INITIAL_REQUESTS: ExportRequest[] = [
     id: "r-1",
     requestedAt: "12 jun 2026 · 09:41",
     status: "Pronto",
+    format: "JSON + CSV",
     expiresInDays: 5,
+    verifyCode:
+      "a3f9b2c1e8d47a6f0b59c2d83e1f4a7b9c0d6e2f8a1b3c5d7e9f0a2b4c6d8e1f",
   },
   {
     id: "r-2",
     requestedAt: "16 jun 2026 · 14:08",
     status: "Processando",
+    format: "JSON + CSV",
+  },
+  {
+    id: "r-0",
+    requestedAt: "02 jun 2026 · 11:20",
+    status: "Expirado",
+    format: "JSON",
+    verifyCode:
+      "7c1d4e9a2b6f08c3d5e7a9b1c4d6e8f0a2b5c7d9e1f3a4b6c8d0e2f5a7b9c1d3",
   },
 ];
 
@@ -74,6 +109,26 @@ function nowLabel(): string {
     .replace(".", "");
 }
 
+/** Quando a próxima exportação fica liberada, em linguagem do dia a dia
+ *  ("amanhã às 14h"), a partir do instante do último pedido + cooldown. */
+function nextExportLabel(lastAt: number): string {
+  const next = new Date(lastAt + EXPORT_COOLDOWN_HOURS * 3_600_000);
+  const today = new Date();
+  const sameDay = next.toDateString() === today.toDateString();
+  const tomorrow = new Date(today.getTime() + 86_400_000);
+  const isTomorrow = next.toDateString() === tomorrow.toDateString();
+  const time = next
+    .toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    .replace(":00", "h")
+    .replace(":", "h");
+  const day = sameDay
+    ? "hoje"
+    : isTomorrow
+      ? "amanhã"
+      : next.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return `${day} às ${time}`;
+}
+
 function StatusBadge({ status }: { status: ExportStatus }) {
   const meta =
     status === "Pronto"
@@ -82,11 +137,17 @@ function StatusBadge({ status }: { status: ExportStatus }) {
           className:
             "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
         }
-      : {
-          icon: "schedule",
-          className:
-            "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
-        };
+      : status === "Expirado"
+        ? {
+            icon: "link_off",
+            className:
+              "border-(--border-subtle) bg-(--bg-muted) text-(--fg-tertiary)",
+          }
+        : {
+            icon: "schedule",
+            className:
+              "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+          };
   return (
     <span
       className={
@@ -101,30 +162,89 @@ function StatusBadge({ status }: { status: ExportStatus }) {
 }
 
 export default function MeusDadosPage() {
+  const toast = useToast();
   const [requests, setRequests] = useState(INITIAL_REQUESTS);
   const [open, setOpen] = useState(false);
-  const [mode, setMode] = useState<"confirm" | "done">("confirm");
+  const [mode, setMode] = useState<"confirm" | "stepup" | "done">("confirm");
+
+  // Confirmação de identidade antes de gerar o arquivo (passo de segurança).
+  const [identity, setIdentity] = useState("");
+  const [verifying, setVerifying] = useState(false);
+  const [identityError, setIdentityError] = useState<string | null>(null);
+
+  // Anti-abuso: depois de pedir uma cópia, a próxima só libera 24h depois.
+  // Guardamos o instante do último pedido; null = nunca pediu nesta sessão.
+  const [lastRequestedAt, setLastRequestedAt] = useState<number | null>(null);
+  const inCooldown =
+    lastRequestedAt !== null &&
+    Date.now() - lastRequestedAt < EXPORT_COOLDOWN_HOURS * 3_600_000;
 
   function openConfirm() {
     setMode("confirm");
+    setIdentity("");
+    setIdentityError(null);
     setOpen(true);
   }
 
-  function confirmExport() {
-    setRequests((rs) => [
-      { id: `r-${Date.now()}`, requestedAt: nowLabel(), status: "Processando" },
-      ...rs,
-    ]);
-    setMode("done");
+  /** Sai do "confirm" e pede a confirmação de identidade — não cria nada ainda. */
+  function goToStepUp() {
+    setIdentity("");
+    setIdentityError(null);
+    setMode("stepup");
+  }
+
+  /** Confirma identidade e só então gera o pedido. Mock: aceita qualquer
+   *  senha (6+ caracteres) ou código de 6 dígitos — sem backend. */
+  function submitStepUp() {
+    const value = identity.trim();
+    const looksValid = /^\d{6}$/.test(value) || value.length >= 6;
+    if (!looksValid) {
+      setIdentityError(
+        "Não reconhecemos esses dados. Confira sua senha ou o código de 6 dígitos."
+      );
+      return;
+    }
+    setVerifying(true);
+    // Simula a verificação assíncrona pra o protótipo ter o estado de loading.
+    window.setTimeout(() => {
+      const requestedAt = nowLabel();
+      setRequests((rs) => [
+        {
+          id: `r-${Date.now()}`,
+          requestedAt,
+          status: "Processando",
+          format: "JSON + CSV",
+        },
+        ...rs,
+      ]);
+      setLastRequestedAt(Date.now());
+      setVerifying(false);
+      setMode("done");
+    }, 900);
   }
 
   const readyCount = requests.filter((r) => r.status === "Pronto").length;
+
+  function copyVerifyCode(code: string) {
+    void navigator.clipboard?.writeText(code);
+    toast.push({
+      title: "Código copiado",
+      description: "Use para conferir que o arquivo baixou inteiro.",
+      variant: "success",
+    });
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Meus dados"
         description="Uma cópia dos seus dados pessoais guardados na AwSales. Peça quando precisar — separado das configurações da organização."
+        trailing={
+          <AwPill variant="neutral" dot={false} title="A LGPD garante o seu direito de acessar uma cópia dos seus dados.">
+            <Icon name="verified_user" size={13} />
+            Direito de acesso · LGPD
+          </AwPill>
+        }
       />
 
       {/* Hero — o que vem na cópia (esquerda) + painel de ação (direita) */}
@@ -155,6 +275,38 @@ export default function MeusDadosPage() {
               </li>
             ))}
           </ul>
+
+          {/* O que fica de fora — dados da organização, não da conta pessoal */}
+          <div className="border-t border-(--border-subtle) px-6 py-5">
+            <p className="m-0 flex items-center gap-1.5 body-xs font-medium text-(--fg-secondary)">
+              <Icon name="info" size={14} />
+              O que fica de fora
+            </p>
+            <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+              Estes dados pertencem à sua organização, não à sua conta pessoal —
+              fale com quem administra a organização para acessá-los.
+            </p>
+            <ul className="m-0 mt-3 list-none space-y-1.5 p-0">
+              {EXPORT_EXCLUDES.map((item) => (
+                <li
+                  key={item.label}
+                  className="m-0 flex items-center gap-2 body-xs text-(--fg-tertiary)"
+                >
+                  <Icon name={item.icon} size={14} />
+                  {item.label}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Nota de privacidade — PII de terceiros sai anonimizada */}
+          <div className="flex items-start gap-2 border-t border-(--border-subtle) px-6 py-4">
+            <Icon name="visibility_off" size={14} className="mt-px text-(--fg-tertiary)" />
+            <p className="m-0 body-xs text-(--fg-tertiary)">
+              Para proteger outras pessoas, nomes de colegas que aparecem nos
+              seus registros saem anonimizados — viram um código, não o nome.
+            </p>
+          </div>
         </AwCard>
 
         {/* Painel de ação — fica claro o que fazer */}
@@ -172,16 +324,27 @@ export default function MeusDadosPage() {
           <AwButton
             size="md"
             variant="primary"
-            iconLeft="download"
+            iconLeft={inCooldown ? "schedule" : "download"}
             className="mt-5 w-full"
             onClick={openConfirm}
+            disabled={inCooldown}
           >
-            Solicitar exportação
+            {inCooldown ? "Exportação solicitada" : "Solicitar exportação"}
           </AwButton>
-          <p className="m-0 mt-3 flex items-center justify-center gap-1.5 body-xs text-(--fg-tertiary)">
-            <Icon name="lock" size={13} />
-            Só você recebe o link
-          </p>
+          {inCooldown ? (
+            <p className="m-0 mt-3 flex items-start justify-center gap-1.5 body-xs text-(--fg-tertiary)">
+              <Icon name="schedule" size={13} className="mt-px shrink-0" />
+              <span className="text-center">
+                Você pode pedir uma nova cópia a cada 24h. A próxima fica
+                disponível {nextExportLabel(lastRequestedAt!)}.
+              </span>
+            </p>
+          ) : (
+            <p className="m-0 mt-3 flex items-center justify-center gap-1.5 body-xs text-(--fg-tertiary)">
+              <Icon name="lock" size={13} />
+              Só você recebe o link
+            </p>
+          )}
         </div>
       </div>
 
@@ -221,44 +384,93 @@ export default function MeusDadosPage() {
           <AwCard className="p-0!">
             <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
               {requests.map((r) => (
-                <li
-                  key={r.id}
-                  className="m-0 flex items-center justify-between gap-4 px-6 py-4"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                      <Icon name="folder_zip" size={18} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                        Exportação de dados
-                      </p>
-                      <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-secondary)">
-                        Pedida em {r.requestedAt}
-                      </p>
+                <li key={r.id} className="m-0 px-6 py-4">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
+                        <Icon name="folder_zip" size={18} />
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                            Exportação de dados
+                          </p>
+                          <AwPill
+                            variant="neutral"
+                            dot={false}
+                            title={`Formato do arquivo: ${r.format}`}
+                          >
+                            {r.format}
+                          </AwPill>
+                        </div>
+                        <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-secondary)">
+                          Pedida em {r.requestedAt}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-4">
+                      <StatusBadge status={r.status} />
+                      {r.status === "Pronto" ? (
+                        <div className="flex flex-col items-end gap-0.5">
+                          <AwButton
+                            size="sm"
+                            variant="secondary"
+                            iconLeft="download"
+                          >
+                            Baixar
+                          </AwButton>
+                          {r.expiresInDays !== undefined && (
+                            <span className="body-xs text-(--fg-tertiary)">
+                              o link expira em {r.expiresInDays}{" "}
+                              {r.expiresInDays === 1 ? "dia" : "dias"}
+                            </span>
+                          )}
+                        </div>
+                      ) : r.status === "Expirado" ? (
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span className="body-xs text-(--fg-tertiary)">
+                            O link de download expirou
+                          </span>
+                          <button
+                            type="button"
+                            onClick={openConfirm}
+                            className="inline-flex items-center gap-1 body-xs font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
+                          >
+                            <Icon name="refresh" size={13} />
+                            Pedir uma nova cópia
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="body-xs text-(--fg-tertiary)">
+                          avisamos quando ficar pronto
+                        </span>
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 items-center gap-4">
-                    <StatusBadge status={r.status} />
-                    {r.status === "Pronto" ? (
-                      <div className="flex flex-col items-end gap-0.5">
-                        <AwButton size="sm" variant="secondary" iconLeft="download">
-                          Baixar
-                        </AwButton>
-                        {r.expiresInDays !== undefined && (
-                          <span className="body-xs text-(--fg-tertiary)">
-                            o link expira em {r.expiresInDays}{" "}
-                            {r.expiresInDays === 1 ? "dia" : "dias"}
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="body-xs text-(--fg-tertiary)">
-                        avisamos quando ficar pronto
+                  {/* Código de verificação — confere que o download chegou inteiro */}
+                  {r.verifyCode && (
+                    <div className="mt-3 flex items-center gap-2 pl-13">
+                      <span
+                        className="body-xs text-(--fg-tertiary)"
+                        title="É um código SHA-256 gerado a partir do arquivo."
+                      >
+                        Código de verificação
                       </span>
-                    )}
-                  </div>
+                      <code className="truncate font-mono body-xs text-(--fg-tertiary)">
+                        {r.verifyCode.slice(0, 12)}…{r.verifyCode.slice(-4)}
+                      </code>
+                      <AwButton
+                        size="sm"
+                        variant="ghost"
+                        iconOnly="content_copy"
+                        aria-label="Copiar código de verificação"
+                        title="Copiar código de verificação"
+                        onClick={() => copyVerifyCode(r.verifyCode!)}
+                      />
+                    </div>
+                  )}
                 </li>
               ))}
             </ul>
@@ -293,11 +505,27 @@ export default function MeusDadosPage() {
         </div>
       </div>
 
-      {/* Modal — confirmar exportação → estado de sucesso */}
+      {/* Nota de rodapé — escopo do direito e portabilidade */}
+      <p className="mt-6 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">
+        <Icon name="gavel" size={13} className="mt-px shrink-0" />
+        <span className="max-w-[680px]">
+          Esta cópia é para você consultar os seus próprios dados. Enviar os
+          dados direto para outro serviço ainda não está disponível — depende de
+          regras que a ANPD precisa publicar.
+        </span>
+      </p>
+
+      {/* Modal — confirmar exportação → confirmar identidade → sucesso */}
       <AwModal
         open={open}
         onClose={() => setOpen(false)}
-        title={mode === "confirm" ? "Solicitar exportação" : undefined}
+        title={
+          mode === "confirm"
+            ? "Solicitar exportação"
+            : mode === "stepup"
+              ? "Confirme que é você"
+              : undefined
+        }
         footer={
           mode === "confirm" ? (
             <>
@@ -307,10 +535,31 @@ export default function MeusDadosPage() {
               <AwButton
                 size="sm"
                 variant="primary"
-                iconLeft="download"
-                onClick={confirmExport}
+                iconRight="arrow_forward"
+                onClick={goToStepUp}
               >
-                Solicitar exportação
+                Continuar
+              </AwButton>
+            </>
+          ) : mode === "stepup" ? (
+            <>
+              <AwButton
+                size="sm"
+                variant="ghost"
+                onClick={() => setMode("confirm")}
+                disabled={verifying}
+              >
+                Voltar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                iconLeft="download"
+                onClick={submitStepUp}
+                disabled={identity.trim().length === 0 || verifying}
+                loading={verifying}
+              >
+                Confirmar e exportar
               </AwButton>
             </>
           ) : (
@@ -344,6 +593,43 @@ export default function MeusDadosPage() {
                 </p>
               </div>
             </div>
+          </div>
+        ) : mode === "stepup" ? (
+          <div className="flex flex-col gap-4">
+            <p className="m-0 body-sm text-(--fg-secondary)">
+              Antes de gerar o arquivo, confirme que é você. Como essa cópia
+              reúne seu perfil, seu histórico de acesso e seus registros de
+              atividade, confirmamos sua identidade para manter tudo protegido.
+            </p>
+
+            {identityError && <AwAlert variant="danger">{identityError}</AwAlert>}
+
+            <AwField
+              label="Senha ou código de verificação"
+              htmlFor="export-identity"
+              helper="Use a senha da sua conta ou o código de 6 dígitos do seu app de autenticação."
+            >
+              <AwInput
+                id="export-identity"
+                type="password"
+                iconLeft="lock"
+                inputMode="text"
+                autoComplete="current-password"
+                placeholder="Senha ou código de 6 dígitos"
+                value={identity}
+                invalid={!!identityError}
+                disabled={verifying}
+                onChange={(e) => {
+                  setIdentity(e.target.value);
+                  if (identityError) setIdentityError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && identity.trim() && !verifying) {
+                    submitStepUp();
+                  }
+                }}
+              />
+            </AwField>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
