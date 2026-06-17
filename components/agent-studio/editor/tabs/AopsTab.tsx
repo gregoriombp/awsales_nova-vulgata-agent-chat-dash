@@ -282,7 +282,7 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
             </p>
 
             <div>
-              <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+              <h3 className="text-2xs font-medium uppercase tracking-label-lg text-(--fg-tertiary)">
                 Instruções do protocolo
               </h3>
               <ol className="mt-3 space-y-2.5">
@@ -302,7 +302,7 @@ export function AopsTab({ data }: { data: AgentEditorData }) {
             </div>
 
             <div>
-              <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+              <h3 className="text-2xs font-medium uppercase tracking-label-lg text-(--fg-tertiary)">
                 Sobre
               </h3>
               <div className="mt-2">

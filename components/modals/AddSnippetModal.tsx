@@ -45,7 +45,7 @@ export default function AddSnippetModal({
     <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
       <form onSubmit={handleSubmit} className="flex max-h-[90vh] flex-col">
         <div className="px-6 pb-4 pt-6">
-          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+          <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
             Adicionar snippet
           </h2>
           <p className="mt-1 text-[14px] leading-relaxed text-(--fg-secondary)">

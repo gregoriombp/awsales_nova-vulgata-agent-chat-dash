@@ -60,7 +60,7 @@ export function PlaybookStep({
 
   return (
     <div className="flex w-full max-w-[680px] flex-col">
-      <h1 className="flex items-center gap-2 font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+      <h1 className="flex items-center gap-2 font-heading text-[30px] font-medium tracking-heading text-(--fg-primary)">
         Playbook
         <Icon name="info" size={20} />
       </h1>

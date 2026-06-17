@@ -93,7 +93,7 @@ export default function AddCatalogModal({
       <BaseModal isOpen={isOpen} onClose={handleClose} size="lg">
         <div className="flex max-h-[90vh] flex-col p-6">
           <div className="mb-2 flex shrink-0 items-start justify-between">
-            <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+            <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
               Novo catálogo
             </h2>
             <button

@@ -684,7 +684,7 @@ export function AwTemplateBuilderSheet({
 
         {/* Preview column */}
         <aside className="flex flex-col gap-3 border-l border-(--border-subtle) pl-8">
-          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-semibold uppercase tracking-label text-(--fg-tertiary)">
             Pré-visualização
           </div>
           <PhonePreview draft={draft} accountName={accountName} />

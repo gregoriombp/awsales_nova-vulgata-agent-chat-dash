@@ -52,7 +52,7 @@ export const AwStatCard = React.forwardRef<HTMLDivElement, AwStatCardProps>(
           {icon && <Icon name={icon} size={16} />}
           <span>{label}</span>
         </div>
-        <div className="text-(length:--h3-size) font-semibold leading-none tracking-[-0.02em] text-fg-primary">
+        <div className="text-(length:--h3-size) font-semibold leading-none tracking-heading-tighter text-fg-primary">
           {value}
         </div>
         {hint && (

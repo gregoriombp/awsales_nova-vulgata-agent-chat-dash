@@ -92,7 +92,7 @@ export function ProdutosStep({
 
   return (
     <div className="flex w-full max-w-[680px] flex-col">
-      <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+      <h1 className="font-heading text-[30px] font-medium tracking-heading text-(--fg-primary)">
         Produtos
       </h1>
       <p className="mt-2 text-base text-(--fg-tertiary)">
