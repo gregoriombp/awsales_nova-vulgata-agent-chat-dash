@@ -233,7 +233,7 @@ function ContratoSection({
 }) {
   return (
     <article className="overflow-hidden rounded-xl border border-border-subtle bg-bg-raised">
-      <header className="border-b border-border-subtle px-[18px] pb-3 pt-3.5">
+      <header className="border-b border-border-subtle px-4.5 pb-3 pt-3.5">
         <h6 className="m-0 text-fg-primary">{title}</h6>
       </header>
       <dl className="m-0">{children}</dl>
@@ -251,7 +251,7 @@ function KV({
   emph?: boolean
 }) {
   return (
-    <div className="grid grid-cols-[200px_1fr] border-b border-border-subtle px-[18px] py-3 last:border-b-0">
+    <div className="grid grid-cols-[200px_1fr] border-b border-border-subtle px-4.5 py-3 last:border-b-0">
       <dt className="body-xs text-fg-tertiary">{label}</dt>
       <dd
         className={[

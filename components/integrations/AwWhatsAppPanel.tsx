@@ -218,7 +218,7 @@ function WabaRail({
     >
       <header className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-label text-(--fg-tertiary)">
             Contas WABA
           </h3>
           <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-(--fg-primary) px-1.5 body-xs font-semibold text-(--bg-raised)">
@@ -360,7 +360,7 @@ function PanelHeader({
         <AwBrandLogo brand="whatsapp" size="lg" />
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-body text-(--fg-primary)">
               {waba.name}
             </h2>
             <AwPill variant={meta.variant}>{waba.statusLabel}</AwPill>
@@ -514,7 +514,7 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Saúde da conta
           </div>
           <div className="flex items-baseline gap-1">
@@ -544,7 +544,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Conversas (mês)
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -562,7 +562,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Limite de mensagens
           </div>
           <div className="flex items-baseline gap-1">
@@ -579,7 +579,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Qualidade dos números
           </div>
           <div className="mt-0.5">
@@ -907,7 +907,7 @@ function PhoneStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs uppercase tracking-[0.06em] text-(--fg-tertiary)">
+      <span className="body-xs uppercase tracking-label text-(--fg-tertiary)">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -1406,7 +1406,7 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+      <span className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
@@ -1512,7 +1512,7 @@ function AggregatedHeader({ wabas }: { wabas: Waba[] }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-body text-(--fg-primary)">
               Todos os números de WhatsApp
             </h2>
             {issuesCount > 0 && (
@@ -1560,7 +1560,7 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
@@ -1586,7 +1586,7 @@ function AggregatedOverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Conversas (mês)
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1598,7 +1598,7 @@ function AggregatedOverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Números conectados
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1611,7 +1611,7 @@ function AggregatedOverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Templates
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1950,7 +1950,7 @@ function TemplateSheet({
         </div>
 
         <div className="rounded-md border border-(--border-subtle) bg-(--bg-surface) p-3">
-          <div className="body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-semibold uppercase tracking-label text-(--fg-tertiary)">
             Variáveis usadas
           </div>
           <div className="mt-2 flex flex-wrap gap-1.5">

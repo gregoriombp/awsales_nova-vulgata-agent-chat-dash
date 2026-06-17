@@ -254,7 +254,7 @@ function BuildingStep({ onDone }: { onDone: () => void }) {
 
       <div className="relative z-10 flex flex-col items-center text-center">
         <AwMemoryBaseLogo size={140} className="text-(--fg-primary)" />
-        <h1 className="mt-10 font-heading text-[28px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+        <h1 className="mt-10 font-heading text-[28px] font-medium tracking-heading text-(--fg-primary)">
           Construindo sua base de conhecimento
         </h1>
         {/* Altura fixa: a troca de mensagem não move o layout. */}
@@ -295,7 +295,7 @@ function NameStep({
   return (
     <div className="flex w-full max-w-[640px] flex-col items-center text-center">
       <BaseGlyph />
-      <h1 className="mt-10 font-heading text-[34px] font-medium leading-tight tracking-[-0.01em] text-(--fg-primary)">
+      <h1 className="mt-10 font-heading text-[34px] font-medium leading-tight tracking-heading text-(--fg-primary)">
         Sua primeira Base de Conhecimento
       </h1>
       <p className="mt-4 max-w-[520px] text-[16px] leading-relaxed text-(--fg-secondary)">
@@ -336,7 +336,7 @@ function CreatedStep({ name, onConfigure }: { name: string; onConfigure: () => v
   return (
     <div className="flex flex-col items-center text-center">
       <BaseGlyph />
-      <p className="mt-8 text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">{name}</p>
+      <p className="mt-8 text-[20px] font-medium tracking-heading text-(--fg-primary)">{name}</p>
 
       {/* Reservar a altura do botão evita o "pulo" do layout quando ele aparece. */}
       <div className="mt-10 flex h-[46px] items-center">
@@ -370,7 +370,7 @@ function ChoiceStep({
 }) {
   return (
     <div className="flex w-full max-w-[1080px] flex-col">
-      <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">{title}</h1>
+      <h1 className="font-heading text-[30px] font-medium tracking-heading text-(--fg-primary)">{title}</h1>
       <p className="mt-2 text-[15px] text-(--fg-tertiary)">{subtitle}</p>
 
       <div className="mt-9 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -414,7 +414,7 @@ function EnvioStep({
 }) {
   return (
     <div className="flex w-full max-w-[1080px] flex-col">
-      <h1 className="font-heading text-[30px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+      <h1 className="font-heading text-[30px] font-medium tracking-heading text-(--fg-primary)">
         Como os dados dos seus produtos serão enviados?
       </h1>
       <p className="mt-2 text-[15px] text-(--fg-tertiary)">
@@ -440,7 +440,7 @@ function EnvioStep({
                 {o.id === "Padrão" ? <PadraoGlyph /> : <CatalogoGlyph />}
               </div>
               <div>
-                <h2 className="text-[22px] font-medium tracking-[-0.01em]">{o.id}</h2>
+                <h2 className="text-[22px] font-medium tracking-heading">{o.id}</h2>
                 <p className={cn("mt-2 text-[13.5px] leading-relaxed", selected ? "opacity-80" : "text-(--fg-tertiary)")}>
                   {o.desc}
                 </p>

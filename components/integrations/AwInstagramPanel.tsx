@@ -220,7 +220,7 @@ function AccountRail({
     >
       <header className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-4">
         <div className="flex items-center gap-2">
-          <h3 className="m-0 body-xs font-semibold uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <h3 className="m-0 body-xs font-semibold uppercase tracking-label text-(--fg-tertiary)">
             Contas
           </h3>
           <span className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-(--fg-primary) px-1.5 body-xs font-semibold text-(--bg-raised)">
@@ -384,7 +384,7 @@ function PanelHeader({
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-body text-(--fg-primary)">
               @{account.handle}
             </h2>
             <AwPill variant={meta.variant}>{account.statusLabel}</AwPill>
@@ -526,7 +526,7 @@ function OverviewTab({
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Saúde da conta
           </div>
           <div className="flex items-baseline gap-1">
@@ -556,7 +556,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             DMs (30d)
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -574,7 +574,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Stories & comentários (30d)
           </div>
           <div className="flex items-baseline gap-2">
@@ -590,7 +590,7 @@ function OverviewTab({
         </AwCard>
 
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Tempo de resposta
           </div>
           <div className="flex items-baseline gap-1">
@@ -925,7 +925,7 @@ function AccountStat({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs uppercase tracking-[0.06em] text-(--fg-tertiary)">
+      <span className="body-xs uppercase tracking-label text-(--fg-tertiary)">
         {label}
       </span>
       <span className="flex items-center">{children}</span>
@@ -1443,7 +1443,7 @@ function DetailField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+      <span className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
         {label}
       </span>
       <div className="flex items-center gap-1.5">
@@ -1633,7 +1633,7 @@ function AggregatedHeader({ accounts }: { accounts: IgAccount[] }) {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-2">
-            <h2 className="m-0 truncate body-lg font-semibold tracking-[-0.005em] text-(--fg-primary)">
+            <h2 className="m-0 truncate body-lg font-semibold tracking-body text-(--fg-primary)">
               Todas as contas do Instagram
             </h2>
             {issuesCount > 0 && (
@@ -1678,7 +1678,7 @@ function AggregatedOverviewTab({
     <div className="flex flex-col gap-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Saúde média
           </div>
           <div className="flex items-baseline gap-1">
@@ -1693,7 +1693,7 @@ function AggregatedOverviewTab({
           />
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             DMs (30d)
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1704,7 +1704,7 @@ function AggregatedOverviewTab({
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Stories (30d)
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1715,7 +1715,7 @@ function AggregatedOverviewTab({
           </div>
         </AwCard>
         <AwCard className="flex flex-col gap-2 p-4">
-          <div className="body-xs font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+          <div className="body-xs font-medium uppercase tracking-label text-(--fg-tertiary)">
             Taxa de resposta média
           </div>
           <div className="body-xl font-semibold leading-none text-(--fg-primary)">
@@ -1786,7 +1786,7 @@ function EmptyState({ onAddAccount }: { onAddAccount: () => void }) {
     <div className="flex min-h-full items-center justify-center px-10 py-16">
       <section className="flex w-full max-w-[520px] flex-col items-center text-center">
         <AwBrandLogo brand="instagram" size="lg" />
-        <h1 className="m-0 mt-6 body-xl font-semibold tracking-[-0.01em] text-(--fg-primary)">
+        <h1 className="m-0 mt-6 body-xl font-semibold tracking-heading text-(--fg-primary)">
           Conecte uma conta do Instagram
         </h1>
         <p className="m-0 mt-2 body-sm text-(--fg-secondary)">

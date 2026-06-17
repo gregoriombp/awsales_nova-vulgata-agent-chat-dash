@@ -64,7 +64,7 @@ function ConfigPanel({
   return (
     <aside className="flex h-full w-[340px] shrink-0 flex-col border-r border-(--border-subtle) bg-(--bg-raised)">
       <header className="px-6 pb-4 pt-6">
-        <h1 className="m-0 text-(length:--h3-size) font-semibold tracking-[-0.02em] text-(--fg-primary)">
+        <h1 className="m-0 text-(length:--h3-size) font-semibold tracking-heading-tighter text-(--fg-primary)">
           Playground
         </h1>
         <p className="mt-1 text-[13px] leading-relaxed text-(--fg-secondary)">

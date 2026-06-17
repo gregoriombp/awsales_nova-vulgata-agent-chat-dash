@@ -160,7 +160,7 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
 
         <div className="flex flex-1 flex-col gap-3 px-5 pb-5 pt-5">
           <header className="flex items-center gap-3">
-            <h3 className="m-0 flex-1 truncate text-(length:--body-lg-size) font-semibold leading-tight tracking-[-0.01em] text-(--fg-primary)">
+            <h3 className="m-0 flex-1 truncate text-(length:--body-lg-size) font-semibold leading-tight tracking-heading text-(--fg-primary)">
               {name}
             </h3>
             <span className="text-[12.5px] text-(--fg-secondary)">

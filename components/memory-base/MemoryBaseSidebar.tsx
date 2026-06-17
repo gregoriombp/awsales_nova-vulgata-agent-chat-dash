@@ -227,7 +227,7 @@ export function MemoryBaseSidebar({
 
         <div>
           {!collapsed && (
-            <p className="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+            <p className="px-2.5 pb-1 text-[11px] font-medium uppercase tracking-label-lg text-(--fg-tertiary)">
               Resumo
             </p>
           )}

@@ -94,7 +94,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -159,7 +159,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -214,7 +214,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -371,7 +371,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
@@ -631,7 +631,7 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button

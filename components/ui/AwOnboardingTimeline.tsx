@@ -214,7 +214,7 @@ export function AwOnboardingTimeline({
 
   return (
     <section className={cn("flex flex-col gap-6", className)}>
-      <h2 className="m-0 text-(length:--h2-size) font-semibold leading-[1.15] tracking-[-0.02em] text-(--fg-primary)">
+      <h2 className="m-0 text-(length:--h2-size) font-semibold leading-[1.15] tracking-heading-tighter text-(--fg-primary)">
         {title}
       </h2>
 

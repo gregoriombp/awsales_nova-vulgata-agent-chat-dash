@@ -244,7 +244,7 @@ function WelcomeState({
           />
 
           {/* Conteúdo */}
-          <div className="relative z-10 flex flex-col items-center gap-[50px] px-8 text-center">
+          <div className="relative z-10 flex flex-col items-center gap-12.5 px-8 text-center">
             <AwMemoryBaseLogo size={180} className="text-(--fg-primary)" />
 
             <div className="flex w-[560px] max-w-full flex-col items-center gap-8">
