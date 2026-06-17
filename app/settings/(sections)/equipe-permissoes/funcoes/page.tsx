@@ -1011,17 +1011,8 @@ function RoleTableRow({
                 {role.name}
               </span>
               {role.createdBy && (
-                <span className="mt-1 flex items-center gap-1.5">
-                  <AwAvatar
-                    size="sm"
-                    src={role.createdBy.avatar}
-                    initials={role.createdBy.initials}
-                    alt={role.createdBy.name}
-                    className="h-[18px]! w-[18px]! text-3xs!"
-                  />
-                  <span className="truncate body-xs text-(--fg-tertiary)">
-                    {role.createdBy.name.split(" ")[0]} · {role.createdBy.date}
-                  </span>
+                <span className="mt-1 block truncate body-xs text-(--fg-tertiary)">
+                  Criado em {role.createdBy.date}
                 </span>
               )}
             </div>

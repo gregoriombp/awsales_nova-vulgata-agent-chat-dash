@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -69,7 +68,6 @@ function InfoRowBody({
 
 export default function OrganizationSettingsPage() {
   const toast = useToast();
-  const router = useRouter();
   const [orgName, setOrgName] = useState<string>(ONBOARDING_ORG.name);
   const [logoSrc, setLogoSrc] = useState<string>(ONBOARDING_ORG.logo);
   const [editOpen, setEditOpen] = useState(false);
@@ -268,40 +266,6 @@ export default function OrganizationSettingsPage() {
             onClick={handleDownloadContract}
           >
             Baixar contrato
-          </AwButton>
-        </div>
-      </div>
-
-      {/* Zona de risco — solicitar exclusão (fluxo completo em /settings/zona-de-perigo) */}
-      <div className="mt-10 rounded-xl border border-(--aw-red-200) bg-(--bg-raised) px-6 py-5">
-        <p className="m-0 mb-3 inline-flex items-center gap-1.5 body-sm font-semibold text-(--aw-red-700)">
-          <Icon name="warning" size={16} />
-          Zona de risco
-        </p>
-        <div className="flex items-start justify-between gap-6">
-          <div className="min-w-0">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              Solicitar exclusão da organização
-            </p>
-            <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
-              Encerra o contrato e elimina os dados da organização após o
-              período de carência. Registros com retenção legal são mantidos
-              pelo prazo da lei.
-            </p>
-            <p className="m-0 mt-2 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-              <Icon name="lock" size={13} />
-              Visível apenas para administradores. A solicitação é registrada no
-              audit trail.
-            </p>
-          </div>
-          <AwButton
-            size="sm"
-            variant="danger"
-            iconRight="arrow_forward"
-            className="shrink-0"
-            onClick={() => router.push("/settings/zona-de-perigo")}
-          >
-            Solicitar exclusão
           </AwButton>
         </div>
       </div>

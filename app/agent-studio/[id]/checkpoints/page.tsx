@@ -198,7 +198,7 @@ export default function CheckpointDocumentPage() {
               <AwButton
                 variant="primary"
                 size="sm"
-                iconLeft="auto_awesome"
+                iconLeft="agent"
                 disabled={!dirty}
                 onClick={() => setVerifying(true)}
               >

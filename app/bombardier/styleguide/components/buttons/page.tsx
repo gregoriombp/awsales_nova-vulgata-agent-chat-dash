@@ -169,7 +169,7 @@ export default function ButtonsPage() {
             <AwButton variant="danger" iconLeft="error">
               Arquivar
             </AwButton>
-            <AwButton variant="ai" iconLeft="auto_awesome">
+            <AwButton variant="ai" iconLeft="agent">
               Gerar sugestão
             </AwButton>
           </Stage>
@@ -178,10 +178,10 @@ export default function ButtonsPage() {
             label="Família AI · ai · ai-spectrum · ai-outline"
             hint="Mesma escala de intenção, gradients diferentes. Ai monocromático para o gesto principal; spectrum para um momento mais carregado de marca; outline pra ação secundária ou link de descoberta."
           >
-            <AwButton variant="ai" iconLeft="auto_awesome">
+            <AwButton variant="ai" iconLeft="agent">
               Gerar sugestão
             </AwButton>
-            <AwButton variant="ai-spectrum" iconLeft="auto_awesome">
+            <AwButton variant="ai-spectrum" iconLeft="agent">
               Gerar sugestão
             </AwButton>
             <AwButton variant="ai-outline" iconRight="arrow_forward">
@@ -195,10 +195,10 @@ export default function ButtonsPage() {
               hint="Cores claras dos tokens (--aw-blue-300, --aw-purple-300, --aw-amber-300) sobem para preservar o contraste."
               dark
             >
-              <AwButton variant="ai" iconLeft="auto_awesome">
+              <AwButton variant="ai" iconLeft="agent">
                 Learn more
               </AwButton>
-              <AwButton variant="ai-spectrum" iconLeft="auto_awesome">
+              <AwButton variant="ai-spectrum" iconLeft="agent">
                 Learn more
               </AwButton>
               <AwButton variant="ai-outline" iconRight="arrow_outward">
@@ -287,7 +287,7 @@ export default function ButtonsPage() {
             />
             <VariantCard
               demo={
-                <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                <AwButton variant="ai" size="sm" iconLeft="agent">
                   Gerar sugestão
                 </AwButton>
               }
@@ -304,7 +304,7 @@ export default function ButtonsPage() {
                 <AwButton
                   variant="ai-spectrum"
                   size="sm"
-                  iconLeft="auto_awesome"
+                  iconLeft="agent"
                 >
                   Gerar sugestão
                 </AwButton>
@@ -326,7 +326,7 @@ export default function ButtonsPage() {
                 <AwButton
                   variant="ai-outline"
                   size="sm"
-                  iconLeft="auto_awesome"
+                  iconLeft="agent"
                 >
                   Saiba como funciona
                 </AwButton>
@@ -396,7 +396,7 @@ export default function ButtonsPage() {
                 <AwButton variant="secondary" iconLeft="content_copy">
                   Duplicar
                 </AwButton>
-                <AwButton variant="ai" iconLeft="auto_awesome">
+                <AwButton variant="ai" iconLeft="agent">
                   Gerar sugestão
                 </AwButton>
               </div>
@@ -635,7 +635,7 @@ export default function ButtonsPage() {
             </Stage>
 
             <Stage label="Agente · ai + secondary">
-              <AwButton variant="ai" iconLeft="auto_awesome">
+              <AwButton variant="ai" iconLeft="agent">
                 Gerar resposta
               </AwButton>
               <AwButton variant="secondary">Reescrever manualmente</AwButton>
@@ -662,7 +662,7 @@ export default function ButtonsPage() {
               <AwButton variant="danger" iconLeft="error">
                 Arquivar
               </AwButton>
-              <AwButton variant="ai" iconLeft="auto_awesome">
+              <AwButton variant="ai" iconLeft="agent">
                 Gerar
               </AwButton>
             </Stage>

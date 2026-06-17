@@ -683,7 +683,7 @@ export default function StyleguidePage() {
                     </AwButton>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <AwButton variant="ai" iconLeft="auto_awesome">
+                    <AwButton variant="ai" iconLeft="agent">
                       Sugerir com IA
                     </AwButton>
                     <AwButton variant="secondary" iconLeft="upload">
