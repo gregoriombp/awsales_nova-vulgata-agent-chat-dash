@@ -8,10 +8,13 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwField, AwInput } from "@/components/ui/AwInput";
+import { AwSelect } from "@/components/ui/AwSelect";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
@@ -53,6 +56,10 @@ export default function RolesPage() {
   const [wizardOpen, setWizardOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [memberModalRoleId, setMemberModalRoleId] = useState<string | null>(null);
+  /** Função que o usuário tentou excluir mas ainda tem membros atribuídos. */
+  const [deleteBlockedRoleId, setDeleteBlockedRoleId] = useState<string | null>(
+    null
+  );
 
   const selected = useMemo(
     () => (selectedId ? roles.find((r) => r.id === selectedId) ?? null : null),
@@ -118,10 +125,17 @@ export default function RolesPage() {
     (id: string) => {
       const role = roles.find((r) => r.id === id);
       if (!role || role.isSystem) return;
+      // Bloqueia a exclusão enquanto houver membros usando a função — eles
+      // precisam ser reatribuídos antes.
+      const stillAssigned = members.some((m) => m.role === role.name);
+      if (stillAssigned) {
+        setDeleteBlockedRoleId(id);
+        return;
+      }
       setRoles((prev) => prev.filter((r) => r.id !== id));
       setSelectedId(null);
     },
-    [roles]
+    [roles, members]
   );
 
   const isExpanded = selected !== null;
@@ -222,6 +236,28 @@ export default function RolesPage() {
         suggestedColor={suggestedColor}
         onClose={() => setWizardOpen(false)}
         onCreate={handleWizardCreate}
+      />
+
+      <RoleDeleteBlockedModal
+        role={
+          deleteBlockedRoleId
+            ? roles.find((r) => r.id === deleteBlockedRoleId) ?? null
+            : null
+        }
+        members={
+          deleteBlockedRoleId
+            ? membersByRole.get(
+                roles.find((r) => r.id === deleteBlockedRoleId)?.name ?? ""
+              ) ?? []
+            : []
+        }
+        onOpenMembers={() => {
+          if (!deleteBlockedRoleId) return;
+          const roleId = deleteBlockedRoleId;
+          setDeleteBlockedRoleId(null);
+          setMemberModalRoleId(roleId);
+        }}
+        onClose={() => setDeleteBlockedRoleId(null)}
       />
     </>
   );
@@ -372,6 +408,88 @@ function RoleMembersModal({
   );
 }
 
+/* -----------------------------------------------------------------
+ * Bloqueio de exclusão — função ainda atribuída a membros.
+ * ----------------------------------------------------------------- */
+
+function RoleDeleteBlockedModal({
+  role,
+  members,
+  onOpenMembers,
+  onClose,
+}: {
+  role: RoleDefinition | null;
+  members: Member[];
+  onOpenMembers: () => void;
+  onClose: () => void;
+}) {
+  const count = members.length;
+  return (
+    <AwModal
+      open={role !== null}
+      onClose={onClose}
+      title="Reatribua os membros antes de excluir"
+      footer={
+        <AwButton size="sm" variant="primary" onClick={onClose}>
+          Entendi
+        </AwButton>
+      }
+    >
+      {role && (
+        <div className="flex flex-col gap-4">
+          <AwAlert variant="warning">
+            A função &ldquo;{role.name}&rdquo; ainda está atribuída a {count}{" "}
+            pessoa{count === 1 ? "" : "s"}.
+          </AwAlert>
+          <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+            Mova {count === 1 ? "essa pessoa" : "essas pessoas"} para outra
+            função e tente de novo.
+          </p>
+
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
+            {members.slice(0, 6).map((m) => (
+              <li
+                key={m.id}
+                className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2"
+              >
+                <AwAvatar
+                  size="sm"
+                  src={m.avatar}
+                  alt={m.name}
+                  initials={m.initials}
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
+                    {m.name}
+                  </p>
+                  <p className="m-0 truncate body-xs text-(--fg-secondary)">
+                    {m.email}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {count > 6 && (
+            <p className="m-0 body-xs text-(--fg-tertiary)">
+              e mais {count - 6} pessoa{count - 6 === 1 ? "" : "s"}.
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={onOpenMembers}
+            className="inline-flex items-center gap-1.5 self-start rounded-sm body-xs font-medium text-(--accent-brand) outline-hidden transition-colors hover:underline focus-visible:underline"
+          >
+            Ver todos os membros
+            <Icon name="arrow_forward" size={13} />
+          </button>
+        </div>
+      )}
+    </AwModal>
+  );
+}
+
 function MemberDetailPanel({
   member,
   onBack,
@@ -467,6 +585,34 @@ const WIZARD_STEPS = [
   { id: "review", label: "Revisão" },
 ] as const;
 
+/** Origem do preset: do zero, modelo de leitura/auditoria, ou o id de uma
+ *  função existente a duplicar. */
+type PresetSource = "scratch" | "read-audit" | string;
+
+const ALL_ROLE_DEFINITIONS: RoleDefinition[] = [
+  ...ROLE_DEFINITIONS,
+  ...CUSTOM_ROLE_DEFINITIONS,
+];
+
+/** Modelo "leitura/auditoria": só as permissões de acesso/visualização e as de
+ *  auditoria — nada que escreva. Derivado dos próprios SCOPES pra não divergir. */
+const READ_AUDIT_PRESET_IDS: string[] = SCOPES.flatMap((s) =>
+  s.groups.flatMap((g) =>
+    g.permissions
+      .filter(
+        (p) =>
+          // Só leitura/auditoria — e nada marcado como sensível, que deve ser
+          // concedido de forma deliberada, nunca por um preset.
+          !p.isSensitive &&
+          (p.id.endsWith(".access") ||
+            p.id.includes(".view") ||
+            p.id === "workspace.audit.view" ||
+            p.id === "workspace.billing.view")
+      )
+      .map((p) => p.id)
+  )
+);
+
 function CreateRoleWizard({
   open,
   suggestedColor,
@@ -490,6 +636,9 @@ function CreateRoleWizard({
   const [color, setColor] = useState<RoleColorId>(suggestedColor);
   const icon = DEFAULT_CUSTOM_ROLE_ICON;
   const [granted, setGranted] = useState<Set<string>>(new Set());
+  /** Origem das permissões pré-marcadas (modelo ou função duplicada). */
+  const [presetSource, setPresetSource] = useState<PresetSource>("scratch");
+  const [presetLabel, setPresetLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -498,8 +647,31 @@ function CreateRoleWizard({
       setDescription("");
       setColor(suggestedColor);
       setGranted(new Set());
+      setPresetSource("scratch");
+      setPresetLabel(null);
     }
   }, [open, suggestedColor]);
+
+  /** Aplica um preset à seleção de permissões e guarda a origem pro banner. */
+  const applyPreset = (source: PresetSource) => {
+    setPresetSource(source);
+    if (source === "scratch") {
+      setGranted(new Set());
+      setPresetLabel(null);
+      return;
+    }
+    if (source === "read-audit") {
+      setGranted(new Set(READ_AUDIT_PRESET_IDS));
+      setPresetLabel("Modelo leitura/auditoria");
+      return;
+    }
+    // Duplicar de uma função existente — source é o id da função.
+    const origin = ALL_ROLE_DEFINITIONS.find((r) => r.id === source);
+    if (origin) {
+      setGranted(new Set(origin.capabilities));
+      setPresetLabel(origin.name);
+    }
+  };
 
   const togglePermission = (id: string, next: boolean) => {
     setGranted((prev) => {
@@ -620,12 +792,75 @@ function CreateRoleWizard({
                   onChange={(e) => setDescription(e.target.value)}
                 />
               </AwField>
+
+              <AwField
+                label="Começar a partir de (opcional)"
+                htmlFor="wizard-role-preset"
+              >
+                <AwDropdownMenu
+                  align="start"
+                  trigger={
+                    <AwSelect
+                      id="wizard-role-preset"
+                      className="w-full justify-between"
+                    >
+                      {presetSource === "scratch"
+                        ? "Do zero"
+                        : presetSource === "read-audit"
+                        ? "Modelo leitura/auditoria"
+                        : `Duplicar: ${presetLabel}`}
+                    </AwSelect>
+                  }
+                  items={[
+                    {
+                      id: "preset-scratch",
+                      label: "Do zero",
+                      checked: presetSource === "scratch",
+                      onSelect: () => applyPreset("scratch"),
+                    },
+                    {
+                      id: "preset-read-audit",
+                      label: (
+                        <span className="flex flex-col gap-0.5 py-0.5">
+                          <span className="body-xs font-medium text-(--fg-primary)">
+                            Modelo leitura/auditoria
+                          </span>
+                          <span className="body-xs text-(--fg-secondary)">
+                            Só leitura e auditoria, sem escrita.
+                          </span>
+                        </span>
+                      ),
+                      checked: presetSource === "read-audit",
+                      onSelect: () => applyPreset("read-audit"),
+                    },
+                    { id: "preset-sep", separator: true as const },
+                    {
+                      id: "preset-dup-label",
+                      isLabel: true,
+                      label: "Duplicar de uma função",
+                    },
+                    ...ALL_ROLE_DEFINITIONS.map((r) => ({
+                      id: r.id,
+                      label: r.name,
+                      checked: presetSource === r.id,
+                      onSelect: () => applyPreset(r.id),
+                    })),
+                  ]}
+                />
+              </AwField>
             </div>
           </div>
         )}
 
         {step === 1 && (
           <div className="flex flex-col gap-3">
+            {presetLabel && (
+              <AwAlert variant="info">
+                Pré-marcamos as permissões de{" "}
+                <strong className="font-medium">{presetLabel}</strong>. A nova
+                função é independente — mudar uma não afeta a outra.
+              </AwAlert>
+            )}
             <div className="flex items-center justify-between gap-3">
               <p className="m-0 body-xs text-(--fg-secondary)">
                 <strong className="font-medium text-(--fg-primary)">
@@ -1706,16 +1941,28 @@ function PermissionGroupBlock({
             <span className="min-w-0 flex-1 body-xs">
               <span
                 className={
-                  "block " +
+                  "flex items-center gap-1.5 " +
                   (has
                     ? "font-medium text-(--fg-primary)"
                     : "text-(--fg-secondary)")
                 }
               >
-                {p.label}
+                {p.isSensitive && (
+                  <Icon
+                    name="lock"
+                    size={13}
+                    className="shrink-0 text-(--fg-tertiary)"
+                  />
+                )}
+                <span className="min-w-0 truncate">{p.label}</span>
+                {p.isSensitive && (
+                  <AwPill variant="warning" dot={false}>
+                    Sensível
+                  </AwPill>
+                )}
               </span>
               {p.description && (
-                <span className="block body-xs text-(--fg-tertiary)">
+                <span className="mt-0.5 block body-xs text-(--fg-tertiary)">
                   {p.description}
                 </span>
               )}

@@ -55,6 +55,12 @@ export type Permission = {
   id: string;
   label: string;
   description?: string;
+  /**
+   * Marca uma permissão que toca dados pessoais ou compliance (LGPD) — a UI
+   * exibe um cadeado e o selo "Sensível" pra sinalizar que deve ser concedida
+   * só a quem realmente precisa.
+   */
+  isSensitive?: boolean;
 };
 
 export type ScopeGroup = {
@@ -358,6 +364,32 @@ export const SCOPES: Scope[] = [
             label: "Atribuir funções",
             description: "Muda a função de membros existentes.",
           },
+          {
+            id: "workspace.members.pii.view",
+            label: "Visualizar dados pessoais",
+            description:
+              "Nome completo, e-mail, telefone e endereços de IP dos membros. Conceda apenas a quem precisa — fica sujeito à LGPD.",
+            isSensitive: true,
+          },
+        ],
+      },
+      {
+        id: "audit",
+        label: "Auditoria",
+        intent: "administrative",
+        permissions: [
+          {
+            id: "workspace.audit.view",
+            label: "Ver histórico de auditoria",
+            description: "Consulta as ações registradas na organização.",
+          },
+          {
+            id: "workspace.audit.export",
+            label: "Exportar histórico de auditoria",
+            description:
+              "Baixa o registro completo em CSV. Use com cautela — reúne dados de toda a operação.",
+            isSensitive: true,
+          },
         ],
       },
       {
@@ -423,6 +455,16 @@ export type Member = {
   phone: string;
   /** Autenticação em 2 fatores ativa na conta do membro. */
   mfaEnabled: boolean;
+  /** Data em que o app autenticador foi configurado — só quando mfaEnabled. */
+  mfaConfiguredAt?: string;
+  /** Códigos de backup ainda válidos / total gerado — só quando mfaEnabled. */
+  mfaBackupCodesRemaining?: number;
+  mfaBackupCodesTotal?: number;
+  /**
+   * Recebe faturas e notas fiscais da organização por e-mail. É por pessoa,
+   * independe da permissão de Financeiro (decisão de produto).
+   */
+  receivesInvoices?: boolean;
   initials: string;
   avatar?: string;
   isYou?: boolean;
@@ -802,6 +844,10 @@ export const MEMBERS: Member[] = [
     cargo: "CEO",
     phone: "+55 11 99876-1001",
     mfaEnabled: true,
+    mfaConfiguredAt: "12 de mar. 2026",
+    mfaBackupCodesRemaining: 6,
+    mfaBackupCodesTotal: 10,
+    receivesInvoices: true,
     permissions: ADMINISTRADOR_PERMISSIONS,
     integrations: ["whatsapp", "instagram", "checkout"],
     activity: [
@@ -825,6 +871,9 @@ export const MEMBERS: Member[] = [
     cargo: "Gerente de Contas",
     phone: "+55 11 99876-1002",
     mfaEnabled: true,
+    mfaConfiguredAt: "08 de fev. 2026",
+    mfaBackupCodesRemaining: 9,
+    mfaBackupCodesTotal: 10,
     permissions: GERENTE_DA_CONTA_PERMISSIONS,
     integrations: ["whatsapp"],
     activity: [
@@ -846,6 +895,10 @@ export const MEMBERS: Member[] = [
     cargo: "Coordenadora de Operações",
     phone: "+55 11 99876-1003",
     mfaEnabled: true,
+    mfaConfiguredAt: "21 de jan. 2026",
+    mfaBackupCodesRemaining: 10,
+    mfaBackupCodesTotal: 10,
+    receivesInvoices: true,
     permissions: GERENTE_OPERACOES_PERMISSIONS,
     integrations: ["whatsapp", "instagram"],
     activity: [

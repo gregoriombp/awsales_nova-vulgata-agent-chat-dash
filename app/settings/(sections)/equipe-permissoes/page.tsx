@@ -2,10 +2,15 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useCopilotDrawer } from "@/lib/copilot/store";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwBackupCodes } from "@/components/ui/AwBackupCodes";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import {
+  AwDropdownMenu,
+  type AwDropdownItem,
+} from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -24,6 +29,8 @@ import {
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwSpecialistsPair } from "@/components/ui/AwSpecialistsPair";
+import { AwToggle } from "@/components/ui/AwToggle";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import {
   ALL_PERMISSION_IDS,
@@ -35,6 +42,7 @@ import {
   SUPPORT_CONTACTS,
   type Invitation,
   type Member,
+  type MemberStatus,
   type Role,
   type Scope,
 } from "./_components/data";
@@ -44,19 +52,46 @@ import { TeamTabs } from "./_components/TeamTabs";
 export default function MembersPage() {
   const [members, setMembers] = useState<Member[]>(MEMBERS);
   const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<Role | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<MemberStatus | "all">("all");
   const [selectedMemberId, setSelectedMemberId] = useState<string | null>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  /** Confirmação de inativar/reativar de um membro. */
+  const [lifecycleTarget, setLifecycleTarget] = useState<{
+    member: Member;
+    action: "inactivate" | "reactivate";
+  } | null>(null);
+  /** Modal de bloqueio do guard do último Administrador. */
+  const [lastAdminBlock, setLastAdminBlock] = useState<{
+    memberName: string;
+    reason: "role" | "inactivate";
+  } | null>(null);
 
   const filteredMembers = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return members;
-    return members.filter(
-      (m) =>
+    return members.filter((m) => {
+      if (roleFilter !== "all" && m.role !== roleFilter) return false;
+      if (statusFilter !== "all" && m.status !== statusFilter) return false;
+      if (!q) return true;
+      return (
         m.name.toLowerCase().includes(q) ||
         m.email.toLowerCase().includes(q) ||
         m.role.toLowerCase().includes(q)
-    );
-  }, [members, search]);
+      );
+    });
+  }, [members, search, roleFilter, statusFilter]);
+
+  const filtersActive =
+    search.trim() !== "" || roleFilter !== "all" || statusFilter !== "all";
+
+  /** Conta de Administradores ativos — usado pelo guard do último admin. */
+  const adminCount = useMemo(
+    () =>
+      members.filter(
+        (m) => m.role === ADMIN_ROLE && m.status !== "inactive"
+      ).length,
+    [members]
+  );
 
   const selectedMember = useMemo(
     () =>
@@ -97,6 +132,17 @@ export default function MembersPage() {
       ) {
         return;
       }
+      // Guard do último admin: rebaixar o único Administrador ativo deixaria a
+      // organização sem ninguém com acesso total. Bloqueia com um modal.
+      if (
+        m.role === ADMIN_ROLE &&
+        role !== ADMIN_ROLE &&
+        m.status !== "inactive" &&
+        adminCount <= 1
+      ) {
+        setLastAdminBlock({ memberName: m.name, reason: "role" });
+        return;
+      }
       setPendingRoleChange({
         memberId: id,
         memberName: m.name,
@@ -104,7 +150,7 @@ export default function MembersPage() {
         toRole: role,
       });
     },
-    [members]
+    [members, adminCount]
   );
 
   const managerAlreadyAssigned = useMemo(
@@ -122,6 +168,55 @@ export default function MembersPage() {
     (id: string) => {
       setMembers((prev) => prev.filter((m) => m.id !== id));
       setSelectedMemberId((current) => (current === id ? null : current));
+    },
+    []
+  );
+
+  /** Abre a confirmação de inativar/reativar — aplica o guard do último admin
+   *  antes de deixar inativar. */
+  const requestLifecycleChange = useCallback(
+    (id: string, action: "inactivate" | "reactivate") => {
+      const m = members.find((x) => x.id === id);
+      if (!m) return;
+      if (
+        action === "inactivate" &&
+        m.role === ADMIN_ROLE &&
+        m.status !== "inactive" &&
+        adminCount <= 1
+      ) {
+        setLastAdminBlock({ memberName: m.name, reason: "inactivate" });
+        return;
+      }
+      setLifecycleTarget({ member: m, action });
+    },
+    [members, adminCount]
+  );
+
+  const handleConfirmLifecycle = useCallback(() => {
+    if (!lifecycleTarget) return;
+    const { member, action } = lifecycleTarget;
+    setMembers((prev) =>
+      prev.map((m) =>
+        m.id === member.id
+          ? { ...m, status: action === "inactivate" ? "inactive" : "active" }
+          : m
+      )
+    );
+    setLifecycleTarget(null);
+  }, [lifecycleTarget]);
+
+  const handleToggleInvoices = useCallback((id: string, next: boolean) => {
+    setMembers((prev) =>
+      prev.map((m) => (m.id === id ? { ...m, receivesInvoices: next } : m))
+    );
+  }, []);
+
+  /** Aplica novos campos de MFA (reset ou regeneração de códigos) ao membro. */
+  const handlePatchMember = useCallback(
+    (id: string, patch: Partial<Member>) => {
+      setMembers((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, ...patch } : m))
+      );
     },
     []
   );
@@ -201,10 +296,22 @@ export default function MembersPage() {
                 members={filteredMembers}
                 search={search}
                 onSearchChange={setSearch}
+                roleFilter={roleFilter}
+                onRoleFilterChange={setRoleFilter}
+                statusFilter={statusFilter}
+                onStatusFilterChange={setStatusFilter}
+                filtersActive={filtersActive}
+                onClearFilters={() => {
+                  setSearch("");
+                  setRoleFilter("all");
+                  setStatusFilter("all");
+                }}
                 onOpenInvite={() => setInviteOpen(true)}
                 managerAlreadyAssigned={managerAlreadyAssigned}
                 onSelect={setSelectedMemberId}
                 onChangeRole={requestRoleChange}
+                onChangeLifecycle={requestLifecycleChange}
+                onRemove={handleRemove}
               />
             ) : (
               <CompactMemberList
@@ -230,10 +337,24 @@ export default function MembersPage() {
                 <MemberDetail
                   member={selectedMember}
                   managerAlreadyAssigned={managerAlreadyAssigned}
+                  isLastActiveAdmin={
+                    selectedMember.role === ADMIN_ROLE &&
+                    selectedMember.status !== "inactive" &&
+                    adminCount <= 1
+                  }
                   onChangeRole={(role) =>
                     requestRoleChange(selectedMember.id, role)
                   }
                   onRemove={() => handleRemove(selectedMember.id)}
+                  onChangeLifecycle={(action) =>
+                    requestLifecycleChange(selectedMember.id, action)
+                  }
+                  onToggleInvoices={(next) =>
+                    handleToggleInvoices(selectedMember.id, next)
+                  }
+                  onPatchMember={(patch) =>
+                    handlePatchMember(selectedMember.id, patch)
+                  }
                   onClose={() => setSelectedMemberId(null)}
                   onTogglePermission={(permissionId, next) =>
                     handleTogglePermission(
@@ -259,6 +380,17 @@ export default function MembersPage() {
         onConfirm={handleConfirmRoleChange}
         onCancel={() => setPendingRoleChange(null)}
       />
+
+      <LifecycleConfirmModal
+        target={lifecycleTarget}
+        onConfirm={handleConfirmLifecycle}
+        onCancel={() => setLifecycleTarget(null)}
+      />
+
+      <LastAdminBlockModal
+        block={lastAdminBlock}
+        onClose={() => setLastAdminBlock(null)}
+      />
     </>
   );
 }
@@ -268,6 +400,7 @@ export default function MembersPage() {
  * ----------------------------------------------------------------- */
 
 const MANAGER_ROLE: Role = "Gerente da conta";
+const ADMIN_ROLE: Role = "Administrador";
 
 const CORTEX = {
   name: "Cortex",
@@ -281,38 +414,67 @@ function MembersTableState({
   members,
   search,
   onSearchChange,
+  roleFilter,
+  onRoleFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  filtersActive,
+  onClearFilters,
   onOpenInvite,
   managerAlreadyAssigned,
   onSelect,
   onChangeRole,
+  onChangeLifecycle,
+  onRemove,
 }: {
   members: Member[];
   search: string;
   onSearchChange: (v: string) => void;
+  roleFilter: Role | "all";
+  onRoleFilterChange: (v: Role | "all") => void;
+  statusFilter: MemberStatus | "all";
+  onStatusFilterChange: (v: MemberStatus | "all") => void;
+  filtersActive: boolean;
+  onClearFilters: () => void;
   onOpenInvite: () => void;
   managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
+  onChangeLifecycle: (id: string, action: "inactivate" | "reactivate") => void;
+  onRemove: (id: string) => void;
 }) {
   const [contactTarget, setContactTarget] = useState<string | null>(null);
   const openCopilot = useCopilotDrawer((s) => s.setOpen);
   const managers = members.filter((m) => m.role === MANAGER_ROLE);
   const others = members.filter((m) => m.role !== MANAGER_ROLE);
 
-  if (members.length === 0 && search.trim() !== "") {
+  if (members.length === 0 && filtersActive) {
     return (
-      <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10">
-        <AwEmpty>
-          <AwEmptyHeader>
-            <AwEmptyMedia variant="icon">
-              <Icon name="search_off" size={20} />
-            </AwEmptyMedia>
-            <AwEmptyTitle>Nenhum membro encontrado</AwEmptyTitle>
-            <AwEmptyDescription>
-              Tente outro termo ou ajuste os filtros.
-            </AwEmptyDescription>
-          </AwEmptyHeader>
-        </AwEmpty>
+      <div className="flex flex-col gap-3">
+        <MembersToolbar
+          search={search}
+          onSearchChange={onSearchChange}
+          roleFilter={roleFilter}
+          onRoleFilterChange={onRoleFilterChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={onStatusFilterChange}
+          filtersActive={filtersActive}
+          onClearFilters={onClearFilters}
+          onOpenInvite={onOpenInvite}
+        />
+        <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-10">
+          <AwEmpty>
+            <AwEmptyHeader>
+              <AwEmptyMedia variant="icon">
+                <Icon name="search_off" size={20} />
+              </AwEmptyMedia>
+              <AwEmptyTitle>Nenhum membro encontrado</AwEmptyTitle>
+              <AwEmptyDescription>
+                Tente outro termo ou ajuste os filtros.
+              </AwEmptyDescription>
+            </AwEmptyHeader>
+          </AwEmpty>
+        </div>
       </div>
     );
   }
@@ -353,13 +515,21 @@ function MembersTableState({
           title="Membros da organização"
           description="Todas as pessoas com acesso direto a este workspace. Convide novos membros, ajuste função ou abra o painel pra revisar permissões."
           members={others}
-          invitations={INVITATIONS}
+          invitations={filtersActive ? [] : INVITATIONS}
           managerAlreadyAssigned={managerAlreadyAssigned}
           onSelect={onSelect}
           onChangeRole={onChangeRole}
+          onChangeLifecycle={onChangeLifecycle}
+          onRemove={onRemove}
           emptyHint="Sem membros nessa categoria."
           search={search}
           onSearchChange={onSearchChange}
+          roleFilter={roleFilter}
+          onRoleFilterChange={onRoleFilterChange}
+          statusFilter={statusFilter}
+          onStatusFilterChange={onStatusFilterChange}
+          filtersActive={filtersActive}
+          onClearFilters={onClearFilters}
           onOpenInvite={onOpenInvite}
         />
       </div>
@@ -380,9 +550,16 @@ function MemberSection({
   managerAlreadyAssigned,
   onSelect,
   onChangeRole,
+  onChangeLifecycle,
   emptyHint,
   search,
   onSearchChange,
+  roleFilter,
+  onRoleFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  filtersActive,
+  onClearFilters,
   onOpenInvite,
 }: {
   title: string;
@@ -392,11 +569,19 @@ function MemberSection({
   managerAlreadyAssigned: boolean;
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
+  onChangeLifecycle?: (id: string, action: "inactivate" | "reactivate") => void;
   emptyHint: string;
   search?: string;
   onSearchChange?: (v: string) => void;
+  roleFilter?: Role | "all";
+  onRoleFilterChange?: (v: Role | "all") => void;
+  statusFilter?: MemberStatus | "all";
+  onStatusFilterChange?: (v: MemberStatus | "all") => void;
+  filtersActive?: boolean;
+  onClearFilters?: () => void;
   onOpenInvite?: () => void;
 }) {
+  const toast = useToast();
   const total = members.length + invitations.length;
   const hasToolbar = onSearchChange !== undefined || onOpenInvite !== undefined;
   return (
@@ -415,27 +600,18 @@ function MemberSection({
       </header>
 
       {hasToolbar && (
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          {onSearchChange !== undefined && (
-            <div className="flex-1 min-w-0">
-              <AwInput
-                iconLeft="search"
-                placeholder="Buscar membros…"
-                value={search ?? ""}
-                onChange={(e) => onSearchChange(e.target.value)}
-              />
-            </div>
-          )}
-          {onOpenInvite !== undefined && (
-            <AwButton
-              size="md"
-              variant="primary"
-              iconLeft="person_add"
-              onClick={onOpenInvite}
-            >
-              Adicionar membro
-            </AwButton>
-          )}
+        <div className="mb-3">
+          <MembersToolbar
+            search={search ?? ""}
+            onSearchChange={onSearchChange}
+            roleFilter={roleFilter ?? "all"}
+            onRoleFilterChange={onRoleFilterChange}
+            statusFilter={statusFilter ?? "all"}
+            onStatusFilterChange={onStatusFilterChange}
+            filtersActive={filtersActive ?? false}
+            onClearFilters={onClearFilters}
+            onOpenInvite={onOpenInvite}
+          />
         </div>
       )}
 
@@ -452,7 +628,43 @@ function MemberSection({
             { label: "", width: 88 },
           ]}
         >
-          {members.map((m) => (
+          {members.map((m) => {
+            const statusTag = m.isYou
+              ? { label: "Você", variant: "live" as const }
+              : memberStatusTag(m.status);
+            const kebabItems: AwDropdownItem[] = [
+              { id: "profile", label: "Ver perfil", onSelect: () => onSelect(m.id) },
+              {
+                id: "copy-email",
+                label: "Copiar e-mail",
+                onSelect: () => navigator.clipboard.writeText(m.email),
+              },
+            ];
+            if (onChangeLifecycle !== undefined) {
+              kebabItems.push({ id: "sep-lifecycle", separator: true });
+              kebabItems.push(
+                m.status === "inactive"
+                  ? {
+                      id: "reactivate",
+                      label: "Reativar acesso",
+                      onSelect: () => onChangeLifecycle(m.id, "reactivate"),
+                    }
+                  : {
+                      id: "inactivate",
+                      label: "Inativar acesso",
+                      danger: true,
+                      onSelect: () => onChangeLifecycle(m.id, "inactivate"),
+                    }
+              );
+            }
+            kebabItems.push({ id: "sep-member", separator: true });
+            kebabItems.push({
+              id: "remove",
+              label: "Remover do workspace",
+              danger: true,
+              onSelect: () => {},
+            });
+            return (
             <tr
               key={m.id}
               className="aw-row-clickable"
@@ -463,8 +675,8 @@ function MemberSection({
                 email={m.role}
                 avatarSrc={m.avatar}
                 initials={m.initials}
-                tag={m.isYou ? "Você" : undefined}
-                tagVariant="live"
+                tag={statusTag?.label}
+                tagVariant={statusTag?.variant}
                 presence={m.online ? "live" : undefined}
               />
               <td>
@@ -481,12 +693,7 @@ function MemberSection({
                           <Icon name="more_vert" size={20} weight={400} />
                         </button>
                       }
-                      items={[
-                        { id: "profile",    label: "Ver perfil",           onSelect: () => onSelect(m.id) },
-                        { id: "copy-email", label: "Copiar e-mail",        onSelect: () => navigator.clipboard.writeText(m.email) },
-                        { id: "sep-member", separator: true },
-                        { id: "remove",     label: "Remover do workspace", danger: true, onSelect: () => {} },
-                      ]}
+                      items={kebabItems}
                     />
                   </span>
                   <Icon
@@ -498,7 +705,8 @@ function MemberSection({
                 </div>
               </td>
             </tr>
-          ))}
+            );
+          })}
           {invitations.map((i) => (
             <tr key={i.id}>
               <AwMembersTablePersonCell
@@ -522,9 +730,28 @@ function MemberSection({
                         </button>
                       }
                       items={[
-                        { id: "resend",     label: "Reenviar convite", onSelect: () => {} },
+                        {
+                          id: "resend",
+                          label: "Reenviar convite",
+                          onSelect: () =>
+                            toast.push({
+                              variant: "success",
+                              title: "Convite reenviado",
+                              description: `Enviamos de novo para ${i.email}. O link expira em 7 dias.`,
+                            }),
+                        },
                         { id: "sep-invite", separator: true },
-                        { id: "cancel",     label: "Cancelar convite", danger: true, onSelect: () => {} },
+                        {
+                          id: "cancel",
+                          label: "Cancelar convite",
+                          danger: true,
+                          onSelect: () =>
+                            toast.push({
+                              variant: "info",
+                              title: "Convite cancelado",
+                              description: `${i.email} não vai mais conseguir usar o link enviado.`,
+                            }),
+                        },
                       ]}
                     />
                   </span>
@@ -536,6 +763,133 @@ function MemberSection({
         </AwMembersTable>
       )}
     </section>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Status helpers + filter toolbar
+ * ----------------------------------------------------------------- */
+
+/** Pill mostrada ao lado do nome na tabela. Ativos não recebem pill — só os
+ *  estados que merecem destaque (convidado, inativo). */
+function memberStatusTag(
+  status: MemberStatus
+): { label: string; variant: "draft" | "neutral" } | null {
+  if (status === "invited") return { label: "Convidado", variant: "draft" };
+  if (status === "inactive") return { label: "Inativo", variant: "neutral" };
+  return null;
+}
+
+const STATUS_FILTER_OPTIONS: { value: MemberStatus | "all"; label: string }[] = [
+  { value: "all", label: "Todos" },
+  { value: "active", label: "Ativo" },
+  { value: "invited", label: "Convidado" },
+  { value: "inactive", label: "Inativo" },
+];
+
+function MembersToolbar({
+  search,
+  onSearchChange,
+  roleFilter,
+  onRoleFilterChange,
+  statusFilter,
+  onStatusFilterChange,
+  filtersActive,
+  onClearFilters,
+  onOpenInvite,
+}: {
+  search: string;
+  onSearchChange?: (v: string) => void;
+  roleFilter: Role | "all";
+  onRoleFilterChange?: (v: Role | "all") => void;
+  statusFilter: MemberStatus | "all";
+  onStatusFilterChange?: (v: MemberStatus | "all") => void;
+  filtersActive: boolean;
+  onClearFilters?: () => void;
+  onOpenInvite?: () => void;
+}) {
+  const roleLabel = roleFilter === "all" ? "Função: todas" : `Função: ${roleFilter}`;
+  const statusLabel =
+    statusFilter === "all"
+      ? "Status: todos"
+      : `Status: ${
+          STATUS_FILTER_OPTIONS.find((o) => o.value === statusFilter)?.label
+        }`;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2.5">
+      {onSearchChange !== undefined && (
+        <div className="min-w-[180px] flex-1">
+          <AwInput
+            iconLeft="search"
+            placeholder="Buscar membros…"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
+      )}
+
+      {onRoleFilterChange !== undefined && (
+        <AwDropdownMenu
+          align="start"
+          trigger={
+            <AwSelect aria-label="Filtrar por função">{roleLabel}</AwSelect>
+          }
+          items={[
+            {
+              id: "role-all",
+              label: "Todas as funções",
+              checked: roleFilter === "all",
+              onSelect: () => onRoleFilterChange("all"),
+            },
+            { id: "role-sep", separator: true },
+            ...ROLE_OPTIONS.map((r) => ({
+              id: `role-${r}`,
+              label: r,
+              checked: roleFilter === r,
+              onSelect: () => onRoleFilterChange(r),
+            })),
+          ]}
+        />
+      )}
+
+      {onStatusFilterChange !== undefined && (
+        <AwDropdownMenu
+          align="start"
+          trigger={
+            <AwSelect aria-label="Filtrar por status">{statusLabel}</AwSelect>
+          }
+          items={STATUS_FILTER_OPTIONS.map((o) => ({
+            id: `status-${o.value}`,
+            label: o.label,
+            checked: statusFilter === o.value,
+            onSelect: () => onStatusFilterChange(o.value),
+          }))}
+        />
+      )}
+
+      {filtersActive && onClearFilters && (
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="filter_alt_off"
+          onClick={onClearFilters}
+        >
+          Limpar filtros
+        </AwButton>
+      )}
+
+      {onOpenInvite !== undefined && (
+        <AwButton
+          size="md"
+          variant="primary"
+          iconLeft="person_add"
+          onClick={onOpenInvite}
+        >
+          Adicionar membro
+        </AwButton>
+      )}
+    </div>
   );
 }
 
@@ -610,16 +964,24 @@ function CompactMemberList({
 function MemberDetail({
   member,
   managerAlreadyAssigned,
+  isLastActiveAdmin,
   onChangeRole,
   onRemove,
+  onChangeLifecycle,
+  onToggleInvoices,
+  onPatchMember,
   onClose,
   onTogglePermission,
   onToggleScope,
 }: {
   member: Member;
   managerAlreadyAssigned: boolean;
+  isLastActiveAdmin: boolean;
   onChangeRole: (role: Role) => void;
   onRemove: () => void;
+  onChangeLifecycle: (action: "inactivate" | "reactivate") => void;
+  onToggleInvoices: (next: boolean) => void;
+  onPatchMember: (patch: Partial<Member>) => void;
   onClose: () => void;
   onTogglePermission: (permissionId: string, next: boolean) => void;
   onToggleScope: (scopeIds: string[], next: boolean) => void;
@@ -627,6 +989,10 @@ function MemberDetail({
   const memberPermissions = new Set(member.permissions);
   const hasFullAccess =
     member.permissions.length === ALL_PERMISSION_IDS.length;
+  const isInactive = member.status === "inactive";
+  const headerStatusTag = member.isYou
+    ? { label: "Você", variant: "live" as const }
+    : memberStatusTag(member.status);
 
   return (
     <section className="flex max-h-[calc(100vh-160px)] flex-col self-start overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)">
@@ -642,9 +1008,9 @@ function MemberDetail({
             <p className="m-0 truncate body-sm font-semibold text-(--fg-primary)">
               {member.name}
             </p>
-            {member.isYou && (
-              <AwPill variant="live" dot={false}>
-                Você
+            {headerStatusTag && (
+              <AwPill variant={headerStatusTag.variant} dot={false}>
+                {headerStatusTag.label}
               </AwPill>
             )}
           </div>
@@ -666,13 +1032,27 @@ function MemberDetail({
                 label: r,
                 checked: r === member.role,
                 disabled:
-                  r === MANAGER_ROLE &&
-                  managerAlreadyAssigned &&
-                  member.role !== MANAGER_ROLE,
+                  (r === MANAGER_ROLE &&
+                    managerAlreadyAssigned &&
+                    member.role !== MANAGER_ROLE) ||
+                  // Bloqueia rebaixar o último Administrador ativo.
+                  (isLastActiveAdmin && r !== ADMIN_ROLE),
                 onSelect: () => onChangeRole(r),
               })),
             ]}
           />
+          {!member.isYou && (
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft={isInactive ? "restart_alt" : "block"}
+              onClick={() =>
+                onChangeLifecycle(isInactive ? "reactivate" : "inactivate")
+              }
+            >
+              {isInactive ? "Reativar" : "Inativar"}
+            </AwButton>
+          )}
           <AwButton
             size="sm"
             variant="ghost"
@@ -698,18 +1078,12 @@ function MemberDetail({
           <DetailStat label="E-mail" value={member.email} />
           <DetailStat label="Telefone" value={member.phone} />
           <DetailStat label="Último acesso" value={member.lastActive} />
-          <div className="min-w-0">
-            <p className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
-              Autenticação MFA
-            </p>
-            <AwPill
-              variant={member.mfaEnabled ? "live" : "warning"}
-              dot={false}
-            >
-              {member.mfaEnabled ? "Ativa" : "Não configurada"}
-            </AwPill>
-          </div>
+          <DetailStat label="Entrou em" value={member.joinedAt} />
         </div>
+
+        <MfaSection member={member} onPatchMember={onPatchMember} />
+
+        <BillingSection member={member} onToggleInvoices={onToggleInvoices} />
 
         <DetailSection title="Permissões por escopo">
           <div className="flex flex-col gap-3">
@@ -791,6 +1165,186 @@ function DetailSection({
       </h3>
       {children}
     </section>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * MFA admin section — estado do MFA + ações administrativas
+ * (gerar códigos de backup, resetar MFA).
+ * ----------------------------------------------------------------- */
+
+/** Gera N códigos de backup mock no formato XXXX-XXXX. */
+function generateBackupCodes(count = 10): string[] {
+  const block = () =>
+    Array.from({ length: 4 }, () =>
+      "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".charAt(
+        Math.floor(Math.random() * 32)
+      )
+    ).join("");
+  return Array.from({ length: count }, () => `${block()}-${block()}`);
+}
+
+function MfaSection({
+  member,
+  onPatchMember,
+}: {
+  member: Member;
+  onPatchMember: (patch: Partial<Member>) => void;
+}) {
+  const [codesModal, setCodesModal] = useState<string[] | null>(null);
+  const [resetOpen, setResetOpen] = useState(false);
+  const total = member.mfaBackupCodesTotal ?? 10;
+  const remaining = member.mfaBackupCodesRemaining ?? total;
+
+  const handleGenerate = () => {
+    const codes = generateBackupCodes(total);
+    setCodesModal(codes);
+    onPatchMember({
+      mfaBackupCodesRemaining: codes.length,
+      mfaBackupCodesTotal: codes.length,
+    });
+  };
+
+  const handleReset = () => {
+    onPatchMember({
+      mfaEnabled: false,
+      mfaConfiguredAt: undefined,
+      mfaBackupCodesRemaining: undefined,
+      mfaBackupCodesTotal: undefined,
+    });
+    setResetOpen(false);
+  };
+
+  return (
+    <DetailSection title="Autenticação (MFA)">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <AwPill variant={member.mfaEnabled ? "live" : "warning"} dot={false}>
+            {member.mfaEnabled ? "Ativa" : "Não configurada"}
+          </AwPill>
+          <span className="body-xs text-(--fg-tertiary)">
+            {member.mfaEnabled
+              ? `App autenticador configurado em ${member.mfaConfiguredAt ?? "—"} · ${remaining} de ${total} códigos de backup válidos.`
+              : "A pessoa ainda não ativou a verificação em duas etapas na conta."}
+          </span>
+        </div>
+
+        {member.mfaEnabled && (
+          <div className="flex flex-wrap items-center gap-2">
+            <AwButton
+              size="sm"
+              variant="secondary"
+              iconLeft="vpn_key"
+              onClick={handleGenerate}
+            >
+              Gerar códigos de backup
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft="lock_reset"
+              onClick={() => setResetOpen(true)}
+            >
+              Resetar MFA
+            </AwButton>
+          </div>
+        )}
+      </div>
+
+      {/* Modal — códigos de backup (reaproveita AwBackupCodes) */}
+      <AwModal
+        open={codesModal !== null}
+        onClose={() => setCodesModal(null)}
+        title={`Códigos de backup · ${member.name}`}
+        footer={
+          <AwButton size="sm" variant="primary" onClick={() => setCodesModal(null)}>
+            Concluir
+          </AwButton>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+            {total} códigos gerados. Cada um serve uma única vez e os anteriores
+            foram invalidados. Repasse para {member.name.split(" ")[0]} por um
+            canal seguro.
+          </p>
+          {codesModal && (
+            <AwBackupCodes
+              codes={codesModal}
+              filename={`codigos-backup-${member.id}.txt`}
+            />
+          )}
+        </div>
+      </AwModal>
+
+      {/* Modal — resetar MFA (confirmação) */}
+      <AwModal
+        open={resetOpen}
+        onClose={() => setResetOpen(false)}
+        title={`Resetar MFA de ${member.name}?`}
+        footer={
+          <>
+            <AwButton size="sm" variant="ghost" onClick={() => setResetOpen(false)}>
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="danger"
+              iconLeft="lock_reset"
+              onClick={handleReset}
+            >
+              Resetar MFA
+            </AwButton>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <AwAlert variant="warning">
+            No próximo acesso, a pessoa configura a verificação em duas etapas do
+            zero — novo app autenticador e novos códigos de backup.
+          </AwAlert>
+          <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+            Use quando o membro perde o dispositivo de autenticação. A ação fica
+            registrada no histórico com o seu nome.
+          </p>
+        </div>
+      </AwModal>
+    </DetailSection>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Billing section — recebimento de faturas/NF por membro.
+ * ----------------------------------------------------------------- */
+
+function BillingSection({
+  member,
+  onToggleInvoices,
+}: {
+  member: Member;
+  onToggleInvoices: (next: boolean) => void;
+}) {
+  const toggleId = `invoices-${member.id}`;
+  return (
+    <DetailSection title="Faturamento">
+      <div className="flex items-start justify-between gap-4">
+        <label htmlFor={toggleId} className="min-w-0 flex-1 cursor-pointer">
+          <span className="block body-xs font-medium text-(--fg-primary)">
+            Recebe faturas e notas fiscais (NF)
+          </span>
+          <span className="mt-0.5 block body-xs text-(--fg-tertiary) text-pretty">
+            As faturas e NF da organização chegam por e-mail para este membro.
+            Independe da permissão de Financeiro — é por pessoa.
+          </span>
+        </label>
+        <AwToggle
+          id={toggleId}
+          checked={Boolean(member.receivesInvoices)}
+          onChange={(next) => onToggleInvoices(next)}
+          label="Recebe faturas e notas fiscais"
+        />
+      </div>
+    </DetailSection>
   );
 }
 
@@ -927,16 +1481,28 @@ function ScopeRow({
                         >
                           <span
                             className={
-                              "block " +
+                              "flex items-center gap-1.5 " +
                               (has
                                 ? "font-medium text-(--fg-primary)"
                                 : "text-(--fg-secondary)")
                             }
                           >
-                            {p.label}
+                            {p.isSensitive && (
+                              <Icon
+                                name="lock"
+                                size={13}
+                                className="shrink-0 text-(--fg-tertiary)"
+                              />
+                            )}
+                            <span className="min-w-0 truncate">{p.label}</span>
+                            {p.isSensitive && (
+                              <AwPill variant="warning" dot={false}>
+                                Sensível
+                              </AwPill>
+                            )}
                           </span>
                           {p.description && (
-                            <span className="block body-xs text-(--fg-tertiary)">
+                            <span className="mt-0.5 block body-xs text-(--fg-tertiary)">
                               {p.description}
                             </span>
                           )}
@@ -1059,6 +1625,112 @@ function RoleChangeConfirmModal({
           <p className="m-0 body-xs text-(--fg-secondary)">
             As permissões serão ajustadas automaticamente. Você pode reverter a
             qualquer momento abrindo o membro novamente.
+          </p>
+        </div>
+      )}
+    </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Lifecycle (inativar / reativar) confirmation modal
+ * ----------------------------------------------------------------- */
+
+function LifecycleConfirmModal({
+  target,
+  onConfirm,
+  onCancel,
+}: {
+  target: { member: Member; action: "inactivate" | "reactivate" } | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const inactivating = target?.action === "inactivate";
+  const name = target?.member.name ?? "";
+
+  return (
+    <AwModal
+      open={target !== null}
+      onClose={onCancel}
+      title={inactivating ? `Inativar ${name}?` : `Reativar ${name}?`}
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onCancel}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant={inactivating ? "danger" : "primary"}
+            iconLeft={inactivating ? "block" : "restart_alt"}
+            onClick={onConfirm}
+          >
+            {inactivating ? "Inativar acesso" : "Reativar"}
+          </AwButton>
+        </>
+      }
+    >
+      {target && (
+        <div className="flex flex-col gap-4">
+          {inactivating ? (
+            <>
+              <p className="m-0 body-xs text-(--fg-primary) text-pretty">
+                <strong className="font-semibold">{name}</strong> perde o acesso
+                no próximo login. A sessão atual continua até expirar, e todo o
+                histórico — atividades, conversas e recursos — fica preservado.
+                Você pode reativar quando quiser.
+              </p>
+              <AwAlert variant="info">
+                Para cortar o acesso na hora, revogue a sessão em Segurança →
+                Acessos.
+              </AwAlert>
+            </>
+          ) : (
+            <p className="m-0 body-xs text-(--fg-primary) text-pretty">
+              <strong className="font-semibold">{name}</strong> volta para Ativo
+              com a mesma função e consegue entrar no próximo acesso — com
+              verificação em duas etapas, se a política exigir.
+            </p>
+          )}
+        </div>
+      )}
+    </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
+ * Last-admin guard — bloqueio ao tentar rebaixar/inativar o único Admin
+ * ----------------------------------------------------------------- */
+
+function LastAdminBlockModal({
+  block,
+  onClose,
+}: {
+  block: { memberName: string; reason: "role" | "inactivate" } | null;
+  onClose: () => void;
+}) {
+  const verb = block?.reason === "inactivate" ? "inativar" : "mudar a função de";
+  return (
+    <AwModal
+      open={block !== null}
+      onClose={onClose}
+      title="Esta é a única conta de Administrador"
+      footer={
+        <AwButton size="sm" variant="primary" onClick={onClose}>
+          Voltar
+        </AwButton>
+      }
+    >
+      {block && (
+        <div className="flex flex-col gap-4">
+          <AwAlert variant="warning">
+            A organização não pode ficar sem ninguém com acesso total.
+          </AwAlert>
+          <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
+            Promova outro membro a Administrador antes de {verb}{" "}
+            <strong className="font-medium text-(--fg-primary)">
+              {block.memberName}
+            </strong>
+            .
           </p>
         </div>
       )}
