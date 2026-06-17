@@ -208,15 +208,6 @@ export default function CheckpointDocumentPage() {
           </div>
         </header>
 
-        {/* Dica de uso — sticky discreta, sem as ações. */}
-        <div className="sticky top-0 z-20 border-y border-(--border-subtle) bg-(--bg-canvas)/90 backdrop-blur-md">
-          <div className="mx-auto flex w-full max-w-[1280px] items-center px-10 py-2">
-            <p className="text-xs text-(--fg-tertiary)">
-              {"@ insere tools e AOPs · {{ insere variáveis"}
-            </p>
-          </div>
-        </div>
-
         {/* Documento + painel */}
         <div className="flex-1 px-10 pb-16 pt-8">
           <div className="mx-auto flex w-full max-w-[1280px] items-start gap-10">
