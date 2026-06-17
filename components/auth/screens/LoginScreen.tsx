@@ -46,6 +46,7 @@ export function LoginScreen({
 }) {
   const c = COPY.login[locale];
   const [emailInput, setEmailInput] = useState("");
+  const [magicLinkMode, setMagicLinkMode] = useState(false);
 
   const emailValid = emailInput.includes("@");
 
@@ -54,6 +55,12 @@ export function LoginScreen({
     const trimmed = emailInput.trim();
     if (!trimmed.includes("@")) return;
     setEmail(trimmed);
+    // No modo link mágico o submit envia direto pra rota do link.
+    if (magicLinkMode) {
+      setAuthMethod("password");
+      goTo("magicSent");
+      return;
+    }
     const ssoOrg = detectSso(trimmed);
     if (ssoOrg) {
       setSsoOrg(ssoOrg);
@@ -65,20 +72,14 @@ export function LoginScreen({
     }
   };
 
-  // Magic link a partir da tela inicial: reaproveita o e-mail já digitado
-  // (sem 2ª tela de pedido). Passwordless por e-mail filtra as mesmas orgs
-  // do login por senha.
-  const handleMagic = () => {
-    const trimmed = emailInput.trim();
-    // Sem e-mail válido o botão não ficava clicável (parecia quebrado): agora
-    // ele sempre responde — leva o foco pro campo pra você digitar e seguir.
-    if (!trimmed.includes("@")) {
+  // Magic link: clicar aqui não navega de cara — entra no "modo link mágico".
+  // Some suavemente Google/Microsoft + o divisor "ou" e o "Continuar" vira
+  // "Enviar link para meu email"; o envio acontece no submit do form.
+  const toggleMagic = () => {
+    if (!magicLinkMode && !emailInput.trim().includes("@")) {
       document.getElementById("loginEmail")?.focus();
-      return;
     }
-    setEmail(trimmed);
-    setAuthMethod("password");
-    goTo("magicSent");
+    setMagicLinkMode((v) => !v);
   };
 
   return (
@@ -101,28 +102,38 @@ export function LoginScreen({
       </div>
 
       <AwButton variant="primary" size="md" block type="submit" disabled={!emailValid}>
-        {c.cta}
+        {magicLinkMode ? c.magicCta : c.cta}
       </AwButton>
 
-      <div className="mt-5 flex items-center gap-3" aria-hidden="true">
-        <span className="flex-1 h-px bg-aw-gray-200" />
-        <span className="body-xs text-aw-gray-700">{c.or}</span>
-        <span className="flex-1 h-px bg-aw-gray-200" />
-      </div>
+      <div
+        className={
+          "overflow-hidden transition-all duration-300 ease-out " +
+          (magicLinkMode
+            ? "max-h-0 opacity-0 pointer-events-none"
+            : "max-h-60 opacity-100")
+        }
+        aria-hidden={magicLinkMode}
+      >
+        <div className="mt-5 flex items-center gap-3" aria-hidden="true">
+          <span className="flex-1 h-px bg-aw-gray-200" />
+          <span className="body-xs text-aw-gray-700">{c.or}</span>
+          <span className="flex-1 h-px bg-aw-gray-200" />
+        </div>
 
-      <div className="mt-4 flex flex-col gap-2.5">
-        <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
-        <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
+        <div className="mt-4 flex flex-col gap-2.5">
+          <SsoButton icon={<GoogleIcon />} label={c.ssoGoogle} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
+          <SsoButton icon={<MsIcon />} label={c.ssoMs} onClick={() => { setAuthMethod("social"); goTo("workspace"); }} />
+        </div>
       </div>
 
       <p className="mt-5 text-center">
         <button
           type="button"
-          onClick={handleMagic}
+          onClick={toggleMagic}
           className="inline-flex items-center gap-1.5 body-xs font-medium text-aw-gray-1200 hover:underline hover:underline-offset-[3px] hover:decoration-[1.5px]"
         >
-          <Icon name="mail" size={14} />
-          {c.magicLink}
+          <Icon name={magicLinkMode ? "arrow_back" : "mail"} size={14} />
+          {magicLinkMode ? c.magicBack : c.magicLink}
         </button>
       </p>
     </form>
