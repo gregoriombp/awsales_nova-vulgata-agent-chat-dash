@@ -744,8 +744,8 @@ function MemoryBaseDirectoryContent() {
           onSettings={() => router.push(`/memory-base/${params?.id}/settings`)}
         />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-raised)">
-        {/* Header area — faixa escura com o glow azul da marca no canto. */}
-        <div className="relative shrink-0 overflow-hidden bg-gray-1200 border-b border-aw-gray-700" data-tour="kb-header">
+        {/* Header area — card escuro destacado com o glow azul da marca no canto. */}
+        <div className="relative shrink-0 overflow-hidden rounded-2xl bg-gray-1200 m-4" data-tour="kb-header">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0"
