@@ -112,8 +112,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                           initials={m.initials}
                           alt={m.name}
                           className={cn(
-                            "h-12! w-12! text-(length:--body-sm-size)!",
-                            "ring-2 ring-(--bg-raised)",
+                            "h-10! w-10! text-(length:--body-sm-size)!",
+                            "ring-1 ring-(--bg-raised)",
                           )}
                         />
                       </span>
@@ -133,8 +133,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                       }}
                       aria-label="Ver todos os membros"
                       className={cn(
-                        "aw-avatar -ml-3 h-12! w-12! text-(length:--body-xs-size)!",
-                        "ring-2 ring-(--bg-raised)",
+                        "aw-avatar -ml-3 h-10! w-10! text-(length:--body-xs-size)!",
+                        "ring-1 ring-(--bg-raised)",
                         "bg-(--bg-muted)! text-(--fg-secondary)!",
                         "transition-colors hover:bg-(--bg-hover)! hover:text-(--fg-primary)!",
                       )}
@@ -144,8 +144,8 @@ export const AwGroupCard = React.forwardRef<HTMLElement, AwGroupCardProps>(
                   ) : (
                     <span
                       className={cn(
-                        "aw-avatar -ml-3 h-12! w-12! text-(length:--body-xs-size)!",
-                        "ring-2 ring-(--bg-raised)",
+                        "aw-avatar -ml-3 h-10! w-10! text-(length:--body-xs-size)!",
+                        "ring-1 ring-(--bg-raised)",
                         "bg-(--bg-muted)! text-(--fg-secondary)!",
                       )}
                     >
