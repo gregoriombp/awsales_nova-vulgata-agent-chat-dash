@@ -8,7 +8,11 @@ import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { Icon } from "@/components/ui/Icon";
 import { SettingsPageHeader } from "../../_components/shared";
+
+// Organização corrente — mesmo nome usado no perfil irmão (perfil/page.tsx).
+const ORG_NAME = "Aswork";
 
 const INITIAL = {
   fullName: "Gregório Pinheiro",
@@ -44,13 +48,18 @@ export default function DadosPessoaisPage() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [previewSrc, setPreviewSrc] = useState<string | null>(null);
 
+  const nameEmpty = fullName.trim() === "";
+
   const dirty =
     fullName.trim() !== INITIAL.fullName ||
     phone !== INITIAL.phone ||
     timezone !== INITIAL.timezone;
 
+  // Nome é o único campo editável obrigatório — não dá pra salvar vazio.
+  const canSave = dirty && !nameEmpty;
+
   function handleSave() {
-    // TODO: submit via API
+    if (!canSave) return;
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -73,20 +82,33 @@ export default function DadosPessoaisPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Dados pessoais"
-        description="Suas informações de perfil — visíveis para membros da organização."
+        description="Nome, telefone, foto e fuso horário — informações da sua conta, visíveis para os membros da organização."
       />
+
+      {/* Escopo: deixa explícito que esta área é pessoal, não da organização. */}
+      <p className="-mt-6 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+        <Icon name="person" size={14} />
+        Esta é a sua conta — vale só para você. As configurações da organização
+        ficam em outra área.
+      </p>
 
       {/* Esquerda: foto de perfil · Direita: formulário de edição */}
       <div className="mt-8 grid grid-cols-[300px_minmax(0,1fr)] items-start gap-8">
         {/* Form — coluna direita */}
         <AwCard className="col-start-2 row-start-1 p-6!">
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-            <AwField label="Nome completo" htmlFor="full-name">
+            <AwField
+              label="Nome completo *"
+              htmlFor="full-name"
+              error={nameEmpty ? "Informe o seu nome para salvar." : undefined}
+            >
               <AwInput
                 id="full-name"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
+                invalid={nameEmpty}
                 autoComplete="name"
+                aria-required="true"
               />
             </AwField>
 
@@ -114,9 +136,9 @@ export default function DadosPessoaisPage() {
             </AwField>
 
             <AwField
-              label="Função na organização"
+              label={`Função na ${ORG_NAME}`}
               htmlFor="role"
-              helper="Definida pela organização."
+              helper="A função é definida por organização — você pode ter funções diferentes em cada uma onde participa."
             >
               <AwInput id="role" value={INITIAL.role} disabled />
             </AwField>
@@ -137,6 +159,13 @@ export default function DadosPessoaisPage() {
             </AwField>
           </div>
 
+          {/* Legenda única dos campos travados — explica o "por quê" e o caminho de ação. */}
+          <p className="mt-5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+            <Icon name="lock" size={14} />
+            E-mail, função e data de entrada são definidos pela organização. Para
+            alterá-los, fale com um administrador.
+          </p>
+
           <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">
             <AwButton
               variant="ghost"
@@ -150,7 +179,7 @@ export default function DadosPessoaisPage() {
               variant="primary"
               size="sm"
               onClick={handleSave}
-              disabled={!dirty}
+              disabled={!canSave}
             >
               {saved ? "Salvo" : "Salvar alterações"}
             </AwButton>
