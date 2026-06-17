@@ -42,6 +42,26 @@ export default function DangerZoneSettingsPage() {
     setRequestOpen(false);
   };
 
+  const handleExport = () => {
+    const content = [
+      "AwSales — Exportação de dados da organização",
+      "",
+      `Organização: ${ONBOARDING_ORG.name}`,
+      "Conteúdo: conversas, agentes, bases de conhecimento e logs de execução.",
+      "",
+      "Este resumo confirma a solicitação — o arquivo .zip completo chega no seu e-mail.",
+    ].join("\n");
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "export-dados-organizacao.txt";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
@@ -64,7 +84,12 @@ export default function DangerZoneSettingsPage() {
               Geramos um arquivo .zip e enviamos para o seu e-mail.
             </p>
           </div>
-          <AwButton size="sm" variant="secondary" iconLeft="download">
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="download"
+            onClick={handleExport}
+          >
             Exportar
           </AwButton>
         </div>
