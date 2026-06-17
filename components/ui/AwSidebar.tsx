@@ -203,7 +203,7 @@ export function AwSidebar({
     <aside
       className="flex h-screen shrink-0 bg-transparent py-2 pl-2 pr-1"
       style={{
-        width: isCollapsed ? 88 : 320,
+        width: isCollapsed ? 88 : 304,
         transition: animationsReady
           ? "width var(--dur-slow) var(--ease-out)"
           : "none",
