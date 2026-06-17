@@ -1,6 +1,7 @@
 "use client";
 
-import Link from "next/link";
+import { AwBreadcrumb, type AwBreadcrumbItem } from "./AwBreadcrumb";
+import { Icon } from "./Icon";
 
 export interface BreadcrumbItem {
   label: string;
@@ -10,72 +11,34 @@ export interface BreadcrumbItem {
 
 export type BreadcrumbsItems = (string | BreadcrumbItem)[];
 
-function renderItem(
-  item: string | BreadcrumbItem,
-  index: number,
-  array: BreadcrumbsItems,
-) {
-  const isLast = index === array.length - 1;
-  const data = typeof item === "string" ? { label: item } : item;
-  const hasLink = !isLast && data.href;
-
-  const content = (
-    <span className="inline-flex items-center gap-2">
-      {data.icon && (
-        <span className="shrink-0 text-(--fg-primary)">{data.icon}</span>
-      )}
-      <span className={isLast ? "text-(--fg-tertiary)" : "text-(--fg-primary)"}>
-        {data.label}
-      </span>
-    </span>
-  );
-
-  return (
-    <div key={index} className="flex items-center gap-1.5">
-      <div className="flex items-center gap-2.5">
-        {hasLink ? (
-          <Link
-            href={data.href!}
-            className="body-sm leading-5 hover:underline hover:text-(--fg-primary) focus:outline-hidden focus:underline"
-          >
-            {content}
-          </Link>
-        ) : (
-          <span className="body-sm leading-5">{content}</span>
-        )}
-      </div>
-      {!isLast && (
-        <svg
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="text-(--fg-tertiary) shrink-0"
-          aria-hidden="true"
-        >
-          <path
-            d="M9 6L15 12L9 18"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-    </div>
-  );
-}
-
+/**
+ * Trilha de navegação da plataforma. Delega a renderização ao primitivo do
+ * design system `AwBreadcrumb` (styleguide/components/aw-breadcrumb) — a barra
+ * abaixo só fornece o chrome (faixa + padding). Itens com `icon` compõem o
+ * ícone dentro do label (que é ReactNode no primitivo). O separador é o chevron
+ * do DS pra manter a leitura de trilha.
+ */
 export function AwBreadcrumbs({ items }: { items: BreadcrumbsItems }) {
   if (!items || items.length === 0) return null;
+  const mapped: AwBreadcrumbItem[] = items.map((item) => {
+    const data = typeof item === "string" ? { label: item } : item;
+    return {
+      href: data.href,
+      label: data.icon ? (
+        <span className="inline-flex items-center gap-1.5">
+          <span className="shrink-0">{data.icon}</span>
+          {data.label}
+        </span>
+      ) : (
+        data.label
+      ),
+    };
+  });
   return (
-    <nav
-      aria-label="Breadcrumb"
-      className="flex items-center gap-1.5"
-    >
-      {items.map((item, index) => renderItem(item, index, items))}
-    </nav>
+    <AwBreadcrumb
+      items={mapped}
+      separator={<Icon name="chevron_right" size={14} />}
+    />
   );
 }
 
