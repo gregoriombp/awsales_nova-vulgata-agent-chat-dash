@@ -119,15 +119,15 @@ function DeltaValue({ diff }: DeltaValueProps) {
   const isBad = upIsPositive ? isNegative : isPositive;
 
   const colorClass = isGood
-    ? "text-green-600 dark:text-green-400"
+    ? "text-aw-emerald-600 dark:text-aw-emerald-400"
     : isBad
-      ? "text-red-600 dark:text-red-500"
+      ? "text-aw-red-600 dark:text-aw-red-500"
       : "text-muted-foreground";
 
   const bgClass = isGood
-    ? "bg-green-500/10 dark:bg-green-600/15"
+    ? "bg-aw-emerald-500/10 dark:bg-aw-emerald-600/15"
     : isBad
-      ? "bg-red-500/10 dark:bg-red-500/15"
+      ? "bg-aw-red-500/10 dark:bg-aw-red-500/15"
       : "bg-muted";
 
   const formatted = Math.abs(value).toFixed(decimals);

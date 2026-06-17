@@ -57,7 +57,7 @@ export function DeltaValue({ value, options, locale }: DeltaValueProps) {
   const isBad = upIsPositive ? isNegative : isPositive;
 
   const colorClass = isGood
-    ? "text-green-700 dark:text-green-500"
+    ? "text-aw-emerald-700 dark:text-aw-emerald-500"
     : isBad
       ? "text-destructive"
       : "text-fg-secondary";
@@ -110,13 +110,13 @@ export function StatusBadge({ value, options }: StatusBadgeProps) {
       className={cn(
         "border",
         config.tone === "warning" &&
-          "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-100",
+          "bg-aw-amber-100 text-aw-amber-700 dark:bg-aw-amber-900 dark:text-aw-amber-100",
         config.tone === "success" &&
-          "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-100",
+          "bg-aw-emerald-100 text-aw-emerald-700 dark:bg-aw-emerald-900 dark:text-aw-emerald-100",
         config.tone === "info" &&
-          "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-100",
+          "bg-aw-blue-100 text-aw-blue-700 dark:bg-aw-blue-900 dark:text-aw-blue-100",
         config.tone === "danger" &&
-          "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-100",
+          "bg-aw-red-100 text-aw-red-700 dark:bg-aw-red-900 dark:text-aw-red-100",
       )}
     >
       {label}
@@ -343,13 +343,13 @@ export function BadgeValue({ value, options }: BadgeValueProps) {
       className={cn(
         "border",
         tone === "warning" &&
-          "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-100",
+          "bg-aw-amber-100 text-aw-amber-700 dark:bg-aw-amber-900 dark:text-aw-amber-100",
         tone === "success" &&
-          "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-100",
+          "bg-aw-emerald-100 text-aw-emerald-700 dark:bg-aw-emerald-900 dark:text-aw-emerald-100",
         tone === "info" &&
-          "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-100",
+          "bg-aw-blue-100 text-aw-blue-700 dark:bg-aw-blue-900 dark:text-aw-blue-100",
         tone === "danger" &&
-          "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-100",
+          "bg-aw-red-100 text-aw-red-700 dark:bg-aw-red-900 dark:text-aw-red-100",
       )}
     >
       {value}
