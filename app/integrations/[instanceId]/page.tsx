@@ -3,6 +3,7 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwPill } from "@/components/ui/AwPill";
@@ -1452,53 +1453,136 @@ function ToolDetailModal({
  * Tab: Auditoria
  * ---------------------------------------------------------------- */
 
+type AuditRow = {
+  id: string;
+  when: string;
+  /** ISO-ish, ordenável por comparação de string. */
+  sortDate: string;
+  who: string;
+  initials: string;
+  what: React.ReactNode;
+};
+
+const AUDIT_ROWS: AuditRow[] = [
+  {
+    id: "a1",
+    when: "30/04 · 09:00",
+    sortDate: "2026-04-30T09:00",
+    who: "PG ~ MambaCult",
+    initials: "PG",
+    what: (
+      <>
+        Toggle on em <code>buscar-comprador</code>
+      </>
+    ),
+  },
+  {
+    id: "a2",
+    when: "29/04 · 15:42",
+    sortDate: "2026-04-29T15:42",
+    who: "PG ~ MambaCult",
+    initials: "PG",
+    what: <>Reconectada com novos escopos (+webhooks.recv)</>,
+  },
+  {
+    id: "a3",
+    when: "28/04 · 11:20",
+    sortDate: "2026-04-28T11:20",
+    who: "PG ~ MambaCult",
+    initials: "PG",
+    what: (
+      <>
+        Tool <code>agendar-especialista</code> criada
+      </>
+    ),
+  },
+  {
+    id: "a4",
+    when: "26/03 · 10:00",
+    sortDate: "2026-03-26T10:00",
+    who: "PG ~ MambaCult",
+    initials: "PG",
+    what: <>Conexão criada</>,
+  },
+];
+
 function AuditTab() {
-  const rows: { when: string; who: string; what: React.ReactNode }[] = [
-    {
-      when: "30/04 09:00",
-      who: "PG ~ MambaCult",
-      what: (
-        <>
-          Toggle on em <code>buscar-comprador</code>
-        </>
-      ),
-    },
-    {
-      when: "29/04 15:42",
-      who: "PG ~ MambaCult",
-      what: <>Reconectada com novos escopos (+webhooks.recv)</>,
-    },
-    {
-      when: "28/04 11:20",
-      who: "PG ~ MambaCult",
-      what: (
-        <>
-          Tool <code>agendar-especialista</code> criada
-        </>
-      ),
-    },
-    {
-      when: "26/03 10:00",
-      who: "PG ~ MambaCult",
-      what: <>Conexão criada</>,
-    },
-  ];
+  const [sort, setSort] = useState<{ by: "when" | "who"; dir: "asc" | "desc" }>({
+    by: "when",
+    dir: "desc",
+  });
+
+  const toggleSort = (by: "when" | "who") =>
+    setSort((s) =>
+      s.by === by
+        ? { by, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { by, dir: by === "who" ? "asc" : "desc" },
+    );
+
+  const sorted = useMemo(() => {
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return [...AUDIT_ROWS].sort((a, b) => {
+      if (sort.by === "who") return a.who.localeCompare(b.who) * dir;
+      return a.sortDate < b.sortDate ? -dir : a.sortDate > b.sortDate ? dir : 0;
+    });
+  }, [sort]);
+
+  const SortGlyph = ({ col }: { col: "when" | "who" }) => (
+    <Icon
+      name={
+        sort.by === col
+          ? sort.dir === "asc"
+            ? "arrow_upward"
+            : "arrow_downward"
+          : "unfold_more"
+      }
+      size={14}
+      className={sort.by === col ? "text-(--fg-secondary)" : "text-(--fg-tertiary)"}
+    />
+  );
 
   return (
     <SectionCard title="Auditoria">
       <AwTable>
         <thead>
           <tr>
-            <th>Quando</th>
-            <th>Quem</th>
+            <th>
+              <button
+                type="button"
+                onClick={() => toggleSort("when")}
+                className="inline-flex items-center gap-1 rounded-sm transition-colors duration-aw-fast hover:text-(--fg-primary)"
+                aria-label="Ordenar por data"
+              >
+                Quando
+                <SortGlyph col="when" />
+              </button>
+            </th>
+            <th>
+              <button
+                type="button"
+                onClick={() => toggleSort("who")}
+                className="inline-flex items-center gap-1 rounded-sm transition-colors duration-aw-fast hover:text-(--fg-primary)"
+                aria-label="Ordenar por quem"
+              >
+                Quem
+                <SortGlyph col="who" />
+              </button>
+            </th>
             <th>Ação</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
-            <tr key={i}>
-              <td className="text-(--fg-secondary)">{r.when}</td>
-              <td className="text-(--fg-secondary)">{r.who}</td>
+          {sorted.map((r) => (
+            <tr key={r.id}>
+              <td className="whitespace-nowrap text-(--fg-secondary)">
+                {r.when}
+              </td>
+              <td>
+                <span className="inline-flex items-center gap-2">
+                  <AwAvatar size="sm" initials={r.initials} alt={r.who} />
+                  <span className="text-(--fg-primary)">{r.who}</span>
+                </span>
+              </td>
               <td>{r.what}</td>
             </tr>
           ))}
