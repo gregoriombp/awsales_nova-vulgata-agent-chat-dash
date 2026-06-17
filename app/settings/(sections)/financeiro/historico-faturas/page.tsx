@@ -89,6 +89,7 @@ export default function HistoricoFaturasPage() {
     null,
   );
   const [exportConfirmed, setExportConfirmed] = React.useState(false);
+  const [alertDismissed, setAlertDismissed] = React.useState(false);
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
@@ -144,8 +145,12 @@ export default function HistoricoFaturasPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      {showPaymentAlert && (
-        <AwAlert variant="warning" title="Regularize seu pagamento">
+      {showPaymentAlert && !alertDismissed && (
+        <AwAlert
+          variant="warning"
+          title="Regularize seu pagamento"
+          onClose={() => setAlertDismissed(true)}
+        >
           <p className="m-0 body-xs text-(--fg-primary)">
             {overdueCount > 0 && (
               <>
