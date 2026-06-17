@@ -25,7 +25,7 @@ export type Agent = {
   coreName: string;
   /** PNG do Core (1–20). */
   coreSrc: string;
-  author: { name: string; initials: string };
+  author: { name: string; initials: string; avatar?: string };
   createdAt: string;
   knowledgeBase: string;
 };
@@ -47,7 +47,7 @@ export const MEUS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Upsell Specialist",
     coreSrc: agentCoreSrc(3),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
+    author: { name: "Gregório Pinheiro", initials: "GP", avatar: "/assets/ui-faces/male-1.jpg" },
     createdAt: "9 fev 2026, 20:21",
     knowledgeBase: "Fyntra | Dados Gerais 2026",
   },
@@ -58,7 +58,7 @@ export const MEUS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Closer Pro",
     coreSrc: agentCoreSrc(7),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
+    author: { name: "Gregório Pinheiro", initials: "GP", avatar: "/assets/ui-faces/male-1.jpg" },
     createdAt: "2 fev 2026, 11:08",
     knowledgeBase: "Fyntra | Playbook comercial",
   },
@@ -69,7 +69,7 @@ export const MEUS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Empathy Core",
     coreSrc: agentCoreSrc(12),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
+    author: { name: "Gregório Pinheiro", initials: "GP", avatar: "/assets/ui-faces/male-1.jpg" },
     createdAt: "28 jan 2026, 16:42",
     knowledgeBase: "Fyntra | Central de ajuda",
   },
@@ -80,7 +80,7 @@ export const MEUS_AGENTES: Agent[] = [
     status: "draft",
     coreName: "People Ops",
     coreSrc: agentCoreSrc(15),
-    author: { name: "Gregório Pinheiro", initials: "GP" },
+    author: { name: "Gregório Pinheiro", initials: "GP", avatar: "/assets/ui-faces/male-1.jpg" },
     createdAt: "24 jan 2026, 09:15",
     knowledgeBase: "Fyntra | Manual interno",
   },
@@ -94,7 +94,7 @@ export const TODOS_OS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Insight Engine",
     coreSrc: agentCoreSrc(5),
-    author: { name: "Bea Costa", initials: "BC" },
+    author: { name: "Bea Costa", initials: "BC", avatar: "/assets/ui-faces/female-1.jpg" },
     createdAt: "18 jan 2026, 14:30",
     knowledgeBase: "Fyntra | Inteligência de mercado",
   },
@@ -105,7 +105,7 @@ export const TODOS_OS_AGENTES: Agent[] = [
     status: "paused",
     coreName: "Guardian",
     coreSrc: agentCoreSrc(9),
-    author: { name: "Carlos Sun", initials: "CS" },
+    author: { name: "Carlos Sun", initials: "CS", avatar: "/assets/ui-faces/male-3.jpg" },
     createdAt: "15 jan 2026, 10:00",
     knowledgeBase: "Fyntra | Release notes",
   },
@@ -116,7 +116,7 @@ export const TODOS_OS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Pathfinder",
     coreSrc: agentCoreSrc(2),
-    author: { name: "Dani Rocha", initials: "DR" },
+    author: { name: "Dani Rocha", initials: "DR", avatar: "/assets/ui-faces/female-2.jpg" },
     createdAt: "12 jan 2026, 08:45",
     knowledgeBase: "Fyntra | Onboarding workspace",
   },
@@ -127,7 +127,7 @@ export const TODOS_OS_AGENTES: Agent[] = [
     status: "active",
     coreName: "Data Forge",
     coreSrc: agentCoreSrc(18),
-    author: { name: "Eva Lima", initials: "EL" },
+    author: { name: "Eva Lima", initials: "EL", avatar: "/assets/ui-faces/female-4.jpg" },
     createdAt: "9 jan 2026, 17:20",
     knowledgeBase: "Fyntra | Data warehouse",
   },

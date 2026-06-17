@@ -16,6 +16,7 @@ import {
   AwMembersTable,
   AwMembersTablePersonCell,
   AwMembersTableTextCell,
+  type AwMembersTableSort,
 } from "@/components/ui/AwMembersTable";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
@@ -354,6 +355,129 @@ type AgentsTableActions = {
   onDelete: (agent: Agent) => void;
 };
 
+/* Colunas opcionais (Nome e ações são sempre exibidos). Cada coluna sabe se
+ * renderizar como cabeçalho (label/icon/sortKey) e como célula da linha, além
+ * de fornecer o valor pra ordenação. */
+type AgentColKey =
+  | "objetivo"
+  | "status"
+  | "core"
+  | "author"
+  | "createdAt"
+  | "knowledgeBase";
+
+const PT_MONTHS: Record<string, string> = {
+  jan: "01", fev: "02", mar: "03", abr: "04", mai: "05", jun: "06",
+  jul: "07", ago: "08", set: "09", out: "10", nov: "11", dez: "12",
+};
+
+/** "9 fev 2026, 20:21" → "2026-02-09 20:21" (ordenável por string). */
+function createdAtSortKey(s: string): string {
+  const m = s.match(/(\d+)\s+(\w+)\s+(\d{4}),?\s*(\d{2}:\d{2})?/);
+  if (!m) return s;
+  return `${m[3]}-${PT_MONTHS[m[2].toLowerCase()] ?? "00"}-${m[1].padStart(2, "0")} ${m[4] ?? ""}`;
+}
+
+type AgentColumnDef = {
+  key: AgentColKey;
+  label: string;
+  icon?: string;
+  sortValue: (a: Agent) => string;
+  render: (a: Agent) => React.ReactNode;
+};
+
+const AGENT_COLUMNS: AgentColumnDef[] = [
+  {
+    key: "objetivo",
+    label: "Objetivo",
+    icon: "target",
+    sortValue: (a) => a.objetivo,
+    render: (a) => (
+      <AwMembersTableTextCell key="objetivo" muted>
+        <span className="flex items-center gap-2">
+          <Icon name="target" size={16} className="shrink-0 text-(--fg-tertiary)" />
+          <span className="truncate">{a.objetivo}</span>
+        </span>
+      </AwMembersTableTextCell>
+    ),
+  },
+  {
+    key: "status",
+    label: "Status",
+    sortValue: (a) => AGENT_STATUS_META[a.status].label,
+    render: (a) => (
+      <td key="status">
+        <AwPill variant={AGENT_STATUS_META[a.status].variant}>
+          {AGENT_STATUS_META[a.status].label}
+        </AwPill>
+      </td>
+    ),
+  },
+  {
+    key: "core",
+    label: "Agente core",
+    sortValue: (a) => a.coreName,
+    render: (a) => (
+      <td key="core">
+        <span className="flex items-center gap-2">
+          <AwAgentCore src={a.coreSrc} size={20} />
+          <span className="truncate text-(length:--body-sm-size) text-(--fg-primary)">
+            {a.coreName}
+          </span>
+        </span>
+      </td>
+    ),
+  },
+  {
+    key: "author",
+    label: "Criado por",
+    icon: "person",
+    sortValue: (a) => a.author.name,
+    render: (a) => (
+      <td key="author">
+        <span className="flex items-center gap-2">
+          <AwAvatar
+            size="sm"
+            src={a.author.avatar}
+            initials={a.author.initials}
+            alt={a.author.name}
+          />
+          <span className="truncate text-(length:--body-sm-size) text-(--fg-secondary)">
+            {a.author.name}
+          </span>
+        </span>
+      </td>
+    ),
+  },
+  {
+    key: "createdAt",
+    label: "Criado em",
+    icon: "schedule",
+    sortValue: (a) => createdAtSortKey(a.createdAt),
+    render: (a) => (
+      <AwMembersTableTextCell key="createdAt" muted className="whitespace-nowrap">
+        {a.createdAt}
+      </AwMembersTableTextCell>
+    ),
+  },
+  {
+    key: "knowledgeBase",
+    label: "Base de conhecimento",
+    icon: "account_balance",
+    sortValue: (a) => a.knowledgeBase,
+    render: (a) => (
+      <AwMembersTableTextCell key="knowledgeBase" muted>
+        <span className="flex items-center gap-2">
+          <Icon name="account_balance" size={15} className="shrink-0 text-(--fg-tertiary)" />
+          <span className="truncate">{a.knowledgeBase}</span>
+        </span>
+      </AwMembersTableTextCell>
+    ),
+  },
+];
+
+const AGENT_COLS_STORAGE_KEY = "agent-studio:visible-cols";
+
 function AgentsTable({
   agents,
   onDuplicate,
@@ -362,137 +486,163 @@ function AgentsTable({
 }: { agents: Agent[] } & AgentsTableActions) {
   const router = useRouter();
 
+  const [sort, setSort] = React.useState<AwMembersTableSort | null>(null);
+  const [visible, setVisible] = React.useState<Set<AgentColKey>>(
+    () => new Set(AGENT_COLUMNS.map((c) => c.key)),
+  );
+
+  // Hidrata a preferência de colunas no client (evita mismatch de hidratação).
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(AGENT_COLS_STORAGE_KEY);
+      if (!raw) return;
+      const arr = JSON.parse(raw) as AgentColKey[];
+      const valid = arr.filter((k) => AGENT_COLUMNS.some((c) => c.key === k));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setVisible(new Set(valid));
+    } catch {
+      /* noop */
+    }
+  }, []);
+
+  const toggleCol = (k: AgentColKey) =>
+    setVisible((prev) => {
+      const next = new Set(prev);
+      if (next.has(k)) next.delete(k);
+      else next.add(k);
+      try {
+        localStorage.setItem(AGENT_COLS_STORAGE_KEY, JSON.stringify([...next]));
+      } catch {
+        /* noop */
+      }
+      return next;
+    });
+
+  const onSort = (key: string) =>
+    setSort((s) =>
+      s && s.by === key
+        ? { by: key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { by: key, dir: "asc" },
+    );
+
+  const cols = AGENT_COLUMNS.filter((c) => visible.has(c.key));
+
+  const sorted = React.useMemo(() => {
+    if (!sort) return agents;
+    const dir = sort.dir === "asc" ? 1 : -1;
+    const valueOf = (a: Agent) =>
+      sort.by === "title"
+        ? a.title
+        : (AGENT_COLUMNS.find((c) => c.key === sort.by)?.sortValue(a) ?? "");
+    return [...agents].sort((a, b) => valueOf(a).localeCompare(valueOf(b)) * dir);
+  }, [agents, sort]);
+
   return (
-    <AwMembersTable
-      columns={[
-        { label: "Nome", icon: "agent" },
-        { label: "Objetivo", icon: "target" },
-        { label: "Status" },
-        { label: "Agente core" },
-        { label: "Criado por", icon: "person" },
-        { label: "Criado em", icon: "schedule" },
-        { label: "Base de conhecimento", icon: "account_balance" },
-        { label: "", width: 52 },
-      ]}
-    >
-      {agents.map((agent) => {
-        const status = AGENT_STATUS_META[agent.status];
-        const href = `/agent-studio/${agent.id}`;
-        return (
-          <tr
-            key={agent.id}
-            className="aw-row-clickable"
-            onClick={() => router.push(href)}
-          >
-            <AwMembersTablePersonCell
-              name={agent.title}
-              avatar={
-                <AwUserAgentOrb seed={agent.id} state="responding" size={40} />
-              }
-            />
+    <div className="flex flex-col gap-3">
+      <div className="flex justify-end">
+        <AwDropdownMenu
+          align="end"
+          trigger={
+            <AwButton variant="secondary" size="sm" iconLeft="view_column">
+              Colunas
+            </AwButton>
+          }
+          items={AGENT_COLUMNS.map((c) => ({
+            id: c.key,
+            label: c.label,
+            checked: visible.has(c.key),
+            closeOnSelect: false,
+            onSelect: () => toggleCol(c.key),
+          }))}
+        />
+      </div>
 
-            <AwMembersTableTextCell muted>
-              <span className="flex items-center gap-2">
-                <Icon
-                  name="target"
-                  size={16}
-                  className="shrink-0 text-(--fg-tertiary)"
-                />
-                <span className="truncate">{agent.objetivo}</span>
-              </span>
-            </AwMembersTableTextCell>
-
-            <td>
-              <AwPill variant={status.variant}>{status.label}</AwPill>
-            </td>
-
-            <td>
-              <span className="flex items-center gap-2">
-                <AwAgentCore src={agent.coreSrc} size={20} />
-                <span className="truncate text-(length:--body-sm-size) text-(--fg-primary)">
-                  {agent.coreName}
-                </span>
-              </span>
-            </td>
-
-            <td>
-              <span className="flex items-center gap-2">
-                <AwAvatar
-                  size="sm"
-                  initials={agent.author.initials}
-                  alt={agent.author.name}
-                />
-                <span className="truncate text-(length:--body-sm-size) text-(--fg-secondary)">
-                  {agent.author.name}
-                </span>
-              </span>
-            </td>
-
-            <AwMembersTableTextCell muted className="whitespace-nowrap">
-              {agent.createdAt}
-            </AwMembersTableTextCell>
-
-            <AwMembersTableTextCell muted>
-              <span className="flex items-center gap-2">
-                <Icon
-                  name="account_balance"
-                  size={15}
-                  className="shrink-0 text-(--fg-tertiary)"
-                />
-                <span className="truncate">{agent.knowledgeBase}</span>
-              </span>
-            </AwMembersTableTextCell>
-
-            <td>
-              <div className="flex items-center justify-end">
-                <span onClick={(e) => e.stopPropagation()}>
-                  <AwDropdownMenu
-                    align="end"
-                    trigger={
-                      <button
-                        type="button"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-                        aria-label={`Ações de ${agent.title}`}
-                      >
-                        <Icon name="more_vert" size={20} />
-                      </button>
-                    }
-                    items={[
-                      {
-                        id: "open",
-                        label: "Abrir agente",
-                        icon: "open_in_new",
-                        onSelect: () => router.push(href),
-                      },
-                      {
-                        id: "duplicate",
-                        label: "Duplicar",
-                        icon: "content_copy",
-                        onSelect: () => onDuplicate(agent),
-                      },
-                      {
-                        id: "toggle-status",
-                        label: agent.status === "active" ? "Pausar" : "Ativar",
-                        icon:
-                          agent.status === "active" ? "pause" : "play_arrow",
-                        onSelect: () => onToggleStatus(agent),
-                      },
-                      { id: "sep", separator: true },
-                      {
-                        id: "delete",
-                        label: "Excluir",
-                        icon: "delete",
-                        danger: true,
-                        onSelect: () => onDelete(agent),
-                      },
-                    ]}
+      <AwMembersTable
+        sort={sort ?? undefined}
+        onSort={onSort}
+        columns={[
+          { label: "Nome", icon: "agent", sortKey: "title" },
+          ...cols.map((c) => ({
+            label: c.label,
+            icon: c.icon,
+            sortKey: c.key,
+          })),
+          { label: "", width: 52 },
+        ]}
+      >
+        {sorted.map((agent) => {
+          const href = `/agent-studio/${agent.id}`;
+          const isPaused = agent.status === "paused";
+          return (
+            <tr
+              key={agent.id}
+              className={`aw-row-clickable${isPaused ? " opacity-60" : ""}`}
+              onClick={() => router.push(href)}
+            >
+              <AwMembersTablePersonCell
+                name={agent.title}
+                avatar={
+                  <AwUserAgentOrb
+                    seed={agent.id}
+                    state={isPaused ? "paused" : "responding"}
+                    size={40}
                   />
-                </span>
-              </div>
-            </td>
-          </tr>
-        );
-      })}
-    </AwMembersTable>
+                }
+              />
+
+              {cols.map((c) => c.render(agent))}
+
+              <td>
+                <div className="flex items-center justify-end">
+                  <span onClick={(e) => e.stopPropagation()}>
+                    <AwDropdownMenu
+                      align="end"
+                      trigger={
+                        <button
+                          type="button"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+                          aria-label={`Ações de ${agent.title}`}
+                        >
+                          <Icon name="more_vert" size={20} />
+                        </button>
+                      }
+                      items={[
+                        {
+                          id: "open",
+                          label: "Abrir agente",
+                          icon: "open_in_new",
+                          onSelect: () => router.push(href),
+                        },
+                        {
+                          id: "duplicate",
+                          label: "Duplicar",
+                          icon: "content_copy",
+                          onSelect: () => onDuplicate(agent),
+                        },
+                        {
+                          id: "toggle-status",
+                          label: agent.status === "active" ? "Pausar" : "Ativar",
+                          icon:
+                            agent.status === "active" ? "pause" : "play_arrow",
+                          onSelect: () => onToggleStatus(agent),
+                        },
+                        { id: "sep", separator: true },
+                        {
+                          id: "delete",
+                          label: "Excluir",
+                          icon: "delete",
+                          danger: true,
+                          onSelect: () => onDelete(agent),
+                        },
+                      ]}
+                    />
+                  </span>
+                </div>
+              </td>
+            </tr>
+          );
+        })}
+      </AwMembersTable>
+    </div>
   );
 }
