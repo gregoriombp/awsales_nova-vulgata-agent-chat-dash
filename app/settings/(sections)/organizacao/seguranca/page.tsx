@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwModal } from "@/components/ui/AwModal";
@@ -98,9 +99,7 @@ export default function OrgSegurancaPage() {
         />
         <AwCard className="p-0!">
           <div className="flex flex-wrap items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-              <Icon name="badge" size={20} />
-            </span>
+            <AwBrandLogo brand="googleworkspace" size="md" className="shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 {SSO.provider}
@@ -377,10 +376,10 @@ export default function OrgSegurancaPage() {
  * ===================================================================== */
 
 const TONES = {
-  ok: "text-(--accent-success)",
-  warn: "text-(--aw-amber-700)",
-  info: "text-(--accent-brand)",
-  muted: "text-(--fg-secondary)",
+  ok: { tint: "bg-(--aw-emerald-100)", fg: "text-(--aw-emerald-700)" },
+  warn: { tint: "bg-(--aw-amber-100)", fg: "text-(--aw-amber-700)" },
+  info: { tint: "bg-(--aw-blue-100)", fg: "text-(--aw-blue-700)" },
+  muted: { tint: "bg-(--bg-muted)", fg: "text-(--fg-secondary)" },
 } as const;
 
 function PostureTile({
@@ -396,8 +395,8 @@ function PostureTile({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-4 py-3.5">
-      <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted)", TONES[tone])}>
-        <Icon name={icon} size={18} />
+      <span className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", TONES[tone].tint, TONES[tone].fg)}>
+        <Icon name={icon} size={18} fill={1} />
       </span>
       <div className="min-w-0">
         <p className="m-0 body-xs text-(--fg-tertiary)">{label}</p>
