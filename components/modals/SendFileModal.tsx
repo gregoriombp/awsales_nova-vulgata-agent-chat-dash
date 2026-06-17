@@ -29,7 +29,7 @@ export default function SendFileModal({
     <BaseModal isOpen={isOpen} onClose={onClose} size="lg">
       <div className="flex max-h-[90vh] flex-col p-6">
         <div className="mb-2 flex shrink-0 items-start justify-between">
-          <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+          <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
             Enviar arquivo
           </h2>
           <button

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import BaseModal from "./BaseModal";
 import { AwButton } from "@/components/ui/AwButton";
+import { Icon } from "@/components/ui/Icon";
 
 type PageItem = {
   id: string;
@@ -94,21 +95,14 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 6L18 18M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="close" size={24} />
               </button>
             </div>
 
@@ -119,12 +113,7 @@ export default function AddUrlFlow({
             <div className="mb-6">
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                    <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M12 3c3 3 3 15 0 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M12 3c-3 3-3 15 0 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
+                  <Icon name="language" size={20} />
                 </div>
                 <input
                   type="text"
@@ -159,21 +148,14 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 6L18 18M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="close" size={24} />
               </button>
             </div>
 
@@ -184,12 +166,7 @@ export default function AddUrlFlow({
             <div className="mb-6">
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                    <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M12 3c3 3 3 15 0 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    <path d="M12 3c-3 3-3 15 0 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
+                  <Icon name="language" size={20} />
                 </div>
                 <input
                   type="text"
@@ -214,21 +191,14 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 6L18 18M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="close" size={24} />
               </button>
             </div>
 
@@ -269,23 +239,12 @@ export default function AddUrlFlow({
                       }`}
                     >
                       {pages.every((p) => p.selected) && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                          <path
-                            d="M20 6 9 17l-5-5"
-                            stroke="white"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <Icon name="check" size={12} className="text-white" />
                       )}
                     </div>
                   </button>
                   <div className="flex items-center gap-2 flex-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-400">
-                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                      <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    <Icon name="language" size={16} className="text-gray-400" />
                     <span className="body-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
                   </div>
                 </div>
@@ -308,15 +267,7 @@ export default function AddUrlFlow({
                         }`}
                       >
                         {page.selected && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                            <path
-                              d="M20 6 9 17l-5-5"
-                              stroke="white"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
+                          <Icon name="check" size={12} className="text-white" />
                         )}
                       </div>
                     </button>
@@ -336,21 +287,11 @@ export default function AddUrlFlow({
                 <span className="body-sm font-medium text-text-primary">
                   Configurações avançadas
                 </span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
+                <Icon
+                  name="expand_more"
+                  size={16}
                   className={`transition-transform ${isAdvancedOpen ? "rotate-180" : ""}`}
-                >
-                  <path
-                    d="M6 9l6 6 6-6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                />
               </button>
             </div>
 
@@ -371,21 +312,14 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 6L18 18M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="close" size={24} />
               </button>
             </div>
 
@@ -426,23 +360,12 @@ export default function AddUrlFlow({
                       }`}
                     >
                       {pages.every((p) => p.selected) && (
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                          <path
-                            d="M20 6 9 17l-5-5"
-                            stroke="white"
-                            strokeWidth="2.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
-                        </svg>
+                        <Icon name="check" size={12} className="text-white" />
                       )}
                     </div>
                   </button>
                   <div className="flex items-center gap-2 flex-1">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="text-gray-400">
-                      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-                      <path d="M3.5 12h17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
+                    <Icon name="language" size={16} className="text-gray-400" />
                     <span className="body-sm text-text-primary">{url || "https://artificialconcord.com/"}</span>
                   </div>
                 </div>
@@ -465,15 +388,7 @@ export default function AddUrlFlow({
                         }`}
                       >
                         {page.selected && (
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                            <path
-                              d="M20 6 9 17l-5-5"
-                              stroke="white"
-                              strokeWidth="2.5"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            />
-                          </svg>
+                          <Icon name="check" size={12} className="text-white" />
                         )}
                       </div>
                     </button>
@@ -494,14 +409,7 @@ export default function AddUrlFlow({
                 <div className="mb-4">
                   <div className="flex items-start gap-3 mb-2">
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M12 5v14M5 12h14"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <Icon name="add" size={16} />
                     </div>
                     <div className="flex-1">
                       <p className="body-sm text-text-primary mb-2">
@@ -513,9 +421,7 @@ export default function AddUrlFlow({
                         onClick={() => setAdditionalUrls([...additionalUrls, ""])}
                         className="w-auto"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-1">
-                          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
+                        <Icon name="add" size={16} className="mr-1" />
                         Adicionar
                       </AwButton>
                     </div>
@@ -526,14 +432,7 @@ export default function AddUrlFlow({
                 <div className="mb-4">
                   <div className="flex items-start gap-3 mb-2">
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M18 6L6 18M6 6l12 12"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                        />
-                      </svg>
+                      <Icon name="close" size={16} />
                     </div>
                     <div className="flex-1">
                       <p className="body-sm text-text-primary mb-2">
@@ -545,9 +444,7 @@ export default function AddUrlFlow({
                         onClick={() => setExcludedUrls([...excludedUrls, ""])}
                         className="w-auto"
                       >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" className="mr-1">
-                          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                        </svg>
+                        <Icon name="add" size={16} className="mr-1" />
                         Adicionar
                       </AwButton>
                     </div>
@@ -558,15 +455,7 @@ export default function AddUrlFlow({
                 <div>
                   <div className="flex items-start gap-3 mb-3">
                     <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center shrink-0 mt-0.5">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path
-                          d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
+                      <Icon name="task_alt" size={16} />
                     </div>
                     <div className="flex-1">
                       <p className="body-sm font-medium text-text-primary mb-3">
@@ -631,21 +520,14 @@ export default function AddUrlFlow({
         <BaseModal isOpen={isOpen} onClose={handleClose} size="xl">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-(--fg-primary)">
+              <h2 className="text-[20px] font-medium tracking-heading text-(--fg-primary)">
                 Adicionar URL
               </h2>
               <button
                 onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M6 6L18 18M18 6L6 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="close" size={24} />
               </button>
             </div>
 

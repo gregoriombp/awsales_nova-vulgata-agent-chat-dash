@@ -141,7 +141,7 @@ export function defaultIntegrationGroup(
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h3 className="text-2xs font-medium uppercase tracking-[0.08em] text-(--fg-tertiary)">
+    <h3 className="text-2xs font-medium uppercase tracking-label-lg text-(--fg-tertiary)">
       {children}
     </h3>
   );

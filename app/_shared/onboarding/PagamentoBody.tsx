@@ -346,7 +346,7 @@ function ChargeCard({
 
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-bg-raised">
-      <header className="flex items-center gap-3 border-b border-border-subtle px-[18px] py-3.5">
+      <header className="flex items-center gap-3 border-b border-border-subtle px-4.5 py-3.5">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-fg-primary text-2xs font-medium tabular-nums text-white">
           {index + 1}
         </span>
@@ -359,7 +359,7 @@ function ChargeCard({
         </div>
       </header>
 
-      <div className="p-[18px]">
+      <div className="p-4.5">
         {charge.stage === "config" ? (
           <>
             <div className="mb-2.5">
@@ -563,7 +563,7 @@ function InstallmentGrid({
 
 function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
   return (
-    <article className="flex items-center gap-3 rounded-xl border border-aw-emerald-700/30 bg-bg-raised px-[18px] py-3.5">
+    <article className="flex items-center gap-3 rounded-xl border border-aw-emerald-700/30 bg-bg-raised px-4.5 py-3.5">
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-aw-emerald-100 text-aw-emerald-700">
         <Icon name="check" size={14} />
       </span>
@@ -588,7 +588,7 @@ function PaidRow({ charge, meta }: { charge: Charge; meta: ChargeMeta }) {
 
 function LockedRow({ meta, index }: { meta: ChargeMeta; index: number }) {
   return (
-    <article className="flex items-center gap-3 rounded-xl border border-border-subtle bg-bg-surface px-[18px] py-3.5 opacity-70">
+    <article className="flex items-center gap-3 rounded-xl border border-border-subtle bg-bg-surface px-4.5 py-3.5 opacity-70">
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-bg-muted text-2xs font-medium tabular-nums text-fg-tertiary">
         {index + 1}
       </span>

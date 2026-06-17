@@ -194,6 +194,20 @@
   --text-2xs: 11px;
   --text-3xs: 10px;
 
+  /* TRACKING — letter-spacing nomeado. Tokeniza os tracking-[...] arbitrários
+   * recorrentes do produto (eyebrows uppercase, títulos apertados) com os
+   * MESMOS valores, então trocar arbitrário por token é zero mudança visual.
+   * Nomes próprios de propósito: coexistem com a escala default do Tailwind
+   * (tracking-tight/normal/wide/wider/widest, usada em alguns lugares) sem
+   * sobrescrevê-la. Canal utility só — letter-spacing não varia por tema nem
+   * tem consumidor via var(). Mantidos pela skill bombardier-foundation-update. */
+  --tracking-heading-tighter: -0.02em;
+  --tracking-heading-tight: -0.015em;
+  --tracking-heading: -0.01em;
+  --tracking-body: -0.005em;
+  --tracking-label: 0.06em;
+  --tracking-label-lg: 0.08em;
+
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 10px;

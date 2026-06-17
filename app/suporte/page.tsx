@@ -28,7 +28,7 @@ export default function SuportePage() {
           primeiro acesso a reabrir um convite.
         </p>
 
-        <div className="mb-3.5 flex items-center gap-3.5 rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
+        <div className="mb-3.5 flex items-center gap-3.5 rounded-xl border border-border-subtle bg-bg-raised p-4.5">
           <AwAvatar
             src={am.photo}
             initials={am.initials}
@@ -42,7 +42,7 @@ export default function SuportePage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border-subtle bg-bg-raised p-[18px]">
+        <div className="rounded-xl border border-border-subtle bg-bg-raised p-4.5">
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Canais</div>
           <ul className="m-0 flex list-none flex-col gap-3 p-0">
             <li className="flex items-center gap-3.5">

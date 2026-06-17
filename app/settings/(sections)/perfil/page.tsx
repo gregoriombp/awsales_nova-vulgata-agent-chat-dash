@@ -232,7 +232,7 @@ export default function ProfileSettingsPage() {
                 type="button"
                 onClick={() => setPhotoOpen(true)}
                 aria-label="Editar foto de perfil"
-                className="group/avatar relative mt-[-96px] ml-6 shrink-0 rounded-full bg-(--bg-raised) p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2"
+                className="group/avatar relative -mt-24 ml-6 shrink-0 rounded-full bg-(--bg-raised) p-1 shadow-[0_6px_22px_rgba(6,22,61,0.18)] outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2"
                 style={{ lineHeight: 0 }}
               >
                 <AwAvatar

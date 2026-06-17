@@ -46,8 +46,8 @@ const ICON_WEIGHT: Record<AwPageHeaderSize, IconProps["weight"]> = {
 
 const TITLE_CLASS: Record<AwPageHeaderSize, string> = {
   hero: "text-(length:--h1-size) leading-[1.1] tracking-[-0.04em]",
-  default: "text-(length:--h3-size) font-semibold leading-tight tracking-[-0.02em]",
-  compact: "text-(length:--h5-size) font-semibold leading-tight tracking-[-0.01em]",
+  default: "text-(length:--h3-size) font-semibold leading-tight tracking-heading-tighter",
+  compact: "text-(length:--h5-size) font-semibold leading-tight tracking-heading",
 }
 
 const TITLE_GAP: Record<AwPageHeaderSize, string> = {
@@ -119,7 +119,7 @@ export const AwPageHeader = React.forwardRef<HTMLElement, AwPageHeaderProps>(
         <div className="flex items-end justify-between gap-6">
           <div className="min-w-0 flex-1">
             {eyebrow && (
-              <div className="mb-2 flex items-center gap-2 text-(length:--body-xs-size) font-medium uppercase tracking-[0.06em] text-(--fg-tertiary)">
+              <div className="mb-2 flex items-center gap-2 text-(length:--body-xs-size) font-medium uppercase tracking-label text-(--fg-tertiary)">
                 {eyebrow}
               </div>
             )}

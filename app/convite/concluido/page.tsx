@@ -29,7 +29,7 @@ export default function ConviteConcluidoPage() {
           definida pelo admin.
         </p>
 
-        <div className="mx-auto mb-6 max-w-[480px] rounded-xl border border-border-subtle bg-bg-surface p-[18px] text-left">
+        <div className="mx-auto mb-6 max-w-[480px] rounded-xl border border-border-subtle bg-bg-surface p-4.5 text-left">
           <div className="aw-eyebrow mb-3 text-fg-tertiary">Seu acesso</div>
 
           <div className="mb-2.5 flex items-baseline justify-between">
