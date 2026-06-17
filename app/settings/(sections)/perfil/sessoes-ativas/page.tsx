@@ -103,7 +103,7 @@ export default function SessoesAtivasPage() {
   }, [sessions]);
 
   return (
-    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Sessões ativas"
         description="Dispositivos onde sua conta está logada. Encerre qualquer sessão que não reconhecer."
@@ -135,8 +135,8 @@ export default function SessoesAtivasPage() {
         </div>
       )}
 
-      {/* Cards — uma sessão por card */}
-      <div className="grid grid-cols-1 gap-3">
+      {/* Cards — uma sessão por card, em duas colunas */}
+      <div className="grid grid-cols-2 gap-3">
         {sessions.map((s) => {
           const isOpen = !!expanded[s.id];
           const mapsSrc = `https://maps.google.com/maps?q=${encodeURIComponent(
