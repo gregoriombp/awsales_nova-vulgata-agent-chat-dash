@@ -190,3 +190,38 @@ export interface ReviewExportPayload {
   comments: ReviewComment[]
   archivedComments?: ReviewComment[]
 }
+
+// ── Mobbin search (mirror de review-bridge/src/types.ts) ─────────────────────
+// "Buscar designs parecidos no Mobbin" no composer. O pedido vai pro bridge, o
+// agente resolve via MCP e devolve. Efêmero — nunca entra num ReviewComment; só
+// a IMAGEM escolhida vira anexo (images[]).
+export type MobbinPlatform = "ios" | "web"
+
+export interface MobbinScreenResult {
+  id: string
+  imageUrl: string
+  mobbinUrl: string
+  appName: string
+  platform: MobbinPlatform
+}
+
+export type MobbinSearchStatus = "pending" | "done" | "error"
+
+export interface MobbinSearch {
+  id: string
+  query: string
+  platform: MobbinPlatform
+  page: string
+  element?: {
+    tag?: string
+    role?: string
+    label?: string
+    text?: string
+    selector?: string
+  }
+  status: MobbinSearchStatus
+  results: MobbinScreenResult[]
+  error?: string
+  createdAt: number
+  updatedAt: number
+}

@@ -28,7 +28,17 @@ import {
   subscriberCount,
 } from "./sse.js"
 import {
+  createSearch,
+  getSearch,
+  listSearches,
+  setError,
+  setResults,
+} from "./mobbin.js"
+import {
   REVIEW_SCHEMA_VERSION,
+  type MobbinScreenResult,
+  type MobbinSearchElement,
+  type MobbinSearchStatus,
   type ReviewActor,
   type ReviewComment,
   type ReviewCommentStatus,
@@ -349,6 +359,86 @@ app.post("/import", requireToken, async (req, res) => {
     broadcast({ kind: "comment.archived", comment: c })
   }
   res.json(result)
+})
+
+// ── Mobbin search queue (transient, in-memory) ───────────────────────────────
+function parseMobbinStatus(value: unknown): MobbinSearchStatus | undefined {
+  if (value === "pending" || value === "done" || value === "error") return value
+  return undefined
+}
+
+function isValidMobbinResults(value: unknown): value is MobbinScreenResult[] {
+  if (!Array.isArray(value)) return false
+  return value.every((r) => {
+    if (!r || typeof r !== "object") return false
+    const v = r as Record<string, unknown>
+    return (
+      typeof v.id === "string" &&
+      typeof v.imageUrl === "string" &&
+      typeof v.mobbinUrl === "string"
+    )
+  })
+}
+
+app.post("/mobbin/searches", requireToken, (req, res) => {
+  const body = req.body as Record<string, unknown> | null
+  const query = typeof body?.query === "string" ? body.query.trim() : ""
+  if (!query) {
+    res.status(400).json({ error: "invalid_query" })
+    return
+  }
+  const platform = body?.platform === "ios" ? "ios" : "web"
+  const page = typeof body?.page === "string" ? body.page : ""
+  const element =
+    body?.element && typeof body.element === "object"
+      ? (body.element as MobbinSearchElement)
+      : undefined
+  const search = createSearch({ query, platform, page, element })
+  broadcast({ kind: "mobbin.requested", search })
+  res.json({ search })
+})
+
+app.get("/mobbin/searches", requireToken, (req, res) => {
+  const status = parseMobbinStatus(req.query.status)
+  res.json({ searches: listSearches(status ? { status } : undefined) })
+})
+
+app.get("/mobbin/searches/:id", requireToken, (req, res) => {
+  const search = getSearch(String(req.params.id))
+  if (!search) {
+    res.status(404).json({ error: "not_found" })
+    return
+  }
+  res.json({ search })
+})
+
+app.put("/mobbin/searches/:id/results", requireToken, (req, res) => {
+  const id = String(req.params.id)
+  const body = req.body as Record<string, unknown> | null
+
+  // Agent reports a failure instead of results.
+  if (typeof body?.error === "string" && body.error.trim()) {
+    const updated = setError(id, body.error.trim())
+    if (!updated) {
+      res.status(404).json({ error: "not_found" })
+      return
+    }
+    broadcast({ kind: "mobbin.resolved", search: updated })
+    res.json({ search: updated })
+    return
+  }
+
+  if (!isValidMobbinResults(body?.results)) {
+    res.status(400).json({ error: "invalid_results" })
+    return
+  }
+  const updated = setResults(id, body.results)
+  if (!updated) {
+    res.status(404).json({ error: "not_found" })
+    return
+  }
+  broadcast({ kind: "mobbin.resolved", search: updated })
+  res.json({ search: updated })
 })
 
 app.get("/events", requireToken, (req, res) => {

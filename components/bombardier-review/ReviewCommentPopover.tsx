@@ -15,6 +15,7 @@ import { useVoiceTranscription } from "@/lib/bombardier-review/useVoiceTranscrip
 import { useInlineCompletion } from "@/lib/bombardier-review/useInlineCompletion"
 import { fetchRewrite } from "@/lib/bombardier-review/commentAssist"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
+import { ReviewMobbinPanel } from "./ReviewMobbinPanel"
 import type { ReviewPoint } from "./types"
 
 const POPOVER_WIDTH = 320
@@ -40,6 +41,7 @@ export function ReviewCommentPopover() {
 
   const [text, setText] = React.useState("")
   const [images, setImages] = React.useState<string[]>([])
+  const [mobbinOpen, setMobbinOpen] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [caretAtEnd, setCaretAtEnd] = React.useState(true)
   const [rewriting, setRewriting] = React.useState(false)
@@ -133,6 +135,7 @@ export function ReviewCommentPopover() {
     if (pendingAnchor) {
       setText("")
       setImages([])
+      setMobbinOpen(false)
       setSubmitting(false)
       setCaretAtEnd(true)
       setUndoText(null)
@@ -389,6 +392,21 @@ export function ReviewCommentPopover() {
                 className={rewriting ? "animate-spin" : ""}
               />
             </button>
+            <button
+              type="button"
+              onClick={() => setMobbinOpen((v) => !v)}
+              aria-label="Buscar designs parecidos no Mobbin"
+              aria-pressed={mobbinOpen}
+              title="Buscar designs parecidos no Mobbin"
+              className={[
+                "h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors",
+                mobbinOpen
+                  ? "bg-(--bg-hover) text-(--fg-primary)"
+                  : "text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)",
+              ].join(" ")}
+            >
+              <Icon name="image_search" size={14} />
+            </button>
 
             {recording ? (
               <span className="body-xs text-(--accent-danger) flex items-center gap-1">
@@ -449,6 +467,20 @@ export function ReviewCommentPopover() {
         multiple
         className="hidden"
         onChange={handleFileChange}
+      />
+
+      <ReviewMobbinPanel
+        open={mobbinOpen}
+        onClose={() => setMobbinOpen(false)}
+        element={elementCtx}
+        page={typeof window !== "undefined" ? window.location.pathname : ""}
+        onAttach={(dataUrl) =>
+          setImages((prev) => [...prev, dataUrl].slice(0, MAX_IMAGES))
+        }
+        canAttachMore={images.length < MAX_IMAGES}
+        anchorCenterX={left}
+        anchorWidth={POPOVER_WIDTH}
+        anchorY={pxY}
       />
     </div>
   )

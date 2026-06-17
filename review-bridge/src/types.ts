@@ -165,12 +165,52 @@ export interface ReviewExportPayload {
   archivedComments?: ReviewComment[]
 }
 
+// ── Mobbin search (transient, in-memory) ─────────────────────────────────────
+// "Buscar designs parecidos no Mobbin" do composer do Review Mode. O app não
+// alcança o Mobbin (o MCP vive no ambiente do agente), então enfileira um pedido
+// aqui; o agente lê, roda o search via MCP e devolve os resultados. Nada disso
+// entra no store de comentários — é efêmero, só vive em memória no bridge.
+export type MobbinPlatform = "ios" | "web"
+
+export interface MobbinScreenResult {
+  id: string
+  imageUrl: string
+  mobbinUrl: string
+  appName: string
+  platform: MobbinPlatform
+}
+
+export type MobbinSearchStatus = "pending" | "done" | "error"
+
+export interface MobbinSearchElement {
+  tag?: string
+  role?: string
+  label?: string
+  text?: string
+  selector?: string
+}
+
+export interface MobbinSearch {
+  id: string
+  query: string
+  platform: MobbinPlatform
+  page: string
+  element?: MobbinSearchElement
+  status: MobbinSearchStatus
+  results: MobbinScreenResult[]
+  error?: string
+  createdAt: number
+  updatedAt: number
+}
+
 export type BridgeEvent =
   | { kind: "comment.upserted"; comment: ReviewComment }
   | { kind: "comment.deleted"; id: string }
   | { kind: "comment.archived"; comment: ReviewComment }
   | { kind: "comment.unarchived"; comment: ReviewComment }
   | { kind: "reply.added"; commentId: string; reply: ReviewReply }
+  | { kind: "mobbin.requested"; search: MobbinSearch }
+  | { kind: "mobbin.resolved"; search: MobbinSearch }
   | { kind: "hello"; serverStartedAt: number }
 
 function pad2(n: number): string {
