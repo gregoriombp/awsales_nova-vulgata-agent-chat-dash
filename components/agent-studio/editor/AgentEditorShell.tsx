@@ -147,16 +147,9 @@ export function AgentEditorShell({
         <header className="border-b border-(--border-subtle) bg-(--bg-canvas) px-10 pb-7 pt-9">
           <div className="mx-auto flex w-full max-w-[1180px] items-start justify-between gap-6">
             <div className="min-w-0">
-              <div className="flex items-center gap-3">
-                <Icon
-                  name={tab.icon}
-                  size={24}
-                  className="shrink-0 text-(--fg-primary)"
-                />
-                <h1 className="truncate font-heading text-3xl font-medium tracking-tight text-(--fg-primary)">
-                  {tab.label}
-                </h1>
-              </div>
+              <h1 className="truncate font-heading text-3xl font-medium tracking-tight text-(--fg-primary)">
+                {tab.label}
+              </h1>
               <p className="mt-2 max-w-[560px] text-sm text-(--fg-tertiary)">
                 {tab.description}
               </p>
