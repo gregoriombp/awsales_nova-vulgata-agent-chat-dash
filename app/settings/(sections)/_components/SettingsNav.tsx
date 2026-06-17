@@ -200,12 +200,12 @@ export function SettingsNav() {
         id: group.id,
         label: group.label,
         leading: group.org ? (
-          <span className="flex h-4.5 w-4.5 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--bg-muted) ring-1 ring-(--border-subtle)">
+          <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-(--bg-muted) ring-1 ring-(--border-subtle)">
             <img
               src={ONBOARDING_ORG.logo}
               alt=""
-              width={18}
-              height={18}
+              width={24}
+              height={24}
               style={{ objectFit: "cover" }}
             />
           </span>
