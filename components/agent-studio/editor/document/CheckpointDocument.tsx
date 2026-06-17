@@ -510,7 +510,7 @@ function CheckpointSection({
           onChange={(e) => onPatch({ titulo: e.target.value })}
           placeholder="Título do checkpoint"
           aria-label={`Título do checkpoint ${pad(cp.numero)}`}
-          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-lg font-medium tracking-tight text-(--fg-primary) outline-none placeholder:text-(--fg-tertiary)"
+          className="-mx-1.5 min-w-0 flex-1 rounded-md border border-transparent bg-transparent px-1.5 py-1 font-heading text-lg font-medium tracking-tight text-(--fg-primary) outline-none transition-colors duration-aw-fast placeholder:text-(--fg-tertiary) hover:border-(--border-subtle) focus:border-(--border-default) focus:bg-(--bg-hover)"
         />
         <div className="shrink-0 opacity-0 transition-opacity duration-aw-fast focus-within:opacity-100 group-hover/cp:opacity-100">
           <AwDropdownMenu
