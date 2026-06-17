@@ -118,6 +118,8 @@ export default function MeusDadosPage() {
     setMode("done");
   }
 
+  const readyCount = requests.filter((r) => r.status === "Pronto").length;
+
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
@@ -125,17 +127,22 @@ export default function MeusDadosPage() {
         description="Uma cópia dos seus dados pessoais guardados na AwSales. Peça quando precisar — separado das configurações da organização."
       />
 
-      {/* 1 — intro: o que entra na exportação + botão de solicitar */}
-      <AwCard className="p-0!">
-        <div className="px-6 py-5">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            O que vem na cópia
-          </p>
-          <ul className="m-0 mt-4 flex list-none flex-col gap-3 p-0">
+      {/* Hero — o que vem na cópia (esquerda) + painel de ação (direita) */}
+      <div className="grid grid-cols-[minmax(0,1fr)_380px] items-start gap-6">
+        <AwCard className="p-0!">
+          <div className="px-6 py-5">
+            <p className="m-0 body-sm font-semibold text-(--fg-primary)">
+              O que vem na cópia
+            </p>
+            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+              Tudo que é seu, reunido em um único arquivo.
+            </p>
+          </div>
+          <ul className="m-0 list-none divide-y divide-(--border-subtle) border-t border-(--border-subtle) p-0">
             {EXPORT_INCLUDES.map((item) => (
-              <li key={item.label} className="m-0 flex items-start gap-3">
-                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                  <Icon name={item.icon} size={16} />
+              <li key={item.label} className="m-0 flex items-start gap-3.5 px-6 py-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+                  <Icon name={item.icon} size={18} />
                 </span>
                 <div className="min-w-0">
                   <p className="m-0 body-sm font-medium text-(--fg-primary)">
@@ -148,27 +155,49 @@ export default function MeusDadosPage() {
               </li>
             ))}
           </ul>
-        </div>
-        <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) px-6 py-4">
-          <p className="m-0 body-xs text-(--fg-tertiary)">
-            O arquivo vai para o seu e-mail e fica pronto em alguns minutos.
+        </AwCard>
+
+        {/* Painel de ação — fica claro o que fazer */}
+        <div className="rounded-xl border border-(--border-subtle) bg-(--bg-muted) p-6">
+          <span className="flex h-11 w-11 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-primary)">
+            <Icon name="cloud_download" size={22} />
+          </span>
+          <p className="m-0 mt-4 text-base font-semibold text-(--fg-primary)">
+            Baixar uma cópia
+          </p>
+          <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+            Geramos o arquivo e enviamos pro seu e-mail — pronto em alguns
+            minutos.
           </p>
           <AwButton
-            size="sm"
+            size="md"
             variant="primary"
             iconLeft="download"
+            className="mt-5 w-full"
             onClick={openConfirm}
           >
             Solicitar exportação
           </AwButton>
+          <p className="m-0 mt-3 flex items-center justify-center gap-1.5 body-xs text-(--fg-tertiary)">
+            <Icon name="lock" size={13} />
+            Só você recebe o link
+          </p>
         </div>
-      </AwCard>
+      </div>
 
-      {/* 2 — solicitações anteriores */}
+      {/* Solicitações */}
       <div className="mt-12">
         <SectionHeading
           title="Solicitações"
           description="Cada cópia que você pediu aparece aqui — baixe enquanto o link estiver disponível."
+          action={
+            readyCount > 0 ? (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
+                <Icon name="check_circle" size={13} />
+                {readyCount} pronta{readyCount === 1 ? "" : "s"} pra baixar
+              </span>
+            ) : undefined
+          }
         />
 
         {requests.length === 0 ? (
@@ -196,9 +225,9 @@ export default function MeusDadosPage() {
                   key={r.id}
                   className="m-0 flex items-center justify-between gap-4 px-6 py-4"
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                      <Icon name="folder_zip" size={16} />
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
+                      <Icon name="folder_zip" size={18} />
                     </span>
                     <div className="min-w-0">
                       <p className="m-0 body-sm font-medium text-(--fg-primary)">
@@ -210,11 +239,11 @@ export default function MeusDadosPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 shrink-0">
+                  <div className="flex shrink-0 items-center gap-4">
                     <StatusBadge status={r.status} />
                     {r.status === "Pronto" ? (
                       <div className="flex flex-col items-end gap-0.5">
-                        <AwButton size="sm" variant="ghost" iconLeft="download">
+                        <AwButton size="sm" variant="secondary" iconLeft="download">
                           Baixar
                         </AwButton>
                         {r.expiresInDays !== undefined && (
@@ -237,33 +266,31 @@ export default function MeusDadosPage() {
         )}
       </div>
 
-      {/* 3 — remover dados / conta */}
+      {/* Remover dados / conta */}
       <div className="mt-12">
-        <AwCard className="p-0!">
-          <div className="flex items-start gap-3 px-6 py-5">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-              <Icon name="manage_accounts" size={16} />
-            </span>
-            <div className="min-w-0">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                Quer remover seus dados?
-              </p>
-              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
-                Seu e-mail, sua função e seu vínculo com a organização são
-                gerenciados por ela. Por isso, remover a conta passa por um
-                administrador. Fale com quem cuida da sua organização ou escreva
-                para{" "}
-                <a
-                  href="mailto:suporte@awsales.io"
-                  className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
-                >
-                  suporte@awsales.io
-                </a>{" "}
-                que a gente ajuda.
-              </p>
-            </div>
+        <div className="flex items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-muted) px-6 py-5">
+          <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-raised) text-(--fg-secondary)">
+            <Icon name="manage_accounts" size={18} />
+          </span>
+          <div className="min-w-0">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
+              Quer remover seus dados?
+            </p>
+            <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+              Seu e-mail, sua função e seu vínculo com a organização são
+              gerenciados por ela. Por isso, remover a conta passa por um
+              administrador. Fale com quem cuida da sua organização ou escreva
+              para{" "}
+              <a
+                href="mailto:suporte@awsales.io"
+                className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
+              >
+                suporte@awsales.io
+              </a>{" "}
+              que a gente ajuda.
+            </p>
           </div>
-        </AwCard>
+        </div>
       </div>
 
       {/* Modal — confirmar exportação → estado de sucesso */}
@@ -274,11 +301,7 @@ export default function MeusDadosPage() {
         footer={
           mode === "confirm" ? (
             <>
-              <AwButton
-                size="sm"
-                variant="ghost"
-                onClick={() => setOpen(false)}
-              >
+              <AwButton size="sm" variant="ghost" onClick={() => setOpen(false)}>
                 Cancelar
               </AwButton>
               <AwButton
