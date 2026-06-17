@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -256,6 +257,7 @@ function InviteBlockFields({
   onRemoveEmail: (email: string) => void;
   onRemove: () => void;
 }) {
+  const router = useRouter();
   const selectedRoleDef = block.role
     ? ROLE_DEFINITIONS.find((r) => r.name === block.role) ?? null
     : null;
@@ -370,9 +372,8 @@ function InviteBlockFields({
                   Criar nova função
                 </span>
               ),
-              onSelect: () => {
-                /* Stub — wire to /funcoes editor later. */
-              },
+              onSelect: () =>
+                router.push("/settings/equipe-permissoes/funcoes"),
             },
           ]}
         />

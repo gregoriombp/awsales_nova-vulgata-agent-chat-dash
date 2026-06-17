@@ -24,7 +24,6 @@ import { AwModal } from "@/components/ui/AwModal";
 import {
   AwMembersTable,
   AwMembersTablePersonCell,
-  AwMembersTableTextCell,
 } from "@/components/ui/AwMembersTable";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
@@ -551,6 +550,7 @@ function MemberSection({
   onSelect,
   onChangeRole,
   onChangeLifecycle,
+  onRemove,
   emptyHint,
   search,
   onSearchChange,
@@ -570,6 +570,7 @@ function MemberSection({
   onSelect: (id: string) => void;
   onChangeRole: (id: string, role: Role) => void;
   onChangeLifecycle?: (id: string, action: "inactivate" | "reactivate") => void;
+  onRemove?: (id: string) => void;
   emptyHint: string;
   search?: string;
   onSearchChange?: (v: string) => void;
@@ -660,9 +661,9 @@ function MemberSection({
             kebabItems.push({ id: "sep-member", separator: true });
             kebabItems.push({
               id: "remove",
-              label: "Remover do workspace",
+              label: m.isYou ? "Sair do workspace" : "Remover do workspace",
               danger: true,
-              onSelect: () => {},
+              onSelect: () => onRemove?.(m.id),
             });
             return (
             <tr
