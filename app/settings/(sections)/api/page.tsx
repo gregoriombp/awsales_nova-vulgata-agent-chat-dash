@@ -1,7 +1,6 @@
 "use client";
 
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { Icon } from "@/components/ui/Icon";
 import {
   API_KEYS,
@@ -24,11 +23,17 @@ export default function ApiSettingsPage() {
           </AwButton>
         }
       />
-      <AwCard className="p-0!">
-        <ul className="divide-y divide-(--border-subtle)">
-          {API_KEYS.map((k) => (
-            <li key={k.id} className="flex items-center gap-4 px-6 py-4">
-              <span className="flex h-9 w-9 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
+      <div className="grid grid-cols-1 divide-y divide-(--border-subtle) sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+        {API_KEYS.map((k, i) => (
+          <div
+            key={k.id}
+            className={
+              "flex flex-col gap-3 py-4 sm:py-1 " +
+              (i === 0 ? "sm:pr-6" : "sm:pl-6")
+            }
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
                 <Icon name="key" size={16} />
               </span>
               <div className="min-w-0 flex-1">
@@ -36,35 +41,36 @@ export default function ApiSettingsPage() {
                   {k.name}
                 </p>
                 <p className="m-0 body-xs text-(--fg-secondary)">
-                  <code className="mono text-(--fg-primary)">
-                    {k.prefix}
-                  </code>{" "}
-                  · criada {k.createdAt} · usada {k.lastUsed}
+                  <code className="mono text-(--fg-primary)">{k.prefix}</code> ·
+                  criada {k.createdAt} · usada {k.lastUsed}
                 </p>
               </div>
+            </div>
+            <div className="flex items-center gap-1 pl-12">
               <AwButton size="sm" variant="ghost" iconLeft="content_copy">
                 Copiar
               </AwButton>
               <AwButton size="sm" variant="ghost" iconLeft="delete">
                 Revogar
               </AwButton>
-            </li>
-          ))}
-        </ul>
-        <div className="flex items-center justify-between gap-4 border-t border-(--border-subtle) px-6 py-4">
-          <div>
-            <p className="m-0 body-xs font-medium text-(--fg-primary)">
-              Webhook signing secret
-            </p>
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              Usado para validar payloads recebidos dos agentes.
-            </p>
+            </div>
           </div>
-          <AwButton size="sm" variant="secondary" iconLeft="autorenew">
-            Rotacionar
-          </AwButton>
+        ))}
+      </div>
+
+      <div className="mt-4 flex items-center justify-between gap-4 border-t border-(--border-subtle) pt-4">
+        <div>
+          <p className="m-0 body-xs font-medium text-(--fg-primary)">
+            Webhook signing secret
+          </p>
+          <p className="m-0 body-xs text-(--fg-secondary)">
+            Usado para validar payloads recebidos dos agentes.
+          </p>
         </div>
-      </AwCard>
+        <AwButton size="sm" variant="secondary" iconLeft="autorenew">
+          Rotacionar
+        </AwButton>
+      </div>
     </div>
   );
 }
