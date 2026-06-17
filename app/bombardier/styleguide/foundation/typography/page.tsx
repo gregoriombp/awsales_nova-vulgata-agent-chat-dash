@@ -18,6 +18,7 @@ const TOC = [
   { id: "body", label: "Body" },
   { id: "mono", label: "Mono" },
   { id: "utility", label: "Utilities" },
+  { id: "tracking", label: "Tracking" },
   { id: "tokens", label: "Tokens" },
   { id: "code", label: "Em código" },
   { id: "do-dont", label: "Do / Don't" },
@@ -67,6 +68,26 @@ const BODY: TypeSpec[] = [
   { name: "body-md", size: 16, leading: 1.55, tracking: "0",        weight: 400, token: "--body-md-size", use: "Padrão de leitura (default)" },
   { name: "body-sm", size: 14, leading: 1.5,  tracking: "0",        weight: 400, token: "--body-sm-size", use: "Corpo denso de UI, lista" },
   { name: "body-xs", size: 12, leading: 1.4,  tracking: "0.005em",  weight: 400, token: "--body-xs-size", use: "Caption, metadata" },
+]
+
+type TrackingSpec = {
+  name: string
+  token: string
+  value: string
+  use: string
+  upper?: boolean
+}
+
+// Escala de letter-spacing nomeada. Tokeniza os tracking-[...] arbitrários que
+// o produto repetia, com os MESMOS valores — nomes próprios pra coexistir com
+// a escala default do Tailwind sem sobrescrevê-la.
+const TRACKING: TrackingSpec[] = [
+  { name: "tracking-heading-tighter", token: "--tracking-heading-tighter", value: "-0.02em",  use: "Títulos grandes / hero apertado" },
+  { name: "tracking-heading-tight",   token: "--tracking-heading-tight",   value: "-0.015em", use: "Títulos médios" },
+  { name: "tracking-heading",         token: "--tracking-heading",         value: "-0.01em",  use: "Títulos e cabeçalhos (default)" },
+  { name: "tracking-body",            token: "--tracking-body",            value: "-0.005em", use: "Body grande / leads" },
+  { name: "tracking-label",           token: "--tracking-label",           value: "0.06em",   use: "Eyebrows e labels uppercase", upper: true },
+  { name: "tracking-label-lg",        token: "--tracking-label-lg",        value: "0.08em",   use: "Labels uppercase mais espaçados", upper: true },
 ]
 
 const GEIST_WEIGHTS: Array<{ value: number; name: string }> = [
@@ -409,6 +430,66 @@ export default function TypographyPage() {
           </div>
         </Section>
 
+        {/* ── Tracking ───────────────────────────────────────────── */}
+        <Section
+          id="tracking"
+          title="Tracking"
+          lead="Letter-spacing nomeado. Eyebrows e labels uppercase abrem (tracking-label, +0.06em); títulos apertam (tracking-heading, -0.01em). São os valores que o produto já usava como tracking-[...] arbitrário, agora como token — coexistem com a escala default do Tailwind (tight/normal/wide), sem sobrescrevê-la."
+        >
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-col gap-6">
+            {TRACKING.map((t) => (
+              <div
+                key={t.name}
+                className="flex items-baseline gap-6 border-b border-(--border-subtle) pb-6 last:border-b-0 last:pb-0"
+              >
+                <div className="w-56 shrink-0 flex flex-col gap-0.5 pt-1">
+                  <code className="mono text-xs text-(--fg-primary)">
+                    {t.name}
+                  </code>
+                  <code className="mono text-[10px] text-(--aw-blue-700)">
+                    {t.token}
+                  </code>
+                  <div className="mt-1.5 text-[11px] text-(--fg-tertiary) leading-tight">
+                    <span className="text-(--fg-secondary)">letter-spacing</span>{" "}
+                    · {t.value}
+                  </div>
+                  <span className="mt-1.5 text-[11px] text-(--fg-tertiary)">
+                    {t.use}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  {t.upper ? (
+                    <span
+                      className={`${t.name} text-xs font-medium uppercase text-(--fg-secondary)`}
+                    >
+                      Agent studio · memory base
+                    </span>
+                  ) : (
+                    <span
+                      className={`${t.name} text-3xl font-medium text-(--fg-primary)`}
+                    >
+                      Agent studio
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-md border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3 mt-4 text-sm text-(--aw-blue-900)">
+            Use o token, não o valor:{" "}
+            <code className="mono">tracking-label</code> em vez de{" "}
+            <code className="mono">tracking-[0.06em]</code>. Só os 3 valores
+            singletons (0.16em, 0.04em, -0.04em) seguem como arbitrário — sem
+            token, por ora.
+          </div>
+
+          <UsagePattern
+            fake={`<span className="tracking-label text-xs uppercase">Agent studio</span>`}
+            real={`<Typography variant="eyebrow">Agent studio</Typography>`}
+          />
+        </Section>
+
         {/* ── Tokens ─────────────────────────────────────────────── */}
         <Section
           id="tokens"
@@ -430,6 +511,7 @@ export default function TypographyPage() {
                   ...BODY.map((b) => ({ token: b.token, value: `${b.size}px` })),
                   { token: "--mono-md-size", value: "14px" },
                   { token: "--mono-sm-size", value: "12px" },
+                  ...TRACKING.map((t) => ({ token: t.token, value: t.value })),
                 ].map((t) => (
                   <tr
                     key={t.token}
