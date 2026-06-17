@@ -487,23 +487,25 @@ function ChannelTile({
   note?: string;
   onToggle?: (v: boolean) => void;
 }) {
-  const blocked = !locked && !disabled && on === false;
+  const active = !!on;
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 rounded-xl border bg-(--bg-raised) px-4 py-4 transition-colors duration-aw-fast",
-        on || locked
-          ? "border-(--border-default)"
-          : "border-(--border-subtle)",
+        "flex flex-col gap-3 rounded-xl border px-4 py-4 transition-colors duration-aw-fast",
+        // Ativo: tile escuro com texto claro.
+        active
+          ? "border-(--fg-primary) bg-(--fg-primary)"
+          : "border-(--border-subtle) bg-(--bg-raised)",
+        disabled && "opacity-60",
       )}
     >
       <div className="flex items-start justify-between gap-2">
         <span
           className={cn(
             "flex h-10 w-10 items-center justify-center rounded-lg",
-            on || locked
-              ? "bg-(--bg-muted) text-(--fg-primary)"
-              : "bg-(--bg-muted) text-(--fg-tertiary)",
+            active
+              ? "bg-(--bg-canvas) text-(--fg-primary)"
+              : "bg-(--bg-muted) text-(--fg-secondary)",
           )}
         >
           {channelGlyph ? (
@@ -515,22 +517,35 @@ function ChannelTile({
         {locked ? (
           <Icon name="lock" size={16} className="mt-1 text-(--fg-tertiary)" />
         ) : (
-          <AwToggle
-            checked={!!on}
+          <AwCheckbox
+            checked={active}
             disabled={disabled}
             onChange={(v) => onToggle?.(v)}
             label={`Canal ${name}`}
+            // No tile escuro o checkbox marcado vira claro pra continuar visível.
+            className={
+              active
+                ? "border-(--bg-canvas)! data-[state=checked]:border-(--bg-canvas)! data-[state=checked]:bg-(--bg-canvas)! data-[state=checked]:text-(--fg-primary)!"
+                : undefined
+            }
           />
         )}
       </div>
       <div>
-        <p className="m-0 body-sm font-medium text-(--fg-primary)">{name}</p>
+        <p
+          className={cn(
+            "m-0 body-sm font-medium",
+            active ? "text-(--bg-canvas)" : "text-(--fg-primary)",
+          )}
+        >
+          {name}
+        </p>
         <p
           className={cn(
             "m-0 mt-0.5 body-xs",
-            locked
-              ? "text-(--fg-tertiary)"
-              : blocked
+            active
+              ? "text-(--bg-canvas) opacity-70"
+              : locked
                 ? "text-(--fg-tertiary)"
                 : "text-(--fg-secondary)",
           )}
