@@ -20,7 +20,14 @@ import {
   AwMembersTablePersonCell,
   AwMembersTableTextCell,
 } from "@/components/ui/AwMembersTable";
-import { GROUP_BACKGROUNDS, GROUPS, MEMBERS, type Member } from "../../_components/data";
+import {
+  GROUP_BACKGROUNDS,
+  GROUPS,
+  MEMBERS,
+  ROLE_OPTIONS,
+  type Member,
+  type Role,
+} from "../../_components/data";
 import { InviteModal } from "../../_components/InviteModal";
 
 type ActivityKind = "join" | "leave" | "role" | "permission" | "cover" | "rename";
@@ -187,6 +194,7 @@ export default function GroupDetailPage() {
   const [iconOpen, setIconOpen] = useState(false);
   const [activityView, setActivityView] = useState<"summary" | "all">("summary");
   const [removeMember, setRemoveMember] = useState<Member | null>(null);
+  const [roleOverrides, setRoleOverrides] = useState<Record<string, Role>>({});
   const [addOpen, setAddOpen] = useState(false);
   const [inviteOpen, setInviteOpen] = useState(false);
   const [groupMemberIds, setGroupMemberIds] = useState<string[]>([]);
@@ -222,7 +230,14 @@ export default function GroupDetailPage() {
 
   const members = groupMemberIds
     .map((mid) => MEMBERS.find((m) => m.id === mid))
-    .filter((m): m is NonNullable<typeof m> => Boolean(m));
+    .filter((m): m is NonNullable<typeof m> => Boolean(m))
+    .map((m) => {
+      const override = roleOverrides[m.id];
+      return override ? { ...m, role: override } : m;
+    });
+
+  const setMemberRole = (id: string, role: Role) =>
+    setRoleOverrides((prev) => ({ ...prev, [id]: role }));
 
   const candidateMembers = MEMBERS.filter(
     (m) => !groupMemberIds.includes(m.id),
@@ -445,8 +460,25 @@ export default function GroupDetailPage() {
                       avatarSrc={m.avatar}
                       initials={m.initials}
                     />
-                    <AwMembersTableTextCell muted>
-                      {m.role}
+                    <AwMembersTableTextCell>
+                      <AwDropdownMenu
+                        align="start"
+                        trigger={
+                          <button
+                            type="button"
+                            className="-ml-2 inline-flex items-center gap-1 rounded-md px-2 py-1 body-sm text-(--fg-secondary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+                          >
+                            {m.role}
+                            <Icon name="expand_more" size={16} />
+                          </button>
+                        }
+                        items={ROLE_OPTIONS.map((r) => ({
+                          id: r,
+                          label: r,
+                          icon: r === m.role ? "check" : undefined,
+                          onSelect: () => setMemberRole(m.id, r),
+                        }))}
+                      />
                     </AwMembersTableTextCell>
                     <td className="text-right">
                       <AwDropdownMenu
