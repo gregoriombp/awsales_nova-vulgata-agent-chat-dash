@@ -76,10 +76,10 @@ export default function DadosPessoaisPage() {
         description="Suas informações de perfil — visíveis para membros da organização."
       />
 
-      {/* Esquerda: formulário de edição · Direita: foto de perfil */}
-      <div className="mt-8 grid grid-cols-[minmax(0,1fr)_300px] items-start gap-8">
-        {/* Form — coluna esquerda */}
-        <AwCard className="p-6!">
+      {/* Esquerda: foto de perfil · Direita: formulário de edição */}
+      <div className="mt-8 grid grid-cols-[300px_minmax(0,1fr)] items-start gap-8">
+        {/* Form — coluna direita */}
+        <AwCard className="col-start-2 row-start-1 p-6!">
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <AwField label="Nome completo" htmlFor="full-name">
               <AwInput
@@ -157,8 +157,8 @@ export default function DadosPessoaisPage() {
           </div>
         </AwCard>
 
-        {/* Foto de perfil — coluna direita */}
-        <div className="flex flex-col items-center gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
+        {/* Foto de perfil — coluna esquerda */}
+        <div className="col-start-1 row-start-1 flex flex-col items-center gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
           <AwAvatar
             size="lg"
             src={previewSrc ?? "/assets/users/greg.jpg"}
