@@ -186,6 +186,17 @@
   --font-display: Geist, ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: Geist Mono, ui-monospace, SF Mono, Menlo, monospace;
 
+  /* TRACKING — letter-spacing nomeado. Tokeniza os tracking-[...] arbitrários
+   * recorrentes do produto com os MESMOS valores (zero mudança visual). Nomes
+   * próprios pra coexistir com a escala default do Tailwind sem sobrescrevê-la.
+   * Canal utility só — letter-spacing não varia por tema. */
+  --tracking-heading-tighter: -0.02em;
+  --tracking-heading-tight: -0.015em;
+  --tracking-heading: -0.01em;
+  --tracking-body: -0.005em;
+  --tracking-label: 0.06em;
+  --tracking-label-lg: 0.08em;
+
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 10px;
