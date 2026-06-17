@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwBrowserIcon } from "@/components/ui/AwBrowserIcon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -160,11 +161,16 @@ export default function AcessosOrgPage() {
                 </p>
               </div>
 
-              <div className="hidden min-w-0 flex-col items-start gap-0.5 md:flex">
-                <span className="body-xs text-(--fg-secondary)">{r.device}</span>
-                <span className="body-xs tabular-nums text-(--fg-tertiary)">
-                  {r.location} · {r.ip}
+              <div className="hidden min-w-0 items-center gap-2.5 md:flex">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised)">
+                  <AwBrowserIcon browser={r.device.split(" · ")[0]} size={18} />
                 </span>
+                <div className="flex min-w-0 flex-col items-start gap-0.5">
+                  <span className="body-xs text-(--fg-secondary)">{r.device}</span>
+                  <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                    {r.location} · {r.ip}
+                  </span>
+                </div>
               </div>
 
               <span className="hidden w-24 shrink-0 text-right body-xs tabular-nums text-(--fg-secondary) lg:block">
