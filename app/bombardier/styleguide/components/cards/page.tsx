@@ -145,7 +145,7 @@ export default function CardsPage() {
                   </AwCardDescription>
                 </AwCardHeader>
                 <AwCardFooter>
-                  <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                  <AwButton variant="ai" size="sm" iconLeft="agent">
                     Aplicar sugestão
                   </AwButton>
                   <AwButton variant="ghost" size="sm">
@@ -415,7 +415,7 @@ export default function CardsPage() {
                   </AwCardDescription>
                 </AwCardHeader>
                 <AwCardFooter>
-                  <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                  <AwButton variant="ai" size="sm" iconLeft="agent">
                     Detalhar
                   </AwButton>
                   <AwButton variant="ghost" size="sm">
@@ -457,7 +457,7 @@ export default function CardsPage() {
                     </AwCardDescription>
                   </AwCardHeader>
                   <AwCardFooter>
-                    <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                    <AwButton variant="ai" size="sm" iconLeft="agent">
                       Aplicar
                     </AwButton>
                   </AwCardFooter>
@@ -701,7 +701,7 @@ export default function CardsPage() {
     <AwButton
       variant="ai"
       size="sm"
-      iconLeft="auto_awesome"
+      iconLeft="agent"
     >
       Aplicar
     </AwButton>

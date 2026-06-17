@@ -204,7 +204,7 @@ export default function GradientPage() {
               demos={
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-wrap gap-3">
-                    <AwButton variant="ai" iconLeft="auto_awesome">
+                    <AwButton variant="ai" iconLeft="agent">
                       Get Started
                     </AwButton>
                     <AwButton variant="ai" iconLeft="bolt">
@@ -217,7 +217,7 @@ export default function GradientPage() {
                     />
                   </div>
                   <div className="dark rounded-md p-6 bg-(--dark-bg) border border-(--dark-border) flex flex-wrap gap-3">
-                    <AwButton variant="ai" iconLeft="auto_awesome">
+                    <AwButton variant="ai" iconLeft="agent">
                       Get Started
                     </AwButton>
                     <AwButton variant="ai" iconRight="arrow_forward">
@@ -327,7 +327,7 @@ export default function GradientPage() {
                   Crie em minutos, refine em horas, escale em dias.
                 </p>
                 <div className="flex gap-2">
-                  <AwButton variant="ai" iconLeft="auto_awesome">
+                  <AwButton variant="ai" iconLeft="agent">
                     Gerar agora
                   </AwButton>
                   <AwButton variant="ghost">Ver demo</AwButton>
@@ -392,7 +392,7 @@ export default function GradientPage() {
         >
           <CodeExample label="botão da IA (filled)">{`import { AwButton } from "@/components/ui/AwButton"
 
-<AwButton variant="ai" iconLeft="auto_awesome">
+<AwButton variant="ai" iconLeft="agent">
   Gerar resposta
 </AwButton>`}</CodeExample>
 

@@ -288,7 +288,7 @@ export default function PatternsPage() {
                 <AwButton variant="secondary" size="sm">
                   Criar do zero
                 </AwButton>
-                <AwButton variant="ai" size="sm" iconLeft="auto_awesome">
+                <AwButton variant="ai" size="sm" iconLeft="agent">
                   Gerar com IA
                 </AwButton>
               </div>

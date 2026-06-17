@@ -27,7 +27,7 @@ export function ToastDemo() {
       <AwButton
         variant="ai"
         size="sm"
-        iconLeft="auto_awesome"
+        iconLeft="agent"
         onClick={() =>
           push({
             variant: "ai",
