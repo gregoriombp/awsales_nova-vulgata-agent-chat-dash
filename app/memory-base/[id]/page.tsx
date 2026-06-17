@@ -101,15 +101,7 @@ function Checkbox({
       }`}
     >
       {checked ? (
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M20 6 9 17l-5-5"
-            stroke="white"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <Icon name="check" size={12} className="text-white" />
       ) : null}
     </button>
   );
@@ -117,11 +109,7 @@ function Checkbox({
 
 function DotsVertical32() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="5" r="1.5" fill="currentColor" />
-      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-      <circle cx="12" cy="19" r="1.5" fill="currentColor" />
-    </svg>
+    <Icon name="more_vert" size={32} />
   );
 }
 
@@ -132,43 +120,19 @@ function Plus24() {
 
 function Layers16() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M12 3 3 8l9 5 9-5-9-5Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3 12l9 5 9-5"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Icon name="stacks" size={16} />
   );
 }
 
 function Ellipsis16() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <circle cx="12" cy="5" r="1.5" fill="currentColor" />
-      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
-      <circle cx="12" cy="19" r="1.5" fill="currentColor" />
-    </svg>
+    <Icon name="more_vert" size={16} />
   );
 }
 
 function CheckboxSquare16() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M5 5h14v14H5V5Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <Icon name="check_box_outline_blank" size={16} />
   );
 }
 
@@ -874,9 +838,7 @@ function MemoryBaseDirectoryContent() {
                       ))}
                     </span>
                   ) : (
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="currentColor"/>
-                    </svg>
+                    <Icon name="person" size={14} fill={1} className="shrink-0" />
                   )}
                   <span>Utilizado por {connectedAgents.length} Agente{connectedAgents.length !== 1 ? "s" : ""}</span>
                 </button>
@@ -952,10 +914,7 @@ function MemoryBaseDirectoryContent() {
                   }}
                   className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5 transition-colors hover:bg-white/10 hover:text-white"
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="shrink-0">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-                    <path d="M14 2v6h6" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-                  </svg>
+                  <Icon name="description" size={14} className="shrink-0" />
                   <span>{rows.length} Fonte{rows.length !== 1 ? "s" : ""}</span>
                 </button>
                 {isSourcesPopoverOpen && rows.length > 0 && (
@@ -1239,9 +1198,7 @@ function MemoryBaseDirectoryContent() {
                 <div className="min-w-[140px] flex items-center gap-2 py-2 text-xs text-(--fg-tertiary)">
                   Data de adição
                   <span className="text-(--fg-tertiary)">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                      <path d="M7 15l5 5 5-5M7 9l5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
+                    <Icon name="unfold_more" size={14} />
                   </span>
                 </div>
                 <div className="w-8 shrink-0" aria-hidden />
@@ -1643,9 +1600,7 @@ function MemoryBaseDirectoryContent() {
                         <div className="flex flex-1 min-w-0 items-center gap-1">
                           <span>Título</span>
                           <span className="text-(--fg-tertiary)" aria-hidden>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                              <path d="M7 15l5 5 5-5M7 9l5-5 5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+                            <Icon name="unfold_more" size={12} />
                           </span>
                         </div>
                         <div className="w-[100px] shrink-0">Qualidade</div>

@@ -17,6 +17,7 @@ import {
   AwEmptyContent,
 } from "@/components/ui/AwEmpty";
 import { useAwTheme } from "@/components/ui/AwThemeProvider";
+import { Icon } from "@/components/ui/Icon";
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon";
 import { KnowledgeBaseExplorer } from "@/components/memory-base/KnowledgeBaseExplorer";
 import {
@@ -244,7 +245,7 @@ function WelcomeState({
           />
 
           {/* Conteúdo */}
-          <div className="relative z-10 flex flex-col items-center gap-[50px] px-8 text-center">
+          <div className="relative z-10 flex flex-col items-center gap-12.5 px-8 text-center">
             <AwMemoryBaseLogo size={180} className="text-(--fg-primary)" />
 
             <div className="flex w-[560px] max-w-full flex-col items-center gap-8">
@@ -264,14 +265,7 @@ function WelcomeState({
                 disabled={creating}
                 className="inline-flex h-[50px] items-center justify-center gap-2 rounded-2xl bg-(--bg-inverse) pl-4 pr-6 font-heading font-medium text-(--fg-on-inverse) transition-colors hover:bg-(--aw-gray-1100) disabled:opacity-60 dark:hover:bg-(--aw-gray-200)"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
-                  <path
-                    d="M8 3.333v9.334M3.333 8h9.334"
-                    stroke="currentColor"
-                    strokeWidth="1.8"
-                    strokeLinecap="round"
-                  />
-                </svg>
+                <Icon name="add" size={16} />
                 Criar Memory Base
               </button>
             </div>

@@ -912,9 +912,7 @@ function AgentStudioNewContent() {
                     onClick={handleCreateNewBase}
                     className="text-sm font-medium text-fg-primary hover:underline flex items-center gap-1"
                   >
-                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                      <path d="M7 3v8M3 7h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-                    </svg>
+                    <Icon name="add" size={14} />
                     Criar nova base
                   </button>
                 </div>
@@ -1015,9 +1013,7 @@ function AgentStudioNewContent() {
                               isSelected ? "bg-white" : "border-2 border-aw-gray-400"
                             }`}>
                               {isSelected && (
-                                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                                  <path d="M2 6L5 9L10 3" stroke="var(--aw-gray-1200)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
+                                <Icon name="check" size={12} style={{ color: "var(--aw-gray-1200)" }} />
                               )}
                             </div>
                           </button>

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import BaseModal from "./BaseModal";
 import { AwButton } from "@/components/ui/AwButton";
 import { TbFolder, TbPencil } from "react-icons/tb";
+import { Icon } from "@/components/ui/Icon";
 
 interface RenameFolderModalProps {
   isOpen: boolean;
@@ -63,15 +64,7 @@ export default function RenameFolderModal({
             className="p-2 text-(--fg-secondary) hover:text-(--fg-primary) hover:bg-(--bg-muted) rounded-lg transition-colors"
             aria-label="Fechar"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M18 6L6 18M6 6L18 18"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <Icon name="close" size={20} />
           </button>
         </div>
 

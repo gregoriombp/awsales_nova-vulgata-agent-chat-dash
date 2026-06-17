@@ -6,6 +6,7 @@ import { AwNotificationsPanel } from "@/components/ui/AwNotificationsPanel";
 import { AwCopilotOrb } from "@/components/ui/AwCopilotDrawer";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwButton } from "@/components/ui/AwButton";
+import { Icon } from "@/components/ui/Icon";
 
 interface BreadcrumbItem {
   label: string;
@@ -91,9 +92,7 @@ export function AwHeader({
           )}
         </div>
         {!isLast && (
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-(--fg-tertiary) shrink-0">
-            <path d="M9 6L15 12L9 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <Icon name="chevron_right" size={24} className="text-(--fg-tertiary) shrink-0" />
         )}
       </div>
     );
