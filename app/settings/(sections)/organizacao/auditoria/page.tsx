@@ -85,21 +85,6 @@ const TYPE_META: Record<
   },
 };
 
-function TypeBadge({ type }: { type: EventCategory }) {
-  const meta = TYPE_META[type];
-  return (
-    <span
-      className={
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium " +
-        meta.badgeClass
-      }
-    >
-      <Icon name={meta.icon} size={13} />
-      {type}
-    </span>
-  );
-}
-
 /* ---------- eventos do histórico ---------- */
 
 type OrgEvent = {
@@ -796,7 +781,7 @@ function DateSection({ group }: { group: DateGroup }) {
 function EventRow({ event }: { event: OrgEvent }) {
   return (
     <li className="m-0 list-none">
-      <div className="grid w-full grid-cols-[1fr_auto_auto] items-start gap-4 rounded-md px-3 py-3">
+      <div className="grid w-full grid-cols-[1fr_auto] items-start gap-4 rounded-md px-3 py-3">
         <span className="flex min-w-0 items-start gap-3">
           <AwAvatar
             size="md"
@@ -816,7 +801,6 @@ function EventRow({ event }: { event: OrgEvent }) {
             )}
           </span>
         </span>
-        <TypeBadge type={event.type} />
         <div className="flex flex-col items-end">
           <span className="body-xs tabular-nums text-(--fg-secondary)">
             {event.time}
