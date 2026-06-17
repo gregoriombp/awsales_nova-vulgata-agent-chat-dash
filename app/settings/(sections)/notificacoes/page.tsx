@@ -284,7 +284,7 @@ function CollapsibleSection({
         className="group flex w-full items-start gap-3 text-left"
       >
         {leading ?? (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
             <Icon name={icon ?? "circle"} size={20} animated={false} />
           </span>
         )}
@@ -306,11 +306,19 @@ function CollapsibleSection({
           <Icon name="expand_more" size={20} />
         </span>
       </button>
-      {open && (
-        <div className={cn("mt-4", bodyClassName ?? "flex flex-col gap-3")}>
-          {children}
+      {/* Transição suave de altura ao expandir/encolher (grid-rows 0fr↔1fr). */}
+      <div
+        className={cn(
+          "grid transition-[grid-template-rows] duration-aw-fast ease-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+        )}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className={cn("mt-4", bodyClassName ?? "flex flex-col gap-3")}>
+            {children}
+          </div>
         </div>
-      )}
+      </div>
     </section>
   );
 }
