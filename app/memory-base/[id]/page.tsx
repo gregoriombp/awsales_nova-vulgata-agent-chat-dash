@@ -781,7 +781,7 @@ function MemoryBaseDirectoryContent() {
         />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-(--bg-raised)">
         {/* Header area — faixa escura com o glow azul da marca no canto. */}
-        <div className="relative shrink-0 overflow-hidden bg-gray-1200 border-b border-gray-700" data-tour="kb-header">
+        <div className="relative shrink-0 overflow-hidden bg-gray-1200 border-b border-aw-gray-700" data-tour="kb-header">
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0"
@@ -838,7 +838,7 @@ function MemoryBaseDirectoryContent() {
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-gray-400">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-aw-gray-400">
               {/* Status */}
               <div className="flex items-center gap-2 rounded-full bg-white/5 px-3 py-1.5">
                 <span
@@ -1442,18 +1442,18 @@ function MemoryBaseDirectoryContent() {
                   <span
                     className={`inline-flex items-center gap-1.5 text-2xs font-medium px-2 py-1 rounded-md ${
                       drawerRow.status === "Ativo"
-                        ? "bg-green-50 text-green-700"
+                        ? "bg-aw-emerald-100 text-aw-emerald-700"
                         : drawerRow.status === "Analisando"
-                          ? "bg-amber-50 text-amber-700"
+                          ? "bg-aw-amber-100 text-aw-amber-700"
                           : drawerRow.status === "Erro"
-                            ? "bg-red-50 text-red-700"
-                            : "bg-gray-100 text-gray-600"
+                            ? "bg-aw-red-100 text-aw-red-700"
+                            : "bg-aw-gray-100 text-aw-gray-600"
                     }`}
                   >
-                    {drawerRow.status === "Ativo" && <span className="w-1.5 h-1.5 rounded-full bg-green-500" />}
-                    {drawerRow.status === "Analisando" && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
-                    {drawerRow.status === "Erro" && <span className="w-1.5 h-1.5 rounded-full bg-red-500" />}
-                    {drawerRow.status === "Inativo" && <span className="w-1.5 h-1.5 rounded-full bg-gray-400" />}
+                    {drawerRow.status === "Ativo" && <span className="w-1.5 h-1.5 rounded-full bg-aw-emerald-500" />}
+                    {drawerRow.status === "Analisando" && <span className="w-1.5 h-1.5 rounded-full bg-aw-amber-500" />}
+                    {drawerRow.status === "Erro" && <span className="w-1.5 h-1.5 rounded-full bg-aw-red-500" />}
+                    {drawerRow.status === "Inativo" && <span className="w-1.5 h-1.5 rounded-full bg-aw-gray-400" />}
                     {drawerRow.status}
                   </span>
                 </div>
@@ -1671,8 +1671,8 @@ function MemoryBaseDirectoryContent() {
                             <span
                               className={`shrink-0 px-2 py-0.5 rounded-full text-2xs font-medium ${
                                 item.status === "Ativo"
-                                  ? "bg-green-50 text-green-700"
-                                  : "bg-red-50 text-red-700"
+                                  ? "bg-aw-emerald-100 text-aw-emerald-700"
+                                  : "bg-aw-red-100 text-aw-red-700"
                               }`}
                             >
                               {item.status}
