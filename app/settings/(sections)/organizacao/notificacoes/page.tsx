@@ -2,13 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
@@ -18,11 +21,32 @@ import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
  * Dados (mock) — trocar por dados reais da política da organização.
  * ===================================================================== */
 
+/** Domínio do evento — ajuda o admin a escanear a lista por área. */
+type EventCategory =
+  | "cobranca"
+  | "seguranca"
+  | "canais"
+  | "agentes"
+  | "conversas"
+  | "equipe"
+  | "sistema";
+
+const CATEGORY_LABEL: Record<EventCategory, string> = {
+  cobranca: "Cobrança",
+  seguranca: "Segurança",
+  canais: "Canais",
+  agentes: "Agentes",
+  conversas: "Conversas",
+  equipe: "Equipe",
+  sistema: "Sistema",
+};
+
 type MandatoryEvent = {
   id: string;
   name: string;
   desc: string;
   icon: string;
+  category: EventCategory;
   /** Renderiza o glyph de marca do WhatsApp no lugar do Material Symbol. */
   channelGlyph?: "whatsapp";
 };
@@ -33,6 +57,7 @@ const MANDATORY: MandatoryEvent[] = [
     name: "Falha de cobrança",
     desc: "Fatura não paga — risco de suspender os serviços.",
     icon: "credit_card",
+    category: "cobranca",
   },
   {
     id: "waba",
@@ -40,18 +65,21 @@ const MANDATORY: MandatoryEvent[] = [
     desc: "Número desconectado ou banido pela Meta — os agentes param de responder.",
     icon: "chat",
     channelGlyph: "whatsapp",
+    category: "canais",
   },
   {
     id: "acesso",
     name: "Novo acesso à conta",
     desc: "Login de um dispositivo ou local novo.",
     icon: "login",
+    category: "seguranca",
   },
   {
     id: "incidente",
     name: "Incidente de segurança",
     desc: "Vazamento, acesso indevido ou falha de segurança.",
     icon: "gpp_maybe",
+    category: "seguranca",
   },
 ];
 
@@ -60,6 +88,7 @@ type OptionalEvent = {
   name: string;
   desc: string;
   icon: string;
+  category: EventCategory;
   defaultOn: boolean;
 };
 
@@ -69,6 +98,7 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Aprovação pendente de agente",
     desc: "Um agente espera autorização para executar uma ação.",
     icon: "approval_delegation",
+    category: "agentes",
     defaultOn: true,
   },
   {
@@ -76,6 +106,7 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Agente desconectado de um canal",
     desc: "WhatsApp, Instagram ou integração parou de responder.",
     icon: "link_off",
+    category: "canais",
     defaultOn: true,
   },
   {
@@ -83,6 +114,7 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Falha em ferramenta",
     desc: "Uma habilidade retornou erro repetidas vezes.",
     icon: "build",
+    category: "agentes",
     defaultOn: true,
   },
   {
@@ -90,6 +122,7 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Conversa transferida para você",
     desc: "Um agente ou colega passou um atendimento.",
     icon: "forward_to_inbox",
+    category: "conversas",
     defaultOn: false,
   },
   {
@@ -97,6 +130,7 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Novo membro no workspace",
     desc: "Alguém aceitou um convite e entrou na organização.",
     icon: "person_add",
+    category: "equipe",
     defaultOn: false,
   },
   {
@@ -104,9 +138,26 @@ const OPTIONAL: OptionalEvent[] = [
     name: "Resumo semanal por e-mail",
     desc: "Performance dos agentes, ações e KPIs da semana.",
     icon: "summarize",
+    category: "sistema",
     defaultOn: false,
   },
 ];
+
+/** Eventos que a organização nunca pode rebaixar para opcional. */
+const ALWAYS_MANDATORY = new Set(["cobranca", "waba", "acesso", "incidente"]);
+
+/** As três classes de governança que um evento pode ter. */
+type PolicyChoice = "mandatory" | "optional-on" | "optional-off";
+
+/** Metadados mínimos para migrar um evento entre as listas no modal de política. */
+type PolicyEvent = {
+  id: string;
+  name: string;
+  desc: string;
+  icon: string;
+  category: EventCategory;
+  channelGlyph?: "whatsapp";
+};
 
 type Recipient = { roles: string[]; members: string[] };
 const DEFAULT_RECIPIENT: Recipient = { roles: ["Administradores"], members: [] };
@@ -141,6 +192,11 @@ function initials(name: string) {
  * ===================================================================== */
 
 export default function OrgNotificacoesPage() {
+  // Classe de governança de cada evento (obrigatória vs. opcional). A política
+  // pode promover uma opcional a obrigatória ou rebaixar uma obrigatória — por
+  // isso as listas vivem no state, não fixas em código.
+  const [mandatory, setMandatory] = React.useState<MandatoryEvent[]>(MANDATORY);
+  const [optional, setOptional] = React.useState<OptionalEvent[]>(OPTIONAL);
   // Política das opcionais (padrão da org).
   const [optionalDefaults, setOptionalDefaults] = React.useState<Record<string, boolean>>(
     () => Object.fromEntries(OPTIONAL.map((e) => [e.id, e.defaultOn])),
@@ -154,6 +210,62 @@ export default function OrgNotificacoesPage() {
   const [channels, setChannels] = React.useState({ email: true, whatsapp: true, sms: false });
 
   const [recipientEvent, setRecipientEvent] = React.useState<MandatoryEvent | null>(null);
+  // Evento em edição de política (modal "Editar política").
+  const [policyEvent, setPolicyEvent] = React.useState<PolicyEvent | null>(null);
+
+  // Estado atual da política de um evento, derivado das listas.
+  const policyOf = React.useCallback(
+    (id: string): PolicyChoice => {
+      if (mandatory.some((e) => e.id === id)) return "mandatory";
+      return optionalDefaults[id] ? "optional-on" : "optional-off";
+    },
+    [mandatory, optionalDefaults],
+  );
+
+  // Aplica a política escolhida no modal, migrando o evento entre as listas.
+  const applyPolicy = React.useCallback(
+    (meta: PolicyEvent, next: PolicyChoice) => {
+      const id = meta.id;
+      if (next === "mandatory") {
+        setOptional((prev) => prev.filter((e) => e.id !== id));
+        setMandatory((prev) =>
+          prev.some((e) => e.id === id)
+            ? prev
+            : [
+                ...prev,
+                {
+                  id: meta.id,
+                  name: meta.name,
+                  desc: meta.desc,
+                  icon: meta.icon,
+                  category: meta.category,
+                  ...(meta.channelGlyph ? { channelGlyph: meta.channelGlyph } : {}),
+                },
+              ],
+        );
+        setRecipients((r) => (r[id] ? r : { ...r, [id]: DEFAULT_RECIPIENT }));
+      } else {
+        const defaultOn = next === "optional-on";
+        setMandatory((prev) => prev.filter((e) => e.id !== id));
+        setOptionalDefaults((d) => ({ ...d, [id]: defaultOn }));
+        setOptional((prev) => {
+          const optionalEvent: OptionalEvent = {
+            id: meta.id,
+            name: meta.name,
+            desc: meta.desc,
+            icon: meta.icon,
+            category: meta.category,
+            defaultOn,
+          };
+          return prev.some((e) => e.id === id)
+            ? prev.map((e) => (e.id === id ? optionalEvent : e))
+            : [...prev, optionalEvent];
+        });
+      }
+      setPolicyEvent(null);
+    },
+    [],
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -171,12 +283,13 @@ export default function OrgNotificacoesPage() {
           description="Eventos críticos que a organização garante. Ninguém desliga — você só escolhe quem recebe."
         />
         <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-          {MANDATORY.map((e) => (
+          {mandatory.map((e) => (
             <MandatoryRow
               key={e.id}
               event={e}
               recipient={recipients[e.id] ?? DEFAULT_RECIPIENT}
               onEditRecipients={() => setRecipientEvent(e)}
+              onEditPolicy={() => setPolicyEvent(e)}
             />
           ))}
         </ul>
@@ -188,8 +301,13 @@ export default function OrgNotificacoesPage() {
           title="Opcionais"
           description="A organização define o padrão; cada pessoa pode ligar ou desligar nas próprias preferências."
         />
+        <p className="mb-4 inline-flex items-start gap-2 px-1 body-xs text-(--fg-tertiary)">
+          <Icon name="info" size={14} className="mt-px shrink-0" />
+          O padrão vale para novos membros. Quem já ajustou nas próprias
+          preferências mantém a escolha.
+        </p>
         <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-          {OPTIONAL.map((e) => (
+          {optional.map((e) => (
             <OptionalRow
               key={e.id}
               event={e}
@@ -197,6 +315,7 @@ export default function OrgNotificacoesPage() {
               onToggle={(v) =>
                 setOptionalDefaults((d) => ({ ...d, [e.id]: v }))
               }
+              onEditPolicy={() => setPolicyEvent(e)}
             />
           ))}
         </ul>
@@ -227,20 +346,42 @@ export default function OrgNotificacoesPage() {
             on={wabaActive && channels.whatsapp}
             disabled={!wabaActive}
             onToggle={(v) => setChannels((c) => ({ ...c, whatsapp: v }))}
-            note={!wabaActive ? "Requer WABA ativa" : undefined}
+            note={
+              !wabaActive
+                ? "Requer um número de WhatsApp conectado"
+                : channels.whatsapp
+                  ? "Permitido — conforme sua contratação"
+                  : undefined
+            }
           />
           <ChannelTile
             icon="sms"
             name="SMS"
             on={channels.sms}
             onToggle={(v) => setChannels((c) => ({ ...c, sms: v }))}
+            note={channels.sms ? "Permitido — custo por SMS conforme tabela" : undefined}
           />
         </div>
-        <p className="mt-3 inline-flex items-start gap-2 px-1 body-xs text-(--fg-tertiary)">
-          <Icon name="info" size={14} className="mt-px shrink-0" />
-          Bloquear um canal não afeta cobrança, WhatsApp e segurança — elas
-          sempre chegam pelo app e e-mail.
-        </p>
+        <div className="mt-3 flex flex-col gap-1.5">
+          <p className="inline-flex items-start gap-2 px-1 body-xs text-(--fg-tertiary)">
+            <Icon name="info" size={14} className="mt-px shrink-0" />
+            Bloquear um canal não afeta cobrança, WhatsApp e segurança — elas
+            sempre chegam pelo app e e-mail.
+          </p>
+          <p className="inline-flex items-center gap-1.5 px-1 body-xs text-(--fg-tertiary)">
+            <Icon name="history" size={14} className="shrink-0" />
+            Toda mudança de canal fica registrada na auditoria.
+            <AwButton
+              asChild
+              size="sm"
+              variant="ghost"
+              iconRight="arrow_forward"
+              className="-my-1"
+            >
+              <Link href="/settings/organizacao/auditoria">Ver auditoria</Link>
+            </AwButton>
+          </p>
+        </div>
       </section>
 
       {/* Faturas & NF — reflexo read-only */}
@@ -293,6 +434,16 @@ export default function OrgNotificacoesPage() {
             setRecipients((r) => ({ ...r, [recipientEvent.id]: next }));
           }
           setRecipientEvent(null);
+        }}
+      />
+
+      {/* Modal — editar política (classe de governança) */}
+      <EditPolicyModal
+        event={policyEvent}
+        current={policyEvent ? policyOf(policyEvent.id) : "optional-off"}
+        onClose={() => setPolicyEvent(null)}
+        onSave={(next) => {
+          if (policyEvent) applyPolicy(policyEvent, next);
         }}
       />
     </div>
@@ -374,14 +525,60 @@ function EventIcon({
   );
 }
 
+/** Pill discreto de domínio do evento — sem ponto, para não competir com o nome. */
+function CategoryPill({ category }: { category: EventCategory }) {
+  return (
+    <AwPill
+      variant="neutral"
+      dot={false}
+      className="shrink-0 bg-(--bg-muted)! text-(--fg-tertiary)!"
+    >
+      {CATEGORY_LABEL[category]}
+    </AwPill>
+  );
+}
+
+/** Kebab ⋮ que abre o modal de política do evento. */
+function PolicyMenu({
+  eventName,
+  onEditPolicy,
+}: {
+  eventName: string;
+  onEditPolicy: () => void;
+}) {
+  return (
+    <AwDropdownMenu
+      aria-label={`Ações de ${eventName}`}
+      trigger={
+        <AwButton
+          variant="ghost"
+          size="sm"
+          iconOnly="more_vert"
+          aria-label={`Mais ações de ${eventName}`}
+        />
+      }
+      items={[
+        {
+          id: "edit-policy",
+          label: "Editar política…",
+          icon: "tune",
+          onSelect: onEditPolicy,
+        },
+      ]}
+    />
+  );
+}
+
 function MandatoryRow({
   event,
   recipient,
   onEditRecipients,
+  onEditPolicy,
 }: {
   event: MandatoryEvent;
   recipient: Recipient;
   onEditRecipients: () => void;
+  onEditPolicy: () => void;
 }) {
   return (
     <li className="m-0 flex items-start gap-4 py-4">
@@ -395,6 +592,7 @@ function MandatoryRow({
             <Icon name="lock" size={12} />
             Obrigatória
           </span>
+          <CategoryPill category={event.category} />
         </div>
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
 
@@ -428,6 +626,9 @@ function MandatoryRow({
           </button>
         </div>
       </div>
+      <div className="shrink-0">
+        <PolicyMenu eventName={event.name} onEditPolicy={onEditPolicy} />
+      </div>
     </li>
   );
 }
@@ -436,18 +637,23 @@ function OptionalRow({
   event,
   on,
   onToggle,
+  onEditPolicy,
 }: {
   event: OptionalEvent;
   on: boolean;
   onToggle: (v: boolean) => void;
+  onEditPolicy: () => void;
 }) {
   return (
     <li className="m-0 flex items-center gap-4 py-4">
       <EventIcon icon={event.icon} />
       <div className="min-w-0 flex-1">
-        <p className="m-0 body-sm font-medium text-(--fg-primary)">
-          {event.name}
-        </p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            {event.name}
+          </p>
+          <CategoryPill category={event.category} />
+        </div>
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
       </div>
       <div className="flex shrink-0 items-center gap-3">
@@ -459,6 +665,7 @@ function OptionalRow({
           onChange={onToggle}
           label={`Padrão de ${event.name}`}
         />
+        <PolicyMenu eventName={event.name} onEditPolicy={onEditPolicy} />
       </div>
     </li>
   );
@@ -686,13 +893,165 @@ function RecipientsModal({
         </div>
 
         {total === 0 && (
-          <div className="flex items-start gap-2.5 rounded-md border border-(--aw-amber-300) bg-(--aw-amber-100) px-3 py-2.5">
-            <Icon name="warning" size={15} className="mt-px shrink-0 text-(--aw-amber-700)" />
-            <p className="m-0 body-xs text-(--aw-amber-800)">
+          <AwAlert variant="warning">
+            <p className="m-0 body-xs text-(--fg-secondary)">
               Escolha ao menos uma função ou pessoa — uma obrigatória nunca fica
               sem destinatário.
             </p>
-          </div>
+          </AwAlert>
+        )}
+      </div>
+    </AwModal>
+  );
+}
+
+/* ===================================================================== *
+ * Modal — editar política (classe de governança do evento)
+ * ===================================================================== */
+
+const POLICY_OPTIONS: {
+  value: PolicyChoice;
+  icon: string;
+  label: string;
+  desc: string;
+}[] = [
+  {
+    value: "mandatory",
+    icon: "lock",
+    label: "Obrigatória",
+    desc: "Toda a organização recebe. Ninguém desliga.",
+  },
+  {
+    value: "optional-on",
+    icon: "toggle_on",
+    label: "Opcional — chega ligada",
+    desc: "Cada pessoa recebe por padrão, mas pode desligar.",
+  },
+  {
+    value: "optional-off",
+    icon: "toggle_off",
+    label: "Opcional — chega desligada",
+    desc: "Fica desligada por padrão; quem quiser, liga.",
+  },
+];
+
+function EditPolicyModal({
+  event,
+  current,
+  onClose,
+  onSave,
+}: {
+  event: PolicyEvent | null;
+  current: PolicyChoice;
+  onClose: () => void;
+  onSave: (next: PolicyChoice) => void;
+}) {
+  const [choice, setChoice] = React.useState<PolicyChoice>(current);
+  // Eventos críticos não podem deixar de ser obrigatórios.
+  const locked = event ? ALWAYS_MANDATORY.has(event.id) : false;
+
+  React.useEffect(() => {
+    if (event) setChoice(current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [event]);
+
+  const showsInheritance = choice !== "mandatory";
+
+  return (
+    <AwModal
+      open={event !== null}
+      onClose={onClose}
+      title={event ? `Editar política — ${event.name}` : undefined}
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="primary"
+            disabled={choice === current}
+            onClick={() => onSave(choice)}
+          >
+            Salvar política
+          </AwButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        {event && (
+          <p className="m-0 body-xs text-(--fg-secondary)">{event.desc}</p>
+        )}
+
+        <div
+          role="radiogroup"
+          aria-label="Classe de governança do evento"
+          className="flex flex-col gap-1.5"
+        >
+          {POLICY_OPTIONS.map((opt) => {
+            const selected = choice === opt.value;
+            const disabled = locked && opt.value !== "mandatory";
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                disabled={disabled}
+                onClick={() => setChoice(opt.value)}
+                className={cn(
+                  "flex items-start gap-3 rounded-xl border px-3.5 py-3 text-left transition-colors duration-aw-fast",
+                  selected
+                    ? "border-(--accent-brand) bg-(--bg-muted)"
+                    : "border-(--border-subtle) bg-(--bg-raised) hover:bg-(--bg-hover)",
+                  disabled && "cursor-not-allowed opacity-55 hover:bg-(--bg-raised)",
+                )}
+              >
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors duration-aw-fast",
+                    selected
+                      ? "border-(--accent-brand)"
+                      : "border-(--border-default)",
+                  )}
+                >
+                  {selected && (
+                    <span className="h-2 w-2 rounded-full bg-(--accent-brand)" />
+                  )}
+                </span>
+                <Icon
+                  name={opt.icon}
+                  size={18}
+                  className="mt-px shrink-0 text-(--fg-secondary)"
+                />
+                <span className="min-w-0">
+                  <span className="block body-sm font-medium text-(--fg-primary)">
+                    {opt.label}
+                  </span>
+                  <span className="block body-xs text-(--fg-secondary)">
+                    {opt.desc}
+                  </span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {locked && (
+          <p className="m-0 inline-flex items-start gap-2 px-1 body-xs text-(--fg-tertiary)">
+            <Icon name="info" size={14} className="mt-px shrink-0" />
+            Cobrança, WhatsApp e segurança são sempre obrigatórias.
+          </p>
+        )}
+
+        {showsInheritance && (
+          <AwAlert variant="info">
+            <p className="m-0 body-xs text-(--fg-secondary)">
+              O padrão vale para novos membros. Quem já ajustou nas próprias
+              preferências mantém a escolha.
+            </p>
+          </AwAlert>
         )}
       </div>
     </AwModal>

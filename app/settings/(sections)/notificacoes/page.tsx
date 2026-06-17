@@ -1,8 +1,15 @@
 "use client";
 
 import * as React from "react";
+import { AwAlert } from "@/components/ui/AwAlert";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
+import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
+import { AwToggle } from "@/components/ui/AwToggle";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../_components/shared";
@@ -50,8 +57,8 @@ const SECTIONS: SectionDef[] = [
     items: [
       {
         id: "waba",
-        title: "Número de WhatsApp caiu (WABA)",
-        desc: "Número desconectado ou banido pela Meta — os agentes param de responder. Sempre enviado.",
+        title: "Número de WhatsApp desconectado",
+        desc: "Número desconectado ou banido pela Meta — os agentes param de responder por WhatsApp. Sempre enviado.",
         orgLocked: true,
         on: true,
         channels: { app: true, email: true, whatsapp: true },
@@ -94,7 +101,7 @@ const SECTIONS: SectionDef[] = [
     items: [
       {
         id: "urgente",
-        title: "Mensagem urgente flagada",
+        title: "Mensagem urgente sinalizada",
         desc: "Cliente pediu humano, mencionou cancelamento ou usou linguagem sensível.",
         on: true,
         channels: { app: true, email: false, whatsapp: true },
@@ -192,39 +199,119 @@ const SECTIONS: SectionDef[] = [
   },
 ];
 
+/** Organização ativa — o escopo das preferências é por organização. */
+const ORG_NAME = "Fyntra";
+
+/** E-mail de destino do usuário (reflexo da conta). */
+const USER_EMAIL = "guilherme@fyntra.com";
+
+/** Estado padrão da matriz de canais, derivado de SECTIONS — itens "on"
+ * herdam seus canais; os demais nascem com tudo desmarcado. É também o
+ * alvo do "Restaurar padrão". */
+function defaultChannels(): Record<string, ChannelState> {
+  return Object.fromEntries(
+    SECTIONS.flatMap((s) =>
+      s.items.map((it) => [
+        it.id,
+        it.on ? it.channels : { app: false, email: false, whatsapp: false },
+      ]),
+    ),
+  );
+}
+
 /* ===================================================================== *
  * Página
  * ===================================================================== */
 
 export default function NotificationsSettingsPage() {
+  const { push } = useToast();
+
   // Cada notificação é controlada pelos 3 canais (No app / E-mail / WhatsApp).
   // Itens que nasciam "off" começam com todos os canais desmarcados; os
   // travados pela org mantêm os canais e ficam disabled.
-  const [channelsById, setChannelsById] = React.useState<
-    Record<string, ChannelState>
-  >(() =>
-    Object.fromEntries(
-      SECTIONS.flatMap((s) =>
-        s.items.map((it) => [
-          it.id,
-          it.on ? it.channels : { app: false, email: false, whatsapp: false },
-        ]),
-      ),
-    ),
+  const [channelsById, setChannelsById] =
+    React.useState<Record<string, ChannelState>>(defaultChannels);
+
+  // Preferências globais de canal (teto da entrega, abaixo da matriz).
+  const [emailDelivery, setEmailDelivery] = React.useState(true);
+  const [whatsappDelivery, setWhatsappDelivery] = React.useState(true);
+  const [weeklyDigest, setWeeklyDigest] = React.useState(false);
+
+  const [resetOpen, setResetOpen] = React.useState(false);
+
+  // Toast de "salvo" com coalescing — marcar vários canais em sequência não
+  // empilha toasts; um único aviso aparece quando a rajada termina.
+  const saveTimer = React.useRef<number | null>(null);
+  const notifySaved = React.useCallback(() => {
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      push({
+        variant: "success",
+        icon: "check_circle",
+        title: "Preferência salva.",
+        duration: 2200,
+      });
+    }, 450);
+  }, [push]);
+
+  React.useEffect(
+    () => () => {
+      if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    },
+    [],
   );
 
-  const setChannel = (id: string, ch: ChannelKey, val: boolean) =>
+  const setChannel = (id: string, ch: ChannelKey, val: boolean) => {
     setChannelsById((s) => ({ ...s, [id]: { ...s[id], [ch]: val } }));
+    notifySaved();
+  };
+
+  const restoreDefaults = () => {
+    setChannelsById(defaultChannels());
+    setEmailDelivery(true);
+    setWhatsappDelivery(true);
+    setWeeklyDigest(false);
+    setResetOpen(false);
+    push({
+      variant: "success",
+      icon: "restart_alt",
+      title: `Preferências restauradas ao padrão de ${ORG_NAME}.`,
+      duration: 2600,
+    });
+  };
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Notificações"
-        description="Escolha o que te interrompe e por onde recebe. O que a organização define vem travado — você ainda afina os canais."
+        description="Escolha o que te interrompe e por onde recebe. A organização define o que é obrigatório e o padrão de cada evento — aqui você afina o que é opcional e os canais."
       />
 
+      {/* Banner do modelo híbrido — eco enxuto do conceito da página de org,
+       * fechando também o escopo por organização (Fyntra). */}
+      <AwAlert variant="info" icon="info" className="mt-1">
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          A{" "}
+          <strong className="font-medium text-(--fg-primary)">
+            organização
+          </strong>{" "}
+          define o que é obrigatório e o padrão de cada evento. Aqui você ajusta
+          o que é{" "}
+          <strong className="font-medium text-(--fg-primary)">opcional</strong>{" "}
+          e por quais canais recebe — itens{" "}
+          <strong className="font-medium text-(--fg-primary)">
+            Definido pela organização
+          </strong>{" "}
+          chegam sempre.
+        </p>
+        <p className="m-0 mt-1.5 body-xs text-(--fg-tertiary)">
+          Suas preferências em {ORG_NAME} — cada pessoa configura as suas, por
+          organização.
+        </p>
+      </AwAlert>
+
       {/* Divisor cinza entre cada tipo de notificação. */}
-      <div className="mt-10 flex flex-col divide-y divide-(--border-subtle)">
+      <div className="mt-8 flex flex-col divide-y divide-(--border-subtle)">
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}
@@ -244,7 +331,78 @@ export default function NotificationsSettingsPage() {
             ))}
           </CollapsibleSection>
         ))}
+
+        {/* Canais de entrega — o teto global, abaixo da matriz por evento. */}
+        <CollapsibleSection
+          icon="send"
+          title="Canais de entrega"
+          desc="Por onde a plataforma te alcança, no geral. Cada evento acima ainda escolhe entre os canais ligados aqui."
+          className="py-8"
+          bodyClassName="divide-y divide-(--border-subtle)"
+        >
+          <DeliveryChannel
+            icon="notifications"
+            name="No app"
+            desc="O sininho no topo e esta página. Sempre ativo."
+            locked
+          />
+          <DeliveryChannel
+            icon="mail"
+            name="E-mail"
+            desc={`Enviado para ${USER_EMAIL}.`}
+            on={emailDelivery}
+            onToggle={(v) => {
+              setEmailDelivery(v);
+              notifySaved();
+            }}
+          />
+          <DeliveryChannel
+            channelGlyph="whatsapp"
+            name="WhatsApp"
+            desc="Alertas no seu número, liberado pela organização."
+            on={whatsappDelivery}
+            onToggle={(v) => {
+              setWhatsappDelivery(v);
+              notifySaved();
+            }}
+          />
+          <DeliveryChannel
+            icon="summarize"
+            name="Resumo semanal por e-mail"
+            desc="Toda segunda, com o desempenho dos agentes, as ações executadas e os números da semana."
+            on={weeklyDigest}
+            onToggle={(v) => {
+              setWeeklyDigest(v);
+              notifySaved();
+            }}
+          />
+        </CollapsibleSection>
+
+        {/* Alertas personalizados por entidade — teaser de v2, inerte. */}
+        <EntityAlertsTeaser />
       </div>
+
+      {/* Rodapé — restaurar padrão da org. */}
+      <div className="mt-10 flex items-center justify-between gap-4 border-t border-(--border-subtle) pt-6">
+        <p className="m-0 max-w-[520px] body-xs text-(--fg-tertiary)">
+          Suas escolhas são salvas automaticamente a cada alteração.
+        </p>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="restart_alt"
+          onClick={() => setResetOpen(true)}
+        >
+          Restaurar padrão
+        </AwButton>
+      </div>
+
+      {/* Modal — confirmação do reset (ação destrutiva). */}
+      <RestoreDefaultsModal
+        open={resetOpen}
+        onClose={() => setResetOpen(false)}
+        onConfirm={restoreDefaults}
+      />
     </div>
   );
 }
@@ -410,5 +568,158 @@ function NotifRow({
         ))}
       </div>
     </div>
+  );
+}
+
+/* ===================================================================== *
+ * Canais de entrega — teto global da entrega (abaixo da matriz)
+ * ===================================================================== */
+
+function DeliveryChannel({
+  icon,
+  channelGlyph,
+  name,
+  desc,
+  on,
+  locked,
+  onToggle,
+}: {
+  icon?: string;
+  channelGlyph?: "whatsapp";
+  name: string;
+  desc: string;
+  on?: boolean;
+  locked?: boolean;
+  onToggle?: (v: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-4 py-4">
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+        {channelGlyph ? (
+          <AwChannelIcon channel={channelGlyph} size={20} />
+        ) : (
+          <Icon name={icon ?? "circle"} size={20} />
+        )}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="m-0 body-sm font-medium text-(--fg-primary)">{name}</p>
+        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
+      </div>
+      {locked ? (
+        <span className="inline-flex shrink-0 items-center gap-1 body-xs font-medium text-(--fg-tertiary)">
+          <Icon name="lock" size={13} />
+          Sempre ativo
+        </span>
+      ) : (
+        <AwToggle
+          checked={!!on}
+          onChange={onToggle}
+          label={name}
+          className="shrink-0"
+        />
+      )}
+    </div>
+  );
+}
+
+/* ===================================================================== *
+ * Alertas personalizados por entidade — teaser de v2 (inerte)
+ * ===================================================================== */
+
+const ENTITY_EXAMPLES = [
+  { icon: "groups", label: "Equipe Atendimento" },
+  { icon: "agent", label: "Agente Aria" },
+  { icon: "forum", label: "Conversa #4821" },
+  { icon: "apartment", label: "Organização Fyntra" },
+];
+
+function EntityAlertsTeaser() {
+  return (
+    <section className="py-8" aria-label="Alertas personalizados por entidade">
+      <div className="flex items-start gap-3 opacity-70">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
+          <Icon name="notifications_active" size={20} animated={false} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="m-0 text-base font-semibold text-(--fg-primary)">
+              Alertas personalizados por entidade
+            </h2>
+            <AwPill variant="beta" dot={false}>
+              Em breve
+            </AwPill>
+          </div>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+            Acompanhe uma entidade específica — equipe, agente, conversa ou
+            organização — além do que sua função já recebe.
+          </p>
+
+          <div className="mt-4 max-w-[460px]">
+            <AwInput
+              iconLeft="search"
+              placeholder="Buscar equipe, agente, conversa ou organização…"
+              disabled
+              aria-label="Buscar entidade para acompanhar (em breve)"
+            />
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            {ENTITY_EXAMPLES.map((e) => (
+              <span
+                key={e.label}
+                aria-hidden="true"
+                className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2.5 py-1 body-xs font-medium text-(--fg-tertiary)"
+              >
+                <Icon name={e.icon} size={13} />
+                {e.label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ===================================================================== *
+ * Modal — restaurar preferências ao padrão da organização
+ * ===================================================================== */
+
+function RestoreDefaultsModal({
+  open,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title={`Restaurar ao padrão de ${ORG_NAME}?`}
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="danger"
+            iconLeft="restart_alt"
+            onClick={onConfirm}
+          >
+            Restaurar padrão
+          </AwButton>
+        </>
+      }
+    >
+      <p className="m-0 body-sm text-(--fg-secondary)">
+        Isso devolve todas as suas escolhas opcionais — eventos e canais — ao
+        padrão da organização. Os itens obrigatórios não mudam. Essa ação não
+        pode ser desfeita.
+      </p>
+    </AwModal>
   );
 }

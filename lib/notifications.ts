@@ -8,6 +8,15 @@ export type NotificationKind =
   | "security"
   | "system";
 
+/** Rótulo legível da categoria, para o cabeçalho do detalhe e os filtros. */
+export const KIND_LABEL: Record<NotificationKind, string> = {
+  billing: "Cobrança",
+  agent: "Agentes",
+  team: "Equipe",
+  security: "Segurança",
+  system: "Sistema",
+};
+
 export type AppNotification = {
   id: string;
   kind: NotificationKind;
@@ -17,10 +26,24 @@ export type AppNotification = {
   timeLabel: string;
   /** Rota aberta ao clicar na notificação. Ausente = item informativo. */
   href?: string;
+  /** Eventos que exigem ação imediata — cobrança vencida, queda de número.
+   * Quando não-lidos, sobem num aviso fixo no topo do inbox. */
+  critical?: boolean;
   read: boolean;
 };
 
 export const NOTIFICATIONS: AppNotification[] = [
+  {
+    id: "n-waba-caiu",
+    kind: "agent",
+    title: "Número de WhatsApp desconectado",
+    description:
+      "O número +55 11 9 9999-0000 foi desconectado pela Meta e os agentes pararam de responder por WhatsApp. Reconecte para retomar o atendimento.",
+    timeLabel: "há 12 minutos",
+    href: "/canais",
+    critical: true,
+    read: false,
+  },
   {
     id: "n-cobranca-falhou",
     kind: "billing",
@@ -29,6 +52,7 @@ export const NOTIFICATIONS: AppNotification[] = [
       "O boleto de R$ 5.268,49 venceu sem pagamento. Regularize para não suspender os serviços.",
     timeLabel: "há 1 hora",
     href: "/settings/financeiro/historico-faturas",
+    critical: true,
     read: false,
   },
   {
