@@ -735,8 +735,8 @@ function ExportCsvButton() {
           </div>
         ) : (
           <div className="flex flex-col items-center gap-3 py-6 text-center">
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
-              <Icon name="mark_email_read" size={26} />
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-success) text-(--bg-canvas)">
+              <Icon name="mark_email_read" size={32} />
             </span>
             <h6 className="m-0 text-(--fg-primary)">Relatório em geração</h6>
             <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
@@ -756,21 +756,39 @@ function ExportCsvButton() {
 /* ---------- seção por data + linha (mesmo padrão do histórico de faturas) ---------- */
 
 function DateSection({ group }: { group: DateGroup }) {
+  const [open, setOpen] = React.useState(true);
   return (
     <section>
-      <header className="mb-3 flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-2">
+      {/* Menu suspenso por data — seta indica que recolhe. */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="group mb-3 flex w-full items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-2 text-left"
+      >
         <div className="flex items-baseline gap-3">
           <h6 className="m-0 text-(--fg-primary)">{group.date}</h6>
           <span className="body-xs text-(--fg-tertiary)">
             {group.rows.length} {group.rows.length === 1 ? "evento" : "eventos"}
           </span>
         </div>
-      </header>
-      <ul className="m-0 flex flex-col gap-1 p-0">
-        {group.rows.map((event) => (
-          <EventRow key={event.id} event={event} />
-        ))}
-      </ul>
+        <span
+          className={`self-center text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:text-(--fg-secondary) ${open ? "rotate-180" : ""}`}
+        >
+          <Icon name="expand_more" size={18} />
+        </span>
+      </button>
+      <div
+        className={`grid transition-[grid-template-rows] duration-aw-fast ease-out ${open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <ul className="m-0 flex flex-col gap-1 p-0">
+            {group.rows.map((event) => (
+              <EventRow key={event.id} event={event} />
+            ))}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 }
