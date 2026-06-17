@@ -177,7 +177,7 @@ function VerTodasTile({
     <button
       type="button"
       onClick={onClick}
-      className="flex h-full items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-medium text-fg-secondary transition-colors duration-aw-fast hover:border-aw-gray-400 hover:bg-bg-surface"
+      className="flex h-full items-center justify-center gap-2 rounded-xl border border-dashed border-border p-4 text-sm font-medium text-fg-secondary transition-[border-color,background-color,transform] duration-aw-fast hover:border-aw-gray-400 hover:bg-bg-surface active:scale-[0.97]"
     >
       <Icon name={icon} size={16} />
       {label}
@@ -223,20 +223,32 @@ const WHATS_TEMPLATES: WhatsTemplate[] = [
   { id: "agendamento_demo", name: "agendamento_demo", preview: "Oi {{1}}! Que tal agendar uma demonstração rápida? Tenho horários essa semana.", status: "pendente" },
 ];
 
-/** Realça as variáveis {{n}} do template como chips sutis dentro do balão. */
+/** Nomes fictícios por índice de variável — o preview mostra um valor real
+ * em vez do token cru; o hover revela que ali entra uma variável. */
+const TEMPLATE_VAR_SAMPLES: Record<string, string> = {
+  "1": "Mariana",
+  "2": "Pedro",
+  "3": "Ana",
+};
+
+/** Mostra as variáveis {{n}} do template como um nome fictício; no hover,
+ * o chip azul tracejado indica (via tooltip) que é uma variável preenchida
+ * no disparo. */
 function renderTemplateText(text: string) {
-  return text.split(/(\{\{\d+\}\})/g).map((part, i) =>
-    /^\{\{\d+\}\}$/.test(part) ? (
+  return text.split(/(\{\{\d+\}\})/g).map((part, i) => {
+    const match = part.match(/^\{\{(\d+)\}\}$/);
+    if (!match) return <span key={i}>{part}</span>;
+    const sample = TEMPLATE_VAR_SAMPLES[match[1]] ?? "Cliente";
+    return (
       <span
         key={i}
-        className="mx-0.5 rounded bg-aw-blue-100 px-1 font-mono text-aw-blue-700"
+        title={`Variável ${part} — preenchida com o dado real no disparo`}
+        className="mx-0.5 cursor-default rounded bg-aw-blue-100 px-1 text-aw-blue-700 underline decoration-aw-blue-300 decoration-dotted underline-offset-2"
       >
-        {part}
+        {sample}
       </span>
-    ) : (
-      <span key={i}>{part}</span>
-    ),
-  );
+    );
+  });
 }
 
 /**
@@ -312,7 +324,7 @@ function WhatsConversationPreview({
             Hoje
           </span>
           <div className="flex items-center gap-1.5 text-2xs font-medium text-fg-tertiary">
-            <Icon name="auto_awesome" size={12} />
+            <AwUserAgentOrb seed={number.id} size={14} renderer="css" />
             Primeira mensagem do agente
           </div>
           <div
@@ -322,7 +334,17 @@ function WhatsConversationPreview({
           >
             <AwChatBubble
               variant="agent"
-              avatar={<Icon name="agent" size={16} />}
+              avatar={
+                number.avatar ? (
+                  <img
+                    src={number.avatar}
+                    alt={number.name}
+                    className="h-full w-full rounded-full object-cover"
+                  />
+                ) : (
+                  initials
+                )
+              }
               timestamp="agora"
             >
               {tpl ? (
@@ -779,7 +801,7 @@ function AgentStudioNewContent() {
       total={6}
     >
       <div className="flex min-h-full w-full flex-1 items-start justify-center bg-white px-6 py-12">
-        <div className={`w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 1 && currentStep <= 6 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
+        <div className={`my-auto w-full ${currentStep === 5 ? "max-w-[1320px]" : currentStep >= 1 && currentStep <= 6 ? "max-w-[1180px]" : "max-w-[900px]"} bg-white rounded-2xl px-8 py-10 md:px-14 md:py-11`}>
           <div key={currentStep} className="aw-wizard-step flex flex-col gap-8">
 
           {/* Step 1: Goal Selection */}
@@ -1127,9 +1149,14 @@ function AgentStudioNewContent() {
                   {(showAllSkills
                     ? HABILIDADES
                     : HABILIDADES.slice(0, SKILLS_VISIVEIS)
-                  ).map((h) => (
+                  ).map((h, i) => (
                     <AwCapabilityTile
                       key={h.id}
+                      className={
+                        showAllSkills && i >= SKILLS_VISIVEIS
+                          ? "aw-fade-in"
+                          : undefined
+                      }
                       icon={<AwBrandLogo brand={h.brand} size="md" />}
                       name={h.name}
                       description={h.domain}
@@ -1172,9 +1199,12 @@ function AgentStudioNewContent() {
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr gap-3">
-                  {(showAllAops ? AOPS : AOPS.slice(0, AOPS_VISIVEIS)).map((a) => (
+                  {(showAllAops ? AOPS : AOPS.slice(0, AOPS_VISIVEIS)).map((a, i) => (
                     <AwCapabilityTile
                       key={a.id}
+                      className={
+                        showAllAops && i >= AOPS_VISIVEIS ? "aw-fade-in" : undefined
+                      }
                       icon={
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-bg-muted text-fg-secondary">
                           <Icon name={a.icon} size={20} fill={1} />
