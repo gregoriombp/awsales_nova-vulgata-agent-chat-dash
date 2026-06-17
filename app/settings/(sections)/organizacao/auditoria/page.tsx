@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/AwEmpty";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwTable } from "@/components/ui/AwTable";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
@@ -397,6 +396,20 @@ export default function OrgAuditoriaPage() {
  * Tab — Histórico
  * ===================================================================== */
 
+type DateGroup = { date: string; rows: OrgEvent[] };
+
+/** Agrupa eventos por dia preservando a ordem (já vem em data desc) — mesma
+ *  lógica de agrupamento do histórico de faturas (lá é por mês). */
+function groupByDate(events: OrgEvent[]): DateGroup[] {
+  const groups: DateGroup[] = [];
+  for (const ev of events) {
+    const last = groups[groups.length - 1];
+    if (last && last.date === ev.date) last.rows.push(ev);
+    else groups.push({ date: ev.date, rows: [ev] });
+  }
+  return groups;
+}
+
 function HistoricoTab() {
   const [selectedTypes, setSelectedTypes] =
     React.useState<EventCategory[]>(ALL_CATEGORIES);
@@ -469,15 +482,11 @@ function HistoricoTab() {
           </div>
         </AwCard>
       ) : (
-        <AwCard className="p-0!">
-          <AwTable>
-            <tbody>
-              {filtered.map((event) => (
-                <EventRow key={event.id} event={event} />
-              ))}
-            </tbody>
-          </AwTable>
-        </AwCard>
+        <div className="flex flex-col gap-8">
+          {groupByDate(filtered).map((group) => (
+            <DateSection key={group.date} group={group} />
+          ))}
+        </div>
       )}
     </div>
   );
@@ -744,13 +753,33 @@ function ExportCsvButton() {
   );
 }
 
-/* ---------- linha da tabela ---------- */
+/* ---------- seção por data + linha (mesmo padrão do histórico de faturas) ---------- */
+
+function DateSection({ group }: { group: DateGroup }) {
+  return (
+    <section>
+      <header className="mb-3 flex items-baseline justify-between gap-4 border-b border-(--border-subtle) pb-2">
+        <div className="flex items-baseline gap-3">
+          <h6 className="m-0 text-(--fg-primary)">{group.date}</h6>
+          <span className="body-xs text-(--fg-tertiary)">
+            {group.rows.length} {group.rows.length === 1 ? "evento" : "eventos"}
+          </span>
+        </div>
+      </header>
+      <ul className="m-0 flex flex-col gap-1 p-0">
+        {group.rows.map((event) => (
+          <EventRow key={event.id} event={event} />
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 function EventRow({ event }: { event: OrgEvent }) {
   return (
-    <tr>
-      <td>
-        <span className="inline-flex items-start gap-3">
+    <li className="m-0 list-none">
+      <div className="grid w-full grid-cols-[1fr_auto_auto] items-start gap-4 rounded-md px-3 py-3">
+        <span className="flex min-w-0 items-start gap-3">
           <AwAvatar
             size="md"
             src={event.actorAvatar}
@@ -769,19 +798,15 @@ function EventRow({ event }: { event: OrgEvent }) {
             )}
           </span>
         </span>
-      </td>
-      <td className="align-top">
         <TypeBadge type={event.type} />
-      </td>
-      <td className="text-right align-top">
         <div className="flex flex-col items-end">
           <span className="body-xs tabular-nums text-(--fg-secondary)">
-            {event.date} · {event.time}
+            {event.time}
           </span>
           <span className="body-xs text-(--fg-tertiary)">{event.role}</span>
         </div>
-      </td>
-    </tr>
+      </div>
+    </li>
   );
 }
 

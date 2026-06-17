@@ -70,23 +70,103 @@ export default function DadosPessoaisPage() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-[820px] px-10 pt-14 pb-32">
+    <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Dados pessoais"
         description="Suas informações de perfil — visíveis para membros da organização."
       />
 
-      {/* Foto de perfil */}
-      <div className="mb-8 flex items-center gap-5">
-        <AwAvatar
-          size="lg"
-          src={previewSrc ?? "/assets/users/greg.jpg"}
-          alt={fullName}
-          initials={initials(fullName)}
-          className="h-16! w-16!"
-        />
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2">
+      {/* Esquerda: formulário de edição · Direita: foto de perfil */}
+      <div className="mt-8 grid grid-cols-[minmax(0,1fr)_300px] items-start gap-8">
+        {/* Form — coluna esquerda */}
+        <AwCard className="p-6!">
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+            <AwField label="Nome completo" htmlFor="full-name">
+              <AwInput
+                id="full-name"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                autoComplete="name"
+              />
+            </AwField>
+
+            <AwField
+              label="E-mail"
+              htmlFor="email"
+              helper="Gerenciado pela organização."
+            >
+              <AwInput id="email" value={INITIAL.email} disabled />
+            </AwField>
+
+            <AwField
+              label="Telefone"
+              htmlFor="phone"
+              helper="Usado para notificações por WhatsApp e contato de cobrança."
+            >
+              <AwInput
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                type="tel"
+                autoComplete="tel"
+                placeholder="+55 (11) 00000-0000"
+              />
+            </AwField>
+
+            <AwField
+              label="Função na organização"
+              htmlFor="role"
+              helper="Definida pela organização."
+            >
+              <AwInput id="role" value={INITIAL.role} disabled />
+            </AwField>
+
+            <AwField label="Fuso horário">
+              <AwDropdownMenu
+                trigger={<AwSelect className="w-full">{tzLabel(timezone)}</AwSelect>}
+                items={TIMEZONES.map((tz) => ({
+                  id: tz.value,
+                  label: tz.label,
+                  onSelect: () => setTimezone(tz.value),
+                }))}
+              />
+            </AwField>
+
+            <AwField label="Membro desde" htmlFor="member-since">
+              <AwInput id="member-since" value={INITIAL.memberSince} disabled />
+            </AwField>
+          </div>
+
+          <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">
+            <AwButton
+              variant="ghost"
+              size="sm"
+              onClick={handleCancel}
+              disabled={!dirty}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="sm"
+              onClick={handleSave}
+              disabled={!dirty}
+            >
+              {saved ? "Salvo" : "Salvar alterações"}
+            </AwButton>
+          </div>
+        </AwCard>
+
+        {/* Foto de perfil — coluna direita */}
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
+          <AwAvatar
+            size="lg"
+            src={previewSrc ?? "/assets/users/greg.jpg"}
+            alt={fullName}
+            initials={initials(fullName)}
+            className="h-24! w-24!"
+          />
+          <div className="flex flex-col items-center gap-2">
             <AwButton
               size="sm"
               variant="secondary"
@@ -95,98 +175,15 @@ export default function DadosPessoaisPage() {
             >
               Trocar foto
             </AwButton>
-            <AwButton
-              size="sm"
-              variant="ghost"
-              onClick={() => setPreviewSrc(null)}
-            >
+            <AwButton size="sm" variant="ghost" onClick={() => setPreviewSrc(null)}>
               Remover
             </AwButton>
           </div>
-          <p className="m-0 body-xs text-(--fg-tertiary)">
+          <p className="m-0 text-center body-xs text-(--fg-tertiary)">
             PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
           </p>
         </div>
       </div>
-
-      {/* Form */}
-      <AwCard className="p-6!">
-        <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-          <AwField label="Nome completo" htmlFor="full-name">
-            <AwInput
-              id="full-name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              autoComplete="name"
-            />
-          </AwField>
-
-          <AwField
-            label="E-mail"
-            htmlFor="email"
-            helper="Gerenciado pela organização."
-          >
-            <AwInput id="email" value={INITIAL.email} disabled />
-          </AwField>
-
-          <AwField
-            label="Telefone"
-            htmlFor="phone"
-            helper="Usado para notificações por WhatsApp e contato de cobrança."
-          >
-            <AwInput
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              type="tel"
-              autoComplete="tel"
-              placeholder="+55 (11) 00000-0000"
-            />
-          </AwField>
-
-          <AwField
-            label="Função na organização"
-            htmlFor="role"
-            helper="Definida pela organização."
-          >
-            <AwInput id="role" value={INITIAL.role} disabled />
-          </AwField>
-
-          <AwField label="Fuso horário">
-            <AwDropdownMenu
-              trigger={<AwSelect className="w-full">{tzLabel(timezone)}</AwSelect>}
-              items={TIMEZONES.map((tz) => ({
-                id: tz.value,
-                label: tz.label,
-                onSelect: () => setTimezone(tz.value),
-              }))}
-            />
-          </AwField>
-
-          <AwField label="Membro desde" htmlFor="member-since">
-            <AwInput id="member-since" value={INITIAL.memberSince} disabled />
-          </AwField>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">
-          <AwButton
-            variant="ghost"
-            size="sm"
-            onClick={handleCancel}
-            disabled={!dirty}
-          >
-            Cancelar
-          </AwButton>
-          <AwButton
-            variant="primary"
-            size="sm"
-            onClick={handleSave}
-            disabled={!dirty}
-          >
-            {saved ? "Salvo" : "Salvar alterações"}
-          </AwButton>
-        </div>
-      </AwCard>
 
       {/* Modal — trocar foto */}
       <AwModal

@@ -64,7 +64,6 @@ function ForecastBlock() {
   return (
     <AwInvoiceForecastCard
       eyebrow={`Previsão da próxima fatura · ${CURRENT_INVOICE.dueAt}`}
-      monitorLabel="Cortex monitorando custos"
       total={total}
       trend={{ value: 4.8, direction: "up", tone: "bad" }}
       breakdown={breakdown}

@@ -3,8 +3,6 @@
 import * as React from "react";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
-import { AwToggle } from "@/components/ui/AwToggle";
-import { AwUserAgentOrb } from "@/components/ui/AwUserAgentOrb";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../_components/shared";
@@ -46,7 +44,7 @@ type SectionDef = {
 const SECTIONS: SectionDef[] = [
   {
     id: "agentes",
-    icon: "smart_toy",
+    icon: "agent",
     title: "Agentes",
     desc: "Quando seus agentes de IA pedem atenção.",
     items: [
@@ -194,48 +192,6 @@ const SECTIONS: SectionDef[] = [
   },
 ];
 
-type DeliveryDef = {
-  id: string;
-  icon?: string;
-  channelGlyph?: "whatsapp";
-  title: string;
-  desc: string;
-  orgLocked?: boolean;
-  on: boolean;
-};
-
-const DELIVERY: DeliveryDef[] = [
-  {
-    id: "d-app",
-    icon: "notifications",
-    title: "No app",
-    desc: "O sininho aqui no topo e esta página.",
-    orgLocked: true,
-    on: true,
-  },
-  {
-    id: "d-email",
-    icon: "mail",
-    title: "E-mail",
-    desc: "Enviado pra guilherme@fyntra.com.",
-    on: true,
-  },
-  {
-    id: "d-whatsapp",
-    channelGlyph: "whatsapp",
-    title: "WhatsApp",
-    desc: "Alertas no seu número — a org liberou via WABA ativa.",
-    on: false,
-  },
-  {
-    id: "d-resumo",
-    icon: "summarize",
-    title: "Resumo semanal por e-mail",
-    desc: "Toda segunda — performance dos agentes, ações e KPIs.",
-    on: false,
-  },
-];
-
 /* ===================================================================== *
  * Página
  * ===================================================================== */
@@ -256,14 +212,9 @@ export default function NotificationsSettingsPage() {
       ),
     ),
   );
-  const [delivery, setDelivery] = React.useState<Record<string, boolean>>(() =>
-    Object.fromEntries(DELIVERY.map((d) => [d.id, d.on])),
-  );
 
   const setChannel = (id: string, ch: ChannelKey, val: boolean) =>
     setChannelsById((s) => ({ ...s, [id]: { ...s[id], [ch]: val } }));
-  const toggleDelivery = (id: string, on: boolean) =>
-    setDelivery((d) => ({ ...d, [id]: on }));
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
@@ -272,18 +223,16 @@ export default function NotificationsSettingsPage() {
         description="Escolha o que te interrompe e por onde recebe. O que a organização define vem travado — você ainda afina os canais."
       />
 
-      <div className="mt-10 flex flex-col gap-12">
+      {/* Divisor cinza entre cada tipo de notificação. */}
+      <div className="mt-10 flex flex-col divide-y divide-(--border-subtle)">
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}
             icon={section.icon}
-            leading={
-              section.id === "agentes" ? (
-                <AwUserAgentOrb size={36} renderer="css" seed="agentes" />
-              ) : undefined
-            }
             title={section.title}
             desc={section.desc}
+            className="py-8 first:pt-0"
+            bodyClassName="divide-y divide-(--border-subtle)"
           >
             {section.items.map((def) => (
               <NotifRow
@@ -295,23 +244,6 @@ export default function NotificationsSettingsPage() {
             ))}
           </CollapsibleSection>
         ))}
-
-        {/* Canais de entrega — o teto pessoal de por onde recebe */}
-        <CollapsibleSection
-          icon="outbox"
-          title="Canais de entrega"
-          desc="Por onde você quer receber."
-          className="border-t border-(--border-subtle) pt-10"
-        >
-          {DELIVERY.map((def) => (
-            <DeliveryRow
-              key={def.id}
-              def={def}
-              on={delivery[def.id]}
-              onToggle={toggleDelivery}
-            />
-          ))}
-        </CollapsibleSection>
       </div>
     </div>
   );
@@ -329,6 +261,7 @@ function CollapsibleSection({
   trailing,
   defaultOpen = true,
   className,
+  bodyClassName,
   children,
 }: {
   icon?: string;
@@ -338,6 +271,7 @@ function CollapsibleSection({
   trailing?: React.ReactNode;
   defaultOpen?: boolean;
   className?: string;
+  bodyClassName?: string;
   children: React.ReactNode;
 }) {
   const [open, setOpen] = React.useState(defaultOpen);
@@ -351,7 +285,7 @@ function CollapsibleSection({
       >
         {leading ?? (
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-            <Icon name={icon ?? "circle"} size={20} />
+            <Icon name={icon ?? "circle"} size={20} animated={false} />
           </span>
         )}
         <div className="min-w-0 flex-1">
@@ -372,16 +306,20 @@ function CollapsibleSection({
           <Icon name="expand_more" size={20} />
         </span>
       </button>
-      {open && <div className="mt-4 flex flex-col gap-3">{children}</div>}
+      {open && (
+        <div className={cn("mt-4", bodyClassName ?? "flex flex-col gap-3")}>
+          {children}
+        </div>
+      )}
     </section>
   );
 }
 
 function OrgBadge() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 text-[11px] font-medium text-(--aw-amber-800)">
+    <span className="inline-flex items-center gap-1 rounded-full bg-(--aw-amber-100) px-2 py-0.5 text-[11px] font-medium text-(--aw-amber-800)">
       <Icon name="lock" size={11} />
-      definido pela organização
+      Definido pela organização
     </span>
   );
 }
@@ -437,16 +375,21 @@ function NotifRow({
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
   return (
-    <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-5 py-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="m-0 body-sm font-medium text-(--fg-primary)">
-          {def.title}
-        </p>
-        {def.orgLocked && <OrgBadge />}
+    // Linha plana (sem card/radius) — separada das vizinhas por divisor.
+    <div className="flex items-start justify-between gap-6 py-4">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            {def.title}
+          </p>
+          {def.orgLocked && <OrgBadge />}
+        </div>
+        {/* Texto explicativo: esclarece a função desta notificação. */}
+        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{def.desc}</p>
       </div>
 
-      {/* Um checkbox por canal — travados pela org ficam disabled. */}
-      <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2">
+      {/* Canais à direita — um checkbox por canal, travados ficam disabled. */}
+      <div className="flex shrink-0 items-center gap-x-5">
         {CHANNELS.map((ch) => (
           <ChannelCheckbox
             key={ch.key}
@@ -458,48 +401,6 @@ function NotifRow({
           />
         ))}
       </div>
-
-      {/* Texto explicativo: esclarece a função desta notificação. */}
-      <p className="m-0 mt-2.5 body-xs text-(--fg-secondary)">{def.desc}</p>
-    </div>
-  );
-}
-
-function DeliveryRow({
-  def,
-  on,
-  onToggle,
-}: {
-  def: DeliveryDef;
-  on: boolean;
-  onToggle: (id: string, on: boolean) => void;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-5 py-4">
-      <div className="flex min-w-0 items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-          {def.channelGlyph ? (
-            <AwChannelIcon channel="whatsapp" size={18} />
-          ) : (
-            <Icon name={def.icon ?? "circle"} size={18} />
-          )}
-        </span>
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              {def.title}
-            </p>
-            {def.orgLocked && <OrgBadge />}
-          </div>
-          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{def.desc}</p>
-        </div>
-      </div>
-      <AwToggle
-        checked={on}
-        disabled={def.orgLocked}
-        onChange={(v) => onToggle(def.id, v)}
-        label={def.title}
-      />
     </div>
   );
 }

@@ -12,8 +12,6 @@ import { AwSelect } from "@/components/ui/AwSelect";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
-import { NotificationRow } from "@/components/NotificationRow";
-import { NOTIFICATIONS, type AppNotification } from "@/lib/notifications";
 import { SectionHeading } from "../_components/shared";
 import {
   COVER_BACKGROUNDS,
@@ -81,8 +79,6 @@ export default function ProfileSettingsPage() {
   const dragRef = useRef<{ startY: number; startPos: number } | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
-  const [pendingNotification, setPendingNotification] =
-    useState<AppNotification | null>(null);
 
   // Reset position when a new cover is picked
   useEffect(() => { setCoverPosY(50); setSavedPosY(50); }, [cover]);
@@ -101,7 +97,6 @@ export default function ProfileSettingsPage() {
   const startRepositioning = () => { setSavedPosY(coverPosY); setRepositioning(true); setPickerOpen(false); };
   const saveReposition = () => { setSavedPosY(coverPosY); setRepositioning(false); };
   const cancelReposition = () => { setCoverPosY(savedPosY); setRepositioning(false); };
-  const latestNotifications = NOTIFICATIONS.slice(0, 4);
 
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
     { icon: "person", text: fullName },
@@ -328,35 +323,6 @@ export default function ProfileSettingsPage() {
                 ))}
               </div>
             </section>
-
-            <section aria-label="Últimas notificações">
-              <SectionHeading
-                title="Últimas notificações"
-                description="Atividades recentes que pediram sua atenção."
-              />
-              <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-                {latestNotifications.map((n) => (
-                  <li key={n.id} className="m-0">
-                    <NotificationRow
-                      notification={n}
-                      onActivate={setPendingNotification}
-                    />
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-3 flex justify-end">
-                <AwButton
-                  size="sm"
-                  variant="ghost"
-                  iconRight="arrow_forward"
-                  asChild
-                >
-                  <Link href="/settings/notificacoes">
-                    Ver todas as notificações
-                  </Link>
-                </AwButton>
-              </div>
-            </section>
           </div>
         </div>
       </div>
@@ -442,11 +408,6 @@ export default function ProfileSettingsPage() {
         currentSrc="/assets/users/greg.jpg"
         fullName={fullName}
         initials="GP"
-      />
-
-      <NotificationConfirmModal
-        notification={pendingNotification}
-        onClose={() => setPendingNotification(null)}
       />
     </div>
   );
@@ -553,89 +514,6 @@ function PhotoEditModal({
           </p>
         </div>
       </div>
-    </AwModal>
-  );
-}
-
-/* -----------------------------------------------------------------
- * NotificationConfirmModal — confirma navegação ao clicar numa notif.
- * UX writing contextualizado por kind/title.
- * ----------------------------------------------------------------- */
-
-const NOTIF_KIND_DESTINATION: Record<
-  NotificationKindLike,
-  { label: string; verb: string }
-> = {
-  billing: { label: "Faturamento", verb: "revisar a cobrança" },
-  agent: { label: "Painel do agente", verb: "tratar a solicitação" },
-  team: { label: "Equipe & permissões", verb: "verificar a alteração" },
-  security: { label: "Segurança", verb: "revisar este acesso" },
-  system: { label: "Detalhes do aviso", verb: "ver o aviso completo" },
-};
-
-type NotificationKindLike =
-  | "billing"
-  | "agent"
-  | "team"
-  | "security"
-  | "system";
-
-function NotificationConfirmModal({
-  notification,
-  onClose,
-}: {
-  notification: AppNotification | null;
-  onClose: () => void;
-}) {
-  const dest = notification ? NOTIF_KIND_DESTINATION[notification.kind] : null;
-  const hasHref = Boolean(notification?.href);
-
-  return (
-    <AwModal
-      open={notification !== null}
-      onClose={onClose}
-      title={hasHref ? "Abrir notificação" : "Detalhes da notificação"}
-      footer={
-        notification && (
-          <>
-            <AwButton size="sm" variant="ghost" onClick={onClose}>
-              {hasHref ? "Cancelar" : "Fechar"}
-            </AwButton>
-            {hasHref && notification.href && (
-              <AwButton size="sm" variant="primary" iconLeft="open_in_new" asChild>
-                <Link href={notification.href} onClick={onClose}>
-                  Ir para {dest?.label}
-                </Link>
-              </AwButton>
-            )}
-          </>
-        )
-      }
-    >
-      {notification && (
-        <div className="flex flex-col gap-3">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {notification.title}
-          </p>
-          <p className="m-0 body-xs text-(--fg-secondary)">
-            {notification.description}
-          </p>
-          {hasHref ? (
-            <p className="m-0 rounded-md bg-(--bg-muted) px-3 py-2.5 body-xs text-(--fg-secondary)">
-              Você vai para{" "}
-              <strong className="font-medium text-(--fg-primary)">
-                {dest?.label}
-              </strong>{" "}
-              para {dest?.verb}.
-            </p>
-          ) : (
-            <p className="m-0 rounded-md bg-(--bg-muted) px-3 py-2.5 body-xs text-(--fg-secondary)">
-              Esta notificação é informativa — não tem ação associada. Use
-              como referência ou marque como lida.
-            </p>
-          )}
-        </div>
-      )}
     </AwModal>
   );
 }

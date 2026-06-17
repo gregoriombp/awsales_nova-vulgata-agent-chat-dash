@@ -7,6 +7,8 @@ export type AwAlertProps = React.HTMLAttributes<HTMLDivElement> & {
   variant?: AwAlertVariant
   title?: React.ReactNode
   icon?: string
+  /** Quando passado, mostra um botão de fechar (X) à direita. */
+  onClose?: () => void
   children?: React.ReactNode
 }
 
@@ -21,6 +23,7 @@ export function AwAlert({
   variant = "info",
   title,
   icon,
+  onClose,
   children,
   className,
   ...rest
@@ -38,6 +41,16 @@ export function AwAlert({
         {title && <strong className="aw-alert__title">{title}</strong>}
         {children}
       </div>
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Fechar"
+          className="-mr-1 ml-auto inline-flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center self-start rounded-md opacity-60 transition-opacity duration-aw-fast hover:opacity-100"
+        >
+          <Icon name="close" size={16} />
+        </button>
+      )}
     </div>
   )
 }

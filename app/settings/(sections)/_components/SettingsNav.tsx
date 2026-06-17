@@ -17,10 +17,10 @@ export type SettingsNavItem = {
   icon: string;
   /** Match any path that starts with one of these prefixes. */
   matchPrefixes?: string[];
+  /** Casa só com o href exato — item-pai cujas sub-rotas viraram itens próprios. */
+  exact?: boolean;
   /** Label for sub-route segments — used to build the third breadcrumb. */
   subRoutes?: Record<string, string>;
-  /** Subitens renderizados no nav, debaixo do pai (atalhos rápidos). */
-  children?: { href: string; label: string }[];
 };
 
 export type SettingsNavGroup = {
@@ -42,23 +42,29 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
     id: "pessoal",
     label: "Pessoal",
     items: [
+      // Perfil não tem menu in-page → a visão geral fica como item e cada
+      // sub-página vira um item próprio (sidebar plana, sem children).
       {
         href: "/settings/perfil",
         label: "Perfil",
         icon: "account_circle",
-        matchPrefixes: ["/settings/perfil"],
-        subRoutes: {
-          "dados-pessoais": "Dados pessoais",
-          senha: "Senha e acesso",
-          "sessoes-ativas": "Sessões ativas",
-          "meus-dados": "Meus dados",
-        },
-        children: [
-          { href: "/settings/perfil/dados-pessoais", label: "Dados pessoais" },
-          { href: "/settings/perfil/senha", label: "Senha e acesso" },
-          { href: "/settings/perfil/sessoes-ativas", label: "Sessões ativas" },
-          { href: "/settings/perfil/meus-dados", label: "Meus dados" },
-        ],
+        exact: true,
+      },
+      {
+        href: "/settings/perfil/dados-pessoais",
+        label: "Dados pessoais",
+        icon: "badge",
+      },
+      { href: "/settings/perfil/senha", label: "Senha e acesso", icon: "lock" },
+      {
+        href: "/settings/perfil/sessoes-ativas",
+        label: "Sessões ativas",
+        icon: "devices",
+      },
+      {
+        href: "/settings/perfil/meus-dados",
+        label: "Meus dados",
+        icon: "database",
       },
       { href: "/settings/notificacoes", label: "Notificações", icon: "notifications" },
       { href: "/settings/aparencia", label: "Aparência", icon: "palette" },
@@ -69,31 +75,30 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
     label: ONBOARDING_ORG.name,
     org: true,
     items: [
+      // Organização não tem menu in-page → identidade fica como item e cada
+      // sub-página vira um item próprio.
       {
         href: "/settings/organizacao",
         label: "Organização",
         icon: "domain",
-        matchPrefixes: ["/settings/organizacao"],
-        subRoutes: {
-          notificacoes: "Notificações",
-          seguranca: "Segurança & acesso",
-          auditoria: "Privacidade & auditoria",
-        },
-        children: [
-          {
-            href: "/settings/organizacao/notificacoes",
-            label: "Notificações",
-          },
-          {
-            href: "/settings/organizacao/seguranca",
-            label: "Segurança & acesso",
-          },
-          {
-            href: "/settings/organizacao/auditoria",
-            label: "Privacidade & auditoria",
-          },
-        ],
+        exact: true,
       },
+      {
+        href: "/settings/organizacao/notificacoes",
+        label: "Notificações",
+        icon: "notifications",
+      },
+      {
+        href: "/settings/organizacao/seguranca",
+        label: "Segurança & acesso",
+        icon: "shield",
+      },
+      {
+        href: "/settings/organizacao/auditoria",
+        label: "Privacidade & auditoria",
+        icon: "policy",
+      },
+      // Tem TeamTabs in-page → item único, sub-rotas só pro breadcrumb.
       {
         href: "/settings/equipe-permissoes",
         label: "Membros & funções",
@@ -104,13 +109,9 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           funcoes: "Funções",
           grupos: "Equipes",
         },
-        children: [
-          { href: "/settings/equipe-permissoes", label: "Membros" },
-          { href: "/settings/equipe-permissoes/funcoes", label: "Funções" },
-          { href: "/settings/equipe-permissoes/grupos", label: "Equipes" },
-        ],
       },
       { href: "/settings/api", label: "API & desenvolvedores", icon: "key" },
+      // Tem FinanceiroTabs in-page (layout.tsx) → item único, sub-rotas só pro breadcrumb.
       {
         href: "/settings/financeiro",
         label: "Financeiro",
@@ -123,16 +124,6 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           "historico-faturas": "Faturas",
           auditoria: "Atividade",
         },
-        children: [
-          { href: "/settings/financeiro/visao-geral", label: "Visão geral" },
-          { href: "/settings/financeiro/consumo", label: "Consumo" },
-          {
-            href: "/settings/financeiro/metodos-pagamento",
-            label: "Métodos de pagamento",
-          },
-          { href: "/settings/financeiro/historico-faturas", label: "Faturas" },
-          { href: "/settings/financeiro/auditoria", label: "Atividade" },
-        ],
       },
       { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },
     ],
@@ -148,6 +139,7 @@ export function isSettingsNavItemActive(
   pathname: string,
   item: SettingsNavItem,
 ): boolean {
+  if (item.exact) return pathname === item.href;
   const prefixes = item.matchPrefixes ?? [item.href];
   return prefixes.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
@@ -215,11 +207,6 @@ export function SettingsNav() {
           icon: item.icon,
           href: item.href,
           active: isSettingsNavItemActive(pathname, item),
-          children: item.children?.map((child) => ({
-            label: child.label,
-            href: child.href,
-            active: pathname === child.href.split("#")[0],
-          })),
         })),
       })),
     [pathname],
