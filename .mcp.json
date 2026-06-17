@@ -11,6 +11,10 @@
     "playwright": {
       "command": "npx",
       "args": ["@playwright/mcp@latest"]
+    },
+    "mobbin": {
+      "type": "http",
+      "url": "https://mcp.mobbin.com/mcp"
     }
   }
 }
