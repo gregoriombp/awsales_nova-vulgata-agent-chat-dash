@@ -1,12 +1,15 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrowserIcon, getBrowserKey } from "@/components/ui/AwBrowserIcon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
+import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { SettingsPageHeader } from "../../_components/shared";
 
@@ -67,20 +70,67 @@ const INITIAL_SESSIONS: Session[] = [
 ];
 
 export default function SessoesAtivasPage() {
+  const toast = useToast();
   const [sessions, setSessions] = useState(INITIAL_SESSIONS);
   const [terminateTarget, setTerminateTarget] = useState<Session | null>(null);
+  // Etapa de identidade antes do encerramento em massa (ação irreversível
+  // que desconecta todos os outros dispositivos de uma vez).
+  const [identityOpen, setIdentityOpen] = useState(false);
   const [terminateAllOpen, setTerminateAllOpen] = useState(false);
+  const [secret, setSecret] = useState("");
+  const [identityError, setIdentityError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const secretRef = useRef<HTMLInputElement>(null);
+
+  // Foca o campo assim que a etapa de identidade abre.
+  useEffect(() => {
+    if (identityOpen) {
+      const t = window.setTimeout(() => secretRef.current?.focus(), 60);
+      return () => window.clearTimeout(t);
+    }
+  }, [identityOpen]);
+
+  function startTerminateAll() {
+    setSecret("");
+    setIdentityError(null);
+    setIdentityOpen(true);
+  }
+
+  function confirmIdentity() {
+    // Mock: qualquer valor não vazio é aceito. Sem backend de auth aqui.
+    if (!secret.trim()) {
+      setIdentityError("Informe a senha ou o código de verificação para continuar.");
+      secretRef.current?.focus();
+      return;
+    }
+    setIdentityOpen(false);
+    setTerminateAllOpen(true);
+  }
 
   function confirmTerminate() {
     if (!terminateTarget) return;
-    setSessions((s) => s.filter((x) => x.id !== terminateTarget.id));
+    const ended = terminateTarget;
+    setSessions((s) => s.filter((x) => x.id !== ended.id));
     setTerminateTarget(null);
+    toast.push({
+      variant: "success",
+      title: "Sessão encerrada",
+      description: `${ended.browser} no ${ended.os} foi desconectado.`,
+    });
   }
 
   function confirmTerminateAll() {
+    const ended = sessions.filter((x) => !x.current).length;
     setSessions((s) => s.filter((x) => x.current));
     setTerminateAllOpen(false);
+    setSecret("");
+    toast.push({
+      variant: "success",
+      title: "Outras sessões encerradas",
+      description: `${ended} dispositivo${
+        ended === 1 ? " foi desconectado" : "s foram desconectados"
+      }. Você continua conectado neste.`,
+    });
   }
 
   function toggleExpanded(id: string) {
@@ -113,7 +163,7 @@ export default function SessoesAtivasPage() {
               size="sm"
               variant="secondary"
               iconLeft="logout"
-              onClick={() => setTerminateAllOpen(true)}
+              onClick={startTerminateAll}
             >
               Encerrar todas exceto esta
             </AwButton>
@@ -133,6 +183,27 @@ export default function SessoesAtivasPage() {
             ))}
           </span>
         </div>
+      )}
+
+      {/* Lembrete de higiene de sessões — aparece quando há outros
+          dispositivos logados, conectando troca de senha/verificação a
+          encerrar as outras sessões. Tom calmo, não dismissível. */}
+      {otherCount > 0 && (
+        <AwAlert
+          variant="info"
+          title="Trocou a senha ou a verificação em duas etapas?"
+          className="mb-4"
+        >
+          <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 body-sm text-(--fg-secondary)">
+            <span>
+              Encerrar as outras sessões força um novo login em todos os
+              dispositivos.
+            </span>
+            <AwButton size="sm" variant="ghost" onClick={startTerminateAll}>
+              Encerrar as outras
+            </AwButton>
+          </p>
+        </AwAlert>
       )}
 
       {/* Cards — uma sessão por card, em duas colunas */}
@@ -196,6 +267,18 @@ export default function SessoesAtivasPage() {
                       }`}
                     />
                   </button>
+
+                  {/* Sessão atual não tem 'Encerrar' — explica onde sair. */}
+                  {s.current && (
+                    <p className="m-0 mt-2.5 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+                      <Icon name="logout" size={15} />
+                      Para sair deste dispositivo, use{" "}
+                      <strong className="font-medium text-(--fg-secondary)">
+                        Sair
+                      </strong>{" "}
+                      no menu da conta.
+                    </p>
+                  )}
                 </div>
 
                 {/* Menu suspenso */}
@@ -266,6 +349,70 @@ export default function SessoesAtivasPage() {
         {sessions.length} sessã
         {sessions.length === 1 ? "o ativa" : "ões ativas"}.
       </p>
+
+      {/* Etapa de identidade — gate antes do encerramento em massa */}
+      <AwModal
+        open={identityOpen}
+        onClose={() => setIdentityOpen(false)}
+        title="Confirme sua identidade"
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setIdentityOpen(false)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton size="sm" variant="primary" onClick={confirmIdentity}>
+              Confirmar
+            </AwButton>
+          </>
+        }
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            confirmIdentity();
+          }}
+          className="flex flex-col gap-4"
+        >
+          <p className="m-0 inline-flex items-start gap-2 body-sm text-(--fg-secondary)">
+            <Icon
+              name="lock"
+              size={18}
+              className="mt-px shrink-0 text-(--fg-tertiary)"
+            />
+            <span>
+              Encerrar as outras sessões desconecta todos os seus outros
+              dispositivos na hora. Confirme sua identidade para continuar.
+            </span>
+          </p>
+          <AwField
+            label="Senha ou código de verificação"
+            htmlFor="session-identity"
+            error={identityError ?? undefined}
+            helper={
+              identityError
+                ? undefined
+                : "Use a senha da conta ou o código de 6 dígitos do app autenticador."
+            }
+          >
+            <AwInput
+              id="session-identity"
+              ref={secretRef}
+              type="password"
+              value={secret}
+              invalid={!!identityError}
+              onChange={(e) => {
+                setSecret(e.target.value);
+                if (identityError) setIdentityError(null);
+              }}
+              autoComplete="current-password"
+            />
+          </AwField>
+        </form>
+      </AwModal>
 
       {/* Modal — encerrar sessão individual */}
       <AwModal
