@@ -163,7 +163,8 @@ cache remains local/gitignored.
 **UX Flows** (`/bombardier/styleguide/ux-flows`)
 | Skill | When to use |
 |---|---|
-| `bombardier-create-ux-flow` | Create a NEW flow from a description / step list. |
+| `bombardier-create-ux-flow` | Create a NEW single-journey flow from a description / step list. |
+| `bombardier-create-ux-flow-golden-eye` | Create a COMPILED, multi-scenario "golden eye" view — several journeys merged into one deduped graph with per-scenario focus lenses (raw ReactFlow, à la `poc-visao-global`). Use when the value is overlaying scenarios + toggling between them, not one linear path. |
 | `bombardier-update-ux-flow` | Register a structural update to an existing flow (+ changelog entry). |
 | `bombardier-pg-create-flow` | Create a NEW flow from a `.awflow.json` (designer/PG export). |
 | `bombardier-pg-merge-flow` | Merge a `.awflow.json` into a flow that already exists. |
