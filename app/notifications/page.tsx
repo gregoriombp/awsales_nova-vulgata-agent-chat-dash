@@ -33,7 +33,7 @@ export default function NotificationsPage() {
         { label: "Notificações", icon: <Icon name="notifications" size={18} /> },
       ]}
     >
-      <div className="mx-auto w-full max-w-[880px]">
+      <div className="mx-auto w-full max-w-[880px] pt-4">
         <header className="mb-6 flex items-start justify-between gap-4">
           <div>
             <h3 className="m-0 text-(--fg-primary)">Notificações</h3>
@@ -72,7 +72,7 @@ export default function NotificationsPage() {
           />
         </div>
 
-        <AwCard className="p-0!">
+        <AwCard className="p-0! overflow-hidden">
           {visible.length === 0 ? (
             <div className="flex flex-col items-center gap-2 px-4 py-16 text-center">
               <Icon
