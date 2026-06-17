@@ -285,6 +285,13 @@ export const navigation: NavSection[] = [
   },
   {
     group: "UX Flows",
+    title: "Visões compiladas",
+    items: [
+      { name: "Criar agente — visão compilada", href: "/bombardier/styleguide/ux-flows/criar-agente-visao-global" },
+    ],
+  },
+  {
+    group: "UX Flows",
     title: "Experimentos",
     items: [
       { name: "POC · Visão global", href: "/bombardier/styleguide/ux-flows/poc-visao-global" },
