@@ -12,10 +12,19 @@ import {
 } from "../_components/shared";
 
 export default function ApiSettingsPage() {
+  const [keys, setKeys] = useState(API_KEYS);
+  const [revokeTarget, setRevokeTarget] =
+    useState<(typeof API_KEYS)[number] | null>(null);
   const [genOpen, setGenOpen] = useState(false);
   const [keyName, setKeyName] = useState("");
   const [generatedKey, setGeneratedKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const confirmRevoke = () => {
+    if (!revokeTarget) return;
+    setKeys((ks) => ks.filter((x) => x.id !== revokeTarget.id));
+    setRevokeTarget(null);
+  };
 
   const openGenerator = () => {
     setKeyName("");
@@ -63,7 +72,7 @@ export default function ApiSettingsPage() {
         }
       />
       <div className="grid grid-cols-1 divide-y divide-(--border-subtle) sm:grid-cols-2 sm:divide-y-0">
-        {API_KEYS.map((k, i) => (
+        {keys.map((k, i) => (
           <div
             key={k.id}
             className={
@@ -89,7 +98,12 @@ export default function ApiSettingsPage() {
               <AwButton size="sm" variant="ghost" iconLeft="content_copy">
                 Copiar
               </AwButton>
-              <AwButton size="sm" variant="ghost" iconLeft="delete">
+              <AwButton
+                size="sm"
+                variant="ghost"
+                iconLeft="delete"
+                onClick={() => setRevokeTarget(k)}
+              >
                 Revogar
               </AwButton>
             </div>
@@ -169,6 +183,47 @@ export default function ApiSettingsPage() {
               autoFocus
             />
           </AwField>
+        )}
+      </AwModal>
+
+      {/* Confirmação ao revogar uma chave */}
+      <AwModal
+        open={revokeTarget !== null}
+        onClose={() => setRevokeTarget(null)}
+        title="Revogar chave de API?"
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setRevokeTarget(null)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="danger"
+              iconLeft="delete"
+              onClick={confirmRevoke}
+            >
+              Revogar chave
+            </AwButton>
+          </>
+        }
+      >
+        {revokeTarget && (
+          <p className="m-0 body-sm text-(--fg-secondary)">
+            A chave{" "}
+            <strong className="font-medium text-(--fg-primary)">
+              {revokeTarget.name}
+            </strong>{" "}
+            (
+            <code className="mono text-(--fg-primary)">
+              {revokeTarget.prefix}
+            </code>
+            ) será revogada na hora. Qualquer integração que ainda a use para de
+            funcionar — e não dá pra desfazer.
+          </p>
         )}
       </AwModal>
     </div>
