@@ -7,7 +7,9 @@ import {
   AwDropdownMenu,
   type AwDropdownItem,
 } from "@/components/ui/AwDropdownMenu";
+import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwInput } from "@/components/ui/AwInput";
+import { AwModal } from "@/components/ui/AwModal";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
@@ -83,6 +85,10 @@ export default function HistoricoFaturasPage() {
   const [query, setQuery] = React.useState("");
   const [statuses, setStatuses] = React.useState<InvoiceStatus[]>(ALL_STATUSES);
   const [period, setPeriod] = React.useState<string>("Todo o período");
+  const [exportFormat, setExportFormat] = React.useState<"pdf" | "csv" | null>(
+    null,
+  );
+  const [exportConfirmed, setExportConfirmed] = React.useState(false);
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
@@ -104,6 +110,37 @@ export default function HistoricoFaturasPage() {
   const overdueCount = INVOICE_HISTORY.filter((r) => r.status === "Falhou").length;
   const lateCount = INVOICE_HISTORY.filter((r) => r.status === "Em atraso").length;
   const showPaymentAlert = overdueCount + lateCount > 0;
+
+  const openExport = (format: "pdf" | "csv") => {
+    setExportConfirmed(false);
+    setExportFormat(format);
+  };
+  const closeExport = () => {
+    setExportFormat(null);
+    setExportConfirmed(false);
+  };
+  const confirmExport = () => {
+    if (!exportFormat) return;
+    const isCsv = exportFormat === "csv";
+    const content = isCsv
+      ? "ID,Mês,Descrição,Status,Valor\n" +
+        INVOICE_HISTORY.map(
+          (r) => `${r.id},${r.refMonth},"${r.description}",${r.status},${r.net}`,
+        ).join("\n")
+      : "Relatório de faturas — Aswork\n(prévia: o PDF definitivo é gerado no servidor)";
+    const blob = new Blob([content], {
+      type: isCsv ? "text/csv" : "application/pdf",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `faturas-aswork.${exportFormat}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    setExportConfirmed(true);
+  };
 
   return (
     <div className="flex flex-col gap-8">
@@ -143,16 +180,29 @@ export default function HistoricoFaturasPage() {
         </div>
         <StatusFilter selected={statuses} onChange={setStatuses} />
         <PeriodFilter value={period} onChange={setPeriod} />
-        <AwButton
-          size="md"
-          variant="ghost"
-          iconLeft="download"
-          onClick={() =>
-            alert("Exportação iniciada — você receberá o CSV por e-mail.")
+        <AwDropdownMenu
+          align="end"
+          trigger={
+            <AwButton size="md" variant="ghost" iconLeft="download">
+              Exportar
+              <Icon name="expand_more" size={16} className="ml-0.5" />
+            </AwButton>
           }
-        >
-          Exportar CSV
-        </AwButton>
+          items={[
+            {
+              id: "pdf",
+              label: "Exportar em PDF",
+              icon: "picture_as_pdf",
+              onSelect: () => openExport("pdf"),
+            },
+            {
+              id: "csv",
+              label: "Exportar em CSV",
+              icon: "table_view",
+              onSelect: () => openExport("csv"),
+            },
+          ]}
+        />
       </div>
 
       {totalCount === 0 ? (
@@ -174,6 +224,65 @@ export default function HistoricoFaturasPage() {
         open={openInvoice !== null}
         onClose={() => setOpenId(null)}
       />
+
+      <AwModal
+        open={exportFormat !== null}
+        onClose={closeExport}
+        title={exportConfirmed ? "Relatório a caminho" : "Exportar relatório"}
+        footer={
+          exportConfirmed ? (
+            <div className="flex items-center justify-end">
+              <AwButton variant="primary" onClick={closeExport}>
+                Concluir
+              </AwButton>
+            </div>
+          ) : (
+            <div className="flex items-center justify-end gap-2">
+              <AwButton variant="ghost" onClick={closeExport}>
+                Cancelar
+              </AwButton>
+              <AwButton
+                variant="primary"
+                iconLeft="download"
+                onClick={confirmExport}
+              >
+                Confirmar
+              </AwButton>
+            </div>
+          )
+        }
+      >
+        {exportConfirmed ? (
+          <div className="flex items-start gap-3">
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700)">
+              <Icon name="mark_email_read" size={18} />
+            </span>
+            <div className="flex flex-col gap-1">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Seu relatório está sendo preparado.
+              </p>
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                Enviaremos o arquivo em {exportFormat?.toUpperCase()} para o seu
+                e-mail pessoal. O download no formato escolhido também começou
+                automaticamente.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            {exportFormat && <AwFileIcon type={exportFormat} size="md" />}
+            <div className="flex flex-col gap-0.5">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Exportar em {exportFormat?.toUpperCase()}
+              </p>
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                Geramos o histórico completo de faturas e enviamos uma cópia
+                pro seu e-mail pessoal.
+              </p>
+            </div>
+          </div>
+        )}
+      </AwModal>
     </div>
   );
 }

@@ -354,6 +354,8 @@ export type AgentBreakdownRow = {
   role: string;
   status: "Ativo" | "Pausado" | "Treinando";
   total: number;
+  /** Consumo do ciclo em % (0–100) — alimenta a barra de progresso na tabela. */
+  consumption: number;
 };
 
 export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
@@ -364,6 +366,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "SDR · Aquisição",
     status: "Ativo",
     total: 156.32,
+    consumption: 92,
   },
   {
     id: "atlas",
@@ -372,6 +375,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "CS · Reativação",
     status: "Ativo",
     total: 124.9,
+    consumption: 74,
   },
   {
     id: "nova",
@@ -380,6 +384,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Outbound",
     status: "Pausado",
     total: 98.18,
+    consumption: 61,
   },
   {
     id: "stella",
@@ -388,6 +393,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Onboarding",
     status: "Treinando",
     total: 87.45,
+    consumption: 48,
   },
   {
     id: "iris",
@@ -396,6 +402,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "SDR · Inbound",
     status: "Ativo",
     total: 76.02,
+    consumption: 83,
   },
   {
     id: "theo",
@@ -404,6 +411,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Qualificação",
     status: "Ativo",
     total: 68.54,
+    consumption: 55,
   },
   {
     id: "luma",
@@ -412,6 +420,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "CS · Suporte",
     status: "Ativo",
     total: 59.83,
+    consumption: 39,
   },
   {
     id: "kai",
@@ -420,6 +429,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Follow-up",
     status: "Ativo",
     total: 52.17,
+    consumption: 67,
   },
   {
     id: "vega",
@@ -428,6 +438,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Cobrança",
     status: "Pausado",
     total: 47.6,
+    consumption: 28,
   },
   {
     id: "milo",
@@ -436,6 +447,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Agendamento",
     status: "Ativo",
     total: 43.92,
+    consumption: 44,
   },
   {
     id: "sol",
@@ -444,6 +456,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Pesquisa · NPS",
     status: "Treinando",
     total: 40.28,
+    consumption: 31,
   },
   {
     id: "bria",
@@ -452,6 +465,7 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
     role: "Reengajamento",
     status: "Ativo",
     total: 36.42,
+    consumption: 58,
   },
 ];
 
