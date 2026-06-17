@@ -170,18 +170,16 @@ export default function OrgNotificacoesPage() {
           title="Sempre enviadas"
           description="Eventos críticos que a organização garante. Ninguém desliga — você só escolhe quem recebe."
         />
-        <AwCard className="p-0!">
-          <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-            {MANDATORY.map((e) => (
-              <MandatoryRow
-                key={e.id}
-                event={e}
-                recipient={recipients[e.id] ?? DEFAULT_RECIPIENT}
-                onEditRecipients={() => setRecipientEvent(e)}
-              />
-            ))}
-          </ul>
-        </AwCard>
+        <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
+          {MANDATORY.map((e) => (
+            <MandatoryRow
+              key={e.id}
+              event={e}
+              recipient={recipients[e.id] ?? DEFAULT_RECIPIENT}
+              onEditRecipients={() => setRecipientEvent(e)}
+            />
+          ))}
+        </ul>
       </section>
 
       {/* Opcionais */}
@@ -190,20 +188,18 @@ export default function OrgNotificacoesPage() {
           title="Opcionais"
           description="A organização define o padrão; cada pessoa pode ligar ou desligar nas próprias preferências."
         />
-        <AwCard className="p-0!">
-          <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-            {OPTIONAL.map((e) => (
-              <OptionalRow
-                key={e.id}
-                event={e}
-                on={optionalDefaults[e.id]}
-                onToggle={(v) =>
-                  setOptionalDefaults((d) => ({ ...d, [e.id]: v }))
-                }
-              />
-            ))}
-          </ul>
-        </AwCard>
+        <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
+          {OPTIONAL.map((e) => (
+            <OptionalRow
+              key={e.id}
+              event={e}
+              on={optionalDefaults[e.id]}
+              onToggle={(v) =>
+                setOptionalDefaults((d) => ({ ...d, [e.id]: v }))
+              }
+            />
+          ))}
+        </ul>
       </section>
 
       {/* Canais permitidos */}
@@ -388,7 +384,7 @@ function MandatoryRow({
   onEditRecipients: () => void;
 }) {
   return (
-    <li className="m-0 flex items-start gap-4 px-6 py-4">
+    <li className="m-0 flex items-start gap-4 py-4">
       <EventIcon icon={event.icon} channelGlyph={event.channelGlyph} />
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
@@ -446,7 +442,7 @@ function OptionalRow({
   onToggle: (v: boolean) => void;
 }) {
   return (
-    <li className="m-0 flex items-center gap-4 px-6 py-4">
+    <li className="m-0 flex items-center gap-4 py-4">
       <EventIcon icon={event.icon} />
       <div className="min-w-0 flex-1">
         <p className="m-0 body-sm font-medium text-(--fg-primary)">
