@@ -241,6 +241,7 @@ export function AwSidebar({
               <AwNavRailItem
                 key={item.href}
                 icon={item.icon}
+                iconFill={1}
                 href={item.href}
                 active={isActive(item.href)}
                 count={item.count}
