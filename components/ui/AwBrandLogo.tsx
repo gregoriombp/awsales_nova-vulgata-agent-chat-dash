@@ -18,11 +18,19 @@ type Brand = {
   bordered?: boolean
   /** Inner SVG mark, drawn on a 24×24 viewBox without its own background. */
   mark?: BrandMark
-  /** Path to a pre-built SVG tile in /public. Takes precedence over `mark`. */
+  /** Path to a pre-built SVG tile in /public. Takes precedence over `mark`.
+   *  Rendered full-bleed (objectFit:cover) — the file IS the whole tile. */
   iconSrc?: string
+  /** Path to a transparent SVG **mark** in /public (no baked background).
+   *  Rendered centered/contained (~62% of the tile) over `bg`, like the inline
+   *  `mark` ones. This is the lane for Iconify `logos` brand marks — see
+   *  AGENTS.md §4 (Icons). Takes precedence over `iconSrc`/`mark`. */
+  markSrc?: string
 }
 
 const ICON_BASE = "/assets/integrations/integrations_icon_svg"
+/** Iconify `logos` brand marks curated into /public (see AGENTS.md §4). */
+const ICONIFY_BASE = "/assets/integrations/iconify"
 
 const BRANDS: Record<string, Brand> = {
   /* ------------------------------------------------------------------
@@ -255,15 +263,10 @@ const BRANDS: Record<string, Brand> = {
    * Brands kept as inline marks — no SVG tile available yet.
    * ------------------------------------------------------------------ */
   shopify: {
-    bg: "#95BF47",
-    mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="60%" height="60%">
-        <path
-          fill={fg}
-          d="M16.6 5.4c-.1-.1-.2-.1-.3-.1L15 5.2c-.2-.6-.9-1.4-1.9-1.4-.6 0-1.3.3-1.9.9-.6.2-1.1.4-1.5.5-.4-.5-.9-1.2-1.6-1.2-.5 0-.9.3-1.2.7l-.1.1c-.4.1-.8.3-.8.3s-.5.2-.6.6c-.1.4-1 8.7-1.9 17.4l11.6.1L17 5.5l-.4-.1zM12.7 5.6c-.5.1-1 .3-1.5.5l-.3.1c0-.4.1-.8.2-1.1.1-.4.4-.8.8-.8.4 0 .7.4.8 1.3zm-1.2-2c-.4 0-.7.3-.9.7-.2.4-.3.9-.4 1.4-.5.1-1 .3-1.4.4.3-1 .9-2.5 1.9-2.5.3 0 .5 0 .8 0z"
-        />
-      </svg>
-    ),
+    // Upgraded from a hand-drawn mark to the official Iconify `logos:shopify`.
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/shopify.svg`,
   },
   memberkit: {
     bg: "#3F8AE0",
@@ -388,6 +391,56 @@ const BRANDS: Record<string, Brand> = {
       </svg>
     ),
   },
+  /* ------------------------------------------------------------------
+   * Apps & integrações — marcas oficiais do Iconify `logos`, curadas em
+   * /public (SVG transparente, centrado no tile). Para adicionar outra,
+   * ver AGENTS.md §4 (Icons): curar de api.iconify.design/logos/<nome>.svg.
+   * ------------------------------------------------------------------ */
+  google: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/google.svg`,
+  },
+  chrome: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/chrome.svg`,
+  },
+  microsoft: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/microsoft.svg`,
+  },
+  safari: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/safari.svg`,
+  },
+  gmail: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/gmail.svg`,
+  },
+  googledrive: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/google-drive.svg`,
+  },
+  notion: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/notion.svg`,
+  },
+  zoom: {
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/zoom.svg`,
+  },
+  trello: {
+    // trello.svg já é um tile arredondado full-bleed (rect 256×256) → cover, não markSrc.
+    bg: "#FFFFFF",
+    iconSrc: `${ICONIFY_BASE}/trello.svg`,
+  },
 }
 
 export type AwBrandLogoSize = "sm" | "md" | "lg"
@@ -426,7 +479,21 @@ export function AwBrandLogo({
   const wrapperSize = bare ? bareSize : tile
   const radius = bare ? Math.round(wrapperSize * 0.26) : 10
 
-  const inner = def?.iconSrc ? (
+  const inner = def?.markSrc ? (
+    /* Transparent brand mark (Iconify logos) centered on the tile bg. */
+    /* eslint-disable-next-line @next/next/no-img-element */
+    <img
+      src={def.markSrc}
+      alt=""
+      aria-hidden="true"
+      style={{
+        width: "62%",
+        height: "62%",
+        display: "block",
+        objectFit: "contain",
+      }}
+    />
+  ) : def?.iconSrc ? (
     /* eslint-disable-next-line @next/next/no-img-element */
     <img
       src={def.iconSrc}

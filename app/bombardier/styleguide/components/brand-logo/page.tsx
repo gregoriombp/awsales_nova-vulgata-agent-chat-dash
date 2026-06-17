@@ -51,6 +51,35 @@ export default function BrandLogoPage() {
           </Section>
 
           <Section
+            id="apps-integracoes"
+            title="Apps & integrações"
+            lead="Marcas de apps de terceiros (Google, Chrome, Microsoft, Safari, Notion…) usam os logos oficiais da coleção Iconify logos, curados um a um em /public/assets/integrations/iconify — nunca a biblioteca inteira, nunca dependência em runtime. Para incluir uma nova, veja o passo-a-passo na seção Registry."
+          >
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
+              {[
+                "google",
+                "chrome",
+                "microsoft",
+                "safari",
+                "gmail",
+                "googledrive",
+                "notion",
+                "zoom",
+                "trello",
+                "shopify",
+              ].map((id) => (
+                <div
+                  key={id}
+                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
+                >
+                  <AwBrandLogo brand={id} size="md" />
+                  <span className="mono">{id}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section
             id="payment-methods"
             title="Meios de pagamento (BR)"
             lead="Pix, boleto e cartão moram no mesmo registry de brand — vivem ao lado de Stripe/Hotmart numa lista de checkout. Pix usa a cor oficial (#32BCAD); boleto e card são genéricos (não há brand oficial)."
@@ -100,7 +129,7 @@ export default function BrandLogoPage() {
           <Section
             id="registry"
             title="Registry"
-            lead={`${AW_BRAND_LOGO_REGISTRY.length} brands disponíveis. Para adicionar, edite o objeto BRANDS em components/ui/AwBrandLogo.tsx — uma entrada (id → função que retorna o SVG).`}
+            lead={`${AW_BRAND_LOGO_REGISTRY.length} brands disponíveis. Para adicionar uma marca de app/integração: curar o SVG oficial do Iconify (curl https://api.iconify.design/logos/<nome>.svg, variante quadrada/icon-only), salvar em /public/assets/integrations/iconify/<nome>.svg e registrar uma entrada { bg, bordered, markSrc } no objeto BRANDS em components/ui/AwBrandLogo.tsx. Marcas hand-drawn ou tiles full-bleed continuam usando mark/iconSrc. Detalhe da convenção em AGENTS.md §4 (Icons).`}
           >
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
               {AW_BRAND_LOGO_REGISTRY.map((id) => (
@@ -176,9 +205,11 @@ export default function BrandLogoPage() {
                 <>Use o tile (default) em listas e cards.</>,
                 <>Use bare em chips, dropdown items, breadcrumbs.</>,
                 <>Cubra todos os brands referenciados no app no registry.</>,
+                <>Curar logos de apps do Iconify logos, um a um.</>,
               ]}
               donts={[
-                <>Importar PNGs/JPGs de brand — só SVG inline para escalar.</>,
+                <>Importar PNGs/JPGs de brand — só SVG para escalar.</>,
+                <>Bundlar a coleção Iconify inteira ou usar @iconify/react em runtime.</>,
                 <>Recolorir o tile com brand colors — quebra o sistema.</>,
                 <>Usar para ícones funcionais (use Icon).</>,
               ]}
