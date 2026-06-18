@@ -3,17 +3,23 @@
 import * as React from "react"
 
 /**
- * Avatar dos atores do Review Mode. Três casos:
- *  · agente Claude  → círculo laranja (clay) com a marca sunburst branca
- *  · usuário greg   → foto de perfil real (/assets/users/greg.jpg)
- *  · qualquer outro → círculo na cor do autor com a inicial (comportamento antigo)
+ * Avatar dos atores do Review Mode. Quatro casos:
+ *  · agente Claude   → círculo laranja (clay) com a marca sunburst branca
+ *  · agente Germano  → círculo grafite (slate-900) com o monograma "GF"
+ *  · usuário greg    → foto de perfil real (/assets/users/greg.jpg)
+ *  · qualquer outro  → círculo na cor do autor com a inicial (comportamento antigo)
  */
 
 const GREG_PHOTO = "/assets/users/greg.jpg"
 const CLAUDE_CLAY = "#D97757"
+const GERMANO_INK = "var(--aw-slate-900)"
 
 function isClaude(kind: string | undefined, id: string | undefined, name: string): boolean {
   return kind === "agent" && (id === "claude" || name.trim().toLowerCase() === "claude")
+}
+
+function isGermano(kind: string | undefined, id: string | undefined, name: string): boolean {
+  return kind === "agent" && (id === "germano" || name.trim().toLowerCase().startsWith("germano"))
 }
 
 function isGreg(id: string | undefined, name: string): boolean {
@@ -83,6 +89,20 @@ export function ReviewAvatar({
         aria-label={label}
       >
         <ClaudeMark size={Math.round(size * 0.64)} />
+      </span>
+    )
+  }
+
+  if (isGermano(authorKind, authorId, authorName)) {
+    // monograma "GF" em #fff literal (não --fg-on-inverse, que inverte no dark) sobre o grafite fixo
+    return (
+      <span
+        className={`${base} font-semibold tracking-tight`}
+        style={{ ...dim, background: GERMANO_INK, color: "#fff", fontSize: Math.round(size * 0.36) }}
+        title={label}
+        aria-label={label}
+      >
+        GF
       </span>
     )
   }
