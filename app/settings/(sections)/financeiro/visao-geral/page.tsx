@@ -47,10 +47,27 @@ function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const breakdown = [
-    { label: "Assinatura", value: CURRENT_PLAN.monthly, kind: "base" as const },
-    { label: "variável", value: OVERVIEW_KPIS.accumulated, kind: "add" as const },
+    {
+      label: "Assinatura",
+      value: CURRENT_PLAN.monthly,
+      kind: "base" as const,
+      icon: "workspace_premium",
+    },
+    {
+      label: "Variável",
+      value: OVERVIEW_KPIS.accumulated,
+      kind: "add" as const,
+      icon: "bolt",
+    },
     ...(discount > 0
-      ? [{ label: "cupom", value: discount, kind: "subtract" as const }]
+      ? [
+          {
+            label: "Cupom",
+            value: discount,
+            kind: "subtract" as const,
+            icon: "local_offer",
+          },
+        ]
       : []),
   ];
 
@@ -116,9 +133,9 @@ function PlanoCard() {
     <AwCard className="flex items-center gap-4 p-6!">
       <span
         aria-hidden="true"
-        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
+        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
       >
-        <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={32} />
+        <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={44} />
       </span>
       <div className="min-w-0">
         <p className="m-0 body-md font-medium text-(--fg-primary)">
