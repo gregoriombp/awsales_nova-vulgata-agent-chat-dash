@@ -106,6 +106,11 @@ export const navigation: NavSection[] = [
     title: "Componentes",
     items: [
       {
+        name: "Agent run trace",
+        href: "/bombardier/styleguide/components/aw-agent-run-trace",
+        aliases: ["AwAgentRunTrace", "run trace", "timeline", "trace", "execução", "passos da run"],
+      },
+      {
         name: "Ask user questions",
         href: "/bombardier/styleguide/components/aw-ask-user-questions",
         aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],
@@ -211,6 +216,11 @@ export const navigation: NavSection[] = [
         name: "Thinking steps",
         href: "/bombardier/styleguide/components/aw-thinking-steps",
         aliases: ["AwThinkingSteps", "raciocínio", "reasoning", "chain of thought"],
+      },
+      {
+        name: "Tool call card",
+        href: "/bombardier/styleguide/components/aw-tool-call-card",
+        aliases: ["AwToolCallCard", "tool call", "function call", "chamada de tool", "integração"],
       },
       { name: "Trend delta", href: "/bombardier/styleguide/components/aw-trend-delta" },
     ],
