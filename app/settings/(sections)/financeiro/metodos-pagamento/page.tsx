@@ -310,11 +310,10 @@ function BillingInfoSection() {
         </button>
       </header>
 
-      <dl className="m-0 grid grid-cols-1 gap-x-10 gap-y-5 sm:grid-cols-2">
+      <dl className="m-0 grid grid-cols-3 gap-x-10 gap-y-5">
         <BillingField label="Razão social" value={legalName} />
         <BillingField label="CNPJ" value={taxId} tabular />
-        <BillingField label="Inscrição estadual" value={stateRegistration} />
-        <div className="min-w-0">
+        <div className="col-start-3 row-span-2 min-w-0">
           <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
             E-mails de faturamento · {recipients.length}
           </dt>
@@ -383,7 +382,8 @@ function BillingInfoSection() {
             )}
           </dd>
         </div>
-        <div className="sm:col-span-2">
+        <BillingField label="Inscrição estadual" value={stateRegistration} />
+        <div className="col-span-2">
           <dt className="m-0 mb-1 aw-eyebrow text-(--fg-tertiary)">
             Endereço
           </dt>
