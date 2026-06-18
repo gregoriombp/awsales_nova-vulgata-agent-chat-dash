@@ -101,14 +101,33 @@ function SelectableRow({
         surface
       }
     >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)">
+      <span
+        className={
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full " +
+          // Selected fica num bg dark; o avatar precisa de um dark mais claro
+          // que a linha (gray-1000 vs --bg-inverse) pra dar contraste, e ícone claro.
+          (selected
+            ? "bg-(--aw-gray-1000) text-(--fg-on-inverse)"
+            : "bg-(--bg-muted) text-(--fg-secondary)")
+        }
+      >
         <Icon name="person" size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="m-0 text-[13.5px] font-medium text-(--fg-primary)">
+        <p
+          className={
+            "m-0 text-[13.5px] font-medium " +
+            (selected ? "text-(--fg-on-inverse)" : "text-(--fg-primary)")
+          }
+        >
           Item da lista
         </p>
-        <p className="m-0 text-[12px] text-(--fg-secondary)">
+        <p
+          className={
+            "m-0 text-[12px] " +
+            (selected ? "text-(--fg-on-inverse)/70" : "text-(--fg-secondary)")
+          }
+        >
           item@exemplo.com
         </p>
       </div>
@@ -352,13 +371,13 @@ export default function PatternsPage() {
               desculpas pelo transtorno.
             </div>
             <div
-              className="rounded-lg p-px"
+              className="rounded-xl p-px"
               style={{
                 background:
                   "linear-gradient(135deg, var(--aw-blue-500), var(--aw-purple-500))",
               }}
             >
-              <div className="rounded-[calc(var(--radius-lg)-1px)] bg-(--bg-raised) p-4 flex flex-col gap-3">
+              <div className="rounded-[calc(var(--radius-xl)-1px)] bg-(--bg-raised) p-4 flex flex-col gap-3">
                 <div className="flex items-start gap-2">
                   <Icon
                     name="agent"
@@ -474,8 +493,8 @@ export default function PatternsPage() {
             ].map((t, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-(--border-default) bg-(--bg-raised) p-4 flex gap-3 items-start"
-                style={{ boxShadow: "var(--shadow-md)" }}
+                className="rounded-xl border border-(--border-default) bg-(--bg-raised) p-5 flex gap-3 items-start"
+                style={{ boxShadow: "var(--shadow-sm)" }}
               >
                 <Icon name={t.icon} size={18} style={{ color: t.iconColor }} />
                 <div className="flex-1 min-w-0">
