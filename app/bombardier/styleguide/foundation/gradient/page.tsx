@@ -14,11 +14,35 @@ const TOC = [
   { id: "principles", label: "Princípios" },
   { id: "palette", label: "Paleta iridescente" },
   { id: "patterns", label: "Três padrões" },
+  { id: "mesh", label: "Mesh (rebranding)" },
   { id: "context", label: "Em contexto" },
   { id: "code", label: "Em código" },
   { id: "accessibility", label: "Acessibilidade" },
   { id: "do-dont", label: "Do / Don't" },
   { id: "related", label: "Veja também" },
+]
+
+/* Mesh gradients do rebranding (webp em /public/assets/brand/gradients). */
+const MESH = [
+  "aswork-gradient-mesh-01",
+  "aswork-gradient-mesh-02",
+  "aswork-gradient-mesh-03",
+  "aswork-gradient-mesh-04",
+  "aswork-gradient-mesh-05",
+  "aswork-gradient-mesh-06",
+  "aswork-gradient-mesh-07",
+  "aswork-gradient-mesh-08",
+  "aswork-gradient-mesh-09",
+  "aswork-gradient-mesh-10",
+  "aswork-gradient-mesh-11",
+  "aswork-gradient-mesh-12",
+  "aswork-gradient-mesh-13",
+  "aswork-gradient-mesh-14",
+  "aswork-gradient-mesh-15",
+  "aswork-gradient-mesh-vertical-01",
+  "aswork-gradient-mesh-vertical-02",
+  "aswork-gradient-mesh-vertical-03",
+  "aswork-gradient-mesh-vertical-04",
 ]
 
 const PALETTE = [
@@ -307,6 +331,35 @@ export default function GradientPage() {
               v=".aw-gradient-iridescent-border"
               d="1px stroke iridescente; passe --aw-iridescent-fill."
             />
+          </div>
+        </Section>
+
+        {/* ── Mesh (rebranding) ──────────────────────────────────── */}
+        <Section
+          id="mesh"
+          title="Mesh (rebranding)"
+          lead="Os gradientes mesh do rebranding como assets prontos (webp em /public/assets/brand/gradients). Servem de fundo de hero, capa de slide ou textura de painel — diferente do gradient iridescente de token acima, que é a 'voz da IA' do produto."
+        >
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+            {MESH.map((name) => (
+              <figure
+                key={name}
+                className="m-0 overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/assets/brand/gradients/${name}.webp`}
+                  alt=""
+                  loading="lazy"
+                  className="block aspect-video w-full object-cover"
+                />
+                <figcaption className="px-3 py-2">
+                  <code className="mono text-2xs text-(--fg-tertiary) break-all">
+                    /assets/brand/gradients/{name}.webp
+                  </code>
+                </figcaption>
+              </figure>
+            ))}
           </div>
         </Section>
 
