@@ -193,6 +193,11 @@ export const navigation: NavSection[] = [
         ],
       },
       { name: "Shortcut tile", href: "/bombardier/styleguide/components/aw-shortcut-tile" },
+      {
+        name: "Source chip",
+        href: "/bombardier/styleguide/components/aw-source-chip",
+        aliases: ["AwSourceChip", "citação", "citation", "fonte", "grounding", "referência", "memory base"],
+      },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
       { name: "Stats display", href: "/bombardier/styleguide/components/stats-display" },
       {
