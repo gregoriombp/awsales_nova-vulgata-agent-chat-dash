@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
-import { AwBeams } from "@/components/ui/AwBeams";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -188,27 +187,25 @@ export default function DadosPessoaisPage() {
         </AwCard>
 
         {/* Foto de perfil — coluna esquerda */}
-        <div className="col-start-1 row-start-1 flex h-full flex-col items-center justify-between gap-6 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
-          {/* Avatar + ações centralizados verticalmente no espaço disponível */}
-          <div className="flex flex-1 flex-col items-center justify-center gap-4">
-            <div className="relative isolate flex items-center justify-center overflow-hidden rounded-2xl p-7">
-              <AwBeams
-                className="rounded-2xl"
-                backgroundColor="#0b1220"
-                lightColor="#5b8cff"
-                beamNumber={10}
-                speed={1.6}
-                noiseIntensity={1.4}
-                rotation={28}
-              />
-              <AwAvatar
-                size="lg"
-                src={previewSrc ?? "/assets/users/greg.jpg"}
-                alt={fullName}
-                initials={initials(fullName)}
-                className="relative z-10 h-24! w-24! ring-4 ring-(--bg-raised)"
-              />
-            </div>
+        <div className="col-start-1 row-start-1 flex h-full flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised)">
+          {/* Banner com o gradient mesh do brand (azul). O contraste fica seguro
+              porque só o avatar fica sobre ele — ações e legenda vão no claro. */}
+          <div
+            aria-hidden="true"
+            className="h-28 w-full bg-cover bg-center"
+            style={{
+              backgroundImage:
+                "url(/assets/brand/gradients/aswork-gradient-mesh-02.webp)",
+            }}
+          />
+          <div className="flex flex-1 flex-col items-center gap-4 px-6 pb-6">
+            <AwAvatar
+              size="lg"
+              src={previewSrc ?? "/assets/users/greg.jpg"}
+              alt={fullName}
+              initials={initials(fullName)}
+              className="-mt-12 h-24! w-24! ring-4 ring-(--bg-raised)"
+            />
             <div className="flex flex-col items-center gap-2">
               <AwButton
                 size="sm"
@@ -222,11 +219,10 @@ export default function DadosPessoaisPage() {
                 Remover
               </AwButton>
             </div>
+            <p className="m-0 mt-auto text-center body-xs text-(--fg-tertiary)">
+              PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
+            </p>
           </div>
-          {/* Texto de apoio ancorado na base, alinhado ao rodapé do card de formulário */}
-          <p className="m-0 text-center body-xs text-(--fg-tertiary)">
-            PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
-          </p>
         </div>
       </div>
 
