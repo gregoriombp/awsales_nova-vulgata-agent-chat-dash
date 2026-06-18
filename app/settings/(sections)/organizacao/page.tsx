@@ -68,15 +68,6 @@ function InfoRowBody({
   );
 }
 
-/** Ícone do plano num tile escuro — o glyph é claro e sumia no fundo branco. */
-function PlanIconTile() {
-  return (
-    <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-(--bg-inverse)">
-      <AwPlanIcon plan="pro" variant="dark" size={15} />
-    </span>
-  );
-}
-
 export default function OrganizationSettingsPage() {
   const toast = useToast();
   const [orgName, setOrgName] = useState<string>(ONBOARDING_ORG.name);
@@ -178,7 +169,7 @@ export default function OrganizationSettingsPage() {
           <div className="min-w-0">
             <h4 className="m-0 truncate text-(--fg-primary)">{orgName}</h4>
             <p className="m-0 mt-1 flex items-center gap-2 body-sm text-(--fg-secondary)">
-              <PlanIconTile />
+              <AwPlanIcon plan="pro" variant="light" size={22} />
               Plano {ONBOARDING_ORG.plan}
             </p>
           </div>
@@ -262,7 +253,7 @@ export default function OrganizationSettingsPage() {
                   }
                 >
                   {row.label === "Plano contratado" && (
-                    <PlanIconTile />
+                    <AwPlanIcon plan="pro" variant="light" size={22} />
                   )}
                   {row.value}
                 </dd>
