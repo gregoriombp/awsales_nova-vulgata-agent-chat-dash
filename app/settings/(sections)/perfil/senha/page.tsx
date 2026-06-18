@@ -5,7 +5,6 @@ import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBackupCodes } from "@/components/ui/AwBackupCodes";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
@@ -149,133 +148,124 @@ export default function SenhaPage() {
       />
 
       {/* ── Bloco 1: Senha ── */}
-      <div className="mb-6">
+      <div className="mb-8">
         <SectionHeading title="Senha" />
-        <AwCard className="p-0!">
-          {ACCOUNT_TYPE === "sso-only" ? (
-            <div className="px-6 py-5">
-              <AwAlert variant="info" icon="shield">
-                <strong className="font-medium">
-                  Sua conta entra por SSO.
-                </strong>{" "}
-                A senha é gerenciada pelo seu provedor de identidade (
-                {SSO_PROVIDER}). Para alterá-la, acesse as configurações do
-                provedor.
-              </AwAlert>
+        {ACCOUNT_TYPE === "sso-only" ? (
+          <AwAlert variant="info" icon="shield">
+            <strong className="font-medium">Sua conta entra por SSO.</strong> A
+            senha é gerenciada pelo seu provedor de identidade ({SSO_PROVIDER}).
+            Para alterá-la, acesse as configurações do provedor.
+          </AwAlert>
+        ) : (
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Senha da conta
+              </p>
+              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                {ACCOUNT_TYPE === "sso+password"
+                  ? `Você também entra por ${SSO_PROVIDER}. Esta é a senha local da conta — alterá-la não afeta o login via provedor.`
+                  : "Disponível só para contas com login local. Contas via Google ou Microsoft gerenciam a senha no provedor."}
+              </p>
             </div>
-          ) : (
-            <div className="flex items-start justify-between gap-4 px-6 py-5">
-              <div>
-                <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                  Senha da conta
-                </p>
-                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                  {ACCOUNT_TYPE === "sso+password"
-                    ? `Você também entra por ${SSO_PROVIDER}. Esta é a senha local da conta — alterá-la não afeta o login via provedor.`
-                    : "Disponível só para contas com login local. Contas via Google ou Microsoft gerenciam a senha no provedor."}
-                </p>
+            <AwButton
+              size="sm"
+              variant="secondary"
+              onClick={() => setPwOpen(true)}
+            >
+              Alterar senha
+            </AwButton>
+          </div>
+        )}
+      </div>
+
+      {/* ── Bloco 2: MFA ── */}
+      <div className="mb-8">
+        <SectionHeading title="Autenticação em dois fatores" />
+        <AwToggleRow
+          title={
+            <span className="flex items-center gap-2">
+              Autenticação multifator (MFA)
+              <AwPill variant={mfaOn ? "live" : "neutral"} dot={false}>
+                {mfaOn ? "Ativa" : "Inativa"}
+              </AwPill>
+            </span>
+          }
+          description="Exige um código do seu app autenticador a cada login, além da senha."
+          checked={mfaOn}
+          onChange={handleToggleMfa}
+          disabled={ORG_REQUIRES_MFA && mfaOn}
+        />
+
+        {mfaOn && (
+          <div className="mt-2 flex flex-col divide-y divide-(--border-subtle) border-t border-(--border-subtle)">
+            {ORG_REQUIRES_MFA && (
+              <div className="py-4">
+                <AwAlert variant="warning" icon="lock">
+                  <strong className="font-medium">
+                    Exigida pela organização.
+                  </strong>{" "}
+                  Você pode trocar o método ou gerar novos códigos de backup, mas
+                  não pode desativar a MFA enquanto a organização exigir.
+                </AwAlert>
+              </div>
+            )}
+
+            {/* App TOTP */}
+            <div className="flex items-center justify-between gap-4 py-4">
+              <div className="flex items-start gap-3">
+                <AwBrandLogo
+                  brand="google-authenticator"
+                  size="sm"
+                  className="mt-0.5"
+                />
+                <div>
+                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                    App autenticador (TOTP)
+                  </p>
+                  <p className="m-0 body-xs text-(--fg-secondary)">
+                    Configurado em {TOTP_CONFIG.configuredAt} · {TOTP_CONFIG.app}
+                  </p>
+                </div>
               </div>
               <AwButton
                 size="sm"
                 variant="secondary"
-                onClick={() => setPwOpen(true)}
+                onClick={() => setManageOpen(true)}
               >
-                Alterar senha
+                Gerenciar
               </AwButton>
             </div>
-          )}
-        </AwCard>
-      </div>
 
-      {/* ── Bloco 2: MFA ── */}
-      <div className="mb-6">
-        <SectionHeading title="Autenticação em dois fatores" />
-        <AwCard className="p-0!">
-          <div className="px-6 pt-4 pb-1">
-            <AwToggleRow
-              title={
-                <span className="flex items-center gap-2">
-                  Autenticação multifator (MFA)
-                  <AwPill variant={mfaOn ? "live" : "neutral"} dot={false}>
-                    {mfaOn ? "Ativa" : "Inativa"}
-                  </AwPill>
+            {/* Backup codes */}
+            <div className="flex items-center justify-between gap-4 py-4">
+              <div className="flex items-start gap-3">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
+                  <Icon name="password" size={16} />
                 </span>
-              }
-              description="Exige um código do seu app autenticador a cada login, além da senha."
-              checked={mfaOn}
-              onChange={handleToggleMfa}
-              disabled={ORG_REQUIRES_MFA && mfaOn}
-            />
-          </div>
-
-          {mfaOn && (
-            <div className="flex flex-col gap-0 divide-y divide-(--border-subtle)">
-              {ORG_REQUIRES_MFA && (
-                <div className="px-6 py-4">
-                  <AwAlert variant="warning" icon="lock">
-                    <strong className="font-medium">
-                      Exigida pela organização.
-                    </strong>{" "}
-                    Você pode trocar o método ou gerar novos códigos de backup,
-                    mas não pode desativar a MFA enquanto a organização exigir.
-                  </AwAlert>
+                <div>
+                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                    Códigos de backup
+                  </p>
+                  <p className="m-0 body-xs text-(--fg-secondary)">
+                    {BACKUP_CODES_REMAINING} de {BACKUP_CODES_TOTAL} códigos ainda
+                    válidos — use se perder acesso ao app.
+                  </p>
                 </div>
-              )}
-
-              {/* App TOTP */}
-              <div className="flex items-center justify-between gap-4 px-6 py-4">
-                <div className="flex items-start gap-3">
-                  <AwBrandLogo
-                    brand="google-authenticator"
-                    size="sm"
-                    className="mt-0.5"
-                  />
-                  <div>
-                    <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                      App autenticador (TOTP)
-                    </p>
-                    <p className="m-0 body-xs text-(--fg-secondary)">
-                      Configurado em {TOTP_CONFIG.configuredAt} ·{" "}
-                      {TOTP_CONFIG.app}
-                    </p>
-                  </div>
-                </div>
-                <AwButton
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => setManageOpen(true)}
-                >
-                  Gerenciar
-                </AwButton>
               </div>
-
-              {/* Backup codes */}
-              <div className="flex items-center justify-between gap-4 px-6 py-4">
-                <div className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                    <Icon name="password" size={16} />
-                  </span>
-                  <div>
-                    <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                      Códigos de backup
-                    </p>
-                    <p className="m-0 body-xs text-(--fg-secondary)">
-                      {BACKUP_CODES_REMAINING} de {BACKUP_CODES_TOTAL} códigos
-                      ainda válidos — use se perder acesso ao app.
-                    </p>
-                  </div>
-                </div>
-                <AwButton
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => { setBackupConfirmed(false); setBackupOpen(true); }}
-                >
-                  Gerar novos
-                </AwButton>
-              </div>
+              <AwButton
+                size="sm"
+                variant="secondary"
+                onClick={() => {
+                  setBackupConfirmed(false);
+                  setBackupOpen(true);
+                }}
+              >
+                Gerar novos
+              </AwButton>
             </div>
-          )}
-        </AwCard>
+          </div>
+        )}
       </div>
 
       {/* ── Modal: Alterar senha ── */}
