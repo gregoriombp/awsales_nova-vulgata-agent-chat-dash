@@ -21,6 +21,7 @@ const DELETE_CONSEQUENCES = [
 
 export default function DangerZoneSettingsPage() {
   const [requestOpen, setRequestOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const [confirmName, setConfirmName] = useState("");
   const [protocol, setProtocol] = useState<string | null>(null);
 
@@ -43,23 +44,9 @@ export default function DangerZoneSettingsPage() {
   };
 
   const handleExport = () => {
-    const content = [
-      "AwSales — Exportação de dados da organização",
-      "",
-      `Organização: ${ONBOARDING_ORG.name}`,
-      "Conteúdo: conversas, agentes, bases de conhecimento e logs de execução.",
-      "",
-      "Este resumo confirma a solicitação — o arquivo .zip completo chega no seu e-mail.",
-    ].join("\n");
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "export-dados-organizacao.txt";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    // Não baixa nada na hora: confirma o pedido e avisa que o .zip chega por
+    // e-mail depois que a organização for separada e preparada.
+    setExportOpen(true);
   };
 
   return (
@@ -214,6 +201,31 @@ export default function DangerZoneSettingsPage() {
             durante esse período.
           </p>
         </div>
+      </AwModal>
+
+      {/* Modal — confirmação da exportação (o .zip chega por e-mail) */}
+      <AwModal
+        open={exportOpen}
+        onClose={() => setExportOpen(false)}
+        title="Estamos preparando sua exportação"
+        footer={
+          <AwButton
+            size="sm"
+            variant="primary"
+            onClick={() => setExportOpen(false)}
+          >
+            Entendi
+          </AwButton>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          Estamos separando e preparando os dados da{" "}
+          <strong className="font-medium text-(--fg-primary)">
+            {ONBOARDING_ORG.name}
+          </strong>{" "}
+          — conversas, agentes, bases de conhecimento e logs de execução. Quando
+          o arquivo .zip estiver pronto, enviamos para o seu e-mail.
+        </p>
       </AwModal>
     </div>
   );
