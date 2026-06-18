@@ -8,6 +8,7 @@ import { AwCard } from "@/components/ui/AwCard";
 import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwPlanIcon } from "@/components/ui/AwPlanIcon";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
@@ -167,7 +168,8 @@ export default function OrganizationSettingsPage() {
           </span>
           <div className="min-w-0">
             <h4 className="m-0 truncate text-(--fg-primary)">{orgName}</h4>
-            <p className="m-0 mt-1 body-sm text-(--fg-secondary)">
+            <p className="m-0 mt-1 flex items-center gap-2 body-sm text-(--fg-secondary)">
+              <AwPlanIcon plan="pro" variant="light" size={20} />
               Plano {ONBOARDING_ORG.plan}
             </p>
           </div>
@@ -240,11 +242,19 @@ export default function OrganizationSettingsPage() {
                   {row.label}
                 </dt>
                 <dd
-                  className="m-0 body-xs font-medium text-(--fg-primary)"
+                  className={
+                    "m-0 body-xs font-medium text-(--fg-primary)" +
+                    (row.label === "Plano contratado"
+                      ? " flex items-center gap-2"
+                      : "")
+                  }
                   style={
                     row.tabular ? { fontVariantNumeric: "tabular-nums" } : undefined
                   }
                 >
+                  {row.label === "Plano contratado" && (
+                    <AwPlanIcon plan="pro" variant="light" size={20} />
+                  )}
                   {row.value}
                 </dd>
                 <span
@@ -257,12 +267,12 @@ export default function OrganizationSettingsPage() {
             ))}
           </dl>
         </AwCard>
-        <p className="m-0 mt-3 inline-flex items-center gap-1.5 px-6 body-xs text-(--fg-tertiary)">
+        <p className="m-0 mt-3 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
           <Icon name="lock" size={14} />
           O cadeado indica campos somente leitura, cadastrados pela equipe Aswork
           no contrato.
         </p>
-        <div className="mt-1 flex items-center justify-between gap-4 px-6 py-2">
+        <div className="mt-1 flex items-center justify-between gap-4 py-2">
           <button
             type="button"
             onClick={() => setReportOpen(true)}
