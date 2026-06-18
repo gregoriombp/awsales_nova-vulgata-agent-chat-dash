@@ -401,6 +401,13 @@ const BRANDS: Record<string, Brand> = {
     bordered: true,
     markSrc: `${ICONIFY_BASE}/google.svg`,
   },
+  "google-authenticator": {
+    // Iconify só publica o mark monocromático (simple-icons) — é a silhueta
+    // oficial do app; renderiza preto sobre tile branco, como os demais marks.
+    bg: "#FFFFFF",
+    bordered: true,
+    markSrc: `${ICONIFY_BASE}/google-authenticator.svg`,
+  },
   chrome: {
     bg: "#FFFFFF",
     bordered: true,
