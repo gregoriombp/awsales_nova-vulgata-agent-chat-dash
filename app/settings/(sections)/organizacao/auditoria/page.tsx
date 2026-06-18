@@ -74,7 +74,7 @@ const TYPE_META: Record<
       "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
   },
   Agentes: {
-    icon: "smart_toy",
+    icon: "agent",
     badgeClass:
       "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
   },
@@ -117,7 +117,7 @@ const ACTOR_KIND_META: Record<
     humanFace: true,
   },
   Sistema: {
-    icon: "smart_toy",
+    icon: "dns",
     label: "Sistema",
     badgeClass:
       "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
@@ -350,7 +350,7 @@ function ActorAvatar({
       aria-hidden="true"
       className={`flex ${box} shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-secondary)`}
     >
-      <Icon name={meta.icon} size={size === "sm" ? 15 : 18} />
+      <Icon name={meta.icon} size={size === "sm" ? 15 : 18} animated={false} />
     </span>
   );
 }
@@ -365,7 +365,7 @@ function ActorKindBadge({ kind }: { kind: ActorKind }) {
         meta.badgeClass
       }
     >
-      <Icon name={meta.icon} size={12} />
+      <Icon name={meta.icon} size={12} animated={false} />
       {meta.label}
     </span>
   );
@@ -1260,7 +1260,7 @@ function OriginFilterMenu({
           id: k,
           label: (
             <span className="inline-flex items-center gap-2">
-              <Icon name={meta.icon} size={15} />
+              <Icon name={meta.icon} size={15} animated={false} />
               <span>{meta.label}</span>
             </span>
           ),
@@ -1300,7 +1300,7 @@ function TypeFilterMenu({
           id: t,
           label: (
             <span className="inline-flex items-center gap-2">
-              <Icon name={meta.icon} size={15} className={meta.accentClass} />
+              <Icon name={meta.icon} size={15} className={meta.accentClass} animated={false} />
               <span>{t}</span>
             </span>
           ),
@@ -1645,6 +1645,7 @@ function EventDetailSheet({
               name={TYPE_META[e.type].icon}
               size={14}
               className={TYPE_META[e.type].accentClass}
+              animated={false}
             />
             {e.type}
           </span>
