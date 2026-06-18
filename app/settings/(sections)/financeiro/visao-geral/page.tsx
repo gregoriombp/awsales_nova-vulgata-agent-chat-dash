@@ -1,9 +1,9 @@
 "use client";
 
 import { AwCard } from "@/components/ui/AwCard";
-import { AwPill } from "@/components/ui/AwPill";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
+import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
@@ -26,23 +26,22 @@ function planKey(name: string): PlanKey {
 
 /**
  * Visão geral — reestruturação.
- * Uma overview se lê em segundos: um único número que importa (próxima fatura),
- * o plano resumido numa linha, um hub para as subpáginas e — só então — o
- * detalhamento de consumo, rebaixado para o fim. Antes, três cartões de resumo
- * disputavam o topo e o mesmo valor se repetia até 5×.
+ * Uma overview se lê em segundos: o total estimado da próxima fatura no topo,
+ * consumo variável e plano lado a lado, um hub para as subpáginas e — só então —
+ * o detalhamento de consumo, rebaixado para o fim.
  */
 export default function VisaoGeralPage() {
   return (
     <div className="flex flex-col gap-8">
       <ForecastBlock />
-      <PlanStrip />
+      <UsageAndPlan />
       <NavHub />
       <ConsumptionSection />
     </div>
   );
 }
 
-/* ---------- herói: previsão da próxima fatura ---------- */
+/* ---------- herói: previsão (estimada) da próxima fatura ---------- */
 
 function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
@@ -59,54 +58,80 @@ function ForecastBlock() {
     <AwInvoiceForecastCard
       eyebrow={`Previsão da próxima fatura · ${CURRENT_INVOICE.dueAt}`}
       total={total}
-      trend={{ value: 4.8, direction: "up", tone: "bad" }}
+      estimateNote={
+        <>
+          Valor estimado. A cobrança é fechada em {CURRENT_INVOICE.dueAt} e pode
+          variar: o consumo variável conta até o fim do ciclo, e custos
+          atrelados a câmbio são convertidos na data da cobrança.
+        </>
+      }
       breakdown={breakdown}
       cta={{
         label: "Ver fatura detalhada",
         href: "/settings/financeiro/historico-faturas",
       }}
-      gauge={{
-        value: OVERVIEW_KPIS.accumulated,
-        max: VARIABLE_SPENDING_LIMIT,
-        caption: (
-          <>
-            do teto
-            <br />
-            {brl(VARIABLE_SPENDING_LIMIT)}
-          </>
-        ),
-      }}
     />
   );
 }
 
-/* ---------- plano em uma linha (status, não card) ---------- */
+/* ---------- consumo variável + plano (dois cards) ---------- */
 
-function PlanStrip() {
+function UsageAndPlan() {
   return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-surface) px-5 py-3.5">
-      <AwPlanIcon
-        plan={planKey(CURRENT_PLAN.name)}
-        variant="light"
-        size={26}
-        className="shrink-0"
-      />
-      <span className="body-sm font-medium text-(--fg-primary)">
-        {CURRENT_PLAN.name}
-      </span>
-      <AwPill variant="live">{CURRENT_PLAN.status}</AwPill>
-      <span className="text-(--fg-tertiary)">·</span>
-      <span className="body-sm tabular-nums text-(--fg-secondary)">
-        <strong className="font-medium text-(--fg-primary)">
-          {brl(CURRENT_PLAN.monthly)}
-        </strong>
-        /mês
-      </span>
-      <span className="text-(--fg-tertiary)">·</span>
-      <span className="body-sm text-(--fg-tertiary)">
-        renova em {CURRENT_PLAN.nextChargeAt}
-      </span>
+    <div className="grid grid-cols-2 items-stretch gap-6">
+      <ConsumoVariavelCard />
+      <PlanoCard />
     </div>
+  );
+}
+
+function ConsumoVariavelCard() {
+  const used = OVERVIEW_KPIS.accumulated;
+  const limit = VARIABLE_SPENDING_LIMIT;
+  const remaining = Math.max(limit - used, 0);
+
+  return (
+    <AwCard className="flex flex-col gap-4 p-6!">
+      <div className="flex items-baseline justify-between gap-3">
+        <h6 className="m-0 body-md font-medium text-(--fg-primary)">
+          Consumo variável
+        </h6>
+        <span className="body-sm tabular-nums text-(--fg-secondary)">
+          <strong className="font-medium text-(--fg-primary)">
+            {brl(used)}
+          </strong>{" "}
+          de {brl(limit)}
+        </span>
+      </div>
+      <AwConsumptionBar gross={used} limit={limit} />
+      <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
+        Restam {brl(remaining)} antes da cobrança automática do ciclo.
+      </p>
+    </AwCard>
+  );
+}
+
+function PlanoCard() {
+  return (
+    <AwCard className="flex items-center gap-4 p-6!">
+      <span
+        aria-hidden="true"
+        className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
+      >
+        <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={32} />
+      </span>
+      <div className="min-w-0">
+        <p className="m-0 body-md font-medium text-(--fg-primary)">
+          {CURRENT_PLAN.name}
+        </p>
+        <p className="m-0 mt-0.5 body-sm tabular-nums text-(--fg-secondary)">
+          <strong className="font-medium text-(--fg-primary)">
+            {brl(CURRENT_PLAN.monthly)}
+          </strong>
+          /mês · renova em {CURRENT_PLAN.nextChargeAt}
+        </p>
+      </div>
+    </AwCard>
   );
 }
 
