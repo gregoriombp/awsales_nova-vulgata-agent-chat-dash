@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBackupCodes } from "@/components/ui/AwBackupCodes";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -224,9 +225,11 @@ export default function SenhaPage() {
               {/* App TOTP */}
               <div className="flex items-center justify-between gap-4 px-6 py-4">
                 <div className="flex items-start gap-3">
-                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                    <Icon name="smartphone" size={16} />
-                  </span>
+                  <AwBrandLogo
+                    brand="google-authenticator"
+                    size="sm"
+                    className="mt-0.5"
+                  />
                   <div>
                     <p className="m-0 body-sm font-medium text-(--fg-primary)">
                       App autenticador (TOTP)
@@ -415,9 +418,11 @@ export default function SenhaPage() {
         <div className="flex flex-col gap-5">
           {/* Contexto — fator TOTP atual */}
           <div className="flex items-start gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) px-4 py-3">
-            <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-surface) text-(--fg-secondary)">
-              <Icon name="smartphone" size={16} />
-            </span>
+            <AwBrandLogo
+              brand="google-authenticator"
+              size="sm"
+              className="mt-0.5"
+            />
             <div>
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 App autenticador configurado
