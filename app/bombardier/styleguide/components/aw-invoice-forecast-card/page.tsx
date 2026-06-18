@@ -57,7 +57,7 @@ export default function InvoiceForecastCardPage() {
           <Section
             id="states"
             title="Variações"
-            lead="O custo pode estar caindo (tom 'good'), sem monitoramento, ou estourando o teto — o medidor passa de 100%."
+            lead="O custo pode estar caindo (tom 'good'), sem monitoramento, estourando o teto, ou marcado como estimado — com selo + tooltip e sem medidor."
           >
             <Stage label="Custo caindo, sem pill de monitoramento">
               <AwInvoiceForecastCard
@@ -87,6 +87,20 @@ export default function InvoiceForecastCardPage() {
                 gauge={{ value: 1850, max: 1500, caption: "do teto" }}
               />
             </Stage>
+
+            <Stage label="Total estimado, sem medidor (selo + tooltip)">
+              <AwInvoiceForecastCard
+                eyebrow="Previsão da próxima fatura · 01 Out"
+                total={3257.21}
+                estimateNote="Valor estimado. A cobrança é fechada na data e pode variar conforme o consumo até o fim do ciclo e o câmbio na conversão."
+                breakdown={[
+                  { label: "Assinatura", value: 2497.98, kind: "base" },
+                  { label: "variável", value: 891.63, kind: "add" },
+                  { label: "cupom", value: 132.4, kind: "subtract" },
+                ]}
+                cta={{ label: "Ver fatura detalhada", href: "#" }}
+              />
+            </Stage>
           </Section>
 
           <Section id="api" title="API">
@@ -112,6 +126,11 @@ export default function InvoiceForecastCardPage() {
                 doc="Variação ao lado do total — repassada ao AwTrendDelta."
               />
               <PropRow
+                prop="estimateNote"
+                type="React.ReactNode"
+                doc="Marca o total como estimado: troca o trend por um selo 'Estimado' com tooltip de hover. Tem precedência sobre trend."
+              />
+              <PropRow
                 prop="breakdown"
                 type="AwCostBreakdownItem[]"
                 doc="Composição do total (assinatura + variável − cupom…). (obrigatório)"
@@ -124,7 +143,7 @@ export default function InvoiceForecastCardPage() {
               <PropRow
                 prop="gauge"
                 type="{ value; max; caption? }"
-                doc="Medidor radial à direita (consumo vs. teto). (obrigatório)"
+                doc="Medidor radial à direita (consumo vs. teto). Omitido → sem medidor."
               />
               <PropRow
                 prop="formatValue"
