@@ -53,27 +53,33 @@ export default function BrandLogoPage() {
           <Section
             id="apps-integracoes"
             title="Apps & integrações"
-            lead="Marcas de apps de terceiros (Google, Chrome, Microsoft, Safari, Notion…) usam os logos oficiais da coleção Iconify logos, curados um a um em /public/assets/integrations/iconify — nunca a biblioteca inteira, nunca dependência em runtime. Para incluir uma nova, veja o passo-a-passo na seção Registry."
+            lead="Marcas de apps de terceiros usam os logos oficiais da coleção Iconify (logos para coloridas, simple-icons em branco sobre o tile da marca quando só há monocromático), curados um a um em /public/assets/integrations/iconify — nunca a biblioteca inteira, nunca dependência em runtime. Catálogo por categoria abaixo; passo-a-passo de como adicionar na seção Registry."
           >
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
+            <div className="flex flex-col gap-6">
               {[
-                "google",
-                "chrome",
-                "microsoft",
-                "safari",
-                "gmail",
-                "googledrive",
-                "notion",
-                "zoom",
-                "trello",
-                "shopify",
-              ].map((id) => (
-                <div
-                  key={id}
-                  className="flex flex-col items-center gap-2 text-[11px] text-(--fg-tertiary)"
-                >
-                  <AwBrandLogo brand={id} size="md" />
-                  <span className="mono">{id}</span>
+                { label: "Plataforma & login", ids: ["google", "microsoft", "apple", "okta", "chrome", "safari"] },
+                { label: "2FA / autenticadores", ids: ["google-authenticator", "authy", "1password", "bitwarden"] },
+                { label: "IA", ids: ["chatgpt", "claude", "gemini", "deepseek", "mistral", "perplexity", "huggingface"] },
+                { label: "Canais & reuniões", ids: ["whatsapp", "instagram", "messenger", "telegram", "discord", "slack", "teams", "googlemeet", "zoom"] },
+                { label: "E-mail, storage & produtividade", ids: ["gmail", "outlook", "googledrive", "onedrive", "dropbox", "notion", "airtable", "trello", "linear", "asana", "jira", "monday"] },
+                { label: "CRM, suporte & automação", ids: ["pipedrive", "hubspot", "rdstation", "kommo", "salesforce", "zendesk", "intercom", "zapier", "twilio"] },
+                { label: "Social & ads", ids: ["facebook", "linkedin", "youtube", "tiktok", "x", "meta", "googleads", "googleanalytics"] },
+                { label: "Dev & fontes", ids: ["github", "bitbucket"] },
+                { label: "Pagamentos", ids: ["stripe", "paypal", "mercadopago", "pagseguro", "picpay", "nubank", "pix"] },
+              ].map((cat) => (
+                <div key={cat.label}>
+                  <div className="aw-eyebrow mb-2">{cat.label}</div>
+                  <div className="flex flex-wrap gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-5">
+                    {cat.ids.map((id) => (
+                      <div
+                        key={id}
+                        className="flex w-20 flex-col items-center gap-1.5 text-3xs text-(--fg-tertiary)"
+                      >
+                        <AwBrandLogo brand={id} size="md" />
+                        <span className="mono max-w-full truncate">{id}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

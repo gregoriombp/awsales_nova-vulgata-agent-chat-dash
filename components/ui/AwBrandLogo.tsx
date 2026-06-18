@@ -492,6 +492,38 @@ const BRANDS: Record<string, Brand> = {
    * ------------------------------------------------------------------ */
   paypal: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/paypal.svg` },
   mercadopago: { bg: "#009EE3", markSrc: `${ICONIFY_BASE}/mercadopago.svg` },
+  /* ------------------------------------------------------------------
+   * Identidade / SSO enterprise + e-mail/storage Microsoft
+   * ------------------------------------------------------------------ */
+  okta: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/okta.svg` },
+  outlook: { bg: "#0078D4", markSrc: `${ICONIFY_BASE}/outlook.svg` },
+  onedrive: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/onedrive.svg` },
+  /* ------------------------------------------------------------------
+   * Social & ads — lead-gen e campanhas
+   * ------------------------------------------------------------------ */
+  facebook: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/facebook.svg` },
+  linkedin: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/linkedin.svg` },
+  youtube: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/youtube.svg` },
+  tiktok: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/tiktok.svg` },
+  x: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/x.svg` },
+  meta: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/meta.svg` },
+  googleads: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/googleads.svg` },
+  googleanalytics: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/googleanalytics.svg` },
+  /* ------------------------------------------------------------------
+   * Produtividade / gestão, dev e comms API
+   * ------------------------------------------------------------------ */
+  asana: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/asana.svg` },
+  jira: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/jira.svg` },
+  monday: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/monday.svg` },
+  bitbucket: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/bitbucket.svg` },
+  twilio: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/twilio.svg` },
+  huggingface: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/huggingface.svg` },
+  /* ------------------------------------------------------------------
+   * Pagamentos (BR) — monocromáticas em branco sobre o tile da marca
+   * ------------------------------------------------------------------ */
+  pagseguro: { bg: "#00A868", markSrc: `${ICONIFY_BASE}/pagseguro.svg` },
+  picpay: { bg: "#21C25E", markSrc: `${ICONIFY_BASE}/picpay.svg` },
+  nubank: { bg: "#820AD1", markSrc: `${ICONIFY_BASE}/nubank.svg` },
 }
 
 export type AwBrandLogoSize = "sm" | "md" | "lg"
