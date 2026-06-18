@@ -111,6 +111,11 @@ export const navigation: NavSection[] = [
         aliases: ["AwAgentRunTrace", "run trace", "timeline", "trace", "execução", "passos da run"],
       },
       {
+        name: "Agent status badge",
+        href: "/bombardier/styleguide/components/aw-agent-status-badge",
+        aliases: ["AwAgentStatusBadge", "status do agente", "ciclo de vida", "draft", "training", "ready", "lifecycle"],
+      },
+      {
         name: "Ask user questions",
         href: "/bombardier/styleguide/components/aw-ask-user-questions",
         aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],

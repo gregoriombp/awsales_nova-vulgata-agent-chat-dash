@@ -204,7 +204,7 @@ notificações · `AwChatBubble` balão de chat · `AwInputMessage` composer ·
 `AwBrandLogo`/`AwLogo`/`AwBrandIllustration` marca · `AwAdditionalPlanBanner` plano ·
 `AwCheckpointChip` checkpoint · `AwMentionMenu` menções · `AwAgentAvatar` avatar de agente ·
 `AwToolCallCard` chamada de tool/integração · `AwAgentRunTrace` timeline da run do agente ·
-`AwSourceChip` citação/grounding da Memory Base.
+`AwSourceChip` citação/grounding da Memory Base · `AwAgentStatusBadge` ciclo de vida do agente.
 
 ### Domínio — Faturamento
 `AwConsumptionBar` barra de consumo · `AwCostBreakdown` quebra de custo ·
