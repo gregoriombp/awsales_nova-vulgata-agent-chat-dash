@@ -178,7 +178,9 @@ taxonomia de [`component-layers.md`](./component-layers.md).
 `AwSkeleton` loading · `AwAlert` alerta · `AwBreadcrumb` breadcrumb (átomo) ·
 `AwTabs` abas · `AwDropdownMenu` dropdown · `AwEmpty` empty state ·
 `AwFileIcon` ícone de arquivo · `AwChannelIcon` ícone de canal ·
-`AwDropzone` upload · `AwTransition` transição · `AwToast` toast · `Icon` ícone base.
+`AwDropzone` upload · `AwTransition` transição · `AwToast` toast · `Icon` ícone base ·
+`AwBrowserIcon` ícone de navegador · `AwPlanIcon` ícone de plano · `AwRadialProgress`
+progresso radial · `AwTrendDelta` delta de tendência · `AwAuditTypeBadge` badge de evento.
 
 ### Componentes
 `AwCard` card · `AwStatCard` métrica · `AwGroupCard` item com ações ·
@@ -188,7 +190,8 @@ modais · `AwSheet` drawer · `AwNavList`/`AwNavRail` navegação · `AwOptionLi
 `AwListGroup` grupo colapsável · `AwPageHeader` cabeçalho · `AwNotificationsPanel`
 notificações · `AwChatBubble` balão de chat · `AwInputMessage` composer ·
 `AwThinkingSteps` raciocínio · `AwAskUserQuestions` entrevista · `AwChart` gráfico ·
-`AwShortcutTile` atalho · `AwBeams`/`AwDotTunnel` fundos decorativos.
+`AwShortcutTile` atalho · `AwNavTree` árvore de navegação ·
+`AwBeams`/`AwDotTunnel` fundos decorativos.
 
 ### Padrões
 `AwOnboardingShell` casca de onboarding · `AwOnboardingTimeline` linha do tempo ·
@@ -199,7 +202,16 @@ notificações · `AwChatBubble` balão de chat · `AwInputMessage` composer ·
 `AwIntegrationCard` integração · `AwSpecialistsPair`/`AwAgentCore`/`AwUserAgentOrb`/
 `AwCortexSynthesis` visual dos agentes · `AwCapabilityTile` capacidade ·
 `AwBrandLogo`/`AwLogo`/`AwBrandIllustration` marca · `AwAdditionalPlanBanner` plano ·
-`AwCheckpointChip` checkpoint · `AwMentionMenu` menções · `AwAgentAvatar` avatar de agente.
+`AwCheckpointChip` checkpoint · `AwMentionMenu` menções · `AwAgentAvatar` avatar de agente ·
+`AwToolCallCard` chamada de tool/integração · `AwAgentRunTrace` timeline da run do agente.
+
+### Domínio — Faturamento
+`AwConsumptionBar` barra de consumo · `AwCostBreakdown` quebra de custo ·
+`AwInvoiceForecastCard` previsão da próxima fatura · `AwInvoiceRow` linha de fatura ·
+`AwPlanSummaryCard` resumo do plano · `AwPaymentMethodRow` método de pagamento (item de
+lista) · `AwPaymentMethodChip` método de pagamento (inline/link) · `AwInvoiceSummaryCard`
+resumo da fatura — **órfão: hoje só aparece no próprio showcase, sem uso em produto**
+(candidato a ligar numa página de faturamento ou remover).
 
 ### Infra / layout (consumido por outros, não use direto numa página)
 `AwThemeProvider` · `AwDashboardLayout` · `AwSidebar` · `AwHeader` · `AwNavRail`
