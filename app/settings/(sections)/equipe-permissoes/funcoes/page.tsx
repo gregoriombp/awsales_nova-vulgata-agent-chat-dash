@@ -141,9 +141,20 @@ export default function RolesPage() {
   const isExpanded = selected !== null;
 
   const membersByRole = useMemo(() => {
+    const byId = new Map(members.map((m) => [m.id, m]));
     const map = new Map<string, Member[]>();
     for (const r of [...ROLE_DEFINITIONS, ...CUSTOM_ROLE_DEFINITIONS]) {
-      map.set(r.name, members.filter((m) => m.role === r.name));
+      // Funções padrão: membros vêm do vínculo m.role === nome da função.
+      const assigned = members.filter((m) => m.role === r.name);
+      // Funções personalizadas: o tipo Role não inclui nomes custom, então
+      // ninguém casa por m.role. Caímos nos sampleMemberIds (ids → MEMBERS)
+      // pra a pilha de avatares renderizar igual à tabela acima.
+      const sample = !assigned.length && r.sampleMemberIds?.length
+        ? r.sampleMemberIds
+            .map((id) => byId.get(id))
+            .filter((m): m is Member => Boolean(m))
+        : assigned;
+      map.set(r.name, sample);
     }
     return map;
   }, [members]);

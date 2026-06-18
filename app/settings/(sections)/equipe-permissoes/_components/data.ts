@@ -552,6 +552,14 @@ export type RoleDefinition = {
   icon: string;
   /** Preenchido apenas em funções personalizadas — quem criou e quando. */
   createdBy?: RoleCreator;
+  /**
+   * Membros de exemplo atribuídos a uma função personalizada — ids que
+   * apontam pra MEMBERS. Como o vínculo membro→função padrão é feito por
+   * `m.role === name` (e o tipo Role não inclui nomes de funções custom),
+   * estes ids alimentam a pilha de avatares ("fotinha + Ver todos") das
+   * funções personalizadas sem poluir o tipo Role nem a listagem de membros.
+   */
+  sampleMemberIds?: string[];
 };
 
 export const DEFAULT_CUSTOM_ROLE_ICON = "tune";
@@ -758,7 +766,7 @@ export const CUSTOM_ROLE_DEFINITIONS: RoleDefinition[] = [
     name: "Analista de Dashboard",
     description:
       "Acompanha métricas e relatórios. Não edita agentes, campanhas nem conversas.",
-    memberCount: 0,
+    memberCount: 3,
     capabilities: ["conversas.access"],
     isSystem: false,
     color: "red",
@@ -769,13 +777,18 @@ export const CUSTOM_ROLE_DEFINITIONS: RoleDefinition[] = [
       date: "16/03/2026",
       avatar: "/assets/ui-faces/male-9.jpg",
     },
+    sampleMemberIds: [
+      "u-camila-nogueira",
+      "u-pedro-vasconcelos",
+      "u-bianca-rezende",
+    ],
   },
   {
     id: "r-custom-revisor",
     name: "Revisor de Disparos",
     description:
       "Aprova disparos e templates antes de irem ao ar. Não cria nem edita campanhas.",
-    memberCount: 0,
+    memberCount: 5,
     capabilities: [
       "campanhas.access",
       "campanhas.approve",
@@ -792,6 +805,13 @@ export const CUSTOM_ROLE_DEFINITIONS: RoleDefinition[] = [
       date: "22/04/2026",
       avatar: "/assets/ui-faces/male-10.jpg",
     },
+    sampleMemberIds: [
+      "u-juliana-barreto",
+      "u-henrique-tavares",
+      "u-diego-ferreira",
+      "u-ana-souza",
+      "u-marina-cavalcanti",
+    ],
   },
 ];
 
