@@ -14,6 +14,12 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 
@@ -283,11 +289,10 @@ export default function OrgNotificacoesPage() {
         description="Defina o que toda a organização sempre recebe e por quais canais. Cada pessoa afina o resto na própria caixa."
       />
 
-      <GovernanceBand />
-
       {/* Obrigatórias */}
       <section className="mt-12">
-        <SectionHeading
+        <SectionWithIcon
+          icon="lock"
           title="Sempre enviadas"
           description="Eventos críticos que a organização garante. Ninguém desliga — você só escolhe quem recebe."
         />
@@ -306,7 +311,8 @@ export default function OrgNotificacoesPage() {
 
       {/* Opcionais */}
       <section className="mt-12">
-        <SectionHeading
+        <SectionWithIcon
+          icon="tune"
           title="Opcionais"
           description="A organização define o padrão; cada pessoa pode ligar ou desligar nas próprias preferências."
         />
@@ -460,54 +466,29 @@ export default function OrgNotificacoesPage() {
 }
 
 /* ===================================================================== *
- * Faixa-conceito — o modelo híbrido, visual em vez de parágrafo.
+ * Cabeçalho de seção com ícone — mesma estrutura de /settings/notificacoes.
  * ===================================================================== */
 
-const CONCEPT = [
-  {
-    icon: "lock",
-    title: "Obrigatórias",
-    desc: "A organização garante que cheguem.",
-  },
-  {
-    icon: "tune",
-    title: "Opcionais",
-    desc: "A org sugere o padrão; a pessoa ajusta.",
-  },
-  {
-    icon: "send",
-    title: "Canais",
-    desc: "A org libera por onde a entrega acontece.",
-  },
-];
-
-function GovernanceBand() {
+function SectionWithIcon({
+  icon,
+  title,
+  description,
+}: {
+  icon: string;
+  title: string;
+  description: string;
+}) {
   return (
-    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-      {CONCEPT.map((c, i) => (
-        <div
-          key={c.title}
-          className="relative flex items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-4 py-3.5"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-inverse) text-(--fg-on-inverse)">
-            <Icon name={c.icon} size={18} />
-          </span>
-          <div className="min-w-0">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              {c.title}
-            </p>
-            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{c.desc}</p>
-          </div>
-          {i < CONCEPT.length - 1 && (
-            <Icon
-              name="chevron_right"
-              size={18}
-              aria-hidden="true"
-              className="absolute -right-2.5 top-1/2 hidden -translate-y-1/2 text-(--fg-tertiary) sm:block"
-            />
-          )}
-        </div>
-      ))}
+    <div className="mb-4 flex items-start gap-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
+        <Icon name={icon} size={18} />
+      </span>
+      <div className="min-w-0">
+        <h6 className="m-0 mb-1 text-(--fg-primary)">{title}</h6>
+        <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
+          {description}
+        </p>
+      </div>
     </div>
   );
 }
@@ -604,10 +585,26 @@ function MandatoryRow({
             <p className="m-0 body-sm font-medium text-(--fg-primary)">
               {event.name}
             </p>
-            <span className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-secondary)">
-              <Icon name="lock" size={12} />
-              Obrigatória
-            </span>
+            <TooltipProvider delayDuration={120}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span
+                    tabIndex={0}
+                    aria-label="Obrigatória"
+                    className="inline-flex h-5 w-5 cursor-help items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary) outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2"
+                  >
+                    <Icon name="lock" size={12} />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="top"
+                  className="max-w-[240px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+                >
+                  Notificação obrigatória — a organização garante que chegue.
+                  Ninguém desliga; você só escolhe quem recebe.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
             <CategoryPill category={event.category} />
           </div>
           <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
