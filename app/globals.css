@@ -1960,6 +1960,25 @@
     ) border-box;
   border: 1px solid transparent;
 }
+/* Animated iridescent — estado "em execução"/active de superfícies de IA.
+   Deriva de cor suave (~2s) sobre o gradient da marca, alternando ida/volta.
+   Respeita prefers-reduced-motion. */
+@keyframes aw-iridescent-drift {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+.aw-gradient-iridescent-animated {
+  background:
+    radial-gradient(ellipse 70% 120% at 18% 50%, var(--aw-blue-400) 0%, transparent 65%),
+    radial-gradient(ellipse 80% 130% at 82% 50%, var(--aw-amber-200) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 120% at 50% 50%, var(--aw-purple-200) 0%, transparent 70%),
+    linear-gradient(90deg, var(--aw-blue-300) 0%, var(--aw-pink-200) 50%, var(--aw-blue-300) 100%);
+  background-size: 220% 220%;
+  animation: aw-iridescent-drift 2s var(--ease-in-out, ease-in-out) infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-gradient-iridescent-animated { animation: none; }
+}
 /* Ai-cortex — silver mesh inspired by the Cortex marble cube.
    Cool slate base, brighter pocket on the left, darker pocket on the
    right where the dark CTA usually sits. Designed for the AI side of
@@ -2914,7 +2933,7 @@
   gap: 14px;
   align-items: flex-start;
   padding: 14px 16px;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: var(--bg-raised);
   color: var(--fg-secondary);
   font-size: 13px;

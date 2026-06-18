@@ -100,10 +100,10 @@ export function AwToolCallCard({
             brand={brand}
             size="sm"
             bare
-            style={{ width: 18, height: 18, borderRadius: 4 }}
+            style={{ width: 20, height: 20, borderRadius: 5 }}
           />
         ) : (
-          <Icon name={icon} size={16} className="text-(--fg-secondary)" />
+          <Icon name={icon} size={18} className="text-(--fg-secondary)" />
         )}
       </span>
       <span className="min-w-0 flex-1 truncate font-mono text-sm font-medium text-(--fg-primary)">

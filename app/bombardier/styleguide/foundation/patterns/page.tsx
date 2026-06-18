@@ -85,12 +85,13 @@ function SelectableRow({
 }: {
   state: "default" | "hover" | "selected"
 }) {
+  const selected = state === "selected"
   const surface =
     state === "default"
       ? "bg-(--bg-raised) border-(--border-subtle)"
       : state === "hover"
         ? "bg-(--bg-hover) border-(--border-subtle)"
-        : "bg-(--bg-selected) border-transparent"
+        : "bg-(--bg-inverse) border-transparent"
   const stateLabel =
     state === "default" ? "Default" : state === "hover" ? "Hover" : "Selected"
   return (
@@ -265,7 +266,7 @@ export default function PatternsPage() {
             <>Não usar “Você ainda não tem nada aqui” — fale sobre a coisa, não sobre a ausência.</>,
           ]}
         >
-          <AwCard className="max-w-[440px] mx-auto text-center">
+          <AwCard className="max-w-[440px] mx-auto text-center bg-(--bg-inverse) border-transparent">
             <div className="flex flex-col items-center gap-4 py-6">
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center"
@@ -277,8 +278,8 @@ export default function PatternsPage() {
                 <Icon name="agent" size={24} style={{ color: "#fff" }} />
               </div>
               <div>
-                <h4 className="m-0 mb-2">Seu primeiro agente</h4>
-                <p className="body-sm m-0 text-(--fg-secondary) max-w-[32ch] mx-auto">
+                <h4 className="m-0 mb-2 text-(--fg-on-inverse)">Seu primeiro agente</h4>
+                <p className="body-sm m-0 text-(--fg-on-inverse) max-w-[32ch] mx-auto">
                   Um agente é um atendimento com papel claro, conhecimento
                   próprio e permissões. Comece do zero ou deixe a IA sugerir a
                   partir dos seus dados.
@@ -351,16 +352,16 @@ export default function PatternsPage() {
               desculpas pelo transtorno.
             </div>
             <div
-              className="rounded-md p-px"
+              className="rounded-lg p-px"
               style={{
                 background:
                   "linear-gradient(135deg, var(--aw-blue-500), var(--aw-purple-500))",
               }}
             >
-              <div className="rounded-[calc(var(--radius-md)-1px)] bg-(--bg-raised) p-4 flex flex-col gap-3">
+              <div className="rounded-[calc(var(--radius-lg)-1px)] bg-(--bg-raised) p-4 flex flex-col gap-3">
                 <div className="flex items-start gap-2">
                   <Icon
-                    name="auto_awesome"
+                    name="agent"
                     size={16}
                     style={{ color: "var(--aw-blue-600)" }}
                   />
@@ -473,8 +474,8 @@ export default function PatternsPage() {
             ].map((t, i) => (
               <div
                 key={i}
-                className="rounded-md border border-(--border-default) bg-(--bg-raised) p-[14px] flex gap-3 items-start"
-                style={{ boxShadow: "var(--shadow-lg)" }}
+                className="rounded-lg border border-(--border-default) bg-(--bg-raised) p-4 flex gap-3 items-start"
+                style={{ boxShadow: "var(--shadow-md)" }}
               >
                 <Icon name={t.icon} size={18} style={{ color: t.iconColor }} />
                 <div className="flex-1 min-w-0">

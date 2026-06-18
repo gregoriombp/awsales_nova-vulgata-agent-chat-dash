@@ -10,28 +10,23 @@ export type AwAuditType = "Plano" | "Cartão" | "Fatura" | "Cupom" | "Voucher"
 const TYPE_META: Record<AwAuditType, { icon: string; badgeClass: string }> = {
   Plano: {
     icon: "workspace_premium",
-    badgeClass:
-      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+    badgeClass: "bg-(--bg-muted) text-(--fg-secondary)",
   },
   Cartão: {
     icon: "credit_card",
-    badgeClass:
-      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+    badgeClass: "bg-(--bg-muted) text-(--fg-secondary)",
   },
   Fatura: {
     icon: "receipt_long",
-    badgeClass:
-      "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
+    badgeClass: "bg-(--bg-muted) text-(--fg-secondary)",
   },
   Cupom: {
     icon: "local_offer",
-    badgeClass:
-      "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
+    badgeClass: "bg-(--aw-emerald-100) text-(--aw-emerald-800)",
   },
   Voucher: {
     icon: "card_giftcard",
-    badgeClass:
-      "border-(--aw-purple-300) bg-(--aw-purple-150) text-(--aw-purple-800)",
+    badgeClass: "bg-(--aw-purple-150) text-(--aw-purple-800)",
   },
 }
 
@@ -53,7 +48,7 @@ export function AwAuditTypeBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 body-xs font-medium",
         meta.badgeClass,
         className,
       )}

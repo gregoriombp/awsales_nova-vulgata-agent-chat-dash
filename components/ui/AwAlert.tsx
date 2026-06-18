@@ -35,7 +35,7 @@ export function AwAlert({
   return (
     <div role="status" className={classes} {...rest}>
       <span className="aw-alert__icon">
-        <Icon name={glyph} size={20} />
+        <Icon name={glyph} size={20} fill={1} />
       </span>
       <div className="aw-alert__body">
         {title && <strong className="aw-alert__title">{title}</strong>}

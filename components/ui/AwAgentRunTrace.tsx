@@ -71,18 +71,12 @@ export function AwAgentRunTrace({ steps, className }: AwAgentRunTraceProps) {
               <span
                 className={cn(
                   "grid size-7 shrink-0 place-items-center rounded-full",
-                  STATUS_NODE[status],
+                  status === "active"
+                    ? "aw-gradient-iridescent-animated text-(--aw-gray-1200)"
+                    : STATUS_NODE[status],
                 )}
               >
-                <Icon
-                  name={
-                    status === "active"
-                      ? "progress_activity"
-                      : KIND_ICON[step.kind]
-                  }
-                  size={16}
-                  className={status === "active" ? "animate-spin" : undefined}
-                />
+                <Icon name={KIND_ICON[step.kind]} size={16} fill={status === "active" ? 1 : 0} />
               </span>
               {!last && (
                 <span

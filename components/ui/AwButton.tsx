@@ -49,15 +49,15 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
   ) {
     const iconSize = iconOnly
       ? size === "sm"
-        ? 20
+        ? 22
+        : size === "lg"
+          ? 26
+          : 24
+      : size === "sm"
+        ? 18
         : size === "lg"
           ? 24
           : 22
-      : size === "sm"
-        ? 16
-        : size === "lg"
-          ? 22
-          : 20
     const className_ = cn(
       "aw-btn",
       `aw-btn--${variant}`,
@@ -80,12 +80,12 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
         child,
         {},
         iconOnly ? (
-          <Icon name={iconOnly} size={iconSize} />
+          <Icon name={iconOnly} size={iconSize} weight={300} />
         ) : (
           <>
-            {iconLeft && <Icon name={iconLeft} size={iconSize} />}
+            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} />}
             <span className="aw-btn__label">{childLabel}</span>
-            {iconRight && <Icon name={iconRight} size={iconSize} />}
+            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} />}
             {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
           </>
         ),
@@ -111,12 +111,12 @@ export const AwButton = React.forwardRef<HTMLButtonElement, AwButtonProps>(
         {...rest}
       >
         {iconOnly ? (
-          <Icon name={iconOnly} size={iconSize} />
+          <Icon name={iconOnly} size={iconSize} weight={300} />
         ) : (
           <>
-            {iconLeft && <Icon name={iconLeft} size={iconSize} />}
+            {iconLeft && <Icon name={iconLeft} size={iconSize} weight={300} />}
             <span className="aw-btn__label">{children}</span>
-            {iconRight && <Icon name={iconRight} size={iconSize} />}
+            {iconRight && <Icon name={iconRight} size={iconSize} weight={300} />}
           </>
         )}
         {loading && <span aria-hidden="true" className="aw-btn__spinner" />}
