@@ -89,7 +89,7 @@ const tableDecision = [
   },
   {
     component: "DataTable",
-    route: "/bombardier/styleguide/components/data-table",
+    route: "/bombardier/styleguide/components/table#data-table",
     use: "Resultado de agente/tool com columns + data, sort, filter, paginação e formatters.",
     dontUse:
       "Não use quando cada célula precisa de layout próprio, ações ricas ou composição manual.",
@@ -174,7 +174,7 @@ export default function TablePage() {
                     </p>
                   </div>
                   <a
-                    href="/bombardier/styleguide/components/data-table"
+                    href="#api"
                     className="mono text-xs text-(--aw-blue-700) no-underline hover:underline"
                   >
                     API detalhada
@@ -476,12 +476,6 @@ import { AwPill } from "@/components/ui/AwPill"
           <Section id="related" title="Relacionados">
             <RelatedLinks
               items={[
-                {
-                  name: "Data table",
-                  href: "/bombardier/styleguide/components/data-table",
-                  description:
-                    "Subpágina técnica da surface tool-ui para JSON, formatters, busca e paginação.",
-                },
                 {
                   name: "Members table",
                   href: "/bombardier/styleguide/components/aw-members-table",

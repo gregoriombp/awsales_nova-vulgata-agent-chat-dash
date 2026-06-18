@@ -115,11 +115,6 @@ export const navigation: NavSection[] = [
         href: "/bombardier/styleguide/components/aw-agent-status-badge",
         aliases: ["AwAgentStatusBadge", "status do agente", "ciclo de vida", "draft", "training", "ready", "lifecycle"],
       },
-      {
-        name: "Ask user questions",
-        href: "/bombardier/styleguide/components/aw-ask-user-questions",
-        aliases: ["AwAskUserQuestions", "wizard", "entrevista", "perguntas", "questionário"],
-      },
       { name: "Audit type badge", href: "/bombardier/styleguide/components/aw-audit-type-badge" },
       { name: "Beams", href: "/bombardier/styleguide/components/aw-beams" },
       {
@@ -181,7 +176,6 @@ export const navigation: NavSection[] = [
       { name: "Payment method chip", href: "/bombardier/styleguide/components/aw-payment-method-chip" },
       { name: "Payment method row", href: "/bombardier/styleguide/components/aw-payment-method-row" },
       { name: "Plan summary card", href: "/bombardier/styleguide/components/aw-plan-summary-card" },
-      { name: "Radial progress", href: "/bombardier/styleguide/components/aw-radial-progress" },
       {
         name: "Sheets e drawers",
         href: "/bombardier/styleguide/components/sheet",
@@ -204,7 +198,6 @@ export const navigation: NavSection[] = [
         aliases: ["AwSourceChip", "citação", "citation", "fonte", "grounding", "referência", "memory base"],
       },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
-      { name: "Stats display", href: "/bombardier/styleguide/components/stats-display" },
       {
         name: "Tabelas",
         href: "/bombardier/styleguide/components/table",
@@ -218,7 +211,6 @@ export const navigation: NavSection[] = [
         ],
         children: [
           { name: "AwTable", href: "/bombardier/styleguide/components/table#aw-table" },
-          { name: "Data table", href: "/bombardier/styleguide/components/data-table" },
           { name: "Members table", href: "/bombardier/styleguide/components/aw-members-table" },
         ],
       },
