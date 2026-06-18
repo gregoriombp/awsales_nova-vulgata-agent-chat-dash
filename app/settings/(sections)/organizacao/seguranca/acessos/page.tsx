@@ -125,21 +125,40 @@ const STALE_OPTIONS: { value: StaleFilter; label: string }[] = [
   { value: "stale", label: "Sem uso há 30+ dias" },
 ];
 
-function OriginBadge({ origin }: { origin: AccessOrigin }) {
-  // ADM em laranja (acesso administrativo, mais sensível); Studio neutro.
-  if (origin === "adm") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
-        <Icon name="admin_panel_settings" size={11} />
-        {ORIGIN_LABEL.adm}
-      </span>
-    );
-  }
+/** Quiet metadata chip — one consistent shape for every inline tag on a row
+ *  (origin, other-orgs, stale). Neutral by default; `tone="amber"` for the
+ *  sensitive/attention variants. */
+function MetaChip({
+  icon,
+  tone = "neutral",
+  children,
+}: {
+  icon: string;
+  tone?: "neutral" | "amber";
+  children: React.ReactNode;
+}) {
+  const cls =
+    tone === "amber"
+      ? "border-(--aw-amber-200) bg-(--aw-amber-100) text-(--aw-amber-800)"
+      : "border-(--border-subtle) bg-(--bg-muted) text-(--fg-tertiary)";
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-tertiary)">
-      <Icon name="dashboard" size={11} />
-      {ORIGIN_LABEL.studio}
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 body-xs font-medium ${cls}`}
+    >
+      <Icon name={icon} size={12} />
+      {children}
     </span>
+  );
+}
+
+function OriginBadge({ origin }: { origin: AccessOrigin }) {
+  // ADM em âmbar (acesso administrativo, mais sensível); Studio neutro.
+  return origin === "adm" ? (
+    <MetaChip icon="admin_panel_settings" tone="amber">
+      {ORIGIN_LABEL.adm}
+    </MetaChip>
+  ) : (
+    <MetaChip icon="dashboard">{ORIGIN_LABEL.studio}</MetaChip>
   );
 }
 
@@ -215,37 +234,37 @@ export default function AcessosOrgPage() {
         }
       />
 
-      {/* Boundary */}
-      <div className="mb-6 flex items-start gap-3 rounded-lg border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3">
+      {/* Boundary — escopo das ações desta tela */}
+      <div className="mb-8 flex items-start gap-3 rounded-xl border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3.5">
         <Icon name="info" size={18} className="mt-px shrink-0 text-(--aw-blue-700)" />
-        <p className="m-0 body-xs text-(--aw-blue-800)">
+        <p className="m-0 body-xs leading-relaxed text-(--aw-blue-800)">
           Encerrar ou revogar um acesso aqui afeta só a {ONBOARDING_ORG.name}. A
           pessoa continua conectada nas outras organizações onde tem acesso, e a
           conta global não é desconectada.
         </p>
       </div>
 
-      {/* Resumo — contagem + antiguidade */}
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <p className="m-0 body-sm text-(--fg-secondary)">
-          <strong className="font-medium tabular-nums text-(--fg-primary)">
-            {rows.length}
-          </strong>{" "}
-          pessoa{rows.length === 1 ? "" : "s"} ·{" "}
-          <strong className="font-medium tabular-nums text-(--fg-primary)">
-            {rows.length}
-          </strong>{" "}
-          acesso{rows.length === 1 ? "" : "s"} aberto{rows.length === 1 ? "" : "s"}
-        </p>
+      {/* Resumo + filtros — uma só faixa de controle acima da lista */}
+      <div className="mb-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+          {rows.length} pessoa{rows.length === 1 ? "" : "s"}
+        </span>
+        <span aria-hidden className="text-(--border-strong)">
+          ·
+        </span>
+        <span className="body-sm text-(--fg-secondary)">
+          {rows.length} acesso{rows.length === 1 ? "" : "s"} aberto
+          {rows.length === 1 ? "" : "s"}
+        </span>
         {staleCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2.5 py-1 body-xs font-medium text-(--aw-amber-800)">
+          <span className="ml-1 inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-200) bg-(--aw-amber-100) px-2.5 py-1 body-xs font-medium text-(--aw-amber-800)">
             <Icon name="schedule" size={13} />
             {staleCount} sem uso há 30+ dias
           </span>
         )}
       </div>
 
-      <div className="mb-4 flex flex-wrap items-center gap-2">
+      <div className="mb-5 flex flex-wrap items-center gap-2.5">
         <div className="max-w-[360px] flex-1 basis-[260px]">
           <AwInput
             iconLeft="search"
@@ -278,7 +297,7 @@ export default function AcessosOrgPage() {
 
       <AwCard className="p-0!">
         {filtered.length === 0 ? (
-          <AwEmpty className="px-6 py-14">
+          <AwEmpty className="px-6 py-20">
             <AwEmptyHeader>
               <AwEmptyMedia variant="icon">
                 <Icon
@@ -319,45 +338,51 @@ export default function AcessosOrgPage() {
           <>
         <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
           {filtered.map((r) => (
-            <li key={r.id} className="m-0 flex items-center gap-4 px-6 py-4">
+            <li
+              key={r.id}
+              className="m-0 flex items-center gap-4 px-6 py-5 transition-colors hover:bg-(--bg-surface)"
+            >
               <AwAvatar size="md" src={r.avatar} alt={r.name} initials={getInitials(r.name)} />
+
+              {/* Identidade — nome + e-mail; tags ficam só na origem/atenção */}
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <p className="m-0 body-sm font-medium text-(--fg-primary)">
                     {r.name}
                   </p>
+                  <OriginBadge origin={r.origin} />
                   {r.otherOrgs > 0 && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-tertiary)">
-                      <Icon name="apartment" size={11} />+{r.otherOrgs} org{r.otherOrgs > 1 ? "s" : ""}
-                    </span>
+                    <MetaChip icon="apartment">
+                      +{r.otherOrgs} org{r.otherOrgs > 1 ? "s" : ""}
+                    </MetaChip>
                   )}
                   {r.stale && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
-                      <Icon name="schedule" size={11} />
+                    <MetaChip icon="schedule" tone="amber">
                       sem uso
-                    </span>
+                    </MetaChip>
                   )}
-                  <OriginBadge origin={r.origin} />
                 </div>
-                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                  {r.email}
-                </p>
+                <p className="m-0 mt-1 body-xs text-(--fg-tertiary)">{r.email}</p>
               </div>
 
-              <div className="hidden min-w-0 items-center gap-2.5 md:flex">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-(--border-subtle) bg-(--bg-raised)">
+              {/* Dispositivo + local — secundário, alinhado e contido */}
+              <div className="hidden w-[210px] shrink-0 items-center gap-3 md:flex">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-muted)">
                   <AwBrowserIcon browser={r.device.split(" · ")[0]} size={18} />
                 </span>
-                <div className="flex min-w-0 flex-col items-start gap-0.5">
-                  <span className="body-xs text-(--fg-secondary)">{r.device}</span>
-                  <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                <div className="flex min-w-0 flex-col gap-0.5">
+                  <span className="truncate body-xs font-medium text-(--fg-secondary)">
+                    {r.device}
+                  </span>
+                  <span className="truncate body-xs tabular-nums text-(--fg-tertiary)">
                     {r.location} · {r.ip}
                   </span>
                 </div>
               </div>
 
-              <div className="hidden w-28 shrink-0 flex-col items-end gap-0.5 lg:flex">
-                <span className="body-xs tabular-nums text-(--fg-secondary)">
+              {/* Tempo — terciário, ancorado à direita */}
+              <div className="hidden w-24 shrink-0 flex-col items-end gap-0.5 lg:flex">
+                <span className="body-xs font-medium tabular-nums text-(--fg-secondary)">
                   {r.lastUsed}
                 </span>
                 <span className="body-xs tabular-nums text-(--fg-tertiary)">
@@ -395,15 +420,14 @@ export default function AcessosOrgPage() {
             </li>
           ))}
         </ul>
-        <div className="flex flex-col gap-1.5 border-t border-(--border-subtle) px-6 py-3">
-          <p className="m-0 body-xs text-(--fg-tertiary)">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-(--border-subtle) px-6 py-4">
+          <p className="m-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
             {filtered.length} pessoa{filtered.length === 1 ? "" : "s"} com acesso
-            ativo.
+            ativo
           </p>
           <p className="m-0 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
             <Icon name="history" size={13} className="shrink-0" />
-            Encerrar ou revogar um acesso fica registrado no histórico da
-            organização, com o motivo informado.
+            Encerrar ou revogar fica registrado no histórico da organização.
           </p>
         </div>
           </>
