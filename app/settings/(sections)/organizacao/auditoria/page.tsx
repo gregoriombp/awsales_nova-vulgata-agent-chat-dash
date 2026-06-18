@@ -6,6 +6,7 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
+import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
@@ -756,7 +757,7 @@ function DsarPendingBanner({
         </div>
         <AwButton
           size="sm"
-          variant="secondary"
+          variant="ghost"
           iconRight="arrow_forward"
           onClick={onAttend}
         >
@@ -2390,7 +2391,12 @@ function ExportRow({
 
   if (file.status === "generating") {
     return (
-      <li className={rowClass}>
+      <li
+        className={
+          "flex items-center gap-4 px-6 py-2.5" +
+          (isLast ? "" : " border-b border-(--border-subtle)")
+        }
+      >
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--aw-amber-100) text-(--aw-amber-700)">
           <Icon name="hourglass_top" size={20} />
         </span>
@@ -2404,7 +2410,7 @@ function ExportRow({
               Gerando
             </span>
           </div>
-          <div className="mt-2 max-w-[360px]">
+          <div className="mt-1.5 max-w-[360px]">
             <AwProgress
               value={file.progress ?? 0}
               valueLabel={`${file.progress ?? 0}%`}
@@ -2425,9 +2431,7 @@ function ExportRow({
   const expired = file.status === "expired";
   return (
     <li className={rowClass}>
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-        <Icon name="csv" size={20} />
-      </span>
+      <AwFileIcon type="spreadsheet" size="md" className="shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="m-0 truncate body-sm font-medium text-(--fg-primary)">
           {file.name}
