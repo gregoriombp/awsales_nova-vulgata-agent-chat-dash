@@ -452,7 +452,7 @@ type DataRequestStatus =
   | "Em análise"
   | "Concluída"
   | "Recusada"
-  | "Prazo estourado";
+  | "Prazo vencido";
 
 type DataRequest = {
   id: string;
@@ -551,7 +551,7 @@ const REQUEST_STATUS_META: Record<DataRequestStatus, { badgeClass: string }> = {
     badgeClass:
       "border-(--border-subtle) bg-(--bg-muted) text-(--fg-secondary)",
   },
-  "Prazo estourado": {
+  "Prazo vencido": {
     badgeClass:
       "border-(--aw-red-300) bg-(--aw-red-100) text-(--aw-red-800)",
   },
@@ -577,11 +577,11 @@ function daysUntil(dueAt: string): number | null {
 }
 
 /** Status efetivo: uma solicitação "Em análise" cujo prazo já passou vira
- *  "Prazo estourado" — sem precisar de outra ação. */
+ *  "Prazo vencido" — sem precisar de outra ação. */
 function effectiveStatus(req: DataRequest): DataRequestStatus {
   if (req.status === "Em análise") {
     const d = daysUntil(req.dueAt);
-    if (d !== null && d < 0) return "Prazo estourado";
+    if (d !== null && d < 0) return "Prazo vencido";
   }
   return req.status;
 }
@@ -668,7 +668,7 @@ export default function OrgAuditoriaPage() {
     (r) => effectiveStatus(r) === "Em análise",
   );
   const overdueRequests = requests.filter(
-    (r) => effectiveStatus(r) === "Prazo estourado",
+    (r) => effectiveStatus(r) === "Prazo vencido",
   );
   const pendingCount = openRequests.length + overdueRequests.length;
 
@@ -1783,7 +1783,7 @@ function RequestRow({
   onProcess: () => void;
 }) {
   const status = effectiveStatus(req);
-  const open = status === "Em análise" || status === "Prazo estourado";
+  const open = status === "Em análise" || status === "Prazo vencido";
   return (
     <li
       className={
@@ -1879,7 +1879,7 @@ function RequestStatusBadge({ status }: { status: DataRequestStatus }) {
         meta.badgeClass
       }
     >
-      {status === "Prazo estourado" && <Icon name="warning" size={12} />}
+      {status === "Prazo vencido" && <Icon name="warning" size={12} />}
       {status}
     </span>
   );
@@ -1970,8 +1970,8 @@ function RegisterRequestSheet({
       meta={
         !createdProtocol && (
           <span className="body-xs text-(--fg-tertiary)">
-            Logue um pedido que chegou por outro canal — ele entra na fila com
-            prazo de 15 dias.
+            Registre um pedido que chegou por outro canal — ele entra na fila
+            com prazo de 15 dias.
           </span>
         )
       }
