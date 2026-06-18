@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { AwAlert } from "@/components/ui/AwAlert";
-import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwAvatar, AwAvatarGroup } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
@@ -175,6 +175,15 @@ const MEMBERS = [
   { name: "Ana Cavalcante", role: "Gerente de Operações", email: "ana.cavalcante@fyntra.com", avatar: "/assets/ui-faces/female-2.jpg" },
   { name: "Carlos Lima", role: "Editor", email: "carlos.lima@fyntra.com", avatar: "/assets/ui-faces/male-7.jpg" },
   { name: "Mariana Castro", role: "Operadora", email: "mariana.castro@fyntra.com", avatar: "/assets/ui-faces/female-3.jpg" },
+];
+
+// Membros com o papel "Administradores" — usados como pilha de avatares em
+// "Quem recebe" das notificações obrigatórias. Reaproveita as faces reais.
+const ADMINS = [
+  { name: "Felipe Rezende", avatar: "/assets/ui-faces/male-2.jpg" },
+  { name: "Ana Cavalcante", avatar: "/assets/ui-faces/female-2.jpg" },
+  { name: "Carlos Lima", avatar: "/assets/ui-faces/male-7.jpg" },
+  { name: "Mariana Castro", avatar: "/assets/ui-faces/female-3.jpg" },
 ];
 
 const INVOICE_RECIPIENTS = [
@@ -514,13 +523,17 @@ function EventIcon({
   icon: string;
   channelGlyph?: "whatsapp";
 }) {
+  if (channelGlyph) {
+    // WhatsApp: green glyph on a white tile, ringed by the same green.
+    return (
+      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--aw-emerald-600) bg-(--bg-raised)">
+        <AwChannelIcon channel={channelGlyph} size={20} />
+      </span>
+    );
+  }
   return (
     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-      {channelGlyph ? (
-        <AwChannelIcon channel={channelGlyph} size={20} />
-      ) : (
-        <Icon name={icon} size={20} />
-      )}
+      <Icon name={icon} size={20} />
     </span>
   );
 }
@@ -580,50 +593,65 @@ function MandatoryRow({
   onEditRecipients: () => void;
   onEditPolicy: () => void;
 }) {
+  const showsAdminStack = recipient.roles.includes("Administradores");
   return (
     <li className="m-0 flex items-start gap-4 py-4">
       <EventIcon icon={event.icon} channelGlyph={event.channelGlyph} />
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {event.name}
-          </p>
-          <span className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-secondary)">
-            <Icon name="lock" size={12} />
-            Obrigatória
-          </span>
-          <CategoryPill category={event.category} />
+      <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
+        {/* Texto descritivo — esquerda */}
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="m-0 body-sm font-medium text-(--fg-primary)">
+              {event.name}
+            </p>
+            <span className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-secondary)">
+              <Icon name="lock" size={12} />
+              Obrigatória
+            </span>
+            <CategoryPill category={event.category} />
+          </div>
+          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
         </div>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
 
-        {/* Quem recebe — chips de funções + avatares de membros */}
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-          <span className="body-xs text-(--fg-tertiary)">Quem recebe:</span>
-          {recipient.roles.map((r) => (
-            <span
-              key={r}
-              className="inline-flex items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-raised) px-2 py-0.5 body-xs font-medium text-(--fg-secondary)"
+        {/* Quem recebe — pilha de avatares dos administradores, à direita */}
+        <div className="flex shrink-0 flex-col items-end gap-1">
+          <span className="inline-flex items-center gap-1 body-xs text-(--fg-tertiary)">
+            <Icon name="key" size={12} className="text-(--fg-tertiary)" />
+            Administradores
+          </span>
+          <div className="flex items-center gap-1.5">
+            {showsAdminStack && (
+              <AwAvatarGroup aria-label="Administradores que recebem esta notificação">
+                {ADMINS.map((a) => (
+                  <AwAvatar
+                    key={a.name}
+                    size="sm"
+                    src={a.avatar}
+                    alt={a.name}
+                    title={a.name}
+                    initials={initials(a.name)}
+                    className="ring-2 ring-(--bg-raised)"
+                  />
+                ))}
+              </AwAvatarGroup>
+            )}
+            {recipient.members.map((m) => (
+              <span
+                key={m}
+                className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) py-0.5 pl-0.5 pr-2 body-xs font-medium text-(--fg-secondary)"
+              >
+                <AwAvatar size="sm" alt={m} initials={initials(m)} className="h-4! w-4!" />
+                {m.split(" ")[0]}
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={onEditRecipients}
+              className="rounded-md px-1.5 py-0.5 body-xs font-medium text-(--accent-brand) underline-offset-2 transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:underline"
             >
-              <Icon name="key" size={12} className="text-(--fg-tertiary)" />
-              {r}
-            </span>
-          ))}
-          {recipient.members.map((m) => (
-            <span
-              key={m}
-              className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) py-0.5 pl-0.5 pr-2 body-xs font-medium text-(--fg-secondary)"
-            >
-              <AwAvatar size="sm" alt={m} initials={initials(m)} className="h-4! w-4!" />
-              {m.split(" ")[0]}
-            </span>
-          ))}
-          <button
-            type="button"
-            onClick={onEditRecipients}
-            className="rounded-md px-1.5 py-0.5 body-xs font-medium text-(--accent-brand) underline-offset-2 transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:underline"
-          >
-            Editar
-          </button>
+              Editar
+            </button>
+          </div>
         </div>
       </div>
       <div className="shrink-0">
