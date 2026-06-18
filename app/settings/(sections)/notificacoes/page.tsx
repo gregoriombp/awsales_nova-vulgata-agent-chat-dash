@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
@@ -285,6 +286,16 @@ export default function NotificationsSettingsPage() {
       <SettingsPageHeader
         title="Notificações"
         description="Escolha o que te interrompe e por onde recebe. A organização define o que é obrigatório e o padrão de cada evento — aqui você afina o que é opcional e os canais."
+        trailing={
+          <AwButton
+            asChild
+            size="sm"
+            variant="secondary"
+            iconLeft="notifications"
+          >
+            <Link href="/notifications">Ver notificações</Link>
+          </AwButton>
+        }
       />
 
       {/* Banner do modelo híbrido — eco enxuto do conceito da página de org,
