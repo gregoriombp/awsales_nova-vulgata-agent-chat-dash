@@ -448,6 +448,50 @@ const BRANDS: Record<string, Brand> = {
     bg: "#FFFFFF",
     iconSrc: `${ICONIFY_BASE}/trello.svg`,
   },
+  /* ------------------------------------------------------------------
+   * 2FA / autenticadores — citados na UI de segurança (perfil/senha,
+   * convite, login-auth). Authy é colorido; 1Password e Bitwarden vêm
+   * monocromáticos (simple-icons) em branco sobre o tile da marca.
+   * ------------------------------------------------------------------ */
+  authy: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/authy.svg` },
+  "1password": { bg: "#1868DB", markSrc: `${ICONIFY_BASE}/1password.svg` },
+  bitwarden: { bg: "#175DDC", markSrc: `${ICONIFY_BASE}/bitwarden.svg` },
+  /* ------------------------------------------------------------------
+   * Provedores de IA (além de claude / chatgpt / deepseek)
+   * ------------------------------------------------------------------ */
+  gemini: {
+    bg: "linear-gradient(135deg, #4285F4 0%, #9B72CB 50%, #D96570 100%)",
+    markSrc: `${ICONIFY_BASE}/gemini.svg`,
+  },
+  mistral: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/mistral.svg` },
+  perplexity: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/perplexity.svg` },
+  /* ------------------------------------------------------------------
+   * Canais e reuniões
+   * ------------------------------------------------------------------ */
+  telegram: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/telegram.svg` },
+  discord: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/discord.svg` },
+  teams: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/teams.svg` },
+  googlemeet: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/googlemeet.svg` },
+  /* ------------------------------------------------------------------
+   * CRM / suporte / automação
+   * ------------------------------------------------------------------ */
+  salesforce: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/salesforce.svg` },
+  zendesk: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/zendesk.svg` },
+  intercom: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/intercom.svg` },
+  zapier: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/zapier.svg` },
+  /* ------------------------------------------------------------------
+   * Fontes / produtividade (Memory Base) e identidade
+   * ------------------------------------------------------------------ */
+  github: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/github.svg` },
+  linear: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/linear.svg` },
+  airtable: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/airtable.svg` },
+  dropbox: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/dropbox.svg` },
+  apple: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/apple.svg` },
+  /* ------------------------------------------------------------------
+   * Pagamentos
+   * ------------------------------------------------------------------ */
+  paypal: { bg: "#FFFFFF", bordered: true, markSrc: `${ICONIFY_BASE}/paypal.svg` },
+  mercadopago: { bg: "#009EE3", markSrc: `${ICONIFY_BASE}/mercadopago.svg` },
 }
 
 export type AwBrandLogoSize = "sm" | "md" | "lg"
