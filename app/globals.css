@@ -1271,6 +1271,12 @@
   stroke-linejoin: round;
   stroke-dasharray: 1 1;
 }
+/* Gradient variant — <Icon name="agent" gradient />. Brand iridescent stroke
+ * (azul → lavanda → pêssego) instead of currentColor. The <linearGradient>
+ * ships inside the glyph SVG; this overrides the currentColor rule above. */
+.aw-agent-glyph.is-gradient path {
+  stroke: url(#aw-agent-gradient);
+}
 .aw-agent-glyph.is-animated path {
   animation: aw-agent-draw 2.6s var(--ease-in-out) infinite;
 }

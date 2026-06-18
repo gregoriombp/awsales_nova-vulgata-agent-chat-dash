@@ -10,6 +10,10 @@ export type IconProps = {
   /** Only the agent glyph (`name="agent"`) reads this — set `false` to render
    *  it as a still line (dense lists, perf-sensitive surfaces). Default `true`. */
   animated?: boolean
+  /** Only the agent glyph (`name="agent"`) reads this — set `true` to stroke
+   *  the gesture with the brand iridescent gradient (azul → lavanda → pêssego)
+   *  instead of `currentColor`. For heros / agent hero moments. Default `false`. */
+  gradient?: boolean
   className?: string
   style?: React.CSSProperties
 }
@@ -21,6 +25,7 @@ export function Icon({
   weight = 200,
   grade = 0,
   animated = true,
+  gradient = false,
   className,
   style,
 }: IconProps) {
@@ -32,6 +37,7 @@ export function Icon({
         size={size}
         weight={weight}
         animated={animated}
+        gradient={gradient}
         className={className}
         style={style}
       />
@@ -140,12 +146,14 @@ function AgentGlyph({
   size,
   weight,
   animated,
+  gradient,
   className,
   style,
 }: {
   size: number
   weight: NonNullable<IconProps["weight"]>
   animated: boolean
+  gradient: boolean
   className?: string
   style?: React.CSSProperties
 }) {
@@ -157,11 +165,26 @@ function AgentGlyph({
       className={
         "aw-icon aw-agent-glyph" +
         (animated ? " is-animated" : "") +
+        (gradient ? " is-gradient" : "") +
         (className ? " " + className : "")
       }
       style={{ width: size, height: size, ...style }}
     >
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        {gradient && (
+          <defs>
+            {/* Brand iridescent stroke — sky blue → lavender → peach. Colors are
+             *  existing ramp tokens (no new tokens; AGENTS.md → Tokens).
+             *  gradientUnits is objectBoundingBox (default) so this one shared
+             *  id maps to each glyph's own box — correct at every size. CSS in
+             *  globals.css points the stroke at it (`.is-gradient path`). */}
+            <linearGradient id="aw-agent-gradient" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" style={{ stopColor: "var(--aw-blue-500)" }} />
+              <stop offset="50%" style={{ stopColor: "var(--aw-purple-500)" }} />
+              <stop offset="100%" style={{ stopColor: "var(--aw-pink-400)" }} />
+            </linearGradient>
+          </defs>
+        )}
         <path d={AGENT_GESTURE_PATH} strokeWidth={strokeWidth} pathLength={1} />
       </svg>
     </span>
