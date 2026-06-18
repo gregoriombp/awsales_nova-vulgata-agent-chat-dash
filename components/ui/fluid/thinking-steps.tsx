@@ -162,7 +162,11 @@ function ThinkingStep({
             {/* Icon column with continuous connector line */}
             <div className="flex flex-col items-center shrink-0 w-[14px]">
               <div className="pt-0.5">
-                {showIcon && icon ? (
+                {isActive ? (
+                  // Em progresso → glyph animado do agente (a "linha"), nunca
+                  // estrela/dot. Padrão do produto: trabalho em curso = agente.
+                  <Icon name="agent" size={14} className="text-fg-primary" />
+                ) : showIcon && icon ? (
                   <Icon name={icon} size={14} className="text-fg-muted" />
                 ) : (
                   <div className="w-[14px] h-[14px] flex items-center justify-center">

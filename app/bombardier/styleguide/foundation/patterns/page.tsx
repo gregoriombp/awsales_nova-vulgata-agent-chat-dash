@@ -436,7 +436,7 @@ export default function PatternsPage() {
                 desc: "Live em Web e WhatsApp.",
               },
               {
-                icon: "auto_awesome",
+                icon: "agent",
                 iconColor: "var(--aw-blue-600)",
                 title: "6 respostas reescritas",
                 desc: (

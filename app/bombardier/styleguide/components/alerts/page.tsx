@@ -87,7 +87,7 @@ export default function AlertsPage() {
             label="Icon override"
             gridClassName="flex flex-col gap-3 max-w-[560px]"
           >
-            <AwAlert variant="info" icon="auto_awesome" title="Agente aprendendo.">
+            <AwAlert variant="info" icon="agent" title="Agente aprendendo.">
               31% das últimas conversas foram usadas para fine-tuning.
             </AwAlert>
             <AwAlert variant="warning" icon="bolt" title="Latência elevada.">

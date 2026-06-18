@@ -1129,7 +1129,7 @@ function MatrixRow({
                 variant === "ai" ||
                 variant === "ai-spectrum" ||
                 variant === "ai-outline"
-                  ? "auto_awesome"
+                  ? "agent"
                   : variant === "danger"
                     ? "delete"
                     : "add"
