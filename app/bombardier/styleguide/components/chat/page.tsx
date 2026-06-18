@@ -70,7 +70,7 @@ export default function ChatPage() {
         <Section
           id="actions"
           title="Ações da mensagem"
-          lead="Mensagens do agente expõem ações no hover: copiar, regenerar e feedback (👍/👎). O feedback alimenta o loop de aprendizado do Cortex e o thumb escolhido fica fixo. Ícones em fill."
+          lead="Mensagens do agente expõem ações no hover: copiar, regenerar e feedback (positivo / negativo). O feedback alimenta o loop de aprendizado do Cortex e o thumb escolhido fica fixo. Ícones em fill."
         >
           <Stage
             label="passe o mouse na bolha do agente"
