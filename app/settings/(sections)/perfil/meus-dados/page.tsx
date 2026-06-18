@@ -174,10 +174,10 @@ export default function MeusDadosPage() {
 
   // Anti-abuso: depois de pedir uma cópia, a próxima só libera 24h depois.
   // Guardamos o instante do último pedido; null = nunca pediu nesta sessão.
+  // `inCooldown` é estado (não derivado de Date.now() em render, que é função
+  // impura): o cooldown abre no momento do pedido e vale até o app recarregar.
   const [lastRequestedAt, setLastRequestedAt] = useState<number | null>(null);
-  const inCooldown =
-    lastRequestedAt !== null &&
-    Date.now() - lastRequestedAt < EXPORT_COOLDOWN_HOURS * 3_600_000;
+  const [inCooldown, setInCooldown] = useState(false);
 
   function openConfirm() {
     setMode("confirm");
@@ -218,6 +218,7 @@ export default function MeusDadosPage() {
         ...rs,
       ]);
       setLastRequestedAt(Date.now());
+      setInCooldown(true);
       setVerifying(false);
       setMode("done");
     }, 900);
