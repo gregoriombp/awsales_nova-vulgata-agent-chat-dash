@@ -1,3 +1,5 @@
+"use client"
+
 import { AwChatBubble } from "@/components/ui/AwChatBubble"
 import {
   PageHero,
@@ -61,6 +63,32 @@ export default function ChatPage() {
             </AwChatBubble>
             <AwChatBubble variant="agent" streaming avatar=".aw">
               Procurando padrões em 1.486 conversas
+            </AwChatBubble>
+          </Stage>
+        </Section>
+
+        <Section
+          id="actions"
+          title="Ações da mensagem"
+          lead="Mensagens do agente expõem ações no hover: copiar, regenerar e feedback (👍/👎). O feedback alimenta o loop de aprendizado do Cortex e o thumb escolhido fica fixo. Ícones em fill."
+        >
+          <Stage
+            label="passe o mouse na bolha do agente"
+            gridClassName="flex flex-col gap-4 max-w-[680px]"
+          >
+            <AwChatBubble
+              variant="agent"
+              timestamp="14:32"
+              avatar=".aw"
+              copyText="Detectei quatro conversas pendentes em SLA — quer que eu proponha um trigger de fallback?"
+              onRetry={() => {}}
+              onFeedback={() => {}}
+            >
+              Detectei quatro conversas pendentes em SLA — quer que eu proponha
+              um trigger de fallback?
+            </AwChatBubble>
+            <AwChatBubble variant="user" timestamp="14:33">
+              Sim, manda ver.
             </AwChatBubble>
           </Stage>
         </Section>
