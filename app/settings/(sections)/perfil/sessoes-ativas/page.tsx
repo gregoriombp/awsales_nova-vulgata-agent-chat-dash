@@ -291,7 +291,7 @@ export default function SessoesAtivasPage() {
                       className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
                       aria-label={`Ações da sessão ${s.browser}`}
                     >
-                      <Icon name="more_vert" size={20} />
+                      <Icon name="expand_more" size={20} />
                     </button>
                   }
                   items={[

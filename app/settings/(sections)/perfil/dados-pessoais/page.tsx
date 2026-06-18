@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwBeams } from "@/components/ui/AwBeams";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
@@ -190,13 +191,24 @@ export default function DadosPessoaisPage() {
         <div className="col-start-1 row-start-1 flex h-full flex-col items-center justify-between gap-6 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
           {/* Avatar + ações centralizados verticalmente no espaço disponível */}
           <div className="flex flex-1 flex-col items-center justify-center gap-4">
-            <AwAvatar
-              size="lg"
-              src={previewSrc ?? "/assets/users/greg.jpg"}
-              alt={fullName}
-              initials={initials(fullName)}
-              className="h-24! w-24!"
-            />
+            <div className="relative isolate flex items-center justify-center overflow-hidden rounded-2xl p-7">
+              <AwBeams
+                className="rounded-2xl"
+                backgroundColor="#0b1220"
+                lightColor="#5b8cff"
+                beamNumber={10}
+                speed={1.6}
+                noiseIntensity={1.4}
+                rotation={28}
+              />
+              <AwAvatar
+                size="lg"
+                src={previewSrc ?? "/assets/users/greg.jpg"}
+                alt={fullName}
+                initials={initials(fullName)}
+                className="relative z-10 h-24! w-24! ring-4 ring-(--bg-raised)"
+              />
+            </div>
             <div className="flex flex-col items-center gap-2">
               <AwButton
                 size="sm"
