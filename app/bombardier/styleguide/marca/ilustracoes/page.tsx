@@ -58,6 +58,15 @@ const FAMILY: {
   },
 ]
 
+/* Geometric-Strokes — o conjunto bruto importado do rebranding. */
+const STROKES: { name: AwBrandIllustrationName; label: string }[] = [
+  { name: "shape-01", label: "Shape 01" },
+  { name: "shape-02", label: "Shape 02" },
+  { name: "shape-03", label: "Shape 03" },
+  { name: "shape-04", label: "Shape 04" },
+  { name: "shape-05", label: "Shape 05" },
+]
+
 export default function IlustracoesPage() {
   return (
     <>
@@ -101,6 +110,32 @@ export default function IlustracoesPage() {
                   <p className="mb-0 mt-1.5 text-sm leading-relaxed text-(--fg-secondary)">
                     {item.meaning}
                   </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        {/* ── Geometric-Strokes ───────────────────────────────────────── */}
+        <Section
+          id="geometric-strokes"
+          title="Geometric-Strokes"
+          lead="O conjunto bruto de traços geométricos do rebranding (aswork-shape-01..05). Vetores reais em /public, pintados via CSS mask — themeáveis como as paramétricas. O traço já vem encorpado no arquivo, então strokeWidth não se aplica a estas."
+        >
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+            {STROKES.map((item) => (
+              <div
+                key={item.name}
+                className="overflow-hidden rounded-lg border border-(--border-subtle) bg-(--bg-raised)"
+              >
+                <div className="flex items-center justify-center bg-aw-gray-1200 p-8 text-aw-gray-25">
+                  <AwBrandIllustration name={item.name} size={140} />
+                </div>
+                <div className="flex items-center justify-between gap-2 p-3">
+                  <span className="text-sm font-medium">{item.label}</span>
+                  <code className="mono text-2xs text-(--fg-tertiary)">
+                    {item.name}
+                  </code>
                 </div>
               </div>
             ))}
@@ -154,8 +189,8 @@ export default function IlustracoesPage() {
           <ApiTable>
             <PropRow
               prop="name"
-              type={'"layers" | "ignition" | "constellation" | "orbit" | "field" | "ascent"'}
-              doc="Qual arte renderizar."
+              type={'"layers" | "ignition" | … | "ascent" | "shape-01" … "shape-05"'}
+              doc="Qual arte renderizar (paramétricas + Geometric-Strokes)."
             />
             <PropRow prop="size" type="number" def="240" doc="Lado do quadrado, em px." />
             <PropRow prop="strokeWidth" type="number" def="1.4" doc="Espessura do traço (viewBox 400)." />

@@ -20,6 +20,13 @@ export type AwBrandIllustrationName =
   | "orbit"
   | "field"
   | "ascent"
+  // Geometric-Strokes do rebranding — vetores reais em /public, renderizados
+  // via CSS mask para herdar currentColor (themeáveis como as paramétricas).
+  | "shape-01"
+  | "shape-02"
+  | "shape-03"
+  | "shape-04"
+  | "shape-05"
 
 export type AwBrandIllustrationProps = {
   name: AwBrandIllustrationName
@@ -111,6 +118,17 @@ const ASCENT_BARS = Array.from({ length: 14 }, (_, i) => {
   return { x, y1: 332, y2: 332 - h }
 })
 
+/* Geometric-Strokes importadas: o vetor mora em /public e é pintado via CSS
+ * mask, então a arte herda currentColor (claro/escuro) como as paramétricas.
+ * O traço já vem encorpado no arquivo; `strokeWidth` não se aplica a estas. */
+const STROKE_SHAPE_SRC: Partial<Record<AwBrandIllustrationName, string>> = {
+  "shape-01": "/assets/brand/illustrations/aswork-shape-01.svg",
+  "shape-02": "/assets/brand/illustrations/aswork-shape-02.svg",
+  "shape-03": "/assets/brand/illustrations/aswork-shape-03.svg",
+  "shape-04": "/assets/brand/illustrations/aswork-shape-04.svg",
+  "shape-05": "/assets/brand/illustrations/aswork-shape-05.svg",
+}
+
 export function AwBrandIllustration({
   name,
   size = 240,
@@ -118,6 +136,31 @@ export function AwBrandIllustration({
   className,
   title,
 }: AwBrandIllustrationProps) {
+  const strokeSrc = STROKE_SHAPE_SRC[name]
+  if (strokeSrc) {
+    return (
+      <span
+        role={title ? "img" : undefined}
+        aria-label={title}
+        aria-hidden={title ? undefined : true}
+        className={cn("inline-block shrink-0", className)}
+        style={{
+          width: size,
+          height: size,
+          backgroundColor: "currentColor",
+          WebkitMaskImage: `url("${strokeSrc}")`,
+          maskImage: `url("${strokeSrc}")`,
+          WebkitMaskRepeat: "no-repeat",
+          maskRepeat: "no-repeat",
+          WebkitMaskPosition: "center",
+          maskPosition: "center",
+          WebkitMaskSize: "contain",
+          maskSize: "contain",
+        }}
+      />
+    )
+  }
+
   return (
     <svg
       viewBox="0 0 400 400"
