@@ -4,6 +4,7 @@ import { useState } from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -388,9 +389,7 @@ export default function MeusDadosPage() {
                 <li key={r.id} className="m-0 px-6 py-4">
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex min-w-0 items-center gap-3">
-                      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
-                        <Icon name="folder_zip" size={18} />
-                      </span>
+                      <AwFileIcon type="zip" size="md" className="shrink-0" />
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <p className="m-0 body-sm font-medium text-(--fg-primary)">
@@ -481,7 +480,7 @@ export default function MeusDadosPage() {
 
       {/* Remover dados / conta */}
       <div className="mt-12">
-        <div className="flex items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-muted) px-6 py-5">
+        <div className="flex items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--aw-red-100) px-6 py-5">
           <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-raised) text-(--fg-secondary)">
             <Icon name="manage_accounts" size={18} />
           </span>
