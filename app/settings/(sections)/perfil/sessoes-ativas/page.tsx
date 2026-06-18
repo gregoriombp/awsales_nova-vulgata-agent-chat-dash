@@ -5,7 +5,6 @@ import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrowserIcon, getBrowserKey } from "@/components/ui/AwBrowserIcon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
@@ -247,27 +246,6 @@ export default function SessoesAtivasPage() {
                     <Meta icon="bolt" label={`Último uso ${s.lastUsed}`} />
                   </dl>
 
-                  <button
-                    type="button"
-                    onClick={() => toggleExpanded(s.id)}
-                    aria-expanded={isOpen}
-                    className="mt-3 inline-flex items-center gap-1 rounded-md body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:text-(--fg-primary)"
-                  >
-                    <Icon
-                      name="location_on"
-                      size={15}
-                      className="text-(--fg-tertiary)"
-                    />
-                    {isOpen ? "Ocultar local estimado" : "Ver local estimado"}
-                    <Icon
-                      name="expand_more"
-                      size={16}
-                      className={`transition-transform duration-aw-fast ${
-                        isOpen ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
-
                   {/* Sessão atual não tem 'Encerrar' — explica onde sair. */}
                   {s.current && (
                     <p className="m-0 mt-2.5 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
@@ -281,42 +259,38 @@ export default function SessoesAtivasPage() {
                   )}
                 </div>
 
-                {/* Menu suspenso */}
-                <AwDropdownMenu
-                  align="end"
-                  aria-label={`Ações da sessão ${s.browser}`}
-                  trigger={
+                {/* Ações: encerrar (logout) + ver mapa (chevron, 1 clique) */}
+                <div className="flex shrink-0 items-center gap-1">
+                  {!s.current && (
                     <button
                       type="button"
-                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-                      aria-label={`Ações da sessão ${s.browser}`}
+                      onClick={() => setTerminateTarget(s)}
+                      aria-label={`Encerrar sessão ${s.browser}`}
+                      title="Encerrar sessão"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)"
                     >
-                      <Icon name="expand_more" size={20} />
+                      <Icon name="logout" size={18} />
                     </button>
-                  }
-                  items={[
-                    {
-                      id: "location",
-                      label: isOpen
-                        ? "Ocultar local estimado"
-                        : "Ver local estimado",
-                      icon: "location_on",
-                      onSelect: () => toggleExpanded(s.id),
-                    },
-                    ...(s.current
-                      ? []
-                      : [
-                          { id: "sep", separator: true as const },
-                          {
-                            id: "terminate",
-                            label: "Encerrar sessão",
-                            icon: "logout",
-                            danger: true,
-                            onSelect: () => setTerminateTarget(s),
-                          },
-                        ]),
-                  ]}
-                />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => toggleExpanded(s.id)}
+                    aria-expanded={isOpen}
+                    aria-label={
+                      isOpen ? "Ocultar local estimado" : "Ver local estimado"
+                    }
+                    title={isOpen ? "Ocultar local estimado" : "Ver local estimado"}
+                    className="inline-flex h-8 w-8 items-center justify-center rounded-sm text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+                  >
+                    <Icon
+                      name="expand_more"
+                      size={20}
+                      className={`transition-transform duration-aw-fast ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Embed do mapa — revelado ao expandir */}
