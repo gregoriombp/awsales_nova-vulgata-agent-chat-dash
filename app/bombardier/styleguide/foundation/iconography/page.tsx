@@ -443,6 +443,54 @@ export default function IconographyPage() {
         </Section>
 
         <Section
+          id="agent-gradient"
+          title="O gesto em gradient"
+          lead={`Mesma marca, vestida com o gradient iridescente — azul → lavanda → pêssego — em vez do azul chapado. Para o herói do agente e momentos de destaque. Renderiza por <Icon name="agent" gradient /> e aceita size, weight e animação como a versão padrão. Use com parcimônia: a versão sólida é o default; o gradient é o acento.`}
+        >
+          <div className="flex flex-col gap-4">
+            <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap items-end gap-8">
+              {sizes.map((s) => (
+                <div key={s} className="flex flex-col items-center gap-2">
+                  <Icon name="agent" gradient size={s} />
+                  <span className="text-xs text-(--fg-tertiary)">{s}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex items-center justify-center gap-8">
+                <div className="flex flex-col items-center gap-3">
+                  <Icon
+                    name="agent"
+                    size={32}
+                    style={{ color: "var(--aw-blue-600)" }}
+                  />
+                  <span className="caption">Sólido — azul</span>
+                </div>
+                <Icon
+                  name="arrow_forward"
+                  size={20}
+                  className="text-(--fg-tertiary)"
+                />
+                <div className="flex flex-col items-center gap-3">
+                  <Icon name="agent" gradient size={32} />
+                  <span className="caption">Gradient — iridescente</span>
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-(--border-subtle) bg-(--bg-inverse) p-8 flex items-center justify-center gap-10">
+                <div className="flex flex-col items-center gap-3">
+                  <Icon name="agent" gradient size={32} />
+                  <span className="text-xs text-(--fg-on-inverse) opacity-70">
+                    sobre superfície escura
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <Section
           id="agent-studio"
           title="Glyph customizado — Agent Studio"
           lead={`Mark próprio da superfície do Agent Studio. Padrão radial de pontos com paleta greyscale fixa, desenhada à mão nos 6 tamanhos canônicos — 12px é monotonal pra preservar leitura, do 16 ao 28 ganha gradiente de 4 tons, e 32 adensa em pontos pretos uniformes pra firmar como mark de header. Renderiza via <Icon name="agent_studio" />, snap automático ao tamanho mais próximo. Cor é baked-in: não responde a currentColor, weight nem fill.`}
@@ -516,7 +564,10 @@ export default function IconographyPage() {
 <Icon name="agent" size={20} />
 
 // Sem animação (listas densas / superfície estática).
-<Icon name="agent" size={16} animated={false} />`}</CodeExample>
+<Icon name="agent" size={16} animated={false} />
+
+// Gradient iridescente (azul → lavanda → pêssego) — herói / destaque.
+<Icon name="agent" gradient size={32} />`}</CodeExample>
         </Section>
 
         <Section id="do-dont" title="Do / Don't">
