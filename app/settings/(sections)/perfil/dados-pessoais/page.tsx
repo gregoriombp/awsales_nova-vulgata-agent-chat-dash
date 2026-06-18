@@ -93,7 +93,7 @@ export default function DadosPessoaisPage() {
       </p>
 
       {/* Esquerda: foto de perfil · Direita: formulário de edição */}
-      <div className="mt-8 grid grid-cols-[300px_minmax(0,1fr)] items-start gap-8">
+      <div className="mt-8 grid grid-cols-[300px_minmax(0,1fr)] items-stretch gap-8">
         {/* Form — coluna direita */}
         <AwCard className="col-start-2 row-start-1 p-6!">
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
@@ -187,27 +187,31 @@ export default function DadosPessoaisPage() {
         </AwCard>
 
         {/* Foto de perfil — coluna esquerda */}
-        <div className="col-start-1 row-start-1 flex flex-col items-center gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
-          <AwAvatar
-            size="lg"
-            src={previewSrc ?? "/assets/users/greg.jpg"}
-            alt={fullName}
-            initials={initials(fullName)}
-            className="h-24! w-24!"
-          />
-          <div className="flex flex-col items-center gap-2">
-            <AwButton
-              size="sm"
-              variant="secondary"
-              iconLeft="photo_camera"
-              onClick={() => setPhotoOpen(true)}
-            >
-              Trocar foto
-            </AwButton>
-            <AwButton size="sm" variant="ghost" onClick={() => setPreviewSrc(null)}>
-              Remover
-            </AwButton>
+        <div className="col-start-1 row-start-1 flex h-full flex-col items-center justify-between gap-6 rounded-xl border border-(--border-subtle) bg-(--bg-raised) p-6">
+          {/* Avatar + ações centralizados verticalmente no espaço disponível */}
+          <div className="flex flex-1 flex-col items-center justify-center gap-4">
+            <AwAvatar
+              size="lg"
+              src={previewSrc ?? "/assets/users/greg.jpg"}
+              alt={fullName}
+              initials={initials(fullName)}
+              className="h-24! w-24!"
+            />
+            <div className="flex flex-col items-center gap-2">
+              <AwButton
+                size="sm"
+                variant="secondary"
+                iconLeft="photo_camera"
+                onClick={() => setPhotoOpen(true)}
+              >
+                Trocar foto
+              </AwButton>
+              <AwButton size="sm" variant="ghost" onClick={() => setPreviewSrc(null)}>
+                Remover
+              </AwButton>
+            </div>
           </div>
+          {/* Texto de apoio ancorado na base, alinhado ao rodapé do card de formulário */}
           <p className="m-0 text-center body-xs text-(--fg-tertiary)">
             PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
           </p>
