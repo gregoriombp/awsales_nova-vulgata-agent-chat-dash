@@ -12,6 +12,7 @@ import {
   AwEmptyMedia,
   AwEmptyTitle,
 } from "@/components/ui/AwEmpty";
+import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwTable } from "@/components/ui/AwTable";
@@ -308,34 +309,89 @@ function Toolbar({
   );
 }
 
-/* ---------- exportar CSV — aviso LGPD + entrega por e-mail ---------- */
+/* ---------- exportar — escolha de formato + aviso LGPD + entrega por e-mail ---------- */
 
 const EXPORT_RECIPIENT = "greg@awsales.io";
+
+type ExportFormat = "pdf" | "csv";
+
+const EXPORT_FORMAT_META: Record<
+  ExportFormat,
+  { label: string; ext: string }
+> = {
+  pdf: { label: "PDF", ext: "pdf" },
+  csv: { label: "CSV", ext: "csv" },
+};
+
+/** Dispara o download de um arquivo placeholder no formato escolhido — em
+ *  produção o backend serve o relatório real; aqui geramos um blob mínimo
+ *  só para o navegador efetivar o download automático. */
+function triggerExportDownload(format: ExportFormat) {
+  if (typeof window === "undefined") return;
+  const stamp = new Date().toISOString().slice(0, 10);
+  const filename = `auditoria-faturamento-${stamp}.${EXPORT_FORMAT_META[format].ext}`;
+  const blob = new Blob(
+    [`Relatório de auditoria de faturamento — ${stamp}`],
+    {
+      type: format === "pdf" ? "application/pdf" : "text/csv;charset=utf-8",
+    },
+  );
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 function ExportCsvButton() {
   const [open, setOpen] = React.useState(false);
   const [mode, setMode] = React.useState<"confirm" | "done">("confirm");
+  const [format, setFormat] = React.useState<ExportFormat>("pdf");
 
   const close = () => setOpen(false);
 
+  const pickFormat = (next: ExportFormat) => {
+    setFormat(next);
+    setMode("confirm");
+    setOpen(true);
+  };
+
+  const confirm = () => {
+    triggerExportDownload(format);
+    setMode("done");
+  };
+
+  const formatLabel = EXPORT_FORMAT_META[format].label;
+
   return (
     <>
-      <AwButton
-        size="md"
-        variant="ghost"
-        iconLeft="download"
-        onClick={() => {
-          setMode("confirm");
-          setOpen(true);
-        }}
-      >
-        Exportar CSV
-      </AwButton>
+      <AwDropdownMenu
+        align="end"
+        aria-label="Escolher formato de exportação"
+        trigger={
+          <AwButton size="md" variant="ghost" iconLeft="download" iconRight="expand_more">
+            Exportar
+          </AwButton>
+        }
+        items={(["pdf", "csv"] as ExportFormat[]).map((fmt) => ({
+          id: fmt,
+          label: (
+            <span className="inline-flex items-center gap-2.5">
+              <AwFileIcon type={fmt} size="sm" />
+              <span>{EXPORT_FORMAT_META[fmt].label}</span>
+            </span>
+          ),
+          onSelect: () => pickFormat(fmt),
+        }))}
+      />
 
       <AwModal
         open={open}
         onClose={close}
-        title={mode === "confirm" ? "Exportar histórico" : undefined}
+        title={mode === "confirm" ? `Exportar histórico em ${formatLabel}` : undefined}
         footer={
           mode === "confirm" ? (
             <>
@@ -346,9 +402,9 @@ function ExportCsvButton() {
                 size="sm"
                 variant="primary"
                 iconLeft="outgoing_mail"
-                onClick={() => setMode("done")}
+                onClick={confirm}
               >
-                Gerar relatório
+                Confirmar
               </AwButton>
             </>
           ) : (
@@ -360,9 +416,15 @@ function ExportCsvButton() {
       >
         {mode === "confirm" ? (
           <div className="flex flex-col gap-4">
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              O relatório reúne todos os eventos do histórico em um CSV,
-              respeitando os filtros aplicados.
+            <p className="m-0 inline-flex items-center gap-2.5 body-xs text-(--fg-secondary)">
+              <AwFileIcon type={format} size="sm" />
+              <span>
+                O relatório reúne todos os eventos do histórico em um{" "}
+                <strong className="font-medium text-(--fg-primary)">
+                  {formatLabel}
+                </strong>
+                , respeitando os filtros aplicados.
+              </span>
             </p>
 
             <div className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
@@ -385,11 +447,12 @@ function ExportCsvButton() {
             <p className="m-0 inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
               <Icon name="mail" size={14} className="text-(--fg-tertiary)" />
               <span>
-                O CSV é gerado em segundo plano e enviado para{" "}
+                O {formatLabel} é preparado em segundo plano e enviado para o
+                seu e-mail pessoal{" "}
                 <strong className="font-medium text-(--fg-primary)">
                   {EXPORT_RECIPIENT}
                 </strong>
-                {" "}— nada é baixado agora.
+                . O arquivo também começa a baixar automaticamente.
               </span>
             </p>
           </div>
@@ -398,13 +461,17 @@ function ExportCsvButton() {
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
               <Icon name="mark_email_read" size={26} />
             </span>
-            <h6 className="m-0 text-(--fg-primary)">Relatório em geração</h6>
-            <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
-              Em alguns minutos você recebe o CSV em{" "}
+            <h6 className="m-0 text-(--fg-primary)">Relatório em preparação</h6>
+            <p className="m-0 max-w-[380px] body-xs text-(--fg-secondary)">
+              Estamos preparando seu relatório em{" "}
+              <strong className="font-medium text-(--fg-primary)">
+                {formatLabel}
+              </strong>
+              {" "}e ele será enviado para o seu e-mail pessoal{" "}
               <strong className="font-medium text-(--fg-primary)">
                 {EXPORT_RECIPIENT}
               </strong>
-              . Pode fechar esta janela — o processo segue sozinho.
+              . O download no formato escolhido já começou automaticamente.
             </p>
           </div>
         )}
