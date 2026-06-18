@@ -85,7 +85,9 @@ export function AwInvoiceForecastCard({
     >
       <div className="flex min-w-0 flex-1 flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="aw-eyebrow text-(--fg-tertiary)">{eyebrow}</span>
+          <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
+            {eyebrow}
+          </span>
           {monitorLabel != null && (
             <AwPill variant="live">{monitorLabel}</AwPill>
           )}
