@@ -207,7 +207,7 @@ export default function SessoesAtivasPage() {
       )}
 
       {/* Cards — uma sessão por card, em duas colunas */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {sessions.map((s) => {
           const isOpen = !!expanded[s.id];
           const mapsSrc = `https://maps.google.com/maps?q=${encodeURIComponent(
@@ -237,7 +237,7 @@ export default function SessoesAtivasPage() {
                   </div>
 
                   {/* Metadados */}
-                  <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1">
+                  <dl className="mt-2 grid grid-cols-[auto_1fr_auto_1fr] gap-x-3 gap-y-1.5">
                     <Meta
                       icon={s.deviceType === "mobile" ? "smartphone" : "laptop"}
                       label={s.deviceType === "mobile" ? "Celular" : "Computador"}
