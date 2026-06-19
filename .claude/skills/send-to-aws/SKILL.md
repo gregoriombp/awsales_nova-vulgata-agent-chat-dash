@@ -1,6 +1,6 @@
 ---
 name: send-to-aws
-description: Publica o protótipo do Greg no design2 (repo da awsales/PG) via scripts/sync-design2.sh — barato em token, NÃO reanalisa o repo do PG. O território do PG já está fixo no script (PRESERVE_PATHS); tudo o que não é dele é do Greg e sobe, de forma ADITIVA (nunca apaga o que só o PG tem). Roda em commits atômicos numa branch nova e abre o PR. Use quando o usuário disser "/send-to-aws", "manda pro pg", "envia pro design2", "sincroniza com a awsales", "atualiza o repo do pg", "manda meu trabalho pro PG".
+description: Publishes Greg's prototype to design2 (the awsales/PG repo) via scripts/sync-design2.sh — token-cheap, does NOT re-analyze the PG repo. PG's territory is already fixed in the script (PRESERVE_PATHS); everything that isn't PG's belongs to Greg and gets pushed, ADDITIVELY (never deletes what only PG has). Runs as atomic commits on a new branch and opens the PR. Use when the user says "/send-to-aws", "manda pro pg" (send it to PG), "envia pro design2" (push to design2), "sincroniza com a awsales" (sync with awsales), "atualiza o repo do pg" (update the PG repo), or "manda meu trabalho pro PG" (send my work to PG).
 ---
 
 # /send-to-aws — manda o protótipo pro repo do PG (design2)

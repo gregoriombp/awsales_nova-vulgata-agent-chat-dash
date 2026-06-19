@@ -1,16 +1,19 @@
 ---
 name: bombardier-pg-merge-flow
 description: >
-  Mescla um `.awflow.json` (exportado do repo do PG) com um flow já
-  existente em `/bombardier/styleguide/ux-flows/[slug]`. Lê o arquivo,
-  compara com `NODES`/`EDGES` atuais da página, gera um diff legível,
-  analisa viabilidade UX de cada mudança, pede aprovação seletiva e
-  aplica. Sempre registra uma entrada em `updates[]` quando há mudança
-  estrutural. Use quando o usuário disser "mesclar flow do PG",
-  "atualizar flow com o .awflow", "aplicar mudanças do design no flow
-  X", "diff entre o flow local e o do PG", ou anexar um `.awflow.json`
-  cujo slug já existe em `ux-flows/`. NÃO use quando o flow ainda não
-  existe localmente — pra esse caso, use `bombardier-pg-create-flow`.
+  Merges a `.awflow.json` (exported from the PG repo) with a flow that
+  already exists at `/bombardier/styleguide/ux-flows/[slug]`. Reads the
+  file, compares it against the page's current `NODES`/`EDGES`, generates
+  a readable diff, analyzes the UX viability of each change, asks for
+  selective approval, and applies it. Always records an entry in
+  `updates[]` when there is a structural change. Use when the user says
+  "mesclar flow do PG" (merge the PG flow), "atualizar flow com o
+  .awflow" (update the flow with the .awflow), "aplicar mudanças do
+  design no flow X" (apply the design changes to flow X), "diff entre o
+  flow local e o do PG" (diff between the local flow and the PG one), or
+  attaches a `.awflow.json` whose slug already exists in `ux-flows/`. Do
+  NOT use when the flow does not yet exist locally — for that case, use
+  `bombardier-pg-create-flow`.
 ---
 
 # Bombardier PG — Merge `.awflow.json` into existing flow

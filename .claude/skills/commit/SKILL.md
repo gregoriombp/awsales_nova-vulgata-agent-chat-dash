@@ -1,6 +1,6 @@
 ---
 name: commit
-description: Mapeia as mudanças pendentes e cria commits atômicos locais — um commit por arquivo/área quando faz sentido, sem reescrever conteúdo dentro de arquivo pra fatiar mais. NÃO faz push nem abre PR a menos que o usuário peça. Acione sempre que o usuário digitar /commit.
+description: Maps the pending changes and creates local atomic commits — one commit per file/area when it makes sense, without rewriting content inside a file just to slice it further. Does NOT push and does NOT open a PR unless the user asks. Trigger whenever the user types /commit.
 ---
 
 # Commit atômico (local)

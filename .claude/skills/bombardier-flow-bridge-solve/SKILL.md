@@ -1,19 +1,19 @@
 ---
 name: bombardier-flow-bridge-solve
 description: >
-  Lê e aplica sugestões de edição de UX flow guardadas no flow-bridge
-  (`/bombardier/styleguide/ux-flows/<flow>`). Puxa do bridge com filtro
-  escolhido pelo usuário (todas, só de um flow, só abertas, ID específico,
-  etc.), faz UM PLANO ANTES de mexer em código, espera aprovação do
-  usuário, edita os `NODES`/`EDGES` canônicos da página do flow, e marca
-  cada sugestão como `in_review` no bridge com
-  `actor: { kind: "agent", id: "claude", name: "Claude" }` — o usuário
-  aprova (apply) ou rejeita pelo inbox da página. Use sempre que o
-  usuário pedir "/bombardier-flow-bridge-solve", "avalia a sugestão X do
-  flow Y", "aplica as sugestões abertas do login-auth", "pega as
-  sugestões de hoje e resolve", "olha o que tem no flow-bridge", ou
-  variações. Não usar pra subir o servidor — pra isso, ver
-  `bombardier-flow-bridge`.
+  Reads and applies UX flow edit suggestions stored in the flow-bridge
+  (`/bombardier/styleguide/ux-flows/<flow>`). Pulls from the bridge using a
+  filter chosen by the user (all of them, only one flow, only open ones, a
+  specific ID, etc.), makes ONE PLAN BEFORE touching any code, waits for the
+  user's approval, edits the canonical `NODES`/`EDGES` of the flow's page,
+  and marks each suggestion as `in_review` in the bridge with
+  `actor: { kind: "agent", id: "claude", name: "Claude" }` — the user then
+  approves (apply) or rejects it from the page's inbox. Use whenever the
+  user asks for "/bombardier-flow-bridge-solve", "avalia a sugestão X do
+  flow Y" (evaluate suggestion X of flow Y), "apply the open suggestions for
+  login-auth", "take today's suggestions and resolve them", "look at what's
+  in the flow-bridge", or variations. Do not use it to start the server —
+  for that, see `bombardier-flow-bridge`.
 ---
 
 # Bombardier Flow Bridge — Resolver sugestões em lote

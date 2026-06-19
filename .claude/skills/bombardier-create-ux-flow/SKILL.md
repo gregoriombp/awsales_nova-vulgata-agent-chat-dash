@@ -2,13 +2,14 @@
 name: bombardier-create-ux-flow
 description: >
   Builds a UX flow diagram page in the Bombardier styleguide
-  (/bombardier/styleguide/ux-flows/[name]) from a flow description, steps list,
-  or any written brief. Maps all screens, decision points, branches, and
-  convergences into a ReactFlow diagram using the established AwSales UX flow
-  format. Registers the new page in navigation.ts. Use when the user says
-  "criar flow", "mapear fluxo", "build ux flow", "criar diagrama de fluxo",
-  "montar fluxograma", or hands over a list of steps/screens asking for a
-  styleguide UX flow page.
+  (/bombardier/styleguide/ux-flows/[name]) from a flow description, a list of
+  steps, or any written brief. Maps every screen, decision point, branch, and
+  convergence into a ReactFlow diagram using the established AwSales UX flow
+  format. Registers the new page in navigation.ts. Use when the user asks to
+  "build a UX flow", "map a flow", "create a flow diagram", or "put together a
+  flowchart" (in Portuguese: "criar flow", "mapear fluxo", "criar diagrama de
+  fluxo", "montar fluxograma"), or hands over a list of steps/screens asking
+  for a styleguide UX flow page.
 ---
 
 # Bombardier — UX Flow

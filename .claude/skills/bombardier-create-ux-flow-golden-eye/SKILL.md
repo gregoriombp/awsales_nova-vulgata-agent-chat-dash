@@ -9,12 +9,13 @@ description: >
   and draws its band; clicking a card opens the real screen in a modal; Comentar
   mode posts notes to /api/flow-suggestions; plus fullscreen, draggable nodes,
   and the updates changelog. Modeled on the poc-visao-global page — self-contained
-  raw ReactFlow, NOT the shared <FlowDiagram>. Use when the user wants a
-  "visão global / compilada", a "golden eye", a flow that "engloba vários
-  cenários", overlays multiple journeys with lenses, or says "criar flow
-  golden-eye", "compilar cenários num flow", "merge de fluxos num grafo só",
-  "ux flow com lentes / foco por cenário", "visão de pássaro dos fluxos". For a
-  SINGLE linear journey, use bombardier-create-ux-flow instead.
+  raw ReactFlow, NOT the shared <FlowDiagram>. Use when the user wants a global or
+  compiled view ("visão global / compilada"), a "golden eye", a flow that
+  encompasses several scenarios ("engloba vários cenários"), an overlay of
+  multiple journeys with lenses, or says things like "criar flow golden-eye",
+  compile scenarios into one flow, merge several flows into a single graph, a
+  ux flow with lenses / per-scenario focus, or a bird's-eye view of the flows.
+  For a SINGLE linear journey, use bombardier-create-ux-flow instead.
 ---
 
 # Bombardier — UX Flow · Golden Eye (visão compilada multi-cenário)

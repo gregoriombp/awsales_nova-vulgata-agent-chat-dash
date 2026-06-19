@@ -1,14 +1,15 @@
 ---
 name: bombardier-flow-bridge
 description: >
-  [OBSOLETO] O editor de UX flows do styleguide virou serverless — as
-  sugestões agora vão pra uma rota same-origin (/api/flow-suggestions) que
-  grava em flow-bridge/data/suggestions.json, sem servidor separado, sem
-  token, sem env. Não há mais nada pra "subir". Use esta skill só quando o
-  usuário pedir "/bombardier-flow-bridge", "subir o flow-bridge", "ligar o
-  servidor de sugestões", "iniciar bridge dos flows", "/flow-bridge" — pra
-  explicar que não precisa mais e redirecionar. Pra aplicar sugestões em
-  lote, use `bombardier-flow-bridge-solve`.
+  [OBSOLETE] The styleguide UX flow editor went serverless — suggestions now
+  go to a same-origin route (/api/flow-suggestions) that writes to
+  flow-bridge/data/suggestions.json, with no separate server, no token, and no
+  env. There is nothing left to "start up". Use this skill only when the user
+  asks to "/bombardier-flow-bridge", "subir o flow-bridge" (start the
+  flow-bridge), "ligar o servidor de sugestões" (turn on the suggestions
+  server), start the flows bridge, or "/flow-bridge" — to explain it is no
+  longer needed and redirect them. To apply suggestions in bulk, use
+  `bombardier-flow-bridge-solve`.
 ---
 
 # Bombardier Flow Bridge — não precisa mais subir nada

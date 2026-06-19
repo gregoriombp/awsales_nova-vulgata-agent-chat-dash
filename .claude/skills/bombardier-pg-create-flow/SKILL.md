@@ -1,17 +1,18 @@
 ---
 name: bombardier-pg-create-flow
 description: >
-  Cria um UX flow NOVO no styleguide
-  (`/bombardier/styleguide/ux-flows/[slug]`) a partir de um arquivo
-  `.awflow.json` exportado do repo do PG (designer). Lê o arquivo (path
-  local ou conteúdo colado), parseia via `parseAwFlowFile`, mapeia pro
-  shape do `<FlowDiagram>` via `mapAwFlowToLocal`, pergunta os `href`
-  das telas (PG não tem essa info), scaffolda a página completa,
-  registra em `navigation.ts`. Use quando o usuário pedir "importar
-  flow do PG", "criar flow a partir do .awflow", "novo flow do design",
-  "scaffold do .awflow.json", ou anexar/apontar um arquivo
-  `.awflow.json` pra criar um flow inédito. NÃO use quando o slug já
-  existe em `ux-flows/` — pra esse caso, use
+  Creates a NEW UX flow in the styleguide
+  (`/bombardier/styleguide/ux-flows/[slug]`) from an `.awflow.json` file
+  exported from the PG (designer) repo. Reads the file (local path or
+  pasted content), parses it via `parseAwFlowFile`, maps it to the
+  `<FlowDiagram>` shape via `mapAwFlowToLocal`, asks for the screens'
+  `href` values (PG doesn't carry that info), scaffolds the full page,
+  and registers it in `navigation.ts`. Use when the user asks to
+  "importar flow do PG" (import a flow from PG), "criar flow a partir do
+  .awflow" (create a flow from the .awflow), "novo flow do design" (new
+  flow from design), "scaffold do .awflow.json", or attaches/points to
+  an `.awflow.json` file to create a brand-new flow. Do NOT use when the
+  slug already exists in `ux-flows/` — for that case, use
   `bombardier-pg-merge-flow`.
 ---
 

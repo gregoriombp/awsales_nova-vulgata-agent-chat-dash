@@ -1,20 +1,21 @@
 ---
 name: bombardier-review-bridge-solve
 description: >
-  Resolve em lote os comentários do Bombardier Review Mode. Lê do
-  review-bridge local com filtro escolhido pelo usuário (todos, só de
-  hoje, só abertos, de uma página específica, IDs explícitos, etc.),
-  faz UM PLANO ANTES de mexer em qualquer código, espera aprovação do
-  usuário, implementa as correções, e marca cada comentário como
-  `in_review` no bridge com `actor: { kind: "agent", id: "claude",
-  name: "Claude" }` — o usuário aprova/rejeita depois pelo inbox. Pode
-  também responder com pergunta (reply de agente) quando o comentário
-  for ambíguo. Use sempre que o usuário pedir
-  "/bombardier-review-bridge-solve", "resolve todos os comentários do
-  review", "pega os de hoje e resolve", "resolve os abertos em lote",
-  "resolva os comments do /pagina/x", "responder os comments do bridge",
-  ou variações. NÃO usar para subir o servidor — pra isso, ver
-  `bombardier-review-bridge`.
+  Resolves Bombardier Review Mode comments in bulk. Reads from the local
+  review-bridge using a filter chosen by the user (all of them, only
+  today's, only open ones, a specific page, explicit IDs, etc.), makes ONE
+  PLAN BEFORE touching any code, waits for the user's approval, implements
+  the fixes, and marks each comment as `in_review` in the bridge with
+  `actor: { kind: "agent", id: "claude", name: "Claude" }` — the user then
+  approves or rejects it afterward via the inbox. It can also respond with a
+  question (an agent reply) when a comment is ambiguous. Use whenever the
+  user asks for "/bombardier-review-bridge-solve", "resolve todos os
+  comentários do review" (resolve all the review comments), "pega os de hoje
+  e resolve" (take today's and resolve them), "resolve os abertos em lote"
+  (resolve the open ones in bulk), "resolva os comments do /pagina/x"
+  (resolve the comments on /page/x), "responder os comments do bridge"
+  (reply to the bridge comments), or variations. Do NOT use it to start the
+  server — for that, see `bombardier-review-bridge`.
 ---
 
 # Bombardier Review Bridge — Resolver em lote

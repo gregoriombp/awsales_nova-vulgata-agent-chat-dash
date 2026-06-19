@@ -6,12 +6,15 @@ description: >
   change to the ReactFlow diagram (new screen, new branch, removed node,
   rework) and adds an entry to that flow's `updates` array so the page shows
   an "Atualizado em" badge plus a "Histórico de atualizações" section. Use
-  when the user says "atualizar flow X", "registrar atualização no flow",
-  "adicionar página ao flow", "novo branch no flow", "mudou a dinâmica do
-  flow", "remover tela do flow", or hands over a meeting decision that
-  changes an existing flow. NOT for creating a new flow from scratch —
-  for that, use `bombardier-create-ux-flow`. NOT for tweaking copy or
-  styling of an existing flow page — that's a normal edit, no changelog.
+  when the user asks to "update flow X", "log an update on the flow", "add a
+  page to the flow", "new branch on the flow", says "the flow's dynamic
+  changed", "remove a screen from the flow" (in Portuguese: "atualizar flow
+  X", "registrar atualização no flow", "adicionar página ao flow", "novo
+  branch no flow", "mudou a dinâmica do flow", "remover tela do flow"), or
+  hands over a meeting decision that changes an existing flow. NOT for
+  creating a new flow from scratch — for that, use `bombardier-create-ux-flow`.
+  NOT for tweaking copy or styling of an existing flow page — that's a
+  normal edit, no changelog.
 ---
 
 # Bombardier — UX Flow Update Logger

@@ -1,14 +1,14 @@
 ---
 name: bombardier-review-bridge
 description: >
-  Diagnostica ou recupera manualmente o servidor local do Bombardier Review
-  Mode (review-bridge). O fluxo normal é `npm run dev`, que já prepara envs e
-  sobe o bridge. Use esta skill só quando o usuário pedir
-  "/bombardier-review-bridge", "subir o review-bridge", "iniciar bridge
-  de review", "ligar o servidor de comentários", "começar review com o
-  agente", "abrir review-bridge", "/review-bridge", ou similares.
-  Não usar para resolver comentários — pra isso, ver
-  `bombardier-review-bridge-solve`.
+  Diagnoses or manually recovers the local Bombardier Review Mode server
+  (review-bridge). The normal flow is `npm run dev`, which already prepares
+  the envs and brings the bridge up. Use this skill only when the user asks
+  to "/bombardier-review-bridge", start the review-bridge ("subir o
+  review-bridge"), spin up the review bridge, turn on the comments server
+  ("ligar o servidor de comentários"), start a review with the agent, open
+  the review-bridge, "/review-bridge", or similar. Do NOT use it to resolve
+  comments — for that, see `bombardier-review-bridge-solve`.
 ---
 
 # Bombardier Review Mode — Diagnosticar o Bridge

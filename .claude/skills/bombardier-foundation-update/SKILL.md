@@ -1,14 +1,14 @@
 ---
 name: bombardier-foundation-update
 description: >
-  Atualiza INCREMENTALMENTE os tokens de foundation do design system AwSales em
-  app/globals.css (cor, tipografia, spacing, radius, shadow, motion) — aditivo,
-  revisado, SEM rebootstrap e SEM reescrever o arquivo. Mantém os canais @theme
-  (utility) e :root (var) + dark em sincronia. Use quando o usuário pedir
-  "adicionar token", "estender a escala de tipo/spacing", "criar token pra X",
-  "tokenizar esses valores", "preencher os degraus que faltam", "atualizar a
-  foundation sem refazer o DS". NÃO é bootstrap a partir de referência visual —
-  pra isso use bombardier-design-system-foundation.
+  INCREMENTALLY updates the foundation tokens of the AwSales design system in
+  app/globals.css (color, typography, spacing, radius, shadow, motion) — additive,
+  reviewed, WITHOUT rebootstrapping and WITHOUT rewriting the file. Keeps the
+  @theme (utility) and :root (var) + dark channels in sync. Use when the user asks
+  to "add a token", extend the type/spacing scale, "create a token for X",
+  tokenize a set of values, fill in the missing steps of a scale, or update the
+  foundation without redoing the design system. This is NOT bootstrapping from a
+  visual reference — for that, use bombardier-design-system-foundation.
 ---
 
 # Bombardier — Foundation Update (incremental)

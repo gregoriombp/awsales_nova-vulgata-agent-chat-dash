@@ -1,21 +1,24 @@
 ---
 name: bombardier-project-build-solve
 description: >
-  Cumpre em lote os pedidos das ações por tela do workbench
-  `/bombardier/projects` — os botões "Atualizar pro design system"
-  (kind `restyle`) e "Construir no repo" (kind `build`) gravam pedidos
-  em `/api/project-builds` (store em `flow-bridge/data/project-builds.json`).
-  Esta skill lê os pedidos (com filtro), FAZ UM PLANO e espera aprovação,
-  então: pra `build`, reconstrói a tela como página real com componentes
-  Aw* e tokens atuais (apoiada em `bombardier-new-page`), usando
-  `get_design_context` do Figma como referência; pra `restyle`, produz um
-  preview no DS atual. Marca cada pedido `in_review`/`apply` com
-  `actor {kind:"agent",id:"claude",name:"Claude"}` + `builtRoute`, e
-  atualiza o manifest. Use quando o usuário pedir "resolve os builds dos
-  projetos", "constrói as telas pedidas", "aplica os pedidos do Memory
-  Base", "pega os pedidos de build e resolve". NÃO use pra importar
-  (isso é `bombardier-import-figma-flow`) nem pra sugestões de UX Flow
-  (isso é `bombardier-flow-bridge-solve`).
+  Fulfills, in bulk, the per-screen action requests from the
+  `/bombardier/projects` workbench — the "Atualizar pro design system"
+  button (kind `restyle`) and the "Construir no repo" button (kind
+  `build`) write requests to `/api/project-builds` (stored in
+  `flow-bridge/data/project-builds.json`). This skill reads the requests
+  (with a filter), MAKES A PLAN and waits for approval, then: for
+  `build`, rebuilds the screen as a real page using Aw* components and
+  current tokens (backed by `bombardier-new-page`), using Figma's
+  `get_design_context` as reference; for `restyle`, produces a preview in
+  the current DS. It stamps each request `in_review`/`apply` with
+  `actor {kind:"agent",id:"claude",name:"Claude"}` + `builtRoute`, and
+  updates the manifest. Use when the user asks to "resolve os builds dos
+  projetos" (resolve the project builds), "constrói as telas pedidas"
+  (build the requested screens), "aplica os pedidos do Memory Base"
+  (apply the Memory Base requests), or "pega os pedidos de build e
+  resolve" (take the build requests and resolve them). Do NOT use it for
+  importing (that is `bombardier-import-figma-flow`) nor for UX Flow
+  suggestions (that is `bombardier-flow-bridge-solve`).
 ---
 
 # Bombardier — Resolver pedidos de build/restyle dos projetos

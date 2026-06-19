@@ -1,18 +1,20 @@
 ---
 name: bombardier-import-figma-flow
 description: >
-  Importa um flow do Figma como um PROJETO navegável tela-a-tela em
-  `/bombardier/projects` — enumera os frames via Figma MCP, renderiza
-  cada tela como screenshot (.webp em /public), gera o manifest tipado
-  em `app/bombardier/projects/_data/projects.ts` e deixa o card
-  "Projetos" do hub ativo. As telas viram cards com os botões "Atualizar
-  pro design system" e "Construir no repo". Use quando o usuário pedir
-  "importar flow do Figma", "criar projeto a partir do Figma", "importar
-  Memory Base / Agent Studio", "trazer as telas do Figma pro repo", ou
-  colar uma URL do figma.com com a intenção de importar como projeto.
-  NÃO use pra `.awflow.json` → diagrama ReactFlow (isso é
-  `bombardier-pg-create-flow`): aqui a fonte é uma URL do Figma e a
-  saída são SCREENSHOTS-como-projeto, não um diagrama de nós.
+  Imports a Figma flow as a screen-by-screen navigable PROJECT under
+  `/bombardier/projects` — enumerates the frames via the Figma MCP,
+  renders each screen as a screenshot (.webp in /public), generates the
+  typed manifest in `app/bombardier/projects/_data/projects.ts`, and
+  activates the "Projetos" card on the hub. The screens become cards with
+  the "Atualizar pro design system" and "Construir no repo" buttons. Use
+  when the user asks to "importar flow do Figma" (import a Figma flow),
+  "criar projeto a partir do Figma" (create a project from Figma),
+  "importar Memory Base / Agent Studio", "trazer as telas do Figma pro
+  repo" (bring the Figma screens into the repo), or pastes a figma.com URL
+  with the intent of importing it as a project. Do NOT use for
+  `.awflow.json` → ReactFlow diagram (that is `bombardier-pg-create-flow`):
+  here the source is a Figma URL and the output is
+  SCREENSHOTS-as-a-project, not a node diagram.
 ---
 
 # Bombardier — Importar flow do Figma como projeto
