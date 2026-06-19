@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useMemo, useRef, useEffect } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
 
@@ -205,33 +205,59 @@ export function AwCortexSynthesis({
   hueSpeed = 0,
   backgroundColor = "#000000",
 }: AwCortexSynthesisProps) {
+  // Cada Canvas é um contexto WebGL, e o navegador só mantém ~16 vivos. Em
+  // páginas com muitos orbs (styleguide, listas) os mais antigos eram
+  // descartados e o preview ficava preto ("bugado"). Solução: só montar o
+  // Canvas quando o orb está perto da viewport — fora dela fica só o fundo,
+  // sem segurar contexto. Mantém a contagem de contextos ativos sob controle.
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") {
+      setInView(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      ([entry]) => setInView(entry.isIntersecting),
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
     <div
+      ref={ref}
       className={cn(
         "absolute inset-0 w-full h-full pointer-events-none overflow-hidden",
         className,
       )}
       style={{ backgroundColor, ...style }}
     >
-      <Canvas
-        camera={{ position: [0, 0, 1] }}
-        dpr={1}
-        gl={{ antialias: false, powerPreference: "high-performance" }}
-      >
-        <Effect
-          speed={speed}
-          color1={color1}
-          color2={color2}
-          color3={color3}
-          scale={scale}
-          complexity={complexity}
-          distortion={distortion}
-          glowIntensity={glowIntensity}
-          flowFrequency={flowFrequency}
-          contrast={contrast}
-          hueSpeed={hueSpeed}
-        />
-      </Canvas>
+      {inView && (
+        <Canvas
+          camera={{ position: [0, 0, 1] }}
+          dpr={1}
+          gl={{ antialias: false, powerPreference: "high-performance" }}
+        >
+          <Effect
+            speed={speed}
+            color1={color1}
+            color2={color2}
+            color3={color3}
+            scale={scale}
+            complexity={complexity}
+            distortion={distortion}
+            glowIntensity={glowIntensity}
+            flowFrequency={flowFrequency}
+            contrast={contrast}
+            hueSpeed={hueSpeed}
+          />
+        </Canvas>
+      )}
     </div>
   );
 }
