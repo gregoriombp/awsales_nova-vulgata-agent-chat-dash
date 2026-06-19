@@ -7,7 +7,7 @@ import * as React from "react"
  * sitting as a tiny chip on a neutral surface. Vendor color literals live
  * here intentionally; they are identity, not theme tokens.
  */
-type BrandMark = (props: { fg: string }) => React.ReactNode
+type BrandMark = (props: { fg: string; fill?: boolean }) => React.ReactNode
 
 type Brand = {
   /** CSS background — solid color, gradient, or any valid bg value. */
@@ -52,8 +52,8 @@ const BRANDS: Record<string, Brand> = {
     bg: "#FFFFFF",
     bordered: true,
     // Official 4-color Slack mark, drawn on its native 127×127 viewBox.
-    mark: () => (
-      <svg viewBox="0 0 127 127" width="60%" height="60%" aria-hidden="true">
+    mark: ({ fill }) => (
+      <svg viewBox="0 0 127 127" width={fill ? "100%" : "60%"} height={fill ? "100%" : "60%"} aria-hidden="true">
         <path fill="#E01E5A" d="M27.2 80c0 7.3-5.9 13.2-13.2 13.2C6.7 93.2.8 87.3.8 80c0-7.3 5.9-13.2 13.2-13.2h13.2V80z" />
         <path fill="#E01E5A" d="M33.8 80c0-7.3 5.9-13.2 13.2-13.2 7.3 0 13.2 5.9 13.2 13.2v33c0 7.3-5.9 13.2-13.2 13.2-7.3 0-13.2-5.9-13.2-13.2V80z" />
         <path fill="#36C5F0" d="M47 27.2c-7.3 0-13.2-5.9-13.2-13.2C33.8 6.7 39.7.8 47 .8c7.3 0 13.2 5.9 13.2 13.2v13.2H47z" />
@@ -595,7 +595,7 @@ export function AwBrandLogo({
       }}
     />
   ) : def?.mark ? (
-    def.mark({ fg })
+    def.mark({ fg, fill: markOnly })
   ) : (
     <span
       aria-hidden="true"
