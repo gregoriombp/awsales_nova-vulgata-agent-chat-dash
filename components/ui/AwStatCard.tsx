@@ -48,7 +48,7 @@ export const AwStatCard = React.forwardRef<HTMLDivElement, AwStatCardProps>(
         )}
         {...rest}
       >
-        <div className="flex items-center gap-2 text-(length:--body-xs-size) font-medium uppercase tracking-[0.04em] text-fg-tertiary">
+        <div className="flex items-center gap-2 text-(length:--body-xs-size) font-medium text-fg-secondary">
           {icon && <Icon name={icon} size={16} />}
           <span>{label}</span>
         </div>

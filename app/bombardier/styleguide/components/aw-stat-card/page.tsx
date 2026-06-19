@@ -28,26 +28,23 @@ export default function AwStatCardPlaygroundPage() {
           <Section
             id="default"
             title="Variante padrão"
-            lead="Tile neutro pra contagens, totais e estoques. Eyebrow upper-tracked, valor 28 px semibold, hint discreto abaixo."
+            lead="Tile neutro pra contagens, totais e estoques. Eyebrow em caixa normal, valor 28 px semibold, hint discreto abaixo."
           >
             <Stage
               label="3 stat cards lado a lado"
               gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"
             >
               <AwStatCard
-                icon="bolt"
                 label="Tools disponíveis"
                 value={42}
                 hint="38 ativas · 4 pausadas"
               />
               <AwStatCard
-                icon="extension"
                 label="Integrações conectadas"
                 value={6}
                 hint="38 tools nativas disponíveis"
               />
               <AwStatCard
-                icon="auto_awesome"
                 label="Tools personalizadas"
                 value={2}
                 hint="2 endpoints conectados"
@@ -66,14 +63,12 @@ export default function AwStatCardPlaygroundPage() {
             >
               <AwStatCard
                 variant="ai"
-                icon="psychology"
                 label="Decisões assistidas"
                 value="1.2k"
                 hint="últimas 24h · +18% vs ontem"
               />
               <AwStatCard
                 variant="ai"
-                icon="speed"
                 label="Tempo médio até resposta"
                 value="2.4 s"
                 hint="p95 · execuções via Claude"
@@ -90,13 +85,9 @@ export default function AwStatCardPlaygroundPage() {
               label="Só value + label"
               gridClassName="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"
             >
-              <AwStatCard icon="forum" label="Conversas hoje" value={284} />
-              <AwStatCard
-                icon="trending_up"
-                label="Conversão semanal"
-                value="12.6%"
-              />
-              <AwStatCard icon="schedule" label="Tempo médio" value="3m 12s" />
+              <AwStatCard label="Conversas hoje" value={284} />
+              <AwStatCard label="Conversão semanal" value="12.6%" />
+              <AwStatCard label="Tempo médio" value="3m 12s" />
             </Stage>
           </Section>
         </div>
