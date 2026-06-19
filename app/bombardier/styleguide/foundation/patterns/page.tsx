@@ -285,7 +285,7 @@ export default function PatternsPage() {
             <>Não usar “Você ainda não tem nada aqui” — fale sobre a coisa, não sobre a ausência.</>,
           ]}
         >
-          <AwCard className="max-w-[440px] mx-auto text-center bg-(--bg-inverse) border-transparent">
+          <AwCard className="max-w-[440px] mx-auto text-center bg-(--bg-inverse)! border-transparent">
             <div className="flex flex-col items-center gap-4 py-6">
               <div
                 className="w-14 h-14 rounded-full flex items-center justify-center"
@@ -305,7 +305,11 @@ export default function PatternsPage() {
                 </p>
               </div>
               <div className="flex gap-2">
-                <AwButton variant="secondary" size="sm">
+                <AwButton
+                  variant="secondary"
+                  size="sm"
+                  className="border-(--fg-on-inverse)/25! bg-transparent! text-(--fg-on-inverse)! hover:bg-(--fg-on-inverse)/10!"
+                >
                   Criar do zero
                 </AwButton>
                 <AwButton variant="ai" size="sm" iconLeft="agent">
