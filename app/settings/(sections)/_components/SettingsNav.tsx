@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { AwAvatar } from "@/components/ui/AwAvatar";
 import { Icon } from "@/components/ui/Icon";
 import {
   AwNavTree,
@@ -10,6 +11,15 @@ import {
   type AwNavTreeLinkProps,
 } from "@/components/ui/AwNavTree";
 import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
+
+/* Identidade da conta logada — mock estável (mesmas iniciais e foto que a
+ * página /settings/perfil usa). No futuro deve vir de um session provider. */
+const CURRENT_USER = {
+  name: "Gregório Pinheiro",
+  email: "greg@awsales.io",
+  initials: "GP",
+  avatar: "/assets/users/greg.jpg",
+};
 
 export type SettingsNavItem = {
   href: string;
@@ -25,8 +35,9 @@ export type SettingsNavItem = {
 
 export type SettingsNavGroup = {
   id: string;
-  /** Label do grupo (eyebrow). Para o grupo da organização, é o nome real da org. */
-  label: string;
+  /** Label do grupo (eyebrow). Aceita ReactNode pra cabeçalhos compostos
+   *  (nome + e-mail no grupo pessoal, por exemplo). */
+  label: React.ReactNode;
   /** Quando true, o cabeçalho mostra o logo da organização ao lado do nome. */
   org?: boolean;
   items: SettingsNavItem[];
@@ -40,7 +51,16 @@ export type SettingsNavGroup = {
 export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
   {
     id: "pessoal",
-    label: "Pessoal",
+    label: (
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate body-sm font-medium text-(--fg-primary)">
+          {CURRENT_USER.name}
+        </span>
+        <span className="truncate body-xs font-normal text-(--fg-tertiary)">
+          {CURRENT_USER.email}
+        </span>
+      </div>
+    ),
     items: [
       // Perfil não tem menu in-page → a visão geral fica como item e cada
       // sub-página vira um item próprio (sidebar plana, sem children).
@@ -201,6 +221,14 @@ export function SettingsNav() {
               style={{ objectFit: "cover" }}
             />
           </span>
+        ) : group.id === "pessoal" ? (
+          <AwAvatar
+            size="md"
+            src={CURRENT_USER.avatar}
+            alt={CURRENT_USER.name}
+            initials={CURRENT_USER.initials}
+            className="h-9! w-9! shrink-0"
+          />
         ) : undefined,
         items: group.items.map((item) => ({
           label: item.label,
