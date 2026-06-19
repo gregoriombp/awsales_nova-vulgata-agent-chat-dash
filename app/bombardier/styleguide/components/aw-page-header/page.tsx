@@ -1,4 +1,4 @@
-import { AwBreadcrumb } from "@/components/ui/AwBreadcrumb"
+import { AwBreadcrumbs } from "@/components/ui/AwBreadcrumbsBar"
 import { AwButton } from "@/components/ui/AwButton"
 import { AwInput } from "@/components/ui/AwInput"
 import { AwPageHeader } from "@/components/ui/AwPageHeader"
@@ -106,12 +106,16 @@ export default function PageHeaderPage() {
               <AwPageHeader
                 size="default"
                 eyebrow={
-                  <AwBreadcrumb
-                    items={[
-                      { label: "Canais", href: "/canais" },
-                      { label: "WhatsApp" },
-                    ]}
-                  />
+                  // Mesmo átomo de breadcrumb da interface (AwBreadcrumbs, com
+                  // chevron). normal-case desfaz o uppercase do slot eyebrow.
+                  <span className="normal-case tracking-normal">
+                    <AwBreadcrumbs
+                      items={[
+                        { label: "Canais", href: "/canais" },
+                        { label: "WhatsApp" },
+                      ]}
+                    />
+                  </span>
                 }
                 icon="chat"
                 title="WhatsApp"
