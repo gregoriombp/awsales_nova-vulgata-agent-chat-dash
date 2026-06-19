@@ -208,7 +208,7 @@ export function VariableSpendingBlock() {
     const othersCat: SpendingCategory = {
       id: "__others__",
       label: `Outros · ${rest.length}`,
-      colorVar: "var(--aw-gray-400)",
+      colorVar: "var(--aw-gray-200)",
     };
     return {
       categories: [...top.map((v) => v.cat), othersCat],
@@ -478,15 +478,17 @@ function RangeDayButton({
         inRange
           ? "bg-(--fg-primary) font-medium text-(--bg-raised) hover:bg-(--fg-primary)"
           : "bg-(--bg-muted) text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
-        // banda contínua: pontas arredondadas, miolo reto
+        // banda contínua: pontas arredondadas, miolo reto. Os -mx-px fecham
+        // o 1px de gap natural entre células do Calendar pra a banda não
+        // exibir riscos brancos entre o início, miolo e o fim do range.
         isSingle
           ? "rounded-md"
           : modifiers.range_start
-            ? "rounded-l-md rounded-r-none"
+            ? "-mr-px rounded-l-md rounded-r-none"
             : modifiers.range_end
               ? "-ml-px rounded-r-md rounded-l-none"
               : modifiers.range_middle
-                ? "-ml-px rounded-none"
+                ? "-mx-px rounded-none"
                 : "rounded-md",
         modifiers.today &&
           !inRange &&
@@ -1072,12 +1074,38 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
               </span>
             </td>
             <td>
-              <div className="flex min-w-[140px] max-w-[220px] items-center gap-2">
-                <AwProgress value={r.consumption} max={100} className="flex-1" />
-                <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
-                  {r.consumption}%
-                </span>
-              </div>
+              <TooltipProvider delayDuration={120}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex min-w-[140px] max-w-[220px] cursor-help items-center gap-2">
+                      <AwProgress
+                        value={r.consumption}
+                        max={100}
+                        className="flex-1"
+                      />
+                      <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
+                        {r.consumption}%
+                      </span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="top"
+                    className="border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+                  >
+                    <div className="flex flex-col gap-0.5">
+                      <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
+                        Consumo
+                      </span>
+                      <span className="body-sm tabular-nums text-(--fg-primary)">
+                        {brl(r.total)}{" "}
+                        <span className="text-(--fg-tertiary)">
+                          · {r.consumption}%
+                        </span>
+                      </span>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </td>
             <td>
               <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>

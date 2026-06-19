@@ -73,6 +73,7 @@ function ForecastBlock() {
 
   return (
     <AwInvoiceForecastCard
+      bare
       eyebrow={`Previsão da próxima fatura · ${CURRENT_INVOICE.dueAt}`}
       total={total}
       estimateNote={
@@ -108,7 +109,7 @@ function ConsumoVariavelCard() {
   const remaining = Math.max(limit - used, 0);
 
   return (
-    <AwCard className="flex flex-col gap-4 p-6!">
+    <AwCard className="flex flex-col gap-4 px-6! py-4!">
       <div className="flex items-baseline justify-between gap-3">
         <h6 className="m-0 body-lg font-medium text-(--fg-primary)">
           Consumo variável
@@ -130,7 +131,7 @@ function ConsumoVariavelCard() {
 
 function PlanoCard() {
   return (
-    <AwCard className="flex items-center gap-4 border-(--border-strong) p-6!">
+    <AwCard className="flex items-center gap-4 border-(--border-strong) px-6! py-4!">
       <span
         aria-hidden="true"
         className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
