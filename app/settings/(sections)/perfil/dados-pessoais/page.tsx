@@ -186,25 +186,28 @@ export default function DadosPessoaisPage() {
           </div>
         </AwCard>
 
-        {/* Foto de perfil — coluna esquerda */}
-        <div className="col-start-1 row-start-1 flex h-full flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--bg-raised)">
-          {/* Banner com o gradient mesh do brand (azul). O contraste fica seguro
-              porque só o avatar fica sobre ele — ações e legenda vão no claro. */}
+        {/* Foto de perfil — coluna esquerda. O gradient mesh do brand cobre o
+            card inteiro (altura toda); um scrim garante a leitura das ações. */}
+        <div className="relative col-start-1 row-start-1 flex h-full flex-col items-center overflow-hidden rounded-xl border border-(--border-subtle) p-6 text-center">
           <div
             aria-hidden="true"
-            className="h-28 w-full bg-cover bg-center"
+            className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage:
                 "url(/assets/brand/gradients/aswork-gradient-mesh-02.webp)",
             }}
           />
-          <div className="flex flex-1 flex-col items-center gap-4 px-6 pb-6">
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/35 to-black/65"
+          />
+          <div className="relative flex flex-1 flex-col items-center justify-center gap-4">
             <AwAvatar
               size="lg"
               src={previewSrc ?? "/assets/users/greg.jpg"}
               alt={fullName}
               initials={initials(fullName)}
-              className="-mt-12 h-24! w-24! ring-4 ring-(--bg-raised)"
+              className="h-24! w-24! ring-4 ring-white/85"
             />
             <div className="flex flex-col items-center gap-2">
               <AwButton
@@ -215,14 +218,18 @@ export default function DadosPessoaisPage() {
               >
                 Trocar foto
               </AwButton>
-              <AwButton size="sm" variant="ghost" onClick={() => setPreviewSrc(null)}>
+              <button
+                type="button"
+                onClick={() => setPreviewSrc(null)}
+                className="rounded-sm px-2 py-1 body-xs font-medium text-(--fg-on-inverse)/80 outline-hidden transition-colors duration-aw-fast hover:text-(--fg-on-inverse) focus-visible:ring-2 focus-visible:ring-white/70"
+              >
                 Remover
-              </AwButton>
+              </button>
             </div>
-            <p className="m-0 mt-auto text-center body-xs text-(--fg-tertiary)">
-              PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
-            </p>
           </div>
+          <p className="relative m-0 mt-4 text-center body-xs text-(--fg-on-inverse)/70">
+            PNG ou JPG, até 2 MB. Aparece no topo e nas conversas.
+          </p>
         </div>
       </div>
 
