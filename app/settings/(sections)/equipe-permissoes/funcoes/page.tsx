@@ -322,7 +322,7 @@ function RoleMembersModal({
         }
       >
         {role && !detailMember && (
-          <div>
+          <div key="members-list" className="aw-wizard-step">
             {members.length === 0 ? (
               <p className="m-0 body-xs text-(--fg-secondary)">
                 Nenhum membro com essa função ainda.
@@ -374,11 +374,13 @@ function RoleMembersModal({
         )}
 
         {role && detailMember && (
-          <MemberDetailPanel
-            member={detailMember}
-            onBack={() => setDetailId(null)}
-            onRemove={() => setPendingRemove(detailMember)}
-          />
+          <div key="member-detail" className="aw-wizard-step">
+            <MemberDetailPanel
+              member={detailMember}
+              onBack={() => setDetailId(null)}
+              onRemove={() => setPendingRemove(detailMember)}
+            />
+          </div>
         )}
       </AwModal>
 

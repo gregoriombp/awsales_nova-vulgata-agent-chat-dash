@@ -2485,9 +2485,17 @@
   padding: 24px;
   animation: aw-scrim-in 180ms var(--ease-out);
 }
+/* Saída suave: Radix mantém o scrim montado até a animação de [closed] terminar. */
+.aw-modal-scrim[data-state="closed"] {
+  animation: aw-scrim-out 150ms var(--ease-out) forwards;
+}
 @keyframes aw-scrim-in {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+@keyframes aw-scrim-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 .aw-modal {
   width: 100%;
@@ -2501,9 +2509,25 @@
   gap: 16px;
   animation: aw-modal-in 180ms var(--ease-out);
 }
+/* Fechar / Voltar / Cancelar deixam de ser abruptos — o conteúdo recua e some. */
+.aw-modal[data-state="closed"] {
+  animation: aw-modal-out 150ms var(--ease-out) forwards;
+}
 @keyframes aw-modal-in {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
   to { opacity: 1; transform: none; }
+}
+@keyframes aw-modal-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(6px) scale(0.985); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-modal,
+  .aw-modal[data-state="closed"],
+  .aw-modal-scrim,
+  .aw-modal-scrim[data-state="closed"] {
+    animation-duration: 1ms;
+  }
 }
 .aw-modal__head {
   display: flex;
