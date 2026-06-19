@@ -931,6 +931,22 @@
   }
 }
 
+/* Pop de confirmação — usado nos checks de sucesso (modais confirmatórios).
+ * Escala com um leve overshoot pra dar vida ao "deu certo". */
+@keyframes aw-success-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.aw-success-pop {
+  animation: aw-success-pop 360ms var(--ease-out) both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-success-pop {
+    animation: none;
+  }
+}
+
 /* Cada dot: pulsação suave (opacidade + escala) – efeito partículas */
 @keyframes memory-base-dot-pulse {
   0%, 100% {

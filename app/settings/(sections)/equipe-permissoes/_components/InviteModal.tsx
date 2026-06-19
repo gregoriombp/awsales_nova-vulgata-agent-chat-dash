@@ -214,8 +214,8 @@ export function InviteModal({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3 py-8 text-center">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-muted) text-(--accent-success)">
-            <Icon name="check" size={26} />
+          <span className="aw-success-pop flex h-12 w-12 items-center justify-center rounded-full bg-(--accent-success) text-(--fg-on-inverse)">
+            <Icon name="check" size={26} weight={600} />
           </span>
           <h6 className="m-0 text-(--fg-primary)">
             Convite{totalEmails === 1 ? " foi" : "s foram"} enviado
