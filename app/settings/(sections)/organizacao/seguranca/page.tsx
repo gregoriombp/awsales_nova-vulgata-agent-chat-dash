@@ -207,9 +207,12 @@ export default function OrgSegurancaPage() {
         />
         <AwCard className="p-0!">
           <div className="flex flex-wrap items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-              <Icon name="sync_alt" size={20} />
-            </span>
+            <AwBrandLogo
+              brand="googleworkspace"
+              size="md"
+              className="shrink-0"
+              aria-label="Google Workspace"
+            />
             <div className="min-w-0 flex-1">
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 {SCIM.directory} · SCIM 2.0
