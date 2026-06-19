@@ -2001,6 +2001,36 @@
 @media (prefers-reduced-motion: reduce) {
   .aw-gradient-iridescent-animated { animation: none; }
 }
+/* Spinner com gradiente da marca — o "spin" do estado active é, ele próprio,
+   um anel iridescente que gira (azul→lavanda→pêssego). Mask vira anel. */
+@keyframes aw-spin { to { transform: rotate(360deg); } }
+.aw-spinner-gradient { position: relative; }
+.aw-spinner-gradient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  padding: 2px;
+  background: conic-gradient(
+    from 0deg,
+    var(--aw-blue-500),
+    var(--aw-purple-500),
+    var(--aw-pink-400),
+    var(--aw-blue-500)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: aw-spin 0.9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-spinner-gradient::before { animation: none; }
+}
 /* Ai-cortex — silver mesh inspired by the Cortex marble cube.
    Cool slate base, brighter pocket on the left, darker pocket on the
    right where the dark CTA usually sits. Designed for the AI side of

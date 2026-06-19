@@ -72,7 +72,7 @@ export function AwAgentRunTrace({ steps, className }: AwAgentRunTraceProps) {
                 className={cn(
                   "grid size-7 shrink-0 place-items-center rounded-full",
                   status === "active"
-                    ? "aw-gradient-iridescent-animated text-(--aw-gray-1200)"
+                    ? "aw-spinner-gradient bg-(--bg-raised) text-(--fg-primary)"
                     : STATUS_NODE[status],
                 )}
               >
