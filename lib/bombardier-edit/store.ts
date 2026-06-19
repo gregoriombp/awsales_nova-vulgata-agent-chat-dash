@@ -101,6 +101,11 @@ type EditState = {
     prevToken?: string,
   ) => Promise<void>
   saveHide: (anchor: PageEditAnchor, mode: "hide" | "remove") => Promise<void>
+  saveVariant: (
+    anchor: PageEditAnchor,
+    payload: { axis: string; value: string; label?: string; remove: string[]; add: string },
+  ) => Promise<void>
+  saveIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => Promise<void>
 
   transition: (
     id: string,
@@ -179,6 +184,30 @@ export const useEditStore = create<EditState>()((set, get) => ({
       type: "hide",
       anchor,
       payload: { kind: "hide", mode },
+    })
+    await get().refresh()
+  },
+
+  saveVariant: async (anchor, payload) => {
+    const route = get().route
+    if (!route) return
+    await apiCreate({
+      route,
+      type: "variant",
+      anchor,
+      payload: { kind: "variant", ...payload },
+    })
+    await get().refresh()
+  },
+
+  saveIcon: async (anchor, name, prevName) => {
+    const route = get().route
+    if (!route) return
+    await apiCreate({
+      route,
+      type: "icon",
+      anchor,
+      payload: { kind: "icon", name, ...(prevName ? { prevName } : {}) },
     })
     await get().refresh()
   },

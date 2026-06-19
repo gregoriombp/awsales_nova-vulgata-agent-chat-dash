@@ -14,7 +14,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const STATUSES: PageEditStatus[] = ["open", "in_review", "applied", "discarded"];
-const TYPES: PageEditOpType[] = ["text", "style", "hide"];
+const TYPES: PageEditOpType[] = ["text", "style", "hide", "variant", "icon"];
 
 export async function GET(request: NextRequest) {
   const route = request.nextUrl.searchParams.get("route");

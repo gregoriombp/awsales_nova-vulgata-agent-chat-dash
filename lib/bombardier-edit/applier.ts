@@ -5,26 +5,37 @@ import { isAllowedStyle } from "./token-manifest"
 // The overlay APPLY engine. React owns textContent/style/className and reverts
 // any DOM mutation on its next render — so for every active op we (1) write the
 // desired state and (2) keep a per-op MutationObserver that re-writes it the
-// instant React (or anything else) clobbers it. Writes use disconnect → mutate
-// → reconnect so the observer never sees its own write (no loop).
+// instant React (or anything else) clobbers it.
 //
-// This runs whether or not Edit Mode is *active* — that's what makes saved
-// edits survive reload during normal viewing. It is purely client-side and is
-// only ever driven from the EditModeProvider's post-hydration effects.
+// Two invariants make this safe and cheap:
+//  • write() is a NO-OP when the DOM already matches the op (value guard). This
+//    is what prevents the sibling-observer ping-pong: several ops can target
+//    the same element (color + background + hide + variant), all observing the
+//    style/class attrs; an unchanged setProperty/classList still emits a
+//    mutation record, which would re-trigger the others' observers forever.
+//    Guarding on "already equal" breaks that loop.
+//  • when we DO mutate, we disconnect → mutate → reconnect so the op's own
+//    observer never sees its own write.
+//
+// Runs whether or not Edit Mode is active — that's what makes saved edits
+// survive reload during normal viewing. Purely client-side; only driven from
+// the EditModeProvider's post-hydration effects.
 
 const DISPLAY = "display"
+
+type PriorInline = { prop: string; value: string; priority: string }
 
 type Entry = {
   op: PageEditOp
   el: Element | null
   observer: MutationObserver | null
+  /** Inline value the page authored for the touched prop, captured before our
+   *  first write, restored verbatim on revert (so we don't strip page styles). */
+  prior?: PriorInline
 }
 
 export class OverlayApplier {
   private entries = new Map<string, Entry>()
-  // Selectors whose live re-apply is paused — e.g. while the user types into a
-  // contentEditable leaf, the observer must NOT rewrite their text to the old
-  // op value mid-keystroke.
   private suspended = new Set<string>()
 
   suspend(selector: string): void {
@@ -57,7 +68,7 @@ export class OverlayApplier {
     this.reapplyAll()
   }
 
-  /** Re-resolve every anchor and re-apply — call on layout/route changes. */
+  /** Re-resolve (lazily) and re-apply — call on layout/route changes. */
   reapplyAll(): void {
     if (typeof document === "undefined") return
     for (const entry of this.entries.values()) this.apply(entry)
@@ -68,9 +79,15 @@ export class OverlayApplier {
       this.detach(entry)
       return
     }
-    const el = resolveEditElement(entry.op.anchor)
+    // Reuse the cached element while it's still in the document — reflow keeps
+    // the node connected, so we avoid a full selector/fingerprint scan per op
+    // on every scroll frame. Only re-resolve when the node is gone (route
+    // change, React replaced it).
+    const el =
+      entry.el && entry.el.isConnected
+        ? entry.el
+        : resolveEditElement(entry.op.anchor)
     if (!el) {
-      // Not rendered yet, or route changed — release and retry next pass.
       this.detach(entry)
       entry.el = null
       return
@@ -78,6 +95,7 @@ export class OverlayApplier {
     if (entry.el !== el) {
       this.detach(entry)
       entry.el = el
+      entry.prior = undefined
     }
     this.write(entry)
     if (!entry.observer) {
@@ -90,7 +108,8 @@ export class OverlayApplier {
 
   private observe(entry: Entry): void {
     if (!entry.el || !entry.observer) return
-    if (entry.op.payload.kind === "text") {
+    const kind = entry.op.payload.kind
+    if (kind === "text" || kind === "icon") {
       entry.observer.observe(entry.el, {
         childList: true,
         characterData: true,
@@ -104,23 +123,60 @@ export class OverlayApplier {
     }
   }
 
-  // disconnect → mutate → reconnect: our own write is never observed.
+  private snapshot(entry: Entry, prop: string): void {
+    if (entry.prior) return
+    const html = entry.el as HTMLElement | null
+    if (!html) return
+    entry.prior = {
+      prop,
+      value: html.style.getPropertyValue(prop),
+      priority: html.style.getPropertyPriority(prop),
+    }
+  }
+
+  // No-op when the DOM already matches (value guard); otherwise
+  // disconnect → mutate → reconnect so we never observe our own write.
   private write(entry: Entry): void {
     const el = entry.el
     if (!el) return
+    const html = el as HTMLElement
+    const { payload } = entry.op
+
+    let mutate: (() => void) | null = null
+    if (payload.kind === "text") {
+      if (el.textContent !== payload.text) mutate = () => (el.textContent = payload.text)
+    } else if (payload.kind === "icon") {
+      if (el.textContent !== payload.name) mutate = () => (el.textContent = payload.name)
+    } else if (payload.kind === "style") {
+      if (
+        isAllowedStyle(payload.prop, payload.token) &&
+        html.style.getPropertyValue(payload.prop) !== payload.token
+      ) {
+        this.snapshot(entry, payload.prop)
+        mutate = () => html.style.setProperty(payload.prop, payload.token)
+      }
+    } else if (payload.kind === "hide") {
+      if (html.style.getPropertyValue(DISPLAY) !== "none") {
+        this.snapshot(entry, DISPLAY)
+        mutate = () => html.style.setProperty(DISPLAY, "none", "important")
+      }
+    } else if (payload.kind === "variant") {
+      const cl = html.classList
+      const needs =
+        (!!payload.add && !cl.contains(payload.add)) ||
+        payload.remove.some((c) => c !== payload.add && cl.contains(c))
+      if (needs)
+        mutate = () => {
+          for (const c of payload.remove) if (c !== payload.add) cl.remove(c)
+          if (payload.add) cl.add(payload.add)
+        }
+    }
+
+    if (!mutate) return
     const obs = entry.observer
     if (obs) obs.disconnect()
     try {
-      const { payload } = entry.op
-      if (payload.kind === "text") {
-        if (el.textContent !== payload.text) el.textContent = payload.text
-      } else if (payload.kind === "style") {
-        if (isAllowedStyle(payload.prop, payload.token)) {
-          ;(el as HTMLElement).style.setProperty(payload.prop, payload.token)
-        }
-      } else if (payload.kind === "hide") {
-        ;(el as HTMLElement).style.setProperty(DISPLAY, "none", "important")
-      }
+      mutate()
     } finally {
       if (obs) this.observe(entry)
     }
@@ -137,14 +193,25 @@ export class OverlayApplier {
     this.detach(entry)
     const el = entry.el ?? resolveEditElement(entry.op.anchor)
     if (!el) return
+    const html = el as HTMLElement
     const { payload } = entry.op
-    if (payload.kind === "style") {
-      ;(el as HTMLElement).style.removeProperty(payload.prop)
-    } else if (payload.kind === "hide") {
-      ;(el as HTMLElement).style.removeProperty(DISPLAY)
+    if (payload.kind === "style" || payload.kind === "hide") {
+      const prior = entry.prior
+      if (prior) {
+        if (prior.value) html.style.setProperty(prior.prop, prior.value, prior.priority)
+        else html.style.removeProperty(prior.prop)
+      } else {
+        html.style.removeProperty(payload.kind === "hide" ? DISPLAY : payload.prop)
+      }
     } else if (payload.kind === "text" && payload.prevText != null) {
       if (el.textContent !== payload.prevText) el.textContent = payload.prevText
+    } else if (payload.kind === "icon" && payload.prevName != null) {
+      if (el.textContent !== payload.prevName) el.textContent = payload.prevName
+    } else if (payload.kind === "variant") {
+      // Undo our class add; React restores the original variant on next render.
+      if (payload.add) html.classList.remove(payload.add)
     }
+    entry.prior = undefined
   }
 
   destroy(): void {

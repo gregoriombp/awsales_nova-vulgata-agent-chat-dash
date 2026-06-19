@@ -2,7 +2,7 @@
 // (app/api/page-edits/_store.ts) imports node:fs, so it can't be pulled into
 // client bundles — these types are the browser-safe twin, kept in sync by hand.
 
-export type PageEditOpType = "text" | "style" | "hide"
+export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon"
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded"
 
@@ -28,6 +28,17 @@ export type PageEditPayload =
   // token is always a `var(--token)` string so the override tracks dark mode.
   | { kind: "style"; prop: string; token: string; prevToken?: string }
   | { kind: "hide"; mode: "hide" | "remove" }
+  // variant/size swap on a class-based Aw* component (classList swap).
+  | {
+      kind: "variant"
+      axis: string
+      value: string
+      label?: string
+      remove: string[]
+      add: string
+    }
+  // Material Symbol ligature swap on an icon span.
+  | { kind: "icon"; name: string; prevName?: string }
 
 export interface PageEditOp {
   id: string

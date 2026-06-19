@@ -21,7 +21,7 @@ import { randomUUID } from "node:crypto";
  *    └──discard──► discarded (→ archive)
  */
 
-export type PageEditOpType = "text" | "style" | "hide";
+export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon";
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded";
 
@@ -47,7 +47,16 @@ export type PageEditPayload =
   | { kind: "text"; text: string; prevText?: string }
   // token is always a `var(--token)` string so the override tracks dark mode.
   | { kind: "style"; prop: string; token: string; prevToken?: string }
-  | { kind: "hide"; mode: "hide" | "remove" };
+  | { kind: "hide"; mode: "hide" | "remove" }
+  | {
+      kind: "variant";
+      axis: string;
+      value: string;
+      label?: string;
+      remove: string[];
+      add: string;
+    }
+  | { kind: "icon"; name: string; prevName?: string };
 
 export interface PageEditOp {
   id: string;
@@ -98,7 +107,27 @@ async function readDb(file: string, route: string): Promise<Db> {
 
 async function writeDb(file: string, db: Db): Promise<void> {
   await fs.mkdir(DATA_DIR, { recursive: true });
-  await fs.writeFile(file, JSON.stringify(db, null, 2), "utf8");
+  // Atomic: write to a temp file then rename, so a crash mid-write never
+  // leaves a truncated JSON (and concurrent readers see all-or-nothing).
+  const tmp = `${file}.tmp`;
+  await fs.writeFile(tmp, JSON.stringify(db, null, 2), "utf8");
+  await fs.rename(tmp, file);
+}
+
+// Serializa o read-modify-write por rota. É um único processo Node (o dev
+// server), mas a UI dispara POSTs em rajada (clicar vários swatches rápido) —
+// sem isso, dois read-modify-write concorrentes no mesmo arquivo perdem ops
+// (lost update). Encadeia as escritas da mesma rota; rotas diferentes não se
+// bloqueiam.
+const locks = new Map<string, Promise<unknown>>();
+function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = locks.get(key) ?? Promise.resolve();
+  const run = prev.then(fn, fn); // roda fn após o anterior assentar (ok ou erro)
+  locks.set(
+    key,
+    run.catch(() => {}),
+  );
+  return run;
 }
 
 function pad2(n: number): string {
@@ -122,12 +151,21 @@ function summarize(
     : `${verb} por ${actor.name} em ${stamp}.`;
 }
 
-/** Identidade estável de uma op: tipo + seletor do elemento. Editar o mesmo
- *  elemento+tipo de novo atualiza a op aberta em vez de empilhar — assim o
- *  overlay tem no máximo uma op aberta por (elemento, tipo) e o apply é
+/** Discriminador pra distinguir ops do mesmo tipo no mesmo elemento: a
+ *  propriedade (style) ou o eixo (variant). Sem isso, mudar `variante` e
+ *  `tamanho` (ambos type "variant") colidiriam no upsert. */
+function payloadDisc(payload: PageEditPayload): string {
+  if (payload.kind === "style") return payload.prop;
+  if (payload.kind === "variant") return payload.axis;
+  return "";
+}
+
+/** Identidade estável de uma op: tipo + seletor + discriminador. Editar a mesma
+ *  (elemento, tipo, disc) de novo atualiza a op aberta em vez de empilhar —
+ *  assim o overlay tem no máximo uma op aberta por chave e o apply é
  *  determinístico. */
-function opKey(type: PageEditOpType, selector: string): string {
-  return `${type}::${selector}`;
+function opKey(type: PageEditOpType, selector: string, disc: string): string {
+  return `${type}::${selector}::${disc}`;
 }
 
 export async function listOps(
@@ -147,14 +185,18 @@ export async function createOrUpdateOp(input: {
   payload: PageEditPayload;
   authorName?: string;
 }): Promise<PageEditOp> {
+  return withLock(input.route, async () => {
   const db = await readDb(mainFile(input.route), input.route);
   const now = Date.now();
-  const key = opKey(input.type, input.anchor.selector);
+  const key = opKey(input.type, input.anchor.selector, payloadDisc(input.payload));
 
-  // Upsert: replace a still-OPEN op on the same element+type; leave in_review/
-  // applied ops untouched (a fresh edit on a claimed element becomes a new op).
+  // Upsert: replace a still-OPEN op on the same element+type+disc; leave
+  // in_review/applied ops untouched (a fresh edit on a claimed element becomes
+  // a new op).
   const existing = db.ops.find(
-    (o) => o.status === "open" && opKey(o.type, o.anchor.selector) === key,
+    (o) =>
+      o.status === "open" &&
+      opKey(o.type, o.anchor.selector, payloadDisc(o.payload)) === key,
   );
   if (existing) {
     existing.anchor = input.anchor;
@@ -180,6 +222,7 @@ export async function createOrUpdateOp(input: {
   db.ops.push(op);
   await writeDb(mainFile(input.route), db);
   return op;
+  });
 }
 
 export async function transitionOp(
@@ -188,6 +231,7 @@ export async function transitionOp(
   transition: Transition,
   actor?: PageEditActor,
 ): Promise<PageEditOp | null> {
+  return withLock(route, async () => {
   const main = await readDb(mainFile(route), route);
   const idx = main.ops.findIndex((o) => o.id === id);
   if (idx === -1) return null;
@@ -230,9 +274,11 @@ export async function transitionOp(
   await writeDb(mainFile(route), main);
   await writeDb(archiveFile(route), archive);
   return op;
+  });
 }
 
 export async function deleteOp(route: string, id: string): Promise<boolean> {
+  return withLock(route, async () => {
   const main = await readDb(mainFile(route), route);
   const mainIdx = main.ops.findIndex((o) => o.id === id);
   if (mainIdx !== -1) {
@@ -248,4 +294,5 @@ export async function deleteOp(route: string, id: string): Promise<boolean> {
     return true;
   }
   return false;
+  });
 }
