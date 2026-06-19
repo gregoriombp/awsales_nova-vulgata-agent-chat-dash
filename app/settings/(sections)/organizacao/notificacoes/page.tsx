@@ -325,7 +325,7 @@ export default function OrgNotificacoesPage() {
       <section className="mt-12">
         <SectionHeading
           title="Canais permitidos"
-          description="O teto da entrega: a organização libera os caminhos, e cada pessoa escolhe entre os permitidos."
+          description="Os canais que a organização libera. Cada pessoa escolhe entre eles."
         />
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <ChannelTile
@@ -418,10 +418,12 @@ function SectionWithIcon({
   title: string;
   description: string;
 }) {
+  // Header da seção: tile dark com glifo fill, maior que os tiles dos
+  // sub-itens (40px → 44px) pra ficar claro que é o nó pai da hierarquia.
   return (
     <div className="mb-4 flex items-start gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
-        <Icon name={icon} size={18} />
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
+        <Icon name={icon} size={22} fill={1} />
       </span>
       <div className="min-w-0">
         <h6 className="m-0 mb-1 text-(--fg-primary)">{title}</h6>
@@ -452,9 +454,11 @@ function EventIcon({
       </span>
     );
   }
-  // Tile branco com stroke discreto — mesma língua dos avatares/logos da página.
+  // Tile branco com stroke quase imperceptível — Greg pediu cinza bem claro,
+  // então cai pra aw-gray-150 (#f9f9f9) ao invés do border-subtle (#f2f2f2)
+  // que estava marcando demais.
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--aw-gray-150) bg-(--bg-raised) text-(--fg-secondary)">
       <Icon name={icon} size={20} />
     </span>
   );
@@ -771,9 +775,9 @@ function RecipientsModal({
     >
       <div className="flex flex-col gap-5">
         <p className="m-0 body-xs text-(--fg-secondary)">
-          A notificação continua obrigatória para quem recebe — você muda o{" "}
-          <strong className="font-medium text-(--fg-primary)">para quem</strong>,
-          não o se.
+          A notificação continua obrigatória. Você muda{" "}
+          <strong className="font-medium text-(--fg-primary)">quem recebe</strong>,
+          não se recebe.
         </p>
 
         <div>
