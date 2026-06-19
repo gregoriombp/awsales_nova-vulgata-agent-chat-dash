@@ -317,14 +317,14 @@ const BRANDS: Record<string, Brand> = {
     ),
   },
   pipedrive: {
-    bg: "#26292C",
+    // Verde oficial Pipedrive + "P" de bojo circular, mais limpo e fiel à marca.
+    bg: "#017737",
     mark: ({ fg }) => (
-      <svg viewBox="0 0 24 24" width="58%" height="58%">
+      <svg viewBox="0 0 24 24" width="60%" height="60%" aria-hidden="true">
         <path
           fill={fg}
-          d="M9 4h4.5c2.7 0 4.5 1.7 4.5 4.5S16.2 13 13.5 13H11v7H9z"
+          d="M13.1 3.2c3.3 0 5.6 2.3 5.6 5.7 0 3.4-2.4 5.6-5.8 5.6-1.2 0-2.2-.3-2.9-.9V21H6.5V3.6h3.2l.1 1c.8-.9 2-1.4 3.3-1.4Zm-.7 8.6c1.8 0 3-1.2 3-3s-1.2-2.9-3-2.9-3 1.2-3 3 1.2 2.9 3 2.9Z"
         />
-        <path fill="#26292C" d="M11 6.5v4.5h2.3c1.2 0 1.9-.8 1.9-2.2S14.5 6.5 13.3 6.5z" />
       </svg>
     ),
   },

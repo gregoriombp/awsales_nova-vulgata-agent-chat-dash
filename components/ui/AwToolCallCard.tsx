@@ -60,12 +60,12 @@ function CodePanel({
 }) {
   const isText = typeof children === "string" || typeof children === "number"
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-3xs font-medium uppercase tracking-wide text-(--fg-tertiary)">
+    <div className="flex flex-col gap-1.5">
+      <span className="text-2xs font-medium text-(--fg-tertiary)">
         {label}
       </span>
       {isText ? (
-        <pre className="m-0 overflow-x-auto rounded-md bg-(--bg-muted) px-3 py-2 font-mono text-xs leading-relaxed text-(--fg-secondary)">
+        <pre className="m-0 overflow-x-auto rounded-lg border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5 font-mono text-xs leading-relaxed text-(--fg-secondary)">
           {children}
         </pre>
       ) : (
@@ -94,16 +94,23 @@ export function AwToolCallCard({
 
   const header = (
     <>
-      <span className="grid size-7 shrink-0 place-items-center rounded-md bg-(--bg-muted)">
+      <span
+        className={cn(
+          "grid size-8 shrink-0 place-items-center rounded-lg",
+          status === "error"
+            ? "bg-(--aw-red-200)/60 text-(--aw-red-700)"
+            : "bg-(--bg-muted) text-(--fg-secondary)",
+        )}
+      >
         {brand ? (
           <AwBrandLogo
             brand={brand}
             size="sm"
             bare
-            style={{ width: 20, height: 20, borderRadius: 5 }}
+            style={{ width: 22, height: 22, borderRadius: 6 }}
           />
         ) : (
-          <Icon name={icon} size={18} className="text-(--fg-secondary)" />
+          <Icon name={icon} size={18} fill={status === "error" ? 1 : 0} />
         )}
       </span>
       <span className="min-w-0 flex-1 truncate font-mono text-sm font-medium text-(--fg-primary)">
@@ -133,8 +140,11 @@ export function AwToolCallCard({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-lg border bg-(--bg-surface)",
-        status === "error" ? "border-(--accent-danger)" : "border-(--border-subtle)",
+        "overflow-hidden rounded-xl border transition-colors duration-aw-fast",
+        // Erro: fundo vermelho suave (sem o stroke vermelho agressivo).
+        status === "error"
+          ? "border-(--aw-red-200) bg-(--aw-red-100)"
+          : "border-(--border-subtle) bg-(--bg-raised) shadow-(--shadow-xs)",
         className,
       )}
     >
@@ -143,23 +153,33 @@ export function AwToolCallCard({
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left hover:bg-(--bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-brand)"
+          className={cn(
+            "flex w-full items-center gap-2.5 px-3.5 py-3 text-left transition-colors duration-aw-fast focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--accent-brand)",
+            status === "error"
+              ? "hover:bg-(--aw-red-200)/50"
+              : "hover:bg-(--bg-hover)",
+          )}
         >
           {header}
         </button>
       ) : (
-        <div className="flex w-full items-center gap-2.5 px-3 py-2.5">
+        <div className="flex w-full items-center gap-2.5 px-3.5 py-3">
           {header}
         </div>
       )}
 
       {hasBody && open && (
-        <div className="flex flex-col gap-3 border-t border-(--border-subtle) px-3 py-3">
+        <div
+          className={cn(
+            "flex flex-col gap-3 border-t px-3.5 py-3",
+            status === "error" ? "border-(--aw-red-200)" : "border-(--border-subtle)",
+          )}
+        >
           {input != null && <CodePanel label="Entrada">{input}</CodePanel>}
           {output != null && <CodePanel label="Saída">{output}</CodePanel>}
           {status === "error" && error && (
-            <div className="flex items-start gap-2 rounded-md bg-(--aw-red-100) px-3 py-2 text-xs text-(--aw-red-800)">
-              <Icon name="error" size={15} className="mt-px shrink-0" />
+            <div className="flex items-start gap-2 rounded-lg border border-(--aw-red-300) bg-(--aw-red-200)/60 px-3 py-2 text-xs font-medium text-(--aw-red-900)">
+              <Icon name="error" size={15} fill={1} className="mt-px shrink-0" />
               <span>{error}</span>
             </div>
           )}
