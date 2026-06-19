@@ -156,14 +156,12 @@ export const navigation: NavSection[] = [
           "AwWelcomeModal",
           "Contact channel modal",
           "AwContactChannelModal",
-          "AwAddIntegrationModal",
         ],
         children: [
           { name: "AwModal", href: "/bombardier/styleguide/components/modals#aw-modal" },
           { name: "Connect modal", href: "/bombardier/styleguide/components/connect-modal" },
           { name: "Contact channel modal", href: "/bombardier/styleguide/components/aw-contact-channel-modal" },
           { name: "Welcome modal", href: "/bombardier/styleguide/components/aw-welcome-modal" },
-          { name: "Add integration modal", href: "/bombardier/styleguide/components/integration-catalog" },
         ],
       },
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
@@ -187,7 +185,6 @@ export const navigation: NavSection[] = [
           "Painel lateral",
         ],
         children: [
-          { name: "AwSheet", href: "/bombardier/styleguide/components/sheet" },
           { name: "Template builder sheet", href: "/bombardier/styleguide/components/template-builder-sheet" },
         ],
       },
@@ -232,7 +229,11 @@ export const navigation: NavSection[] = [
     title: "Padrões",
     items: [
       { name: "Backup codes", href: "/bombardier/styleguide/components/aw-backup-codes" },
-      { name: "Integration catalog", href: "/bombardier/styleguide/components/integration-catalog" },
+      {
+        name: "Integration catalog",
+        href: "/bombardier/styleguide/components/integration-catalog",
+        aliases: ["AwIntegrationCatalog", "AwAddIntegrationModal", "Add integration modal", "catálogo de integrações"],
+      },
       { name: "Onboarding shell", href: "/bombardier/styleguide/components/aw-onboarding-shell" },
       { name: "Onboarding timeline", href: "/bombardier/styleguide/components/aw-onboarding-timeline" },
       { name: "Password setup", href: "/bombardier/styleguide/components/aw-password-setup" },
@@ -245,7 +246,9 @@ export const navigation: NavSection[] = [
     // Infra/layout intencionalmente NÃO listada aqui (não rende inline com
     // sentido): AwThemeProvider, AwDashboardLayout, AwSidebar. AwHeader e
     // AwNeuralPattern são internos — consumidos por AwDashboardLayout e
-    // AwOnboardingShell, sem showcase próprio de propósito.
+    // AwOnboardingShell, sem showcase próprio de propósito. AwBrowserIcon é
+    // um glifo-folha usado só em settings (sessões/acessos) — candidato a
+    // showcase junto de AwFileIcon/AwChannelIcon, ainda sem página própria.
     items: [
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
