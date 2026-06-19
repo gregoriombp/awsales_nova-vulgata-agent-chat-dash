@@ -14,7 +14,7 @@ import { Icon } from "./Icon"
  * tokens existentes — as tintas vêm das escalas --aw-{tone}-50/100/700.
  */
 
-export type AwStatTone = "blue" | "purple" | "amber" | "emerald" | "teal" | "red"
+export type AwStatTone = "blue" | "purple" | "amber" | "emerald" | "teal" | "red" | "neutral"
 
 export type AwStat = {
   /** Material Symbol (renderizado preenchido). */
@@ -67,6 +67,10 @@ const TONE: Record<AwStatTone, { cell: string; tile: string }> = {
   red: {
     cell: "bg-(--aw-red-100)",
     tile: "bg-(--aw-red-500) text-(--fg-on-inverse)",
+  },
+  neutral: {
+    cell: "bg-(--bg-raised) border border-(--border-subtle)",
+    tile: "bg-(--bg-muted) text-(--fg-secondary)",
   },
 }
 
