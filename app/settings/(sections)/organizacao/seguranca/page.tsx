@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwStatGroup } from "@/components/ui/AwStatGroup";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
@@ -22,8 +21,6 @@ import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 const SSO = {
   provider: "Google Workspace",
   protocol: "SAML 2.0",
-  domain: "fyntra.com",
-  verified: true,
 };
 
 const SCIM = {
@@ -33,17 +30,13 @@ const SCIM = {
   lastSync: "há 12 min",
 };
 
-// Cobertura de MFA — base para a barra visual.
-const MFA = {
-  viaSso: 23, // gerido pelo IdP
-  viaPassword: 12, // membros não-SSO
-  withoutMfa: 8, // não-SSO sem TOTP
-};
+// Quantas pessoas seriam impactadas ao tornar o 2FA obrigatório — usado no modal de confirmação.
+const MFA = { withoutMfa: 8 };
 
 const ACCESS = { people: 35, connections: 48, stale: 3 };
 
 const SESSION_IDLE = ["1h", "4h", "8h", "24h"];
-const SESSION_ABSOLUTE = ["8h", "12h", "24h", "7 dias"];
+const SESSION_ABSOLUTE = ["1h", "4h", "8h", "24h"];
 
 // "Sem expiração" é o padrão recomendado; os prazos só existem para casos
 // em que um contrato ou regulação exige troca periódica.
@@ -81,13 +74,13 @@ export default function OrgSegurancaPage() {
   const [socialMicrosoft, setSocialMicrosoft] = React.useState(false);
   const [rotation, setRotation] = React.useState("Sem expiração");
   const [idle, setIdle] = React.useState("8h");
-  const [absolute, setAbsolute] = React.useState("12h");
+  const [absolute, setAbsolute] = React.useState("8h");
 
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Segurança & acesso"
-        description={`Como as pessoas entram na ${ONBOARDING_ORG.name} e quem está com acesso. Vale só para esta organização.`}
+        description={`Como as pessoas entram na ${ONBOARDING_ORG.name} e quem tem acesso. Aplica-se apenas a esta organização.`}
       />
 
       {/* Postura — visão de status em um olhar */}
@@ -119,10 +112,10 @@ export default function OrgSegurancaPage() {
           title="Login único (SSO)"
           description="A organização entra por um provedor de identidade. A AwSales orquestra o WorkOS — a configuração do IdP acontece no portal."
         />
-        <AwCard className="p-0!">
-          <div className="flex flex-wrap items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
-            <AwBrandLogo brand="googleworkspace" size="md" className="shrink-0" />
-            <div className="min-w-0 flex-1">
+        <div className="grid grid-cols-1 items-start gap-x-12 gap-y-6 md:grid-cols-2">
+          <div className="flex flex-col items-start gap-3">
+            <AwBrandLogo brand="googleworkspace" size="lg" className="shrink-0" />
+            <div className="min-w-0">
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 {SSO.provider}
               </p>
@@ -130,73 +123,58 @@ export default function OrgSegurancaPage() {
                 {SSO.protocol} via WorkOS · conexão ativa
               </p>
             </div>
-            <StatusPill tone="ok">Conectado</StatusPill>
+            <div className="flex items-center gap-3">
+              <StatusPill tone="ok">Conectado</StatusPill>
+            </div>
             <AwButton size="sm" variant="secondary" iconRight="open_in_new">
               Abrir portal
             </AwButton>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 border-b border-(--border-subtle) px-6 py-4">
-            <span className="body-xs text-(--fg-tertiary)">Domínio verificado:</span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
-              <Icon name="check_circle" size={13} />
-              {SSO.domain}
-            </span>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 body-xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-            >
-              <Icon name="add" size={14} />
-              Adicionar domínio
-            </button>
+          <div className="flex items-start gap-4">
+            <div className="min-w-0 flex-1">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Exigir SSO nesta organização
+              </p>
+              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+                {ssoRequired
+                  ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
+                  : "Outros métodos de login (senha, magic link, social) seguem liberados."}
+              </p>
+            </div>
+            <AwToggle
+              checked={ssoRequired}
+              onChange={(v) => setSsoConfirm(v)}
+              label="Exigir SSO nesta organização"
+            />
           </div>
-
-          <ToggleLine
-            title="Exigir SSO nesta organização"
-            note={
-              ssoRequired
-                ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
-                : "Outros métodos de login (senha, magic link, social) seguem liberados."
-            }
-            checked={ssoRequired}
-            onChange={(v) => setSsoConfirm(v)}
-          />
-        </AwCard>
+        </div>
       </section>
 
       {/* Login social */}
       <section className="mt-12">
         <SectionHeading
           title="Login social"
-          description="Entrada por conta pessoal do Google ou da Microsoft. Não é o login único da empresa e não traz a equipe automaticamente."
+          description="Login pessoal do Google ou Microsoft. Não é o login único da empresa e não adiciona a equipe automaticamente. Enquanto o login único for necessário, o login social ficará desativado para a organização."
         />
-        <AwCard className="p-0!">
-          {ssoRequired && (
-            <div className="border-b border-(--border-subtle) px-6 pt-5">
-              <AwAlert variant="info" icon="shield_lock">
-                Enquanto o login único for exigido, o login social fica
-                desativado para toda a organização.
-              </AwAlert>
-            </div>
-          )}
+        <div className="flex flex-col divide-y divide-(--border-subtle)">
           <SocialLine
-            icon="g_translate"
+            brand="gmail"
             title="Google pessoal"
             note="Permite entrar com uma conta @gmail.com ou Google Workspace pessoal."
             checked={socialGoogle}
             onChange={setSocialGoogle}
             locked={ssoRequired}
           />
-          <div className="border-t border-(--border-subtle)" />
           <SocialLine
-            icon="window"
+            brand="microsoft"
             title="Microsoft pessoal"
             note="Permite entrar com uma conta Outlook, Live ou Microsoft 365 pessoal."
             checked={socialMicrosoft}
             onChange={setSocialMicrosoft}
             locked={ssoRequired}
           />
-        </AwCard>
+        </div>
       </section>
 
       {/* Provisionamento (SCIM) */}
@@ -205,8 +183,8 @@ export default function OrgSegurancaPage() {
           title="Provisionamento automático"
           description="Pessoas e grupos do diretório viram membros e funções aqui — sem convite nem desligamento manual."
         />
-        <AwCard className="p-0!">
-          <div className="flex flex-wrap items-center gap-4 border-b border-(--border-subtle) px-6 py-5">
+        <div className="flex flex-col">
+          <div className="flex flex-wrap items-center gap-4 py-4">
             <AwBrandLogo
               brand="googleworkspace"
               size="md"
@@ -214,14 +192,16 @@ export default function OrgSegurancaPage() {
               aria-label="Google Workspace"
             />
             <div className="min-w-0 flex-1">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                {SCIM.directory} · SCIM 2.0
-              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  {SCIM.directory} · SCIM 2.0
+                </p>
+                <StatusPill tone="ok">Conectado</StatusPill>
+              </div>
               <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                 {SCIM.users} pessoas · {SCIM.groups} grupos · sincronizado {SCIM.lastSync}
               </p>
             </div>
-            <StatusPill tone="ok">Conectado</StatusPill>
             <AwButton size="sm" variant="secondary" iconRight="open_in_new">
               Abrir portal
             </AwButton>
@@ -236,48 +216,21 @@ export default function OrgSegurancaPage() {
             checked={scimDeprovision}
             onChange={setScimDeprovision}
           />
-        </AwCard>
+        </div>
       </section>
 
       {/* MFA */}
       <section className="mt-12">
         <SectionHeading
-          title="Verificação em duas etapas"
-          description="Exija um segundo fator além da senha. Quem entra por SSO já tem o MFA do provedor — a política alcança só os outros."
+          title="Verificação em 2 etapas"
+          description="Exija um segundo fator além da senha. A política só se aplica a quem não entra por SSO."
         />
-        <AwCard className="p-0!">
-          {ssoRequired && (
-            <div className="border-b border-(--border-subtle) px-6 pt-5">
-              <AwAlert variant="info" icon="shield_lock">
-                Com o login único exigido, o segundo fator de quem entra pelo
-                provedor é gerido lá. Esta política alcança só as pessoas que
-                entram por senha.
-              </AwAlert>
-            </div>
-          )}
-          <ToggleLine
-            title="Obrigatória para toda a organização"
-            note={
-              mfaRequired
-                ? "Quem ainda não tem precisa configurar no próximo acesso."
-                : "Ainda não definida — cada pessoa decide."
-            }
-            checked={mfaRequired}
-            onChange={(v) => (v ? setMfaConfirm(true) : setMfaDisable(true))}
-          />
-          <div className="border-t border-(--border-subtle) px-6 py-5">
-            <p className="m-0 mb-2 body-xs text-(--fg-tertiary)">
-              Cobertura atual
-            </p>
-            <CoverageBar
-              segments={[
-                { value: MFA.viaSso, label: "Pelo provedor (SSO)", tone: "ok" },
-                { value: MFA.viaPassword, label: "Por senha + MFA", tone: "info" },
-                { value: MFA.withoutMfa, label: "Sem 2 etapas", tone: "warn" },
-              ]}
-            />
-          </div>
-        </AwCard>
+        <ToggleLine
+          title="Obrigatória para toda a organização"
+          note="Ao habilitar, usuários ativos serão desconectados e precisarão configurar um método de autenticação em 2 etapas."
+          checked={mfaRequired}
+          onChange={(v) => (v ? setMfaConfirm(true) : setMfaDisable(true))}
+        />
       </section>
 
       {/* Política de senha */}
@@ -286,39 +239,31 @@ export default function OrgSegurancaPage() {
           title="Política de senha"
           description="Reflete o que o login exige. Seguimos as diretrizes do NIST — sem complexidade artificial. A troca periódica fica desligada por padrão."
         />
-        <AwCard className="p-0!">
-          <SelectLine
-            title="Trocar a senha periodicamente"
-            note="O padrão NIST é não forçar troca. Ajuste só se um contrato ou regulação exigir."
-            value={rotation}
-            options={PASSWORD_ROTATION}
-            onChange={setRotation}
-          />
-          {rotation !== "Sem expiração" && (
-            <div className="border-t border-(--border-subtle) px-6 py-4">
-              <AwAlert variant="warning">
-                Forçar troca periódica costuma gerar senhas mais fracas e
-                repetidas. Mantenha &ldquo;Sem expiração&rdquo; a menos que uma
-                exigência externa peça o contrário.
-              </AwAlert>
-            </div>
-          )}
-          <div className="border-t border-(--border-subtle) grid grid-cols-1 gap-px bg-(--border-subtle) sm:grid-cols-2">
+        <SelectLine
+          title="Trocar a senha periodicamente"
+          note="O padrão NIST é não forçar troca. Ajuste só se um contrato ou regulação exigir."
+          value={rotation}
+          options={PASSWORD_ROTATION}
+          onChange={setRotation}
+        />
+
+        <div className="mt-10">
+          <h6 className="m-0 mb-3 text-(--fg-primary)">Recomendado</h6>
+          <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-12">
             {PASSWORD_RULES.map((r) => (
-              <div
-                key={r.label}
-                className="flex items-center gap-2.5 bg-(--bg-raised) px-6 py-4"
-              >
+              <div key={r.label} className="flex items-center gap-2">
                 <Icon
                   name={r.ok ? "check_circle" : "block"}
-                  size={18}
-                  className={r.ok ? "text-(--accent-success)" : "text-(--fg-tertiary)"}
+                  size={16}
+                  className={
+                    r.ok ? "text-(--accent-success)" : "text-(--fg-tertiary)"
+                  }
                 />
-                <span className="body-sm text-(--fg-primary)">{r.label}</span>
+                <span className="body-sm text-(--fg-secondary)">{r.label}</span>
               </div>
             ))}
           </div>
-        </AwCard>
+        </div>
       </section>
 
       {/* Sessão */}
@@ -327,76 +272,60 @@ export default function OrgSegurancaPage() {
           title="Sessão"
           description="Por quanto tempo uma pessoa fica conectada antes de precisar entrar de novo."
         />
-        <AwCard className="p-0!">
+        <div className="flex flex-col divide-y divide-(--border-subtle)">
           <SelectLine
             title="Inatividade"
-            note="Encerra após esse tempo parado."
+            note="Encerra a sessão se ficar parada por esse tempo."
             value={idle}
             options={SESSION_IDLE}
             onChange={setIdle}
           />
-          <div className="border-t border-(--border-subtle)" />
           <SelectLine
             title="Tempo máximo"
-            note="Encerra mesmo em uso após esse total."
+            note="Encerra a sessão após esse tempo, independente de atividade."
             value={absolute}
             options={SESSION_ABSOLUTE}
             onChange={setAbsolute}
           />
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 border-t border-(--border-subtle) px-6 py-3">
-            <Icon name="schedule" size={14} className="shrink-0 text-(--fg-tertiary)" />
-            <p className="m-0 body-xs text-(--fg-tertiary)">
-              Vale a partir do próximo acesso — as sessões abertas continuam até
-              expirar.
-            </p>
-            <AwButton asChild size="sm" variant="ghost" className="-my-1 h-auto px-1.5 py-0.5">
-              <Link href="/settings/organizacao/seguranca/acessos">
-                Encerrar agora
-              </Link>
-            </AwButton>
-          </div>
-        </AwCard>
+        </div>
       </section>
 
       {/* Acessos à organização */}
       <section className="mt-12">
-        <SectionHeading
+        <AwStatGroup
           title="Acessos à organização"
-          description="Quem está com acesso ativo a esta organização. Encerrar um acesso aqui não desconecta a pessoa de outras organizações."
+          description="Quem tem acesso ativo a esta organização. Encerrar um acesso aqui não afeta outras organizações."
           action={
-            <AwButton asChild size="sm" variant="secondary" iconRight="arrow_forward">
+            <AwButton asChild size="sm" variant="primary">
               <Link href="/settings/organizacao/seguranca/acessos">
-                Gerenciar acessos
+                Configurações
               </Link>
             </AwButton>
           }
+          stats={[
+            {
+              tone: "blue",
+              icon: "hub",
+              value: ACCESS.connections,
+              label: "Conexões ativas",
+              hint: "Sessões e apps conectados agora",
+            },
+            {
+              tone: "purple",
+              icon: "group",
+              value: ACCESS.people,
+              label: "Membros da Organização",
+              hint: "Pessoas com acesso ativo",
+            },
+            {
+              tone: "amber",
+              icon: "warning",
+              value: ACCESS.stale,
+              label: "Inativos",
+              hint: "Sem uso há 30+ dias",
+            },
+          ]}
         />
-        <div className="grid grid-cols-3 gap-3">
-          <AccessCard
-            tone="blue"
-            icon="hub"
-            visual="network"
-            value={ACCESS.connections}
-            label="Conexões ativas"
-            hint="Sessões e apps conectados agora"
-          />
-          <AccessCard
-            tone="slate"
-            icon="group"
-            visual="members"
-            value={ACCESS.people}
-            label="Membros na organização"
-            hint="Pessoas com acesso ativo"
-          />
-          <AccessCard
-            tone="amber"
-            icon="history"
-            visual="idle"
-            value={ACCESS.stale}
-            label="Sem uso há 30+ dias"
-            hint="Parados — vale revisar"
-          />
-        </div>
       </section>
 
       {/* Modal — confirmar MFA obrigatória */}
@@ -532,136 +461,6 @@ function PostureTile({
   );
 }
 
-/* Cartões de acesso — número grande + um grafismo representativo (não é dado:
- * é a ideia da métrica desenhada em line-art monocromático, no idioma das
- * AwBrandIllustration). Cada tom pinta o ícone e o grafismo via currentColor. */
-const ACCESS_TONES = {
-  blue: { ico: "text-(--aw-blue-600)", art: "text-(--aw-blue-500)" },
-  slate: { ico: "text-(--aw-slate-600)", art: "text-(--aw-slate-400)" },
-  amber: { ico: "text-(--aw-amber-700)", art: "text-(--aw-amber-500)" },
-} as const;
-
-function AccessCard({
-  tone,
-  icon,
-  label,
-  value,
-  hint,
-  visual,
-}: {
-  tone: keyof typeof ACCESS_TONES;
-  icon: string;
-  label: string;
-  value: number;
-  hint: string;
-  visual: AccessVisualKind;
-}) {
-  const t = ACCESS_TONES[tone];
-  return (
-    <div className="relative overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--bg-raised) p-5">
-      <AccessVisual
-        kind={visual}
-        className={cn("pointer-events-none absolute -right-2 -top-2 size-28", t.art)}
-      />
-      <div className="relative flex flex-col gap-2">
-        <div className="flex items-center gap-1.5">
-          <Icon name={icon} size={16} fill={1} className={t.ico} />
-          <span className="body-xs font-medium text-(--fg-secondary)">{label}</span>
-        </div>
-        <p className="m-0 text-3xl font-semibold leading-none tracking-tight tabular-nums text-(--fg-primary)">
-          {value}
-        </p>
-        <p className="m-0 body-xs text-(--fg-tertiary)">{hint}</p>
-      </div>
-    </div>
-  );
-}
-
-type AccessVisualKind = "network" | "members" | "idle";
-
-/* Grafismos representativos — monocromáticos (currentColor + opacidade pra
- * profundidade), o disco interno usa --bg-raised pra recortar limpo. */
-function AccessVisual({
-  kind,
-  className,
-}: {
-  kind: AccessVisualKind;
-  className?: string;
-}) {
-  return (
-    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true" className={className}>
-      {kind === "network" && (
-        <>
-          <g stroke="currentColor" strokeLinecap="round" opacity={0.3} strokeWidth={1.5}>
-            <line x1={26} y1={30} x2={56} y2={20} />
-            <line x1={56} y1={20} x2={78} y2={42} />
-            <line x1={78} y1={42} x2={52} y2={56} />
-            <line x1={56} y1={20} x2={52} y2={56} />
-            <line x1={26} y1={30} x2={52} y2={56} />
-            <line x1={52} y1={56} x2={26} y2={68} />
-            <line x1={52} y1={56} x2={72} y2={74} />
-          </g>
-          <g stroke="currentColor" opacity={0.25} strokeWidth={1.5}>
-            <circle cx={56} cy={20} r={8} />
-            <circle cx={52} cy={56} r={9} />
-          </g>
-          <g fill="currentColor">
-            <circle cx={26} cy={30} r={3.5} opacity={0.55} />
-            <circle cx={78} cy={42} r={3.5} opacity={0.55} />
-            <circle cx={26} cy={68} r={3.5} opacity={0.55} />
-            <circle cx={72} cy={74} r={3.5} opacity={0.55} />
-            <circle cx={56} cy={20} r={4.5} />
-            <circle cx={52} cy={56} r={5} />
-          </g>
-        </>
-      )}
-
-      {kind === "members" && (
-        <>
-          <g fill="currentColor">
-            <circle cx={72} cy={46} r={13} opacity={0.25} />
-            <circle cx={34} cy={50} r={13} opacity={0.25} />
-          </g>
-          <circle cx={53} cy={50} r={19} fill="var(--bg-raised)" />
-          <g fill="currentColor">
-            <circle cx={53} cy={45} r={6.5} />
-            <path d="M40 66 a13 13 0 0 1 26 0 Z" />
-          </g>
-        </>
-      )}
-
-      {kind === "idle" && (
-        <>
-          <g fill="currentColor">
-            <circle cx={80} cy={26} r={2.6} opacity={0.4} />
-            <circle cx={90} cy={18} r={1.9} opacity={0.25} />
-            <circle cx={97} cy={12} r={1.3} opacity={0.15} />
-          </g>
-          <circle
-            cx={48}
-            cy={52}
-            r={22}
-            fill="var(--bg-raised)"
-            stroke="currentColor"
-            strokeWidth={2}
-          />
-          <g stroke="currentColor" strokeLinecap="round" opacity={0.45} strokeWidth={2}>
-            <line x1={48} y1={32} x2={48} y2={36} />
-            <line x1={68} y1={52} x2={64} y2={52} />
-            <line x1={48} y1={72} x2={48} y2={68} />
-            <line x1={28} y1={52} x2={32} y2={52} />
-          </g>
-          <g stroke="currentColor" strokeLinecap="round" strokeWidth={2.4}>
-            <line x1={48} y1={52} x2={48} y2={38} />
-            <line x1={48} y1={52} x2={59} y2={56} />
-          </g>
-          <circle cx={48} cy={52} r={2.2} fill="currentColor" />
-        </>
-      )}
-    </svg>
-  );
-}
-
 function StatusPill({
   tone,
   children,
@@ -702,7 +501,7 @@ function ToggleLine({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 px-6 py-4">
+    <div className="flex items-center gap-4 py-4">
       <div className="min-w-0 flex-1">
         <p className="m-0 body-sm font-medium text-(--fg-primary)">{title}</p>
         <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
@@ -715,6 +514,7 @@ function ToggleLine({
 }
 
 function SocialLine({
+  brand,
   icon,
   title,
   note,
@@ -722,7 +522,8 @@ function SocialLine({
   onChange,
   locked,
 }: {
-  icon: string;
+  brand?: string;
+  icon?: string;
   title: string;
   note: string;
   checked: boolean;
@@ -730,10 +531,14 @@ function SocialLine({
   locked?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-4 px-6 py-4">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-        <Icon name={icon} size={18} />
-      </span>
+    <div className="flex items-center gap-4 py-4">
+      {brand ? (
+        <AwBrandLogo brand={brand} size="sm" className="shrink-0" />
+      ) : (
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+          <Icon name={icon ?? "language"} size={18} />
+        </span>
+      )}
       <div className="min-w-0 flex-1">
         <p className="m-0 body-sm font-medium text-(--fg-primary)">{title}</p>
         <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
@@ -926,7 +731,7 @@ function SelectLine({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-4 px-6 py-4">
+    <div className="flex items-center gap-4 py-4">
       <div className="min-w-0 flex-1">
         <p className="m-0 body-sm font-medium text-(--fg-primary)">{title}</p>
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{note}</p>
@@ -956,40 +761,3 @@ function SelectLine({
   );
 }
 
-const SEGMENT_TONES = {
-  ok: { bar: "bg-(--accent-success)", dot: "bg-(--accent-success)" },
-  info: { bar: "bg-(--accent-brand)", dot: "bg-(--accent-brand)" },
-  warn: { bar: "bg-(--aw-amber-500)", dot: "bg-(--aw-amber-500)" },
-} as const;
-
-function CoverageBar({
-  segments,
-}: {
-  segments: { value: number; label: string; tone: keyof typeof SEGMENT_TONES }[];
-}) {
-  const total = segments.reduce((s, seg) => s + seg.value, 0) || 1;
-  return (
-    <div className="flex flex-col gap-3">
-      <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-(--bg-muted)">
-        {segments.map((seg) => (
-          <span
-            key={seg.label}
-            className={SEGMENT_TONES[seg.tone].bar}
-            style={{ width: `${(seg.value / total) * 100}%` }}
-          />
-        ))}
-      </div>
-      <div className="flex flex-wrap gap-x-5 gap-y-1.5">
-        {segments.map((seg) => (
-          <span key={seg.label} className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-            <span aria-hidden="true" className={cn("h-2 w-2 rounded-full", SEGMENT_TONES[seg.tone].dot)} />
-            <strong className="font-medium tabular-nums text-(--fg-primary)">
-              {seg.value}
-            </strong>
-            {seg.label}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
