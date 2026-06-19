@@ -1,0 +1,446 @@
+"use client"
+
+import * as React from "react"
+import { usePathname } from "next/navigation"
+import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
+import { useReviewStore } from "@/lib/bombardier-review/store"
+import { useEditStore } from "@/lib/bombardier-edit/store"
+import { OverlayApplier } from "@/lib/bombardier-edit/applier"
+import {
+  captureEditAnchor,
+  findEditableTextLeaf,
+  resolveEditElement,
+} from "@/lib/bombardier-edit/anchor"
+import {
+  elementBelowOverlayAt,
+  useCumulativeScrollOffset,
+  useLayoutVersion,
+} from "@/lib/bombardier-review/scrollOffset"
+import type { PageEditAnchor, PageEditOp } from "@/lib/bombardier-edit/types"
+import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
+import { EditToolbar } from "./EditToolbar"
+import { EditInspector } from "./EditInspector"
+import { EditInbox } from "./EditInbox"
+
+type Editing = {
+  el: Element
+  anchor: PageEditAnchor
+  prevText: string
+  cleanup: () => void
+}
+
+/**
+ * Live Edit Mode. ALWAYS mounted: the apply half (OverlayApplier) re-applies
+ * this route's saved ops on every load so edits survive reload during normal
+ * viewing. The authoring half (selection, inspector, inline text) only turns on
+ * when `active` — toggled from the Bombardier dot or Cmd+Shift+E. Mutually
+ * exclusive with Review Mode.
+ */
+export function EditModeProvider() {
+  const [applier] = React.useState(() => new OverlayApplier())
+  const pathname = usePathname()
+  const layoutVersion = useLayoutVersion()
+  const scroll = useCumulativeScrollOffset()
+
+  const active = useEditStore((s) => s.active)
+  const ops = useEditStore((s) => s.ops)
+  const selectedAnchor = useEditStore((s) => s.selectedAnchor)
+
+  const [inboxOpen, setInboxOpen] = React.useState(false)
+  const [hoverRect, setHoverRect] = React.useState<DOMRect | null>(null)
+  const [selectedRect, setSelectedRect] = React.useState<DOMRect | null>(null)
+  const [editingActive, setEditingActive] = React.useState(false)
+
+  const editingRef = React.useRef<Editing | null>(null)
+  const commitRef = React.useRef<() => void>(() => {})
+  const cancelRef = React.useRef<() => void>(() => {})
+
+  // ── Persistence wiring (runs regardless of `active`) ───────────────────────
+  React.useEffect(() => {
+    void useEditStore.getState().setRoute(pathname)
+  }, [pathname])
+
+  React.useEffect(() => {
+    applier.setOps(ops)
+    // Elements may not be in the DOM on the first pass — re-apply as they land.
+    const raf = requestAnimationFrame(() => applier.reapplyAll())
+    const t = setTimeout(() => applier.reapplyAll(), 250)
+    return () => {
+      cancelAnimationFrame(raf)
+      clearTimeout(t)
+    }
+  }, [ops, applier])
+
+  React.useEffect(() => {
+    applier.reapplyAll()
+  }, [layoutVersion, scroll, applier])
+
+  React.useEffect(() => () => applier.destroy(), [applier])
+
+  // ── Mutual exclusion with Review Mode ──────────────────────────────────────
+  React.useEffect(() => {
+    return useReviewStore.subscribe((s) => {
+      if (s.active && useEditStore.getState().active) {
+        useEditStore.getState().setActive(false)
+      }
+    })
+  }, [])
+
+  useGlobalHotkey({ key: "e", meta: true, shift: true }, () =>
+    useEditStore.getState().toggleActive(),
+  )
+
+  // ── Inline text editing (contentEditable on a text leaf) ───────────────────
+  const beginTextEdit = React.useCallback(
+    (leaf: Element) => {
+      const anchor = captureEditAnchor(leaf)
+      if (!anchor) return
+      const prevText = leaf.textContent ?? ""
+      // Pause re-apply on this element so the observer doesn't rewrite the old
+      // value while the user types.
+      applier.suspend(anchor.selector)
+      const host = leaf as HTMLElement
+      host.setAttribute("contenteditable", "true")
+      host.style.outline = "2px solid var(--accent-brand)"
+      host.style.outlineOffset = "2px"
+      const onKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key === "Enter" && !ev.shiftKey) {
+          ev.preventDefault()
+          commitRef.current()
+        } else if (ev.key === "Escape") {
+          ev.preventDefault()
+          ev.stopPropagation()
+          cancelRef.current()
+        }
+      }
+      const onBlur = () => commitRef.current()
+      leaf.addEventListener("keydown", onKeyDown as EventListener)
+      leaf.addEventListener("blur", onBlur)
+      editingRef.current = {
+        el: leaf,
+        anchor,
+        prevText,
+        cleanup: () => {
+          leaf.removeEventListener("keydown", onKeyDown as EventListener)
+          leaf.removeEventListener("blur", onBlur)
+        },
+      }
+      useEditStore.getState().selectElement(anchor)
+      setEditingActive(true)
+      host.focus()
+      const range = document.createRange()
+      range.selectNodeContents(leaf)
+      const sel = window.getSelection()
+      sel?.removeAllRanges()
+      sel?.addRange(range)
+    },
+    [applier],
+  )
+
+  const commitTextEdit = React.useCallback(() => {
+    const editing = editingRef.current
+    if (!editing) return
+    editing.cleanup()
+    const { el, anchor, prevText } = editing
+    const host = el as HTMLElement
+    host.removeAttribute("contenteditable")
+    host.style.outline = ""
+    host.style.outlineOffset = ""
+    editingRef.current = null
+    setEditingActive(false)
+    const newText = (el.textContent ?? "").replace(/\u00a0/g, " ").trim()
+    const prev = prevText.trim()
+    applier.resume(anchor.selector)
+    if (newText && newText !== prev) {
+      void useEditStore.getState().saveText(anchor, newText, prev)
+    } else if ((el.textContent ?? "") !== prevText) {
+      // No real change — undo any stray whitespace the editor introduced.
+      el.textContent = prevText
+    }
+  }, [applier])
+
+  const cancelTextEdit = React.useCallback(() => {
+    const editing = editingRef.current
+    if (!editing) return
+    editing.cleanup()
+    const { el, anchor, prevText } = editing
+    const host = el as HTMLElement
+    host.removeAttribute("contenteditable")
+    host.style.outline = ""
+    host.style.outlineOffset = ""
+    el.textContent = prevText
+    editingRef.current = null
+    setEditingActive(false)
+    applier.resume(anchor.selector)
+  }, [applier])
+
+  React.useEffect(() => {
+    commitRef.current = commitTextEdit
+    cancelRef.current = cancelTextEdit
+  }, [commitTextEdit, cancelTextEdit])
+
+  React.useEffect(() => {
+    if (!active && editingRef.current) cancelTextEdit()
+  }, [active, cancelTextEdit])
+
+  // ── Selection + hover capture (active only) ────────────────────────────────
+  React.useEffect(() => {
+    if (!active) return
+    const isOurs = (n: Element) => !!n.closest(`[${EDIT_OVERLAY_DATA_ATTR}]`)
+
+    const onClick = (e: MouseEvent) => {
+      const target = e.target
+      if (!(target instanceof Element) || isOurs(target)) return
+      if (editingRef.current) {
+        if (!editingRef.current.el.contains(target)) {
+          e.preventDefault()
+          e.stopPropagation()
+          commitTextEdit()
+        }
+        return
+      }
+      e.preventDefault()
+      e.stopPropagation()
+      const el = elementBelowOverlayAt(e.clientX, e.clientY)
+      if (!el) return
+      const anchor = captureEditAnchor(el)
+      if (anchor) useEditStore.getState().selectElement(anchor)
+    }
+
+    const onDbl = (e: MouseEvent) => {
+      const target = e.target
+      if (!(target instanceof Element) || isOurs(target)) return
+      e.preventDefault()
+      e.stopPropagation()
+      const el = elementBelowOverlayAt(e.clientX, e.clientY)
+      if (!el) return
+      const leaf = findEditableTextLeaf(el)
+      if (leaf) beginTextEdit(leaf)
+    }
+
+    document.addEventListener("click", onClick, true)
+    document.addEventListener("dblclick", onDbl, true)
+    return () => {
+      document.removeEventListener("click", onClick, true)
+      document.removeEventListener("dblclick", onDbl, true)
+    }
+  }, [active, beginTextEdit, commitTextEdit])
+
+  React.useEffect(() => {
+    if (!active) {
+      setHoverRect(null)
+      return
+    }
+    let raf: number | null = null
+    const onMove = (e: MouseEvent) => {
+      if (editingRef.current) {
+        setHoverRect(null)
+        return
+      }
+      if (raf !== null) return
+      raf = requestAnimationFrame(() => {
+        raf = null
+        const el = elementBelowOverlayAt(e.clientX, e.clientY)
+        if (!el || el.closest(`[${EDIT_OVERLAY_DATA_ATTR}]`)) {
+          setHoverRect(null)
+          return
+        }
+        setHoverRect(el.getBoundingClientRect())
+      })
+    }
+    document.addEventListener("mousemove", onMove)
+    return () => {
+      document.removeEventListener("mousemove", onMove)
+      if (raf !== null) cancelAnimationFrame(raf)
+    }
+  }, [active])
+
+  // Track the selected element's rect across scroll/resize/reflow.
+  React.useEffect(() => {
+    if (!active || !selectedAnchor) {
+      setSelectedRect(null)
+      return
+    }
+    const update = () => {
+      const el = resolveEditElement(selectedAnchor)
+      setSelectedRect(el ? el.getBoundingClientRect() : null)
+    }
+    update()
+    let raf: number | null = null
+    const onScroll = () => {
+      if (raf === null)
+        raf = requestAnimationFrame(() => {
+          raf = null
+          update()
+        })
+    }
+    document.addEventListener("scroll", onScroll, { capture: true, passive: true })
+    window.addEventListener("resize", onScroll)
+    return () => {
+      document.removeEventListener("scroll", onScroll, true)
+      window.removeEventListener("resize", onScroll)
+      if (raf !== null) cancelAnimationFrame(raf)
+    }
+  }, [active, selectedAnchor, layoutVersion])
+
+  // ── Radix focus-trap interceptor (so typing inside our chrome works) ───────
+  React.useEffect(() => {
+    if (!active || typeof document === "undefined") return
+    const within = (n: EventTarget | null) =>
+      n instanceof Element && !!n.closest(`[${EDIT_OVERLAY_DATA_ATTR}]`)
+    const onFocusIn = (e: FocusEvent) => {
+      if (within(e.target)) e.stopImmediatePropagation()
+    }
+    const onFocusOut = (e: FocusEvent) => {
+      if (within(e.relatedTarget)) e.stopImmediatePropagation()
+    }
+    document.addEventListener("focusin", onFocusIn, true)
+    document.addEventListener("focusout", onFocusOut, true)
+    return () => {
+      document.removeEventListener("focusin", onFocusIn, true)
+      document.removeEventListener("focusout", onFocusOut, true)
+    }
+  }, [active])
+
+  // Escape: drop selection, then exit (inline-edit Escape is handled at the leaf).
+  React.useEffect(() => {
+    if (!active) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape" || editingRef.current) return
+      const st = useEditStore.getState()
+      if (st.selectedAnchor) st.closeInspector()
+      else st.setActive(false)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [active])
+
+  // ── Inspector / inbox callbacks ────────────────────────────────────────────
+  const onRequestText = React.useCallback(
+    (anchor: PageEditAnchor) => {
+      const el = resolveEditElement(anchor)
+      if (!el) return
+      const leaf = findEditableTextLeaf(el)
+      if (leaf) beginTextEdit(leaf)
+    },
+    [beginTextEdit],
+  )
+
+  const onPickStyle = React.useCallback(
+    (anchor: PageEditAnchor, prop: string, cssValue: string) => {
+      const el = resolveEditElement(anchor)
+      if (el) (el as HTMLElement).style.setProperty(prop, cssValue) // instant feedback
+      void useEditStore.getState().saveStyle(anchor, prop, cssValue)
+    },
+    [],
+  )
+
+  const onClearStyle = React.useCallback(
+    (anchor: PageEditAnchor, prop: string) => {
+      const match = useEditStore
+        .getState()
+        .ops.find(
+          (o) =>
+            o.payload.kind === "style" &&
+            o.anchor.selector === anchor.selector &&
+            o.payload.prop === prop,
+        )
+      const el = resolveEditElement(anchor)
+      if (el) (el as HTMLElement).style.removeProperty(prop)
+      if (match) void useEditStore.getState().removeOp(match.id)
+    },
+    [],
+  )
+
+  const onHide = React.useCallback(
+    (anchor: PageEditAnchor, mode: "hide" | "remove") => {
+      const el = resolveEditElement(anchor)
+      if (el) (el as HTMLElement).style.setProperty("display", "none", "important")
+      void useEditStore.getState().saveHide(anchor, mode)
+      useEditStore.getState().closeInspector()
+    },
+    [],
+  )
+
+  const onFocusOp = React.useCallback((op: PageEditOp) => {
+    const el = resolveEditElement(op.anchor)
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+      useEditStore.getState().selectElement(op.anchor)
+    }
+  }, [])
+
+  if (!active) return null
+
+  return (
+    <>
+      {hoverRect && !editingActive && (
+        <Outline rect={hoverRect} color="var(--border-strong)" z={EDIT_Z.hover} dashed />
+      )}
+      {selectedRect && (
+        <Outline rect={selectedRect} color="var(--accent-brand)" z={EDIT_Z.outline} />
+      )}
+
+      <EditToolbar
+        opsCount={ops.length}
+        inboxOpen={inboxOpen}
+        onToggleInbox={() => setInboxOpen((v) => !v)}
+        onExit={() => useEditStore.getState().setActive(false)}
+      />
+
+      {selectedAnchor && (
+        <EditInspector
+          anchor={selectedAnchor}
+          ops={ops}
+          onRequestText={onRequestText}
+          onPickStyle={onPickStyle}
+          onClearStyle={onClearStyle}
+          onHide={onHide}
+          onClose={() => useEditStore.getState().closeInspector()}
+        />
+      )}
+
+      {inboxOpen && (
+        <EditInbox
+          ops={ops}
+          onFocus={onFocusOp}
+          onApprove={(id) => void useEditStore.getState().transition(id, "apply")}
+          onReject={(id) => void useEditStore.getState().transition(id, "reject")}
+          onRemove={(id) => void useEditStore.getState().removeOp(id)}
+          onClose={() => setInboxOpen(false)}
+        />
+      )}
+    </>
+  )
+}
+
+function Outline({
+  rect,
+  color,
+  z,
+  dashed,
+}: {
+  rect: DOMRect
+  color: string
+  z: number
+  dashed?: boolean
+}) {
+  return (
+    <div
+      aria-hidden
+      {...{ [EDIT_OVERLAY_DATA_ATTR]: "outline" }}
+      style={{
+        position: "fixed",
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        border: `2px ${dashed ? "dashed" : "solid"} ${color}`,
+        borderRadius: 4,
+        pointerEvents: "none",
+        zIndex: z,
+        boxSizing: "border-box",
+      }}
+    />
+  )
+}
