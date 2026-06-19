@@ -322,52 +322,53 @@ function RoleMembersModal({
         }
       >
         {role && !detailMember && (
-          <div className="flex flex-col gap-2">
+          <div>
             {members.length === 0 ? (
               <p className="m-0 body-xs text-(--fg-secondary)">
                 Nenhum membro com essa função ainda.
               </p>
             ) : (
-              members.map((m) => (
-                <div
-                  key={m.id}
-                  className="flex items-center gap-1 rounded-md border border-(--border-subtle) bg-(--bg-raised) pr-2"
-                >
-                  <button
-                    type="button"
-                    onClick={() => setDetailId(m.id)}
-                    className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-3 py-2 text-left outline-hidden transition-colors hover:bg-(--bg-hover) focus-visible:bg-(--bg-hover)"
-                  >
-                    <AwAvatar
-                      size="sm"
-                      src={m.avatar}
-                      alt={m.name}
-                      initials={m.initials}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
-                        {m.name}
-                      </p>
-                      <p className="m-0 truncate body-xs text-(--fg-secondary)">
-                        {m.email}
-                      </p>
-                    </div>
-                    <Icon
-                      name="chevron_right"
-                      size={16}
-                      className="shrink-0 text-(--fg-tertiary)"
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPendingRemove(m)}
-                    aria-label={`Remover ${m.name}`}
-                    className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-(--fg-tertiary) outline-hidden transition-colors hover:bg-(--bg-hover) hover:text-(--accent-danger) focus-visible:bg-(--bg-hover)"
-                  >
-                    <Icon name="person_remove" size={16} />
-                  </button>
-                </div>
-              ))
+              // Lista plana: cada membro separado por uma divisória horizontal
+              // (mesma cor do stroke do card), não uma caixa por pessoa.
+              <div className="flex flex-col divide-y divide-(--border-subtle)">
+                {members.map((m) => (
+                  <div key={m.id} className="flex items-center gap-1 pr-1">
+                    <button
+                      type="button"
+                      onClick={() => setDetailId(m.id)}
+                      className="flex min-w-0 flex-1 items-center gap-3 rounded-md px-2 py-2.5 text-left outline-hidden transition-colors duration-aw-fast hover:bg-(--bg-hover) focus-visible:bg-(--bg-hover)"
+                    >
+                      <AwAvatar
+                        size="sm"
+                        src={m.avatar}
+                        alt={m.name}
+                        initials={m.initials}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="m-0 truncate body-xs font-medium text-(--fg-primary)">
+                          {m.name}
+                        </p>
+                        <p className="m-0 truncate body-xs text-(--fg-secondary)">
+                          {m.email}
+                        </p>
+                      </div>
+                      <Icon
+                        name="chevron_right"
+                        size={16}
+                        className="shrink-0 text-(--fg-tertiary)"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPendingRemove(m)}
+                      aria-label={`Remover ${m.name}`}
+                      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-(--fg-tertiary) outline-hidden transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger) focus-visible:bg-(--bg-hover)"
+                    >
+                      <Icon name="person_remove" size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         )}
@@ -1460,6 +1461,7 @@ function RoleDetail({
 }) {
   const editable = !role.isSystem;
   const granted = useMemo(() => new Set(role.capabilities), [role.capabilities]);
+  const [confirmSave, setConfirmSave] = useState(false);
 
   const togglePermission = (id: string, next: boolean) => {
     if (!editable) return;
@@ -1533,7 +1535,7 @@ function RoleDetail({
           ))}
         </div>
 
-        <footer className="flex items-center justify-end gap-3 border-t border-(--border-subtle) bg-(--bg-muted) px-6 py-3">
+        <footer className="flex items-center justify-end gap-3 border-t border-(--border-subtle) bg-(--bg-raised) px-6 py-3">
           <AwButton size="sm" variant="ghost" onClick={onBack}>
             Cancelar
           </AwButton>
@@ -1542,13 +1544,50 @@ function RoleDetail({
               size="sm"
               variant="primary"
               iconLeft="check"
-              onClick={onBack}
+              onClick={() => setConfirmSave(true)}
             >
               Salvar alterações
             </AwButton>
           )}
         </footer>
       </section>
+
+      {/* Confirmação antes de aplicar as mudanças de permissão da função. */}
+      <AwModal
+        open={confirmSave}
+        onClose={() => setConfirmSave(false)}
+        title={`Salvar alterações em ${role.name}?`}
+        footer={
+          <>
+            <AwButton
+              size="sm"
+              variant="ghost"
+              onClick={() => setConfirmSave(false)}
+            >
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="check"
+              onClick={() => {
+                setConfirmSave(false);
+                onBack();
+              }}
+            >
+              Salvar
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          As permissões desta função passam a valer na hora para{" "}
+          <strong className="font-medium text-(--fg-primary)">
+            {members.length} membro{members.length === 1 ? "" : "s"}
+          </strong>{" "}
+          que a têm. Você pode ajustar de novo quando quiser.
+        </p>
+      </AwModal>
     </div>
   );
 }
