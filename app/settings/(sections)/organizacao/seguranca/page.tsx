@@ -363,65 +363,40 @@ export default function OrgSegurancaPage() {
         <SectionHeading
           title="Acessos à organização"
           description="Quem está com acesso ativo a esta organização. Encerrar um acesso aqui não desconecta a pessoa de outras organizações."
+          action={
+            <AwButton asChild size="sm" variant="secondary" iconRight="arrow_forward">
+              <Link href="/settings/organizacao/seguranca/acessos">
+                Gerenciar acessos
+              </Link>
+            </AwButton>
+          }
         />
-        <AwCard className="p-0!">
-          <div className="flex flex-wrap items-center gap-6 px-6 py-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-                <Icon name="devices" size={20} />
-              </span>
-              <div>
-                <p className="m-0 text-xl font-medium tabular-nums text-(--fg-primary)">
-                  {ACCESS.people}
-                  <span className="ml-1 body-xs font-normal text-(--fg-tertiary)">
-                    pessoas
-                  </span>
-                </p>
-                <p className="m-0 body-xs text-(--fg-secondary)">
-                  {ACCESS.connections} conexões ativas
-                </p>
-              </div>
-            </div>
-            {ACCESS.stale > 0 && (
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2.5 py-1 body-xs font-medium text-(--aw-amber-800)">
-                <Icon name="schedule" size={13} />
-                {ACCESS.stale} sem uso há 30+ dias
-              </span>
-            )}
-            <div className="ml-auto flex items-center gap-2">
-              <AwButton asChild size="sm" variant="secondary" iconRight="arrow_forward">
-                <Link href="/settings/organizacao/seguranca/acessos">
-                  Gerenciar acessos
-                </Link>
-              </AwButton>
-            </div>
-          </div>
-        </AwCard>
-      </section>
-
-      {/* Atalho — Privacidade & auditoria */}
-      <section className="mt-12">
-        <Link
-          href="/settings/organizacao/auditoria"
-          className="group flex items-center gap-4 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-6 py-5 transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
-        >
-          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-            <Icon name="policy" size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              Privacidade & auditoria
-            </p>
-            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-              Histórico de atividade, solicitações de dados e exportações.
-            </p>
-          </div>
-          <Icon
-            name="arrow_forward"
-            size={18}
-            className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
+        <div className="grid grid-cols-3 gap-3">
+          <AccessCard
+            tone="blue"
+            icon="hub"
+            visual="network"
+            value={ACCESS.connections}
+            label="Conexões ativas"
+            hint="Sessões e apps conectados agora"
           />
-        </Link>
+          <AccessCard
+            tone="slate"
+            icon="group"
+            visual="members"
+            value={ACCESS.people}
+            label="Membros na organização"
+            hint="Pessoas com acesso ativo"
+          />
+          <AccessCard
+            tone="amber"
+            icon="history"
+            visual="idle"
+            value={ACCESS.stale}
+            label="Sem uso há 30+ dias"
+            hint="Parados — vale revisar"
+          />
+        </div>
       </section>
 
       {/* Modal — confirmar MFA obrigatória */}
@@ -554,6 +529,136 @@ function PostureTile({
         <p className="m-0 body-sm font-medium text-(--fg-primary)">{value}</p>
       </div>
     </div>
+  );
+}
+
+/* Cartões de acesso — número grande + um grafismo representativo (não é dado:
+ * é a ideia da métrica desenhada em line-art monocromático, no idioma das
+ * AwBrandIllustration). Cada tom pinta o ícone e o grafismo via currentColor. */
+const ACCESS_TONES = {
+  blue: { ico: "text-(--aw-blue-600)", art: "text-(--aw-blue-500)" },
+  slate: { ico: "text-(--aw-slate-600)", art: "text-(--aw-slate-400)" },
+  amber: { ico: "text-(--aw-amber-700)", art: "text-(--aw-amber-500)" },
+} as const;
+
+function AccessCard({
+  tone,
+  icon,
+  label,
+  value,
+  hint,
+  visual,
+}: {
+  tone: keyof typeof ACCESS_TONES;
+  icon: string;
+  label: string;
+  value: number;
+  hint: string;
+  visual: AccessVisualKind;
+}) {
+  const t = ACCESS_TONES[tone];
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--bg-raised) p-5">
+      <AccessVisual
+        kind={visual}
+        className={cn("pointer-events-none absolute -right-2 -top-2 size-28", t.art)}
+      />
+      <div className="relative flex flex-col gap-2">
+        <div className="flex items-center gap-1.5">
+          <Icon name={icon} size={16} fill={1} className={t.ico} />
+          <span className="body-xs font-medium text-(--fg-secondary)">{label}</span>
+        </div>
+        <p className="m-0 text-3xl font-semibold leading-none tracking-tight tabular-nums text-(--fg-primary)">
+          {value}
+        </p>
+        <p className="m-0 body-xs text-(--fg-tertiary)">{hint}</p>
+      </div>
+    </div>
+  );
+}
+
+type AccessVisualKind = "network" | "members" | "idle";
+
+/* Grafismos representativos — monocromáticos (currentColor + opacidade pra
+ * profundidade), o disco interno usa --bg-raised pra recortar limpo. */
+function AccessVisual({
+  kind,
+  className,
+}: {
+  kind: AccessVisualKind;
+  className?: string;
+}) {
+  return (
+    <svg viewBox="0 0 100 100" fill="none" aria-hidden="true" className={className}>
+      {kind === "network" && (
+        <>
+          <g stroke="currentColor" strokeLinecap="round" opacity={0.3} strokeWidth={1.5}>
+            <line x1={26} y1={30} x2={56} y2={20} />
+            <line x1={56} y1={20} x2={78} y2={42} />
+            <line x1={78} y1={42} x2={52} y2={56} />
+            <line x1={56} y1={20} x2={52} y2={56} />
+            <line x1={26} y1={30} x2={52} y2={56} />
+            <line x1={52} y1={56} x2={26} y2={68} />
+            <line x1={52} y1={56} x2={72} y2={74} />
+          </g>
+          <g stroke="currentColor" opacity={0.25} strokeWidth={1.5}>
+            <circle cx={56} cy={20} r={8} />
+            <circle cx={52} cy={56} r={9} />
+          </g>
+          <g fill="currentColor">
+            <circle cx={26} cy={30} r={3.5} opacity={0.55} />
+            <circle cx={78} cy={42} r={3.5} opacity={0.55} />
+            <circle cx={26} cy={68} r={3.5} opacity={0.55} />
+            <circle cx={72} cy={74} r={3.5} opacity={0.55} />
+            <circle cx={56} cy={20} r={4.5} />
+            <circle cx={52} cy={56} r={5} />
+          </g>
+        </>
+      )}
+
+      {kind === "members" && (
+        <>
+          <g fill="currentColor">
+            <circle cx={72} cy={46} r={13} opacity={0.25} />
+            <circle cx={34} cy={50} r={13} opacity={0.25} />
+          </g>
+          <circle cx={53} cy={50} r={19} fill="var(--bg-raised)" />
+          <g fill="currentColor">
+            <circle cx={53} cy={45} r={6.5} />
+            <path d="M40 66 a13 13 0 0 1 26 0 Z" />
+          </g>
+        </>
+      )}
+
+      {kind === "idle" && (
+        <>
+          <g fill="currentColor">
+            <circle cx={80} cy={26} r={2.6} opacity={0.4} />
+            <circle cx={90} cy={18} r={1.9} opacity={0.25} />
+            <circle cx={97} cy={12} r={1.3} opacity={0.15} />
+          </g>
+          <circle
+            cx={48}
+            cy={52}
+            r={22}
+            fill="var(--bg-raised)"
+            stroke="currentColor"
+            strokeWidth={2}
+          />
+          <g stroke="currentColor" strokeLinecap="round" opacity={0.45} strokeWidth={2}>
+            <line x1={48} y1={32} x2={48} y2={36} />
+            <line x1={68} y1={52} x2={64} y2={52} />
+            <line x1={48} y1={72} x2={48} y2={68} />
+            <line x1={28} y1={52} x2={32} y2={52} />
+          </g>
+          <g stroke="currentColor" strokeLinecap="round" strokeWidth={2.4}>
+            <line x1={48} y1={52} x2={48} y2={38} />
+            <line x1={48} y1={52} x2={59} y2={56} />
+          </g>
+          <circle cx={48} cy={52} r={2.2} fill="currentColor" />
+        </>
+      )}
+    </svg>
   );
 }
 

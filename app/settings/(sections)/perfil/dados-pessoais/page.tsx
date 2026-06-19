@@ -85,17 +85,10 @@ export default function DadosPessoaisPage() {
         description="Nome, telefone, foto e fuso horário — informações da sua conta, visíveis para os membros da organização."
       />
 
-      {/* Escopo: deixa explícito que esta área é pessoal, não da organização. */}
-      <p className="-mt-6 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-        <Icon name="person" size={14} />
-        Esta é a sua conta — vale só para você. As configurações da organização
-        ficam em outra área.
-      </p>
-
       {/* Esquerda: foto de perfil · Direita: formulário de edição */}
       <div className="mt-8 grid grid-cols-[300px_minmax(0,1fr)] items-stretch gap-8">
         {/* Form — coluna direita */}
-        <AwCard className="col-start-2 row-start-1 p-6!">
+        <AwCard className="col-start-2 row-start-1 border-(--border-subtle) p-6!">
           <div className="grid grid-cols-2 gap-x-6 gap-y-5">
             <AwField
               label="Nome completo *"
@@ -211,8 +204,8 @@ export default function DadosPessoaisPage() {
             />
             <div className="flex flex-col items-center gap-2">
               <AwButton
-                size="sm"
-                variant="secondary"
+                size="md"
+                variant="ghost"
                 iconLeft="photo_camera"
                 onClick={() => setPhotoOpen(true)}
               >

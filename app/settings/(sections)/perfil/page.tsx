@@ -100,7 +100,6 @@ export default function ProfileSettingsPage() {
   const cancelReposition = () => { setCoverPosY(savedPosY); setRepositioning(false); };
 
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
-    { icon: "person", text: fullName },
     { icon: "mail", text: email },
     { iconNode: <WhatsAppIcon />, text: "+55 11 98765-4321" },
     { iconNode: <SlackIcon />, text: "@greg.pinheiro" },
@@ -108,13 +107,6 @@ export default function ProfileSettingsPage() {
     { icon: "schedule", text: "Brasília · GMT−03" },
     { icon: "translate", text: "Português (Brasil)" },
   ];
-  const accountRows = [
-    { icon: "domain", text: "Workspace Aswork" },
-    { icon: "calendar_month", text: "Membro desde 12 jan 2026" },
-    { icon: "workspace_premium", text: "Plano Enterprise" },
-    { icon: "devices", text: "3 sessões ativas" },
-  ];
-
   return (
     <div className="w-full pb-32">
       <section aria-label="Resumo do perfil" className="w-full">
@@ -270,7 +262,7 @@ export default function ProfileSettingsPage() {
                     <span>@greg.pinheiro</span>
                   </a>
                 </div>
-                <p className="m-0 body-xs text-(--fg-secondary)">Head of Sales · RevOps</p>
+                <p className="m-0 body-xs text-(--fg-secondary)">Designer Engineer at Aswork</p>
               </div>
             </div>
             <div className="flex shrink-0 items-center gap-2 pt-1">
@@ -288,21 +280,7 @@ export default function ProfileSettingsPage() {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[320px_minmax(0,1fr)]">
           {/* Coluna esquerda — resumo do perfil */}
           <aside className="flex flex-col gap-6 self-start">
-            <InfoCard
-              title="Perfil público"
-              rows={publicRows}
-              action={
-                <AwButton
-                  size="sm"
-                  variant="ghost"
-                  iconLeft="edit"
-                  onClick={() => setEditOpen(true)}
-                >
-                  Editar
-                </AwButton>
-              }
-            />
-            <InfoCard title="Sua conta" rows={accountRows} />
+            <InfoCard title="Perfil público" rows={publicRows} />
           </aside>
 
           {/* Coluna direita — atalhos + notificações */}
@@ -567,7 +545,7 @@ function InfoCard({
                 className="shrink-0 text-(--fg-secondary)"
               />
             )}
-            <span className="min-w-0 truncate body-sm text-(--fg-primary)">
+            <span className="min-w-0 truncate body-sm text-(--fg-secondary)">
               {row.text}
             </span>
           </li>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBrowserIcon, getBrowserKey } from "@/components/ui/AwBrowserIcon";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
@@ -184,27 +183,6 @@ export default function SessoesAtivasPage() {
         </div>
       )}
 
-      {/* Lembrete de higiene de sessões — aparece quando há outros
-          dispositivos logados, conectando troca de senha/verificação a
-          encerrar as outras sessões. Tom calmo, não dismissível. */}
-      {otherCount > 0 && (
-        <AwAlert
-          variant="info"
-          title="Trocou a senha ou a verificação em duas etapas?"
-          className="mb-4"
-        >
-          <p className="m-0 mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1.5 body-sm text-(--fg-secondary)">
-            <span>
-              Encerrar as outras sessões força um novo login em todos os
-              dispositivos.
-            </span>
-            <AwButton size="sm" variant="ghost" onClick={startTerminateAll}>
-              Encerrar as outras
-            </AwButton>
-          </p>
-        </AwAlert>
-      )}
-
       {/* Cards — uma sessão por card, em duas colunas */}
       <div className="grid grid-cols-1 gap-3">
         {sessions.map((s) => {
@@ -246,17 +224,6 @@ export default function SessoesAtivasPage() {
                     <Meta icon="bolt" label={`Último uso ${s.lastUsed}`} />
                   </dl>
 
-                  {/* Sessão atual não tem 'Encerrar' — explica onde sair. */}
-                  {s.current && (
-                    <p className="m-0 mt-2.5 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-                      <Icon name="logout" size={15} />
-                      Para sair deste dispositivo, use{" "}
-                      <strong className="font-medium text-(--fg-secondary)">
-                        Sair
-                      </strong>{" "}
-                      no menu da conta.
-                    </p>
-                  )}
                 </div>
 
                 {/* Ações: encerrar (logout) + ver mapa (chevron, 1 clique) */}
