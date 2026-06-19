@@ -36,8 +36,9 @@ export type AwNavTreeItem = {
 
 export type AwNavTreeGroup = {
   id: string;
-  /** Rótulo do grupo (sentence case, não uppercase). */
-  label?: string;
+  /** Rótulo do grupo (sentence case, não uppercase). Aceita ReactNode pra
+   *  cabeçalhos com sub-linha (ex.: nome + e-mail). */
+  label?: React.ReactNode;
   /** Conteúdo à esquerda do rótulo — ex.: logo da organização. */
   leading?: React.ReactNode;
   items: AwNavTreeItem[];
@@ -93,11 +94,11 @@ export function AwNavTree({
           )}
         >
           {!collapsed && group.label && (
-            <div className="mb-2.5 flex items-center gap-2 px-2">
+            <div className="mb-2.5 flex items-center gap-2.5 px-2">
               {group.leading}
-              <span className="body-sm font-medium tracking-tight text-(--fg-secondary)">
+              <div className="min-w-0 flex-1 body-sm font-medium tracking-tight text-(--fg-secondary)">
                 {group.label}
-              </span>
+              </div>
             </div>
           )}
 
