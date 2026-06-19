@@ -110,7 +110,7 @@ function ConsumoVariavelCard() {
   return (
     <AwCard className="flex flex-col gap-4 p-6!">
       <div className="flex items-baseline justify-between gap-3">
-        <h6 className="m-0 body-md font-medium text-(--fg-primary)">
+        <h6 className="m-0 body-lg font-medium text-(--fg-primary)">
           Consumo variável
         </h6>
         <span className="body-sm tabular-nums text-(--fg-secondary)">
@@ -130,7 +130,7 @@ function ConsumoVariavelCard() {
 
 function PlanoCard() {
   return (
-    <AwCard className="flex items-center gap-4 p-6!">
+    <AwCard className="flex items-center gap-4 border-(--border-strong) p-6!">
       <span
         aria-hidden="true"
         className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
@@ -138,7 +138,7 @@ function PlanoCard() {
         <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={44} />
       </span>
       <div className="min-w-0">
-        <p className="m-0 body-md font-medium text-(--fg-primary)">
+        <p className="m-0 body-lg font-medium text-(--fg-primary)">
           {CURRENT_PLAN.name}
         </p>
         <p className="m-0 mt-0.5 body-sm tabular-nums text-(--fg-secondary)">
@@ -161,8 +161,10 @@ function NavHub() {
   const lastAudit = AUDIT_EVENTS[0];
 
   return (
-    <AwCard className="p-2!">
-      <ul className="m-0 grid grid-cols-2 list-none p-0">
+    <nav aria-label="Atalhos do financeiro">
+      {/* Flat — sem caixa nem padding extra: os atalhos respiram no fluxo da
+          página, separados só pelo gap. Hover de cada tile dá o contorno. */}
+      <ul className="m-0 grid grid-cols-2 list-none gap-x-8 gap-y-1 p-0">
         <li className="m-0">
           <AwShortcutTile
             icon="bar_chart"
@@ -196,7 +198,7 @@ function NavHub() {
           />
         </li>
       </ul>
-    </AwCard>
+    </nav>
   );
 }
 

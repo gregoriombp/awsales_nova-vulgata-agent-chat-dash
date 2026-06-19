@@ -604,10 +604,12 @@ function DailySpendingChart({
         barCategoryGap={totalDays <= 12 ? "24%" : "14%"}
       >
         <CartesianGrid vertical={false} />
+        {/* Marcadores claros por data: cada rótulo dd/mm ganha um tick curto
+            sobre uma linha-base discreta, ancorando o eixo no tempo. */}
         <XAxis
           dataKey="day"
-          tickLine={false}
-          axisLine={false}
+          tickLine={{ stroke: "var(--border-default)" }}
+          axisLine={{ stroke: "var(--border-subtle)" }}
           tickMargin={8}
           interval={tickInterval}
           minTickGap={16}
