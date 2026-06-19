@@ -37,16 +37,6 @@ type EventCategory =
   | "equipe"
   | "sistema";
 
-const CATEGORY_LABEL: Record<EventCategory, string> = {
-  cobranca: "Cobrança",
-  seguranca: "Segurança",
-  canais: "Canais",
-  agentes: "Agentes",
-  conversas: "Conversas",
-  equipe: "Equipe",
-  sistema: "Sistema",
-};
-
 type MandatoryEvent = {
   id: string;
   name: string;
@@ -190,11 +180,6 @@ const ADMINS = [
   { name: "Ana Cavalcante", avatar: "/assets/ui-faces/female-2.jpg" },
   { name: "Carlos Lima", avatar: "/assets/ui-faces/male-7.jpg" },
   { name: "Mariana Castro", avatar: "/assets/ui-faces/female-3.jpg" },
-];
-
-const INVOICE_RECIPIENTS = [
-  { name: "Felipe Rezende", role: "Administrador", avatar: "/assets/ui-faces/male-2.jpg", initials: "FR" },
-  { name: "Ana Cavalcante", role: "Gerente de Operações", avatar: "/assets/ui-faces/female-2.jpg", initials: "AC" },
 ];
 
 function initials(name: string) {
@@ -378,11 +363,6 @@ export default function OrgNotificacoesPage() {
           />
         </div>
         <div className="mt-3 flex flex-col gap-1.5">
-          <p className="inline-flex items-start gap-2 px-1 body-xs text-(--fg-tertiary)">
-            <Icon name="info" size={14} className="mt-px shrink-0" />
-            Bloquear um canal não afeta cobrança, WhatsApp e segurança — elas
-            sempre chegam pelo app e e-mail.
-          </p>
           <p className="inline-flex items-center gap-1.5 px-1 body-xs text-(--fg-tertiary)">
             <Icon name="history" size={14} className="shrink-0" />
             Toda mudança de canal fica registrada na auditoria.
@@ -397,46 +377,6 @@ export default function OrgNotificacoesPage() {
             </AwButton>
           </p>
         </div>
-      </section>
-
-      {/* Faturas & NF — reflexo read-only */}
-      <section className="mt-12">
-        <AwCard className="p-0!">
-          <div className="flex flex-wrap items-center gap-4 px-6 py-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-              <Icon name="receipt_long" size={20} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                Faturas e notas fiscais
-              </p>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                Quem recebe é definido no perfil de cada pessoa. Aqui é só o
-                reflexo.
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="flex -space-x-2">
-                {INVOICE_RECIPIENTS.map((m) => (
-                  <AwAvatar
-                    key={m.name}
-                    size="sm"
-                    src={m.avatar}
-                    alt={m.name}
-                    initials={m.initials}
-                    className="ring-2 ring-(--bg-raised)"
-                  />
-                ))}
-              </div>
-              <span className="body-xs text-(--fg-tertiary)">
-                {INVOICE_RECIPIENTS.length} recebem
-              </span>
-              <AwButton asChild size="sm" variant="ghost" iconRight="arrow_forward">
-                <Link href="/settings/equipe-permissoes">Gerenciar</Link>
-              </AwButton>
-            </div>
-          </div>
-        </AwCard>
       </section>
 
       {/* Modal — quem recebe */}
@@ -512,23 +452,11 @@ function EventIcon({
       </span>
     );
   }
+  // Tile branco com stroke discreto — mesma língua dos avatares/logos da página.
   return (
-    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)">
       <Icon name={icon} size={20} />
     </span>
-  );
-}
-
-/** Pill discreto de domínio do evento — sem ponto, para não competir com o nome. */
-function CategoryPill({ category }: { category: EventCategory }) {
-  return (
-    <AwPill
-      variant="neutral"
-      dot={false}
-      className="shrink-0 bg-(--bg-muted)! text-(--fg-tertiary)!"
-    >
-      {CATEGORY_LABEL[category]}
-    </AwPill>
   );
 }
 
@@ -605,7 +533,6 @@ function MandatoryRow({
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <CategoryPill category={event.category} />
           </div>
           <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
         </div>
@@ -673,18 +600,12 @@ function OptionalRow({
     <li className="m-0 flex items-center gap-4 py-4">
       <EventIcon icon={event.icon} />
       <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 body-sm font-medium text-(--fg-primary)">
-            {event.name}
-          </p>
-          <CategoryPill category={event.category} />
-        </div>
+        <p className="m-0 body-sm font-medium text-(--fg-primary)">
+          {event.name}
+        </p>
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{event.desc}</p>
       </div>
       <div className="flex shrink-0 items-center gap-3">
-        <span className="body-xs text-(--fg-tertiary)">
-          Padrão: {on ? "ligado" : "desligado"}
-        </span>
         <AwToggle
           checked={on}
           onChange={onToggle}
