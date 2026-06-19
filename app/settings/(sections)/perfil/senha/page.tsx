@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwBackupCodes } from "@/components/ui/AwBackupCodes";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
@@ -12,6 +12,7 @@ import { AwProgress } from "@/components/ui/AwProgress";
 import { AwQrPlaceholder } from "@/components/ui/AwQrPlaceholder";
 import { AwToggleRow } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
+import { cn } from "@/lib/utils";
 import {
   evaluatePassword,
   isLeakedPassword,
@@ -54,6 +55,83 @@ const BACKUP_CODES_SAMPLE = [
 ];
 
 const ORG_REQUIRES_MFA = true;
+
+/** OTP de 6 dígitos — uma caixa por dígito, full width no modal. Avança
+ *  foco ao digitar e volta no Backspace; aceita paste do código completo. */
+function OtpInput6({
+  value,
+  onChange,
+  invalid,
+  autoFocus,
+}: {
+  value: string;
+  onChange: (next: string) => void;
+  invalid?: boolean;
+  autoFocus?: boolean;
+}) {
+  const refs = useRef<Array<HTMLInputElement | null>>([]);
+  useEffect(() => {
+    if (autoFocus) refs.current[0]?.focus();
+  }, [autoFocus]);
+  const setChar = (i: number, char: string) => {
+    const digit = char.replace(/\D/g, "").slice(0, 1);
+    const next = (value + "      ").slice(0, 6).split("");
+    next[i] = digit;
+    onChange(next.join("").replace(/\s+$/, ""));
+    if (digit && i < 5) refs.current[i + 1]?.focus();
+  };
+  const onKeyDown = (i: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Backspace" && !value[i] && i > 0) {
+      e.preventDefault();
+      refs.current[i - 1]?.focus();
+      const next = value.split("");
+      next[i - 1] = "";
+      onChange(next.join("").replace(/\s+$/, ""));
+    } else if (e.key === "ArrowLeft" && i > 0) {
+      e.preventDefault();
+      refs.current[i - 1]?.focus();
+    } else if (e.key === "ArrowRight" && i < 5) {
+      e.preventDefault();
+      refs.current[i + 1]?.focus();
+    }
+  };
+  const onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pasted) return;
+    e.preventDefault();
+    onChange(pasted);
+    refs.current[Math.min(pasted.length, 5)]?.focus();
+  };
+  return (
+    <div className="grid grid-cols-6 gap-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <input
+          key={i}
+          ref={(el) => {
+            refs.current[i] = el;
+          }}
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={1}
+          aria-label={`Dígito ${i + 1} de 6`}
+          aria-invalid={invalid || undefined}
+          value={value[i] ?? ""}
+          onChange={(e) => setChar(i, e.target.value)}
+          onKeyDown={(e) => onKeyDown(i, e)}
+          onPaste={onPaste}
+          onFocus={(e) => e.currentTarget.select()}
+          className={cn(
+            "aspect-square w-full rounded-md border bg-(--bg-raised) text-center font-mono text-2xl font-medium text-(--fg-primary) outline-hidden transition-colors duration-aw-fast focus:border-(--fg-primary)",
+            invalid
+              ? "border-(--accent-danger)"
+              : "border-(--border-default)",
+          )}
+        />
+      ))}
+    </div>
+  );
+}
 
 /** Linha de exigência da senha — checklist ao vivo na etapa 2. */
 function PwRequirement({
@@ -140,9 +218,21 @@ export default function SenhaPage() {
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [secretCopied, setSecretCopied] = useState(false);
 
-  /* Backup codes */
+  /* Backup codes — 2 etapas: confirmar e só então gerar/exibir. */
   const [backupOpen, setBackupOpen] = useState(false);
+  const [backupStep, setBackupStep] = useState<"confirm" | "view">("confirm");
   const [backupConfirmed, setBackupConfirmed] = useState(false);
+
+  function openBackupConfirm() {
+    setBackupStep("confirm");
+    setBackupConfirmed(false);
+    setBackupOpen(true);
+  }
+  function closeBackup() {
+    setBackupOpen(false);
+    // Aguarda o modal fechar antes de resetar o passo, pra não ver troca.
+    setTimeout(() => setBackupStep("confirm"), 250);
+  }
 
   /* Medidor de força da nova senha (consultivo) + checagem de vazamento. */
   const pwEval = evaluatePassword(newPw);
@@ -187,8 +277,11 @@ export default function SenhaPage() {
         return;
       }
       setReconfigureOpen(false);
-      // Encadeia direto nos novos códigos de backup, como no fluxo de setup.
+      // Encadeia direto nos novos códigos de backup, como no fluxo de setup —
+      // pula a confirmação porque o usuário já estava conscientemente
+      // reconfigurando o MFA.
       setBackupConfirmed(false);
+      setBackupStep("view");
       setBackupOpen(true);
     }, 1100);
   }
@@ -319,10 +412,7 @@ export default function SenhaPage() {
               <AwButton
                 size="sm"
                 variant="secondary"
-                onClick={() => {
-                  setBackupConfirmed(false);
-                  setBackupOpen(true);
-                }}
+                onClick={openBackupConfirm}
               >
                 Gerar novos
               </AwButton>
@@ -558,8 +648,7 @@ export default function SenhaPage() {
               iconLeft="password"
               onClick={() => {
                 setManageOpen(false);
-                setBackupConfirmed(false);
-                setBackupOpen(true);
+                openBackupConfirm();
               }}
             >
               Gerar novos códigos de backup
@@ -639,28 +728,20 @@ export default function SenhaPage() {
             </div>
           </div>
 
-          {/* Passo 2 — código de 6 dígitos */}
+          {/* Passo 2 — código de 6 dígitos (uma caixa por dígito, full width) */}
           <div className="border-t border-(--border-subtle) pt-5">
             <p className="m-0 mb-3 body-sm text-(--fg-secondary)">
               <span className="font-medium text-(--fg-primary)">2.</span>{" "}
               Digite o código de 6 dígitos que o app mostra.
             </p>
-            <AwField label="Código de 6 dígitos" htmlFor="totp-code">
-              <AwInput
-                id="totp-code"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                placeholder="000000"
-                value={otp}
-                invalid={!!otpError}
-                onChange={(e) => {
-                  setOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
-                  if (otpError) setOtpError("");
-                }}
-                className="font-mono tracking-[0.4em]"
-              />
-            </AwField>
+            <OtpInput6
+              value={otp}
+              invalid={!!otpError}
+              onChange={(next) => {
+                setOtp(next);
+                if (otpError) setOtpError("");
+              }}
+            />
             {otpError && (
               <div className="mt-3">
                 <AwAlert variant="danger">{otpError}</AwAlert>
@@ -673,41 +754,77 @@ export default function SenhaPage() {
       {/* ── Modal: Gerar novos códigos de backup ── */}
       <AwModal
         open={backupOpen}
-        onClose={() => setBackupOpen(false)}
-        title="Novos códigos de backup"
+        onClose={closeBackup}
+        title={
+          backupStep === "confirm"
+            ? "Gerar novos códigos de backup?"
+            : "Novos códigos de backup"
+        }
         footer={
-          <>
-            <AwButton
-              size="sm"
-              variant="ghost"
-              onClick={() => setBackupOpen(false)}
-            >
-              Fechar
-            </AwButton>
-            <AwButton
-              size="sm"
-              variant="primary"
-              disabled={!backupConfirmed}
-              onClick={() => setBackupOpen(false)}
-            >
-              Concluir
-            </AwButton>
-          </>
+          backupStep === "confirm" ? (
+            <>
+              <AwButton size="sm" variant="ghost" onClick={closeBackup}>
+                Cancelar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                onClick={() => setBackupStep("view")}
+              >
+                Gerar novos códigos
+              </AwButton>
+            </>
+          ) : (
+            <>
+              <AwButton size="sm" variant="ghost" onClick={closeBackup}>
+                Fechar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                disabled={!backupConfirmed}
+                onClick={closeBackup}
+              >
+                Concluir
+              </AwButton>
+            </>
+          )
         }
       >
-        <p className="m-0 mb-5 body-xs text-(--fg-secondary)">
-          Os códigos anteriores foram invalidados. Salve os novos em um lugar
-          seguro — cada código só pode ser usado uma vez.
-        </p>
-        <AwBackupCodes
-          codes={BACKUP_CODES_SAMPLE}
-          warning="Guarde estes códigos agora. Eles não serão exibidos novamente."
-          confirm={{
-            checked: backupConfirmed,
-            onChange: setBackupConfirmed,
-            label: "Salvei os códigos em um lugar seguro.",
-          }}
-        />
+        {backupStep === "confirm" ? (
+          <div className="flex flex-col gap-3">
+            <p className="m-0 body-sm text-(--fg-secondary)">
+              Ao gerar uma nova lista, os{" "}
+              <strong className="text-(--fg-primary)">
+                {BACKUP_CODES_TOTAL} códigos atuais
+              </strong>{" "}
+              ({BACKUP_CODES_REMAINING} ainda válidos) deixam de funcionar
+              imediatamente. Você só vê os novos uma vez — precisa salvá-los na
+              hora.
+            </p>
+            <AwAlert variant="warning">
+              Se perder o acesso ao app autenticador antes de salvar os códigos
+              novos, não vai conseguir entrar até que um administrador resete
+              sua MFA.
+            </AwAlert>
+          </div>
+        ) : (
+          <>
+            <p className="m-0 mb-5 body-xs text-(--fg-secondary)">
+              Os códigos anteriores foram invalidados. Salve os novos em um
+              lugar seguro — cada código só pode ser usado uma vez.
+            </p>
+            <AwBackupCodes
+              codes={BACKUP_CODES_SAMPLE}
+              warning="Guarde estes códigos agora. Eles não serão exibidos novamente."
+              confirm={{
+                checked: backupConfirmed,
+                onChange: setBackupConfirmed,
+                label: "Salvei os códigos em um lugar seguro.",
+              }}
+            />
+          </>
+        )}
       </AwModal>
     </div>
   );
