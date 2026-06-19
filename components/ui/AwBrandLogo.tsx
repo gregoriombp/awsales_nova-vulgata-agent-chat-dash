@@ -402,11 +402,13 @@ const BRANDS: Record<string, Brand> = {
     markSrc: `${ICONIFY_BASE}/google.svg`,
   },
   "google-authenticator": {
-    // Iconify só publica o mark monocromático (simple-icons) — é a silhueta
-    // oficial do app; renderiza preto sobre tile branco, como os demais marks.
+    // Asterisco oficial do Google Authenticator na versão colorida (rebrand
+    // 2023) — gradiente azul→teal→verde sobre tile branco. Mantemos o mark
+    // monocromático em google-authenticator.svg para usos que precisem herdar
+    // currentColor.
     bg: "#FFFFFF",
     bordered: true,
-    markSrc: `${ICONIFY_BASE}/google-authenticator.svg`,
+    markSrc: `${ICONIFY_BASE}/google-authenticator-color.svg`,
   },
   chrome: {
     bg: "#FFFFFF",
