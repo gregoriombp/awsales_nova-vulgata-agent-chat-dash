@@ -8,12 +8,13 @@
 
 ## O que este repo é (com nuance)
 
-**É um Product Builder construído com o método Bombardier (design-as-product)** para a plataforma AwSales 2.0.
+**É um Product Builder construído com o método Bombardier (design-as-product)** para a plataforma AwSales 2.0 (agora chamada de Aswork).
 
 - O design system real (`components/ui/Aw*` + tokens em `app/globals.css`) é a **fonte da verdade** consumida por devs que implementam a plataforma de produção
 - As rotas em `app/` são **mockups funcionais** da plataforma — devem rodar como live-preview com comportamento, não esboço
 - O usuário é **product builder/designer**, não dev
 - Bombardier é o ambiente: app in-repo + skills (locais e globais) + bridges + MCPs
+- A ideia é usar mais o Bombardier do que o Figma em si.
 
 **Importante: protótipo NÃO significa "pode ser falso".**
 - Não inserir `// TODO`, `// would call API here` em live-preview
@@ -38,10 +39,11 @@ Inspirações citadas pelo Greg pra esse modelo:
 
 ### Time de design (AWSD no Linear)
 
-- **Greg** — pente-fino Agent Studio + Memory Base, validar entregas
-- **Denise Costa de Almeida** — Login, Integrações, Financeiro (redesign), protótipo interativo Agent Studio + Memory Base
-- **PG (Paulo Guilherme Graham)** — review (fluxo de Time, Memory Base, Agent Studio)
-- **José Junior (CPTO)** — site Framer, animações, ideação de produto
+- **Greg** — Quem usa este repo. Designer Engineer que constroi o produto final em Hi-Fi. Ele passa um pente-fino, valida entregas, constrói. Fundador do Bombardier, Skills e todo o novo produto Aswork.
+- **PG (Paulo Guilherme Graham)** — review técnico (fluxo de Time, Memory Base, Agent Studio). Conecta o Produto (Design de Interface) com o Backend e time de Devs. Tem um approach mais técnico, mas válido.
+- **José Junior (CPTO)** — site Framer, animações, ideação de produto, Diretor da AwSales (agora chamada de Aswork)
+
+Os três revisam as telas juntos.
 
 ### Local bridges
 
