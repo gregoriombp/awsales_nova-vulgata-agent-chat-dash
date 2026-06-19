@@ -296,9 +296,8 @@ function BillingInfoSection() {
             Informações de faturamento
           </h6>
           <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Dados usados na emissão da nota fiscal e no envio das cobranças.
-            Eles vêm do contrato — por aqui, você edita apenas os e-mails de
-            faturamento.
+            Dados que vão na nota fiscal e nas cobranças. Vêm do contrato —
+            aqui você edita só os e-mails de faturamento.
           </p>
         </div>
         <button
@@ -503,8 +502,7 @@ function RemovePaymentMethodModal({
             )}
           </div>
           <p className="m-0 body-xs text-(--fg-primary)">
-            Você está prestes a remover este método das formas de cobrança da
-            organização.
+            Você vai remover este método das cobranças desta organização.
           </p>
           {method.isDefault && (
             <p className="m-0 body-xs text-(--accent-warning)">

@@ -63,7 +63,7 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   {
     href: "/settings/financeiro",
     icon: "credit_card",
-    title: "Faturamento & uso",
+    title: "Financeiro",
     description: "Plano, pagamento e faturas",
   },
 ];
@@ -311,7 +311,7 @@ export default function ProfileSettingsPage() {
             <section aria-label="Atalhos">
               <SectionHeading
                 title="Atalhos"
-                description="Acesse rapidamente as demais áreas de configuração."
+                description="Ir para outras áreas em Configurações."
               />
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {SETTINGS_SHORTCUTS.map((item) => (

@@ -275,8 +275,7 @@ export default function SessoesAtivasPage() {
                   />
                   <p className="m-0 mt-2 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
                     <Icon name="info" size={13} />
-                    Local estimado a partir do IP — pode não refletir a posição
-                    exata.
+                    Estimado pelo IP — a posição pode não bater exata.
                   </p>
                 </div>
               )}
@@ -325,8 +324,8 @@ export default function SessoesAtivasPage() {
               className="mt-px shrink-0 text-(--fg-tertiary)"
             />
             <span>
-              Encerrar as outras sessões desconecta todos os seus outros
-              dispositivos na hora. Confirme sua identidade para continuar.
+              Isso desconecta todos os seus outros dispositivos na hora.
+              Confirme sua identidade para continuar.
             </span>
           </p>
           <AwField
@@ -408,10 +407,10 @@ export default function SessoesAtivasPage() {
         }
       >
         <p className="m-0 body-sm text-(--fg-secondary)">
-          {otherCount} outro{otherCount !== 1 ? "s" : ""} dispositivo
-          {otherCount !== 1 ? "s" : ""}{" "}
-          {otherCount !== 1 ? "serão desconectados" : "será desconectado"} e
-          precisarão fazer login novamente. Sua sessão atual permanece ativa.
+          {otherCount === 1
+            ? "Outro dispositivo vai ser desconectado e precisa entrar de novo."
+            : `${otherCount} outros dispositivos vão ser desconectados e precisam entrar de novo.`}{" "}
+          Sua sessão atual continua.
         </p>
       </AwModal>
     </div>

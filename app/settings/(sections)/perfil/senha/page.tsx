@@ -301,7 +301,7 @@ export default function SenhaPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Senha"
-        description="Gerencie o acesso à sua conta — senha e verificação em dois fatores."
+        description="Senha e verificação em duas etapas para entrar na conta."
       />
 
       {/* ── Bloco 1: Senha ── */}
@@ -309,8 +309,8 @@ export default function SenhaPage() {
         {ACCOUNT_TYPE === "sso-only" ? (
           <AwAlert variant="info" icon="shield">
             <strong className="font-medium">Sua conta entra por SSO.</strong> A
-            senha é gerenciada pelo seu provedor de identidade ({SSO_PROVIDER}).
-            Para alterá-la, acesse as configurações do provedor.
+            senha vive no seu provedor de identidade ({SSO_PROVIDER}) — altere
+            por lá.
           </AwAlert>
         ) : (
           <div className="flex items-start justify-between gap-4">
@@ -320,7 +320,7 @@ export default function SenhaPage() {
               </p>
               <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                 {ACCOUNT_TYPE === "sso+password"
-                  ? `Você também entra por ${SSO_PROVIDER}. Esta é a senha local da conta — alterá-la não afeta o login via provedor.`
+                  ? `Você também entra pelo ${SSO_PROVIDER}. Esta é a senha local — trocá-la não afeta o login pelo provedor.`
                   : "Disponível só para contas com login local. Contas via Google ou Microsoft gerenciam a senha no provedor."}
               </p>
             </div>
@@ -347,7 +347,7 @@ export default function SenhaPage() {
               </AwPill>
             </span>
           }
-          description="Exige um código do seu app autenticador a cada login, além da senha."
+          description="Pede um código do seu app autenticador a cada login, além da senha."
           checked={mfaOn}
           onChange={handleToggleMfa}
           disabled={ORG_REQUIRES_MFA && mfaOn}
@@ -359,10 +359,10 @@ export default function SenhaPage() {
               <div className="py-4">
                 <AwAlert variant="warning" icon="lock">
                   <strong className="font-medium">
-                    Exigida pela organização.
+                    A organização exige duas etapas.
                   </strong>{" "}
-                  Você pode trocar o método ou gerar novos códigos de backup, mas
-                  não pode desativar a MFA enquanto a organização exigir.
+                  Você troca o método e gera novos códigos de backup, mas não
+                  pode desativar.
                 </AwAlert>
               </div>
             )}
@@ -594,8 +594,8 @@ export default function SenhaPage() {
         }
       >
         <p className="m-0 body-sm text-(--fg-secondary)">
-          Sem MFA, sua conta fica protegida só pela senha. Recomendamos manter
-          ativa para contas com acesso administrativo.
+          Sem o segundo fator, sua conta fica só com a senha. Mantenha ativa em
+          contas com acesso administrativo.
         </p>
       </AwModal>
 
@@ -811,12 +811,12 @@ export default function SenhaPage() {
         ) : (
           <>
             <p className="m-0 mb-5 body-xs text-(--fg-secondary)">
-              Os códigos anteriores foram invalidados. Salve os novos em um
-              lugar seguro — cada código só pode ser usado uma vez.
+              Os códigos anteriores não valem mais. Guarde os novos em um lugar
+              seguro — cada um vale uma vez.
             </p>
             <AwBackupCodes
               codes={BACKUP_CODES_SAMPLE}
-              warning="Guarde estes códigos agora. Eles não serão exibidos novamente."
+              warning="Guarde estes códigos agora. Não vamos mostrar de novo."
               confirm={{
                 checked: backupConfirmed,
                 onChange: setBackupConfirmed,

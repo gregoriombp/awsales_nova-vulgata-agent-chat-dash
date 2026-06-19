@@ -169,7 +169,7 @@ export default function HistoricoFaturasPage() {
               </>
             )}
             {" "}
-            Quite os pagamentos pendentes para evitar o congelamento da conta.
+            Quite para evitar o congelamento da conta.
           </p>
         </AwAlert>
       )}
@@ -281,8 +281,7 @@ export default function HistoricoFaturasPage() {
                 Exportar em {exportFormat?.toUpperCase()}
               </p>
               <p className="m-0 body-xs text-(--fg-secondary)">
-                Geramos o histórico completo de faturas e enviamos uma cópia
-                pro seu e-mail pessoal.
+                Geramos o histórico completo e enviamos para o seu e-mail.
               </p>
             </div>
           </div>

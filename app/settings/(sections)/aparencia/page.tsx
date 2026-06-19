@@ -16,7 +16,7 @@ export default function AppearanceSettingsPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Aparência"
-        description="Aplica somente para sua conta, neste navegador."
+        description="Vale só para a sua conta, neste navegador."
       />
       {/* Sem caixa externa: conteúdo flat, seções separadas só por divisória. */}
       <div className="flex flex-col divide-y divide-(--border-subtle)">
@@ -65,7 +65,7 @@ export default function AppearanceSettingsPage() {
         <section className="py-4">
           <AwToggleRow
             title="Reduzir movimento"
-            description="Suaviza ou desativa transições e parallax."
+            description="Reduz transições e movimentos de fundo."
             checked={reduceMotion}
             onChange={setReduceMotion}
           />

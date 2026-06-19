@@ -437,9 +437,8 @@ function ExportCsvButton() {
                 </p>
                 <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                   Nomes e ações de quem mexeu no faturamento aparecem no
-                  relatório. Ao exportar, você se responsabiliza por tratar
-                  esses dados conforme a LGPD e a política de privacidade da
-                  sua organização.
+                  relatório. Ao exportar, você assume a responsabilidade pelo
+                  tratamento — LGPD e a política da sua organização valem aqui.
                 </p>
               </div>
             </div>

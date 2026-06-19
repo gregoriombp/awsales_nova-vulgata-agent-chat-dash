@@ -177,7 +177,7 @@ export default function OrganizationSettingsPage() {
 
         <AwCard className="p-0!">
           <div className="flex items-center justify-between gap-4 px-6 pt-5 pb-3">
-            <h6 className="m-0 text-(--fg-primary)">Informações</h6>
+            <h6 className="m-0 text-(--fg-primary)">Identificação</h6>
             <AwButton
               size="sm"
               variant="primary"
@@ -224,7 +224,7 @@ export default function OrganizationSettingsPage() {
       <div className="mt-10">
         <SectionHeading
           title="Dados contratuais"
-          description="Cadastrados pela equipe Aswork no fechamento do contrato. Para alterar, abra um chamado com seu Account Manager."
+          description="Definidos pela Aswork no contrato. Para alterar, fale com o seu Account Manager."
         />
         <AwCard className="p-0!">
           <dl className="m-0">
@@ -269,8 +269,7 @@ export default function OrganizationSettingsPage() {
         </AwCard>
         <p className="m-0 mt-3 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
           <Icon name="lock" size={14} />
-          O cadeado indica campos somente leitura, cadastrados pela equipe Aswork
-          no contrato.
+          O cadeado marca campos definidos no contrato — somente leitura aqui.
         </p>
         <div className="mt-1 flex items-center justify-between gap-4 py-2">
           <button
@@ -401,10 +400,8 @@ export default function OrganizationSettingsPage() {
       >
         <div className="flex flex-col gap-4">
           <p className="m-0 body-sm text-(--fg-secondary)">
-            Os dados contratuais são registrados pela equipe Aswork no
-            fechamento do contrato e ficam bloqueados para edição direta. Para
-            corrigir qualquer informação, fale com seu Account Manager — ele
-            abre o chamado de atualização.
+            Os dados contratuais ficam bloqueados aqui — vêm direto do
+            contrato. Para corrigir, fale com o seu Account Manager.
           </p>
           <div className="flex items-center gap-3 rounded-lg bg-(--bg-muted) px-4 py-3.5">
             <AwAvatar src={AM.photo} alt={AM.name} initials={AM.initials} />

@@ -125,7 +125,7 @@ export function InviteModal({
       {mode === "form" ? (
         <div className="flex flex-col gap-5">
           <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
-            Convide novos membros por e-mail. Digite o e-mail e pressione{" "}
+            Convide por e-mail. Digite e pressione{" "}
             <kbd className="rounded-xs border border-(--border-subtle) bg-(--bg-muted) px-1.5 font-sans font-medium text-(--fg-primary)">
               Enter
             </kbd>{" "}
@@ -200,7 +200,7 @@ export function InviteModal({
                 Recebe faturas e notas fiscais (NF)
               </span>
               <span className="mt-0.5 block body-xs text-(--fg-secondary) text-pretty">
-                Os convidados recebem faturas e NF por e-mail. Dá pra ajustar
+                Os convidados recebem faturas e NF por e-mail. Pode ajustar
                 depois no perfil.
               </span>
             </label>

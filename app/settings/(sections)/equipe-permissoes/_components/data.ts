@@ -207,7 +207,7 @@ export const SCOPES: Scope[] = [
         label: "Administração",
         intent: "administrative",
         permissions: [
-          { id: "agentes.delete", label: "Excluir agentes", description: "Remove permanentemente agentes do workspace." },
+          { id: "agentes.delete", label: "Excluir agentes", description: "Remove permanentemente agentes da organização." },
           {
             id: "agentes.types",
             label: "Gerenciar tipos de agentes",
@@ -290,7 +290,7 @@ export const SCOPES: Scope[] = [
           {
             id: "conversas.view.all",
             label: "Ver todas as conversas",
-            description: "Vê o histórico completo do workspace.",
+            description: "Vê o histórico completo da organização.",
           },
         ],
       },
@@ -357,7 +357,7 @@ export const SCOPES: Scope[] = [
         label: "Membros",
         intent: "administrative",
         permissions: [
-          { id: "workspace.members.invite", label: "Convidar membros", description: "Envia e-mail de convite para novos usuários entrarem no workspace." },
+          { id: "workspace.members.invite", label: "Convidar membros", description: "Envia e-mail de convite para novas pessoas entrarem na organização." },
           { id: "workspace.members.remove", label: "Remover membros", description: "Revoga o acesso de um usuário ativo." },
           {
             id: "workspace.members.roles",
@@ -668,7 +668,7 @@ export const ROLE_DEFINITIONS: RoleDefinition[] = [
     description:
       "Controle total sobre a operação, ativos de IA e infraestrutura da organização.",
     idealFor:
-      "Founders, CTOs e responsáveis pelo workspace inteiro.",
+      "Founders, CTOs e responsáveis pela organização inteira.",
     memberCount: 1,
     capabilities: ADMINISTRADOR_PERMISSIONS,
     isSystem: true,
@@ -1263,7 +1263,7 @@ export const GROUPS: Group[] = [
     id: "g-operacoes",
     name: "Operações",
     description:
-      "Setup de agentes, integrações e moderação. Cuida da espinha dorsal do workspace.",
+      "Setup de agentes, integrações e moderação. Cuida da espinha dorsal da organização.",
     memberCount: 3,
     icon: "groups",
     roles: ["Gerente de Operações", "Administrador"],

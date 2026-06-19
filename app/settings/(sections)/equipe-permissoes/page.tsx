@@ -279,8 +279,8 @@ export default function MembersPage() {
             Equipe &amp; permissões
           </h3>
           <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-            Gerencie quem tem acesso ao workspace, convide novas pessoas e
-            organize permissões por função e projeto.
+            Quem tem acesso a esta organização, com qual função e em quais
+            projetos.
           </p>
         </header>
 
@@ -486,8 +486,8 @@ function MembersTableState({
       <div className="flex flex-col gap-8">
         {manager && (
           <AwSpecialistsPair
-            title="Especialistas dedicados à sua conta"
-            description="O time humano e o agente de IA que acompanham sua operação dia a dia — fale com eles pra tirar dúvidas, abrir solicitações ou pedir ajustes."
+            title="Especialistas dedicados"
+            description="Time humano e agente de IA que acompanham a sua operação. Fale com eles para tirar dúvidas, abrir solicitações ou pedir ajustes."
             humans={[
               {
                 name: manager.name,
@@ -513,7 +513,7 @@ function MembersTableState({
         )}
         <MemberSection
           title="Membros da organização"
-          description="Todas as pessoas com acesso direto a este workspace. Convide novos membros, ajuste função ou abra o painel pra revisar permissões."
+          description="Todas as pessoas com acesso direto a esta organização. Convide, ajuste função ou abra o painel para revisar permissões."
           members={others}
           invitations={filtersActive ? [] : INVITATIONS}
           managerAlreadyAssigned={managerAlreadyAssigned}
@@ -662,7 +662,7 @@ function MemberSection({
             kebabItems.push({ id: "sep-member", separator: true });
             kebabItems.push({
               id: "remove",
-              label: m.isYou ? "Sair do workspace" : "Remover do workspace",
+              label: m.isYou ? "Sair da organização" : "Remover da organização",
               danger: true,
               onSelect: () => onRemove?.(m.id),
             });
@@ -1112,7 +1112,7 @@ function MemberDetail({
         <DetailSection title="Atividade">
           {member.activity.length === 0 ? (
             <p className="m-0 body-xs text-(--fg-secondary)">
-              Sem eventos registrados para este membro.
+              Sem eventos para este membro ainda.
             </p>
           ) : (
             <ol className="m-0 flex list-none flex-col p-0">
@@ -1730,7 +1730,7 @@ function LastAdminBlockModal({
     <AwModal
       open={block !== null}
       onClose={onClose}
-      title="Esta é a única conta de Administrador"
+      title="Você é o único Administrador"
       footer={
         <AwButton size="sm" variant="primary" onClick={onClose}>
           Voltar

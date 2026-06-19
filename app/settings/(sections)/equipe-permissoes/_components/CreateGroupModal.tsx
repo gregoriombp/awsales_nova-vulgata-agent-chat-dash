@@ -104,9 +104,8 @@ export function CreateGroupModal({
       {mode === "form" ? (
         <div className="flex flex-col gap-5">
           <p className="m-0 body-xs text-(--fg-secondary)">
-            Grupos funcionam como departamentos: agrupam pessoas que
-            compartilham contexto e responsabilidades. Você pode editar tudo
-            depois.
+            Grupos funcionam como departamentos — agrupam pessoas com o mesmo
+            contexto e responsabilidades. Tudo é editável depois.
           </p>
 
           <AwField label="Nome do grupo" htmlFor="group-name">

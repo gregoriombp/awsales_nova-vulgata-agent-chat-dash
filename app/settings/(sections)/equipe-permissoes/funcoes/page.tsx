@@ -173,8 +173,8 @@ export default function RolesPage() {
             Equipe &amp; permissões
           </h3>
           <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-            Gerencie quem tem acesso ao workspace, convide novas pessoas e
-            organize permissões por função e projeto.
+            Quem tem acesso a esta organização, com qual função e em quais
+            projetos.
           </p>
         </header>
 
@@ -410,9 +410,9 @@ function RoleMembersModal({
         {pendingRemove && (
           <p className="m-0 body-xs text-(--fg-primary)">
             Remover{" "}
-            <strong className="font-semibold">{pendingRemove.name}</strong> do
-            workspace? A pessoa perde o acesso imediatamente e pode ser
-            convidada novamente depois.
+            <strong className="font-semibold">{pendingRemove.name}</strong> da
+            organização? A pessoa perde o acesso na hora e pode ser convidada
+            novamente depois.
           </p>
         )}
       </AwModal>
@@ -440,7 +440,7 @@ function RoleDeleteBlockedModal({
     <AwModal
       open={role !== null}
       onClose={onClose}
-      title="Reatribua os membros antes de excluir"
+      title="Mova os membros antes de excluir"
       footer={
         <AwButton size="sm" variant="primary" onClick={onClose}>
           Entendi
@@ -579,7 +579,7 @@ function MemberDetailPanel({
           iconLeft="person_remove"
           onClick={onRemove}
         >
-          Remover do workspace
+          Remover da organização
         </AwButton>
       </div>
     </div>
@@ -1020,8 +1020,8 @@ function RoleTable({
       )}
 
       <p className="m-0 px-1 body-xs text-(--fg-tertiary)">
-        Funções padrão não podem ser editadas. Crie quantas funções
-        personalizadas a operação precisar.
+        As funções padrão são fixas. Crie quantas personalizadas a sua operação
+        precisar.
       </p>
     </div>
   );

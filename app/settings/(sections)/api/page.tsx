@@ -56,7 +56,7 @@ export default function ApiSettingsPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="API & desenvolvedores"
-        description="Conecte seus sistemas internos aos agentes via API. Cada chave é auditada."
+        description="Conecte os seus sistemas aos agentes via API. Cada uso da chave fica auditado."
       />
       <SectionHeading
         title="Chaves de API"
@@ -117,7 +117,7 @@ export default function ApiSettingsPage() {
             Webhook signing secret
           </p>
           <p className="m-0 body-xs text-(--fg-secondary)">
-            Usado para validar payloads recebidos dos agentes.
+            Valida os payloads recebidos dos agentes.
           </p>
         </div>
         <AwButton size="sm" variant="secondary" iconLeft="autorenew">
@@ -156,8 +156,7 @@ export default function ApiSettingsPage() {
         {generatedKey ? (
           <div className="flex flex-col gap-3">
             <p className="m-0 body-xs text-(--fg-secondary)">
-              Copie a chave agora — por segurança, ela não será exibida
-              novamente.
+              Copie a chave agora — não vamos mostrar de novo.
             </p>
             <div className="flex items-center gap-2 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
               <code className="mono min-w-0 flex-1 truncate text-(--fg-primary)">
@@ -221,8 +220,8 @@ export default function ApiSettingsPage() {
             <code className="mono text-(--fg-primary)">
               {revokeTarget.prefix}
             </code>
-            ) será revogada na hora. Qualquer integração que ainda a use para de
-            funcionar — e não dá pra desfazer.
+            ) é revogada na hora. Qualquer integração que ainda a use para de
+            funcionar. Não dá para desfazer.
           </p>
         )}
       </AwModal>

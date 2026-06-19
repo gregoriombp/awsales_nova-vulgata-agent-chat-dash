@@ -82,7 +82,7 @@ export default function DadosPessoaisPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Dados pessoais"
-        description="Nome, telefone, foto e fuso horário — informações da sua conta, visíveis para os membros da organização."
+        description="Nome, telefone, foto e fuso horário. Visíveis para a sua organização."
       />
 
       {/* Esquerda: foto de perfil · Direita: formulário de edição */}
@@ -108,7 +108,7 @@ export default function DadosPessoaisPage() {
             <AwField
               label="E-mail"
               htmlFor="email"
-              helper="Gerenciado pela organização."
+              helper="Definido pela organização."
             >
               <AwInput id="email" value={INITIAL.email} disabled />
             </AwField>
@@ -116,7 +116,7 @@ export default function DadosPessoaisPage() {
             <AwField
               label="Telefone"
               htmlFor="phone"
-              helper="Usado para notificações por WhatsApp e contato de cobrança."
+              helper="Recebe notificações no WhatsApp e contatos de cobrança."
             >
               <AwInput
                 id="phone"
@@ -131,7 +131,7 @@ export default function DadosPessoaisPage() {
             <AwField
               label={`Função na ${ORG_NAME}`}
               htmlFor="role"
-              helper="A função é definida por organização — você pode ter funções diferentes em cada uma onde participa."
+              helper="A função vale por organização — você pode ter funções diferentes em cada uma."
             >
               <AwInput id="role" value={INITIAL.role} disabled />
             </AwField>
@@ -155,8 +155,8 @@ export default function DadosPessoaisPage() {
           {/* Legenda única dos campos travados — explica o "por quê" e o caminho de ação. */}
           <p className="mt-5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
             <Icon name="lock" size={14} />
-            E-mail, função e data de entrada são definidos pela organização. Para
-            alterá-los, fale com um administrador.
+            E-mail, função e data de entrada vêm da organização. Para alterar,
+            fale com um administrador.
           </p>
 
           <div className="mt-6 flex justify-end gap-2 border-t border-(--border-subtle) pt-5">

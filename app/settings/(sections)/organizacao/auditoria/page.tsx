@@ -686,7 +686,7 @@ export default function OrgAuditoriaPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Privacidade & auditoria"
-        description="Tudo o que aconteceu na organização e os pedidos de dados dos membros — em um só lugar."
+        description="O que aconteceu na organização e os pedidos de dados dos membros."
       />
 
       {pendingCount > 0 && (
@@ -760,8 +760,8 @@ function DsarPendingBanner({
             )}
           </strong>
           <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-            O titular tem direito a uma resposta em até 15 dias.{" "}
-            <span className="text-(--fg-tertiary)">LGPD Art. 19.</span>
+            Por lei, o titular tem direito a uma resposta em até 15 dias{" "}
+            <span className="text-(--fg-tertiary)">(LGPD Art. 19).</span>
           </p>
         </div>
         <AwButton
@@ -924,8 +924,8 @@ function HistoricoTab() {
       <section>
         <h6 className="m-0 mb-1 text-(--fg-primary)">Histórico de atividade</h6>
         <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
-          Cada ação feita por membros e administradores na organização — quem
-          fez, o quê e quando.
+          Cada ação de membros e administradores na organização — quem fez, o
+          quê, quando.
         </p>
       </section>
 
@@ -1003,10 +1003,10 @@ function GovernanceNote() {
         <Icon name="verified_user" size={16} />
       </span>
       <p className="m-0 body-xs text-(--fg-secondary)">
-        O encarregado de dados atende às solicitações e consulta este histórico;
-        auditores externos têm acesso somente de leitura. Toda ação aqui é
-        registrada e mantida por 5 anos.{" "}
-        <span className="text-(--fg-tertiary)">LGPD Art. 37.</span>
+        Encarregados atendem solicitações e consultam o histórico; auditores
+        externos têm acesso só de leitura. Toda ação aqui fica registrada por 5
+        anos{" "}
+        <span className="text-(--fg-tertiary)">(LGPD Art. 37).</span>
       </p>
     </div>
   );
@@ -1723,7 +1723,7 @@ function SolicitacoesTab({
     <div className="flex flex-col gap-4">
       <SectionHeading
         title="Solicitações de dados"
-        description="Pedidos de acesso, correção ou eliminação feitos por titulares. Atendemos em até 15 dias."
+        description="Pedidos de acesso, correção ou eliminação feitos por titulares. Resposta em até 15 dias."
         action={
           <AwButton
             size="sm"
@@ -2638,7 +2638,7 @@ function OrgExportSheet({
         !createdId && (
           <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
             <Icon name="balance" size={13} />
-            LGPD Art. 37 · a justificativa fica registrada por 5 anos
+            A justificativa fica registrada por 5 anos (LGPD Art. 37)
           </span>
         )
       }

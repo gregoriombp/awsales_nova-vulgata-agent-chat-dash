@@ -78,9 +78,9 @@ function ForecastBlock() {
       total={total}
       estimateNote={
         <>
-          Valor estimado. A cobrança é fechada em {CURRENT_INVOICE.dueAt} e pode
-          variar: o consumo variável conta até o fim do ciclo, e custos
-          atrelados a câmbio são convertidos na data da cobrança.
+          Estimativa. O valor pode mudar até o fechamento em{" "}
+          {CURRENT_INVOICE.dueAt} — o consumo variável conta até o fim do ciclo
+          e o câmbio é convertido na cobrança.
         </>
       }
       breakdown={breakdown}

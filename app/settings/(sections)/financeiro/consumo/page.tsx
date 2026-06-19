@@ -156,8 +156,8 @@ function ConsumptionHero({
             {brl(limit)}
           </strong>{" "}
           por ciclo. Vouchers e cupons abatem o consumo antes da cobrança —
-          eles não mudam o limite. Quando o valor a cobrar atinge esse teto,
-          o montante é cobrado automaticamente.{" "}
+          não mudam o limite. Ao bater no teto, o valor é cobrado
+          automaticamente.{" "}
           <button
             type="button"
             onClick={onRequestIncrease}
@@ -585,9 +585,9 @@ function RequestLimitIncreaseModal({
     >
       <div className="flex flex-col gap-4">
         <p className="m-0 body-xs text-(--fg-secondary)">
-          Limites são ajustados direto pelo seu account manager. Mande um
-          recado para o {amFirstName} pelo canal que preferir — ele avalia e
-          devolve a próxima faixa disponível.
+          O seu account manager ajusta os limites. Mande um recado para o{" "}
+          {amFirstName} pelo canal que preferir — ele avalia e devolve a próxima
+          faixa.
         </p>
 
         <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">

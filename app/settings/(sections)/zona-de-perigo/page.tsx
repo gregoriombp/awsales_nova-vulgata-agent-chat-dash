@@ -57,8 +57,8 @@ export default function DangerZoneSettingsPage() {
       />
 
       <AwAlert variant="warning" title="Antes de excluir, exporte seus dados">
-        Conversas, agentes, bases de conhecimento e logs de execução podem ser
-        baixados em um único arquivo. Depois da exclusão, não há como recuperar.
+        Conversas, agentes, bases de conhecimento e logs ficam em um único
+        arquivo. Depois da exclusão, não há como recuperar.
       </AwAlert>
 
       <AwCard className="p-0! mt-4">
@@ -103,8 +103,8 @@ export default function DangerZoneSettingsPage() {
 
       <p className="mt-3 inline-flex items-center gap-2 px-1 body-xs text-(--fg-tertiary)">
         <Icon name="info" size={14} />
-        A solicitação fica registrada no histórico da organização e pode ser
-        cancelada durante a carência.
+        A solicitação fica registrada no histórico e pode ser cancelada durante
+        a carência.
       </p>
 
       {/* Modal — solicitar exclusão (confirmação por nome) */}
@@ -135,7 +135,7 @@ export default function DangerZoneSettingsPage() {
       >
         <div className="flex flex-col gap-5">
           <p className="m-0 body-sm text-(--fg-secondary)">
-            Você está iniciando o encerramento da{" "}
+            Você vai iniciar o encerramento da{" "}
             <strong className="font-medium text-(--fg-primary)">
               {ONBOARDING_ORG.name}
             </strong>{" "}

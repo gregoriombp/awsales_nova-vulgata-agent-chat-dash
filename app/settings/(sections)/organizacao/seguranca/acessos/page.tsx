@@ -264,9 +264,9 @@ export default function AcessosOrgPage() {
       <div className="mb-8 flex items-start gap-3 rounded-xl border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3.5">
         <Icon name="info" size={18} className="mt-px shrink-0 text-(--aw-blue-700)" />
         <p className="m-0 body-xs leading-relaxed text-(--aw-blue-800)">
-          Encerrar ou revogar um acesso aqui afeta só a {ONBOARDING_ORG.name}. A
-          pessoa continua conectada nas outras organizações onde tem acesso, e a
-          conta global não é desconectada.
+          Encerrar ou revogar aqui vale só para a {ONBOARDING_ORG.name}. A
+          pessoa continua conectada nas outras organizações; a conta global não
+          cai.
         </p>
       </div>
 

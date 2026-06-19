@@ -395,7 +395,7 @@ export default function GroupDetailPage() {
             <strong className="font-medium">{group.name}</strong>. Essa ação não pode ser desfeita.
           </p>
           <p className="m-0 mt-2 body-xs text-(--fg-secondary)">
-            Os membros continuam com acesso individual ao workspace — apenas a equipe será removida.
+            Os membros continuam com acesso individual à organização — só a equipe é removida.
           </p>
         </AwModal>
 
@@ -414,7 +414,7 @@ export default function GroupDetailPage() {
                   Membros · {members.length}
                 </h6>
                 <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
-                  Pessoas que herdam as permissões dessa equipe automaticamente.
+                  Quem herda as permissões dessa equipe automaticamente.
                 </p>
               </div>
               <AwButton
@@ -641,7 +641,7 @@ export default function GroupDetailPage() {
               Você está prestes a remover{" "}
               <strong className="font-medium">{removeMember.name}</strong> da
               equipe <strong className="font-medium">{groupName}</strong>. O
-              acesso individual ao workspace continua intacto — só as
+              acesso individual à organização continua intacto — só as
               permissões herdadas via equipe vão embora.
             </p>
           </div>
@@ -750,8 +750,8 @@ function ActivityFullView({
           Atividade da equipe
         </h6>
         <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-          Linha do tempo completa de tudo que aconteceu nessa equipe — entradas,
-          saídas, mudanças de função, permissões e personalizações.
+          Tudo que aconteceu nessa equipe — entradas, saídas, mudanças de
+          função, permissões e personalizações.
         </p>
       </header>
 

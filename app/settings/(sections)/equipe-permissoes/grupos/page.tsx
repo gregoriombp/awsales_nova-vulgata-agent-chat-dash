@@ -98,8 +98,8 @@ export default function GroupsPage() {
             Equipe &amp; permissões
           </h3>
           <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-            Gerencie quem tem acesso ao workspace, convide novas pessoas e
-            organize permissões por função e projeto.
+            Quem tem acesso a esta organização, com qual função e em quais
+            projetos.
           </p>
         </header>
 
@@ -133,8 +133,8 @@ export default function GroupsPage() {
                 </AwEmptyMedia>
                 <AwEmptyTitle>Nenhuma equipe encontrada</AwEmptyTitle>
                 <AwEmptyDescription>
-                  Use equipes para conceder acesso a vários membros de uma vez —
-                  por exemplo, time de Atendimento ou time Comercial.
+                  Equipes dão acesso a várias pessoas de uma vez — Atendimento,
+                  Comercial, etc.
                 </AwEmptyDescription>
               </AwEmptyHeader>
             </AwEmpty>
