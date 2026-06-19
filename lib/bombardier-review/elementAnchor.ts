@@ -69,10 +69,21 @@ export function resolveAnchoredElement(anchor: ReviewAnchor | null): Element | n
   return resolveElement(anchor.el.selector, anchor.el.fingerprint)
 }
 
+/** Mesma resolução (seletor + fallback de fingerprint), exposta pra consumidores
+ *  que guardam só `selector`/`fingerprint` soltos (ex.: Live Edit Mode), sem o
+ *  embrulho `anchor.el`. */
+export function resolveElementBySelector(
+  selector: string,
+  fingerprint?: ReviewAnchorFingerprint,
+): Element | null {
+  if (typeof document === "undefined") return null
+  return resolveElement(selector, fingerprint)
+}
+
 // Caminho `body > tag:nth-of-type(n) > …` estável entre toggles de layout (o
 // DOM é o mesmo; só a largura muda). Usa nth-of-type (não ids) porque ids do
 // Radix carregam `:` e quebram o querySelector.
-function cssPath(start: Element): string | null {
+export function cssPath(start: Element): string | null {
   if (typeof document === "undefined") return null
   const parts: string[] = []
   let node: Element | null = start
