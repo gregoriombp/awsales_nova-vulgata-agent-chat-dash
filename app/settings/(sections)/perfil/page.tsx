@@ -68,11 +68,44 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
   },
 ];
 
+const INITIAL_PROFILE = {
+  fullName: "Gregório Pinheiro",
+  email: "greg@awsales.io",
+  phone: "+55 (11) 98765-4321",
+  role: "Super Administrador",
+  timezone: "America/Sao_Paulo",
+  memberSince: "12 jan. 2026",
+};
+
+const TIMEZONES = [
+  { value: "America/Sao_Paulo", label: "(GMT−3) Brasília — São Paulo" },
+  { value: "America/Fortaleza", label: "(GMT−3) Fortaleza" },
+  { value: "America/Recife", label: "(GMT−3) Recife" },
+  { value: "America/Manaus", label: "(GMT−4) Manaus" },
+  { value: "America/Cuiaba", label: "(GMT−4) Cuiabá" },
+  { value: "America/Porto_Velho", label: "(GMT−4) Porto Velho" },
+  { value: "America/Rio_Branco", label: "(GMT−5) Rio Branco" },
+  { value: "America/Noronha", label: "(GMT−2) Fernando de Noronha" },
+  { value: "UTC", label: "(GMT+0) UTC" },
+];
+
+function tzLabel(value: string) {
+  return TIMEZONES.find((t) => t.value === value)?.label ?? value;
+}
+
 export default function ProfileSettingsPage() {
-  const [fullName, setFullName] = useState("Gregório Pinheiro");
-  const [email] = useState("greg@awsales.io");
-  const [role, setRole] = useState("Super Administrador");
+  const [fullName, setFullName] = useState(INITIAL_PROFILE.fullName);
+  const [email] = useState(INITIAL_PROFILE.email);
+  const [phone, setPhone] = useState(INITIAL_PROFILE.phone);
+  const [role] = useState(INITIAL_PROFILE.role);
+  const [timezone, setTimezone] = useState(INITIAL_PROFILE.timezone);
   const [editOpen, setEditOpen] = useState(false);
+  const editNameEmpty = fullName.trim() === "";
+  const editDirty =
+    fullName.trim() !== INITIAL_PROFILE.fullName ||
+    phone !== INITIAL_PROFILE.phone ||
+    timezone !== INITIAL_PROFILE.timezone;
+  const editCanSave = editDirty && !editNameEmpty;
   const [cover, setCover] = useState(DEFAULT_COVER);
   const [coverPosY, setCoverPosY] = useState(50);
   const [savedPosY, setSavedPosY] = useState(50);
@@ -102,7 +135,6 @@ export default function ProfileSettingsPage() {
   const publicRows: { icon?: string; iconNode?: React.ReactNode; text: string }[] = [
     { icon: "mail", text: email },
     { iconNode: <WhatsAppIcon />, text: "+55 11 98765-4321" },
-    { iconNode: <SlackIcon />, text: "@greg.pinheiro" },
     { icon: "badge", text: role },
     { icon: "schedule", text: "Brasília · GMT−03" },
     { icon: "translate", text: "Português (Brasil)" },
@@ -252,15 +284,6 @@ export default function ProfileSettingsPage() {
                     <WhatsAppIcon size={12} />
                     <span>+55 11 98765-4321</span>
                   </a>
-                  <a
-                    href="https://slack.com/app_redirect?channel=greg.pinheiro"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 rounded-full bg-(--aw-gray-100) px-2 py-0.5 text-2xs font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:bg-(--aw-gray-150) hover:text-(--fg-primary)"
-                  >
-                    <SlackIcon size={12} />
-                    <span>@greg.pinheiro</span>
-                  </a>
                 </div>
                 <p className="m-0 body-xs text-(--fg-secondary)">Designer Engineer at Aswork</p>
               </div>
@@ -322,6 +345,7 @@ export default function ProfileSettingsPage() {
             <AwButton
               size="sm"
               variant="primary"
+              disabled={!editCanSave}
               onClick={() => setEditOpen(false)}
             >
               Salvar alterações
@@ -344,41 +368,83 @@ export default function ProfileSettingsPage() {
               PNG ou JPG, mínimo 200×200 px.
             </p>
           </div>
-          <AwButton size="sm" variant="secondary" iconLeft="upload">
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="upload"
+            onClick={() => setPhotoOpen(true)}
+          >
             Alterar foto
           </AwButton>
         </div>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <AwField label="Nome completo" htmlFor="profile-name">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-5 md:grid-cols-2">
+          <AwField
+            label="Nome completo *"
+            htmlFor="profile-name"
+            error={editNameEmpty ? "Informe o seu nome para salvar." : undefined}
+          >
             <AwInput
               id="profile-name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
+              invalid={editNameEmpty}
+              autoComplete="name"
+              aria-required="true"
             />
-          </AwField>
-          <AwField label="Email" htmlFor="profile-email">
-            <AwInput id="profile-email" value={email} readOnly />
-          </AwField>
-          <AwField label="Função" htmlFor="profile-role">
-            <AwInput
-              id="profile-role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-            />
-          </AwField>
-          <AwField label="Idioma da interface">
-            <AwSelect>Português (Brasil)</AwSelect>
-          </AwField>
-          <AwField label="Fuso horário">
-            <AwSelect>(GMT−03:00) Brasília · São Paulo</AwSelect>
           </AwField>
           <AwField
-            label="Formato de data"
-            helper="Aplicado em relatórios e exportações."
+            label="E-mail"
+            htmlFor="profile-email"
+            helper="Gerenciado pela organização."
           >
-            <AwSelect>DD/MM/AAAA</AwSelect>
+            <AwInput id="profile-email" value={email} disabled />
+          </AwField>
+          <AwField
+            label="Telefone"
+            htmlFor="profile-phone"
+            helper="Usado para notificações por WhatsApp e contato de cobrança."
+          >
+            <AwInput
+              id="profile-phone"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              type="tel"
+              autoComplete="tel"
+              placeholder="+55 (11) 00000-0000"
+            />
+          </AwField>
+          <AwField
+            label="Função"
+            htmlFor="profile-role"
+            helper="A função é definida pela organização. Fale com um administrador pra alterar."
+          >
+            <AwInput id="profile-role" value={role} disabled />
+          </AwField>
+          <AwField label="Fuso horário">
+            <AwDropdownMenu
+              trigger={
+                <AwSelect className="w-full">{tzLabel(timezone)}</AwSelect>
+              }
+              items={TIMEZONES.map((tz) => ({
+                id: tz.value,
+                label: tz.label,
+                onSelect: () => setTimezone(tz.value),
+              }))}
+            />
+          </AwField>
+          <AwField label="Membro desde" htmlFor="profile-member-since">
+            <AwInput
+              id="profile-member-since"
+              value={INITIAL_PROFILE.memberSince}
+              disabled
+            />
           </AwField>
         </div>
+        <p className="mt-5 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+          <Icon name="lock" size={14} />
+          E-mail, função e data de entrada são definidos pela organização. Para
+          alterá-los, fale com um administrador.
+        </p>
       </AwModal>
 
       <PhotoEditModal
@@ -500,10 +566,6 @@ function PhotoEditModal({
 /* -----------------------------------------------------------------
  * Brand icons for social rows
  * ----------------------------------------------------------------- */
-
-function SlackIcon({ size = 16 }: { size?: number } = {}) {
-  return <AwBrandLogo brand="slack" markOnly size={size} className="shrink-0" aria-hidden />;
-}
 
 function WhatsAppIcon({ size = 16 }: { size?: number } = {}) {
   return <AwBrandLogo brand="whatsapp" markOnly size={size} className="shrink-0" aria-hidden />;
