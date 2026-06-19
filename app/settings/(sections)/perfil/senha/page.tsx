@@ -55,14 +55,78 @@ const BACKUP_CODES_SAMPLE = [
 
 const ORG_REQUIRES_MFA = true;
 
+/** Linha de exigência da senha — checklist ao vivo na etapa 2. */
+function PwRequirement({
+  met,
+  label,
+  optional,
+}: {
+  met: boolean;
+  label: string;
+  optional?: boolean;
+}) {
+  return (
+    <li className="flex items-center gap-2 body-xs">
+      <Icon
+        name={met ? "check_circle" : "radio_button_unchecked"}
+        size={15}
+        fill={met ? 1 : 0}
+        weight={500}
+        className={met ? "text-(--accent-success)" : "text-(--fg-tertiary)"}
+      />
+      <span className={met ? "text-(--fg-primary)" : "text-(--fg-secondary)"}>
+        {label}
+        {optional && (
+          <span className="ml-1 text-(--fg-tertiary)">· recomendado</span>
+        )}
+      </span>
+    </li>
+  );
+}
+
 export default function SenhaPage() {
-  /* Senha */
+  /* Senha — modal em duas etapas: 1) confirmar identidade (senha atual),
+   *  2) criar a nova senha (medidor + exigências). Espelha o fluxo de
+   *  login/criar-senha do styleguide. */
   const [pwOpen, setPwOpen] = useState(false);
+  const [pwStep, setPwStep] = useState<1 | 2>(1);
+  const [pwVerifying, setPwVerifying] = useState(false);
   const [currentPw, setCurrentPw] = useState("");
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [pwError, setPwError] = useState("");
   const [pwSaved, setPwSaved] = useState(false);
+
+  function openChangePw() {
+    setPwStep(1);
+    setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    setPwError(""); setPwSaved(false); setPwVerifying(false);
+    setPwOpen(true);
+  }
+
+  function closeChangePw() {
+    setPwOpen(false);
+    setPwStep(1);
+    setCurrentPw(""); setNewPw(""); setConfirmPw("");
+    setPwError(""); setPwVerifying(false);
+  }
+
+  /* Etapa 1 → 2: "autentica" a senha atual antes de liberar a troca. */
+  function verifyCurrentPw() {
+    setPwError("");
+    if (!currentPw) { setPwError("Informe a senha atual."); return; }
+    setPwVerifying(true);
+    // TODO: validar a senha atual via API. Mock: "000000" falha, resto passa.
+    setTimeout(() => {
+      setPwVerifying(false);
+      if (currentPw === "000000") {
+        setPwError("Senha atual incorreta. Tente de novo.");
+        return;
+      }
+      setPwError("");
+      setPwStep(2);
+    }, 700);
+  }
 
   /* MFA */
   const [mfaOn, setMfaOn] = useState(true);
@@ -86,7 +150,6 @@ export default function SenhaPage() {
 
   function handleChangePw() {
     setPwError("");
-    if (!currentPw) { setPwError("Informe a senha atual."); return; }
     if (!pwEval.longEnough) { setPwError(`A nova senha precisa ter ao menos ${PASSWORD_MIN_LENGTH} caracteres.`); return; }
     if (pwLeaked) { setPwError("Essa senha apareceu em vazamentos conhecidos. Escolha outra."); return; }
     if (newPw !== confirmPw) { setPwError("As senhas não coincidem."); return; }
@@ -94,6 +157,7 @@ export default function SenhaPage() {
     setPwSaved(true);
     setTimeout(() => {
       setPwOpen(false);
+      setPwStep(1);
       setCurrentPw(""); setNewPw(""); setConfirmPw("");
       setPwError(""); setPwSaved(false);
     }, 1200);
@@ -171,7 +235,7 @@ export default function SenhaPage() {
             <AwButton
               size="sm"
               variant="secondary"
-              onClick={() => setPwOpen(true)}
+              onClick={openChangePw}
             >
               Alterar senha
             </AwButton>
@@ -268,96 +332,166 @@ export default function SenhaPage() {
         )}
       </div>
 
-      {/* ── Modal: Alterar senha ── */}
+      {/* ── Modal: Alterar senha (2 etapas) ── */}
       <AwModal
         open={pwOpen}
-        onClose={() => { setPwOpen(false); setCurrentPw(""); setNewPw(""); setConfirmPw(""); setPwError(""); }}
+        onClose={closeChangePw}
         title="Alterar senha"
+        dismissible={!pwVerifying && !pwSaved}
         footer={
-          <>
-            <AwButton
-              size="sm"
-              variant="ghost"
-              onClick={() => setPwOpen(false)}
-            >
-              Cancelar
-            </AwButton>
-            <AwButton
-              size="sm"
-              variant="primary"
-              onClick={handleChangePw}
-              disabled={pwSaved}
-            >
-              {pwSaved ? "Salvo" : "Alterar senha"}
-            </AwButton>
-          </>
+          pwStep === 1 ? (
+            <>
+              <AwButton size="sm" variant="ghost" onClick={closeChangePw}>
+                Cancelar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                onClick={verifyCurrentPw}
+                loading={pwVerifying}
+                disabled={!currentPw || pwVerifying}
+              >
+                {pwVerifying ? "Verificando…" : "Continuar"}
+              </AwButton>
+            </>
+          ) : (
+            <>
+              <AwButton
+                size="sm"
+                variant="ghost"
+                iconLeft="arrow_back"
+                onClick={() => { setPwError(""); setPwStep(1); }}
+                disabled={pwSaved}
+              >
+                Voltar
+              </AwButton>
+              <AwButton
+                size="sm"
+                variant="primary"
+                onClick={handleChangePw}
+                disabled={pwSaved}
+              >
+                {pwSaved ? "Senha alterada" : "Alterar senha"}
+              </AwButton>
+            </>
+          )
         }
       >
-        <div className="flex flex-col gap-4">
-          {pwError && (
-            <AwAlert variant="danger">{pwError}</AwAlert>
-          )}
-          <AwField label="Senha atual" htmlFor="current-pw">
-            <AwInput
-              id="current-pw"
-              type="password"
-              value={currentPw}
-              onChange={(e) => setCurrentPw(e.target.value)}
-              autoComplete="current-password"
+        {/* Stepper */}
+        <div className="mb-4 flex items-center gap-2">
+          {[1, 2].map((s) => (
+            <span
+              key={s}
+              aria-hidden="true"
+              className="h-1 flex-1 rounded-full transition-colors duration-aw-base"
+              style={{
+                background:
+                  s <= pwStep ? "var(--fg-primary)" : "var(--border-default)",
+              }}
             />
-          </AwField>
-          <AwField
-            label="Nova senha"
-            htmlFor="new-pw"
-            helper="Use ao menos 10 caracteres. Frases longas valem mais que símbolos."
-          >
-            <AwInput
-              id="new-pw"
-              type="password"
-              value={newPw}
-              onChange={(e) => setNewPw(e.target.value)}
-              autoComplete="new-password"
-              invalid={pwLeaked}
-            />
-            {newPw.length > 0 && (
-              <div className="mt-2">
-                <AwProgress
-                  label={
-                    <span className="text-(--fg-secondary)">Força da senha</span>
-                  }
-                  value={pwEval.score}
-                  max={4}
-                  valueLabel={
-                    <span className="capitalize">{pwEval.label}</span>
-                  }
-                  variant={
-                    pwEval.score <= 1
-                      ? "danger"
-                      : pwEval.score === 2
-                        ? "warning"
-                        : "success"
-                  }
-                />
-              </div>
-            )}
-          </AwField>
-          {pwLeaked && (
-            <AwAlert variant="warning" icon="warning">
-              Essa senha apareceu em vazamentos conhecidos. Escolha outra para
-              manter sua conta segura.
-            </AwAlert>
-          )}
-          <AwField label="Confirmar nova senha" htmlFor="confirm-pw">
-            <AwInput
-              id="confirm-pw"
-              type="password"
-              value={confirmPw}
-              onChange={(e) => setConfirmPw(e.target.value)}
-              autoComplete="new-password"
-              invalid={!!confirmPw && confirmPw !== newPw}
-            />
-          </AwField>
+          ))}
         </div>
+        <p className="m-0 mb-4 aw-eyebrow text-(--fg-tertiary)">
+          Etapa {pwStep} de 2 ·{" "}
+          {pwStep === 1 ? "Confirme sua identidade" : "Crie a nova senha"}
+        </p>
+
+        {pwStep === 1 ? (
+          <div key="step-1" className="aw-wizard-step flex flex-col gap-4">
+            <p className="m-0 body-sm text-(--fg-secondary)">
+              Antes de trocar a senha, confirme a senha atual da sua conta.
+            </p>
+            {pwError && <AwAlert variant="danger">{pwError}</AwAlert>}
+            <AwField label="Senha atual" htmlFor="current-pw">
+              <AwInput
+                id="current-pw"
+                type="password"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                autoComplete="current-password"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") verifyCurrentPw();
+                }}
+              />
+            </AwField>
+          </div>
+        ) : (
+          <div key="step-2" className="aw-wizard-step flex flex-col gap-4">
+            {pwError && <AwAlert variant="danger">{pwError}</AwAlert>}
+            <AwField
+              label="Nova senha"
+              htmlFor="new-pw"
+              helper="Frases longas valem mais que símbolos — pense em três palavras aleatórias."
+            >
+              <AwInput
+                id="new-pw"
+                type="password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                autoComplete="new-password"
+                invalid={pwLeaked}
+              />
+              {newPw.length > 0 && (
+                <div className="mt-2">
+                  <AwProgress
+                    label={
+                      <span className="text-(--fg-secondary)">
+                        Força da senha
+                      </span>
+                    }
+                    value={pwEval.score}
+                    max={4}
+                    valueLabel={
+                      <span className="capitalize">{pwEval.label}</span>
+                    }
+                    variant={
+                      pwEval.score <= 1
+                        ? "danger"
+                        : pwEval.score === 2
+                          ? "warning"
+                          : "success"
+                    }
+                  />
+                </div>
+              )}
+            </AwField>
+
+            {/* Exigências da senha — checklist ao vivo (forte/fraca/blá blá). */}
+            <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+              <PwRequirement
+                met={pwEval.longEnough}
+                label={`Pelo menos ${PASSWORD_MIN_LENGTH} caracteres`}
+              />
+              <PwRequirement
+                met={newPw.length > 0 && !pwLeaked}
+                label="Não apareceu em vazamentos conhecidos"
+              />
+              <PwRequirement
+                met={pwEval.score >= 3}
+                label="Força forte ou superior"
+                optional
+              />
+              <PwRequirement
+                met={confirmPw.length > 0 && confirmPw === newPw}
+                label="As senhas coincidem"
+              />
+            </ul>
+
+            <AwField label="Confirmar nova senha" htmlFor="confirm-pw">
+              <AwInput
+                id="confirm-pw"
+                type="password"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                autoComplete="new-password"
+                invalid={!!confirmPw && confirmPw !== newPw}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleChangePw();
+                }}
+              />
+            </AwField>
+          </div>
+        )}
       </AwModal>
 
       {/* ── Modal: Desativar MFA ── */}
