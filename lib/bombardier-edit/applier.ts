@@ -23,6 +23,29 @@ import { isAllowedStyle } from "./token-manifest"
 
 const DISPLAY = "display"
 
+/** Texto normalizado de um elemento — espelha o fpText do anchor/resolver. */
+function fpText(el: Element): string {
+  return (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 60)
+}
+
+/**
+ * Um alvo de `hide` só é válido se ainda casar o fingerprint capturado.
+ *
+ * O resolver (resolveElement) devolve um elemento "best-effort" pelo seletor
+ * mesmo quando o fingerprint NÃO bate — os pins precisam disso pra grudar em
+ * texto volátil. Mas pra ESCONDER isso é destrutivo: assim que uma op de hide
+ * vira código (materializada), o elemento some e o seletor nth-of-type velho
+ * passa a cair no vizinho que deslizou pra aquela posição — esconder o vizinho
+ * apaga conteúdo inocente. Então, se o texto não casa mais o fingerprint,
+ * tratamos o alvo como inexistente e não fazemos nada. Sem fingerprint de texto
+ * (alvo sem texto), não há como verificar → mantém o comportamento legado.
+ */
+function hideTargetMatches(el: Element, anchor: PageEditOp["anchor"]): boolean {
+  const want = anchor.fingerprint?.text
+  if (!want) return true
+  return fpText(el) === want
+}
+
 type PriorInline = { prop: string; value: string; priority: string }
 
 type Entry = {
@@ -88,6 +111,14 @@ export class OverlayApplier {
         ? entry.el
         : resolveEditElement(entry.op.anchor)
     if (!el) {
+      this.detach(entry)
+      entry.el = null
+      return
+    }
+    // Op de `hide` materializada (elemento removido do código) não pode cair no
+    // fallback do seletor e esconder o vizinho que ocupou a posição. Se o alvo
+    // não casa mais o fingerprint, trata como inexistente e não aplica.
+    if (entry.op.payload.kind === "hide" && !hideTargetMatches(el, entry.op.anchor)) {
       this.detach(entry)
       entry.el = null
       return
