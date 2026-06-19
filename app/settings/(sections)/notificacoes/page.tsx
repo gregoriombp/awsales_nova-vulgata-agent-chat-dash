@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
@@ -286,6 +285,22 @@ export default function NotificationsSettingsPage() {
       <SettingsPageHeader
         title="Notificações"
         description="Escolha o que te interrompe e por onde recebe. A organização define o que é obrigatório e o padrão de cada evento — aqui você afina o que é opcional e os canais."
+        info={
+          <div className="flex flex-col gap-1.5 py-0.5">
+            <p className="m-0 body-xs">
+              A organização define o que é obrigatório e o padrão de cada evento.
+              Aqui você ajusta o que é opcional e por quais canais recebe — itens{" "}
+              <span className="font-medium text-(--fg-primary)">
+                Definido pela organização
+              </span>{" "}
+              chegam sempre.
+            </p>
+            <p className="m-0 body-xs text-(--fg-tertiary)">
+              Suas preferências valem em {ORG_NAME} — cada pessoa configura as
+              suas, por organização.
+            </p>
+          </div>
+        }
         trailing={
           <AwButton
             asChild
@@ -297,29 +312,6 @@ export default function NotificationsSettingsPage() {
           </AwButton>
         }
       />
-
-      {/* Banner do modelo híbrido — eco enxuto do conceito da página de org,
-       * fechando também o escopo por organização (Fyntra). */}
-      <AwAlert variant="info" icon="info" className="mt-1">
-        <p className="m-0 body-sm text-(--fg-secondary)">
-          A{" "}
-          <strong className="font-medium text-(--fg-primary)">
-            organização
-          </strong>{" "}
-          define o que é obrigatório e o padrão de cada evento. Aqui você ajusta
-          o que é{" "}
-          <strong className="font-medium text-(--fg-primary)">opcional</strong>{" "}
-          e por quais canais recebe — itens{" "}
-          <strong className="font-medium text-(--fg-primary)">
-            Definido pela organização
-          </strong>{" "}
-          chegam sempre.
-        </p>
-        <p className="m-0 mt-1.5 body-xs text-(--fg-tertiary)">
-          Suas preferências em {ORG_NAME} — cada pessoa configura as suas, por
-          organização.
-        </p>
-      </AwAlert>
 
       {/* Divisor cinza entre cada tipo de notificação. */}
       <div className="mt-8 flex flex-col divide-y divide-(--border-subtle)">

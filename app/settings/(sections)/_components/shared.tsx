@@ -2,6 +2,13 @@
 
 import { AwButton } from "@/components/ui/AwButton";
 import { AwProgress } from "@/components/ui/AwProgress";
+import { Icon } from "@/components/ui/Icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export type ApiKey = {
   id: string;
@@ -146,19 +153,43 @@ export function SettingsPageHeader({
   title,
   description,
   trailing,
+  info,
 }: {
   title: string;
   description?: string;
   trailing?: React.ReactNode;
+  /** Conteúdo opcional de um tooltip de info ao lado do título. */
+  info?: React.ReactNode;
 }) {
   return (
     <header className="mb-10 flex items-start justify-between gap-6">
       <div className="min-w-0">
-        <h3 className="m-0 mb-2 text-(--fg-primary)">
-          {title}
-        </h3>
+        <div className="flex items-center gap-1.5">
+          <h3 className="m-0 text-(--fg-primary)">{title}</h3>
+          {info && (
+            <TooltipProvider delayDuration={120}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Mais informações"
+                    className="inline-flex h-6 w-6 items-center justify-center rounded-full text-(--fg-tertiary) outline-hidden transition-colors duration-aw-fast hover:text-(--fg-secondary) focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-2"
+                  >
+                    <Icon name="info" size={17} />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="right"
+                  className="max-w-[320px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+                >
+                  {info}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         {description && (
-          <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
+          <p className="m-0 mt-2 max-w-[520px] body-xs text-(--fg-secondary)">
             {description}
           </p>
         )}
