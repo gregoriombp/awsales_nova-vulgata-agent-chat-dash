@@ -195,6 +195,11 @@ export const navigation: NavSection[] = [
       },
       { name: "Stat card", href: "/bombardier/styleguide/components/aw-stat-card" },
       {
+        name: "Stat group",
+        href: "/bombardier/styleguide/components/aw-stat-group",
+        aliases: ["AwStatGroup", "acessos", "KPI", "faixa de stats", "stat row", "métricas"],
+      },
+      {
         name: "Tabelas",
         href: "/bombardier/styleguide/components/table",
         aliases: [
