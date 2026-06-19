@@ -92,7 +92,16 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
   },
   {
     id: "workspace",
-    label: ONBOARDING_ORG.name,
+    label: (
+      <div className="flex min-w-0 flex-col leading-tight">
+        <span className="truncate body-sm font-medium text-(--fg-primary)">
+          {ONBOARDING_ORG.name}
+        </span>
+        <span className="truncate body-xs font-normal text-(--fg-tertiary)">
+          {ONBOARDING_ORG.razaoSocial}
+        </span>
+      </div>
+    ),
     org: true,
     items: [
       // Organização não tem menu in-page → identidade fica como item e cada
@@ -212,12 +221,12 @@ export function SettingsNav() {
         id: group.id,
         label: group.label,
         leading: group.org ? (
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center overflow-hidden rounded-md bg-(--bg-muted) ring-1 ring-(--border-subtle)">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-(--bg-muted) ring-1 ring-(--border-subtle)">
             <img
               src={ONBOARDING_ORG.logo}
               alt=""
-              width={24}
-              height={24}
+              width={36}
+              height={36}
               style={{ objectFit: "cover" }}
             />
           </span>
