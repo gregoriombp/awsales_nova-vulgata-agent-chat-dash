@@ -210,9 +210,7 @@ notificações · `AwChatBubble` balão de chat · `AwInputMessage` composer ·
 `AwConsumptionBar` barra de consumo · `AwCostBreakdown` quebra de custo ·
 `AwInvoiceForecastCard` previsão da próxima fatura · `AwInvoiceRow` linha de fatura ·
 `AwPlanSummaryCard` resumo do plano · `AwPaymentMethodRow` método de pagamento (item de
-lista) · `AwPaymentMethodChip` método de pagamento (inline/link) · `AwInvoiceSummaryCard`
-resumo da fatura — **órfão: hoje só aparece no próprio showcase, sem uso em produto**
-(candidato a ligar numa página de faturamento ou remover).
+lista) · `AwPaymentMethodChip` método de pagamento (inline/link).
 
 ### Infra / layout (consumido por outros, não use direto numa página)
 `AwThemeProvider` · `AwDashboardLayout` · `AwSidebar` · `AwHeader` · `AwNavRail`

@@ -143,7 +143,6 @@ export const navigation: NavSection[] = [
       },
       { name: "Invoice forecast card", href: "/bombardier/styleguide/components/aw-invoice-forecast-card" },
       { name: "Invoice row", href: "/bombardier/styleguide/components/aw-invoice-row" },
-      { name: "Invoice summary card", href: "/bombardier/styleguide/components/aw-invoice-summary-card" },
       { name: "List group", href: "/bombardier/styleguide/components/aw-list-group" },
       {
         name: "Modais e dialogs",
