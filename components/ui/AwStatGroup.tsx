@@ -84,7 +84,7 @@ export const AwStatGroup = React.forwardRef<HTMLDivElement, AwStatGroupProps>(
       >
         {/* Célula de título — título + descrição + ação opcional, no lugar de ficarem soltos acima */}
         <div className="flex min-w-0 flex-col justify-center gap-2 rounded-2xl border border-subtle bg-raised px-5 py-6">
-          <h3 className="m-0 body-lg font-semibold leading-tight tracking-heading-tight text-fg-primary">
+          <h3 className="m-0 body-lg font-normal leading-tight tracking-heading-tight text-fg-primary">
             {title}
           </h3>
           {description && (
@@ -115,10 +115,10 @@ export const AwStatGroup = React.forwardRef<HTMLDivElement, AwStatGroupProps>(
               >
                 <Icon name={s.icon} size={20} fill={1} />
               </span>
-              <div className="mt-5 text-(length:--display-sm-size) font-semibold leading-none tracking-heading-tighter text-fg-primary">
+              <div className="mt-5 text-(length:--display-sm-size) font-normal leading-none tracking-heading-tighter text-fg-primary">
                 {s.value}
               </div>
-              <p className="m-0 mt-2 body-sm font-medium text-fg-primary">
+              <p className="m-0 mt-2 body-sm font-normal text-fg-primary">
                 {s.label}
               </p>
               {s.hint && (
