@@ -176,12 +176,20 @@ function StepIndicator({ step }: { step: Step }) {
 
 function CardStep() {
   const [number, setNumber] = React.useState("");
+  const [exp, setExp] = React.useState("");
+  const [cvc, setCvc] = React.useState("");
   // Agrupa o número em blocos de 4 dígitos conforme o usuário digita.
   const formatCardNumber = (v: string) =>
     v
       .replace(/\D/g, "")
       .slice(0, 16)
       .replace(/(\d{4})(?=\d)/g, "$1 ");
+
+  // Validade: aceita os 4 dígitos (MMAA) e formata como "MM / AA".
+  const formatExpiry = (v: string) => {
+    const d = v.replace(/\D/g, "").slice(0, 4);
+    return d.length <= 2 ? d : `${d.slice(0, 2)} / ${d.slice(2)}`;
+  };
 
   // Resolve a bandeira ao vivo pelo BIN (prefixo) enquanto o usuário digita.
   const brand = detectCardBrand(number);
@@ -220,6 +228,9 @@ function CardStep() {
               id="card-exp"
               placeholder="MM / AA"
               autoComplete="cc-exp"
+              inputMode="numeric"
+              value={exp}
+              onChange={(e) => setExp(formatExpiry(e.target.value))}
             />
           </AwField>
           <AwField label="CVC" htmlFor="card-cvc">
@@ -227,6 +238,11 @@ function CardStep() {
               id="card-cvc"
               placeholder="•••"
               autoComplete="cc-csc"
+              inputMode="numeric"
+              value={cvc}
+              onChange={(e) =>
+                setCvc(e.target.value.replace(/\D/g, "").slice(0, 3))
+              }
             />
           </AwField>
         </div>
