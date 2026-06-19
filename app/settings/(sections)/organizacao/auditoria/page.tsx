@@ -398,6 +398,15 @@ function buildPeople(events: OrgEvent[]): Person[] {
 const ALL_PEOPLE: Person[] = buildPeople(ORG_EVENTS);
 const ALL_ACTOR_NAMES: string[] = ALL_PEOPLE.map((p) => p.actor);
 
+/** "Pessoa" no filtro = gente de verdade (humanos). Sistema, Webhook, Chave
+ *  de API e Equipe AwSales são atores não-humanos — eles aparecem no
+ *  filtro de Origem, não no filtro de Pessoa. */
+const HUMAN_ACTOR_KINDS = new Set<ActorKind>(["Pessoa", "Encarregado"]);
+const HUMAN_PEOPLE: Person[] = ALL_PEOPLE.filter((p) =>
+  HUMAN_ACTOR_KINDS.has(p.kind),
+);
+const HUMAN_ACTOR_NAMES: string[] = HUMAN_PEOPLE.map((p) => p.actor);
+
 /* ---------- solicitações de dados ---------- */
 
 /** Os 4 direitos que um titular pode exercer, em linguagem de produto. A base
@@ -1123,8 +1132,8 @@ function Toolbar({
         onCustomToChange={onCustomToChange}
       />
       <ActorFilterMenu
-        people={ALL_PEOPLE}
-        selected={selectedActors}
+        people={HUMAN_PEOPLE}
+        selected={selectedActors.filter((a) => HUMAN_ACTOR_NAMES.includes(a))}
         onToggle={toggleActor}
       />
       <OriginFilterMenu selected={selectedKinds} onToggle={toggleKind} />
