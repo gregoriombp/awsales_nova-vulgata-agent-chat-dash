@@ -21,10 +21,10 @@ import {
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwSelect } from "@/components/ui/AwSelect";
+import { AwStatGroup } from "@/components/ui/AwStatGroup";
 import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
-import { SettingsPageHeader } from "../../../_components/shared";
 
 type AccessOrigin = "studio" | "adm";
 
@@ -219,20 +219,46 @@ export default function AcessosOrgPage() {
         </AwButton>
       </div>
 
-      <SettingsPageHeader
-        title="Acessos à organização"
-        description="Quem está com acesso ativo agora. As ações aqui valem só para esta organização."
-        trailing={
-          <AwButton
-            size="sm"
-            variant="danger"
-            iconLeft="restart_alt"
-            onClick={() => setReloginAll(true)}
-          >
-            Encerrar todos os acessos
-          </AwButton>
-        }
-      />
+      {/* Faixa de KPIs — título da seção + 3 stats tonalizados */}
+      <div className="mb-8">
+        <AwStatGroup
+          title="Acessos à organização"
+          description="Quem está com acesso ativo a esta organização. Encerrar um acesso aqui não desconecta a pessoa de outras organizações."
+          action={
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="restart_alt"
+              onClick={() => setReloginAll(true)}
+            >
+              Encerrar todos os acessos
+            </AwButton>
+          }
+          stats={[
+            {
+              icon: "link",
+              value: rows.length,
+              label: "Conexões ativas",
+              hint: "Sessões e apps conectados agora",
+              tone: "blue",
+            },
+            {
+              icon: "groups",
+              value: rows.length,
+              label: "Membros da Organização",
+              hint: "Pessoas com acesso ativo.",
+              tone: "purple",
+            },
+            {
+              icon: "warning",
+              value: staleCount,
+              label: "Inativos",
+              hint: "Sem uso há 30+ dias",
+              tone: "amber",
+            },
+          ]}
+        />
+      </div>
 
       {/* Boundary — escopo das ações desta tela */}
       <div className="mb-8 flex items-start gap-3 rounded-xl border border-(--aw-blue-200) bg-(--aw-blue-100) px-4 py-3.5">
