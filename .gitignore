@@ -72,5 +72,8 @@ review-bridge/node_modules/
 flow-bridge/data/*.json
 flow-bridge/node_modules/
 
+# page-editor runtime state — Live Edit Mode persisted edits (not source code)
+page-editor/data/*.json
+
 # Playwright MCP verification artifacts (snapshots/console logs)
 .playwright-mcp/
