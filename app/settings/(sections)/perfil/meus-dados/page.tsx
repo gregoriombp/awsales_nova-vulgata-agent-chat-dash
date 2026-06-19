@@ -206,14 +206,14 @@ export default function MeusDadosPage() {
         }
       />
 
-      {/* Ação primária — baixar uma cópia, em destaque no topo. */}
-      <AwCard className="flex flex-col gap-5 p-6! sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      {/* Ação primária — baixar uma cópia, o herói da página (destaque ↑). */}
+      <AwCard className="flex flex-col gap-5 border-(--border-strong) p-7! sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="flex items-start gap-4">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--bg-inverse) text-(--fg-on-inverse)">
-            <Icon name="cloud_download" size={22} />
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse) text-(--fg-on-inverse)">
+            <Icon name="cloud_download" size={24} />
           </span>
           <div className="min-w-0">
-            <p className="m-0 body-md font-semibold text-(--fg-primary)">
+            <p className="m-0 body-lg font-semibold text-(--fg-primary)">
               Baixar uma cópia
             </p>
             <p className="m-0 mt-1 max-w-[520px] body-xs text-(--fg-secondary)">
@@ -241,8 +241,8 @@ export default function MeusDadosPage() {
         </AwButton>
       </AwCard>
 
-      {/* Detalhe + histórico, lado a lado e equilibrados. */}
-      <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+      {/* Detalhe + histórico, lado a lado e sempre com a mesma altura. */}
+      <div className="mt-6 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
         {/* O que vem na cópia — grid 2×2 colorido */}
         <AwCard className="flex flex-col gap-5 p-6!">
           <div>
@@ -275,11 +275,6 @@ export default function MeusDadosPage() {
               </div>
             ))}
           </div>
-          <p className="m-0 flex items-start gap-1.5 border-t border-(--border-subtle) pt-4 body-xs text-(--fg-tertiary)">
-            <Icon name="visibility_off" size={14} className="mt-px shrink-0" />
-            Nomes de colegas que aparecem nos seus registros saem anonimizados —
-            viram um código, não o nome.
-          </p>
         </AwCard>
 
         {/* Solicitações recentes — tabela */}
@@ -301,84 +296,77 @@ export default function MeusDadosPage() {
             )}
           </div>
 
-          <div>
-            <div className="grid grid-cols-[1fr_auto_64px] items-center gap-x-6 border-b border-(--border-subtle) pb-2 body-xs font-medium text-(--fg-tertiary)">
-              <span>Data</span>
-              <span>Status</span>
-              <span className="text-right">Ação</span>
-            </div>
-            {requests.length === 0 ? (
-              <p className="m-0 py-8 text-center body-xs text-(--fg-tertiary)">
-                Nenhuma exportação ainda — peça uma cópia quando precisar.
-              </p>
-            ) : (
-              <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-                {requests.map((r) => (
-                  <li
-                    key={r.id}
-                    className="m-0 grid grid-cols-[1fr_auto_64px] items-center gap-x-6 py-3"
-                  >
-                    <div className="min-w-0">
-                      <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
-                        {r.requestedAt}
+          {requests.length === 0 ? (
+            <p className="m-0 py-8 text-center body-xs text-(--fg-tertiary)">
+              Nenhuma exportação ainda — peça uma cópia quando precisar.
+            </p>
+          ) : (
+            <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
+              {requests.map((r) => (
+                <li
+                  key={r.id}
+                  className="m-0 flex items-center justify-between gap-4 py-3 first:pt-0"
+                >
+                  <div className="min-w-0">
+                    <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
+                      {r.requestedAt}
+                    </p>
+                    {r.status === "Pronto" && r.expiresInDays !== undefined && (
+                      <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                        link expira em {r.expiresInDays}{" "}
+                        {r.expiresInDays === 1 ? "dia" : "dias"}
                       </p>
-                      {r.status === "Pronto" && r.expiresInDays !== undefined && (
-                        <p className="m-0 body-xs text-(--fg-tertiary)">
-                          link expira em {r.expiresInDays}{" "}
-                          {r.expiresInDays === 1 ? "dia" : "dias"}
-                        </p>
-                      )}
-                    </div>
+                    )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-3">
                     <StatusBadge status={r.status} />
-                    <div className="flex justify-end">
-                      {r.status === "Pronto" ? (
-                        <AwButton
-                          size="sm"
-                          variant="ghost"
-                          iconOnly="download"
-                          aria-label="Baixar cópia"
-                          title="Baixar cópia"
-                        />
-                      ) : r.status === "Expirado" ? (
-                        <AwButton
-                          size="sm"
-                          variant="ghost"
-                          iconOnly="refresh"
-                          aria-label="Pedir uma nova cópia"
-                          title="Pedir uma nova cópia"
-                          onClick={openConfirm}
-                        />
-                      ) : (
-                        <Icon
-                          name="hourglass_top"
-                          size={16}
-                          className="text-(--fg-tertiary)"
-                        />
-                      )}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+                    {r.status === "Pronto" ? (
+                      <AwButton
+                        size="sm"
+                        variant="ghost"
+                        iconOnly="download"
+                        aria-label="Baixar cópia"
+                        title="Baixar cópia"
+                      />
+                    ) : r.status === "Expirado" ? (
+                      <AwButton
+                        size="sm"
+                        variant="ghost"
+                        iconOnly="refresh"
+                        aria-label="Pedir uma nova cópia"
+                        title="Pedir uma nova cópia"
+                        onClick={openConfirm}
+                      />
+                    ) : (
+                      <span className="flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
+                        <Icon name="hourglass_top" size={16} />
+                      </span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </AwCard>
       </div>
 
-      {/* Remover dados — faixa discreta no rodapé (ação rara e sensível). */}
-      <AwCard className="mt-6 flex items-start gap-4 p-6!">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--aw-red-100) text-(--aw-red-700)">
-          <Icon name="manage_accounts" size={22} />
-        </span>
+      {/* Remover dados — nota discreta no rodapé, sem peso de card (ação rara). */}
+      <div className="mt-8 flex items-start gap-3 border-t border-(--border-subtle) pt-6">
+        <Icon
+          name="manage_accounts"
+          size={18}
+          className="mt-0.5 shrink-0 text-(--fg-tertiary)"
+        />
         <div className="min-w-0 flex-1">
-          <p className="m-0 body-md font-semibold text-(--fg-primary)">
+          <p className="m-0 body-sm font-medium text-(--fg-secondary)">
             Remover dados
           </p>
-          <p className="m-0 mt-1 max-w-[640px] body-xs text-(--fg-secondary)">
+          <p className="m-0 mt-0.5 max-w-[640px] body-xs text-(--fg-tertiary)">
             Para excluir permanentemente sua conta e os dados associados, fale
             com um administrador ou escreva para{" "}
             <a
               href="mailto:suporte@awsales.io"
-              className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
+              className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand)"
             >
               suporte@awsales.io
             </a>
@@ -386,13 +374,13 @@ export default function MeusDadosPage() {
           </p>
           <Link
             href="/settings/seguranca"
-            className="mt-2 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
+            className="mt-1.5 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--fg-tertiary) underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:underline"
           >
             Privacidade e segurança
             <Icon name="arrow_forward" size={13} />
           </Link>
         </div>
-      </AwCard>
+      </div>
 
       {/* Nota de rodapé — escopo do direito e portabilidade */}
       <p className="mt-8 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">

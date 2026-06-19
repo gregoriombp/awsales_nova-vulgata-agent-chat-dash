@@ -213,7 +213,6 @@ export default function SenhaPage() {
 
       {/* ── Bloco 1: Senha ── */}
       <div className="mb-8">
-        <SectionHeading title="Senha" />
         {ACCOUNT_TYPE === "sso-only" ? (
           <AwAlert variant="info" icon="shield">
             <strong className="font-medium">Sua conta entra por SSO.</strong> A
@@ -233,8 +232,8 @@ export default function SenhaPage() {
               </p>
             </div>
             <AwButton
-              size="sm"
-              variant="secondary"
+              size="md"
+              variant="ghost"
               onClick={openChangePw}
             >
               Alterar senha
@@ -377,20 +376,6 @@ export default function SenhaPage() {
           )
         }
       >
-        {/* Stepper */}
-        <div className="mb-4 flex items-center gap-2">
-          {[1, 2].map((s) => (
-            <span
-              key={s}
-              aria-hidden="true"
-              className="h-1 flex-1 rounded-full transition-colors duration-aw-base"
-              style={{
-                background:
-                  s <= pwStep ? "var(--fg-primary)" : "var(--border-default)",
-              }}
-            />
-          ))}
-        </div>
         <p className="m-0 mb-4 aw-eyebrow text-(--fg-tertiary)">
           Etapa {pwStep} de 2 ·{" "}
           {pwStep === 1 ? "Confirme sua identidade" : "Crie a nova senha"}
