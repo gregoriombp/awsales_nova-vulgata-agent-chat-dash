@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwField, AwInput } from "@/components/ui/AwInput";
@@ -523,23 +524,11 @@ function PhotoEditModal({
  * ----------------------------------------------------------------- */
 
 function SlackIcon({ size = 16 }: { size?: number } = {}) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" className="shrink-0" aria-hidden="true">
-      <path d="M9.5 15.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 0V10" stroke="#E01E5A" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M14.5 8.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0zm0 0H10" stroke="#36C5F0" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M8.5 9.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm0 0H14" stroke="#2EB67D" strokeWidth="1.8" strokeLinecap="round"/>
-      <path d="M15.5 14.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 0V10" stroke="#ECB22E" strokeWidth="1.8" strokeLinecap="round"/>
-    </svg>
-  );
+  return <AwBrandLogo brand="slack" markOnly size={size} className="shrink-0" aria-hidden />;
 }
 
 function WhatsAppIcon({ size = 16 }: { size?: number } = {}) {
-  return (
-    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" className="shrink-0" aria-hidden="true">
-      <path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.526 3.656 1.438 5.162L2 22l4.962-1.418A9.954 9.954 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="#25D366"/>
-      <path d="M8.5 9c.167-.5.667-1.5 1.5-1.5.5 0 .833.25 1 .75L11.5 10c.083.25 0 .583-.25.875L10.5 12c.5 1 1.5 2 2.5 2.5l1.125-.75c.292-.25.625-.333.875-.25l1.75.5c.5.167.75.5.75 1 0 .833-1 1.333-1.5 1.5-2.5.5-6.5-2-7.5-5.5-.25-.833-.167-1.583 0-2z" fill="white"/>
-    </svg>
-  );
+  return <AwBrandLogo brand="whatsapp" markOnly size={size} className="shrink-0" aria-hidden />;
 }
 
 /* -----------------------------------------------------------------
