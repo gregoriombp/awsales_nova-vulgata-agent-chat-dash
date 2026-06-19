@@ -71,9 +71,10 @@ components/ui/MyButton.tsx               ← no prefix
 components/ui/aw-button.tsx              ← file must be PascalCase
 ```
 
-**`Aw[Name]` wraps a shadcn primitive — going forward.** (Reality today: only ~1 of 58
-`Aw*` actually wraps a lowercase primitive; ~11 use `@radix-ui/*` directly, the rest are
-hand-rolled. Treat "wraps a primitive" as the target for NEW components and as on-touch
+**`Aw[Name]` wraps a shadcn primitive — going forward.** (Reality today: of the ~91
+`Aw*`, only ~10 actually wrap a lowercase primitive; ~11 use `@radix-ui/*` directly, the rest are
+hand-rolled. Counts drift on every component addition — `navigation.ts` is the live inventory.
+Treat "wraps a primitive" as the target for NEW components and as on-touch
 debt for existing ones — open any `Aw*` before assuming it's a thin wrapper.)
 
 The flow for new components:
@@ -189,11 +190,19 @@ The DS skills are **generic and Aw-prefix-blind** — they emit `components/Cust
 
 | Intent | Use this | Avoid |
 |---|---|---|
-| Add a component | `bombardier-new-component` |
-| Build a page | `bombardier-new-page` | 
+| Add a component | `bombardier-new-component` | `design-system-new-component` |
+| Build a page | `bombardier-new-page` | `design-system-new-page` | 
 | Bootstrap DS / tokens | `bombardier-design-system-foundation` | `setup-design-system-from-*` |
 | Audit consistency | `bombardier-design-system-audit` | — |
 | Revise in-product copy / microcopy | `bombardier-ux-writing` | `ux-copy` (generic, EN), `awsales-brand-voice` (marketing voice) |
+
+**Setup-only / neutralized skills (kept as a record, do NOT trigger).** Four generic
+Aw-blind skills survive on disk from the Bombardier initial setup, but their
+`description` is neutralized so they no longer trigger: `setup-design-system-from-cla-design`
+and `setup-design-system-from-reference` (one-time DS bootstrap — this repo is already
+set up, don't re-bootstrap) and `design-system-new-component` / `design-system-new-page`
+(superseded by the `bombardier-*` equivalents above). Always use the `bombardier-*`
+skills for day-to-day work; these four are history, not active workflows.
 
 ## How the agent should combine skill + convention
 
@@ -231,6 +240,6 @@ Imported/consolidated from the local Cursor + Claude Coworking setup on 2026-06-
 
 - Cursor project rules are represented by this `AGENTS.md` + thin `CLAUDE.md` pointer. Do not create a separate `.cursor/rules` source of truth.
 - Product/voice/memory from `~/Skills/AwSales - Claude Coworking` is consolidated in `AWSALES_CONTEXT.md`. Read that file for AwSales positioning, vocabulary, modules, voice, and design workflow; do not duplicate the full Coworking knowledge base into code files.
-- MCPs imported from Cursor: `Figma` remote MCP (`https://mcp.figma.com/mcp`) and `shadcn` (`npx shadcn@latest mcp`). The `playwright` MCP (`@playwright/mcp`) is also configured for on-demand screen verification (see Stack & scope gotchas). The project-level config lives in `.mcp.json`; OAuth tokens stay in the user's local app storage and must never be copied into this repo.
+- MCP servers (all in `.mcp.json`): `figma` remote MCP (`https://mcp.figma.com/mcp`), `shadcn` (`npx shadcn@latest mcp`), `playwright` (`@playwright/mcp`, on-demand screen verification — see Stack & scope gotchas), and `mobbin` remote MCP (`https://mcp.mobbin.com/mcp`, UI-pattern reference). OAuth tokens stay in the user's local app storage and must never be copied into this repo.
 - The `shadcn` skill was copied into `.claude/skills/shadcn` so Claude Code and Cursor share the same component-registry guidance. The repo-specific `Aw*` and token rules in this file override generic shadcn guidance whenever they conflict.
 - Cursor/Claude raw histories, workspaceStorage DBs, OAuth attempts, and extension state are not project instructions. Mine them for context when explicitly requested, but do not commit them or mirror them into design2.

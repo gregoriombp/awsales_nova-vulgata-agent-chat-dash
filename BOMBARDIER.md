@@ -18,7 +18,9 @@ approval.
 | UX Flow | `/bombardier/ux-flow` | Flow viewer/hub for presenting and navigating UX flows as prototypes. |
 | Styleguide UX Flows | `/bombardier/styleguide/ux-flows` | Editable source for flow graphs, nodes, edges, comments, and changelog entries. |
 | Review Inbox | `/bombardier/styleguide/review` | Inbox for comments created through Review Mode. |
-| Review Bridge | `review-bridge/` | Local comment queue for agents, with user approval after agent work. |
+| Review Bridge (server/data) | `review-bridge/` | Local comment-queue server + data dir for agents (a filesystem dir, not a route), with user approval after agent work. |
+| Review Bridge (dashboard) | `/bombardier/review-bridge` | In-app view of the local review-bridge queue (comments + suggestions panels). |
+| Login | `/bombardier/login` | Login screen for the Bombardier area. |
 | Design System Tweaks | `/bombardier/design-system-tweaks` | Controlled foundation/token experiments and visual impact checks. |
 
 ## Mental Model

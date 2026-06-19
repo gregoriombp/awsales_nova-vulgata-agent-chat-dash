@@ -25,7 +25,7 @@ npm run dev          # 127.0.0.1:3000 + review-bridge local em 127.0.0.1:9878
 Toda a documentação de tokens, foundations, patterns e componentes vive em `/bombardier/styleguide`. Sobe o servidor e abre [http://127.0.0.1:3000/bombardier/styleguide](http://127.0.0.1:3000/bombardier/styleguide).
 
 Foundations: Design Tokens, Iconografia, Logos, Animação, Acessibilidade, Escrita, Padrões de UI.
-Componentes: 23 registrados oficialmente — entre eles `integration-catalog`, `integration-card`, `connect-modal`, `whatsapp-panel`, `chrome`, `nav-rail`, `nav-list`, `template-builder-sheet`, `chat`, `pills`, `toast`.
+Componentes: catálogo vivo em [`app/bombardier/styleguide/navigation.ts`](app/bombardier/styleguide/navigation.ts) — a contagem muda a cada componente novo, então não fixamos número aqui (abra a sidebar do styleguide para o inventário atual). Entre eles `integration-catalog`, `integration-card`, `connect-modal`, `whatsapp-panel`, `chrome`, `nav-rail`, `nav-list`, `template-builder-sheet`, `chat`, `pills`, `toast`.
 
 ## Review Mode
 
@@ -39,7 +39,7 @@ o fallback é `localStorage`.
 
 ```
 app/
-├── bombardier/styleguide/    # Design system: foundations + 23 componentes registrados
+├── bombardier/styleguide/    # Design system: foundations + componentes Aw* registrados (ver navigation.ts)
 ├── api/copilot/              # Endpoints do copilot
 ├── agent-studio/[id]/        # Studio de agentes
 ├── aops/                     # AOPs
@@ -57,7 +57,7 @@ app/
 └── page.tsx                  # AuthFlow (login)
 
 components/
-├── ui/                       # Componentes Aw* do design system (58+) + primitivos shadcn lowercase
+├── ui/                       # Componentes Aw* do design system + primitivos shadcn lowercase
 ├── modals/                   # Modais legados (BaseModal + família) — migram pra AwModal
 ├── integrations/             # Painéis de canal (Aw*Panel) + template builder
 ├── bombardier-review/        # Review Mode (overlay de comentários)
