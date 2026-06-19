@@ -46,6 +46,39 @@ function hideTargetMatches(el: Element, anchor: PageEditOp["anchor"]): boolean {
   return fpText(el) === want
 }
 
+/**
+ * Chave de CONFLITO de escrita: ops que escrevem no MESMO elemento e no MESMO
+ * alvo — mesma prop de estilo, mesmo eixo de variante, ou o elemento inteiro
+ * (text/icon/hide). Dois observers no mesmo (elemento, alvo) com valores
+ * diferentes se re-disparam pra sempre (cada um desfaz o do outro) e travam a
+ * aba — o guard de "valor já igual" não salva, porque cada op tem um alvo
+ * diferente e os dois nunca repousam juntos.
+ */
+function writeTargetKey(op: PageEditOp): string {
+  const p = op.payload
+  const target =
+    p.kind === "style"
+      ? `style:${p.prop}`
+      : p.kind === "variant"
+        ? `variant:${p.axis}`
+        : p.kind
+  return `${op.anchor.selector}::${target}`
+}
+
+/** Last-writer-wins por (elemento, alvo): de cada chave de conflito mantém só a
+ *  op mais recente (updatedAt), pra dois observers nunca brigarem pelo mesmo
+ *  atributo. As perdedoras seguem no store (o usuário resolve no inbox); só não
+ *  são aplicadas pelo overlay. */
+function dedupeConflicts(ops: PageEditOp[]): PageEditOp[] {
+  const winner = new Map<string, PageEditOp>()
+  for (const op of ops) {
+    const k = writeTargetKey(op)
+    const cur = winner.get(k)
+    if (!cur || op.updatedAt > cur.updatedAt) winner.set(k, op)
+  }
+  return ops.filter((op) => winner.get(writeTargetKey(op)) === op)
+}
+
 type PriorInline = { prop: string; value: string; priority: string }
 
 type Entry = {
@@ -76,14 +109,18 @@ export class OverlayApplier {
   /** Reconcile the live op set: revert dropped ops, (re)apply the rest. */
   setOps(ops: PageEditOp[]): void {
     if (typeof document === "undefined") return
-    const next = new Set(ops.map((o) => o.id))
+    // Colapsa ops conflitantes (mesmo elemento + mesmo alvo de escrita) ANTES de
+    // observar: dois observers brigando pelo mesmo atributo com valores
+    // diferentes entram em ping-pong infinito e travam a aba. Ver writeTargetKey.
+    const live = dedupeConflicts(ops)
+    const next = new Set(live.map((o) => o.id))
     for (const [id, entry] of this.entries) {
       if (!next.has(id)) {
         this.revert(entry)
         this.entries.delete(id)
       }
     }
-    for (const op of ops) {
+    for (const op of live) {
       const existing = this.entries.get(op.id)
       if (existing) existing.op = op
       else this.entries.set(op.id, { op, el: null, observer: null })
