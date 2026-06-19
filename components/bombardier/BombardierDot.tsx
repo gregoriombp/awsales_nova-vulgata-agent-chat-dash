@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/AwDropdownMenu";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { useReviewStore } from "@/lib/bombardier-review/store";
+import { useEditStore } from "@/lib/bombardier-edit/store";
 
 export function BombardierDot() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export function BombardierDot() {
   const reviewActive = useReviewStore((s) => s.active);
   const toggleReview = useReviewStore((s) => s.toggleActive);
   const backend = useReviewStore((s) => s.backend);
+  const editActive = useEditStore((s) => s.active);
+  const toggleEdit = useEditStore((s) => s.toggleActive);
 
   if (!visible) return null;
 
@@ -55,6 +58,13 @@ export function BombardierDot() {
       icon: reviewActive ? "rate_review" : "comment",
       checked: reviewActive,
       onSelect: () => toggleReview(),
+    },
+    {
+      id: "edit",
+      label: editActive ? "Sair do modo de edição" : "Entrar no modo de edição",
+      icon: editActive ? "edit_off" : "edit",
+      checked: editActive,
+      onSelect: () => toggleEdit(),
     },
     { id: "sep-hide", separator: true },
     {

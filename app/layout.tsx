@@ -3,6 +3,7 @@ import "./globals.css";
 import { AwToastProvider } from "@/components/ui/AwToast";
 import { AwThemeProvider } from "@/components/ui/AwThemeProvider";
 import { ReviewModeProvider } from "@/components/bombardier-review/ReviewModeProvider";
+import { EditModeProvider } from "@/components/bombardier-edit/EditModeProvider";
 import { BombardierDot } from "@/components/bombardier/BombardierDot";
 import { DesktopOnlyBlocker } from "@/components/DesktopOnlyBlocker";
 import {
@@ -65,6 +66,10 @@ export default function RootLayout({
           <AwToastProvider>
             <DesktopOnlyBlocker>{children}</DesktopOnlyBlocker>
             <ReviewModeProvider />
+            {/* Always mounted: the apply half re-applies saved edits on load
+             *  (so they survive reload). Authoring gates on the edit store's
+             *  `active`, toggled from the Bombardier dot or Cmd+Shift+E. */}
+            <EditModeProvider />
             {bombardierDotEnabled && <BombardierDot />}
           </AwToastProvider>
         </AwThemeProvider>
