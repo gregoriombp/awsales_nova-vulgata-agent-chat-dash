@@ -443,11 +443,7 @@ function WhatsConversationPreview({
  * "Sair" à direita.
  */
 function WizardShell({
-  onBack,
   onExit,
-  step,
-  total,
-  stageLabel,
   children,
 }: {
   onBack?: () => void;
@@ -459,44 +455,18 @@ function WizardShell({
 }) {
   return (
     <div className="relative flex min-h-screen flex-col bg-(--bg-canvas)">
-      <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-(--border-subtle) bg-(--bg-canvas) px-5 py-3">
-        <div className="flex flex-1 items-center">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              className="inline-flex items-center gap-1.5 rounded-full py-1.5 pl-2 pr-3.5 text-sm font-medium text-fg-secondary transition-colors hover:bg-bg-hover hover:text-fg-primary"
-            >
-              <Icon name="arrow_back" size={18} />
-              Voltar
-            </button>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Icon name="agent_studio" size={20} />
-          <span className="text-sm font-medium text-fg-primary">Novo agente</span>
-          {step && total ? (
-            <span className="ml-1 rounded-full bg-bg-muted px-2 py-0.5 text-2xs font-medium text-fg-tertiary tabular-nums">
-              {step} de {total}
-            </span>
-          ) : stageLabel ? (
-            <span className="ml-1 rounded-full bg-bg-muted px-2 py-0.5 text-2xs font-medium text-fg-tertiary">
-              {stageLabel}
-            </span>
-          ) : null}
-        </div>
-        <div className="flex flex-1 items-center justify-end">
-          {onExit && (
-            <button
-              type="button"
-              onClick={onExit}
-              aria-label="Sair"
-              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-fg-tertiary transition-colors hover:bg-bg-hover hover:text-fg-primary"
-            >
-              <Icon name="close" size={20} />
-            </button>
-          )}
-        </div>
+      {/* Chrome mínimo: só o X no canto superior direito (sem voltar/título/passo). */}
+      <header className="sticky top-0 z-30 flex items-center justify-end border-b border-(--border-subtle) bg-(--bg-canvas) px-5 py-3">
+        {onExit && (
+          <button
+            type="button"
+            onClick={onExit}
+            aria-label="Sair"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-fg-tertiary transition-colors hover:bg-bg-hover hover:text-fg-primary"
+          >
+            <Icon name="close" size={20} />
+          </button>
+        )}
       </header>
       <main className="flex min-h-0 flex-1 flex-col [&>*]:flex-1">{children}</main>
     </div>
