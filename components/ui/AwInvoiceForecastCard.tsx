@@ -51,6 +51,9 @@ export type AwInvoiceForecastCardProps = Omit<
   gauge?: { value: number; max: number; caption?: React.ReactNode };
   /** Formatação monetária. Default: Intl pt-BR / BRL. */
   formatValue?: (n: number) => string;
+  /** Variante flat — sem caixa (sem stroke, sem padding nem bg). Pra quando
+   *  o card já vive numa página que controla o respiro com gap próprio. */
+  bare?: boolean;
 };
 
 /**
@@ -72,13 +75,16 @@ export function AwInvoiceForecastCard({
   cta,
   gauge,
   formatValue = BRL,
+  bare = false,
   className,
   ...rest
 }: AwInvoiceForecastCardProps) {
+  const Wrapper: React.ElementType = bare ? "div" : AwCard;
   return (
-    <AwCard
+    <Wrapper
       className={cn(
-        "flex flex-wrap items-center justify-between gap-x-8 gap-y-6 p-6!",
+        "flex flex-wrap items-center justify-between gap-x-8 gap-y-6",
+        bare ? "p-0" : "p-6!",
         className,
       )}
       {...rest}
@@ -159,6 +165,6 @@ export function AwInvoiceForecastCard({
           className="shrink-0"
         />
       )}
-    </AwCard>
+    </Wrapper>
   );
 }
