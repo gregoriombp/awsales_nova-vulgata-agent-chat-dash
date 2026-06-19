@@ -71,16 +71,16 @@ export function AwConsumptionBar({
                 width: `${Math.min(grossPct, 100)}%`,
                 background: overLimit
                   ? "color-mix(in srgb, var(--aw-red-600) 35%, transparent)"
-                  : "color-mix(in srgb, var(--aw-emerald-600) 35%, transparent)",
+                  : "color-mix(in srgb, var(--fg-primary) 22%, transparent)",
               }}
             />
 
-            {/* valor líquido a cobrar */}
+            {/* valor líquido a cobrar — tinta (ink) dentro do limite, vermelho ao estourar */}
             <div
               className={cn(
                 "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out",
                 netPct >= 100 ? "rounded-full" : "rounded-l-full",
-                overLimit ? "bg-(--aw-red-600)" : "bg-(--aw-emerald-600)",
+                overLimit ? "bg-(--aw-red-600)" : "bg-(--fg-primary)",
               )}
               style={{ width: `${Math.min(netPct, 100)}%` }}
             />
