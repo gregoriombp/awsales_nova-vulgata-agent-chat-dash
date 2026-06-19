@@ -1,5 +1,6 @@
 import { AwSourceChip } from "@/components/ui/AwSourceChip"
 import { AwChatBubble } from "@/components/ui/AwChatBubble"
+import { Icon } from "@/components/ui/Icon"
 import {
   PageHero,
   Section,
@@ -53,7 +54,10 @@ export default function SourceChipPage() {
           lead="O uso canônico: agrupadas abaixo da resposta do agente, mostrando em que o agente se baseou."
         >
           <Stage label="grounding" gridClassName="flex flex-col gap-3 max-w-[560px]">
-            <AwChatBubble variant="agent" avatar=".aw">
+            <AwChatBubble
+              variant="agent"
+              avatar={<Icon name="agent" size={18} />}
+            >
               O reembolso pode ser solicitado em até 90 dias após a compra, e o
               estorno cai em 1–2 faturas. Fora desse prazo, o caso vai para
               análise manual do financeiro.
