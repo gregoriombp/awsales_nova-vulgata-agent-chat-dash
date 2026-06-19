@@ -102,47 +102,46 @@ export function SheetDemo() {
           </>
         }
       >
-        {tab === "resumo" && (
-          <>
-            <AwSheetRow label="Usuário">{c.user}</AwSheetRow>
-            <AwSheetRow label="Intenção">
-              <code className="mono">{c.intent}</code>
-            </AwSheetRow>
-            <AwSheetRow label="Status">
-              <AwPill
-                variant={c.status.startsWith("resolv") ? "live" : "beta"}
-                dot={false}
-              >
-                {c.status}
-              </AwPill>
-            </AwSheetRow>
-            <AwSheetRow label="CSAT">{c.csat}</AwSheetRow>
-            <AwSheetRow label="Custo">
-              {c.cost}
-            </AwSheetRow>
-            <AwSheetRow label="Latência p95">
-              {c.latency}
-            </AwSheetRow>
-          </>
-        )}
-        {tab === "transcricao" && (
-          <div className="text-sm text-(--fg-secondary) leading-relaxed">
-            Trecho simulado da transcrição. Em produção, renderize{" "}
-            <code className="mono">AwChatBubble</code> para user/agent com
-            timestamps.
-          </div>
-        )}
-        {tab === "tools" && (
-          <div className="text-sm text-(--fg-secondary)">
-            <code className="mono">lookup_invoice</code> ·{" "}
-            <code className="mono">send_pdf</code>
-          </div>
-        )}
-        {tab === "metricas" && (
-          <div className="text-sm text-(--fg-secondary)">
-            Custo: {c.cost} · Latência p95: {c.latency}
-          </div>
-        )}
+        {/* key={tab} + aw-wizard-step: troca de aba ganha transição suave do DS. */}
+        <div key={tab} className="aw-wizard-step">
+          {tab === "resumo" && (
+            <>
+              <AwSheetRow label="Usuário">{c.user}</AwSheetRow>
+              <AwSheetRow label="Intenção">
+                <code className="mono">{c.intent}</code>
+              </AwSheetRow>
+              <AwSheetRow label="Status">
+                <AwPill
+                  variant={c.status.startsWith("resolv") ? "live" : "beta"}
+                  dot={false}
+                >
+                  {c.status}
+                </AwPill>
+              </AwSheetRow>
+              <AwSheetRow label="CSAT">{c.csat}</AwSheetRow>
+              <AwSheetRow label="Custo">{c.cost}</AwSheetRow>
+              <AwSheetRow label="Latência p95">{c.latency}</AwSheetRow>
+            </>
+          )}
+          {tab === "transcricao" && (
+            <div className="text-sm text-(--fg-secondary) leading-relaxed">
+              Trecho simulado da transcrição. Em produção, renderize{" "}
+              <code className="mono">AwChatBubble</code> para user/agent com
+              timestamps.
+            </div>
+          )}
+          {tab === "tools" && (
+            <div className="text-sm text-(--fg-secondary)">
+              <code className="mono">lookup_invoice</code> ·{" "}
+              <code className="mono">send_pdf</code>
+            </div>
+          )}
+          {tab === "metricas" && (
+            <div className="text-sm text-(--fg-secondary)">
+              Custo: {c.cost} · Latência p95: {c.latency}
+            </div>
+          )}
+        </div>
       </AwSheet>
     </>
   )
