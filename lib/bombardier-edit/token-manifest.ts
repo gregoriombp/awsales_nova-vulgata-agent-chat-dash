@@ -1,77 +1,155 @@
-import { FOUNDATION_TWEAK_CONTROLS } from "@/lib/bombardier/foundation-tweaks"
+// O picker de estilo do Live Edit SÓ oferece tokens do design system — nunca um
+// valor cru. Aqui está a paleta COMPLETA, transcrita do globals.css (fonte de
+// verdade): todas as rampas de cor (canal var `--aw-{família}-{step}`), os
+// tokens semânticos, raios e sombras. O apply engine valida todo valor contra
+// ALLOWED_* antes de tocar o DOM. "Tokens são sagrados" por construção.
 
-// The Live Edit style picker may ONLY offer design-system tokens — never a raw
-// color/length. "Tokens são sagrados" becomes a guarantee by construction: the
-// picker is built from this manifest, and the apply engine validates every
-// value against ALLOWED_STYLE_VALUES before touching the DOM.
-//
-// We DERIVE the token lists from the foundation-tweaks controls (the same
-// semantic tokens the foundation editor already exposes) so this never drifts
-// from the real token set.
-
-export interface StyleTokenChoice {
-  /** Bare token name, e.g. "--bg-raised" — what the op payload records. */
+export interface TokenSwatch {
+  /** Nome do token, ex.: "--aw-blue-600". */
   token: string
-  label: string
-  /** `var(--token)` — what gets written to the element and persisted. */
+  /** `var(--token)` — o que é gravado/persistido (segue dark mode). */
   cssValue: string
-}
-
-export interface StyleProperty {
-  /** CSS property the inline override sets, e.g. "background-color". */
-  prop: string
   label: string
-  tokens: StyleTokenChoice[]
 }
 
-function controlsByCategory(category: string) {
-  return FOUNDATION_TWEAK_CONTROLS.filter(
-    (c) => c.category === category && !c.selector && !c.cssProperty,
-  )
+export interface ColorRamp {
+  family: string
+  label: string
+  /** `var(--token)` da cor do rótulo da família (um step médio). */
+  swatch: string
+  swatches: TokenSwatch[]
 }
 
-function startsWith(prefixes: string[]) {
-  return (token: string) => prefixes.some((p) => token.startsWith(p))
+export interface SemanticGroup {
+  label: string
+  tokens: TokenSwatch[]
 }
 
-function choices(filter: (token: string) => boolean): StyleTokenChoice[] {
-  return controlsByCategory("color")
-    .filter((c) => filter(c.token))
-    .map((c) => ({ token: c.token, label: c.label, cssValue: `var(${c.token})` }))
+function swatch(token: string, label: string): TokenSwatch {
+  return { token, cssValue: `var(${token})`, label }
 }
 
-function scaleChoices(category: string): StyleTokenChoice[] {
-  return controlsByCategory(category).map((c) => ({
-    token: c.token,
-    label: c.label,
-    cssValue: `var(${c.token})`,
-  }))
+// ── Rampas primitivas (transcritas do @theme do globals.css) ──────────────────
+const RAMP_STEPS: Record<string, { label: string; steps: number[] }> = {
+  gray: { label: "Gray", steps: [25, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+  slate: { label: "Slate", steps: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200] },
+  blue: { label: "Blue", steps: [100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+  emerald: { label: "Emerald", steps: [100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+  teal: { label: "Teal", steps: [100, 200, 400, 500, 600, 700, 900] },
+  lime: { label: "Lime", steps: [100, 200, 400, 500, 600, 700, 900, 1200] },
+  amber: { label: "Amber", steps: [100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+  red: { label: "Red", steps: [100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200] },
+  pink: { label: "Pink", steps: [100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200] },
+  purple: { label: "Purple", steps: [100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000] },
 }
 
-const bgTokens = choices(startsWith(["--bg-", "--accent-"]))
-const fgTokens = choices(startsWith(["--fg-", "--accent-"]))
-const borderTokens = choices(startsWith(["--border-", "--ring-", "--accent-"]))
+export const COLOR_RAMPS: ColorRamp[] = Object.entries(RAMP_STEPS).map(
+  ([family, { label, steps }]) => ({
+    family,
+    label,
+    swatch: `var(--aw-${family}-${steps[Math.floor(steps.length / 2)]})`,
+    swatches: steps.map((s) => swatch(`--aw-${family}-${s}`, `${label} ${s}`)),
+  }),
+)
 
-/** The properties the inspector lets you retoken, each with its legal tokens. */
-export const STYLE_PROPERTIES: StyleProperty[] = [
-  { prop: "color", label: "Cor do texto", tokens: fgTokens },
-  { prop: "background-color", label: "Fundo", tokens: bgTokens },
-  { prop: "border-color", label: "Borda", tokens: borderTokens },
-  { prop: "border-radius", label: "Raio", tokens: scaleChoices("radius") },
-  { prop: "box-shadow", label: "Sombra", tokens: scaleChoices("shadow") },
+// ── Semânticos (canal var no :root) ───────────────────────────────────────────
+const SEMANTIC_BG: SemanticGroup = {
+  label: "Superfícies",
+  tokens: [
+    swatch("--bg-canvas", "Canvas"),
+    swatch("--bg-surface", "Surface"),
+    swatch("--bg-raised", "Raised"),
+    swatch("--bg-muted", "Muted"),
+    swatch("--bg-hover", "Hover"),
+    swatch("--bg-selected", "Selected"),
+    swatch("--bg-inverse", "Inverse"),
+  ],
+}
+const SEMANTIC_FG: SemanticGroup = {
+  label: "Texto",
+  tokens: [
+    swatch("--fg-primary", "Primário"),
+    swatch("--fg-secondary", "Secundário"),
+    swatch("--fg-tertiary", "Terciário"),
+    swatch("--fg-muted", "Muted"),
+    swatch("--fg-on-inverse", "On inverse"),
+  ],
+}
+const SEMANTIC_BORDER: SemanticGroup = {
+  label: "Bordas",
+  tokens: [
+    swatch("--border-subtle", "Sutil"),
+    swatch("--border-default", "Padrão"),
+    swatch("--border-strong", "Forte"),
+    swatch("--ring-focus", "Focus ring"),
+  ],
+}
+const SEMANTIC_ACCENT: SemanticGroup = {
+  label: "Acentos",
+  tokens: [
+    swatch("--accent-brand", "Brand"),
+    swatch("--accent-brand-hover", "Brand hover"),
+    swatch("--accent-success", "Sucesso"),
+    swatch("--accent-danger", "Perigo"),
+    swatch("--accent-warning", "Atenção"),
+  ],
+}
+
+// ── Escalas (raio / sombra) ───────────────────────────────────────────────────
+const RADIUS_SCALE: TokenSwatch[] = [
+  swatch("--radius-xs", "XS"),
+  swatch("--radius-sm", "SM"),
+  swatch("--radius-md", "MD"),
+  swatch("--radius-lg", "LG"),
+  swatch("--radius-xl", "XL"),
+  swatch("--radius-2xl", "2XL"),
+  swatch("--radius-full", "Full"),
+]
+const SHADOW_SCALE: TokenSwatch[] = [
+  swatch("--shadow-xs", "XS"),
+  swatch("--shadow-sm", "SM"),
+  swatch("--shadow-md", "MD"),
+  swatch("--shadow-lg", "LG"),
+  swatch("--shadow-overlay", "Overlay"),
 ]
 
-/** Every `var(--token)` the picker can emit — the apply engine's allow-list. */
-export const ALLOWED_STYLE_VALUES: ReadonlySet<string> = new Set(
-  STYLE_PROPERTIES.flatMap((p) => p.tokens.map((t) => t.cssValue)),
-)
+export interface StyleProperty {
+  prop: string
+  label: string
+  kind: "color" | "radius" | "shadow"
+  /** Grupos semânticos relevantes pra esta propriedade (atalhos no topo). */
+  semantic: SemanticGroup[]
+  /** Propriedades de cor mostram TODAS as rampas embaixo dos semânticos. */
+  showRamps: boolean
+  /** Escala (raio/sombra). */
+  scale?: TokenSwatch[]
+}
 
-export const STYLE_PROPS: ReadonlySet<string> = new Set(
-  STYLE_PROPERTIES.map((p) => p.prop),
-)
+export const STYLE_PROPERTIES: StyleProperty[] = [
+  { prop: "color", label: "Cor do texto", kind: "color", semantic: [SEMANTIC_FG, SEMANTIC_ACCENT], showRamps: true },
+  { prop: "background-color", label: "Fundo", kind: "color", semantic: [SEMANTIC_BG, SEMANTIC_ACCENT], showRamps: true },
+  { prop: "border-color", label: "Borda", kind: "color", semantic: [SEMANTIC_BORDER, SEMANTIC_ACCENT], showRamps: true },
+  { prop: "border-radius", label: "Raio", kind: "radius", semantic: [], showRamps: false, scale: RADIUS_SCALE },
+  { prop: "box-shadow", label: "Sombra", kind: "shadow", semantic: [], showRamps: false, scale: SHADOW_SCALE },
+]
 
-/** Guard: a style op is only honored if BOTH the property and the token value
- *  are in the manifest. Defends the DOM against anything non-token. */
+// ── Allow-lists pro apply engine ──────────────────────────────────────────────
+const COLOR_VALUES = new Set<string>([
+  ...COLOR_RAMPS.flatMap((r) => r.swatches.map((s) => s.cssValue)),
+  ...[SEMANTIC_BG, SEMANTIC_FG, SEMANTIC_BORDER, SEMANTIC_ACCENT].flatMap((g) =>
+    g.tokens.map((t) => t.cssValue),
+  ),
+])
+const RADIUS_VALUES = new Set(RADIUS_SCALE.map((t) => t.cssValue))
+const SHADOW_VALUES = new Set(SHADOW_SCALE.map((t) => t.cssValue))
+
+const COLOR_PROPS = new Set(["color", "background-color", "border-color"])
+
+/** Guarda: uma op de estilo só é honrada se a propriedade for conhecida E o
+ *  valor for um token válido pra ela. Defende o DOM de qualquer não-token. */
 export function isAllowedStyle(prop: string, cssValue: string): boolean {
-  return STYLE_PROPS.has(prop) && ALLOWED_STYLE_VALUES.has(cssValue)
+  if (COLOR_PROPS.has(prop)) return COLOR_VALUES.has(cssValue)
+  if (prop === "border-radius") return RADIUS_VALUES.has(cssValue)
+  if (prop === "box-shadow") return SHADOW_VALUES.has(cssValue)
+  return false
 }
