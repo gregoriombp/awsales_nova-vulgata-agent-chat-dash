@@ -3,15 +3,13 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
-import { NotificationRow } from "@/components/NotificationRow";
-import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTabs } from "@/components/ui/AwTabs";
 import { Icon } from "@/components/ui/Icon";
+import { cn } from "@/lib/utils";
 import {
   KIND_LABEL,
   NOTIFICATIONS,
@@ -71,6 +69,8 @@ export default function NotificationsPage() {
     () => new Set(NOTIFICATIONS.filter((n) => n.read).map((n) => n.id)),
   );
   const [detail, setDetail] = useState<AppNotification | null>(null);
+  /** Paginação leve: quantos itens mostrar antes do "Carregar mais". */
+  const [visibleCount, setVisibleCount] = useState(6);
 
   const items = useMemo(
     () => NOTIFICATIONS.map((n) => ({ ...n, read: readIds.has(n.id) })),
@@ -78,15 +78,14 @@ export default function NotificationsPage() {
   );
   const unreadCount = items.filter((n) => !n.read).length;
 
-  // Crítica não-lida que sobe no aviso fixo (a mais recente).
-  const criticalUnread = items.find((n) => n.critical && !n.read) ?? null;
-
   const visible = items.filter((n) => {
     if (tab === "unread" && n.read) return false;
     if (kind !== "all" && n.kind !== kind) return false;
     if (!withinPeriod(n.timeLabel, period)) return false;
     return true;
   });
+  const shown = visible.slice(0, visibleCount);
+  const hasMore = visible.length > visibleCount;
 
   const markRead = (id: string) =>
     setReadIds((prev) => {
@@ -129,28 +128,6 @@ export default function NotificationsPage() {
             Marcar todas como lidas
           </AwButton>
         </header>
-
-        {/* Aviso fixo de crítica não-lida — leva direto ao detalhe. */}
-        {criticalUnread && (
-          <button
-            type="button"
-            onClick={() => openDetail(criticalUnread)}
-            className="mb-4 block w-full text-left"
-            aria-label={`Notificação crítica: ${criticalUnread.title}`}
-          >
-            <AwAlert
-              role="alert"
-              variant="danger"
-              icon="warning"
-              title={criticalUnread.title}
-              className="cursor-pointer transition-opacity duration-aw-fast hover:opacity-90"
-            >
-              <p className="m-0 body-xs text-(--fg-secondary)">
-                Crítica · clique para ver os detalhes.
-              </p>
-            </AwAlert>
-          </button>
-        )}
 
         <div className="mb-4">
           <AwTabs
@@ -250,19 +227,39 @@ export default function NotificationsPage() {
           </div>
         </div>
 
-        <AwCard className="p-0! overflow-hidden">
-          {visible.length === 0 ? (
+        {visible.length === 0 ? (
+          <div className="rounded-xl border border-(--border-subtle) bg-(--bg-raised)">
             <EmptyState tab={tab} hasFilter={hasFilter} />
-          ) : (
-            <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-              {visible.map((n) => (
+          </div>
+        ) : (
+          <>
+            {/* Cards separados; os não lidos ganham fundo destacado. */}
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
+              {shown.map((n, i) => (
                 <li key={n.id} className="m-0">
-                  <NotificationRow notification={n} onActivate={openDetail} />
+                  <NotifCard
+                    notification={n}
+                    index={i}
+                    onActivate={openDetail}
+                  />
                 </li>
               ))}
             </ul>
-          )}
-        </AwCard>
+
+            {hasMore && (
+              <div className="mt-5 flex justify-center">
+                <AwButton
+                  size="sm"
+                  variant="secondary"
+                  iconLeft="expand_more"
+                  onClick={() => setVisibleCount((c) => c + 6)}
+                >
+                  Carregar mais
+                </AwButton>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Detalhe da notificação — abrir já marca como lida. */}
@@ -271,6 +268,92 @@ export default function NotificationsPage() {
         onClose={() => setDetail(null)}
       />
     </AwDashboardLayout>
+  );
+}
+
+/* ===================================================================== *
+ * Card de notificação — um por item, com destaque de fundo p/ não lidas.
+ * Entra com a transição aw-wizard-step (escalonada pelo index).
+ * ===================================================================== */
+
+function NotifCard({
+  notification: n,
+  index,
+  onActivate,
+}: {
+  notification: AppNotification;
+  index: number;
+  onActivate: (n: AppNotification) => void;
+}) {
+  const isNew = !n.read;
+  return (
+    <button
+      type="button"
+      onClick={() => onActivate(n)}
+      aria-label={`Abrir notificação: ${n.title}`}
+      style={{
+        animationDelay: `${Math.min(index, 8) * 40}ms`,
+        ...(isNew
+          ? {
+              background:
+                "color-mix(in srgb, var(--aw-blue-500) 7%, var(--bg-raised))",
+            }
+          : {}),
+      }}
+      className={cn(
+        "aw-wizard-step group flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-[border-color,box-shadow] duration-aw-fast hover:shadow-(--shadow-xs)",
+        isNew
+          ? "border-(--aw-blue-200) hover:border-(--aw-blue-300)"
+          : "border-(--border-subtle) bg-(--bg-raised) hover:border-(--border-default)",
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-tertiary)"
+      >
+        <Icon name={KIND_ICON[n.kind]} size={22} fill={1} />
+        {isNew && (
+          <span
+            aria-hidden="true"
+            className="absolute right-0 top-0 inline-block h-2.5 w-2.5 rounded-full"
+            style={{
+              background: "var(--aw-blue-500)",
+              boxShadow: "0 0 0 2px var(--bg-raised)",
+            }}
+          />
+        )}
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-2">
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate body-sm",
+              isNew
+                ? "font-medium text-(--fg-primary)"
+                : "font-normal text-(--fg-secondary)",
+            )}
+          >
+            {n.title}
+          </span>
+          {n.critical && (
+            <AwPill variant="error" dot={false}>
+              Crítica
+            </AwPill>
+          )}
+          <span className="shrink-0 body-xs tabular-nums text-(--fg-tertiary)">
+            {n.timeLabel}
+          </span>
+        </span>
+        <span className="mt-0.5 line-clamp-2 block body-xs text-(--fg-secondary)">
+          {n.description}
+        </span>
+      </span>
+      <Icon
+        name="chevron_right"
+        size={18}
+        className="mt-0.5 shrink-0 self-start text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:translate-x-0.5"
+      />
+    </button>
   );
 }
 
