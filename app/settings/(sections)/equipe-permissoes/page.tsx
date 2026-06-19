@@ -5,6 +5,7 @@ import { useCopilotDrawer } from "@/lib/copilot/store";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBackupCodes } from "@/components/ui/AwBackupCodes";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import {
@@ -1054,14 +1055,19 @@ function MemberDetail({
               {isInactive ? "Reativar" : "Inativar"}
             </AwButton>
           )}
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconLeft="logout"
-            onClick={onRemove}
-          >
-            {member.isYou ? "Sair" : "Remover"}
-          </AwButton>
+          {/* "Sair" (perfil próprio) saía aqui, redundante com o X de fechar
+              ao lado e com a ação do kebab na lista. Mantemos só "Remover"
+              para gerir outros membros. */}
+          {!member.isYou && (
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconLeft="person_remove"
+              onClick={onRemove}
+            >
+              Remover
+            </AwButton>
+          )}
           <AwButton
             size="sm"
             variant="ghost"
@@ -1196,6 +1202,7 @@ function MfaSection({
   const [resetOpen, setResetOpen] = useState(false);
   const total = member.mfaBackupCodesTotal ?? 10;
   const remaining = member.mfaBackupCodesRemaining ?? total;
+  const firstName = member.name.split(" ")[0];
 
   const handleGenerate = () => {
     const codes = generateBackupCodes(total);
@@ -1219,15 +1226,23 @@ function MfaSection({
   return (
     <DetailSection title="Autenticação (MFA)">
       <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <AwPill variant={member.mfaEnabled ? "live" : "warning"} dot={false}>
-            {member.mfaEnabled ? "Ativa" : "Não configurada"}
-          </AwPill>
-          <span className="body-xs text-(--fg-tertiary)">
-            {member.mfaEnabled
-              ? `App autenticador configurado em ${member.mfaConfiguredAt ?? "—"} · ${remaining} de ${total} códigos de backup válidos.`
-              : "A pessoa ainda não ativou a verificação em duas etapas na conta."}
-          </span>
+        <div className="flex items-start gap-3">
+          <AwBrandLogo
+            brand="google-authenticator"
+            size="sm"
+            className="mt-0.5"
+            aria-label="Google Authenticator"
+          />
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+            <AwPill variant={member.mfaEnabled ? "live" : "warning"} dot={false}>
+              {member.mfaEnabled ? "Ativa" : "Não configurada"}
+            </AwPill>
+            <span className="body-xs text-(--fg-tertiary)">
+              {member.mfaEnabled
+                ? `App autenticador configurado em ${member.mfaConfiguredAt ?? "—"} · ${remaining} de ${total} códigos de backup válidos.`
+                : "A pessoa ainda não ativou a verificação em duas etapas na conta."}
+            </span>
+          </div>
         </div>
 
         {member.mfaEnabled && (
@@ -1246,7 +1261,7 @@ function MfaSection({
               iconLeft="lock_reset"
               onClick={() => setResetOpen(true)}
             >
-              Resetar MFA
+              Resetar verificação
             </AwButton>
           </div>
         )}
@@ -1282,7 +1297,7 @@ function MfaSection({
       <AwModal
         open={resetOpen}
         onClose={() => setResetOpen(false)}
-        title={`Resetar MFA de ${member.name}?`}
+        title={`Resetar a verificação em duas etapas de ${firstName}?`}
         footer={
           <>
             <AwButton size="sm" variant="ghost" onClick={() => setResetOpen(false)}>
@@ -1294,19 +1309,20 @@ function MfaSection({
               iconLeft="lock_reset"
               onClick={handleReset}
             >
-              Resetar MFA
+              Resetar verificação
             </AwButton>
           </>
         }
       >
         <div className="flex flex-col gap-4">
           <AwAlert variant="warning">
-            No próximo acesso, a pessoa configura a verificação em duas etapas do
-            zero — novo app autenticador e novos códigos de backup.
+            {firstName} configura tudo de novo no próximo acesso — um novo app
+            autenticador e novos códigos de backup. Os atuais param de funcionar
+            na hora.
           </AwAlert>
           <p className="m-0 body-xs text-(--fg-secondary) text-pretty">
-            Use quando o membro perde o dispositivo de autenticação. A ação fica
-            registrada no histórico com o seu nome.
+            Faça isso quando {firstName} perder o celular ou o acesso ao
+            autenticador. Fica registrado no histórico com o seu nome.
           </p>
         </div>
       </AwModal>
