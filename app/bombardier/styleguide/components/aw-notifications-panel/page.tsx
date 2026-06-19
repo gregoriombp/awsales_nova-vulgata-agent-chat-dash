@@ -27,10 +27,10 @@ function BellDemo({
 }) {
   return (
     <div className="flex justify-center" style={{ paddingBottom: bottom }}>
-      {/* Caixa de largura fixa = âncora do painel. O sino fica no topo-direita
-       * e o painel (right-0, ~420px) cai logo abaixo, dentro da caixa — sem
-       * estourar pra fora do Stage. */}
-      <div className="relative" style={{ width: 440 }}>
+      {/* Caixa = largura do painel (420px): o sino fica no topo-direita e o
+       * painel (right-0) cai logo abaixo, centralizado no Stage. `bottom`
+       * reserva exatamente a altura do painel pra ele caber sem estourar. */}
+      <div className="relative" style={{ width: 420 }}>
         <div className="flex justify-end">
           <button
             type="button"
@@ -64,7 +64,7 @@ export default function NotificationsPanelPage() {
             lead="Ancora no canto superior direito do gatilho (o sino). Mostra os itens mais recentes (limit, default 6), com a contagem de não lidas no header e o link 'Ver todas' no rodapé."
           >
             <Stage label="Aberto — feed da plataforma">
-              <BellDemo bottom={560} />
+              <BellDemo bottom={650} />
             </Stage>
           </Section>
 
@@ -74,7 +74,7 @@ export default function NotificationsPanelPage() {
             lead="Quando não há notificações, o feed dá lugar a um estado vazio enxuto — o rodapé 'Ver todas' continua disponível."
           >
             <Stage label="Sem itens">
-              <BellDemo bottom={240} notifications={[]} />
+              <BellDemo bottom={300} notifications={[]} />
             </Stage>
           </Section>
 
@@ -84,7 +84,7 @@ export default function NotificationsPanelPage() {
             lead="O painel é um resumo, não a caixa completa. Use limit para controlar quantos itens aparecem antes do 'Ver todas'."
           >
             <Stage label="limit = 3">
-              <BellDemo bottom={380} limit={3} />
+              <BellDemo bottom={400} limit={3} />
             </Stage>
           </Section>
 
