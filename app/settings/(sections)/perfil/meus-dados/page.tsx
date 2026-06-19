@@ -193,7 +193,7 @@ export default function MeusDadosPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Meus dados"
-        description="Gerencie suas informações e exporte uma cópia dos seus dados — separada das configurações da organização."
+        description="Veja e exporte uma cópia dos seus dados — separada das configurações da organização."
         trailing={
           <AwPill
             variant="neutral"
@@ -217,14 +217,14 @@ export default function MeusDadosPage() {
               Baixar uma cópia
             </p>
             <p className="m-0 mt-1 max-w-[520px] body-xs text-(--fg-secondary)">
-              Inicie a exportação. Avisamos por e-mail assim que o arquivo
-              estiver pronto — pode levar até 24h. Só você recebe o link.
+              Peça a exportação. Avisamos por e-mail quando o arquivo estiver
+              pronto — leva até 24h. Só você recebe o link.
             </p>
             {inCooldown && (
               <p className="m-0 mt-2 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
                 <Icon name="schedule" size={13} className="shrink-0" />
-                Nova cópia liberada {nextExportLabel(lastRequestedAt!)} — uma a
-                cada 24h.
+                Próxima cópia disponível {nextExportLabel(lastRequestedAt!)} —
+                uma a cada 24h.
               </p>
             )}
           </div>
@@ -241,43 +241,10 @@ export default function MeusDadosPage() {
         </AwButton>
       </AwCard>
 
-      {/* Detalhe + histórico, lado a lado e sempre com a mesma altura. */}
-      <div className="mt-6 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
-        {/* O que vem na cópia — grid 2×2 colorido */}
-        <AwCard className="flex flex-col gap-5 p-6!">
-          <div>
-            <h6 className="m-0 body-md font-medium text-(--fg-primary)">
-              O que vem na cópia
-            </h6>
-            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-              Tudo que é seu, reunido em um único arquivo.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-            {COPY_CATEGORIES.map((cat) => (
-              <div key={cat.title} className="flex items-start gap-3">
-                <span
-                  className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                    TONE[cat.tone],
-                  )}
-                >
-                  <Icon name={cat.icon} size={18} fill={1} />
-                </span>
-                <div className="min-w-0">
-                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                    {cat.title}
-                  </p>
-                  <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                    {cat.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </AwCard>
-
-        {/* Solicitações recentes — tabela */}
+      {/* Histórico de pedidos — único card, full width. A breakdown de "o
+       *  que vem na cópia" agora vive dentro do modal de Solicitar
+       *  exportação (sequencial), não mais na página. */}
+      <div className="mt-6">
         <AwCard className="flex flex-col gap-4 p-6!">
           <div className="flex items-start justify-between gap-3">
             <div>
@@ -386,9 +353,8 @@ export default function MeusDadosPage() {
       <p className="mt-8 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">
         <Icon name="gavel" size={13} className="mt-px shrink-0" />
         <span className="max-w-[680px]">
-          Esta cópia é para você consultar os seus próprios dados. Enviar os dados
-          direto para outro serviço ainda não está disponível — depende de regras
-          que a ANPD precisa publicar.
+          Esta cópia é para você consultar. Enviar direto para outro serviço
+          ainda não dá — depende de regras que a ANPD precisa publicar.
         </span>
       </p>
 
@@ -447,7 +413,7 @@ export default function MeusDadosPage() {
         }
       >
         {mode === "confirm" ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-5">
             <p className="m-0 body-sm text-(--fg-secondary)">
               Geramos um arquivo com a sua cópia e enviamos para{" "}
               <strong className="font-medium text-(--fg-primary)">
@@ -455,6 +421,36 @@ export default function MeusDadosPage() {
               </strong>
               . Fica pronto em alguns minutos.
             </p>
+            {/* O que vem na cópia — categoriza o que o usuário vai receber.
+             *  Mora aqui (no modal sequencial) e não na página, pra aparecer
+             *  no momento em que ele realmente quer agir. */}
+            <div>
+              <p className="m-0 mb-3 aw-eyebrow normal-case text-(--fg-tertiary)">
+                O que vem na cópia
+              </p>
+              <ul className="m-0 grid list-none grid-cols-2 gap-x-4 gap-y-3 p-0">
+                {COPY_CATEGORIES.map((cat) => (
+                  <li key={cat.title} className="m-0 flex items-start gap-2.5">
+                    <span
+                      className={cn(
+                        "flex h-8 w-8 shrink-0 items-center justify-center rounded-md",
+                        TONE[cat.tone],
+                      )}
+                    >
+                      <Icon name={cat.icon} size={16} fill={1} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="m-0 body-xs font-medium text-(--fg-primary)">
+                        {cat.title}
+                      </p>
+                      <p className="m-0 mt-0.5 body-xs leading-snug text-(--fg-tertiary)">
+                        {cat.desc}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <div className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
                 <Icon name="lock" size={16} />
