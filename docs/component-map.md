@@ -112,7 +112,7 @@ Aqui está a régua.
 | `AwTable` | tabela simples, estática, estilizada. **Padrão.** |
 | `DataTable` (`@/components/tool-ui/data-table`) | dados com sort, paginação, seleção, colunas configuráveis. |
 | `AwMembersTable` | tabela de membros/permissões (células de pessoa/seleção/texto prontas). |
-| `table.tsx` (minúsculo) | **primitivo shadcn cru** — só dentro de um adapter de `tool-ui`, nunca numa página. |
+| `table.tsx` (minúsculo) | **primitivo shadcn cru.** Padrão é `AwTable`/`DataTable`; o cru só é aceitável numa tabela de domínio rica que elas não cobrem (ex.: `KnowledgeBaseTable`), nunca pra uma tabela simples. |
 
 ### Modais e dialogs
 | Componente | Quando |
