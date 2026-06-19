@@ -1,14 +1,10 @@
 ---
 name: design-system-new-component
 description: >
-  Adiciona um novo componente ao design system do projeto (shadcn/ui) e cria
-  o showcase correspondente em /app/bombardier/styleguide/components/[name]/.
-  Sempre verifica primeiro o registry do shadcn via MCP antes de construir do
-  zero, e prioriza estender componentes existentes ao invés de recriar. Use
-  quando o usuário pedir "adicionar componente", "novo componente",
-  "instalar Button/Card/Dialog/etc.", "criar componente customizado", "add
-  component to design system", "estender shadcn", ou referenciar um nome de
-  componente para incluir no styleguide.
+  [INACTIVE in this repo — do not trigger.] Generic, Aw-blind version of "new
+  component", kept only as a record of the Bombardier initial setup. To add or
+  edit a design-system component use bombardier-new-component, which enforces
+  the Aw prefix, AwSales tokens, and the shadcn-wrapper flow. See AGENTS.md.
 ---
 
 > **[DEPRECADO neste repo — use `bombardier-new-component`].** Esta skill é genérica e

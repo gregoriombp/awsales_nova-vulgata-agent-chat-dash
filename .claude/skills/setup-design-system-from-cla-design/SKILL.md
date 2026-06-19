@@ -1,13 +1,10 @@
 ---
 name: setup-design-system-from-cla-design
 description: >
-  Configura um design system completo (Next.js + shadcn/ui + rota /bombardier/styleguide)
-  a partir de um handoff do Claude Design — seja um arquivo .zip baixado, seja
-  uma fetch URL/handoff direto. Sempre EXTRAI tokens e componentes do bundle
-  (sem fallback shadcn). Use quando o usuário mencionar "Claude Design",
-  "handoff do Claude", "zip do Claude Design", "design system do Claude",
-  "importar handoff", "send to Claude Code", ou colar uma fetch URL/path .zip
-  vindo do claude.com/design.
+  [INACTIVE in this repo — do not trigger.] Initial design-system bootstrap from a
+  Claude Design handoff. This repo is already set up — do not re-bootstrap. To change
+  tokens or foundation use bombardier-design-system-foundation. Kept only as a record
+  of the Bombardier initial setup. See AGENTS.md.
 ---
 
 > **[DEPRECADO neste repo — use `bombardier-design-system-foundation`].** O design

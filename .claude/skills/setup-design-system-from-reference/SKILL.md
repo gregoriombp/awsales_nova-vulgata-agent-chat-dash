@@ -1,14 +1,10 @@
 ---
 name: setup-design-system-from-reference
 description: >
-  Configura um design system completo (Next.js + shadcn/ui + rota /bombardier/styleguide)
-  a partir de UMA imagem de referência — screenshot do Dribbble, Behance,
-  Mobbin, print de produto, ou qualquer inspiração visual. Extrai/inferi
-  tokens (cores, tipografia, spacing, radius, shadows) a partir da imagem e
-  monta o styleguide. Use quando o usuário mencionar "design system a partir
-  de screenshot", "from dribbble", "from behance", "criar design system
-  baseado nessa imagem", "extrair tokens de imagem", "design system de
-  inspiração", "design system de referência visual".
+  [INACTIVE in this repo — do not trigger.] Initial design-system bootstrap from a
+  reference image. This repo is already set up — do not re-bootstrap. To change tokens
+  or foundation use bombardier-design-system-foundation. Kept only as a record of the
+  Bombardier initial setup. See AGENTS.md.
 ---
 
 > **[DEPRECADO neste repo — use `bombardier-design-system-foundation`].** O design

@@ -1,15 +1,9 @@
 ---
 name: design-system-new-page
-description: >
-  Constrói uma página inteira (Next.js, App Router) a partir de um screenshot
-  ou URL do Figma, mapeando elementos visuais para componentes shadcn/ui e
-  PRIORIZANDO reuso dos componentes já documentados no design system em
-  /bombardier/styleguide. Cobre análise visual, mapping para shadcn,
-  instalação dos componentes faltantes, scaffolding do `/app/[page]/page.tsx`,
-  responsividade e interatividade. Use quando o usuário disser "construir
-  página", "build a page", "implementar essa tela", "criar página a partir
-  desse design", "página do Figma", "scaffold de página", "implement
-  screenshot", "transformar mockup em código".
+description: '[INACTIVE in this repo — do not trigger.] Generic, Aw-blind version
+  of "build a page", kept only as a record of the Bombardier initial setup. To build
+  or rework a product page use bombardier-new-page, which reuses existing Aw* components
+  and AwSales tokens. See AGENTS.md.'
 ---
 
 > **[DEPRECADO neste repo — use `bombardier-new-page`].** Esta skill é genérica e
