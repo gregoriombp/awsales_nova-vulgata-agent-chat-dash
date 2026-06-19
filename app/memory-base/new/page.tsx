@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
  * existe. "Configurar" então abre a classificação — objetivo → segmento → envio —
  * que faz patch na base recém-criada, e segue pras fontes (produtos/catálogo) e
  * playbook. As escolhas são decorativas (repo é preview de UX, sem backend);
- * ver docs/memory-base-creation-wizard.md.
+ * ver docs/archive/memory-base-creation-wizard.md.
  *
  *   name      → input do nome + Criar               (Tela 02)
  *   created   → celebração + "Configurar" em fade   (Tela 03)
