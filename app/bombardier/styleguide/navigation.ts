@@ -166,6 +166,7 @@ export const navigation: NavSection[] = [
       { name: "Nav list", href: "/bombardier/styleguide/components/nav-list" },
       { name: "Nav rail", href: "/bombardier/styleguide/components/nav-rail" },
       { name: "Nav tree", href: "/bombardier/styleguide/components/aw-nav-tree" },
+      { name: "Notification card", href: "/bombardier/styleguide/components/aw-notification-card" },
       { name: "Notificações", href: "/bombardier/styleguide/components/aw-notifications-panel" },
       { name: "Option list", href: "/bombardier/styleguide/components/aw-option-list" },
       { name: "Page header", href: "/bombardier/styleguide/components/aw-page-header" },
