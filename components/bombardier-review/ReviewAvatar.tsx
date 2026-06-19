@@ -14,12 +14,16 @@ const GREG_PHOTO = "/assets/users/greg.jpg"
 const CLAUDE_CLAY = "#D97757"
 const GERMANO_INK = "var(--aw-slate-900)"
 
+// `kind !== "user"` (em vez de `=== "agent"`) porque comments de topo não
+// carregam authorKind — só replies carregam. Assim o avatar do AUTOR de um
+// comentário criado por agente (ex.: pin de bonus do Germano) também resolve
+// pelo id/name estável, sem falsar num revisor humano (kind === "user").
 function isClaude(kind: string | undefined, id: string | undefined, name: string): boolean {
-  return kind === "agent" && (id === "claude" || name.trim().toLowerCase() === "claude")
+  return kind !== "user" && (id === "claude" || name.trim().toLowerCase() === "claude")
 }
 
 function isGermano(kind: string | undefined, id: string | undefined, name: string): boolean {
-  return kind === "agent" && (id === "germano" || name.trim().toLowerCase().startsWith("germano"))
+  return kind !== "user" && (id === "germano" || name.trim().toLowerCase().startsWith("germano"))
 }
 
 function isGreg(id: string | undefined, name: string): boolean {
