@@ -5387,6 +5387,34 @@
   animation: aw-agent-think-morph 4s ease-in-out infinite;
   will-change: border-radius, transform;
 }
+
+/* Cortex pensando: o hex morfa por formas geométricas (hex → círculo →
+   quadrado → triângulo) via clip-path. Pontos equidistantes (12) em cada
+   forma pra o CSS interpolar suave. Combina com hueSpeed na textura. */
+@keyframes aw-cortex-think-morph {
+  0%, 100% {
+    clip-path: polygon(50.0% 0.0%, 74.1% 12.1%, 98.2% 24.1%, 100.0% 50.0%, 98.2% 75.9%, 74.1% 87.9%, 50.0% 100.0%, 25.9% 87.9%, 1.8% 75.9%, 0.0% 50.0%, 1.8% 24.1%, 25.9% 12.1%);
+  }
+  25% {
+    clip-path: polygon(50.0% 0.0%, 75.0% 6.7%, 93.3% 25.0%, 100.0% 50.0%, 93.3% 75.0%, 75.0% 93.3%, 50.0% 100.0%, 25.0% 93.3%, 6.7% 75.0%, 0.0% 50.0%, 6.7% 25.0%, 25.0% 6.7%);
+  }
+  50% {
+    clip-path: polygon(0.0% 0.0%, 33.3% 0.0%, 66.7% 0.0%, 100.0% 0.0%, 100.0% 33.3%, 100.0% 66.7%, 100.0% 100.0%, 66.7% 100.0%, 33.3% 100.0%, 0.0% 100.0%, 0.0% 66.7%, 0.0% 33.3%);
+  }
+  75% {
+    clip-path: polygon(50.0% 3.0%, 61.6% 22.4%, 73.2% 41.8%, 84.8% 61.2%, 95.2% 80.0%, 72.6% 80.0%, 50.0% 80.0%, 27.4% 80.0%, 4.8% 80.0%, 15.2% 61.2%, 26.8% 41.8%, 38.4% 22.4%);
+  }
+}
+.aw-cortex-think {
+  clip-path: polygon(50.0% 0.0%, 74.1% 12.1%, 98.2% 24.1%, 100.0% 50.0%, 98.2% 75.9%, 74.1% 87.9%, 50.0% 100.0%, 25.9% 87.9%, 1.8% 75.9%, 0.0% 50.0%, 1.8% 24.1%, 25.9% 12.1%);
+  animation: aw-cortex-think-morph 5s ease-in-out infinite;
+  will-change: clip-path;
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-cortex-think {
+    animation: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .aw-agent-think {
     animation: none;

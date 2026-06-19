@@ -17,6 +17,9 @@ export type CortexPreset = {
   flowFrequency: number;
   contrast: number;
   bg: string;
+  /** Rotação de hue (varredura de cor). Só `thinking` usa — a textura muda
+   *  de matiz enquanto o Cortex pensa. 0 = desligado. */
+  hueSpeed?: number;
 };
 
 export const CORTEX_STATE_PRESETS: Record<CortexState, CortexPreset> = {
@@ -46,18 +49,22 @@ export const CORTEX_STATE_PRESETS: Record<CortexState, CortexPreset> = {
     contrast: 1.0,
     bg: "#05080f",
   },
+  // Thinking mantém os MESMOS controles de listening; o que muda é o shape
+  // (morfa entre formas geométricas, via .aw-cortex-think) e a variação de
+  // hue na textura (hueSpeed).
   thinking: {
-    speed: 0.35,
+    speed: 0.16,
     color1: "#ffffff",
     color2: "#ffffff",
-    color3: "#4f4f4f",
+    color3: "#3a4a66",
     scale: 2.8,
-    complexity: 9,
-    distortion: 2.0,
-    glowIntensity: 0.08,
-    flowFrequency: 3,
+    complexity: 8,
+    distortion: 1.4,
+    glowIntensity: 0,
+    flowFrequency: 2,
     contrast: 1.0,
-    bg: "#000000",
+    bg: "#05080f",
+    hueSpeed: 0.12,
   },
   responding: {
     speed: 0.2,

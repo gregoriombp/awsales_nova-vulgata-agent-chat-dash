@@ -64,20 +64,31 @@ export function AwCopilotOrb({
   const autoComplexity = preset.complexity - calm * 4;
   const autoDistortion = preset.distortion - calm * 0.4;
 
+  // Thinking morfa a forma (clip-path animado) em vez do hex fixo, e a textura
+  // varia de hue (hueSpeed do preset). Os demais estados seguem na máscara hex.
+  const thinking = state === "thinking";
+
   return (
     <div
-      className="relative shrink-0 overflow-hidden"
-      style={{
-        width: size,
-        height: size,
-        maskImage: CORTEX_HEX_MASK,
-        WebkitMaskImage: CORTEX_HEX_MASK,
-        maskSize: "100% 100%",
-        WebkitMaskSize: "100% 100%",
-        maskRepeat: "no-repeat",
-        WebkitMaskRepeat: "no-repeat",
-        maskMode: "alpha",
-      }}
+      className={
+        "relative shrink-0 overflow-hidden" +
+        (thinking ? " aw-cortex-think" : "")
+      }
+      style={
+        thinking
+          ? { width: size, height: size }
+          : {
+              width: size,
+              height: size,
+              maskImage: CORTEX_HEX_MASK,
+              WebkitMaskImage: CORTEX_HEX_MASK,
+              maskSize: "100% 100%",
+              WebkitMaskSize: "100% 100%",
+              maskRepeat: "no-repeat",
+              WebkitMaskRepeat: "no-repeat",
+              maskMode: "alpha",
+            }
+      }
       aria-hidden="true"
     >
       <AwCortexSynthesis
@@ -91,6 +102,7 @@ export function AwCopilotOrb({
         glowIntensity={glowIntensity ?? preset.glowIntensity}
         flowFrequency={flowFrequency ?? preset.flowFrequency}
         contrast={contrast ?? preset.contrast}
+        hueSpeed={preset.hueSpeed ?? 0}
         backgroundColor={bg ?? preset.bg}
       />
     </div>
