@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AwCard } from "@/components/ui/AwCard";
 import { AwField } from "@/components/ui/AwInput";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwToggleRow } from "@/components/ui/AwToggle";
@@ -22,9 +21,10 @@ export default function AppearanceSettingsPage() {
         title="Aparência"
         description="Aplica somente para sua conta, neste navegador."
       />
-      <AwCard className="p-0!">
-        <div className="border-b border-(--border-subtle) px-6 py-5">
-          <p className="m-0 mb-3 body-xs font-medium text-(--fg-primary)">
+      {/* Sem caixa externa: conteúdo flat, seções separadas só por divisória. */}
+      <div className="flex flex-col divide-y divide-(--border-subtle)">
+        <section className="py-6 first:pt-0">
+          <p className="m-0 mb-3 body-sm font-medium text-(--fg-primary)">
             Tema
           </p>
           <div className="flex flex-wrap gap-3">
@@ -57,8 +57,9 @@ export default function AppearanceSettingsPage() {
               );
             })}
           </div>
-        </div>
-        <div className="grid grid-cols-1 gap-4 px-6 py-5 md:grid-cols-2">
+        </section>
+
+        <section className="grid grid-cols-1 gap-4 py-6 md:grid-cols-2">
           <AwField
             label="Densidade"
             helper="Compacta reduz o espaçamento de listas e tabelas."
@@ -70,16 +71,17 @@ export default function AppearanceSettingsPage() {
           <AwField label="Idioma da interface">
             <AwSelect>Português (Brasil)</AwSelect>
           </AwField>
-        </div>
-        <div className="border-t border-(--border-subtle) px-6 py-2">
+        </section>
+
+        <section className="py-4">
           <AwToggleRow
             title="Reduzir movimento"
             description="Suaviza ou desativa transições e parallax."
             checked={reduceMotion}
             onChange={setReduceMotion}
           />
-        </div>
-      </AwCard>
+        </section>
+      </div>
     </div>
   );
 }
