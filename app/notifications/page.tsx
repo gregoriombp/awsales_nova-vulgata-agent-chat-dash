@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AwDashboardLayout } from "@/components/ui/AwDashboardLayout";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwNotificationCard } from "@/components/ui/AwNotificationCard";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTabs } from "@/components/ui/AwTabs";
@@ -146,27 +147,38 @@ export default function NotificationsPage() {
           />
         </div>
 
-        {/* Filtros — categoria (chips) + período (select). */}
+        {/* Filtros — categoria (chips) + período (select). Quando "Tudo" está
+         * ativo, as categorias colapsam atrás dele e só revelam num hover
+         * horizontal suave. Se uma categoria está filtrando, todos os chips
+         * ficam visíveis pra trocar rápido. */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div
             role="group"
             aria-label="Filtrar por categoria"
-            className="flex flex-wrap items-center gap-1.5"
+            className="group/cat flex flex-wrap items-center"
           >
             {KIND_FILTERS.map((f) => {
               const active = kind === f.value;
+              const isAll = f.value === "all";
+              const someSelected = kind !== "all";
+              const alwaysVisible = isAll || someSelected;
               return (
                 <button
                   key={f.value}
                   type="button"
                   aria-pressed={active}
                   onClick={() => setKind(f.value)}
-                  className={
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 body-xs font-medium transition-colors duration-aw-fast " +
-                    (active
+                  aria-hidden={!alwaysVisible ? true : undefined}
+                  tabIndex={!alwaysVisible ? -1 : undefined}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full border body-xs font-medium transition-all duration-aw-medium ease-out",
+                    active
                       ? "border-(--fg-primary) bg-(--fg-primary) text-(--bg-canvas)"
-                      : "border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary) hover:bg-(--bg-muted)")
-                  }
+                      : "border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary) hover:bg-(--bg-muted)",
+                    alwaysVisible
+                      ? "ml-1.5 max-w-[200px] px-3 py-1 opacity-100 first:ml-0"
+                      : "ml-0 max-w-0 px-0 py-1 opacity-0 group-hover/cat:ml-1.5 group-hover/cat:max-w-[200px] group-hover/cat:px-3 group-hover/cat:opacity-100",
+                  )}
                 >
                   {f.value !== "all" && (
                     <Icon name={KIND_ICON[f.value]} size={13} />
@@ -233,11 +245,12 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <>
-            {/* Cards separados; os não lidos ganham fundo destacado. */}
+            {/* Cards separados; os não lidos ganham fundo destacado.
+             * Crítica não lida tem tom vermelho ao invés de azul. */}
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
               {shown.map((n, i) => (
                 <li key={n.id} className="m-0">
-                  <NotifCard
+                  <AwNotificationCard
                     notification={n}
                     index={i}
                     onActivate={openDetail}
@@ -268,92 +281,6 @@ export default function NotificationsPage() {
         onClose={() => setDetail(null)}
       />
     </AwDashboardLayout>
-  );
-}
-
-/* ===================================================================== *
- * Card de notificação — um por item, com destaque de fundo p/ não lidas.
- * Entra com a transição aw-wizard-step (escalonada pelo index).
- * ===================================================================== */
-
-function NotifCard({
-  notification: n,
-  index,
-  onActivate,
-}: {
-  notification: AppNotification;
-  index: number;
-  onActivate: (n: AppNotification) => void;
-}) {
-  const isNew = !n.read;
-  return (
-    <button
-      type="button"
-      onClick={() => onActivate(n)}
-      aria-label={`Abrir notificação: ${n.title}`}
-      style={{
-        animationDelay: `${Math.min(index, 8) * 40}ms`,
-        ...(isNew
-          ? {
-              background:
-                "color-mix(in srgb, var(--aw-blue-500) 7%, var(--bg-raised))",
-            }
-          : {}),
-      }}
-      className={cn(
-        "aw-wizard-step group flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left transition-[border-color,box-shadow] duration-aw-fast hover:shadow-(--shadow-xs)",
-        isNew
-          ? "border-(--aw-blue-200) hover:border-(--aw-blue-300)"
-          : "border-(--border-subtle) bg-(--bg-raised) hover:border-(--border-default)",
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) text-(--fg-tertiary)"
-      >
-        <Icon name={KIND_ICON[n.kind]} size={22} fill={1} />
-        {isNew && (
-          <span
-            aria-hidden="true"
-            className="absolute right-0 top-0 inline-block h-2.5 w-2.5 rounded-full"
-            style={{
-              background: "var(--aw-blue-500)",
-              boxShadow: "0 0 0 2px var(--bg-raised)",
-            }}
-          />
-        )}
-      </span>
-      <span className="min-w-0 flex-1">
-        <span className="flex items-center gap-2">
-          <span
-            className={cn(
-              "min-w-0 flex-1 truncate body-sm",
-              isNew
-                ? "font-medium text-(--fg-primary)"
-                : "font-normal text-(--fg-secondary)",
-            )}
-          >
-            {n.title}
-          </span>
-          {n.critical && (
-            <AwPill variant="error" dot={false}>
-              Crítica
-            </AwPill>
-          )}
-          <span className="shrink-0 body-xs tabular-nums text-(--fg-tertiary)">
-            {n.timeLabel}
-          </span>
-        </span>
-        <span className="mt-0.5 line-clamp-2 block body-xs text-(--fg-secondary)">
-          {n.description}
-        </span>
-      </span>
-      <Icon
-        name="chevron_right"
-        size={18}
-        className="mt-0.5 shrink-0 self-start text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:translate-x-0.5"
-      />
-    </button>
   );
 }
 
