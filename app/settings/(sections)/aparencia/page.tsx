@@ -8,11 +8,8 @@ import { Icon } from "@/components/ui/Icon";
 import { useAwTheme, type ThemePreference } from "@/components/ui/AwThemeProvider";
 import { SettingsPageHeader } from "../_components/shared";
 
-type Density = "comfortable" | "compact";
-
 export default function AppearanceSettingsPage() {
   const { theme, setTheme } = useAwTheme();
-  const [density] = useState<Density>("comfortable");
   const [reduceMotion, setReduceMotion] = useState(false);
 
   return (
@@ -59,15 +56,7 @@ export default function AppearanceSettingsPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-1 gap-4 py-6 md:grid-cols-2">
-          <AwField
-            label="Densidade"
-            helper="Compacta reduz o espaçamento de listas e tabelas."
-          >
-            <AwSelect>
-              {density === "comfortable" ? "Confortável" : "Compacta"}
-            </AwSelect>
-          </AwField>
+        <section className="py-6">
           <AwField label="Idioma da interface">
             <AwSelect>Português (Brasil)</AwSelect>
           </AwField>
