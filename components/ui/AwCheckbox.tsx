@@ -41,9 +41,9 @@ export const AwCheckbox = React.forwardRef<
     >
       <CheckboxPrimitives.Indicator className="flex items-center justify-center text-current">
         {checked === "indeterminate" ? (
-          <Icon name="remove" size={12} />
+          <Icon name="remove" size={14} weight={700} />
         ) : (
-          <Icon name="check" size={12} />
+          <Icon name="check" size={14} weight={700} />
         )}
       </CheckboxPrimitives.Indicator>
     </CheckboxPrimitives.Root>
