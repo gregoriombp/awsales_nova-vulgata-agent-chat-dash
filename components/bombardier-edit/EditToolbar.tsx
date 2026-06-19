@@ -4,16 +4,20 @@ import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
 import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
 
-// Bottom-center pill — the persistent chrome of Edit Mode. Mirrors the place of
-// the review toolbar (the two never show together).
+// Irmã da ReviewToolbar — MESMA pílula (rounded-full bg-raised border-subtle
+// shadow-lg px-1.5 py-1.5), MESMOS botões h-8 w-8 rounded-full, MESMAS
+// divisórias. Chrome de ferramenta coerente com o Review Mode (os dois nunca
+// aparecem juntos).
 
 export function EditToolbar({
-  opsCount,
+  openCount,
+  inReviewCount,
   inboxOpen,
   onToggleInbox,
   onExit,
 }: {
-  opsCount: number
+  openCount: number
+  inReviewCount: number
   inboxOpen: boolean
   onToggleInbox: () => void
   onExit: () => void
@@ -21,38 +25,78 @@ export function EditToolbar({
   return (
     <div
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "toolbar" }}
-      className="fixed bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1 rounded-(--radius-full) border border-(--border-default) bg-(--bg-raised) px-2 py-1.5 shadow-(--shadow-lg)"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
       style={{ zIndex: EDIT_Z.toolbar }}
     >
-      <span className="flex items-center gap-1.5 px-2 text-(--body-sm-size) font-medium text-(--fg-primary)">
-        <Icon name="edit" size={16} className="text-(--accent-brand)" />
-        Edição
-      </span>
-      <span className="text-(--body-xs-size) text-(--fg-tertiary)">
-        salvo automático
-      </span>
-      <span className="mx-1 h-5 w-px bg-(--border-subtle)" aria-hidden />
-      <button
-        type="button"
-        onClick={onToggleInbox}
-        aria-pressed={inboxOpen}
-        className="flex items-center gap-1.5 rounded-(--radius-full) px-2.5 py-1.5 text-(--body-sm-size) text-(--fg-secondary) transition-colors hover:bg-(--bg-hover) aria-pressed:bg-(--bg-selected) aria-pressed:text-(--fg-primary)"
-      >
-        <Icon name="inbox" size={18} />
-        {opsCount > 0 && (
-          <span className="flex h-4 min-w-4 items-center justify-center rounded-(--radius-full) bg-(--accent-brand) px-1 text-(--body-xs-size) text-(--fg-on-inverse)">
-            {opsCount}
-          </span>
-        )}
-      </button>
-      <button
-        type="button"
-        onClick={onExit}
-        className="flex items-center gap-1.5 rounded-(--radius-full) px-2.5 py-1.5 text-(--body-sm-size) text-(--fg-secondary) transition-colors hover:bg-(--bg-hover)"
-      >
-        <Icon name="close" size={18} />
-        Sair
-      </button>
+      <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
+        {/* Marca do modo — espelha o slot do avatar da review toolbar. */}
+        <span
+          className="mr-0.5 h-7 w-7 inline-flex items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse)"
+          title="Modo de edição"
+        >
+          <Icon name="edit" size={15} />
+        </span>
+
+        <span className="h-5 w-px bg-(--border-subtle)" />
+
+        {/* Modo seleção (único modo do MVP) — sempre ativo, igual aos ModeButton. */}
+        <span
+          aria-hidden
+          className="h-8 w-8 inline-flex items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse)"
+          title="Selecionar"
+        >
+          <Icon name="arrow_selector_tool" size={16} />
+        </span>
+
+        <span className="h-5 w-px bg-(--border-subtle)" />
+
+        <button
+          type="button"
+          onClick={onToggleInbox}
+          aria-pressed={inboxOpen}
+          aria-label={
+            inReviewCount > 0
+              ? `Edições · ${inReviewCount} em revisão`
+              : "Edições desta tela"
+          }
+          title={
+            inReviewCount > 0
+              ? `Edições · ${inReviewCount} em revisão`
+              : "Edições desta tela"
+          }
+          className={[
+            "relative h-8 inline-flex items-center gap-1 px-2 rounded-full transition-colors",
+            inboxOpen
+              ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+              : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+          ].join(" ")}
+        >
+          <Icon name="inbox" size={16} />
+          {openCount > 0 && (
+            <span className="body-xs font-semibold tabular-nums">{openCount}</span>
+          )}
+          {inReviewCount > 0 && (
+            <span
+              className="absolute -top-1 -right-1 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full body-xs font-semibold tabular-nums bg-(--aw-amber-500) text-(--fg-on-inverse) ring-2 ring-(--bg-raised)"
+              aria-hidden="true"
+            >
+              {inReviewCount}
+            </span>
+          )}
+        </button>
+
+        <span className="h-5 w-px bg-(--border-subtle)" />
+
+        <button
+          type="button"
+          onClick={onExit}
+          aria-label="Sair do modo de edição"
+          title="Sair (⌘⇧E)"
+          className="h-8 w-8 inline-flex items-center justify-center rounded-full text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+        >
+          <Icon name="close" size={16} />
+        </button>
+      </div>
     </div>
   )
 }

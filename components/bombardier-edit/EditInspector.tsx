@@ -2,18 +2,43 @@
 
 import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
-import { STYLE_PROPERTIES } from "@/lib/bombardier-edit/token-manifest"
 import {
+  captureEditAnchor,
   findEditableTextLeaf,
   resolveEditElement,
 } from "@/lib/bombardier-edit/anchor"
+import {
+  currentAxisValue,
+  detectComponent,
+  type VariantAxis,
+} from "@/lib/bombardier-edit/variant-registry"
 import type { PageEditAnchor, PageEditOp } from "@/lib/bombardier-edit/types"
 import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
-import { StyleTokenPicker } from "./StyleTokenPicker"
+import { StyleSection } from "./StyleSection"
+import { VariantControls } from "./VariantControls"
+import { IconPicker } from "./IconPicker"
 
-// Right-docked properties panel for the selected element. Hosts the three MVP
-// ops: edit text (delegated to the provider, which owns the contentEditable
-// dance), retoken style, hide. Token-only by construction.
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string
+  icon: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="flex flex-col gap-2.5 border-t border-(--border-subtle) px-4 py-4 first:border-t-0">
+      <div className="flex items-center gap-1.5">
+        <Icon name={icon} size={15} className="text-(--fg-tertiary)" />
+        <h3 className="text-2xs font-semibold uppercase tracking-(--tracking-label) text-(--fg-tertiary)">
+          {title}
+        </h3>
+      </div>
+      {children}
+    </section>
+  )
+}
 
 export function EditInspector({
   anchor,
@@ -22,6 +47,8 @@ export function EditInspector({
   onPickStyle,
   onClearStyle,
   onHide,
+  onPickVariant,
+  onPickIcon,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -30,14 +57,37 @@ export function EditInspector({
   onPickStyle: (anchor: PageEditAnchor, prop: string, cssValue: string) => void
   onClearStyle: (anchor: PageEditAnchor, prop: string) => void
   onHide: (anchor: PageEditAnchor, mode: "hide" | "remove") => void
+  onPickVariant: (
+    rootAnchor: PageEditAnchor,
+    axis: VariantAxis,
+    value: string,
+  ) => void
+  onPickIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => void
   onClose: () => void
 }) {
-  const { label, canEditText } = React.useMemo(() => {
+  const info = React.useMemo(() => {
     const el = resolveEditElement(anchor)
-    if (!el) return { label: anchor.component ?? "Elemento", canEditText: false }
-    const name = anchor.component ?? el.tagName.toLowerCase()
-    return { label: name, canEditText: !!findEditableTextLeaf(el) }
-    // selector identity is enough to re-resolve; recompute when it changes.
+    if (!el) {
+      return {
+        label: anchor.component ?? "Elemento",
+        canEditText: false,
+        isIcon: false,
+        currentIcon: "",
+        comp: null as ReturnType<typeof detectComponent>,
+        rootAnchor: null as PageEditAnchor | null,
+      }
+    }
+    const isIcon = el.classList.contains("material-symbols-rounded")
+    const comp = detectComponent(el)
+    return {
+      label: comp?.spec.label ?? el.tagName.toLowerCase(),
+      canEditText: !isIcon && !!findEditableTextLeaf(el),
+      isIcon,
+      currentIcon: isIcon ? (el.textContent ?? "").trim() : "",
+      comp,
+      rootAnchor: comp ? captureEditAnchor(comp.rootEl) : null,
+    }
+    // anchor identity drives re-resolution; ops drive the active highlights.
   }, [anchor])
 
   const activeStyle = React.useMemo(() => {
@@ -50,95 +100,116 @@ export function EditInspector({
     return map
   }, [ops, anchor.selector])
 
+  const variantCurrent = React.useMemo(() => {
+    const map: Record<string, string | null> = {}
+    if (!info.comp || !info.rootAnchor) return map
+    for (const axis of info.comp.spec.axes) {
+      const override = ops.find(
+        (o) =>
+          o.payload.kind === "variant" &&
+          o.anchor.selector === info.rootAnchor!.selector &&
+          o.payload.axis === axis.key,
+      )
+      map[axis.key] =
+        override && override.payload.kind === "variant"
+          ? override.payload.value
+          : currentAxisValue(info.comp!.rootEl, axis)
+    }
+    return map
+  }, [ops, info])
+
   return (
     <aside
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "inspector" }}
-      className="fixed right-4 top-4 bottom-4 flex w-[300px] flex-col overflow-hidden rounded-(--radius-lg) border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-lg)"
+      className="fixed right-4 top-4 bottom-4 flex w-[320px] flex-col overflow-hidden rounded-(--radius-xl) border border-(--border-subtle) bg-(--bg-raised) shadow-lg"
       style={{ zIndex: EDIT_Z.inspector }}
     >
       <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
         <div className="flex min-w-0 items-center gap-2">
-          <Icon name="edit" size={18} className="text-(--fg-secondary)" />
-          <span className="truncate text-(--body-sm-size) font-medium text-(--fg-primary)">
-            {label}
+          <span className="flex h-6 w-6 items-center justify-center rounded-(--radius-sm) bg-(--bg-inverse) text-(--fg-on-inverse)">
+            <Icon name={info.isIcon ? "category" : "edit"} size={14} />
+          </span>
+          <span className="truncate body-sm font-semibold text-(--fg-primary)">
+            {info.label}
           </span>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar inspetor"
-          className="flex h-7 w-7 items-center justify-center rounded-(--radius-sm) text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          className="flex h-7 w-7 items-center justify-center rounded-full text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
         >
-          <Icon name="close" size={18} />
+          <Icon name="close" size={16} />
         </button>
       </header>
 
-      <div className="flex flex-1 flex-col gap-5 overflow-y-auto px-4 py-4">
-        {/* Texto */}
-        <section className="flex flex-col gap-2">
-          <h3 className="text-(--body-xs-size) font-semibold uppercase tracking-wide text-(--fg-tertiary)">
-            Conteúdo
-          </h3>
-          <button
-            type="button"
-            disabled={!canEditText}
-            onClick={() => onRequestText(anchor)}
-            className="flex items-center gap-2 rounded-(--radius-sm) border border-(--border-default) px-3 py-2 text-left text-(--body-sm-size) text-(--fg-primary) transition-colors hover:bg-(--bg-hover) disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <Icon name="text_fields" size={18} className="text-(--fg-secondary)" />
-            <span>{canEditText ? "Editar texto" : "Texto não editável aqui"}</span>
-          </button>
-          {!canEditText && (
-            <p className="text-(--body-xs-size) text-(--fg-tertiary)">
-              Selecione um elemento de texto simples (sem filhos aninhados).
-            </p>
-          )}
-        </section>
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        {/* Conteúdo / texto */}
+        {!info.isIcon && (
+          <Section title="Conteúdo" icon="text_fields">
+            <button
+              type="button"
+              disabled={!info.canEditText}
+              onClick={() => onRequestText(anchor)}
+              className="flex items-center gap-2 rounded-(--radius-md) border border-(--border-default) px-3 py-2 text-left body-sm text-(--fg-primary) transition-colors hover:bg-(--bg-hover) disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon name="edit" size={16} className="text-(--fg-secondary)" />
+              {info.canEditText ? "Editar texto" : "Sem texto editável aqui"}
+            </button>
+          </Section>
+        )}
 
-        {/* Estilo */}
-        <section className="flex flex-col gap-3">
-          <h3 className="text-(--body-xs-size) font-semibold uppercase tracking-wide text-(--fg-tertiary)">
-            Estilo · tokens
-          </h3>
-          {STYLE_PROPERTIES.map((property) => (
-            <StyleTokenPicker
-              key={property.prop}
-              property={property}
-              activeValue={activeStyle[property.prop]}
-              onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
-              onClear={(prop) => onClearStyle(anchor, prop)}
+        {/* Variantes */}
+        {info.comp && info.rootAnchor && (
+          <Section title={`Variantes · ${info.comp.spec.label}`} icon="tune">
+            <VariantControls
+              spec={info.comp.spec}
+              current={variantCurrent}
+              onPick={(axis, value) => onPickVariant(info.rootAnchor!, axis, value)}
             />
-          ))}
-        </section>
+          </Section>
+        )}
+
+        {/* Ícone */}
+        {info.isIcon && (
+          <Section title="Ícone" icon="emoji_symbols">
+            <IconPicker
+              current={info.currentIcon}
+              onPick={(name) => onPickIcon(anchor, name, info.currentIcon)}
+            />
+          </Section>
+        )}
+
+        {/* Estilo (tokens) */}
+        <Section title="Estilo · tokens" icon="palette">
+          <StyleSection
+            activeStyle={activeStyle}
+            onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
+            onClear={(prop) => onClearStyle(anchor, prop)}
+          />
+        </Section>
 
         {/* Visibilidade */}
-        <section className="flex flex-col gap-2">
-          <h3 className="text-(--body-xs-size) font-semibold uppercase tracking-wide text-(--fg-tertiary)">
-            Visibilidade
-          </h3>
+        <Section title="Visibilidade" icon="visibility">
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => onHide(anchor, "hide")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-sm) border border-(--border-default) px-3 py-2 text-(--body-sm-size) text-(--fg-primary) transition-colors hover:bg-(--bg-hover)"
+              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) border border-(--border-default) px-3 py-2 body-sm text-(--fg-primary) transition-colors hover:bg-(--bg-hover)"
             >
-              <Icon name="visibility_off" size={18} className="text-(--fg-secondary)" />
+              <Icon name="visibility_off" size={16} className="text-(--fg-secondary)" />
               Ocultar
             </button>
             <button
               type="button"
               onClick={() => onHide(anchor, "remove")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-sm) border border-(--border-default) px-3 py-2 text-(--body-sm-size) text-(--accent-danger) transition-colors hover:bg-(--bg-hover)"
+              className="flex flex-1 items-center justify-center gap-2 rounded-(--radius-md) border border-(--border-default) px-3 py-2 body-sm text-(--accent-danger) transition-colors hover:bg-(--bg-hover)"
             >
-              <Icon name="delete" size={18} />
+              <Icon name="delete" size={16} />
               Deletar
             </button>
           </div>
-          <p className="text-(--body-xs-size) text-(--fg-tertiary)">
-            &quot;Deletar&quot; só remove visualmente; o componente sai do código
-            na materialização.
-          </p>
-        </section>
+        </Section>
       </div>
     </aside>
   )

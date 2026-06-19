@@ -14,6 +14,8 @@ const TYPE_ICON: Record<PageEditOp["type"], string> = {
   text: "text_fields",
   style: "palette",
   hide: "visibility_off",
+  variant: "tune",
+  icon: "emoji_symbols",
 }
 
 function describe(op: PageEditOp): string {
@@ -23,6 +25,8 @@ function describe(op: PageEditOp): string {
     const token = p.token.replace(/^var\((--[^)]+)\)$/, "$1")
     return `${p.prop}: ${token}`
   }
+  if (p.kind === "variant") return `${p.axis}: ${p.label ?? p.value}`
+  if (p.kind === "icon") return `ícone: ${p.name}`
   return p.mode === "remove" ? "Deletado" : "Oculto"
 }
 
@@ -62,7 +66,7 @@ export function EditInbox({
       style={{ zIndex: EDIT_Z.inbox }}
     >
       <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
-        <span className="text-(--body-sm-size) font-medium text-(--fg-primary)">
+        <span className="body-sm font-medium text-(--fg-primary)">
           Edições desta página
         </span>
         <button
@@ -77,7 +81,7 @@ export function EditInbox({
 
       <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-3 py-3">
         {ops.length === 0 && (
-          <p className="px-1 py-6 text-center text-(--body-sm-size) text-(--fg-tertiary)">
+          <p className="px-1 py-6 text-center body-sm text-(--fg-tertiary)">
             Nenhuma edição ainda. Selecione um elemento e comece.
           </p>
         )}
@@ -96,13 +100,13 @@ export function EditInbox({
                 size={18}
                 className="mt-0.5 shrink-0 text-(--fg-secondary)"
               />
-              <span className="min-w-0 flex-1 truncate text-(--body-sm-size) text-(--fg-primary)">
+              <span className="min-w-0 flex-1 truncate body-sm text-(--fg-primary)">
                 {describe(op)}
               </span>
             </button>
             <div className="flex items-center justify-between">
               <span
-                className="flex items-center gap-1.5 text-(--body-xs-size)"
+                className="flex items-center gap-1.5 body-xs"
                 style={{ color: STATUS_COLOR[op.status] }}
               >
                 <span
@@ -117,14 +121,14 @@ export function EditInbox({
                     <button
                       type="button"
                       onClick={() => onApprove(op.id)}
-                      className="rounded-(--radius-sm) px-2 py-1 text-(--body-xs-size) text-(--accent-success) hover:bg-(--bg-hover)"
+                      className="rounded-(--radius-sm) px-2 py-1 body-xs text-(--accent-success) hover:bg-(--bg-hover)"
                     >
                       Aprovar
                     </button>
                     <button
                       type="button"
                       onClick={() => onReject(op.id)}
-                      className="rounded-(--radius-sm) px-2 py-1 text-(--body-xs-size) text-(--fg-secondary) hover:bg-(--bg-hover)"
+                      className="rounded-(--radius-sm) px-2 py-1 body-xs text-(--fg-secondary) hover:bg-(--bg-hover)"
                     >
                       Rejeitar
                     </button>
@@ -133,7 +137,7 @@ export function EditInbox({
                   <button
                     type="button"
                     onClick={() => onRemove(op.id)}
-                    className="rounded-(--radius-sm) px-2 py-1 text-(--body-xs-size) text-(--fg-secondary) hover:bg-(--bg-hover)"
+                    className="rounded-(--radius-sm) px-2 py-1 body-xs text-(--fg-secondary) hover:bg-(--bg-hover)"
                   >
                     Remover
                   </button>

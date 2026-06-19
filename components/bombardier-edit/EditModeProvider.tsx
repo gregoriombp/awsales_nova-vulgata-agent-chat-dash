@@ -12,6 +12,10 @@ import {
   resolveEditElement,
 } from "@/lib/bombardier-edit/anchor"
 import {
+  buildVariantPayload,
+  type VariantAxis,
+} from "@/lib/bombardier-edit/variant-registry"
+import {
   elementBelowOverlayAt,
   useCumulativeScrollOffset,
   useLayoutVersion,
@@ -150,12 +154,18 @@ export function EditModeProvider() {
     setEditingActive(false)
     const newText = (el.textContent ?? "").replace(/\u00a0/g, " ").trim()
     const prev = prevText.trim()
-    applier.resume(anchor.selector)
     if (newText && newText !== prev) {
-      void useEditStore.getState().saveText(anchor, newText, prev)
-    } else if ((el.textContent ?? "") !== prevText) {
-      // No real change — undo any stray whitespace the editor introduced.
-      el.textContent = prevText
+      // Persist FIRST (element stays suspended, showing the typed text), then
+      // resume — so the applier re-applies the NEW op, never a stale one over
+      // what was just typed.
+      void useEditStore
+        .getState()
+        .saveText(anchor, newText, prev)
+        .finally(() => applier.resume(anchor.selector))
+    } else {
+      // No real change — undo any stray whitespace, then resume.
+      if ((el.textContent ?? "") !== prevText) el.textContent = prevText
+      applier.resume(anchor.selector)
     }
   }, [applier])
 
@@ -341,6 +351,7 @@ export function EditModeProvider() {
         .getState()
         .ops.find(
           (o) =>
+            o.status === "open" &&
             o.payload.kind === "style" &&
             o.anchor.selector === anchor.selector &&
             o.payload.prop === prop,
@@ -358,6 +369,29 @@ export function EditModeProvider() {
       if (el) (el as HTMLElement).style.setProperty("display", "none", "important")
       void useEditStore.getState().saveHide(anchor, mode)
       useEditStore.getState().closeInspector()
+    },
+    [],
+  )
+
+  const onPickVariant = React.useCallback(
+    (rootAnchor: PageEditAnchor, axis: VariantAxis, value: string) => {
+      const payload = buildVariantPayload(axis, value)
+      const el = resolveEditElement(rootAnchor)
+      if (el) {
+        const cl = (el as HTMLElement).classList
+        for (const c of payload.remove) cl.remove(c)
+        if (payload.add) cl.add(payload.add)
+      }
+      void useEditStore.getState().saveVariant(rootAnchor, payload)
+    },
+    [],
+  )
+
+  const onPickIcon = React.useCallback(
+    (anchor: PageEditAnchor, name: string, prevName?: string) => {
+      const el = resolveEditElement(anchor)
+      if (el) el.textContent = name // instant feedback (ligature)
+      void useEditStore.getState().saveIcon(anchor, name, prevName)
     },
     [],
   )
@@ -382,7 +416,8 @@ export function EditModeProvider() {
       )}
 
       <EditToolbar
-        opsCount={ops.length}
+        openCount={ops.filter((o) => o.status === "open").length}
+        inReviewCount={ops.filter((o) => o.status === "in_review").length}
         inboxOpen={inboxOpen}
         onToggleInbox={() => setInboxOpen((v) => !v)}
         onExit={() => useEditStore.getState().setActive(false)}
@@ -396,6 +431,8 @@ export function EditModeProvider() {
           onPickStyle={onPickStyle}
           onClearStyle={onClearStyle}
           onHide={onHide}
+          onPickVariant={onPickVariant}
+          onPickIcon={onPickIcon}
           onClose={() => useEditStore.getState().closeInspector()}
         />
       )}
