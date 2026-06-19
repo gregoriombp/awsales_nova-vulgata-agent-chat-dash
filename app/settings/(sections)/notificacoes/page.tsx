@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { useToast } from "@/components/ui/AwToast";
@@ -264,6 +265,48 @@ export default function NotificationsSettingsPage() {
     notifySaved();
   };
 
+  /** Liga ou desliga um canal global. Quando desligado, propaga off pra
+   *  todos os events não-locked — Joseph: "isso desativa as notificações
+   *  abaixo". Locked não é alterado (a organização garante). */
+  const setGlobalChannel = (ch: ChannelKey, val: boolean) => {
+    if (ch === "app") return; // No app é sempre on (locked).
+    if (ch === "email") setEmailDelivery(val);
+    if (ch === "whatsapp") setWhatsappDelivery(val);
+    if (!val) {
+      setChannelsById((s) => {
+        const next = { ...s };
+        for (const section of SECTIONS) {
+          for (const it of section.items) {
+            if (it.orgLocked) continue;
+            next[it.id] = { ...next[it.id], [ch]: false };
+          }
+        }
+        return next;
+      });
+    }
+    notifySaved();
+  };
+
+  /** "Marcar todos / Desmarcar todos" — só toca eventos não-locked da seção,
+   *  só os canais globalmente habilitados. */
+  const setAllInSection = (sectionId: string, val: boolean) => {
+    const section = SECTIONS.find((s) => s.id === sectionId);
+    if (!section) return;
+    setChannelsById((s) => {
+      const next = { ...s };
+      for (const it of section.items) {
+        if (it.orgLocked) continue;
+        next[it.id] = {
+          app: val ? true : false,
+          email: val && emailDelivery ? true : false,
+          whatsapp: val && whatsappDelivery ? true : false,
+        };
+      }
+      return next;
+    });
+    notifySaved();
+  };
+
   const restoreDefaults = () => {
     setChannelsById(defaultChannels());
     setEmailDelivery(true);
@@ -282,7 +325,7 @@ export default function NotificationsSettingsPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Notificações"
-        description="Escolha o que te interrompe e por onde recebe. A organização define o que é obrigatório e o padrão de cada evento — aqui você afina o que é opcional e os canais."
+        description="Escolha o que te interrompe e por onde chega. A organização define o que é obrigatório; você afina o resto."
         info={
           <div className="flex flex-col gap-1.5 py-0.5">
             <p className="m-0 body-xs">
@@ -311,8 +354,27 @@ export default function NotificationsSettingsPage() {
         }
       />
 
+      {/* Canais de entrega — 4 cards no topo. Desligar um canal aqui apaga
+       *  esse canal nas notificações abaixo (exceto as travadas pela org). */}
+      <div className="mt-8">
+        <ChannelsRow
+          email={emailDelivery}
+          whatsapp={whatsappDelivery}
+          weekly={weeklyDigest}
+          userEmail={USER_EMAIL}
+          onToggle={(ch, val) => {
+            if (ch === "weekly") {
+              setWeeklyDigest(val);
+              notifySaved();
+              return;
+            }
+            setGlobalChannel(ch, val);
+          }}
+        />
+      </div>
+
       {/* Divisor cinza entre cada tipo de notificação. */}
-      <div className="mt-8 flex flex-col divide-y divide-(--border-subtle)">
+      <div className="mt-10 flex flex-col divide-y divide-(--border-subtle)">
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}
@@ -321,6 +383,12 @@ export default function NotificationsSettingsPage() {
             desc={section.desc}
             className="py-8 first:pt-0"
             bodyClassName="divide-y divide-(--border-subtle)"
+            trailing={
+              <BulkMenu
+                onAll={() => setAllInSection(section.id, true)}
+                onNone={() => setAllInSection(section.id, false)}
+              />
+            }
           >
             {section.items.map((def) => (
               <NotifRow
@@ -328,62 +396,18 @@ export default function NotificationsSettingsPage() {
                 def={def}
                 channels={channelsById[def.id]}
                 onChannel={setChannel}
+                emailDelivery={emailDelivery}
+                whatsappDelivery={whatsappDelivery}
               />
             ))}
           </CollapsibleSection>
         ))}
-
-        {/* Canais de entrega — o teto global, abaixo da matriz por evento. */}
-        <CollapsibleSection
-          icon="send"
-          title="Canais de entrega"
-          desc="Por onde a plataforma te alcança, no geral. Cada evento acima ainda escolhe entre os canais ligados aqui."
-          className="py-8"
-          bodyClassName="divide-y divide-(--border-subtle)"
-        >
-          <DeliveryChannel
-            icon="notifications"
-            name="No app"
-            desc="O sininho no topo e esta página. Sempre ativo."
-            locked
-          />
-          <DeliveryChannel
-            icon="mail"
-            name="E-mail"
-            desc={`Enviado para ${USER_EMAIL}.`}
-            on={emailDelivery}
-            onToggle={(v) => {
-              setEmailDelivery(v);
-              notifySaved();
-            }}
-          />
-          <DeliveryChannel
-            channelGlyph="whatsapp"
-            name="WhatsApp"
-            desc="Alertas no seu número, liberado pela organização."
-            on={whatsappDelivery}
-            onToggle={(v) => {
-              setWhatsappDelivery(v);
-              notifySaved();
-            }}
-          />
-          <DeliveryChannel
-            icon="summarize"
-            name="Resumo semanal por e-mail"
-            desc="Toda segunda, com o desempenho dos agentes, as ações executadas e os números da semana."
-            on={weeklyDigest}
-            onToggle={(v) => {
-              setWeeklyDigest(v);
-              notifySaved();
-            }}
-          />
-        </CollapsibleSection>
       </div>
 
       {/* Rodapé — restaurar padrão da org. */}
       <div className="mt-10 flex items-center justify-between gap-4 border-t border-(--border-subtle) pt-6">
         <p className="m-0 max-w-[520px] body-xs text-(--fg-tertiary)">
-          Suas escolhas são salvas automaticamente a cada alteração.
+          As mudanças salvam sozinhas.
         </p>
         <AwButton
           size="sm"
@@ -409,6 +433,178 @@ export default function NotificationsSettingsPage() {
  * Peças
  * ===================================================================== */
 
+/** Row de 4 canais no topo da página, em cards iguais. Coerente com o
+ *  estilo de "Canais permitidos" em /organizacao/notificacoes. */
+function ChannelsRow({
+  email,
+  whatsapp,
+  weekly,
+  userEmail,
+  onToggle,
+}: {
+  email: boolean;
+  whatsapp: boolean;
+  weekly: boolean;
+  userEmail: string;
+  onToggle: (ch: "email" | "whatsapp" | "weekly", val: boolean) => void;
+}) {
+  return (
+    <div role="group" aria-label="Canais de entrega" className="grid grid-cols-2 gap-3 md:grid-cols-4">
+      <ChannelCard
+        icon="notifications"
+        name="No app"
+        note="Sempre ativo"
+        locked
+      />
+      <ChannelCard
+        icon="mail"
+        name="E-mail"
+        note={userEmail}
+        on={email}
+        onToggle={(v) => onToggle("email", v)}
+      />
+      <ChannelCard
+        channelGlyph="whatsapp"
+        name="WhatsApp"
+        note="Liberado pela organização"
+        on={whatsapp}
+        onToggle={(v) => onToggle("whatsapp", v)}
+      />
+      <ChannelCard
+        icon="summarize"
+        name="Resumo semanal"
+        note="Segunda · por e-mail"
+        on={weekly}
+        onToggle={(v) => onToggle("weekly", v)}
+      />
+    </div>
+  );
+}
+
+function ChannelCard({
+  icon,
+  channelGlyph,
+  name,
+  note,
+  on,
+  locked,
+  onToggle,
+}: {
+  icon?: string;
+  channelGlyph?: "whatsapp";
+  name: string;
+  note: string;
+  on?: boolean;
+  locked?: boolean;
+  onToggle?: (v: boolean) => void;
+}) {
+  const active = !!on;
+  return (
+    <div
+      className={cn(
+        "flex flex-col gap-3 rounded-xl border px-4 py-4 transition-colors duration-aw-fast",
+        active
+          ? "border-(--fg-primary) bg-(--fg-primary)"
+          : "border-(--border-subtle) bg-(--bg-raised)",
+      )}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <span
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+            active
+              ? "bg-(--bg-canvas)/15 text-(--bg-canvas)"
+              : "bg-(--bg-muted) text-(--fg-secondary)",
+          )}
+        >
+          {channelGlyph ? (
+            <AwChannelIcon channel={channelGlyph} size={18} />
+          ) : (
+            <Icon name={icon ?? "circle"} size={18} fill={active ? 1 : 0} />
+          )}
+        </span>
+        {locked ? (
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 body-xs font-medium",
+              active ? "text-(--bg-canvas)/80" : "text-(--fg-tertiary)",
+            )}
+          >
+            <Icon name="lock" size={12} />
+            {note}
+          </span>
+        ) : (
+          <AwToggle
+            checked={active}
+            onChange={onToggle}
+            label={name}
+            className="shrink-0"
+          />
+        )}
+      </div>
+      <div className="min-w-0">
+        <p
+          className={cn(
+            "m-0 body-sm font-medium",
+            active ? "text-(--bg-canvas)" : "text-(--fg-primary)",
+          )}
+        >
+          {name}
+        </p>
+        {!locked && (
+          <p
+            className={cn(
+              "m-0 mt-0.5 truncate body-xs",
+              active ? "text-(--bg-canvas)/75" : "text-(--fg-tertiary)",
+            )}
+          >
+            {note}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/** Dropdown discreto ao lado do chevron — marcar/desmarcar todos os
+ *  eventos opcionais da seção. Não toca em locked. */
+function BulkMenu({
+  onAll,
+  onNone,
+}: {
+  onAll: () => void;
+  onNone: () => void;
+}) {
+  return (
+    <AwDropdownMenu
+      aria-label="Ações em lote da seção"
+      trigger={
+        <AwButton
+          variant="ghost"
+          size="sm"
+          iconOnly="more_vert"
+          aria-label="Ações em lote da seção"
+          onClick={(e) => e.stopPropagation()}
+        />
+      }
+      items={[
+        {
+          id: "all",
+          label: "Marcar todos os canais",
+          icon: "done_all",
+          onSelect: onAll,
+        },
+        {
+          id: "none",
+          label: "Desmarcar todos os canais",
+          icon: "remove_done",
+          onSelect: onNone,
+        },
+      ]}
+    />
+  );
+}
+
 function CollapsibleSection({
   icon,
   leading,
@@ -433,35 +629,39 @@ function CollapsibleSection({
   const [open, setOpen] = React.useState(defaultOpen);
   return (
     <section className={className}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        className="group flex w-full items-start gap-3 text-left"
-      >
-        {leading ?? (
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
-            <Icon name={icon ?? "circle"} size={20} animated={false} />
-          </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
+      {/* Header: trailing fica FORA do botão (pra ações em lote não
+       *  expandirem/colapsarem a seção). */}
+      <div className="flex w-full items-start gap-3">
+        <button
+          type="button"
+          onClick={() => setOpen((o) => !o)}
+          aria-expanded={open}
+          className="group flex flex-1 items-start gap-3 text-left"
+        >
+          {leading ?? (
+            // Tile maior + fill, mesma linguagem dos cabeçalhos de
+            // /organizacao/notificacoes (h-11 w-11 com glifo fill).
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
+              <Icon name={icon ?? "circle"} size={22} fill={1} animated={false} />
+            </span>
+          )}
+          <div className="min-w-0 flex-1">
             <h2 className="m-0 text-base font-semibold text-(--fg-primary)">
               {title}
             </h2>
-            {trailing}
+            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
           </div>
-          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
-        </div>
-        <span
-          className={cn(
-            "mt-1 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:text-(--fg-secondary)",
-            open && "rotate-180",
-          )}
-        >
-          <Icon name="expand_more" size={20} />
-        </span>
-      </button>
+          <span
+            className={cn(
+              "mt-2 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast group-hover:text-(--fg-secondary)",
+              open && "rotate-180",
+            )}
+          >
+            <Icon name="expand_more" size={20} />
+          </span>
+        </button>
+        {trailing && <div className="mt-1 shrink-0">{trailing}</div>}
+      </div>
       {/* Transição suave de altura ao expandir/encolher (grid-rows 0fr↔1fr). */}
       <div
         className={cn(
@@ -493,27 +693,30 @@ function ChannelCheckbox({
   channel,
   label,
   checked,
+  disabled,
   onChannel,
 }: {
   def: NotifDef;
   channel: ChannelKey;
   label: string;
   checked: boolean;
+  disabled?: boolean;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
   const id = `${def.id}-${channel}`;
+  const isDisabled = def.orgLocked || disabled;
   return (
     <label
       htmlFor={id}
       className={cn(
         "inline-flex items-center gap-2 select-none",
-        def.orgLocked ? "cursor-not-allowed" : "cursor-pointer",
+        isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
       )}
     >
       <AwCheckbox
         id={id}
         checked={checked}
-        disabled={def.orgLocked}
+        disabled={isDisabled}
         onChange={(v) => onChannel(def.id, channel, v)}
         label={`${def.title} — ${label}`}
       />
@@ -535,11 +738,22 @@ function NotifRow({
   def,
   channels,
   onChannel,
+  emailDelivery,
+  whatsappDelivery,
 }: {
   def: NotifDef;
   channels: ChannelState;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
+  emailDelivery: boolean;
+  whatsappDelivery: boolean;
 }) {
+  // Um canal global desligado no topo desabilita o checkbox local —
+  // mantém o estado visível mas impede ligar até o canal voltar.
+  const channelDisabled: Record<ChannelKey, boolean> = {
+    app: false,
+    email: !emailDelivery,
+    whatsapp: !whatsappDelivery,
+  };
   return (
     // Linha plana (sem card/radius) — separada das vizinhas por divisor.
     <div className="flex items-start justify-between gap-6 py-4">
@@ -563,61 +777,11 @@ function NotifRow({
             channel={ch.key}
             label={ch.label}
             checked={channels[ch.key]}
+            disabled={channelDisabled[ch.key]}
             onChannel={onChannel}
           />
         ))}
       </div>
-    </div>
-  );
-}
-
-/* ===================================================================== *
- * Canais de entrega — teto global da entrega (abaixo da matriz)
- * ===================================================================== */
-
-function DeliveryChannel({
-  icon,
-  channelGlyph,
-  name,
-  desc,
-  on,
-  locked,
-  onToggle,
-}: {
-  icon?: string;
-  channelGlyph?: "whatsapp";
-  name: string;
-  desc: string;
-  on?: boolean;
-  locked?: boolean;
-  onToggle?: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center gap-4 py-4">
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
-        {channelGlyph ? (
-          <AwChannelIcon channel={channelGlyph} size={20} />
-        ) : (
-          <Icon name={icon ?? "circle"} size={20} />
-        )}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="m-0 body-sm font-medium text-(--fg-primary)">{name}</p>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{desc}</p>
-      </div>
-      {locked ? (
-        <span className="inline-flex shrink-0 items-center gap-1 body-xs font-medium text-(--fg-tertiary)">
-          <Icon name="lock" size={13} />
-          Sempre ativo
-        </span>
-      ) : (
-        <AwToggle
-          checked={!!on}
-          onChange={onToggle}
-          label={name}
-          className="shrink-0"
-        />
-      )}
     </div>
   );
 }
