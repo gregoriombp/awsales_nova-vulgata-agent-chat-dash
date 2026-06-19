@@ -5,9 +5,7 @@ import Link from "next/link";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwChannelIcon } from "@/components/ui/AwChannelIcon";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
-import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { useToast } from "@/components/ui/AwToast";
 import { Icon } from "@/components/ui/Icon";
@@ -380,9 +378,6 @@ export default function NotificationsSettingsPage() {
             }}
           />
         </CollapsibleSection>
-
-        {/* Alertas personalizados por entidade — teaser de v2, inerte. */}
-        <EntityAlertsTeaser />
       </div>
 
       {/* Rodapé — restaurar padrão da org. */}
@@ -522,9 +517,11 @@ function ChannelCheckbox({
         onChange={(v) => onChannel(def.id, channel, v)}
         label={`${def.title} — ${label}`}
       />
-      <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--fg-secondary)">
+      <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--fg-tertiary)">
         {channel === "whatsapp" ? (
-          <AwChannelIcon channel="whatsapp" size={13} />
+          <span className="inline-flex opacity-65">
+            <AwChannelIcon channel="whatsapp" size={13} />
+          </span>
         ) : (
           <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />
         )}
@@ -622,65 +619,6 @@ function DeliveryChannel({
         />
       )}
     </div>
-  );
-}
-
-/* ===================================================================== *
- * Alertas personalizados por entidade — teaser de v2 (inerte)
- * ===================================================================== */
-
-const ENTITY_EXAMPLES = [
-  { icon: "groups", label: "Equipe Atendimento" },
-  { icon: "agent", label: "Agente Aria" },
-  { icon: "forum", label: "Conversa #4821" },
-  { icon: "apartment", label: "Organização Fyntra" },
-];
-
-function EntityAlertsTeaser() {
-  return (
-    <section className="py-8" aria-label="Alertas personalizados por entidade">
-      <div className="flex items-start gap-3 opacity-70">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-(--fg-primary) text-(--bg-canvas)">
-          <Icon name="notifications_active" size={20} animated={false} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="m-0 text-base font-semibold text-(--fg-primary)">
-              Alertas personalizados por entidade
-            </h2>
-            <AwPill variant="beta" dot={false}>
-              Em breve
-            </AwPill>
-          </div>
-          <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-            Acompanhe uma entidade específica — equipe, agente, conversa ou
-            organização — além do que sua função já recebe.
-          </p>
-
-          <div className="mt-4 max-w-[460px]">
-            <AwInput
-              iconLeft="search"
-              placeholder="Buscar equipe, agente, conversa ou organização…"
-              disabled
-              aria-label="Buscar entidade para acompanhar (em breve)"
-            />
-          </div>
-
-          <div className="mt-3 flex flex-wrap items-center gap-2">
-            {ENTITY_EXAMPLES.map((e) => (
-              <span
-                key={e.label}
-                aria-hidden="true"
-                className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2.5 py-1 body-xs font-medium text-(--fg-tertiary)"
-              >
-                <Icon name={e.icon} size={13} />
-                {e.label}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 

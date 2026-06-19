@@ -13,8 +13,6 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwField, AwInput } from "@/components/ui/AwInput";
-import { AwSelect } from "@/components/ui/AwSelect";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
@@ -599,33 +597,10 @@ const WIZARD_STEPS = [
   { id: "review", label: "Revisão" },
 ] as const;
 
-/** Origem do preset: do zero, modelo de leitura/auditoria, ou o id de uma
- *  função existente a duplicar. */
-type PresetSource = "scratch" | "read-audit" | string;
-
 const ALL_ROLE_DEFINITIONS: RoleDefinition[] = [
   ...ROLE_DEFINITIONS,
   ...CUSTOM_ROLE_DEFINITIONS,
 ];
-
-/** Modelo "leitura/auditoria": só as permissões de acesso/visualização e as de
- *  auditoria — nada que escreva. Derivado dos próprios SCOPES pra não divergir. */
-const READ_AUDIT_PRESET_IDS: string[] = SCOPES.flatMap((s) =>
-  s.groups.flatMap((g) =>
-    g.permissions
-      .filter(
-        (p) =>
-          // Só leitura/auditoria — e nada marcado como sensível, que deve ser
-          // concedido de forma deliberada, nunca por um preset.
-          !p.isSensitive &&
-          (p.id.endsWith(".access") ||
-            p.id.includes(".view") ||
-            p.id === "workspace.audit.view" ||
-            p.id === "workspace.billing.view")
-      )
-      .map((p) => p.id)
-  )
-);
 
 function CreateRoleWizard({
   open,
@@ -650,9 +625,6 @@ function CreateRoleWizard({
   const [color, setColor] = useState<RoleColorId>(suggestedColor);
   const icon = DEFAULT_CUSTOM_ROLE_ICON;
   const [granted, setGranted] = useState<Set<string>>(new Set());
-  /** Origem das permissões pré-marcadas (modelo ou função duplicada). */
-  const [presetSource, setPresetSource] = useState<PresetSource>("scratch");
-  const [presetLabel, setPresetLabel] = useState<string | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -661,31 +633,8 @@ function CreateRoleWizard({
       setDescription("");
       setColor(suggestedColor);
       setGranted(new Set());
-      setPresetSource("scratch");
-      setPresetLabel(null);
     }
   }, [open, suggestedColor]);
-
-  /** Aplica um preset à seleção de permissões e guarda a origem pro banner. */
-  const applyPreset = (source: PresetSource) => {
-    setPresetSource(source);
-    if (source === "scratch") {
-      setGranted(new Set());
-      setPresetLabel(null);
-      return;
-    }
-    if (source === "read-audit") {
-      setGranted(new Set(READ_AUDIT_PRESET_IDS));
-      setPresetLabel("Modelo leitura/auditoria");
-      return;
-    }
-    // Duplicar de uma função existente — source é o id da função.
-    const origin = ALL_ROLE_DEFINITIONS.find((r) => r.id === source);
-    if (origin) {
-      setGranted(new Set(origin.capabilities));
-      setPresetLabel(origin.name);
-    }
-  };
 
   const togglePermission = (id: string, next: boolean) => {
     setGranted((prev) => {
@@ -768,11 +717,7 @@ function CreateRoleWizard({
           <div className="flex flex-col gap-6">
             <div className="flex flex-col items-center gap-2.5 pt-1 text-center">
               <span
-                className="flex h-16 w-16 items-center justify-center rounded-2xl"
-                style={{
-                  background: `color-mix(in srgb, ${getRoleColor(color).token} 16%, transparent)`,
-                  color: getRoleColor(color).token,
-                }}
+                className="flex h-16 w-16 items-center justify-center rounded-2xl bg-(--bg-inverse) text-(--fg-on-inverse)"
                 aria-hidden="true"
               >
                 <AnimatedCustomizeIcon size={30} />
@@ -807,74 +752,12 @@ function CreateRoleWizard({
                 />
               </AwField>
 
-              <AwField
-                label="Começar a partir de (opcional)"
-                htmlFor="wizard-role-preset"
-              >
-                <AwDropdownMenu
-                  align="start"
-                  trigger={
-                    <AwSelect
-                      id="wizard-role-preset"
-                      className="w-full justify-between"
-                    >
-                      {presetSource === "scratch"
-                        ? "Do zero"
-                        : presetSource === "read-audit"
-                        ? "Modelo leitura/auditoria"
-                        : `Duplicar: ${presetLabel}`}
-                    </AwSelect>
-                  }
-                  items={[
-                    {
-                      id: "preset-scratch",
-                      label: "Do zero",
-                      checked: presetSource === "scratch",
-                      onSelect: () => applyPreset("scratch"),
-                    },
-                    {
-                      id: "preset-read-audit",
-                      label: (
-                        <span className="flex flex-col gap-0.5 py-0.5">
-                          <span className="body-xs font-medium text-(--fg-primary)">
-                            Modelo leitura/auditoria
-                          </span>
-                          <span className="body-xs text-(--fg-secondary)">
-                            Só leitura e auditoria, sem escrita.
-                          </span>
-                        </span>
-                      ),
-                      checked: presetSource === "read-audit",
-                      onSelect: () => applyPreset("read-audit"),
-                    },
-                    { id: "preset-sep", separator: true as const },
-                    {
-                      id: "preset-dup-label",
-                      isLabel: true,
-                      label: "Duplicar de uma função",
-                    },
-                    ...ALL_ROLE_DEFINITIONS.map((r) => ({
-                      id: r.id,
-                      label: r.name,
-                      checked: presetSource === r.id,
-                      onSelect: () => applyPreset(r.id),
-                    })),
-                  ]}
-                />
-              </AwField>
             </div>
           </div>
         )}
 
         {step === 1 && (
           <div className="flex flex-col gap-3">
-            {presetLabel && (
-              <AwAlert variant="info">
-                Pré-marcamos as permissões de{" "}
-                <strong className="font-medium">{presetLabel}</strong>. A nova
-                função é independente — mudar uma não afeta a outra.
-              </AwAlert>
-            )}
             <div className="flex items-center justify-between gap-3">
               <p className="m-0 body-xs text-(--fg-secondary)">
                 <strong className="font-medium text-(--fg-primary)">
@@ -982,24 +865,13 @@ function CreateRoleWizard({
   );
 }
 
+// Barra de progresso removida (a pedido) — modal segue sequencial; mantemos só
+// o anúncio sr-only pra leitor de tela saber em que etapa está.
 function WizardStepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center gap-1.5">
-      <span className="sr-only" aria-live="polite">
-        Etapa {current + 1} de {WIZARD_STEPS.length} ·{" "}
-        {WIZARD_STEPS[current].label}
-      </span>
-      {WIZARD_STEPS.map((s, i) => (
-        <span
-          key={s.id}
-          aria-hidden="true"
-          className={
-            "h-1 flex-1 rounded-full transition-colors duration-aw-fast " +
-            (i <= current ? "bg-(--fg-primary)" : "bg-(--bg-muted)")
-          }
-        />
-      ))}
-    </div>
+    <span className="sr-only" aria-live="polite">
+      Etapa {current + 1} de {WIZARD_STEPS.length} · {WIZARD_STEPS[current].label}
+    </span>
   );
 }
 
@@ -1012,44 +884,42 @@ function WizardStepIndicator({ current }: { current: number }) {
 function AnimatedCustomizeIcon({ size = 30 }: { size?: number }) {
   return (
     <span
-      className="aw-tune-anim inline-flex"
+      className="aw-customize-anim inline-flex"
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
       <svg viewBox="0 0 24 24" width={size} height={size} fill="none">
-        <line x1="4" y1="7" x2="20" y2="7" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
-        <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
-        <line x1="4" y1="17" x2="20" y2="17" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity="0.4" />
-        <circle className="aw-tune-knob aw-tune-knob--a" cx="8" cy="7" r="2.4" fill="currentColor" />
-        <circle className="aw-tune-knob aw-tune-knob--b" cx="15" cy="12" r="2.4" fill="currentColor" />
-        <circle className="aw-tune-knob aw-tune-knob--c" cx="10" cy="17" r="2.4" fill="currentColor" />
+        {/* Paleta: placa arredondada + 4 "tintas" que pulsam em sequência. */}
+        <rect x="3.2" y="3.2" width="17.6" height="17.6" rx="5.6" stroke="currentColor" strokeWidth="1.6" opacity="0.45" />
+        <circle className="aw-customize-dot aw-customize-dot--a" cx="8.6" cy="8.6" r="2.2" fill="currentColor" />
+        <circle className="aw-customize-dot aw-customize-dot--b" cx="15.4" cy="8.6" r="2.2" fill="currentColor" />
+        <circle className="aw-customize-dot aw-customize-dot--c" cx="8.6" cy="15.4" r="2.2" fill="currentColor" />
+        <circle className="aw-customize-dot aw-customize-dot--d" cx="15.4" cy="15.4" r="2.2" fill="currentColor" />
       </svg>
       <style>{`
-        .aw-tune-anim .aw-tune-knob {
-          animation-duration: 4.8s;
-          animation-timing-function: var(--ease-in-out, ease-in-out);
-          animation-iteration-count: infinite;
+        .aw-customize-anim {
+          transform-origin: center;
+          animation: aw-customize-bob 6s var(--ease-in-out, ease-in-out) infinite;
         }
-        .aw-tune-anim .aw-tune-knob--a { animation-name: aw-tune-slide-a; }
-        .aw-tune-anim .aw-tune-knob--b { animation-name: aw-tune-slide-b; animation-delay: 0.2s; }
-        .aw-tune-anim .aw-tune-knob--c { animation-name: aw-tune-slide-c; animation-delay: 0.4s; }
-        @keyframes aw-tune-slide-a {
-          0%, 14% { transform: translateX(0); }
-          38%, 60% { transform: translateX(8px); }
-          84%, 100% { transform: translateX(0); }
+        .aw-customize-dot {
+          transform-origin: center;
+          transform-box: fill-box;
+          animation: aw-customize-pulse 2.4s var(--ease-in-out, ease-in-out) infinite;
         }
-        @keyframes aw-tune-slide-b {
-          0%, 18% { transform: translateX(0); }
-          42%, 64% { transform: translateX(-7px); }
-          88%, 100% { transform: translateX(0); }
+        .aw-customize-dot--a { animation-delay: 0s; }
+        .aw-customize-dot--b { animation-delay: 0.3s; }
+        .aw-customize-dot--d { animation-delay: 0.6s; }
+        .aw-customize-dot--c { animation-delay: 0.9s; }
+        @keyframes aw-customize-pulse {
+          0%, 100% { transform: scale(0.55); opacity: 0.5; }
+          45% { transform: scale(1.12); opacity: 1; }
         }
-        @keyframes aw-tune-slide-c {
-          0%, 10% { transform: translateX(0); }
-          34%, 56% { transform: translateX(6px); }
-          80%, 100% { transform: translateX(0); }
+        @keyframes aw-customize-bob {
+          0%, 100% { transform: rotate(-4deg); }
+          50% { transform: rotate(4deg); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .aw-tune-anim .aw-tune-knob { animation: none; }
+          .aw-customize-anim, .aw-customize-dot { animation: none; }
         }
       `}</style>
     </span>
