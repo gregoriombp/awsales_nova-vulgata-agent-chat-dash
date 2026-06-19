@@ -64,11 +64,13 @@ function GlassPanel({
       "linear-gradient(135deg, #f6f3ee 0%, #e8e5df 100%)",
   }
   const darkCanvas: React.CSSProperties = {
+    // Aurora discreta do brand (azul→lavanda→pêssego), dessaturada e baixa,
+    // sobre um breu azulado — premium e calmo, no lugar do mesh saturado.
     background:
-      "radial-gradient(900px 500px at 15% 15%, rgba(167,139,250,0.55) 0%, transparent 55%)," +
-      "radial-gradient(700px 500px at 85% 85%, rgba(6,182,212,0.50) 0%, transparent 55%)," +
-      "radial-gradient(500px 400px at 50% 50%, rgba(236,72,153,0.28) 0%, transparent 60%)," +
-      "#0a0e17",
+      "radial-gradient(1100px 620px at 6% -8%, rgba(96,165,250,0.30) 0%, transparent 58%)," +
+      "radial-gradient(820px 540px at 102% 110%, rgba(167,139,250,0.24) 0%, transparent 56%)," +
+      "radial-gradient(560px 440px at 82% 14%, rgba(251,191,170,0.15) 0%, transparent 60%)," +
+      "linear-gradient(168deg, #0c1018 0%, #080a10 58%, #06070b 100%)",
   }
   return (
     <div className="rounded-lg border border-(--border-subtle) overflow-hidden relative min-h-[560px] p-8 flex items-start justify-center">
