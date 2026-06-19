@@ -1745,18 +1745,16 @@ function SolicitacoesTab({
           </div>
         </AwCard>
       ) : (
-        <AwCard className="p-0!">
-          <ul className="m-0 flex list-none flex-col">
-            {requests.map((req, i) => (
-              <RequestRow
-                key={req.id}
-                req={req}
-                isLast={i === requests.length - 1}
-                onProcess={() => setProcessing(req)}
-              />
-            ))}
-          </ul>
-        </AwCard>
+        <ul className="m-0 flex list-none flex-col border-t border-(--border-subtle)">
+          {requests.map((req, i) => (
+            <RequestRow
+              key={req.id}
+              req={req}
+              isLast={i === requests.length - 1}
+              onProcess={() => setProcessing(req)}
+            />
+          ))}
+        </ul>
       )}
 
       <RegisterRequestSheet
@@ -1789,7 +1787,7 @@ function RequestRow({
   return (
     <li
       className={
-        "flex items-center gap-4 px-6 py-4" +
+        "flex items-center gap-4 py-4" +
         (isLast ? "" : " border-b border-(--border-subtle)")
       }
     >
@@ -2001,8 +1999,8 @@ function RegisterRequestSheet({
     >
       {createdProtocol ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-success) text-(--bg-canvas)">
-            <Icon name="task_alt" size={32} />
+          <span className="aw-wizard-step flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-success) text-(--bg-canvas)">
+            <Icon name="check" size={32} weight={700} />
           </span>
           <h6 className="m-0 text-(--fg-primary)">Protocolo aberto</h6>
           <code className="rounded-sm bg-(--bg-muted) px-2 py-1 font-mono body-sm text-(--fg-primary)">
@@ -2392,12 +2390,7 @@ function ExportRow({
 
   if (file.status === "generating") {
     return (
-      <li
-        className={
-          "flex items-center gap-4 px-6 py-2.5" +
-          (isLast ? "" : " border-b border-(--border-subtle)")
-        }
-      >
+      <li className={rowClass}>
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--aw-amber-100) text-(--aw-amber-700)">
           <Icon name="hourglass_top" size={20} />
         </span>
@@ -2411,20 +2404,23 @@ function ExportRow({
               Gerando
             </span>
           </div>
-          <div className="mt-1.5 max-w-[360px]">
-            <AwProgress
-              value={file.progress ?? 0}
-              valueLabel={`${file.progress ?? 0}%`}
-              variant="warning"
-            />
-          </div>
-          <p className="m-0 mt-1.5 body-xs text-(--fg-tertiary)">
+          <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
             Estimativa {file.eta} · {file.size}
           </p>
         </div>
-        <AwButton size="sm" variant="ghost" onClick={onCancel}>
-          Cancelar
-        </AwButton>
+        {/* Progresso compacto à direita: a barra fica inline com a ação, em
+            vez de empilhar e esticar a altura da linha. */}
+        <div className="flex shrink-0 items-center gap-3">
+          <div className="hidden w-28 sm:block">
+            <AwProgress value={file.progress ?? 0} variant="warning" />
+          </div>
+          <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
+            {file.progress ?? 0}%
+          </span>
+          <AwButton size="sm" variant="ghost" onClick={onCancel}>
+            Cancelar
+          </AwButton>
+        </div>
       </li>
     );
   }
@@ -2814,16 +2810,19 @@ function OrgExportSheet({
                 [
                   {
                     id: "json" as const,
+                    icon: "data_object",
                     label: "JSON estruturado",
                     hint: "Um arquivo único, pronto para processar.",
                   },
                   {
                     id: "csv" as const,
+                    icon: "table_chart",
                     label: "CSV por categoria",
                     hint: "Uma planilha por tipo de dado.",
                   },
                   {
                     id: "ambos" as const,
+                    icon: "folder_zip",
                     label: "Ambos",
                     hint: "JSON e CSV no mesmo pacote.",
                   },
@@ -2845,9 +2844,22 @@ function OrgExportSheet({
                       name="exp-format"
                       checked={active}
                       onChange={() => setFormat(opt.id)}
-                      className="accent-(--accent-brand)"
+                      className="sr-only"
                     />
-                    <span className="min-w-0">
+                    {/* Ícone distinto por formato — substitui o radio como
+                        marcador visual; o estado ativo vai no tile + check. */}
+                    <span
+                      aria-hidden="true"
+                      className={
+                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast " +
+                        (active
+                          ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                          : "bg-(--bg-muted) text-(--fg-secondary)")
+                      }
+                    >
+                      <Icon name={opt.icon} size={18} />
+                    </span>
+                    <span className="min-w-0 flex-1">
                       <span className="block body-sm font-medium text-(--fg-primary)">
                         {opt.label}
                       </span>
@@ -2855,6 +2867,14 @@ function OrgExportSheet({
                         {opt.hint}
                       </span>
                     </span>
+                    {active && (
+                      <Icon
+                        name="check_circle"
+                        size={18}
+                        fill={1}
+                        className="shrink-0 text-(--fg-primary)"
+                      />
+                    )}
                   </label>
                 );
               })}
