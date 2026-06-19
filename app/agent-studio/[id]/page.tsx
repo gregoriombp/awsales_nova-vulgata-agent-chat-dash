@@ -16,6 +16,7 @@ import { HistoricoTab } from "@/components/agent-studio/editor/tabs/HistoricoTab
 import { InsightsTab } from "@/components/agent-studio/editor/tabs/InsightsTab";
 import { PreferenciasTab } from "@/components/agent-studio/editor/tabs/PreferenciasTab";
 import {
+  EDITOR_TABS,
   getAgentEditorData,
   isEditorTabId,
   type Checkpoint,
@@ -87,9 +88,12 @@ export default function AgentEditorPage() {
     [router, params.id]
   );
 
+  // Trilha em 3 níveis, como em Configurações: contexto › agente › aba atual.
+  const activeTabLabel = EDITOR_TABS.find((t) => t.id === activeTab)?.label;
   const breadcrumbs = [
     { label: "Agent Studio", href: "/agent-studio" },
-    data.agent.title,
+    { label: data.agent.title, href: `/agent-studio/${params.id}` },
+    ...(activeTabLabel ? [activeTabLabel] : []),
   ];
 
   return (
