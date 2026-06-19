@@ -336,7 +336,10 @@ export default function IntegrationDetailPage({
                     <WebhooksTab integration={integration} instanceId={instance.instanceId} />
                   )}
                   {activeTab === "tools" && (
-                    <ToolsTab integration={integration} />
+                    <ToolsTab
+                      integration={integration}
+                      instanceId={instance.instanceId}
+                    />
                   )}
                   {activeTab === "audit" && <AuditTab />}
                 </div>
@@ -1150,8 +1153,10 @@ const TOOL_CAT_PERMISSION: Record<ToolCat, string> = {
 
 function ToolsTab({
   integration,
+  instanceId,
 }: {
   integration: IntegrationCatalogItem;
+  instanceId: string;
 }) {
   const router = useRouter();
   const [openTool, setOpenTool] = useState<ToolRow | null>(null);
@@ -1293,7 +1298,14 @@ function ToolsTab({
       <SectionCard
         title="Habilidades customizadas dessa conexão"
         action={
-          <AwButton variant="secondary" size="sm" iconLeft="add">
+          <AwButton
+            variant="secondary"
+            size="sm"
+            iconLeft="add"
+            onClick={() =>
+              router.push(`/tools/new?conn=native:${instanceId}`)
+            }
+          >
             Nova habilidade HTTP
           </AwButton>
         }
