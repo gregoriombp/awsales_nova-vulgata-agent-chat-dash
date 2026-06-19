@@ -206,203 +206,193 @@ export default function MeusDadosPage() {
         }
       />
 
-      <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-6">
-        {/* Coluna esquerda */}
-        <div className="flex flex-col gap-6">
-          {/* O que vem na cópia — grid 2×2 colorido */}
-          <AwCard className="flex flex-col gap-5 p-6!">
-            <div>
-              <h6 className="m-0 body-md font-medium text-(--fg-primary)">
-                O que vem na cópia
-              </h6>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                Tudo que é seu, reunido em um único arquivo.
-              </p>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-5">
-              {COPY_CATEGORIES.map((cat) => (
-                <div key={cat.title} className="flex items-start gap-3">
-                  <span
-                    className={cn(
-                      "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-                      TONE[cat.tone],
-                    )}
-                  >
-                    <Icon name={cat.icon} size={18} fill={1} />
-                  </span>
-                  <div className="min-w-0">
-                    <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                      {cat.title}
-                    </p>
-                    <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                      {cat.desc}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="m-0 flex items-start gap-1.5 border-t border-(--border-subtle) pt-4 body-xs text-(--fg-tertiary)">
-              <Icon name="visibility_off" size={14} className="mt-px shrink-0" />
-              Nomes de colegas que aparecem nos seus registros saem anonimizados —
-              viram um código, não o nome.
+      {/* Ação primária — baixar uma cópia, em destaque no topo. */}
+      <AwCard className="flex flex-col gap-5 p-6! sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div className="flex items-start gap-4">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--bg-inverse) text-(--fg-on-inverse)">
+            <Icon name="cloud_download" size={22} />
+          </span>
+          <div className="min-w-0">
+            <p className="m-0 body-md font-semibold text-(--fg-primary)">
+              Baixar uma cópia
             </p>
-          </AwCard>
-
-          {/* Solicitações recentes — tabela */}
-          <AwCard className="flex flex-col gap-4 p-6!">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h6 className="m-0 body-md font-medium text-(--fg-primary)">
-                  Solicitações recentes
-                </h6>
-                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                  Acompanhe o status das suas exportações.
-                </p>
-              </div>
-              {readyCount > 0 && (
-                <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
-                  <Icon name="check_circle" size={13} />
-                  {readyCount} pronta{readyCount === 1 ? "" : "s"}
-                </span>
-              )}
-            </div>
-
-            <div>
-              <div className="grid grid-cols-[1fr_auto_64px] items-center gap-x-6 border-b border-(--border-subtle) pb-2 body-xs font-medium text-(--fg-tertiary)">
-                <span>Data</span>
-                <span>Status</span>
-                <span className="text-right">Ação</span>
-              </div>
-              {requests.length === 0 ? (
-                <p className="m-0 py-8 text-center body-xs text-(--fg-tertiary)">
-                  Nenhuma exportação ainda — peça uma cópia quando precisar.
-                </p>
-              ) : (
-                <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-                  {requests.map((r) => (
-                    <li
-                      key={r.id}
-                      className="m-0 grid grid-cols-[1fr_auto_64px] items-center gap-x-6 py-3"
-                    >
-                      <div className="min-w-0">
-                        <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
-                          {r.requestedAt}
-                        </p>
-                        {r.status === "Pronto" && r.expiresInDays !== undefined && (
-                          <p className="m-0 body-xs text-(--fg-tertiary)">
-                            link expira em {r.expiresInDays}{" "}
-                            {r.expiresInDays === 1 ? "dia" : "dias"}
-                          </p>
-                        )}
-                      </div>
-                      <StatusBadge status={r.status} />
-                      <div className="flex justify-end">
-                        {r.status === "Pronto" ? (
-                          <AwButton
-                            size="sm"
-                            variant="ghost"
-                            iconOnly="download"
-                            aria-label="Baixar cópia"
-                            title="Baixar cópia"
-                          />
-                        ) : r.status === "Expirado" ? (
-                          <AwButton
-                            size="sm"
-                            variant="ghost"
-                            iconOnly="refresh"
-                            aria-label="Pedir uma nova cópia"
-                            title="Pedir uma nova cópia"
-                            onClick={openConfirm}
-                          />
-                        ) : (
-                          <Icon
-                            name="hourglass_top"
-                            size={16}
-                            className="text-(--fg-tertiary)"
-                          />
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </AwCard>
-        </div>
-
-        {/* Coluna direita */}
-        <div className="flex flex-col gap-6">
-          {/* Baixar uma cópia */}
-          <AwCard className="flex flex-col gap-4 p-6!">
-            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-(--bg-inverse) text-(--fg-on-inverse)">
-              <Icon name="cloud_download" size={22} />
-            </span>
-            <div>
-              <p className="m-0 body-md font-semibold text-(--fg-primary)">
-                Baixar uma cópia
-              </p>
-              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
-                Inicie a exportação. Avisamos por e-mail assim que o arquivo
-                estiver pronto — pode levar até 24h.
-              </p>
-            </div>
-            <AwButton
-              size="md"
-              variant="primary"
-              iconLeft={inCooldown ? "schedule" : "download"}
-              className="w-full"
-              onClick={openConfirm}
-              disabled={inCooldown}
-            >
-              {inCooldown ? "Exportação solicitada" : "Solicitar exportação"}
-            </AwButton>
-            {inCooldown ? (
-              <p className="m-0 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">
-                <Icon name="schedule" size={13} className="mt-px shrink-0" />
-                <span>
-                  Nova cópia liberada {nextExportLabel(lastRequestedAt!)} — uma a
-                  cada 24h.
-                </span>
-              </p>
-            ) : (
-              <p className="m-0 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
-                <Icon name="lock" size={13} />
-                Só você recebe o link.
+            <p className="m-0 mt-1 max-w-[520px] body-xs text-(--fg-secondary)">
+              Inicie a exportação. Avisamos por e-mail assim que o arquivo
+              estiver pronto — pode levar até 24h. Só você recebe o link.
+            </p>
+            {inCooldown && (
+              <p className="m-0 mt-2 flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+                <Icon name="schedule" size={13} className="shrink-0" />
+                Nova cópia liberada {nextExportLabel(lastRequestedAt!)} — uma a
+                cada 24h.
               </p>
             )}
-          </AwCard>
+          </div>
+        </div>
+        <AwButton
+          size="md"
+          variant="primary"
+          iconLeft={inCooldown ? "schedule" : "download"}
+          className="shrink-0"
+          onClick={openConfirm}
+          disabled={inCooldown}
+        >
+          {inCooldown ? "Exportação solicitada" : "Solicitar exportação"}
+        </AwButton>
+      </AwCard>
 
-          {/* Remover dados */}
-          <AwCard className="flex flex-col gap-3 p-6!">
-            <span className="flex h-11 w-11 items-center justify-center rounded-lg bg-(--aw-red-100) text-(--aw-red-700)">
-              <Icon name="manage_accounts" size={22} />
-            </span>
-            <div>
-              <p className="m-0 body-md font-semibold text-(--fg-primary)">
-                Remover dados
-              </p>
-              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
-                Para excluir permanentemente sua conta e os dados associados, fale
-                com um administrador ou escreva para{" "}
-                <a
-                  href="mailto:suporte@awsales.io"
-                  className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
+      {/* Detalhe + histórico, lado a lado e equilibrados. */}
+      <div className="mt-6 grid grid-cols-1 items-start gap-6 lg:grid-cols-2">
+        {/* O que vem na cópia — grid 2×2 colorido */}
+        <AwCard className="flex flex-col gap-5 p-6!">
+          <div>
+            <h6 className="m-0 body-md font-medium text-(--fg-primary)">
+              O que vem na cópia
+            </h6>
+            <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+              Tudo que é seu, reunido em um único arquivo.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-5">
+            {COPY_CATEGORIES.map((cat) => (
+              <div key={cat.title} className="flex items-start gap-3">
+                <span
+                  className={cn(
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
+                    TONE[cat.tone],
+                  )}
                 >
-                  suporte@awsales.io
-                </a>
-                .
+                  <Icon name={cat.icon} size={18} fill={1} />
+                </span>
+                <div className="min-w-0">
+                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                    {cat.title}
+                  </p>
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                    {cat.desc}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="m-0 flex items-start gap-1.5 border-t border-(--border-subtle) pt-4 body-xs text-(--fg-tertiary)">
+            <Icon name="visibility_off" size={14} className="mt-px shrink-0" />
+            Nomes de colegas que aparecem nos seus registros saem anonimizados —
+            viram um código, não o nome.
+          </p>
+        </AwCard>
+
+        {/* Solicitações recentes — tabela */}
+        <AwCard className="flex flex-col gap-4 p-6!">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h6 className="m-0 body-md font-medium text-(--fg-primary)">
+                Solicitações recentes
+              </h6>
+              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                Acompanhe o status das suas exportações.
               </p>
             </div>
-            <Link
-              href="/settings/seguranca"
-              className="inline-flex w-fit items-center gap-1 body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
-            >
-              Privacidade e segurança
-              <Icon name="arrow_forward" size={13} />
-            </Link>
-          </AwCard>
-        </div>
+            {readyCount > 0 && (
+              <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--aw-emerald-300) bg-(--aw-emerald-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-emerald-800)">
+                <Icon name="check_circle" size={13} />
+                {readyCount} pronta{readyCount === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+
+          <div>
+            <div className="grid grid-cols-[1fr_auto_64px] items-center gap-x-6 border-b border-(--border-subtle) pb-2 body-xs font-medium text-(--fg-tertiary)">
+              <span>Data</span>
+              <span>Status</span>
+              <span className="text-right">Ação</span>
+            </div>
+            {requests.length === 0 ? (
+              <p className="m-0 py-8 text-center body-xs text-(--fg-tertiary)">
+                Nenhuma exportação ainda — peça uma cópia quando precisar.
+              </p>
+            ) : (
+              <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
+                {requests.map((r) => (
+                  <li
+                    key={r.id}
+                    className="m-0 grid grid-cols-[1fr_auto_64px] items-center gap-x-6 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
+                        {r.requestedAt}
+                      </p>
+                      {r.status === "Pronto" && r.expiresInDays !== undefined && (
+                        <p className="m-0 body-xs text-(--fg-tertiary)">
+                          link expira em {r.expiresInDays}{" "}
+                          {r.expiresInDays === 1 ? "dia" : "dias"}
+                        </p>
+                      )}
+                    </div>
+                    <StatusBadge status={r.status} />
+                    <div className="flex justify-end">
+                      {r.status === "Pronto" ? (
+                        <AwButton
+                          size="sm"
+                          variant="ghost"
+                          iconOnly="download"
+                          aria-label="Baixar cópia"
+                          title="Baixar cópia"
+                        />
+                      ) : r.status === "Expirado" ? (
+                        <AwButton
+                          size="sm"
+                          variant="ghost"
+                          iconOnly="refresh"
+                          aria-label="Pedir uma nova cópia"
+                          title="Pedir uma nova cópia"
+                          onClick={openConfirm}
+                        />
+                      ) : (
+                        <Icon
+                          name="hourglass_top"
+                          size={16}
+                          className="text-(--fg-tertiary)"
+                        />
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </AwCard>
       </div>
+
+      {/* Remover dados — faixa discreta no rodapé (ação rara e sensível). */}
+      <AwCard className="mt-6 flex items-start gap-4 p-6!">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--aw-red-100) text-(--aw-red-700)">
+          <Icon name="manage_accounts" size={22} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-md font-semibold text-(--fg-primary)">
+            Remover dados
+          </p>
+          <p className="m-0 mt-1 max-w-[640px] body-xs text-(--fg-secondary)">
+            Para excluir permanentemente sua conta e os dados associados, fale
+            com um administrador ou escreva para{" "}
+            <a
+              href="mailto:suporte@awsales.io"
+              className="font-medium text-(--fg-primary) underline decoration-dotted underline-offset-2 transition-colors duration-aw-fast hover:text-(--accent-brand) hover:no-underline"
+            >
+              suporte@awsales.io
+            </a>
+            .
+          </p>
+          <Link
+            href="/settings/seguranca"
+            className="mt-2 inline-flex w-fit items-center gap-1 body-xs font-medium text-(--accent-brand) underline-offset-2 hover:underline"
+          >
+            Privacidade e segurança
+            <Icon name="arrow_forward" size={13} />
+          </Link>
+        </div>
+      </AwCard>
 
       {/* Nota de rodapé — escopo do direito e portabilidade */}
       <p className="mt-8 flex items-start gap-1.5 body-xs text-(--fg-tertiary)">
