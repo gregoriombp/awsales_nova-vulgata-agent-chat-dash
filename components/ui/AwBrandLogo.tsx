@@ -537,10 +537,12 @@ const SIZE_PX: Record<AwBrandLogoSize, { tile: number; bare: number }> = {
 export type AwBrandLogoProps = React.HTMLAttributes<HTMLDivElement> & {
   /** Brand identifier (registry key). Unknown ids fall back to a monogram. */
   brand: string
-  /** Visual size. Tile + inner mark scale together. */
-  size?: AwBrandLogoSize
+  /** Visual size: a preset, or an explicit pixel number (pairs with markOnly). */
+  size?: AwBrandLogoSize | number
   /** Compact variant — smaller chip without outer chrome, brand bg preserved. */
   bare?: boolean
+  /** Mark only — render just the brand mark, no tile/bg/border (inline use, e.g. SSO buttons). */
+  markOnly?: boolean
 }
 
 export const AW_BRAND_LOGO_REGISTRY = Object.freeze(
@@ -551,6 +553,7 @@ export function AwBrandLogo({
   brand,
   size = "md",
   bare,
+  markOnly,
   className,
   style,
   ...rest
@@ -558,9 +561,11 @@ export function AwBrandLogo({
   const def: Brand | undefined = BRANDS[brand]
   const known = !!def
   const fg = def?.fg ?? "var(--fg-on-inverse)"
-  const { tile, bare: bareSize } = SIZE_PX[size]
-  const wrapperSize = bare ? bareSize : tile
-  const radius = bare ? Math.round(wrapperSize * 0.26) : 10
+  const preset = typeof size === "number" ? null : SIZE_PX[size]
+  const wrapperSize =
+    preset === null ? (size as number) : bare || markOnly ? preset.bare : preset.tile
+  const radius = markOnly ? 0 : bare ? Math.round(wrapperSize * 0.26) : 10
+  const markPct = markOnly ? "100%" : "62%"
 
   const inner = def?.markSrc ? (
     /* Transparent brand mark (Iconify logos) centered on the tile bg. */
@@ -570,8 +575,8 @@ export function AwBrandLogo({
       alt=""
       aria-hidden="true"
       style={{
-        width: "62%",
-        height: "62%",
+        width: markPct,
+        height: markPct,
         display: "block",
         objectFit: "contain",
       }}
@@ -618,11 +623,13 @@ export function AwBrandLogo({
         alignItems: "center",
         justifyContent: "center",
         flexShrink: 0,
-        overflow: "hidden",
-        background: known ? def!.bg : "var(--fg-primary)",
-        boxShadow: def?.bordered
-          ? "inset 0 0 0 1px var(--border-subtle)"
-          : undefined,
+        overflow: markOnly ? "visible" : "hidden",
+        background: markOnly ? "transparent" : known ? def!.bg : "var(--fg-primary)",
+        boxShadow: markOnly
+          ? undefined
+          : def?.bordered
+            ? "inset 0 0 0 1px var(--border-subtle)"
+            : undefined,
         borderRadius: radius,
         color: fg,
         ...style,
