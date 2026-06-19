@@ -10,9 +10,70 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwStatGroup } from "@/components/ui/AwStatGroup";
 import { AwToggle } from "@/components/ui/AwToggle";
 import { Icon } from "@/components/ui/Icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
+
+/** Indent visual do conteúdo abaixo do SectionHeading — cria a hierarquia
+ *  "título da seção é o pai, conteúdo é o filho". Aplica em todas as
+ *  seções da página pra dar uma única linguagem espacial. */
+const SECTION_CONTENT_INDENT = "pl-0 md:pl-12";
+
+/** Linguagem dos dividers entre itens dentro de uma seção. */
+const SECTION_DIVIDERS = "flex flex-col divide-y divide-(--border-subtle)";
+
+const SSO_LOCK_TOOLTIP =
+  "O login único está exigido. Para alterar essa configuração, desative o SSO acima.";
+
+/** Wrapper que comunica visualmente "está desabilitado porque o SSO está
+ *  exigido": opacidade rebaixada, sem interação, tooltip ao passar o mouse
+ *  explicando o porquê. Usado em Login social, Provisionamento e 2FA. */
+function SsoLockedSection({
+  locked,
+  children,
+}: {
+  locked: boolean;
+  children: React.ReactNode;
+}) {
+  if (!locked) return <>{children}</>;
+  return (
+    <TooltipProvider delayDuration={140}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            aria-disabled="true"
+            data-sso-locked="true"
+            className="cursor-not-allowed select-none opacity-40 transition-opacity duration-aw-fast"
+            // O wrapper bloqueia eventos do conteúdo (não dá pra clicar nem
+            // arrastar), mas o próprio wrapper continua reagindo ao hover
+            // (e o tooltip aparece) — daí o pointer-events-auto no wrapper
+            // e none nos filhos.
+            style={{ pointerEvents: "auto" }}
+          >
+            <div style={{ pointerEvents: "none" }}>{children}</div>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          align="start"
+          className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          <p className="m-0 mb-1 inline-flex items-center gap-1.5 body-xs font-medium text-(--fg-primary)">
+            <Icon name="lock" size={13} />
+            Bloqueado pelo SSO
+          </p>
+          <p className="m-0 body-xs leading-snug">{SSO_LOCK_TOOLTIP}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 /* ===================================================================== *
  * Mock — política de autenticação da organização (orquestrada via WorkOS).
@@ -106,37 +167,38 @@ export default function OrgSegurancaPage() {
         />
       </div>
 
-      {/* Login único (SSO) */}
+      {/* Login único (SSO) — único bloco que NUNCA fica disabled (é o próprio
+       *  switch que desabilita os outros). */}
       <section className="mt-12">
         <SectionHeading
           title="Login único (SSO)"
-          description="A organização entra por um provedor de identidade. A AwSales orquestra o WorkOS — a configuração do IdP acontece no portal."
+          description="A organização entra por um provedor de identidade. Configuramos via WorkOS — o IdP em si fica no portal do provedor."
         />
-        <div className="grid grid-cols-1 items-start gap-x-12 gap-y-6 md:grid-cols-2">
-          <div className="flex flex-col items-start gap-3">
-            <AwBrandLogo brand="googleworkspace" size="lg" className="shrink-0" />
-            <div className="min-w-0">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                {SSO.provider}
-              </p>
+        <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
+          <div className="flex flex-wrap items-center gap-4 py-4 first:pt-0">
+            <AwBrandLogo brand="googleworkspace" size="md" className="shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  {SSO.provider}
+                </p>
+                <StatusPill tone="ok">Conectado</StatusPill>
+              </div>
               <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                 {SSO.protocol} via WorkOS · conexão ativa
               </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <StatusPill tone="ok">Conectado</StatusPill>
             </div>
             <AwButton size="sm" variant="secondary" iconRight="open_in_new">
               Abrir portal
             </AwButton>
           </div>
 
-          <div className="flex items-start gap-4">
+          <div className="flex items-center gap-4 py-4">
             <div className="min-w-0 flex-1">
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 Exigir SSO nesta organização
               </p>
-              <p className="m-0 mt-1 body-xs text-(--fg-secondary)">
+              <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
                 {ssoRequired
                   ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
                   : "Outros métodos de login (senha, magic link, social) seguem liberados."}
@@ -151,104 +213,115 @@ export default function OrgSegurancaPage() {
         </div>
       </section>
 
-      {/* Login social */}
+      {/* Login social — bloqueado quando SSO é exigido. */}
       <section className="mt-12">
         <SectionHeading
           title="Login social"
-          description="Login pessoal do Google ou Microsoft. Não é o login único da empresa e não adiciona a equipe automaticamente. Enquanto o login único for necessário, o login social ficará desativado para a organização."
+          description="Login pessoal do Google ou Microsoft. Não é o login único da empresa e não adiciona a equipe automaticamente."
         />
-        <div className="flex flex-col divide-y divide-(--border-subtle)">
-          <SocialLine
-            brand="gmail"
-            title="Google pessoal"
-            note="Permite entrar com uma conta @gmail.com ou Google Workspace pessoal."
-            checked={socialGoogle}
-            onChange={setSocialGoogle}
-            locked={ssoRequired}
-          />
-          <SocialLine
-            brand="microsoft"
-            title="Microsoft pessoal"
-            note="Permite entrar com uma conta Outlook, Live ou Microsoft 365 pessoal."
-            checked={socialMicrosoft}
-            onChange={setSocialMicrosoft}
-            locked={ssoRequired}
-          />
-        </div>
+        <SsoLockedSection locked={ssoRequired}>
+          <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
+            <SocialLine
+              brand="gmail"
+              title="Google pessoal"
+              note="Permite entrar com uma conta @gmail.com ou Google Workspace pessoal."
+              checked={socialGoogle}
+              onChange={setSocialGoogle}
+            />
+            <SocialLine
+              brand="microsoft"
+              title="Microsoft pessoal"
+              note="Permite entrar com uma conta Outlook, Live ou Microsoft 365 pessoal."
+              checked={socialMicrosoft}
+              onChange={setSocialMicrosoft}
+            />
+          </div>
+        </SsoLockedSection>
       </section>
 
-      {/* Provisionamento (SCIM) */}
+      {/* Provisionamento (SCIM) — bloqueado quando SSO é exigido (a fonte
+       *  da verdade passa a ser o provedor). */}
       <section className="mt-12">
         <SectionHeading
           title="Provisionamento automático"
           description="Pessoas e grupos do diretório viram membros e funções aqui — sem convite nem desligamento manual."
         />
-        <div className="flex flex-col">
-          <div className="flex flex-wrap items-center gap-4 py-4">
-            <AwBrandLogo
-              brand="googleworkspace"
-              size="md"
-              className="shrink-0"
-              aria-label="Google Workspace"
-            />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                  {SCIM.directory} · SCIM 2.0
+        <SsoLockedSection locked={ssoRequired}>
+          <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
+            <div className="flex flex-wrap items-center gap-4 py-4 first:pt-0">
+              <AwBrandLogo
+                brand="googleworkspace"
+                size="md"
+                className="shrink-0"
+                aria-label="Google Workspace"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                    {SCIM.directory} · SCIM 2.0
+                  </p>
+                  <StatusPill tone="ok">Conectado</StatusPill>
+                </div>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                  {SCIM.users} pessoas · {SCIM.groups} grupos · sincronizado {SCIM.lastSync}
                 </p>
-                <StatusPill tone="ok">Conectado</StatusPill>
               </div>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                {SCIM.users} pessoas · {SCIM.groups} grupos · sincronizado {SCIM.lastSync}
-              </p>
+              <AwButton size="sm" variant="secondary" iconRight="open_in_new">
+                Abrir portal
+              </AwButton>
             </div>
-            <AwButton size="sm" variant="secondary" iconRight="open_in_new">
-              Abrir portal
-            </AwButton>
+            <ToggleLine
+              title="Desligar ao remover do diretório"
+              note={
+                scimDeprovision
+                  ? "Remover do provedor inativa aqui automaticamente."
+                  : "A remoção no provedor não inativa aqui — o desligamento é manual."
+              }
+              checked={scimDeprovision}
+              onChange={setScimDeprovision}
+            />
           </div>
-          <ToggleLine
-            title="Desligar ao remover do diretório"
-            note={
-              scimDeprovision
-                ? "Tirar a pessoa do provedor a inativa aqui automaticamente."
-                : "A remoção no provedor não inativa aqui — o desligamento é manual."
-            }
-            checked={scimDeprovision}
-            onChange={setScimDeprovision}
-          />
-        </div>
+        </SsoLockedSection>
       </section>
 
-      {/* MFA */}
+      {/* MFA — bloqueada quando SSO é exigido (segundo fator passa a ser do IdP). */}
       <section className="mt-12">
         <SectionHeading
           title="Verificação em 2 etapas"
-          description="Exija um segundo fator além da senha. A política só se aplica a quem não entra por SSO."
+          description="Pede um segundo fator além da senha. A política vale só para quem não entra por SSO."
         />
-        <ToggleLine
-          title="Obrigatória para toda a organização"
-          note="Ao habilitar, usuários ativos serão desconectados e precisarão configurar um método de autenticação em 2 etapas."
-          checked={mfaRequired}
-          onChange={(v) => (v ? setMfaConfirm(true) : setMfaDisable(true))}
-        />
+        <SsoLockedSection locked={ssoRequired}>
+          <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
+            <ToggleLine
+              title="Obrigatória para toda a organização"
+              note="Ao habilitar, usuários ativos serão desconectados e precisarão configurar um método de autenticação em 2 etapas."
+              checked={mfaRequired}
+              onChange={(v) => (v ? setMfaConfirm(true) : setMfaDisable(true))}
+            />
+          </div>
+        </SsoLockedSection>
       </section>
 
       {/* Política de senha */}
       <section className="mt-12">
         <SectionHeading
           title="Política de senha"
-          description="Reflete o que o login exige. Seguimos as diretrizes do NIST — sem complexidade artificial. A troca periódica fica desligada por padrão."
+          description="Reflete o que o login exige. Seguimos as diretrizes do NIST — sem regras artificiais. Troca periódica fica desligada por padrão."
         />
-        <SelectLine
-          title="Trocar a senha periodicamente"
-          note="O padrão NIST é não forçar troca. Ajuste só se um contrato ou regulação exigir."
-          value={rotation}
-          options={PASSWORD_ROTATION}
-          onChange={setRotation}
-        />
+        <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
+          <SelectLine
+            title="Trocar a senha periodicamente"
+            note="O padrão NIST é não forçar troca. Ajuste só se um contrato ou regulação exigir."
+            value={rotation}
+            options={PASSWORD_ROTATION}
+            onChange={setRotation}
+          />
+        </div>
 
-        <div className="mt-10">
-          <h6 className="m-0 mb-3 text-(--fg-primary)">Recomendado</h6>
+        <div className={cn(SECTION_CONTENT_INDENT, "mt-10")}>
+          <p className="m-0 mb-3 aw-eyebrow normal-case text-(--fg-tertiary)">
+            Recomendado
+          </p>
           <div className="grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-12">
             {PASSWORD_RULES.map((r) => (
               <div key={r.label} className="flex items-center gap-2">
@@ -272,7 +345,7 @@ export default function OrgSegurancaPage() {
           title="Sessão"
           description="Por quanto tempo uma pessoa fica conectada antes de precisar entrar de novo."
         />
-        <div className="flex flex-col divide-y divide-(--border-subtle)">
+        <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
           <SelectLine
             title="Inatividade"
             note="Encerra a sessão se ficar parada por esse tempo."
@@ -304,21 +377,21 @@ export default function OrgSegurancaPage() {
           }
           stats={[
             {
-              tone: "blue",
+              tone: "neutral",
               icon: "hub",
               value: ACCESS.connections,
               label: "Conexões ativas",
               hint: "Sessões e apps conectados agora",
             },
             {
-              tone: "purple",
+              tone: "neutral",
               icon: "group",
               value: ACCESS.people,
               label: "Membros da Organização",
               hint: "Pessoas com acesso ativo",
             },
             {
-              tone: "amber",
+              tone: "neutral",
               icon: "warning",
               value: ACCESS.stale,
               label: "Inativos",
@@ -520,7 +593,6 @@ function SocialLine({
   note,
   checked,
   onChange,
-  locked,
 }: {
   brand?: string;
   icon?: string;
@@ -528,7 +600,6 @@ function SocialLine({
   note: string;
   checked: boolean;
   onChange: (v: boolean) => void;
-  locked?: boolean;
 }) {
   return (
     <div className="flex items-center gap-4 py-4">
@@ -545,14 +616,7 @@ function SocialLine({
           {note}
         </p>
       </div>
-      {locked ? (
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2.5 py-0.5 body-xs font-medium text-(--aw-amber-800)">
-          <Icon name="lock" size={13} />
-          Desativado pelo login único
-        </span>
-      ) : (
-        <AwToggle checked={checked} onChange={onChange} label={title} />
-      )}
+      <AwToggle checked={checked} onChange={onChange} label={title} />
     </div>
   );
 }
