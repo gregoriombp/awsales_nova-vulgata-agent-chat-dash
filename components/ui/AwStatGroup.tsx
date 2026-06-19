@@ -40,34 +40,38 @@ export type AwStatGroupProps = React.HTMLAttributes<HTMLDivElement> & {
   stats: AwStat[]
 }
 
-// Tinta da célula (-100, pálida) + tile do ícone uma escala acima (-200) pra
-// destacar, com o glifo no -700. As escalas -50 e teal-300 não existem como
-// var() em runtime — por isso ficamos em -100/-200/-700, que todos os tons têm.
+// Tinta da célula (-100, pálida) + tile do ícone SATURADO (-500) com o glifo
+// branco — padrão do DS pra ícone sobre cor. A escala -50 não existe como
+// var() em runtime, e teal-300 também não, por isso ficamos em -100/-500.
 const TONE: Record<AwStatTone, { cell: string; tile: string }> = {
-  emerald: {
-    cell: "bg-(--aw-emerald-100)",
-    tile: "bg-(--aw-emerald-200) text-(--aw-emerald-700)",
-  },
-  teal: {
-    cell: "bg-(--aw-teal-100)",
-    tile: "bg-(--aw-teal-200) text-(--aw-teal-700)",
-  },
-  red: {
-    cell: "bg-(--aw-red-100)",
-    tile: "bg-(--aw-red-200) text-(--aw-red-700)",
-  },
   blue: {
     cell: "bg-(--aw-blue-100)",
-    tile: "bg-(--aw-blue-200) text-(--aw-blue-700)",
+    tile: "bg-(--aw-blue-500) text-(--fg-on-inverse)",
+  },
+  purple: {
+    cell: "bg-(--aw-purple-100)",
+    tile: "bg-(--aw-purple-500) text-(--fg-on-inverse)",
   },
   amber: {
     cell: "bg-(--aw-amber-100)",
-    tile: "bg-(--aw-amber-200) text-(--aw-amber-700)",
+    tile: "bg-(--aw-amber-500) text-(--fg-on-inverse)",
+  },
+  emerald: {
+    cell: "bg-(--aw-emerald-100)",
+    tile: "bg-(--aw-emerald-500) text-(--fg-on-inverse)",
+  },
+  teal: {
+    cell: "bg-(--aw-teal-100)",
+    tile: "bg-(--aw-teal-500) text-(--fg-on-inverse)",
+  },
+  red: {
+    cell: "bg-(--aw-red-100)",
+    tile: "bg-(--aw-red-500) text-(--fg-on-inverse)",
   },
 }
 
 export const AwStatGroup = React.forwardRef<HTMLDivElement, AwStatGroupProps>(
-  function AwStatGroup({ title, description, stats, className, ...rest }, ref) {
+  function AwStatGroup({ title, description, action, stats, className, ...rest }, ref) {
     return (
       <div
         ref={ref}
@@ -78,8 +82,8 @@ export const AwStatGroup = React.forwardRef<HTMLDivElement, AwStatGroupProps>(
         )}
         {...rest}
       >
-        {/* Célula de título — título + descrição, no lugar de ficarem soltos acima */}
-        <div className="flex min-w-0 flex-col justify-center gap-1.5 rounded-2xl border border-subtle bg-raised px-5 py-6">
+        {/* Célula de título — título + descrição + ação opcional, no lugar de ficarem soltos acima */}
+        <div className="flex min-w-0 flex-col justify-center gap-2 rounded-2xl border border-subtle bg-raised px-5 py-6">
           <h3 className="m-0 body-lg font-semibold leading-tight tracking-heading-tight text-fg-primary">
             {title}
           </h3>
@@ -88,6 +92,7 @@ export const AwStatGroup = React.forwardRef<HTMLDivElement, AwStatGroupProps>(
               {description}
             </p>
           )}
+          {action && <div className="mt-2">{action}</div>}
         </div>
 
         {/* Células de stat — tonalizadas */}

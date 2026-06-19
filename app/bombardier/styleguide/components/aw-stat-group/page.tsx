@@ -1,3 +1,4 @@
+import { AwButton } from "@/components/ui/AwButton"
 import { AwStatGroup } from "@/components/ui/AwStatGroup"
 import { PageHero, Section, Stage } from "../../_primitives"
 
@@ -26,33 +27,38 @@ export default function AwStatGroupPage() {
           <Section
             id="acessos"
             title="Acessos à organização"
-            lead="O caso que originou o componente. Título + descrição viram a célula da esquerda; três stats tonalizados (emerald / teal / red) com ícones distintos por métrica — hub, groups, schedule."
+            lead="O caso que originou o componente. Título + descrição viram a célula da esquerda (com botão de ação opcional); três stats tonalizados (blue / purple / amber) com ícones distintos — link, groups, warning."
           >
             <Stage label="title cell + 3 stats" gridClassName="w-full">
               <AwStatGroup
                 title="Acessos à organização"
                 description="Quem está com acesso ativo a esta organização. Encerrar um acesso aqui não desconecta a pessoa de outras organizações."
+                action={
+                  <AwButton size="sm" variant="primary">
+                    Configurações
+                  </AwButton>
+                }
                 stats={[
                   {
-                    icon: "hub",
+                    icon: "link",
                     value: 48,
                     label: "Conexões ativas",
                     hint: "Sessões e apps conectados agora",
-                    tone: "emerald",
+                    tone: "blue",
                   },
                   {
                     icon: "groups",
                     value: 35,
                     label: "Membros da Organização",
                     hint: "Pessoas com acesso ativo.",
-                    tone: "teal",
+                    tone: "purple",
                   },
                   {
-                    icon: "schedule",
+                    icon: "warning",
                     value: 3,
                     label: "Inativos",
                     hint: "Sem uso há 30+ dias",
-                    tone: "red",
+                    tone: "amber",
                   },
                 ]}
               />
