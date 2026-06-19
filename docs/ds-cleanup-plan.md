@@ -24,7 +24,9 @@ a um agente, ele ache a referência na hora — e pare de poluir o repo.
 - **Checklist atômico restaurado** nas skills `bombardier-new-component`/`-new-page`
   (o refactor `a95f7bf` do "Codex" tinha comprimido demais essa parte — causa-raiz do
   sintoma "não compõe atômico").
-- **Skills Aw-cegas depreciadas** (`design-system-*`, `setup-design-system-from-*`).
+- **Skills Aw-cegas neutralizadas** (`design-system-*`, `setup-design-system-from-*`) —
+  mantidas no disco como registro do setup inicial, com a `description` neutralizada (não
+  disparam mais) e banner no corpo que redireciona pras `bombardier-*`.
 - **Guard-rail:** [`scripts/ds-check.mjs`](../scripts/ds-check.mjs) (`npm run ds:check`,
   só-aviso) — pega hex hardcoded, valores arbitrários, `<svg>` cru, primitivo cru com
   wrapper Aw, e drift do índice.
@@ -43,7 +45,8 @@ a um agente, ele ache a referência na hora — e pare de poluir o repo.
 - `13/15/17/9px` (drift entre degraus) racionalizados pros degraus padrão
   (`text-sm`/`base`/`lg`/`text-3xs`) — **before/after sem quebra** (settings/perfil +
   tabela de funções).
-- Resultado: `ds:check` **479 → 322 avisos**.
+- Resultado da Etapa 2 (snapshot 2026-06-13): `ds:check` **479 → 322 avisos**. Marco
+  histórico — a contagem de hoje é sempre `npm run ds:check`, não este número.
 
 Histórico real: `git log` (commits `docs(component-map)…` até `refactor(tokens): racionaliza…`).
 

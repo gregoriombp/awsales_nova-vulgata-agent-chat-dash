@@ -84,24 +84,11 @@ hub. Exemplos atuais:
 
 Espelha `app/bombardier/styleguide/navigation.ts` — consulte a nav para o inventário vivo (a contagem muda; não fixamos número aqui).
 
-**Primitivos (19)** — Alertas · Avatar · Botões · Breadcrumb · Checkbox ·
-Controles · Dropdown menu · Empty · File icon · Inputs · Pills · Progress ·
-Select · Skeleton · Slider · Status dot · Tabs · Toast · Transition
-
-**Componentes** — Beams · Card brand · Cards · Channel icon · Chat bubbles ·
-Chrome · Dot tunnel · Group card · List group · Modais e dialogs
-(`AwModal`, `Connect modal`, `Contact channel modal`, `Welcome modal`,
-`Add integration modal`) · Nav list · Nav rail · Notificações · Option list ·
-Page header · Payment method card · Sheets e drawers (`AwSheet`,
-`Template builder sheet`) · Shortcut tile · Stat card · Stats display ·
-Tabelas (`AwTable`, `Data table`, `Members table`)
-
-**Padrões** — Backup codes · Integration catalog · Onboarding shell ·
-Onboarding timeline · Password setup · QR placeholder
-
-**Domínio** — Banner de plano adicional · Brand logo ·
-Capability tile · Integration card · Specialists pair · Visual dos agentes
-(`Agent Core`, `Agente do Usuário`, `Cortex`) · WhatsApp panel
+O inventário por camada vive nas seções **Primitivos / Componentes / Padrões /
+Domínio** de [`navigation.ts`](../app/bombardier/styleguide/navigation.ts). Não
+duplicamos a lista aqui de propósito — ela defasaria a cada componente novo. Para a
+classificação de cada peça, leia a régua das 4 camadas acima e as fronteiras
+revisadas abaixo.
 
 ### Fronteiras revisadas (2026-05)
 
