@@ -1,0 +1,453 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import { AwAlert } from "@/components/ui/AwAlert";
+import { Icon } from "@/components/ui/Icon";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
+} from "@/components/ui/chart";
+import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
+import {
+  brl,
+  CHARGED_BY_DAY,
+  CHARGED_TOTAL,
+  DRE_SUMMARY,
+  fmtUsdLabel,
+  PERIOD_DIFF,
+  PERIOD_DIFF_REASON,
+  USED_BY_DAY,
+  USED_META_TOTAL,
+  USED_TOTAL,
+  USED_WC_TOTAL,
+  type DRELine,
+} from "../_components/data";
+
+/**
+ * Detalhamento de custos (Analytics financeiro) — a carga pesada de auditoria
+ * que sai da Visão geral: o porquê de "usado" nunca bater com "cobrado", o DRE
+ * do período e o consumo por dia/serviço/agente em BRL e USD. Chega-se aqui pelo
+ * botão "Ver detalhamento →" da Visão geral.
+ */
+export default function DetalhamentoPage() {
+  return (
+    <div className="flex flex-col gap-10">
+      <PageHeader />
+
+      <UsadoCobradoSection />
+
+      <section className="flex flex-col gap-5 border-t border-(--border-subtle) pt-8">
+        <div className="flex flex-col gap-1">
+          <h6 className="m-0 text-(--fg-primary)">Consumo por dia</h6>
+          <p className="m-0 max-w-[680px] body-xs text-(--fg-secondary)">
+            Gastos variáveis por serviço ou por agente, no período escolhido.
+            Valores em BRL com a conversão em dólar ao câmbio operacional.
+          </p>
+        </div>
+        <VariableSpendingBlock />
+      </section>
+    </div>
+  );
+}
+
+/* ---------- cabeçalho com volta pra Visão geral ---------- */
+
+function PageHeader() {
+  return (
+    <div className="flex flex-col gap-3">
+      <Link
+        href="/settings/financeiro/visao-geral"
+        className="inline-flex w-fit items-center gap-1 body-xs font-medium text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
+      >
+        <Icon name="arrow_back" size={15} />
+        Voltar para a Visão geral
+      </Link>
+      <div className="flex flex-col gap-1">
+        <h4 className="m-0 text-(--fg-primary)">Detalhamento de custos</h4>
+        <p className="m-0 max-w-[680px] body-xs text-(--fg-secondary)">
+          Concilie o que foi usado com o que foi cobrado, item a item. Este
+          detalhamento cobre só o uso variável do período — o plano fixo aparece
+          na Visão geral e na fatura.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- usado × cobrado ---------- */
+
+function UsadoCobradoSection() {
+  return (
+    <section className="flex flex-col gap-6">
+      <AwAlert
+        variant="warning"
+        title="Por que “usado” nunca bate com “cobrado” — e por que isso é normal"
+      >
+        <p className="m-0 body-xs text-(--fg-primary)">
+          Funciona como a fatura do cartão: alguns lançamentos só aparecem dias
+          depois do uso. Custos podem ser registrados com atraso pelo provedor,
+          sobrar do mês anterior ou ficar retidos por falha temporária — tudo
+          entra na fatura seguinte.{" "}
+          <strong className="font-medium">
+            Nada se perde e nada é cobrado duas vezes.
+          </strong>
+        </p>
+      </AwAlert>
+
+      {/* Protagonista: usado no período, dividido em taxas da Aswo e Meta. */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <h5 className="m-0 text-(--fg-primary)">Usado no período</h5>
+            <UsedInfoTooltip />
+          </div>
+          <span className="body-sm tabular-nums text-(--fg-secondary)">
+            <strong className="font-medium text-(--fg-primary)">
+              {brl(USED_TOTAL)}
+            </strong>{" "}
+            · {fmtUsdLabel(USED_TOTAL)}
+          </span>
+        </div>
+        <UsedLegend />
+        <UsedChart />
+      </div>
+
+      <DreSummary />
+
+      {/* Rebaixado: valor atribuído ao provedor, com menos destaque. */}
+      <div className="flex flex-col gap-3 border-t border-(--border-subtle) pt-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h6 className="m-0 text-(--fg-secondary)">
+            Valor atribuído ao provedor de pagamento no período
+          </h6>
+          <span className="body-xs tabular-nums text-(--fg-tertiary)">
+            {brl(CHARGED_TOTAL)}
+          </span>
+        </div>
+        <ChargedChart />
+      </div>
+
+      <DifferenceBand />
+    </section>
+  );
+}
+
+const USED_CONFIG: ChartConfig = {
+  wc: { label: "Taxas Aswo · WhatsApp Cloud", color: "var(--aw-blue-500)" },
+  meta: { label: "Meta · aproximado", color: "var(--aw-purple-400)" },
+};
+
+const CHARGED_CONFIG: ChartConfig = {
+  value: { label: "Atribuído ao provedor", color: "var(--aw-amber-500)" },
+};
+
+function UsedChart() {
+  const data = React.useMemo(
+    () => USED_BY_DAY.map((d) => ({ day: d.label, wc: d.wc, meta: d.meta })),
+    [],
+  );
+  return (
+    <ChartContainer config={USED_CONFIG} className="aspect-auto h-[280px] w-full">
+      <BarChart
+        accessibilityLayer
+        data={data}
+        margin={{ left: 12, right: 12, top: 8 }}
+        barCategoryGap="22%"
+      >
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="day"
+          tickLine={{ stroke: "var(--border-default)" }}
+          axisLine={{ stroke: "var(--border-subtle)" }}
+          tickMargin={8}
+          minTickGap={16}
+        />
+        <ChartTooltip
+          cursor={{ fill: "var(--bg-hover)" }}
+          content={
+            <ChartTooltipContent
+              indicator="dot"
+              className="min-w-[220px] bg-(--bg-raised)"
+            />
+          }
+        />
+        <Bar
+          dataKey="wc"
+          stackId="u"
+          fill="var(--color-wc)"
+          maxBarSize={34}
+          isAnimationActive={false}
+        />
+        <Bar
+          dataKey="meta"
+          stackId="u"
+          fill="var(--color-meta)"
+          maxBarSize={34}
+          radius={[4, 4, 0, 0]}
+          isAnimationActive={false}
+        />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+function ChargedChart() {
+  const data = React.useMemo(
+    () => CHARGED_BY_DAY.map((d) => ({ day: d.label, value: d.value })),
+    [],
+  );
+  return (
+    <ChartContainer config={CHARGED_CONFIG} className="aspect-auto h-[160px] w-full">
+      <BarChart
+        accessibilityLayer
+        data={data}
+        margin={{ left: 12, right: 12, top: 8 }}
+        barCategoryGap="22%"
+      >
+        <CartesianGrid vertical={false} />
+        <XAxis
+          dataKey="day"
+          tickLine={{ stroke: "var(--border-default)" }}
+          axisLine={{ stroke: "var(--border-subtle)" }}
+          tickMargin={8}
+          minTickGap={16}
+        />
+        <ChartTooltip
+          cursor={{ fill: "var(--bg-hover)" }}
+          content={
+            <ChartTooltipContent
+              indicator="dot"
+              className="min-w-[200px] bg-(--bg-raised)"
+            />
+          }
+        />
+        <Bar
+          dataKey="value"
+          fill="var(--color-value)"
+          maxBarSize={30}
+          radius={[4, 4, 0, 0]}
+          isAnimationActive={false}
+        />
+      </BarChart>
+    </ChartContainer>
+  );
+}
+
+function UsedLegend() {
+  return (
+    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+      <LegendDot color="var(--aw-blue-500)" label="Taxas Aswo · WhatsApp Cloud" />
+      <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
+        <span
+          aria-hidden="true"
+          className="inline-block h-2.5 w-2.5 rounded-full"
+          style={{ background: "var(--aw-purple-400)" }}
+        />
+        Meta · aproximado
+        <MetaInfoTooltip />
+      </span>
+    </div>
+  );
+}
+
+function LegendDot({ color, label }: { color: string; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
+      <span
+        aria-hidden="true"
+        className="inline-block h-2.5 w-2.5 rounded-full"
+        style={{ background: color }}
+      />
+      {label}
+    </span>
+  );
+}
+
+function MetaInfoTooltip() {
+  return (
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="O que é o valor do Meta"
+            className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+          >
+            <Icon name="info" size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Os valores do Meta ({brl(USED_META_TOTAL)} no período) são{" "}
+          <strong className="font-medium text-(--fg-primary)">aproximados</strong>{" "}
+          e cobrados diretamente pela Meta no cartão que você cadastrou lá — não
+          passam pela Aswo.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function UsedInfoTooltip() {
+  return (
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="O que é usado no período"
+            className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+          >
+            <Icon name="info" size={15} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Tudo que você consumiu no período: {brl(USED_WC_TOTAL)} em taxas da
+          Aswo (WhatsApp Cloud, IA, leads) + {brl(USED_META_TOTAL)} aproximados
+          do Meta.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+/* ---------- DRE do período ---------- */
+
+function DreSummary() {
+  return (
+    <div className="flex flex-col gap-1 border-t border-(--border-subtle) pt-5">
+      <div className="mb-1 flex items-center gap-2">
+        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
+          Resumo financeiro do período
+        </p>
+        <span className="body-3xs text-(--fg-muted)">
+          referente ao usado no período
+        </span>
+      </div>
+      <ul className="m-0 flex list-none flex-col gap-0 p-0">
+        {DRE_SUMMARY.map((line) => (
+          <DreRow key={line.id} line={line} />
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function dreDotColor(kind: DRELine["kind"]): string {
+  switch (kind) {
+    case "subtract":
+      return "var(--aw-emerald-500)";
+    case "add":
+      return "var(--aw-amber-500)";
+    case "total":
+      return "var(--fg-primary)";
+    default:
+      return "var(--aw-blue-500)";
+  }
+}
+
+function DreRow({ line }: { line: DRELine }) {
+  const isTotal = line.kind === "total";
+  const sign =
+    line.kind === "subtract" ? "−" : line.kind === "add" && line.value > 0 ? "+" : "";
+  const valueClass =
+    line.kind === "subtract"
+      ? "text-(--accent-success)"
+      : "text-(--fg-primary)";
+
+  return (
+    <li
+      className={
+        "flex items-center justify-between gap-4 py-2 " +
+        (isTotal ? "mt-1 border-t border-(--border-subtle) pt-3" : "")
+      }
+    >
+      <span className="inline-flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="inline-block h-2 w-2 rounded-full"
+          style={{ background: dreDotColor(line.kind) }}
+        />
+        <span
+          className={
+            isTotal
+              ? "body-sm font-semibold text-(--fg-primary)"
+              : "body-sm text-(--fg-secondary)"
+          }
+        >
+          {line.label}
+        </span>
+        <DreTooltip text={line.tooltip} />
+      </span>
+      <span
+        className={
+          "tabular-nums " +
+          (isTotal ? "body-sm font-semibold " : "body-sm ") +
+          valueClass
+        }
+      >
+        {sign}
+        {brl(Math.abs(line.value))}
+      </span>
+    </li>
+  );
+}
+
+function DreTooltip({ text }: { text: string }) {
+  return (
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label="Detalhe"
+            className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+          >
+            <Icon name="info" size={13} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          {text}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+/* ---------- faixa da diferença ---------- */
+
+function DifferenceBand() {
+  const positive = PERIOD_DIFF >= 0;
+  return (
+    <AwAlert
+      variant="warning"
+      icon="sync_alt"
+      title={`Diferença do período: ${positive ? "+" : "−"}${brl(
+        Math.abs(PERIOD_DIFF),
+      )} (cobrado ${positive ? ">" : "<"} usado)`}
+    >
+      <p className="m-0 body-xs text-(--fg-primary)">
+        {PERIOD_DIFF_REASON} Os valores do Meta não entram nesta conta — são
+        cobrados diretamente pela Meta.
+      </p>
+    </AwAlert>
+  );
+}

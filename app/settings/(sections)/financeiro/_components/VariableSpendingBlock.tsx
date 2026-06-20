@@ -37,6 +37,7 @@ import {
   SERVICE_BREAKDOWN,
   SPENDING_CATEGORIES,
   SPENDING_PERIODS,
+  usd,
   type AgentBreakdownRow,
   type ServiceBreakdownRow,
   type SpendingCategory,
@@ -71,11 +72,13 @@ function formatRangeShort(from: Date, to: Date): string {
 type SortKey =
   | "label"
   | "role"
+  | "category"
   | "consumption"
   | "status"
   | "total"
   | "quantity"
-  | "unitPrice";
+  | "unitPrice"
+  | "usd";
 type SortDir = "asc" | "desc";
 
 function parseUnitPrice(label: string): number {
@@ -85,14 +88,23 @@ function parseUnitPrice(label: string): number {
   return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY;
 }
 
+/** Converte BRL → rótulo USD (câmbio operacional), derivado do total escalado. */
+function fmtUsd(brlValue: number): string {
+  return `US$ ${usd(brlValue).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
 // Mapeia cada categoria do gráfico de serviços para as linhas equivalentes da
 // tabela. A linha "outros" não tem categoria correspondente e só aparece
 // quando todas as 4 categorias estão selecionadas (ver allowedRowIds abaixo).
 const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
-  disparos: ["disp"],
-  leads: ["leads"],
+  "disparos-mkt": ["disp-mkt"],
+  "disparos-util": ["disp-util"],
   mensagens: ["msgs"],
-  tokens: ["tokens-in", "tokens-out"],
+  leads: ["leads"],
+  tokens: ["tok-k", "tok-b", "tok-s"],
 };
 
 // Padrão GCP billing: o gráfico mostra no máximo as N maiores séries do
@@ -178,7 +190,11 @@ export function VariableSpendingBlock() {
     visibleIds.forEach((catId) => {
       (SERVICE_CAT_TO_ROW_IDS[catId] ?? []).forEach((rid) => set.add(rid));
     });
-    if (isAll) set.add("outros");
+    // Linhas operacionais sem categoria de gráfico aparecem quando tudo está visível.
+    if (isAll) {
+      set.add("linha");
+      set.add("outros");
+    }
     return set;
   }, [grouping, visibleIds, isAll]);
 
@@ -840,12 +856,18 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
       if (sortKey === "unitPrice") {
         av = parseUnitPrice(a.unitPriceLabel);
         bv = parseUnitPrice(b.unitPriceLabel);
+      } else if (sortKey === "usd") {
+        av = usd(a.total);
+        bv = usd(b.total);
       } else if (sortKey === "quantity" || sortKey === "total") {
         av = a[sortKey];
         bv = b[sortKey];
       } else if (sortKey === "label") {
         av = a.label;
         bv = b.label;
+      } else if (sortKey === "category") {
+        av = a.category;
+        bv = b.category;
       } else {
         return 0;
       }
@@ -883,6 +905,13 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
             onClick={headerClick}
           />
           <SortableHeader
+            label="Categoria"
+            sortKey="category"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+          />
+          <SortableHeader
             label="Quantidade"
             sortKey="quantity"
             current={sortKey}
@@ -890,7 +919,7 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
             onClick={headerClick}
           />
           <SortableHeader
-            label="Unitário"
+            label="Taxa efetiva"
             sortKey="unitPrice"
             current={sortKey}
             dir={sortDir}
@@ -899,6 +928,14 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
           <SortableHeader
             label="Total"
             sortKey="total"
+            current={sortKey}
+            dir={sortDir}
+            onClick={headerClick}
+            align="right"
+          />
+          <SortableHeader
+            label="USD"
+            sortKey="usd"
             current={sortKey}
             dir={sortDir}
             onClick={headerClick}
@@ -919,23 +956,32 @@ function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
                 {r.label}
               </span>
             </td>
+            <td className="body-xs text-(--fg-secondary)">{r.category}</td>
             <td className="tabular-nums">
               {formatQuantity(r.quantity, r.quantityFormat)}
             </td>
-            <td className="tabular-nums">{r.unitPriceLabel}</td>
+            <td className="tabular-nums text-(--fg-secondary)">
+              {r.unitPriceLabel}
+            </td>
             <td className="text-right font-medium tabular-nums text-(--fg-primary)">
               {brl(r.total)}
+            </td>
+            <td className="text-right tabular-nums text-(--fg-tertiary)">
+              {fmtUsd(r.total)}
             </td>
           </tr>
         ))}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3} className="text-right text-(--fg-secondary)">
+          <td colSpan={4} className="text-right text-(--fg-secondary)">
             Total
           </td>
           <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
+          </td>
+          <td className="text-right tabular-nums text-(--fg-tertiary)">
+            {fmtUsd(total)}
           </td>
         </tr>
       </tfoot>
@@ -1017,13 +1063,16 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
   }, [scaled, sortKey, sortDir]);
 
   const total = scaled.reduce((s, r) => s + r.total, 0);
+  // Base da barra: o agente que mais consumiu no período. Dá um referencial
+  // claro pra cada barra (em vez de um "%" solto sem base — "92% de quê?").
+  const maxTotal = Math.max(1, ...scaled.map((r) => r.total));
 
   const headerClick = (k: SortKey) => {
     if (k === sortKey) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     } else {
       setSortKey(k);
-      setSortDir(k === "total" || k === "consumption" ? "desc" : "asc");
+      setSortDir(k === "total" || k === "usd" ? "desc" : "asc");
     }
   };
 
@@ -1039,8 +1088,8 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             onClick={headerClick}
           />
           <SortableHeader
-            label="Consumo"
-            sortKey="consumption"
+            label="Consumo no período"
+            sortKey="total"
             current={sortKey}
             dir={sortDir}
             onClick={headerClick}
@@ -1053,8 +1102,8 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             onClick={headerClick}
           />
           <SortableHeader
-            label="Total"
-            sortKey="total"
+            label="USD"
+            sortKey="usd"
             current={sortKey}
             dir={sortDir}
             onClick={headerClick}
@@ -1077,14 +1126,14 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
               <TooltipProvider delayDuration={120}>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <div className="flex min-w-[140px] max-w-[220px] cursor-help items-center gap-2">
+                    <div className="flex min-w-[180px] max-w-[280px] cursor-help items-center gap-3">
                       <AwProgress
-                        value={r.consumption}
+                        value={(r.total / maxTotal) * 100}
                         max={100}
                         className="flex-1"
                       />
-                      <span className="w-9 shrink-0 text-right tabular-nums body-xs text-(--fg-secondary)">
-                        {r.consumption}%
+                      <span className="shrink-0 tabular-nums body-sm font-medium text-(--fg-primary)">
+                        {brl(r.total)}
                       </span>
                     </div>
                   </TooltipTrigger>
@@ -1094,13 +1143,16 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
                   >
                     <div className="flex flex-col gap-0.5">
                       <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
-                        Consumo
+                        Consumo no período
                       </span>
                       <span className="body-sm tabular-nums text-(--fg-primary)">
                         {brl(r.total)}{" "}
                         <span className="text-(--fg-tertiary)">
-                          · {r.consumption}%
+                          · {fmtUsd(r.total)}
                         </span>
+                      </span>
+                      <span className="body-xs text-(--fg-tertiary)">
+                        Barra relativa ao agente que mais consumiu ({brl(maxTotal)}).
                       </span>
                     </div>
                   </TooltipContent>
@@ -1110,19 +1162,21 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
             <td>
               <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
             </td>
-            <td className="text-right font-medium tabular-nums text-(--fg-primary)">
-              {brl(r.total)}
+            <td className="text-right tabular-nums text-(--fg-tertiary)">
+              {fmtUsd(r.total)}
             </td>
           </tr>
         ))}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3} className="text-right text-(--fg-secondary)">
-            Total
-          </td>
-          <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
+          <td className="text-right text-(--fg-secondary)">Total</td>
+          <td className="font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
+          </td>
+          <td />
+          <td className="text-right tabular-nums text-(--fg-tertiary)">
+            {fmtUsd(total)}
           </td>
         </tr>
       </tfoot>
