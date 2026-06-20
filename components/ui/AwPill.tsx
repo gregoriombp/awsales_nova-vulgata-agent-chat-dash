@@ -7,6 +7,7 @@ export type AwPillVariant =
   | "warning"
   | "error"
   | "neutral"
+  | "info"
   | "ai"
 
 export type AwPillProps = React.HTMLAttributes<HTMLSpanElement> & {

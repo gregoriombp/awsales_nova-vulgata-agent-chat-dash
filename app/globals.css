@@ -2429,6 +2429,11 @@
   background: var(--bg-surface);
   color: var(--fg-primary);
 }
+.aw-pill--info {
+  background: var(--aw-blue-100);
+  color: var(--aw-blue-700);
+}
+.aw-pill--info .aw-pill__dot { background: var(--aw-blue-500); }
 .aw-pill--ai {
   background: var(--aw-blue-100);
   color: var(--aw-blue-700);
