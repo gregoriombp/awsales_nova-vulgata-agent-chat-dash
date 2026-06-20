@@ -9,6 +9,12 @@ import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { Icon } from "@/components/ui/Icon";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
@@ -49,6 +55,7 @@ export default function VisaoGeralPage() {
 function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
+  const card = CURRENT_INVOICE.paymentMethod;
   const breakdown = [
     {
       label: "Assinatura",
@@ -65,7 +72,7 @@ function ForecastBlock() {
     ...(discount > 0
       ? [
           {
-            label: "Cupom",
+            label: "Desconto",
             value: discount,
             kind: "subtract" as const,
             icon: "local_offer",
@@ -77,13 +84,15 @@ function ForecastBlock() {
   return (
     <AwInvoiceForecastCard
       bare
-      eyebrow={`Previsão da próxima fatura · ${CURRENT_INVOICE.dueAt}`}
+      eyebrow={`Próxima cobrança · ${CURRENT_PLAN.nextChargeAt} · ${card.brand} •••• ${card.last4}`}
       total={total}
+      estimateLabel={null}
       estimateNote={
         <>
-          Estimativa. O valor pode mudar até o fechamento em{" "}
-          {CURRENT_INVOICE.dueAt} — o consumo variável conta até o fim do ciclo
-          e o câmbio é convertido na cobrança.
+          É uma estimativa: como o IOF no cartão, o valor final só fecha na
+          cobrança de {CURRENT_PLAN.nextChargeAt} — o consumo variável conta até
+          o fim do ciclo e o câmbio é convertido na hora. Atualizado em{" "}
+          {CURRENT_INVOICE.dueAt} às 14:30.
         </>
       }
       breakdown={breakdown}
@@ -114,8 +123,29 @@ function ConsumoVariavelCard() {
   return (
     <AwCard className="flex flex-col gap-4 px-6! py-4!">
       <div className="flex items-baseline justify-between gap-3">
-        <h6 className="m-0 body-lg font-medium text-(--fg-primary)">
+        <h6 className="m-0 flex items-center gap-1.5 body-lg font-medium text-(--fg-primary)">
           Consumo variável
+          <TooltipProvider delayDuration={120}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="O que é consumo variável"
+                  className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
+                >
+                  <Icon name="info" size={15} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="top"
+                className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+              >
+                Gastos que variam com o uso (disparos, mensagens, tokens de IA e
+                leads), além do plano fixo. Ao atingir o limite do ciclo, o
+                acumulado é cobrado automaticamente.
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </h6>
         <span className="body-sm tabular-nums text-(--fg-secondary)">
           <strong className="font-medium text-(--fg-primary)">
