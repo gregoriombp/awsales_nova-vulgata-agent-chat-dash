@@ -39,10 +39,16 @@ export type AwInvoiceForecastCardProps = Omit<
   };
   /**
    * Quando presente, marca o total como **estimado**: substitui o `trend` por
-   * um selo "Estimado" com tooltip de hover explicando a variação da cobrança.
+   * um selo com tooltip de hover explicando a variação da cobrança.
    * Tem precedência sobre `trend`.
    */
   estimateNote?: React.ReactNode;
+  /**
+   * Texto do selo de estimativa. Default "Estimado". Passe `null`/"" para
+   * exibir só o ícone de info (sem a palavra) — útil quando o valor estimado
+   * já é claro pelo contexto e o "Estimado" textual seria ruído.
+   */
+  estimateLabel?: React.ReactNode;
   /** Composição do total (assinatura + variável − cupom…). */
   breakdown: AwCostBreakdownItem[];
   /** Ação principal. Renderiza link se `href`, senão botão com `onClick`. */
@@ -71,6 +77,7 @@ export function AwInvoiceForecastCard({
   total,
   trend,
   estimateNote,
+  estimateLabel = "Estimado",
   breakdown,
   cta,
   gauge,
@@ -112,10 +119,16 @@ export function AwInvoiceForecastCard({
                 <TooltipTrigger asChild>
                   <span
                     tabIndex={0}
-                    className="mb-1.5 inline-flex cursor-help items-center gap-1 rounded-full border border-(--border-subtle) bg-(--bg-surface) px-2.5 py-1 body-xs font-medium text-(--fg-secondary) outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2"
+                    aria-label={estimateLabel ? undefined : "Sobre este valor"}
+                    className={cn(
+                      "mb-1.5 inline-flex cursor-help items-center gap-1 text-(--fg-secondary) outline-hidden focus-visible:ring-2 focus-visible:ring-(--accent-brand) focus-visible:ring-offset-2",
+                      estimateLabel
+                        ? "rounded-full border border-(--border-subtle) bg-(--bg-surface) px-2.5 py-1 body-xs font-medium"
+                        : "rounded-full p-0.5 text-(--fg-tertiary) hover:text-(--fg-primary)",
+                    )}
                   >
-                    <Icon name="info" size={13} />
-                    Estimado
+                    <Icon name="info" size={estimateLabel ? 13 : 16} />
+                    {estimateLabel}
                   </span>
                 </TooltipTrigger>
                 <TooltipContent
