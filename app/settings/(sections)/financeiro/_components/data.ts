@@ -1,6 +1,8 @@
 // Fixtures pra Settings → Financeiro. Substituir por dados reais quando o
 // backend expor endpoints. Valores em BRL; datas em formato pt-BR.
 
+import type { AwPillVariant } from "@/components/ui/AwPill";
+
 export const CURRENT_PLAN = {
   name: "Plano Enterprise",
   status: "Ativo" as const,
@@ -754,21 +756,46 @@ export const BR_STATES = [
 // ---- Saldo de créditos ----
 
 export const CREDITS_KPIS = {
-  totalSaved: 482.3,
-  availableDiscount: 1250.0,
+  // Lifetime: tudo que vouchers + cupons já abateram.
+  totalSaved: 3412.3,
+  // Saldo restante dos vouchers ATIVOS (não conta pendente/pausado).
+  availableDiscount: 1890.0,
   activeVouchers: 2,
+};
+
+// Status do voucher (decisão Greg, group review 19/06):
+// - Usado: 100% consumido (azul)
+// - Parcialmente usado: venceu sem usar tudo (cinza)
+// - Pendente: ainda não ativou (effectiveAt futuro)
+// - Pausado: suspenso pelo account manager
+export type VoucherStatus =
+  | "Ativo"
+  | "Usado"
+  | "Parcialmente usado"
+  | "Pendente"
+  | "Pausado";
+
+/** Uso do voucher numa fatura — alimenta o modal de detalhes. */
+export type VoucherConsumption = {
+  invoiceId: string;
+  date: string; // dd/mm/aaaa
+  amount: number;
 };
 
 export type VoucherRow = {
   id: string;
   description: string;
   applicableTo: string;
-  status: "Ativo" | "Expirado";
+  status: VoucherStatus;
   total: number;
   consumed: number;
+  /** Ativa a partir de (Pendente até lá). */
+  effectiveAt?: string;
   expiresAt: string;
-  /** Quando o consumo está acima do previsto e há risco de expirar antes do plano. */
+  /** Consumo acima do previsto — risco de esgotar antes do plano. */
   acceleratedConsumption?: boolean;
+  /** Faturas que consumiram este voucher. */
+  consumptions?: VoucherConsumption[];
 };
 
 export const VOUCHERS: VoucherRow[] = [
@@ -780,17 +807,84 @@ export const VOUCHERS: VoucherRow[] = [
     total: 1000,
     consumed: 250,
     expiresAt: "30/06/2026",
+    consumptions: [
+      { invoiceId: "INV-2026-04-1234", date: "10/05/2026", amount: 250 },
+    ],
+  },
+  {
+    id: "v-bf",
+    description: "Bônus Black Friday Setup",
+    applicableTo: "Todas as taxas",
+    status: "Ativo",
+    total: 3000,
+    consumed: 1860,
+    expiresAt: "15/06/2026",
+    acceleratedConsumption: true,
+    consumptions: [
+      { invoiceId: "INV-2026-04-1234", date: "10/05/2026", amount: 1100 },
+      { invoiceId: "INV-2026-03-0987", date: "12/04/2026", amount: 760 },
+    ],
+  },
+  {
+    id: "v-q3",
+    description: "Crédito de boas-vindas Q3",
+    applicableTo: "Todas as taxas",
+    status: "Pendente",
+    total: 500,
+    consumed: 0,
+    effectiveAt: "01/07/2026",
+    expiresAt: "30/09/2026",
+  },
+  {
+    id: "v-onb",
+    description: "Cortesia de onboarding",
+    applicableTo: "Tokens Knowledge",
+    status: "Usado",
+    total: 500,
+    consumed: 500,
+    expiresAt: "31/12/2026",
+    consumptions: [
+      { invoiceId: "INV-2026-02-PLN", date: "28/02/2026", amount: 500 },
+    ],
   },
   {
     id: "v-2025",
     description: "Bônus 2025",
     applicableTo: "Todas as taxas",
-    status: "Ativo",
-    total: 500,
+    status: "Parcialmente usado",
+    total: 800,
+    consumed: 320,
+    expiresAt: "31/03/2026",
+    consumptions: [
+      { invoiceId: "INV-2026-01-PLN", date: "28/01/2026", amount: 320 },
+    ],
+  },
+  {
+    id: "v-ret",
+    description: "Crédito de retenção",
+    applicableTo: "Disparos WhatsApp",
+    status: "Pausado",
+    total: 1200,
     consumed: 0,
     expiresAt: "31/12/2026",
   },
 ];
+
+/** Cor do pill por status de voucher. "Usado" é azul; "Parcialmente usado", cinza. */
+export function voucherStatusVariant(status: VoucherStatus): AwPillVariant {
+  switch (status) {
+    case "Ativo":
+      return "live";
+    case "Usado":
+      return "info";
+    case "Parcialmente usado":
+      return "draft";
+    case "Pendente":
+      return "neutral";
+    case "Pausado":
+      return "warning";
+  }
+}
 
 export type CouponRow = {
   id: string;
