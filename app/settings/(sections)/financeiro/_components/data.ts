@@ -69,10 +69,11 @@ export type SpendingCategory = {
 
 export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> = {
   service: [
-    { id: "disparos", label: "Disparos WhatsApp", colorVar: "var(--aw-blue-500)" },
-    { id: "leads", label: "Leads convertidos", colorVar: "var(--aw-emerald-500)" },
+    { id: "disparos-mkt", label: "Disparos · marketing", colorVar: "var(--aw-blue-500)" },
+    { id: "disparos-util", label: "Disparos · utilidade", colorVar: "var(--aw-teal-500)" },
     { id: "mensagens", label: "Mensagens transacionadas", colorVar: "var(--aw-amber-500)" },
-    { id: "tokens", label: "Tokens · Knowledge", colorVar: "var(--aw-purple-500)" },
+    { id: "leads", label: "Leads ativos", colorVar: "var(--aw-emerald-500)" },
+    { id: "tokens", label: "Tokens de IA", colorVar: "var(--aw-purple-500)" },
   ],
   agent: [
     {
@@ -304,25 +305,58 @@ export function scaleCustomBreakdown<
   });
 }
 
+/** Câmbio operacional usado pra converter BRL → USD no detalhamento. */
+export const OPERATIONAL_FX = 4.92;
+
+export function usd(brlValue: number): number {
+  return Math.round((brlValue / OPERATIONAL_FX) * 100) / 100;
+}
+
+/** Rótulo em dólar (ex.: "US$ 1.234,56" no padrão en-US: "US$ 1,234.56"). */
+export function fmtUsdLabel(brlValue: number): string {
+  return `US$ ${usd(brlValue).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+}
+
+export type ServiceCategory =
+  | "Meta / WhatsApp"
+  | "IA / Tokens"
+  | "Leads"
+  | "Operacional";
+
 export type ServiceBreakdownRow = {
   id: string;
   label: string;
   icon: string;
+  /** Categoria da taxa — agrupa o detalhamento por origem do custo. */
+  category: ServiceCategory;
   /** Quantidade base no período "Este mês". -1 sinaliza linha agregada sem unidade. */
   quantity: number;
   /** Como apresentar a quantidade — "decimal" (1.245), "abbrev" (2,1M / 780K) ou "lump" (—). */
   quantityFormat: "decimal" | "abbrev" | "lump";
+  /** Taxa efetiva por unidade. */
   unitPriceLabel: string;
   total: number;
+  /** Valor em dólar (câmbio operacional) — coluna USD do detalhamento. */
+  usd: number;
 };
 
+// Tokens não têm mais quebra input/output — só Knowledge / Brain / Skill
+// (decisão da group review 19/06). Disparos separam marketing de utilidade.
+// "Leads ativos" (era "convertidos"). Serviços vêm desta lista — nada hardcoded
+// nas telas, pra novos agrupamentos entrarem só aqui.
 export const SERVICE_BREAKDOWN: ServiceBreakdownRow[] = [
-  { id: "disp", label: "Disparos WhatsApp", icon: "campaign", quantity: 1245, quantityFormat: "decimal", unitPriceLabel: "R$ 0,12", total: 149.4 },
-  { id: "leads", label: "Leads convertidos", icon: "person_add", quantity: 38, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00", total: 76.0 },
-  { id: "msgs", label: "Mensagens transacionadas", icon: "forum", quantity: 3872, quantityFormat: "decimal", unitPriceLabel: "R$ 0,03", total: 116.16 },
-  { id: "tokens-in", label: "Tokens · Knowledge Input", icon: "memory", quantity: 2_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 4.2 },
-  { id: "tokens-out", label: "Tokens · Knowledge Output", icon: "memory", quantity: 780_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,008 / 1K", total: 6.24 },
-  { id: "outros", label: "Outros serviços agregados", icon: "more_horiz", quantity: -1, quantityFormat: "lump", unitPriceLabel: "—", total: 539.63 },
+  { id: "disp-mkt", label: "Disparos WhatsApp marketing", icon: "campaign", category: "Meta / WhatsApp", quantity: 1245, quantityFormat: "decimal", unitPriceLabel: "R$ 0,12 / disparo", total: 149.4, usd: 30.37 },
+  { id: "disp-util", label: "Disparos WhatsApp utilidade", icon: "campaign", category: "Meta / WhatsApp", quantity: 1560, quantityFormat: "decimal", unitPriceLabel: "R$ 0,08 / disparo", total: 124.8, usd: 25.37 },
+  { id: "msgs", label: "Mensagens transacionadas", icon: "forum", category: "Meta / WhatsApp", quantity: 6205, quantityFormat: "decimal", unitPriceLabel: "R$ 0,03 / mensagem", total: 186.16, usd: 37.84 },
+  { id: "leads", label: "Leads ativos", icon: "person_add", category: "Leads", quantity: 48, quantityFormat: "decimal", unitPriceLabel: "R$ 2,00 / lead", total: 96.0, usd: 19.51 },
+  { id: "tok-k", label: "Tokens · Knowledge", icon: "memory", category: "IA / Tokens", quantity: 12_100_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,002 / 1K", total: 24.2, usd: 4.92 },
+  { id: "tok-b", label: "Tokens · Brain", icon: "neurology", category: "IA / Tokens", quantity: 13_400_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,005 / 1K", total: 67.0, usd: 13.62 },
+  { id: "tok-s", label: "Tokens · Skills", icon: "extension", category: "IA / Tokens", quantity: 10_078_000, quantityFormat: "abbrev", unitPriceLabel: "R$ 0,009 / 1K", total: 90.7, usd: 18.43 },
+  { id: "linha", label: "Linha telefônica", icon: "call", category: "Operacional", quantity: 1, quantityFormat: "decimal", unitPriceLabel: "R$ 39,00 / mês", total: 39.0, usd: 7.93 },
+  { id: "outros", label: "Outros serviços agregados", icon: "more_horiz", category: "Operacional", quantity: -1, quantityFormat: "lump", unitPriceLabel: "—", total: 114.37, usd: 23.25 },
 ];
 
 export function formatQuantity(
@@ -561,6 +595,116 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
     net: 2497.98,
     paymentMethod: "Visa •••• 8888",
     status: "Paga",
+  },
+];
+
+// ---- Detalhamento: Usado × Cobrado ----
+//
+// "Usado no período" = o que o cliente consumiu (taxas da Aswo/WC + valor
+// aproximado do Meta, cobrado direto pela Meta). "Valor atribuído ao provedor
+// de pagamento no período" (antigo "cobrado") = o que entrou na fatura via
+// Stripe/AWS — só a parte da Aswo, sujeita a atrasos de processamento. A
+// diferença é normal: nada se perde e nada é cobrado duas vezes.
+
+export const DETALHAMENTO_DAYS = 15; // 01–15/05 (ciclo atual, até hoje)
+
+// Total usado pela Aswo (WhatsApp Cloud + IA + leads + operacional).
+export const USED_WC_TOTAL = 712.1;
+// Valor aproximado dos disparos/conversas cobrados DIRETO pela Meta.
+export const USED_META_TOTAL = 179.53;
+// Usado total no período (bate com o acumulado do ciclo).
+export const USED_TOTAL = Math.round((USED_WC_TOTAL + USED_META_TOTAL) * 100) / 100;
+// Valor atribuído ao provedor de pagamento no período (entrou na fatura).
+// Inclui lançamentos retidos do ciclo anterior; exclui o que ficou pra próxima.
+export const CHARGED_TOTAL = 780.5;
+// Diferença = cobrado − usado(WC). O Meta não entra aqui (é cobrado fora).
+export const PERIOD_DIFF = Math.round((CHARGED_TOTAL - USED_WC_TOTAL) * 100) / 100;
+export const PERIOD_DIFF_REASON =
+  "R$ 121,10 de lançamentos do ciclo anterior entraram nesta fatura; R$ 52,70 do fim deste período entram na próxima.";
+
+/** Distribui um total por N dias com jitter determinístico (soma exata). */
+function spreadDaily(total: number, n: number, seed: number): number[] {
+  let s = seed;
+  const raw: number[] = [];
+  for (let i = 0; i < n; i++) {
+    s = (s * 9301 + 49297) % 233280;
+    raw.push(s / 233280 + 0.35);
+  }
+  const rawTotal = raw.reduce((a, b) => a + b, 0);
+  return raw.map((v) => Math.round((v / rawTotal) * total * 100) / 100);
+}
+
+export type UsedDay = { label: string; wc: number; meta: number };
+
+function ddmmFromIndex(index: number): string {
+  const d = new Date(2026, 4, index + 1); // maio/2026
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+/** Usado por dia, separado em taxas da Aswo (WC) e valor aproximado do Meta. */
+export const USED_BY_DAY: UsedDay[] = (() => {
+  const wc = spreadDaily(USED_WC_TOTAL, DETALHAMENTO_DAYS, 5);
+  const meta = spreadDaily(USED_META_TOTAL, DETALHAMENTO_DAYS, 9);
+  return wc.map((v, i) => ({ label: ddmmFromIndex(i), wc: v, meta: meta[i] }));
+})();
+
+/** Valor atribuído ao provedor por dia (com atrasos de processamento). */
+export const CHARGED_BY_DAY: { label: string; value: number }[] = (() => {
+  const v = spreadDaily(CHARGED_TOTAL, DETALHAMENTO_DAYS, 3);
+  return v.map((val, i) => ({ label: ddmmFromIndex(i), value: val }));
+})();
+
+// DRE do período — referente ao gráfico "Usado no período". Cada linha tem
+// tooltip própria. Subtotal − descontos + tributos = total.
+export type DRELineKind = "subtotal" | "subtract" | "add" | "total";
+export type DRELine = {
+  id: string;
+  label: string;
+  value: number;
+  kind: DRELineKind;
+  tooltip: string;
+};
+
+export const DRE_SUMMARY: DRELine[] = [
+  {
+    id: "subtotal",
+    label: "Subtotal de uso",
+    value: 891.63,
+    kind: "subtotal",
+    tooltip:
+      "Soma de tudo que foi consumido no período, antes de créditos, ajustes e tributos. Refere-se ao gráfico “Usado no período”.",
+  },
+  {
+    id: "descontos",
+    label: "Descontos e créditos",
+    value: -250.61,
+    kind: "subtract",
+    tooltip:
+      "Vouchers e cupons aplicados no período. Incidem só sobre valores cobrados pela Aswo — não abatem os valores aproximados do Meta.",
+  },
+  {
+    id: "ajustes",
+    label: "Ajustes",
+    value: 0,
+    kind: "add",
+    tooltip:
+      "Correções de lançamentos retidos por falha temporária ou estornos reconhecidos no período.",
+  },
+  {
+    id: "tributos",
+    label: "Tributos",
+    value: 33.41,
+    kind: "add",
+    tooltip:
+      "Impostos sobre serviço aplicáveis (ISS/PIS/COFINS) destacados na nota fiscal.",
+  },
+  {
+    id: "total",
+    label: "Total no período",
+    value: 674.43,
+    kind: "total",
+    tooltip:
+      "Subtotal de uso − descontos + tributos. É o valor atribuído ao provedor de pagamento no período.",
   },
 ];
 
