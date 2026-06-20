@@ -1,19 +1,22 @@
 "use client";
 
+import * as React from "react";
+import Link from "next/link";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwShortcutTile } from "@/components/ui/AwShortcutTile";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
-import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
+import { Icon } from "@/components/ui/Icon";
 import {
-  AUDIT_EVENTS,
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
+  fmtUsdLabel,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
   PAYMENT_METHODS,
+  SERVICE_BREAKDOWN,
   VARIABLE_SPENDING_LIMIT,
 } from "../_components/data";
 
@@ -159,29 +162,14 @@ function NavHub() {
   const defaultMethod =
     PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
   const latestInvoice = INVOICE_HISTORY[0];
-  const lastAudit = AUDIT_EVENTS[0];
 
+  // Consumo e Atividade saíram dos atalhos — Consumo tem aba própria e o
+  // detalhe vive na seção abaixo; Atividade era redundante com a aba.
   return (
     <nav aria-label="Atalhos do financeiro">
       {/* Flat — sem caixa nem padding extra: os atalhos respiram no fluxo da
           página, separados só pelo gap. Hover de cada tile dá o contorno. */}
       <ul className="m-0 grid grid-cols-2 list-none gap-x-8 gap-y-1 p-0">
-        <li className="m-0">
-          <AwShortcutTile
-            icon="bar_chart"
-            title="Consumo"
-            description={`${brl(OVERVIEW_KPIS.accumulated)} este ciclo`}
-            href="/settings/financeiro/consumo"
-          />
-        </li>
-        <li className="m-0">
-          <AwShortcutTile
-            icon="credit_card"
-            title="Métodos de pagamento"
-            description={`${defaultMethod.brand} •••• ${defaultMethod.last4} · ${PAYMENT_METHODS.length} cartões`}
-            href="/settings/financeiro/metodos-pagamento"
-          />
-        </li>
         <li className="m-0">
           <AwShortcutTile
             icon="receipt_long"
@@ -192,10 +180,10 @@ function NavHub() {
         </li>
         <li className="m-0">
           <AwShortcutTile
-            icon="history"
-            title="Atividade"
-            description={`${lastAudit.date} às ${lastAudit.time}`}
-            href="/settings/financeiro/auditoria"
+            icon="credit_card"
+            title="Métodos de pagamento"
+            description={`${defaultMethod.brand} •••• ${defaultMethod.last4} · ${PAYMENT_METHODS.length} cartões`}
+            href="/settings/financeiro/metodos-pagamento"
           />
         </li>
       </ul>
@@ -203,13 +191,70 @@ function NavHub() {
   );
 }
 
-/* ---------- consumo por dia (detalhe, rebaixado para o fim) ---------- */
+/* ---------- consumo do ciclo: resumo compacto + link pro detalhamento ---------- */
 
 function ConsumptionSection() {
+  const used = OVERVIEW_KPIS.accumulated;
+  // Maior categoria de gasto, ignorando a linha agregada "outros".
+  const topService = React.useMemo(
+    () =>
+      [...SERVICE_BREAKDOWN]
+        .filter((r) => r.quantity >= 0)
+        .sort((a, b) => b.total - a.total)[0],
+    [],
+  );
+
   return (
-    <section className="flex flex-col gap-4 border-t border-(--border-subtle) pt-8">
-      <h6 className="m-0 text-(--fg-primary)">Consumo por dia</h6>
-      <VariableSpendingBlock />
+    <section className="flex flex-col gap-5 border-t border-(--border-subtle) pt-8">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <h6 className="m-0 text-(--fg-primary)">Consumo do ciclo</h6>
+          <p className="m-0 body-xs text-(--fg-secondary)">
+            Gastos variáveis por serviço e por agente, dia a dia — com a
+            conciliação entre usado e cobrado.
+          </p>
+        </div>
+        <Link
+          href="/settings/financeiro/detalhamento"
+          className="inline-flex items-center gap-1.5 rounded-md border border-(--border-default) bg-(--bg-raised) px-3.5 py-2 body-sm font-medium text-(--fg-primary) transition-colors hover:border-(--border-strong) hover:bg-(--bg-hover)"
+        >
+          Ver detalhamento
+          <Icon name="arrow_forward" size={16} className="text-(--fg-tertiary)" />
+        </Link>
+      </div>
+
+      {/* Flat — três números soltos, separados por gap (sem card aninhado). */}
+      <div className="grid grid-cols-3 gap-x-8 gap-y-4">
+        <MiniStat label="Variável no ciclo" value={brl(used)} />
+        <MiniStat
+          label="Maior categoria"
+          value={topService?.label ?? "—"}
+          sub={topService ? brl(topService.total) : undefined}
+        />
+        <MiniStat label="Equivalente em USD" value={fmtUsdLabel(used)} />
+      </div>
     </section>
+  );
+}
+
+function MiniStat({
+  label,
+  value,
+  sub,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+}) {
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="aw-eyebrow text-(--fg-tertiary)">{label}</span>
+      <span className="body-lg font-medium tabular-nums text-(--fg-primary)">
+        {value}
+      </span>
+      {sub && (
+        <span className="body-xs tabular-nums text-(--fg-secondary)">{sub}</span>
+      )}
+    </div>
   );
 }

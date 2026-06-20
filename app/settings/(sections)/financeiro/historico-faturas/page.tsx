@@ -355,8 +355,16 @@ function InvoiceRow({
             {row.id} · {row.paymentMethod} · {dateLabel}
           </p>
         </div>
-        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
-          {brl(row.net)}
+        <span className="flex flex-col items-end">
+          <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+            {brl(row.net)}
+          </span>
+          {row.discount ? (
+            <span className="mt-0.5 body-xs tabular-nums text-(--accent-success)">
+              −{brl(row.discount)}
+              {row.discountCode ? ` · ${row.discountCode}` : ""}
+            </span>
+          ) : null}
         </span>
         <Icon
           name="chevron_right"
