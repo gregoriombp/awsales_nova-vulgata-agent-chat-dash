@@ -226,17 +226,27 @@ function UsedChart() {
             />
           }
         />
+        <defs>
+          <linearGradient id="grad-wc" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-wc)" stopOpacity={0.82} />
+            <stop offset="100%" stopColor="var(--color-wc)" stopOpacity={1} />
+          </linearGradient>
+          <linearGradient id="grad-meta" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-meta)" stopOpacity={0.82} />
+            <stop offset="100%" stopColor="var(--color-meta)" stopOpacity={1} />
+          </linearGradient>
+        </defs>
         <Bar
           dataKey="wc"
           stackId="u"
-          fill="var(--color-wc)"
+          fill="url(#grad-wc)"
           maxBarSize={34}
           isAnimationActive={false}
         />
         <Bar
           dataKey="meta"
           stackId="u"
-          fill="var(--color-meta)"
+          fill="url(#grad-meta)"
           maxBarSize={34}
           radius={[4, 4, 0, 0]}
           isAnimationActive={false}
@@ -276,9 +286,15 @@ function ChargedChart() {
             />
           }
         />
+        <defs>
+          <linearGradient id="grad-value" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--color-value)" stopOpacity={0.7} />
+            <stop offset="100%" stopColor="var(--color-value)" stopOpacity={1} />
+          </linearGradient>
+        </defs>
         <Bar
           dataKey="value"
-          fill="var(--color-value)"
+          fill="url(#grad-value)"
           maxBarSize={30}
           radius={[4, 4, 0, 0]}
           isAnimationActive={false}

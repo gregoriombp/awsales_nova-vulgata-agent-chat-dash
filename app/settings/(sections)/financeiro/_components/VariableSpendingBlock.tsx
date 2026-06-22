@@ -621,6 +621,31 @@ function DailySpendingChart({
         margin={{ left: 12, right: 12, top: 8 }}
         barCategoryGap={totalDays <= 12 ? "24%" : "14%"}
       >
+        {/* Degradê sutil por série — leve clareada no topo da barra, dá
+            profundidade sem criar bandas duras entre os segmentos da pilha. */}
+        <defs>
+          {visibleCategories.map((cat) => (
+            <linearGradient
+              key={cat.id}
+              id={`grad-${cat.id}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0%"
+                stopColor={`var(--color-${cat.id})`}
+                stopOpacity={0.82}
+              />
+              <stop
+                offset="100%"
+                stopColor={`var(--color-${cat.id})`}
+                stopOpacity={1}
+              />
+            </linearGradient>
+          ))}
+        </defs>
         <CartesianGrid vertical={false} />
         {/* Marcadores claros por data: cada rótulo dd/mm ganha um tick curto
             sobre uma linha-base discreta, ancorando o eixo no tempo. */}
@@ -680,7 +705,7 @@ function DailySpendingChart({
             key={cat.id}
             dataKey={cat.id}
             stackId="spend"
-            fill={`var(--color-${cat.id})`}
+            fill={`url(#grad-${cat.id})`}
             fillOpacity={hoveredKey && hoveredKey !== cat.id ? 0.2 : 1}
             onMouseEnter={() => setHoveredKey(cat.id)}
             onMouseLeave={() => setHoveredKey(null)}
