@@ -17,6 +17,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart";
+import { ExportMenu, type ExportFormat } from "../_components/ExportMenu";
 import { VariableSpendingBlock } from "../_components/VariableSpendingBlock";
 import {
   brl,
@@ -26,12 +27,43 @@ import {
   fmtUsdLabel,
   PERIOD_DIFF,
   PERIOD_DIFF_REASON,
+  SERVICE_BREAKDOWN,
   USED_BY_DAY,
   USED_META_TOTAL,
   USED_TOTAL,
   USED_WC_TOTAL,
+  usd,
   type DRELine,
 } from "../_components/data";
+
+// Export estilo Stripe: por dia (usado WC + Meta aproximado + atribuído ao
+// provedor) e o detalhamento por serviço com BRL/USD.
+function buildDetalhamentoCsv(format: ExportFormat): string {
+  if (format !== "csv") {
+    return "Detalhamento de custos — Aswork\n(prévia: o PDF definitivo é gerado no servidor)";
+  }
+  const lines: string[] = [];
+  lines.push("Consumo por dia (BRL)");
+  lines.push(
+    "Dia,Usado WhatsApp Cloud,Usado Meta (aprox.),Atribuído ao provedor",
+  );
+  USED_BY_DAY.forEach((d, i) => {
+    const charged = CHARGED_BY_DAY[i]?.value ?? 0;
+    lines.push(
+      `${d.label},${d.wc.toFixed(2)},${d.meta.toFixed(2)},${charged.toFixed(2)}`,
+    );
+  });
+  lines.push("");
+  lines.push("Detalhamento por serviço");
+  lines.push("Item,Categoria,Quantidade,Taxa efetiva,Total BRL,Total USD");
+  SERVICE_BREAKDOWN.forEach((r) => {
+    const q = r.quantity < 0 ? "" : String(r.quantity);
+    lines.push(
+      `"${r.label}","${r.category}",${q},"${r.unitPriceLabel}",${r.total.toFixed(2)},${usd(r.total).toFixed(2)}`,
+    );
+  });
+  return lines.join("\n");
+}
 
 /**
  * Detalhamento de custos (Analytics financeiro) — a carga pesada de auditoria
@@ -47,12 +79,25 @@ export default function DetalhamentoPage() {
       <UsadoCobradoSection />
 
       <section className="flex flex-col gap-5 border-t border-(--border-subtle) pt-8">
-        <div className="flex flex-col gap-1">
-          <h6 className="m-0 text-(--fg-primary)">Consumo por dia</h6>
-          <p className="m-0 max-w-[680px] body-xs text-(--fg-secondary)">
-            Gastos variáveis por serviço ou por agente, no período escolhido.
-            Valores em BRL com a conversão em dólar ao câmbio operacional.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h6 className="m-0 text-(--fg-primary)">Consumo por dia</h6>
+            <p className="m-0 max-w-[680px] body-xs text-(--fg-secondary)">
+              Gastos variáveis por serviço ou por agente, no período escolhido.
+              Valores em BRL com a conversão em dólar ao câmbio operacional.
+            </p>
+          </div>
+          <ExportMenu
+            filenameBase="detalhamento-custos-aswork"
+            buildContent={buildDetalhamentoCsv}
+            note={
+              <>
+                Inclui os valores cobrados pela Aswo (WhatsApp Cloud, IA, leads)
+                por dia. Os valores aproximados do Meta entram destacados — são
+                cobrados direto pela Meta.
+              </>
+            }
+          />
         </div>
         <VariableSpendingBlock />
       </section>
