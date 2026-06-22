@@ -93,50 +93,49 @@ export default function MetodosPagamentoPage() {
   }, [methods]);
 
   const canRemoveAny = methods.length > 1;
+  const defaultMethod = ordered[0];
+  const secondaryMethods = ordered.slice(1);
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h6 className="m-0 mb-1 text-(--fg-primary)">
-            Métodos de pagamento
-          </h6>
-          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Cartões e formas de cobrança aceitos por esta organização. As
-            cobranças tentam primeiro o método marcado como padrão.
-          </p>
-        </div>
-        <AwButton
-          size="md"
-          variant="primary"
-          iconLeft="add"
-          onClick={() => setAddOpen(true)}
-        >
-          Adicionar método
-        </AwButton>
+      <header>
+        <h6 className="m-0 mb-1 text-(--fg-primary)">Métodos de pagamento</h6>
+        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
+          Cartões e formas de cobrança aceitos por esta organização. As
+          cobranças tentam primeiro o método marcado como padrão.
+        </p>
       </header>
 
-      {methods.length === 0 ? (
+      {methods.length === 0 || !defaultMethod ? (
         <EmptyState onAdd={() => setAddOpen(true)} />
       ) : (
-        <ul className="m-0 flex flex-col border-y border-(--border-subtle) p-0">
-          {ordered.map((m, i) => (
-            <li
-              key={m.id}
-              className={
-                "m-0 list-none " +
-                (i > 0 ? "border-t border-(--border-subtle)" : "")
-              }
-            >
-              <MethodRow
-                method={m}
-                canRemove={canRemoveAny}
-                onSetDefault={() => setAsDefault(m.id)}
-                onRemoveRequest={() => setPendingRemoveId(m.id)}
-              />
-            </li>
-          ))}
-        </ul>
+        <div className="flex flex-col gap-6">
+          <DefaultCardHero
+            method={defaultMethod}
+            canRemove={canRemoveAny}
+            onSetDefault={() => setAsDefault(defaultMethod.id)}
+            onRemoveRequest={() => setPendingRemoveId(defaultMethod.id)}
+          />
+          <div className="flex flex-col gap-3">
+            {secondaryMethods.length > 0 && (
+              <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
+                Métodos alternativos
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+              {secondaryMethods.map((m) => (
+                <SecondaryCard
+                  key={m.id}
+                  method={m}
+                  canRemove={canRemoveAny}
+                  onSetDefault={() => setAsDefault(m.id)}
+                  onRemoveRequest={() => setPendingRemoveId(m.id)}
+                />
+              ))}
+              <AddCardTile onClick={() => setAddOpen(true)} />
+            </div>
+          </div>
+        </div>
       )}
 
       <BillingInfoSection />
@@ -157,88 +156,152 @@ export default function MetodosPagamentoPage() {
 }
 
 /* -----------------------------------------------------------------
- * Flat list row — brand logo + label + Padrão pill + expiry + menu
+ * Cartões — o padrão vira um "cartão" dark, em destaque; os demais
+ * são cards menores, e a opção de adicionar é um tile tracejado.
  * ----------------------------------------------------------------- */
 
-function MethodRow({
-  method,
-  canRemove,
-  onSetDefault,
-  onRemoveRequest,
-}: {
+type MethodCardProps = {
   method: PaymentMethod;
   canRemove: boolean;
   onSetDefault: () => void;
   onRemoveRequest: () => void;
-}) {
-  const expiringSoon = isExpiringSoon(method.expiresAt);
+};
+
+function CardActionsMenu({
+  method,
+  canRemove,
+  onSetDefault,
+  onRemoveRequest,
+  onDark = false,
+}: MethodCardProps & { onDark?: boolean }) {
+  return (
+    <AwDropdownMenu
+      align="end"
+      trigger={
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconOnly="more_horiz"
+          aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
+          className={onDark ? "text-(--fg-on-inverse)" : undefined}
+        />
+      }
+      items={[
+        {
+          id: `${method.id}-default`,
+          label: "Definir como padrão",
+          icon: "check_circle",
+          disabled: method.isDefault,
+          onSelect: onSetDefault,
+        },
+        { id: `${method.id}-sep`, separator: true },
+        {
+          id: `${method.id}-remove`,
+          label: "Remover método",
+          icon: "delete",
+          danger: true,
+          disabled: !canRemove,
+          onSelect: onRemoveRequest,
+        },
+      ]}
+    />
+  );
+}
+
+function DefaultCardHero(props: MethodCardProps) {
+  const { method } = props;
   const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
+  const expiringSoon = isExpiringSoon(method.expiresAt);
 
   return (
-    <div className="flex items-center gap-4 py-4">
-      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+    <div className="relative flex h-52 w-full max-w-md flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
+      {/* leve brilho de canto, sutil e por token */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-(--fg-on-inverse) opacity-10"
+      />
 
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
-            {method.brand} •••• {method.last4}
-          </p>
-          {method.isDefault && (
-            <AwPill variant="live" dot={false}>
-              Padrão
-            </AwPill>
-          )}
-          {expired ? (
-            <AwPill variant="error" dot={false}>
-              Expirado
-            </AwPill>
-          ) : expiringSoon ? (
-            <AwPill variant="warning" dot={false}>
-              Expira em breve
-            </AwPill>
-          ) : null}
-        </div>
-        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-          Expira em {method.expiresAt}
-        </p>
+      <div className="flex items-start justify-between gap-3">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-(--bg-raised) px-2.5 py-1 aw-eyebrow text-(--fg-primary)">
+          <Icon name="check_circle" size={13} />
+          Padrão
+        </span>
+        <CardActionsMenu {...props} onDark />
       </div>
 
-      <AwDropdownMenu
-        align="end"
-        trigger={
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconOnly="more_horiz"
-            aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
-          />
-        }
-        items={[
-          {
-            id: `${method.id}-default`,
-            label: "Definir como padrão",
-            icon: "check_circle",
-            disabled: method.isDefault,
-            onSelect: onSetDefault,
-          },
-          {
-            id: `${method.id}-edit`,
-            label: "Editar dados",
-            icon: "edit",
-            onSelect: () => {},
-          },
-          { id: `${method.id}-sep`, separator: true },
-          {
-            id: `${method.id}-remove`,
-            label: "Remover método",
-            icon: "delete",
-            danger: true,
-            disabled: !canRemove,
-            onSelect: onRemoveRequest,
-          },
-        ]}
-      />
+      <div className="relative flex flex-col gap-4">
+        <span className="text-2xl tabular-nums tracking-widest text-(--fg-on-inverse)">
+          •••• •••• •••• {method.last4}
+        </span>
+        <div className="flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
+              Titular
+            </span>
+            <span className="block truncate body-sm font-medium text-(--fg-on-inverse)">
+              {BILLING_PROFILE.legalName}
+            </span>
+          </div>
+          <div className="shrink-0 text-right">
+            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
+              {expired ? "Expirado" : expiringSoon ? "Expira em breve" : "Validade"}
+            </span>
+            <span
+              className={
+                "block body-sm tabular-nums " +
+                (expired
+                  ? "text-(--aw-red-300)"
+                  : expiringSoon
+                    ? "text-(--aw-amber-300)"
+                    : "text-(--fg-on-inverse)")
+              }
+            >
+              {method.expiresAt}
+            </span>
+          </div>
+          <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+        </div>
+      </div>
     </div>
+  );
+}
+
+function SecondaryCard(props: MethodCardProps) {
+  const { method } = props;
+  const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
+  const expiringSoon = isExpiringSoon(method.expiresAt);
+
+  return (
+    <div className="flex items-center gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4">
+      <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+      <div className="min-w-0 flex-1">
+        <p className="m-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+          {method.brand} •••• {method.last4}
+        </p>
+        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+          Expira em {method.expiresAt}
+          {expired ? (
+            <span className="text-(--accent-danger)"> · expirado</span>
+          ) : expiringSoon ? (
+            <span className="text-(--accent-warning)"> · em breve</span>
+          ) : null}
+        </p>
+      </div>
+      <CardActionsMenu {...props} />
+    </div>
+  );
+}
+
+function AddCardTile({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-(--border-default) p-4 text-(--fg-tertiary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+    >
+      <Icon name="add" size={22} />
+      <span className="body-xs font-medium">Adicionar cartão</span>
+    </button>
   );
 }
 
