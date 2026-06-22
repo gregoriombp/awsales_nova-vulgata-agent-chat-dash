@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwProgress } from "@/components/ui/AwProgress";
@@ -15,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { AddBalanceModal } from "../_components/AddBalanceModal";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import { MoneyHeading } from "../_components/MoneyHeading";
 import {
@@ -399,6 +401,8 @@ function VouchersBlock({
   onOpenVoucher: (id: string) => void;
 }) {
   const [showHistory, setShowHistory] = React.useState(false);
+  const [addBalanceOpen, setAddBalanceOpen] = React.useState(false);
+  const [addVoucherOpen, setAddVoucherOpen] = React.useState(false);
   const current = vouchers.filter(
     (v) =>
       v.status === "Ativo" ||
@@ -422,10 +426,20 @@ function VouchersBlock({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <AwButton size="sm" variant="ghost" iconLeft="account_balance_wallet">
+          <AwButton
+            size="sm"
+            variant="ghost"
+            iconLeft="account_balance_wallet"
+            onClick={() => setAddBalanceOpen(true)}
+          >
             Adicionar saldo
           </AwButton>
-          <AwButton size="sm" variant="secondary" iconLeft="redeem">
+          <AwButton
+            size="sm"
+            variant="secondary"
+            iconLeft="redeem"
+            onClick={() => setAddVoucherOpen(true)}
+          >
             Adicionar voucher
           </AwButton>
         </div>
@@ -470,6 +484,16 @@ function VouchersBlock({
           )}
         </div>
       )}
+
+      <AddBalanceModal
+        open={addBalanceOpen}
+        onClose={() => setAddBalanceOpen(false)}
+      />
+      <AwContactChannelModal
+        open={addVoucherOpen}
+        onClose={() => setAddVoucherOpen(false)}
+        managerName={ONBOARDING_ORG.accountManager.name}
+      />
     </section>
   );
 }
