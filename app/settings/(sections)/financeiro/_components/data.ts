@@ -602,15 +602,15 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
 
 // ---- Detalhamento: Usado × Cobrado ----
 //
-// "Usado no período" = o que o cliente consumiu (taxas da Aswo/WC + valor
+// "Usado no período" = o que o cliente consumiu (taxas da Aswork/WC + valor
 // aproximado do Meta, cobrado direto pela Meta). "Valor atribuído ao provedor
 // de pagamento no período" (antigo "cobrado") = o que entrou na fatura via
-// Stripe/AWS — só a parte da Aswo, sujeita a atrasos de processamento. A
+// Stripe/AWS — só a parte da Aswork, sujeita a atrasos de processamento. A
 // diferença é normal: nada se perde e nada é cobrado duas vezes.
 
 export const DETALHAMENTO_DAYS = 15; // 01–15/05 (ciclo atual, até hoje)
 
-// Total usado pela Aswo (WhatsApp Cloud + IA + leads + operacional).
+// Total usado pela Aswork (WhatsApp Cloud + IA + leads + operacional).
 export const USED_WC_TOTAL = 712.1;
 // Valor aproximado dos disparos/conversas cobrados DIRETO pela Meta.
 export const USED_META_TOTAL = 179.53;
@@ -643,7 +643,7 @@ function ddmmFromIndex(index: number): string {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
 }
 
-/** Usado por dia, separado em taxas da Aswo (WC) e valor aproximado do Meta. */
+/** Usado por dia, separado em taxas da Aswork (WC) e valor aproximado do Meta. */
 export const USED_BY_DAY: UsedDay[] = (() => {
   const wc = spreadDaily(USED_WC_TOTAL, DETALHAMENTO_DAYS, 5);
   const meta = spreadDaily(USED_META_TOTAL, DETALHAMENTO_DAYS, 9);
@@ -682,7 +682,7 @@ export const DRE_SUMMARY: DRELine[] = [
     value: -250.61,
     kind: "subtract",
     tooltip:
-      "Vouchers e cupons aplicados no período. Incidem só sobre valores cobrados pela Aswo — não abatem os valores aproximados do Meta.",
+      "Vouchers e cupons aplicados no período. Incidem só sobre valores cobrados pela Aswork — não abatem os valores aproximados do Meta.",
   },
   {
     id: "ajustes",

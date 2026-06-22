@@ -92,7 +92,7 @@ export default function DetalhamentoPage() {
             buildContent={buildDetalhamentoCsv}
             note={
               <>
-                Inclui os valores cobrados pela Aswo (WhatsApp Cloud, IA, leads)
+                Inclui os valores cobrados pela Aswork (WhatsApp Cloud, IA, leads)
                 por dia. Os valores aproximados do Meta entram destacados — são
                 cobrados direto pela Meta.
               </>
@@ -149,7 +149,7 @@ function UsadoCobradoSection() {
         </p>
       </AwAlert>
 
-      {/* Protagonista: usado no período, dividido em taxas da Aswo e Meta. */}
+      {/* Protagonista: usado no período, dividido em taxas da Aswork e Meta. */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-center gap-2">
@@ -188,7 +188,7 @@ function UsadoCobradoSection() {
 }
 
 const USED_CONFIG: ChartConfig = {
-  wc: { label: "Taxas Aswo · WhatsApp Cloud", color: "var(--aw-blue-500)" },
+  wc: { label: "Taxas Aswork · WhatsApp Cloud", color: "var(--aw-blue-500)" },
   meta: { label: "Meta · aproximado", color: "var(--aw-purple-400)" },
 };
 
@@ -307,7 +307,7 @@ function ChargedChart() {
 function UsedLegend() {
   return (
     <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <LegendDot color="var(--aw-blue-500)" label="Taxas Aswo · WhatsApp Cloud" />
+      <LegendDot color="var(--aw-blue-500)" label="Taxas Aswork · WhatsApp Cloud" />
       <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
         <span
           aria-hidden="true"
@@ -354,7 +354,7 @@ function MetaInfoTooltip() {
           Os valores do Meta ({brl(USED_META_TOTAL)} no período) são{" "}
           <strong className="font-medium text-(--fg-primary)">aproximados</strong>{" "}
           e cobrados diretamente pela Meta no cartão que você cadastrou lá — não
-          passam pela Aswo.
+          passam pela Aswork.
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
@@ -379,7 +379,7 @@ function UsedInfoTooltip() {
           className="max-w-[280px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
         >
           Tudo que você consumiu no período: {brl(USED_WC_TOTAL)} em taxas da
-          Aswo (WhatsApp Cloud, IA, leads) + {brl(USED_META_TOTAL)} aproximados
+          Aswork (WhatsApp Cloud, IA, leads) + {brl(USED_META_TOTAL)} aproximados
           do Meta.
         </TooltipContent>
       </Tooltip>

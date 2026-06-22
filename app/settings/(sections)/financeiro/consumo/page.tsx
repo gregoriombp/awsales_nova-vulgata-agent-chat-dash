@@ -191,7 +191,7 @@ function ConsumptionHero({
         />
         <div className="flex items-center justify-between gap-3 body-xs tabular-nums">
           <span className="text-(--fg-secondary)">
-            {pct}% do limite utilizado
+            {pct}% do limite usado
           </span>
           <span
             className={
