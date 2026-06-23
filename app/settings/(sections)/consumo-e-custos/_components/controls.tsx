@@ -48,12 +48,27 @@ export function SegmentedToggle<T extends string>({
   onChange: (v: T) => void;
   ariaLabel: string;
 }) {
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((opt) => opt.value === value),
+  );
+
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className="inline-flex items-center gap-1 rounded-md border border-(--border-subtle) bg-(--bg-muted) p-1"
+      className="relative inline-grid h-8 items-center rounded-md border border-(--border-subtle) bg-(--bg-muted) p-0.5"
+      style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
     >
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute bottom-0.5 top-0.5 rounded-sm bg-(--bg-raised) shadow-(--shadow-xs) transition-transform duration-aw-base ease-aw-out motion-reduce:transition-none"
+        style={{
+          left: "2px",
+          width: `calc((100% - 4px) / ${options.length})`,
+          transform: `translateX(${activeIndex * 100}%)`,
+        }}
+      />
       {options.map((opt) => {
         const active = opt.value === value;
         return (
@@ -66,9 +81,9 @@ export function SegmentedToggle<T extends string>({
             title={opt.icon ? opt.label : undefined}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-sm px-2.5 py-1 body-xs font-medium transition-colors duration-aw-fast",
+              "relative z-10 inline-flex h-7 items-center justify-center gap-1.5 rounded-sm px-2.5 body-xs font-medium transition-colors duration-aw-fast",
               active
-                ? "bg-(--bg-raised) text-(--fg-primary) shadow-(--shadow-xs)"
+                ? "text-(--fg-primary)"
                 : "text-(--fg-secondary) hover:text-(--fg-primary)",
             )}
           >
@@ -99,7 +114,7 @@ export function SpendingFilterMenu() {
       align="end"
       aria-label="Filtrar itens"
       trigger={
-        <AwSelect>
+        <AwSelect style={{ height: "var(--space-8)" }}>
           <span className="inline-flex items-center gap-1.5">
             <Icon
               name="filter_list"
@@ -167,7 +182,7 @@ export function PeriodPicker() {
         <button
           type="button"
           aria-label="Selecionar período"
-          className="inline-flex items-center gap-1.5 rounded-sm border border-(--border-subtle) bg-(--bg-raised) px-3 py-1.5 body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
         >
           <Icon name="calendar_month" size={14} className="text-(--fg-tertiary)" />
           {triggerLabel}

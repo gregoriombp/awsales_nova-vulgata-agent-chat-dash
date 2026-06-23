@@ -123,6 +123,7 @@ function BoardItem({ widget }: { widget: BoardWidget }) {
 
   return (
     <Reorder.Item
+      as="div"
       value={widget.id}
       dragListener={false}
       dragControls={controls}

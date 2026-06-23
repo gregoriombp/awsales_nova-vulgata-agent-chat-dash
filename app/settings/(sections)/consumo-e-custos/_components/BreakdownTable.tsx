@@ -239,8 +239,12 @@ function ServiceTable() {
                 </td>
                 <td className="tabular-nums text-(--fg-secondary)">{qtyLabel}</td>
                 <td className="tabular-nums text-(--fg-secondary)">{unitLabel}</td>
-                <td className="text-right font-medium tabular-nums text-(--fg-primary)">{brl(g.groupTotal)}</td>
-                <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(g.groupTotal)}</td>
+                <td className="align-middle text-right font-medium tabular-nums text-(--fg-primary)">
+                  {brl(g.groupTotal)}
+                </td>
+                <td className="align-middle text-right tabular-nums text-(--fg-tertiary)">
+                  {fmtUsd(g.groupTotal)}
+                </td>
               </tr>
               {expandable &&
                 g.members.map((sub, idx) => {
@@ -286,8 +290,8 @@ function ServiceTable() {
               câmbio operacional R$ {OPERATIONAL_FX.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · taxonomia canon (W2C)
             </span>
           </td>
-          <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
-            <span className="inline-flex items-center justify-end gap-1.5">
+          <td className="align-middle text-right font-semibold tabular-nums text-(--fg-primary)">
+            <span className="flex flex-col items-end justify-center gap-1 leading-none">
               {brl(total)}
               {matchesCard && (
                 <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
@@ -297,7 +301,9 @@ function ServiceTable() {
               )}
             </span>
           </td>
-          <td className="text-right font-semibold tabular-nums text-(--fg-secondary)">{fmtUsd(total)}</td>
+          <td className="align-middle text-right font-semibold tabular-nums text-(--fg-secondary)">
+            {fmtUsd(total)}
+          </td>
         </tr>
       </tfoot>
     </AwTable>
@@ -448,8 +454,12 @@ function AgentTable() {
               <td>
                 <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
               </td>
-              <td className="text-right font-medium tabular-nums text-(--fg-primary)">{brl(r.total)}</td>
-              <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(r.total)}</td>
+              <td className="align-middle text-right font-medium tabular-nums text-(--fg-primary)">
+                {brl(r.total)}
+              </td>
+              <td className="align-middle text-right tabular-nums text-(--fg-tertiary)">
+                {fmtUsd(r.total)}
+              </td>
               <td className="text-right">
                 <button
                   type="button"
@@ -466,8 +476,8 @@ function AgentTable() {
         <tfoot>
           <tr>
             <td colSpan={3} className="text-right text-(--fg-secondary)">Total por agente</td>
-            <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
-              <span className="inline-flex items-center justify-end gap-1.5">
+            <td className="align-middle text-right font-semibold tabular-nums text-(--fg-primary)">
+              <span className="flex flex-col items-end justify-center gap-1 leading-none">
                 {brl(total)}
                 {matchesCard && (
                   <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
@@ -477,7 +487,9 @@ function AgentTable() {
                 )}
               </span>
             </td>
-            <td className="text-right font-semibold tabular-nums text-(--fg-secondary)">{fmtUsd(total)}</td>
+            <td className="align-middle text-right font-semibold tabular-nums text-(--fg-secondary)">
+              {fmtUsd(total)}
+            </td>
             <td />
           </tr>
         </tfoot>

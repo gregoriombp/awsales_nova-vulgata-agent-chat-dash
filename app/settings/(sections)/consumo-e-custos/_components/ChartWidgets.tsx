@@ -84,6 +84,12 @@ function buildConfig(categories: SpendingCategory[]): ChartConfig {
   );
 }
 
+const CHART_ANIMATION_DURATION = 360;
+
+function seriesOpacity(activeSeries: string | null, id: string): number {
+  return activeSeries && activeSeries !== id ? 0.28 : 1;
+}
+
 /* ============================ Consumo por dia ============================ */
 
 type ConsumoViz = "bar" | "area" | "line";
@@ -96,6 +102,7 @@ export function ConsumoChartWidget({
   const { chartModel, chartIds, chartPeriod, grouping, accumulated } =
     useConsumo();
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
+  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   const categories = React.useMemo(
     () => chartModel.categories.filter((c) => chartIds.has(c.id)),
@@ -117,9 +124,6 @@ export function ConsumoChartWidget({
       }),
     [chartModel, chartPeriod, totalDays],
   );
-
-  const tickInterval =
-    totalDays <= 8 ? 0 : Math.max(0, Math.floor(totalDays / 6) - 1);
 
   const tooltip = (
     <ChartTooltip
@@ -175,28 +179,11 @@ export function ConsumoChartWidget({
         tickLine={{ stroke: "var(--border-default)" }}
         axisLine={{ stroke: "var(--border-subtle)" }}
         tickMargin={8}
-        interval={tickInterval}
-        minTickGap={16}
+        interval={0}
+        minTickGap={8}
+        height={34}
       />
     </>
-  );
-
-  const defs = (
-    <defs>
-      {categories.map((cat) => (
-        <linearGradient
-          key={cat.id}
-          id={`cgrad-${cat.id}`}
-          x1="0"
-          y1="0"
-          x2="0"
-          y2="1"
-        >
-          <stop offset="0%" stopColor={`var(--color-${cat.id})`} stopOpacity={0.82} />
-          <stop offset="100%" stopColor={`var(--color-${cat.id})`} stopOpacity={1} />
-        </linearGradient>
-      ))}
-    </defs>
   );
 
   return (
@@ -219,12 +206,12 @@ export function ConsumoChartWidget({
     >
       <ChartLegend categories={categories} grouping={grouping} othersLabels={chartModel.othersLabels} />
       <ChartContainer
+        key={viz}
         config={config}
-        className="mt-3 aspect-auto h-[300px] w-full"
+        className="mt-3 aspect-auto h-[300px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         {viz === "bar" ? (
           <BarChart data={chartData} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap={totalDays <= 12 ? "24%" : "14%"}>
-            {defs}
             {axes}
             {tooltip}
             {categories.map((cat, i) => (
@@ -232,16 +219,19 @@ export function ConsumoChartWidget({
                 key={cat.id}
                 dataKey={cat.id}
                 stackId="spend"
-                fill={`url(#cgrad-${cat.id})`}
+                fill={`var(--color-${cat.id})`}
+                opacity={seriesOpacity(activeSeries, cat.id)}
                 maxBarSize={36}
                 radius={i === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
-                isAnimationActive={false}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_DURATION}
+                onMouseEnter={() => setActiveSeries(cat.id)}
+                onMouseLeave={() => setActiveSeries(null)}
               />
             ))}
           </BarChart>
         ) : viz === "area" ? (
           <AreaChart data={chartData} margin={{ left: 12, right: 12, top: 8 }}>
-            {defs}
             {axes}
             {tooltip}
             {categories.map((cat) => (
@@ -251,10 +241,14 @@ export function ConsumoChartWidget({
                 stackId="spend"
                 type="monotone"
                 stroke={`var(--color-${cat.id})`}
+                strokeOpacity={seriesOpacity(activeSeries, cat.id)}
                 strokeWidth={1.5}
-                fill={`url(#cgrad-${cat.id})`}
-                fillOpacity={0.45}
-                isAnimationActive={false}
+                fill={`var(--color-${cat.id})`}
+                fillOpacity={activeSeries && activeSeries !== cat.id ? 0.14 : 0.42}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_DURATION}
+                onMouseEnter={() => setActiveSeries(cat.id)}
+                onMouseLeave={() => setActiveSeries(null)}
               />
             ))}
           </AreaChart>
@@ -268,10 +262,14 @@ export function ConsumoChartWidget({
                 dataKey={cat.id}
                 type="monotone"
                 stroke={`var(--color-${cat.id})`}
+                strokeOpacity={seriesOpacity(activeSeries, cat.id)}
                 strokeWidth={2}
                 dot={false}
                 activeDot={{ r: 4 }}
-                isAnimationActive={false}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_DURATION}
+                onMouseEnter={() => setActiveSeries(cat.id)}
+                onMouseLeave={() => setActiveSeries(null)}
               />
             ))}
           </LineChart>
@@ -292,6 +290,7 @@ export function ComposicaoWidget({
 }) {
   const { seriesTotals, grouping, accumulated } = useConsumo();
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
+  const [activeSlice, setActiveSlice] = React.useState<string | null>(null);
 
   const data = React.useMemo(
     () =>
@@ -333,8 +332,9 @@ export function ComposicaoWidget({
       ) : viz === "donut" ? (
         <div className="flex flex-col items-center gap-4 sm:flex-row">
           <ChartContainer
+            key={viz}
             config={config}
-            className="aspect-square h-[200px] w-[200px] shrink-0"
+            className="aspect-square h-[200px] w-[200px] shrink-0 animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
           >
             <PieChart>
               <ChartTooltip
@@ -361,10 +361,17 @@ export function ComposicaoWidget({
                 outerRadius={86}
                 paddingAngle={1.5}
                 strokeWidth={0}
-                isAnimationActive={false}
+                isAnimationActive
+                animationDuration={CHART_ANIMATION_DURATION}
               >
                 {data.map((d) => (
-                  <Cell key={d.id} fill={d.fill} />
+                  <Cell
+                    key={d.id}
+                    fill={d.fill}
+                    opacity={seriesOpacity(activeSlice, d.id)}
+                    onMouseEnter={() => setActiveSlice(d.id)}
+                    onMouseLeave={() => setActiveSlice(null)}
+                  />
                 ))}
               </Pie>
             </PieChart>
@@ -427,13 +434,20 @@ function ShareBars({
   total: number;
   grouping: SpendingGrouping;
 }) {
+  const [activeId, setActiveId] = React.useState<string | null>(null);
   const max = totals.reduce((m, s) => Math.max(m, s.total), 0) || 1;
   return (
     <ul className="m-0 flex list-none flex-col gap-3 p-0">
       {totals.map((s) => {
         const pct = total > 0 ? (s.total / total) * 100 : 0;
         return (
-          <li key={s.cat.id} className="flex flex-col gap-1">
+          <li
+            key={s.cat.id}
+            onMouseEnter={() => setActiveId(s.cat.id)}
+            onMouseLeave={() => setActiveId(null)}
+            className="flex flex-col gap-1 transition-opacity duration-aw-fast"
+            style={{ opacity: seriesOpacity(activeId, s.cat.id) }}
+          >
             <div className="flex items-center justify-between gap-3 body-xs">
               <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
                 {grouping === "agent" && s.cat.avatar ? (
@@ -475,6 +489,7 @@ export function UsadoCobradoWidget({
   dragHandle?: React.ReactNode;
 }) {
   const [viz, setViz] = React.useState<ReconViz>("bar");
+  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   const data = React.useMemo(
     () =>
@@ -497,9 +512,9 @@ export function UsadoCobradoWidget({
 
   return (
     <WidgetShell
-      title="Usado × cobrado"
+      title={<ReconciliationTitle />}
       icon="sync_alt"
-      description={`Usado ${brl(USED_WC_TOTAL + USED_META_TOTAL)} · cobrado ${brl(CHARGED_TOTAL)}`}
+      description={`Uso estimado ${brl(USED_WC_TOTAL + USED_META_TOTAL)} · na fatura ${brl(CHARGED_TOTAL)}`}
       dragHandle={dragHandle}
       actions={
         <VizToggle
@@ -514,10 +529,14 @@ export function UsadoCobradoWidget({
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
         <LegendDot color="var(--aw-blue-500)" label="Taxas Aswork" />
-        <LegendDot color="var(--aw-purple-400)" label="Meta · aprox." />
-        <LegendDot color="var(--aw-amber-500)" label="Atribuído ao provedor" />
+        <LegendDot color="var(--aw-purple-400)" label="Meta aproximado" />
+        <LegendDot color="var(--aw-amber-500)" label="Valor na fatura" />
       </div>
-      <ChartContainer config={config} className="aspect-auto h-[240px] w-full">
+      <ChartContainer
+        key={viz}
+        config={config}
+        className="aspect-auto h-[240px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+      >
         {viz === "bar" ? (
           <ComposedChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
             <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -526,22 +545,48 @@ export function UsadoCobradoWidget({
               tickLine={{ stroke: "var(--border-default)" }}
               axisLine={{ stroke: "var(--border-subtle)" }}
               tickMargin={8}
-              minTickGap={16}
+              minTickGap={8}
+              height={34}
             />
             <ChartTooltip
               cursor={{ fill: "var(--bg-hover)" }}
               content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
             />
-            <Bar dataKey="wc" stackId="u" fill="var(--aw-blue-500)" maxBarSize={30} isAnimationActive={false} />
-            <Bar dataKey="meta" stackId="u" fill="var(--aw-purple-400)" maxBarSize={30} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+            <Bar
+              dataKey="wc"
+              stackId="u"
+              fill="var(--aw-blue-500)"
+              opacity={seriesOpacity(activeSeries, "wc")}
+              maxBarSize={30}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("wc")}
+              onMouseLeave={() => setActiveSeries(null)}
+            />
+            <Bar
+              dataKey="meta"
+              stackId="u"
+              fill="var(--aw-purple-400)"
+              opacity={seriesOpacity(activeSeries, "meta")}
+              maxBarSize={30}
+              radius={[3, 3, 0, 0]}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("meta")}
+              onMouseLeave={() => setActiveSeries(null)}
+            />
             <Line
               dataKey="charged"
               type="monotone"
               stroke="var(--aw-amber-500)"
+              strokeOpacity={seriesOpacity(activeSeries, "charged")}
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 4 }}
-              isAnimationActive={false}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("charged")}
+              onMouseLeave={() => setActiveSeries(null)}
             />
           </ComposedChart>
         ) : (
@@ -552,14 +597,39 @@ export function UsadoCobradoWidget({
               tickLine={{ stroke: "var(--border-default)" }}
               axisLine={{ stroke: "var(--border-subtle)" }}
               tickMargin={8}
-              minTickGap={16}
+              minTickGap={8}
+              height={34}
             />
             <ChartTooltip
               cursor={{ stroke: "var(--border-default)" }}
               content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
             />
-            <Line dataKey="used" type="monotone" stroke="var(--aw-blue-500)" strokeWidth={2} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />
-            <Line dataKey="charged" type="monotone" stroke="var(--aw-amber-500)" strokeWidth={2} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />
+            <Line
+              dataKey="used"
+              type="monotone"
+              stroke="var(--aw-blue-500)"
+              strokeOpacity={seriesOpacity(activeSeries, "used")}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4 }}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("used")}
+              onMouseLeave={() => setActiveSeries(null)}
+            />
+            <Line
+              dataKey="charged"
+              type="monotone"
+              stroke="var(--aw-amber-500)"
+              strokeOpacity={seriesOpacity(activeSeries, "charged")}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4 }}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("charged")}
+              onMouseLeave={() => setActiveSeries(null)}
+            />
           </LineChart>
         )}
       </ChartContainer>
@@ -597,6 +667,30 @@ function LegendDot({ color, label }: { color: string; label: string }) {
         style={{ background: color }}
       />
       {label}
+    </span>
+  );
+}
+
+function ReconciliationTitle() {
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1.5">
+      <span className="truncate">Uso do período × valor na fatura</span>
+      <TooltipProvider delayDuration={120}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="inline-flex cursor-help text-(--fg-tertiary)">
+              <Icon name="info" size={13} />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            className="max-w-64 border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+          >
+            Uso do período soma taxas Aswork e Meta aproximado. Valor na fatura
+            mostra o que foi atribuído ao provedor de pagamento no ciclo.
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </span>
   );
 }

@@ -202,7 +202,12 @@ export function ExportCsvMenu() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <AwButton variant="secondary" size="sm" iconLeft="download">
+        <AwButton
+          variant="secondary"
+          size="sm"
+          iconLeft="download"
+          style={{ height: "var(--space-8)" }}
+        >
           Exportar
           <Icon name="expand_more" size={15} className="ml-0.5" />
         </AwButton>
