@@ -154,6 +154,14 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           auditoria: "Atividade",
         },
       },
+      // Seção própria com o detalhamento de auditoria financeira (mesmo conteúdo
+      // do atalho "Ver detalhamento" da Visão geral). Fica fora do prefixo
+      // /settings/financeiro de propósito — não acende junto com o Financeiro.
+      {
+        href: "/settings/consumo-e-custos",
+        label: "Consumo e custos",
+        icon: "monitoring",
+      },
       { href: "/settings/zona-de-perigo", label: "Zona de perigo", icon: "warning" },
     ],
   },
