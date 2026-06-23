@@ -84,20 +84,6 @@ function buildConfig(categories: SpendingCategory[]): ChartConfig {
   );
 }
 
-// Teste de paleta — rampa monocromática "Slate" aplicada SÓ ao widget "Consumo
-// por dia". Tons distribuídos por índice e intercalados (escuro/médio/claro)
-// pra manter contraste entre os segmentos empilhados, já que a pilha não tem
-// gaps. Os demais gráficos da página seguem com a paleta colorida das
-// categorias (SPENDING_CATEGORIES) — nada hardcoded, só tokens do Slate.
-const SLATE_RAMP = [
-  "var(--aw-slate-900)",
-  "var(--aw-slate-500)",
-  "var(--aw-slate-700)",
-  "var(--aw-slate-300)",
-  "var(--aw-slate-600)",
-  "var(--aw-slate-400)",
-] as const;
-
 const CHART_ANIMATION_DURATION = 360;
 
 function seriesOpacity(activeSeries: string | null, id: string): number {
@@ -122,20 +108,7 @@ export function ConsumoChartWidget({
     () => chartModel.categories.filter((c) => chartIds.has(c.id)),
     [chartModel, chartIds],
   );
-  // Recolore só este widget com a rampa Slate (monocromática) — bars, tooltip
-  // e legenda passam a ler estes tons no lugar dos colorVar das categorias.
-  const slateCategories = React.useMemo(
-    () =>
-      categories.map((c, i) => ({
-        ...c,
-        colorVar: SLATE_RAMP[i % SLATE_RAMP.length],
-      })),
-    [categories],
-  );
-  const config = React.useMemo(
-    () => buildConfig(slateCategories),
-    [slateCategories],
-  );
+  const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
 
   const chartData = React.useMemo(
@@ -176,7 +149,7 @@ export function ConsumoChartWidget({
             );
           }}
           formatter={(value, name) => {
-            const cat = slateCategories.find((c) => c.id === name);
+            const cat = categories.find((c) => c.id === name);
             return (
               <div className="flex w-full items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
@@ -231,7 +204,7 @@ export function ConsumoChartWidget({
         />
       }
     >
-      <ChartLegend categories={slateCategories} grouping={grouping} othersLabels={chartModel.othersLabels} />
+      <ChartLegend categories={categories} grouping={grouping} othersLabels={chartModel.othersLabels} />
       <ChartContainer
         key={viz}
         config={config}
