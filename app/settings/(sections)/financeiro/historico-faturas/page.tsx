@@ -278,15 +278,33 @@ export default function HistoricoFaturasPage() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
-            {exportFormat && <AwFileIcon type={exportFormat} size="md" />}
-            <div className="flex flex-col gap-0.5">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                Exportar em {exportFormat?.toUpperCase()}
-              </p>
-              <p className="m-0 body-xs text-(--fg-secondary)">
-                Geramos o histórico completo e enviamos para o seu e-mail.
-              </p>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              {exportFormat && <AwFileIcon type={exportFormat} size="md" />}
+              <div className="flex flex-col gap-0.5">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  Exportar em {exportFormat?.toUpperCase()}
+                </p>
+                <p className="m-0 body-xs text-(--fg-secondary)">
+                  Geramos o histórico completo e enviamos para o seu e-mail.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
+                <Icon name="shield_lock" size={16} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-xs font-medium text-(--fg-primary)">
+                  Este arquivo contém dados pessoais
+                </p>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                  As faturas trazem dados de faturamento e pagamento. Ao
+                  exportar, você assume a responsabilidade pelo tratamento —
+                  LGPD e a política da sua organização valem aqui.
+                </p>
+              </div>
             </div>
           </div>
         )}
