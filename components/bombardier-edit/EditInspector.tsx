@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
+import { AwAlert } from "@/components/ui/AwAlert"
 import {
   captureEditAnchor,
   findEditableTextLeaf,
@@ -75,6 +76,7 @@ export function EditInspector({
         currentIcon: "",
         comp: null as ReturnType<typeof detectComponent>,
         rootAnchor: null as PageEditAnchor | null,
+        isComponentRoot: false,
       }
     }
     const isIcon = el.classList.contains("material-symbols-rounded")
@@ -86,6 +88,9 @@ export function EditInspector({
       currentIcon: isIcon ? (el.textContent ?? "").trim() : "",
       comp,
       rootAnchor: comp ? captureEditAnchor(comp.rootEl) : null,
+      // The selected element IS the component's root → a direct style override
+      // here fights the variant system (off-spec). Inner content isn't flagged.
+      isComponentRoot: !!comp && comp.rootEl === el,
     }
     // anchor identity drives re-resolution; ops drive the active highlights.
   }, [anchor])
@@ -118,30 +123,64 @@ export function EditInspector({
     return map
   }, [ops, info])
 
+  // Divergence: a direct style override on a component ROOT fights its variants.
+  const offSpecActive =
+    info.isComponentRoot && Object.keys(activeStyle).length > 0
+
   return (
     <aside
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "inspector" }}
       className="fixed right-4 top-4 bottom-4 flex w-[320px] flex-col overflow-hidden rounded-(--radius-xl) border border-(--border-subtle) bg-(--bg-raised) shadow-lg"
       style={{ zIndex: EDIT_Z.inspector }}
     >
-      <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="flex h-6 w-6 items-center justify-center rounded-(--radius-sm) bg-(--bg-inverse) text-(--fg-on-inverse)">
-            <Icon name={info.isIcon ? "category" : "edit"} size={14} />
+      <header className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--bg-inverse) text-(--fg-on-inverse)">
+            <Icon
+              name={info.isIcon ? "category" : info.comp ? "widgets" : "edit"}
+              size={15}
+              fill={1}
+            />
+            {offSpecActive && (
+              <span
+                aria-hidden
+                className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-(--accent-warning) ring-2 ring-(--bg-raised)"
+              />
+            )}
           </span>
-          <span className="truncate body-sm font-semibold text-(--fg-primary)">
-            {info.label}
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate body-sm font-semibold text-(--fg-primary)">
+              {info.label}
+            </span>
+            <span className="truncate text-2xs text-(--fg-tertiary)">
+              {info.comp ? "Componente" : info.isIcon ? "Ícone" : "Elemento"}
+            </span>
           </span>
         </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar inspetor"
-          className="flex h-7 w-7 items-center justify-center rounded-full text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
         >
           <Icon name="close" size={16} />
         </button>
       </header>
+
+      {offSpecActive && (
+        <div className="border-b border-(--border-subtle) px-4 py-3">
+          <AwAlert variant="warning">
+            <span className="body-xs text-(--fg-secondary)">
+              Você está estilizando direto o{" "}
+              <strong className="font-semibold text-(--fg-primary)">
+                {info.label}
+              </strong>{" "}
+              — isso foge da variante do componente e vai destoar do padrão.
+              Quando der, prefira uma variante.
+            </span>
+          </AwAlert>
+        </div>
+      )}
 
       <div className="flex flex-1 flex-col overflow-y-auto">
         {/* Conteúdo / texto */}
@@ -180,9 +219,28 @@ export function EditInspector({
           </Section>
         )}
 
-        {/* Estilo (tokens) */}
-        <Section title="Estilo · tokens" icon="palette">
+        {/* Estilo (tokens) — Cor / Forma / Espaçamento, cada um flat na sua seção */}
+        <Section title="Cor" icon="palette">
           <StyleSection
+            only={["color"]}
+            activeStyle={activeStyle}
+            onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
+            onClear={(prop) => onClearStyle(anchor, prop)}
+          />
+        </Section>
+
+        <Section title="Forma" icon="rounded_corner">
+          <StyleSection
+            only={["radius", "shadow"]}
+            activeStyle={activeStyle}
+            onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
+            onClear={(prop) => onClearStyle(anchor, prop)}
+          />
+        </Section>
+
+        <Section title="Espaçamento" icon="padding">
+          <StyleSection
+            only={["spacing"]}
             activeStyle={activeStyle}
             onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
             onClear={(prop) => onClearStyle(anchor, prop)}

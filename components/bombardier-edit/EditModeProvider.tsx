@@ -13,8 +13,17 @@ import {
 } from "@/lib/bombardier-edit/anchor"
 import {
   buildVariantPayload,
+  detectComponent,
   type VariantAxis,
 } from "@/lib/bombardier-edit/variant-registry"
+import {
+  buildOrder,
+  computeDrop,
+  currentOrder,
+  matchOrder,
+  reorderDom,
+  type Drop,
+} from "@/lib/bombardier-edit/reorder"
 import {
   elementBelowOverlayAt,
   useCumulativeScrollOffset,
@@ -340,7 +349,20 @@ export function EditModeProvider() {
     (anchor: PageEditAnchor, prop: string, cssValue: string) => {
       const el = resolveEditElement(anchor)
       if (el) (el as HTMLElement).style.setProperty(prop, cssValue) // instant feedback
-      void useEditStore.getState().saveStyle(anchor, prop, cssValue)
+      // Off-spec: styling a component ROOT directly diverges from its variants —
+      // flag it so the inbox and the materialization skill see the divergence.
+      const comp = el ? detectComponent(el) : null
+      const offSpec = !!(comp && comp.rootEl === el)
+      void useEditStore
+        .getState()
+        .saveStyle(
+          anchor,
+          prop,
+          cssValue,
+          offSpec
+            ? { offSpec: true, offSpecComponent: comp!.spec.label }
+            : undefined,
+        )
     },
     [],
   )

@@ -195,14 +195,21 @@ export function StyleSection({
   activeStyle,
   onPick,
   onClear,
+  only,
 }: {
   activeStyle: Record<string, string>
   onPick: (prop: string, cssValue: string) => void
   onClear: (prop: string) => void
+  /** Restrict to these property kinds (lets the inspector split Cor / Forma /
+   *  Espaçamento into their own flat sections). Omit = all. */
+  only?: StyleProperty["kind"][]
 }) {
+  const properties = only
+    ? STYLE_PROPERTIES.filter((p) => only.includes(p.kind))
+    : STYLE_PROPERTIES
   return (
     <div className="flex flex-col gap-4">
-      {STYLE_PROPERTIES.map((property) =>
+      {properties.map((property) =>
         property.kind === "color" ? (
           <ColorField
             key={property.prop}

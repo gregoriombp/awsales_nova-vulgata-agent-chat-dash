@@ -21,7 +21,7 @@ import { randomUUID } from "node:crypto";
  *    └──discard──► discarded (→ archive)
  */
 
-export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon";
+export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon" | "move";
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded";
 
@@ -46,7 +46,16 @@ export interface PageEditAnchor {
 export type PageEditPayload =
   | { kind: "text"; text: string; prevText?: string }
   // token is always a `var(--token)` string so the override tracks dark mode.
-  | { kind: "style"; prop: string; token: string; prevToken?: string }
+  // offSpec marks a direct style override on a component ROOT (diverges from the
+  // component's variant system); offSpecComponent is its label ("Card").
+  | {
+      kind: "style";
+      prop: string;
+      token: string;
+      prevToken?: string;
+      offSpec?: boolean;
+      offSpecComponent?: string;
+    }
   | { kind: "hide"; mode: "hide" | "remove" }
   | {
       kind: "variant";
@@ -56,7 +65,10 @@ export type PageEditPayload =
       remove: string[];
       add: string;
     }
-  | { kind: "icon"; name: string; prevName?: string };
+  | { kind: "icon"; name: string; prevName?: string }
+  // Sibling reorder: anchor is the PARENT; `order` is the desired child sequence
+  // by stable fingerprint key ("<tag>::<text>"). One move op per parent.
+  | { kind: "move"; order: string[] };
 
 export interface PageEditOp {
   id: string;

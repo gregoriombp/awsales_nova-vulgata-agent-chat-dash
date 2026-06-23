@@ -16,6 +16,7 @@ const TYPE_ICON: Record<PageEditOp["type"], string> = {
   hide: "visibility_off",
   variant: "tune",
   icon: "emoji_symbols",
+  move: "swap_vert",
 }
 
 function describe(op: PageEditOp): string {
@@ -27,6 +28,7 @@ function describe(op: PageEditOp): string {
   }
   if (p.kind === "variant") return `${p.axis}: ${p.label ?? p.value}`
   if (p.kind === "icon") return `ícone: ${p.name}`
+  if (p.kind === "move") return `nova ordem · ${p.order.length} blocos`
   return p.mode === "remove" ? "Deletado" : "Oculto"
 }
 
@@ -59,21 +61,32 @@ export function EditInbox({
   onRemove: (id: string) => void
   onClose: () => void
 }) {
+  const offSpecCount = ops.filter(
+    (o) => o.payload.kind === "style" && o.payload.offSpec,
+  ).length
   return (
     <aside
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "inbox" }}
       className="fixed left-4 top-4 bottom-4 flex w-[300px] flex-col overflow-hidden rounded-(--radius-lg) border border-(--border-default) bg-(--bg-raised) shadow-(--shadow-lg)"
       style={{ zIndex: EDIT_Z.inbox }}
     >
-      <header className="flex items-center justify-between border-b border-(--border-subtle) px-4 py-3">
-        <span className="body-sm font-medium text-(--fg-primary)">
-          Edições desta página
-        </span>
+      <header className="flex items-start justify-between border-b border-(--border-subtle) px-4 py-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <span className="body-sm font-medium text-(--fg-primary)">
+            Edições desta página
+          </span>
+          {offSpecCount > 0 && (
+            <span className="flex items-center gap-1 text-2xs font-medium text-(--accent-warning)">
+              <Icon name="warning" size={12} fill={1} />
+              {offSpecCount} fora de componente
+            </span>
+          )}
+        </div>
         <button
           type="button"
           onClick={onClose}
           aria-label="Fechar"
-          className="flex h-7 w-7 items-center justify-center rounded-(--radius-sm) text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-(--radius-sm) text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
         >
           <Icon name="close" size={18} />
         </button>
@@ -104,6 +117,15 @@ export function EditInbox({
                 {describe(op)}
               </span>
             </button>
+            {op.payload.kind === "style" && op.payload.offSpec && (
+              <span className="inline-flex w-fit items-center gap-1 rounded-(--radius-full) border border-(--accent-warning) px-2 py-0.5 text-2xs font-medium text-(--accent-warning)">
+                <Icon name="warning" size={11} fill={1} />
+                fora{" "}
+                {op.payload.offSpecComponent
+                  ? `do ${op.payload.offSpecComponent}`
+                  : "do componente"}
+              </span>
+            )}
             <div className="flex items-center justify-between">
               <span
                 className="flex items-center gap-1.5 body-xs"
