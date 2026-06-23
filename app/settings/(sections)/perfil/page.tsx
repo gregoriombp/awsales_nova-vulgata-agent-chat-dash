@@ -55,12 +55,6 @@ const SETTINGS_SHORTCUTS: SettingsShortcut[] = [
     description: "Senha, verificação em duas etapas e códigos de backup",
   },
   {
-    href: "/settings/api",
-    icon: "key",
-    title: "API & desenvolvedores",
-    description: "Chaves, webhooks e ambientes",
-  },
-  {
     href: "/settings/financeiro",
     icon: "credit_card",
     title: "Financeiro",

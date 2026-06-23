@@ -10,31 +10,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-export type ApiKey = {
-  id: string;
-  name: string;
-  prefix: string;
-  createdAt: string;
-  lastUsed: string;
-};
-
-export const API_KEYS: ApiKey[] = [
-  {
-    id: "k-prod",
-    name: "Produção — backend",
-    prefix: "aws_live_8f3a…",
-    createdAt: "12 jan 2026",
-    lastUsed: "há 4 minutos",
-  },
-  {
-    id: "k-staging",
-    name: "Staging",
-    prefix: "aws_test_2c91…",
-    createdAt: "08 mar 2026",
-    lastUsed: "há 2 dias",
-  },
-];
-
 export type Session = {
   id: string;
   device: string;

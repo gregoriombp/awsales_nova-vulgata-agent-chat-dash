@@ -139,7 +139,6 @@ export const SETTINGS_NAV_GROUPS: SettingsNavGroup[] = [
           grupos: "Equipes",
         },
       },
-      { href: "/settings/api", label: "API & desenvolvedores", icon: "key" },
       // Tem FinanceiroTabs in-page (layout.tsx) → item único, sub-rotas só pro breadcrumb.
       {
         href: "/settings/financeiro",
