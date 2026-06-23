@@ -777,6 +777,31 @@ export const CHARGED_BY_DAY: { label: string; value: number }[] = (() => {
   return v.map((val, i) => ({ label: ddmmFromIndex(i), value: val }));
 })();
 
+// Resumo do período pros 4 cards de destaque do dashboard de Consumo e custos.
+// Sem "Tributos" (fora do escopo do dashboard). É period-aware: recebe o
+// subtotal já apurado pro período/filtro ativo e devolve as 4 linhas coerentes
+// (subtotal − créditos + ajustes = total). A proporção de créditos espelha o
+// ciclo atual (R$ 125,41 de crédito sobre R$ 891,63 de uso).
+export const PERIOD_CREDIT_RATIO = 0.1407;
+
+export type PeriodSummary = {
+  /** Tudo que foi consumido no período, antes de créditos e ajustes. */
+  subtotal: number;
+  /** Vouchers e cupons — valor absoluto (a UI exibe com sinal de menos). */
+  credits: number;
+  /** Estornos e correções reconhecidos no período. */
+  adjustments: number;
+  /** subtotal − créditos + ajustes. */
+  total: number;
+};
+
+export function getPeriodSummary(subtotal: number): PeriodSummary {
+  const credits = Math.round(subtotal * PERIOD_CREDIT_RATIO * 100) / 100;
+  const adjustments = 0;
+  const total = Math.round((subtotal - credits + adjustments) * 100) / 100;
+  return { subtotal, credits, adjustments, total };
+}
+
 // DRE do período — referente ao gráfico "Usado no período". Cada linha tem
 // tooltip própria. Subtotal − descontos + tributos = total.
 export type DRELineKind = "subtotal" | "subtract" | "add" | "total";
