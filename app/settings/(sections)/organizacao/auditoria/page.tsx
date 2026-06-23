@@ -1801,7 +1801,7 @@ function RequestRow({
       }
     >
       <AwAvatar
-        size="md"
+        size="lg"
         src={req.requesterAvatar}
         alt={req.requester}
         initials={getInitials(req.requester)}
@@ -1811,7 +1811,6 @@ function RequestRow({
           <p className="m-0 body-sm font-medium text-(--fg-primary)">
             {req.requester}
           </p>
-          <RequestKindBadge kind={req.kind} />
           <span className="font-mono body-xs text-(--fg-tertiary)">
             {req.protocol}
           </span>
@@ -1820,6 +1819,9 @@ function RequestRow({
           Aberta em {req.openedAt} · prazo até {req.dueAt}
         </p>
         {open && <DeadlineCountdown dueAt={req.dueAt} />}
+      </div>
+      <div className="w-28 shrink-0">
+        <RequestKindBadge kind={req.kind} />
       </div>
       <RequestStatusBadge status={status} />
       {open && (
