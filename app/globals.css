@@ -4189,6 +4189,16 @@
   font-weight: 600;
   opacity: 1;
 }
+/* Danger tone — overdue/failed counts read as an alert, not a neutral tally.
+   Base paints red text (segmented/standalone); underline overrides the pill. */
+.aw-tabs__count--danger {
+  color: var(--accent-danger);
+  opacity: 1;
+}
+.aw-tabs--underline .aw-tabs__count--danger {
+  background: var(--accent-danger);
+  color: #fff;
+}
 
 /* ============================================================
  * AwEmpty — zero-state composition (port of shadcn `Empty`).

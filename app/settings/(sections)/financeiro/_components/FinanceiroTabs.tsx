@@ -10,6 +10,7 @@ type Tab = {
   value: string;
   label: string;
   count?: number;
+  countTone?: "default" | "danger";
 };
 
 export function FinanceiroTabs() {
@@ -28,6 +29,7 @@ export function FinanceiroTabs() {
       value: `${BASE}/historico-faturas`,
       label: "Faturas",
       count: hasPaymentAlerts ? 1 : undefined,
+      countTone: hasPaymentAlerts ? "danger" : undefined,
     },
     { value: `${BASE}/auditoria`, label: "Atividade" },
   ];
@@ -38,7 +40,12 @@ export function FinanceiroTabs() {
     <AwTabs
       aria-label="Seções financeiras"
       variant="underline"
-      items={tabs.map((t) => ({ value: t.value, label: t.label, count: t.count }))}
+      items={tabs.map((t) => ({
+        value: t.value,
+        label: t.label,
+        count: t.count,
+        countTone: t.countTone,
+      }))}
       value={current}
       onChange={(v) => router.push(v)}
     />
