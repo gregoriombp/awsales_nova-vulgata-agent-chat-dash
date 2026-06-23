@@ -1,10 +1,14 @@
 # Handoff — Refatoração do Financeiro (contexto pros próximos agentes)
 
 > **Leia isto primeiro.** Este é o ponto de entrada do trabalho de refatoração do Financeiro.
-> A construção ainda **não** começou (só a branch foi criada). Outros agentes vão tocar isso —
-> aqui está todo o contexto que o Greg passou, as decisões travadas e onde cada coisa mora.
+> **⚠️ Status (22/06/2026): a construção foi feita e MERGEADA na `main`.** P1 e P2 estão
+> essencialmente prontos; P3 ~80%. **Não recomece do zero** — pule pra **§7 (Estado atual)** pra a
+> lista exata do que falta. As seções 1–6 abaixo são o contexto/decisões originais (continuam válidos
+> como referência, mas o "ainda não começou" já não vale).
 
-Branch: **`feat/financeiro-analytics-split`** (criada a partir da `main` em 19/06/2026).
+Branch: o trabalho saiu de **`feat/financeiro-analytics-split`** → **`feat/financeiro-v2`** e foi
+**absorvido na `main`** (em 22/06/2026 ambas as branches estão idênticas/atrás da `main`; nada ficou
+preso fora dela).
 
 ---
 
@@ -124,9 +128,66 @@ o export que o Greg já tem **é** a cópia canônica — mandar pro PG.
 ---
 
 ## 6. Próximos passos (quando retomar)
+> ⚠️ **Desatualizado** — as fases abaixo já foram construídas e mergeadas na `main`. Para o que
+> **realmente falta hoje**, vá pra **§7**. Mantido como registro do plano original.
+
 Seguir as fases do `PLANO_financeiro_split.md`:
 - **P1:** largura 1440 + nav/tabs + criar `detalhamento` + tríade nas Faturas + cobrado×usado + DRE + tabela BRL/USD + corrigir barra por agente + tokens K/B/S + serviços dinâmicos + estender `data.ts`.
 - **P2:** Consumo (limite + 2 tabelas vouchers/cupons) + `AwExportMenu` + `AwDateRangePicker` + Métodos + `AwAddBalanceModal` + tooltips/microcopy.
 - **P3:** Auditoria V2 + polish de gráficos + passada de UX writing + "sem card-in-card".
 
 Validar contra `review_comments_financeiro_digest.md` (cobrir os `open`/`in_review`) e rodar em `localhost:3000`.
+
+---
+
+## 7. Estado atual (22/06/2026) — o que já foi feito e o que falta
+
+> Consolidado a partir do código na `main` + `git log` + cruzamento com `review_comments_financeiro_digest.md`.
+> **Substitui** o "ainda não começou" do topo. Percentuais = comentários do review atendidos por rota.
+
+### Progresso por fase
+| Fase | Estado | Resumo |
+|---|---|---|
+| **P1** — reestruturação | ✅ feito | largura 1440, rota `detalhamento` criada, `saldo-creditos` removida, tríade nas faturas, gráfico cobrado×usado, DRE, tabela BRL/USD, tokens K/B/S, `data.ts` estendido |
+| **P2** — média prioridade | ✅ ~95% | Consumo (2 tabelas vouchers/cupons + agulha de limite), ExportMenu, métodos redesenhados, AddBalanceModal, microcopy, tooltips |
+| **P3** — audit + polish | 🟡 ~80% | degradê dos gráficos ✅; Auditoria V2 quase toda ✅ (avatares na 1ª coluna, sem "Sistema"/"Cortex", filtro de executor com fotos, export PDF/CSV + LGPD + email); faltam itens pontuais (abaixo) |
+
+Cobertura do review por rota: visão-geral ~83% · consumo ~83% · faturas ~80% · métodos ~85% · auditoria ~80%.
+
+### 🔴 Bug aberto (prioridade — Greg reabriu 2× via Germano)
+- **Calendário range** — `_components/VariableSpendingBlock.tsx:500-508` (`RangeDayButton`). A data final
+  (`range_end`) não fecha o background até a célula anterior: sobra um "recorte branco" entre `range_middle`
+  e `range_end`. **Root cause:** o gap entre células no `components/ui/calendar.tsx` (flex com `w-full`
+  distribuindo espaço livre) **não é 1px**, então os `-ml-px`/`-mr-px`/`-mx-px` do botão não cobrem o vão.
+  O comentário no código (linhas 497-499) assume "1px de gap natural" — premissa errada. **Fix:** matar o
+  gap na raiz (largura fixa por célula, `w-(--cell-size)` em vez de `w-full`) **ou** pintar a banda no
+  wrapper `<td>` via `data-[range-*]`, não no `<button>`. Hoje esse calendário é renderizado pela rota
+  `detalhamento` (o bloco migrou pra lá).
+
+### Gaps acionáveis por rota
+**Auditoria (`/auditoria`):**
+- Remover a coluna "tipo" da tabela (deixar 2 colunas) — `auditoria/page.tsx:608-610`; o tipo já existe como filtro.
+- Converter o filtro de tipo de dropdown → **chips selecionáveis** — `auditoria/page.tsx:482-522`.
+- Link `INV-2026-05-0042` não abre o drawer (é `CURRENT_INVOICE`, fora de `INVOICE_HISTORY`) — `auditoria/page.tsx:639` + `data.ts:13`.
+
+**Consumo (`/consumo`):**
+- Export CSV na própria rota (hoje só existe no `detalhamento`) — pedido "export aqui, por dia, estilo Stripe".
+- Toggle "visualização agregada por dia" nas tabelas (não existe em nenhuma rota).
+- Confirmar cor do status de voucher: "Usado" = azul / "Parcialmente usado" = cinza (`data.ts:766-776`).
+
+**Faturas (`/historico-faturas`):**
+- Bandeira do cartão na **linha** da tabela (hoje só no drawer) — `historico-faturas/page.tsx:354`.
+- Cores de status: "Em aberto" = amarelo e "Em atraso" = vermelho (hoje `draft`/`warning`) — decisão de design.
+- Nota LGPD no export (migrar o export inline pro `ExportMenu`, que já aceita `note`).
+
+**Métodos (`/metodos-pagamento`):**
+- Header com logo + nome da organização ampliados (não existe).
+- Reavaliar layout full-width "cartão à esquerda / endereço à direita" (hoje o billing é seção separada abaixo dos cartões).
+
+### Divergência do plano (dívida de Design System)
+Os componentes novos foram entregues como **locais** do financeiro (`_components/ExportMenu.tsx`,
+`AddBalanceModal.tsx`, `AddPaymentMethodModal.tsx`), **não** como `Aw*` globais com showcase +
+`navigation.ts` (o plano §"Componentes" e o `AGENTS.md` pediam via `bombardier-new-component`).
+`AwDateRangePicker` / `AwUsedVsChargedChart` / `AwFinancialSummary` não viraram componentes nomeados do
+DS — ficaram inline. Para seguir o plano à risca, falta promovê-los ao styleguide (ou registrar a decisão
+de mantê-los locais).
