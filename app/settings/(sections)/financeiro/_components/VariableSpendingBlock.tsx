@@ -428,6 +428,14 @@ function PeriodPicker({
             }
             numberOfMonths={2}
             captionLayout="dropdown"
+            classNames={{
+              // A banda do período é pintada no CELL (que encosta no vizinho,
+              // sem gap), não no button — assim a seleção é contínua de ponta a
+              // ponta, sem o "recorte branco" entre o miolo e o fim do range.
+              range_start: "bg-(--fg-primary) rounded-l-md",
+              range_middle: "bg-(--fg-primary) rounded-none",
+              range_end: "bg-(--fg-primary) rounded-r-md",
+            }}
             components={{ DayButton: RangeDayButton }}
           />
           <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-3">
@@ -481,31 +489,20 @@ function RangeDayButton({
     modifiers.range_start ||
     modifiers.range_middle ||
     modifiers.range_end;
-  const isSingle =
-    (modifiers.range_start && modifiers.range_end) ||
-    (modifiers.selected && !modifiers.range_middle && !modifiers.range_start);
 
   return (
     <button
       ref={ref}
       data-day={day.date.toLocaleDateString()}
       className={cn(
-        "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center text-sm font-normal outline-hidden transition-colors duration-aw-fast focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
+        "flex aspect-square h-auto w-full min-w-(--cell-size) items-center justify-center rounded-md text-sm font-normal outline-hidden transition-colors duration-aw-fast focus-visible:ring-2 focus-visible:ring-(--fg-primary) focus-visible:ring-offset-1 focus-visible:ring-offset-(--bg-raised)",
+        // No range, o button fica transparente e carrega só o texto claro — a
+        // banda preta contínua é pintada no CELL (classNames range_* do
+        // Calendar), que encosta no vizinho e não deixa "recorte branco".
+        // Fora do range, cada dia ganha um leve cinza individual.
         inRange
-          ? "bg-(--fg-primary) font-medium text-(--bg-raised) hover:bg-(--fg-primary)"
+          ? "font-medium text-(--bg-raised)"
           : "bg-(--bg-muted) text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
-        // banda contínua: pontas arredondadas, miolo reto. Os -mx-px fecham
-        // o 1px de gap natural entre células do Calendar pra a banda não
-        // exibir riscos brancos entre o início, miolo e o fim do range.
-        isSingle
-          ? "rounded-md"
-          : modifiers.range_start
-            ? "-mr-px rounded-l-md rounded-r-none"
-            : modifiers.range_end
-              ? "-ml-px rounded-r-md rounded-l-none"
-              : modifiers.range_middle
-                ? "-mx-px rounded-none"
-                : "rounded-md",
         modifiers.today &&
           !inRange &&
           "ring-1 ring-inset ring-(--border-strong)",

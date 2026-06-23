@@ -69,21 +69,6 @@ const TYPE_META: Record<
   },
 };
 
-function TypeBadge({ type }: { type: AuditEventType }) {
-  const meta = TYPE_META[type];
-  return (
-    <span
-      className={
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-2.5 py-0.5 body-xs font-medium " +
-        meta.badgeClass
-      }
-    >
-      <Icon name={meta.icon} size={13} />
-      {type}
-    </span>
-  );
-}
-
 const INV_PATTERN = /\bINV-\d{4}-\d{2}-\d{4}\b/;
 
 function getInitials(name: string): string {
@@ -605,10 +590,7 @@ function EventRow({
           </span>
         </span>
       </td>
-      <td className="align-top">
-        <TypeBadge type={event.type} />
-      </td>
-      <td className="text-right align-top">
+      <td className="text-right align-top whitespace-nowrap">
         <div className="flex flex-col items-end">
           <span className="body-xs tabular-nums text-(--fg-secondary)">
             {event.date} · {event.time}

@@ -9,7 +9,7 @@ import { Icon } from "@/components/ui/Icon";
 import { brl, type InvoiceHistoryRow } from "./data";
 
 /** Bandeira do cartão a partir do texto "Visa •••• 3012". */
-function paymentBrandId(method: string): AwCardBrandId {
+export function paymentBrandId(method: string): AwCardBrandId {
   const w = method.trim().toLowerCase();
   if (w.startsWith("visa")) return "visa";
   if (w.startsWith("master")) return "mastercard";

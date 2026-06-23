@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { AwCard } from "./AwCard";
 import { AwButton } from "./AwButton";
-import { AwPill } from "./AwPill";
+import { AwPill, type AwPillVariant } from "./AwPill";
 import { Icon } from "./Icon";
 import { AwTrendDelta } from "./AwTrendDelta";
 import { AwRadialProgress } from "./AwRadialProgress";
@@ -25,8 +25,13 @@ export type AwInvoiceForecastCardProps = Omit<
   React.HTMLAttributes<HTMLDivElement>,
   "title"
 > & {
-  /** Rótulo-eyebrow no topo, ex.: "Previsão da próxima fatura · 01 Jul". */
-  eyebrow: string;
+  /** Rótulo-eyebrow no topo, ex.: "Previsão da próxima fatura · 01 Jul".
+   *  Ignorado quando `title` é passado. */
+  eyebrow?: string;
+  /** Título proeminente no topo (substitui o eyebrow). Ex.: "Fatura atual". */
+  title?: React.ReactNode;
+  /** Selo de status ao lado do título (ex.: "Em aberto"). Default sem dot. */
+  status?: { label: React.ReactNode; variant?: AwPillVariant; dot?: boolean };
   /** Texto do pill de monitoramento (ex.: "Cortex monitorando custos"). Omitido → sem pill. */
   monitorLabel?: React.ReactNode;
   /** Valor previsto total. */
@@ -49,8 +54,11 @@ export type AwInvoiceForecastCardProps = Omit<
    * já é claro pelo contexto e o "Estimado" textual seria ruído.
    */
   estimateLabel?: React.ReactNode;
-  /** Composição do total (assinatura + variável − cupom…). */
-  breakdown: AwCostBreakdownItem[];
+  /** Composição do total (assinatura + variável − cupom…). Omitida → herói só
+   *  com o número (a quebra pode viver fora, ex.: num card "Detalhamento"). */
+  breakdown?: AwCostBreakdownItem[];
+  /** Linha-legenda abaixo do número (ex.: data da cobrança + cartão). */
+  footnote?: React.ReactNode;
   /** Ação principal. Renderiza link se `href`, senão botão com `onClick`. */
   cta?: { label: string; href?: string; onClick?: () => void };
   /** Medidor radial à direita (consumo vs. teto). Omitido → sem medidor. */
@@ -73,12 +81,15 @@ export type AwInvoiceForecastCardProps = Omit<
  */
 export function AwInvoiceForecastCard({
   eyebrow,
+  title,
+  status,
   monitorLabel,
   total,
   trend,
   estimateNote,
   estimateLabel = "Estimado",
   breakdown,
+  footnote,
   cta,
   gauge,
   formatValue = BRL,
@@ -97,14 +108,30 @@ export function AwInvoiceForecastCard({
       {...rest}
     >
       <div className="flex min-w-0 flex-1 flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
-            {eyebrow}
-          </span>
-          {monitorLabel != null && (
-            <AwPill variant="live">{monitorLabel}</AwPill>
-          )}
-        </div>
+        {title != null ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <h6 className="m-0 body-lg font-medium text-(--fg-primary)">
+              {title}
+            </h6>
+            {status != null && (
+              <AwPill
+                variant={status.variant ?? "neutral"}
+                dot={status.dot ?? false}
+              >
+                {status.label}
+              </AwPill>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
+              {eyebrow}
+            </span>
+            {monitorLabel != null && (
+              <AwPill variant="live">{monitorLabel}</AwPill>
+            )}
+          </div>
+        )}
 
         <div className="flex flex-wrap items-end gap-x-3 gap-y-1">
           <p className="m-0 display-md tabular-nums text-(--fg-primary)">
@@ -151,7 +178,15 @@ export function AwInvoiceForecastCard({
           )}
         </div>
 
-        <AwCostBreakdown items={breakdown} formatValue={formatValue} />
+        {footnote != null && (
+          <p className="m-0 flex flex-wrap items-center gap-1.5 body-sm text-(--fg-tertiary)">
+            {footnote}
+          </p>
+        )}
+
+        {breakdown && breakdown.length > 0 && (
+          <AwCostBreakdown items={breakdown} formatValue={formatValue} />
+        )}
 
         {cta &&
           (cta.href ? (

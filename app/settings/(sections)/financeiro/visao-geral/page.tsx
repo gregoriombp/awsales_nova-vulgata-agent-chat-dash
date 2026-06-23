@@ -14,11 +14,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { CardBrandLogo } from "../_components/CardBrandLogo";
+import { InvoiceBreakdownCard } from "../_components/InvoiceBreakdownCard";
 import {
   brl,
   CURRENT_INVOICE,
   CURRENT_PLAN,
   fmtUsdLabel,
+  FORECAST_DISCOUNTS,
   INVOICE_HISTORY,
   OVERVIEW_KPIS,
   PAYMENT_METHODS,
@@ -56,51 +59,50 @@ function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const card = CURRENT_INVOICE.paymentMethod;
-  const breakdown = [
-    {
-      label: "Assinatura",
-      value: CURRENT_PLAN.monthly,
-      kind: "base" as const,
-      icon: "workspace_premium",
-    },
-    {
-      label: "Variável",
-      value: OVERVIEW_KPIS.accumulated,
-      kind: "add" as const,
-      icon: "bolt",
-    },
-    ...(discount > 0
-      ? [
-          {
-            label: "Desconto",
-            value: discount,
-            kind: "subtract" as const,
-            icon: "local_offer",
-          },
-        ]
-      : []),
-  ];
 
+  // Um card só, com stroke em volta das duas colunas: à esquerda a fatura
+  // atual (branca, herói); à direita o detalhamento itemizado, num fundo cinza
+  // leve separado por uma divisória.
   return (
-    <AwInvoiceForecastCard
-      bare
-      eyebrow={`Próxima cobrança · ${CURRENT_PLAN.nextChargeAt} · ${card.brand} •••• ${card.last4}`}
-      total={total}
-      estimateLabel={null}
-      estimateNote={
-        <>
-          É uma estimativa: como o IOF no cartão, o valor final só fecha na
-          cobrança de {CURRENT_PLAN.nextChargeAt} — o consumo variável conta até
-          o fim do ciclo e o câmbio é convertido na hora. Atualizado em{" "}
-          {CURRENT_INVOICE.dueAt} às 14:30.
-        </>
-      }
-      breakdown={breakdown}
-      cta={{
-        label: "Ver fatura detalhada",
-        href: "/settings/financeiro/historico-faturas",
-      }}
-    />
+    <AwCard className="grid grid-cols-2 items-stretch overflow-hidden p-0!">
+      <div className="p-7">
+        <AwInvoiceForecastCard
+          bare
+          title="Fatura atual"
+          status={{ label: "Em aberto", variant: "draft" }}
+          total={total}
+          estimateLabel={null}
+          estimateNote={
+            <>
+              É uma estimativa: como o IOF no cartão, o valor final só fecha na
+              cobrança de {CURRENT_PLAN.nextChargeAt} — o consumo variável conta
+              até o fim do ciclo e o câmbio é convertido na hora. Atualizado em{" "}
+              {CURRENT_INVOICE.dueAt} às 14:30.
+            </>
+          }
+          footnote={
+            <>
+              Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
+              <CardBrandLogo brand={card.brand} size={22} />
+              •••• {card.last4}
+            </>
+          }
+          cta={{
+            label: "Ver fatura detalhada",
+            href: "/settings/financeiro/historico-faturas",
+          }}
+        />
+      </div>
+      <InvoiceBreakdownCard
+        className="border-l border-(--border-subtle) bg-(--bg-surface) p-7"
+        subscription={CURRENT_PLAN.monthly}
+        subscriptionLabel={CURRENT_PLAN.name}
+        variable={OVERVIEW_KPIS.accumulated}
+        discounts={FORECAST_DISCOUNTS}
+        total={total}
+        totalLabel="Total em aberto"
+      />
+    </AwCard>
   );
 }
 

@@ -1,10 +1,14 @@
 # Handoff — Refatoração do Financeiro (contexto pros próximos agentes)
 
 > **Leia isto primeiro.** Este é o ponto de entrada do trabalho de refatoração do Financeiro.
-> A construção ainda **não** começou (só a branch foi criada). Outros agentes vão tocar isso —
-> aqui está todo o contexto que o Greg passou, as decisões travadas e onde cada coisa mora.
+> **⚠️ Status (22/06/2026): a construção foi feita e MERGEADA na `main`.** P1 e P2 estão
+> essencialmente prontos; P3 ~80%. **Não recomece do zero** — pule pra **§7 (Estado atual)** pra a
+> lista exata do que falta. As seções 1–6 abaixo são o contexto/decisões originais (continuam válidos
+> como referência, mas o "ainda não começou" já não vale).
 
-Branch: **`feat/financeiro-analytics-split`** (criada a partir da `main` em 19/06/2026).
+Branch: o trabalho saiu de **`feat/financeiro-analytics-split`** → **`feat/financeiro-v2`** e foi
+**absorvido na `main`** (em 22/06/2026 ambas as branches estão idênticas/atrás da `main`; nada ficou
+preso fora dela).
 
 ---
 
@@ -124,9 +128,72 @@ o export que o Greg já tem **é** a cópia canônica — mandar pro PG.
 ---
 
 ## 6. Próximos passos (quando retomar)
+> ⚠️ **Desatualizado** — as fases abaixo já foram construídas e mergeadas na `main`. Para o que
+> **realmente falta hoje**, vá pra **§7**. Mantido como registro do plano original.
+
 Seguir as fases do `PLANO_financeiro_split.md`:
 - **P1:** largura 1440 + nav/tabs + criar `detalhamento` + tríade nas Faturas + cobrado×usado + DRE + tabela BRL/USD + corrigir barra por agente + tokens K/B/S + serviços dinâmicos + estender `data.ts`.
 - **P2:** Consumo (limite + 2 tabelas vouchers/cupons) + `AwExportMenu` + `AwDateRangePicker` + Métodos + `AwAddBalanceModal` + tooltips/microcopy.
 - **P3:** Auditoria V2 + polish de gráficos + passada de UX writing + "sem card-in-card".
 
 Validar contra `review_comments_financeiro_digest.md` (cobrir os `open`/`in_review`) e rodar em `localhost:3000`.
+
+---
+
+## 7. Estado atual (22/06/2026) — o que já foi feito e o que falta
+
+> Consolidado a partir do código na `main` + `git log` + cruzamento com `review_comments_financeiro_digest.md`.
+> **Substitui** o "ainda não começou" do topo. Percentuais = comentários do review atendidos por rota.
+
+### Progresso por fase
+| Fase | Estado | Resumo |
+|---|---|---|
+| **P1** — reestruturação | ✅ feito | largura 1440, rota `detalhamento` criada, `saldo-creditos` removida, tríade nas faturas, gráfico cobrado×usado, DRE, tabela BRL/USD, tokens K/B/S, `data.ts` estendido |
+| **P2** — média prioridade | ✅ ~95% | Consumo (2 tabelas vouchers/cupons + agulha de limite), ExportMenu, métodos redesenhados, AddBalanceModal, microcopy, tooltips |
+| **P3** — audit + polish | 🟡 ~80% | degradê dos gráficos ✅; Auditoria V2 quase toda ✅ (avatares na 1ª coluna, sem "Sistema"/"Cortex", filtro de executor com fotos, export PDF/CSV + LGPD + email); faltam itens pontuais (abaixo) |
+
+Cobertura do review por rota: visão-geral ~83% · consumo ~83% · faturas ~80% · métodos ~85% · auditoria ~80%.
+
+### ✅ Resolvido na sessão de 22/06 (noite) — branch `feat/financeiro-cauda-fixes`
+Commits atômicos, **não mergeados** (aguardando review do Greg). Cada fix verificado visualmente via Playwright:
+- **🔴 Calendário range** — RESOLVIDO. A banda do período agora é pintada no **CELL** via `classNames`
+  `range_*` do `<Calendar>` (células encostam sem gap) e o `RangeDayButton` ficou transparente carregando
+  só o texto claro. Removidas as margens negativas frágeis (`-ml-px`/`-mx-px`). Verificado com range 5–15:
+  junção 14→15 **contínua, sem recorte branco**. `VariableSpendingBlock.tsx`.
+- **Auditoria — 2 colunas** — removida a coluna "tipo" da tabela (o tipo segue como filtro); `TypeBadge`
+  órfão removido. `auditoria/page.tsx`.
+- **Faturas — bandeira do cartão na linha** — `AwCardBrand` inline (helper `paymentBrandId` exportado do
+  `InvoiceDetailsSheet`, sem duplicar); Boleto/Pix ficam só com texto, sem placeholder. `historico-faturas/page.tsx`.
+- **Faturas — aviso LGPD no export** — bloco "Este arquivo contém dados pessoais" no modal, alinhado ao de Auditoria.
+- **Voucher "Usado"=azul / "Parcialmente usado"=cinza** — VERIFICADO: já estava correto
+  (`voucherStatusVariant`: `info`=azul `--aw-blue`, `draft`=cinza `--aw-gray`). Não era gap.
+
+### Gaps que ficaram (decisão do Greg — não toquei de propósito)
+**Auditoria:**
+- Filtro de tipo dropdown → chips: **instruções conflitantes** no review (L140 pede chips "o que acha?";
+  L150 pede menu suspenso à esquerda do export — o código atende L150). Greg decide.
+- Link `INV-2026-05-0042` clicável: é a `CURRENT_INVOICE`, shape incompatível com `InvoiceHistoryRow`;
+  torná-lo clicável exigiria **fabricar** `refMonth`/`gross`/`net`. Hoje vira texto (sem link morto). Greg
+  decide se promove a fatura atual ao histórico ou aceita o texto.
+
+**Faturas:**
+- Cores "Em aberto"=amarelo / "Em atraso"=vermelho: **conflito** (L115 pede vermelho; L202 pede laranja — o
+  código está laranja `warning`). Não há variante "amarela" distinta de `warning` no `AwPill`. Greg decide a paleta.
+
+**Consumo:**
+- Export CSV na própria rota: o `detalhamento` já tem o export estilo Stripe; decidir se duplica no consumo.
+- Toggle "agregado por dia" nas tabelas: feature nova (não existe). Escopo maior.
+
+**Métodos (`/metodos-pagamento`):**
+- Header com logo + nome da organização ampliados (não existe; criar header é decisão de layout).
+- Layout full-width "cartão à esquerda / endereço à direita" (pins conflitantes; hoje é seção separada abaixo dos cartões).
+
+**Visão-geral:** texto explicando o limite de variável (existe no Consumo, não na Visão geral) — copy menor.
+
+### Divergência do plano (dívida de Design System)
+Os componentes novos foram entregues como **locais** do financeiro (`_components/ExportMenu.tsx`,
+`AddBalanceModal.tsx`, `AddPaymentMethodModal.tsx`), **não** como `Aw*` globais com showcase +
+`navigation.ts` (o plano §"Componentes" e o `AGENTS.md` pediam via `bombardier-new-component`).
+`AwDateRangePicker` / `AwUsedVsChargedChart` / `AwFinancialSummary` não viraram componentes nomeados do
+DS — ficaram inline. Para seguir o plano à risca, falta promovê-los ao styleguide (ou registrar a decisão
+de mantê-los locais).

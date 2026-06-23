@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCardBrand } from "@/components/ui/AwCardBrand";
 import {
   AwDropdownMenu,
   type AwDropdownItem,
@@ -13,7 +14,10 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
-import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
+import {
+  InvoiceDetailsSheet,
+  paymentBrandId,
+} from "../_components/InvoiceDetailsSheet";
 import {
   brl,
   INVOICE_HISTORY,
@@ -274,15 +278,33 @@ export default function HistoricoFaturasPage() {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-3">
-            {exportFormat && <AwFileIcon type={exportFormat} size="md" />}
-            <div className="flex flex-col gap-0.5">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                Exportar em {exportFormat?.toUpperCase()}
-              </p>
-              <p className="m-0 body-xs text-(--fg-secondary)">
-                Geramos o histórico completo e enviamos para o seu e-mail.
-              </p>
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3">
+              {exportFormat && <AwFileIcon type={exportFormat} size="md" />}
+              <div className="flex flex-col gap-0.5">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  Exportar em {exportFormat?.toUpperCase()}
+                </p>
+                <p className="m-0 body-xs text-(--fg-secondary)">
+                  Geramos o histórico completo e enviamos para o seu e-mail.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-(--bg-raised) text-(--fg-primary)">
+                <Icon name="shield_lock" size={16} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-xs font-medium text-(--fg-primary)">
+                  Este arquivo contém dados pessoais
+                </p>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                  As faturas trazem dados de faturamento e pagamento. Ao
+                  exportar, você assume a responsabilidade pelo tratamento —
+                  LGPD e a política da sua organização valem aqui.
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -336,6 +358,8 @@ function InvoiceRow({
     : overdue
       ? `Venceu em ${row.dueAt}`
       : `Vence em ${row.dueAt}`;
+  // Só cartões têm bandeira; Boleto/Pix caem em "unknown" e ficam só com texto.
+  const cardBrand = paymentBrandId(row.paymentMethod);
 
   return (
     <li className="m-0 list-none">
@@ -351,9 +375,18 @@ function InvoiceRow({
             </span>
             <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
           </div>
-          <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
-            {row.id} · {row.paymentMethod} · {dateLabel}
-          </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 body-xs tabular-nums text-(--fg-tertiary)">
+            <span>{row.id}</span>
+            <span aria-hidden>·</span>
+            <span className="inline-flex items-center gap-1">
+              {cardBrand !== "unknown" && (
+                <AwCardBrand brand={cardBrand} size="sm" />
+              )}
+              {row.paymentMethod}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{dateLabel}</span>
+          </div>
         </div>
         <span className="flex flex-col items-end">
           <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
