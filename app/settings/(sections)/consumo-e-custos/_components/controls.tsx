@@ -114,7 +114,7 @@ export function SpendingFilterMenu() {
       align="end"
       aria-label="Filtrar itens"
       trigger={
-        <AwSelect style={{ height: "var(--space-8)" }}>
+        <AwSelect className="h-8!">
           <span className="inline-flex items-center gap-1.5">
             <Icon
               name="filter_list"

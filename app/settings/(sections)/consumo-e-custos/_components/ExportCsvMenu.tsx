@@ -206,7 +206,7 @@ export function ExportCsvMenu() {
           variant="secondary"
           size="sm"
           iconLeft="download"
-          style={{ height: "var(--space-8)" }}
+          className="h-8!"
         >
           Exportar
           <Icon name="expand_more" size={15} className="ml-0.5" />
