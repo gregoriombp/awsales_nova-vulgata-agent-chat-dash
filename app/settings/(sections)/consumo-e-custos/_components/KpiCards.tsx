@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Icon } from "@/components/ui/Icon";
 import {
   Tooltip,
@@ -8,11 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import {
-  brl,
-  PERIOD_DIFF,
-  PERIOD_DIFF_REASON,
-} from "../../financeiro/_components/data";
+import { brl } from "../../financeiro/_components/data";
 import { useConsumo } from "./ConsumoContext";
 
 /* ----------------------------------------------------------------------------
@@ -85,47 +80,6 @@ function HighlightCard({
         }
       >
         {value}
-      </div>
-    </div>
-  );
-}
-
-/* ---------- card de insight (laranja) ---------- */
-
-export function InsightCard({ dragHandle }: { dragHandle?: React.ReactNode }) {
-  const positive = PERIOD_DIFF >= 0;
-  return (
-    <div className="flex h-full flex-col gap-3 rounded-2xl border border-(--aw-amber-200) bg-(--aw-amber-100) p-5">
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          {dragHandle}
-          <span className="flex items-center gap-2">
-            <Icon
-              name="lightbulb"
-              size={16}
-              className="text-(--accent-warning)"
-            />
-            <h6 className="m-0 text-(--aw-amber-800)">Leitura do período</h6>
-          </span>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <p className="m-0 body-md text-(--aw-amber-900)">
-          Diferença do período:{" "}
-          <strong className="font-semibold tabular-nums">
-            {positive ? "+" : "−"}
-            {brl(Math.abs(PERIOD_DIFF))}
-          </strong>{" "}
-          <span className="text-(--aw-amber-700)">
-            (cobrado {positive ? ">" : "<"} usado)
-          </span>
-        </p>
-        <p className="m-0 body-sm leading-relaxed text-(--aw-amber-800)">
-          <span className="font-medium">Motivo dominante:</span>{" "}
-          {PERIOD_DIFF_REASON} Os valores do Meta não entram nesta conta — são
-          cobrados direto pela plataforma do Meta.
-        </p>
       </div>
     </div>
   );

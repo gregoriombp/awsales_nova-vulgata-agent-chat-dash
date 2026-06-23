@@ -10,7 +10,7 @@ import {
   SpendingFilterMenu,
 } from "./_components/controls";
 import { ExportCsvMenu } from "./_components/ExportCsvMenu";
-import { HighlightCards, InsightCard } from "./_components/KpiCards";
+import { HighlightCards } from "./_components/KpiCards";
 import {
   ComposicaoWidget,
   ConsumoChartWidget,
@@ -34,7 +34,6 @@ import {
 const STORAGE_KEY = "consumo-dash-order-v1";
 
 const DEFAULT_ORDER = [
-  "insight",
   "consumo",
   "composicao",
   "usado-cobrado",
@@ -57,7 +56,6 @@ function Dashboard() {
 
   const widgets: BoardWidget[] = React.useMemo(
     () => [
-      { id: "insight", span: 2, render: (h) => <InsightCard dragHandle={h} /> },
       { id: "consumo", span: 2, render: (h) => <ConsumoChartWidget dragHandle={h} /> },
       { id: "composicao", span: 1, render: (h) => <ComposicaoWidget dragHandle={h} /> },
       { id: "usado-cobrado", span: 1, render: (h) => <UsadoCobradoWidget dragHandle={h} /> },
