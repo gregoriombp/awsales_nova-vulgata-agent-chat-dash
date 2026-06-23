@@ -8,6 +8,18 @@ export const CURRENT_PLAN = {
   status: "Ativo" as const,
   monthly: 2497.98,
   nextChargeAt: "28/05/2026",
+  /** Desde quando a organização está neste plano (pt-BR). */
+  since: "28/05/2025",
+  /** Ciclo de cobrança — exibido no detalhe do plano. */
+  billingCycle: "Mensal",
+  /** O que está incluso no plano — mostrado no modal de detalhes. */
+  highlights: [
+    "Agentes de IA ilimitados",
+    "Limite de consumo variável de R$ 1.500 por ciclo",
+    "Disparos, mensagens e leads com tarifas Enterprise",
+    "Suporte prioritário e gerente de contas dedicado",
+    "Trilha de auditoria e SSO para a organização",
+  ],
 };
 
 export const CURRENT_INVOICE = {
@@ -65,12 +77,43 @@ export type ForecastDiscount = {
   kind: "Cupom" | "Voucher";
   /** Código/nome exibido (ex.: "BF2025", "Crédito Q2"). */
   label: string;
+  /** Valor abatido NESTA fatura (a fatia do crédito usada no ciclo). */
   value: number;
+  /** Valor total concedido quando o crédito entrou. */
+  grantedValue: number;
+  /** Quanto já foi consumido no total (inclui o `value` deste ciclo). */
+  consumed: number;
+  /** Data em que o crédito foi concedido (pt-BR). */
+  grantedAt: string;
+  /** Validade do crédito (pt-BR). */
+  expiresAt: string;
+  /** Linha curta explicando a origem/condição do crédito. */
+  note: string;
 };
 
 export const FORECAST_DISCOUNTS: ForecastDiscount[] = [
-  { id: "fd-bf2025", kind: "Cupom", label: "BF2025", value: 90.0 },
-  { id: "fd-q2", kind: "Voucher", label: "Crédito Q2", value: 42.4 },
+  {
+    id: "fd-bf2025",
+    kind: "Cupom",
+    label: "BF2025",
+    value: 90.0,
+    grantedValue: 150.0,
+    consumed: 90.0,
+    grantedAt: "20/11/2025",
+    expiresAt: "30/06/2026",
+    note: "Cupom de Black Friday aplicado ao consumo variável do ciclo.",
+  },
+  {
+    id: "fd-q2",
+    kind: "Voucher",
+    label: "Crédito Q2",
+    value: 42.4,
+    grantedValue: 100.0,
+    consumed: 42.4,
+    grantedAt: "01/04/2026",
+    expiresAt: "30/09/2026",
+    note: "Crédito promocional do trimestre, abatido automaticamente nas faturas.",
+  },
 ];
 
 // Gastos variáveis — agrupados por dia (1..31) e por categoria.

@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
+import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -11,8 +13,10 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import { CardBrandLogo } from "../_components/CardBrandLogo";
 import { InvoiceBreakdownCard } from "../_components/InvoiceBreakdownCard";
+import { PlanDetailModal } from "../_components/PlanDetailModal";
 import {
   brl,
   CURRENT_INVOICE,
@@ -73,9 +77,38 @@ function ForecastBlock() {
           }
           footnote={
             <>
-              Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
-              <CardBrandLogo brand={card.brand} size={22} />
-              •••• {card.last4}
+              <span className="inline-flex flex-wrap items-center gap-1.5">
+                Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
+                <CardBrandLogo brand={card.brand} size={22} />
+                •••• {card.last4}
+              </span>
+              <span className="inline-flex w-full items-center gap-1 text-(--fg-secondary)">
+                <Icon name="info" size={14} className="shrink-0 text-(--fg-tertiary)" />
+                Você pode receber cobranças adicionais ao atingir o limite do
+                consumo variável.
+                <TooltipProvider delayDuration={120}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label="Como funcionam as cobranças adicionais"
+                        className="inline-flex shrink-0 text-(--fg-tertiary) hover:text-(--fg-primary)"
+                      >
+                        <Icon name="help" size={14} />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent
+                      side="top"
+                      className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+                    >
+                      Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
+                      o consumo variável acumulado é cobrado na hora — então pode
+                      aparecer mais de uma cobrança no mesmo mês, separada da
+                      fatura do plano.
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </span>
             </>
           }
           cta={{
@@ -156,25 +189,52 @@ function ConsumoVariavelCard() {
 }
 
 function PlanoCard() {
+  const [detailOpen, setDetailOpen] = React.useState(false);
+  const [contactOpen, setContactOpen] = React.useState(false);
+
   return (
-    <AwCard className="flex items-center gap-4 border-(--aw-gray-25) px-6! py-4!">
-      <span
-        aria-hidden="true"
-        className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
-      >
-        <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={44} />
-      </span>
-      <div className="min-w-0">
-        <p className="m-0 body-lg font-medium text-(--fg-primary)">
-          {CURRENT_PLAN.name}
-        </p>
-        <p className="m-0 mt-0.5 body-sm tabular-nums text-(--fg-secondary)">
-          <strong className="font-medium text-(--fg-primary)">
-            {brl(CURRENT_PLAN.monthly)}
-          </strong>
-          /mês · renova em {CURRENT_PLAN.nextChargeAt}
-        </p>
-      </div>
-    </AwCard>
+    <>
+      <AwCard className="flex items-center gap-4 border-(--aw-gray-25) px-6! py-4!">
+        <span
+          aria-hidden="true"
+          className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-(--bg-inverse)"
+        >
+          <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={44} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-lg font-medium text-(--fg-primary)">
+            {CURRENT_PLAN.name}
+          </p>
+          <p className="m-0 mt-0.5 body-sm tabular-nums text-(--fg-secondary)">
+            <strong className="font-medium text-(--fg-primary)">
+              {brl(CURRENT_PLAN.monthly)}
+            </strong>
+            /mês · renova em {CURRENT_PLAN.nextChargeAt}
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="inline-flex shrink-0 items-center gap-1 self-start rounded-md body-sm font-medium text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
+        >
+          Ver detalhes
+          <Icon name="chevron_right" size={16} />
+        </button>
+      </AwCard>
+
+      <PlanDetailModal
+        open={detailOpen}
+        onClose={() => setDetailOpen(false)}
+        onContact={() => {
+          setDetailOpen(false);
+          setContactOpen(true);
+        }}
+      />
+      <AwContactChannelModal
+        open={contactOpen}
+        onClose={() => setContactOpen(false)}
+        managerName={ONBOARDING_ORG.accountManager.name}
+      />
+    </>
   );
 }

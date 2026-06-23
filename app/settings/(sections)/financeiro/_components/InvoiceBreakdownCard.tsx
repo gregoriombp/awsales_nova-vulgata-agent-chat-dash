@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
 import { brl, type ForecastDiscount } from "./data";
+import { CreditDetailModal } from "./CreditDetailModal";
 
 /**
  * Detalhamento da fatura — a versão itemizada do número-herói: plano + consumo
@@ -100,6 +101,7 @@ function Money({ value, suffix }: { value: number; suffix?: string }) {
 
 function DiscountRow({ discounts }: { discounts: ForecastDiscount[] }) {
   const [open, setOpen] = React.useState(false);
+  const [detail, setDetail] = React.useState<ForecastDiscount | null>(null);
   const panelId = React.useId();
   const total = discounts.reduce((sum, d) => sum + d.value, 0);
 
@@ -146,7 +148,14 @@ function DiscountRow({ discounts }: { discounts: ForecastDiscount[] }) {
               >
                 <span className="inline-flex items-baseline gap-1.5 body-xs text-(--fg-tertiary)">
                   <span className="text-(--fg-secondary)">{d.kind}</span>
-                  {d.label}
+                  <button
+                    type="button"
+                    onClick={() => setDetail(d)}
+                    className="inline-flex items-center gap-1 rounded-sm font-medium text-(--fg-secondary) underline decoration-(--border-strong) decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:decoration-(--fg-primary)"
+                  >
+                    {d.label}
+                    <Icon name="info" size={12} className="text-(--fg-tertiary)" />
+                  </button>
                 </span>
                 <span className="body-xs tabular-nums text-(--accent-success)">
                   −{brl(d.value)}
@@ -156,6 +165,12 @@ function DiscountRow({ discounts }: { discounts: ForecastDiscount[] }) {
           </ul>
         </div>
       </div>
+
+      <CreditDetailModal
+        credit={detail}
+        open={detail !== null}
+        onClose={() => setDetail(null)}
+      />
     </li>
   );
 }
