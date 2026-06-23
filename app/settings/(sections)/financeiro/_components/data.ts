@@ -56,6 +56,23 @@ export const OVERVIEW_KPIS = {
 // Quando atingido, o montante acumulado é cobrado automaticamente.
 export const VARIABLE_SPENDING_LIMIT = 1500;
 
+// Composição do desconto estimado da próxima fatura (cupom + voucher). A soma
+// DEVE bater com OVERVIEW_KPIS.monthSavings — é a quebra do mesmo valor, só
+// detalhada por origem do crédito.
+export type ForecastDiscount = {
+  id: string;
+  /** Origem do crédito — distingue cupom de voucher na linha. */
+  kind: "Cupom" | "Voucher";
+  /** Código/nome exibido (ex.: "BF2025", "Crédito Q2"). */
+  label: string;
+  value: number;
+};
+
+export const FORECAST_DISCOUNTS: ForecastDiscount[] = [
+  { id: "fd-bf2025", kind: "Cupom", label: "BF2025", value: 90.0 },
+  { id: "fd-q2", kind: "Voucher", label: "Crédito Q2", value: 42.4 },
+];
+
 // Gastos variáveis — agrupados por dia (1..31) e por categoria.
 // 4 categorias por agrupamento; cada valor é em BRL.
 export type SpendingGrouping = "service" | "agent";
