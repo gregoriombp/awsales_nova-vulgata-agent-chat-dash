@@ -60,11 +60,12 @@ function ForecastBlock() {
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const card = CURRENT_INVOICE.paymentMethod;
 
-  // Um card só, com stroke em volta das duas colunas: à esquerda a fatura
-  // atual (branca, herói); à direita o detalhamento itemizado, num fundo cinza
-  // leve separado por uma divisória.
+  // Um card só, com stroke em volta. O padding da div mãe afasta as colunas do
+  // stroke: à esquerda a fatura atual (branca, herói); à direita o detalhamento
+  // num card cinza arredondado e "flutuante" — a separação vem do respiro do
+  // padding, não de uma divisória.
   return (
-    <AwCard className="grid grid-cols-2 items-stretch overflow-hidden p-0!">
+    <AwCard className="grid grid-cols-2 items-stretch p-1.5">
       <div className="p-7">
         <AwInvoiceForecastCard
           bare
@@ -94,7 +95,7 @@ function ForecastBlock() {
         />
       </div>
       <InvoiceBreakdownCard
-        className="border-l border-(--border-subtle) bg-(--bg-surface) p-7"
+        className="rounded-xl bg-(--bg-surface) p-7"
         subscription={CURRENT_PLAN.monthly}
         subscriptionLabel={CURRENT_PLAN.name}
         variable={OVERVIEW_KPIS.accumulated}
@@ -247,10 +248,10 @@ function ConsumptionSection() {
           </p>
         </div>
         <Link
-          href="/settings/financeiro/detalhamento"
+          href="/settings/consumo-e-custos"
           className="inline-flex items-center gap-1.5 rounded-md border border-(--border-default) bg-(--bg-raised) px-3.5 py-2 body-sm font-medium text-(--fg-primary) transition-colors hover:border-(--border-strong) hover:bg-(--bg-hover)"
         >
-          Ver detalhamento
+          Consumo e custos
           <Icon name="arrow_forward" size={16} className="text-(--fg-tertiary)" />
         </Link>
       </div>
