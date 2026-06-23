@@ -33,11 +33,10 @@ import {
 } from "@/components/ui/tooltip";
 import {
   brl,
-  CHARGED_BY_DAY,
-  CHARGED_TOTAL,
-  USED_BY_DAY,
-  USED_META_TOTAL,
-  USED_WC_TOTAL,
+  getUsedChargedSeries,
+  periodBars,
+  reconScaleForCustom,
+  reconScaleForPeriod,
   type SpendingCategory,
   type SpendingGrouping,
   type SpendingPeriod,
@@ -96,8 +95,10 @@ type ConsumoViz = "bar" | "area" | "line";
 
 export function ConsumoChartWidget({
   dragHandle,
+  resizeButton,
 }: {
   dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
 }) {
   const { chartModel, chartIds, chartPeriod, grouping, accumulated } =
     useConsumo();
@@ -171,20 +172,24 @@ export function ConsumoChartWidget({
     />
   );
 
-  const axes = (
-    <>
-      <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-      <XAxis
-        dataKey="day"
-        tickLine={{ stroke: "var(--border-default)" }}
-        axisLine={{ stroke: "var(--border-subtle)" }}
-        tickMargin={8}
-        interval={0}
-        minTickGap={8}
-        height={34}
-      />
-    </>
-  );
+  // Eixos compartilhados pelas 3 vizualizações. Recharts só reconhece
+  // CartesianGrid/XAxis como filhos DIRETOS do chart e percorre arrays de
+  // children — mas NÃO entra em Fragments. Um fragment aqui fazia o eixo (e os
+  // rótulos de data) sumir silenciosamente; por isso usamos um array com keys.
+  const axes = [
+    <CartesianGrid key="grid" vertical={false} stroke="var(--border-subtle)" />,
+    <XAxis
+      key="x"
+      dataKey="day"
+      tickLine={{ stroke: "var(--border-default)" }}
+      axisLine={{ stroke: "var(--border-subtle)" }}
+      tickMargin={8}
+      interval={totalDays > 31 ? "preserveStartEnd" : 0}
+      minTickGap={4}
+      tick={{ fontSize: 11 }}
+      height={34}
+    />,
+  ];
 
   return (
     <WidgetShell
@@ -192,6 +197,7 @@ export function ConsumoChartWidget({
       icon="bar_chart"
       description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}`}
       dragHandle={dragHandle}
+      resizeButton={resizeButton}
       actions={
         <VizToggle
           value={viz}
@@ -285,8 +291,10 @@ type ComposicaoViz = "donut" | "bars";
 
 export function ComposicaoWidget({
   dragHandle,
+  resizeButton,
 }: {
   dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
 }) {
   const { seriesTotals, grouping, accumulated } = useConsumo();
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
@@ -316,6 +324,7 @@ export function ComposicaoWidget({
       icon="donut_small"
       description={grouping === "service" ? "Participação por serviço / taxa" : "Participação por agente"}
       dragHandle={dragHandle}
+      resizeButton={resizeButton}
       actions={
         <VizToggle
           value={viz}
@@ -483,22 +492,50 @@ type ReconViz = "bar" | "line";
 
 export function UsadoCobradoWidget({
   dragHandle,
+  resizeButton,
 }: {
   dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
 }) {
+  const { selection, chartPeriod, customDays } = useConsumo();
   const [viz, setViz] = React.useState<ReconViz>("bar");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
+  // Acompanha o controle de tempo global: nº de buckets + fator de escala saem
+  // do período (ou range custom) ativo, espelhando os outros widgets.
+  const bars =
+    selection.kind === "custom"
+      ? Math.max(1, Math.min(customDays, 90))
+      : periodBars(selection.id);
+  const scale =
+    selection.kind === "custom"
+      ? reconScaleForCustom(customDays)
+      : reconScaleForPeriod(selection.id);
+
+  const series = React.useMemo(
+    () => getUsedChargedSeries(bars, scale),
+    [bars, scale],
+  );
+
   const data = React.useMemo(
     () =>
-      USED_BY_DAY.map((d, i) => ({
-        day: d.label,
+      series.map((d, i) => ({
+        day: dayLabel(i, bars, chartPeriod),
         wc: d.wc,
         meta: d.meta,
         used: Math.round((d.wc + d.meta) * 100) / 100,
-        charged: CHARGED_BY_DAY[i]?.value ?? 0,
+        charged: d.charged,
       })),
-    [],
+    [series, bars, chartPeriod],
+  );
+
+  const usedTotal = React.useMemo(
+    () => series.reduce((s, d) => s + d.wc + d.meta, 0),
+    [series],
+  );
+  const chargedTotal = React.useMemo(
+    () => series.reduce((s, d) => s + d.charged, 0),
+    [series],
   );
 
   const config: ChartConfig = {
@@ -512,8 +549,9 @@ export function UsadoCobradoWidget({
     <WidgetShell
       title={<ReconciliationTitle />}
       icon="sync_alt"
-      description={`Uso estimado ${brl(USED_WC_TOTAL + USED_META_TOTAL)} · na fatura ${brl(CHARGED_TOTAL)}`}
+      description={`Uso estimado ${brl(usedTotal)} · na fatura ${brl(chargedTotal)}`}
       dragHandle={dragHandle}
+      resizeButton={resizeButton}
       actions={
         <VizToggle
           value={viz}
