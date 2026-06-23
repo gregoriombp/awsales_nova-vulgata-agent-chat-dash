@@ -2,7 +2,7 @@
 // (app/api/page-edits/_store.ts) imports node:fs, so it can't be pulled into
 // client bundles — these types are the browser-safe twin, kept in sync by hand.
 
-export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon"
+export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon" | "move"
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded"
 
@@ -26,7 +26,16 @@ export interface PageEditAnchor {
 export type PageEditPayload =
   | { kind: "text"; text: string; prevText?: string }
   // token is always a `var(--token)` string so the override tracks dark mode.
-  | { kind: "style"; prop: string; token: string; prevToken?: string }
+  // offSpec marks a direct style override on a component ROOT (diverges from the
+  // component's own variant system); offSpecComponent is its label ("Card").
+  | {
+      kind: "style"
+      prop: string
+      token: string
+      prevToken?: string
+      offSpec?: boolean
+      offSpecComponent?: string
+    }
   | { kind: "hide"; mode: "hide" | "remove" }
   // variant/size swap on a class-based Aw* component (classList swap).
   | {
@@ -39,6 +48,10 @@ export type PageEditPayload =
     }
   // Material Symbol ligature swap on an icon span.
   | { kind: "icon"; name: string; prevName?: string }
+  // Sibling reorder: anchor is the PARENT container; `order` is the desired
+  // child sequence by stable fingerprint key ("<tag>::<text>"). One move op per
+  // parent (upsert) — see _store payloadDisc.
+  | { kind: "move"; order: string[] }
 
 export interface PageEditOp {
   id: string

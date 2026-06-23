@@ -1,6 +1,7 @@
 import type { PageEditOp } from "./types"
 import { resolveEditElement } from "./anchor"
 import { isAllowedStyle } from "./token-manifest"
+import { matchOrder, orderMatches, reorderDom } from "./reorder"
 
 // The overlay APPLY engine. React owns textContent/style/className and reverts
 // any DOM mutation on its next render — so for every active op we (1) write the
@@ -183,6 +184,9 @@ export class OverlayApplier {
         characterData: true,
         subtree: true,
       })
+    } else if (kind === "move") {
+      // entry.el is the PARENT; re-assert child order when React re-renders it.
+      entry.observer.observe(entry.el, { childList: true })
     } else {
       entry.observer.observe(entry.el, {
         attributes: true,
@@ -238,6 +242,10 @@ export class OverlayApplier {
           for (const c of payload.remove) if (c !== payload.add) cl.remove(c)
           if (payload.add) cl.add(payload.add)
         }
+    } else if (payload.kind === "move") {
+      // el is the PARENT container; reorder its children to the saved sequence.
+      const ordered = matchOrder(el, payload.order)
+      if (!orderMatches(el, ordered)) mutate = () => reorderDom(el, ordered)
     }
 
     if (!mutate) return

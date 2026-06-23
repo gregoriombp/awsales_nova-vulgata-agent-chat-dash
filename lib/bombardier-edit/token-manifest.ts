@@ -112,16 +112,29 @@ const SHADOW_SCALE: TokenSwatch[] = [
   swatch("--shadow-lg", "LG"),
   swatch("--shadow-overlay", "Overlay"),
 ]
+// Escala de espaçamento (padding/margin/gap). Subconjunto curado dos --space-*
+// do globals.css — começa em --space-0 (0px, "Nenhum") pra dar conta de
+// "reduzir/zerar padding" sem sair do token.
+const SPACING_SCALE: TokenSwatch[] = [
+  swatch("--space-0", "0"),
+  swatch("--space-1", "4"),
+  swatch("--space-2", "8"),
+  swatch("--space-3", "12"),
+  swatch("--space-4", "16"),
+  swatch("--space-6", "24"),
+  swatch("--space-8", "32"),
+  swatch("--space-12", "48"),
+]
 
 export interface StyleProperty {
   prop: string
   label: string
-  kind: "color" | "radius" | "shadow"
+  kind: "color" | "radius" | "shadow" | "spacing"
   /** Grupos semânticos relevantes pra esta propriedade (atalhos no topo). */
   semantic: SemanticGroup[]
   /** Propriedades de cor mostram TODAS as rampas embaixo dos semânticos. */
   showRamps: boolean
-  /** Escala (raio/sombra). */
+  /** Escala (raio/sombra/espaçamento). */
   scale?: TokenSwatch[]
 }
 
@@ -131,6 +144,9 @@ export const STYLE_PROPERTIES: StyleProperty[] = [
   { prop: "border-color", label: "Borda", kind: "color", semantic: [SEMANTIC_BORDER, SEMANTIC_ACCENT], showRamps: true },
   { prop: "border-radius", label: "Raio", kind: "radius", semantic: [], showRamps: false, scale: RADIUS_SCALE },
   { prop: "box-shadow", label: "Sombra", kind: "shadow", semantic: [], showRamps: false, scale: SHADOW_SCALE },
+  { prop: "padding", label: "Padding", kind: "spacing", semantic: [], showRamps: false, scale: SPACING_SCALE },
+  { prop: "margin", label: "Margem", kind: "spacing", semantic: [], showRamps: false, scale: SPACING_SCALE },
+  { prop: "gap", label: "Gap", kind: "spacing", semantic: [], showRamps: false, scale: SPACING_SCALE },
 ]
 
 // ── Allow-lists pro apply engine ──────────────────────────────────────────────
@@ -142,13 +158,16 @@ const COLOR_VALUES = new Set<string>([
 ])
 const RADIUS_VALUES = new Set(RADIUS_SCALE.map((t) => t.cssValue))
 const SHADOW_VALUES = new Set(SHADOW_SCALE.map((t) => t.cssValue))
+const SPACING_VALUES = new Set(SPACING_SCALE.map((t) => t.cssValue))
 
 const COLOR_PROPS = new Set(["color", "background-color", "border-color"])
+const SPACING_PROPS = new Set(["padding", "margin", "gap"])
 
 /** Guarda: uma op de estilo só é honrada se a propriedade for conhecida E o
  *  valor for um token válido pra ela. Defende o DOM de qualquer não-token. */
 export function isAllowedStyle(prop: string, cssValue: string): boolean {
   if (COLOR_PROPS.has(prop)) return COLOR_VALUES.has(cssValue)
+  if (SPACING_PROPS.has(prop)) return SPACING_VALUES.has(cssValue)
   if (prop === "border-radius") return RADIUS_VALUES.has(cssValue)
   if (prop === "box-shadow") return SHADOW_VALUES.has(cssValue)
   return false

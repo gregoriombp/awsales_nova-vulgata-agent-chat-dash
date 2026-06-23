@@ -65,7 +65,7 @@ function ForecastBlock() {
   // num card cinza arredondado e "flutuante" — a separação vem do respiro do
   // padding, não de uma divisória.
   return (
-    <AwCard className="grid grid-cols-2 items-stretch p-1.5">
+    <AwCard className="grid grid-cols-2 items-stretch p-1">
       <div className="p-7">
         <AwInvoiceForecastCard
           bare
@@ -248,10 +248,10 @@ function ConsumptionSection() {
           </p>
         </div>
         <Link
-          href="/settings/consumo-e-custos"
+          href="/settings/financeiro/detalhamento"
           className="inline-flex items-center gap-1.5 rounded-md border border-(--border-default) bg-(--bg-raised) px-3.5 py-2 body-sm font-medium text-(--fg-primary) transition-colors hover:border-(--border-strong) hover:bg-(--bg-hover)"
         >
-          Consumo e custos
+          Ver detalhamento
           <Icon name="arrow_forward" size={16} className="text-(--fg-tertiary)" />
         </Link>
       </div>
