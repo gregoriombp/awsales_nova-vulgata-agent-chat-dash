@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
@@ -78,7 +79,7 @@ const SERVICE_GROUPS: ServiceGroupDef[] = [
   { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal" },
   { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal" },
   { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal" },
-  { id: "ai", label: "AI", icon: "neurology", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
+  { id: "ai", label: "AI", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
   { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump" },
 ];
 
@@ -213,7 +214,7 @@ function ServiceTable() {
                         name="chevron_right"
                         size={18}
                         className={
-                          "mt-0.5 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast " +
+                          "mt-0.5 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-base ease-aw-out " +
                           (isOpen ? "rotate-90" : "")
                         }
                       />
@@ -241,20 +242,38 @@ function ServiceTable() {
                 <td className="text-right font-medium tabular-nums text-(--fg-primary)">{brl(g.groupTotal)}</td>
                 <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(g.groupTotal)}</td>
               </tr>
-              {isOpen &&
-                g.members.map((sub) => (
-                  <tr key={sub.id} className="bg-(--bg-muted)">
-                    <td className="py-2.5 pl-[52px] body-sm text-(--fg-secondary)">
-                      <span className="text-(--fg-tertiary)">↳</span> {sub.label}
-                    </td>
-                    <td className="py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
-                      {formatQuantity(sub.quantity, sub.quantityFormat)}
-                    </td>
-                    <td className="py-2.5 body-xs tabular-nums text-(--fg-tertiary)">{sub.unitPriceLabel}</td>
-                    <td className="py-2.5 text-right body-xs tabular-nums text-(--fg-secondary)">{brl(sub.total)}</td>
-                    <td className="py-2.5 text-right body-xs tabular-nums text-(--fg-tertiary)">{fmtUsd(sub.total)}</td>
-                  </tr>
-                ))}
+              {expandable &&
+                g.members.map((sub, idx) => {
+                  const first = idx === 0;
+                  const last = idx === g.members.length - 1;
+                  return (
+                    <tr key={sub.id}>
+                      <SubCell
+                        open={isOpen}
+                        corner={cn(first && "rounded-tl-lg", last && "rounded-bl-lg")}
+                        inner="pl-[52px] pr-5 py-2.5 body-sm text-(--fg-secondary)"
+                      >
+                        <span className="text-(--fg-tertiary)">↳</span> {sub.label}
+                      </SubCell>
+                      <SubCell open={isOpen} inner="px-5 py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
+                        {formatQuantity(sub.quantity, sub.quantityFormat)}
+                      </SubCell>
+                      <SubCell open={isOpen} inner="px-5 py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
+                        {sub.unitPriceLabel}
+                      </SubCell>
+                      <SubCell open={isOpen} inner="px-5 py-2.5 text-right body-xs tabular-nums text-(--fg-secondary)">
+                        {brl(sub.total)}
+                      </SubCell>
+                      <SubCell
+                        open={isOpen}
+                        corner={cn(first && "rounded-tr-lg", last && "rounded-br-lg")}
+                        inner="px-5 py-2.5 text-right body-xs tabular-nums text-(--fg-tertiary)"
+                      >
+                        {fmtUsd(sub.total)}
+                      </SubCell>
+                    </tr>
+                  );
+                })}
             </React.Fragment>
           );
         })}
@@ -282,6 +301,37 @@ function ServiceTable() {
         </tr>
       </tfoot>
     </AwTable>
+  );
+}
+
+/* Célula de sub-nível com colapso suave. A linha continua na grade da tabela
+ * (colunas alinhadas com o grupo), mas a altura anima de verdade: a `<td>` zera
+ * padding/borda e o conteúdo vive num wrapper `grid-rows: 0fr → 1fr` com
+ * overflow oculto — abre e fecha sem "pular". O `bg` fica na própria célula e os
+ * 4 cantos externos do bloco recebem `corner` pra ler como um painel cinza
+ * levemente arredondado. Respeita `prefers-reduced-motion`. */
+function SubCell({
+  open,
+  corner,
+  inner,
+  children,
+}: {
+  open: boolean;
+  corner?: string;
+  inner: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <td className={cn("bg-(--bg-muted) border-0! p-0!", corner)}>
+      <div
+        className="grid transition-[grid-template-rows] duration-aw-base ease-aw-out motion-reduce:transition-none"
+        style={{ gridTemplateRows: open ? "1fr" : "0fr" }}
+      >
+        <div className="overflow-hidden">
+          <div className={inner}>{children}</div>
+        </div>
+      </div>
+    </td>
   );
 }
 
