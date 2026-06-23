@@ -20,7 +20,9 @@ import { BreakdownTableWidget } from "./_components/BreakdownTable";
 import {
   DraggableBoard,
   useBoardOrder,
+  useBoardSpans,
   type BoardWidget,
+  type Span,
 } from "./_components/WidgetBoard";
 
 /**
@@ -32,6 +34,7 @@ import {
  * visualizações alternativas + tabela). A ordem do board é salva por navegador.
  */
 const STORAGE_KEY = "consumo-dash-order-v1";
+const SPANS_KEY = "consumo-dash-spans-v1";
 
 const DEFAULT_ORDER = [
   "consumo",
@@ -39,6 +42,14 @@ const DEFAULT_ORDER = [
   "usado-cobrado",
   "detalhamento",
 ];
+
+// Largura padrão de cada widget no grid de 2 colunas (resize troca 1↔2).
+const DEFAULT_SPANS: Record<string, Span> = {
+  consumo: 2,
+  composicao: 1,
+  "usado-cobrado": 1,
+  detalhamento: 2,
+};
 
 export default function ConsumoECustosPage() {
   return (
@@ -49,17 +60,31 @@ export default function ConsumoECustosPage() {
 }
 
 function Dashboard() {
-  const { order, setOrder, reset, isCustomized } = useBoardOrder(
-    STORAGE_KEY,
-    DEFAULT_ORDER,
-  );
+  const {
+    order,
+    setOrder,
+    reset: resetOrder,
+    isCustomized: orderCustomized,
+  } = useBoardOrder(STORAGE_KEY, DEFAULT_ORDER);
+  const {
+    spans,
+    toggleSpan,
+    reset: resetSpans,
+    isCustomized: spansCustomized,
+  } = useBoardSpans(SPANS_KEY, DEFAULT_SPANS);
+
+  const isCustomized = orderCustomized || spansCustomized;
+  const reset = React.useCallback(() => {
+    resetOrder();
+    resetSpans();
+  }, [resetOrder, resetSpans]);
 
   const widgets: BoardWidget[] = React.useMemo(
     () => [
-      { id: "consumo", span: 2, render: (h) => <ConsumoChartWidget dragHandle={h} /> },
-      { id: "composicao", span: 1, render: (h) => <ComposicaoWidget dragHandle={h} /> },
-      { id: "usado-cobrado", span: 1, render: (h) => <UsadoCobradoWidget dragHandle={h} /> },
-      { id: "detalhamento", span: 2, render: (h) => <BreakdownTableWidget dragHandle={h} /> },
+      { id: "consumo", span: 2, render: (c) => <ConsumoChartWidget {...c} /> },
+      { id: "composicao", span: 1, render: (c) => <ComposicaoWidget {...c} /> },
+      { id: "usado-cobrado", span: 1, render: (c) => <UsadoCobradoWidget {...c} /> },
+      { id: "detalhamento", span: 2, render: (c) => <BreakdownTableWidget {...c} /> },
     ],
     [],
   );
@@ -111,8 +136,14 @@ function Dashboard() {
         {/* 4 cards de destaque (fixos) */}
         <HighlightCards />
 
-        {/* board arrastável */}
-        <DraggableBoard widgets={widgets} order={order} setOrder={setOrder} />
+        {/* board arrastável + redimensionável */}
+        <DraggableBoard
+          widgets={widgets}
+          order={order}
+          setOrder={setOrder}
+          spans={spans}
+          toggleSpan={toggleSpan}
+        />
       </div>
     </div>
   );
