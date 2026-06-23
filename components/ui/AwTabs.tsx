@@ -10,6 +10,9 @@ export type AwTabsItem = {
   value: string
   label: React.ReactNode
   count?: number
+  /** Tone of the count badge. `"danger"` paints it red (overdue/failed,
+   *  needs-attention counts); defaults to the neutral pill. */
+  countTone?: "default" | "danger"
   disabled?: boolean
 }
 
@@ -99,7 +102,14 @@ export function AwTabs({
             >
               <span className="aw-tabs__label">{it.label}</span>
               {typeof it.count === "number" && (
-                <span className="aw-tabs__count">{it.count}</span>
+                <span
+                  className={cn(
+                    "aw-tabs__count",
+                    it.countTone === "danger" && "aw-tabs__count--danger"
+                  )}
+                >
+                  {it.count}
+                </span>
               )}
             </TabsPrimitive.Trigger>
           )
