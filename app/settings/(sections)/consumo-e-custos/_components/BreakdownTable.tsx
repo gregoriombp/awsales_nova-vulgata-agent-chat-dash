@@ -43,8 +43,10 @@ function fmtUsd(brlValue: number): string {
 
 export function BreakdownTableWidget({
   dragHandle,
+  resizeButton,
 }: {
   dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
 }) {
   const { grouping } = useConsumo();
   return (
@@ -57,6 +59,7 @@ export function BreakdownTableWidget({
           : "Por agente — consumo do ciclo, com BRL e USD"
       }
       dragHandle={dragHandle}
+      resizeButton={resizeButton}
     >
       {grouping === "service" ? <ServiceTable /> : <AgentTable />}
     </WidgetShell>
@@ -189,7 +192,7 @@ function ServiceTable() {
         </tr>
       </thead>
       <tbody>
-        {groups.map((g) => {
+        {groups.map((g, gi) => {
           const expandable = g.members.length > 1;
           const isOpen = expandable && expanded.has(g.def.id);
           const outlier = isOutlier(g.groupTotal, allTotals);
@@ -199,10 +202,18 @@ function ServiceTable() {
             : "—";
           const unitLabel = expandable ? "Misto" : g.members[0].unitPriceLabel;
 
+          // Cada item da tabela é uma linha arredondada. Grupos COM filhos ganham
+          // bg-cinza fixo e se fundem com seus sub-níveis num único painel (topo
+          // arredondado aqui, base no último filho). Linhas soltas ficam
+          // transparentes e arredondam no hover.
+          const cellBase = cn("border-0!", expandable && "bg-(--bg-muted)");
+          const firstCorner = expandable && isOpen ? "rounded-tl-lg" : "rounded-l-lg";
+          const lastCorner = expandable && isOpen ? "rounded-tr-lg" : "rounded-r-lg";
+
           return (
             <React.Fragment key={g.def.id}>
               <tr>
-                <td>
+                <td className={cn(cellBase, firstCorner)}>
                   {expandable ? (
                     <button
                       type="button"
@@ -237,24 +248,23 @@ function ServiceTable() {
                     </span>
                   )}
                 </td>
-                <td className="align-top tabular-nums text-(--fg-secondary)">{qtyLabel}</td>
-                <td className="align-top tabular-nums text-(--fg-secondary)">{unitLabel}</td>
-                <td className="align-top text-right font-medium tabular-nums text-(--fg-primary)">
+                <td className={cn(cellBase, "align-top tabular-nums text-(--fg-secondary)")}>{qtyLabel}</td>
+                <td className={cn(cellBase, "align-top tabular-nums text-(--fg-secondary)")}>{unitLabel}</td>
+                <td className={cn(cellBase, "align-top text-right font-medium tabular-nums text-(--fg-primary)")}>
                   {brl(g.groupTotal)}
                 </td>
-                <td className="align-top text-right tabular-nums text-(--fg-tertiary)">
+                <td className={cn(cellBase, lastCorner, "align-top text-right tabular-nums text-(--fg-tertiary)")}>
                   {fmtUsd(g.groupTotal)}
                 </td>
               </tr>
               {expandable &&
                 g.members.map((sub, idx) => {
-                  const first = idx === 0;
                   const last = idx === g.members.length - 1;
                   return (
                     <tr key={sub.id}>
                       <SubCell
                         open={isOpen}
-                        corner={cn(first && "rounded-tl-lg", last && "rounded-bl-lg")}
+                        corner={cn(last && "rounded-bl-lg")}
                         inner="pl-[52px] pr-5 py-2.5 body-sm text-(--fg-secondary)"
                       >
                         <span className="text-(--fg-tertiary)">↳</span> {sub.label}
@@ -270,7 +280,7 @@ function ServiceTable() {
                       </SubCell>
                       <SubCell
                         open={isOpen}
-                        corner={cn(first && "rounded-tr-lg", last && "rounded-br-lg")}
+                        corner={cn(last && "rounded-br-lg")}
                         inner="px-5 py-2.5 text-right body-xs tabular-nums text-(--fg-tertiary)"
                       >
                         {fmtUsd(sub.total)}
@@ -278,19 +288,24 @@ function ServiceTable() {
                     </tr>
                   );
                 })}
+              {gi < groups.length - 1 && (
+                <tr aria-hidden="true">
+                  <td colSpan={5} className="h-2 border-0! p-0!" />
+                </tr>
+              )}
             </React.Fragment>
           );
         })}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3} className="align-top">
+          <td colSpan={3} className="border-t border-(--border-subtle)! align-top pt-4">
             <span className="font-semibold text-(--fg-primary)">TOTAL</span>
             <span className="block body-3xs text-(--fg-tertiary)">
               câmbio operacional R$ {OPERATIONAL_FX.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · taxonomia canon (W2C)
             </span>
           </td>
-          <td className="align-top text-right font-semibold tabular-nums text-(--fg-primary)">
+          <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
             {matchesCard && (
               <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
@@ -299,7 +314,7 @@ function ServiceTable() {
               </span>
             )}
           </td>
-          <td className="align-top text-right font-semibold tabular-nums text-(--fg-secondary)">
+          <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-secondary)">
             {fmtUsd(total)}
           </td>
         </tr>
