@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCardBrand } from "@/components/ui/AwCardBrand";
 import {
   AwDropdownMenu,
   type AwDropdownItem,
@@ -13,7 +14,10 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
-import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
+import {
+  InvoiceDetailsSheet,
+  paymentBrandId,
+} from "../_components/InvoiceDetailsSheet";
 import {
   brl,
   INVOICE_HISTORY,
@@ -336,6 +340,8 @@ function InvoiceRow({
     : overdue
       ? `Venceu em ${row.dueAt}`
       : `Vence em ${row.dueAt}`;
+  // Só cartões têm bandeira; Boleto/Pix caem em "unknown" e ficam só com texto.
+  const cardBrand = paymentBrandId(row.paymentMethod);
 
   return (
     <li className="m-0 list-none">
@@ -351,9 +357,18 @@ function InvoiceRow({
             </span>
             <AwPill variant={statusVariant(row.status)}>{row.status}</AwPill>
           </div>
-          <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
-            {row.id} · {row.paymentMethod} · {dateLabel}
-          </p>
+          <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 body-xs tabular-nums text-(--fg-tertiary)">
+            <span>{row.id}</span>
+            <span aria-hidden>·</span>
+            <span className="inline-flex items-center gap-1">
+              {cardBrand !== "unknown" && (
+                <AwCardBrand brand={cardBrand} size="sm" />
+              )}
+              {row.paymentMethod}
+            </span>
+            <span aria-hidden>·</span>
+            <span>{dateLabel}</span>
+          </div>
         </div>
         <span className="flex flex-col items-end">
           <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
