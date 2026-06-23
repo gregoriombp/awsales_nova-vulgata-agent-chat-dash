@@ -1,0 +1,41 @@
+<svg width="608" height="400" viewBox="0 0 608 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_37_1346)">
+<path d="M0 24C0 10.7452 10.7452 0 24 0H584C597.255 0 608 10.7452 608 24V376C608 389.255 597.255 400 584 400H24C10.7452 400 0 389.255 0 376V24Z" fill="#FBFBFB" style="fill:#FBFBFB;fill:color(display-p3 0.9855 0.9855 0.9855);fill-opacity:1;"/>
+<path d="M52.0195 325.499C52.0195 186.242 164.91 73.3521 304.167 73.3521C443.424 73.3521 556.314 186.242 556.314 325.499C556.314 464.757 443.424 577.647 304.167 577.647C164.91 577.647 52.0195 464.757 52.0195 325.499Z" stroke="url(#paint0_linear_37_1346)" stroke-width="1.89375"/>
+<rect x="76.916" y="98.2505" width="454.501" height="454.501" rx="25.2474" stroke="url(#paint1_linear_37_1346)" stroke-width="1.89375"/>
+<rect x="51.6675" y="123.5" width="505" height="404" rx="25.2474" stroke="url(#paint2_linear_37_1346)" stroke-width="1.89375"/>
+<rect x="506.166" y="73" width="505" height="404" rx="25.2474" transform="rotate(90 506.166 73)" stroke="url(#paint3_linear_37_1346)" stroke-width="1.89375"/>
+<path d="M608 0H0V400H608V0Z" fill="url(#paint4_linear_37_1346)"/>
+<rect x="214" y="213.877" width="93.2061" height="93.2061" stroke="white" style="stroke:white;stroke-opacity:1;" stroke-width="2.21919" stroke-linejoin="round"/>
+<rect x="307.206" y="213.877" width="93.2061" height="93.2061" stroke="white" style="stroke:white;stroke-opacity:1;" stroke-width="2.21919" stroke-linejoin="round"/>
+<rect x="342.641" y="102.917" width="93.2061" height="93.2061" transform="rotate(14.1968 342.641 102.917)" stroke="white" style="stroke:white;stroke-opacity:1;" stroke-width="2.21919" stroke-linejoin="round"/>
+<rect x="214" y="120.671" width="93.2061" height="93.2061" stroke="white" style="stroke:white;stroke-opacity:1;" stroke-width="2.21919" stroke-linejoin="round"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_37_1346" x1="304.167" y1="73.3521" x2="304.167" y2="577.647" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7F9CF5" style="stop-color:#7F9CF5;stop-color:color(display-p3 0.4980 0.6118 0.9608);stop-opacity:1;"/>
+<stop offset="1" stop-color="#E5E5E5" style="stop-color:#E5E5E5;stop-color:color(display-p3 0.8980 0.8980 0.8980);stop-opacity:1;"/>
+</linearGradient>
+<linearGradient id="paint1_linear_37_1346" x1="304.166" y1="98.2505" x2="304.166" y2="552.751" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7F9CF5" style="stop-color:#7F9CF5;stop-color:color(display-p3 0.4980 0.6118 0.9608);stop-opacity:1;"/>
+<stop offset="1" stop-color="#E5E5E5" style="stop-color:#E5E5E5;stop-color:color(display-p3 0.8980 0.8980 0.8980);stop-opacity:1;"/>
+</linearGradient>
+<linearGradient id="paint2_linear_37_1346" x1="304.167" y1="123.5" x2="304.167" y2="527.5" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7F9CF5" style="stop-color:#7F9CF5;stop-color:color(display-p3 0.4980 0.6118 0.9608);stop-opacity:1;"/>
+<stop offset="1" stop-color="#E5E5E5" style="stop-color:#E5E5E5;stop-color:color(display-p3 0.8980 0.8980 0.8980);stop-opacity:1;"/>
+</linearGradient>
+<linearGradient id="paint3_linear_37_1346" x1="758.666" y1="73" x2="758.666" y2="477" gradientUnits="userSpaceOnUse">
+<stop stop-color="#7F9CF5" style="stop-color:#7F9CF5;stop-color:color(display-p3 0.4980 0.6118 0.9608);stop-opacity:1;"/>
+<stop offset="1" stop-color="#E5E5E5" style="stop-color:#E5E5E5;stop-color:color(display-p3 0.8980 0.8980 0.8980);stop-opacity:1;"/>
+</linearGradient>
+<linearGradient id="paint4_linear_37_1346" x1="304" y1="400" x2="304" y2="0" gradientUnits="userSpaceOnUse">
+<stop stop-color="#CEE2F2" style="stop-color:#CEE2F2;stop-color:color(display-p3 0.8078 0.8863 0.9490);stop-opacity:1;"/>
+<stop offset="0.355769" stop-color="#728FAA" style="stop-color:#728FAA;stop-color:color(display-p3 0.4464 0.5595 0.6650);stop-opacity:1;"/>
+<stop offset="0.673077" stop-color="#2D4A64" style="stop-color:#2D4A64;stop-color:color(display-p3 0.1766 0.2906 0.3904);stop-opacity:1;"/>
+<stop offset="1" stop-color="#171B20" style="stop-color:#171B20;stop-color:color(display-p3 0.0902 0.1059 0.1255);stop-opacity:1;"/>
+</linearGradient>
+<clipPath id="clip0_37_1346">
+<path d="M0 24C0 10.7452 10.7452 0 24 0H584C597.255 0 608 10.7452 608 24V376C608 389.255 597.255 400 584 400H24C10.7452 400 0 389.255 0 376V24Z" fill="white" style="fill:white;fill-opacity:1;"/>
+</clipPath>
+</defs>
+</svg>

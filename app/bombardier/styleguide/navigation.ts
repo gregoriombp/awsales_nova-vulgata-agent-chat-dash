@@ -256,6 +256,7 @@ export const navigation: NavSection[] = [
     // showcase junto de AwFileIcon/AwChannelIcon, ainda sem página própria.
     items: [
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
+      { name: "Report promo", href: "/bombardier/styleguide/components/aw-report-promo", aliases: ["AwReportPromo", "consumo e custos", "faixa de relatório", "cta relatório"] },
       { name: "Brand logo", href: "/bombardier/styleguide/components/brand-logo" },
       {
         name: "Memory Base logo",
