@@ -23,10 +23,11 @@ import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 /** Indent visual do conteúdo abaixo do SectionHeading — cria a hierarquia
  *  "título da seção é o pai, conteúdo é o filho". Aplica em todas as
  *  seções da página pra dar uma única linguagem espacial. */
-const SECTION_CONTENT_INDENT = "pl-0 md:pl-12";
+const SECTION_CONTENT_INDENT = "pl-0 md:pl-6";
 
 /** Linguagem dos dividers entre itens dentro de uma seção. */
-const SECTION_DIVIDERS = "flex flex-col divide-y divide-(--border-subtle)";
+const SECTION_DIVIDERS =
+  "flex flex-col divide-y divide-(--border-subtle) [&>*:first-child]:pt-0";
 
 const SSO_LOCK_TOOLTIP =
   "O login único está exigido. Para alterar essa configuração, desative o SSO acima.";
@@ -175,11 +176,11 @@ export default function OrgSegurancaPage() {
           description="A organização entra por um provedor de identidade. Configuramos via WorkOS — o IdP em si fica no portal do provedor."
         />
         <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
-          <div className="flex flex-wrap items-center gap-4 py-4 first:pt-0">
-            <AwBrandLogo brand="googleworkspace" size="md" className="shrink-0" />
+          <div className="flex flex-wrap items-center gap-4 py-5 first:pt-0">
+            <AwBrandLogo brand="googleworkspace" size="lg" className="shrink-0" />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                <p className="m-0 body-md font-semibold text-(--fg-primary)">
                   {SSO.provider}
                 </p>
                 <StatusPill tone="ok">Conectado</StatusPill>
@@ -193,7 +194,7 @@ export default function OrgSegurancaPage() {
             </AwButton>
           </div>
 
-          <div className="flex items-center gap-4 py-4">
+          <div className="flex items-center gap-4 py-5">
             <div className="min-w-0 flex-1">
               <p className="m-0 body-sm font-medium text-(--fg-primary)">
                 Exigir SSO nesta organização
