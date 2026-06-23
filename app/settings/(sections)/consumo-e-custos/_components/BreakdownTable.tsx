@@ -237,12 +237,12 @@ function ServiceTable() {
                     </span>
                   )}
                 </td>
-                <td className="tabular-nums text-(--fg-secondary)">{qtyLabel}</td>
-                <td className="tabular-nums text-(--fg-secondary)">{unitLabel}</td>
-                <td className="align-middle text-right font-medium tabular-nums text-(--fg-primary)">
+                <td className="align-top tabular-nums text-(--fg-secondary)">{qtyLabel}</td>
+                <td className="align-top tabular-nums text-(--fg-secondary)">{unitLabel}</td>
+                <td className="align-top text-right font-medium tabular-nums text-(--fg-primary)">
                   {brl(g.groupTotal)}
                 </td>
-                <td className="align-middle text-right tabular-nums text-(--fg-tertiary)">
+                <td className="align-top text-right tabular-nums text-(--fg-tertiary)">
                   {fmtUsd(g.groupTotal)}
                 </td>
               </tr>
@@ -284,24 +284,22 @@ function ServiceTable() {
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={3}>
+          <td colSpan={3} className="align-top">
             <span className="font-semibold text-(--fg-primary)">TOTAL</span>
             <span className="block body-3xs text-(--fg-tertiary)">
               câmbio operacional R$ {OPERATIONAL_FX.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · taxonomia canon (W2C)
             </span>
           </td>
-          <td className="align-middle text-right font-semibold tabular-nums text-(--fg-primary)">
-            <span className="flex flex-col items-end justify-center gap-1 leading-none">
-              {brl(total)}
-              {matchesCard && (
-                <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
-                  <Icon name="check" size={13} />
-                  bate com card
-                </span>
-              )}
-            </span>
+          <td className="align-top text-right font-semibold tabular-nums text-(--fg-primary)">
+            {brl(total)}
+            {matchesCard && (
+              <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
+                <Icon name="check" size={13} />
+                bate com card
+              </span>
+            )}
           </td>
-          <td className="align-middle text-right font-semibold tabular-nums text-(--fg-secondary)">
+          <td className="align-top text-right font-semibold tabular-nums text-(--fg-secondary)">
             {fmtUsd(total)}
           </td>
         </tr>
@@ -475,19 +473,17 @@ function AgentTable() {
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={3} className="text-right text-(--fg-secondary)">Total por agente</td>
-            <td className="align-middle text-right font-semibold tabular-nums text-(--fg-primary)">
-              <span className="flex flex-col items-end justify-center gap-1 leading-none">
-                {brl(total)}
-                {matchesCard && (
-                  <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
-                    <Icon name="check" size={13} />
-                    bate com card
-                  </span>
-                )}
-              </span>
+            <td colSpan={3} className="align-top text-right text-(--fg-secondary)">Total por agente</td>
+            <td className="align-top text-right font-semibold tabular-nums text-(--fg-primary)">
+              {brl(total)}
+              {matchesCard && (
+                <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
+                  <Icon name="check" size={13} />
+                  bate com card
+                </span>
+              )}
             </td>
-            <td className="align-middle text-right font-semibold tabular-nums text-(--fg-secondary)">
+            <td className="align-top text-right font-semibold tabular-nums text-(--fg-secondary)">
               {fmtUsd(total)}
             </td>
             <td />
