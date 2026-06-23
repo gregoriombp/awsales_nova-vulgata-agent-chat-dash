@@ -1,34 +1,29 @@
 "use client";
 
 import * as React from "react";
-import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
-import { AwProgress } from "@/components/ui/AwProgress";
+import { AwStatCard } from "@/components/ui/AwStatCard";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
-import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AddBalanceModal } from "../_components/AddBalanceModal";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
-import { MoneyHeading } from "../_components/MoneyHeading";
 import {
   brl,
   COUPONS_APPLIED,
+  CREDITS_KPIS,
   INVOICE_HISTORY,
-  OVERVIEW_KPIS,
-  VARIABLE_SPENDING_LIMIT,
   voucherStatusVariant,
   VOUCHERS,
   type CouponRow,
   type VoucherRow,
+  type VoucherStatus,
 } from "../_components/data";
 
 const TODAY = new Date(2026, 4, 19);
@@ -66,7 +61,9 @@ function formatExpiry(br: string): string {
 }
 
 /* -----------------------------------------------------------------
- * Page
+ * Page — Saldo de créditos. Resumo (3 KPIs) → vouchers → cupons.
+ * O consumo variável × limite mora na aba "Visão geral"; aqui o foco
+ * é entender de onde vem cada abatimento e quanto ainda há de saldo.
  * ----------------------------------------------------------------- */
 
 export default function ConsumoPage() {
@@ -74,32 +71,20 @@ export default function ConsumoPage() {
     null,
   );
   const [openVoucherId, setOpenVoucherId] = React.useState<string | null>(null);
-  const [limit] = React.useState(VARIABLE_SPENDING_LIMIT);
-  const [requestOpen, setRequestOpen] = React.useState(false);
 
-  const accumulated = OVERVIEW_KPIS.accumulated;
-  // Créditos abatidos NESTE ciclo. O lifetime de cada voucher (quanto já foi
-  // usado no total) vive na tabela de vouchers abaixo.
-  const creditsApplied = 250;
   const openInvoice =
     INVOICE_HISTORY.find((r) => r.id === openInvoiceId) ?? null;
   const openVoucher = VOUCHERS.find((v) => v.id === openVoucherId) ?? null;
 
   return (
-    <div className="flex flex-col gap-14">
-      <ConsumptionHero
-        accumulated={accumulated}
-        limit={limit}
-        creditsApplied={creditsApplied}
-        onRequestIncrease={() => setRequestOpen(true)}
-      />
+    <div className="flex flex-col gap-12">
+      <CreditsKpis />
 
-      <CreditsSection
-        vouchers={VOUCHERS}
-        coupons={COUPONS_APPLIED}
-        onOpenInvoice={setOpenInvoiceId}
-        onOpenVoucher={setOpenVoucherId}
-      />
+      <VouchersBlock vouchers={VOUCHERS} onOpenVoucher={setOpenVoucherId} />
+
+      <CouponsBlock coupons={COUPONS_APPLIED} onOpenInvoice={setOpenInvoiceId} />
+
+      <ProvenanceNote />
 
       <InvoiceDetailsSheet
         invoice={openInvoice}
@@ -116,249 +101,36 @@ export default function ConsumoPage() {
           setOpenInvoiceId(id);
         }}
       />
-
-      <RequestLimitIncreaseModal
-        open={requestOpen}
-        onClose={() => setRequestOpen(false)}
-        currentLimit={limit}
-      />
     </div>
   );
 }
 
 /* -----------------------------------------------------------------
- * Hero — consumo variável vs limite
+ * Resumo — 3 KPIs de crédito. Dados em CREDITS_KPIS; cada card carrega
+ * uma linha de apoio que desambigua "economizado" × "disponível".
  * ----------------------------------------------------------------- */
 
-function ConsumptionHero({
-  accumulated,
-  limit,
-  creditsApplied,
-  onRequestIncrease,
-}: {
-  accumulated: number;
-  limit: number;
-  creditsApplied: number;
-  onRequestIncrease: () => void;
-}) {
-  const net = Math.max(accumulated - creditsApplied, 0);
-  const pct = limit > 0 ? Math.min(Math.round((net / limit) * 100), 999) : 0;
-  const remaining = Math.max(limit - net, 0);
-  const overLimit = net > limit;
-
+function CreditsKpis() {
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
-        <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
-          Consumo variável · ciclo atual
-        </p>
-        <MoneyHeading value={accumulated} size="sm" as="h1" />
-        {creditsApplied > 0 && (
-          <p className="m-0 body-xs tabular-nums text-(--fg-secondary)">
-            <span className="font-medium text-(--accent-success)">
-              −{brl(creditsApplied)}
-            </span>{" "}
-            abatidos por créditos ·{" "}
-            <strong className="font-medium text-(--fg-primary)">
-              {brl(net)}
-            </strong>{" "}
-            a cobrar
-          </p>
-        )}
-        <p className="m-0 max-w-[600px] body-xs text-(--fg-secondary)">
-          Seu limite é de{" "}
-          <strong className="font-medium tabular-nums text-(--fg-primary)">
-            {brl(limit)}
-          </strong>{" "}
-          por ciclo. Vouchers e cupons abatem o consumo antes da cobrança —
-          não mudam o limite. Ao bater no teto, o valor é cobrado
-          automaticamente.{" "}
-          <button
-            type="button"
-            onClick={onRequestIncrease}
-            className="font-medium text-(--fg-secondary) underline decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:no-underline"
-          >
-            Solicitar aumento de limite
-          </button>
-        </p>
-      </div>
-
-      <div className="flex flex-col gap-2.5">
-        <ConsumptionBar
-          gross={accumulated}
-          credits={creditsApplied}
-          limit={limit}
-        />
-        <div className="flex items-center justify-between gap-3 body-xs tabular-nums">
-          <span className="text-(--fg-secondary)">
-            {pct}% do limite usado
-          </span>
-          <span
-            className={
-              overLimit ? "text-(--accent-danger)" : "text-(--fg-tertiary)"
-            }
-          >
-            {overLimit
-              ? `Limite atingido — cobrança automática em curso`
-              : `Restam ${brl(remaining)} antes da cobrança`}
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -----------------------------------------------------------------
- * Consumption bar — limite fixo; créditos abatem o consumo
- * - Trecho sólido: valor líquido a cobrar
- * - Trecho claro: parte do consumo já abatida por créditos
- * - Agulha: limite do ciclo (só aparece se o consumo passa do limite)
- * ----------------------------------------------------------------- */
-
-function ConsumptionBar({
-  gross,
-  credits,
-  limit,
-}: {
-  gross: number;
-  credits: number;
-  limit: number;
-}) {
-  const net = Math.max(gross - credits, 0);
-  const scaleMax = Math.max(limit, gross);
-  const netPct = scaleMax > 0 ? (net / scaleMax) * 100 : 0;
-  const grossPct = scaleMax > 0 ? (gross / scaleMax) * 100 : 0;
-  const limitPct = scaleMax > 0 ? (limit / scaleMax) * 100 : 0;
-  const overLimit = net > limit;
-
-  return (
-    <TooltipProvider delayDuration={120}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <div className="relative h-2.5 w-full" aria-label="Consumo do ciclo">
-            <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
-
-            {/* consumo bruto — a faixa entre líquido e bruto é o abatido */}
-            <div
-              className={
-                "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
-                (grossPct >= 100 ? "rounded-full" : "rounded-l-full")
-              }
-              style={{
-                width: `${Math.min(grossPct, 100)}%`,
-                background: overLimit
-                  ? "color-mix(in srgb, var(--aw-red-600) 35%, transparent)"
-                  : "color-mix(in srgb, var(--aw-emerald-600) 35%, transparent)",
-              }}
-            />
-
-            {/* valor líquido a cobrar */}
-            <div
-              className={
-                "absolute inset-y-0 left-0 transition-[width] duration-500 ease-out " +
-                (netPct >= 100 ? "rounded-full" : "rounded-l-full") +
-                (overLimit ? " bg-(--aw-red-600)" : " bg-(--aw-emerald-600)")
-              }
-              style={{ width: `${Math.min(netPct, 100)}%` }}
-            />
-
-            {limitPct > 0 && limitPct < 100 && (
-              <ConsumptionNeedle
-                leftPct={limitPct}
-                color="var(--fg-primary)"
-                label={`Limite do ciclo · ${brl(limit)}`}
-              />
-            )}
-          </div>
-        </TooltipTrigger>
-        <TooltipContent
-          side="top"
-          className="border-(--border-subtle) bg-(--bg-raised) text-(--fg-primary)"
-        >
-          <div className="flex flex-col gap-1.5 py-0.5 text-xs">
-            <div className="flex items-center justify-between gap-6">
-              <span className="text-(--fg-secondary)">Consumo bruto</span>
-              <span className="tabular-nums">{brl(gross)}</span>
-            </div>
-            {credits > 0 && (
-              <div className="flex items-center justify-between gap-6">
-                <span className="text-(--fg-secondary)">
-                  Abatido por créditos
-                </span>
-                <span className="tabular-nums text-(--accent-success)">
-                  −{brl(credits)}
-                </span>
-              </div>
-            )}
-            <div className="mt-1 flex items-center justify-between gap-6 border-t border-(--border-subtle) pt-1.5 font-medium">
-              <span>A cobrar</span>
-              <span className="tabular-nums">{brl(net)}</span>
-            </div>
-            <div className="flex items-center justify-between gap-6 text-(--fg-secondary)">
-              <span>Limite do ciclo</span>
-              <span className="tabular-nums">{brl(limit)}</span>
-            </div>
-          </div>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
-
-function ConsumptionNeedle({
-  leftPct,
-  color,
-  label,
-  dashed,
-}: {
-  leftPct: number;
-  color: string;
-  label: string;
-  dashed?: boolean;
-}) {
-  return (
-    <span
-      role="presentation"
-      aria-label={label}
-      title={label}
-      className="pointer-events-auto absolute -top-1 bottom-[-4px] z-1"
-      style={{ left: `${leftPct}%` }}
-    >
-      <span
-        className="absolute left-1/2 top-0 -translate-x-1/2 h-full"
-        style={{
-          width: 1.5,
-          background: dashed
-            ? `repeating-linear-gradient(to bottom, ${color} 0 3px, transparent 3px 5px)`
-            : color,
-        }}
+    <div className="grid grid-cols-3 gap-4">
+      <AwStatCard
+        icon="savings"
+        label="Total economizado"
+        value={brl(CREDITS_KPIS.totalSaved)}
+        hint="Lifetime · cupons + vouchers já abatidos"
       />
-    </span>
-  );
-}
-
-/* -----------------------------------------------------------------
- * Créditos — voucher e cupom lado a lado, cada um com identidade
- * própria. Ambos abatem o que será cobrado; nenhum aumenta o limite.
- * O gráfico de consumo mora na Visão geral — aqui o foco é entender
- * de onde vem cada abatimento.
- * ----------------------------------------------------------------- */
-
-function CreditsSection({
-  vouchers,
-  coupons,
-  onOpenInvoice,
-  onOpenVoucher,
-}: {
-  vouchers: VoucherRow[];
-  coupons: CouponRow[];
-  onOpenInvoice: (id: string) => void;
-  onOpenVoucher: (id: string) => void;
-}) {
-  return (
-    <div className="flex flex-col gap-12">
-      <VouchersBlock vouchers={vouchers} onOpenVoucher={onOpenVoucher} />
-      <CouponsBlock coupons={coupons} onOpenInvoice={onOpenInvoice} />
+      <AwStatCard
+        icon="account_balance_wallet"
+        label="Desconto disponível"
+        value={brl(CREDITS_KPIS.availableDiscount)}
+        hint="Saldo de vouchers ativos a abater"
+      />
+      <AwStatCard
+        icon="confirmation_number"
+        label="Vouchers ativos"
+        value={CREDITS_KPIS.activeVouchers}
+        hint="Vouchers em uso agora"
+      />
     </div>
   );
 }
@@ -367,7 +139,7 @@ function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
       ? "Voucher é um crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate dos seus gastos variáveis até a validade — não muda o limite."
-      : "Cupom é um código promocional aplicado por você. Abate uma única vez do valor do plano fixo.";
+      : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate uma única vez do valor do plano fixo.";
   return (
     <TooltipProvider delayDuration={120}>
       <Tooltip>
@@ -401,8 +173,6 @@ function VouchersBlock({
   onOpenVoucher: (id: string) => void;
 }) {
   const [showHistory, setShowHistory] = React.useState(false);
-  const [addBalanceOpen, setAddBalanceOpen] = React.useState(false);
-  const [addVoucherOpen, setAddVoucherOpen] = React.useState(false);
   const current = vouchers.filter(
     (v) =>
       v.status === "Ativo" ||
@@ -410,39 +180,16 @@ function VouchersBlock({
       v.status === "Pausado",
   );
   const history = vouchers.filter(
-    (v) => v.status === "Usado" || v.status === "Parcialmente usado",
+    (v) => v.status === "Esgotado" || v.status === "Vencido",
   );
 
   return (
     <section className="flex flex-col gap-4">
-      <header className="flex flex-wrap items-end justify-between gap-3">
-        <div className="flex flex-col gap-1">
-          <h6 className="m-0 flex items-center gap-2 text-(--fg-primary)">
-            Vouchers
-            <CreditInfoTooltip kind="voucher" />
-          </h6>
-          <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-            Abatem dos seus gastos variáveis até a validade.
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <AwButton
-            size="sm"
-            variant="ghost"
-            iconLeft="account_balance_wallet"
-            onClick={() => setAddBalanceOpen(true)}
-          >
-            Adicionar saldo
-          </AwButton>
-          <AwButton
-            size="sm"
-            variant="secondary"
-            iconLeft="redeem"
-            onClick={() => setAddVoucherOpen(true)}
-          >
-            Adicionar voucher
-          </AwButton>
-        </div>
+      <header className="flex flex-col gap-1">
+        <h6 className="m-0 text-(--fg-primary)">Vouchers</h6>
+        <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
+          Abatem dos seus gastos variáveis até a validade.
+        </p>
       </header>
 
       {current.length === 0 ? (
@@ -462,6 +209,7 @@ function VouchersBlock({
           <button
             type="button"
             onClick={() => setShowHistory((s) => !s)}
+            aria-expanded={showHistory}
             className="flex w-fit items-center gap-1.5 py-1 body-xs font-medium text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
           >
             <Icon
@@ -484,17 +232,57 @@ function VouchersBlock({
           )}
         </div>
       )}
-
-      <AddBalanceModal
-        open={addBalanceOpen}
-        onClose={() => setAddBalanceOpen(false)}
-      />
-      <AwContactChannelModal
-        open={addVoucherOpen}
-        onClose={() => setAddVoucherOpen(false)}
-        managerName={ONBOARDING_ORG.accountManager.name}
-      />
     </section>
+  );
+}
+
+/** Cor da bolinha de status sobre o ícone (sem chip de texto). */
+const VOUCHER_DOT: Record<VoucherStatus, string> = {
+  Ativo: "var(--aw-emerald-500)",
+  Pendente: "var(--aw-blue-500)",
+  Pausado: "var(--aw-amber-500)",
+  Esgotado: "var(--fg-tertiary)",
+  Vencido: "var(--fg-tertiary)",
+};
+
+/** Texto da tooltip que explica a cor da bolinha de status. */
+function voucherStatusHint(status: VoucherStatus): string {
+  switch (status) {
+    case "Ativo":
+      return "Ativo · abatendo o consumo";
+    case "Pendente":
+      return "Pendente · começa em breve, ainda não abate";
+    case "Pausado":
+      return "Pausado · suspenso pela equipe de conta";
+    case "Esgotado":
+      return "Esgotado · saldo zerado por consumo";
+    case "Vencido":
+      return "Vencido · passou da validade";
+  }
+}
+
+function VoucherInfoTip({ v }: { v: VoucherRow }) {
+  return (
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            aria-label={`Sobre ${v.description}`}
+            className="inline-flex text-(--fg-tertiary) hover:text-(--fg-secondary)"
+          >
+            <Icon name="info" size={14} />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[260px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Crédito da Aswork ({v.status.toLowerCase()}). Aplica em{" "}
+          {v.applicableTo}. Válido até {formatExpiry(v.expiresAt)}.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
@@ -505,85 +293,118 @@ function VoucherRowItem({
   v: VoucherRow;
   onOpenVoucher: (id: string) => void;
 }) {
-  const pct = v.total > 0 ? (v.consumed / v.total) * 100 : 0;
-  const days = daysUntil(v.expiresAt);
-  const expiringSoon = days >= 0 && days <= 15 && v.status === "Ativo";
-  const muted = v.status === "Usado" || v.status === "Parcialmente usado";
-  const validity =
-    v.status === "Pendente" && v.effectiveAt
-      ? `Ativa em ${formatExpiry(v.effectiveAt)}`
-      : `Válido até ${formatExpiry(v.expiresAt)}`;
+  const pct = v.total > 0 ? Math.round((v.consumed / v.total) * 100) : 0;
+  const muted = v.status === "Esgotado" || v.status === "Vencido";
+  const pending = v.status === "Pendente" && Boolean(v.effectiveAt);
+  const year = parseBR(v.expiresAt).getFullYear();
+
+  // Ativos/pausados mostram a data de expiração; pendentes, a contagem até virar.
+  const startDays = pending ? daysUntil(v.effectiveAt!) : 0;
+  const dateLabel = pending
+    ? `Inicia em ${startDays} dia${startDays !== 1 ? "s" : ""}`
+    : `Expira em ${v.expiresAt}`;
+
+  // Barra verde local: a AwProgress do DS é grayscale por design (sem matiz),
+  // então o voucher usa a própria barra; histórico fica neutro.
+  const barColor = muted ? "var(--fg-tertiary)" : "var(--aw-emerald-500)";
 
   return (
-    <li className="flex items-center gap-4 border-t border-(--border-subtle) py-4">
-      {/* ícone grayscale com stroke — sem cor (pedido do review) */}
-      <span
-        aria-hidden="true"
-        className={
-          "flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-(--border-subtle) bg-(--bg-muted) text-(--fg-tertiary) " +
-          (muted ? "opacity-70" : "")
-        }
-      >
-        <Icon name="redeem" size={22} fill={0} />
-      </span>
+    <li
+      className={
+        "flex items-center gap-5 border-t border-(--border-subtle) py-5 " +
+        (muted ? "opacity-70" : "")
+      }
+    >
+      {/* ícone + bolinha de status (tooltip explica a cor) */}
+      <TooltipProvider delayDuration={120}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span
+              tabIndex={0}
+              role="img"
+              aria-label={`Status: ${v.status}`}
+              className="relative shrink-0 rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-(--border-strong)"
+            >
+              <span
+                aria-hidden="true"
+                className="flex h-12 w-12 items-center justify-center rounded-xl border border-(--border-default) bg-(--bg-raised) text-(--fg-secondary)"
+              >
+                <Icon name="sell" size={22} fill={1} />
+              </span>
+              <span
+                aria-hidden="true"
+                className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full"
+                style={{
+                  background: VOUCHER_DOT[v.status],
+                  boxShadow: "0 0 0 2px var(--bg-canvas)",
+                }}
+              />
+            </span>
+          </TooltipTrigger>
+          <TooltipContent
+            side="top"
+            className="border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+          >
+            {voucherStatusHint(v.status)}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        {/* título + status bem à direita */}
-        <div className="flex items-center justify-between gap-3">
-          <span className="truncate body-sm font-medium text-(--fg-primary)">
+      {/* título + subtítulo (coluna estreita pra descrição quebrar em 2 linhas) */}
+      <div className="flex w-[240px] shrink-0 flex-col gap-0.5">
+        <span className="flex items-center gap-1.5">
+          <span className="truncate body-md font-medium text-(--fg-primary)">
             {v.description}
           </span>
-          <span className="flex shrink-0 items-center gap-2">
-            {v.acceleratedConsumption && (
-              <span className="inline-flex items-center gap-1 body-xs text-(--accent-warning)">
-                <Icon name="trending_up" size={13} />
-                Consumo acelerado
-              </span>
-            )}
-            <AwPill variant={voucherStatusVariant(v.status)}>{v.status}</AwPill>
-          </span>
-        </div>
-
-        {/* validade embaixo do chip de status */}
-        <span className="body-xs text-(--fg-tertiary)">
-          {validity}
-          {expiringSoon && (
-            <span className="text-(--accent-warning)">
-              {" "}
-              · em {days} dia{days !== 1 ? "s" : ""}
-            </span>
-          )}{" "}
-          · {v.applicableTo}
+          <VoucherInfoTip v={v} />
         </span>
+        <span
+          className="line-clamp-2 body-xs text-(--fg-tertiary)"
+          style={{ minHeight: "2lh" }}
+        >
+          {year} · {v.applicableTo}
+        </span>
+      </div>
 
-        {/* barra verde + duas linhas (usado / total) */}
-        <div className="mt-0.5 flex items-center gap-3">
-          <AwProgress
-            value={pct}
-            max={100}
-            variant="success"
-            className="flex-1"
+      {/* barra verde + legenda em duas linhas */}
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--bg-muted)">
+          <div
+            className="h-full rounded-full transition-[width] duration-500 ease-out"
+            style={{ width: `${pct}%`, background: barColor }}
           />
-          <span className="shrink-0 text-right leading-tight">
-            <span className="block body-sm font-medium tabular-nums text-(--fg-primary)">
+        </div>
+        <div className="flex items-start justify-between gap-4">
+          <span className="flex flex-col leading-tight">
+            <span className="body-xs">
+              <strong className="font-semibold text-(--fg-primary)">
+                {pct}%
+              </strong>{" "}
+              <span className="text-(--fg-tertiary)">utilizados</span>
+            </span>
+            <span className="body-xs text-(--fg-tertiary)">{dateLabel}</span>
+          </span>
+          <span className="flex shrink-0 flex-col items-end text-right leading-tight">
+            <span className="body-sm font-semibold tabular-nums text-(--fg-primary)">
               {brl(v.consumed)}
             </span>
-            <span className="block body-xs tabular-nums text-(--fg-tertiary)">
+            <span className="body-xs tabular-nums text-(--fg-tertiary)">
               de {brl(v.total)}
             </span>
           </span>
         </div>
       </div>
 
+      {/* ver detalhes */}
       <button
         type="button"
         onClick={() => onOpenVoucher(v.id)}
-        className="group flex shrink-0 items-center gap-1 self-start body-xs font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
+        className="group flex shrink-0 items-center gap-1 body-xs font-medium text-(--fg-secondary) transition-colors hover:text-(--fg-primary)"
       >
         Ver detalhes
         <Icon
-          name="chevron_right"
-          size={15}
+          name="arrow_forward"
+          size={14}
           className="text-(--fg-tertiary) transition-transform group-hover:translate-x-0.5"
         />
       </button>
@@ -678,6 +499,21 @@ function CouponsBlock({
   );
 }
 
+/* ---------- nota de procedência (cliente não resgata código) ---------- */
+
+function ProvenanceNote() {
+  return (
+    <p className="m-0 flex items-start gap-2 border-t border-(--border-subtle) pt-4 body-xs text-(--fg-tertiary)">
+      <Icon name="info" size={15} className="mt-px shrink-0" />
+      <span className="max-w-[640px]">
+        Vouchers e cupons são aplicados pela sua equipe de conta — não há código
+        para resgatar aqui. Tudo que entrou aparece acima, com o valor e a fatura
+        de origem.
+      </span>
+    </p>
+  );
+}
+
 /* ---------- modal de detalhes do voucher ---------- */
 
 function VoucherDetailModal({
@@ -714,7 +550,7 @@ function VoucherDetailModal({
             </AwPill>
             <span className="body-xs text-(--fg-tertiary)">
               {voucher.status === "Pendente" && voucher.effectiveAt
-                ? `Ativa em ${formatExpiry(voucher.effectiveAt)}`
+                ? `Começa em ${formatExpiry(voucher.effectiveAt)}`
                 : `Válido até ${formatExpiry(voucher.expiresAt)}`}
             </span>
           </div>
@@ -808,116 +644,5 @@ function ModalStat({
         {value}
       </span>
     </div>
-  );
-}
-
-/* -----------------------------------------------------------------
- * Request limit increase — opens a contact form with the account manager
- * ----------------------------------------------------------------- */
-
-function RequestLimitIncreaseModal({
-  open,
-  onClose,
-  currentLimit,
-}: {
-  open: boolean;
-  onClose: () => void;
-  currentLimit: number;
-}) {
-  const am = ONBOARDING_ORG.accountManager;
-  const amFirstName = am.name.split(/\s+/)[0];
-  const phoneDigits = am.phone.replace(/\D/g, "");
-  const waText = encodeURIComponent(
-    `Oi ${amFirstName}, queria pedir aumento do limite variável (atual: ${brl(currentLimit)}).`,
-  );
-  const whatsappUrl = `https://wa.me/${phoneDigits}?text=${waText}`;
-  const slackUrl = `https://slack.com/app_redirect?channel=@${am.email.split("@")[0]}`;
-
-  return (
-    <AwModal
-      open={open}
-      onClose={onClose}
-      title="Solicitar aumento de limite"
-      footer={
-        <div className="flex items-center justify-end">
-          <AwButton variant="ghost" onClick={onClose}>
-            Fechar
-          </AwButton>
-        </div>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        <p className="m-0 body-xs text-(--fg-secondary)">
-          O seu account manager ajusta os limites. Mande um recado para o{" "}
-          {amFirstName} pelo canal que preferir — ele avalia e devolve a próxima
-          faixa.
-        </p>
-
-        <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2.5">
-          <AwAvatar
-            size="md"
-            src={am.photo}
-            alt={am.name}
-            initials={am.initials}
-          />
-          <div className="min-w-0 flex-1">
-            <p className="m-0 body-sm font-medium text-(--fg-primary)">
-              {am.name}
-            </p>
-            <p className="m-0 body-xs text-(--fg-tertiary)">{am.role}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-3 transition-colors hover:border-(--border-strong) hover:bg-(--bg-surface)"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--aw-emerald-500) text-(--aw-white)">
-              <Icon name="chat" size={18} fill={1} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block body-sm font-medium text-(--fg-primary)">
-                Falar no WhatsApp
-              </span>
-              <span className="block body-xs tabular-nums text-(--fg-tertiary)">
-                {am.phone}
-              </span>
-            </span>
-            <Icon
-              name="arrow_outward"
-              size={16}
-              className="text-(--fg-tertiary)"
-            />
-          </a>
-
-          <a
-            href={slackUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 rounded-md border border-(--border-default) bg-(--bg-raised) px-3 py-3 transition-colors hover:border-(--border-strong) hover:bg-(--bg-surface)"
-          >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-(--aw-purple-600) text-(--aw-white)">
-              <Icon name="tag" size={18} fill={1} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block body-sm font-medium text-(--fg-primary)">
-                Falar no Slack
-              </span>
-              <span className="block body-xs text-(--fg-tertiary)">
-                @{am.email.split("@")[0]}
-              </span>
-            </span>
-            <Icon
-              name="arrow_outward"
-              size={16}
-              className="text-(--fg-tertiary)"
-            />
-          </a>
-        </div>
-      </div>
-    </AwModal>
   );
 }

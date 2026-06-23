@@ -933,17 +933,18 @@ export const CREDITS_KPIS = {
   activeVouchers: 2,
 };
 
-// Status do voucher (decisão Greg, group review 19/06):
-// - Usado: 100% consumido (azul)
-// - Parcialmente usado: venceu sem usar tudo (cinza)
-// - Pendente: ainda não ativou (effectiveAt futuro)
-// - Pausado: suspenso pelo account manager
+// Status do voucher (5 estados):
+// - Ativo: vigente, abatendo o consumo
+// - Pendente: ainda não entrou em vigência (effectiveAt no futuro)
+// - Pausado: suspenso pela equipe de conta
+// - Esgotado: saldo zerado por consumo (100% usado) — histórico
+// - Vencido: passou da validade sem esgotar — histórico
 export type VoucherStatus =
   | "Ativo"
-  | "Usado"
-  | "Parcialmente usado"
   | "Pendente"
-  | "Pausado";
+  | "Pausado"
+  | "Esgotado"
+  | "Vencido";
 
 /** Uso do voucher numa fatura — alimenta o modal de detalhes. */
 export type VoucherConsumption = {
@@ -1002,14 +1003,14 @@ export const VOUCHERS: VoucherRow[] = [
     status: "Pendente",
     total: 500,
     consumed: 0,
-    effectiveAt: "01/07/2026",
+    effectiveAt: "22/05/2026",
     expiresAt: "30/09/2026",
   },
   {
     id: "v-onb",
     description: "Cortesia de onboarding",
     applicableTo: "Tokens Knowledge",
-    status: "Usado",
+    status: "Esgotado",
     total: 500,
     consumed: 500,
     expiresAt: "31/12/2026",
@@ -1021,7 +1022,7 @@ export const VOUCHERS: VoucherRow[] = [
     id: "v-2025",
     description: "Bônus 2025",
     applicableTo: "Todas as taxas",
-    status: "Parcialmente usado",
+    status: "Vencido",
     total: 800,
     consumed: 320,
     expiresAt: "31/03/2026",
@@ -1040,19 +1041,20 @@ export const VOUCHERS: VoucherRow[] = [
   },
 ];
 
-/** Cor do pill por status de voucher. "Usado" é azul; "Parcialmente usado", cinza. */
+/** Cor do pill por status de voucher. Pendente é azul (entra em breve);
+ *  Esgotado/Vencido são neutros (histórico, encerrados). */
 export function voucherStatusVariant(status: VoucherStatus): AwPillVariant {
   switch (status) {
     case "Ativo":
       return "live";
-    case "Usado":
-      return "info";
-    case "Parcialmente usado":
-      return "draft";
     case "Pendente":
-      return "neutral";
+      return "info";
     case "Pausado":
       return "warning";
+    case "Esgotado":
+      return "neutral";
+    case "Vencido":
+      return "draft";
   }
 }
 
