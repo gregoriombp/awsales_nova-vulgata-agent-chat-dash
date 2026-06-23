@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwReportPromo } from "@/components/ui/AwReportPromo";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
@@ -43,6 +44,12 @@ export default function VisaoGeralPage() {
     <div className="flex flex-col gap-(--space-12)">
       <ForecastBlock />
       <UsageAndPlan />
+      <AwReportPromo
+        art="blocks"
+        title="Consumo e custos"
+        description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do consumo variável ao longo do período."
+        href="/settings/consumo-e-custos"
+      />
     </div>
   );
 }
