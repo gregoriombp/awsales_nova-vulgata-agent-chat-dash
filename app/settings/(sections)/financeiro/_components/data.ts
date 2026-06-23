@@ -522,6 +522,110 @@ export const AGENT_BREAKDOWN: AgentBreakdownRow[] = [
   },
 ];
 
+// Tipo do agente (coluna "Tipo" da tabela por agente) — rótulo amigável por id,
+// pra não vazar jargão (SDR/CS) nem precisar tocar em cada linha do fixture.
+export const AGENT_TYPE_BY_ID: Record<string, string> = {
+  aria: "Prospecção",
+  atlas: "Reativação",
+  nova: "Prospecção",
+  stella: "Onboarding",
+  iris: "Qualificação",
+  theo: "Qualificação",
+  luma: "Suporte",
+  kai: "Follow-up",
+  vega: "Cobrança",
+  milo: "Agendamento",
+  sol: "Pesquisa",
+  bria: "Reativação",
+};
+
+export function agentType(id: string): string {
+  return AGENT_TYPE_BY_ID[id] ?? "Geral";
+}
+
+// Detalhamento do gasto de um agente, por tipo de cobrança (modal "Ver
+// detalhes"). Os tokens seguem o canon atual — Knowledge / Brain / Skills, sem
+// quebra input/output. A quantidade exibida é derivada do valor alocado ÷ taxa,
+// então o detalhamento sempre fecha com o total da linha ("confere com a tabela").
+export type AgentFeeLine = {
+  label: string;
+  qty: number;
+  quantityFormat: "decimal" | "abbrev";
+  unitNoun: string;
+  /** Taxa unitária resumida (ex.: "R$ 0,12", "R$ 0,002/1K"). */
+  rateLabel: string;
+  total: number;
+};
+
+export type AgentFeeGroup = {
+  id: string;
+  label: string;
+  icon: string;
+  lines: AgentFeeLine[];
+};
+
+type FeeTemplate = {
+  groupId: string;
+  groupLabel: string;
+  groupIcon: string;
+  label: string;
+  rate: number;
+  /** Multiplica a quantidade derivada (1 pra unidades, 1000 pra "/1K tokens"). */
+  unitDivisor: number;
+  unitNoun: string;
+  rateLabel: string;
+  weight: number;
+  quantityFormat: "decimal" | "abbrev";
+};
+
+const AGENT_FEE_TEMPLATE: FeeTemplate[] = [
+  { groupId: "disparos", groupLabel: "Disparos no WhatsApp", groupIcon: "campaign", label: "Disparos no WhatsApp", rate: 0.12, unitDivisor: 1, unitNoun: "disparos", rateLabel: "R$ 0,12", weight: 0.34, quantityFormat: "decimal" },
+  { groupId: "leads", groupLabel: "Leads convertidos", groupIcon: "person_add", label: "Leads convertidos", rate: 2.0, unitDivisor: 1, unitNoun: "leads", rateLabel: "R$ 2,00", weight: 0.16, quantityFormat: "decimal" },
+  { groupId: "msgs", groupLabel: "Mensagens transacionadas", groupIcon: "forum", label: "Mensagens transacionadas", rate: 0.03, unitDivisor: 1, unitNoun: "mensagens", rateLabel: "R$ 0,03", weight: 0.22, quantityFormat: "decimal" },
+  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Knowledge", rate: 0.002, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,002/1K", weight: 0.1, quantityFormat: "abbrev" },
+  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Brain", rate: 0.005, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,005/1K", weight: 0.1, quantityFormat: "abbrev" },
+  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Skills", rate: 0.009, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,009/1K", weight: 0.08, quantityFormat: "abbrev" },
+];
+
+/** Quebra o total (já escalado pelo período) de um agente nas macro-cobranças.
+ *  Pesos variam por agente (determinístico), e a última linha absorve o
+ *  arredondamento pra soma fechar exatamente com o total. */
+export function getAgentFeeBreakdown(total: number, seed: number): AgentFeeGroup[] {
+  const raw = AGENT_FEE_TEMPLATE.map(
+    (t, i) => Math.max(0.02, t.weight + 0.4 * t.weight * Math.sin(seed * 1.3 + i * 2.1)),
+  );
+  const sum = raw.reduce((a, b) => a + b, 0);
+  const lineTotals = raw.map((v) => Math.round(((total * v) / sum) * 100) / 100);
+  const drift =
+    Math.round((total - lineTotals.reduce((a, b) => a + b, 0)) * 100) / 100;
+  lineTotals[lineTotals.length - 1] =
+    Math.round((lineTotals[lineTotals.length - 1] + drift) * 100) / 100;
+
+  const groups: AgentFeeGroup[] = [];
+  AGENT_FEE_TEMPLATE.forEach((t, i) => {
+    const lineTotal = lineTotals[i];
+    const qty = (lineTotal / t.rate) * t.unitDivisor;
+    const line: AgentFeeLine = {
+      label: t.label,
+      qty,
+      quantityFormat: t.quantityFormat,
+      unitNoun: t.unitNoun,
+      rateLabel: t.rateLabel,
+      total: lineTotal,
+    };
+    const existing = groups.find((g) => g.id === t.groupId);
+    if (existing) existing.lines.push(line);
+    else
+      groups.push({
+        id: t.groupId,
+        label: t.groupLabel,
+        icon: t.groupIcon,
+        lines: [line],
+      });
+  });
+  return groups;
+}
+
 export type InvoiceHistoryRow = {
   id: string;
   refMonth: string;
