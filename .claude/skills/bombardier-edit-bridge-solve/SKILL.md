@@ -3,12 +3,13 @@ name: bombardier-edit-bridge-solve
 description: >
   Materializes Bombardier Live Edit Mode overlays into real code. The page
   editor stores non-destructive edit "ops" (text, style token, variant/size,
-  icon, hide/remove) per route in page-editor/data via the serverless
-  /api/page-edits route; this skill reads them with a filter chosen by the
-  user (a whole route, only open ones, a specific id, everything), makes ONE
-  PLAN BEFORE touching any code, waits for approval, rewrites the real TSX
-  (text→string literal, variant→prop, style→token class/prop, icon→icon prop,
-  hide→remove/condition), and marks each op `in_review` in the bridge with
+  icon, hide/remove, move/reorder-siblings) per route in page-editor/data via
+  the serverless /api/page-edits route; this skill reads them with a filter
+  chosen by the user (a whole route, only open ones, a specific id, everything),
+  makes ONE PLAN BEFORE touching any code, waits for approval, rewrites the real
+  TSX (text→string literal, variant→prop, style→token class/prop, icon→icon
+  prop, hide→remove/condition, move→reorder JSX siblings), and marks each op
+  `in_review` in the bridge with
   `actor: { kind: "agent", id: "claude", name: "Claude" }` — the user then
   approves or rejects it from the edit inbox, which clears the overlay so the
   materialized code becomes the source of truth (shipped to PG via send-to-aws
@@ -120,11 +121,12 @@ alvo no código:
 - `payload` — o que mudar.
 
 ```
-- <id> · /url · tipo=<text|style|variant|icon|hide>
-  alvo: <componente/elemento + domText>
+- <id> · /url · tipo=<text|style|variant|icon|hide|move>
+  alvo: <componente/elemento + domText>   (move: o container PAI)
   proposta: <edição de código em 1 linha>
   arquivo: <arquivo:linha> (se já achou)
   confiança: alta | média | baixa
+  flag: off-spec → override direto na raiz de <offSpecComponent> (style só)
   ação: materializar | pular (motivo)
 ```
 
@@ -146,9 +148,10 @@ aprovação** (AskUserQuestion: "materializar tudo" / "só confiança alta" /
 | `text` | Acha o literal de string (use `domText`/`prevText` no `grep` da página) e troca por `payload.text`. Ambíguo se o texto aparece 2×: rebaixe e confirme. |
 | `icon` | Troca a prop do ícone — `iconLeft`/`iconRight`/`iconOnly`/`name` — de `prevName` para `payload.name`. O componente é o pai do span (ex.: `<AwButton iconLeft="add" …>`). |
 | `variant` | Troca a prop do eixo no `<Aw… >`: `payload.axis="variant"` → `variant="<value>"`; `payload.axis="size"` → `size="<value>"`. NÃO mexa em className (a classe é derivada da prop). |
-| `style` | **Leia `payload.prop`** pra saber QUAL propriedade CSS tokenizar, e `payload.token` (já vem como `var(--token)`) pro valor. Prefira utilitário Tailwind arbitrário na convenção do arquivo: `color`→`text-(--token)`, `background-color`→`bg-(--token)`, `border-color`→`border-(--token)` (+ garantir que há borda), `border-radius`→`rounded-(--token)`, `box-shadow`→`shadow-(--token)`; ou `style={{ <prop> : "var(--token)" }}`. NUNCA materialize uma cor/medida crua. |
+| `style` | **Leia `payload.prop`** pra saber QUAL propriedade CSS tokenizar, e `payload.token` (já vem como `var(--token)`) pro valor. Prefira utilitário Tailwind arbitrário na convenção do arquivo: `color`→`text-(--token)`, `background-color`→`bg-(--token)`, `border-color`→`border-(--token)` (+ garantir que há borda), `border-radius`→`rounded-(--token)`, `box-shadow`→`shadow-(--token)`, espaçamento (`padding`/`margin`/`gap`)→`p-(--token)`/`m-(--token)`/`gap-(--token)`; ou `style={{ <prop> : "var(--token)" }}`. NUNCA materialize uma cor/medida crua. **Se `payload.offSpec === true`** (override direto na RAIZ do componente `offSpecComponent`), sinalize: o ideal é virar uma **variante** do componente, não um override solto — proponha isso ou confirme antes de materializar como classe/style cru. |
 | `hide` mode `hide` | Esconde de forma idiomática: remove o nó OU envolve em condição. Em dúvida, pergunte. |
 | `hide` mode `remove` | Remove o subtree JSX de vez. |
+| `move` | **Reordena IRMÃOS** no JSX. `anchor` é o **container PAI**; `payload.order` é a sequência desejada dos filhos por chave `"<tag>::<trecho-de-texto>"`. Em lista renderizada por `.map()` → reordene o **array de dados** pra casar `order`. Em JSX literal → reordene os **elementos irmãos**. Casa cada chave pelo texto+tag; irmãos sem texto (chave `"<tag>::#<i>"`) são ambíguos → confiança baixa, confirme. NUNCA mova entre containers diferentes. |
 
 Sempre que possível, mantenha o resultado token-puro e dentro do padrão Aw*
 (AGENTS.md). Se materializar exigiria fugir de token/variante (ex.: cor fora da
@@ -189,9 +192,13 @@ Anote id+summary pro resumo.
 
 - ❌ Não use `transition: "apply"` nem `"discard"` — só o user aprova/descarta.
 - ❌ Não toque em ops `in_review`/`applied`/`discarded`.
-- ❌ Não materialize valor de cor/raio/sombra cru — só `var(--token)`. Se a op
-  trouxe algo fora do token-manifest, é bug do editor: pule e reporte.
-- ❌ Não reordene/mova nada (mover não é op do MVP/Fase 2; ignore se aparecer).
+- ❌ Não materialize valor de cor/raio/sombra/espaçamento cru — só `var(--token)`.
+  Se a op trouxe algo fora do token-manifest, é bug do editor: pule e reporte.
+- ✅ `move` reordena SÓ irmãos no mesmo pai — nunca entre containers. Em `.map()`,
+  reordene o array de dados; em JSX literal, reordene os elementos. Ordem que não
+  casa com clareza (irmãos sem texto) → confirme antes.
+- ✅ `style` com `offSpec` é override direto na raiz de um componente — materialize,
+  mas prefira/sugira virar variante (não deixe o componente destoar à toa).
 - ✅ Edição de texto/ícone/variante dentro de `.map()`: trate como mudança de
   DADOS (a lista), não JSX literal — e só com confiança alta; senão pergunte.
 - ✅ Se o dev server cair no meio, o que já virou `in_review` está protegido;
