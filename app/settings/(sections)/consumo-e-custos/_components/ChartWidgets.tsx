@@ -84,6 +84,20 @@ function buildConfig(categories: SpendingCategory[]): ChartConfig {
   );
 }
 
+// Teste de paleta — rampa monocromática "Slate" aplicada SÓ ao widget "Consumo
+// por dia". Tons distribuídos por índice e intercalados (escuro/médio/claro)
+// pra manter contraste entre os segmentos empilhados, já que a pilha não tem
+// gaps. Os demais gráficos da página seguem com a paleta colorida das
+// categorias (SPENDING_CATEGORIES) — nada hardcoded, só tokens do Slate.
+const SLATE_RAMP = [
+  "var(--aw-slate-900)",
+  "var(--aw-slate-500)",
+  "var(--aw-slate-700)",
+  "var(--aw-slate-300)",
+  "var(--aw-slate-600)",
+  "var(--aw-slate-400)",
+] as const;
+
 const CHART_ANIMATION_DURATION = 360;
 
 function seriesOpacity(activeSeries: string | null, id: string): number {
@@ -108,7 +122,20 @@ export function ConsumoChartWidget({
     () => chartModel.categories.filter((c) => chartIds.has(c.id)),
     [chartModel, chartIds],
   );
-  const config = React.useMemo(() => buildConfig(categories), [categories]);
+  // Recolore só este widget com a rampa Slate (monocromática) — bars, tooltip
+  // e legenda passam a ler estes tons no lugar dos colorVar das categorias.
+  const slateCategories = React.useMemo(
+    () =>
+      categories.map((c, i) => ({
+        ...c,
+        colorVar: SLATE_RAMP[i % SLATE_RAMP.length],
+      })),
+    [categories],
+  );
+  const config = React.useMemo(
+    () => buildConfig(slateCategories),
+    [slateCategories],
+  );
   const totalDays = chartModel.data.length;
 
   const chartData = React.useMemo(
@@ -149,7 +176,7 @@ export function ConsumoChartWidget({
             );
           }}
           formatter={(value, name) => {
-            const cat = categories.find((c) => c.id === name);
+            const cat = slateCategories.find((c) => c.id === name);
             return (
               <div className="flex w-full items-center justify-between gap-3">
                 <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
@@ -204,7 +231,7 @@ export function ConsumoChartWidget({
         />
       }
     >
-      <ChartLegend categories={categories} grouping={grouping} othersLabels={chartModel.othersLabels} />
+      <ChartLegend categories={slateCategories} grouping={grouping} othersLabels={chartModel.othersLabels} />
       <ChartContainer
         key={viz}
         config={config}
@@ -445,33 +472,31 @@ function ShareBars({
             key={s.cat.id}
             onMouseEnter={() => setActiveId(s.cat.id)}
             onMouseLeave={() => setActiveId(null)}
-            className="flex flex-col gap-1 transition-opacity duration-aw-fast"
+            className="flex items-center gap-3 body-xs transition-opacity duration-aw-fast"
             style={{ opacity: seriesOpacity(activeId, s.cat.id) }}
           >
-            <div className="flex items-center justify-between gap-3 body-xs">
-              <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
-                {grouping === "agent" && s.cat.avatar ? (
-                  <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
-                ) : (
-                  <span
-                    aria-hidden="true"
-                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ background: s.cat.colorVar }}
-                  />
-                )}
-                <span className="truncate">{s.cat.label}</span>
-              </span>
-              <span className="shrink-0 tabular-nums text-(--fg-secondary)">
-                {brl(s.total)}{" "}
-                <span className="text-(--fg-tertiary)">· {pct.toFixed(0)}%</span>
-              </span>
-            </div>
-            <div className="h-2 w-full overflow-hidden rounded-full bg-(--bg-muted)">
+            <span className="inline-flex w-28 shrink-0 items-center gap-2 text-(--fg-secondary)">
+              {grouping === "agent" && s.cat.avatar ? (
+                <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ background: s.cat.colorVar }}
+                />
+              )}
+              <span className="truncate">{s.cat.label}</span>
+            </span>
+            <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-(--bg-muted)">
               <div
                 className="h-full rounded-full"
                 style={{ width: `${(s.total / max) * 100}%`, background: s.cat.colorVar }}
               />
             </div>
+            <span className="shrink-0 tabular-nums text-(--fg-secondary)">
+              {brl(s.total)}{" "}
+              <span className="text-(--fg-tertiary)">· {pct.toFixed(0)}%</span>
+            </span>
           </li>
         );
       })}
