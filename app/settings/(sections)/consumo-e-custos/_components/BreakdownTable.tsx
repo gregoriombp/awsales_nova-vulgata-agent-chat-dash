@@ -454,42 +454,49 @@ function AgentTable() {
           </tr>
         </thead>
         <tbody>
-          {sorted.map((r) => (
-            <tr key={r.id}>
-              <td>
-                <span className="inline-flex items-center gap-2">
-                  <AwAvatar size="sm" src={r.avatar} alt={r.label} />
-                  <span className="font-medium text-(--fg-primary)">{r.label}</span>
-                  {isOutlier(r.total, allTotals) && <OutlierBadge />}
-                </span>
-              </td>
-              <td className="body-xs text-(--fg-secondary)">{agentType(r.id)}</td>
-              <td>
-                <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
-              </td>
-              <td className="align-middle text-right font-medium tabular-nums text-(--fg-primary)">
-                {brl(r.total)}
-              </td>
-              <td className="align-middle text-right tabular-nums text-(--fg-tertiary)">
-                {fmtUsd(r.total)}
-              </td>
-              <td className="text-right">
-                <button
-                  type="button"
-                  onClick={() => setDetail(r)}
-                  className="inline-flex items-center gap-1 whitespace-nowrap body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:underline"
-                >
-                  Ver detalhes
-                  <Icon name="arrow_forward" size={14} />
-                </button>
-              </td>
-            </tr>
+          {sorted.map((r, ri) => (
+            <React.Fragment key={r.id}>
+              <tr>
+                <td className="border-0! rounded-l-lg">
+                  <span className="inline-flex items-center gap-2">
+                    <AwAvatar size="sm" src={r.avatar} alt={r.label} />
+                    <span className="font-medium text-(--fg-primary)">{r.label}</span>
+                    {isOutlier(r.total, allTotals) && <OutlierBadge />}
+                  </span>
+                </td>
+                <td className="border-0! body-xs text-(--fg-secondary)">{agentType(r.id)}</td>
+                <td className="border-0!">
+                  <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
+                </td>
+                <td className="border-0! align-middle text-right font-medium tabular-nums text-(--fg-primary)">
+                  {brl(r.total)}
+                </td>
+                <td className="border-0! align-middle text-right tabular-nums text-(--fg-tertiary)">
+                  {fmtUsd(r.total)}
+                </td>
+                <td className="border-0! rounded-r-lg text-right">
+                  <button
+                    type="button"
+                    onClick={() => setDetail(r)}
+                    className="inline-flex items-center gap-1 whitespace-nowrap body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:underline"
+                  >
+                    Ver detalhes
+                    <Icon name="arrow_forward" size={14} />
+                  </button>
+                </td>
+              </tr>
+              {ri < sorted.length - 1 && (
+                <tr aria-hidden="true">
+                  <td colSpan={6} className="h-2 border-0! p-0!" />
+                </tr>
+              )}
+            </React.Fragment>
           ))}
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={3} className="align-top text-right text-(--fg-secondary)">Total por agente</td>
-            <td className="align-top text-right font-semibold tabular-nums text-(--fg-primary)">
+            <td colSpan={3} className="border-t border-(--border-subtle)! align-top pt-4 text-right text-(--fg-secondary)">Total por agente</td>
+            <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-primary)">
               {brl(total)}
               {matchesCard && (
                 <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
@@ -498,10 +505,10 @@ function AgentTable() {
                 </span>
               )}
             </td>
-            <td className="align-top text-right font-semibold tabular-nums text-(--fg-secondary)">
+            <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-secondary)">
               {fmtUsd(total)}
             </td>
-            <td />
+            <td className="border-t border-(--border-subtle)!" />
           </tr>
         </tfoot>
       </AwTable>
