@@ -8,7 +8,6 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
-import { AwProgress } from "@/components/ui/AwProgress";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { AwTable } from "@/components/ui/AwTable";
 import { Calendar } from "@/components/ui/calendar";
@@ -26,12 +25,15 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { Icon } from "@/components/ui/Icon";
+import { AgentDetailModal } from "./AgentDetailModal";
 import {
   AGENT_BREAKDOWN,
+  agentType,
   brl,
   formatQuantity,
   getCustomDailySpending,
   getDailySpending,
+  OPERATIONAL_FX,
   scaleBreakdown,
   scaleCustomBreakdown,
   SERVICE_BREAKDOWN,
@@ -80,13 +82,6 @@ type SortKey =
   | "unitPrice"
   | "usd";
 type SortDir = "asc" | "desc";
-
-function parseUnitPrice(label: string): number {
-  const m = label.match(/[\d.,]+/);
-  if (!m) return Number.NEGATIVE_INFINITY;
-  const n = parseFloat(m[0].replace(/\./g, "").replace(",", "."));
-  return Number.isFinite(n) ? n : Number.NEGATIVE_INFINITY;
-}
 
 /** Converte BRL → rótulo USD (câmbio operacional), derivado do total escalado. */
 function fmtUsd(brlValue: number): string {
@@ -154,6 +149,12 @@ export function VariableSpendingBlock() {
     });
     return sum;
   }, [daily, categories, visibleIds]);
+
+  // Rótulo do período em linguagem do usuário — alimenta o modal "Ver detalhes".
+  const periodLabel =
+    selection.kind === "preset"
+      ? SPENDING_PERIODS.find((p) => p.id === selection.id)?.label ?? "Período"
+      : `Personalizado · ${formatRangeShort(selection.from, selection.to)}`;
 
   const toggleFilter = (id: string) => {
     setFilter((f) => {
@@ -310,17 +311,29 @@ export function VariableSpendingBlock() {
           <ServiceTableCustom
             dayCount={customDays}
             allowedRowIds={allowedRowIds}
+            accumulated={accumulated}
           />
         ) : (
           <AgentTableCustom
             dayCount={customDays}
             allowedRowIds={allowedRowIds}
+            accumulated={accumulated}
+            periodLabel={periodLabel}
           />
         )
       ) : grouping === "service" ? (
-        <ServiceTable period={selection.id} allowedRowIds={allowedRowIds} />
+        <ServiceTable
+          period={selection.id}
+          allowedRowIds={allowedRowIds}
+          accumulated={accumulated}
+        />
       ) : (
-        <AgentTable period={selection.id} allowedRowIds={allowedRowIds} />
+        <AgentTable
+          period={selection.id}
+          allowedRowIds={allowedRowIds}
+          accumulated={accumulated}
+          periodLabel={periodLabel}
+        />
       )}
     </div>
   );
@@ -834,9 +847,11 @@ function Legend({
 function ServiceTable({
   period,
   allowedRowIds,
+  accumulated,
 }: {
   period: SpendingPeriod;
   allowedRowIds: Set<string>;
+  accumulated: number;
 }) {
   const scaled = React.useMemo(
     () =>
@@ -845,15 +860,17 @@ function ServiceTable({
       ),
     [period, allowedRowIds],
   );
-  return <ServiceTableBody rows={scaled} />;
+  return <ServiceGroupedTable rows={scaled} accumulated={accumulated} />;
 }
 
 function ServiceTableCustom({
   dayCount,
   allowedRowIds,
+  accumulated,
 }: {
   dayCount: number;
   allowedRowIds: Set<string>;
+  accumulated: number;
 }) {
   const scaled = React.useMemo(
     () =>
@@ -863,146 +880,272 @@ function ServiceTableCustom({
       ).filter((r) => allowedRowIds.has(r.id)),
     [dayCount, allowedRowIds],
   );
-  return <ServiceTableBody rows={scaled} />;
+  return <ServiceGroupedTable rows={scaled} accumulated={accumulated} />;
 }
 
-function ServiceTableBody({ rows: scaled }: { rows: ServiceBreakdownRow[] }) {
-  const [sortKey, setSortKey] = React.useState<SortKey>("total");
-  const [sortDir, setSortDir] = React.useState<SortDir>("desc");
+/* ---------- tabela agrupada canônica (taxonomia W2C) ----------
+ * Porte da DetailedTable do PG: os serviços planos viram 5 grupos canônicos
+ * (Meta/Mensagem/Leads/Telefone/AI) + "Outros" pra fechar o total. Meta e AI
+ * têm sub-níveis colapsáveis (↳); grupos com gasto ≥ 2× a mediana ganham o
+ * selo "Outlier". Continua dinâmico: recebe os rows já escalados pelo período
+ * e filtrados pelas categorias visíveis, então o total bate com o card. */
 
-  const sorted = React.useMemo(() => {
-    const rows = [...scaled];
-    rows.sort((a, b) => {
-      let av: number | string;
-      let bv: number | string;
-      if (sortKey === "unitPrice") {
-        av = parseUnitPrice(a.unitPriceLabel);
-        bv = parseUnitPrice(b.unitPriceLabel);
-      } else if (sortKey === "usd") {
-        av = usd(a.total);
-        bv = usd(b.total);
-      } else if (sortKey === "quantity" || sortKey === "total") {
-        av = a[sortKey];
-        bv = b[sortKey];
-      } else if (sortKey === "label") {
-        av = a.label;
-        bv = b.label;
-      } else if (sortKey === "category") {
-        av = a.category;
-        bv = b.category;
-      } else {
-        return 0;
-      }
-      if (typeof av === "number" && typeof bv === "number") {
-        return sortDir === "asc" ? av - bv : bv - av;
-      }
-      return sortDir === "asc"
-        ? String(av).localeCompare(String(bv))
-        : String(bv).localeCompare(String(av));
+type ServiceGroupDef = {
+  id: string;
+  label: string;
+  icon: string;
+  /** ids de SERVICE_BREAKDOWN que compõem o grupo, na ordem dos sub-níveis. */
+  rowIds: string[];
+  /** substantivo da quantidade agregada (ex.: "disparos", "tokens"). */
+  unitNoun: string;
+  /** formato da quantidade quando o grupo agrega vários sub-níveis. */
+  aggregateFormat: ServiceBreakdownRow["quantityFormat"];
+};
+
+const SERVICE_GROUPS: ServiceGroupDef[] = [
+  { id: "meta", label: "Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], unitNoun: "disparos", aggregateFormat: "decimal" },
+  { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal" },
+  { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal" },
+  { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal" },
+  { id: "ai", label: "AI", icon: "neurology", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
+  { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump" },
+];
+
+const DEFAULT_EXPANDED = ["meta", "ai"];
+
+/** Outlier = gasto ≥ 2× a mediana dos demais grupos (mesma regra do PG). */
+function isOutlier(value: number, all: number[]): boolean {
+  const positives = all.filter((v) => v > 0);
+  if (positives.length < 3 || value <= 0) return false;
+  const sorted = [...positives].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+  return median > 0 && value >= median * 2;
+}
+
+function OutlierBadge() {
+  return (
+    <TooltipProvider delayDuration={120}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className="cursor-default">
+            <AwPill variant="warning" dot={false}>
+              <Icon name="warning" size={11} />
+              Outlier
+            </AwPill>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent
+          side="top"
+          className="max-w-[240px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
+        >
+          Gasto ≥ 2× a mediana dos outros grupos no período — vale investigar.
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+type ServiceGroup = {
+  def: ServiceGroupDef;
+  members: ServiceBreakdownRow[];
+  groupTotal: number;
+  qtySum: number;
+  hasQty: boolean;
+};
+
+function ServiceGroupedTable({
+  rows,
+  accumulated,
+}: {
+  rows: ServiceBreakdownRow[];
+  accumulated: number;
+}) {
+  const [expanded, setExpanded] = React.useState<Set<string>>(
+    () => new Set(DEFAULT_EXPANDED),
+  );
+
+  const byId = React.useMemo(
+    () => new Map(rows.map((r) => [r.id, r])),
+    [rows],
+  );
+
+  const groups = React.useMemo<ServiceGroup[]>(() => {
+    return SERVICE_GROUPS.flatMap((def) => {
+      const members = def.rowIds
+        .map((id) => byId.get(id))
+        .filter((r): r is ServiceBreakdownRow => Boolean(r));
+      if (members.length === 0) return [];
+      const groupTotal = members.reduce((s, r) => s + r.total, 0);
+      const qtySum = members.reduce(
+        (s, r) => (r.quantity >= 0 ? s + r.quantity : s),
+        0,
+      );
+      const hasQty = members.some((r) => r.quantity >= 0);
+      return [{ def, members, groupTotal, qtySum, hasQty }];
     });
-    return rows;
-  }, [scaled, sortKey, sortDir]);
+  }, [byId]);
 
-  const total = scaled.reduce((s, r) => s + r.total, 0);
+  const allTotals = React.useMemo(
+    () => groups.map((g) => g.groupTotal),
+    [groups],
+  );
+  const total = groups.reduce((s, g) => s + g.groupTotal, 0);
+  // "Bate com card" só quando o filtro está completo (o total da tabela casa
+  // com o Acumulado mostrado acima). Sob filtro parcial, omitimos o selo.
+  const matchesCard = Math.abs(total - accumulated) < 1;
 
-  const headerClick = (k: SortKey) => {
-    if (k === sortKey) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(k);
-      const numeric = k === "total" || k === "quantity" || k === "unitPrice";
-      setSortDir(numeric ? "desc" : "asc");
-    }
-  };
+  const toggle = (id: string) =>
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+
+  if (groups.length === 0) {
+    return (
+      <p className="m-0 py-6 text-center body-sm text-(--fg-tertiary)">
+        Nenhum serviço no filtro selecionado.
+      </p>
+    );
+  }
 
   return (
     <AwTable>
       <thead>
         <tr>
-          <SortableHeader
-            label="Serviço"
-            sortKey="label"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Categoria"
-            sortKey="category"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Quantidade"
-            sortKey="quantity"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Taxa efetiva"
-            sortKey="unitPrice"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Total"
-            sortKey="total"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-            align="right"
-          />
-          <SortableHeader
-            label="USD"
-            sortKey="usd"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-            align="right"
-          />
+          <th>Grupo / Sub-nível</th>
+          <th>Quantidade</th>
+          <th>Unitário</th>
+          <th className="text-right">Total BRL</th>
+          <th className="text-right">Total USD</th>
         </tr>
       </thead>
       <tbody>
-        {sorted.map((r) => (
-          <tr key={r.id}>
-            <td>
-              <span className="inline-flex items-center gap-2">
-                <Icon
-                  name={r.icon}
-                  size={18}
-                  className="text-(--fg-tertiary)"
-                />
-                {r.label}
-              </span>
-            </td>
-            <td className="body-xs text-(--fg-secondary)">{r.category}</td>
-            <td className="tabular-nums">
-              {formatQuantity(r.quantity, r.quantityFormat)}
-            </td>
-            <td className="tabular-nums text-(--fg-secondary)">
-              {r.unitPriceLabel}
-            </td>
-            <td className="text-right font-medium tabular-nums text-(--fg-primary)">
-              {brl(r.total)}
-            </td>
-            <td className="text-right tabular-nums text-(--fg-tertiary)">
-              {fmtUsd(r.total)}
-            </td>
-          </tr>
-        ))}
+        {groups.map((g) => {
+          const expandable = g.members.length > 1;
+          const isOpen = expandable && expanded.has(g.def.id);
+          const outlier = isOutlier(g.groupTotal, allTotals);
+          const qtyFmt = expandable
+            ? g.def.aggregateFormat
+            : g.members[0].quantityFormat;
+          const qtyLabel = g.hasQty
+            ? `${formatQuantity(g.qtySum, qtyFmt)} ${g.def.unitNoun}`
+            : "—";
+          const unitLabel = expandable ? "Misto" : g.members[0].unitPriceLabel;
+
+          return (
+            <React.Fragment key={g.def.id}>
+              <tr>
+                <td>
+                  {expandable ? (
+                    <button
+                      type="button"
+                      onClick={() => toggle(g.def.id)}
+                      aria-expanded={isOpen}
+                      className="group/exp inline-flex items-start gap-2 text-left"
+                    >
+                      <Icon
+                        name="chevron_right"
+                        size={18}
+                        className={
+                          "mt-0.5 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast " +
+                          (isOpen ? "rotate-90" : "")
+                        }
+                      />
+                      <Icon
+                        name={g.def.icon}
+                        size={18}
+                        className="mt-0.5 shrink-0 text-(--fg-tertiary)"
+                      />
+                      <span className="flex flex-col gap-0.5">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="font-medium text-(--fg-primary) group-hover/exp:text-(--fg-primary)">
+                            {g.def.label}
+                          </span>
+                          {outlier && <OutlierBadge />}
+                        </span>
+                        <span className="body-3xs text-(--fg-tertiary)">
+                          {g.members.length} sub-
+                          {g.members.length === 1 ? "nível" : "níveis"} canônico
+                        </span>
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="inline-flex items-center gap-2 pl-[26px]">
+                      <Icon
+                        name={g.def.icon}
+                        size={18}
+                        className="shrink-0 text-(--fg-tertiary)"
+                      />
+                      <span className="font-medium text-(--fg-primary)">
+                        {g.def.label}
+                      </span>
+                      {outlier && <OutlierBadge />}
+                    </span>
+                  )}
+                </td>
+                <td className="tabular-nums text-(--fg-secondary)">
+                  {qtyLabel}
+                </td>
+                <td className="tabular-nums text-(--fg-secondary)">
+                  {unitLabel}
+                </td>
+                <td className="text-right font-medium tabular-nums text-(--fg-primary)">
+                  {brl(g.groupTotal)}
+                </td>
+                <td className="text-right tabular-nums text-(--fg-tertiary)">
+                  {fmtUsd(g.groupTotal)}
+                </td>
+              </tr>
+              {isOpen &&
+                g.members.map((sub) => (
+                  <tr key={sub.id} className="bg-(--bg-muted)">
+                    <td className="py-2.5 pl-[52px] body-sm text-(--fg-secondary)">
+                      <span className="text-(--fg-tertiary)">↳</span> {sub.label}
+                    </td>
+                    <td className="py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
+                      {formatQuantity(sub.quantity, sub.quantityFormat)}
+                    </td>
+                    <td className="py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
+                      {sub.unitPriceLabel}
+                    </td>
+                    <td className="py-2.5 text-right body-xs tabular-nums text-(--fg-secondary)">
+                      {brl(sub.total)}
+                    </td>
+                    <td className="py-2.5 text-right body-xs tabular-nums text-(--fg-tertiary)">
+                      {fmtUsd(sub.total)}
+                    </td>
+                  </tr>
+                ))}
+            </React.Fragment>
+          );
+        })}
       </tbody>
       <tfoot>
         <tr>
-          <td colSpan={4} className="text-right text-(--fg-secondary)">
-            Total
+          <td colSpan={3}>
+            <span className="font-semibold text-(--fg-primary)">TOTAL</span>
+            <span className="block body-3xs text-(--fg-tertiary)">
+              câmbio operacional R$ {OPERATIONAL_FX.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}{" "}
+              · taxonomia canon (W2C)
+            </span>
           </td>
           <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
-            {brl(total)}
+            <span className="inline-flex items-center justify-end gap-1.5">
+              {brl(total)}
+              {matchesCard && (
+                <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
+                  <Icon name="check" size={13} />
+                  bate com card
+                </span>
+              )}
+            </span>
           </td>
-          <td className="text-right tabular-nums text-(--fg-tertiary)">
+          <td className="text-right font-semibold tabular-nums text-(--fg-secondary)">
             {fmtUsd(total)}
           </td>
         </tr>
@@ -1025,9 +1168,13 @@ function agentStatusVariant(status: AgentBreakdownRow["status"]): AwPillVariant 
 function AgentTable({
   period,
   allowedRowIds,
+  accumulated,
+  periodLabel,
 }: {
   period: SpendingPeriod;
   allowedRowIds: Set<string>;
+  accumulated: number;
+  periodLabel: string;
 }) {
   const scaled = React.useMemo(
     () =>
@@ -1036,15 +1183,25 @@ function AgentTable({
       ),
     [period, allowedRowIds],
   );
-  return <AgentTableBody rows={scaled} />;
+  return (
+    <AgentGroupedTable
+      rows={scaled}
+      accumulated={accumulated}
+      periodLabel={periodLabel}
+    />
+  );
 }
 
 function AgentTableCustom({
   dayCount,
   allowedRowIds,
+  accumulated,
+  periodLabel,
 }: {
   dayCount: number;
   allowedRowIds: Set<string>;
+  accumulated: number;
+  periodLabel: string;
 }) {
   const scaled = React.useMemo(
     () =>
@@ -1054,26 +1211,56 @@ function AgentTableCustom({
       ).filter((r) => allowedRowIds.has(r.id)),
     [dayCount, allowedRowIds],
   );
-  return <AgentTableBody rows={scaled} />;
+  return (
+    <AgentGroupedTable
+      rows={scaled}
+      accumulated={accumulated}
+      periodLabel={periodLabel}
+    />
+  );
 }
 
-function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
+/* ---------- tabela por agente (mesma lógica canônica da de serviço) ----------
+ * Porte da tabela do PG: Nome · Tipo · Status · BRL · USD · "Ver detalhes →".
+ * Sai a barra de progresso; entra o selo Outlier (gasto ≥ 2× a mediana) e o
+ * modal de detalhamento por agente. Continua dinâmico — recebe os rows já
+ * escalados e filtrados, então o total bate com o card. */
+function AgentGroupedTable({
+  rows: scaled,
+  accumulated,
+  periodLabel,
+}: {
+  rows: AgentBreakdownRow[];
+  accumulated: number;
+  periodLabel: string;
+}) {
   const [sortKey, setSortKey] = React.useState<SortKey>("total");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
+  const [detail, setDetail] = React.useState<AgentBreakdownRow | null>(null);
 
   const sorted = React.useMemo(() => {
     const rows = [...scaled];
     rows.sort((a, b) => {
-      if (
-        sortKey !== "label" &&
-        sortKey !== "consumption" &&
-        sortKey !== "status" &&
-        sortKey !== "total"
-      ) {
+      let av: number | string;
+      let bv: number | string;
+      if (sortKey === "usd") {
+        av = usd(a.total);
+        bv = usd(b.total);
+      } else if (sortKey === "total") {
+        av = a.total;
+        bv = b.total;
+      } else if (sortKey === "label") {
+        av = a.label;
+        bv = b.label;
+      } else if (sortKey === "role") {
+        av = agentType(a.id);
+        bv = agentType(b.id);
+      } else if (sortKey === "status") {
+        av = a.status;
+        bv = b.status;
+      } else {
         return 0;
       }
-      const av = a[sortKey];
-      const bv = b[sortKey];
       if (typeof av === "number" && typeof bv === "number") {
         return sortDir === "asc" ? av - bv : bv - av;
       }
@@ -1085,9 +1272,8 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
   }, [scaled, sortKey, sortDir]);
 
   const total = scaled.reduce((s, r) => s + r.total, 0);
-  // Base da barra: o agente que mais consumiu no período. Dá um referencial
-  // claro pra cada barra (em vez de um "%" solto sem base — "92% de quê?").
-  const maxTotal = Math.max(1, ...scaled.map((r) => r.total));
+  const allTotals = React.useMemo(() => scaled.map((r) => r.total), [scaled]);
+  const matchesCard = Math.abs(total - accumulated) < 1;
 
   const headerClick = (k: SortKey) => {
     if (k === sortKey) {
@@ -1098,111 +1284,129 @@ function AgentTableBody({ rows: scaled }: { rows: AgentBreakdownRow[] }) {
     }
   };
 
+  if (scaled.length === 0) {
+    return (
+      <p className="m-0 py-6 text-center body-sm text-(--fg-tertiary)">
+        Nenhum agente no filtro selecionado.
+      </p>
+    );
+  }
+
   return (
-    <AwTable>
-      <thead>
-        <tr>
-          <SortableHeader
-            label="Agente"
-            sortKey="label"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Consumo no período"
-            sortKey="total"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="Status"
-            sortKey="status"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-          />
-          <SortableHeader
-            label="USD"
-            sortKey="usd"
-            current={sortKey}
-            dir={sortDir}
-            onClick={headerClick}
-            align="right"
-          />
-        </tr>
-      </thead>
-      <tbody>
-        {sorted.map((r) => (
-          <tr key={r.id}>
-            <td>
-              <span className="inline-flex items-center gap-2">
-                <AwAvatar size="sm" src={r.avatar} alt={r.label} />
-                <span className="font-medium text-(--fg-primary)">
-                  {r.label}
+    <>
+      <AwTable>
+        <thead>
+          <tr>
+            <SortableHeader
+              label="Nome"
+              sortKey="label"
+              current={sortKey}
+              dir={sortDir}
+              onClick={headerClick}
+            />
+            <SortableHeader
+              label="Tipo"
+              sortKey="role"
+              current={sortKey}
+              dir={sortDir}
+              onClick={headerClick}
+            />
+            <SortableHeader
+              label="Status"
+              sortKey="status"
+              current={sortKey}
+              dir={sortDir}
+              onClick={headerClick}
+            />
+            <SortableHeader
+              label="Total BRL"
+              sortKey="total"
+              current={sortKey}
+              dir={sortDir}
+              onClick={headerClick}
+              align="right"
+            />
+            <SortableHeader
+              label="Total USD"
+              sortKey="usd"
+              current={sortKey}
+              dir={sortDir}
+              onClick={headerClick}
+              align="right"
+            />
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map((r) => (
+            <tr key={r.id}>
+              <td>
+                <span className="inline-flex items-center gap-2">
+                  <AwAvatar size="sm" src={r.avatar} alt={r.label} />
+                  <span className="font-medium text-(--fg-primary)">
+                    {r.label}
+                  </span>
+                  {isOutlier(r.total, allTotals) && <OutlierBadge />}
                 </span>
+              </td>
+              <td className="body-xs text-(--fg-secondary)">
+                {agentType(r.id)}
+              </td>
+              <td>
+                <AwPill variant={agentStatusVariant(r.status)}>
+                  {r.status}
+                </AwPill>
+              </td>
+              <td className="text-right font-medium tabular-nums text-(--fg-primary)">
+                {brl(r.total)}
+              </td>
+              <td className="text-right tabular-nums text-(--fg-tertiary)">
+                {fmtUsd(r.total)}
+              </td>
+              <td className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setDetail(r)}
+                  className="inline-flex items-center gap-1 whitespace-nowrap body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:underline"
+                >
+                  Ver detalhes
+                  <Icon name="arrow_forward" size={14} />
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colSpan={3} className="text-right text-(--fg-secondary)">
+              Total por agente
+            </td>
+            <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
+              <span className="inline-flex items-center justify-end gap-1.5">
+                {brl(total)}
+                {matchesCard && (
+                  <span className="inline-flex items-center gap-0.5 body-3xs font-medium text-(--accent-success)">
+                    <Icon name="check" size={13} />
+                    bate com card
+                  </span>
+                )}
               </span>
             </td>
-            <td>
-              <TooltipProvider delayDuration={120}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex min-w-[180px] max-w-[280px] cursor-help items-center gap-3">
-                      <AwProgress
-                        value={(r.total / maxTotal) * 100}
-                        max={100}
-                        className="flex-1"
-                      />
-                      <span className="shrink-0 tabular-nums body-sm font-medium text-(--fg-primary)">
-                        {brl(r.total)}
-                      </span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent
-                    side="top"
-                    className="border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-                  >
-                    <div className="flex flex-col gap-0.5">
-                      <span className="aw-eyebrow normal-case text-(--fg-tertiary)">
-                        Consumo no período
-                      </span>
-                      <span className="body-sm tabular-nums text-(--fg-primary)">
-                        {brl(r.total)}{" "}
-                        <span className="text-(--fg-tertiary)">
-                          · {fmtUsd(r.total)}
-                        </span>
-                      </span>
-                      <span className="body-xs text-(--fg-tertiary)">
-                        Barra relativa ao agente que mais consumiu ({brl(maxTotal)}).
-                      </span>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+            <td className="text-right font-semibold tabular-nums text-(--fg-secondary)">
+              {fmtUsd(total)}
             </td>
-            <td>
-              <AwPill variant={agentStatusVariant(r.status)}>{r.status}</AwPill>
-            </td>
-            <td className="text-right tabular-nums text-(--fg-tertiary)">
-              {fmtUsd(r.total)}
-            </td>
+            <td />
           </tr>
-        ))}
-      </tbody>
-      <tfoot>
-        <tr>
-          <td className="text-right text-(--fg-secondary)">Total</td>
-          <td className="font-semibold tabular-nums text-(--fg-primary)">
-            {brl(total)}
-          </td>
-          <td />
-          <td className="text-right tabular-nums text-(--fg-tertiary)">
-            {fmtUsd(total)}
-          </td>
-        </tr>
-      </tfoot>
-    </AwTable>
+        </tfoot>
+      </AwTable>
+
+      <AgentDetailModal
+        agent={detail}
+        periodLabel={periodLabel}
+        open={detail !== null}
+        onClose={() => setDetail(null)}
+      />
+    </>
   );
 }
 
