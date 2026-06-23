@@ -67,9 +67,9 @@ function buildDetalhamentoCsv(format: ExportFormat): string {
 /**
  * Corpo do "Detalhamento de custos" — a carga pesada de auditoria financeira: o
  * porquê de "usado" nunca bater com "cobrado", o DRE do período e o consumo por
- * dia/serviço/agente em BRL e USD. Compartilhado entre a rota de detalhamento
- * (acessada pelo atalho da Visão geral) e a seção própria "Consumo e custos" da
- * sidebar. O cabeçalho fica por conta de cada página que o usa.
+ * dia/serviço/agente em BRL e USD. Usado pela seção "Consumo e custos" da
+ * sidebar (a antiga rota de detalhamento foi removida). O cabeçalho fica por
+ * conta da página que o usa.
  */
 export function CostBreakdown() {
   return (

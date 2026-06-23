@@ -5,10 +5,10 @@ import { CostBreakdown } from "../financeiro/_components/CostBreakdown";
 
 /**
  * "Consumo e custos" — seção própria na sidebar (irmã do Financeiro), fora do
- * shell de tabs do Financeiro. Mostra o mesmo detalhamento de auditoria que a
- * rota /settings/financeiro/detalhamento, via o componente compartilhado
- * <CostBreakdown>. O atalho "Ver detalhamento →" da Visão geral continua
- * apontando para a rota antiga — esta seção é um acesso paralelo, não o substitui.
+ * shell de tabs do Financeiro. É a casa única do detalhamento de auditoria
+ * financeira (a antiga rota /settings/financeiro/detalhamento foi removida); o
+ * corpo vem do componente compartilhado <CostBreakdown>. O atalho da Visão
+ * geral ("Consumo e custos →") aponta para cá.
  */
 export default function ConsumoECustosPage() {
   return (
