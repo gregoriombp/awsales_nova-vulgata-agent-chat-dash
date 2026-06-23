@@ -777,6 +777,30 @@ export const CHARGED_BY_DAY: { label: string; value: number }[] = (() => {
   return v.map((val, i) => ({ label: ddmmFromIndex(i), value: val }));
 })();
 
+export type ReconDay = { wc: number; meta: number; charged: number };
+
+/** Série "usado × cobrado" por bucket, escalada pro período ativo. O baseline
+ * (USED_*_TOTAL / CHARGED_TOTAL) casa com "este mês", então outros períodos
+ * partem dele — assim o gráfico de reconciliação acompanha o controle de tempo
+ * junto com os demais widgets do dashboard. */
+export function getUsedChargedSeries(bars: number, scale: number): ReconDay[] {
+  const n = Math.max(1, bars);
+  const wc = spreadDaily(USED_WC_TOTAL * scale, n, 5);
+  const meta = spreadDaily(USED_META_TOTAL * scale, n, 9);
+  const charged = spreadDaily(CHARGED_TOTAL * scale, n, 3);
+  return wc.map((v, i) => ({ wc: v, meta: meta[i], charged: charged[i] }));
+}
+
+/** Fator de escala do usado×cobrado, relativo ao baseline "este mês". */
+export function reconScaleForPeriod(period: SpendingPeriod): number {
+  return PERIOD_TOTAL[period] / PERIOD_TOTAL["this-month"];
+}
+
+export function reconScaleForCustom(dayCount: number): number {
+  const days = Math.max(1, Math.min(dayCount, 90));
+  return customPeriodTotal(days) / PERIOD_TOTAL["this-month"];
+}
+
 // Resumo do período pros 4 cards de destaque do dashboard de Consumo e custos.
 // Sem "Tributos" (fora do escopo do dashboard). É period-aware: recebe o
 // subtotal já apurado pro período/filtro ativo e devolve as 4 linhas coerentes
