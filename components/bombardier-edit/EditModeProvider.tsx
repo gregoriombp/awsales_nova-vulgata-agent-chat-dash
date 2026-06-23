@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { usePathname } from "next/navigation"
+import { Icon } from "@/components/ui/Icon"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useEditStore } from "@/lib/bombardier-edit/store"
@@ -63,6 +64,17 @@ export function EditModeProvider() {
   const [hoverRect, setHoverRect] = React.useState<DOMRect | null>(null)
   const [selectedRect, setSelectedRect] = React.useState<DOMRect | null>(null)
   const [editingActive, setEditingActive] = React.useState(false)
+
+  // Drag-to-reorder (sibling reorder only).
+  const [dragging, setDragging] = React.useState(false)
+  const [dropRect, setDropRect] = React.useState<Drop["rect"] | null>(null)
+  const dragRef = React.useRef<{
+    moved: HTMLElement
+    parent: Element
+    parentAnchor: PageEditAnchor
+    baseline: string[]
+    lastIndex: number
+  } | null>(null)
 
   const editingRef = React.useRef<Editing | null>(null)
   const commitRef = React.useRef<() => void>(() => {})
@@ -426,16 +438,79 @@ export function EditModeProvider() {
     }
   }, [])
 
+  // ── Drag-to-reorder ────────────────────────────────────────────────────────
+  // Grab the selected element's grip and drag it among its siblings. Captured
+  // as ONE move op per parent that stores the desired child order by stable key
+  // (see lib/bombardier-edit/reorder) — robust to the positional anchor.
+  const beginDrag = React.useCallback((e: React.PointerEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const sel = useEditStore.getState().selectedAnchor
+    if (!sel) return
+    const moved = resolveEditElement(sel) as HTMLElement | null
+    const parent = moved?.parentElement ?? null
+    if (!moved || !parent) return
+    const parentAnchor = captureEditAnchor(parent)
+    if (!parentAnchor) return
+
+    const priorOpacity = moved.style.opacity
+    moved.style.opacity = "0.45" // ghost the block being dragged
+    dragRef.current = {
+      moved,
+      parent,
+      parentAnchor,
+      baseline: currentOrder(parent),
+      lastIndex: -1,
+    }
+    setDragging(true)
+
+    const onMove = (ev: PointerEvent) => {
+      const d = dragRef.current
+      if (!d) return
+      const drop = computeDrop(d.parent, ev.clientX, ev.clientY)
+      if (!drop) {
+        setDropRect(null)
+        return
+      }
+      d.lastIndex = drop.index
+      setDropRect(drop.rect)
+    }
+    const onUp = () => {
+      document.removeEventListener("pointermove", onMove)
+      const d = dragRef.current
+      dragRef.current = null
+      setDragging(false)
+      setDropRect(null)
+      moved.style.opacity = priorOpacity
+      if (!d || d.lastIndex < 0) return
+      const order = buildOrder(d.parent, d.moved, d.lastIndex)
+      // No real change → don't persist a no-op move.
+      const unchanged =
+        order.length === d.baseline.length &&
+        order.every((k, i) => k === d.baseline[i])
+      if (unchanged) return
+      // Optimistic reorder so it feels instant; the applier re-asserts on refresh.
+      reorderDom(d.parent, matchOrder(d.parent, order))
+      void useEditStore.getState().saveMove(d.parentAnchor, order)
+    }
+    document.addEventListener("pointermove", onMove)
+    document.addEventListener("pointerup", onUp, { once: true })
+  }, [])
+
   if (!active) return null
 
   return (
     <>
-      {hoverRect && !editingActive && (
+      {hoverRect && !editingActive && !dragging && (
         <Outline rect={hoverRect} color="var(--border-strong)" z={EDIT_Z.hover} dashed />
       )}
       {selectedRect && (
         <Outline rect={selectedRect} color="var(--accent-brand)" z={EDIT_Z.outline} />
       )}
+      {selectedRect && !editingActive && (
+        <DragGrip rect={selectedRect} dragging={dragging} onStart={beginDrag} />
+      )}
+      {dragging && dropRect && <DropLine rect={dropRect} />}
 
       <EditToolbar
         openCount={ops.filter((o) => o.status === "open").length}
@@ -499,6 +574,61 @@ function Outline({
         pointerEvents: "none",
         zIndex: z,
         boxSizing: "border-box",
+      }}
+    />
+  )
+}
+
+/** Grab handle on the selected element's corner — pointer-drag to reorder it
+ *  among its siblings. Marked as our chrome so the click/hover capture ignores it. */
+function DragGrip({
+  rect,
+  dragging,
+  onStart,
+}: {
+  rect: DOMRect
+  dragging: boolean
+  onStart: (e: React.PointerEvent) => void
+}) {
+  return (
+    <button
+      type="button"
+      aria-label="Arrastar pra reordenar"
+      title="Arrastar pra reordenar"
+      {...{ [EDIT_OVERLAY_DATA_ATTR]: "grip" }}
+      onPointerDown={onStart}
+      className="flex h-6 w-6 items-center justify-center rounded-full border border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary) shadow-(--shadow-sm) hover:text-(--fg-primary)"
+      style={{
+        position: "fixed",
+        left: rect.left - 12,
+        top: rect.top - 12,
+        zIndex: EDIT_Z.toolbar,
+        touchAction: "none",
+        cursor: dragging ? "grabbing" : "grab",
+      }}
+    >
+      <Icon name="drag_indicator" size={14} />
+    </button>
+  )
+}
+
+/** Insertion indicator drawn between siblings while dragging. */
+function DropLine({ rect }: { rect: Drop["rect"] }) {
+  return (
+    <div
+      aria-hidden
+      {...{ [EDIT_OVERLAY_DATA_ATTR]: "dropline" }}
+      style={{
+        position: "fixed",
+        left: rect.left,
+        top: rect.top,
+        width: rect.width,
+        height: rect.height,
+        background: "var(--accent-brand)",
+        borderRadius: 9999,
+        boxShadow: "0 0 0 1px var(--bg-raised)",
+        pointerEvents: "none",
+        zIndex: EDIT_Z.toolbar - 1,
       }}
     />
   )
