@@ -540,9 +540,9 @@ export function UsadoCobradoWidget({
 
   const config: ChartConfig = {
     wc: { label: "Taxas Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Meta · aprox.", color: "var(--aw-purple-400)" },
+    meta: { label: "Meta aproximado", color: "var(--aw-purple-400)" },
     used: { label: "Usado", color: "var(--aw-blue-500)" },
-    charged: { label: "Atribuído ao provedor", color: "var(--aw-amber-500)" },
+    charged: { label: "Valor na fatura", color: "var(--aw-amber-500)" },
   };
 
   return (
