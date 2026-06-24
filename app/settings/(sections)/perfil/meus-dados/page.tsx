@@ -252,7 +252,7 @@ export default function MeusDadosPage() {
                 Solicitações recentes
               </h6>
               <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                Acompanhe o status das suas exportações.
+                Status das exportações solicitadas.
               </p>
             </div>
             {readyCount > 0 && (

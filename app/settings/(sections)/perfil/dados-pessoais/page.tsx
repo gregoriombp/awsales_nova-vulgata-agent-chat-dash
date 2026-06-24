@@ -271,7 +271,7 @@ export default function DadosPessoaisPage() {
             iconLeft="upload"
             onClick={() => fileRef.current?.click()}
           >
-            Fazer upload
+            Enviar foto
           </AwButton>
           <p className="m-0 body-xs text-(--fg-tertiary) text-center">
             PNG ou JPG · mínimo 200×200 px · até 2 MB.

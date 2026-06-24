@@ -275,7 +275,7 @@ export default function SessoesAtivasPage() {
                   />
                   <p className="m-0 mt-2 inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
                     <Icon name="info" size={13} />
-                    Estimado pelo IP — a posição pode não bater exata.
+                    Estimado pelo IP — a posição pode não ser exata.
                   </p>
                 </div>
               )}

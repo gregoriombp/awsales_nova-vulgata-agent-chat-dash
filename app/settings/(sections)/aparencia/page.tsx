@@ -16,7 +16,7 @@ export default function AppearanceSettingsPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Aparência"
-        description="Vale só para a sua conta, neste navegador."
+        description="Preferências visuais que valem só neste navegador."
       />
       {/* Sem caixa externa: conteúdo flat, seções separadas só por divisória. */}
       <div className="flex flex-col divide-y divide-(--border-subtle)">
