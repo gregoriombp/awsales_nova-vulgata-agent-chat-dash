@@ -4,7 +4,6 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
-import { AwLogo } from "@/components/ui/AwLogo";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -322,12 +321,8 @@ function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
     );
   }
   if (provider === "aswork") {
-    return (
-      <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
-        <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
-        Aswork
-      </span>
-    );
+    // Serviços da própria plataforma não têm fornecedor externo — traço, não "Aswork".
+    return <span className="text-(--fg-tertiary)">—</span>;
   }
   // Só sobra "mixed" (meta/aswork retornaram acima).
   return (
