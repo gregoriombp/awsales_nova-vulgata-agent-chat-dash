@@ -1,12 +1,19 @@
 # Bombardier Review Bridge
 
-Servidor local que guarda os comentários visuais do **Review Mode** (Bombardier)
-para agentes rodando na mesma máquina. Roda em `http://127.0.0.1:9878`,
-autenticado por token e persistido em arquivos JSON locais (`lowdb`).
+Backend local que guarda os comentários visuais do **Review Mode** (Bombardier)
+e os expõe pra agentes rodando na mesma máquina. Desde o commit
+`2f7dd24e` o bridge virou **serverless**: as rotas vivem dentro do Next em
+`/api/review-bridge/*` (same-origin), sem token e sem `.env`. Os dados continuam
+nos mesmos arquivos JSON em `review-bridge/data/` — só a casca mudou.
 
-> **Como subir:** `npm run dev` na raiz prepara `.env.local`, sincroniza o token
-> com `review-bridge/.env` e sobe o servidor junto com o Next. `npm run
-> review-bridge` é só para rodar o bridge isolado.
+> **Como subir:** `npm run dev` na raiz já sobe tudo. Não precisa de token, não
+> precisa de `.env.local`, não precisa de um segundo processo.
+>
+> **Modo legado opt-in:** `npm run dev:bridge` ainda existe e sobe o servidor
+> Express avulso na `:9878` em paralelo com o Next (config velha:
+> `NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878`). Use só se
+> tiver motivo específico pra rodar o bridge fora do Next — não é a fonte
+> recomendada e o `src/` do Express não recebe mais features novas.
 
 ---
 
@@ -38,7 +45,7 @@ autenticado por token e persistido em arquivos JSON locais (`lowdb`).
 - `in_review` → algum **agente** ou **usuário** alegou resolver e está aguardando aprovação humana. Vive no mesmo arquivo que os abertos.
 - `resolved` → aprovado. **Sai fisicamente** de `comments.json` e vai pra `comments.archive.json`.
 
-A separação física do arquivo arquivo existe para que **agentes que leem o JSON pra contexto** só vejam comments ainda em jogo — sem ler centenas de comments já resolvidos que vazam pra dentro da janela de contexto.
+A separação física do arquivo existe para que **agentes que leem o JSON pra contexto** só vejam comments ainda em jogo — sem ler centenas de comments já resolvidos que vazam pra dentro da janela de contexto.
 
 ---
 
@@ -49,27 +56,25 @@ A separação física do arquivo arquivo existe para que **agentes que leem o JS
 | `data/comments.json` | comments com status `open` e `in_review` + identidades dos revisores | sempre |
 | `data/comments.archive.json` | comments com status `resolved` (arquivados) | só quando você precisa consultar histórico |
 
-`schemaVersion = 3`. A migração de v2 → v3 acontece automaticamente no boot do bridge:
-
-1. comments com `status: "resolved"` são movidos pro `comments.archive.json`.
-2. O campo legado `resolvedBy: string` vira `resolution: { actor, at, summary, ... }`.
-3. O campo legado `resolvedAt: number` é mesclado dentro de `resolution.at`.
+`schemaVersion = 3`. Tanto o backend serverless (`app/api/review-bridge/_store.ts`)
+quanto o Express legado escrevem nesse formato. Se você ainda tiver dados v2 por
+aí, veja a seção [Migração v2 → v3](#migração-v2--v3) — no fluxo padrão a
+migração já aconteceu há bastante tempo.
 
 ---
 
 ## API HTTP
 
-Base URL local: `http://127.0.0.1:9878`. Todas as rotas (exceto `/health`) exigem o header:
-
-```
-X-Review-Token: <token local>
-```
+Base URL local: `http://127.0.0.1:3000/api/review-bridge` (porta padrão do
+`next dev`; se você rodou com `PORT=xxxx`, troque). **Sem token, sem header
+custom** — é uma rota Next como qualquer outra do app.
 
 ### Listagem
 
 | Método | Path | Descrição |
 |---|---|---|
-| `GET` | `/health` | OK, versão, esquema, contagem de subscribers SSE |
+| `GET` | `/health` | `{ ok, service, mode: "serverless", schemaVersion: 3, tokenRequired: false }` — usado pelas skills (`solve`, `germano-*`) pra confirmar que o bridge serverless está de pé antes de operar |
+| `GET` | `/version` | `{ signature }` — assinatura derivada do `mtime` dos dois arquivos JSON. Usada pelo overlay como polling barato (4s) pra detectar escritas externas (skill do agente editou enquanto o user estava com o overlay aberto). **Substitui o antigo SSE** |
 | `GET` | `/comments?url=&status=` | Ativos. `status` aceita `open` ou `in_review`. Resolvidos **não saem aqui** |
 | `GET` | `/comments/archive?url=&before=&limit=` | Arquivo, paginado por cursor `updatedAt` |
 | `GET` | `/comments/:id` | Retorna `{ comment, location: "main" \| "archive" }` |
@@ -101,7 +106,12 @@ Erro `400 { error: "invalid_actor" }` quando o `actor` é exigido e está ausent
 | `PUT` | `/identity/:id` | Upsert da identidade do revisor |
 | `GET` | `/export` | Snapshot completo: `comments[]` + `archivedComments[]` |
 | `POST` | `/import` | Merge de snapshot (skipa IDs duplicados) |
-| `GET` | `/events` | SSE: `comment.upserted`, `comment.deleted`, `comment.archived`, `comment.unarchived`, `reply.added`, `hello` |
+
+> **SSE saiu.** O servidor Express antigo expunha `GET /events` como stream
+> SSE. No modo serverless o Next não mantém conexão aberta por cliente — o
+> overlay faz polling de `/version` a cada 4s e só dispara `onChange` quando a
+> assinatura muda. É o suficiente porque os writes externos vêm das skills
+> (lotes ocasionais), não de outro humano editando ao vivo.
 
 ---
 
@@ -111,8 +121,7 @@ Quando o usuário pedir "resolve esse aí", **NÃO chame o endpoint legado de up
 Use o transition `in_review` — o usuário aprova ou rejeita depois pelo inbox.
 
 ```bash
-curl -X PUT "http://<host>:9878/comments/$ID" \
-  -H "X-Review-Token: $TOKEN" \
+curl -X PUT "http://127.0.0.1:3000/api/review-bridge/comments/$ID" \
   -H "Content-Type: application/json" \
   -d '{
     "transition": "in_review",
@@ -145,7 +154,7 @@ O campo `resolution.summary` é **sempre** uma string no formato:
 Resolvido por <name> em DD/MM/YYYY às HH:MM:SS.
 ```
 
-Agentes que lerem esse JSON depois saberão exatamente quem alegou resolver e quando. Use timezone do servidor (horário da máquina rodando o bridge).
+Agentes que lerem esse JSON depois saberão exatamente quem alegou resolver e quando. Use timezone do servidor (horário da máquina rodando o Next).
 
 ---
 
@@ -155,8 +164,7 @@ Use o endpoint de replies quando você tiver uma dúvida, opinião ou pergunta a
 resolver — o usuário vê a thread inteira no card.
 
 ```bash
-curl -X POST "http://<host>:9878/comments/$ID/replies" \
-  -H "X-Review-Token: $TOKEN" \
+curl -X POST "http://127.0.0.1:3000/api/review-bridge/comments/$ID/replies" \
   -H "Content-Type: application/json" \
   -d '{
     "authorKind": "agent",
@@ -220,7 +228,8 @@ pixel-perfect.
 
 ## Migração v2 → v3
 
-Acontece no boot, idempotente. O que muda:
+Quem rodou o bridge em algum momento depois da migração já tem os arquivos no
+formato v3 — esta seção é histórica. O que mudou:
 
 1. `schemaVersion: 2` → `3` em `data/comments.json` e `data/comments.archive.json`.
 2. Status `"resolved"` que estavam no main migram pro archive.
@@ -236,6 +245,11 @@ Acontece no boot, idempotente. O que muda:
    ```
 4. Comments sem `resolvedBy` que estavam como `resolved` ganham `actor = { kind: "user", id: "legacy", name: "unknown" }`.
 
+No backend serverless o `_store` não tem um passo de migração — ele assume v3 no
+read e força `schemaVersion: 3` no write. Se você precisa migrar dados v2 hoje,
+suba o Express legado (`npm run dev:bridge`) uma vez: a migração v2→v3 dele é
+idempotente e roda no boot.
+
 Rollback: a v2 não tinha o conceito de archive, então um downgrade exigiria mesclar
 os dois arquivos de volta e reescrever `resolvedBy`/`resolvedAt` como flat strings.
 **Não há script automatizado** — guarde backup antes de fazer downgrade.
@@ -248,11 +262,11 @@ Problemas comuns:
 
 | Sintoma | Causa | Onde checar |
 |---|---|---|
-| `EADDRINUSE :9878` | porta ocupada | `lsof -i :9878` |
-| 401 do `/health` | token errado | comparar `review-bridge/.env` e `.env.local` |
-| 403 `local_only` | request veio de fora do loopback | usar `http://127.0.0.1:9878`; o bridge rejeita rede |
-| Frontend não conecta | `NEXT_PUBLIC_*` velho em cache do Next | reiniciar `npm run dev` |
-| CORS bloqueia request | app aberto fora de `localhost`/`127.0.0.1` | abra o app localmente; o bridge não aceita origens de rede |
+| `ECONNREFUSED 127.0.0.1:3000` em qualquer rota do bridge | `next dev` não está rodando | subir `npm run dev` na raiz |
+| `404` em `/api/review-bridge/...` | bateu numa rota errada (path antigo do Express?) ou Next ainda não compilou esse route | conferir o path em `app/api/review-bridge/` |
+| Overlay falando com `:9878` em vez de same-origin | `.env.local` antigo com `NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878` em cache | apagar a linha do `.env.local` e reiniciar `npm run dev` |
+| `EADDRINUSE :9878` ao rodar `npm run dev:bridge` | porta do Express legado ocupada | `lsof -i :9878` — geralmente é uma instância antiga, mata e sobe de novo |
+| Overlay não atualiza quando uma skill escreve no JSON | polling de `/version` parado ou hot-reload travou | reload da aba; em último caso reiniciar `next dev` |
 | Comment "some" depois de aprovar | foi pro archive — esperado | `GET /comments/archive` |
 | Agente alegou resolver mas user não vê em revisão | falta `actor.kind === "agent"` na request | inspecionar curl |
 
