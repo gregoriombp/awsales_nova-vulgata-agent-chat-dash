@@ -7,6 +7,7 @@ import { useCommentsForUrl, useCurrentUrl } from "@/lib/bombardier-review/hooks"
 import { useStopDismiss } from "@/lib/bombardier-review/useStopDismiss"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewAvatar } from "./ReviewAvatar"
+import { ModeFamilySwitch } from "@/components/bombardier/ModeFamilySwitch"
 import type { ReviewMode } from "./types"
 
 type ModeButtonProps = {
@@ -117,6 +118,10 @@ export function ReviewToolbar() {
       style={{ zIndex: REVIEW_Z.toolbar }}
     >
       <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
+        <ModeFamilySwitch current="review" />
+
+        <span className="h-5 w-px bg-(--border-subtle)" />
+
         {identity && (
           <ReviewAvatar
             authorId={identity.id}
