@@ -394,7 +394,7 @@ function RoleMembersModal({
               variant="ghost"
               onClick={() => setPendingRemove(null)}
             >
-              Não
+              Cancelar
             </AwButton>
             <AwButton
               size="sm"
@@ -402,7 +402,7 @@ function RoleMembersModal({
               iconLeft="person_remove"
               onClick={handleConfirmRemove}
             >
-              Sim, remover
+              Remover
             </AwButton>
           </>
         }
@@ -1256,7 +1256,7 @@ function CompactRoleList({
           Funções · {roles.length}
         </p>
         <AwButton size="sm" variant="primary" iconLeft="add" onClick={onCreate}>
-          Criar nova função
+          Criar função
         </AwButton>
       </div>
       <TooltipProvider delayDuration={120}>
