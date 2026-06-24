@@ -97,9 +97,8 @@ function Dashboard() {
           <div className="flex min-w-0 flex-1 flex-col gap-1">
             <h3 className="m-0 text-(--fg-primary)">Consumo e custos</h3>
             <p className="m-0 max-w-[460px] body-sm text-(--fg-secondary)">
-              Concilie o que foi usado com o que foi cobrado, item a item. Cobre
-              o uso variável do período — o plano fixo aparece no Financeiro e na
-              fatura.
+              O que você usou no período e quanto custou, item a item. Cobre só o
+              consumo variável — o plano fixo está no Financeiro e na fatura.
             </p>
           </div>
 

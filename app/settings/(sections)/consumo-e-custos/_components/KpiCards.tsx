@@ -31,19 +31,19 @@ export function HighlightCards() {
       <HighlightCard
         label="Subtotal de uso"
         value={brl(summary.subtotal)}
-        tooltip="Soma de tudo que foi consumido no período, antes de créditos e ajustes."
+        tooltip="Soma de todos os custos variáveis consumidos no período, antes de créditos e ajustes."
       />
       <HighlightCard
-        label="Descontos e créditos"
+        label="Créditos e cupons"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Vouchers e cupons aplicados no período. Incidem só sobre o que é cobrado pela Aswork — não abatem os valores aproximados do Meta."
+        tooltip="Créditos e cupons aplicados no período. Incidem só sobre o que é cobrado pela Aswork — não abatem os valores aproximados do Meta."
       />
       {showAdjustments && (
         <HighlightCard
           label="Ajustes"
           value={brl(summary.adjustments)}
-          tooltip="Estornos e correções de lançamentos reconhecidos no período."
+          tooltip="Estornos e correções do período — podem somar (+) ou abater (−) do total, conforme o caso."
         />
       )}
       <HighlightCard
