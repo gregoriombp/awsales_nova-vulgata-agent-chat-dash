@@ -67,7 +67,7 @@ function ForecastBlock() {
   // num card cinza arredondado e "flutuante" — a separação vem do respiro do
   // padding, não de uma divisória.
   return (
-    <AwCard className="grid grid-cols-2 items-stretch p-(--space-1)">
+    <AwCard className="grid grid-cols-2 items-stretch p-(--space-2)">
       <div className="p-7">
         <AwInvoiceForecastCard
           bare
@@ -81,7 +81,7 @@ function ForecastBlock() {
                 <CardBrandLogo brand={card.brand} size={22} />
                 •••• {card.last4}
               </span>
-              <span className="inline-flex w-full items-center gap-1 text-(--fg-secondary)">
+              <span className="inline-flex w-full items-center gap-1 text-(--fg-muted)">
                 Você pode receber cobranças adicionais ao atingir o limite do
                 consumo variável.
                 <TooltipProvider delayDuration={120}>
