@@ -110,7 +110,9 @@ export function ReviewCanvas() {
     const draws = new Map<string, ReviewPoint[]>()
     const hidden = new Set<string>()
     for (const c of comments) {
-      if (c.origin === "ux-flow") continue
+      // ux-flow vive no canvas do diagrama; backlog ("ideia futura") é avulso —
+      // nenhum dos dois vira pino aqui.
+      if (c.origin === "ux-flow" || c.status === "backlog") continue
       if (c.anchor.kind === "pin") {
         const vp = c.anchor.el ? resolveElementPoint(c.anchor.el) : null
         if (c.anchor.el && !vp) {
@@ -259,7 +261,12 @@ export function ReviewCanvas() {
         {/* ux-flow comments live on the diagram canvas (rendered by the flow
             editor) — their document-coord pins would drift here, so skip them. */}
         {comments
-          .filter((c) => c.origin !== "ux-flow" && !rendered.hidden.has(c.id))
+          .filter(
+            (c) =>
+              c.origin !== "ux-flow" &&
+              c.status !== "backlog" &&
+              !rendered.hidden.has(c.id),
+          )
           .map((c) => {
           if (c.anchor.kind === "draw") {
             return (

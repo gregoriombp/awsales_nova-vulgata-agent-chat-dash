@@ -110,7 +110,9 @@ export interface ReviewCommentContext {
   nearbyText?: string[]
 }
 
-export type ReviewCommentStatus = "open" | "in_review" | "resolved"
+// "backlog" = "ideia futura": item avulso (sem pino) ou comentário movido pra
+// um backlog. Não vira pino no canvas nem conta como "aberto"; vive na sua aba.
+export type ReviewCommentStatus = "open" | "in_review" | "resolved" | "backlog"
 
 export type ReviewActorKind = "agent" | "user"
 
@@ -135,6 +137,8 @@ export interface ReviewReply {
   authorName: string
   authorColorToken: string
   text: string
+  /** Optional/additive — anexos de imagem (data URLs) na resposta. */
+  images?: string[]
   createdAt: number
 }
 
@@ -144,7 +148,7 @@ export interface ReviewReply {
  * carry a `flowRef` and are rendered by the flow editor (not the review
  * canvas, whose document-coord pins would drift on the zoom/pan canvas).
  */
-export type ReviewCommentOrigin = "page" | "ux-flow"
+export type ReviewCommentOrigin = "page" | "ux-flow" | "backlog"
 
 export interface ReviewFlowRef {
   /** Flow slug, e.g. "primeiro-acesso". */

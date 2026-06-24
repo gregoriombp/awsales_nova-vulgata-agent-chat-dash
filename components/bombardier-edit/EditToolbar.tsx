@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { Icon } from "@/components/ui/Icon"
+import { ModeFamilySwitch } from "@/components/bombardier/ModeFamilySwitch"
 import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
 
 // Irmã da ReviewToolbar — MESMA pílula (rounded-full bg-raised border-subtle
@@ -29,13 +30,8 @@ export function EditToolbar({
       style={{ zIndex: EDIT_Z.toolbar }}
     >
       <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
-        {/* Marca do modo — espelha o slot do avatar da review toolbar. */}
-        <span
-          className="mr-0.5 h-7 w-7 inline-flex items-center justify-center rounded-full bg-(--bg-inverse) text-(--fg-on-inverse)"
-          title="Modo de edição"
-        >
-          <Icon name="edit" size={15} />
-        </span>
+        {/* Troca de modo (Review ↔ Edit) — mesma categoria da review toolbar. */}
+        <ModeFamilySwitch current="edit" />
 
         <span className="h-5 w-px bg-(--border-subtle)" />
 

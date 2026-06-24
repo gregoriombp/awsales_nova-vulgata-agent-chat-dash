@@ -22,6 +22,9 @@ export function useVoiceTranscription(onText: (text: string) => void) {
   const recorderRef = React.useRef<MediaRecorder | null>(null)
   const chunksRef = React.useRef<Blob[]>([])
   const streamRef = React.useRef<MediaStream | null>(null)
+  // Quando true, o próximo `onstop` DESCARTA o áudio (não transcreve) — é o
+  // "interrompido": sair/clicar fora cancela a fala sem virar texto.
+  const discardRef = React.useRef(false)
 
   const cleanupStream = React.useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -86,9 +89,15 @@ export function useVoiceTranscription(onText: (text: string) => void) {
         type: recorder.mimeType || "audio/webm",
       })
       chunksRef.current = []
+      if (discardRef.current) {
+        discardRef.current = false
+        setStatus("idle")
+        return
+      }
       if (blob.size > 0) void transcribe(blob)
       else setStatus("idle")
     }
+    discardRef.current = false
     recorder.start()
     setStatus("recording")
   }, [status, cleanupStream, transcribe])
@@ -98,10 +107,22 @@ export function useVoiceTranscription(onText: (text: string) => void) {
     if (recorder && recorder.state !== "inactive") recorder.stop()
   }, [])
 
+  // Interrompe sem transcrever (descarta o áudio). Pro caso de sair/clicar fora.
+  const cancel = React.useCallback(() => {
+    const recorder = recorderRef.current
+    if (recorder && recorder.state !== "inactive") {
+      discardRef.current = true
+      recorder.stop()
+    } else {
+      cleanupStream()
+      setStatus("idle")
+    }
+  }, [cleanupStream])
+
   const toggle = React.useCallback(() => {
     if (status === "recording") stop()
     else if (status === "idle") void start()
   }, [status, start, stop])
 
-  return { status, error, toggle }
+  return { status, error, toggle, stop, cancel }
 }

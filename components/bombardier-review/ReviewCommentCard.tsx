@@ -15,7 +15,9 @@ import {
 } from "@/lib/bombardier-review/format"
 import { STALE_DOCUMENT_HEIGHT_THRESHOLD } from "./constants"
 import { ReviewAvatar } from "./ReviewAvatar"
+import { ReplyComposer } from "./ReplyComposer"
 import { UxFlowChip } from "./UxFlowChip"
+import { useImageAttach } from "@/lib/bombardier-review/useImageAttach"
 import type { ReviewComment, ReviewReply } from "./types"
 
 /** Monta a URL da tela do comentário com o permalink ?reviewCommentId=… */
@@ -35,6 +37,12 @@ function isStale(comment: ReviewComment, currentDocHeight: number): boolean {
 function StatusPill({ status }: { status: ReviewComment["status"] }) {
   if (status === "in_review") return <AwPill variant="beta">Em revisão</AwPill>
   if (status === "resolved") return <AwPill variant="live">Resolvido</AwPill>
+  if (status === "backlog")
+    return (
+      <AwPill variant="draft" dot={false}>
+        Ideia futura
+      </AwPill>
+    )
   return null
 }
 
@@ -71,9 +79,35 @@ export function ReplyRow({ reply }: { reply: ReviewReply }) {
             {formatRelative(reply.createdAt)}
           </span>
         </div>
-        <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
-          {reply.text}
-        </p>
+        {reply.text.length > 0 && (
+          <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
+            {reply.text}
+          </p>
+        )}
+        {reply.images && reply.images.length > 0 && (
+          <div
+            className={[
+              "flex flex-wrap gap-1.5",
+              reply.text.length > 0 ? "mt-1.5" : "mt-0.5",
+            ].join(" ")}
+          >
+            {reply.images.map((src, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  window.open(src, "_blank", "noopener")
+                }}
+                className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
+                aria-label={`Ver imagem ${idx + 1}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="h-16 w-16 object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )
@@ -110,14 +144,18 @@ export function ReviewCommentCard({
   const approveComment = useReviewStore((s) => s.approveComment)
   const rejectComment = useReviewStore((s) => s.rejectComment)
   const reopenFromArchive = useReviewStore((s) => s.reopenFromArchive)
-  const addReply = useReviewStore((s) => s.addReply)
+  const editComment = useReviewStore((s) => s.editComment)
+  const moveToBacklog = useReviewStore((s) => s.moveToBacklog)
+  const restoreFromBacklog = useReviewStore((s) => s.restoreFromBacklog)
   const deleteComment = useReviewStore((s) => s.deleteComment)
   const currentUrl = useCurrentUrl()
 
   const [historyOpen, setHistoryOpen] = React.useState(false)
   const [replyOpen, setReplyOpen] = React.useState(false)
-  const [replyText, setReplyText] = React.useState("")
-  const [submitting, setSubmitting] = React.useState(false)
+  const [editing, setEditing] = React.useState(false)
+  const [editText, setEditText] = React.useState(comment.text)
+  const [editSaving, setEditSaving] = React.useState(false)
+  const editImg = useImageAttach(comment.images ?? [])
 
   const selected = selectedId === comment.id
   const isOnThisPage = comment.url === currentUrl
@@ -128,6 +166,8 @@ export function ReviewCommentCard({
 
   const navigateToAnchor = () => {
     selectComment(comment.id)
+    // Ideia futura é avulsa (sem pino) — só seleciona, não tenta rolar/navegar.
+    if (comment.status === "backlog") return
     // Mantém o review ativo e o drawer aberto enquanto leva pra outra tela —
     // a navegação é client-side, então é fluido (sem reload).
     setActive(true)
@@ -159,27 +199,43 @@ export function ReviewCommentCard({
     void navigator.clipboard?.writeText(fullUrl)
   }
 
-  const submitReply = async () => {
-    const trimmed = replyText.trim()
-    if (!trimmed) return
-    setSubmitting(true)
+  const startEdit = () => {
+    setEditText(comment.text)
+    editImg.reset(comment.images ?? [])
+    setEditing(true)
+  }
+  const saveEdit = async () => {
+    setEditSaving(true)
     try {
-      await addReply(comment.id, trimmed)
-      setReplyText("")
-      setReplyOpen(false)
+      await editComment(comment.id, editText, editImg.images)
+      setEditing(false)
     } finally {
-      setSubmitting(false)
+      setEditSaving(false)
     }
   }
 
+  const isBacklog = comment.status === "backlog"
   const dropdownItems: AwDropdownItem[] = [
+    {
+      id: "edit",
+      label: "Editar",
+      icon: "edit",
+      onSelect: startEdit,
+    },
     {
       id: "copy-link",
       label: "Copiar link",
       icon: "link",
       onSelect: copyPermalink,
     },
-    archived
+    isBacklog
+      ? {
+          id: "restore-backlog",
+          label: "Tirar do backlog",
+          icon: "outbox",
+          onSelect: () => void restoreFromBacklog(comment.id),
+        }
+      : archived
       ? {
           id: "reopen",
           label: "Reabrir",
@@ -199,6 +255,16 @@ export function ReviewCommentCard({
           icon: "refresh",
           onSelect: () => void rejectComment(comment.id),
         },
+    ...(!isBacklog && !archived
+      ? [
+          {
+            id: "to-backlog",
+            label: "Mover pra ideias futuras",
+            icon: "lightbulb",
+            onSelect: () => void moveToBacklog(comment.id),
+          } as AwDropdownItem,
+        ]
+      : []),
     { id: "sep", separator: true },
     {
       id: "delete",
@@ -279,30 +345,94 @@ export function ReviewCommentCard({
         </div>
       </header>
 
-      {comment.text.length > 0 && (
-        <p className="body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
-          {comment.text}
-        </p>
-      )}
-
-      {comment.images && comment.images.length > 0 && (
-        <div className={["flex flex-wrap gap-1.5", comment.text.length > 0 ? "mt-2" : ""].join(" ")}>
-          {comment.images.map((src, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation()
-                window.open(src, "_blank", "noopener")
-              }}
-              className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
-              aria-label={`Ver imagem ${idx + 1}`}
+      {editing ? (
+        <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-2">
+          <textarea
+            value={editText}
+            onChange={(e) => setEditText(e.target.value)}
+            onPaste={editImg.onPaste}
+            rows={3}
+            autoFocus
+            placeholder="Edite o comentário…"
+            className="w-full rounded-sm border border-(--border-subtle) bg-(--bg-surface) p-2 body-sm text-(--fg-primary) focus:outline-hidden focus:border-(--accent-brand) resize-none"
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void saveEdit()
+              if (e.key === "Escape") setEditing(false)
+            }}
+          />
+          {editImg.images.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {editImg.images.map((src, idx) => (
+                <div key={idx} className="relative group/ethumb">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt=""
+                    className="h-16 w-16 rounded-sm object-cover border border-(--border-subtle)"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => editImg.remove(idx)}
+                    aria-label="Remover imagem"
+                    className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-(--bg-raised) border border-(--border-subtle) flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-primary) opacity-0 group-hover/ethumb:opacity-100 transition-opacity"
+                  >
+                    <Icon name="close" size={9} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="flex items-center justify-end gap-1">
+            <AwButton variant="ghost" size="sm" onClick={() => setEditing(false)}>
+              Cancelar
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="sm"
+              loading={editSaving}
+              disabled={
+                editSaving ||
+                (editText.trim().length === 0 && editImg.images.length === 0)
+              }
+              onClick={() => void saveEdit()}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={src} alt="" className="h-20 w-20 object-cover" />
-            </button>
-          ))}
+              Salvar
+            </AwButton>
+          </div>
         </div>
+      ) : (
+        <>
+          {comment.text.length > 0 && (
+            <p className="body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
+              {comment.text}
+            </p>
+          )}
+
+          {comment.images && comment.images.length > 0 && (
+            <div
+              className={[
+                "flex flex-wrap gap-1.5",
+                comment.text.length > 0 ? "mt-2" : "",
+              ].join(" ")}
+            >
+              {comment.images.map((src, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(src, "_blank", "noopener")
+                  }}
+                  className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
+                  aria-label={`Ver imagem ${idx + 1}`}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-20 w-20 object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {target && (
@@ -403,43 +533,12 @@ export function ReviewCommentCard({
       )}
 
       {replyOpen && (
-        <div
-          onClick={(e) => e.stopPropagation()}
-          className="mt-2 flex flex-col gap-2"
-        >
-          <textarea
-            value={replyText}
-            onChange={(e) => setReplyText(e.target.value)}
-            placeholder="Escreva uma resposta…"
-            rows={2}
-            className="w-full rounded-sm border border-(--border-subtle) bg-(--bg-surface) p-2 body-sm text-(--fg-primary) focus:outline-hidden focus:border-(--accent-brand) resize-none"
-            onKeyDown={(e) => {
-              if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                void submitReply()
-              }
-            }}
+        <div onClick={(e) => e.stopPropagation()} className="mt-2">
+          <ReplyComposer
+            commentId={comment.id}
+            autoFocus
+            onDone={() => setReplyOpen(false)}
           />
-          <div className="flex items-center justify-end gap-1">
-            <AwButton
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setReplyOpen(false)
-                setReplyText("")
-              }}
-            >
-              Cancelar
-            </AwButton>
-            <AwButton
-              variant="primary"
-              size="sm"
-              loading={submitting}
-              disabled={!replyText.trim() || submitting}
-              onClick={() => void submitReply()}
-            >
-              Responder
-            </AwButton>
-          </div>
         </div>
       )}
 

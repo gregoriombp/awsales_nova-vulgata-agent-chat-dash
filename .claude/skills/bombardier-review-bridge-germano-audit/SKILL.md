@@ -135,8 +135,7 @@ reply) e, no máximo, abre um pin de sugestão pro Greg.
 
 ```bash
 TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2-)
-BRIDGE_URL=$(grep NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL .env.local | cut -d= -f2-)
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:9878}
+BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:3000/api/review-bridge}
 curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
 ```
 

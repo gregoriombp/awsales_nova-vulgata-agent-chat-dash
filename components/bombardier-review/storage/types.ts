@@ -36,6 +36,7 @@ export interface ReviewReplyInput {
   authorName: string
   authorColorToken?: string
   text: string
+  images?: string[]
 }
 
 export interface ReviewStorage {

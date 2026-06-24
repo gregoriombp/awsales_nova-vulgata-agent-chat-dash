@@ -11,23 +11,19 @@ import type {
 // vive no ambiente do agente. Então: enfileira o pedido no review-bridge (mesmo
 // canal dos comentários), espera o agente devolver, e converte a imagem
 // escolhida no mesmo data URL base64 que o seletor de arquivos já produz.
-const BRIDGE_URL = (
-  process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL ?? ""
-).replace(/\/$/, "")
-const BRIDGE_TOKEN = process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN ?? ""
+// Bridge serverless embutido — rotas same-origin /api/review-bridge/*. Sem
+// token, sem env (substitui o servidor Express avulso na 9878).
+const BRIDGE_URL = "/api/review-bridge"
 
 const POLL_INTERVAL_MS = 1500
 
-/** A busca no Mobbin só funciona com o review-bridge ligado (npm run dev). */
+/** Sempre disponível agora que o bridge é serverless (rotas same-origin). */
 export function mobbinBridgeReady(): boolean {
-  return Boolean(BRIDGE_URL && BRIDGE_TOKEN)
+  return true
 }
 
 function headers(): HeadersInit {
-  return {
-    "Content-Type": "application/json",
-    "X-Review-Token": BRIDGE_TOKEN,
-  }
+  return { "Content-Type": "application/json" }
 }
 
 export interface RequestMobbinSearchInput {
@@ -78,14 +74,9 @@ export function waitForMobbinResults(
   onResolved: (search: MobbinSearch) => void
 ): () => void {
   let settled = false
-  let source: EventSource | null = null
   let pollTimer: ReturnType<typeof setInterval> | null = null
 
   const cleanup = () => {
-    if (source) {
-      source.close()
-      source = null
-    }
     if (pollTimer) {
       clearInterval(pollTimer)
       pollTimer = null
@@ -99,30 +90,7 @@ export function waitForMobbinResults(
     onResolved(search)
   }
 
-  if (typeof window !== "undefined") {
-    try {
-      const url = `${BRIDGE_URL}/events?token=${encodeURIComponent(
-        BRIDGE_TOKEN
-      )}`
-      source = new EventSource(url)
-      source.addEventListener("mobbin.resolved", (e) => {
-        try {
-          const payload = JSON.parse((e as MessageEvent).data) as {
-            search?: MobbinSearch
-          }
-          if (payload.search?.id === id) finish(payload.search)
-        } catch {
-          // ignora evento malformado — o polling cobre
-        }
-      })
-      source.onerror = () => {
-        // EventSource reconecta sozinho; o polling cobre as lacunas.
-      }
-    } catch {
-      source = null
-    }
-  }
-
+  // Sem SSE no bridge serverless — o polling de reforço cobre a resolução.
   pollTimer = setInterval(() => {
     if (settled) return
     void getMobbinSearch(id)

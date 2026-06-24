@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "AwSales — plataforma de agentes de IA para vendas. Construída com o método Bombardier (design system + telas + fluxos via /bombardier/styleguide).",
   "scripts": {
-    "predev": "npm run review-bridge:prepare",
-    "dev": "concurrently -n web,review -c cyan,magenta 'NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878 next dev --hostname 127.0.0.1' 'BOMBARDIER_REVIEW_HOST=127.0.0.1 npm run review-bridge:run'",
+    "dev": "next dev --hostname 127.0.0.1",
     "dev:solo": "next dev --hostname 127.0.0.1",
+    "dev:bridge": "npm run review-bridge:prepare && concurrently -n web,review -c cyan,magenta 'NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878 next dev --hostname 127.0.0.1' 'BOMBARDIER_REVIEW_HOST=127.0.0.1 npm run review-bridge:run'",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",

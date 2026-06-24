@@ -18,7 +18,7 @@ import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReviewMobbinPanel } from "./ReviewMobbinPanel"
 import type { ReviewPoint } from "./types"
 
-const POPOVER_WIDTH = 320
+const POPOVER_WIDTH = 360
 const POPOVER_OFFSET = 16
 const MAX_IMAGES = 4
 
@@ -63,6 +63,17 @@ export function ReviewCommentPopover() {
       requestAnimationFrame(() => textareaRef.current?.focus())
     }, [])
   )
+
+  // Refs estáveis pra encerrar a voz no unmount / clique-fora sem re-disparar
+  // effects a cada render (o objeto do hook muda de identidade por render).
+  // Sincronizados num effect — não se escreve ref durante o render.
+  const voiceStatusRef = React.useRef(voice.status)
+  const voiceCancelRef = React.useRef(voice.cancel)
+  const pendingSubmitRef = React.useRef(false)
+  React.useEffect(() => {
+    voiceStatusRef.current = voice.status
+    voiceCancelRef.current = voice.cancel
+  })
 
   // Autocomplete inline (ghost text). Só ativa com o cursor no fim do texto —
   // a continuação se cola no fim, como no Cursor.
@@ -147,6 +158,32 @@ export function ReviewCommentPopover() {
     }
   }, [pendingAnchor, clearGhost])
 
+  // #3 Salvar com voz ativa: encerra a gravação primeiro e só salva de fato
+  // quando o texto transcrito assenta (status volta a "idle").
+  React.useEffect(() => {
+    if (!pendingSubmitRef.current || voice.status !== "idle") return
+    pendingSubmitRef.current = false
+    void (async () => {
+      await saveComment(text, images.length > 0 ? images : undefined)
+      setSubmitting(false)
+    })()
+  }, [voice.status, text, images, saveComment])
+
+  // #4 Sair/clicar fora interrompe a voz (descarta). Unmount cobre Salvar/
+  // Cancelar/Esc (fecham o popover); o pointerdown cobre clique fora de
+  // qualquer superfície de review enquanto grava.
+  React.useEffect(() => () => voiceCancelRef.current(), [])
+  React.useEffect(() => {
+    if (typeof document === "undefined") return
+    const onDown = (e: PointerEvent) => {
+      const t = e.target
+      if (t instanceof Element && t.closest(`[${OVERLAY_DATA_ATTR}]`)) return
+      if (voiceStatusRef.current === "recording") voiceCancelRef.current()
+    }
+    document.addEventListener("pointerdown", onDown, true)
+    return () => document.removeEventListener("pointerdown", onDown, true)
+  }, [])
+
   const addImages = React.useCallback(async (files: File[]) => {
     const eligible = files
       .filter((f) => f.type.startsWith("image/"))
@@ -202,6 +239,14 @@ export function ReviewCommentPopover() {
 
   const submit = async (e?: React.FormEvent) => {
     e?.preventDefault()
+    if (submitting) return
+    // #3 Voz ativa: encerra primeiro; o effect salva quando o texto assenta.
+    if (voice.status === "recording" || voice.status === "transcribing") {
+      setSubmitting(true)
+      pendingSubmitRef.current = true
+      if (voice.status === "recording") voice.stop()
+      return
+    }
     if (!canSubmit) return
     setSubmitting(true)
     await saveComment(text, images.length > 0 ? images : undefined)
@@ -344,16 +389,16 @@ export function ReviewCommentPopover() {
         )}
 
         <div className="px-2 py-2 flex items-center justify-between gap-2 border-t border-(--border-subtle)">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 min-w-0">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
+              className="shrink-0 h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
               aria-label="Anexar imagem"
               title="Anexar imagem (ou cole com ⌘V)"
               disabled={images.length >= MAX_IMAGES}
             >
-              <Icon name="image" size={14} />
+              <Icon name="image" size={14} weight={600} />
             </button>
             <button
               type="button"
@@ -363,7 +408,7 @@ export function ReviewCommentPopover() {
               aria-pressed={recording}
               title={recording ? "Parar gravação" : "Ditar por voz"}
               className={[
-                "h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors disabled:opacity-60",
+                "shrink-0 h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors disabled:opacity-60",
                 recording
                   ? "bg-(--accent-danger) text-(--fg-on-inverse)"
                   : "text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)",
@@ -375,6 +420,7 @@ export function ReviewCommentPopover() {
                 }
                 size={14}
                 fill={recording ? 1 : 0}
+                weight={600}
                 className={transcribing ? "animate-spin" : ""}
               />
             </button>
@@ -384,11 +430,12 @@ export function ReviewCommentPopover() {
               disabled={rewriting || text.trim().length === 0}
               aria-label="Melhorar o comentário"
               title="Melhorar o comentário (varinha mágica)"
-              className="h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors disabled:opacity-50"
+              className="shrink-0 h-7 w-7 inline-flex items-center justify-center rounded-sm text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors disabled:opacity-50"
             >
               <Icon
                 name={rewriting ? "progress_activity" : "auto_fix_high"}
                 size={14}
+                weight={600}
                 className={rewriting ? "animate-spin" : ""}
               />
             </button>
@@ -399,13 +446,13 @@ export function ReviewCommentPopover() {
               aria-pressed={mobbinOpen}
               title="Buscar designs parecidos no Mobbin"
               className={[
-                "h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors",
+                "shrink-0 h-7 w-7 inline-flex items-center justify-center rounded-sm transition-colors",
                 mobbinOpen
                   ? "bg-(--bg-hover) text-(--fg-primary)"
                   : "text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover)",
               ].join(" ")}
             >
-              <Icon name="image_search" size={14} />
+              <Icon name="image_search" size={14} weight={600} />
             </button>
 
             {recording ? (
@@ -414,11 +461,11 @@ export function ReviewCommentPopover() {
                 Gravando
               </span>
             ) : transcribing ? (
-              <span className="body-xs text-(--fg-tertiary)">
+              <span className="body-xs text-(--fg-tertiary) truncate min-w-0">
                 Transcrevendo…
               </span>
             ) : rewriting ? (
-              <span className="body-xs text-(--fg-tertiary)">Melhorando…</span>
+              <span className="body-xs text-(--fg-tertiary) truncate min-w-0">Melhorando…</span>
             ) : undoText !== null ? (
               <button
                 type="button"
@@ -428,7 +475,7 @@ export function ReviewCommentPopover() {
                 Desfazer
               </button>
             ) : ghost ? (
-              <span className="body-xs text-(--fg-tertiary)">
+              <span className="body-xs text-(--fg-tertiary) truncate min-w-0">
                 Tab para completar
               </span>
             ) : (
@@ -438,7 +485,7 @@ export function ReviewCommentPopover() {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 shrink-0">
             <AwButton
               type="button"
               variant="ghost"
@@ -451,7 +498,7 @@ export function ReviewCommentPopover() {
               type="submit"
               variant="primary"
               size="sm"
-              disabled={!canSubmit}
+              disabled={!canSubmit && !recording && !transcribing}
               loading={submitting}
             >
               Salvar
