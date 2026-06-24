@@ -18,6 +18,7 @@ import {
   AGENT_BREAKDOWN,
   brl,
   formatQuantity,
+  OPERATIONAL_FX,
   scaleBreakdown,
   scaleCustomBreakdown,
   SERVICE_BREAKDOWN,
@@ -38,6 +39,32 @@ function fmtUsd(brlValue: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+}
+
+// Converte um rótulo de preço unitário em BRL ("R$ 0,12 / disparo") para USD,
+// mantendo o sufixo da unidade. Tarifas sub-centavo ganham mais casas pra não
+// virarem "US$ 0.00".
+function fmtUnitUsd(brlLabel: string): string {
+  if (!brlLabel || brlLabel === "—") return brlLabel || "—";
+  const [pricePart, ...rest] = brlLabel.split(" / ");
+  const num = Number(
+    pricePart
+      .replace(/[^0-9,.-]/g, "")
+      .replace(/\./g, "")
+      .replace(",", "."),
+  );
+  if (!Number.isFinite(num)) return brlLabel;
+  // Divisão direta pelo câmbio (sem o arredondamento a centavos do usd(), que
+  // zeraria tarifas sub-centavo como "R$ 0,005 / 1K").
+  const value = num / OPERATIONAL_FX;
+  let decimals = 2;
+  if (value > 0 && value < 0.01) decimals = value < 0.001 ? 4 : 3;
+  const formatted = value.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  const suffix = rest.join(" / ");
+  return suffix ? `US$ ${formatted} / ${suffix}` : `US$ ${formatted}`;
 }
 
 export function BreakdownTableWidget({
@@ -78,13 +105,14 @@ type ServiceGroupDef = {
   desc: string;
 };
 
+// Os rótulos batem 1:1 com os do gráfico "Consumo por dia" (Mensagens
+// transacionadas, Leads ativos), pra não haver dois nomes pra mesma coisa.
 const SERVICE_GROUPS: ServiceGroupDef[] = [
   { id: "meta", label: "Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], unitNoun: "disparos", aggregateFormat: "decimal", desc: "Disparos de WhatsApp cobrados via Meta." },
-  { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal", desc: "Mensagens transacionadas pelos agentes." },
-  { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal", desc: "Contatos que viraram lead ativo no período." },
+  { id: "msg", label: "Mensagens transacionadas", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal", desc: "Mensagens transacionadas pelos agentes." },
+  { id: "leads", label: "Leads ativos", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal", desc: "Contatos que viraram lead ativo no período." },
   { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal", desc: "Linha telefônica de um parceiro da Aswork." },
   { id: "ai", label: "Tokens", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev", desc: "Tokens de Knowledge, Brain e Skills dos agentes." },
-  { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump", desc: "Itens fora das categorias acima." },
 ];
 
 const DEFAULT_EXPANDED = ["meta", "ai"];
@@ -196,10 +224,13 @@ function ServiceTable() {
           const isOpen = expandable && expanded.has(g.def.id);
           const outlier = isOutlier(g.groupTotal, allTotals);
           const qtyFmt = expandable ? g.def.aggregateFormat : g.members[0].quantityFormat;
-          const qtyLabel = g.hasQty
-            ? `${formatQuantity(g.qtySum, qtyFmt)} ${g.def.unitNoun}`
-            : "—";
-          const unitLabel = expandable ? "Misto" : g.members[0].unitPriceLabel;
+          // Só o número — o substantivo já está no nome do grupo (ex.: grupo
+          // "Mensagens transacionadas" não precisa repetir "mensagens" na
+          // quantidade).
+          const qtyLabel = g.hasQty ? formatQuantity(g.qtySum, qtyFmt) : "—";
+          const unitLabel = expandable
+            ? "Misto"
+            : fmtUnitUsd(g.members[0].unitPriceLabel);
 
           // Cada item da tabela é uma linha arredondada. Grupos COM filhos ganham
           // bg-cinza fixo e se fundem com seus sub-níveis num único painel (topo
@@ -228,7 +259,7 @@ function ServiceTable() {
                           (isOpen ? "rotate-90" : "")
                         }
                       />
-                      <Icon name={g.def.icon} size={18} className="mt-0.5 shrink-0 text-(--fg-tertiary)" />
+                      <Icon name={g.def.icon} size={18} fill={1} className="mt-0.5 shrink-0 text-(--fg-primary)" />
                       <span className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-2">
                           <span className="font-medium text-(--fg-primary)">{g.def.label}</span>
@@ -241,7 +272,7 @@ function ServiceTable() {
                     </button>
                   ) : (
                     <span className="inline-flex items-start gap-2 pl-[26px]">
-                      <Icon name={g.def.icon} size={18} className="mt-0.5 shrink-0 text-(--fg-tertiary)" />
+                      <Icon name={g.def.icon} size={18} fill={1} className="mt-0.5 shrink-0 text-(--fg-primary)" />
                       <span className="flex flex-col gap-0.5">
                         <span className="inline-flex items-center gap-2">
                           <span className="font-medium text-(--fg-primary)">{g.def.label}</span>
@@ -252,12 +283,12 @@ function ServiceTable() {
                     </span>
                   )}
                 </td>
-                <td className={cn(cellBase, "align-top tabular-nums text-(--fg-secondary)")}>{qtyLabel}</td>
-                <td className={cn(cellBase, "align-top tabular-nums text-(--fg-secondary)")}>{unitLabel}</td>
-                <td className={cn(cellBase, "align-top text-right font-medium tabular-nums text-(--fg-primary)")}>
+                <td className={cn(cellBase, "align-middle tabular-nums text-(--fg-secondary)")}>{qtyLabel}</td>
+                <td className={cn(cellBase, "align-middle tabular-nums text-(--fg-secondary)")}>{unitLabel}</td>
+                <td className={cn(cellBase, "align-middle text-right font-medium tabular-nums text-(--fg-primary)")}>
                   {brl(g.groupTotal)}
                 </td>
-                <td className={cn(cellBase, lastCorner, "align-top text-right tabular-nums text-(--fg-tertiary)")}>
+                <td className={cn(cellBase, lastCorner, "align-middle text-right tabular-nums text-(--fg-tertiary)")}>
                   {fmtUsd(g.groupTotal)}
                 </td>
               </tr>
@@ -277,7 +308,7 @@ function ServiceTable() {
                         {formatQuantity(sub.quantity, sub.quantityFormat)}
                       </SubCell>
                       <SubCell open={isOpen} inner="px-5 py-2.5 body-xs tabular-nums text-(--fg-tertiary)">
-                        {sub.unitPriceLabel}
+                        {fmtUnitUsd(sub.unitPriceLabel)}
                       </SubCell>
                       <SubCell open={isOpen} inner="px-5 py-2.5 text-right body-xs tabular-nums text-(--fg-secondary)">
                         {brl(sub.total)}
