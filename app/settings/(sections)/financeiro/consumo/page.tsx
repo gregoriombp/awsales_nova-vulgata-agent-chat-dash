@@ -117,7 +117,7 @@ function CreditsKpis() {
         icon="savings"
         label="Total economizado"
         value={brl(CREDITS_KPIS.totalSaved)}
-        hint="Lifetime · cupons + vouchers já abatidos"
+        hint="Acumulado · cupons + vouchers já abatidos"
       />
       <AwStatCard
         icon="account_balance_wallet"
@@ -380,7 +380,7 @@ function VoucherRowItem({
               <strong className="font-semibold text-(--fg-primary)">
                 {pct}%
               </strong>{" "}
-              <span className="text-(--fg-tertiary)">utilizados</span>
+              <span className="text-(--fg-tertiary)">usados</span>
             </span>
             <span className="body-xs text-(--fg-tertiary)">{dateLabel}</span>
           </span>

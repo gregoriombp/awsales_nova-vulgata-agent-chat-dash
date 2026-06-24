@@ -1183,7 +1183,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     actorAvatar: "/assets/ui-faces/female-2.jpg",
     type: "Cupom",
     action: "Cupom aplicado",
-    meta: "BF2025 · 20% off próxima fatura",
+    meta: "BF2025 · 20% de desconto na próxima fatura",
   },
   {
     id: "a-5",
@@ -1204,7 +1204,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     actor: "Ana A.",
     actorAvatar: "/assets/ui-faces/female-1.jpg",
     type: "Fatura",
-    action: "Cobrança parcial reconfigurada",
+    action: "Cobrança parcial ajustada",
     meta: "R$ 3.000 → R$ 5.229,50",
   },
   {
@@ -1216,7 +1216,7 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     actorAvatar: "/assets/ui-faces/male-3.jpg",
     type: "Fatura",
     action: "Fatura emitida",
-    meta: "INV-2026-05-0042 · status DRAFT → OPEN",
+    meta: "INV-2026-05-0042 · rascunho → em aberto",
   },
   {
     id: "a-8",

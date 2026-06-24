@@ -82,7 +82,7 @@ function getInitials(name: string): string {
 function executorRole(executor: AuditExecutor): string {
   switch (executor) {
     case "Aswork":
-      return "Account Manager";
+      return "Gerente de conta";
     case "Cliente":
       return "Usuário";
   }
@@ -264,7 +264,7 @@ function Toolbar({
       <div className="min-w-[240px] flex-1">
         <AwInput
           iconLeft="search"
-          placeholder="Buscar ator, ação ou referência…"
+          placeholder="Buscar por nome, ação ou referência…"
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
         />
