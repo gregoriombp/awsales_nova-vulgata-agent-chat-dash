@@ -12,10 +12,12 @@ import { DIMENSIONS } from "./explorer-model";
 /* ----------------------------------------------------------------------------
  * Trilho esquerdo. Seções planas: voltar + título, "Dividir por" (Serviço /
  * Agente) e "Por destino" (chips pra incluir/tirar cada pagador do dashboard).
+ * Pode colapsar pra uma faixa estreita só com o botão de expandir.
  * ------------------------------------------------------------------------- */
 
 export function ExplorerRail() {
   const router = useRouter();
+  const [collapsed, setCollapsed] = React.useState(false);
 
   const back = () => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -26,28 +28,69 @@ export function ExplorerRail() {
   };
 
   return (
-    <aside className="flex h-full w-[280px] shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-surface)">
-      <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
-        <Header onBack={back} />
-        <DimensionList />
-        <ByDestination />
-      </div>
+    <aside
+      className={cn(
+        "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-surface) transition-[width] duration-aw-base ease-aw-out",
+        collapsed ? "w-14" : "w-[280px]",
+      )}
+      aria-label="Filtros do explorador"
+    >
+      {collapsed ? (
+        <div className="flex flex-col items-center gap-4 px-2 pt-5">
+          <RailToggle collapsed onToggle={() => setCollapsed(false)} />
+        </div>
+      ) : (
+        <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
+          <Header onBack={back} onCollapse={() => setCollapsed(true)} />
+          <DimensionList />
+          <ByDestination />
+        </div>
+      )}
     </aside>
   );
 }
 
-function Header({ onBack }: { onBack: () => void }) {
+function RailToggle({
+  collapsed,
+  onToggle,
+}: {
+  collapsed: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-label={collapsed ? "Expandir filtros" : "Recolher filtros"}
+      aria-expanded={!collapsed}
+      className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-(--fg-tertiary) transition-colors duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+    >
+      <Icon name={collapsed ? "dock_to_left" : "dock_to_right"} size={18} />
+    </button>
+  );
+}
+
+function Header({
+  onBack,
+  onCollapse,
+}: {
+  onBack: () => void;
+  onCollapse: () => void;
+}) {
   const { periodLabel, currencyLabel } = useConsumo();
   return (
     <div className="flex flex-col gap-3">
-      <button
-        type="button"
-        onClick={onBack}
-        className="-ml-1 inline-flex w-fit items-center gap-1.5 rounded-md py-1 pl-1 pr-2 body-xs font-medium text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-      >
-        <Icon name="arrow_back" size={16} />
-        Voltar
-      </button>
+      <div className="flex items-center justify-between gap-2">
+        <button
+          type="button"
+          onClick={onBack}
+          className="-ml-1 inline-flex w-fit items-center gap-1.5 rounded-md py-1 pl-1 pr-2 body-xs font-medium text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+        >
+          <Icon name="arrow_back" size={16} />
+          Voltar
+        </button>
+        <RailToggle collapsed={false} onToggle={onCollapse} />
+      </div>
       <div className="flex flex-col gap-0.5">
         <h4 className="m-0 text-(--fg-primary)">Explorar custos</h4>
         <p className="m-0 body-xs text-(--fg-tertiary)">
