@@ -8,7 +8,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  ComposedChart,
   Line,
   LineChart,
   Pie,
@@ -486,9 +485,7 @@ function ShareBars({
   );
 }
 
-/* ============================ Usado × cobrado ============================ */
-
-type ReconViz = "bar" | "line";
+/* ===================== Uso do período × provedor ===================== */
 
 export function UsadoCobradoWidget({
   dragHandle,
@@ -498,7 +495,6 @@ export function UsadoCobradoWidget({
   resizeButton?: React.ReactNode;
 }) {
   const { selection, chartPeriod, customDays } = useConsumo();
-  const [viz, setViz] = React.useState<ReconViz>("bar");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   // Acompanha o controle de tempo global: nº de buckets + fator de escala saem
@@ -523,14 +519,17 @@ export function UsadoCobradoWidget({
         day: dayLabel(i, bars, chartPeriod),
         wc: d.wc,
         meta: d.meta,
-        used: Math.round((d.wc + d.meta) * 100) / 100,
         charged: d.charged,
       })),
     [series, bars, chartPeriod],
   );
 
-  const usedTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.wc + d.meta, 0),
+  const wcTotal = React.useMemo(
+    () => series.reduce((s, d) => s + d.wc, 0),
+    [series],
+  );
+  const metaTotal = React.useMemo(
+    () => series.reduce((s, d) => s + d.meta, 0),
     [series],
   );
   const chargedTotal = React.useMemo(
@@ -538,137 +537,117 @@ export function UsadoCobradoWidget({
     [series],
   );
 
-  const config: ChartConfig = {
-    wc: { label: "Taxas Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Meta aproximado", color: "var(--aw-purple-400)" },
-    used: { label: "Usado", color: "var(--aw-blue-500)" },
-    charged: { label: "Valor na fatura", color: "var(--aw-amber-500)" },
+  const usoConfig: ChartConfig = {
+    wc: { label: "Custo Aswork", color: "var(--aw-blue-500)" },
+    meta: { label: "Custo Meta", color: "var(--aw-purple-400)" },
+  };
+  const provedorConfig: ChartConfig = {
+    charged: { label: "Atribuído ao provedor", color: "var(--aw-slate-400)" },
   };
 
   return (
     <WidgetShell
-      title={<ReconciliationTitle />}
+      title="Uso do período"
       icon="sync_alt"
-      description={`Uso estimado ${brl(usedTotal)} · na fatura ${brl(chargedTotal)}`}
+      description={`Custo Aswork ${brl(wcTotal)} · Meta aprox. ${brl(metaTotal)}`}
       dragHandle={dragHandle}
       resizeButton={resizeButton}
-      actions={
-        <VizToggle
-          value={viz}
-          onChange={setViz}
-          options={[
-            { value: "bar", icon: "bar_chart", label: "Barras" },
-            { value: "line", icon: "show_chart", label: "Linhas" },
-          ]}
-        />
-      }
     >
+      {/* Uso: Aswork sólido + Meta tracejado (menos evidência, é aproximado) */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
-        <LegendDot color="var(--aw-blue-500)" label="Taxas Aswork" />
-        <LegendDot color="var(--aw-purple-400)" label="Meta aproximado" />
-        <LegendDot color="var(--aw-amber-500)" label="Valor na fatura" />
+        <LegendDot color="var(--aw-blue-500)" label="Custo Aswork" />
+        <LegendDot color="var(--aw-purple-400)" label="Custo Meta (aprox.)" />
       </div>
       <ChartContainer
-        key={viz}
-        config={config}
-        className="aspect-auto h-[240px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        config={usoConfig}
+        className="aspect-auto h-[200px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
-        {viz === "bar" ? (
-          <ComposedChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
-            <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-            <XAxis
-              dataKey="day"
-              tickLine={{ stroke: "var(--border-default)" }}
-              axisLine={{ stroke: "var(--border-subtle)" }}
-              tickMargin={8}
-              minTickGap={8}
-              height={34}
-            />
-            <ChartTooltip
-              cursor={{ fill: "var(--bg-hover)" }}
-              content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
-            />
-            <Bar
-              dataKey="wc"
-              stackId="u"
-              fill="var(--aw-blue-500)"
-              opacity={seriesOpacity(activeSeries, "wc")}
-              maxBarSize={30}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("wc")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Bar
-              dataKey="meta"
-              stackId="u"
-              fill="var(--aw-purple-400)"
-              opacity={seriesOpacity(activeSeries, "meta")}
-              maxBarSize={30}
-              radius={[3, 3, 0, 0]}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("meta")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Line
-              dataKey="charged"
-              type="monotone"
-              stroke="var(--aw-amber-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "charged")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("charged")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-          </ComposedChart>
-        ) : (
-          <LineChart data={data} margin={{ left: 12, right: 12, top: 8 }}>
-            <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-            <XAxis
-              dataKey="day"
-              tickLine={{ stroke: "var(--border-default)" }}
-              axisLine={{ stroke: "var(--border-subtle)" }}
-              tickMargin={8}
-              minTickGap={8}
-              height={34}
-            />
-            <ChartTooltip
-              cursor={{ stroke: "var(--border-default)" }}
-              content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
-            />
-            <Line
-              dataKey="used"
-              type="monotone"
-              stroke="var(--aw-blue-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "used")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("used")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Line
-              dataKey="charged"
-              type="monotone"
-              stroke="var(--aw-amber-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "charged")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("charged")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-          </LineChart>
-        )}
+        <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
+          <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
+          <XAxis
+            dataKey="day"
+            tickLine={{ stroke: "var(--border-default)" }}
+            axisLine={{ stroke: "var(--border-subtle)" }}
+            tickMargin={8}
+            minTickGap={8}
+            height={34}
+          />
+          <ChartTooltip
+            cursor={{ fill: "var(--bg-hover)" }}
+            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+          />
+          <Bar
+            dataKey="wc"
+            stackId="u"
+            fill="var(--aw-blue-500)"
+            opacity={seriesOpacity(activeSeries, "wc")}
+            maxBarSize={30}
+            isAnimationActive
+            animationDuration={CHART_ANIMATION_DURATION}
+            onMouseEnter={() => setActiveSeries("wc")}
+            onMouseLeave={() => setActiveSeries(null)}
+          />
+          <Bar
+            dataKey="meta"
+            stackId="u"
+            fill="var(--aw-purple-400)"
+            fillOpacity={0.2}
+            stroke="var(--aw-purple-400)"
+            strokeWidth={1.5}
+            strokeDasharray="3 3"
+            opacity={seriesOpacity(activeSeries, "meta")}
+            maxBarSize={30}
+            radius={[3, 3, 0, 0]}
+            isAnimationActive
+            animationDuration={CHART_ANIMATION_DURATION}
+            onMouseEnter={() => setActiveSeries("meta")}
+            onMouseLeave={() => setActiveSeries(null)}
+          />
+        </BarChart>
       </ChartContainer>
+
+      {/* Valor atribuído ao provedor de pagamento — com disclaimer do delay */}
+      <div className="mt-5 flex items-center justify-between gap-2 border-t border-(--border-subtle) pt-4">
+        <h6 className="m-0 body-sm font-medium text-(--fg-secondary)">
+          Valor atribuído ao provedor
+        </h6>
+        <span className="body-xs tabular-nums text-(--fg-tertiary)">
+          {brl(chargedTotal)}
+        </span>
+      </div>
+      <ChartContainer
+        config={provedorConfig}
+        className="aspect-auto h-[160px] w-full"
+      >
+        <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
+          <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
+          <XAxis
+            dataKey="day"
+            tickLine={{ stroke: "var(--border-default)" }}
+            axisLine={{ stroke: "var(--border-subtle)" }}
+            tickMargin={8}
+            minTickGap={8}
+            height={34}
+          />
+          <ChartTooltip
+            cursor={{ fill: "var(--bg-hover)" }}
+            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+          />
+          <Bar
+            dataKey="charged"
+            fill="var(--aw-slate-400)"
+            maxBarSize={30}
+            radius={[3, 3, 0, 0]}
+            isAnimationActive
+            animationDuration={CHART_ANIMATION_DURATION}
+          />
+        </BarChart>
+      </ChartContainer>
+      <p className="m-0 mt-2 body-xs text-(--fg-tertiary)">
+        O que o provedor de pagamento atribuiu no período. Pode diferir um pouco
+        do uso: há um delay entre o custo cair no nosso sistema e ser
+        contabilizado no provedor.
+      </p>
     </WidgetShell>
   );
 }
@@ -703,30 +682,6 @@ function LegendDot({ color, label }: { color: string; label: string }) {
         style={{ background: color }}
       />
       {label}
-    </span>
-  );
-}
-
-function ReconciliationTitle() {
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1.5">
-      <span className="truncate">Uso do período × valor na fatura</span>
-      <TooltipProvider delayDuration={120}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-flex cursor-help text-(--fg-tertiary)">
-              <Icon name="info" size={13} />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            className="max-w-64 border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-          >
-            Uso do período soma taxas Aswork e Meta aproximado. Valor na fatura
-            mostra o que foi atribuído ao provedor de pagamento no ciclo.
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
     </span>
   );
 }
