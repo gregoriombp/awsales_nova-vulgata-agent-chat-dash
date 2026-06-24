@@ -1,165 +1,105 @@
 ---
 name: bombardier-review-bridge
 description: >
-  Diagnoses or manually recovers the local Bombardier Review Mode server
-  (review-bridge). The normal flow is `npm run dev`, which already prepares
-  the envs and brings the bridge up. Use this skill only when the user asks
-  to "/bombardier-review-bridge", start the review-bridge ("subir o
-  review-bridge"), spin up the review bridge, turn on the comments server
-  ("ligar o servidor de comentários"), start a review with the agent, open
-  the review-bridge, "/review-bridge", or similar. Do NOT use it to resolve
-  comments — for that, see `bombardier-review-bridge-solve`.
+  Explains that the Bombardier Review Mode bridge is now serverless and
+  embedded in the Next app at `/api/review-bridge/*` — `npm run dev` already
+  brings everything up, there is no separate process to start, no token,
+  no env. Use this skill only when the user explicitly asks to
+  "/bombardier-review-bridge", "subir o review-bridge" (start the
+  review-bridge), spin up the review bridge, "ligar o servidor de
+  comentários" (turn on the comments server), open the review-bridge,
+  "/review-bridge", or similar — to redirect them and (only if they
+  explicitly want the old Express) explain the opt-in legacy bridge via
+  `npm run dev:bridge`. Does NOT resolve comments — for that, see
+  `bombardier-review-bridge-solve`.
 ---
 
-# Bombardier Review Mode — Diagnosticar o Bridge
+# Bombardier Review Mode — Bridge (serverless)
 
-O caminho normal é rodar **`npm run dev` na raiz**. Esse comando executa
-`review-bridge:prepare`, sincroniza `review-bridge/.env` + `.env.local`, e sobe
-o Next junto do bridge local em `127.0.0.1:9878`.
+O review-bridge **virou serverless** (commit `2f7dd24e`, 24/06/2026). Os
+endpoints agora ficam same-origin no próprio Next em `/api/review-bridge/*`,
+gravando nos mesmos JSONs de sempre (`review-bridge/data/comments.json` e
+`comments.archive.json`) com escrita atômica e lock global em
+`app/api/review-bridge/_store.ts`.
 
-Esta skill só existe como fallback/diagnóstico quando o bridge local caiu ou
-quando o usuário pediu explicitamente para mexer nele. Ela NÃO resolve comentários —
-pra resolver/aprovar/responder em lote, use a skill irmã
-`bombardier-review-bridge-solve`.
+**Não há nada pra subir manualmente.** `npm run dev` na raiz já liga tudo.
+Sem token, sem `BOMBARDIER_REVIEW_TOKEN`, sem `NEXT_PUBLIC_*` de bridge.
 
-> **Arquitetura, lifecycle, API completa e exemplos curl pra agentes:**
-> sempre consulte `review-bridge/README.md`. Esse arquivo descreve o
-> esquema atual (v3: `open | in_review | resolved`), o split físico
-> `comments.json` (ativos) / `comments.archive.json` (arquivados), e
-> todas as transitions/endpoints.
+Quando o user pede pra "subir o review-bridge", a resposta certa é
+redirecioná-lo, em uma mensagem curta:
 
-## Pré-checagem (sempre rodar primeiro)
+> O bridge agora roda dentro do Next, no mesmo `npm run dev` que você já
+> usa. Não tem servidor separado nem token. Se o Review Mode não tá
+> respondendo, confirma que o Next está em `http://127.0.0.1:3000`.
 
-Antes de qualquer ação, confirme em paralelo:
-
-1. `review-bridge/package.json` existe → senão **abortar** com mensagem
-   pedindo pra rodar a etapa de scaffolding do servidor (não recrie aqui).
-2. `review-bridge/node_modules/` existe → se não, anotar que vai precisar
-   instalar.
-3. `review-bridge/.env` existe → se não, anotar que vai precisar gerar.
-4. `.env.local` existe na raiz → necessário pra escrever as envs do frontend.
-
-## Passos
-
-### 1. Instalar deps (se precisar)
+## Confirmar saúde (quando quiser diagnosticar)
 
 ```bash
-npm run review-bridge:install
+curl -s http://127.0.0.1:3000/api/review-bridge/health
 ```
 
-Pula se `review-bridge/node_modules/` já existe.
-
-### 2. Gerar token (se precisar)
-
-Se `review-bridge/.env` não existe:
-
-```bash
-TOKEN=$(openssl rand -hex 32)
-echo "BOMBARDIER_REVIEW_TOKEN=$TOKEN" > review-bridge/.env
-```
-
-Se já existe, **leia** o valor de `BOMBARDIER_REVIEW_TOKEN` no arquivo —
-não regenere (invalidaria a configuração local já usada pelo frontend/agentes).
-
-### 3. Escrever envs no .env.local do frontend
-
-Escreva/atualize as duas linhas:
-
-```
-NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878
-NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN=<TOKEN>
-```
-
-- **URL:** deve ser sempre `http://127.0.0.1:9878` neste fluxo local.
-- **Token:** nunca regenere se já existe.
-
-Use Edit/Write preservando as outras linhas do `.env.local`.
-
-### 4. Subir o servidor em background
-
-```bash
-npm run review-bridge:dev
-```
-
-O servidor deve escutar em `127.0.0.1`, nunca em `0.0.0.0`. Use Bash com
-`run_in_background: true`. Não fique pollando — o usuário recebe notificação
-quando o processo termina (ou seja, se cair).
-
-> **Migração automática:** se o `data/comments.json` ainda está em v2,
-> o boot migra in-place pra v3 e cria `data/comments.archive.json` com
-> todos os `status: "resolved"` antigos. Isso é idempotente, mas avise o
-> usuário pra fazer backup antes do primeiro boot pós-v3 se tiver dados
-> que importam.
-
-### 5. Validar /health
-
-Aguarde ~2s e bata em:
-
-```bash
-curl -s -H "X-Review-Token: <TOKEN>" http://127.0.0.1:9878/health
-```
-
-Espere:
+Esperado:
 
 ```json
 {
   "ok": true,
-  "version": "0.2.0",
   "service": "bombardier-review-bridge",
-  "tokenRequired": true,
+  "mode": "serverless",
   "schemaVersion": 3,
-  "subscribers": 0,
-  "dataFile": ".../data/comments.json",
-  "archiveFile": ".../data/comments.archive.json",
-  ...
+  "tokenRequired": false
 }
 ```
 
-Se `schemaVersion` for diferente de `3` ou o `archiveFile` não estiver
-listado, está rodando uma versão antiga. Avise pro usuário atualizar.
-
-### 6. Reportar
-
-Mensagem final pro usuário, concisa, com:
-
-- ✓ Servidor rodando em `http://127.0.0.1:9878`
-- ✓ Token configurado
-- ✓ Schema v3 — `comments.json` (ativos) + `comments.archive.json` (arquivados)
-- Contagens rápidas (úteis pro user pra saber a fila):
-  ```bash
-  curl -s -H "X-Review-Token: $TOKEN" "http://127.0.0.1:9878/comments?status=open"     | python3 -c "import sys,json;print('open:',len(json.load(sys.stdin)['comments']))"
-  curl -s -H "X-Review-Token: $TOKEN" "http://127.0.0.1:9878/comments?status=in_review"     | python3 -c "import sys,json;print('in_review:',len(json.load(sys.stdin)['comments']))"
-  curl -s -H "X-Review-Token: $TOKEN" "http://127.0.0.1:9878/comments/archive?limit=1"     | python3 -c "import sys,json;d=json.load(sys.stdin);print('next_archive_cursor:',d.get('nextCursor'))"
-  ```
-- O Review Mode fica **sempre montado** (sem env flag): é só abrir a bolota →
-  "Entrar no Review Mode" (ou `⌘⇧Y`). Toast "X comentários no localStorage"
-  aparece se tiverem dados antigos pra importar.
-- Como parar o servidor: `pkill -f "tsx src/index.ts"` ou usar TaskStop
-  no PID retornado pelo Bash.
-- Pra começar a **resolver** os comentários em lote, invocar a skill
-  `bombardier-review-bridge-solve`.
+Se isso falha, o problema é o Next (caiu, está em outra porta, ou nem
+subiu). Não existe processo separado de bridge pra investigar.
 
 ## Restrições
 
-- ❌ Não regere o token se `review-bridge/.env` já tem um — quebra o frontend
-  local e agentes já configurados.
-- ❌ Não sobrescreva `.env.local` sem perguntar quando já há valores
-  divergentes.
-- ❌ Não exponha o servidor na rede (não rode em `0.0.0.0`, não faça port
-  forwarding). O modo atual é local-only.
-- ❌ Não commit `review-bridge/.env` nem `.env.local` (já no .gitignore).
-- ❌ Não delete `data/comments.archive.json` "pra limpar" — quebra histórico
-  e tudo que o frontend lista na aba Arquivados.
+- ❌ Não recrie `review-bridge/.env`, não regenere token, não escreva
+  `NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL` nem
+  `NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN` no `.env.local`. Esses envs só
+  ativam o modo legado abaixo — em serverless eles fazem o frontend
+  apontar pro Express morto em `:9878`.
+- ❌ Não delete `review-bridge/data/comments.archive.json` "pra limpar" —
+  é a fonte da aba Arquivados do Review Mode.
+- ❌ Não exponha o Next em `0.0.0.0` nem faça port forwarding. O fluxo é
+  local-only.
 
-## Checagem rápida quando algo dá errado
+## Modo legado (Express) — opt-in, só se o user pedir
 
-| Sintoma | Provável causa | Como verificar |
-|---|---|---|
-| `EADDRINUSE` | porta 9878 ocupada | `lsof -i :9878` |
-| 401 do health | token errado | comparar `.env` do bridge com `.env.local` |
-| Frontend não detecta bridge | `NEXT_PUBLIC_*` não foi recarregado | reiniciar `npm run dev` |
-| CORS bloqueia request | app aberto fora de `localhost`/`127.0.0.1` | abrir localmente; o bridge não aceita origem de rede |
-| Toast de "importar" não aparece | já tinha sido oferecido nessa sessão | recarregar a página |
-| `schemaVersion: 2` no health | versão antiga do bridge rodando | `git pull` em `review-bridge/`, reinstalar deps, reiniciar |
-| `comments.archive.json` não existe | nunca rodou v3 ou data dir estava vazio | normal se nunca houve comments resolvidos; cria-se sozinho |
-| Comentário "sumiu" depois de aprovar | foi pro archive — esperado | `GET /comments/archive?url=…` |
+O servidor antigo em `review-bridge/src/index.ts` continua existindo, mas
+como opt-in. Use **apenas se o user pedir explicitamente o Express**
+(comparar comportamento, testar com outra instância, etc.):
+
+```bash
+npm run dev:bridge
+```
+
+Esse script roda `concurrently` e sobe duas coisas:
+
+1. Next com `NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL=http://127.0.0.1:9878`
+   no env do processo (sem mexer no `.env.local` rastreado).
+2. Express em `127.0.0.1:9878`, depois de `review-bridge:prepare` cuidar
+   do token e dos envs.
+
+Para verificar:
+
+```bash
+TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2)
+curl -s -H "X-Review-Token: $TOKEN" http://127.0.0.1:9878/health
+```
+
+Os dois modos leem/gravam os mesmos arquivos JSON em `review-bridge/data/`,
+então o estado é compartilhado — muda só quem responde aos endpoints.
+
+> **Gotcha:** se você gravar `NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL` no
+> `.env.local` (rastreado), o frontend continua batendo em `:9878` mesmo
+> num `npm run dev` normal. Mantenha esses envs fora do `.env.local`. O
+> `dev:bridge` injeta no processo via `concurrently`, sem precisar de
+> arquivo.
+
+## Não use esta skill pra
+
+- Resolver/aprovar/responder comentários em lote → `bombardier-review-bridge-solve`
+- Auditar o que o agente mandou pra revisão → `bombardier-review-bridge-germano-audit`
+- Patrulhar páginas e dropar pins novos → `bombardier-review-bridge-germano-explore`
