@@ -15,8 +15,11 @@ import {
 import {
   buildRows,
   type ExplorerRow,
+  catProviderOf,
   PROVIDERS,
+  PROVIDER_ORDER,
   providerBreakdown,
+  providerOf,
   type ProviderId,
   previousTotal,
   scaledAgentRows,
@@ -102,10 +105,23 @@ type ConsumoContextValue = {
   chartModel: ChartModel;
   chartIds: Set<string>;
   seriesTotals: SeriesTotal[];
+  payerDaily: { aswork: number; meta: number }[];
   detailRows: ExplorerRow[];
-  destino: { id: ProviderId; label: string; total: number; share: number; colorVar: string }[];
+  destino: {
+    id: ProviderId;
+    label: string;
+    total: number;
+    share: number;
+    colorVar: string;
+    active: boolean;
+  }[];
   /** Fração do total visível sobre o total cheio — escala o "Uso do período". */
   scopeFactor: number;
+
+  /* filtro de pagador (Aswork/Meta) — independente da lente */
+  payers: Set<ProviderId>;
+  togglePayer: (p: ProviderId) => void;
+  metaIncluded: boolean;
 };
 
 const ConsumoContext = React.createContext<ConsumoContextValue | null>(null);
@@ -115,6 +131,22 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   const [selection, setSelection] = React.useState<PeriodSelection>({ kind: "preset", id: "this-month" });
   const [drill, setDrill] = React.useState<DrillNode[]>([]);
   const [search, setSearch] = React.useState("");
+  // Pagador ativo (Aswork/Meta). Ambos ligados por padrão; nunca esvazia.
+  const [payers, setPayers] = React.useState<Set<ProviderId>>(
+    () => new Set<ProviderId>(["aswork", "meta"]),
+  );
+  const togglePayer = React.useCallback((p: ProviderId) => {
+    setPayers((prev) => {
+      const next = new Set(prev);
+      if (next.has(p)) {
+        if (next.size > 1) next.delete(p);
+      } else {
+        next.add(p);
+      }
+      return next;
+    });
+  }, []);
+  const metaIncluded = payers.has("meta");
 
   // Trocar de lente zera o drill (os nós são por-lente).
   const setGrouping = React.useCallback((g: SpendingGrouping) => {
@@ -127,17 +159,78 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   const categories = SPENDING_CATEGORIES[grouping];
   const allCatIds = React.useMemo(() => categories.map((c) => c.id), [categories]);
 
-  // visibleIds vem do drill: nível 0 = tudo; drilado = categorias do último nó.
-  const visibleIds = React.useMemo(
-    () => (drill.length ? new Set(drill[drill.length - 1].categoryIds) : new Set(allCatIds)),
-    [drill, allCatIds],
+  // Linhas escaladas do detalhamento (fonte autoritativa dos totais).
+  const serviceRows = React.useMemo(
+    () => scaledServiceRows(selection.kind === "preset" ? selection.id : null, customDays),
+    [selection, customDays],
   );
-  const isAll = visibleIds.size === allCatIds.length;
+  const agentRows = React.useMemo(
+    () => scaledAgentRows(selection.kind === "preset" ? selection.id : null, customDays),
+    [selection, customDays],
+  );
+  const byId = React.useMemo(() => new Map(serviceRows.map((r) => [r.id, r])), [serviceRows]);
+
+  // Total por pagador do detalhamento — usado pra re-escalar o gráfico, pra que
+  // a divisão Aswork/Meta do gráfico bata com a do detalhamento e "Por destino".
+  const payerTotals = React.useMemo(() => {
+    if (grouping === "agent") {
+      const total = agentRows.reduce((s, r) => s + r.total, 0);
+      return { aswork: Math.round(total * 100) / 100, meta: 0 };
+    }
+    let aswork = 0;
+    let meta = 0;
+    serviceRows.forEach((r) => {
+      if (providerOf(r.id) === "meta") meta += r.total;
+      else aswork += r.total;
+    });
+    return { aswork: Math.round(aswork * 100) / 100, meta: Math.round(meta * 100) / 100 };
+  }, [grouping, serviceRows, agentRows]);
+
+  // visibleIds = (drill ? categorias do nó : todas) ∩ pagadores ativos. Como os
+  // widgets leem disso, desligar "Meta" tira as séries pagas ao Meta de tudo.
+  const visibleIds = React.useMemo(() => {
+    const base = drill.length ? drill[drill.length - 1].categoryIds : allCatIds;
+    return new Set(base.filter((catId) => payers.has(catProviderOf(catId, grouping))));
+  }, [drill, allCatIds, payers, grouping]);
+
+  // Escopo do drill ignorando o pagador — alimenta "Por destino", que sempre
+  // mostra Aswork e Meta pra você ligar/desligar.
+  const drillScopeRowIds = React.useMemo(() => {
+    if (grouping === "agent") return [] as string[];
+    const base = drill.length ? drill[drill.length - 1].categoryIds : allCatIds;
+    const set = new Set<string>();
+    base.forEach((catId) => (SERVICE_CAT_TO_ROW_IDS[catId] ?? []).forEach((rid) => set.add(rid)));
+    if (drill.length === 0) {
+      set.add("linha");
+      set.add("outros");
+    }
+    return [...set];
+  }, [grouping, drill, allCatIds]);
 
   const daily = React.useMemo(() => {
-    if (selection.kind === "custom") return getCustomDailySpending(grouping, customDays);
-    return getDailySpending(grouping, selection.id);
-  }, [grouping, selection, customDays]);
+    const raw =
+      selection.kind === "custom"
+        ? getCustomDailySpending(grouping, customDays)
+        : getDailySpending(grouping, selection.id);
+    // Re-escala as colunas: as categorias Aswork passam a somar payerTotals.aswork
+    // e as do Meta payerTotals.meta. Assim o gráfico concilia com o detalhamento
+    // e "Por destino", inclusive ao desligar um pagador.
+    const colSum = categories.map((_, c) => raw.reduce((s, day) => s + (day[c] ?? 0), 0));
+    let asworkChart = 0;
+    let metaChart = 0;
+    categories.forEach((cat, c) => {
+      if (catProviderOf(cat.id, grouping) === "meta") metaChart += colSum[c];
+      else asworkChart += colSum[c];
+    });
+    const fAsw = asworkChart > 0 ? payerTotals.aswork / asworkChart : 1;
+    const fMeta = metaChart > 0 ? payerTotals.meta / metaChart : 1;
+    return raw.map((day) =>
+      day.map((v, c) => {
+        const f = catProviderOf(categories[c].id, grouping) === "meta" ? fMeta : fAsw;
+        return Math.round((v ?? 0) * f * 100) / 100;
+      }),
+    );
+  }, [grouping, selection, customDays, categories, payerTotals]);
 
   const chartPeriod: SpendingPeriod = selection.kind === "preset" ? selection.id : "last-30";
 
@@ -170,12 +263,13 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     if (grouping === "agent") return new Set(visibleIds);
     const set = new Set<string>();
     visibleIds.forEach((catId) => (SERVICE_CAT_TO_ROW_IDS[catId] ?? []).forEach((rid) => set.add(rid)));
-    if (isAll) {
+    // linha/outros (Aswork) entram no nível 0 quando Aswork está incluído.
+    if (drill.length === 0 && payers.has("aswork")) {
       set.add("linha");
       set.add("outros");
     }
     return set;
-  }, [grouping, visibleIds, isAll]);
+  }, [grouping, visibleIds, drill.length, payers]);
 
   const seriesTotals = React.useMemo<SeriesTotal[]>(
     () =>
@@ -215,17 +309,23 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
 
   const chartIds = React.useMemo(() => new Set(chartModel.categories.map((c) => c.id)), [chartModel]);
 
-  /* ---- detalhamento (drill-aware) ---- */
+  // Gasto diário quebrado por pagador (respeita drill + filtro de pagador) —
+  // alimenta o card "Gasto total no período" (linhas Aswork / Meta / total).
+  const payerDaily = React.useMemo(() => {
+    return daily.map((day) => {
+      let aswork = 0;
+      let meta = 0;
+      categories.forEach((cat, c) => {
+        if (!visibleIds.has(cat.id)) return;
+        const v = day[c] ?? 0;
+        if (catProviderOf(cat.id, grouping) === "meta") meta += v;
+        else aswork += v;
+      });
+      return { aswork: Math.round(aswork * 100) / 100, meta: Math.round(meta * 100) / 100 };
+    });
+  }, [daily, categories, visibleIds, grouping]);
 
-  const serviceRows = React.useMemo(
-    () => scaledServiceRows(selection.kind === "preset" ? selection.id : null, customDays),
-    [selection, customDays],
-  );
-  const agentRows = React.useMemo(
-    () => scaledAgentRows(selection.kind === "preset" ? selection.id : null, customDays),
-    [selection, customDays],
-  );
-  const byId = React.useMemo(() => new Map(serviceRows.map((r) => [r.id, r])), [serviceRows]);
+  /* ---- detalhamento (drill-aware) ---- */
 
   const detailRows = React.useMemo(() => {
     const rows = buildRows(grouping, [...allowedRowIds], drill.length, serviceRows, agentRows);
@@ -236,16 +336,32 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
 
   const destino = React.useMemo(() => {
     if (grouping === "agent") {
-      return [{ id: "aswork" as ProviderId, label: PROVIDERS.aswork.label, total: accumulated, share: 100, colorVar: PROVIDERS.aswork.colorVar }];
+      return [
+        {
+          id: "aswork" as ProviderId,
+          label: PROVIDERS.aswork.label,
+          total: accumulated,
+          share: 100,
+          colorVar: PROVIDERS.aswork.colorVar,
+          active: payers.has("aswork"),
+        },
+      ];
     }
-    return providerBreakdown([...allowedRowIds], byId).map((d) => ({
-      id: d.id,
-      label: PROVIDERS[d.id].label,
-      total: d.total,
-      share: d.share,
-      colorVar: PROVIDERS[d.id].colorVar,
-    }));
-  }, [grouping, allowedRowIds, byId, accumulated]);
+    // Sempre lista Aswork e Meta (na ordem fixa) pra você poder ligar/desligar,
+    // mesmo que um deles esteja zerado no escopo do drill.
+    const bd = new Map(providerBreakdown(drillScopeRowIds, byId).map((d) => [d.id, d]));
+    return PROVIDER_ORDER.map((id) => {
+      const d = bd.get(id);
+      return {
+        id,
+        label: PROVIDERS[id].label,
+        total: d?.total ?? 0,
+        share: d?.share ?? 0,
+        colorVar: PROVIDERS[id].colorVar,
+        active: payers.has(id),
+      };
+    });
+  }, [grouping, drillScopeRowIds, byId, accumulated, payers]);
 
   /* ---- período anterior + tendência ---- */
 
@@ -270,9 +386,14 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
 
   const filterChips = React.useMemo<FilterChip[]>(() => {
     const chips: FilterChip[] = [];
+    if (!payers.has("meta")) {
+      chips.push({ id: "payer", label: "Pagador: só Aswork", onRemove: () => togglePayer("meta") });
+    } else if (!payers.has("aswork")) {
+      chips.push({ id: "payer", label: "Pagador: só Meta", onRemove: () => togglePayer("aswork") });
+    }
     if (search.trim()) chips.push({ id: "search", label: `Busca: "${search.trim()}"`, onRemove: () => setSearch("") });
     return chips;
-  }, [search]);
+  }, [payers, search, togglePayer]);
 
   const value: ConsumoContextValue = {
     grouping,
@@ -301,9 +422,13 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     chartModel,
     chartIds,
     seriesTotals,
+    payerDaily,
     detailRows,
     destino,
     scopeFactor,
+    payers,
+    togglePayer,
+    metaIncluded,
   };
 
   return <ConsumoContext.Provider value={value}>{children}</ConsumoContext.Provider>;

@@ -24,6 +24,7 @@ import {
 import {
   AwAvatar,
 } from "@/components/ui/AwAvatar";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import {
   Tooltip,
   TooltipContent,
@@ -41,6 +42,7 @@ import {
   type SpendingPeriod,
 } from "../../financeiro/_components/data";
 import { useConsumo, type SeriesTotal } from "./ConsumoContext";
+import { catProviderOf } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
 import { WidgetShell } from "./WidgetBoard";
 
@@ -124,10 +126,17 @@ export function ConsumoChartWidget({
   dragHandle?: React.ReactNode;
   resizeButton?: React.ReactNode;
 }) {
-  const { chartModel, chartIds, chartPeriod, grouping, accumulated } =
+  const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded } =
     useConsumo();
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
+
+  // Séries pagas ao Meta (disparos) viram tracejadas/contorno; Aswork fica
+  // sólido. Só faz sentido na lente Serviço.
+  const isMeta = React.useCallback(
+    (id: string) => grouping === "service" && catProviderOf(id, "service") === "meta",
+    [grouping],
+  );
 
   const categories = React.useMemo(() => {
     const filtered = chartModel.categories.filter((c) => chartIds.has(c.id));
@@ -174,12 +183,17 @@ export function ConsumoChartWidget({
               0,
             );
             return (
-              <div className="flex items-center justify-between gap-4 border-b border-(--border-subtle) pb-1.5">
-                <span className="body-xs font-medium text-(--fg-primary)">
-                  {label}
-                </span>
-                <span className="body-xs font-semibold tabular-nums text-(--fg-primary)">
-                  {brl(total)}
+              <div className="flex flex-col gap-0.5 border-b border-(--border-subtle) pb-1.5">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="body-xs font-medium text-(--fg-primary)">
+                    {label}
+                  </span>
+                  <span className="body-xs font-semibold tabular-nums text-(--fg-primary)">
+                    {brl(total)}
+                  </span>
+                </div>
+                <span className="text-3xs text-(--fg-tertiary)">
+                  {metaIncluded ? "Total · Aswork + Meta" : "Só valores pagos à Aswork"}
                 </span>
               </div>
             );
@@ -261,6 +275,10 @@ export function ConsumoChartWidget({
                 dataKey={cat.id}
                 stackId="spend"
                 fill={`var(--color-${cat.id})`}
+                fillOpacity={isMeta(cat.id) ? 0.3 : 1}
+                stroke={isMeta(cat.id) ? `var(--color-${cat.id})` : undefined}
+                strokeDasharray={isMeta(cat.id) ? "3 2" : undefined}
+                strokeWidth={isMeta(cat.id) ? 1.25 : 0}
                 opacity={seriesOpacity(activeSeries, cat.id)}
                 maxBarSize={56}
                 radius={i === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
@@ -284,8 +302,17 @@ export function ConsumoChartWidget({
                 stroke={`var(--color-${cat.id})`}
                 strokeOpacity={seriesOpacity(activeSeries, cat.id)}
                 strokeWidth={1.5}
+                strokeDasharray={isMeta(cat.id) ? "4 3" : undefined}
                 fill={`var(--color-${cat.id})`}
-                fillOpacity={activeSeries && activeSeries !== cat.id ? 0.14 : 0.42}
+                fillOpacity={
+                  isMeta(cat.id)
+                    ? activeSeries && activeSeries !== cat.id
+                      ? 0.08
+                      : 0.16
+                    : activeSeries && activeSeries !== cat.id
+                      ? 0.14
+                      : 0.42
+                }
                 isAnimationActive
                 animationDuration={CHART_ANIMATION_DURATION}
                 onMouseEnter={() => setActiveSeries(cat.id)}
@@ -305,6 +332,7 @@ export function ConsumoChartWidget({
                 stroke={`var(--color-${cat.id})`}
                 strokeOpacity={seriesOpacity(activeSeries, cat.id)}
                 strokeWidth={2}
+                strokeDasharray={isMeta(cat.id) ? "4 3" : undefined}
                 dot={false}
                 activeDot={{ r: 4 }}
                 isAnimationActive
@@ -535,19 +563,10 @@ function ShareBars({
 
 /* ===================== Uso do período × provedor ===================== */
 
-export function UsadoCobradoWidget({
-  dragHandle,
-  resizeButton,
-}: {
-  dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-}) {
-  const { selection, chartPeriod, customDays, scopeFactor } = useConsumo();
-  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
-
-  // Acompanha o controle de tempo global: nº de buckets + fator de escala saem
-  // do período (ou range custom) ativo, espelhando os outros widgets. O
-  // scopeFactor estreita o widget junto com o drill (fração visível do total).
+/** Série usado×cobrado, escalada pro período + drill (scopeFactor). Respeita o
+ *  filtro de pagador: com Meta desligado, a parte do Meta zera. */
+function useUsadoSeries() {
+  const { selection, chartPeriod, customDays, scopeFactor, metaIncluded } = useConsumo();
   const bars =
     selection.kind === "custom"
       ? Math.max(1, Math.min(customDays, 90))
@@ -557,59 +576,66 @@ export function UsadoCobradoWidget({
       ? reconScaleForCustom(customDays)
       : reconScaleForPeriod(selection.id)) * scopeFactor;
 
-  const series = React.useMemo(
-    () => getUsedChargedSeries(bars, scale),
-    [bars, scale],
-  );
-
+  const series = React.useMemo(() => getUsedChargedSeries(bars, scale), [bars, scale]);
   const data = React.useMemo(
     () =>
       series.map((d, i) => ({
         day: dayLabel(i, bars, chartPeriod),
         wc: d.wc,
-        meta: d.meta,
+        meta: metaIncluded ? d.meta : 0,
         charged: d.charged,
       })),
-    [series, bars, chartPeriod],
+    [series, bars, chartPeriod, metaIncluded],
   );
+  return {
+    data,
+    metaIncluded,
+    wcTotal: series.reduce((s, d) => s + d.wc, 0),
+    metaTotal: metaIncluded ? series.reduce((s, d) => s + d.meta, 0) : 0,
+    chargedTotal: series.reduce((s, d) => s + d.charged, 0),
+  };
+}
 
-  const wcTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.wc, 0),
-    [series],
-  );
-  const metaTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.meta, 0),
-    [series],
-  );
-  const chargedTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.charged, 0),
-    [series],
-  );
+export function UsadoCobradoWidget({
+  dragHandle,
+  resizeButton,
+}: {
+  dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
+}) {
+  const { data, wcTotal, metaTotal, metaIncluded } = useUsadoSeries();
+  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
+  // Aswork sólido (azul) + Meta azul tracejado (menos evidência, é aproximado).
   const usoConfig: ChartConfig = {
     wc: { label: "Custo Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Custo Meta", color: "var(--aw-purple-400)" },
-  };
-  const provedorConfig: ChartConfig = {
-    charged: { label: "Atribuído ao provedor", color: "var(--aw-slate-400)" },
+    meta: { label: "Custo Meta", color: "var(--aw-blue-400)" },
   };
 
   return (
     <WidgetShell
       title="Uso do período"
       icon="sync_alt"
-      description={`Custo Aswork ${brl(wcTotal)} · Meta aprox. ${brl(metaTotal)}`}
+      description={
+        metaIncluded
+          ? `Custo Aswork ${brl(wcTotal)} · Meta aprox. ${brl(metaTotal)}`
+          : `Custo Aswork ${brl(wcTotal)}`
+      }
       dragHandle={dragHandle}
       resizeButton={resizeButton}
     >
-      {/* Uso: Aswork sólido + Meta tracejado (menos evidência, é aproximado) */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
         <LegendDot color="var(--aw-blue-500)" label="Custo Aswork" />
-        <LegendDot color="var(--aw-purple-400)" label="Custo Meta (aprox.)" />
+        {metaIncluded && (
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+            <AwBrandLogo brand="meta" size={14} markOnly />
+            Custo Meta (aprox.)
+          </span>
+        )}
       </div>
       <ChartContainer
         config={usoConfig}
-        className="aspect-auto h-[200px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        className="aspect-auto h-[220px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -636,37 +662,55 @@ export function UsadoCobradoWidget({
             onMouseEnter={() => setActiveSeries("wc")}
             onMouseLeave={() => setActiveSeries(null)}
           />
-          <Bar
-            dataKey="meta"
-            stackId="u"
-            fill="var(--aw-purple-400)"
-            fillOpacity={0.2}
-            stroke="var(--aw-purple-400)"
-            strokeWidth={1.5}
-            strokeDasharray="3 3"
-            opacity={seriesOpacity(activeSeries, "meta")}
-            maxBarSize={30}
-            radius={[3, 3, 0, 0]}
-            isAnimationActive
-            animationDuration={CHART_ANIMATION_DURATION}
-            onMouseEnter={() => setActiveSeries("meta")}
-            onMouseLeave={() => setActiveSeries(null)}
-          />
+          {metaIncluded && (
+            <Bar
+              dataKey="meta"
+              stackId="u"
+              fill="var(--aw-blue-400)"
+              fillOpacity={0.25}
+              stroke="var(--aw-blue-400)"
+              strokeWidth={1.5}
+              strokeDasharray="3 3"
+              opacity={seriesOpacity(activeSeries, "meta")}
+              maxBarSize={30}
+              radius={[3, 3, 0, 0]}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={() => setActiveSeries("meta")}
+              onMouseLeave={() => setActiveSeries(null)}
+            />
+          )}
         </BarChart>
       </ChartContainer>
+    </WidgetShell>
+  );
+}
 
-      {/* Valor atribuído ao provedor de pagamento — com disclaimer do delay */}
-      <div className="mt-5 flex items-center justify-between gap-2 border-t border-(--border-subtle) pt-4">
-        <h6 className="m-0 body-sm font-medium text-(--fg-secondary)">
-          Valor atribuído ao provedor
-        </h6>
-        <span className="body-xs tabular-nums text-(--fg-tertiary)">
-          {brl(chargedTotal)}
-        </span>
-      </div>
+/* ============== Valor atribuído ao provedor (card próprio) ============== */
+
+export function ProvedorWidget({
+  dragHandle,
+  resizeButton,
+}: {
+  dragHandle?: React.ReactNode;
+  resizeButton?: React.ReactNode;
+}) {
+  const { data, chargedTotal } = useUsadoSeries();
+  const provedorConfig: ChartConfig = {
+    charged: { label: "Atribuído ao provedor", color: "var(--aw-slate-400)" },
+  };
+
+  return (
+    <WidgetShell
+      title="Valor atribuído ao provedor"
+      icon="account_balance"
+      description={`Entrou na fatura no período · ${brl(chargedTotal)}`}
+      dragHandle={dragHandle}
+      resizeButton={resizeButton}
+    >
       <ChartContainer
         config={provedorConfig}
-        className="aspect-auto h-[160px] w-full"
+        className="aspect-auto h-[220px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -697,6 +741,98 @@ export function UsadoCobradoWidget({
         por delay entre o custo cair no nosso sistema e ser contabilizado no
         provedor.
       </p>
+    </WidgetShell>
+  );
+}
+
+/* =============== Gasto total no período (card fixo) =============== */
+
+export function GastoTotalCard() {
+  const { payerDaily, chartPeriod, metaIncluded } = useConsumo();
+
+  const data = React.useMemo(
+    () =>
+      payerDaily.map((d, i) => ({
+        day: dayLabel(i, payerDaily.length, chartPeriod),
+        aswork: d.aswork,
+        meta: d.meta,
+        total: Math.round((d.aswork + d.meta) * 100) / 100,
+      })),
+    [payerDaily, chartPeriod],
+  );
+
+  const config: ChartConfig = {
+    total: { label: "Total", color: "var(--fg-primary)" },
+    aswork: { label: "Aswork", color: "var(--aw-blue-500)" },
+    meta: { label: "Meta", color: "var(--aw-blue-400)" },
+  };
+
+  return (
+    <WidgetShell
+      title="Gasto total no período"
+      icon="show_chart"
+      description="Total e quebra por pagador, dia a dia"
+    >
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
+        <LegendDot color="var(--fg-primary)" label="Total" />
+        <LegendDot color="var(--aw-blue-500)" label="Aswork" />
+        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+          <AwBrandLogo brand="meta" size={14} markOnly />
+          Meta
+        </span>
+      </div>
+      <ChartContainer
+        config={config}
+        className="mt-2 aspect-auto h-[200px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+      >
+        <LineChart data={data} margin={{ left: 12, right: 12, top: 8 }}>
+          <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
+          <XAxis
+            dataKey="day"
+            tickLine={false}
+            axisLine={{ stroke: "var(--border-subtle)" }}
+            tickMargin={8}
+            minTickGap={24}
+            interval="preserveStartEnd"
+            tick={{ fontSize: 11, fill: "var(--fg-tertiary)" }}
+            height={28}
+          />
+          <ChartTooltip
+            cursor={{ stroke: "var(--border-default)", strokeDasharray: "3 3" }}
+            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+          />
+          <Line
+            dataKey="aswork"
+            type="monotone"
+            stroke="var(--aw-blue-500)"
+            strokeWidth={1.75}
+            dot={false}
+            isAnimationActive
+            animationDuration={CHART_ANIMATION_DURATION}
+          />
+          {metaIncluded && (
+            <Line
+              dataKey="meta"
+              type="monotone"
+              stroke="var(--aw-blue-400)"
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+              dot={false}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+            />
+          )}
+          <Line
+            dataKey="total"
+            type="monotone"
+            stroke="var(--fg-primary)"
+            strokeWidth={2.5}
+            dot={false}
+            isAnimationActive
+            animationDuration={CHART_ANIMATION_DURATION}
+          />
+        </LineChart>
+      </ChartContainer>
     </WidgetShell>
   );
 }

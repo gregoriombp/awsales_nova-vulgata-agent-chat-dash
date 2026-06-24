@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { Icon } from "@/components/ui/Icon";
 import { brl } from "../../financeiro/_components/data";
 import { useConsumo } from "./ConsumoContext";
@@ -130,35 +131,58 @@ function ActiveFilters() {
 }
 
 function ByDestination() {
-  const { destino } = useConsumo();
+  const { destino, togglePayer } = useConsumo();
   return (
-    <div className="flex flex-col gap-3">
-      <SectionLabel>Por destino</SectionLabel>
-      <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
+    <div className="flex flex-col gap-2.5">
+      <SectionLabel>Por destino · pagador</SectionLabel>
+      <p className="m-0 -mt-1 body-xs text-(--fg-muted)">
+        Clique pra incluir ou tirar um pagador do dashboard.
+      </p>
+      <ul className="m-0 mt-1 flex list-none flex-col gap-2 p-0">
         {destino.map((d) => (
-          <li key={d.id} className="flex flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="inline-flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
-                <span
-                  aria-hidden="true"
-                  className="h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ background: d.colorVar }}
+          <li key={d.id}>
+            <button
+              type="button"
+              onClick={() => togglePayer(d.id)}
+              aria-pressed={d.active}
+              className={cn(
+                "-mx-1.5 flex w-full flex-col gap-1.5 rounded-lg px-1.5 py-1.5 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)",
+                !d.active && "opacity-45",
+              )}
+            >
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="inline-flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
+                  {d.id === "meta" ? (
+                    <AwBrandLogo brand="meta" size={16} markOnly />
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        "h-2.5 w-2.5 shrink-0 rounded-full border-2",
+                        d.active ? "border-transparent" : "border-(--border-strong) bg-transparent!",
+                      )}
+                      style={{ background: d.active ? d.colorVar : undefined }}
+                    />
+                  )}
+                  {d.label}
+                  {!d.active && (
+                    <Icon name="visibility_off" size={13} className="text-(--fg-tertiary)" />
+                  )}
+                </span>
+                <span className="shrink-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
+                  {d.share.toFixed(0)}%
+                </span>
+              </div>
+              <div className="h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
+                <div
+                  className="h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
+                  style={{ width: `${Math.max(2, d.share)}%`, background: d.colorVar }}
                 />
-                {d.label}
+              </div>
+              <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                {brl(d.total)} · {PROVIDERS[d.id].desc}
               </span>
-              <span className="shrink-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
-                {d.share.toFixed(0)}%
-              </span>
-            </div>
-            <div className="h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
-              <div
-                className="h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
-                style={{ width: `${Math.max(2, d.share)}%`, background: d.colorVar }}
-              />
-            </div>
-            <span className="body-xs tabular-nums text-(--fg-tertiary)">
-              {brl(d.total)} · {PROVIDERS[d.id].desc}
-            </span>
+            </button>
           </li>
         ))}
       </ul>

@@ -95,6 +95,21 @@ function categoriesOf(rowIds: string[]): string[] {
   return [...new Set(rowIds.map((id) => ROW_CATEGORY[id]).filter(Boolean))];
 }
 
+// Pagador (provedor) de cada categoria do gráfico — base do filtro de pagador.
+// Disparos = Meta; resto = Aswork. Na lente Agente tudo é Aswork.
+const CAT_PROVIDER: Record<string, ProviderId> = {
+  "disparos-mkt": "meta",
+  "disparos-util": "meta",
+  mensagens: "aswork",
+  leads: "aswork",
+  tokens: "aswork",
+};
+
+export function catProviderOf(catId: string, grouping: SpendingGrouping): ProviderId {
+  if (grouping === "agent") return "aswork";
+  return CAT_PROVIDER[catId] ?? "aswork";
+}
+
 /* ---------- agrupamento por serviço ---------- */
 
 type GroupDef = {

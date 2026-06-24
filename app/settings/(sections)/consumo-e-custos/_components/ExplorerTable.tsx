@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -97,6 +98,10 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                     <span className="inline-flex items-center gap-3">
                       {row.avatar ? (
                         <AwAvatar size="sm" src={row.avatar} alt={row.label} />
+                      ) : row.provider === "meta" ? (
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted)">
+                          <AwBrandLogo brand="meta" size={18} markOnly />
+                        </span>
                       ) : (
                         <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-secondary)">
                           <Icon name={row.icon ?? "category"} size={18} fill={1} />
@@ -158,6 +163,14 @@ function barColor(provider: ProviderId | "mixed"): string {
 }
 
 function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
+  if (provider === "meta") {
+    return (
+      <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
+        <AwBrandLogo brand="meta" size={16} markOnly />
+        Meta
+      </span>
+    );
+  }
   const label = provider === "mixed" ? "Misto" : PROVIDERS[provider].label;
   return (
     <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">

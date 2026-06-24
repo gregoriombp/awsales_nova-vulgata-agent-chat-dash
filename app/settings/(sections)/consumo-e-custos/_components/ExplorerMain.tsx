@@ -14,6 +14,8 @@ import { HighlightCards } from "./KpiCards";
 import {
   ComposicaoWidget,
   ConsumoChartWidget,
+  GastoTotalCard,
+  ProvedorWidget,
   UsadoCobradoWidget,
 } from "./ChartWidgets";
 import { DetalhamentoWidget } from "./ExplorerTable";
@@ -31,14 +33,21 @@ import {
  * (editável só no modo "Editar" → "Salvar").
  * ------------------------------------------------------------------------- */
 
-const STORAGE_KEY = "consumo-dash-order-v2";
-const SPANS_KEY = "consumo-dash-spans-v2";
+const STORAGE_KEY = "consumo-dash-order-v3";
+const SPANS_KEY = "consumo-dash-spans-v3";
 
-const DEFAULT_ORDER = ["consumo", "composicao", "usado-cobrado", "detalhamento"];
+const DEFAULT_ORDER = [
+  "consumo",
+  "composicao",
+  "usado-cobrado",
+  "provedor",
+  "detalhamento",
+];
 const DEFAULT_SPANS: Record<string, Span> = {
   consumo: 2,
   composicao: 1,
   "usado-cobrado": 1,
+  provedor: 1,
   detalhamento: 2,
 };
 
@@ -76,6 +85,7 @@ export function ExplorerMain() {
       { id: "consumo", span: 2, render: (c) => <ConsumoChartWidget {...c} /> },
       { id: "composicao", span: 1, render: (c) => <ComposicaoWidget {...c} /> },
       { id: "usado-cobrado", span: 1, render: (c) => <UsadoCobradoWidget {...c} /> },
+      { id: "provedor", span: 1, render: (c) => <ProvedorWidget {...c} /> },
       { id: "detalhamento", span: 2, render: (c) => <DetalhamentoWidget {...c} /> },
     ],
     [],
@@ -97,6 +107,9 @@ export function ExplorerMain() {
         <SpendHeadline />
         <div className="mt-5">
           <HighlightCards />
+        </div>
+        <div className="mt-5">
+          <GastoTotalCard />
         </div>
         <div className="mt-5">
           <DraggableBoard
