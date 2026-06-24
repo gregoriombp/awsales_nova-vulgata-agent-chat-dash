@@ -1,7 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
+import { AwModal } from "@/components/ui/AwModal";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwReportPromo } from "@/components/ui/AwReportPromo";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
@@ -25,6 +28,8 @@ import {
   CURRENT_PLAN,
   FORECAST_DISCOUNTS,
   OVERVIEW_KPIS,
+  USED_META_TOTAL,
+  USED_WC_TOTAL,
   VARIABLE_SPENDING_LIMIT,
 } from "../_components/data";
 
@@ -61,70 +66,143 @@ function ForecastBlock() {
   const discount = OVERVIEW_KPIS.monthSavings;
   const total = CURRENT_PLAN.monthly + OVERVIEW_KPIS.accumulated - discount;
   const card = CURRENT_INVOICE.paymentMethod;
+  const [invoiceOpen, setInvoiceOpen] = React.useState(false);
 
   // Um card só, com stroke em volta. O padding da div mãe afasta as colunas do
   // stroke: à esquerda a fatura atual (branca, herói); à direita o detalhamento
   // num card cinza arredondado e "flutuante" — a separação vem do respiro do
   // padding, não de uma divisória.
   return (
-    <AwCard className="grid grid-cols-2 items-stretch p-(--space-2)">
-      <div className="p-7">
-        <AwInvoiceForecastCard
-          bare
-          title="Fatura atual"
-          status={{ label: "Em aberto", variant: "draft" }}
-          total={total}
-          footnote={
-            <>
-              <span className="inline-flex flex-wrap items-center gap-1.5">
-                Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
-                <CardBrandLogo brand={card.brand} size={22} />
-                •••• {card.last4}
-              </span>
-              <span className="inline-flex w-full items-center gap-1 text-(--fg-muted)">
-                Você pode receber cobranças adicionais ao atingir o limite do
-                consumo variável.
-                <TooltipProvider delayDuration={120}>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="Como funcionam as cobranças adicionais"
-                        className="inline-flex shrink-0 text-(--fg-tertiary) hover:text-(--fg-primary)"
+    <>
+      <AwCard className="grid grid-cols-2 items-stretch p-(--space-2)">
+        <div className="p-7">
+          <AwInvoiceForecastCard
+            bare
+            title="Fatura atual"
+            status={{ label: "Em aberto", variant: "draft" }}
+            total={total}
+            footnote={
+              <>
+                <span className="inline-flex flex-wrap items-center gap-1.5">
+                  Próxima cobrança em {CURRENT_PLAN.nextChargeAt} no cartão
+                  <CardBrandLogo brand={card.brand} size={22} />
+                  •••• {card.last4}
+                </span>
+                <span className="inline-flex w-full items-center gap-1 body-xs text-(--fg-muted)">
+                  Você pode receber cobranças adicionais ao atingir o limite do
+                  consumo variável.
+                  <TooltipProvider delayDuration={120}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Como funcionam as cobranças adicionais"
+                          className="inline-flex shrink-0 text-(--fg-tertiary) hover:text-(--fg-primary)"
+                        >
+                          <Icon name="help" size={14} />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent
+                        side="top"
+                        className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
                       >
-                        <Icon name="help" size={14} />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent
-                      side="top"
-                      className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-                    >
-                      Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
-                      o consumo variável acumulado é cobrado na hora — então pode
-                      aparecer mais de uma cobrança no mesmo mês, separada da
-                      fatura do plano.
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </span>
-            </>
-          }
-          cta={{
-            label: "Ver fatura detalhada",
-            href: "/settings/financeiro/historico-faturas",
-          }}
+                        Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
+                        o consumo variável acumulado é cobrado na hora — então pode
+                        aparecer mais de uma cobrança no mesmo mês, separada da
+                        fatura do plano.
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </span>
+              </>
+            }
+            cta={{
+              label: "Detalhes da fatura",
+              onClick: () => setInvoiceOpen(true),
+            }}
+          />
+        </div>
+        <InvoiceBreakdownCard
+          className="rounded-xl bg-(--bg-surface) p-7"
+          subscription={CURRENT_PLAN.monthly}
+          subscriptionLabel={CURRENT_PLAN.name}
+          variable={OVERVIEW_KPIS.accumulated}
+          discounts={FORECAST_DISCOUNTS}
+          total={total}
+          totalLabel="Total em aberto"
         />
-      </div>
-      <InvoiceBreakdownCard
-        className="rounded-xl bg-(--bg-surface) p-7"
-        subscription={CURRENT_PLAN.monthly}
-        subscriptionLabel={CURRENT_PLAN.name}
-        variable={OVERVIEW_KPIS.accumulated}
-        discounts={FORECAST_DISCOUNTS}
+      </AwCard>
+
+      <InvoiceDetailModal
+        open={invoiceOpen}
+        onClose={() => setInvoiceOpen(false)}
         total={total}
-        totalLabel="Total em aberto"
+        cardBrand={card.brand}
+        cardLast4={card.last4}
       />
-    </AwCard>
+    </>
+  );
+}
+
+/* ---------- modal: detalhes da fatura em aberto ---------- */
+
+function InvoiceDetailModal({
+  open,
+  onClose,
+  total,
+  cardBrand,
+  cardLast4,
+}: {
+  open: boolean;
+  onClose: () => void;
+  total: number;
+  cardBrand: React.ComponentProps<typeof CardBrandLogo>["brand"];
+  cardLast4: string;
+}) {
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title="Detalhes da fatura"
+      footer={
+        <div className="flex w-full flex-wrap items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+            <CardBrandLogo brand={cardBrand} size={18} />
+            Cobrança no cartão •••• {cardLast4}
+          </span>
+          <AwButton variant="primary" size="md" onClick={onClose}>
+            Pagar agora
+          </AwButton>
+        </div>
+      }
+    >
+      <div className="flex flex-col gap-5">
+        <div className="flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="aw-eyebrow text-(--fg-tertiary)">Total em aberto</span>
+            <p className="m-0 text-(length:--h3-size) font-semibold leading-none tracking-heading-tighter tabular-nums text-(--fg-primary)">
+              {brl(total)}
+            </p>
+          </div>
+          <AwPill variant="draft">Em aberto</AwPill>
+        </div>
+
+        <InvoiceBreakdownCard
+          subscription={CURRENT_PLAN.monthly}
+          subscriptionLabel={CURRENT_PLAN.name}
+          variable={OVERVIEW_KPIS.accumulated}
+          discounts={FORECAST_DISCOUNTS}
+          total={total}
+          totalLabel="Total em aberto"
+        />
+
+        <p className="m-0 body-xs text-(--fg-tertiary)">
+          Próxima cobrança em {CURRENT_PLAN.nextChargeAt}. O consumo variável
+          fecha no fim do ciclo ou ao atingir o limite de{" "}
+          {brl(VARIABLE_SPENDING_LIMIT)}.
+        </p>
+      </div>
+    </AwModal>
   );
 }
 
@@ -143,6 +221,9 @@ function ConsumoVariavelCard() {
   const used = OVERVIEW_KPIS.accumulated;
   const limit = VARIABLE_SPENDING_LIMIT;
   const remaining = Math.max(limit - used, 0);
+  // Quebra do consumo por quem cobra: taxas da Aswork × valor aproximado do Meta.
+  const wc = USED_WC_TOTAL;
+  const meta = USED_META_TOTAL;
 
   return (
     <AwCard className="flex flex-col gap-4 border-(--aw-gray-25) px-6! py-4!">
@@ -178,10 +259,39 @@ function ConsumoVariavelCard() {
           de {brl(limit)}
         </span>
       </div>
-      <AwConsumptionBar gross={used} limit={limit} />
+      <AwConsumptionBar
+        gross={used}
+        limit={limit}
+        splits={[
+          { label: "Aswork", value: wc, colorVar: "var(--aw-blue-500)" },
+          { label: "Meta", value: meta, colorVar: "var(--aw-purple-400)" },
+        ]}
+      />
       <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
         Restam {brl(remaining)} antes da próxima cobrança.
       </p>
+
+      {/* Quem cobra o quê — só os rótulos; a divisão visual mora dentro da
+          barra acima (camada de baixa opacidade), com o detalhe no tooltip. */}
+      <div className="flex items-center justify-between gap-3 body-xs text-(--fg-tertiary)">
+        <span className="inline-flex items-center gap-1.5">
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 rounded-full bg-(--aw-blue-500)"
+          />
+          Aswork
+          <span className="tabular-nums font-medium text-(--fg-secondary)">
+            {brl(wc)}
+          </span>
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <AwBrandLogo brand="meta" size={13} markOnly />
+          Meta
+          <span className="tabular-nums font-medium text-(--fg-secondary)">
+            {brl(meta)}
+          </span>
+        </span>
+      </div>
     </AwCard>
   );
 }
