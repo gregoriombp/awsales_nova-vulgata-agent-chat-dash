@@ -19,8 +19,15 @@ import { useConsumo } from "./ConsumoContext";
 
 export function HighlightCards() {
   const { summary } = useConsumo();
+  // "Ajustes" é episódico — quando zera (caso comum) vira ruído. Só aparece
+  // quando há estorno/correção de fato; o grid se ajusta de 4 → 3 colunas.
+  const showAdjustments = summary.adjustments !== 0;
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div
+      className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${
+        showAdjustments ? "xl:grid-cols-4" : "xl:grid-cols-3"
+      }`}
+    >
       <HighlightCard
         label="Subtotal de uso"
         value={brl(summary.subtotal)}
@@ -32,11 +39,13 @@ export function HighlightCards() {
         valueClassName="text-(--accent-success)"
         tooltip="Vouchers e cupons aplicados no período. Incidem só sobre o que é cobrado pela Aswork — não abatem os valores aproximados do Meta."
       />
-      <HighlightCard
-        label="Ajustes"
-        value={brl(summary.adjustments)}
-        tooltip="Estornos e correções de lançamentos reconhecidos no período."
-      />
+      {showAdjustments && (
+        <HighlightCard
+          label="Ajustes"
+          value={brl(summary.adjustments)}
+          tooltip="Estornos e correções de lançamentos reconhecidos no período."
+        />
+      )}
       <HighlightCard
         label="Total no período"
         value={brl(summary.total)}
