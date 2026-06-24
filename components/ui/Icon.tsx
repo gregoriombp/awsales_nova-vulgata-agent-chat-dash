@@ -1,12 +1,18 @@
 import * as React from "react"
 import MemoryBaseIcon from "@/components/memory-base/MemoryBaseIcon"
 
+export type IconWeight = 200 | 300 | 400 | 500 | 600 | 700
+export type IconGrade = -25 | 0 | 200
+
 export type IconProps = {
   name: string
   size?: number
   fill?: 0 | 1
-  weight?: 200 | 300 | 400 | 500 | 600 | 700
-  grade?: -25 | 0 | 200
+  weight?: IconWeight
+  grade?: IconGrade
+  /** Material Symbols optical-size axis. Defaults to a legibility clamp:
+   *  small UI icons still render with opsz >= 20 instead of becoming hairlines. */
+  opticalSize?: number
   /** Only the agent glyph (`name="agent"`) reads this — set `false` to render
    *  it as a still line (dense lists, perf-sensitive surfaces). Default `true`. */
   animated?: boolean
@@ -22,20 +28,23 @@ export function Icon({
   name,
   size = 20,
   fill = 0,
-  weight = 200,
-  grade = 0,
+  weight,
+  grade,
+  opticalSize,
   animated = true,
   gradient = false,
   className,
   style,
 }: IconProps) {
+  const optics = resolveIconOptics({ size, fill, weight, grade, opticalSize })
+
   if (name === "agent" || name === "gesture") {
     // The brand mark for "an Agent" in icon form — replaces the robot
     // (`smart_toy`). A self-drawing gesture line; see AgentGlyph below.
     return (
       <AgentGlyph
         size={size}
-        weight={weight}
+        weight={optics.weight}
         animated={animated}
         gradient={gradient}
         className={className}
@@ -79,13 +88,47 @@ export function Icon({
       style={{
         fontSize: size,
         lineHeight: 1,
-        fontVariationSettings: `'FILL' ${fill}, 'wght' ${weight}, 'GRAD' ${grade}, 'opsz' ${size}`,
+        fontVariationSettings: `'FILL' ${fill}, 'wght' ${optics.weight}, 'GRAD' ${optics.grade}, 'opsz' ${optics.opticalSize}`,
         ...style,
       }}
     >
       {name}
     </span>
   )
+}
+
+export function resolveIconOptics({
+  size,
+  fill,
+  weight,
+  grade,
+  opticalSize,
+}: {
+  size: number
+  fill?: IconProps["fill"]
+  weight?: IconWeight
+  grade?: IconGrade
+  opticalSize?: number
+}) {
+  return {
+    weight: weight ?? defaultIconWeight(size, fill),
+    grade: grade ?? defaultIconGrade(size),
+    opticalSize: clampIconOpticalSize(opticalSize ?? size),
+  }
+}
+
+function defaultIconWeight(size: number, fill: IconProps["fill"] = 0): IconWeight {
+  if (size <= 14) return fill ? 400 : 300
+  if (size <= 24) return 300
+  return 200
+}
+
+function defaultIconGrade(size: number): IconGrade {
+  return size <= 14 ? 200 : 0
+}
+
+function clampIconOpticalSize(size: number) {
+  return Math.min(48, Math.max(20, size))
 }
 
 /** Agent Studio brand glyph. The design is a multi-tone radial dot pattern
@@ -157,7 +200,7 @@ function AgentGlyph({
   className?: string
   style?: React.CSSProperties
 }) {
-  // 200 (thin — the Icon default) ≈ 1.5; heavier `weight` reads heavier.
+  // 200 (thin) ≈ 1.5; heavier `weight` reads heavier.
   const strokeWidth = 1.5 + ((weight - 200) / 100) * 0.3
   return (
     <span

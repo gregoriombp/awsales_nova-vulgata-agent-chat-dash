@@ -36,10 +36,11 @@ Material Symbols **não tem "stroke" vs "fill"** como Lucide/Feather. O que pare
 
 | Prop      | Eixo   | Valores                         | Default | Para quê |
 |-----------|--------|---------------------------------|---------|----------|
-| `size`    | `opsz` | 12 · 16 · 20 · 24 · 28 · 32     | `20`    | Tamanho. `opsz` casa com `size` automaticamente. **Sem intermediários.** |
-| `weight`  | `wght` | 200 · 300 · 400 · 500 · 600 · 700 | `200` | Espessura do traço. 200 é o look fino/refinado padrão. |
+| `size`    | visual | 12 · 16 · 20 · 24 · 28 · 32     | `20`    | Tamanho renderizado. **Sem intermediários.** |
+| `opticalSize` | `opsz` | 20..48                     | `clamp(size, 20..48)` | Desenho ótico do glyph. Ícones de 12/16px ainda usam `opsz` 20 para não virarem fio. |
+| `weight`  | `wght` | 200 · 300 · 400 · 500 · 600 · 700 | automático | Espessura do traço. O default sobe para 300/400 em tamanhos pequenos; 200 fica para ícones amplos. |
 | `fill`    | `FILL` | `0` · `1`                       | `0`     | `0` outlined; `1` preenchido — **só** para estado ativo/selecionado. |
-| `grade`   | `GRAD` | -25 · 0 · 200                   | `0`     | Ajuste ótico fino. `+` em superfície escura. |
+| `grade`   | `GRAD` | -25 · 0 · 200                   | automático | Ajuste ótico fino. O default usa `200` só em glyphs minúsculos. |
 
 `Icon` herda **`currentColor`** — nunca hardcode cor (exceto o acento de IA, abaixo).
 
@@ -49,18 +50,18 @@ Material Symbols **não tem "stroke" vs "fill"** como Lucide/Feather. O que pare
 
 | Contexto | `size` | `weight` | `fill` | Exemplo |
 |----------|--------|----------|--------|---------|
-| Dentro de botão/input **sm** | `16` | `200` | `0` | `<Icon name="add" size={16} />` |
-| Botão **md** / inline com corpo de texto | `20` | `200` | `0` | `<Icon name="search" />` |
-| Item de nav (rail / list) | `20`–`24` | `200` | `0` | `<Icon name="dashboard" size={24} />` |
-| Item de nav **ativo/selecionado** | `20`–`24` | `200` | `1` | `<Icon name="dashboard" fill={1} />` |
-| Header / page hero / empty state | `28`–`32` | `200`–`300` | `0` | `<Icon name="hub" size={32} />` |
+| Dentro de botão/input **sm** | `16` | automático (`300`) | `0` | `<Icon name="add" size={16} />` |
+| Botão **md** / inline com corpo de texto | `20` | automático (`300`) | `0` | `<Icon name="search" />` |
+| Item de nav (rail / list) | `20`–`24` | automático (`300`) | `0` | `<Icon name="dashboard" size={24} />` |
+| Item de nav **ativo/selecionado** | `20`–`24` | automático (`300`) | `1` | `<Icon name="dashboard" fill={1} />` |
+| Header / page hero / empty state | `28`–`32` | automático (`200`) ou `300` | `0` | `<Icon name="hub" size={32} />` |
 | Estado on (favoritado, fixado, toggle) | igual ao contexto | — | `1` | `<Icon name="star" fill={1} />` |
 | Ícone em **superfície escura** que precisa firmar | igual | `500`–`600` | — | `<Icon name="bolt" weight={600} />` |
-| Acento de **IA** (gerar/executar/sincronizar) | `20`–`28` | `200` | `0` | cor `var(--aw-blue-600)` (abaixo) |
+| Acento de **IA** (gerar/executar/sincronizar) | `20`–`28` | automático | `0` | cor `var(--aw-blue-600)` (abaixo) |
 
-**Regra de ouro:** mude **um** eixo por vez e pelo motivo certo. Não suba `weight` "pra
-ficar mais visível" — geralmente o certo é subir `size`. `fill={1}` é semântico (ativo),
-não decorativo.
+**Regra de ouro:** comece sem `weight`; o default já corrige legibilidade por tamanho.
+Quando ainda faltar presença, prefira subir `size` antes de subir `weight`. `fill={1}` é
+semântico (ativo), não decorativo nem solução para ícone ilegível.
 
 ### Acento de IA
 
