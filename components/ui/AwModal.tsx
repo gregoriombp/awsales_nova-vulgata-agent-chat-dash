@@ -11,6 +11,8 @@ export type AwModalProps = {
   open: boolean
   onClose: () => void
   title?: string
+  /** Adorno opcional renderizado à direita do título (ex.: um pill de status). */
+  titleAdornment?: React.ReactNode
   children: React.ReactNode
   footer?: React.ReactNode
   dismissible?: boolean
@@ -24,6 +26,7 @@ export function AwModal({
   open,
   onClose,
   title,
+  titleAdornment,
   children,
   footer,
   dismissible = true,
@@ -63,9 +66,12 @@ export function AwModal({
           >
             {title ? (
               <header className="aw-modal__head">
-                <DialogPrimitive.Title className="aw-modal__title">
-                  {title}
-                </DialogPrimitive.Title>
+                <div className="flex min-w-0 items-center gap-2">
+                  <DialogPrimitive.Title className="aw-modal__title">
+                    {title}
+                  </DialogPrimitive.Title>
+                  {titleAdornment}
+                </div>
                 <DialogPrimitive.Close
                   className="aw-modal__close"
                   aria-label="Fechar"
