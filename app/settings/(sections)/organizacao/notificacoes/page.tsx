@@ -271,7 +271,7 @@ export default function OrgNotificacoesPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Notificações da organização"
-        description="Defina o que toda a organização sempre recebe e por quais canais. Cada pessoa afina o resto na própria caixa."
+        description="Defina o que toda a organização sempre recebe e por quais canais. Cada pessoa afina o resto nas próprias preferências."
       />
 
       {/* Obrigatórias */}

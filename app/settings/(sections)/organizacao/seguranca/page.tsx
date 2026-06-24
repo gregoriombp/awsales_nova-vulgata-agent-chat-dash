@@ -202,7 +202,7 @@ export default function OrgSegurancaPage() {
               <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
                 {ssoRequired
                   ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
-                  : "Outros métodos de login (senha, magic link, social) seguem liberados."}
+                  : "Outros métodos de login (senha, magic link, social) ficam liberados."}
               </p>
             </div>
             <AwToggle
@@ -356,7 +356,7 @@ export default function OrgSegurancaPage() {
           />
           <SelectLine
             title="Tempo máximo"
-            note="Encerra a sessão após esse tempo, independente de atividade."
+            note="Encerra a sessão após esse tempo, independentemente de atividade."
             value={absolute}
             options={SESSION_ABSOLUTE}
             onChange={setAbsolute}
