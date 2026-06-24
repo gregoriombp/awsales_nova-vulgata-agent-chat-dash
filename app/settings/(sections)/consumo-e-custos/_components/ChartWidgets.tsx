@@ -123,9 +123,29 @@ function payerColorByRank(
 }
 
 const CHART_ANIMATION_DURATION = 360;
+const MONEY_TOOLTIP_CLASS = "min-w-52 bg-(--bg-raised)";
+const MONEY_TOOLTIP_LABELS: Record<string, string> = {
+  wc: "Custo Aswork",
+  meta: "Custo Meta (aprox.)",
+  charged: "Atribuído ao provedor",
+  total: "Total",
+  aswork: "Aswork",
+};
 
 function seriesOpacity(activeSeries: string | null, id: string): number {
   return activeSeries && activeSeries !== id ? 0.28 : 1;
+}
+
+function moneyTooltipFormatter(value: unknown, name: unknown) {
+  const label = MONEY_TOOLTIP_LABELS[String(name)] ?? String(name);
+  return (
+    <div className="flex w-full items-center justify-between gap-3">
+      <span className="body-xs text-(--fg-secondary)">{label}</span>
+      <span className="body-xs font-medium tabular-nums text-(--fg-primary)">
+        {brl(Number(value))}
+      </span>
+    </div>
+  );
 }
 
 /* ============================ Consumo por dia ============================ */
@@ -154,10 +174,13 @@ export function ConsumoChartWidget({
       };
     });
     const colorByRank = payerColorByRank(totals, grouping);
-    return filtered.map((c) => ({
-      ...c,
-      colorVar: colorByRank.get(c.id) ?? c.colorVar,
-    }));
+    const totalById = new Map(totals.map((t) => [t.id, t.total]));
+    return filtered
+      .map((c) => ({
+        ...c,
+        colorVar: colorByRank.get(c.id) ?? c.colorVar,
+      }))
+      .sort((a, b) => (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0));
   }, [chartModel, chartIds, grouping]);
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
@@ -182,7 +205,7 @@ export function ConsumoChartWidget({
       content={
         <ChartTooltipContent
           indicator="dot"
-          className="min-w-[200px] bg-(--bg-raised)"
+          className={MONEY_TOOLTIP_CLASS}
           labelFormatter={(label, items) => {
             const total = (items ?? []).reduce(
               (sum, it) => sum + (Number(it.value) || 0),
@@ -269,7 +292,7 @@ export function ConsumoChartWidget({
       <ChartContainer
         key={viz}
         config={config}
-        className="mt-3 aspect-auto h-[300px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        className="mt-3 aspect-auto h-80 w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         {viz === "bar" ? (
           <BarChart data={chartData} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="10%">
@@ -616,6 +639,7 @@ export function UsadoCobradoWidget({
       }
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      contentClassName="flex min-h-0 flex-col"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
         <LegendDot color="var(--aw-blue-500)" label="Custo Aswork" />
@@ -628,7 +652,7 @@ export function UsadoCobradoWidget({
       </div>
       <ChartContainer
         config={usoConfig}
-        className="aspect-auto h-[220px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        className="min-h-48 flex-1 aspect-auto w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="10%">
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -642,7 +666,12 @@ export function UsadoCobradoWidget({
           />
           <ChartTooltip
             cursor={{ fill: "var(--bg-hover)" }}
-            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+            content={
+              <ChartTooltipContent
+                className={MONEY_TOOLTIP_CLASS}
+                formatter={moneyTooltipFormatter}
+              />
+            }
           />
           <Bar
             dataKey="wc"
@@ -722,7 +751,12 @@ export function ProvedorWidget({
           />
           <ChartTooltip
             cursor={{ fill: "var(--bg-hover)" }}
-            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+            content={
+              <ChartTooltipContent
+                className={MONEY_TOOLTIP_CLASS}
+                formatter={moneyTooltipFormatter}
+              />
+            }
           />
           <Bar
             dataKey="charged"
@@ -822,7 +856,12 @@ export function GastoTotalCard() {
           />
           <ChartTooltip
             cursor={{ stroke: "var(--border-default)", strokeDasharray: "3 3" }}
-            content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
+            content={
+              <ChartTooltipContent
+                className={MONEY_TOOLTIP_CLASS}
+                formatter={moneyTooltipFormatter}
+              />
+            }
           />
           {/* Total primeiro (fica atrás), depois Aswork/Meta pintam por cima. */}
           <Area
