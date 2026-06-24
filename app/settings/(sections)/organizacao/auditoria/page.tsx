@@ -686,7 +686,7 @@ export default function OrgAuditoriaPage() {
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
         title="Privacidade & auditoria"
-        description="O que aconteceu na organização e os pedidos de dados dos membros."
+        description="Atividade da organização, solicitações de dados e exportações."
       />
 
       {pendingCount > 0 && (
