@@ -305,7 +305,7 @@ export default function ProfileSettingsPage() {
             <section aria-label="Atalhos">
               <SectionHeading
                 title="Atalhos"
-                description="Ir para outras áreas em Configurações."
+                description="Acesse outras seções das configurações."
               />
               <div className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                 {SETTINGS_SHORTCUTS.map((item) => (
@@ -743,7 +743,7 @@ function CoverPicker({
               Aplicar
             </AwButton>
             <p className="m-0 body-xs text-(--fg-tertiary)">
-              Insira o URL direto de uma imagem pública.
+              Cole o link direto de uma imagem pública.
             </p>
           </div>
         )}
