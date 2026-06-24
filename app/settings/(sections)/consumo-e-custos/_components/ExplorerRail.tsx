@@ -6,13 +6,12 @@ import { cn } from "@/lib/utils";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
-import { brl } from "../../financeiro/_components/data";
 import { useConsumo } from "./ConsumoContext";
-import { DIMENSIONS, PROVIDERS } from "./explorer-model";
+import { DIMENSIONS } from "./explorer-model";
 
 /* ----------------------------------------------------------------------------
  * Trilho esquerdo. Seções planas: voltar + título, "Dividir por" (Serviço /
- * Agente), "Filtros ativos" e "Por destino" (quebra por provedor, só leitura).
+ * Agente) e "Por destino" (chips pra incluir/tirar cada pagador do dashboard).
  * ------------------------------------------------------------------------- */
 
 export function ExplorerRail() {
@@ -31,7 +30,6 @@ export function ExplorerRail() {
       <div className="flex flex-col gap-7 px-6 pb-10 pt-5">
         <Header onBack={back} />
         <DimensionList />
-        <ActiveFilters />
         <ByDestination />
       </div>
     </aside>
@@ -101,36 +99,6 @@ function DimensionList() {
   );
 }
 
-function ActiveFilters() {
-  const { filterChips } = useConsumo();
-  return (
-    <div className="flex flex-col gap-2.5">
-      <SectionLabel>Filtros ativos</SectionLabel>
-      {filterChips.length === 0 ? (
-        <p className="m-0 body-xs text-(--fg-muted)">Nenhum filtro — vendo todos os custos.</p>
-      ) : (
-        <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
-          {filterChips.map((chip) => (
-            <li key={chip.id}>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-raised) py-1 pl-2.5 pr-1.5 body-xs text-(--fg-secondary)">
-                {chip.label}
-                <button
-                  type="button"
-                  onClick={chip.onRemove}
-                  aria-label={`Remover ${chip.label}`}
-                  className="inline-flex h-4 w-4 items-center justify-center rounded-full text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
-                >
-                  <Icon name="close" size={13} />
-                </button>
-              </span>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
 function ByDestination() {
   const { destino, togglePayer } = useConsumo();
   return (
@@ -139,58 +107,31 @@ function ByDestination() {
       <p className="m-0 -mt-1 body-xs text-(--fg-muted)">
         Clique pra incluir ou tirar um pagador do dashboard.
       </p>
-      <ul className="m-0 mt-1 flex list-none flex-col gap-1 p-0">
+      <div className="mt-1 flex flex-wrap gap-2">
         {destino.map((d) => (
-          <li key={d.id}>
-            <button
-              type="button"
-              onClick={() => togglePayer(d.id)}
-              aria-pressed={d.active}
-              className="group -mx-1.5 flex w-full cursor-pointer items-start gap-2.5 rounded-lg px-1.5 py-2 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)"
-            >
-              {/* Caixa de seleção (decorativa) — deixa explícito que cada pagador
-                  é um toggle; pinta com a cor da série quando incluído. */}
-              <span
-                aria-hidden
-                className={cn(
-                  "mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-colors duration-aw-fast",
-                  d.active
-                    ? "text-(--bg-raised)"
-                    : "border-(--border-default) bg-(--bg-raised) group-hover:border-(--fg-secondary)",
-                )}
-                style={d.active ? { backgroundColor: d.colorVar, borderColor: d.colorVar } : undefined}
-              >
-                {d.active && <Icon name="check" size={14} weight={700} />}
-              </span>
-
-              <span className={cn("flex flex-1 flex-col gap-1.5", !d.active && "opacity-50")}>
-                <span className="flex items-baseline justify-between gap-2">
-                  <span className="inline-flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
-                    {d.id === "meta" ? (
-                      <AwBrandLogo brand="meta" size={16} markOnly />
-                    ) : (
-                      <AwLogo variant="mark" height={15} className="text-(--aw-blue-500)" />
-                    )}
-                    {d.label}
-                  </span>
-                  <span className="shrink-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
-                    {d.share.toFixed(0)}%
-                  </span>
-                </span>
-                <span className="block h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
-                  <span
-                    className="block h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
-                    style={{ width: `${Math.max(2, d.share)}%`, background: d.colorVar }}
-                  />
-                </span>
-                <span className="body-xs tabular-nums text-(--fg-tertiary)">
-                  {brl(d.total)} · {PROVIDERS[d.id].desc}
-                </span>
-              </span>
-            </button>
-          </li>
+          <button
+            key={d.id}
+            type="button"
+            onClick={() => togglePayer(d.id)}
+            aria-pressed={d.active}
+            className={cn(
+              "inline-flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1.5 body-sm font-medium transition-colors duration-aw-fast",
+              d.active
+                ? "border-(--border-default) bg-(--bg-selected) text-(--fg-primary)"
+                : "border-(--border-subtle) bg-transparent text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-secondary)",
+            )}
+          >
+            <span className={cn("inline-flex shrink-0", !d.active && "opacity-50 grayscale")}>
+              {d.id === "meta" ? (
+                <AwBrandLogo brand="meta" size={15} markOnly />
+              ) : (
+                <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
+              )}
+            </span>
+            {d.label}
+          </button>
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
