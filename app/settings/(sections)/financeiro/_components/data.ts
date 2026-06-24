@@ -864,7 +864,9 @@ export type PeriodSummary = {
 
 export function getPeriodSummary(subtotal: number): PeriodSummary {
   const credits = Math.round(subtotal * PERIOD_CREDIT_RATIO * 100) / 100;
-  const adjustments = 0;
+  // Ajuste de exemplo (estorno) pra ilustrar o card "Ajustes" e o sinal +/−.
+  // Em produção vem do backend e costuma ser 0.
+  const adjustments = -24.9;
   const total = Math.round((subtotal - credits + adjustments) * 100) / 100;
   return { subtotal, credits, adjustments, total };
 }
