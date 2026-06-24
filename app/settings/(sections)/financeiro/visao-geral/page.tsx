@@ -74,15 +74,6 @@ function ForecastBlock() {
           title="Fatura atual"
           status={{ label: "Em aberto", variant: "draft" }}
           total={total}
-          estimateLabel={null}
-          estimateNote={
-            <>
-              É uma estimativa: como o IOF no cartão, o valor final só fecha na
-              cobrança de {CURRENT_PLAN.nextChargeAt} — o consumo variável conta
-              até o fim do ciclo e o câmbio é convertido na hora. Atualizado em{" "}
-              {CURRENT_INVOICE.dueAt} às 14:30.
-            </>
-          }
           footnote={
             <>
               <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -91,7 +82,6 @@ function ForecastBlock() {
                 •••• {card.last4}
               </span>
               <span className="inline-flex w-full items-center gap-1 text-(--fg-secondary)">
-                <Icon name="info" size={14} className="shrink-0 text-(--fg-tertiary)" />
                 Você pode receber cobranças adicionais ao atingir o limite do
                 consumo variável.
                 <TooltipProvider delayDuration={120}>
