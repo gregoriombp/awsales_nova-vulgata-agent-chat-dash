@@ -139,42 +139,53 @@ function ByDestination() {
       <p className="m-0 -mt-1 body-xs text-(--fg-muted)">
         Clique pra incluir ou tirar um pagador do dashboard.
       </p>
-      <ul className="m-0 mt-1 flex list-none flex-col gap-2 p-0">
+      <ul className="m-0 mt-1 flex list-none flex-col gap-1 p-0">
         {destino.map((d) => (
           <li key={d.id}>
             <button
               type="button"
               onClick={() => togglePayer(d.id)}
               aria-pressed={d.active}
-              className={cn(
-                "-mx-1.5 flex w-full flex-col gap-1.5 rounded-lg px-1.5 py-1.5 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)",
-                !d.active && "opacity-45",
-              )}
+              className="group -mx-1.5 flex w-full cursor-pointer items-start gap-2.5 rounded-lg px-1.5 py-2 text-left transition-colors duration-aw-fast hover:bg-(--bg-hover)"
             >
-              <div className="flex items-baseline justify-between gap-2">
-                <span className="inline-flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
-                  {d.id === "meta" ? (
-                    <AwBrandLogo brand="meta" size={16} markOnly />
-                  ) : (
-                    <AwLogo variant="mark" height={15} className="text-(--aw-blue-500)" />
-                  )}
-                  {d.label}
-                  {!d.active && (
-                    <Icon name="visibility_off" size={13} className="text-(--fg-tertiary)" />
-                  )}
+              {/* Caixa de seleção (decorativa) — deixa explícito que cada pagador
+                  é um toggle; pinta com a cor da série quando incluído. */}
+              <span
+                aria-hidden
+                className={cn(
+                  "mt-0.5 inline-flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-sm border transition-colors duration-aw-fast",
+                  d.active
+                    ? "text-(--bg-raised)"
+                    : "border-(--border-default) bg-(--bg-raised) group-hover:border-(--fg-secondary)",
+                )}
+                style={d.active ? { backgroundColor: d.colorVar, borderColor: d.colorVar } : undefined}
+              >
+                {d.active && <Icon name="check" size={14} weight={700} />}
+              </span>
+
+              <span className={cn("flex flex-1 flex-col gap-1.5", !d.active && "opacity-50")}>
+                <span className="flex items-baseline justify-between gap-2">
+                  <span className="inline-flex items-center gap-2 body-sm font-medium text-(--fg-primary)">
+                    {d.id === "meta" ? (
+                      <AwBrandLogo brand="meta" size={16} markOnly />
+                    ) : (
+                      <AwLogo variant="mark" height={15} className="text-(--aw-blue-500)" />
+                    )}
+                    {d.label}
+                  </span>
+                  <span className="shrink-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
+                    {d.share.toFixed(0)}%
+                  </span>
                 </span>
-                <span className="shrink-0 body-xs font-medium tabular-nums text-(--fg-secondary)">
-                  {d.share.toFixed(0)}%
+                <span className="block h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
+                  <span
+                    className="block h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
+                    style={{ width: `${Math.max(2, d.share)}%`, background: d.colorVar }}
+                  />
                 </span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-(--bg-muted)">
-                <div
-                  className="h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
-                  style={{ width: `${Math.max(2, d.share)}%`, background: d.colorVar }}
-                />
-              </div>
-              <span className="body-xs tabular-nums text-(--fg-tertiary)">
-                {brl(d.total)} · {PROVIDERS[d.id].desc}
+                <span className="body-xs tabular-nums text-(--fg-tertiary)">
+                  {brl(d.total)} · {PROVIDERS[d.id].desc}
+                </span>
               </span>
             </button>
           </li>
