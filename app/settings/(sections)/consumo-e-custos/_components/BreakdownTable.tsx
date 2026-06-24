@@ -74,15 +74,17 @@ type ServiceGroupDef = {
   rowIds: string[];
   unitNoun: string;
   aggregateFormat: ServiceBreakdownRow["quantityFormat"];
+  /** Descrição curta, mostrada abaixo do nome do grupo. */
+  desc: string;
 };
 
 const SERVICE_GROUPS: ServiceGroupDef[] = [
-  { id: "meta", label: "Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], unitNoun: "disparos", aggregateFormat: "decimal" },
-  { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal" },
-  { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal" },
-  { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal" },
-  { id: "ai", label: "Tokens", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
-  { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump" },
+  { id: "meta", label: "Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], unitNoun: "disparos", aggregateFormat: "decimal", desc: "Disparos de WhatsApp cobrados via Meta." },
+  { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal", desc: "Mensagens transacionadas pelos agentes." },
+  { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal", desc: "Contatos que viraram lead ativo no período." },
+  { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal", desc: "Linha telefônica de um parceiro da Aswork." },
+  { id: "ai", label: "Tokens", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev", desc: "Tokens de Knowledge, Brain e Skills dos agentes." },
+  { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump", desc: "Itens fora das categorias acima." },
 ];
 
 const DEFAULT_EXPANDED = ["meta", "ai"];
@@ -233,15 +235,20 @@ function ServiceTable() {
                           {outlier && <OutlierBadge />}
                         </span>
                         <span className="body-3xs text-(--fg-tertiary)">
-                          {g.members.length} sub-{g.members.length === 1 ? "nível" : "níveis"} canônico
+                          {g.def.desc}
                         </span>
                       </span>
                     </button>
                   ) : (
-                    <span className="inline-flex items-center gap-2 pl-[26px]">
-                      <Icon name={g.def.icon} size={18} className="shrink-0 text-(--fg-tertiary)" />
-                      <span className="font-medium text-(--fg-primary)">{g.def.label}</span>
-                      {outlier && <OutlierBadge />}
+                    <span className="inline-flex items-start gap-2 pl-[26px]">
+                      <Icon name={g.def.icon} size={18} className="mt-0.5 shrink-0 text-(--fg-tertiary)" />
+                      <span className="flex flex-col gap-0.5">
+                        <span className="inline-flex items-center gap-2">
+                          <span className="font-medium text-(--fg-primary)">{g.def.label}</span>
+                          {outlier && <OutlierBadge />}
+                        </span>
+                        <span className="body-3xs text-(--fg-tertiary)">{g.def.desc}</span>
+                      </span>
                     </span>
                   )}
                 </td>
