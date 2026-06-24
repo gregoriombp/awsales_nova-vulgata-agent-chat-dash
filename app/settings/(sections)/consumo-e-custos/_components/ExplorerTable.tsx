@@ -227,7 +227,15 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                               }}
                               className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-(--fg-tertiary) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
                             >
-                              <Icon name={expanded ? "keyboard_arrow_down" : "keyboard_arrow_right"} size={18} />
+                              {/* Mesmo ícone, rotaciona — evita o "flip" entre dois SVGs. */}
+                              <Icon
+                                name="keyboard_arrow_down"
+                                size={18}
+                                className={cn(
+                                  "transition-transform duration-aw-fast ease-aw-out",
+                                  !expanded && "-rotate-90",
+                                )}
+                              />
                             </button>
                           ) : (
                             <span className="h-6 w-6 shrink-0" aria-hidden="true" />
@@ -266,7 +274,10 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                     </tr>
                     {expanded &&
                       children.map((child) => (
-                        <tr key={`${row.id}-${child.id}`}>
+                        <tr
+                          key={`${row.id}-${child.id}`}
+                          className="animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+                        >
                           <td>
                             <span className="inline-flex items-center gap-3 pl-14">
                               <Icon name="subdirectory_arrow_right" size={16} className="text-(--fg-muted)" />
