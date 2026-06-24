@@ -32,7 +32,7 @@
 
 | Preciso de… | Use | Import | Cuidado |
 |---|---|---|---|
-| Ícone | `Icon` | `@/components/ui/Icon` | `<Icon name="..." size={20} />`. Nunca `<svg>` cru. |
+| Ícone | `Icon` | `@/components/ui/Icon` | `<Icon name="..." size={20} />`. Default ótico automático (`wght`/`GRAD`/`opsz`) — não force `weight={200}` em ícone pequeno. Nunca `<svg>` cru. |
 | Logo de app / integração | `AwBrandLogo` | `@/components/ui/AwBrandLogo` | marca de 3rd-party (Google, Chrome, Pipedrive…). Curar do Iconify `logos` → `markSrc`. **Não** é `Icon`. Ver AGENTS.md §4. |
 | Botão | `AwButton` | `@/components/ui/AwButton` | tem `intent`/`size`/slot de `Icon`. Não estilize `<button>` na mão. |
 | Campo de formulário | `AwField` (ou `AwInput`) | `@/components/ui/AwInput` | `AwField` (label + erro + variante `framed`) e `AwInput` saem do mesmo arquivo. |
@@ -125,7 +125,9 @@ Aqui está a régua.
 input solto, use `AwInput`. Select = `AwSelect`.
 
 ### Ícones
-`Icon` (Material Symbols Rounded, peso 200 por padrão). `react-icons` **só** para
+`Icon` (Material Symbols Rounded, default ótico automático: `size` visual separado de
+`opticalSize`, com `weight`/`grade` mais firmes em tamanhos pequenos). `fill={1}` é
+estado ativo/selecionado, não correção de legibilidade. `react-icons` **só** para
 marcas sem equivalente (Visa/Mastercard/Amex/Slack/WhatsApp). `lucide-react` só
 aparece dentro de primitivos shadcn gerados — não puxe em código de produto.
 

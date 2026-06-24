@@ -1,4 +1,8 @@
-import { Icon } from "@/components/ui/Icon"
+import {
+  Icon,
+  resolveIconOptics,
+  type IconWeight,
+} from "@/components/ui/Icon"
 import { AwPlanIcon } from "@/components/ui/AwPlanIcon"
 import {
   PageHero,
@@ -153,7 +157,7 @@ const agentAiIcons = [
 const matrixIcons = ["agent", "auto_awesome", "search", "settings", "hub"]
 
 const sizes = [12, 16, 20, 24, 28, 32]
-const weights: Array<200 | 300 | 400 | 500 | 600 | 700> = [200, 300, 400, 500, 600, 700]
+const weights: IconWeight[] = [200, 300, 400, 500, 600, 700]
 
 export default function IconographyPage() {
   return (
@@ -174,12 +178,12 @@ export default function IconographyPage() {
             <Spec
               k="opsz"
               v="20..48"
-              d="Optical size. Casamos opsz = size para legibilidade."
+              d="Optical size. Default: clamp(size, 20..48) para ícones pequenos não virarem fio."
             />
             <Spec
               k="wght"
               v="200..700"
-              d="Peso. 200 default (thin); 300/400 regular; 500/600 em contexto dark."
+              d="Peso. Default automático por tamanho; 300/400 em ícones pequenos, 200 só em tamanhos amplos."
             />
             <Spec
               k="FILL"
@@ -189,8 +193,34 @@ export default function IconographyPage() {
             <Spec
               k="GRAD"
               v="-25..200"
-              d="Grade. 0 default; +ajuste fino em superfícies escuras."
+              d="Grade. Default 200 só em glyphs minúsculos; override para ajuste fino."
             />
+          </div>
+        </Section>
+
+        <Section
+          id="optical-defaults"
+          title="Default ótico"
+          lead="Não use weight 200 como reflexo. Sem override, o Icon escolhe uma leitura padrão por tamanho; passe weight/grade/opticalSize só quando o contexto pedir."
+        >
+          <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-6">
+            <div className="grid grid-cols-6 gap-4 text-center">
+              {sizes.map((s) => {
+                const optics = resolveIconOptics({ size: s })
+                return (
+                  <div key={s} className="flex flex-col items-center gap-2">
+                    <Icon name="search" size={s} />
+                    <span className="mono text-xs text-(--fg-primary)">
+                      {s}px
+                    </span>
+                    <span className="caption">
+                      wght {optics.weight} · opsz {optics.opticalSize}
+                      {optics.grade !== 0 ? ` · grad ${optics.grade}` : ""}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </Section>
 
@@ -240,7 +270,7 @@ export default function IconographyPage() {
         <Section
           id="weights"
           title="Pesos"
-          lead="Mesmo glyph, pesos de 200 a 700. 200 é o default (thin/light); 300/400 para ênfase regular; 500/600 quando o ícone precisa se destacar em superfície escura."
+          lead="Mesmo glyph, pesos de 200 a 700. O default automático cobre legibilidade; use override para hierarquia visual ou superfícies escuras."
         >
           <div className="rounded-lg border border-(--border-subtle) bg-(--bg-raised) p-8 flex flex-wrap items-end gap-6">
             {weights.map((w) => (
@@ -267,13 +297,13 @@ export default function IconographyPage() {
               >
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={0} />
-                  <span className="text-[10px] text-(--fg-tertiary)">
+                  <span className="text-3xs text-(--fg-tertiary)">
                     FILL 0
                   </span>
                 </div>
                 <div className="flex flex-col items-center gap-2">
                   <Icon name={n} size={28} fill={1} />
-                  <span className="text-[10px] text-(--fg-tertiary)">
+                  <span className="text-3xs text-(--fg-tertiary)">
                     FILL 1
                   </span>
                 </div>
@@ -545,14 +575,17 @@ export default function IconographyPage() {
         >
           <CodeExample>{`import { Icon } from "@/components/ui/Icon"
 
-// Default — herda currentColor, size 20, weight 200 (thin), outlined.
+// Default — herda currentColor, size 20, weight auto, outlined.
 <Icon name="search" />
 
-// Size 16 dentro de um AwButton sm.
+// Size 16 ganha wght 300 e opsz 20 automaticamente.
 <Icon name="add" size={16} />
 
-// Weight 300 para contexto regular.
-<Icon name="settings" size={20} weight={300} />
+// Override de peso quando o contexto precisa de mais presença.
+<Icon name="settings" size={20} weight={400} />
+
+// Override de optical size quando o glyph precisa de outro desenho ótico.
+<Icon name="hub" size={16} opticalSize={24} />
 
 // Filled + cor brand — estado selecionado.
 <Icon name="star" size={24} fill={1} style={{ color: "var(--aw-blue-600)" }} />
@@ -575,11 +608,13 @@ export default function IconographyPage() {
             dos={[
               <>Sempre de 12/16/20/24/28/32 px — sem intermediários.</>,
               <>Herda <code className="mono">currentColor</code> — não hardcode cor.</>,
+              <>Deixe o default automático resolver legibilidade antes de subir peso.</>,
               <>FILL=1 apenas para estado selecionado/ativo.</>,
               <>Um ícone = um significado único no produto inteiro.</>,
             ]}
             donts={[
               <>Ícone rotacionado, espelhado ou esticado.</>,
+              <>Forçar <code className="mono">weight=200</code> em ícone pequeno.</>,
               <>Ícone decorativo colorido — cor é reservada ao acento IA.</>,
               <>Mixar Material Symbols com outro icon set.</>,
               <>Ícone pequeno demais ({"<"}12 px) em alvo clicável — fere hit target.</>,

@@ -64,7 +64,7 @@ function mentionChipClass(hab: HabilidadeConfigurada | undefined): string {
 
 /** Réplica inline do <Icon /> para uso dentro de strings de HTML do editor. */
 const CHIP_ICON_STYLE =
-  "font-size:14px;line-height:1;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 14";
+  "font-size:14px;line-height:1;font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 200,'opsz' 20";
 
 function escapeHtml(value: string): string {
   return value
