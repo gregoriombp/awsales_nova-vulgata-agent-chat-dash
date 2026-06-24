@@ -644,9 +644,9 @@ export function UsadoCobradoWidget({
         </BarChart>
       </ChartContainer>
       <p className="m-0 mt-2 body-xs text-(--fg-tertiary)">
-        O que o provedor de pagamento atribuiu no período. Pode diferir um pouco
-        do uso: há um delay entre o custo cair no nosso sistema e ser
-        contabilizado no provedor.
+        O que o provedor de pagamento atribuiu no período. Pode diferir do uso
+        por delay entre o custo cair no nosso sistema e ser contabilizado no
+        provedor.
       </p>
     </WidgetShell>
   );

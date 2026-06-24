@@ -30,7 +30,7 @@ export function HighlightCards() {
         label="Créditos e cupons"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Créditos e cupons aplicados no período. Incidem só sobre o que é cobrado pela Aswork — não abatem os valores aproximados do Meta."
+        tooltip="Créditos e cupons aplicados no período. Cobrem só o que é faturado pela Aswork; não abatem os valores aproximados do Meta."
       />
       <HighlightCard
         label="Ajustes"

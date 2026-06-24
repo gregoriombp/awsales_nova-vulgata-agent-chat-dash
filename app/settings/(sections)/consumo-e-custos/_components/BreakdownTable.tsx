@@ -113,7 +113,7 @@ function OutlierBadge() {
           side="top"
           className="max-w-[240px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
         >
-          Gasto ≥ 2× a mediana dos outros grupos no período — vale investigar.
+          Gasto ≥ 2× a mediana dos outros grupos no período. Vale investigar.
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

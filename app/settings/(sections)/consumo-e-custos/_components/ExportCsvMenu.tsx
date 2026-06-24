@@ -288,7 +288,7 @@ export function ExportCsvMenu() {
             />
             <span>
               O arquivo Aswork traz só o que você paga à Aswork (bate com a
-              fatura). Se incluir o Meta, ele vem em{" "}
+              fatura). Se incluir o Meta, vem em{" "}
               <strong className="font-medium text-(--fg-primary)">
                 arquivo separado
               </strong>
