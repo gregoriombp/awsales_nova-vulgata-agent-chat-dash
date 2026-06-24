@@ -31,7 +31,20 @@ Cada item carrega o número cronológico (`[NN]`, igual ao backup), um **veredit
 
 ---
 
-## 0. ⚠️ Leia primeiro — o WIP parado no `stash@{0}`
+## ✅ Status da execução (atualizado 24/06)
+
+Tudo abaixo está na branch **`feat/financeiro-review-gene`** (docs + plano + WIP + Onda 1). Merge FF:
+`git switch main && git merge --ff-only feat/financeiro-review-gene`.
+
+- **WIP do stash → aplicado e commitado** (4 commits). O `stash@{0}` foi consumido. Então o §0 já **não é pendente**:
+  o widget "usado × na fatura", o esconde-Ajustes, "Consumo"→"Créditos" e o de-jargão de auditoria **já estão no código**.
+- **Onda 1 (quick wins) → feita** (4 commits). Itens: **[18] [42]** (visão geral) · **[05] [19] [20] [21] [22] [23] [26] [27] [30] [37]** (consumo e custos) · **[03] [04] [15]** (créditos). `typecheck` + `eslint` verdes.
+- **Decisões aplicadas com meu critério:** [22] virou **"Créditos e cupons"** (não só "cupom"); [15] renomeei só os **textos visíveis** (identificadores internos seguem `voucher`).
+- **Adiado de propósito:** [07] [16] [17] (ambíguos — preciso você apontar) · [33] [52] (dependem de dado/modelo) · resto das Ondas 2/3 e os ⚠️ do §4.
+
+---
+
+## 0. ⚠️ Contexto — o WIP que estava no `stash@{0}` (já aplicado)
 
 Quando o Genê revisou, o Greg já tinha trabalho **não commitado** na árvore. Ele mexe **na própria Consumo e custos**
 e em copy do Financeiro — então **parte do plano já está adiantada (ou re-decidida) ali**. Espiei com
