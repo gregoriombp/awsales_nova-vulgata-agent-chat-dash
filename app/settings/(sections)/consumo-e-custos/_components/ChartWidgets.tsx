@@ -82,6 +82,31 @@ function buildConfig(categories: SpendingCategory[]): ChartConfig {
   );
 }
 
+// Paleta monocromática (azul → slate) do dashboard. A série de maior valor fica
+// com o azul mais saturado/escuro; conforme o valor cai, a cor clareia e
+// dessatura. É uma rampa LOCAL — não toca em SPENDING_CATEGORIES (que o
+// Financeiro compartilha); só remapeia a cor pra leitura aqui.
+const MONO_RAMP = [
+  "var(--aw-blue-700)",
+  "var(--aw-blue-600)",
+  "var(--aw-blue-500)",
+  "var(--aw-blue-400)",
+  "var(--aw-blue-300)",
+  "var(--aw-slate-300)",
+  "var(--aw-slate-200)",
+];
+
+function monoColorByRank(
+  items: { id: string; total: number }[],
+): Map<string, string> {
+  const ranked = [...items].sort((a, b) => b.total - a.total);
+  const map = new Map<string, string>();
+  ranked.forEach((it, i) => {
+    map.set(it.id, MONO_RAMP[Math.min(i, MONO_RAMP.length - 1)]);
+  });
+  return map;
+}
+
 const CHART_ANIMATION_DURATION = 360;
 
 function seriesOpacity(activeSeries: string | null, id: string): number {
@@ -104,10 +129,21 @@ export function ConsumoChartWidget({
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
-  const categories = React.useMemo(
-    () => chartModel.categories.filter((c) => chartIds.has(c.id)),
-    [chartModel, chartIds],
-  );
+  const categories = React.useMemo(() => {
+    const filtered = chartModel.categories.filter((c) => chartIds.has(c.id));
+    const totals = filtered.map((c) => {
+      const idx = chartModel.categories.indexOf(c);
+      return {
+        id: c.id,
+        total: chartModel.data.reduce((s, d) => s + (d[idx] ?? 0), 0),
+      };
+    });
+    const colorByRank = monoColorByRank(totals);
+    return filtered.map((c) => ({
+      ...c,
+      colorVar: colorByRank.get(c.id) ?? c.colorVar,
+    }));
+  }, [chartModel, chartIds]);
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
 
@@ -216,7 +252,7 @@ export function ConsumoChartWidget({
         className="mt-3 aspect-auto h-[300px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         {viz === "bar" ? (
-          <BarChart data={chartData} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap={totalDays <= 12 ? "24%" : "14%"}>
+          <BarChart data={chartData} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap={totalDays <= 12 ? "28%" : "16%"}>
             {axes}
             {tooltip}
             {categories.map((cat, i) => (
@@ -226,7 +262,7 @@ export function ConsumoChartWidget({
                 stackId="spend"
                 fill={`var(--color-${cat.id})`}
                 opacity={seriesOpacity(activeSeries, cat.id)}
-                maxBarSize={36}
+                maxBarSize={56}
                 radius={i === categories.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]}
                 isAnimationActive
                 animationDuration={CHART_ANIMATION_DURATION}
@@ -299,20 +335,32 @@ export function ComposicaoWidget({
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
   const [activeSlice, setActiveSlice] = React.useState<string | null>(null);
 
+  // Mesma rampa monocromática do "Consumo por dia": maior fatia = azul mais
+  // escuro, clareando conforme a participação cai.
+  const colored = React.useMemo(() => {
+    const colorByRank = monoColorByRank(
+      seriesTotals.map((s) => ({ id: s.cat.id, total: s.total })),
+    );
+    return seriesTotals.map((s) => ({
+      ...s,
+      cat: { ...s.cat, colorVar: colorByRank.get(s.cat.id) ?? s.cat.colorVar },
+    }));
+  }, [seriesTotals]);
+
   const data = React.useMemo(
     () =>
-      seriesTotals.map((s) => ({
+      colored.map((s) => ({
         id: s.cat.id,
         name: s.cat.label,
         value: s.total,
         fill: s.cat.colorVar,
       })),
-    [seriesTotals],
+    [colored],
   );
 
   const config = React.useMemo(
-    () => buildConfig(seriesTotals.map((s) => s.cat)),
-    [seriesTotals],
+    () => buildConfig(colored.map((s) => s.cat)),
+    [colored],
   );
 
   const empty = data.length === 0 || accumulated <= 0;
@@ -384,10 +432,10 @@ export function ComposicaoWidget({
               </Pie>
             </PieChart>
           </ChartContainer>
-          <ShareList totals={seriesTotals} total={accumulated} grouping={grouping} />
+          <ShareList totals={colored} total={accumulated} grouping={grouping} />
         </div>
       ) : (
-        <ShareBars totals={seriesTotals} total={accumulated} grouping={grouping} />
+        <ShareBars totals={colored} total={accumulated} grouping={grouping} />
       )}
     </WidgetShell>
   );
