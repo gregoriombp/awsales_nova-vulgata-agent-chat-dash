@@ -39,8 +39,9 @@ Tudo abaixo está na branch **`feat/financeiro-review-gene`** (docs + plano + WI
 - **WIP do stash → aplicado e commitado** (4 commits). O `stash@{0}` foi consumido. Então o §0 já **não é pendente**:
   o widget "usado × na fatura", o esconde-Ajustes, "Consumo"→"Créditos" e o de-jargão de auditoria **já estão no código**.
 - **Onda 1 (quick wins) → feita** (4 commits). Itens: **[18] [42]** (visão geral) · **[05] [19] [20] [21] [22] [23] [26] [27] [30] [37]** (consumo e custos) · **[03] [04] [15]** (créditos). `typecheck` + `eslint` verdes.
+- **Onda 2 (ajustes médios) → feita** (3 commits): **[11]** proporção real do cartão · **[35] [36]** descrição curta por grupo no Detalhamento (e "Outros" mais claro) · **[13]** badge "Aplicado" verde por cupom.
 - **Decisões aplicadas com meu critério:** [22] virou **"Créditos e cupons"** (não só "cupom"); [15] renomeei só os **textos visíveis** (identificadores internos seguem `voucher`).
-- **Adiado de propósito:** [07] [16] [17] (ambíguos — preciso você apontar) · [33] [52] (dependem de dado/modelo) · resto das Ondas 2/3 e os ⚠️ do §4.
+- **Adiado / bloqueado:** [29] (3 níveis WSales/Meta) e [45] (export segregado) — **bloqueados pelo dado**: o banco não segrega WSales×Meta, então fazer isso seria inventar número · [33] [52] (dado USD / descrição de token) · [07] [16] [17] (ambíguos — preciso você apontar) · Onda 3 e os ⚠️ do §4 (decisões suas).
 
 ---
 
