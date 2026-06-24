@@ -30,18 +30,18 @@ export function HighlightCards() {
       <HighlightCard
         label="Subtotal de uso"
         value={brl(summary.subtotal)}
-        tooltip="Soma de todos os custos variáveis consumidos no período, antes de créditos e ajustes."
+        tooltip="Soma do uso variável Aswork no período — sem plano fixo e sem Meta."
       />
       <HighlightCard
         label="Créditos e cupons"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Créditos e cupons aplicados no período. Cobrem só o que é faturado pela Aswork; não abatem os valores aproximados do Meta."
+        tooltip="Créditos e cupons abatem somente valores cobrados pela Aswork — nunca o valor do Meta, que é cobrado direto no seu cartão pela plataforma do Meta.."
       />
       <HighlightCard
         label="Ajustes"
         value={brl(summary.adjustments)}
-        tooltip="Estornos e correções do período — podem somar (+) ou abater (−) do total, conforme o caso."
+        tooltip="Subtotal − descontos + ajustes. Refere-se ao gráfico 'Usado' (base AWsales) — não inclui Meta."
         footer={
           summary.adjustments !== 0 ? <AdjustmentsDetail /> : undefined
         }
