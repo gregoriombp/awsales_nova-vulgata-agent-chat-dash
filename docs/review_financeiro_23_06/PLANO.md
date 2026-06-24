@@ -26,6 +26,45 @@ Cada item carrega o número cronológico (`[NN]`, igual ao backup), um **veredit
 | ⏸️ | Futuro / depende de terceiro (PG, Tury) — **o próprio Genê/Greg marcou assim** |
 | 📝 | Nota / contexto — **não é task** |
 | ⚠️ | Faz sentido, mas eu discordaria ou está ambíguo → ver §4 |
+| 🔵 | Já adiantado no WIP parado em `stash@{0}` — **não refazer** → ver §0 |
+| 🔀 | Conflito de direção: o WIP foi por outro caminho — **decisão sua** → ver §0 |
+
+---
+
+## 0. ⚠️ Leia primeiro — o WIP parado no `stash@{0}`
+
+Quando o Genê revisou, o Greg já tinha trabalho **não commitado** na árvore. Ele mexe **na própria Consumo e custos**
+e em copy do Financeiro — então **parte do plano já está adiantada (ou re-decidida) ali**. Espiei com
+`git stash show -p stash@{0}` (não apliquei). São 7 arquivos, −216/+98. Marquei como 🔵 / 🔀 nas tabelas abaixo.
+
+| Arquivo no stash | O que muda | Cruza com | Veredito |
+|---|---|---|---|
+| `ChartWidgets.tsx` | **Mata o gráfico** "Uso do período × valor na fatura". Vira **dois números grandes** ("Você usou R$ → Entrou na fatura R$", com logo Stripe) + frase explicando que a diferença é **timing de ciclo do Stripe**; o **Meta vira rodapé** ("cobra direto no cartão, não entra nesta fatura") | [39], [40], [25] | 🔀 **re-decisão** — ver callout |
+| `FinanceiroTabs.tsx` + `SettingsNav.tsx` | aba/nav "Consumo" → **"Créditos"** | [12]/[47] | 🔵 parcial (virou "Créditos", não "Saldo de Créditos e Cupons") |
+| `KpiCards.tsx` | card **"Ajustes" some quando zera** (grid 4→3) | [23], [48] | 🔵 refino adjacente (não faz o "+/−" nem o "saiba mais") |
+| `data.ts` (auditoria) | de-jargão: "20% off"→"20% de desconto", "DRAFT → OPEN"→"rascunho → em aberto", "reconfigurada"→"ajustada" | insight #3 | 🔵 (só auditoria; o jargão da tabela de c-e-c segue pendente — [37]/[30]) |
+| `auditoria/page.tsx` | "Account Manager"→"Gerente de conta"; "Buscar ator…"→"Buscar por nome…" | insight #3 | 🔵 |
+| `consumo/page.tsx` | "Lifetime"→"Acumulado"; "utilizados"→"usados" | insight #3 + house-style | 🔵 (ainda diz "vouchers" — o rename [15]/[21] segue pendente) |
+
+### 🔀 O fork do item [39] — decisão sua
+
+- **O Genê pediu MAIS gráfico:** barras tracejadas pro Meta, renomear colunas (custo WSales / custo Meta),
+  tirar a linha laranja e **criar um 2º gráfico** "valor atribuído ao provedor" com disclaimer de delay.
+- **O teu WIP foi pro lado OPOSTO:** **tirou o gráfico inteiro** → dois números + uma frase em português claro
+  (*"a fatura fechou um pouco acima do uso porque o Stripe lança em ciclos; nada se perde, nada é cobrado duas vezes"*)
+  + Meta no rodapé.
+
+Os dois **resolvem a mesma dor** (por que usado ≠ faturado + separar o Meta), mas são **visões incompatíveis** do
+mesmo widget — não dá pra fazer os dois.
+
+**Minha recomendação: ficar com o teu WIP.** Ele já entrega o que o [39]/[40] queriam no fundo (separar o Meta +
+explicar o delay do provedor) **com a voz do produto**, sem reintroduzir a complexidade de gráfico que você acabou
+de remover. Se for por aí: o **[39] sai do plano** (vira "feito no stash") e sobra só o que o WIP **não** cobre —
+o filtro de escopo Meta/Aswork global ([24]/[25]) e as barras tracejadas no **"Consumo por dia"** ([28]), que é
+outro widget.
+
+**Pra destravar:** `git switch main && git stash pop` (aplica limpo no `7c1e2fe1`) → commita esse WIP → aí a gente
+parte pro resto do plano sem colisão. *(O stash foi criado "On main"; pop na main, não nesta branch de docs.)*
 
 ---
 
@@ -123,7 +162,7 @@ Tirando o ruído, os comentários colapsam em **6 ideias-mãe**. É isto que val
 | [24] | Ícone de **filtro** no título com escopo Meta / Aswork | Escopo existe **só no export** (`ExportCsvMenu`), não como filtro global | 🏗️ (⚠️ lógica do toggle confusa — §4) |
 | [25] | Tooltip muda conforme o escopo (WSales+Meta = total; só WSales = só plataforma) | Atrelado a [24] | 🏗️ |
 | [28] | Barra **tracejada** pro Meta no "Consumo por dia" | Não há (`ChartWidgets.tsx:219-238`) | 🏗️ |
-| [39] | Reformular "Uso × valor na fatura": colunas "custo WSales"/"custo Meta", tirar linha laranja, Meta tracejado/roxo, **+ novo gráfico "valor atribuído ao provedor"** com disclaimer de delay | Gráfico existe com linha âmbar "Valor na fatura" e colunas "Taxas Aswork"/"Meta aproximado" (`ChartWidgets.tsx:493-674`) | 🏗️ (rework + 1 gráfico novo) |
+| [39] | Reformular "Uso × valor na fatura": colunas "custo WSales"/"custo Meta", tirar linha laranja, Meta tracejado/roxo, **+ novo gráfico "valor atribuído ao provedor"** com disclaimer de delay | **Teu WIP no stash já reescreveu esse widget** (matou o gráfico, virou 2 números + explicação Stripe) | 🔀 **re-decidido — ver §0** |
 
 **Reestruturação maior (feature):**
 
@@ -146,7 +185,7 @@ Tirando o ruído, os comentários colapsam em **6 ideias-mãe**. É isto que val
 
 | # | Pedido | Estado atual | Veredito |
 |---|---|---|---|
-| [12]/[47] | Renomear título "Consumo" → **"Saldo de Créditos e Cupons"** | Hoje é só o label da aba (`FinanceiroTabs.tsx:26`) | ⚡ |
+| [12]/[47] | Renomear título "Consumo" → **"Saldo de Créditos e Cupons"** | **Stash já renomeou pra "Créditos"** (aba + nav); falta decidir se quer o nome cheio | 🔵 parcial — ver §0 |
 | [03] | "Faturas que usaram este voucher" → h4/h5/h6 **sem all-caps** | Hoje `aw-eyebrow` (uppercase) em `:583` | ⚡ |
 | [04] | Remover bloco «Ativo · Válido até Jun 30, 2026» | No modal de detalhe do voucher (`:548-555`) | ⚡ (confirmar qual instância) |
 | [08] | Remover ícone `savings` | `AwStatCard icon="savings"` (`:117`) | ⚠️ ver §4 |
@@ -197,7 +236,7 @@ Manter "cupom" onde é cupom (código de desconto); "crédito" onde era voucher 
 - [35] descrição breve por grupo · [36] linha "Outros" mais legível.
 
 ### 🌊 Onda 3 — Features *(cada uma vale uma task/branch)*
-1. **Suite WSales × Meta** — tratar [24] [25] [28] [39] como UM épico (filtro de escopo global + barras tracejadas + rework do gráfico uso×fatura + gráfico novo do provedor). É o tema mais pedido.
+1. **Suite WSales × Meta** — tratar [24] [25] [28] como UM épico (filtro de escopo global + barras tracejadas no "Consumo por dia"). É o tema mais pedido. *(O [39], rework do "uso × fatura", saiu daqui — já foi re-resolvido no stash, ver §0.)*
 2. **Reestruturação em abas** — [41] (Visão geral / Por ciclos) + [46] (dois exports). Grande; redesenha a página.
 3. **Fatura como hub de detalhe** — [43] quebra de custos macro + [50] pagar agora + [55] fatura em aberto navegável. Conversam entre si.
 4. **Boleto + Pix automático** — [14]/[56]. High effort, isolado.
