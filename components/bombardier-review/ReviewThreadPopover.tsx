@@ -58,6 +58,7 @@ export function ReviewThreadPopover() {
   const approveComment = useReviewStore((s) => s.approveComment)
   const rejectComment = useReviewStore((s) => s.rejectComment)
   const editComment = useReviewStore((s) => s.editComment)
+  const moveToBacklog = useReviewStore((s) => s.moveToBacklog)
   const deleteComment = useReviewStore((s) => s.deleteComment)
 
   const scroll = useCumulativeScrollOffset()
@@ -188,6 +189,16 @@ export function ReviewThreadPopover() {
           icon: "check_circle",
           onSelect: () => void archiveDirect(comment.id),
         },
+    ...(!isResolved
+      ? [
+          {
+            id: "to-backlog",
+            label: "Mover pra ideias futuras",
+            icon: "lightbulb",
+            onSelect: () => void moveToBacklog(comment.id),
+          } as AwDropdownItem,
+        ]
+      : []),
     { id: "sep", separator: true },
     {
       id: "delete",
