@@ -156,6 +156,7 @@
   --color-bg-muted: var(--bg-muted);
   --color-bg-hover: var(--bg-hover);
   --color-bg-selected: var(--bg-selected);
+  --color-bg-pressed: var(--bg-pressed);
   --color-bg-inverse: var(--bg-inverse);
 
   --color-fg-primary: var(--fg-primary);
@@ -171,6 +172,11 @@
 
   --color-brand: var(--accent-brand);
   --color-brand-hover: var(--accent-brand-hover);
+  --color-brand-pressed: var(--accent-brand-pressed);
+
+  --color-danger: var(--accent-danger);
+  --color-danger-hover: var(--accent-danger-hover);
+  --color-danger-pressed: var(--accent-danger-pressed);
 
   --color-gray-1200: #0d0d0d;
 
@@ -578,6 +584,9 @@
    * Pair with `border-color: transparent` — the fill carries the
    * selection signal, no extra stroke needed. */
     --bg-selected: var(--aw-gray-200);
+    /* Active/pressed fill for ghost/subtle buttons, menu items, list rows.
+   * One step darker than --bg-selected — reads as "being clicked right now". */
+    --bg-pressed: var(--aw-gray-300);
 
     --fg-primary: var(--aw-gray-1200);
     --fg-secondary: var(--aw-gray-800);
@@ -593,8 +602,14 @@
 
     --accent-brand: var(--aw-slate-900);
     --accent-brand-hover: var(--aw-slate-1000);
+    /* Active/pressed of brand — maximum-contrast extreme (pure black on light,
+   * pure white on dark). Use for primary button :active, link :active, etc.
+   * Sits beyond --accent-brand-hover on the intensity ramp. */
+    --accent-brand-pressed: var(--aw-black);
     --accent-success: var(--aw-emerald-700);
     --accent-danger: var(--aw-red-700);
+    --accent-danger-hover: var(--aw-red-600);
+    --accent-danger-pressed: var(--aw-red-800);
     --accent-warning: var(--aw-amber-500);
 
     /* Dark chrome surfaces (product sidebar + shell) */
@@ -700,6 +715,7 @@
     --bg-inverse: var(--aw-white);
     --bg-hover: var(--aw-gray-1000);
     --bg-selected: var(--aw-gray-900);
+    --bg-pressed: var(--aw-gray-800);
 
     --fg-primary: var(--aw-white);
     --fg-secondary: var(--aw-gray-500);
@@ -715,8 +731,11 @@
 
     --accent-brand: var(--aw-slate-200);
     --accent-brand-hover: var(--aw-slate-100);
+    --accent-brand-pressed: var(--aw-white);
     --accent-success: var(--aw-emerald-500);
     --accent-danger: var(--aw-red-500);
+    --accent-danger-hover: var(--aw-red-400);
+    --accent-danger-pressed: var(--aw-red-300);
     --accent-warning: var(--aw-amber-400);
   }
 }
