@@ -13,6 +13,16 @@ const DEFAULT_FORMAT = (value: number) =>
     currency: "BRL",
   }).format(value)
 
+/** Quebra do consumo bruto por dimensão (ex.: pagador, categoria). Os valores
+ *  somam o `gross` e viram segmentos coloridos sobrepostos ao trecho líquido
+ *  da barra, em baixa opacidade — leitura "quanto disso é o quê" sem virar
+ *  uma barra nova. */
+export type AwConsumptionSplit = {
+  label: string
+  value: number
+  colorVar: string
+}
+
 export type AwConsumptionBarProps = Omit<
   React.HTMLAttributes<HTMLDivElement>,
   "children"
@@ -23,6 +33,8 @@ export type AwConsumptionBarProps = Omit<
   credits?: number
   /** Limite do ciclo — referência da agulha e da cobrança. */
   limit: number
+  /** Quebra opcional do bruto (deve somar ≈ `gross`). */
+  splits?: AwConsumptionSplit[]
   /** Rótulo acessível do trilho. */
   ariaLabel?: string
   /** Formatação dos valores. Default: Intl pt-BR BRL. */
@@ -38,6 +50,7 @@ export function AwConsumptionBar({
   gross,
   credits = 0,
   limit,
+  splits,
   ariaLabel = "Consumo do ciclo",
   formatValue = DEFAULT_FORMAT,
   className,
@@ -49,6 +62,10 @@ export function AwConsumptionBar({
   const grossPct = scaleMax > 0 ? (gross / scaleMax) * 100 : 0
   const limitPct = scaleMax > 0 ? (limit / scaleMax) * 100 : 0
   const overLimit = net > limit
+  // Camada de splits cobre o trecho BRUTO (antes de créditos), proporcional a
+  // cada item; só renderiza com pelo menos 2 itens válidos.
+  const splitTotal = splits?.reduce((s, x) => s + Math.max(0, x.value), 0) ?? 0
+  const showSplits = !!splits && splits.length >= 2 && splitTotal > 0
 
   return (
     <TooltipProvider delayDuration={120}>
@@ -85,6 +102,32 @@ export function AwConsumptionBar({
               style={{ width: `${Math.min(netPct, 100)}%` }}
             />
 
+            {/* Splits sobrepostos: cada segmento ocupa sua fatia do trecho
+                BRUTO em baixa opacidade — você lê a divisão sem perder o
+                trilho preto por baixo. */}
+            {showSplits && (
+              <div
+                className={cn(
+                  "absolute inset-y-0 left-0 flex overflow-hidden transition-[width] duration-500 ease-out",
+                  grossPct >= 100 ? "rounded-full" : "rounded-l-full",
+                )}
+                style={{ width: `${Math.min(grossPct, 100)}%` }}
+                aria-hidden="true"
+              >
+                {splits!.map((s, i) => (
+                  <span
+                    key={`${s.label}-${i}`}
+                    className="h-full"
+                    style={{
+                      width: `${(Math.max(0, s.value) / splitTotal) * 100}%`,
+                      background: s.colorVar,
+                      opacity: 0.55,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
             {limitPct > 0 && limitPct < 100 && (
               <ConsumptionNeedle
                 leftPct={limitPct}
@@ -103,6 +146,32 @@ export function AwConsumptionBar({
               <span className="text-(--fg-secondary)">Consumo bruto</span>
               <span className="tabular-nums">{formatValue(gross)}</span>
             </div>
+            {showSplits && (
+              <div className="flex flex-col gap-1 border-t border-(--border-subtle) pt-1.5">
+                {splits!.map((s, i) => {
+                  const pct = (Math.max(0, s.value) / splitTotal) * 100
+                  return (
+                    <div
+                      key={`${s.label}-${i}`}
+                      className="flex items-center justify-between gap-6"
+                    >
+                      <span className="inline-flex items-center gap-1.5 text-(--fg-secondary)">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-2 w-2 rounded-full"
+                          style={{ background: s.colorVar }}
+                        />
+                        {s.label}
+                        <span className="text-(--fg-tertiary) tabular-nums">
+                          {pct.toFixed(0)}%
+                        </span>
+                      </span>
+                      <span className="tabular-nums">{formatValue(s.value)}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
             {credits > 0 && (
               <div className="flex items-center justify-between gap-6">
                 <span className="text-(--fg-secondary)">
