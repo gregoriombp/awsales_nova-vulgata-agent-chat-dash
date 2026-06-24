@@ -42,6 +42,7 @@ Tudo abaixo está na branch **`feat/financeiro-review-gene`** (docs + plano + WI
 - **Onda 2 (ajustes médios) → feita** (3 commits): **[11]** proporção real do cartão · **[35] [36]** descrição curta por grupo no Detalhamento (e "Outros" mais claro) · **[13]** badge "Aplicado" verde por cupom.
 - **Decisões aplicadas com meu critério:** [22] virou **"Créditos e cupons"** (não só "cupom"); [15] renomeei só os **textos visíveis** (identificadores internos seguem `voucher`).
 - **Decisões do §4 (você definiu 24/06):** **[06] cores → manter categórico** (sem mudança) · **[24] filtro Meta → não construir agora** (alinhar com PG) · **[08] [09] [10] ícones dos cards de crédito → removidos**.
+- **Reorientação (24/06):** o **[39] virou rework de gráfico** — Greg desfez o widget de 2 números do WIP e voltou o gráfico: "Uso do período" com **Custo Aswork sólido + Custo Meta tracejado**, sem a linha laranja, mais o gráfico novo **"Valor atribuído ao provedor"** com disclaimer do delay. E o card **Ajustes** voltou (sempre visível + estorno de exemplo no mock).
 - **Adiado / bloqueado:** [29] (3 níveis WSales/Meta) e [45] (export segregado) — **bloqueados pelo dado**: o banco não segrega WSales×Meta, então fazer isso seria inventar número · [33] [52] (dado USD / descrição de token) · [07] [16] [17] (ambíguos — preciso você apontar) · Onda 3 (features grandes, dependem do PG).
 
 ---
@@ -68,6 +69,8 @@ e em copy do Financeiro — então **parte do plano já está adiantada (ou re-d
 - **O teu WIP foi pro lado OPOSTO:** **tirou o gráfico inteiro** → dois números + uma frase em português claro
   (*"a fatura fechou um pouco acima do uso porque o Stripe lança em ciclos; nada se perde, nada é cobrado duas vezes"*)
   + Meta no rodapé.
+
+> **✅ Decisão final (24/06):** Greg escolheu o caminho do **Genê** — desfiz o widget de 2 números e fiz o **rework do gráfico** ([39]: Aswork sólido + Meta tracejado, sem linha laranja, + gráfico do provedor). O texto de recomendação abaixo é histórico.
 
 Os dois **resolvem a mesma dor** (por que usado ≠ faturado + separar o Meta), mas são **visões incompatíveis** do
 mesmo widget — não dá pra fazer os dois.
