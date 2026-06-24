@@ -782,23 +782,51 @@ export function ProvedorWidget({
 
 export function GastoTotalCard() {
   const { payerDaily, chartPeriod, metaIncluded, accumulated } = useConsumo();
+  // Linha em foco no hover. As demais somem suavemente; a focada ganha um
+  // "fio condutor": segmento do gradient do agente (blue→purple→pink) que
+  // percorre a curva da esquerda pra direita em loop.
+  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
-  const data = React.useMemo(
-    () =>
-      payerDaily.map((d, i) => ({
-        day: dayLabel(i, payerDaily.length, chartPeriod),
-        aswork: d.aswork,
-        meta: d.meta,
-        total: Math.round((d.aswork + d.meta) * 100) / 100,
-      })),
-    [payerDaily, chartPeriod],
-  );
+  // Normaliza o pathLength do overlay pra 1 — assim dasharray/dashoffset no
+  // CSS viram frações da curva e o segmento percorre a linha toda
+  // independente da largura do chart. Recharts não expõe `pathLength` como
+  // prop, então setamos via atributo no próximo frame depois do mount.
+  React.useEffect(() => {
+    if (!activeSeries) return;
+    const id = window.requestAnimationFrame(() => {
+      const path = document.querySelector(
+        ".aw-gasto-total-overlay .recharts-area-curve",
+      );
+      if (path) path.setAttribute("pathLength", "1");
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [activeSeries]);
+
+  // Inclui uma coluna `__overlay` que espelha a série em foco — assim a Area
+  // do overlay tem dataKey próprio (sem colidir com a key da Area base no
+  // React, que o Recharts deriva do dataKey).
+  const data = React.useMemo(() => {
+    const base = payerDaily.map((d, i) => ({
+      day: dayLabel(i, payerDaily.length, chartPeriod),
+      aswork: d.aswork,
+      meta: d.meta,
+      total: Math.round((d.aswork + d.meta) * 100) / 100,
+    }));
+    if (!activeSeries) return base;
+    const key = activeSeries as "total" | "aswork" | "meta";
+    return base.map((d) => ({ ...d, __overlay: d[key] }));
+  }, [payerDaily, chartPeriod, activeSeries]);
 
   const config: ChartConfig = {
     total: { label: "Total", color: "var(--fg-primary)" },
     aswork: { label: "Aswork", color: "var(--aw-blue-500)" },
     meta: { label: "Meta", color: "var(--aw-purple-400)" },
   };
+
+  const fadeFill = (key: string) =>
+    activeSeries && activeSeries !== key ? 0.18 : 1;
+  const enter = (key: string) => () => setActiveSeries(key);
+  const leave = () => setActiveSeries(null);
 
   return (
     <WidgetShell
@@ -819,7 +847,7 @@ export function GastoTotalCard() {
       </div>
       <ChartContainer
         config={config}
-        className="mt-2 aspect-auto h-72 w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        className="aw-gasto-total-chart mt-2 aspect-auto h-72 w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         <AreaChart data={data} margin={{ left: 0, right: 12, top: 8 }}>
           {/* Degradê suave por linha (cor → transparente no rodapé), pra dar
@@ -837,6 +865,14 @@ export function GastoTotalCard() {
             <linearGradient id="fillGastoMeta" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="var(--aw-purple-400)" stopOpacity={0.2} />
               <stop offset="92%" stopColor="var(--aw-purple-400)" stopOpacity={0} />
+            </linearGradient>
+            {/* Stroke iridescente do glyph de agente (blue → purple → pink).
+                Usado SÓ no overlay pulsante da linha em foco. Cores são tokens
+                existentes; mesma sequência do <Icon name="agent" gradient />. */}
+            <linearGradient id="strokeGastoAgent" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--aw-blue-500)" />
+              <stop offset="50%" stopColor="var(--aw-purple-500)" />
+              <stop offset="100%" stopColor="var(--aw-pink-400)" />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -873,20 +909,30 @@ export function GastoTotalCard() {
             type="monotone"
             stroke="var(--fg-primary)"
             strokeWidth={2.5}
+            strokeOpacity={seriesOpacity(activeSeries, "total")}
             fill="url(#fillGastoTotal)"
+            fillOpacity={fadeFill("total")}
             dot={false}
+            activeDot={{ r: 4, onMouseEnter: enter("total"), onMouseLeave: leave }}
             isAnimationActive
             animationDuration={CHART_ANIMATION_DURATION}
+            onMouseEnter={enter("total")}
+            onMouseLeave={leave}
           />
           <Area
             dataKey="aswork"
             type="monotone"
             stroke="var(--aw-blue-500)"
             strokeWidth={1.75}
+            strokeOpacity={seriesOpacity(activeSeries, "aswork")}
             fill="url(#fillGastoAswork)"
+            fillOpacity={fadeFill("aswork")}
             dot={false}
+            activeDot={{ r: 4, onMouseEnter: enter("aswork"), onMouseLeave: leave }}
             isAnimationActive
             animationDuration={CHART_ANIMATION_DURATION}
+            onMouseEnter={enter("aswork")}
+            onMouseLeave={leave}
           />
           {metaIncluded && (
             <Area
@@ -894,10 +940,37 @@ export function GastoTotalCard() {
               type="monotone"
               stroke="var(--aw-purple-400)"
               strokeWidth={1.75}
+              strokeOpacity={seriesOpacity(activeSeries, "meta")}
               fill="url(#fillGastoMeta)"
+              fillOpacity={fadeFill("meta")}
               dot={false}
+              activeDot={{ r: 4, onMouseEnter: enter("meta"), onMouseLeave: leave }}
               isAnimationActive
               animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={enter("meta")}
+              onMouseLeave={leave}
+            />
+          )}
+          {/* Overlay da linha em foco — stroke gradient do agente, pulsando
+              linearmente entre 10% e 30% de opacidade. Mesma curva monotônica
+              da série base (segue o traço milimetricamente). Renderizado por
+              último pra ficar por cima de tudo. Usa dataKey sintético
+              (`__overlay`, espelha o valor da série em foco) pra evitar
+              colisão de key com a Area base no React. */}
+          {activeSeries && (
+            <Area
+              key={`overlay-${activeSeries}`}
+              dataKey="__overlay"
+              type="monotone"
+              stroke="url(#strokeGastoAgent)"
+              strokeWidth={activeSeries === "total" ? 4 : 3}
+              fill="none"
+              dot={false}
+              activeDot={false}
+              isAnimationActive={false}
+              legendType="none"
+              tooltipType="none"
+              className="aw-gasto-total-overlay pointer-events-none"
             />
           )}
         </AreaChart>
