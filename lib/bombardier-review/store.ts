@@ -1,8 +1,8 @@
 "use client"
 
 import { create } from "zustand"
-import { LocalStorageReview } from "@/components/bombardier-review/storage/localStorage"
 import { RemoteBridgeReview } from "@/components/bombardier-review/storage/remoteBridge"
+import { ServerlessReview } from "@/components/bombardier-review/storage/serverless"
 import type { ReviewStorage } from "@/components/bombardier-review/storage/types"
 import { makeId } from "@/components/bombardier-review/storage/utils"
 import { buildReviewCommentContext } from "@/lib/bombardier-review/elementContext"
@@ -26,6 +26,8 @@ import {
 export type StorageBackend = "local" | "bridge"
 
 function pickStorage(): { storage: ReviewStorage; backend: StorageBackend } {
+  // Legado opt-in: se a env de um bridge Express externo (porta 9878) estiver
+  // setada, usa ele. Caso contrário, padrão = bridge serverless embutido.
   const bridgeUrl = process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL
   const bridgeToken = process.env.NEXT_PUBLIC_BOMBARDIER_REVIEW_TOKEN
   if (bridgeUrl && bridgeToken) {
@@ -37,7 +39,8 @@ function pickStorage(): { storage: ReviewStorage; backend: StorageBackend } {
       backend: "bridge",
     }
   }
-  return { storage: new LocalStorageReview(), backend: "local" }
+  // Padrão: rotas same-origin /api/review-bridge/* sobre os mesmos JSON.
+  return { storage: new ServerlessReview(), backend: "bridge" }
 }
 
 const initial = pickStorage()
@@ -101,7 +104,15 @@ type ReviewState = {
   approveComment: (id: string) => Promise<void>
   rejectComment: (id: string) => Promise<void>
   reopenFromArchive: (id: string) => Promise<void>
-  addReply: (id: string, text: string) => Promise<ReviewReply | null>
+  addReply: (id: string, text: string, images?: string[]) => Promise<ReviewReply | null>
+  /** Edita texto/imagens de um comentário existente, preservando o resto. */
+  editComment: (id: string, text: string, images?: string[]) => Promise<void>
+  /** Cria uma "ideia futura" avulsa (sem pino) — vai pra aba de backlog. */
+  addBacklogIdea: (text: string, images?: string[]) => Promise<void>
+  /** Move um comentário existente pro backlog (vira "ideia futura"). */
+  moveToBacklog: (id: string) => Promise<void>
+  /** Tira do backlog, voltando pra "aberto". */
+  restoreFromBacklog: (id: string) => Promise<void>
   deleteComment: (id: string) => Promise<void>
   refreshFromStorage: () => Promise<void>
   loadArchivePage: (reset?: boolean) => Promise<void>
@@ -365,9 +376,9 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     await get().loadArchivePage(true)
   },
 
-  addReply: async (id, text) => {
+  addReply: async (id, text, images) => {
     const trimmed = text.trim()
-    if (!trimmed) return null
+    if (!trimmed && (!images || images.length === 0)) return null
     const { storage, identity } = get()
     if (!storage.addReply || !identity) return null
     const reply = await storage.addReply(id, {
@@ -376,9 +387,82 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       authorName: identity.name,
       authorColorToken: identity.colorToken,
       text: trimmed,
+      ...(images && images.length > 0 ? { images } : {}),
     })
     await get().refreshFromStorage()
     return reply
+  },
+
+  editComment: async (id, text, images) => {
+    const trimmed = text.trim()
+    const { storage } = get()
+    const existing =
+      get().comments.find((c) => c.id === id) ??
+      get().archivedComments.find((c) => c.id === id) ??
+      (await storage.getComment(id))
+    if (!existing) return
+    // images === undefined → mantém as atuais; array (mesmo vazio) → substitui.
+    const nextImages = images === undefined ? existing.images : images
+    const updated: ReviewComment = {
+      ...existing,
+      text: trimmed,
+      updatedAt: Date.now(),
+    }
+    if (nextImages && nextImages.length > 0) updated.images = nextImages
+    else delete updated.images
+    await storage.saveComment(updated)
+    await get().refreshFromStorage()
+  },
+
+  addBacklogIdea: async (text, images) => {
+    const trimmed = text.trim()
+    const { storage, identity } = get()
+    if ((!trimmed && (!images || images.length === 0)) || !identity) return
+    if (typeof window === "undefined") return
+    const now = Date.now()
+    const comment: ReviewComment = {
+      id: makeId("cmt"),
+      schemaVersion: SCHEMA_VERSION as 3,
+      authorId: identity.id,
+      authorName: identity.name,
+      authorColorToken: identity.colorToken,
+      createdAt: now,
+      updatedAt: now,
+      url: window.location.pathname,
+      viewportWidth: window.innerWidth,
+      viewportHeight: window.innerHeight,
+      scrollY: 0,
+      documentHeight: 0,
+      // Âncora-sentinela: passa na validação mas NÃO vira pino — o canvas pula
+      // origin "backlog". Ideia futura é avulsa, não fixada num elemento.
+      anchor: { kind: "pin", position: { x: 0, y: 0 } },
+      text: trimmed,
+      ...(images && images.length > 0 ? { images } : {}),
+      status: "backlog",
+      origin: "backlog",
+    }
+    await storage.saveComment(comment)
+    await get().refreshFromStorage()
+  },
+
+  moveToBacklog: async (id) => {
+    const { storage } = get()
+    const existing =
+      get().comments.find((c) => c.id === id) ?? (await storage.getComment(id))
+    if (!existing) return
+    await storage.saveComment({ ...existing, status: "backlog", updatedAt: Date.now() })
+    if (get().selectedCommentId === id) set({ selectedCommentId: null })
+    if (get().threadCommentId === id) set({ threadCommentId: null })
+    await get().refreshFromStorage()
+  },
+
+  restoreFromBacklog: async (id) => {
+    const { storage } = get()
+    const existing =
+      get().comments.find((c) => c.id === id) ?? (await storage.getComment(id))
+    if (!existing) return
+    await storage.saveComment({ ...existing, status: "open", updatedAt: Date.now() })
+    await get().refreshFromStorage()
   },
 
   deleteComment: async (id) => {

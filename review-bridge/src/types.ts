@@ -91,7 +91,7 @@ export interface ReviewCommentContext {
   nearbyText?: string[]
 }
 
-export type ReviewCommentStatus = "open" | "in_review" | "resolved"
+export type ReviewCommentStatus = "open" | "in_review" | "resolved" | "backlog"
 
 export type ReviewActorKind = "agent" | "user"
 
@@ -116,6 +116,8 @@ export interface ReviewReply {
   authorName: string
   authorColorToken: string
   text: string
+  /** Optional/additive — anexos de imagem (data URLs) na resposta. */
+  images?: string[]
   createdAt: number
 }
 
@@ -124,7 +126,7 @@ export const REVIEW_SCHEMA_VERSION = 3
 // Mirror of the client type (components/bombardier-review/types.ts). "ux-flow"
 // comments come from the styleguide flow editor; the server just stores the
 // extra optional fields verbatim (additive — no schema bump).
-export type ReviewCommentOrigin = "page" | "ux-flow"
+export type ReviewCommentOrigin = "page" | "ux-flow" | "backlog"
 
 export interface ReviewFlowRef {
   flow: string

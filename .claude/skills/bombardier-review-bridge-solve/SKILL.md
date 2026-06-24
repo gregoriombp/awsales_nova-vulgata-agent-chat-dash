@@ -66,8 +66,7 @@ um id estável diferente (`claude-haiku`, `cursor`, etc.) e um `name` legível.
 TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2-)
 
 # URL do bridge — preferir o que o frontend usa
-BRIDGE_URL=$(grep NEXT_PUBLIC_BOMBARDIER_REVIEW_BRIDGE_URL .env.local | cut -d= -f2-)
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:9878}
+BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:3000/api/review-bridge}
 
 # Confere se o servidor está vivo
 curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
