@@ -30,15 +30,19 @@ export function CreditDetailModal({
       : 0;
 
   return (
-    <AwModal open={open} onClose={onClose} title={`${credit.kind} ${credit.label}`}>
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title={`${credit.kind} ${credit.label}`}
+      titleAdornment={
+        <AwPill variant="live" dot={false}>
+          <Icon name="local_offer" size={12} />
+          {credit.kind}
+        </AwPill>
+      }
+    >
       <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-2">
-          <AwPill variant="live" dot={false}>
-            <Icon name="local_offer" size={12} />
-            {credit.kind}
-          </AwPill>
-          <span className="body-sm text-(--fg-secondary)">{credit.note}</span>
-        </div>
+        <p className="m-0 body-sm text-(--fg-secondary)">{credit.note}</p>
 
         {/* Consumo do crédito */}
         <div className="flex flex-col gap-2">
