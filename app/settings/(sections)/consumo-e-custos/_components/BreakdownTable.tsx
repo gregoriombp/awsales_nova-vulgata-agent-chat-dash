@@ -18,7 +18,6 @@ import {
   AGENT_BREAKDOWN,
   brl,
   formatQuantity,
-  OPERATIONAL_FX,
   scaleBreakdown,
   scaleCustomBreakdown,
   SERVICE_BREAKDOWN,
@@ -55,8 +54,8 @@ export function BreakdownTableWidget({
       icon="table_rows"
       description={
         grouping === "service"
-          ? "Por serviço / taxa — taxonomia canônica, com BRL e USD"
-          : "Por agente — consumo do ciclo, com BRL e USD"
+          ? "Cada serviço e taxa do período, em BRL e USD"
+          : "Consumo por agente no período, em BRL e USD"
       }
       dragHandle={dragHandle}
       resizeButton={resizeButton}
@@ -82,7 +81,7 @@ const SERVICE_GROUPS: ServiceGroupDef[] = [
   { id: "msg", label: "Mensagem", icon: "forum", rowIds: ["msgs"], unitNoun: "mensagens", aggregateFormat: "decimal" },
   { id: "leads", label: "Leads", icon: "person_add", rowIds: ["leads"], unitNoun: "leads ativos", aggregateFormat: "decimal" },
   { id: "tel", label: "Telefone", icon: "call", rowIds: ["linha"], unitNoun: "linha", aggregateFormat: "decimal" },
-  { id: "ai", label: "AI", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
+  { id: "ai", label: "Tokens", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], unitNoun: "tokens", aggregateFormat: "abbrev" },
   { id: "outros", label: "Outros", icon: "more_horiz", rowIds: ["outros"], unitNoun: "itens", aggregateFormat: "lump" },
 ];
 
@@ -128,7 +127,7 @@ type ServiceGroup = {
 };
 
 function ServiceTable() {
-  const { selection, customDays, allowedRowIds, accumulated } = useConsumo();
+  const { selection, customDays, allowedRowIds } = useConsumo();
   const [expanded, setExpanded] = React.useState<Set<string>>(
     () => new Set(DEFAULT_EXPANDED),
   );
@@ -162,8 +161,6 @@ function ServiceTable() {
 
   const allTotals = React.useMemo(() => groups.map((g) => g.groupTotal), [groups]);
   const total = groups.reduce((s, g) => s + g.groupTotal, 0);
-  const matchesCard = Math.abs(total - accumulated) < 1;
-
   const toggle = (id: string) =>
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -301,18 +298,9 @@ function ServiceTable() {
         <tr>
           <td colSpan={3} className="border-t border-(--border-subtle)! align-top pt-4">
             <span className="font-semibold text-(--fg-primary)">TOTAL</span>
-            <span className="block body-3xs text-(--fg-tertiary)">
-              câmbio operacional R$ {OPERATIONAL_FX.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} · taxonomia canon (W2C)
-            </span>
           </td>
           <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-primary)">
             {brl(total)}
-            {matchesCard && (
-              <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
-                <Icon name="check" size={13} />
-                bate com card
-              </span>
-            )}
           </td>
           <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-secondary)">
             {fmtUsd(total)}
@@ -371,7 +359,7 @@ function agentStatusVariant(status: AgentBreakdownRow["status"]): AwPillVariant 
 }
 
 function AgentTable() {
-  const { selection, customDays, visibleIds, accumulated, periodLabel } =
+  const { selection, customDays, visibleIds, periodLabel } =
     useConsumo();
   const [sortKey, setSortKey] = React.useState<SortKey>("total");
   const [sortDir, setSortDir] = React.useState<SortDir>("desc");
@@ -421,8 +409,6 @@ function AgentTable() {
 
   const total = scaled.reduce((s, r) => s + r.total, 0);
   const allTotals = React.useMemo(() => scaled.map((r) => r.total), [scaled]);
-  const matchesCard = Math.abs(total - accumulated) < 1;
-
   const headerClick = (k: SortKey) => {
     if (k === sortKey) {
       setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -498,12 +484,6 @@ function AgentTable() {
             <td colSpan={3} className="border-t border-(--border-subtle)! align-top pt-4 text-right text-(--fg-secondary)">Total por agente</td>
             <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-primary)">
               {brl(total)}
-              {matchesCard && (
-                <span className="mt-0.5 flex items-center justify-end gap-0.5 body-3xs font-medium text-(--accent-success)">
-                  <Icon name="check" size={13} />
-                  bate com card
-                </span>
-              )}
             </td>
             <td className="border-t border-(--border-subtle)! align-top pt-4 text-right font-semibold tabular-nums text-(--fg-secondary)">
               {fmtUsd(total)}

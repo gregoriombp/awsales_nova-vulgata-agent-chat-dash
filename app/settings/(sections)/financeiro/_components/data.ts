@@ -135,7 +135,7 @@ export const SPENDING_CATEGORIES: Record<SpendingGrouping, SpendingCategory[]> =
     { id: "disparos-util", label: "Disparos · utilidade", colorVar: "var(--aw-teal-500)" },
     { id: "mensagens", label: "Mensagens transacionadas", colorVar: "var(--aw-amber-500)" },
     { id: "leads", label: "Leads ativos", colorVar: "var(--aw-emerald-500)" },
-    { id: "tokens", label: "Tokens de IA", colorVar: "var(--aw-purple-500)" },
+    { id: "tokens", label: "Tokens", colorVar: "var(--aw-purple-500)" },
   ],
   agent: [
     {
@@ -625,9 +625,9 @@ const AGENT_FEE_TEMPLATE: FeeTemplate[] = [
   { groupId: "disparos", groupLabel: "Disparos no WhatsApp", groupIcon: "campaign", label: "Disparos no WhatsApp", rate: 0.12, unitDivisor: 1, unitNoun: "disparos", rateLabel: "R$ 0,12", weight: 0.34, quantityFormat: "decimal" },
   { groupId: "leads", groupLabel: "Leads ativos", groupIcon: "person_add", label: "Leads ativos", rate: 2.0, unitDivisor: 1, unitNoun: "leads", rateLabel: "R$ 2,00", weight: 0.16, quantityFormat: "decimal" },
   { groupId: "msgs", groupLabel: "Mensagens transacionadas", groupIcon: "forum", label: "Mensagens transacionadas", rate: 0.03, unitDivisor: 1, unitNoun: "mensagens", rateLabel: "R$ 0,03", weight: 0.22, quantityFormat: "decimal" },
-  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Knowledge", rate: 0.002, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,002/1K", weight: 0.1, quantityFormat: "abbrev" },
-  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Brain", rate: 0.005, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,005/1K", weight: 0.1, quantityFormat: "abbrev" },
-  { groupId: "tokens", groupLabel: "Tokens de IA", groupIcon: "neurology", label: "Skills", rate: 0.009, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,009/1K", weight: 0.08, quantityFormat: "abbrev" },
+  { groupId: "tokens", groupLabel: "Tokens", groupIcon: "neurology", label: "Knowledge", rate: 0.002, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,002/1K", weight: 0.1, quantityFormat: "abbrev" },
+  { groupId: "tokens", groupLabel: "Tokens", groupIcon: "neurology", label: "Brain", rate: 0.005, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,005/1K", weight: 0.1, quantityFormat: "abbrev" },
+  { groupId: "tokens", groupLabel: "Tokens", groupIcon: "neurology", label: "Skills", rate: 0.009, unitDivisor: 1000, unitNoun: "tokens", rateLabel: "R$ 0,009/1K", weight: 0.08, quantityFormat: "abbrev" },
 ];
 
 /** Quebra o total (já escalado pelo período) de um agente nas macro-cobranças.
