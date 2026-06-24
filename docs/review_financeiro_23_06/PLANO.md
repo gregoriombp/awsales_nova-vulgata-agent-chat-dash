@@ -41,7 +41,8 @@ Tudo abaixo está na branch **`feat/financeiro-review-gene`** (docs + plano + WI
 - **Onda 1 (quick wins) → feita** (4 commits). Itens: **[18] [42]** (visão geral) · **[05] [19] [20] [21] [22] [23] [26] [27] [30] [37]** (consumo e custos) · **[03] [04] [15]** (créditos). `typecheck` + `eslint` verdes.
 - **Onda 2 (ajustes médios) → feita** (3 commits): **[11]** proporção real do cartão · **[35] [36]** descrição curta por grupo no Detalhamento (e "Outros" mais claro) · **[13]** badge "Aplicado" verde por cupom.
 - **Decisões aplicadas com meu critério:** [22] virou **"Créditos e cupons"** (não só "cupom"); [15] renomeei só os **textos visíveis** (identificadores internos seguem `voucher`).
-- **Adiado / bloqueado:** [29] (3 níveis WSales/Meta) e [45] (export segregado) — **bloqueados pelo dado**: o banco não segrega WSales×Meta, então fazer isso seria inventar número · [33] [52] (dado USD / descrição de token) · [07] [16] [17] (ambíguos — preciso você apontar) · Onda 3 e os ⚠️ do §4 (decisões suas).
+- **Decisões do §4 (você definiu 24/06):** **[06] cores → manter categórico** (sem mudança) · **[24] filtro Meta → não construir agora** (alinhar com PG) · **[08] [09] [10] ícones dos cards de crédito → removidos**.
+- **Adiado / bloqueado:** [29] (3 níveis WSales/Meta) e [45] (export segregado) — **bloqueados pelo dado**: o banco não segrega WSales×Meta, então fazer isso seria inventar número · [33] [52] (dado USD / descrição de token) · [07] [16] [17] (ambíguos — preciso você apontar) · Onda 3 (features grandes, dependem do PG).
 
 ---
 
