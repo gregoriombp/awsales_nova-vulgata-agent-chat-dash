@@ -26,6 +26,7 @@ import {
   AwAvatar,
 } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwLogo } from "@/components/ui/AwLogo";
 import {
   Tooltip,
   TooltipContent,
@@ -807,7 +808,10 @@ export function GastoTotalCard() {
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
         <LegendDot color="var(--fg-primary)" label="Total" />
-        <LegendDot color="var(--aw-blue-500)" label="Aswork" />
+        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+          <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
+          Aswork
+        </span>
         <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
           <AwBrandLogo brand="meta" size={14} markOnly />
           Meta
@@ -815,7 +819,7 @@ export function GastoTotalCard() {
       </div>
       <ChartContainer
         config={config}
-        className="mt-2 aspect-auto h-[200px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
+        className="mt-2 aspect-auto h-72 w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
         <AreaChart data={data} margin={{ left: 0, right: 12, top: 8 }}>
           {/* Degradê suave por linha (cor → transparente no rodapé), pra dar
