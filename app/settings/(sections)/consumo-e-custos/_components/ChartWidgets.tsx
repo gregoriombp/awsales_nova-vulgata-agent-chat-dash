@@ -8,7 +8,6 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  ComposedChart,
   Line,
   LineChart,
   Pie,
@@ -25,6 +24,7 @@ import {
 import {
   AwAvatar,
 } from "@/components/ui/AwAvatar";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import {
   Tooltip,
   TooltipContent,
@@ -33,10 +33,13 @@ import {
 } from "@/components/ui/tooltip";
 import {
   brl,
-  getUsedChargedSeries,
-  periodBars,
+  CHARGED_TOTAL,
+  PERIOD_DIFF,
+  PERIOD_DIFF_REASON,
   reconScaleForCustom,
   reconScaleForPeriod,
+  USED_META_TOTAL,
+  USED_WC_TOTAL,
   type SpendingCategory,
   type SpendingGrouping,
   type SpendingPeriod,
@@ -486,9 +489,15 @@ function ShareBars({
   );
 }
 
-/* ============================ Usado × cobrado ============================ */
+/* ========================= Usado × na fatura ========================= */
+//
+// Card enxuto e direto: o que a Aswork MEDIU (usado) × o que ENTROU na fatura
+// via Stripe — dois números grandes, em R$, lado a lado. A diferença é só
+// timing do Stripe (resíduo do ciclo anterior entra; cauda deste sai). Sem
+// gráfico, sem toggle, sem linha sem unidade. O Meta é nota de rodapé (cobrado
+// direto pela Meta, fora desta fatura). Period-aware pelo controle de tempo.
 
-type ReconViz = "bar" | "line";
+const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export function UsadoCobradoWidget({
   dragHandle,
@@ -497,178 +506,79 @@ export function UsadoCobradoWidget({
   dragHandle?: React.ReactNode;
   resizeButton?: React.ReactNode;
 }) {
-  const { selection, chartPeriod, customDays } = useConsumo();
-  const [viz, setViz] = React.useState<ReconViz>("bar");
-  const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
+  const { selection, customDays } = useConsumo();
 
-  // Acompanha o controle de tempo global: nº de buckets + fator de escala saem
-  // do período (ou range custom) ativo, espelhando os outros widgets.
-  const bars =
-    selection.kind === "custom"
-      ? Math.max(1, Math.min(customDays, 90))
-      : periodBars(selection.id);
   const scale =
     selection.kind === "custom"
       ? reconScaleForCustom(customDays)
       : reconScaleForPeriod(selection.id);
+  const isThisMonth =
+    selection.kind === "preset" && selection.id === "this-month";
 
-  const series = React.useMemo(
-    () => getUsedChargedSeries(bars, scale),
-    [bars, scale],
-  );
-
-  const data = React.useMemo(
-    () =>
-      series.map((d, i) => ({
-        day: dayLabel(i, bars, chartPeriod),
-        wc: d.wc,
-        meta: d.meta,
-        used: Math.round((d.wc + d.meta) * 100) / 100,
-        charged: d.charged,
-      })),
-    [series, bars, chartPeriod],
-  );
-
-  const usedTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.wc + d.meta, 0),
-    [series],
-  );
-  const chargedTotal = React.useMemo(
-    () => series.reduce((s, d) => s + d.charged, 0),
-    [series],
-  );
-
-  const config: ChartConfig = {
-    wc: { label: "Taxas Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Meta aproximado", color: "var(--aw-purple-400)" },
-    used: { label: "Usado", color: "var(--aw-blue-500)" },
-    charged: { label: "Valor na fatura", color: "var(--aw-amber-500)" },
-  };
+  const used = round2(USED_WC_TOTAL * scale);
+  const invoice = round2(CHARGED_TOTAL * scale);
+  const meta = round2(USED_META_TOTAL * scale);
+  const gap = round2(PERIOD_DIFF * scale);
+  const gapStr = `${gap >= 0 ? "+" : "−"}${brl(Math.abs(gap))}`;
 
   return (
     <WidgetShell
-      title={<ReconciliationTitle />}
-      icon="sync_alt"
-      description={`Uso estimado ${brl(usedTotal)} · na fatura ${brl(chargedTotal)}`}
+      title="Usado × na fatura"
+      icon="compare_arrows"
+      description="Aswork, neste período"
       dragHandle={dragHandle}
       resizeButton={resizeButton}
-      actions={
-        <VizToggle
-          value={viz}
-          onChange={setViz}
-          options={[
-            { value: "bar", icon: "bar_chart", label: "Barras" },
-            { value: "line", icon: "show_chart", label: "Linhas" },
-          ]}
-        />
-      }
     >
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
-        <LegendDot color="var(--aw-blue-500)" label="Taxas Aswork" />
-        <LegendDot color="var(--aw-purple-400)" label="Meta aproximado" />
-        <LegendDot color="var(--aw-amber-500)" label="Valor na fatura" />
+      {/* dois números grandes, em R$, com a seta no meio */}
+      <div className="flex items-end gap-x-5 pt-1">
+        <div className="flex flex-col gap-1.5">
+          <span className="body-xs text-(--fg-tertiary)">Você usou</span>
+          <span className="text-(length:--h2-size) font-semibold leading-none tracking-heading-tighter tabular-nums text-(--aw-blue-500)">
+            {brl(used)}
+          </span>
+        </div>
+        <Icon
+          name="arrow_forward"
+          size={20}
+          className="mb-1.5 shrink-0 text-(--fg-tertiary)"
+        />
+        <div className="flex flex-col gap-1.5">
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-tertiary)">
+            Entrou na fatura
+            <AwBrandLogo brand="stripe" markOnly size={14} />
+          </span>
+          <span className="text-(length:--h2-size) font-semibold leading-none tracking-heading-tighter tabular-nums text-(--aw-amber-600)">
+            {brl(invoice)}
+          </span>
+        </div>
       </div>
-      <ChartContainer
-        key={viz}
-        config={config}
-        className="aspect-auto h-[240px] w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
-      >
-        {viz === "bar" ? (
-          <ComposedChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="22%">
-            <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-            <XAxis
-              dataKey="day"
-              tickLine={{ stroke: "var(--border-default)" }}
-              axisLine={{ stroke: "var(--border-subtle)" }}
-              tickMargin={8}
-              minTickGap={8}
-              height={34}
-            />
-            <ChartTooltip
-              cursor={{ fill: "var(--bg-hover)" }}
-              content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
-            />
-            <Bar
-              dataKey="wc"
-              stackId="u"
-              fill="var(--aw-blue-500)"
-              opacity={seriesOpacity(activeSeries, "wc")}
-              maxBarSize={30}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("wc")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Bar
-              dataKey="meta"
-              stackId="u"
-              fill="var(--aw-purple-400)"
-              opacity={seriesOpacity(activeSeries, "meta")}
-              maxBarSize={30}
-              radius={[3, 3, 0, 0]}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("meta")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Line
-              dataKey="charged"
-              type="monotone"
-              stroke="var(--aw-amber-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "charged")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("charged")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-          </ComposedChart>
-        ) : (
-          <LineChart data={data} margin={{ left: 12, right: 12, top: 8 }}>
-            <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
-            <XAxis
-              dataKey="day"
-              tickLine={{ stroke: "var(--border-default)" }}
-              axisLine={{ stroke: "var(--border-subtle)" }}
-              tickMargin={8}
-              minTickGap={8}
-              height={34}
-            />
-            <ChartTooltip
-              cursor={{ stroke: "var(--border-default)" }}
-              content={<ChartTooltipContent className="min-w-[200px] bg-(--bg-raised)" />}
-            />
-            <Line
-              dataKey="used"
-              type="monotone"
-              stroke="var(--aw-blue-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "used")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("used")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-            <Line
-              dataKey="charged"
-              type="monotone"
-              stroke="var(--aw-amber-500)"
-              strokeOpacity={seriesOpacity(activeSeries, "charged")}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-              isAnimationActive
-              animationDuration={CHART_ANIMATION_DURATION}
-              onMouseEnter={() => setActiveSeries("charged")}
-              onMouseLeave={() => setActiveSeries(null)}
-            />
-          </LineChart>
-        )}
-      </ChartContainer>
+
+      {/* a diferença e o porquê — só texto, sem caixa */}
+      <p className="m-0 mt-5 body-sm text-(--fg-secondary)">
+        <span className="font-semibold tabular-nums text-(--aw-amber-600)">
+          {gapStr}
+        </span>{" "}
+        <span className="text-(--fg-tertiary)">
+          · diferença de timing do Stripe
+        </span>
+      </p>
+      <p className="m-0 mt-2 body-sm text-(--fg-secondary)">
+        A fatura fechou um pouco acima do uso porque o Stripe lança em ciclos,
+        como na fatura do cartão. Nada se perde e nada é cobrado duas vezes.
+      </p>
+      {isThisMonth && (
+        <p className="m-0 mt-1 body-xs text-(--fg-tertiary)">
+          {PERIOD_DIFF_REASON}
+        </p>
+      )}
+
+      {/* rodapé Meta — divisória, sem caixa aninhada */}
+      <div className="mt-5 flex items-center gap-2 border-t border-(--border-subtle) pt-3 body-xs text-(--fg-tertiary)">
+        <AwBrandLogo brand="meta" markOnly size={12} className="shrink-0" />
+        <span>
+          O Meta cobra {brl(meta)} direto no seu cartão e não entra nesta fatura.
+        </span>
+      </div>
     </WidgetShell>
   );
 }
@@ -691,43 +601,6 @@ function VizToggle<T extends string>({
       onChange={onChange}
       options={options}
     />
-  );
-}
-
-function LegendDot({ color, label }: { color: string; label: string }) {
-  return (
-    <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
-      <span
-        aria-hidden="true"
-        className="inline-block h-2.5 w-2.5 rounded-full"
-        style={{ background: color }}
-      />
-      {label}
-    </span>
-  );
-}
-
-function ReconciliationTitle() {
-  return (
-    <span className="inline-flex min-w-0 items-center gap-1.5">
-      <span className="truncate">Uso do período × valor na fatura</span>
-      <TooltipProvider delayDuration={120}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="inline-flex cursor-help text-(--fg-tertiary)">
-              <Icon name="info" size={13} />
-            </span>
-          </TooltipTrigger>
-          <TooltipContent
-            side="top"
-            className="max-w-64 border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
-          >
-            Uso do período soma taxas Aswork e Meta aproximado. Valor na fatura
-            mostra o que foi atribuído ao provedor de pagamento no ciclo.
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    </span>
   );
 }
 
