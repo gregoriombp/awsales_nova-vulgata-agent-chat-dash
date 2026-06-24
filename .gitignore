@@ -77,3 +77,9 @@ page-editor/data/*.json
 
 # Playwright MCP verification artifacts (snapshots/console logs)
 .playwright-mcp/
+
+# Local session captures (screenshots + cap JSON refs — not product source)
+/g-*.png
+/cap-*.json
+/germano-perfil.png
+/usado-card.png
