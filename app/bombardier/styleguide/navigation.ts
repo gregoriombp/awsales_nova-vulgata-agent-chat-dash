@@ -78,6 +78,11 @@ export const navigation: NavSection[] = [
       { name: "Avatar", href: "/bombardier/styleguide/components/aw-avatar" },
       { name: "Botões", href: "/bombardier/styleguide/components/buttons" },
       { name: "Breadcrumb", href: "/bombardier/styleguide/components/aw-breadcrumb" },
+      {
+        name: "Calendário",
+        href: "/bombardier/styleguide/components/calendar",
+        aliases: ["Calendar", "calendar", "date picker", "period picker", "seletor de período", "range picker"],
+      },
       { name: "Checkbox", href: "/bombardier/styleguide/components/aw-checkbox" },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },

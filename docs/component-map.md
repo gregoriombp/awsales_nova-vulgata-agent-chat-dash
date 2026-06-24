@@ -46,6 +46,7 @@
 | Painel lateral / drawer | `AwSheet` | `@/components/ui/AwSheet` | |
 | Menu dropdown | `AwDropdownMenu` | `@/components/ui/AwDropdownMenu` | |
 | Abas | `AwTabs` | `@/components/ui/AwTabs` | |
+| Calendário / date picker | `Calendar` | `@/components/ui/calendar` | Primitivo shadcn sancionado para uso direto. Para seletor de período, componha com `Popover` + `AwButton`; não crie `AwCalendar` cerimonial. |
 | Avatar | `AwAvatar` | `@/components/ui/AwAvatar` | grupo: `AwAvatarGroup` (mesmo arquivo). |
 | Empty state | `AwEmpty` | `@/components/ui/AwEmpty` | slots: `AwEmptyTitle`/`Media`/`Description`/`Content`. |
 | Alerta inline | `AwAlert` | `@/components/ui/AwAlert` | |
