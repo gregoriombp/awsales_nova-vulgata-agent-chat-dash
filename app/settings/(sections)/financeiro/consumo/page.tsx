@@ -3,7 +3,6 @@
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
 import { AwStatCard } from "@/components/ui/AwStatCard";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -19,7 +18,6 @@ import {
   COUPONS_APPLIED,
   CREDITS_KPIS,
   INVOICE_HISTORY,
-  voucherStatusVariant,
   VOUCHERS,
   type CouponRow,
   type VoucherRow,
@@ -117,19 +115,19 @@ function CreditsKpis() {
         icon="savings"
         label="Total economizado"
         value={brl(CREDITS_KPIS.totalSaved)}
-        hint="Acumulado · cupons + vouchers já abatidos"
+        hint="Acumulado · cupons + créditos já abatidos"
       />
       <AwStatCard
         icon="account_balance_wallet"
         label="Desconto disponível"
         value={brl(CREDITS_KPIS.availableDiscount)}
-        hint="Saldo de vouchers ativos a abater"
+        hint="Saldo de créditos ativos a abater"
       />
       <AwStatCard
         icon="confirmation_number"
-        label="Vouchers ativos"
+        label="Créditos ativos"
         value={CREDITS_KPIS.activeVouchers}
-        hint="Vouchers em uso agora"
+        hint="Créditos em uso agora"
       />
     </div>
   );
@@ -138,7 +136,7 @@ function CreditsKpis() {
 function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
-      ? "Voucher é um crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate dos seus gastos variáveis até a validade — não muda o limite."
+      ? "Crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate dos seus gastos variáveis até a validade — não muda o limite."
       : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate uma única vez do valor do plano fixo.";
   return (
     <TooltipProvider delayDuration={120}>
@@ -146,7 +144,7 @@ function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
         <TooltipTrigger asChild>
           <button
             type="button"
-            aria-label={`O que é ${kind === "voucher" ? "um voucher" : "um cupom"}`}
+            aria-label={`O que é ${kind === "voucher" ? "um crédito" : "um cupom"}`}
             className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
           >
             <Icon name="info" size={15} />
@@ -186,7 +184,7 @@ function VouchersBlock({
   return (
     <section className="flex flex-col gap-4">
       <header className="flex flex-col gap-1">
-        <h6 className="m-0 text-(--fg-primary)">Vouchers</h6>
+        <h6 className="m-0 text-(--fg-primary)">Créditos</h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
           Abatem dos seus gastos variáveis até a validade.
         </p>
@@ -194,7 +192,7 @@ function VouchersBlock({
 
       {current.length === 0 ? (
         <p className="m-0 border-t border-(--border-subtle) py-4 body-xs text-(--fg-tertiary)">
-          Nenhum voucher ativo no momento.
+          Nenhum crédito ativo no momento.
         </p>
       ) : (
         <ul className="m-0 flex list-none flex-col p-0">
@@ -506,7 +504,7 @@ function ProvenanceNote() {
     <p className="m-0 flex items-start gap-2 border-t border-(--border-subtle) pt-4 body-xs text-(--fg-tertiary)">
       <Icon name="info" size={15} className="mt-px shrink-0" />
       <span className="max-w-[640px]">
-        Vouchers e cupons são aplicados pela sua equipe de conta — não há código
+        Créditos e cupons são aplicados pela sua equipe de conta — não há código
         para resgatar aqui. Tudo que entrou aparece acima, com o valor e a fatura
         de origem.
       </span>
@@ -533,7 +531,7 @@ function VoucherDetailModal({
     <AwModal
       open={open}
       onClose={onClose}
-      title={voucher?.description ?? "Voucher"}
+      title={voucher?.description ?? "Crédito"}
       footer={
         <div className="flex items-center justify-end">
           <AwButton variant="ghost" onClick={onClose}>
@@ -544,17 +542,6 @@ function VoucherDetailModal({
     >
       {voucher && (
         <div className="flex flex-col gap-5">
-          <div className="flex items-center gap-2">
-            <AwPill variant={voucherStatusVariant(voucher.status)}>
-              {voucher.status}
-            </AwPill>
-            <span className="body-xs text-(--fg-tertiary)">
-              {voucher.status === "Pendente" && voucher.effectiveAt
-                ? `Começa em ${formatExpiry(voucher.effectiveAt)}`
-                : `Válido até ${formatExpiry(voucher.expiresAt)}`}
-            </span>
-          </div>
-
           {/* três números, flat (divisória, sem card aninhado) */}
           <div className="grid grid-cols-3 divide-x divide-(--border-subtle)">
             <ModalStat label="Valor total" value={brl(voucher.total)} />
@@ -580,9 +567,9 @@ function VoucherDetailModal({
 
           {voucher.consumptions && voucher.consumptions.length > 0 && (
             <div className="flex flex-col gap-2">
-              <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
-                Faturas que usaram este voucher
-              </p>
+              <h6 className="m-0 body-sm font-medium text-(--fg-secondary)">
+                Faturas que usaram este crédito
+              </h6>
               <AwTable>
                 <thead>
                   <tr>
