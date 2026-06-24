@@ -20,7 +20,9 @@ import {
 import { formatFullTimestamp } from "@/lib/bombardier-review/format"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReplyRow } from "./ReviewCommentCard"
+import { ReplyComposer } from "./ReplyComposer"
 import { UxFlowChip } from "./UxFlowChip"
+import { useImageAttach } from "@/lib/bombardier-review/useImageAttach"
 import type { ReviewComment, ReviewPoint } from "./types"
 
 const THREAD_WIDTH = 360
@@ -48,7 +50,6 @@ export function ReviewThreadPopover() {
   const threadCommentId = useReviewStore((s) => s.threadCommentId)
   const comments = useReviewStore((s) => s.comments)
   const archivedComments = useReviewStore((s) => s.archivedComments)
-  const identity = useReviewStore((s) => s.identity)
   const pendingAnchor = useReviewStore((s) => s.pendingAnchor)
 
   const closeThread = useReviewStore((s) => s.closeThread)
@@ -56,14 +57,16 @@ export function ReviewThreadPopover() {
   const archiveDirect = useReviewStore((s) => s.archiveDirect)
   const approveComment = useReviewStore((s) => s.approveComment)
   const rejectComment = useReviewStore((s) => s.rejectComment)
-  const addReply = useReviewStore((s) => s.addReply)
+  const editComment = useReviewStore((s) => s.editComment)
   const deleteComment = useReviewStore((s) => s.deleteComment)
 
   const scroll = useCumulativeScrollOffset()
   const layoutVersion = useLayoutVersion()
 
-  const [replyText, setReplyText] = React.useState("")
-  const [submitting, setSubmitting] = React.useState(false)
+  const [editing, setEditing] = React.useState(false)
+  const [editText, setEditText] = React.useState("")
+  const [editSaving, setEditSaving] = React.useState(false)
+  const editImg = useImageAttach()
   const bodyRef = React.useRef<HTMLDivElement>(null)
 
   const comment =
@@ -71,10 +74,9 @@ export function ReviewThreadPopover() {
     archivedComments.find((c) => c.id === threadCommentId) ??
     null
 
-  // Reset the composer whenever we switch to a different comment.
+  // Sai do modo de edição ao trocar de comentário.
   React.useEffect(() => {
-    setReplyText("")
-    setSubmitting(false)
+    setEditing(false)
   }, [threadCommentId])
 
   // Keep the latest reply in view as the thread grows.
@@ -147,6 +149,21 @@ export function ReviewThreadPopover() {
   const isInReview = comment.status === "in_review"
   const target = targetSummary(comment)
 
+  const startEdit = () => {
+    setEditText(comment.text)
+    editImg.reset(comment.images ?? [])
+    setEditing(true)
+  }
+  const saveEdit = async () => {
+    setEditSaving(true)
+    try {
+      await editComment(comment.id, editText, editImg.images)
+      setEditing(false)
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
   const copyPermalink = () => {
     const base = window.location.origin
     const pathWithQuery = comment.url.includes("?")
@@ -156,6 +173,7 @@ export function ReviewThreadPopover() {
   }
 
   const dropdownItems: AwDropdownItem[] = [
+    { id: "edit", label: "Editar", icon: "edit", onSelect: startEdit },
     { id: "copy-link", label: "Copiar link", icon: "link", onSelect: copyPermalink },
     isInReview
       ? {
@@ -179,18 +197,6 @@ export function ReviewThreadPopover() {
       onSelect: () => void deleteComment(comment.id),
     },
   ]
-
-  const submitReply = async () => {
-    const trimmed = replyText.trim()
-    if (!trimmed || submitting) return
-    setSubmitting(true)
-    try {
-      await addReply(comment.id, trimmed)
-      setReplyText("")
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   return (
     <div
@@ -268,32 +274,91 @@ export function ReviewThreadPopover() {
 
         {/* Body: comment + replies */}
         <div ref={bodyRef} className="flex-1 overflow-y-auto px-3 py-2.5">
-          {comment.text.length > 0 && (
-            <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
-              {comment.text}
-            </p>
-          )}
-
-          {comment.images && comment.images.length > 0 && (
-            <div
-              className={[
-                "flex flex-wrap gap-1.5",
-                comment.text.length > 0 ? "mt-2" : "",
-              ].join(" ")}
-            >
-              {comment.images.map((src, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => window.open(src, "_blank", "noopener")}
-                  className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
-                  aria-label={`Ver imagem ${idx + 1}`}
+          {editing ? (
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                onPaste={editImg.onPaste}
+                rows={3}
+                autoFocus
+                placeholder="Edite o comentário…"
+                className="w-full rounded-sm border border-(--border-subtle) bg-(--bg-surface) p-2 body-sm text-(--fg-primary) focus:outline-hidden focus:border-(--accent-brand) resize-none"
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void saveEdit()
+                  if (e.key === "Escape") setEditing(false)
+                }}
+              />
+              {editImg.images.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {editImg.images.map((src, idx) => (
+                    <div key={idx} className="relative group/ethumb">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={src}
+                        alt=""
+                        className="h-16 w-16 rounded-sm object-cover border border-(--border-subtle)"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => editImg.remove(idx)}
+                        aria-label="Remover imagem"
+                        className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-(--bg-raised) border border-(--border-subtle) flex items-center justify-center text-(--fg-tertiary) hover:text-(--fg-primary) opacity-0 group-hover/ethumb:opacity-100 transition-opacity"
+                      >
+                        <Icon name="close" size={9} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center justify-end gap-1">
+                <AwButton variant="ghost" size="sm" onClick={() => setEditing(false)}>
+                  Cancelar
+                </AwButton>
+                <AwButton
+                  variant="primary"
+                  size="sm"
+                  loading={editSaving}
+                  disabled={
+                    editSaving ||
+                    (editText.trim().length === 0 && editImg.images.length === 0)
+                  }
+                  onClick={() => void saveEdit()}
                 >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="" className="h-24 w-24 object-cover" />
-                </button>
-              ))}
+                  Salvar
+                </AwButton>
+              </div>
             </div>
+          ) : (
+            <>
+              {comment.text.length > 0 && (
+                <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
+                  {comment.text}
+                </p>
+              )}
+
+              {comment.images && comment.images.length > 0 && (
+                <div
+                  className={[
+                    "flex flex-wrap gap-1.5",
+                    comment.text.length > 0 ? "mt-2" : "",
+                  ].join(" ")}
+                >
+                  {comment.images.map((src, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => window.open(src, "_blank", "noopener")}
+                      className="rounded-sm overflow-hidden border border-(--border-subtle) hover:border-(--border-strong) transition-colors focus:outline-hidden"
+                      aria-label={`Ver imagem ${idx + 1}`}
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={src} alt="" className="h-24 w-24 object-cover" />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
           )}
 
           {target && (
@@ -341,34 +406,7 @@ export function ReviewThreadPopover() {
             </div>
           )}
 
-          <div className="flex items-end gap-1.5">
-            <textarea
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              onKeyDown={(e) => {
-                if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-                  e.preventDefault()
-                  void submitReply()
-                } else if (e.key === "Escape") {
-                  e.preventDefault()
-                  closeThread()
-                }
-              }}
-              placeholder="Responder…"
-              rows={1}
-              className="flex-1 resize-none rounded-sm border border-(--border-subtle) bg-(--bg-surface) px-2.5 py-1.5 body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) focus:outline-hidden focus:border-(--accent-brand) max-h-24"
-            />
-            <button
-              type="button"
-              onClick={() => void submitReply()}
-              disabled={!replyText.trim() || submitting}
-              aria-label="Enviar resposta"
-              className="h-8 w-8 shrink-0 inline-flex items-center justify-center rounded-full bg-(--accent-brand) text-(--fg-on-inverse) disabled:opacity-40 disabled:cursor-not-allowed hover:opacity-90 transition-opacity"
-              style={identity ? { background: identity.colorToken } : undefined}
-            >
-              <Icon name="arrow_upward" size={15} />
-            </button>
-          </div>
+          <ReplyComposer key={comment.id} commentId={comment.id} />
         </div>
       </div>
     </div>

@@ -14,15 +14,17 @@ import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useCurrentUrl } from "@/lib/bombardier-review/hooks"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
+import { BacklogComposer } from "./BacklogComposer"
 import { ReviewCommentCard } from "./ReviewCommentCard"
 import type { ReviewComment } from "./types"
 
-type Tab = "open" | "in_review" | "archive"
+type Tab = "open" | "in_review" | "backlog" | "archive"
 type Scope = "page" | "all"
 
 const TAB_LABEL: Record<Tab, string> = {
   open: "Abertos",
   in_review: "Em revisão",
+  backlog: "Ideias futuras",
   archive: "Arquivados",
 }
 
@@ -42,6 +44,7 @@ export function ReviewCommentSheet() {
 
   const [scope, setScope] = React.useState<Scope>("page")
   const [tab, setTab] = React.useState<Tab>("open")
+  const [query, setQuery] = React.useState("")
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set())
   const [bulkBusy, setBulkBusy] = React.useState(false)
 
@@ -64,10 +67,25 @@ export function ReviewCommentSheet() {
     : archivedComments
 
   const visible: ReviewComment[] = React.useMemo(() => {
-    if (tab === "open") return sourceMain.filter((c) => c.status === "open")
-    if (tab === "in_review") return sourceMain.filter((c) => c.status === "in_review")
-    return sourceArchive
-  }, [tab, sourceMain, sourceArchive])
+    const base =
+      tab === "open"
+        ? sourceMain.filter((c) => c.status === "open")
+        : tab === "in_review"
+        ? sourceMain.filter((c) => c.status === "in_review")
+        : tab === "backlog"
+        ? // Ideia futura é global (não fixada numa tela) — ignora o scope.
+          allComments.filter((c) => c.status === "backlog")
+        : sourceArchive
+    const q = query.trim().toLowerCase()
+    if (!q) return base
+    return base.filter(
+      (c) =>
+        c.text?.toLowerCase().includes(q) ||
+        c.authorName?.toLowerCase().includes(q) ||
+        c.url?.toLowerCase().includes(q) ||
+        c.replies?.some((r) => r.text.toLowerCase().includes(q))
+    )
+  }, [tab, sourceMain, sourceArchive, allComments, query])
 
   const inReviewCount = allComments.filter((c) => c.status === "in_review").length
 
@@ -114,8 +132,12 @@ export function ReviewCommentSheet() {
       title="Comentários"
       meta={
         <span className="body-xs text-(--fg-tertiary)">
-          {scope === "page" ? "Nesta tela" : "Em todas as telas"} ·{" "}
-          {visible.length}
+          {tab === "backlog"
+            ? "Ideias futuras"
+            : scope === "page"
+            ? "Nesta tela"
+            : "Em todas as telas"}{" "}
+          · {visible.length}
         </span>
       }
       footer={
@@ -144,26 +166,51 @@ export function ReviewCommentSheet() {
         {...{ [OVERLAY_DATA_ATTR]: "" }}
         className="flex flex-col gap-3 h-full"
       >
-        <div className="flex items-center gap-1 p-1 rounded-full bg-(--bg-muted) self-start body-xs font-medium">
-          {(["page", "all"] as Scope[]).map((s) => (
+        <div className="relative">
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-(--fg-tertiary) pointer-events-none">
+            <Icon name="search" size={16} weight={500} />
+          </span>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Buscar comentário…"
+            className="w-full h-9 pl-8 pr-8 rounded-full bg-(--bg-muted) border border-transparent focus:border-(--border-default) focus:bg-(--bg-raised) outline-none body-sm text-(--fg-primary) placeholder:text-(--fg-tertiary) transition-colors"
+          />
+          {query && (
             <button
-              key={s}
               type="button"
-              onClick={() => setScope(s)}
-              className={[
-                "px-3 py-1 rounded-full transition-colors",
-                scope === s
-                  ? "bg-(--bg-raised) text-(--fg-primary) shadow-sm"
-                  : "text-(--fg-secondary) hover:text-(--fg-primary)",
-              ].join(" ")}
+              onClick={() => setQuery("")}
+              aria-label="Limpar busca"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 inline-flex items-center justify-center rounded-full text-(--fg-tertiary) hover:text-(--fg-primary) hover:bg-(--bg-hover) transition-colors"
             >
-              {s === "page" ? "Esta tela" : "Tudo"}
+              <Icon name="close" size={14} />
             </button>
-          ))}
+          )}
         </div>
 
+        {tab !== "backlog" && (
+          <div className="flex items-center gap-1 p-1 rounded-full bg-(--bg-muted) self-start body-xs font-medium">
+            {(["page", "all"] as Scope[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setScope(s)}
+                className={[
+                  "px-3 py-1 rounded-full transition-colors",
+                  scope === s
+                    ? "bg-(--bg-raised) text-(--fg-primary) shadow-sm"
+                    : "text-(--fg-secondary) hover:text-(--fg-primary)",
+                ].join(" ")}
+              >
+                {s === "page" ? "Esta tela" : "Tudo"}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="flex items-center gap-1 body-xs font-medium">
-          {(["open", "in_review", "archive"] as Tab[]).map((t) => (
+          {(["open", "in_review", "backlog", "archive"] as Tab[]).map((t) => (
             <button
               key={t}
               type="button"
@@ -221,6 +268,8 @@ export function ReviewCommentSheet() {
           </div>
         )}
 
+        {tab === "backlog" && <BacklogComposer />}
+
         <div className="flex-1 overflow-y-auto -mx-1 px-1">
           {visible.length === 0 ? (
             <AwEmpty>
@@ -229,10 +278,14 @@ export function ReviewCommentSheet() {
                   <Icon name="forum" size={20} />
                 </AwEmptyMedia>
                 <AwEmptyTitle>
-                  {tab === "archive"
+                  {query.trim()
+                    ? "Nada encontrado pra essa busca"
+                    : tab === "archive"
                     ? "Nenhum arquivado aqui"
                     : tab === "in_review"
                     ? "Nada esperando revisão"
+                    : tab === "backlog"
+                    ? "Nenhuma ideia futura ainda"
                     : scope === "page"
                     ? "Nenhum comentário nesta tela"
                     : "Sem comentários abertos"}
