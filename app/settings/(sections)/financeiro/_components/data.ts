@@ -862,11 +862,42 @@ export type PeriodSummary = {
   total: number;
 };
 
+// Detalhe dos ajustes do período — alimenta o "saiba mais" do card Ajustes.
+// Cada item é assinado: negativo abate, positivo soma. A soma bate com
+// `adjustments` do PeriodSummary. Em produção vem do backend (costuma vir
+// vazio); aqui são exemplos pra ilustrar o motivo de cada valor.
+export type AdjustmentItem = {
+  id: string;
+  label: string;
+  /** Valor assinado em BRL: negativo abate, positivo soma. */
+  value: number;
+  detail: string;
+};
+
+export const ADJUSTMENT_ITEMS: AdjustmentItem[] = [
+  {
+    id: "estorno-disparo",
+    label: "Estorno de disparos com falha",
+    value: -18.4,
+    detail:
+      "Disparos que retornaram erro do provedor e foram estornados no período.",
+  },
+  {
+    id: "correcao-token",
+    label: "Correção de tokens reprocessados",
+    value: -6.5,
+    detail:
+      "Tokens contabilizados em duplicidade por reprocessamento, corrigidos nesta fatura.",
+  },
+];
+
 export function getPeriodSummary(subtotal: number): PeriodSummary {
   const credits = Math.round(subtotal * PERIOD_CREDIT_RATIO * 100) / 100;
   // Ajuste de exemplo (estorno) pra ilustrar o card "Ajustes" e o sinal +/−.
-  // Em produção vem do backend e costuma ser 0.
-  const adjustments = -24.9;
+  // Em produção vem do backend e costuma ser 0. Deriva da soma dos itens
+  // detalhados pra o card e o "saiba mais" nunca divergirem.
+  const adjustments =
+    Math.round(ADJUSTMENT_ITEMS.reduce((s, i) => s + i.value, 0) * 100) / 100;
   const total = Math.round((subtotal - credits + adjustments) * 100) / 100;
   return { subtotal, credits, adjustments, total };
 }
