@@ -39,7 +39,7 @@ export function PlanDetailModal({
       footer={
         <div className="flex w-full flex-wrap items-center justify-between gap-3">
           <span className="body-xs text-(--fg-tertiary)">
-            Quer mudar de plano ou tirar dúvidas?
+            Precisa mudar de plano ou tem dúvidas?
           </span>
           <AwButton variant="secondary" size="sm" iconLeft="support_agent" onClick={onContact}>
             Falar com representante
