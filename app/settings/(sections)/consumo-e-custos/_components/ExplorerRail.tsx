@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { Icon } from "@/components/ui/Icon";
 import { brl } from "../../financeiro/_components/data";
 import { useConsumo } from "./ConsumoContext";
@@ -155,14 +156,7 @@ function ByDestination() {
                   {d.id === "meta" ? (
                     <AwBrandLogo brand="meta" size={16} markOnly />
                   ) : (
-                    <span
-                      aria-hidden="true"
-                      className={cn(
-                        "h-2.5 w-2.5 shrink-0 rounded-full border-2",
-                        d.active ? "border-transparent" : "border-(--border-strong) bg-transparent!",
-                      )}
-                      style={{ background: d.active ? d.colorVar : undefined }}
-                    />
+                    <AwLogo variant="mark" height={15} className="text-(--aw-blue-500)" />
                   )}
                   {d.label}
                   {!d.active && (

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -77,10 +78,12 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
             <tr>
               <th className={TH}>Item</th>
               <th className={TH}>Provedor</th>
+              <th className={cn(TH, "text-right")}>Quantidade</th>
+              <th className={TH}>Unitário</th>
               <th className={cn(TH, "text-right")}>Total BRL</th>
               <th className={cn(TH, "text-right")}>Total USD</th>
-              <th className={cn(TH, "w-[180px]")}>Participação</th>
-              <th className="w-24" aria-hidden="true" />
+              <th className={cn(TH, "w-[150px]")}>Participação</th>
+              <th className="w-20" aria-hidden="true" />
             </tr>
           </thead>
           <tbody>
@@ -119,6 +122,8 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                   <td>
                     <ProviderTag provider={row.provider} />
                   </td>
+                  <td className="text-right tabular-nums text-(--fg-secondary)">{row.quantity ?? "—"}</td>
+                  <td className="tabular-nums text-(--fg-tertiary)">{row.unitPrice ?? "—"}</td>
                   <td className="text-right font-medium tabular-nums text-(--fg-primary)">{brl(row.total)}</td>
                   <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(row.usd)}</td>
                   <td>
@@ -171,11 +176,19 @@ function ProviderTag({ provider }: { provider: ProviderId | "mixed" }) {
       </span>
     );
   }
-  const label = provider === "mixed" ? "Misto" : PROVIDERS[provider].label;
+  if (provider === "aswork") {
+    return (
+      <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
+        <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
+        Aswork
+      </span>
+    );
+  }
+  // Só sobra "mixed" (meta/aswork retornaram acima).
   return (
     <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
       <span aria-hidden="true" className="h-2 w-2 shrink-0 rounded-full" style={{ background: barColor(provider) }} />
-      {label}
+      Misto
     </span>
   );
 }

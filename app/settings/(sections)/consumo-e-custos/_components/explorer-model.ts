@@ -118,15 +118,17 @@ type GroupDef = {
   desc: string;
   icon: string;
   rowIds: string[];
+  /** Formato da quantidade agregada do grupo (soma das linhas-filha). */
+  aggregateFormat: ServiceBreakdownRow["quantityFormat"];
 };
 
 const SERVICE_GROUPS: GroupDef[] = [
-  { id: "meta", label: "Meta", desc: "Disparos de WhatsApp cobrados via Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"] },
-  { id: "msgs", label: "Mensagens transacionadas", desc: "Mensagens transacionadas pelos agentes", icon: "forum", rowIds: ["msgs"] },
-  { id: "leads", label: "Leads ativos", desc: "Contatos que viraram lead ativo no período", icon: "person_add", rowIds: ["leads"] },
-  { id: "tokens", label: "Tokens", desc: "Knowledge, Brain e Skills dos agentes", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"] },
-  { id: "tel", label: "Telefone", desc: "Linha telefônica de um parceiro da Aswork", icon: "call", rowIds: ["linha"] },
-  { id: "outros", label: "Outros serviços", desc: "Serviços agregados do período", icon: "more_horiz", rowIds: ["outros"] },
+  { id: "meta", label: "Meta", desc: "Disparos de WhatsApp cobrados via Meta", icon: "campaign", rowIds: ["disp-mkt", "disp-util"], aggregateFormat: "decimal" },
+  { id: "msgs", label: "Mensagens transacionadas", desc: "Mensagens transacionadas pelos agentes", icon: "forum", rowIds: ["msgs"], aggregateFormat: "decimal" },
+  { id: "leads", label: "Leads ativos", desc: "Contatos que viraram lead ativo no período", icon: "person_add", rowIds: ["leads"], aggregateFormat: "decimal" },
+  { id: "tokens", label: "Tokens", desc: "Knowledge, Brain e Skills dos agentes", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], aggregateFormat: "abbrev" },
+  { id: "tel", label: "Telefone", desc: "Linha telefônica de um parceiro da Aswork", icon: "call", rowIds: ["linha"], aggregateFormat: "decimal" },
+  { id: "outros", label: "Outros serviços", desc: "Serviços agregados do período", icon: "more_horiz", rowIds: ["outros"], aggregateFormat: "decimal" },
 ];
 
 /* ---------- linha unificada da tabela ---------- */
@@ -140,6 +142,10 @@ export type ExplorerRow = {
   provider: ProviderId | "mixed";
   total: number;
   usd: number;
+  /** Quantidade já formatada (ex.: "2.805", "35,6M") — undefined quando n/a. */
+  quantity?: string;
+  /** Taxa efetiva por unidade (ex.: "R$ 0,12 / disparo", "Misto"). */
+  unitPrice?: string;
   share: number;
   /** Pode descer mais um nível (tem categorias de gráfico pra estreitar). */
   drillable: boolean;
@@ -239,6 +245,11 @@ export function buildRows(
   return built
     .map(({ g, rows, total }) => {
       const cats = categoriesOf(rows);
+      const members = rows
+        .map((id) => byId.get(id))
+        .filter((r): r is ServiceBreakdownRow => Boolean(r));
+      const hasQty = members.some((r) => r.quantity >= 0);
+      const qtySum = members.reduce((s, r) => (r.quantity >= 0 ? s + r.quantity : s), 0);
       return {
         id: g.id,
         label: g.label,
@@ -247,6 +258,8 @@ export function buildRows(
         provider: providerForRows(rows),
         total,
         usd: toUsd(total),
+        quantity: hasQty ? formatQuantity(qtySum, g.aggregateFormat) : undefined,
+        unitPrice: rows.length === 1 ? byId.get(rows[0])?.unitPriceLabel : "Misto",
         share: (total / grand) * 100,
         // Estreitar só faz sentido se há categoria de gráfico (Telefone/Outros
         // não têm série, então não descem).
@@ -274,6 +287,8 @@ export function leafRows(
       provider: providerOf(r.id),
       total: r.total,
       usd: toUsd(r.total),
+      quantity: r.quantity >= 0 ? formatQuantity(r.quantity, r.quantityFormat) : undefined,
+      unitPrice: r.unitPriceLabel,
       share: (r.total / grand) * 100,
       drillable: false,
       categoryIds: categoriesOf([r.id]),
