@@ -129,9 +129,10 @@ Você é o olho crítico, não o executor. Se bater vontade de "já que vi, cons
 ### 0. Setup — validar o bridge
 
 ```bash
-TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2-)
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:3000/api/review-bridge}
-curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
+# Bridge serverless, same-origin no Next. Sem token. NÃO leia BRIDGE_URL
+# do env (.env.local antigo pode apontar pro Express morto na :9878).
+BRIDGE_URL=http://127.0.0.1:3000/api/review-bridge
+curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3 and d.get('mode')=='serverless', d"
 ```
 
 Se falhar, pare e peça pra rodar `npm run dev` na raiz. Confirme também que você
@@ -333,7 +334,7 @@ Passe um seletor/lógica pra achar o elemento que você quer pinar:
 ```bash
 ID="cmt-$(uuidgen | tr 'A-F' 'a-f')"; NOW=$(python3 -c "import time;print(int(time.time()*1000))")
 curl -s -X PUT "$BRIDGE_URL/comments/$ID" \
-  -H "X-Review-Token: $TOKEN" -H "Content-Type: application/json" \
+  -H "Content-Type: application/json" \
   -d "$(python3 - "$ID" "$NOW" <<'PY'
 import sys, json
 cid, now = sys.argv[1], int(sys.argv[2])
@@ -385,7 +386,8 @@ sair do lugar, recapture a âncora no estado atual da tela (ver Troubleshooting)
 - ❌ Não reescreva/edite comments existentes via `PUT` upsert. O `PUT` só é pra
   **criar** pin de sugestão novo.
 - ❌ Não invente bug/feiura que você não viu. Sem ver → regra `<context_limit>`.
-- ❌ Não bata em endpoints sem o header `X-Review-Token` (volta 401).
+- ❌ Não passe header `X-Review-Token` — o bridge serverless é same-origin
+  e ignora o header. Header velho só polui o log.
 - ✅ Pin = `status: "open"`, autor Germano, ancorado, na voz do `<comment_format>`,
   com sugestão concreta + "manda o @Claude fazer".
 - ✅ Qualidade > quantidade. Só pina o que você cravaria na frente do Greg.
@@ -395,7 +397,9 @@ sair do lugar, recapture a âncora no estado atual da tela (ver Troubleshooting)
 
 | Sintoma | Causa | Saída |
 |---|---|---|
-| `401` | token errado | reler `review-bridge/.env` (cuidado com espaço extra) |
+| `ECONNREFUSED 127.0.0.1:3000` | Next não está rodando | `npm run dev` na raiz |
+| `ECONNREFUSED 127.0.0.1:9878` | algo apontou pro Express legado (provável `.env.local` com `BRIDGE_URL` antigo) | use o literal `http://127.0.0.1:3000/api/review-bridge` |
+| health responde mas `mode != "serverless"` | `dev:bridge` (Express opt-in) está sendo usado | matar o Express e mirar no Next |
 | Pin criado mas não renderiza / fora do lugar | `anchor.el.selector` não re-resolve (DOM mudou / estava em modal que fechou) ou faltou campo do `ReviewComment` | recapturar a âncora na tela no estado certo; conferir `anchor.kind="pin"`, `el.selector/fx/fy` e os viewport metrics |
 | Avatar do pin sai "G" genérico em vez de "GF" | branch do Germano não está em `ReviewAvatar.tsx`/`ReviewPinMarker.tsx` | conferir `isGermano(...)` nos dois componentes |
 | Pin/overlay não aparece | app aberto fora de `localhost`/`127.0.0.1` (CORS) | abrir local |

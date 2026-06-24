@@ -131,15 +131,17 @@ reply) e, no máximo, abre um pin de sugestão pro Greg.
 
 ## Fluxo
 
-### 0. Setup — ler env e validar bridge
+### 0. Setup — validar bridge
 
 ```bash
-TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2-)
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:3000/api/review-bridge}
-curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
+# Bridge é serverless e same-origin no Next. NÃO leia BRIDGE_URL do env
+# (.env.local antigo pode apontar pro Express morto na :9878).
+BRIDGE_URL=http://127.0.0.1:3000/api/review-bridge
+curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3 and d.get('mode')=='serverless', d"
 ```
 
-Se falhar, pare com mensagem pedindo pra rodar `npm run dev` na raiz e voltar.
+Sem token — same-origin. Se falhar, pare com mensagem pedindo pra rodar
+`npm run dev` na raiz e voltar.
 
 ### 1. Escopo — por padrão, `status=in_review`
 
@@ -155,7 +157,7 @@ mandou para revisão**, ou seja, a fila `in_review`. (O `solve` olha `open`.)
 | "audita os abertos também" (raro) | inclua `status=open`, mas avise: itens `open` ainda **não foram entregues**, então não há entrega pra comparar — no máximo avalie a clareza do pedido |
 
 ```bash
-curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments?status=in_review" \
+curl -s "$BRIDGE_URL/comments?status=in_review" \
   | python3 -m json.tool > /tmp/germano-in-review.json
 ```
 
@@ -209,7 +211,6 @@ transitions.
 
 ```bash
 curl -s -X POST "$BRIDGE_URL/comments/$ID/replies" \
-  -H "X-Review-Token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "authorKind": "agent",
@@ -397,7 +398,7 @@ contexto da página; espelha `elementAnchor.ts` + `elementContext.ts`):
 ID="cmt-$(uuidgen | tr 'A-F' 'a-f')"; NOW=$(python3 -c "import time;print(int(time.time()*1000))")
 # CAP = o JSON do passo 1; injete id/timestamps/autor/text/status e faça o PUT:
 curl -s -X PUT "$BRIDGE_URL/comments/$ID" \
-  -H "X-Review-Token: $TOKEN" -H "Content-Type: application/json" \
+  -H "Content-Type: application/json" \
   -d "$(python3 - "$ID" "$NOW" <<'PY'
 import sys, json
 cid, now = sys.argv[1], int(sys.argv[2])
@@ -432,7 +433,8 @@ no elemento. Se o pin não renderizar / sair fora do lugar, ver Troubleshooting.
 - ❌ Não reabra, edite ou resolva os comments que você está **auditando** (neles
   você só dá reply). O `PUT` upsert só é permitido pra **criar** um pin de bonus novo.
 - ❌ Não invente entrega que você não viu. Sem contexto → avise (regra `<context_limit>`).
-- ❌ Não bata em endpoints sem o header `X-Review-Token` (volta 401).
+- ❌ Não passe header `X-Review-Token` — o bridge serverless é same-origin
+  e ignora o header. Header velho só polui o log.
 - ✅ Um reply por item, no `<comment_format>`, escrito direto pro Greg.
 - ✅ Pin de bonus: opcional, raro (teto ~3–5), sempre `status: "open"`, autor
   Germano, fora do escopo, endereçado ao Greg (`<bonus_pins>`).
@@ -458,7 +460,9 @@ no elemento. Se o pin não renderizar / sair fora do lugar, ver Troubleshooting.
 
 | Sintoma | Causa | Saída |
 |---|---|---|
-| `401` | token errado | reler `review-bridge/.env` (cuidado com espaço extra) |
+| `ECONNREFUSED 127.0.0.1:3000` | Next não está rodando | `npm run dev` na raiz |
+| `ECONNREFUSED 127.0.0.1:9878` | algo apontou pro Express legado morto (provável `.env.local` com `BRIDGE_URL` antigo) | use o literal `http://127.0.0.1:3000/api/review-bridge` |
+| health responde mas `mode != "serverless"` | `dev:bridge` (Express opt-in) está sendo usado | matar o Express e mirar no Next |
 | `404` no reply | comment foi arquivado/deletado no meio | pular do lote |
 | 0 itens quando deveria ter | filtro pegou `status=open`; a fila de revisão é `in_review` | trocar pra `status=in_review` |
 | Avatar do Germano sai como "G" genérico | branch dele não está em `ReviewAvatar.tsx` | conferir `isGermano(...)` no componente |

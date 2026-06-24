@@ -24,10 +24,14 @@ Esta skill é o **agente que resolve** os comentários do Review Mode. Ela
 lê o bridge local, planeja correções, implementa, e devolve cada item
 marcado como **em revisão** pra o usuário aprovar pelo inbox.
 
-> Pré-requisito: `npm run dev` já está rodando na raiz. Esse comando sobe o
-> Next e o review-bridge local juntos.
+> Pré-requisito: `npm run dev` já está rodando na raiz. O bridge agora é
+> **serverless, embutido no Next** (rotas `/api/review-bridge/*`, same-origin,
+> sem token). O servidor Express `review-bridge/` é legado opt-in (`npm run
+> dev:bridge`) e não é mais a fonte.
 >
-> Arquitetura, endpoints e payloads completos: `review-bridge/README.md`.
+> Source of truth dos endpoints: `app/api/review-bridge/*/route.ts`. O
+> `review-bridge/README.md` ainda descreve o Express antigo (porta 9878, token)
+> — **não use como referência**.
 
 ## Regra de ouro
 
@@ -59,20 +63,21 @@ um id estável diferente (`claude-haiku`, `cursor`, etc.) e um `name` legível.
 
 ## Fluxo
 
-### 0. Setup — ler env e validar bridge
+### 0. Setup — validar bridge
 
 ```bash
-# Token do bridge (servidor)
-TOKEN=$(grep BOMBARDIER_REVIEW_TOKEN review-bridge/.env | cut -d= -f2-)
+# URL do bridge serverless (same-origin no Next).
+# NÃO leia BRIDGE_URL do env: um .env.local antigo pode apontar pro Express
+# morto na :9878. Use sempre o literal abaixo.
+BRIDGE_URL=http://127.0.0.1:3000/api/review-bridge
 
-# URL do bridge — preferir o que o frontend usa
-BRIDGE_URL=${BRIDGE_URL:-http://127.0.0.1:3000/api/review-bridge}
-
-# Confere se o servidor está vivo
-curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3, d"
+# Confere se o Next está vivo e respondendo no modo serverless.
+curl -s "$BRIDGE_URL/health" | python3 -c "import sys,json;d=json.load(sys.stdin);assert d['ok'] and d['schemaVersion']==3 and d.get('mode')=='serverless', d"
 ```
 
-Se falhar, parar com mensagem dizendo pra rodar `npm run dev` na raiz e voltar.
+Sem token. As rotas Next gravam direto em `review-bridge/data/*.json` com
+escrita atômica + lock (espelhando o page-edits). Se o health falhar, parar
+com mensagem dizendo pra rodar `npm run dev` na raiz e voltar.
 
 ### 1. Parsear o filtro da request do usuário
 
@@ -98,7 +103,7 @@ Memória relevante:
 ### 2. Buscar e ranquear
 
 ```bash
-curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments?status=open" \
+curl -s "$BRIDGE_URL/comments?status=open" \
   | python3 -m json.tool > /tmp/review-bridge-open.json
 ```
 
@@ -156,7 +161,6 @@ Pra cada comentário marcado como **implementar**:
 
 ```bash
 curl -s -X PUT "$BRIDGE_URL/comments/$ID" \
-  -H "X-Review-Token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "transition": "in_review",
@@ -176,7 +180,6 @@ Pra os marcados como **responder com pergunta**:
 
 ```bash
 curl -s -X POST "$BRIDGE_URL/comments/$ID/replies" \
-  -H "X-Review-Token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "authorKind": "agent",
@@ -236,7 +239,10 @@ Mencionar o badge âmbar com a contagem que apareceu no toolbar.
   o user pergunte explicitamente.
 - ❌ Não responda à thread se o reply é "OK" / sem conteúdo. Reply é pra
   fazer pergunta legítima.
-- ❌ Não bata em todos os endpoints sem token — vai voltar 401.
+- ❌ Não passe header `X-Review-Token` — o bridge serverless é same-origin
+  e ignora o header. Adicionar lixo nas requests só polui o log.
+- ❌ Não use `BRIDGE_URL` vindo do ambiente — um `.env.local` antigo aponta
+  pro Express morto na :9878. Hardcode `http://127.0.0.1:3000/api/review-bridge`.
 - ✅ Sempre pegar timezone do servidor pro `summary` (o bridge faz isso
   sozinho — não recalcule no cliente).
 - ✅ Se cair conexão no meio do lote, retomar do próximo id pendente
@@ -248,7 +254,7 @@ Mencionar o badge âmbar com a contagem que apareceu no toolbar.
 
 ```bash
 TODAY_MS=$(python3 -c "import datetime;t=datetime.datetime.now().replace(hour=0,minute=0,second=0,microsecond=0);print(int(t.timestamp()*1000))")
-curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments?status=open" \
+curl -s "$BRIDGE_URL/comments?status=open" \
   | python3 -c "
 import sys, json, os
 d = json.load(sys.stdin)
@@ -262,14 +268,14 @@ print(json.dumps({'count': len(hoje), 'ids': [c['id'] for c in hoje]}, indent=2)
 
 ```bash
 URL_ENC=$(python3 -c "import urllib.parse,sys;print(urllib.parse.quote(sys.argv[1]))" "/settings/perfil")
-curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments?status=open&url=$URL_ENC"
+curl -s "$BRIDGE_URL/comments?status=open&url=$URL_ENC"
 ```
 
 ### IDs específicos
 
 ```bash
 for ID in cmt-aaa cmt-bbb cmt-ccc; do
-  curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments/$ID" \
+  curl -s "$BRIDGE_URL/comments/$ID" \
     | python3 -c "import sys,json;d=json.load(sys.stdin);c=d['comment'];print(c['id'], '-', c['status'], '-', c['text'][:80])"
 done
 ```
@@ -277,7 +283,7 @@ done
 ### Conferir o que ficou pra você revisar (pós-execução)
 
 ```bash
-curl -s -H "X-Review-Token: $TOKEN" "$BRIDGE_URL/comments?status=in_review" \
+curl -s "$BRIDGE_URL/comments?status=in_review" \
   | python3 -c "
 import sys, json
 d = json.load(sys.stdin)
@@ -291,7 +297,9 @@ for c in d['comments']:
 
 | Sintoma | Causa | Como contornar |
 |---|---|---|
-| `401` | token errado | reler `review-bridge/.env` (linha pode ter espaço extra) |
+| `ECONNREFUSED` / `Failed to connect to 127.0.0.1:3000` | Next não está rodando | `npm run dev` na raiz |
+| `ECONNREFUSED 127.0.0.1:9878` | algo enviou request pro Express legado morto (ex.: `.env.local` com `BRIDGE_URL=…:9878` antigo) | use o literal `http://127.0.0.1:3000/api/review-bridge`; não leia do env |
+| health responde mas `mode != "serverless"` | `dev:bridge` (Express opt-in) está sendo usado | matar o Express e mirar no Next |
 | `404` numa transition | comment já foi arquivado/deletado | pular do lote |
 | `400 invalid_actor` | esqueci de mandar `actor` no body | sempre incluir `{kind,id,name}` |
 | 0 comentários retornados quando deveria ter | filtro pegou só `status=open`, mas o que quer pode estar em `in_review` ou archive | rever filtro |
