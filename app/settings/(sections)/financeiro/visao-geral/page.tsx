@@ -7,6 +7,7 @@ import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
 import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
+import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import {
   Tooltip,
@@ -189,7 +190,7 @@ function ConsumoVariavelCard() {
       </div>
       <AwConsumptionBar gross={used} limit={limit} />
       <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
-        Restam {brl(remaining)} antes da cobrança automática do ciclo.
+        Restam {brl(remaining)} antes da próxima cobrança.
       </p>
     </AwCard>
   );
@@ -209,8 +210,11 @@ function PlanoCard() {
           <AwPlanIcon plan={planKey(CURRENT_PLAN.name)} variant="dark" size={44} />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="m-0 body-lg font-medium text-(--fg-primary)">
+          <p className="m-0 flex items-center gap-2 body-lg font-medium text-(--fg-primary)">
             {CURRENT_PLAN.name}
+            <AwPill variant={CURRENT_PLAN.status === "Ativo" ? "live" : "error"}>
+              {CURRENT_PLAN.status === "Ativo" ? "Ativa" : "Inativa"}
+            </AwPill>
           </p>
           <p className="m-0 mt-0.5 body-sm tabular-nums text-(--fg-secondary)">
             <strong className="font-medium text-(--fg-primary)">
