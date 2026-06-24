@@ -335,10 +335,10 @@ function AddressStep({
         <AwCheckbox
           checked={setAsDefault}
           onChange={onSetAsDefaultChange}
-          label="Definir como método de pagamento padrão"
+          label="Usar como método padrão"
         />
         <span className="body-xs text-(--fg-primary)">
-          Definir como método de pagamento padrão
+          Usar como método padrão
         </span>
       </label>
     </>
