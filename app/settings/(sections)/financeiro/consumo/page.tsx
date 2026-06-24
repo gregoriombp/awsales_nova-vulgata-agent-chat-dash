@@ -3,6 +3,7 @@
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwModal } from "@/components/ui/AwModal";
+import { AwPill } from "@/components/ui/AwPill";
 import { AwStatCard } from "@/components/ui/AwStatCard";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -463,7 +464,14 @@ function CouponsBlock({
               );
               return (
                 <tr key={c.id}>
-                  <td className="font-medium text-(--fg-primary)">{c.code}</td>
+                  <td className="font-medium text-(--fg-primary)">
+                    <span className="inline-flex items-center gap-2">
+                      {c.code}
+                      <AwPill variant="live" dot={false}>
+                        Aplicado
+                      </AwPill>
+                    </span>
+                  </td>
                   <td className="text-(--fg-secondary)">{c.description}</td>
                   <td className="text-(--fg-secondary)">{c.application}</td>
                   <td>
