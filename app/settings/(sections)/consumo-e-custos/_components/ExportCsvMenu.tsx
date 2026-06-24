@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import {
   Popover,
@@ -72,6 +73,19 @@ const COLUMNS: {
 
 const DEFAULT_COLS: ColId[] = COLUMNS.map((c) => c.id);
 
+// Presets de período do export (independentes do período ativo do dashboard).
+// "active" reusa o que está na tela; os demais escalam pro nº de dias.
+const EXPORT_PERIODS: { id: string; label: string; days: number }[] = [
+  { id: "active", label: "Período ativo do dashboard", days: 0 },
+  { id: "7d", label: "Últimos 7 dias", days: 7 },
+  { id: "14d", label: "Últimos 14 dias", days: 14 },
+  { id: "1mo", label: "Último mês", days: 30 },
+  { id: "3mo", label: "Últimos 3 meses", days: 90 },
+  { id: "6mo", label: "Últimos 6 meses", days: 180 },
+  { id: "1yr", label: "Último ano", days: 365 },
+  { id: "all", label: "Todo o período", days: 540 },
+];
+
 function csvCell(v: string | number): string {
   const s = String(v);
   return /[",\n;]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -85,7 +99,6 @@ export function ExportCsvMenu() {
     allowedRowIds,
     visibleIds,
     periodLabel,
-    accumulated,
   } = useConsumo();
 
   const [open, setOpen] = React.useState(false);
@@ -95,6 +108,11 @@ export function ExportCsvMenu() {
     Record<Granularity, boolean>
   >({ service: grouping === "service", agent: grouping === "agent" });
   const [cols, setCols] = React.useState<Set<ColId>>(new Set(DEFAULT_COLS));
+  const [exportPeriodId, setExportPeriodId] = React.useState("active");
+
+  const exportDef = EXPORT_PERIODS.find((p) => p.id === exportPeriodId) ?? EXPORT_PERIODS[0];
+  const useActivePeriod = exportPeriodId === "active";
+  const exportLabel = useActivePeriod ? periodLabel : exportDef.label;
 
   // Mantém a granularidade sincronizada com a lente quando o usuário troca de
   // lente sem ter mexido manualmente (heurística leve, não trava a escolha).
@@ -110,26 +128,35 @@ export function ExportCsvMenu() {
 
   const scaledService = React.useMemo<ServiceBreakdownRow[]>(() => {
     const rows = (
-      selection.kind === "custom"
-        ? scaleCustomBreakdown(SERVICE_BREAKDOWN, customDays)
-        : scaleBreakdown(SERVICE_BREAKDOWN, selection.id)
+      useActivePeriod
+        ? selection.kind === "custom"
+          ? scaleCustomBreakdown(SERVICE_BREAKDOWN, customDays)
+          : scaleBreakdown(SERVICE_BREAKDOWN, selection.id)
+        : scaleCustomBreakdown(SERVICE_BREAKDOWN, exportDef.days)
     ) as ServiceBreakdownRow[];
     return rows.filter((r) => allowedRowIds.has(r.id));
-  }, [selection, customDays, allowedRowIds]);
+  }, [useActivePeriod, selection, customDays, exportDef.days, allowedRowIds]);
 
   const scaledAgent = React.useMemo<AgentBreakdownRow[]>(() => {
     const rows = (
-      selection.kind === "custom"
-        ? scaleCustomBreakdown(AGENT_BREAKDOWN, customDays)
-        : scaleBreakdown(AGENT_BREAKDOWN, selection.id)
+      useActivePeriod
+        ? selection.kind === "custom"
+          ? scaleCustomBreakdown(AGENT_BREAKDOWN, customDays)
+          : scaleBreakdown(AGENT_BREAKDOWN, selection.id)
+        : scaleCustomBreakdown(AGENT_BREAKDOWN, exportDef.days)
     ) as AgentBreakdownRow[];
     return rows.filter((r) => visibleIds.has(r.id));
-  }, [selection, customDays, visibleIds]);
+  }, [useActivePeriod, selection, customDays, exportDef.days, visibleIds]);
+
+  const exportTotal = React.useMemo(
+    () => Math.round(scaledService.reduce((s, r) => s + r.total, 0) * 100) / 100,
+    [scaledService],
+  );
 
   const buildAsworkCsv = (): string => {
     const active = COLUMNS.filter((c) => cols.has(c.id));
     const lines: string[] = [];
-    lines.push(`Consumo e custos Aswork — ${periodLabel}`);
+    lines.push(`Consumo e custos Aswork — ${exportLabel}`);
     lines.push("");
 
     if (granularity.service) {
@@ -140,7 +167,7 @@ export function ExportCsvMenu() {
       scaledService.forEach((r) => {
         lines.push(
           used
-            .map((c) => csvCell(serviceCell(c.id, r, total, periodLabel)))
+            .map((c) => csvCell(serviceCell(c.id, r, total, exportLabel)))
             .join(","),
         );
       });
@@ -155,20 +182,20 @@ export function ExportCsvMenu() {
       scaledAgent.forEach((r) => {
         lines.push(
           used
-            .map((c) => csvCell(agentCell(c.id, r, total, periodLabel)))
+            .map((c) => csvCell(agentCell(c.id, r, total, exportLabel)))
             .join(","),
         );
       });
       lines.push("");
     }
 
-    lines.push(`Total Aswork no período,${accumulated.toFixed(2)}`);
+    lines.push(`Total Aswork no período,${exportTotal.toFixed(2)}`);
     return lines.join("\n");
   };
 
   const buildMetaCsv = (): string => {
     const lines: string[] = [];
-    lines.push(`Meta — valor aproximado · ${periodLabel}`);
+    lines.push(`Meta — valor aproximado · ${exportLabel}`);
     lines.push(
       "Valor aproximado, cobrado direto pela plataforma do Meta — não é documento fiscal Aswork.",
     );
@@ -223,9 +250,32 @@ export function ExportCsvMenu() {
             <h6 className="m-0 text-(--fg-primary)">Exportar CSV</h6>
           </div>
           <p className="m-0 body-xs text-(--fg-tertiary)">
-            Escopo, granularidade e colunas. Exporta o período e o filtro ativos
-            ({periodLabel}).
+            Escopo, período, granularidade e colunas. Respeita o filtro ativo.
           </p>
+        </div>
+
+        {/* período do export */}
+        <div className="flex flex-col gap-1.5">
+          <span className="aw-eyebrow text-(--fg-tertiary)">Período</span>
+          <AwDropdownMenu
+            align="start"
+            aria-label="Período do export"
+            trigger={
+              <AwSelect className="h-9!">
+                <span className="inline-flex items-center gap-1.5">
+                  <Icon name="calendar_month" size={15} className="text-(--fg-tertiary)" />
+                  {exportLabel}
+                </span>
+              </AwSelect>
+            }
+            items={EXPORT_PERIODS.map((p) => ({
+              id: p.id,
+              label: p.label,
+              checked: p.id === exportPeriodId,
+              closeOnSelect: true,
+              onSelect: () => setExportPeriodId(p.id),
+            }))}
+          />
         </div>
 
         {/* escopo */}
