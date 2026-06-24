@@ -542,19 +542,20 @@ export function UsadoCobradoWidget({
   dragHandle?: React.ReactNode;
   resizeButton?: React.ReactNode;
 }) {
-  const { selection, chartPeriod, customDays } = useConsumo();
+  const { selection, chartPeriod, customDays, scopeFactor } = useConsumo();
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
   // Acompanha o controle de tempo global: nº de buckets + fator de escala saem
-  // do período (ou range custom) ativo, espelhando os outros widgets.
+  // do período (ou range custom) ativo, espelhando os outros widgets. O
+  // scopeFactor estreita o widget junto com o drill (fração visível do total).
   const bars =
     selection.kind === "custom"
       ? Math.max(1, Math.min(customDays, 90))
       : periodBars(selection.id);
   const scale =
-    selection.kind === "custom"
+    (selection.kind === "custom"
       ? reconScaleForCustom(customDays)
-      : reconScaleForPeriod(selection.id);
+      : reconScaleForPeriod(selection.id)) * scopeFactor;
 
   const series = React.useMemo(
     () => getUsedChargedSeries(bars, scale),

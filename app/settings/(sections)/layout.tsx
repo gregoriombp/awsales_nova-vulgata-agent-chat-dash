@@ -42,6 +42,16 @@ export default function SettingsLayout({
     return [root, { label: match.label }];
   }, [pathname]);
 
+  // "Explorar custos" toma o viewport inteiro — escapa o shell de Configurações
+  // (dashboard + sidebar + breadcrumb). A própria página monta seu trilho e o
+  // botão de voltar, então aqui só repassamos o conteúdo.
+  if (
+    pathname === "/settings/consumo-e-custos" ||
+    pathname.startsWith("/settings/consumo-e-custos/")
+  ) {
+    return <>{children}</>;
+  }
+
   return (
     <AwDashboardLayout mainClassName="p-0! overflow-hidden!">
       <div className="flex h-full min-h-0 bg-(--bg-canvas)">

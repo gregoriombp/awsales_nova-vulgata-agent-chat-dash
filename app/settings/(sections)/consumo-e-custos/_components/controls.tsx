@@ -4,8 +4,6 @@ import * as React from "react";
 import { DayButton } from "react-day-picker";
 import { cn } from "@/lib/utils";
 import { AwButton } from "@/components/ui/AwButton";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
-import { AwSelect } from "@/components/ui/AwSelect";
 import { Calendar } from "@/components/ui/calendar";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -20,22 +18,7 @@ import {
   type PeriodSelection,
 } from "./ConsumoContext";
 
-/* ---------- toggle de lente (Serviço | Agente) ---------- */
-
-export function GroupingToggle() {
-  const { grouping, setGrouping } = useConsumo();
-  return (
-    <SegmentedToggle
-      ariaLabel="Agrupar por"
-      options={[
-        { value: "service", label: "Serviço" },
-        { value: "agent", label: "Agente" },
-      ]}
-      value={grouping}
-      onChange={setGrouping}
-    />
-  );
-}
+/* ---------- toggle segmentado (usado pelo seletor de visualização) ---------- */
 
 export function SegmentedToggle<T extends string>({
   options,
@@ -48,10 +31,7 @@ export function SegmentedToggle<T extends string>({
   onChange: (v: T) => void;
   ariaLabel: string;
 }) {
-  const activeIndex = Math.max(
-    0,
-    options.findIndex((opt) => opt.value === value),
-  );
+  const activeIndex = Math.max(0, options.findIndex((opt) => opt.value === value));
 
   return (
     <div
@@ -82,9 +62,7 @@ export function SegmentedToggle<T extends string>({
             onClick={() => onChange(opt.value)}
             className={cn(
               "relative z-10 inline-flex h-7 items-center justify-center gap-1.5 rounded-sm px-2.5 body-xs font-medium transition-colors duration-aw-fast",
-              active
-                ? "text-(--fg-primary)"
-                : "text-(--fg-secondary) hover:text-(--fg-primary)",
+              active ? "text-(--fg-primary)" : "text-(--fg-secondary) hover:text-(--fg-primary)",
             )}
           >
             {opt.icon ? <Icon name={opt.icon} size={15} /> : opt.label}
@@ -92,62 +70,6 @@ export function SegmentedToggle<T extends string>({
         );
       })}
     </div>
-  );
-}
-
-/* ---------- filtro de itens (serviços/taxas/agentes visíveis) ---------- */
-
-export function SpendingFilterMenu() {
-  const {
-    categories,
-    visibleIds,
-    isAll,
-    toggleFilter,
-    selectAllFilter,
-    filterLabel,
-    filterAllLabel,
-    grouping,
-  } = useConsumo();
-
-  return (
-    <AwDropdownMenu
-      align="end"
-      aria-label="Filtrar itens"
-      trigger={
-        <AwSelect className="h-8!">
-          <span className="inline-flex items-center gap-1.5">
-            <Icon
-              name="filter_list"
-              size={15}
-              className="text-(--fg-tertiary)"
-            />
-            {filterLabel}
-          </span>
-        </AwSelect>
-      }
-      items={[
-        {
-          id: "__all__",
-          label: filterAllLabel,
-          checked: isAll,
-          closeOnSelect: false,
-          onSelect: selectAllFilter,
-        },
-        { id: "__sep__", separator: true },
-        {
-          id: "__hint__",
-          label:
-            grouping === "service" ? "Serviços e taxas" : "Agentes",
-        },
-        ...categories.map((c) => ({
-          id: c.id,
-          label: c.label,
-          checked: visibleIds.has(c.id),
-          closeOnSelect: false,
-          onSelect: () => toggleFilter(c.id),
-        })),
-      ]}
-    />
   );
 }
 
@@ -182,11 +104,11 @@ export function PeriodPicker() {
         <button
           type="button"
           aria-label="Selecionar período"
-          className="inline-flex h-8 items-center gap-1.5 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 body-xs font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
         >
-          <Icon name="calendar_month" size={14} className="text-(--fg-tertiary)" />
+          <Icon name="calendar_month" size={16} className="text-(--fg-tertiary)" />
           {triggerLabel}
-          <Icon name="expand_more" size={14} className="text-(--fg-tertiary)" />
+          <Icon name="expand_more" size={16} className="text-(--fg-tertiary)" />
         </button>
       </PopoverTrigger>
       <PopoverContent

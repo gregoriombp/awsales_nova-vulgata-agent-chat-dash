@@ -161,12 +161,15 @@ export function DraggableBoard({
   setOrder,
   spans,
   toggleSpan,
+  editing = false,
 }: {
   widgets: BoardWidget[];
   order: string[];
   setOrder: (next: string[]) => void;
   spans: Record<string, Span>;
   toggleSpan: (id: string) => void;
+  /** Arrastar/redimensionar só liga no modo de edição (botão "Editar"). */
+  editing?: boolean;
 }) {
   const byId = React.useMemo(
     () => new Map(widgets.map((w) => [w.id, w])),
@@ -188,6 +191,7 @@ export function DraggableBoard({
           widget={w}
           span={spans[w.id] ?? w.span}
           onToggleSpan={() => toggleSpan(w.id)}
+          editing={editing}
         />
       ))}
     </Reorder.Group>
@@ -198,15 +202,17 @@ function BoardItem({
   widget,
   span,
   onToggleSpan,
+  editing,
 }: {
   widget: BoardWidget;
   span: Span;
   onToggleSpan: () => void;
+  editing: boolean;
 }) {
   const controls = useDragControls();
   const [dragging, setDragging] = React.useState(false);
 
-  const dragHandle = (
+  const dragHandle = editing ? (
     <button
       type="button"
       aria-label="Arrastar widget"
@@ -218,11 +224,11 @@ function BoardItem({
     >
       <Icon name="drag_indicator" size={18} />
     </button>
-  );
+  ) : undefined;
 
   // Resize só faz sentido onde o grid tem 2 colunas (lg+); abaixo disso tudo já
   // é largura cheia, então o botão fica oculto.
-  const resizeButton = (
+  const resizeButton = editing ? (
     <button
       type="button"
       aria-label={span === 2 ? "Reduzir para meia largura" : "Expandir para largura total"}
@@ -232,7 +238,7 @@ function BoardItem({
     >
       <Icon name={span === 2 ? "close_fullscreen" : "open_in_full"} size={16} />
     </button>
-  );
+  ) : undefined;
 
   return (
     <Reorder.Item
@@ -242,7 +248,7 @@ function BoardItem({
       dragControls={controls}
       onDragStart={() => setDragging(true)}
       onDragEnd={() => setDragging(false)}
-      whileDrag={{ scale: 1.01, zIndex: 30 }}
+      whileDrag={editing ? { scale: 1.01, zIndex: 30 } : undefined}
       className={cn(
         "min-w-0",
         span === 2 && "lg:col-span-2",
@@ -251,7 +257,8 @@ function BoardItem({
     >
       <div
         className={cn(
-          "h-full transition-shadow duration-aw-fast",
+          "h-full rounded-2xl transition-shadow duration-aw-fast",
+          editing && "ring-1 ring-(--border-default) ring-offset-2 ring-offset-(--bg-canvas)",
           dragging && "shadow-lg",
         )}
       >
