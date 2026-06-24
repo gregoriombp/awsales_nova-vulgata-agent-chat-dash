@@ -214,7 +214,7 @@ function DefaultCardHero(props: MethodCardProps) {
   const expiringSoon = isExpiringSoon(method.expiresAt);
 
   return (
-    <div className="relative flex h-52 w-full max-w-md flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
+    <div className="relative flex aspect-[856/540] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
       {/* leve brilho de canto, sutil e por token */}
       <span
         aria-hidden="true"
