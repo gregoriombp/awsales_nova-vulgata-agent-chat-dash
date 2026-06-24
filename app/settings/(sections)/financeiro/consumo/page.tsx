@@ -113,19 +113,16 @@ function CreditsKpis() {
   return (
     <div className="grid grid-cols-3 gap-4">
       <AwStatCard
-        icon="savings"
         label="Total economizado"
         value={brl(CREDITS_KPIS.totalSaved)}
         hint="Acumulado · cupons + créditos já abatidos"
       />
       <AwStatCard
-        icon="account_balance_wallet"
         label="Desconto disponível"
         value={brl(CREDITS_KPIS.availableDiscount)}
         hint="Saldo de créditos ativos a abater"
       />
       <AwStatCard
-        icon="confirmation_number"
         label="Créditos ativos"
         value={CREDITS_KPIS.activeVouchers}
         hint="Créditos em uso agora"
