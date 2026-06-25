@@ -209,7 +209,6 @@ export default function SenhaPage() {
   /* MFA */
   const [mfaOn, setMfaOn] = useState(true);
   const [mfaDisableOpen, setMfaDisableOpen] = useState(false);
-  const [manageOpen, setManageOpen] = useState(false);
 
   /* Reconfigurar app autenticador (QR → código de 6 dígitos) */
   const [reconfigureOpen, setReconfigureOpen] = useState(false);
@@ -254,7 +253,6 @@ export default function SenhaPage() {
   }
 
   function openReconfigure() {
-    setManageOpen(false);
     setOtp(""); setOtpError(""); setOtpVerifying(false); setSecretCopied(false);
     setReconfigureOpen(true);
   }
@@ -300,7 +298,7 @@ export default function SenhaPage() {
   return (
     <div className="mx-auto w-full max-w-[1120px] px-10 pt-14 pb-32">
       <SettingsPageHeader
-        title="Senha"
+        title="Senha e acesso"
         description="Senha e verificação em duas etapas para entrar na conta."
       />
 
@@ -315,9 +313,9 @@ export default function SenhaPage() {
         ) : (
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+              <h6 className="m-0 text-(--fg-primary)">
                 Senha da conta
-              </p>
+              </h6>
               <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
                 {ACCOUNT_TYPE === "sso+password"
                   ? `Você também entra pelo ${SSO_PROVIDER}. Esta é a senha local — trocá-la não afeta o login pelo provedor.`
@@ -338,20 +336,40 @@ export default function SenhaPage() {
       {/* ── Bloco 2: MFA ── */}
       <div className="mb-8">
         <SectionHeading title="Autenticação em dois fatores" />
-        <AwToggleRow
-          title={
-            <span className="flex items-center gap-2">
-              Autenticação multifator (MFA)
-              <AwPill variant={mfaOn ? "live" : "neutral"} dot={false}>
-                {mfaOn ? "Ativa" : "Inativa"}
-              </AwPill>
+        {ORG_REQUIRES_MFA ? (
+          // Org exige MFA: o toggle viraria um controle morto (ligado +
+          // desabilitado). Troca por um indicador estático read-only — o
+          // alerta abaixo é a única mensagem que explica o porquê.
+          <div className="flex items-start justify-between gap-4 py-1">
+            <div className="min-w-0">
+              <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                Autenticação multifator (MFA)
+              </p>
+              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                Pede um código do seu app autenticador a cada login, além da
+                senha.
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-(--border-subtle) bg-(--bg-muted) px-2.5 py-1 body-xs font-medium text-(--fg-secondary)">
+              <Icon name="lock" size={13} />
+              Exigida pela organização
             </span>
-          }
-          description="Pede um código do seu app autenticador a cada login, além da senha."
-          checked={mfaOn}
-          onChange={handleToggleMfa}
-          disabled={ORG_REQUIRES_MFA && mfaOn}
-        />
+          </div>
+        ) : (
+          <AwToggleRow
+            title={
+              <span className="flex items-center gap-2">
+                Autenticação multifator (MFA)
+                <AwPill variant={mfaOn ? "live" : "neutral"} dot={false}>
+                  {mfaOn ? "Ativa" : "Inativa"}
+                </AwPill>
+              </span>
+            }
+            description="Pede um código do seu app autenticador a cada login, além da senha."
+            checked={mfaOn}
+            onChange={handleToggleMfa}
+          />
+        )}
 
         {mfaOn && (
           <div className="mt-2 flex flex-col divide-y divide-(--border-subtle) border-t border-(--border-subtle)">
@@ -387,9 +405,10 @@ export default function SenhaPage() {
               <AwButton
                 size="sm"
                 variant="secondary"
-                onClick={() => setManageOpen(true)}
+                iconLeft="restart_alt"
+                onClick={openReconfigure}
               >
-                Gerenciar
+                Reconfigurar
               </AwButton>
             </div>
 
@@ -481,6 +500,7 @@ export default function SenhaPage() {
               <AwInput
                 id="current-pw"
                 type="password"
+                revealable
                 value={currentPw}
                 onChange={(e) => setCurrentPw(e.target.value)}
                 autoComplete="current-password"
@@ -501,6 +521,7 @@ export default function SenhaPage() {
               <AwInput
                 id="new-pw"
                 type="password"
+                revealable
                 value={newPw}
                 onChange={(e) => setNewPw(e.target.value)}
                 autoComplete="new-password"
@@ -556,6 +577,7 @@ export default function SenhaPage() {
               <AwInput
                 id="confirm-pw"
                 type="password"
+                revealable
                 value={confirmPw}
                 onChange={(e) => setConfirmPw(e.target.value)}
                 autoComplete="new-password"
@@ -597,77 +619,6 @@ export default function SenhaPage() {
           Sem o segundo fator, sua conta fica só com a senha. Mantenha ativa em
           contas com acesso administrativo.
         </p>
-      </AwModal>
-
-      {/* ── Modal: Gerenciar MFA ── */}
-      <AwModal
-        open={manageOpen}
-        onClose={() => setManageOpen(false)}
-        title="Gerenciar MFA"
-        footer={
-          <AwButton
-            size="sm"
-            variant="ghost"
-            onClick={() => setManageOpen(false)}
-          >
-            Fechar
-          </AwButton>
-        }
-      >
-        <div className="flex flex-col gap-5">
-          {/* Contexto — fator TOTP atual */}
-          <div className="flex items-start gap-3 rounded-lg border border-(--border-subtle) bg-(--bg-raised) px-4 py-3">
-            <AwBrandLogo
-              brand="google-authenticator"
-              size="sm"
-              className="mt-0.5"
-            />
-            <div>
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                App autenticador configurado
-              </p>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                {TOTP_CONFIG.app} · {TOTP_CONFIG.configuredAt}
-              </p>
-            </div>
-          </div>
-
-          {/* Ações */}
-          <div className="flex flex-col gap-2">
-            <AwButton
-              variant="secondary"
-              block
-              iconLeft="restart_alt"
-              onClick={openReconfigure}
-            >
-              Reconfigurar app autenticador
-            </AwButton>
-            <AwButton
-              variant="secondary"
-              block
-              iconLeft="password"
-              onClick={() => {
-                setManageOpen(false);
-                openBackupConfirm();
-              }}
-            >
-              Gerar novos códigos de backup
-            </AwButton>
-          </div>
-
-          {/* Desativar — bloqueado pela organização */}
-          {ORG_REQUIRES_MFA && (
-            <div className="flex flex-col gap-2 border-t border-(--border-subtle) pt-4">
-              <AwButton variant="ghost" block iconLeft="lock" disabled>
-                Desativar MFA — exigida pela organização
-              </AwButton>
-              <p className="m-0 px-1 body-xs text-(--fg-tertiary)">
-                A sua organização exige MFA de todos os membros. Você pode
-                trocar o método, mas não desativá-lo.
-              </p>
-            </div>
-          )}
-        </div>
       </AwModal>
 
       {/* ── Modal: Reconfigurar app autenticador (QR → código) ── */}
@@ -768,7 +719,7 @@ export default function SenhaPage() {
               </AwButton>
               <AwButton
                 size="sm"
-                variant="primary"
+                variant="danger"
                 onClick={() => setBackupStep("view")}
               >
                 Gerar novos códigos
