@@ -167,8 +167,10 @@ function SaveReportButton() {
   // relatório ativo, abre o modal pra nomear e criar.
   if (activeReport) {
     return (
-      <button
+      <AwButton
         type="button"
+        variant="secondary"
+        iconLeft={isReportDirty ? "save" : "check"}
         onClick={() => {
           if (isReportDirty) updateActiveReport();
         }}
@@ -178,32 +180,23 @@ function SaveReportButton() {
             ? `Salvar alterações em "${activeReport.name}"`
             : `"${activeReport.name}" está salvo`
         }
-        className={cn(
-          "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium transition-colors duration-aw-fast",
-          isReportDirty
-            ? "text-(--fg-primary) hover:border-(--border-default) hover:bg-(--bg-hover)"
-            : "cursor-default text-(--fg-tertiary)",
-        )}
+        className="h-11! shrink-0 rounded-xl!"
       >
-        <Icon
-          name={isReportDirty ? "save" : "check"}
-          size={16}
-          className={isReportDirty ? "text-(--fg-tertiary)" : "text-(--accent-success)"}
-        />
         {isReportDirty ? "Salvar" : "Salvo"}
-      </button>
+      </AwButton>
     );
   }
   return (
-    <button
+    <AwButton
       type="button"
+      variant="secondary"
+      iconLeft="bookmark_add"
       onClick={openCreate}
       title="Salvar como relatório"
-      className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+      className="h-11! shrink-0 rounded-xl!"
     >
-      <Icon name="bookmark_add" size={16} className="text-(--fg-tertiary)" />
       Salvar
-    </button>
+    </AwButton>
   );
 }
 
@@ -278,7 +271,7 @@ function SpendHeadline() {
   const { accumulated, trend, periodLabel } = useConsumo();
   return (
     <header className="mt-4 flex flex-col gap-1.5">
-      <span className="body-sm text-(--fg-secondary)">Gasto no período</span>
+      <span className="body-sm text-(--fg-secondary)">Uso no período</span>
       <div className="flex items-baseline gap-3">
         <span className="display-sm font-semibold tabular-nums tracking-heading-tighter text-(--fg-primary)">
           {brl(accumulated)}
