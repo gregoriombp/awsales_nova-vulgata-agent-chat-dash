@@ -1,6 +1,7 @@
 import type { PageEditOp } from "./types"
 import { resolveEditElement } from "./anchor"
 import { isAllowedStyle } from "./token-manifest"
+import { buildIconVariation, iconVariationMatches } from "./icon-style"
 import { matchOrder, orderMatches, reorderDom } from "./reorder"
 
 // The overlay APPLY engine. React owns textContent/style/className and reverts
@@ -232,6 +233,23 @@ export class OverlayApplier {
         this.snapshot(entry, DISPLAY)
         mutate = () => html.style.setProperty(DISPLAY, "none", "important")
       }
+    } else if (payload.kind === "iconStyle") {
+      const v = {
+        fill: payload.fill,
+        weight: payload.weight,
+        grade: payload.grade,
+        opticalSize: payload.opticalSize,
+      }
+      if (
+        !iconVariationMatches(
+          html.style.getPropertyValue("font-variation-settings"),
+          v,
+        )
+      ) {
+        this.snapshot(entry, "font-variation-settings")
+        mutate = () =>
+          html.style.setProperty("font-variation-settings", buildIconVariation(v))
+      }
     } else if (payload.kind === "variant") {
       const cl = html.classList
       const needs =
@@ -271,13 +289,23 @@ export class OverlayApplier {
     if (!el) return
     const html = el as HTMLElement
     const { payload } = entry.op
-    if (payload.kind === "style" || payload.kind === "hide") {
+    if (
+      payload.kind === "style" ||
+      payload.kind === "hide" ||
+      payload.kind === "iconStyle"
+    ) {
       const prior = entry.prior
       if (prior) {
         if (prior.value) html.style.setProperty(prior.prop, prior.value, prior.priority)
         else html.style.removeProperty(prior.prop)
       } else {
-        html.style.removeProperty(payload.kind === "hide" ? DISPLAY : payload.prop)
+        const prop =
+          payload.kind === "hide"
+            ? DISPLAY
+            : payload.kind === "iconStyle"
+              ? "font-variation-settings"
+              : payload.prop
+        html.style.removeProperty(prop)
       }
     } else if (payload.kind === "text" && payload.prevText != null) {
       if (el.textContent !== payload.prevText) el.textContent = payload.prevText
