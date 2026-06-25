@@ -21,6 +21,7 @@ const TYPES: PageEditOpType[] = [
   "variant",
   "icon",
   "iconStyle",
+  "token",
   "move",
 ];
 
