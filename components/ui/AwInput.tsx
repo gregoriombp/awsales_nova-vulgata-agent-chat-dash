@@ -7,6 +7,9 @@ export type AwInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   invalid?: boolean
   dense?: boolean
   iconLeft?: string
+  /** Quando o input é type="password", mostra um botão de revelar (olhinho)
+   *  que alterna entre password e text. */
+  revealable?: boolean
 }
 
 export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
@@ -15,6 +18,8 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
       invalid,
       dense,
       iconLeft,
+      revealable,
+      type,
       className,
       disabled,
       value,
@@ -41,6 +46,10 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
         : String(value)
       : internalValue
     const showClear = isSearch && !disabled && currentValue.length > 0
+
+    const [revealed, setRevealed] = React.useState(false)
+    const canReveal = !!revealable && type === "password" && !disabled
+    const inputType = canReveal && revealed ? "text" : type
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (!isControlled) setInternalValue(e.target.value)
@@ -77,6 +86,7 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
         {iconLeft && <Icon name={iconLeft} size={isSearch ? 18 : 16} />}
         <input
           ref={innerRef}
+          type={inputType}
           disabled={disabled}
           value={isControlled ? currentValue : undefined}
           defaultValue={isControlled ? undefined : defaultValue}
@@ -92,6 +102,18 @@ export const AwInput = React.forwardRef<HTMLInputElement, AwInputProps>(
             onClick={clearValue}
           >
             <Icon name="cancel" size={18} />
+          </button>
+        )}
+        {canReveal && (
+          <button
+            type="button"
+            className="aw-input__reveal"
+            aria-label={revealed ? "Ocultar senha" : "Mostrar senha"}
+            aria-pressed={revealed}
+            tabIndex={-1}
+            onClick={() => setRevealed((r) => !r)}
+          >
+            <Icon name={revealed ? "visibility_off" : "visibility"} size={18} />
           </button>
         )}
       </div>

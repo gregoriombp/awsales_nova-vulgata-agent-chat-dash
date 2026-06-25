@@ -2342,6 +2342,28 @@
   outline: 2px solid var(--aw-blue-500);
   outline-offset: 2px;
 }
+/* Reveal (olhinho) — toggle de mostrar/ocultar senha; mesmo formato do clear,
+ * fica dentro da borda arredondada do input. */
+.aw-input__reveal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg-tertiary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur-base) var(--ease-out);
+}
+.aw-input__reveal:hover { color: var(--fg-secondary); }
+.aw-input__reveal:focus-visible {
+  outline: 2px solid var(--aw-blue-500);
+  outline-offset: 2px;
+}
 .aw-input input::-webkit-search-cancel-button,
 .aw-input input::-webkit-search-decoration {
   -webkit-appearance: none;
