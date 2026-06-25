@@ -32,7 +32,7 @@ export function ExplorerRail() {
   return (
     <aside
       className={cn(
-        "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-surface) transition-[width] duration-aw-base ease-aw-out",
+        "flex h-full shrink-0 flex-col overflow-y-auto border-r border-(--border-subtle) bg-(--bg-canvas) transition-[width] duration-aw-base ease-aw-out",
         collapsed ? "w-14" : "w-[280px]",
       )}
       aria-label="Filtros do explorador"
@@ -80,7 +80,7 @@ function Header({
   onBack: () => void;
   onCollapse: () => void;
 }) {
-  const { periodLabel, currencyLabel } = useConsumo();
+  const { periodLabel } = useConsumo();
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -97,7 +97,7 @@ function Header({
       <div className="flex flex-col gap-0.5">
         <h4 className="m-0 text-(--fg-primary)">Explorar custos</h4>
         <p className="m-0 body-xs text-(--fg-tertiary)">
-          {periodLabel} · {currencyLabel}
+          {periodLabel}
         </p>
       </div>
     </div>
@@ -105,7 +105,7 @@ function Header({
 }
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <span className="aw-eyebrow text-(--fg-tertiary)">{children}</span>;
+  return <span className="body-sm font-medium text-(--fg-secondary)">{children}</span>;
 }
 
 function DimensionList() {

@@ -230,7 +230,7 @@ export function ExportCsvMenu() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <AwButton
-          variant="secondary"
+          variant="primary"
           size="sm"
           iconLeft="download"
           className="h-8!"
