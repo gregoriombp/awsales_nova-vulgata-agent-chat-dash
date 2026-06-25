@@ -79,6 +79,11 @@ export const navigation: NavSection[] = [
       { name: "Botões", href: "/bombardier/styleguide/components/buttons" },
       { name: "Breadcrumb", href: "/bombardier/styleguide/components/aw-breadcrumb" },
       {
+        name: "Browser icon",
+        href: "/bombardier/styleguide/components/aw-browser-icon",
+        aliases: ["AwBrowserIcon", "navegador", "chrome", "firefox", "safari", "edge", "sessões", "acessos"],
+      },
+      {
         name: "Calendário",
         href: "/bombardier/styleguide/components/calendar",
         aliases: ["Calendar", "calendar", "date picker", "period picker", "seletor de período", "range picker"],
@@ -97,6 +102,11 @@ export const navigation: NavSection[] = [
       { name: "Inputs", href: "/bombardier/styleguide/components/inputs" },
       { name: "Pills", href: "/bombardier/styleguide/components/pills" },
       { name: "Progress", href: "/bombardier/styleguide/components/aw-progress" },
+      {
+        name: "Radial progress",
+        href: "/bombardier/styleguide/components/aw-radial-progress",
+        aliases: ["AwRadialProgress", "anel", "circular", "ring", "donut", "consumo", "quota"],
+      },
       { name: "Select", href: "/bombardier/styleguide/components/aw-select" },
       { name: "Skeleton", href: "/bombardier/styleguide/components/skeleton" },
       { name: "Slider", href: "/bombardier/styleguide/components/aw-slider" },
@@ -256,9 +266,7 @@ export const navigation: NavSection[] = [
     // Infra/layout intencionalmente NÃO listada aqui (não rende inline com
     // sentido): AwThemeProvider, AwDashboardLayout, AwSidebar. AwHeader e
     // AwNeuralPattern são internos — consumidos por AwDashboardLayout e
-    // AwOnboardingShell, sem showcase próprio de propósito. AwBrowserIcon é
-    // um glifo-folha usado só em settings (sessões/acessos) — candidato a
-    // showcase junto de AwFileIcon/AwChannelIcon, ainda sem página própria.
+    // AwOnboardingShell, sem showcase próprio de propósito.
     items: [
       { name: "Banner de plano adicional", href: "/bombardier/styleguide/components/aw-additional-plan-banner" },
       { name: "Report promo", href: "/bombardier/styleguide/components/aw-report-promo", aliases: ["AwReportPromo", "consumo e custos", "faixa de relatório", "cta relatório"] },
@@ -290,6 +298,21 @@ export const navigation: NavSection[] = [
           { name: "Agente do Usuário", href: "/bombardier/styleguide/components/user-agent" },
           { name: "Cortex", href: "/bombardier/styleguide/components/agents#cortex" },
         ],
+      },
+      {
+        name: "Agent avatar",
+        href: "/bombardier/styleguide/components/aw-agent-avatar",
+        aliases: ["AwAgentAvatar", "avatar do agente", "orb + core", "qual core", "status dot"],
+      },
+      {
+        name: "Cortex synthesis",
+        href: "/bombardier/styleguide/components/aw-cortex-synthesis",
+        aliases: ["AwCortexSynthesis", "shader", "webgl", "neural", "textura", "fundo animado", "synthesis"],
+      },
+      {
+        name: "Copilot drawer",
+        href: "/bombardier/styleguide/components/aw-copilot-drawer",
+        aliases: ["AwCopilotDrawer", "AwCopilotOrb", "Cortex", "assistente", "drawer", "painel lateral", "copilot"],
       },
       {
         name: "Instagram panel",
