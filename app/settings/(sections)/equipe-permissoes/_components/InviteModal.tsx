@@ -98,7 +98,7 @@ export function InviteModal({
     <AwModal
       open={open}
       onClose={onClose}
-      title={mode === "form" ? "Convidar membros do time" : undefined}
+      title={mode === "form" ? "Convidar membros" : undefined}
       footer={
         mode === "form" ? (
           <>
