@@ -29,6 +29,11 @@ const CHANNELS: { key: ChannelKey; label: string }[] = [
   { key: "whatsapp", label: "WhatsApp" },
 ];
 
+/* Canais mostrados na MATRIZ por linha. "No app" fica de fora: é sempre on e o
+ * card "No app · Sempre ativo" no topo é a única fonte de verdade — assim a
+ * linha não contradiz o cadeado do card. */
+const MATRIX_CHANNELS = CHANNELS.filter((c) => c.key !== "app");
+
 type NotifDef = {
   id: string;
   title: string;
@@ -265,30 +270,21 @@ export default function NotificationsSettingsPage() {
     notifySaved();
   };
 
-  /** Liga ou desliga um canal global. Quando desligado, propaga off pra
-   *  todos os events não-locked — Joseph: "isso desativa as notificações
-   *  abaixo". Locked não é alterado (a organização garante). */
+  /** Liga ou desliga um canal global (teto da entrega). Desligar NÃO apaga as
+   *  escolhas por linha — apenas MASCARA: os checkboxes daquele canal ficam
+   *  inativos, mas o estado é preservado e volta intacto ao religar. (Antes
+   *  zerava channelsById e o usuário perdia toda a configuração num clique.) */
   const setGlobalChannel = (ch: ChannelKey, val: boolean) => {
     if (ch === "app") return; // No app é sempre on (locked).
     if (ch === "email") setEmailDelivery(val);
     if (ch === "whatsapp") setWhatsappDelivery(val);
-    if (!val) {
-      setChannelsById((s) => {
-        const next = { ...s };
-        for (const section of SECTIONS) {
-          for (const it of section.items) {
-            if (it.orgLocked) continue;
-            next[it.id] = { ...next[it.id], [ch]: false };
-          }
-        }
-        return next;
-      });
-    }
     notifySaved();
   };
 
-  /** "Marcar todos / Desmarcar todos" — só toca eventos não-locked da seção,
-   *  só os canais globalmente habilitados. */
+  /** "Marcar todos / Desmarcar todos" — só toca eventos não-locked da seção.
+   *  Grava a intenção do usuário direto, sem filtrar por canal global: se um
+   *  canal estiver desligado no topo, o estado fica guardado e só aparece
+   *  mascarado até religar. "No app" segue sempre ligado. */
   const setAllInSection = (sectionId: string, val: boolean) => {
     const section = SECTIONS.find((s) => s.id === sectionId);
     if (!section) return;
@@ -296,11 +292,7 @@ export default function NotificationsSettingsPage() {
       const next = { ...s };
       for (const it of section.items) {
         if (it.orgLocked) continue;
-        next[it.id] = {
-          app: val ? true : false,
-          email: val && emailDelivery ? true : false,
-          whatsapp: val && whatsappDelivery ? true : false,
-        };
+        next[it.id] = { app: true, email: val, whatsapp: val };
       }
       return next;
     });
@@ -354,8 +346,9 @@ export default function NotificationsSettingsPage() {
         }
       />
 
-      {/* Canais de entrega — 4 cards no topo. Desligar um canal aqui apaga
-       *  esse canal nas notificações abaixo (exceto as travadas pela org). */}
+      {/* Canais de entrega — 4 cards no topo. Desligar um canal aqui apenas
+       *  mascara (desabilita) esse canal nas notificações abaixo; as escolhas
+       *  por linha ficam guardadas e voltam ao religar. */}
       <div className="mt-8">
         <ChannelsRow
           email={emailDelivery}
@@ -373,8 +366,17 @@ export default function NotificationsSettingsPage() {
         />
       </div>
 
+      {/* Cabeçalho de colunas da matriz — nomeia os canais UMA vez (em vez de
+       *  repetir o rótulo em toda linha) e carrega a ação "ligar" quando o
+       *  canal está desligado no topo. */}
+      <MatrixHeader
+        email={emailDelivery}
+        whatsapp={whatsappDelivery}
+        onEnable={(ch) => setGlobalChannel(ch, true)}
+      />
+
       {/* Divisor cinza entre cada tipo de notificação. */}
-      <div className="mt-10 flex flex-col divide-y divide-(--border-subtle)">
+      <div className="mt-2 flex flex-col divide-y divide-(--border-subtle)">
         {SECTIONS.map((section) => (
           <CollapsibleSection
             key={section.id}
@@ -688,48 +690,126 @@ function OrgBadge() {
   );
 }
 
-function ChannelCheckbox({
+/** Ícone do canal — usado no cabeçalho e (apagado) quando o canal está off. */
+function ChannelGlyph({ channel, dim }: { channel: ChannelKey; dim?: boolean }) {
+  if (channel === "whatsapp") {
+    return (
+      <span className={cn("inline-flex", dim && "opacity-50 grayscale")}>
+        <AwChannelIcon channel="whatsapp" size={13} />
+      </span>
+    );
+  }
+  return <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />;
+}
+
+/** Cabeçalho de colunas da matriz: nomeia E-mail / WhatsApp uma única vez e
+ *  alinha com os checkboxes das linhas (mesma grid de colunas fixas). Quando o
+ *  canal está desligado no topo, vira um rótulo apagado + ação "ligar". */
+function MatrixHeader({
+  email,
+  whatsapp,
+  onEnable,
+}: {
+  email: boolean;
+  whatsapp: boolean;
+  onEnable: (ch: ChannelKey) => void;
+}) {
+  const on: Record<"email" | "whatsapp", boolean> = { email, whatsapp };
+  return (
+    <div className="mt-8 flex items-end justify-end border-b border-(--border-subtle) pb-2.5">
+      <div className="grid grid-cols-2 gap-x-2">
+        {MATRIX_CHANNELS.map((ch) => {
+          const isOn = on[ch.key as "email" | "whatsapp"];
+          return (
+            <div key={ch.key} className="flex w-20 flex-col items-center gap-0.5">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 body-xs font-medium",
+                  isOn ? "text-(--fg-secondary)" : "text-(--fg-muted)",
+                )}
+              >
+                <ChannelGlyph channel={ch.key} dim={!isOn} />
+                {ch.label}
+              </span>
+              {!isOn && (
+                <button
+                  type="button"
+                  onClick={() => onEnable(ch.key)}
+                  className="rounded body-xs font-medium text-(--accent-brand) hover:underline"
+                >
+                  ligar
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/** Uma célula da matriz (canal × evento). Três estados:
+ *  · orgLocked → check travado, sempre on (a organização força);
+ *  · canal desligado no topo → traço mudo + tooltip (sem checkbox morto; a
+ *    ação "ligar" mora no cabeçalho da coluna);
+ *  · normal → checkbox clicável. */
+function ChannelCell({
   def,
   channel,
   label,
   checked,
-  disabled,
+  globallyOff,
   onChannel,
 }: {
   def: NotifDef;
   channel: ChannelKey;
   label: string;
   checked: boolean;
-  disabled?: boolean;
+  globallyOff: boolean;
   onChannel: (id: string, ch: ChannelKey, val: boolean) => void;
 }) {
   const id = `${def.id}-${channel}`;
-  const isDisabled = def.orgLocked || disabled;
+
+  if (def.orgLocked) {
+    return (
+      <div
+        className="flex w-20 items-center justify-center opacity-60"
+        title={`${label} — definido pela organização`}
+      >
+        <AwCheckbox
+          id={id}
+          checked={checked}
+          disabled
+          onChange={() => {}}
+          label={`${def.title} — ${label} (definido pela organização)`}
+        />
+      </div>
+    );
+  }
+
+  if (globallyOff) {
+    return (
+      <div
+        className="flex w-20 items-center justify-center text-(--fg-muted)"
+        title={`${label} está desligado no topo da página`}
+        aria-label={`${def.title} — ${label} desligado no topo da página`}
+      >
+        <span aria-hidden="true">—</span>
+      </div>
+    );
+  }
+
   return (
     <label
       htmlFor={id}
-      className={cn(
-        "inline-flex items-center gap-2 select-none",
-        isDisabled ? "cursor-not-allowed opacity-60" : "cursor-pointer",
-      )}
+      className="flex w-20 cursor-pointer items-center justify-center select-none"
     >
       <AwCheckbox
         id={id}
         checked={checked}
-        disabled={isDisabled}
         onChange={(v) => onChannel(def.id, channel, v)}
         label={`${def.title} — ${label}`}
       />
-      <span className="inline-flex items-center gap-1.5 body-xs font-medium text-(--fg-tertiary)">
-        {channel === "whatsapp" ? (
-          <span className="inline-flex opacity-65">
-            <AwChannelIcon channel="whatsapp" size={13} />
-          </span>
-        ) : (
-          <Icon name={channel === "app" ? "notifications" : "mail"} size={13} />
-        )}
-        {label}
-      </span>
     </label>
   );
 }
@@ -747,9 +827,9 @@ function NotifRow({
   emailDelivery: boolean;
   whatsappDelivery: boolean;
 }) {
-  // Um canal global desligado no topo desabilita o checkbox local —
-  // mantém o estado visível mas impede ligar até o canal voltar.
-  const channelDisabled: Record<ChannelKey, boolean> = {
+  // Canal global desligado no topo → a coluna daquele canal vira um traço
+  // mudo (ver ChannelCell), sem checkbox morto. O estado segue guardado.
+  const globallyOff: Record<ChannelKey, boolean> = {
     app: false,
     email: !emailDelivery,
     whatsapp: !whatsappDelivery,
@@ -768,16 +848,17 @@ function NotifRow({
         <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">{def.desc}</p>
       </div>
 
-      {/* Canais à direita — um checkbox por canal, travados ficam disabled. */}
-      <div className="flex shrink-0 items-center gap-x-5">
-        {CHANNELS.map((ch) => (
-          <ChannelCheckbox
+      {/* Canais à direita — grid de colunas fixas, alinhada ao MatrixHeader.
+       *  Só checkboxes (os rótulos vivem no cabeçalho). */}
+      <div className="grid shrink-0 grid-cols-2 gap-x-2 pt-0.5">
+        {MATRIX_CHANNELS.map((ch) => (
+          <ChannelCell
             key={ch.key}
             def={def}
             channel={ch.key}
             label={ch.label}
             checked={channels[ch.key]}
-            disabled={channelDisabled[ch.key]}
+            globallyOff={globallyOff[ch.key]}
             onChannel={onChannel}
           />
         ))}
