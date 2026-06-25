@@ -26,7 +26,7 @@ function describe(op: PageEditOp): string {
   if (p.kind === "text") return `“${p.text}”`
   if (p.kind === "style") {
     const token = p.token.replace(/^var\((--[^)]+)\)$/, "$1")
-    return `${p.prop}: ${token}`
+    return `${p.prop}: ${token}${p.custom ? " (custom)" : ""}`
   }
   if (p.kind === "variant") return `${p.axis}: ${p.label ?? p.value}`
   if (p.kind === "icon") return `ícone: ${p.name}`
