@@ -38,18 +38,76 @@ function Swatch({
   )
 }
 
+/** Converte um valor de cor CSS (#hex / rgb()) pro #rrggbb que o <input
+ *  type="color"> exige. Best-effort: cai em preto se não reconhecer. */
+function toHex(css: string): string {
+  const c = css.trim()
+  if (c.startsWith("#")) {
+    if (c.length === 4)
+      return "#" + c.slice(1).split("").map((ch) => ch + ch).join("")
+    return c.slice(0, 7)
+  }
+  const m = c.match(/rgba?\(([^)]+)\)/)
+  if (m) {
+    const [r, g, b] = m[1].split(",").map((s) => parseInt(s, 10))
+    const h = (n: number) =>
+      Math.max(0, Math.min(255, n || 0)).toString(16).padStart(2, "0")
+    return `#${h(r)}${h(g)}${h(b)}`
+  }
+  return "#000000"
+}
+
+/** Editar o VALOR de um token (afeta todas as instâncias). Marcado em âmbar pra
+ *  diferenciar do override só-neste-elemento (os swatches acima). */
+function TokenEditRow({
+  token,
+  onPick,
+}: {
+  token: string
+  onPick: (value: string) => void
+}) {
+  const initial = React.useMemo(() => {
+    if (typeof window === "undefined") return "#000000"
+    return toHex(
+      getComputedStyle(document.documentElement).getPropertyValue(token),
+    )
+  }, [token])
+  return (
+    <div className="mt-1 flex items-center justify-between gap-2 rounded-(--radius-md) border border-(--aw-amber-300) bg-(--aw-amber-100) px-2.5 py-2">
+      <div className="flex min-w-0 flex-col">
+        <span className="body-xs font-medium text-(--aw-amber-900)">
+          Editar o token
+        </span>
+        <span className="truncate font-mono text-2xs text-(--aw-amber-800)">
+          {token} · todas as instâncias
+        </span>
+      </div>
+      <input
+        type="color"
+        defaultValue={initial}
+        onChange={(e) => onPick(e.target.value)}
+        aria-label={`Nova cor de ${token}`}
+        className="h-7 w-9 shrink-0 cursor-pointer rounded-(--radius-sm) border border-(--border-default) bg-transparent"
+      />
+    </div>
+  )
+}
+
 function ColorField({
   property,
   activeValue,
   onPick,
   onClear,
+  onPickToken,
 }: {
   property: StyleProperty
   activeValue?: string
   onPick: (prop: string, cssValue: string) => void
   onClear: (prop: string) => void
+  onPickToken?: (token: string, value: string) => void
 }) {
   const [openRamps, setOpenRamps] = React.useState(false)
+  const activeToken = activeValue?.match(/^var\((--[^)]+)\)$/)?.[1] ?? null
   return (
     <div className="flex flex-col gap-2">
       <FieldHeader
@@ -111,6 +169,12 @@ function ColorField({
             </div>
           )}
         </>
+      )}
+      {activeToken && onPickToken && (
+        <TokenEditRow
+          token={activeToken}
+          onPick={(v) => onPickToken(activeToken, v)}
+        />
       )}
     </div>
   )
@@ -195,11 +259,14 @@ export function StyleSection({
   activeStyle,
   onPick,
   onClear,
+  onPickToken,
   only,
 }: {
   activeStyle: Record<string, string>
   onPick: (prop: string, cssValue: string) => void
   onClear: (prop: string) => void
+  /** Editar o valor de um token (cor global) — só faz sentido pras props de cor. */
+  onPickToken?: (token: string, value: string) => void
   /** Restrict to these property kinds (lets the inspector split Cor / Forma /
    *  Espaçamento into their own flat sections). Omit = all. */
   only?: StyleProperty["kind"][]
@@ -217,6 +284,7 @@ export function StyleSection({
             activeValue={activeStyle[property.prop]}
             onPick={onPick}
             onClear={onClear}
+            onPickToken={onPickToken}
           />
         ) : (
           <ScaleField
