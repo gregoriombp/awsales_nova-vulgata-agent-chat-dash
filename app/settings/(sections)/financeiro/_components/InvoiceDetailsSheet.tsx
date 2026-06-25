@@ -150,21 +150,6 @@ export function InvoiceDetailsSheet({
             <Row label="Descrição" value={invoice.description} />
           </ul>
         </section>
-
-        <section className="rounded-md border border-(--border-subtle) bg-(--bg-muted) px-4 py-3">
-          <div className="flex items-start gap-2.5">
-            <Icon
-              name="info"
-              size={16}
-              className="mt-0.5 shrink-0 text-(--fg-tertiary)"
-            />
-            <p className="m-0 body-xs text-(--fg-secondary)">
-              A fatura em PDF e o recibo (quando aplicável) são gerados pelo
-              processador no momento do download — espelham exatamente o que
-              foi cobrado no cartão / boleto.
-            </p>
-          </div>
-        </section>
       </div>
     </AwSheet>
   );
