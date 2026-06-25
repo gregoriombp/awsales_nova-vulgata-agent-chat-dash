@@ -3,7 +3,8 @@ name: bombardier-edit-bridge-solve
 description: >
   Materializes Bombardier Live Edit Mode overlays into real code. The page
   editor stores non-destructive edit "ops" (text, style token, variant/size,
-  icon, hide/remove, move/reorder-siblings) per route in page-editor/data via
+  icon, icon optical axes, token-value edits, custom/off-palette colors,
+  hide/remove, move/reorder-siblings) per route in page-editor/data via
   the serverless /api/page-edits route; this skill reads them with a filter
   chosen by the user (a whole route, only open ones, a specific id, everything),
   makes ONE PLAN BEFORE touching any code, waits for approval, rewrites the real
@@ -147,8 +148,10 @@ aprovação** (AskUserQuestion: "materializar tudo" / "só confiança alta" /
 |---|---|
 | `text` | Acha o literal de string (use `domText`/`prevText` no `grep` da página) e troca por `payload.text`. Ambíguo se o texto aparece 2×: rebaixe e confirme. |
 | `icon` | Troca a prop do ícone — `iconLeft`/`iconRight`/`iconOnly`/`name` — de `prevName` para `payload.name`. O componente é o pai do span (ex.: `<AwButton iconLeft="add" …>`). |
+| `iconStyle` | Override das axes ópticas → props do `<Icon>`: `payload.weight`→`weight={N}`, `payload.fill`→`fill={0\|1}`, `payload.grade`→`grade={N}`, `payload.opticalSize`→`opticalSize={N}`. Emita **só** a(s) axe(s) que difere(m) do default por-tamanho do `Icon` (não despeje as 4). Alvo: o `<Icon>` pai do span `.material-symbols-rounded`. |
 | `variant` | Troca a prop do eixo no `<Aw… >`: `payload.axis="variant"` → `variant="<value>"`; `payload.axis="size"` → `size="<value>"`. NÃO mexa em className (a classe é derivada da prop). |
-| `style` | **Leia `payload.prop`** pra saber QUAL propriedade CSS tokenizar, e `payload.token` (já vem como `var(--token)`) pro valor. Prefira utilitário Tailwind arbitrário na convenção do arquivo: `color`→`text-(--token)`, `background-color`→`bg-(--token)`, `border-color`→`border-(--token)` (+ garantir que há borda), `border-radius`→`rounded-(--token)`, `box-shadow`→`shadow-(--token)`, espaçamento (`padding`/`margin`/`gap`)→`p-(--token)`/`m-(--token)`/`gap-(--token)`; ou `style={{ <prop> : "var(--token)" }}`. NUNCA materialize uma cor/medida crua. **Se `payload.offSpec === true`** (override direto na RAIZ do componente `offSpecComponent`), sinalize: o ideal é virar uma **variante** do componente, não um override solto — proponha isso ou confirme antes de materializar como classe/style cru. |
+| `style` | **Leia `payload.prop`** pra saber QUAL propriedade CSS tokenizar, e `payload.token` (já vem como `var(--token)`) pro valor. Prefira utilitário Tailwind arbitrário na convenção do arquivo: `color`→`text-(--token)`, `background-color`→`bg-(--token)`, `border-color`→`border-(--token)` (+ garantir que há borda), `border-radius`→`rounded-(--token)`, `box-shadow`→`shadow-(--token)`, espaçamento (`padding`/`margin`/`gap`)→`p-(--token)`/`m-(--token)`/`gap-(--token)`; ou `style={{ <prop> : "var(--token)" }}`. NUNCA materialize uma cor/medida crua. **Se `payload.offSpec === true`** (override direto na RAIZ do componente `offSpecComponent`), sinalize: o ideal é virar uma **variante** do componente, não um override solto — proponha isso ou confirme antes de materializar como classe/style cru. **Se `payload.custom === true`** (cor crua fora da paleta — o picker "Cor custom" permite quebrar o token de propósito): NÃO inline o valor cru; **promova a um token `--custom-*`** (ver §4b) e aplique a classe/var desse token novo. |
+| `token` | **Edição GLOBAL do valor de um token** (`anchor.selector === ":root"`): reescreve o valor no `globals.css` **+ grava backup antes** (ver §4b). `payload.token` = o token (ex.: `--accent-brand`), `payload.value` = a nova cor. Afeta TODAS as instâncias — não toca em nenhum elemento/JSX. |
 | `hide` mode `hide` | Esconde de forma idiomática: remove o nó OU envolve em condição. Em dúvida, pergunte. |
 | `hide` mode `remove` | Remove o subtree JSX de vez. |
 | `move` | **Reordena IRMÃOS** no JSX. `anchor` é o **container PAI**; `payload.order` é a sequência desejada dos filhos por chave `"<tag>::<trecho-de-texto>"`. Em lista renderizada por `.map()` → reordene o **array de dados** pra casar `order`. Em JSX literal → reordene os **elementos irmãos**. Casa cada chave pelo texto+tag; irmãos sem texto (chave `"<tag>::#<i>"`) são ambíguos → confiança baixa, confirme. NUNCA mova entre containers diferentes. |
@@ -156,6 +159,32 @@ aprovação** (AskUserQuestion: "materializar tudo" / "só confiança alta" /
 Sempre que possível, mantenha o resultado token-puro e dentro do padrão Aw*
 (AGENTS.md). Se materializar exigiria fugir de token/variante (ex.: cor fora da
 paleta — não deveria acontecer, o picker só oferece token), **pule e reporte**.
+
+### 4b. Tokens custom & backup (ops `token` e `style` custom)
+
+Duas ops mexem em **token global** no `app/globals.css`. Token é sagrado (AGENTS.md),
+mas aqui é edição EXPLÍCITA do Greg, revisada no inbox — trate com cuidado + backup.
+
+**`style` com `custom: true` → novo token `--custom-*`** (não inline cor crua):
+1. Em `app/globals.css`, num bloco dedicado no `:root` — crie uma vez, comentado
+   `/* Custom one-off tokens — Live Edit. Revisar/renomear depois. */` — adicione
+   `--custom-N: <valor cru>;` (N incremental; nome semântico se der pra inferir).
+   Se houver `.dark`, replique com o mesmo valor (ou pergunte).
+2. No componente, aplique como qualquer `style` op, mas apontando pro token novo:
+   `text-(--custom-N)` / `bg-(--custom-N)` / `border-(--custom-N)`. Página fica token-pura.
+
+**`token` → reescreve o valor + BACKUP (obrigatório, é o que deixa reverter):**
+1. **Backup ANTES de tocar.** Leia o valor atual do token no `globals.css` e grave
+   um arquivo pequeno em
+   `page-editor/token-backups/<token-sem-traços>-<YYYYMMDD-HHmm>.json`:
+   ```json
+   { "token": "--accent-brand", "old": "<valor antigo>", "new": "<payload.value>", "route": "<rota>", "at": "<ISO>" }
+   ```
+   Pra reverter: restaure `old` no `globals.css` e apague o arquivo de backup.
+2. **Reescreve** o valor na definição primária do `:root`. Se houver canal `.dark`
+   pro mesmo token, **avise** — o editor não distingue modo; por padrão mexa só no
+   claro e pergunte sobre o dark.
+3. Token edit NÃO toca em elemento/JSX — só `globals.css` + o backup.
 
 ### 5. Marcar `in_review`
 
@@ -192,8 +221,12 @@ Anote id+summary pro resumo.
 
 - ❌ Não use `transition: "apply"` nem `"discard"` — só o user aprova/descarta.
 - ❌ Não toque em ops `in_review`/`applied`/`discarded`.
-- ❌ Não materialize valor de cor/raio/sombra/espaçamento cru — só `var(--token)`.
-  Se a op trouxe algo fora do token-manifest, é bug do editor: pule e reporte.
+- ⚠️ Valor cru de cor agora é INTENCIONAL quando vem com `custom: true` (picker
+  "Cor custom") — **não pule**: promova a um `--custom-*` (§4b). Um valor cru de
+  cor/raio/sombra/espaçamento **sem** o flag `custom` continua sendo bug do editor:
+  pule e reporte.
+- ✅ `token` (selector `:root`) reescreve o token no `globals.css` — sempre grave o
+  backup ANTES (§4b). Em dúvida sobre o canal dark, pergunte.
 - ✅ `move` reordena SÓ irmãos no mesmo pai — nunca entre containers. Em `.map()`,
   reordene o array de dados; em JSX literal, reordene os elementos. Ordem que não
   casa com clareza (irmãos sem texto) → confirme antes.
