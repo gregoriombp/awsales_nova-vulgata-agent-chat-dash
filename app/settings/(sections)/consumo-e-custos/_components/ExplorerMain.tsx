@@ -19,13 +19,8 @@ import {
   UsadoCobradoWidget,
 } from "./ChartWidgets";
 import { DetalhamentoWidget } from "./ExplorerTable";
-import {
-  DraggableBoard,
-  useBoardOrder,
-  useBoardSpans,
-  type BoardWidget,
-  type Span,
-} from "./WidgetBoard";
+import { DraggableBoard, type BoardWidget, type Span } from "./WidgetBoard";
+import { useReportsUI } from "./SavedReports";
 
 /* ----------------------------------------------------------------------------
  * Coluna principal: busca (⌘K) + período/export + menu de edição, breadcrumb do
@@ -33,27 +28,8 @@ import {
  * (editável só no modo "Editar" → "Salvar").
  * ------------------------------------------------------------------------- */
 
-const STORAGE_KEY = "consumo-dash-order-v3";
-const SPANS_KEY = "consumo-dash-spans-v3";
-
-const DEFAULT_ORDER = [
-  "consumo",
-  "composicao",
-  "usado-cobrado",
-  "provedor",
-  "detalhamento",
-];
-const DEFAULT_SPANS: Record<string, Span> = {
-  consumo: 2,
-  composicao: 1,
-  "usado-cobrado": 1,
-  provedor: 1,
-  detalhamento: 2,
-};
-
 export function ExplorerMain() {
-  const { order, setOrder, reset: resetOrder, isCustomized: orderCustom } = useBoardOrder(STORAGE_KEY, DEFAULT_ORDER);
-  const { spans, toggleSpan, setSpans, reset: resetSpans, isCustomized: spansCustom } = useBoardSpans(SPANS_KEY, DEFAULT_SPANS);
+  const { order, setOrder, spans, toggleSpan, setSpans, resetBoard, isBoardCustomized } = useConsumo();
 
   const [editing, setEditing] = React.useState(false);
   const snapshot = React.useRef<{ order: string[]; spans: Record<string, Span> } | null>(null);
@@ -74,11 +50,8 @@ export function ExplorerMain() {
     snapshot.current = null;
     setEditing(false);
   };
-  const resetLayout = () => {
-    resetOrder();
-    resetSpans();
-  };
-  const isCustomized = orderCustom || spansCustom;
+  const resetLayout = () => resetBoard();
+  const isCustomized = isBoardCustomized;
 
   const widgets: BoardWidget[] = React.useMemo(
     () => [
@@ -160,6 +133,7 @@ function Toolbar({
       ) : (
         <>
           <PeriodPicker />
+          <SaveReportButton />
           <ExportCsvMenu />
           <AwDropdownMenu
             align="end"
@@ -181,6 +155,55 @@ function Toolbar({
         </>
       )}
     </div>
+  );
+}
+
+function SaveReportButton() {
+  const { activeReport, isReportDirty, updateActiveReport } = useConsumo();
+  const { openCreate } = useReportsUI();
+
+  // Com relatório ativo, "Salvar" atualiza o snapshot direto (sem perguntar
+  // nome, como o Greg pediu); sem alterações, vira um "Salvo" passivo. Sem
+  // relatório ativo, abre o modal pra nomear e criar.
+  if (activeReport) {
+    return (
+      <button
+        type="button"
+        onClick={() => {
+          if (isReportDirty) updateActiveReport();
+        }}
+        disabled={!isReportDirty}
+        title={
+          isReportDirty
+            ? `Salvar alterações em "${activeReport.name}"`
+            : `"${activeReport.name}" está salvo`
+        }
+        className={cn(
+          "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium transition-colors duration-aw-fast",
+          isReportDirty
+            ? "text-(--fg-primary) hover:border-(--border-default) hover:bg-(--bg-hover)"
+            : "cursor-default text-(--fg-tertiary)",
+        )}
+      >
+        <Icon
+          name={isReportDirty ? "save" : "check"}
+          size={16}
+          className={isReportDirty ? "text-(--fg-tertiary)" : "text-(--accent-success)"}
+        />
+        {isReportDirty ? "Salvar" : "Salvo"}
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={openCreate}
+      title="Salvar como relatório"
+      className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+    >
+      <Icon name="bookmark_add" size={16} className="text-(--fg-tertiary)" />
+      Salvar
+    </button>
   );
 }
 

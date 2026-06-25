@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwLogo } from "@/components/ui/AwLogo";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import { useConsumo } from "./ConsumoContext";
+import { useReportsUI } from "./SavedReports";
 import { DIMENSIONS } from "./explorer-model";
 
 /* ----------------------------------------------------------------------------
@@ -44,6 +46,7 @@ export function ExplorerRail() {
           <Header onBack={back} onCollapse={() => setCollapsed(true)} />
           <DimensionList />
           <ByDestination />
+          <SavedReportsSection />
         </div>
       )}
     </aside>
@@ -175,6 +178,79 @@ function ByDestination() {
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function SavedReportsSection() {
+  const { reports, activeReportId, applyReport } = useConsumo();
+  const { openCreate, openRename, openDelete } = useReportsUI();
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <SectionLabel>Relatórios</SectionLabel>
+      <button
+        type="button"
+        onClick={openCreate}
+        className="inline-flex w-full items-center gap-2 rounded-lg border border-dashed border-(--border-default) px-2.5 py-2 text-left body-sm font-medium text-(--fg-secondary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+      >
+        <Icon name="add" size={16} className="text-(--fg-tertiary)" />
+        Criar novo relatório
+      </button>
+
+      {reports.length === 0 ? (
+        <p className="m-0 body-xs text-(--fg-muted)">
+          Salve a lente, o período e o layout atuais pra voltar quando quiser.
+        </p>
+      ) : (
+        <ul className="m-0 flex list-none flex-col gap-0.5 p-0">
+          {reports.map((r) => {
+            const active = r.id === activeReportId;
+            return (
+              <li key={r.id} className="group flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => applyReport(r.id)}
+                  aria-current={active ? "true" : undefined}
+                  title={r.name}
+                  className={cn(
+                    "flex min-w-0 flex-1 items-center gap-2.5 rounded-lg px-2.5 py-2 text-left body-sm transition-colors duration-aw-fast",
+                    active
+                      ? "bg-(--bg-selected) font-medium text-(--fg-primary)"
+                      : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+                  )}
+                >
+                  <Icon
+                    name="bookmark"
+                    size={16}
+                    fill={active ? 1 : 0}
+                    className={active ? "text-(--accent-brand)" : "text-(--fg-tertiary)"}
+                  />
+                  <span className="truncate">{r.name}</span>
+                </button>
+                <AwDropdownMenu
+                  align="end"
+                  aria-label={`Ações do relatório ${r.name}`}
+                  trigger={
+                    <button
+                      type="button"
+                      aria-label={`Ações do relatório ${r.name}`}
+                      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md text-(--fg-tertiary) opacity-0 transition-opacity duration-aw-fast hover:bg-(--bg-hover) hover:text-(--fg-primary) focus-visible:opacity-100 group-hover:opacity-100 aria-expanded:opacity-100"
+                    >
+                      <Icon name="more_vert" size={16} />
+                    </button>
+                  }
+                  items={[
+                    { id: "view", label: "Visualizar", icon: "visibility", onSelect: () => applyReport(r.id) },
+                    { id: "rename", label: "Renomear", icon: "edit", onSelect: () => openRename(r.id, r.name) },
+                    { id: "del", label: "Excluir", icon: "delete", danger: true, onSelect: () => openDelete(r.id, r.name) },
+                  ]}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

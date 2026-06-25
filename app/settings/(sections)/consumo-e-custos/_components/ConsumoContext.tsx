@@ -26,6 +26,7 @@ import {
   scaledServiceRows,
   trendPct,
 } from "./explorer-model";
+import { useBoardOrder, useBoardSpans, type Span } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
  * Estado do explorador "Explorar custos".
@@ -51,6 +52,71 @@ export type ChartModel = {
 };
 
 const MAX_CHART_SERIES = 5;
+
+/* ---------- board (layout dos widgets) — fonte única aqui no provider ---------- */
+
+const BOARD_ORDER_KEY = "consumo-dash-order-v3";
+const BOARD_SPANS_KEY = "consumo-dash-spans-v3";
+
+export const BOARD_DEFAULT_ORDER = [
+  "consumo",
+  "composicao",
+  "usado-cobrado",
+  "provedor",
+  "detalhamento",
+];
+export const BOARD_DEFAULT_SPANS: Record<string, Span> = {
+  consumo: 2,
+  composicao: 1,
+  "usado-cobrado": 1,
+  provedor: 1,
+  detalhamento: 2,
+};
+
+/* ---------- relatórios salvos ---------- */
+
+const REPORTS_KEY = "aw:consumo-explorer:reports";
+
+/** Período serializável (datas viram ISO pra caber no localStorage). */
+type StoredSelection =
+  | { kind: "preset"; id: SpendingPeriod }
+  | { kind: "custom"; from: string; to: string };
+
+/** Snapshot completo do explorador: filtros + drill + layout do board. */
+export type ExplorerSnapshot = {
+  grouping: SpendingGrouping;
+  selection: StoredSelection;
+  payers: ProviderId[];
+  search: string;
+  drill: DrillNode[];
+  order: string[];
+  spans: Record<string, Span>;
+};
+
+export type SavedReport = {
+  id: string;
+  name: string;
+  createdAt: number;
+  updatedAt: number;
+  snapshot: ExplorerSnapshot;
+};
+
+function serializeSelection(s: PeriodSelection): StoredSelection {
+  return s.kind === "custom"
+    ? { kind: "custom", from: s.from.toISOString(), to: s.to.toISOString() }
+    : { kind: "preset", id: s.id };
+}
+
+function reviveSelection(s: StoredSelection): PeriodSelection {
+  return s.kind === "custom"
+    ? { kind: "custom", from: new Date(s.from), to: new Date(s.to) }
+    : { kind: "preset", id: s.id };
+}
+
+function newReportId(): string {
+  // App-side (não é workflow): Date/Math disponíveis.
+  return `rpt-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
 
 const SERVICE_CAT_TO_ROW_IDS: Record<string, string[]> = {
   "disparos-mkt": ["disp-mkt"],
@@ -122,6 +188,27 @@ type ConsumoContextValue = {
   payers: Set<ProviderId>;
   togglePayer: (p: ProviderId) => void;
   metaIncluded: boolean;
+
+  /* layout do board (ordem + larguras dos widgets) */
+  order: string[];
+  setOrder: (next: string[]) => void;
+  spans: Record<string, Span>;
+  toggleSpan: (id: string) => void;
+  setSpans: (next: Record<string, Span>) => void;
+  resetBoard: () => void;
+  isBoardCustomized: boolean;
+
+  /* relatórios salvos (snapshot do explorador) */
+  reports: SavedReport[];
+  activeReportId: string | null;
+  activeReport: SavedReport | null;
+  /** Há mudanças não salvas em relação ao relatório ativo. */
+  isReportDirty: boolean;
+  saveNewReport: (name: string) => void;
+  updateActiveReport: () => void;
+  renameReport: (id: string, name: string) => void;
+  deleteReport: (id: string) => void;
+  applyReport: (id: string) => void;
 };
 
 const ConsumoContext = React.createContext<ConsumoContextValue | null>(null);
@@ -153,6 +240,161 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     setGroupingState(g);
     setDrill([]);
   }, []);
+
+  // Layout do board (ordem + larguras) — agora mora no provider pra entrar no
+  // snapshot dos relatórios. Os widgets/Toolbar consomem daqui.
+  const { order, setOrder, reset: resetOrder, isCustomized: orderCustom } = useBoardOrder(
+    BOARD_ORDER_KEY,
+    BOARD_DEFAULT_ORDER,
+  );
+  const { spans, toggleSpan, setSpans, reset: resetSpans, isCustomized: spansCustom } = useBoardSpans(
+    BOARD_SPANS_KEY,
+    BOARD_DEFAULT_SPANS,
+  );
+  const isBoardCustomized = orderCustom || spansCustom;
+  const resetBoard = React.useCallback(() => {
+    resetOrder();
+    resetSpans();
+  }, [resetOrder, resetSpans]);
+
+  /* ---- relatórios salvos ---- */
+  const [reports, setReports] = React.useState<SavedReport[]>([]);
+  const [activeReportId, setActiveReportId] = React.useState<string | null>(null);
+
+  const persistReports = React.useCallback((next: SavedReport[], activeId: string | null) => {
+    try {
+      window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ reports: next, activeReportId: activeId }));
+    } catch {
+      /* localStorage indisponível */
+    }
+  }, []);
+
+  const currentSnapshot = React.useCallback(
+    (): ExplorerSnapshot => ({
+      grouping,
+      selection: serializeSelection(selection),
+      payers: [...payers],
+      search,
+      drill,
+      order,
+      spans,
+    }),
+    [grouping, selection, payers, search, drill, order, spans],
+  );
+
+  const applySnapshot = React.useCallback(
+    (snap: ExplorerSnapshot) => {
+      setGroupingState(snap.grouping);
+      setSelection(reviveSelection(snap.selection));
+      setPayers(new Set(snap.payers?.length ? snap.payers : (["aswork", "meta"] as ProviderId[])));
+      setSearch(snap.search ?? "");
+      setDrill(snap.drill ?? []);
+      setOrder(snap.order ?? BOARD_DEFAULT_ORDER);
+      setSpans(snap.spans ?? BOARD_DEFAULT_SPANS);
+    },
+    [setOrder, setSpans],
+  );
+
+  // Hidrata os relatórios e, se havia um ativo, reabre o explorador nele.
+  const reportsHydrated = React.useRef(false);
+  React.useEffect(() => {
+    if (reportsHydrated.current) return;
+    reportsHydrated.current = true;
+    try {
+      const raw = window.localStorage.getItem(REPORTS_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { reports?: SavedReport[]; activeReportId?: string | null };
+      const list = Array.isArray(parsed.reports) ? parsed.reports : [];
+      setReports(list);
+      const active = parsed.activeReportId ? list.find((r) => r.id === parsed.activeReportId) : undefined;
+      if (active) {
+        setActiveReportId(active.id);
+        applySnapshot(active.snapshot);
+      }
+    } catch {
+      /* localStorage indisponível */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const saveNewReport = React.useCallback(
+    (name: string) => {
+      const now = Date.now();
+      const report: SavedReport = {
+        id: newReportId(),
+        name: name.trim() || "Relatório sem nome",
+        createdAt: now,
+        updatedAt: now,
+        snapshot: currentSnapshot(),
+      };
+      setReports((prev) => {
+        const next = [...prev, report];
+        persistReports(next, report.id);
+        return next;
+      });
+      setActiveReportId(report.id);
+    },
+    [currentSnapshot, persistReports],
+  );
+
+  const updateActiveReport = React.useCallback(() => {
+    if (!activeReportId) return;
+    setReports((prev) => {
+      const next = prev.map((r) =>
+        r.id === activeReportId ? { ...r, snapshot: currentSnapshot(), updatedAt: Date.now() } : r,
+      );
+      persistReports(next, activeReportId);
+      return next;
+    });
+  }, [activeReportId, currentSnapshot, persistReports]);
+
+  const renameReport = React.useCallback(
+    (id: string, name: string) => {
+      setReports((prev) => {
+        const next = prev.map((r) => (r.id === id ? { ...r, name: name.trim() || r.name, updatedAt: Date.now() } : r));
+        persistReports(next, activeReportId);
+        return next;
+      });
+    },
+    [activeReportId, persistReports],
+  );
+
+  const deleteReport = React.useCallback(
+    (id: string) => {
+      setReports((prev) => {
+        const next = prev.filter((r) => r.id !== id);
+        const nextActive = activeReportId === id ? null : activeReportId;
+        persistReports(next, nextActive);
+        return next;
+      });
+      setActiveReportId((cur) => (cur === id ? null : cur));
+    },
+    [activeReportId, persistReports],
+  );
+
+  const applyReport = React.useCallback(
+    (id: string) => {
+      setReports((prev) => {
+        const r = prev.find((x) => x.id === id);
+        if (r) {
+          applySnapshot(r.snapshot);
+          setActiveReportId(id);
+          persistReports(prev, id);
+        }
+        return prev;
+      });
+    },
+    [applySnapshot, persistReports],
+  );
+
+  const activeReport = React.useMemo(
+    () => reports.find((r) => r.id === activeReportId) ?? null,
+    [reports, activeReportId],
+  );
+  const isReportDirty = React.useMemo(() => {
+    if (!activeReport) return false;
+    return JSON.stringify(currentSnapshot()) !== JSON.stringify(activeReport.snapshot);
+  }, [activeReport, currentSnapshot]);
 
   const customDays = selection.kind === "custom" ? diffInDaysInclusive(selection.from, selection.to) : 0;
 
@@ -429,6 +671,22 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     payers,
     togglePayer,
     metaIncluded,
+    order,
+    setOrder,
+    spans,
+    toggleSpan,
+    setSpans,
+    resetBoard,
+    isBoardCustomized,
+    reports,
+    activeReportId,
+    activeReport,
+    isReportDirty,
+    saveNewReport,
+    updateActiveReport,
+    renameReport,
+    deleteReport,
+    applyReport,
   };
 
   return <ConsumoContext.Provider value={value}>{children}</ConsumoContext.Provider>;

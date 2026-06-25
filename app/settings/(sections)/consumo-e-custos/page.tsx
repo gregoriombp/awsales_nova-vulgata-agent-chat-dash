@@ -1,6 +1,7 @@
 "use client";
 
 import { ConsumoProvider } from "./_components/ConsumoContext";
+import { ReportsUIProvider } from "./_components/SavedReports";
 import { ExplorerRail } from "./_components/ExplorerRail";
 import { ExplorerMain } from "./_components/ExplorerMain";
 
@@ -16,10 +17,12 @@ import { ExplorerMain } from "./_components/ExplorerMain";
 export default function ConsumoECustosPage() {
   return (
     <ConsumoProvider>
-      <div className="flex h-dvh w-full overflow-hidden bg-(--bg-canvas) text-(--fg-primary)">
-        <ExplorerRail />
-        <ExplorerMain />
-      </div>
+      <ReportsUIProvider>
+        <div className="flex h-dvh w-full overflow-hidden bg-(--bg-canvas) text-(--fg-primary)">
+          <ExplorerRail />
+          <ExplorerMain />
+        </div>
+      </ReportsUIProvider>
     </ConsumoProvider>
   );
 }
