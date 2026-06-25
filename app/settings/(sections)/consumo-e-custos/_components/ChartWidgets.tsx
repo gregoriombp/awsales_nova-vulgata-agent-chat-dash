@@ -13,9 +13,10 @@ import {
   Pie,
   PieChart,
   XAxis,
-  YAxis,
 } from "recharts";
+import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
+import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import {
   ChartContainer,
   ChartTooltip,
@@ -477,7 +478,13 @@ export function ComposicaoWidget({
               </Pie>
             </PieChart>
           </ChartContainer>
-          <ShareList totals={colored} total={accumulated} grouping={grouping} />
+          <ShareList
+            totals={colored}
+            total={accumulated}
+            grouping={grouping}
+            activeId={activeSlice}
+            onActive={setActiveSlice}
+          />
         </div>
       ) : (
         <ShareBars totals={colored} total={accumulated} grouping={grouping} />
@@ -490,35 +497,56 @@ function ShareList({
   totals,
   total,
   grouping,
+  activeId,
+  onActive,
 }: {
   totals: SeriesTotal[];
   total: number;
   grouping: SpendingGrouping;
+  activeId: string | null;
+  onActive: (id: string | null) => void;
 }) {
+  const top = totals.slice(0, 6);
+  // Barra comparativa entre itens — escala pela maior fatia (quem consumiu
+  // mais enche a barra), não pelo total; assim a diferença entre agentes fica
+  // legível mesmo quando o líder não chega perto de 100% do período.
+  const max = top.reduce((m, s) => Math.max(m, s.total), 0) || 1;
   return (
-    <ul className="m-0 flex min-w-0 flex-1 list-none flex-col gap-2 p-0">
-      {totals.slice(0, 6).map((s) => {
+    <ul className="m-0 flex min-w-0 flex-1 list-none flex-col gap-2.5 p-0">
+      {top.map((s) => {
         const pct = total > 0 ? (s.total / total) * 100 : 0;
         return (
           <li
             key={s.cat.id}
-            className="flex items-center justify-between gap-3 body-xs"
+            onMouseEnter={() => onActive(s.cat.id)}
+            onMouseLeave={() => onActive(null)}
+            className="flex flex-col gap-1 transition-opacity duration-aw-fast"
+            style={{ opacity: seriesOpacity(activeId, s.cat.id) }}
           >
-            <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
-              {grouping === "agent" && s.cat.avatar ? (
-                <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
-              ) : (
-                <span
-                  aria-hidden="true"
-                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
-                  style={{ background: s.cat.colorVar }}
-                />
-              )}
-              <span className="truncate">{s.cat.label}</span>
-            </span>
-            <span className="shrink-0 tabular-nums text-(--fg-tertiary)">
-              {pct.toFixed(0)}%
-            </span>
+            <div className="flex items-center justify-between gap-3 body-xs">
+              <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
+                {grouping === "agent" && s.cat.avatar ? (
+                  <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                    style={{ background: s.cat.colorVar }}
+                  />
+                )}
+                <span className="truncate">{s.cat.label}</span>
+              </span>
+              <span className="shrink-0 tabular-nums text-(--fg-secondary)">
+                {brl(s.total)}{" "}
+                <span className="text-(--fg-tertiary)">· {pct.toFixed(0)}%</span>
+              </span>
+            </div>
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-(--bg-muted)">
+              <div
+                className="h-full rounded-full transition-[width] duration-aw-base ease-aw-out"
+                style={{ width: `${Math.max(2, (s.total / max) * 100)}%`, background: s.cat.colorVar }}
+              />
+            </div>
           </li>
         );
       })}
@@ -780,12 +808,34 @@ export function ProvedorWidget({
 
 /* =============== Gasto total no período (card fixo) =============== */
 
+type GastoLineKey = "total" | "aswork" | "meta";
+
 export function GastoTotalCard() {
   const { payerDaily, chartPeriod, metaIncluded, accumulated } = useConsumo();
   // Linha em foco no hover. As demais somem suavemente; a focada ganha um
-  // "fio condutor": segmento do gradient do agente (blue→purple→pink) que
-  // percorre a curva da esquerda pra direita em loop.
+  // "fio condutor": um segmento claro (grayscale + alpha) que percorre a curva
+  // em loop e CLAREIA a própria cor da série por baixo (mix-blend overlay) —
+  // azul fica azul vibrante, roxo fica roxo vibrante, sem cor fixa.
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
+
+  // Filtro de visualização LOCAL do gráfico (independe da sidebar): liga/desliga
+  // Total, Aswork e Meta só aqui. Sempre sobra ≥1 linha.
+  const [lines, setLines] = React.useState<Record<GastoLineKey, boolean>>({
+    total: true,
+    aswork: true,
+    meta: true,
+  });
+  const showMeta = metaIncluded && lines.meta;
+  const toggleLine = (key: GastoLineKey) =>
+    setLines((prev) => {
+      const next = { ...prev, [key]: !prev[key] };
+      // Não deixa esvaziar: conta as visíveis levando em conta o pagador.
+      const visible = [next.total, next.aswork, metaIncluded && next.meta].filter(
+        Boolean,
+      ).length;
+      return visible === 0 ? prev : next;
+    });
+  const allLinesOn = lines.total && lines.aswork && (!metaIncluded || lines.meta);
 
   // Normaliza o pathLength do overlay pra 1 — assim dasharray/dashoffset no
   // CSS viram frações da curva e o segmento percorre a linha toda
@@ -833,23 +883,78 @@ export function GastoTotalCard() {
       title="Gasto total no período"
       icon="show_chart"
       description={`Gasto no período · ${brl(accumulated)}`}
+      actions={
+        <AwDropdownMenu
+          align="end"
+          aria-label="Linhas visíveis no gráfico"
+          trigger={
+            <button
+              type="button"
+              aria-label="Filtrar linhas do gráfico"
+              className={cn(
+                "relative inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast hover:bg-(--bg-hover)",
+                allLinesOn
+                  ? "text-(--fg-tertiary) hover:text-(--fg-primary)"
+                  : "text-(--accent-brand)",
+              )}
+            >
+              <Icon name="tune" size={18} />
+              {!allLinesOn && (
+                <span
+                  aria-hidden="true"
+                  className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-(--accent-brand)"
+                />
+              )}
+            </button>
+          }
+          items={[
+            { id: "head", isLabel: true, label: "Mostrar no gráfico" },
+            {
+              id: "total",
+              label: "Total",
+              checked: lines.total,
+              closeOnSelect: false,
+              onSelect: () => toggleLine("total"),
+            },
+            {
+              id: "aswork",
+              label: "Aswork",
+              checked: lines.aswork,
+              closeOnSelect: false,
+              onSelect: () => toggleLine("aswork"),
+            },
+            {
+              id: "meta",
+              label: metaIncluded ? "Meta" : "Meta · desligado na lateral",
+              checked: showMeta,
+              disabled: !metaIncluded,
+              closeOnSelect: false,
+              onSelect: () => toggleLine("meta"),
+            },
+          ]}
+        />
+      }
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
-        <LegendDot color="var(--fg-primary)" label="Total" />
-        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-          <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
-          Aswork
-        </span>
-        <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
-          <AwBrandLogo brand="meta" size={14} markOnly />
-          Meta
-        </span>
+        {lines.total && <LegendDot color="var(--fg-primary)" label="Total" />}
+        {lines.aswork && (
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+            <AwLogo variant="mark" height={13} className="text-(--aw-blue-500)" />
+            Aswork
+          </span>
+        )}
+        {showMeta && (
+          <span className="inline-flex items-center gap-1.5 body-xs text-(--fg-secondary)">
+            <AwBrandLogo brand="meta" size={14} markOnly />
+            Meta
+          </span>
+        )}
       </div>
       <ChartContainer
         config={config}
         className="aw-gasto-total-chart mt-2 aspect-auto h-72 w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
-        <AreaChart data={data} margin={{ left: 0, right: 12, top: 8 }}>
+        <AreaChart data={data} margin={{ left: 4, right: 12, top: 8 }}>
           {/* Degradê suave por linha (cor → transparente no rodapé), pra dar
               corpo às séries sem encher de tinta. Total bem sutil (é só o
               envelope); Aswork/Meta com a cor da série. */}
@@ -866,13 +971,17 @@ export function GastoTotalCard() {
               <stop offset="5%" stopColor="var(--aw-purple-400)" stopOpacity={0.2} />
               <stop offset="92%" stopColor="var(--aw-purple-400)" stopOpacity={0} />
             </linearGradient>
-            {/* Stroke iridescente do glyph de agente (blue → purple → pink).
-                Usado SÓ no overlay pulsante da linha em foco. Cores são tokens
-                existentes; mesma sequência do <Icon name="agent" gradient />. */}
-            <linearGradient id="strokeGastoAgent" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="var(--aw-blue-500)" />
-              <stop offset="50%" stopColor="var(--aw-purple-500)" />
-              <stop offset="100%" stopColor="var(--aw-pink-400)" />
+            {/* "Fio condutor" do hover: branco em escala de cinza com tons de
+                alpha (suave nas pontas, intenso no meio). NÃO carrega cor —
+                quem dá a cor é a série por baixo, via mix-blend-mode (overlay)
+                no CSS. Assim o pulso clareia coerentemente seja a linha azul,
+                roxa ou neutra, em vez de uma sequência fixa blue→purple→pink. */}
+            <linearGradient id="strokeGastoComet" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#ffffff" stopOpacity={0.22} />
+              <stop offset="30%" stopColor="#ffffff" stopOpacity={0.6} />
+              <stop offset="50%" stopColor="#ffffff" stopOpacity={0.98} />
+              <stop offset="70%" stopColor="#ffffff" stopOpacity={0.6} />
+              <stop offset="100%" stopColor="#ffffff" stopOpacity={0.22} />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -886,14 +995,9 @@ export function GastoTotalCard() {
             tick={{ fontSize: 11, fill: "var(--fg-tertiary)" }}
             height={28}
           />
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-            tickMargin={6}
-            width={56}
-            tick={{ fontSize: 11, fill: "var(--fg-tertiary)" }}
-            tickFormatter={(v) => `R$ ${Math.round(Number(v)).toLocaleString("pt-BR")}`}
-          />
+          {/* Sem eixo Y de valores: os números já vivem no header ("Gasto no
+              período · R$ X") e no tooltip. Tirá-lo estende a curva na
+              horizontal e dá mais respiro ao gráfico. */}
           <ChartTooltip
             cursor={{ stroke: "var(--border-default)", strokeDasharray: "3 3" }}
             content={
@@ -904,37 +1008,41 @@ export function GastoTotalCard() {
             }
           />
           {/* Total primeiro (fica atrás), depois Aswork/Meta pintam por cima. */}
-          <Area
-            dataKey="total"
-            type="monotone"
-            stroke="var(--fg-primary)"
-            strokeWidth={2.5}
-            strokeOpacity={seriesOpacity(activeSeries, "total")}
-            fill="url(#fillGastoTotal)"
-            fillOpacity={fadeFill("total")}
-            dot={false}
-            activeDot={{ r: 4, onMouseEnter: enter("total"), onMouseLeave: leave }}
-            isAnimationActive
-            animationDuration={CHART_ANIMATION_DURATION}
-            onMouseEnter={enter("total")}
-            onMouseLeave={leave}
-          />
-          <Area
-            dataKey="aswork"
-            type="monotone"
-            stroke="var(--aw-blue-500)"
-            strokeWidth={1.75}
-            strokeOpacity={seriesOpacity(activeSeries, "aswork")}
-            fill="url(#fillGastoAswork)"
-            fillOpacity={fadeFill("aswork")}
-            dot={false}
-            activeDot={{ r: 4, onMouseEnter: enter("aswork"), onMouseLeave: leave }}
-            isAnimationActive
-            animationDuration={CHART_ANIMATION_DURATION}
-            onMouseEnter={enter("aswork")}
-            onMouseLeave={leave}
-          />
-          {metaIncluded && (
+          {lines.total && (
+            <Area
+              dataKey="total"
+              type="monotone"
+              stroke="var(--fg-primary)"
+              strokeWidth={2.5}
+              strokeOpacity={seriesOpacity(activeSeries, "total")}
+              fill="url(#fillGastoTotal)"
+              fillOpacity={fadeFill("total")}
+              dot={false}
+              activeDot={{ r: 4, onMouseEnter: enter("total"), onMouseLeave: leave }}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={enter("total")}
+              onMouseLeave={leave}
+            />
+          )}
+          {lines.aswork && (
+            <Area
+              dataKey="aswork"
+              type="monotone"
+              stroke="var(--aw-blue-500)"
+              strokeWidth={1.75}
+              strokeOpacity={seriesOpacity(activeSeries, "aswork")}
+              fill="url(#fillGastoAswork)"
+              fillOpacity={fadeFill("aswork")}
+              dot={false}
+              activeDot={{ r: 4, onMouseEnter: enter("aswork"), onMouseLeave: leave }}
+              isAnimationActive
+              animationDuration={CHART_ANIMATION_DURATION}
+              onMouseEnter={enter("aswork")}
+              onMouseLeave={leave}
+            />
+          )}
+          {showMeta && (
             <Area
               dataKey="meta"
               type="monotone"
@@ -951,19 +1059,20 @@ export function GastoTotalCard() {
               onMouseLeave={leave}
             />
           )}
-          {/* Overlay da linha em foco — stroke gradient do agente, pulsando
-              linearmente entre 10% e 30% de opacidade. Mesma curva monotônica
-              da série base (segue o traço milimetricamente). Renderizado por
-              último pra ficar por cima de tudo. Usa dataKey sintético
-              (`__overlay`, espelha o valor da série em foco) pra evitar
-              colisão de key com a Area base no React. */}
+          {/* Overlay da linha em foco — "fio condutor": segmento claro
+              (grayscale + alpha, #strokeGastoComet) que percorre a curva em
+              loop. O mix-blend-mode (CSS) faz ele clarear a cor da própria
+              série por baixo, então adapta a azul/roxo/neutro. Mesma curva
+              monotônica da série base (segue o traço). Renderizado por último
+              pra ficar por cima. dataKey sintético (`__overlay`, espelha a
+              série em foco) evita colisão de key com a Area base. */}
           {activeSeries && (
             <Area
               key={`overlay-${activeSeries}`}
               dataKey="__overlay"
               type="monotone"
-              stroke="url(#strokeGastoAgent)"
-              strokeWidth={activeSeries === "total" ? 4 : 3}
+              stroke="url(#strokeGastoComet)"
+              strokeWidth={activeSeries === "total" ? 4.5 : 3.5}
               fill="none"
               dot={false}
               activeDot={false}

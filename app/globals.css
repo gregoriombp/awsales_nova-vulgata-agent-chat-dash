@@ -1330,23 +1330,23 @@
 
 /* "Gasto total no período" (settings/consumo-e-custos) — hover de série.
  * As linhas não-focadas somem suavemente (transição em stroke/fill-opacity)
- * e a linha em foco ganha um overlay "fio condutor": um segmento curto com
- * o stroke gradient do glyph de agente (#strokeGastoAgent) que percorre a
- * curva da esquerda pra direita em loop. `pathLength="1"` é setado no path
- * via JS — assim dasharray/dashoffset são frações independentes da largura
- * real do chart. `mix-blend-mode: multiply` faz o gradient "morder" o azul/
- * roxo da série por baixo (em vez de pintar por cima) e ficar bem visível
- * mesmo sem glow. */
+ * e a linha em foco ganha um overlay "fio condutor": um segmento claro
+ * (grayscale + alpha, #strokeGastoComet) que percorre a curva da esquerda
+ * pra direita em loop. `pathLength="1"` é setado no path via JS — assim
+ * dasharray/dashoffset são frações independentes da largura real do chart.
+ * `mix-blend-mode: overlay` faz o branco CLAREAR a cor da própria série por
+ * baixo (em vez de pintar uma cor fixa por cima): numa linha azul vira azul
+ * vibrante, numa roxa vira roxo vibrante — adapta a qualquer cor. */
 .aw-gasto-total-chart .recharts-area path {
   transition:
     stroke-opacity var(--transition-duration-aw-base) var(--ease-out),
     fill-opacity var(--transition-duration-aw-base) var(--ease-out);
 }
 .aw-gasto-total-overlay .recharts-area-curve {
-  stroke-dasharray: 0.16 0.84;
+  stroke-dasharray: 0.34 0.66;
   stroke-linecap: round;
-  mix-blend-mode: multiply;
-  animation: aw-gasto-total-overlay-flow 2.6s linear infinite;
+  mix-blend-mode: overlay;
+  animation: aw-gasto-total-overlay-flow 2.8s linear infinite;
 }
 @keyframes aw-gasto-total-overlay-flow {
   from {
