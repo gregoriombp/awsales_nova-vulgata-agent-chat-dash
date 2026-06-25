@@ -56,7 +56,7 @@ const ENTRY_CARDS = [
 ]
 
 const SYSTEM_STATS = [
-  { v: "60+", k: "componentes Aw*" },
+  { v: "90+", k: "componentes Aw*" },
   { v: "10", k: "foundations" },
   { v: "26", k: "integrações com ícone" },
   { v: "2", k: "temas · light e dark" },
