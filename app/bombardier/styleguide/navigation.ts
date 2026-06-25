@@ -74,6 +74,11 @@ export const navigation: NavSection[] = [
     group: "Biblioteca",
     title: "Primitivos",
     items: [
+      {
+        name: "Accordion",
+        href: "/bombardier/styleguide/components/aw-accordion",
+        aliases: ["AwAccordion", "disclosure", "expandir", "colapsar", "faq", "sanfona", "collapsible"],
+      },
       { name: "Alertas", href: "/bombardier/styleguide/components/alerts" },
       { name: "Avatar", href: "/bombardier/styleguide/components/aw-avatar" },
       { name: "Botões", href: "/bombardier/styleguide/components/buttons" },
@@ -89,6 +94,11 @@ export const navigation: NavSection[] = [
         aliases: ["Calendar", "calendar", "date picker", "period picker", "seletor de período", "range picker"],
       },
       { name: "Checkbox", href: "/bombardier/styleguide/components/aw-checkbox" },
+      {
+        name: "Collapsible",
+        href: "/bombardier/styleguide/components/aw-collapsible",
+        aliases: ["AwCollapsible", "disclosure", "ver mais", "expandir linha", "histórico", "show more"],
+      },
       { name: "Controles", href: "/bombardier/styleguide/components/controls" },
       { name: "Dropdown menu", href: "/bombardier/styleguide/components/aw-dropdown-menu" },
       { name: "Dropzone", href: "/bombardier/styleguide/components/aw-dropzone" },
