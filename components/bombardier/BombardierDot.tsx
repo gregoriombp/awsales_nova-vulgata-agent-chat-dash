@@ -9,6 +9,11 @@ import {
 import { AwLogo } from "@/components/ui/AwLogo";
 import { useReviewStore } from "@/lib/bombardier-review/store";
 import { useEditStore } from "@/lib/bombardier-edit/store";
+import {
+  useAgentSettingsStore,
+  agentSettingsOf,
+} from "@/lib/bombardier-review/agentSettingsStore";
+import { REVIEW_AGENTS } from "@/lib/bombardier-review/agents";
 
 export function BombardierDot() {
   const router = useRouter();
@@ -18,10 +23,35 @@ export function BombardierDot() {
   const backend = useReviewStore((s) => s.backend);
   const editActive = useEditStore((s) => s.active);
   const toggleEdit = useEditStore((s) => s.toggleActive);
+  const agentSettings = useAgentSettingsStore((s) => s.settings);
+  const hydrateAgents = useAgentSettingsStore((s) => s.hydrate);
+  const toggleAgent = useAgentSettingsStore((s) => s.toggle);
+
+  React.useEffect(() => {
+    void hydrateAgents();
+  }, [hydrateAgents]);
 
   if (!visible) return null;
 
   const go = (href: string) => router.push(href);
+
+  // Painel de controle dos agentes — Live Response / Auto Construct por agente.
+  // Toggles ficam abertos (closeOnSelect: false) pra flipar vários de uma vez.
+  const agentItems: AwDropdownItem[] = [
+    { id: "sep-agents", separator: true },
+    { id: "label-agents", isLabel: true, label: "Agentes" },
+    ...REVIEW_AGENTS.flatMap((agent): AwDropdownItem[] => {
+      const s = agentSettingsOf(agentSettings, agent.id);
+      return agent.capabilities.map((cap): AwDropdownItem => ({
+        id: `${agent.id}-${cap.key}`,
+        label: `${agent.handle} · ${cap.label}`,
+        icon: cap.icon,
+        checked: s[cap.key],
+        closeOnSelect: false,
+        onSelect: () => void toggleAgent(agent.id, cap.key),
+      }));
+    }),
+  ];
 
   const items: AwDropdownItem[] = [
     { id: "label-nav", isLabel: true, label: "Bombardier" },
@@ -66,6 +96,7 @@ export function BombardierDot() {
       checked: editActive,
       onSelect: () => toggleEdit(),
     },
+    ...agentItems,
     { id: "sep-hide", separator: true },
     {
       id: "hide",
