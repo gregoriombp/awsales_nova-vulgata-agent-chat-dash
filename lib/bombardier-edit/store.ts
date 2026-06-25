@@ -98,7 +98,12 @@ type EditState = {
     anchor: PageEditAnchor,
     prop: string,
     token: string,
-    opts?: { prevToken?: string; offSpec?: boolean; offSpecComponent?: string },
+    opts?: {
+      prevToken?: string
+      offSpec?: boolean
+      offSpecComponent?: string
+      custom?: boolean
+    },
   ) => Promise<void>
   saveHide: (anchor: PageEditAnchor, mode: "hide" | "remove") => Promise<void>
   saveVariant: (
@@ -182,6 +187,7 @@ export const useEditStore = create<EditState>()((set, get) => ({
         prop,
         token,
         ...(opts?.prevToken ? { prevToken: opts.prevToken } : {}),
+        ...(opts?.custom ? { custom: true } : {}),
         ...(opts?.offSpec
           ? {
               offSpec: true,
