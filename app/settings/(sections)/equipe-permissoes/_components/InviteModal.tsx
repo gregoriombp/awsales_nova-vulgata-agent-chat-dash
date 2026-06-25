@@ -219,7 +219,7 @@ export function InviteModal({
           </span>
           <h6 className="m-0 text-(--fg-primary)">
             Convite{totalEmails === 1 ? " foi" : "s foram"} enviado
-            {totalEmails === 1 ? "" : "s"}!
+            {totalEmails === 1 ? "" : "s"}
           </h6>
           <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary) text-pretty">
             {totalEmails === 1

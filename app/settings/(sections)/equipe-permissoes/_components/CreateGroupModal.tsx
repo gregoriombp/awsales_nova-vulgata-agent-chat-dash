@@ -187,7 +187,7 @@ export function CreateGroupModal({
             <Icon name="check" size={28} />
           </span>
           <h6 className="m-0 text-(--fg-primary)">
-            Grupo criado!
+            Grupo criado
           </h6>
           <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
             {memberCount > 0
