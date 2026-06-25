@@ -21,7 +21,14 @@ import { randomUUID } from "node:crypto";
  *    └──discard──► discarded (→ archive)
  */
 
-export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon" | "move";
+export type PageEditOpType =
+  | "text"
+  | "style"
+  | "hide"
+  | "variant"
+  | "icon"
+  | "iconStyle"
+  | "move";
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded";
 
@@ -66,6 +73,13 @@ export type PageEditPayload =
       add: string;
     }
   | { kind: "icon"; name: string; prevName?: string }
+  | {
+      kind: "iconStyle";
+      fill: number;
+      weight: number;
+      grade: number;
+      opticalSize: number;
+    }
   // Sibling reorder: anchor is the PARENT; `order` is the desired child sequence
   // by stable fingerprint key ("<tag>::<text>"). One move op per parent.
   | { kind: "move"; order: string[] };
