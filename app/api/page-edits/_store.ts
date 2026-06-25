@@ -29,6 +29,7 @@ export type PageEditOpType =
   | "icon"
   | "iconStyle"
   | "token"
+  | "class"
   | "move";
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded";
@@ -70,6 +71,13 @@ export type PageEditPayload =
       kind: "variant";
       axis: string;
       value: string;
+      label?: string;
+      remove: string[];
+      add: string;
+    }
+  | {
+      kind: "class";
+      group: string;
       label?: string;
       remove: string[];
       add: string;
@@ -186,6 +194,7 @@ function summarize(
 function payloadDisc(payload: PageEditPayload): string {
   if (payload.kind === "style") return payload.prop;
   if (payload.kind === "variant") return payload.axis;
+  if (payload.kind === "class") return payload.group;
   if (payload.kind === "token") return payload.token;
   return "";
 }
