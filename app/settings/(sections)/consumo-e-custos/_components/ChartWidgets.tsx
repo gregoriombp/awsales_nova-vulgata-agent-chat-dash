@@ -303,7 +303,7 @@ export function ConsumoChartWidget({
 
   return (
     <WidgetShell
-      title="Consumo por dia"
+      title="Uso por dia"
       icon="bar_chart"
       description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}`}
       dragHandle={dragHandle}
@@ -829,7 +829,7 @@ export function ProvedorWidget({
       </ChartContainer>
       <p className="m-0 mt-2 body-xs text-(--fg-tertiary)">
         O que o provedor de pagamento atribuiu no período. Pode diferir do uso
-        por delay entre o custo cair no nosso sistema e ser contabilizado no
+        por atraso entre o custo cair no nosso sistema e ser contabilizado no
         provedor.
       </p>
     </WidgetShell>
@@ -895,9 +895,9 @@ export function GastoTotalCard() {
 
   return (
     <WidgetShell
-      title="Gasto total no período"
+      title="Uso total no período"
       icon="show_chart"
-      description={`Gasto no período · ${brl(accumulated)}`}
+      description={`Acumulado · ${brl(accumulated)}`}
       actions={
         <AwDropdownMenu
           align="end"

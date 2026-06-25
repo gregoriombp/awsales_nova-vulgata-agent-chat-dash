@@ -466,7 +466,7 @@ function OutlierBadge() {
   return (
     <AwPill variant="warning" dot={false}>
       <Icon name="warning" size={11} />
-      Outlier
+      Acima do esperado
     </AwPill>
   );
 }

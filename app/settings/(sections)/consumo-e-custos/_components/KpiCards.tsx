@@ -36,12 +36,12 @@ export function HighlightCards() {
         label="Créditos e cupons"
         value={`− ${brl(summary.credits)}`}
         valueClassName="text-(--accent-success)"
-        tooltip="Créditos e cupons abatem somente valores cobrados pela Aswork — nunca o valor do Meta, que é cobrado direto no seu cartão pela plataforma do Meta.."
+        tooltip="Créditos e cupons abatem somente valores cobrados pela Aswork — nunca o valor do Meta, que é cobrado direto no seu cartão pela plataforma do Meta."
       />
       <HighlightCard
         label="Ajustes"
         value={brl(summary.adjustments)}
-        tooltip="Subtotal − descontos + ajustes. Refere-se ao gráfico 'Usado' (base AWsales) — não inclui Meta."
+        tooltip="Estornos e correções reconhecidos no período — somam (+) ou abatem (−) do total. Costuma vir zerado."
         footer={
           summary.adjustments !== 0 ? <AdjustmentsDetail /> : undefined
         }
