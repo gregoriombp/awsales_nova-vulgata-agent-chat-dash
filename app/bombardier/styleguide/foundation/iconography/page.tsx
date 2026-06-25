@@ -193,7 +193,7 @@ export default function IconographyPage() {
             <Spec
               k="GRAD"
               v="-25..200"
-              d="Grade. Default 200 só em glyphs minúsculos; override para ajuste fino."
+              d="Grade — engrossa o traço sem mudar o footprint. O Icon sobe GRAD nos pequenos (200 ≤16px, 50 ≤20px); override para ajuste fino."
             />
           </div>
         </Section>
@@ -578,11 +578,11 @@ export default function IconographyPage() {
 // Default — herda currentColor, size 20, weight auto, outlined.
 <Icon name="search" />
 
-// Size 16 ganha wght 300 e opsz 20 automaticamente.
+// Size 16 ganha wght ~450 (rampa óptica) + opsz 20 automaticamente.
 <Icon name="add" size={16} />
 
 // Override de peso quando o contexto precisa de mais presença.
-<Icon name="settings" size={20} weight={400} />
+<Icon name="settings" size={20} weight={500} />
 
 // Override de optical size quando o glyph precisa de outro desenho ótico.
 <Icon name="hub" size={16} opticalSize={24} />
