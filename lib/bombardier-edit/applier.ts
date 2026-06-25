@@ -65,7 +65,9 @@ function writeTargetKey(op: PageEditOp): string {
         ? `variant:${p.axis}`
         : p.kind === "token"
           ? `token:${p.token}`
-          : p.kind
+          : p.kind === "class"
+            ? `class:${p.group}`
+            : p.kind
   return `${op.anchor.selector}::${target}`
 }
 
@@ -269,6 +271,16 @@ export class OverlayApplier {
           for (const c of payload.remove) if (c !== payload.add) cl.remove(c)
           if (payload.add) cl.add(payload.add)
         }
+    } else if (payload.kind === "class") {
+      const cl = html.classList
+      const needs =
+        (!!payload.add && !cl.contains(payload.add)) ||
+        payload.remove.some((c) => c !== payload.add && cl.contains(c))
+      if (needs)
+        mutate = () => {
+          for (const c of payload.remove) if (c !== payload.add) cl.remove(c)
+          if (payload.add) cl.add(payload.add)
+        }
     } else if (payload.kind === "move") {
       // el is the PARENT container; reorder its children to the saved sequence.
       const ordered = matchOrder(el, payload.order)
@@ -323,7 +335,7 @@ export class OverlayApplier {
       if (el.textContent !== payload.prevText) el.textContent = payload.prevText
     } else if (payload.kind === "icon" && payload.prevName != null) {
       if (el.textContent !== payload.prevName) el.textContent = payload.prevName
-    } else if (payload.kind === "variant") {
+    } else if (payload.kind === "variant" || payload.kind === "class") {
       // Undo our class add; React restores the original variant on next render.
       if (payload.add) html.classList.remove(payload.add)
     }
