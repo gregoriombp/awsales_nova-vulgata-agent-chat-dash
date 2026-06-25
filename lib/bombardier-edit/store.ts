@@ -106,6 +106,10 @@ type EditState = {
     payload: { axis: string; value: string; label?: string; remove: string[]; add: string },
   ) => Promise<void>
   saveIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => Promise<void>
+  saveIconStyle: (
+    anchor: PageEditAnchor,
+    variation: { fill: number; weight: number; grade: number; opticalSize: number },
+  ) => Promise<void>
   saveMove: (anchor: PageEditAnchor, order: string[]) => Promise<void>
 
   transition: (
@@ -222,6 +226,18 @@ export const useEditStore = create<EditState>()((set, get) => ({
       type: "icon",
       anchor,
       payload: { kind: "icon", name, ...(prevName ? { prevName } : {}) },
+    })
+    await get().refresh()
+  },
+
+  saveIconStyle: async (anchor, variation) => {
+    const route = get().route
+    if (!route) return
+    await apiCreate({
+      route,
+      type: "iconStyle",
+      anchor,
+      payload: { kind: "iconStyle", ...variation },
     })
     await get().refresh()
   },
