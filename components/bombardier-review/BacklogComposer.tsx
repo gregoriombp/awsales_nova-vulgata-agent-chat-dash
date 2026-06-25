@@ -5,6 +5,8 @@ import { AwButton } from "@/components/ui/AwButton"
 import { Icon } from "@/components/ui/Icon"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { useImageAttach } from "@/lib/bombardier-review/useImageAttach"
+import { useReviewCommandAutocomplete } from "@/lib/bombardier-review/useReviewCommandAutocomplete"
+import { ReviewCommandMenu } from "./ReviewCommandMenu"
 
 /**
  * "Adicionar ideia futura" no drawer de review — cria um card de backlog avulso
@@ -19,6 +21,11 @@ export function BacklogComposer() {
   const img = useImageAttach()
   const fileRef = React.useRef<HTMLInputElement>(null)
   const taRef = React.useRef<HTMLTextAreaElement>(null)
+  const commands = useReviewCommandAutocomplete({
+    textareaRef: taRef,
+    value: text,
+    setValue: setText,
+  })
 
   React.useEffect(() => {
     if (open) taRef.current?.focus()
@@ -67,10 +74,15 @@ export function BacklogComposer() {
         placeholder="Descreva a ideia futura… cole uma imagem"
         className="w-full rounded-sm border border-(--border-subtle) bg-(--bg-surface) p-2 body-sm text-(--fg-primary) focus:outline-hidden focus:border-(--accent-brand) resize-none"
         onKeyDown={(e) => {
+          if (commands.onKeyDown(e)) return
           if ((e.metaKey || e.ctrlKey) && e.key === "Enter") void save()
           if (e.key === "Escape") close()
         }}
+        onSelect={() => commands.sync()}
+        onBlur={() => commands.close()}
       />
+
+      <ReviewCommandMenu ac={commands} />
       {img.images.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {img.images.map((src, idx) => (

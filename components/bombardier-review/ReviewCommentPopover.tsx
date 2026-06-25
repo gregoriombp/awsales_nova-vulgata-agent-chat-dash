@@ -13,8 +13,10 @@ import {
 } from "@/lib/bombardier-review/elementContext"
 import { useVoiceTranscription } from "@/lib/bombardier-review/useVoiceTranscription"
 import { useInlineCompletion } from "@/lib/bombardier-review/useInlineCompletion"
+import { useReviewCommandAutocomplete } from "@/lib/bombardier-review/useReviewCommandAutocomplete"
 import { fetchRewrite } from "@/lib/bombardier-review/commentAssist"
 import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
+import { ReviewCommandMenu } from "./ReviewCommandMenu"
 import { ReviewMobbinPanel } from "./ReviewMobbinPanel"
 import type { ReviewPoint } from "./types"
 
@@ -75,12 +77,20 @@ export function ReviewCommentPopover() {
     voiceCancelRef.current = voice.cancel
   })
 
+  // Autocomplete de comandos (@agente, /skill, #now) — caixinha estilo Figma.
+  const commands = useReviewCommandAutocomplete({
+    textareaRef,
+    value: text,
+    setValue: setText,
+  })
+
   // Autocomplete inline (ghost text). Só ativa com o cursor no fim do texto —
-  // a continuação se cola no fim, como no Cursor.
+  // a continuação se cola no fim, como no Cursor. Cede a vez ao menu de
+  // comandos pra não competirem pela mesma tecla (Tab/Enter).
   const { ghost, clear: clearGhost } = useInlineCompletion(
     text,
     elementCtx,
-    pendingAnchor !== null && caretAtEnd && !rewriting
+    pendingAnchor !== null && caretAtEnd && !rewriting && !commands.open
   )
 
   const syncScroll = React.useCallback(() => {
@@ -318,10 +328,13 @@ export function ReviewCommentPopover() {
                 ta.selectionStart === ta.value.length &&
                   ta.selectionEnd === ta.value.length
               )
+              commands.sync()
             }}
             onScroll={syncScroll}
             onPaste={handlePaste}
+            onBlur={() => commands.close()}
             onKeyDown={(e) => {
+              if (commands.onKeyDown(e)) return
               if (e.key === "Tab" && ghost && !e.shiftKey) {
                 e.preventDefault()
                 acceptGhost()
@@ -529,6 +542,8 @@ export function ReviewCommentPopover() {
         anchorWidth={POPOVER_WIDTH}
         anchorY={pxY}
       />
+
+      <ReviewCommandMenu ac={commands} />
     </div>
   )
 }
