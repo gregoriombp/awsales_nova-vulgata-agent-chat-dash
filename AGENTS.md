@@ -181,6 +181,7 @@ cache remains local/gitignored.
 | Skill | When to use |
 |---|---|
 | `bombardier-review-bridge-solve` | Batch-resolve comments from the local Review Bridge queue. `npm run dev` already starts/prepares the bridge; do not use a skill just to turn it on. |
+| `bombardier-review-bridge-dispatch` | **The `/loop` motor** — turns `@agent /skill #now` mentions into live action. One pass reads `/api/review-bridge/dispatch-queue` (gated by the per-agent toggles in the Bombardier dot + the `#now` double-lock) and routes each item: Live Response → reply; Auto Construct + `#now` → run the skill, mark `in_review`, reply a summary. Run under `/loop`. The runtime side of the agent-mentions feature. |
 | `bombardier-review-bridge-germano-audit` | **Germano Faccio** — critical second-opinion auditor on the `in_review` queue (what `solve` sent for review). Compares pedido vs. delivery and posts ONE reply per item ("pode seguir" / "ainda não — pede melhoria" + correction prompt). Comment-only: never transitions status, never edits code. Greg still approves/rejects in the inbox. |
 | `bombardier-flow-bridge-solve` | Apply UX-flow suggestions (read from `flow-bridge/data/suggestions.json` via the same-origin `/api/flow-suggestions` route). |
 | `bombardier-flow-bridge` | **Obsolete** — the flow editor is serverless now (no server to start); the skill just explains the cutover. |
