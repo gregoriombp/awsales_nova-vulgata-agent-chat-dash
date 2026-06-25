@@ -4914,6 +4914,9 @@
   justify-content: flex-end;
   animation: aw-scrim-in 180ms var(--ease-out);
 }
+.aw-sheet-scrim[data-state="closed"] {
+  animation: aw-scrim-out 150ms var(--ease-out) forwards;
+}
 .aw-sheet {
   width: 520px;
   max-width: 100%;
@@ -4932,6 +4935,42 @@
   from { transform: translateX(100%); }
   to   { transform: none; }
 }
+.aw-sheet[data-state="closed"] {
+  animation: aw-sheet-out 200ms var(--ease-out) forwards;
+}
+@keyframes aw-sheet-out {
+  from { transform: none; }
+  to   { transform: translateX(100%); }
+}
+
+/* ============================================================
+ * AwCollapsible — disclosure leve. Anima a altura via a var do
+ * Radix collapsible (--radix-collapsible-content-height).
+ * ============================================================ */
+.aw-collapsible-content {
+  overflow: hidden;
+}
+.aw-collapsible-content[data-state="open"] {
+  animation: aw-collapsible-down var(--dur-base) var(--ease-out);
+}
+.aw-collapsible-content[data-state="closed"] {
+  animation: aw-collapsible-up var(--dur-base) var(--ease-out);
+}
+@keyframes aw-collapsible-down {
+  from { height: 0; }
+  to   { height: var(--radix-collapsible-content-height); }
+}
+@keyframes aw-collapsible-up {
+  from { height: var(--radix-collapsible-content-height); }
+  to   { height: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .aw-collapsible-content[data-state="open"],
+  .aw-collapsible-content[data-state="closed"] {
+    animation-duration: 1ms;
+  }
+}
+
 .aw-sheet__top {
   display: flex;
   align-items: center;
@@ -5070,7 +5109,12 @@
 @media (prefers-reduced-motion: reduce) {
   .aw-skel::after { animation: none; }
   .aw-toast { animation: none; }
-  .aw-sheet { animation: none; }
+  .aw-sheet,
+  .aw-sheet[data-state="closed"],
+  .aw-sheet-scrim,
+  .aw-sheet-scrim[data-state="closed"] {
+    animation-duration: 1ms;
+  }
 }
 
 /* ============================================================
