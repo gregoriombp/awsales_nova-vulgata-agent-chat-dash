@@ -17,6 +17,11 @@ interface BaseModalProps {
  *
  * Mantém a API legada (`isOpen/onClose/size/children`) pra não tocar nos modais
  * que o consomem — eles trazem o próprio header/body/footer dentro de children.
+ *
+ * @deprecated Prefira `AwModal` (`@/components/ui/AwModal`) em código novo. O
+ * AwModal anima entrada **e saída** (Radix `data-state` + tokens); este shell
+ * fecha sem transição (`if (!isOpen) return null` desmonta na hora). Os
+ * consumidores atuais serão migrados num passo separado.
  */
 export default function BaseModal({
   isOpen,

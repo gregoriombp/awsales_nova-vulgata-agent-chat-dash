@@ -12,6 +12,8 @@
  *   - arbitrary sizing (w/h/min/max) — info only, often legit
  *   - raw <svg> outside brand/illustration/agent visuals (use <Icon/>)
  *   - importing a raw shadcn primitive (card/table/button…) in product code
+ *   - a hand-rolled overlay (fixed inset-0 + z-, role="dialog") — use AwModal/AwSheet
+ *   - importing the deprecated BaseModal — use AwModal
  *   - a non-`Aw` component file sitting in components/ui/
  *   - drift between components/ui/Aw* and docs/component-map.md
  *
@@ -51,6 +53,10 @@ const RAW_VISUAL_RE =
 // WebGL/shader files pass numeric hex to the GPU (var() can't be read there).
 const SHADER_HINT_RE =
   /@react-three|from ["']three["']|ShaderMaterial|uniforms|gl_FragColor|createShader/;
+// Overlays legitimamente "crus": o gate de tela cheia e o próprio shell legado
+// BaseModal (deprecado; seus imports são sinalizados à parte). Os primitivos de
+// overlay Aw* (AwModal/AwSheet/AwCopilotDrawer…) já ficam de fora via !inUi.
+const OVERLAY_EXEMPT_RE = /(DesktopOnlyBlocker|modals\/BaseModal)\.tsx$/;
 
 const LINE_RULES = [
   {
@@ -157,6 +163,41 @@ for (const file of files) {
           `import … "@/components/ui/${m[1]}"`,
           `Primitivo cru "${m[1]}" em produto — use ${aw} (docs/component-map.md).`,
         );
+      }
+    }
+
+    // BaseModal deprecado — migrar para AwModal (anima entrada E saída).
+    for (const m of src.matchAll(/from\s+["'][^"']*BaseModal["']/g)) {
+      addFinding(
+        "warn", "deprecated-basemodal", file, lineOf(src, m.index),
+        "import … BaseModal",
+        "BaseModal está deprecado — use AwModal (anima entrada E saída + tokens).",
+      );
+    }
+
+    // Overlay na mão (modal/drawer) — perde a transição enter/exit que
+    // AwModal/AwSheet carregam. Pula os overlays crus sancionados.
+    if (!OVERLAY_EXEMPT_RE.test(file)) {
+      const ovLines = src.split("\n");
+      for (let i = 0; i < ovLines.length; i++) {
+        const ln = ovLines[i];
+        const t = ln.trimStart();
+        if (t.startsWith("//") || t.startsWith("*") || t.startsWith("/*")) continue;
+        const strongModal =
+          /\brole=["']dialog["']/.test(ln) || /\baria-modal\b/.test(ln);
+        // fixed full-bleed com z-index POSITIVO e interativo = overlay. Exclui
+        // camadas de fundo (-z-, pointer-events-none).
+        const fixedOverlay =
+          /\bfixed inset-0\b/.test(ln) &&
+          /\bz-(?:\[|[1-9])/.test(ln) &&
+          !/-z-/.test(ln) &&
+          !/pointer-events-none/.test(ln);
+        if (strongModal || fixedOverlay) {
+          addFinding(
+            "warn", "handrolled-overlay", file, i + 1, ln,
+            "Overlay na mão — use AwModal/AwSheet (carregam enter+exit + tokens). Modal na mão fecha sem transição.",
+          );
+        }
       }
     }
   }
