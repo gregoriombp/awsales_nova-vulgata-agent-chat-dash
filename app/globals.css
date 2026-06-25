@@ -1330,37 +1330,21 @@
 
 /* "Gasto total no período" (settings/consumo-e-custos) — hover de série.
  * As linhas não-focadas somem suavemente (transição em stroke/fill-opacity)
- * e a linha em foco ganha um overlay "fio condutor": um segmento claro
- * (grayscale + alpha, #strokeGastoComet) que percorre a curva da esquerda
- * pra direita em loop. `pathLength="1"` é setado no path via JS — assim
- * dasharray/dashoffset são frações independentes da largura real do chart.
- * `mix-blend-mode: overlay` faz o branco CLAREAR a cor da própria série por
- * baixo (em vez de pintar uma cor fixa por cima): numa linha azul vira azul
- * vibrante, numa roxa vira roxo vibrante — adapta a qualquer cor. */
+ * e a linha em foco mantém a própria cor. O brilho vem de uma segunda Area
+ * por cima: um gradiente neutro (#strokeGastoComet), transparente nas pontas,
+ * que varre a curva e só clareia a série base via mix-blend-mode. */
 .aw-gasto-total-chart .recharts-area path {
   transition:
     stroke-opacity var(--transition-duration-aw-base) var(--ease-out),
     fill-opacity var(--transition-duration-aw-base) var(--ease-out);
 }
 .aw-gasto-total-overlay .recharts-area-curve {
-  stroke-dasharray: 0.34 0.66;
   stroke-linecap: round;
-  mix-blend-mode: overlay;
-  animation: aw-gasto-total-overlay-flow 2.8s linear infinite;
-}
-@keyframes aw-gasto-total-overlay-flow {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -1;
-  }
+  mix-blend-mode: screen;
 }
 @media (prefers-reduced-motion: reduce) {
   .aw-gasto-total-overlay .recharts-area-curve {
-    animation: none;
-    stroke-dasharray: none;
-    mix-blend-mode: normal;
+    stroke: transparent;
   }
 }
 
@@ -3897,7 +3881,7 @@
 .aw-table tbody tr td {
   transition: background var(--dur-base) var(--ease-out);
 }
-.aw-table tbody tr:hover td { background: var(--bg-surface); }
+.aw-table tbody tr:hover td { background: var(--bg-surface); border-radius: var(--radius-md); }
 
 /* Airy variant — no outer chrome, generous row height, sentence-case headers.
    Used on the integrations list to match the Mobbin-style entity table. */
@@ -3930,7 +3914,7 @@
     opacity var(--dur-base) var(--ease-out),
     background var(--dur-fast) var(--ease-out);
 }
-.aw-table tbody tr.aw-row-inactive:hover { opacity: 1; }
+.aw-table tbody tr.aw-row-inactive:hover { opacity: 1; border-radius: var(--radius-sm); }
 /* Failure-state row — pairs with the AwPill error variant to flag a
    broken connection at a glance in long lists. The accent lives as an
    inset shadow on the first cell so the row keeps the same height and
@@ -3952,6 +3936,7 @@
 }
 .aw-table .aw-th-sort:hover {
   color: var(--fg-primary);
+  border-radius: var(--radius-sm);
 }
 .aw-table .aw-th-sort[aria-sort="ascending"],
 .aw-table .aw-th-sort[aria-sort="descending"] {

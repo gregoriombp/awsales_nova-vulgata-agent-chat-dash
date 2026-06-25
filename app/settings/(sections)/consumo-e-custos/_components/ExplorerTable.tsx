@@ -10,7 +10,6 @@ import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { AgentDetailModal } from "../../financeiro/_components/AgentDetailModal";
-import { AgentCompareModal } from "./AgentCompareModal";
 import {
   brl,
   type AgentBreakdownRow,
@@ -54,7 +53,7 @@ function isOutlier(value: number, all: number[]): boolean {
 }
 
 export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
-  const { detailRows, grouping, drill, drillInto, selection, customDays, periodLabel } = useConsumo();
+  const { detailRows, grouping, drill, drillInto, compareAgents, selection, customDays, periodLabel } = useConsumo();
   const [agentDetail, setAgentDetail] = React.useState<AgentBreakdownRow | null>(null);
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(
     () => new Set(["tokens"]),
@@ -62,7 +61,6 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
 
   // X-Ray: agentes marcados pra comparar (só faz sentido na lente Agente).
   const [selectedAgents, setSelectedAgents] = React.useState<Set<string>>(() => new Set());
-  const [compareOpen, setCompareOpen] = React.useState(false);
   // Trocar de lente esvazia a seleção (os ids são de agente).
   React.useEffect(() => {
     if (grouping !== "agent") setSelectedAgents(new Set());
@@ -178,9 +176,12 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
               variant="primary"
               iconLeft="stacked_bar_chart"
               disabled={selectedAgents.size < 2}
-              onClick={() => setCompareOpen(true)}
+              onClick={() => {
+                compareAgents(selectedAgentRows);
+                setSelectedAgents(new Set());
+              }}
             >
-              Comparar no X-Ray
+              Comparar
             </AwButton>
           </div>
         </div>
@@ -416,13 +417,6 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
         periodLabel={periodLabel}
         open={agentDetail !== null}
         onClose={() => setAgentDetail(null)}
-      />
-
-      <AgentCompareModal
-        agents={selectedAgentRows}
-        periodLabel={periodLabel}
-        open={compareOpen}
-        onClose={() => setCompareOpen(false)}
       />
     </WidgetShell>
   );

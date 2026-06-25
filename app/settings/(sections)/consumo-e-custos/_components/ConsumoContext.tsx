@@ -150,6 +150,8 @@ type ConsumoContextValue = {
 
   drill: DrillNode[];
   drillInto: (row: ExplorerRow) => void;
+  /** X-Ray: compara N agentes reusando o drill (re-escopa o board pro conjunto). */
+  compareAgents: (rows: { id: string }[]) => void;
   resetDrill: () => void;
   popTo: (index: number) => void;
   crumbs: Crumb[];
@@ -454,10 +456,26 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       selection.kind === "custom"
         ? getCustomDailySpending(grouping, customDays)
         : getDailySpending(grouping, selection.id);
-    // Re-escala as colunas: as categorias Aswork passam a somar payerTotals.aswork
-    // e as do Meta payerTotals.meta. Assim o gráfico concilia com o detalhamento
-    // e "Por destino", inclusive ao desligar um pagador.
     const colSum = categories.map((_, c) => raw.reduce((s, day) => s + (day[c] ?? 0), 0));
+
+    if (grouping === "agent") {
+      // Lente Agente: cada coluna é um agente. Escala CADA coluna pro total do
+      // próprio agente (autoritativo, do detalhamento), não por grupo — assim a
+      // composição, a curva, o headline e a comparação batem com a tabela linha
+      // a linha (antes a distribuição vinha só do daily sintético e divergia).
+      const totalById = new Map(agentRows.map((r) => [r.id, r.total]));
+      const factor = categories.map((cat, c) =>
+        colSum[c] > 0 ? (totalById.get(cat.id) ?? 0) / colSum[c] : 0,
+      );
+      // Sem arredondar célula a célula: cada coluna soma EXATO o total do agente
+      // (colSum × factor = total), então headline/composição batem ao centavo com
+      // o detalhamento. O arredondamento acontece nas agregações downstream.
+      return raw.map((day) => day.map((v, c) => (v ?? 0) * factor[c]));
+    }
+
+    // Lente Serviço: re-escala por pagador — as categorias Aswork passam a somar
+    // payerTotals.aswork e as do Meta payerTotals.meta. Assim o gráfico concilia
+    // com o detalhamento e "Por destino", inclusive ao desligar um pagador.
     let asworkChart = 0;
     let metaChart = 0;
     categories.forEach((cat, c) => {
@@ -472,7 +490,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
         return Math.round((v ?? 0) * f * 100) / 100;
       }),
     );
-  }, [grouping, selection, customDays, categories, payerTotals]);
+  }, [grouping, selection, customDays, categories, payerTotals, agentRows]);
 
   const chartPeriod: SpendingPeriod = selection.kind === "preset" ? selection.id : "last-30";
 
@@ -617,6 +635,15 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     if (!row.drillable || row.categoryIds.length === 0) return;
     setDrill((prev) => [...prev, { label: row.label, categoryIds: row.categoryIds }]);
   }, []);
+  // X-Ray: comparar = drillar pro CONJUNTO de agentes escolhidos. Empilha um nó
+  // com os ids deles; como todos os widgets leem de `visibleIds`, a curva, a
+  // composição e o uso re-escopam pro grupo — voltam a fazer sentido (deixa de
+  // ser 1 agente só) sem precisar de modal.
+  const compareAgents = React.useCallback((rows: { id: string }[]) => {
+    const ids = rows.map((r) => r.id);
+    if (ids.length < 2) return;
+    setDrill((prev) => [...prev, { label: `Comparando ${ids.length} agentes`, categoryIds: ids }]);
+  }, []);
   const resetDrill = React.useCallback(() => setDrill([]), []);
   const popTo = React.useCallback((index: number) => setDrill((prev) => prev.slice(0, index + 1)), []);
 
@@ -646,6 +673,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     currencyLabel,
     drill,
     drillInto,
+    compareAgents,
     resetDrill,
     popTo,
     crumbs,

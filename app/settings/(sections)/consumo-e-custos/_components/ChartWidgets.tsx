@@ -124,6 +124,36 @@ function payerColorByRank(
   return map;
 }
 
+// Lente Agente: cada agente é uma série própria, então precisa de MATIZ distinta
+// — o ramp por pagador deixaria tudo azul (todo agente fatura à Aswork), e a
+// comparação ficaria ilegível. Atribui por ranking (maior gasto = 1ª cor) pra
+// garantir contraste entre os líderes; cicla se passar de 9. "Outros" fica de
+// fora (cai no colorVar neutro).
+const AGENT_CHART_PALETTE = [
+  "var(--aw-blue-500)",
+  "var(--aw-amber-500)",
+  "var(--aw-emerald-500)",
+  "var(--aw-purple-500)",
+  "var(--aw-pink-500)",
+  "var(--aw-teal-500)",
+  "var(--aw-red-500)",
+  "var(--aw-lime-500)",
+  "var(--aw-slate-500)",
+];
+
+function chartColorByRank(
+  items: { id: string; total: number }[],
+  grouping: SpendingGrouping,
+): Map<string, string> {
+  if (grouping !== "agent") return payerColorByRank(items, grouping);
+  const map = new Map<string, string>();
+  [...items]
+    .filter((it) => it.id !== "__others__")
+    .sort((a, b) => b.total - a.total)
+    .forEach((it, i) => map.set(it.id, AGENT_CHART_PALETTE[i % AGENT_CHART_PALETTE.length]));
+  return map;
+}
+
 const CHART_ANIMATION_DURATION = 360;
 const MONEY_TOOLTIP_CLASS = "min-w-52 bg-(--bg-raised)";
 const MONEY_TOOLTIP_LABELS: Record<string, string> = {
@@ -175,7 +205,7 @@ export function ConsumoChartWidget({
         total: chartModel.data.reduce((s, d) => s + (d[idx] ?? 0), 0),
       };
     });
-    const colorByRank = payerColorByRank(totals, grouping);
+    const colorByRank = chartColorByRank(totals, grouping);
     const totalById = new Map(totals.map((t) => [t.id, t.total]));
     return filtered
       .map((c) => ({
@@ -383,7 +413,7 @@ export function ComposicaoWidget({
   // Mesma rampa monocromática do "Consumo por dia": maior fatia = azul mais
   // escuro, clareando conforme a participação cai.
   const colored = React.useMemo(() => {
-    const colorByRank = payerColorByRank(
+    const colorByRank = chartColorByRank(
       seriesTotals.map((s) => ({ id: s.cat.id, total: s.total })),
       grouping,
     );
@@ -837,21 +867,6 @@ export function GastoTotalCard() {
     });
   const allLinesOn = lines.total && lines.aswork && (!metaIncluded || lines.meta);
 
-  // Normaliza o pathLength do overlay pra 1 — assim dasharray/dashoffset no
-  // CSS viram frações da curva e o segmento percorre a linha toda
-  // independente da largura do chart. Recharts não expõe `pathLength` como
-  // prop, então setamos via atributo no próximo frame depois do mount.
-  React.useEffect(() => {
-    if (!activeSeries) return;
-    const id = window.requestAnimationFrame(() => {
-      const path = document.querySelector(
-        ".aw-gasto-total-overlay .recharts-area-curve",
-      );
-      if (path) path.setAttribute("pathLength", "1");
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [activeSeries]);
-
   // Inclui uma coluna `__overlay` que espelha a série em foco — assim a Area
   // do overlay tem dataKey próprio (sem colidir com a key da Area base no
   // React, que o Recharts deriva do dataKey).
@@ -971,17 +986,36 @@ export function GastoTotalCard() {
               <stop offset="5%" stopColor="var(--aw-purple-400)" stopOpacity={0.2} />
               <stop offset="92%" stopColor="var(--aw-purple-400)" stopOpacity={0} />
             </linearGradient>
-            {/* "Fio condutor" do hover: branco em escala de cinza com tons de
-                alpha (suave nas pontas, intenso no meio). NÃO carrega cor —
-                quem dá a cor é a série por baixo, via mix-blend-mode (overlay)
-                no CSS. Assim o pulso clareia coerentemente seja a linha azul,
-                roxa ou neutra, em vez de uma sequência fixa blue→purple→pink. */}
-            <linearGradient id="strokeGastoComet" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity={0.22} />
-              <stop offset="30%" stopColor="#ffffff" stopOpacity={0.6} />
-              <stop offset="50%" stopColor="#ffffff" stopOpacity={0.98} />
-              <stop offset="70%" stopColor="#ffffff" stopOpacity={0.6} />
-              <stop offset="100%" stopColor="#ffffff" stopOpacity={0.22} />
+            {/* "Fio condutor" do hover: uma janela neutra e transparente nas
+                pontas passa sobre a linha. A cor continua vindo da série base;
+                o overlay só clareia a própria linha via mix-blend-mode. */}
+            <linearGradient
+              id="strokeGastoComet"
+              x1="-0.72"
+              y1="0"
+              x2="0.28"
+              y2="0"
+              spreadMethod="pad"
+            >
+              <stop offset="0%" stopColor="var(--aw-white)" stopOpacity={0} />
+              <stop offset="36%" stopColor="var(--aw-white)" stopOpacity={0} />
+              <stop offset="47%" stopColor="var(--aw-white)" stopOpacity={0.18} />
+              <stop offset="52%" stopColor="var(--aw-white)" stopOpacity={0.42} />
+              <stop offset="57%" stopColor="var(--aw-white)" stopOpacity={0.18} />
+              <stop offset="68%" stopColor="var(--aw-white)" stopOpacity={0} />
+              <stop offset="100%" stopColor="var(--aw-white)" stopOpacity={0} />
+              <animate
+                attributeName="x1"
+                values="-0.72;1"
+                dur="6.8s"
+                repeatCount="indefinite"
+              />
+              <animate
+                attributeName="x2"
+                values="0.28;2"
+                dur="6.8s"
+                repeatCount="indefinite"
+              />
             </linearGradient>
           </defs>
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
@@ -1059,20 +1093,16 @@ export function GastoTotalCard() {
               onMouseLeave={leave}
             />
           )}
-          {/* Overlay da linha em foco — "fio condutor": segmento claro
-              (grayscale + alpha, #strokeGastoComet) que percorre a curva em
-              loop. O mix-blend-mode (CSS) faz ele clarear a cor da própria
-              série por baixo, então adapta a azul/roxo/neutro. Mesma curva
-              monotônica da série base (segue o traço). Renderizado por último
-              pra ficar por cima. dataKey sintético (`__overlay`, espelha a
-              série em foco) evita colisão de key com a Area base. */}
+          {/* Overlay da linha em foco: a série base não muda de cor; esta Area
+              renderiza a mesma curva por cima com um gradiente móvel, discreto
+              e transparente nas pontas. */}
           {activeSeries && (
             <Area
               key={`overlay-${activeSeries}`}
               dataKey="__overlay"
               type="monotone"
               stroke="url(#strokeGastoComet)"
-              strokeWidth={activeSeries === "total" ? 4.5 : 3.5}
+              strokeWidth={activeSeries === "total" ? 5 : 4}
               fill="none"
               dot={false}
               activeDot={false}
