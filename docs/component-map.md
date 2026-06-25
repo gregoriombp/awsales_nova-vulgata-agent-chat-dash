@@ -46,6 +46,8 @@
 | Painel lateral / drawer | `AwSheet` | `@/components/ui/AwSheet` | |
 | Menu dropdown | `AwDropdownMenu` | `@/components/ui/AwDropdownMenu` | |
 | Abas | `AwTabs` | `@/components/ui/AwTabs` | |
+| Accordion / disclosure | `AwAccordion` | `@/components/ui/AwAccordion` | várias seções num grupo com borda; já anima expand/collapse + chevron. |
+| Disclosure leve / "ver mais" | `AwCollapsible` | `@/components/ui/AwCollapsible` | uma linha/seção expansível (gatilho + meta), mais leve que o accordion; já anima. **Nunca** monte na mão. |
 | Calendário / date picker | `Calendar` | `@/components/ui/calendar` | Primitivo shadcn sancionado para uso direto. Para seletor de período, componha com `Popover` + `AwButton`; não crie `AwCalendar` cerimonial. |
 | Avatar | `AwAvatar` | `@/components/ui/AwAvatar` | grupo: `AwAvatarGroup` (mesmo arquivo). |
 | Empty state | `AwEmpty` | `@/components/ui/AwEmpty` | slots: `AwEmptyTitle`/`Media`/`Description`/`Content`. |
@@ -159,6 +161,14 @@ renderizam com as cores AwSales. **Não são duplicatas pra deletar.** Regra:
    adicione `transition-colors` na mão para um hover comum.
 2. **Fluid (spring physics).** O **Fluid kit** (`components/ui/fluid/`) traz motion
    rico com framer-motion, mapeado aos tokens AwSales. Está em **preview ("leva 1")**.
+3. **Overlays (enter/exit) — grátis, mora no componente.** Modais, sheets,
+   dropdowns, toasts e accordions animam abertura **e fechamento** sozinhos
+   porque são `Aw*` sobre Radix (`data-state` + tokens `--dur-*`/`--ease-*`, com
+   guarda `prefers-reduced-motion`). **Nunca monte um overlay na mão**
+   (`fixed inset-0` + `{open && …}` / `if (!open) return null`): desmonta na hora
+   e mata a transição de fechamento. Use `AwModal` (wizard sequencial: prop
+   `stepKey`), `AwSheet`, `AwDropdownMenu`, `AwToast`, `AwAccordion`. `BaseModal`
+   está **deprecado** → `AwModal`. `ds:check` sinaliza overlay na mão.
 
 **Regra do Fluid:** os primitivos `fluid/*` (`switch`, `slider`, `checkbox-group`,
 `dialog`, `dropdown`, `accordion`, `badge`, `tooltip`) **duplicam** os `Aw*` e são
@@ -179,7 +189,8 @@ taxonomia de [`component-layers.md`](./component-layers.md).
 `AwCheckbox` checkbox · `AwToggle` switch · `AwSlider` slider · `AwPill` tag/chip ·
 `AwAvatar` avatar (+grupo) · `AwStatusDot` status · `AwProgress` progresso ·
 `AwSkeleton` loading · `AwAlert` alerta · `AwBreadcrumb` breadcrumb (átomo) ·
-`AwTabs` abas · `AwDropdownMenu` dropdown · `AwEmpty` empty state ·
+`AwTabs` abas · `AwDropdownMenu` dropdown · `AwAccordion` accordion ·
+`AwCollapsible` disclosure leve · `AwEmpty` empty state ·
 `AwFileIcon` ícone de arquivo · `AwChannelIcon` ícone de canal ·
 `AwDropzone` upload · `AwTransition` transição · `AwToast` toast · `Icon` ícone base ·
 `AwBrowserIcon` ícone de navegador · `AwPlanIcon` ícone de plano · `AwRadialProgress`
