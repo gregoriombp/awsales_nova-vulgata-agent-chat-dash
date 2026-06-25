@@ -33,19 +33,25 @@ import { ClassControls } from "./ClassControls"
 function Section({
   title,
   icon,
+  aside,
   children,
 }: {
   title: string
   icon: string
+  /** Conteúdo alinhado à direita do título (ex.: valor atual, "limpar"). */
+  aside?: React.ReactNode
   children: React.ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-2.5 border-t border-(--border-subtle) px-4 py-4 first:border-t-0">
-      <div className="flex items-center gap-1.5">
-        <Icon name={icon} size={15} className="text-(--fg-tertiary)" />
-        <h3 className="text-2xs font-semibold uppercase tracking-(--tracking-label) text-(--fg-tertiary)">
-          {title}
-        </h3>
+    <section className="flex flex-col gap-2.5 border-t border-(--border-subtle) px-4 py-3.5 first:border-t-0">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
+          <Icon name={icon} size={14} className="text-(--fg-tertiary)" />
+          <h3 className="text-2xs font-semibold uppercase tracking-(--tracking-label) text-(--fg-tertiary)">
+            {title}
+          </h3>
+        </div>
+        {aside}
       </div>
       {children}
     </section>
@@ -65,6 +71,7 @@ export function EditInspector({
   onPickToken,
   onPickCustom,
   onPickClass,
+  onOpenInbox,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -86,6 +93,7 @@ export function EditInspector({
     anchor: PageEditAnchor,
     payload: { group: string; label?: string; remove: string[]; add: string },
   ) => void
+  onOpenInbox: () => void
   onClose: () => void
 }) {
   const info = React.useMemo(() => {
@@ -99,6 +107,7 @@ export function EditInspector({
         comp: null as ReturnType<typeof detectComponent>,
         rootAnchor: null as PageEditAnchor | null,
         isComponentRoot: false,
+        tag: "",
       }
     }
     const isIcon = el.classList.contains("material-symbols-rounded")
@@ -113,6 +122,7 @@ export function EditInspector({
       // The selected element IS the component's root → a direct style override
       // here fights the variant system (off-spec). Inner content isn't flagged.
       isComponentRoot: !!comp && comp.rootEl === el,
+      tag: el.tagName.toLowerCase(),
     }
     // anchor identity drives re-resolution; ops drive the active highlights.
   }, [anchor])
@@ -197,23 +207,35 @@ export function EditInspector({
     [ops, anchor.selector],
   )
 
+  // Quantas edições já existem neste elemento (pro footer).
+  const elementEditCount = React.useMemo(
+    () =>
+      ops.filter(
+        (o) =>
+          o.anchor.selector === anchor.selector ||
+          (!!info.rootAnchor && o.anchor.selector === info.rootAnchor.selector),
+      ).length,
+    [ops, anchor.selector, info.rootAnchor],
+  )
+
   return (
     <aside
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "inspector" }}
-      className="fixed right-4 top-4 bottom-4 flex w-[320px] flex-col overflow-hidden rounded-(--radius-xl) border border-(--border-subtle) bg-(--bg-raised) shadow-lg"
+      className="fixed right-4 top-4 bottom-4 flex w-[320px] flex-col overflow-hidden rounded-(--radius-xl) border border-(--border-subtle) bg-(--bg-raised) shadow-(--shadow-overlay)"
       style={{ zIndex: EDIT_Z.inspector }}
     >
       <header className="flex items-center justify-between gap-2 border-b border-(--border-subtle) px-4 py-3">
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--bg-inverse) text-(--fg-on-inverse)">
+          <span className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-(--radius-md) bg-(--bg-inverse) text-(--fg-on-inverse)">
             <Icon
               name={info.isIcon ? "category" : info.comp ? "widgets" : "edit"}
-              size={15}
+              size={16}
               fill={1}
             />
             {(offSpecActive || customActive) && (
               <span
                 aria-hidden
+                title="Quebra de token / off-spec"
                 className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-(--accent-warning) ring-2 ring-(--bg-raised)"
               />
             )}
@@ -222,8 +244,16 @@ export function EditInspector({
             <span className="truncate body-sm font-semibold text-(--fg-primary)">
               {info.label}
             </span>
-            <span className="truncate text-2xs text-(--fg-tertiary)">
-              {info.comp ? "Componente" : info.isIcon ? "Ícone" : "Elemento"}
+            <span className="flex items-center gap-1 truncate text-2xs text-(--fg-tertiary)">
+              <span>
+                {info.comp ? "Componente" : info.isIcon ? "Ícone" : "Elemento"}
+              </span>
+              {info.tag && !info.isIcon && (
+                <>
+                  <span aria-hidden>·</span>
+                  <code className="font-mono">{info.tag}</code>
+                </>
+              )}
             </span>
           </span>
         </div>
@@ -377,6 +407,22 @@ export function EditInspector({
           </div>
         </Section>
       </div>
+
+      <footer className="flex items-center justify-between gap-2 border-t border-(--border-subtle) px-4 py-2.5">
+        <span className="text-2xs text-(--fg-tertiary)">
+          {elementEditCount > 0
+            ? `${elementEditCount} ediç${elementEditCount === 1 ? "ão" : "ões"} aqui`
+            : "Sem edições aqui"}
+        </span>
+        <button
+          type="button"
+          onClick={onOpenInbox}
+          className="flex items-center gap-1 rounded-(--radius-sm) px-2 py-1 text-2xs font-medium text-(--fg-secondary) transition-colors hover:bg-(--bg-hover) hover:text-(--fg-primary)"
+        >
+          <Icon name="inbox" size={14} />
+          Inbox · {ops.length}
+        </button>
+      </footer>
     </aside>
   )
 }

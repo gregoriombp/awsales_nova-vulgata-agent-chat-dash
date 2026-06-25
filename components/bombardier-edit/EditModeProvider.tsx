@@ -586,6 +586,7 @@ export function EditModeProvider() {
           onPickToken={onPickToken}
           onPickCustom={onPickStyleCustom}
           onPickClass={onPickClass}
+          onOpenInbox={() => setInboxOpen(true)}
           onClose={() => useEditStore.getState().closeInspector()}
         />
       )}
