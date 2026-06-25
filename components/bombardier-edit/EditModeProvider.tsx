@@ -422,6 +422,22 @@ export function EditModeProvider() {
     [],
   )
 
+  const onPickClass = React.useCallback(
+    (
+      anchor: PageEditAnchor,
+      payload: { group: string; label?: string; remove: string[]; add: string },
+    ) => {
+      const el = resolveEditElement(anchor)
+      if (el) {
+        const cl = (el as HTMLElement).classList
+        for (const c of payload.remove) if (c !== payload.add) cl.remove(c)
+        if (payload.add) cl.add(payload.add)
+      }
+      void useEditStore.getState().saveClass(anchor, payload)
+    },
+    [],
+  )
+
   const onPickIcon = React.useCallback(
     (anchor: PageEditAnchor, name: string, prevName?: string) => {
       const el = resolveEditElement(anchor)
@@ -569,6 +585,7 @@ export function EditModeProvider() {
           onPickIconStyle={onPickIconStyle}
           onPickToken={onPickToken}
           onPickCustom={onPickStyleCustom}
+          onPickClass={onPickClass}
           onClose={() => useEditStore.getState().closeInspector()}
         />
       )}

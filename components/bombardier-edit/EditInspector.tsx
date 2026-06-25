@@ -17,12 +17,18 @@ import {
   readIconVariation,
   type IconVariation,
 } from "@/lib/bombardier-edit/icon-style"
+import {
+  TYPOGRAPHY_GROUPS,
+  buildClassPayload,
+  currentClassValue,
+} from "@/lib/bombardier-edit/typography-registry"
 import type { PageEditAnchor, PageEditOp } from "@/lib/bombardier-edit/types"
 import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
 import { StyleSection } from "./StyleSection"
 import { VariantControls } from "./VariantControls"
 import { IconPicker } from "./IconPicker"
 import { IconStyleControls } from "./IconStyleControls"
+import { ClassControls } from "./ClassControls"
 
 function Section({
   title,
@@ -58,6 +64,7 @@ export function EditInspector({
   onPickIconStyle,
   onPickToken,
   onPickCustom,
+  onPickClass,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -75,6 +82,10 @@ export function EditInspector({
   onPickIconStyle: (anchor: PageEditAnchor, variation: IconVariation) => void
   onPickToken: (token: string, value: string) => void
   onPickCustom: (anchor: PageEditAnchor, prop: string, value: string) => void
+  onPickClass: (
+    anchor: PageEditAnchor,
+    payload: { group: string; label?: string; remove: string[]; add: string },
+  ) => void
   onClose: () => void
 }) {
   const info = React.useMemo(() => {
@@ -147,6 +158,28 @@ export function EditInspector({
     const el = resolveEditElement(anchor)
     return el ? readIconVariation(el) : null
   }, [info.isIcon, ops, anchor])
+
+  const classCurrent = React.useMemo(() => {
+    const map: Record<string, string | null> = {}
+    if (info.isIcon) return map
+    const el = resolveEditElement(anchor)
+    for (const group of TYPOGRAPHY_GROUPS) {
+      const op = ops.find(
+        (o) =>
+          o.payload.kind === "class" &&
+          o.anchor.selector === anchor.selector &&
+          o.payload.group === group.key,
+      )
+      if (op && op.payload.kind === "class") {
+        const add = op.payload.add
+        map[group.key] =
+          group.options.find((o) => o.className === add)?.value ?? null
+      } else {
+        map[group.key] = el ? currentClassValue(el, group) : null
+      }
+    }
+    return map
+  }, [ops, anchor, info.isIcon])
 
   // Divergence: a direct style override on a component ROOT fights its variants.
   const offSpecActive =
@@ -255,6 +288,19 @@ export function EditInspector({
               spec={info.comp.spec}
               current={variantCurrent}
               onPick={(axis, value) => onPickVariant(info.rootAnchor!, axis, value)}
+            />
+          </Section>
+        )}
+
+        {/* Tipografia — vale pra qualquer elemento de texto, não só componentes */}
+        {!info.isIcon && (
+          <Section title="Tipografia" icon="format_size">
+            <ClassControls
+              groups={TYPOGRAPHY_GROUPS}
+              current={classCurrent}
+              onPick={(group, value) =>
+                onPickClass(anchor, buildClassPayload(group, value))
+              }
             />
           </Section>
         )}
