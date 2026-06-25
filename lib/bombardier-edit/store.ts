@@ -110,6 +110,7 @@ type EditState = {
     anchor: PageEditAnchor,
     variation: { fill: number; weight: number; grade: number; opticalSize: number },
   ) => Promise<void>
+  saveToken: (token: string, value: string, prevValue?: string) => Promise<void>
   saveMove: (anchor: PageEditAnchor, order: string[]) => Promise<void>
 
   transition: (
@@ -238,6 +239,18 @@ export const useEditStore = create<EditState>()((set, get) => ({
       type: "iconStyle",
       anchor,
       payload: { kind: "iconStyle", ...variation },
+    })
+    await get().refresh()
+  },
+
+  saveToken: async (token, value, prevValue) => {
+    const route = get().route
+    if (!route) return
+    await apiCreate({
+      route,
+      type: "token",
+      anchor: { selector: ":root" },
+      payload: { kind: "token", token, value, ...(prevValue ? { prevValue } : {}) },
     })
     await get().refresh()
   },
