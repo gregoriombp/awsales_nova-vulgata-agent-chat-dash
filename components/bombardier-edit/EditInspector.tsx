@@ -57,6 +57,7 @@ export function EditInspector({
   onPickIcon,
   onPickIconStyle,
   onPickToken,
+  onPickCustom,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -73,6 +74,7 @@ export function EditInspector({
   onPickIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => void
   onPickIconStyle: (anchor: PageEditAnchor, variation: IconVariation) => void
   onPickToken: (token: string, value: string) => void
+  onPickCustom: (anchor: PageEditAnchor, prop: string, value: string) => void
   onClose: () => void
 }) {
   const info = React.useMemo(() => {
@@ -150,6 +152,18 @@ export function EditInspector({
   const offSpecActive =
     info.isComponentRoot && Object.keys(activeStyle).length > 0
 
+  // Token quebrado: existe alguma op de estilo custom (valor cru) neste elemento.
+  const customActive = React.useMemo(
+    () =>
+      ops.some(
+        (o) =>
+          o.payload.kind === "style" &&
+          o.anchor.selector === anchor.selector &&
+          o.payload.custom,
+      ),
+    [ops, anchor.selector],
+  )
+
   return (
     <aside
       {...{ [EDIT_OVERLAY_DATA_ATTR]: "inspector" }}
@@ -164,7 +178,7 @@ export function EditInspector({
               size={15}
               fill={1}
             />
-            {offSpecActive && (
+            {(offSpecActive || customActive) && (
               <span
                 aria-hidden
                 className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-(--accent-warning) ring-2 ring-(--bg-raised)"
@@ -200,6 +214,19 @@ export function EditInspector({
               </strong>{" "}
               — isso foge da variante do componente e vai destoar do padrão.
               Quando der, prefira uma variante.
+            </span>
+          </AwAlert>
+        </div>
+      )}
+
+      {customActive && (
+        <div className="border-b border-(--border-subtle) px-4 py-3">
+          <AwAlert variant="warning">
+            <span className="body-xs text-(--fg-secondary)">
+              Você quebrou um token: essa cor é um valor{" "}
+              <strong className="font-semibold text-(--fg-primary)">custom</strong>{" "}
+              fora da paleta. No ship ela vira um token{" "}
+              <code className="font-mono">--custom-*</code>.
             </span>
           </AwAlert>
         </div>
@@ -260,6 +287,7 @@ export function EditInspector({
             onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
             onClear={(prop) => onClearStyle(anchor, prop)}
             onPickToken={onPickToken}
+            onPickCustom={(prop, value) => onPickCustom(anchor, prop, value)}
           />
         </Section>
 

@@ -448,6 +448,17 @@ export function EditModeProvider() {
     [],
   )
 
+  const onPickStyleCustom = React.useCallback(
+    (anchor: PageEditAnchor, prop: string, value: string) => {
+      const el = resolveEditElement(anchor)
+      if (el) {
+        (el as HTMLElement).style.setProperty(prop, value) // instant feedback
+      }
+      void useEditStore.getState().saveStyle(anchor, prop, value, { custom: true })
+    },
+    [],
+  )
+
   const onPickToken = React.useCallback((token: string, value: string) => {
     // Preview global instantâneo: sobrescreve o token no :root (todas as
     // instâncias mudam). No ship a materialização reescreve no globals.css.
@@ -557,6 +568,7 @@ export function EditModeProvider() {
           onPickIcon={onPickIcon}
           onPickIconStyle={onPickIconStyle}
           onPickToken={onPickToken}
+          onPickCustom={onPickStyleCustom}
           onClose={() => useEditStore.getState().closeInspector()}
         />
       )}
