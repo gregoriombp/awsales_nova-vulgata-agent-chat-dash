@@ -7,7 +7,6 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwField, AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { cn } from "@/lib/utils";
 import { SettingsPageHeader } from "../../_components/shared";
@@ -194,16 +193,6 @@ export default function MeusDadosPage() {
       <SettingsPageHeader
         title="Meus dados"
         description="Veja e exporte uma cópia dos seus dados — separada das configurações da organização."
-        trailing={
-          <AwPill
-            variant="neutral"
-            dot={false}
-            title="A LGPD garante o seu direito de acessar uma cópia dos seus dados."
-          >
-            <Icon name="verified_user" size={13} />
-            Direito de acesso · LGPD
-          </AwPill>
-        }
       />
 
       {/* Ação primária — baixar uma cópia, o herói da página (destaque ↑). */}
@@ -268,51 +257,78 @@ export default function MeusDadosPage() {
               Nenhuma exportação ainda — peça uma cópia quando precisar.
             </p>
           ) : (
-            <ul className="m-0 list-none divide-y divide-(--border-subtle) p-0">
-              {requests.map((r) => (
-                <li
-                  key={r.id}
-                  className="m-0 flex items-center justify-between gap-4 py-3 first:pt-0"
+            /* Tabela enxuta — grade de 3 colunas (Data · Status · ação) com
+             *  cabeçalho quieto e divisórias sutis. Sem borda externa nem chrome
+             *  de planilha: alinha os valores numa coluna, mantém o ar premium. */
+            <div role="table" aria-label="Solicitações recentes">
+              <div
+                role="row"
+                className="grid grid-cols-[1fr_auto_auto] items-center gap-4 border-b border-(--border-subtle) pb-2"
+              >
+                <span
+                  role="columnheader"
+                  className="body-xs font-medium uppercase tracking-wide text-(--fg-tertiary)"
                 >
-                  <div className="min-w-0">
-                    <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
-                      {r.requestedAt}
-                    </p>
-                    {r.status === "Pronto" && r.expiresInDays !== undefined && (
-                      <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
-                        link expira em {r.expiresInDays}{" "}
-                        {r.expiresInDays === 1 ? "dia" : "dias"}
+                  Data
+                </span>
+                <span
+                  role="columnheader"
+                  className="body-xs font-medium uppercase tracking-wide text-(--fg-tertiary)"
+                >
+                  Status
+                </span>
+                <span role="columnheader" aria-label="Ações" className="w-8" />
+              </div>
+
+              <div role="rowgroup" className="divide-y divide-(--border-subtle)">
+                {requests.map((r) => (
+                  <div
+                    key={r.id}
+                    role="row"
+                    className="grid grid-cols-[1fr_auto_auto] items-center gap-4 py-3 first:pt-3"
+                  >
+                    <div role="cell" className="min-w-0">
+                      <p className="m-0 body-sm tabular-nums text-(--fg-primary)">
+                        {r.requestedAt}
                       </p>
-                    )}
+                      {r.status === "Pronto" && r.expiresInDays !== undefined && (
+                        <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                          link expira em {r.expiresInDays}{" "}
+                          {r.expiresInDays === 1 ? "dia" : "dias"}
+                        </p>
+                      )}
+                    </div>
+                    <div role="cell">
+                      <StatusBadge status={r.status} />
+                    </div>
+                    <div role="cell" className="justify-self-end">
+                      {r.status === "Pronto" ? (
+                        <AwButton
+                          size="sm"
+                          variant="ghost"
+                          iconOnly="download"
+                          aria-label="Baixar cópia"
+                          title="Baixar cópia"
+                        />
+                      ) : r.status === "Expirado" ? (
+                        <AwButton
+                          size="sm"
+                          variant="ghost"
+                          iconOnly="refresh"
+                          aria-label="Pedir uma nova cópia"
+                          title="Pedir uma nova cópia"
+                          onClick={openConfirm}
+                        />
+                      ) : (
+                        <span className="flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
+                          <Icon name="hourglass_top" size={16} />
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <StatusBadge status={r.status} />
-                    {r.status === "Pronto" ? (
-                      <AwButton
-                        size="sm"
-                        variant="ghost"
-                        iconOnly="download"
-                        aria-label="Baixar cópia"
-                        title="Baixar cópia"
-                      />
-                    ) : r.status === "Expirado" ? (
-                      <AwButton
-                        size="sm"
-                        variant="ghost"
-                        iconOnly="refresh"
-                        aria-label="Pedir uma nova cópia"
-                        title="Pedir uma nova cópia"
-                        onClick={openConfirm}
-                      />
-                    ) : (
-                      <span className="flex h-8 w-8 items-center justify-center text-(--fg-tertiary)">
-                        <Icon name="hourglass_top" size={16} />
-                      </span>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
+                ))}
+              </div>
+            </div>
           )}
         </AwCard>
       </div>
