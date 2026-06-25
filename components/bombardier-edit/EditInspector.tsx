@@ -56,6 +56,7 @@ export function EditInspector({
   onPickVariant,
   onPickIcon,
   onPickIconStyle,
+  onPickToken,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -71,6 +72,7 @@ export function EditInspector({
   ) => void
   onPickIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => void
   onPickIconStyle: (anchor: PageEditAnchor, variation: IconVariation) => void
+  onPickToken: (token: string, value: string) => void
   onClose: () => void
 }) {
   const info = React.useMemo(() => {
@@ -257,6 +259,7 @@ export function EditInspector({
             activeStyle={activeStyle}
             onPick={(prop, cssValue) => onPickStyle(anchor, prop, cssValue)}
             onClear={(prop) => onClearStyle(anchor, prop)}
+            onPickToken={onPickToken}
           />
         </Section>
 
