@@ -22,6 +22,7 @@ import { OVERLAY_DATA_ATTR, REVIEW_Z } from "./constants"
 import { ReplyRow } from "./ReviewCommentCard"
 import { ReplyComposer } from "./ReplyComposer"
 import { UxFlowChip } from "./UxFlowChip"
+import { CommentText } from "./CommentText"
 import { useImageAttach } from "@/lib/bombardier-review/useImageAttach"
 import type { ReviewComment, ReviewPoint } from "./types"
 
@@ -343,9 +344,10 @@ export function ReviewThreadPopover() {
           ) : (
             <>
               {comment.text.length > 0 && (
-                <p className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed">
-                  {comment.text}
-                </p>
+                <CommentText
+                  className="m-0 body-sm text-(--fg-primary) whitespace-pre-wrap leading-relaxed"
+                  text={comment.text}
+                />
               )}
 
               {comment.images && comment.images.length > 0 && (
