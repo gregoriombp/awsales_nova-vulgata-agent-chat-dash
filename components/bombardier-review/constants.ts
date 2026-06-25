@@ -15,6 +15,9 @@ export const REVIEW_Z = {
   toolbar: 1055,
   popover: 1060,
   sheet: 1065,
+  // Inline @ / / / # autocomplete — floats above the composer surface (popover
+  // or sheet) that hosts it, just under the review modal.
+  mention: 1069,
   modal: 1070,
 } as const
 
