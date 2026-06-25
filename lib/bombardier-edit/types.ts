@@ -2,7 +2,14 @@
 // (app/api/page-edits/_store.ts) imports node:fs, so it can't be pulled into
 // client bundles — these types are the browser-safe twin, kept in sync by hand.
 
-export type PageEditOpType = "text" | "style" | "hide" | "variant" | "icon" | "move"
+export type PageEditOpType =
+  | "text"
+  | "style"
+  | "hide"
+  | "variant"
+  | "icon"
+  | "iconStyle"
+  | "move"
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded"
 
@@ -48,6 +55,15 @@ export type PageEditPayload =
     }
   // Material Symbol ligature swap on an icon span.
   | { kind: "icon"; name: string; prevName?: string }
+  // Override das axes ópticas de um ícone (font-variation-settings). Materializa
+  // em props do <Icon>: weight / fill / grade / opticalSize.
+  | {
+      kind: "iconStyle"
+      fill: number
+      weight: number
+      grade: number
+      opticalSize: number
+    }
   // Sibling reorder: anchor is the PARENT container; `order` is the desired
   // child sequence by stable fingerprint key ("<tag>::<text>"). One move op per
   // parent (upsert) — see _store payloadDisc.
