@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwCollapsible } from "@/components/ui/AwCollapsible";
 import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { AwStatCard } from "@/components/ui/AwStatCard";
@@ -168,7 +169,6 @@ function VouchersBlock({
   vouchers: VoucherRow[];
   onOpenVoucher: (id: string) => void;
 }) {
-  const [showHistory, setShowHistory] = React.useState(false);
   const current = vouchers.filter(
     (v) =>
       v.status === "Ativo" ||
@@ -201,32 +201,19 @@ function VouchersBlock({
       )}
 
       {history.length > 0 && (
-        <div className="flex flex-col">
-          <button
-            type="button"
-            onClick={() => setShowHistory((s) => !s)}
-            aria-expanded={showHistory}
-            className="flex w-fit items-center gap-1.5 py-1 body-xs font-medium text-(--fg-tertiary) transition-colors hover:text-(--fg-primary)"
-          >
-            <Icon
-              name={showHistory ? "expand_less" : "expand_more"}
-              size={16}
-            />
-            Histórico · {history.length} encerrado
-            {history.length !== 1 ? "s" : ""}
-          </button>
-          {showHistory && (
-            <ul className="m-0 flex list-none flex-col p-0">
-              {history.map((v) => (
-                <VoucherRowItem
-                  key={v.id}
-                  v={v}
-                  onOpenVoucher={onOpenVoucher}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
+        <AwCollapsible
+          size="sm"
+          triggerClassName="font-medium"
+          trigger={`Histórico · ${history.length} encerrado${
+            history.length !== 1 ? "s" : ""
+          }`}
+        >
+          <ul className="m-0 flex list-none flex-col p-0">
+            {history.map((v) => (
+              <VoucherRowItem key={v.id} v={v} onOpenVoucher={onOpenVoucher} />
+            ))}
+          </ul>
+        </AwCollapsible>
       )}
     </section>
   );

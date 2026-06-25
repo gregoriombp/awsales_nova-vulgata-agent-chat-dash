@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { AwCollapsible } from "@/components/ui/AwCollapsible";
 import { Icon } from "@/components/ui/Icon";
 import { brl, type ForecastDiscount } from "./data";
 import { CreditDetailModal } from "./CreditDetailModal";
@@ -100,71 +101,47 @@ function Money({ value, suffix }: { value: number; suffix?: string }) {
  * valor à direita, sinalizando crédito. */
 
 function DiscountRow({ discounts }: { discounts: ForecastDiscount[] }) {
-  const [open, setOpen] = React.useState(false);
   const [detail, setDetail] = React.useState<ForecastDiscount | null>(null);
-  const panelId = React.useId();
   const total = discounts.reduce((sum, d) => sum + d.value, 0);
 
   return (
     <li className="flex flex-col">
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls={panelId}
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between gap-4 py-2 text-left"
+      <AwCollapsible
+        size="md"
+        trigger="Descontos"
+        meta={
+          <span className="inline-flex items-center gap-1.5 text-(--accent-success)">
+            <Icon name="local_offer" size={15} className="shrink-0" />
+            <span className="body-sm font-medium tabular-nums">
+              −{brl(total)}
+            </span>
+          </span>
+        }
       >
-        <span className="inline-flex items-center gap-1.5 body-sm text-(--fg-secondary)">
-          <Icon
-            name="expand_more"
-            size={18}
-            className={cn(
-              "-ml-0.5 shrink-0 text-(--fg-tertiary) transition-transform duration-aw-fast",
-              open && "rotate-180",
-            )}
-          />
-          Descontos
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-(--accent-success)">
-          <Icon name="local_offer" size={15} className="shrink-0" />
-          <span className="body-sm font-medium tabular-nums">−{brl(total)}</span>
-        </span>
-      </button>
-
-      {/* Reveal por grid-rows (0fr→1fr): anima a altura sem medir em JS. */}
-      <div
-        id={panelId}
-        className={cn(
-          "grid transition-[grid-template-rows] duration-aw-fast ease-out",
-          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-        )}
-      >
-        <div className="overflow-hidden">
-          <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-1 pl-5">
-            {discounts.map((d) => (
-              <li
-                key={d.id}
-                className="flex items-center justify-between gap-4 py-1.5"
-              >
-                <span className="inline-flex items-baseline gap-1.5 body-xs text-(--fg-tertiary)">
-                  <span className="text-(--fg-secondary)">{d.kind}</span>
-                  <button
-                    type="button"
-                    onClick={() => setDetail(d)}
-                    className="inline-flex items-center gap-1 rounded-sm font-medium text-(--fg-secondary) underline decoration-(--border-strong) decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:decoration-(--fg-primary)"
-                  >
-                    {d.label}
-                    <Icon name="info" size={12} className="text-(--fg-tertiary)" />
-                  </button>
-                </span>
-                <span className="body-xs tabular-nums text-(--accent-success)">
-                  −{brl(d.value)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+        <ul className="m-0 flex list-none flex-col gap-0 p-0 pb-1 pl-5">
+          {discounts.map((d) => (
+            <li
+              key={d.id}
+              className="flex items-center justify-between gap-4 py-1.5"
+            >
+              <span className="inline-flex items-baseline gap-1.5 body-xs text-(--fg-tertiary)">
+                <span className="text-(--fg-secondary)">{d.kind}</span>
+                <button
+                  type="button"
+                  onClick={() => setDetail(d)}
+                  className="inline-flex items-center gap-1 rounded-sm font-medium text-(--fg-secondary) underline decoration-(--border-strong) decoration-dotted underline-offset-2 transition-colors hover:text-(--fg-primary) hover:decoration-(--fg-primary)"
+                >
+                  {d.label}
+                  <Icon name="info" size={12} className="text-(--fg-tertiary)" />
+                </button>
+              </span>
+              <span className="body-xs tabular-nums text-(--accent-success)">
+                −{brl(d.value)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </AwCollapsible>
 
       <CreditDetailModal
         credit={detail}
