@@ -13,11 +13,16 @@ import {
   detectComponent,
   type VariantAxis,
 } from "@/lib/bombardier-edit/variant-registry"
+import {
+  readIconVariation,
+  type IconVariation,
+} from "@/lib/bombardier-edit/icon-style"
 import type { PageEditAnchor, PageEditOp } from "@/lib/bombardier-edit/types"
 import { EDIT_OVERLAY_DATA_ATTR, EDIT_Z } from "./constants"
 import { StyleSection } from "./StyleSection"
 import { VariantControls } from "./VariantControls"
 import { IconPicker } from "./IconPicker"
+import { IconStyleControls } from "./IconStyleControls"
 
 function Section({
   title,
@@ -50,6 +55,7 @@ export function EditInspector({
   onHide,
   onPickVariant,
   onPickIcon,
+  onPickIconStyle,
   onClose,
 }: {
   anchor: PageEditAnchor
@@ -64,6 +70,7 @@ export function EditInspector({
     value: string,
   ) => void
   onPickIcon: (anchor: PageEditAnchor, name: string, prevName?: string) => void
+  onPickIconStyle: (anchor: PageEditAnchor, variation: IconVariation) => void
   onClose: () => void
 }) {
   const info = React.useMemo(() => {
@@ -122,6 +129,20 @@ export function EditInspector({
     }
     return map
   }, [ops, info])
+
+  const iconVariation = React.useMemo<IconVariation | null>(() => {
+    if (!info.isIcon) return null
+    const op = ops.find(
+      (o) =>
+        o.payload.kind === "iconStyle" && o.anchor.selector === anchor.selector,
+    )
+    if (op && op.payload.kind === "iconStyle") {
+      const { fill, weight, grade, opticalSize } = op.payload
+      return { fill, weight, grade, opticalSize }
+    }
+    const el = resolveEditElement(anchor)
+    return el ? readIconVariation(el) : null
+  }, [info.isIcon, ops, anchor])
 
   // Divergence: a direct style override on a component ROOT fights its variants.
   const offSpecActive =
@@ -216,6 +237,16 @@ export function EditInspector({
               current={info.currentIcon}
               onPick={(name) => onPickIcon(anchor, name, info.currentIcon)}
             />
+            {iconVariation && (
+              <IconStyleControls
+                current={iconVariation}
+                onPick={(v) => onPickIconStyle(anchor, v)}
+              />
+            )}
+            <p className="text-2xs text-(--fg-tertiary)">
+              A cor do ícone fica na seção{" "}
+              <strong className="font-medium text-(--fg-secondary)">Cor</strong>.
+            </p>
           </Section>
         )}
 

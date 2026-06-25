@@ -17,6 +17,7 @@ import {
   detectComponent,
   type VariantAxis,
 } from "@/lib/bombardier-edit/variant-registry"
+import { buildIconVariation } from "@/lib/bombardier-edit/icon-style"
 import {
   buildOrder,
   computeDrop,
@@ -430,6 +431,23 @@ export function EditModeProvider() {
     [],
   )
 
+  const onPickIconStyle = React.useCallback(
+    (
+      anchor: PageEditAnchor,
+      variation: { fill: number; weight: number; grade: number; opticalSize: number },
+    ) => {
+      const el = resolveEditElement(anchor)
+      if (el) {
+        (el as HTMLElement).style.setProperty(
+          "font-variation-settings",
+          buildIconVariation(variation),
+        ) // instant feedback
+      }
+      void useEditStore.getState().saveIconStyle(anchor, variation)
+    },
+    [],
+  )
+
   const onFocusOp = React.useCallback((op: PageEditOp) => {
     const el = resolveEditElement(op.anchor)
     if (el) {
@@ -530,6 +548,7 @@ export function EditModeProvider() {
           onHide={onHide}
           onPickVariant={onPickVariant}
           onPickIcon={onPickIcon}
+          onPickIconStyle={onPickIconStyle}
           onClose={() => useEditStore.getState().closeInspector()}
         />
       )}
