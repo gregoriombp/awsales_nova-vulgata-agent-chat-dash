@@ -99,12 +99,14 @@ function ColorField({
   onPick,
   onClear,
   onPickToken,
+  onPickCustom,
 }: {
   property: StyleProperty
   activeValue?: string
   onPick: (prop: string, cssValue: string) => void
   onClear: (prop: string) => void
   onPickToken?: (token: string, value: string) => void
+  onPickCustom?: (prop: string, value: string) => void
 }) {
   const [openRamps, setOpenRamps] = React.useState(false)
   const activeToken = activeValue?.match(/^var\((--[^)]+)\)$/)?.[1] ?? null
@@ -175,6 +177,24 @@ function ColorField({
           token={activeToken}
           onPick={(v) => onPickToken(activeToken, v)}
         />
+      )}
+      {onPickCustom && (
+        <div className="mt-1 flex items-center justify-between gap-2 rounded-(--radius-md) border border-dashed border-(--border-default) px-2.5 py-2">
+          <div className="flex min-w-0 flex-col">
+            <span className="body-xs font-medium text-(--fg-secondary)">
+              Cor custom
+            </span>
+            <span className="truncate text-2xs text-(--fg-tertiary)">
+              fora da paleta · quebra o token
+            </span>
+          </div>
+          <input
+            type="color"
+            onChange={(e) => onPickCustom(property.prop, e.target.value)}
+            aria-label={`Cor custom de ${property.label}`}
+            className="h-7 w-9 shrink-0 cursor-pointer rounded-(--radius-sm) border border-(--border-default) bg-transparent"
+          />
+        </div>
       )}
     </div>
   )
@@ -260,6 +280,7 @@ export function StyleSection({
   onPick,
   onClear,
   onPickToken,
+  onPickCustom,
   only,
 }: {
   activeStyle: Record<string, string>
@@ -267,6 +288,8 @@ export function StyleSection({
   onClear: (prop: string) => void
   /** Editar o valor de um token (cor global) — só faz sentido pras props de cor. */
   onPickToken?: (token: string, value: string) => void
+  /** Aplicar um valor cru fora da paleta (quebra o token) — só pras cores. */
+  onPickCustom?: (prop: string, value: string) => void
   /** Restrict to these property kinds (lets the inspector split Cor / Forma /
    *  Espaçamento into their own flat sections). Omit = all. */
   only?: StyleProperty["kind"][]
@@ -285,6 +308,7 @@ export function StyleSection({
             onPick={onPick}
             onClear={onClear}
             onPickToken={onPickToken}
+            onPickCustom={onPickCustom}
           />
         ) : (
           <ScaleField
