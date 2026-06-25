@@ -20,6 +20,10 @@ export type AwModalProps = {
   /** Override the default stacking (content `1001`, scrim `1000`). The scrim
    * is placed one below. Used by Review Mode to sit above app-level modals. */
   zIndex?: number
+  /** Para modais sequenciais (wizard): troque `stepKey` a cada passo. O corpo
+   * é remontado e re-anima (`aw-wizard-step-in`), dando a transição de avanço
+   * sem o caller precisar pedir. Sem `stepKey`, comportamento inalterado. */
+  stepKey?: string | number
 }
 
 export function AwModal({
@@ -32,6 +36,7 @@ export function AwModal({
   dismissible = true,
   size = "md",
   zIndex,
+  stepKey,
 }: AwModalProps) {
   return (
     <DialogPrimitive.Root
@@ -84,7 +89,15 @@ export function AwModal({
                 Modal
               </DialogPrimitive.Title>
             )}
-            <div className="aw-modal__body">{children}</div>
+            <div
+              key={stepKey}
+              className={cn(
+                "aw-modal__body",
+                stepKey !== undefined && "aw-wizard-step"
+              )}
+            >
+              {children}
+            </div>
             {footer && <footer className="aw-modal__foot">{footer}</footer>}
           </DialogPrimitive.Content>
         </div>
