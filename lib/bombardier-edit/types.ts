@@ -43,6 +43,9 @@ export type PageEditPayload =
       prevToken?: string
       offSpec?: boolean
       offSpecComponent?: string
+      // Valor CRU fora da paleta (quebra o token). `token` guarda o valor literal
+      // (ex.: "#ff5500"). No ship a materialização promove pra um --custom-*.
+      custom?: boolean
     }
   | { kind: "hide"; mode: "hide" | "remove" }
   // variant/size swap on a class-based Aw* component (classList swap).

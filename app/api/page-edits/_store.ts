@@ -63,6 +63,7 @@ export type PageEditPayload =
       prevToken?: string;
       offSpec?: boolean;
       offSpecComponent?: string;
+      custom?: boolean;
     }
   | { kind: "hide"; mode: "hide" | "remove" }
   | {
