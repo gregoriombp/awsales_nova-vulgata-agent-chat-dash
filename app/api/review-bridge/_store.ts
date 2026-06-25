@@ -3,6 +3,8 @@ import fs from "node:fs/promises";
 
 import type {
   ReviewActor,
+  ReviewAgentSettings,
+  ReviewAgentSettingsMap,
   ReviewComment,
   ReviewCommentStatus,
   ReviewExportPayload,
@@ -30,6 +32,7 @@ interface MainDb {
   schemaVersion: number;
   comments: ReviewComment[];
   identities: ReviewIdentity[];
+  agentSettings: ReviewAgentSettingsMap;
 }
 interface ArchiveDb {
   schemaVersion: number;
@@ -44,10 +47,15 @@ async function readMain(): Promise<MainDb> {
       schemaVersion: SCHEMA_VERSION,
       comments: Array.isArray(p.comments) ? p.comments : [],
       identities: Array.isArray(p.identities) ? p.identities : [],
+      agentSettings: isSettingsMap(p.agentSettings) ? p.agentSettings : {},
     };
   } catch {
-    return { schemaVersion: SCHEMA_VERSION, comments: [], identities: [] };
+    return { schemaVersion: SCHEMA_VERSION, comments: [], identities: [], agentSettings: {} };
   }
+}
+
+function isSettingsMap(v: unknown): v is ReviewAgentSettingsMap {
+  return typeof v === "object" && v !== null && !Array.isArray(v);
 }
 async function readArchive(): Promise<ArchiveDb> {
   try {
@@ -375,6 +383,25 @@ export async function upsertIdentity(identity: ReviewIdentity): Promise<void> {
     const idx = db.identities.findIndex((i) => i.id === identity.id);
     if (idx === -1) db.identities.push(identity);
     else db.identities[idx] = identity;
+    await writeMain(db);
+  });
+}
+
+// ── per-agent settings (Live Response / Auto Construct) ──────────────────────
+// Co-located in comments.json so the /loop dispatcher reads comments + the
+// permissions that gate them in a single load.
+export async function getAgentSettings(): Promise<ReviewAgentSettingsMap> {
+  const db = await readMain();
+  return db.agentSettings;
+}
+
+export async function setAgentSettings(
+  agentId: string,
+  settings: ReviewAgentSettings,
+): Promise<void> {
+  return withLock(async () => {
+    const db = await readMain();
+    db.agentSettings = { ...db.agentSettings, [agentId]: settings };
     await writeMain(db);
   });
 }

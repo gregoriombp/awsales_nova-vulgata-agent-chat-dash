@@ -122,6 +122,21 @@ export interface ReviewActor {
   name: string
 }
 
+/**
+ * Per-agent operating permissions for the Review Bridge, toggled from the
+ * floating Bombardier dot and read by the /loop dispatcher.
+ * - liveResponse: the agent may reply in-thread when mentioned (talk only).
+ * - autoConstruct: the agent may ACT (run a skill, edit, send to review) — only
+ *   when the comment also carries the "#now" directive.
+ */
+export interface ReviewAgentSettings {
+  liveResponse: boolean
+  autoConstruct: boolean
+}
+
+/** agentId → settings. Agents absent from the map are all-off by default. */
+export type ReviewAgentSettingsMap = Record<string, ReviewAgentSettings>
+
 export interface ReviewResolution {
   actor: ReviewActor
   at: number
