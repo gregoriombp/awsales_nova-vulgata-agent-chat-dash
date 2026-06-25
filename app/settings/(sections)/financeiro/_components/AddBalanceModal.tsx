@@ -131,7 +131,7 @@ export function AddBalanceModal({
             </p>
             <p className="m-0 body-xs text-(--fg-secondary)">
               {selected?.id === "cartao"
-                ? "O saldo já está disponível para abater os próximos gastos variáveis."
+                ? "O saldo já está disponível para abater o seu uso variável."
                 : "Assim que o pagamento for confirmado, o saldo entra automaticamente."}
             </p>
           </div>
@@ -139,7 +139,7 @@ export function AddBalanceModal({
       ) : step === 1 ? (
         <div className="flex flex-col gap-3">
           <p className="m-0 body-xs text-(--fg-secondary)">
-            O saldo abate os gastos variáveis antes da cobrança do ciclo. Como
+            O saldo abate o uso variável antes da cobrança do ciclo. Como
             você quer adicionar?
           </p>
           <ul className="m-0 flex list-none flex-col gap-2 p-0">

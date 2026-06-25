@@ -10,7 +10,7 @@ export default function FinanceiroLayout({
       <header>
         <h3 className="m-0 mb-2 text-(--fg-primary)">Financeiro</h3>
         <p className="m-0 max-w-[640px] body-xs text-(--fg-secondary)">
-          Plano, faturas, créditos e auditoria desta organização.
+          Plano, faturas, créditos e atividade desta organização.
         </p>
       </header>
 

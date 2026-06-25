@@ -31,10 +31,10 @@ const ALL_TYPES: AuditEventType[] = [
   "Cartão",
   "Fatura",
   "Cupom",
-  "Voucher",
+  "Crédito",
 ];
 
-/** Identidade visual por tipo de evento. Cupom e voucher ganham ícone e cor
+/** Identidade visual por tipo de evento. Cupom e crédito ganham ícone e cor
  *  próprios para saltarem aos olhos no histórico; o resto fica neutro. */
 const TYPE_META: Record<
   AuditEventType,
@@ -61,7 +61,7 @@ const TYPE_META: Record<
       "border-(--aw-emerald-300) bg-(--aw-emerald-100) text-(--aw-emerald-800)",
     accentClass: "text-(--aw-emerald-700)",
   },
-  Voucher: {
+  Crédito: {
     icon: "card_giftcard",
     badgeClass:
       "border-(--aw-purple-300) bg-(--aw-purple-150) text-(--aw-purple-800)",
@@ -162,10 +162,10 @@ export default function AuditoriaPage() {
     <div className="flex flex-col gap-6">
       <section>
         <h6 className="m-0 mb-1 text-(--fg-primary)">
-          Histórico de atividades
+          Atividade
         </h6>
         <p className="m-0 max-w-[520px] body-xs text-(--fg-secondary)">
-          Eventos de plano, cartão, fatura, cupom e voucher — feitos por
+          Eventos de plano, cartão, fatura, cupom e crédito — feitos por
           Aswork ou cliente.
         </p>
       </section>
@@ -314,9 +314,9 @@ const EXPORT_FORMAT_META: Record<
 function triggerExportDownload(format: ExportFormat) {
   if (typeof window === "undefined") return;
   const stamp = new Date().toISOString().slice(0, 10);
-  const filename = `auditoria-faturamento-${stamp}.${EXPORT_FORMAT_META[format].ext}`;
+  const filename = `atividade-faturamento-${stamp}.${EXPORT_FORMAT_META[format].ext}`;
   const blob = new Blob(
-    [`Relatório de auditoria de faturamento — ${stamp}`],
+    [`Relatório de atividade de faturamento — ${stamp}`],
     {
       type: format === "pdf" ? "application/pdf" : "text/csv;charset=utf-8",
     },
@@ -376,7 +376,7 @@ function ExportCsvButton() {
       <AwModal
         open={open}
         onClose={close}
-        title={mode === "confirm" ? `Exportar histórico em ${formatLabel}` : undefined}
+        title={mode === "confirm" ? `Exportar atividade em ${formatLabel}` : undefined}
         footer={
           mode === "confirm" ? (
             <>
@@ -404,7 +404,7 @@ function ExportCsvButton() {
             <p className="m-0 inline-flex items-center gap-2.5 body-xs text-(--fg-secondary)">
               <AwFileIcon type={format} size="sm" />
               <span>
-                O relatório reúne todos os eventos do histórico em um{" "}
+                O relatório reúne todos os eventos da atividade em um{" "}
                 <strong className="font-medium text-(--fg-primary)">
                   {formatLabel}
                 </strong>

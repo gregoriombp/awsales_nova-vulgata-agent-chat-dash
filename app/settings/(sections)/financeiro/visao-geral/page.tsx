@@ -53,7 +53,7 @@ export default function VisaoGeralPage() {
       <AwReportPromo
         art="blocks"
         title="Consumo e custos"
-        description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do consumo variável ao longo do período."
+        description="Concilie o que foi usado com o que foi cobrado, item a item, e acompanhe a evolução do uso variável ao longo do período."
         href="/settings/consumo-e-custos"
       />
     </div>
@@ -90,7 +90,7 @@ function ForecastBlock() {
                 </span>
                 <span className="inline-flex w-full items-center gap-1 body-xs text-(--fg-muted)">
                   Você pode receber cobranças adicionais ao atingir o limite do
-                  consumo variável.
+                  uso variável.
                   <TooltipProvider delayDuration={120}>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -107,7 +107,7 @@ function ForecastBlock() {
                         className="max-w-[300px] border-(--border-subtle) bg-(--bg-raised) text-(--fg-secondary)"
                       >
                         Ao atingir o limite do ciclo ({brl(VARIABLE_SPENDING_LIMIT)}),
-                        o consumo variável acumulado é cobrado na hora — então pode
+                        o uso variável acumulado é cobrado na hora — então pode
                         aparecer mais de uma cobrança no mesmo mês, separada da
                         fatura do plano.
                       </TooltipContent>
@@ -197,7 +197,7 @@ function InvoiceDetailModal({
         />
 
         <p className="m-0 body-xs text-(--fg-tertiary)">
-          Próxima cobrança em {CURRENT_PLAN.nextChargeAt}. O consumo variável
+          Próxima cobrança em {CURRENT_PLAN.nextChargeAt}. O uso variável
           fecha no fim do ciclo ou ao atingir o limite de{" "}
           {brl(VARIABLE_SPENDING_LIMIT)}.
         </p>
@@ -229,13 +229,13 @@ function ConsumoVariavelCard() {
     <AwCard className="flex flex-col gap-4 border-(--aw-gray-25) px-6! py-4!">
       <div className="flex items-baseline justify-between gap-3">
         <h6 className="m-0 flex items-center gap-1.5 body-lg font-medium text-(--fg-primary)">
-          Consumo variável
+          Uso variável
           <TooltipProvider delayDuration={120}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
                   type="button"
-                  aria-label="O que é consumo variável"
+                  aria-label="O que é uso variável"
                   className="inline-flex text-(--fg-tertiary) hover:text-(--fg-primary)"
                 >
                   <Icon name="info" size={15} />

@@ -135,7 +135,7 @@ function CreditsKpis() {
 function CreditInfoTooltip({ kind }: { kind: "voucher" | "coupon" }) {
   const text =
     kind === "voucher"
-      ? "Crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate dos seus gastos variáveis até a validade — não muda o limite."
+      ? "Crédito concedido pela Aswork (POC, cortesia, bônus de contrato). Abate do seu uso variável até a validade — não muda o limite."
       : "Cupom é um código promocional aplicado pela sua equipe de conta. Abate uma única vez do valor do plano fixo.";
   return (
     <TooltipProvider delayDuration={120}>
@@ -184,7 +184,7 @@ function VouchersBlock({
       <header className="flex flex-col gap-1">
         <h6 className="m-0 text-(--fg-primary)">Créditos</h6>
         <p className="m-0 max-w-[560px] body-xs text-(--fg-secondary)">
-          Abatem dos seus gastos variáveis até a validade.
+          Abatem do seu uso variável até a validade.
         </p>
       </header>
 
@@ -232,13 +232,13 @@ const VOUCHER_DOT: Record<VoucherStatus, string> = {
 function voucherStatusHint(status: VoucherStatus): string {
   switch (status) {
     case "Ativo":
-      return "Ativo · abatendo o consumo";
+      return "Ativo · abatendo o uso";
     case "Pendente":
       return "Pendente · começa em breve, ainda não abate";
     case "Pausado":
       return "Pausado · suspenso pela equipe de conta";
     case "Esgotado":
-      return "Esgotado · saldo zerado por consumo";
+      return "Esgotado · saldo zerado por uso";
     case "Vencido":
       return "Vencido · passou da validade";
   }

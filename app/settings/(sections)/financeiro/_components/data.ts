@@ -15,7 +15,7 @@ export const CURRENT_PLAN = {
   /** O que está incluso no plano — mostrado no modal de detalhes. */
   highlights: [
     "Agentes de IA ilimitados",
-    "Limite de consumo variável de R$ 1.500 por ciclo",
+    "Limite de uso variável de R$ 1.500 por ciclo",
     "Disparos, mensagens e leads com tarifas Enterprise",
     "Suporte prioritário e gerente de contas dedicado",
     "Trilha de auditoria e SSO para a organização",
@@ -101,7 +101,7 @@ export const FORECAST_DISCOUNTS: ForecastDiscount[] = [
     consumed: 90.0,
     grantedAt: "20/11/2025",
     expiresAt: "30/06/2026",
-    note: "Cupom de Black Friday aplicado ao consumo variável do ciclo.",
+    note: "Cupom de Black Friday aplicado ao uso variável do ciclo.",
   },
   {
     id: "fd-q2",
@@ -687,7 +687,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-04-1234",
     refMonth: "Abr/26",
-    description: "Custos variáveis",
+    description: "Uso variável",
     dueAt: "28/04/2026",
     paidAt: null,
     gross: 1253.04,
@@ -726,7 +726,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
   {
     id: "INV-2026-03-0987",
     refMonth: "Mar/26",
-    description: "Custos variáveis",
+    description: "Uso variável",
     dueAt: "25/03/2026",
     paidAt: null,
     gross: 5268.49,
@@ -1159,7 +1159,7 @@ export const COUPONS_APPLIED: CouponRow[] = [
 // ---- Auditoria ----
 
 export type AuditExecutor = "Aswork" | "Cliente";
-export type AuditEventType = "Plano" | "Cartão" | "Fatura" | "Cupom" | "Voucher";
+export type AuditEventType = "Plano" | "Cartão" | "Fatura" | "Cupom" | "Crédito";
 
 export type AuditEvent = {
   id: string;
@@ -1225,8 +1225,8 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     executor: "Cliente",
     actor: "Rafael Lima",
     actorAvatar: "/assets/ui-faces/male-3.jpg",
-    type: "Voucher",
-    action: "Voucher consumido",
+    type: "Crédito",
+    action: "Crédito consumido",
     meta: "Crédito Q2 · R$ 250 debitados · saldo restante R$ 750",
   },
   {
@@ -1258,8 +1258,8 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     executor: "Cliente",
     actor: "Rafael Lima",
     actorAvatar: "/assets/ui-faces/male-3.jpg",
-    type: "Voucher",
-    action: "Voucher esgotando rápido",
+    type: "Crédito",
+    action: "Crédito esgotando rápido",
     meta: "Bônus Black Friday Setup · 2,3× acima do previsto",
   },
   {
@@ -1269,8 +1269,8 @@ export const AUDIT_EVENTS: AuditEvent[] = [
     executor: "Aswork",
     actor: "Bruno Costa",
     actorAvatar: "/assets/ui-faces/male-1.jpg",
-    type: "Voucher",
-    action: "Voucher emitido",
+    type: "Crédito",
+    action: "Crédito emitido",
     meta: "Crédito Q2 · R$ 1.000 · vigente até 30/06",
   },
   {

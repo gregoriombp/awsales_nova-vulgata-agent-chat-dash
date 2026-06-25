@@ -49,7 +49,7 @@ export function InvoiceBreakdownCard({
           <Money value={subscription} suffix="/mês" />
         </BreakdownRow>
 
-        <BreakdownRow label="Consumo variável">
+        <BreakdownRow label="Uso variável">
           <Money value={variable} />
         </BreakdownRow>
 
