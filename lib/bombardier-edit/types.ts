@@ -10,6 +10,7 @@ export type PageEditOpType =
   | "icon"
   | "iconStyle"
   | "token"
+  | "class"
   | "move"
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded"
@@ -53,6 +54,15 @@ export type PageEditPayload =
       kind: "variant"
       axis: string
       value: string
+      label?: string
+      remove: string[]
+      add: string
+    }
+  // Troca de classe utilitária curada (tipografia: escala/peso/alinhamento) em
+  // QUALQUER elemento — não preso a um componente. Mesma mecânica do variant.
+  | {
+      kind: "class"
+      group: string
       label?: string
       remove: string[]
       add: string
