@@ -28,6 +28,7 @@ export type PageEditOpType =
   | "variant"
   | "icon"
   | "iconStyle"
+  | "token"
   | "move";
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded";
@@ -80,6 +81,7 @@ export type PageEditPayload =
       grade: number;
       opticalSize: number;
     }
+  | { kind: "token"; token: string; value: string; prevValue?: string }
   // Sibling reorder: anchor is the PARENT; `order` is the desired child sequence
   // by stable fingerprint key ("<tag>::<text>"). One move op per parent.
   | { kind: "move"; order: string[] };
@@ -183,6 +185,7 @@ function summarize(
 function payloadDisc(payload: PageEditPayload): string {
   if (payload.kind === "style") return payload.prop;
   if (payload.kind === "variant") return payload.axis;
+  if (payload.kind === "token") return payload.token;
   return "";
 }
 
