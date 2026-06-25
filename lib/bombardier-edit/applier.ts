@@ -63,7 +63,9 @@ function writeTargetKey(op: PageEditOp): string {
       ? `style:${p.prop}`
       : p.kind === "variant"
         ? `variant:${p.axis}`
-        : p.kind
+        : p.kind === "token"
+          ? `token:${p.token}`
+          : p.kind
   return `${op.anchor.selector}::${target}`
 }
 
@@ -146,9 +148,11 @@ export class OverlayApplier {
     // on every scroll frame. Only re-resolve when the node is gone (route
     // change, React replaced it).
     const el =
-      entry.el && entry.el.isConnected
-        ? entry.el
-        : resolveEditElement(entry.op.anchor)
+      entry.op.payload.kind === "token"
+        ? document.documentElement // token edits live on :root, não num elemento
+        : entry.el && entry.el.isConnected
+          ? entry.el
+          : resolveEditElement(entry.op.anchor)
     if (!el) {
       this.detach(entry)
       entry.el = null
@@ -250,6 +254,11 @@ export class OverlayApplier {
         mutate = () =>
           html.style.setProperty("font-variation-settings", buildIconVariation(v))
       }
+    } else if (payload.kind === "token") {
+      if (html.style.getPropertyValue(payload.token) !== payload.value) {
+        this.snapshot(entry, payload.token)
+        mutate = () => html.style.setProperty(payload.token, payload.value)
+      }
     } else if (payload.kind === "variant") {
       const cl = html.classList
       const needs =
@@ -292,7 +301,8 @@ export class OverlayApplier {
     if (
       payload.kind === "style" ||
       payload.kind === "hide" ||
-      payload.kind === "iconStyle"
+      payload.kind === "iconStyle" ||
+      payload.kind === "token"
     ) {
       const prior = entry.prior
       if (prior) {
@@ -304,7 +314,9 @@ export class OverlayApplier {
             ? DISPLAY
             : payload.kind === "iconStyle"
               ? "font-variation-settings"
-              : payload.prop
+              : payload.kind === "token"
+                ? payload.token
+                : payload.prop
         html.style.removeProperty(prop)
       }
     } else if (payload.kind === "text" && payload.prevText != null) {
