@@ -9,6 +9,7 @@ export type PageEditOpType =
   | "variant"
   | "icon"
   | "iconStyle"
+  | "token"
   | "move"
 
 export type PageEditStatus = "open" | "in_review" | "applied" | "discarded"
@@ -64,6 +65,10 @@ export type PageEditPayload =
       grade: number
       opticalSize: number
     }
+  // Edição GLOBAL do valor de um token (ex.: --accent-brand). Aplicada no :root
+  // ao vivo (todas as instâncias mudam); no ship a materialização reescreve o
+  // token no globals.css + grava um backup pra reverter. anchor.selector = ":root".
+  | { kind: "token"; token: string; value: string; prevValue?: string }
   // Sibling reorder: anchor is the PARENT container; `order` is the desired
   // child sequence by stable fingerprint key ("<tag>::<text>"). One move op per
   // parent (upsert) — see _store payloadDisc.

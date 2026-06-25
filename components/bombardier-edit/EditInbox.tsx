@@ -17,6 +17,7 @@ const TYPE_ICON: Record<PageEditOp["type"], string> = {
   variant: "tune",
   icon: "emoji_symbols",
   iconStyle: "line_weight",
+  token: "format_paint",
   move: "swap_vert",
 }
 
@@ -32,6 +33,7 @@ function describe(op: PageEditOp): string {
   if (p.kind === "move") return `nova ordem · ${p.order.length} blocos`
   if (p.kind === "iconStyle")
     return `ícone · wght ${p.weight}${p.fill ? " · fill" : ""}`
+  if (p.kind === "token") return `token ${p.token}: ${p.value}`
   return p.mode === "remove" ? "Deletado" : "Oculto"
 }
 
