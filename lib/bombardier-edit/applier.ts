@@ -226,7 +226,7 @@ export class OverlayApplier {
       if (el.textContent !== payload.name) mutate = () => (el.textContent = payload.name)
     } else if (payload.kind === "style") {
       if (
-        isAllowedStyle(payload.prop, payload.token) &&
+        (payload.custom || isAllowedStyle(payload.prop, payload.token)) &&
         html.style.getPropertyValue(payload.prop) !== payload.token
       ) {
         this.snapshot(entry, payload.prop)
