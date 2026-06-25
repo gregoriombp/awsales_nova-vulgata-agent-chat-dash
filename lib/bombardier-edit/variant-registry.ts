@@ -47,6 +47,11 @@ const AW_ALERT = "aw-alert--"
 const AW_AVATAR = "aw-avatar--"
 const AW_PROGRESS = "aw-progress--"
 const AW_TABS = "aw-tabs--"
+const AW_TOAST = "aw-toast--"
+const AW_INPUT = "aw-input--"
+const AW_SHEET = "aw-sheet--"
+const AW_MODAL = "aw-modal--"
+const AW_CHAT = "aw-chat--"
 
 export const COMPONENT_REGISTRY: ComponentSpec[] = [
   {
@@ -172,6 +177,92 @@ export const COMPONENT_REGISTRY: ComponentSpec[] = [
           opt(AW_TABS, "segmented", "Segmented"),
           opt(AW_TABS, "standalone", "Standalone"),
           opt(AW_TABS, "underline", "Underline"),
+        ],
+      },
+    ],
+  },
+  {
+    component: "AwToast",
+    rootClass: "aw-toast",
+    label: "Toast",
+    axes: [
+      {
+        key: "variant",
+        label: "Variante",
+        options: [
+          bare("default", "Padrão"),
+          opt(AW_TOAST, "warning", "Warning"),
+          opt(AW_TOAST, "error", "Error"),
+          opt(AW_TOAST, "ai", "AI"),
+        ],
+      },
+    ],
+  },
+  {
+    component: "AwInput",
+    rootClass: "aw-input",
+    label: "Input",
+    axes: [
+      {
+        key: "density",
+        label: "Densidade",
+        options: [bare("default", "Padrão"), opt(AW_INPUT, "dense", "Dense")],
+      },
+      {
+        key: "mode",
+        label: "Modo",
+        options: [bare("default", "Padrão"), opt(AW_INPUT, "search", "Busca")],
+      },
+      {
+        key: "state",
+        label: "Estado",
+        options: [
+          bare("default", "Normal"),
+          opt(AW_INPUT, "invalid", "Inválido"),
+          opt(AW_INPUT, "disabled", "Desabilitado"),
+        ],
+      },
+    ],
+  },
+  {
+    component: "AwSheet",
+    rootClass: "aw-sheet",
+    label: "Sheet",
+    axes: [
+      {
+        key: "size",
+        label: "Tamanho",
+        options: [
+          bare("default", "Padrão"),
+          opt(AW_SHEET, "wide", "Wide"),
+          opt(AW_SHEET, "xwide", "XWide"),
+        ],
+      },
+    ],
+  },
+  {
+    component: "AwModal",
+    rootClass: "aw-modal",
+    label: "Modal",
+    axes: [
+      {
+        key: "size",
+        label: "Tamanho",
+        options: [bare("md", "MD"), opt(AW_MODAL, "cockpit", "Cockpit")],
+      },
+    ],
+  },
+  {
+    component: "AwChatBubble",
+    rootClass: "aw-chat",
+    label: "Chat bubble",
+    axes: [
+      {
+        key: "author",
+        label: "Autor",
+        options: [
+          opt(AW_CHAT, "agent", "Agente"),
+          opt(AW_CHAT, "user", "Usuário"),
         ],
       },
     ],
