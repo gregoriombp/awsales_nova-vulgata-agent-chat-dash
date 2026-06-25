@@ -117,14 +117,20 @@ export function resolveIconOptics({
   }
 }
 
-function defaultIconWeight(size: number, fill: IconProps["fill"] = 0): IconWeight {
-  if (size <= 14) return fill ? 400 : 300
-  if (size <= 24) return 300
-  return 200
+function defaultIconWeight(size: number, fill: IconProps["fill"] = 0): number {
+  // Compensação óptica: glifos pequenos precisam de mais traço pra não virar
+  // fio (somem em cor de baixo contraste); glifos grandes podem afinar. Contínuo
+  // no eixo wght do Material Symbols (100–700). 12→~480, 20→~420, 32→~340, 48→~250.
+  const base = Math.max(250, Math.min(520, Math.round((560 - size * 7) / 10) * 10))
+  return fill ? Math.min(600, base + 40) : base
 }
 
-function defaultIconGrade(size: number): IconGrade {
-  return size <= 14 ? 200 : 0
+function defaultIconGrade(size: number): number {
+  // GRAD engrossa o traço SEM mudar o footprint do glifo — reforço extra de
+  // legibilidade nos tamanhos pequenos / cores fracas.
+  if (size <= 16) return 200
+  if (size <= 20) return 50
+  return 0
 }
 
 function clampIconOpticalSize(size: number) {
@@ -194,7 +200,7 @@ function AgentGlyph({
   style,
 }: {
   size: number
-  weight: NonNullable<IconProps["weight"]>
+  weight: number
   animated: boolean
   gradient: boolean
   className?: string
