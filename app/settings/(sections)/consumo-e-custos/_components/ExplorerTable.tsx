@@ -4,10 +4,13 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import { AwButton } from "@/components/ui/AwButton";
+import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
 import { AgentDetailModal } from "../../financeiro/_components/AgentDetailModal";
+import { AgentCompareModal } from "./AgentCompareModal";
 import {
   brl,
   type AgentBreakdownRow,
@@ -51,11 +54,41 @@ function isOutlier(value: number, all: number[]): boolean {
 }
 
 export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
-  const { detailRows, grouping, drillInto, selection, customDays, periodLabel } = useConsumo();
+  const { detailRows, grouping, drill, drillInto, selection, customDays, periodLabel } = useConsumo();
   const [agentDetail, setAgentDetail] = React.useState<AgentBreakdownRow | null>(null);
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(
     () => new Set(["tokens"]),
   );
+
+  // X-Ray: agentes marcados pra comparar (só faz sentido na lente Agente).
+  const [selectedAgents, setSelectedAgents] = React.useState<Set<string>>(() => new Set());
+  const [compareOpen, setCompareOpen] = React.useState(false);
+  // Trocar de lente esvazia a seleção (os ids são de agente).
+  React.useEffect(() => {
+    if (grouping !== "agent") setSelectedAgents(new Set());
+  }, [grouping]);
+  const toggleAgent = React.useCallback((id: string) => {
+    setSelectedAgents((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  // Transição do drill: a tabela desliza pra dentro ao avançar um nível (entra
+  // pela direita) e ao voltar (entra pela esquerda), dando a sensação de
+  // "andar" pelo escopo em vez de um corte seco. A `key` (lente + profundidade)
+  // remonta o bloco e re-dispara o animate-in a cada mudança.
+  const depth = drill.length;
+  const prevDepth = React.useRef(depth);
+  const [drillDir, setDrillDir] = React.useState<"fwd" | "back">("fwd");
+  React.useEffect(() => {
+    if (depth !== prevDepth.current) {
+      setDrillDir(depth > prevDepth.current ? "fwd" : "back");
+      prevDepth.current = depth;
+    }
+  }, [depth]);
 
   const agentRows = React.useMemo(() => {
     const period: SpendingPeriod | null = selection.kind === "preset" ? selection.id : null;
@@ -84,6 +117,23 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
     [detailRows],
   );
 
+  // Linhas resolvidas pra comparação (ordem = maior gasto primeiro).
+  const selectedAgentRows = React.useMemo(
+    () => agentRows.filter((a) => selectedAgents.has(a.id)).sort((a, b) => b.total - a.total),
+    [agentRows, selectedAgents],
+  );
+  const allVisibleSelected =
+    grouping === "agent" && detailRows.length > 0 && detailRows.every((r) => selectedAgents.has(r.id));
+  const someVisibleSelected = grouping === "agent" && detailRows.some((r) => selectedAgents.has(r.id));
+  const toggleAllVisible = React.useCallback(() => {
+    setSelectedAgents((prev) => {
+      const next = new Set(prev);
+      if (detailRows.every((r) => prev.has(r.id))) detailRows.forEach((r) => next.delete(r.id));
+      else detailRows.forEach((r) => next.add(r.id));
+      return next;
+    });
+  }, [detailRows]);
+
   const openAgent = (row: ExplorerRow) =>
     setAgentDetail(agentRows.find((a) => a.id === row.agentId) ?? null);
   const toggleExpanded = React.useCallback((rowId: string) => {
@@ -107,6 +157,34 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
       dragHandle={dragHandle}
       resizeButton={resizeButton}
     >
+      {grouping === "agent" && selectedAgents.size > 0 && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--border-default) bg-(--bg-muted) px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none">
+          <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
+            <Icon name="compare_arrows" size={16} className="text-(--fg-tertiary)" />
+            <span>
+              <strong className="text-(--fg-primary)">{selectedAgents.size}</strong>{" "}
+              {selectedAgents.size === 1 ? "agente selecionado" : "agentes selecionados"}
+            </span>
+            {selectedAgents.size === 1 && (
+              <span className="body-xs text-(--fg-tertiary)">· escolha mais um pra comparar</span>
+            )}
+          </span>
+          <div className="flex items-center gap-2">
+            <AwButton size="sm" variant="ghost" onClick={() => setSelectedAgents(new Set())}>
+              Limpar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="stacked_bar_chart"
+              disabled={selectedAgents.size < 2}
+              onClick={() => setCompareOpen(true)}
+            >
+              Comparar no X-Ray
+            </AwButton>
+          </div>
+        </div>
+      )}
       {detailRows.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-center">
           <Icon name="search_off" size={22} className="text-(--fg-tertiary)" />
@@ -115,10 +193,24 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
           </p>
         </div>
       ) : (
-        grouping === "agent" ? (
+        <div
+          key={`${grouping}-${depth}`}
+          className={cn(
+            "animate-in fade-in duration-300 ease-aw-out motion-reduce:animate-none",
+            drillDir === "fwd" ? "slide-in-from-right-4" : "slide-in-from-left-4",
+          )}
+        >
+          {grouping === "agent" ? (
           <AwTable>
             <thead>
               <tr>
+                <th className="w-10">
+                  <AwCheckbox
+                    checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
+                    onChange={toggleAllVisible}
+                    label="Selecionar todos os agentes pra comparar"
+                  />
+                </th>
                 <th className={TH}>Nome</th>
                 <th className={TH}>Tipo</th>
                 <th className={TH}>Status</th>
@@ -132,9 +224,19 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                 <tr
                   key={row.id}
                   onClick={row.drillable ? () => drillInto(row) : undefined}
-                  className={cn(row.drillable && "cursor-pointer")}
+                  className={cn(
+                    row.drillable && "cursor-pointer",
+                    selectedAgents.has(row.id) && "bg-(--bg-selected)",
+                  )}
                   aria-label={row.drillable ? `Explorar ${row.label}` : undefined}
                 >
+                  <td onClick={(e) => e.stopPropagation()}>
+                    <AwCheckbox
+                      checked={selectedAgents.has(row.id)}
+                      onChange={() => toggleAgent(row.id)}
+                      label={`Selecionar ${row.label} pra comparar`}
+                    />
+                  </td>
                   <td>
                     <span className="inline-flex items-center gap-3">
                       {row.avatar && <AwAvatar size="sm" src={row.avatar} alt={row.label} />}
@@ -174,7 +276,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
             </tbody>
             <tfoot>
               <tr>
-                <td colSpan={3} className="font-medium text-(--fg-secondary)">
+                <td colSpan={4} className="font-medium text-(--fg-secondary)">
                   Total por agente
                 </td>
                 <td className="text-right font-semibold tabular-nums text-(--fg-primary)">
@@ -305,7 +407,8 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
               })}
             </tbody>
           </AwTable>
-        )
+          )}
+        </div>
       )}
 
       <AgentDetailModal
@@ -313,6 +416,13 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
         periodLabel={periodLabel}
         open={agentDetail !== null}
         onClose={() => setAgentDetail(null)}
+      />
+
+      <AgentCompareModal
+        agents={selectedAgentRows}
+        periodLabel={periodLabel}
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
       />
     </WidgetShell>
   );
