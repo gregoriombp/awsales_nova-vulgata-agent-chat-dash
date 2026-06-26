@@ -123,11 +123,17 @@ export function useCumulativeScrollOffset() {
   return offset
 }
 
-// Re-renderiza quando o layout reflui SEM scroll nem resize de window — caso
-// do Cortex/sidebars, que mudam a largura do `<main>` via flex. O
-// `useCumulativeScrollOffset` só ouve scroll/resize, então pins ancorados a
-// elemento não re-resolveriam. Um ResizeObserver no container principal (+ body)
-// cobre esse caso.
+// Re-renderiza quando o layout reflui SEM scroll nem resize de window — dois
+// casos:
+//   1. Cortex/sidebars que mudam a largura do `<main>` via flex (ResizeObserver
+//      no container principal + body cobre).
+//   2. Um overlay (modal/drawer/popover/dropdown) que MONTA ou DESMONTA seu
+//      portal como filho do `<body>` — não muda o tamanho do body, então o
+//      ResizeObserver não dispara, mas um pin ancorado DENTRO dele acabou de
+//      aparecer/sumir. Um MutationObserver no childList do body cobre isso, e é
+//      o que faz o pino de um comentário em modal pintar no instante em que o
+//      modal abre (manualmente ou via replay da trilha de revelação).
+// `useCumulativeScrollOffset` só ouve scroll/resize, daí esses dois observers.
 export function useLayoutVersion(): number {
   const [version, setVersion] = React.useState(0)
   React.useEffect(() => {
@@ -149,8 +155,15 @@ export function useLayoutVersion(): number {
     const primary = findPrimaryScrollContainer()
     if (primary) ro.observe(primary)
     ro.observe(document.body)
+    // Overlays montam/desmontam como filhos diretos do body (portais Radix).
+    const mo =
+      typeof MutationObserver !== "undefined"
+        ? new MutationObserver(bump)
+        : null
+    mo?.observe(document.body, { childList: true })
     return () => {
       ro.disconnect()
+      mo?.disconnect()
       if (raf !== null) cancelAnimationFrame(raf)
     }
   }, [])

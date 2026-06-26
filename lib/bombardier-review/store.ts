@@ -6,6 +6,7 @@ import { ServerlessReview } from "@/components/bombardier-review/storage/serverl
 import type { ReviewStorage } from "@/components/bombardier-review/storage/types"
 import { makeId } from "@/components/bombardier-review/storage/utils"
 import { buildReviewCommentContext } from "@/lib/bombardier-review/elementContext"
+import { snapshotRevealTrail } from "@/lib/bombardier-review/revealTrail"
 import type {
   ReviewActor,
   ReviewAnchor,
@@ -292,6 +293,9 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
     const params = new URLSearchParams(window.location.search)
     params.delete("reviewCommentId")
     const cleanSearch = params.toString()
+    // Trilha de revelação: se o pino foi solto dentro de um modal/drawer/aba,
+    // grava os cliques que abriram esse estado pra reabri-lo no foco depois.
+    const revealPath = snapshotRevealTrail(window.location.pathname)
     const comment: ReviewComment = {
       id: makeId("cmt"),
       schemaVersion: SCHEMA_VERSION as 3,
@@ -311,6 +315,7 @@ export const useReviewStore = create<ReviewState>()((set, get) => ({
       context: buildReviewCommentContext(pendingAnchor),
       text: trimmed,
       ...(images && images.length > 0 ? { images } : {}),
+      ...(revealPath.length > 0 ? { revealPath } : {}),
       status: "open",
     }
     await storage.saveComment(comment)

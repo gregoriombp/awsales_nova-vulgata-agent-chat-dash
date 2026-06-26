@@ -5,6 +5,12 @@ import { usePathname } from "next/navigation"
 import { useGlobalHotkey } from "@/lib/hooks/useGlobalHotkey"
 import { useReviewStore } from "@/lib/bombardier-review/store"
 import { findPrimaryScrollContainer } from "@/lib/bombardier-review/scrollOffset"
+import { resolveAnchoredElement } from "@/lib/bombardier-review/elementAnchor"
+import {
+  revealAnchor,
+  startRevealTrail,
+  resetRevealTrail,
+} from "@/lib/bombardier-review/revealTrail"
 import { OVERLAY_DATA_ATTR } from "./constants"
 import { ReviewCanvas } from "./ReviewCanvas"
 import { ReviewMagicCursor } from "./ReviewMagicCursor"
@@ -34,10 +40,19 @@ export function ReviewModeProvider() {
   const permalinkHandledRef = React.useRef<string | null>(null)
   const pathname = usePathname()
 
+  // Grava a trilha de revelação (cliques em gatilhos: botões que abrem modais,
+  // opções de wizard, abas) o tempo todo — review ativo ou não —, pra que um
+  // comentário solto dentro de um overlay saiba como reabri-lo no foco. Sempre
+  // montado junto com o provider (ver layout.tsx).
+  React.useEffect(() => startRevealTrail(), [])
+
   // Cada nova tela pode ter seu próprio ?reviewCommentId — libera o permalink
-  // pra ser reprocessado quando o pathname muda (navegação client-side).
+  // pra ser reprocessado quando o pathname muda (navegação client-side). Zera
+  // também a trilha: ao trocar de rota os overlays resetam, então a trilha da
+  // tela anterior não vale mais.
   React.useEffect(() => {
     permalinkHandledRef.current = null
+    resetRevealTrail()
   }, [pathname])
 
   React.useEffect(() => {
@@ -49,7 +64,11 @@ export function ReviewModeProvider() {
     return unsubscribe
   }, [hydrateIdentity, refreshFromStorage, storage])
 
-  // Permalink: open the review overlay and focus the pin when ?reviewCommentId=… is present.
+  // Permalink: open the review overlay and focus the pin when ?reviewCommentId=…
+  // is present. If the pin lives inside a closed overlay (modal/drawer/tab), we
+  // first REPLAY the comment's recorded reveal path to re-open it, so clicking a
+  // comment lands you exactly where the pin is instead of on a bare screen with
+  // a hidden pin you can't find.
   React.useEffect(() => {
     if (typeof window === "undefined") return
     const params = new URLSearchParams(window.location.search)
@@ -61,23 +80,38 @@ export function ReviewModeProvider() {
     if (!match) return
     permalinkHandledRef.current = id
     setActive(true)
-    setSheetOpen(true)
     selectComment(id)
-    const anchorY =
-      match.anchor.kind === "pin"
-        ? match.anchor.position.y
-        : match.anchor.centroid.y
-    const targetY = Math.max(0, anchorY - 120)
-    const scroll = () => {
-      const container = findPrimaryScrollContainer()
-      if (container) {
-        container.scrollTo({ top: targetY, behavior: "smooth" })
-      } else {
-        window.scrollTo({ top: targetY, behavior: "smooth" })
+
+    let cancelled = false
+    const focus = async () => {
+      // Re-open the overlay holding the pin (no-op if it's plain page content
+      // or there's no recorded path). Pins re-resolve once the overlay mounts
+      // (useLayoutVersion observes the portal), so the marker then paints.
+      await revealAnchor(match.anchor, match.revealPath)
+      if (cancelled) return
+      setSheetOpen(true)
+      const el = resolveAnchoredElement(match.anchor)
+      if (el) {
+        // Prefer the live element — survives layout shifts and scrolls inside
+        // a modal's own scroll container.
+        el.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" })
+        return
       }
+      // Couldn't resolve (older comment with no path, or element truly gone):
+      // fall back to the saved document position, as before.
+      const anchorY =
+        match.anchor.kind === "pin"
+          ? match.anchor.position.y
+          : match.anchor.centroid.y
+      const targetY = Math.max(0, anchorY - 120)
+      const container = findPrimaryScrollContainer()
+      if (container) container.scrollTo({ top: targetY, behavior: "smooth" })
+      else window.scrollTo({ top: targetY, behavior: "smooth" })
     }
-    // Defer scroll until after the overlay mounts.
-    requestAnimationFrame(scroll)
+    void focus()
+    return () => {
+      cancelled = true
+    }
   }, [comments, pathname, setActive, setSheetOpen, selectComment])
 
   // A Radix Dialog (AwModal/AwSheet) com `modal` mantém um focus trap que puxa
