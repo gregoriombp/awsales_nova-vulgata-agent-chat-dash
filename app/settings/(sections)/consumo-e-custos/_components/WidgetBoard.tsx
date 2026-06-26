@@ -5,6 +5,7 @@ import { Reorder, useDragControls } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { AwCard } from "@/components/ui/AwCard";
 import { Icon } from "@/components/ui/Icon";
+import { AddWidgetCard, type AddableWidget } from "./AddWidgetCard";
 
 /* ----------------------------------------------------------------------------
  * Board de widgets arrastáveis.
@@ -29,6 +30,10 @@ export type BoardWidget = {
   id: string;
   /** Largura padrão no grid de 2 (1 = metade, 2 = largura toda). */
   span: Span;
+  /** Nome amigável do gráfico — usado no seletor "Adicionar gráfico". */
+  label?: string;
+  /** Ícone do gráfico (Material Symbols) — usado no seletor "Adicionar gráfico". */
+  icon?: string;
   render: (chrome: WidgetChrome) => React.ReactNode;
 };
 
@@ -166,6 +171,7 @@ export function DraggableBoard({
   editing = false,
   hidden,
   onRemove,
+  onAdd,
 }: {
   widgets: BoardWidget[];
   order: string[];
@@ -178,6 +184,9 @@ export function DraggableBoard({
   hidden?: Set<string>;
   /** Remove um widget da visualização atual (mostra o ícone no header). */
   onRemove?: (id: string) => void;
+  /** Re-exibe um widget escondido — alimenta o card "Adicionar gráfico" no fim
+   *  do board. Quando passado, o card-placeholder é sempre renderizado. */
+  onAdd?: (id: string) => void;
 }) {
   const byId = React.useMemo(
     () => new Map(widgets.map((w) => [w.id, w])),
@@ -187,6 +196,16 @@ export function DraggableBoard({
     .map((id) => byId.get(id))
     .filter((w): w is BoardWidget => Boolean(w) && !(hidden?.has((w as BoardWidget).id)));
   const visibleOrder = ordered.map((w) => w.id);
+
+  // Gráficos disponíveis pra (re)adicionar = os widgets escondidos desta
+  // visualização, na ordem do board. Alimentam o card "Adicionar gráfico", que
+  // fica sempre como último item do board.
+  const available: AddableWidget[] = onAdd
+    ? order
+        .map((id) => byId.get(id))
+        .filter((w): w is BoardWidget => Boolean(w) && Boolean(hidden?.has((w as BoardWidget).id)))
+        .map((w) => ({ id: w.id, label: w.label ?? w.id, icon: w.icon ?? "insert_chart" }))
+    : [];
 
   return (
     <Reorder.Group
@@ -210,6 +229,10 @@ export function DraggableBoard({
           onRemove={onRemove ? () => onRemove(w.id) : undefined}
         />
       ))}
+      {/* Último item do board: placeholder tracejado pra adicionar um gráfico
+          escondido de volta. Fica fora do Reorder (não é arrastável) e sempre
+          presente quando o board sabe re-exibir widgets (onAdd). */}
+      {onAdd && <AddWidgetCard available={available} onAdd={onAdd} />}
     </Reorder.Group>
   );
 }
