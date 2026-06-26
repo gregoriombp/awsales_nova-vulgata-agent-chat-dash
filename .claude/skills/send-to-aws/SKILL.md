@@ -55,6 +55,19 @@ identidade pessoal do Greg continua intacta — não há nada a "restaurar". Um 
 aborta o push se qualquer commit sair com outro e-mail. Se o token sumir/expirar, o script já
 pede `gh auth login -u greg_awsales`; rode isso e mande de novo.
 
+## Território do PG é por-arquivo quando cruza com o nosso
+
+`PRESERVE_PATHS` não preserva só pastas inteiras — onde o PG está à frente em arquivos que a gente
+**também** tem, preserva o **arquivo específico**, deixando o resto da pasta subir:
+- `lib/bombardier-review/{store,hooks,commentAssist,elementAnchor,useVoiceTranscription}.ts` (o
+  resto do review lib do Greg — agents/skills/commandParse/agentSettingsStore/mobbin/… — sobe).
+- `app/settings/(sections)/_components/shared.tsx` (o PG somou `API_KEYS` lá; a versão dele é superset).
+
+Motivo: se um arquivo **seu** que sobe importa de um path que ficou na versão do PG, e a versão do
+PG não tem o que você importa, o **build do design2 quebra** — `Module not found` (consumidor sem a
+dependência) ou `Export X doesn't exist` (você sobrescreveu um arquivo que o PG estendeu). Regra
+mental: ao enviar, confira se seus arquivos dependem de algo onde o PG divergiu.
+
 ## Notas
 
 - `--branch greg/nome` só se o usuário pediu um nome; senão o default é datado.
