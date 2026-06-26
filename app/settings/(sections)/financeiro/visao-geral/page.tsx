@@ -4,10 +4,8 @@ import * as React from "react";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwReportPromo } from "@/components/ui/AwReportPromo";
 import { AwInvoiceForecastCard } from "@/components/ui/AwInvoiceForecastCard";
-import { AwConsumptionBar } from "@/components/ui/AwConsumptionBar";
 import { AwContactChannelModal } from "@/components/ui/AwContactChannelModal";
 import { AwPlanIcon, type PlanKey } from "@/components/ui/AwPlanIcon";
 import { AwPill } from "@/components/ui/AwPill";
@@ -259,40 +257,87 @@ function ConsumoVariavelCard() {
           de {brl(limit)}
         </span>
       </div>
-      <AwConsumptionBar
-        gross={used}
-        limit={limit}
-        splits={[
-          { label: "Aswork", value: wc, colorVar: "var(--aw-blue-500)" },
-          { label: "Meta", value: meta, colorVar: "var(--aw-purple-400)" },
-        ]}
-      />
+      {/* Duas barras SOBREPOSTAS partindo da mesma base: uma do que a Aswork
+          cobrou, outra do valor que o Meta cobra. Cores claras (por token) pra
+          ler as duas ao mesmo tempo; a maior fica atrás, a menor por cima. */}
+      <OverlaidUsageBars wc={wc} meta={meta} limit={limit} />
+
       <p className="m-0 body-xs tabular-nums text-(--fg-tertiary)">
         Restam {brl(remaining)} antes da próxima cobrança.
       </p>
 
-      {/* Quem cobra o quê — só os rótulos; a divisão visual mora dentro da
-          barra acima (camada de baixa opacidade), com o detalhe no tooltip. */}
+      {/* Quem cobra o quê — duas infos bem pequenas, alinhadas às barras. */}
       <div className="flex items-center justify-between gap-3 body-xs text-(--fg-tertiary)">
         <span className="inline-flex items-center gap-1.5">
           <span
             aria-hidden="true"
-            className="h-2 w-2 rounded-full bg-(--aw-blue-500)"
+            className="h-2 w-2 rounded-full bg-(--aw-blue-300)"
           />
-          Aswork
+          Aswork cobrou
           <span className="tabular-nums font-medium text-(--fg-secondary)">
             {brl(wc)}
           </span>
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <AwBrandLogo brand="meta" size={13} markOnly />
-          Meta
+          <span
+            aria-hidden="true"
+            className="h-2 w-2 rounded-full bg-(--aw-purple-300)"
+          />
+          Meta cobra
           <span className="tabular-nums font-medium text-(--fg-secondary)">
             {brl(meta)}
           </span>
         </span>
       </div>
     </AwCard>
+  );
+}
+
+/**
+ * Duas barras sobrepostas no mesmo trilho: cada uma parte da esquerda e mede,
+ * contra o limite do ciclo, quanto foi cobrado por cada provedor. A barra maior
+ * fica atrás; a menor entra por cima com leve transparência pra leitura das
+ * duas simultaneamente. Cores claras, todas por token.
+ */
+function OverlaidUsageBars({
+  wc,
+  meta,
+  limit,
+}: {
+  wc: number;
+  meta: number;
+  limit: number;
+}) {
+  const scaleMax = Math.max(limit, wc, meta);
+  const wcPct = scaleMax > 0 ? (wc / scaleMax) * 100 : 0;
+  const metaPct = scaleMax > 0 ? (meta / scaleMax) * 100 : 0;
+  // A maior vai pro fundo; a menor por cima (semitransparente) pra não cobrir.
+  const wcIsBigger = wc >= meta;
+
+  return (
+    <div
+      className="relative h-2.5 w-full"
+      role="img"
+      aria-label={`Aswork cobrou ${brl(wc)} e Meta cobra ${brl(meta)}, de um limite de ${brl(limit)}.`}
+    >
+      <div className="absolute inset-0 rounded-full bg-(--bg-muted)" />
+      <div
+        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-blue-300) transition-[width] duration-500 ease-out"
+        style={{
+          width: `${Math.min(wcPct, 100)}%`,
+          zIndex: wcIsBigger ? 1 : 2,
+          opacity: wcIsBigger ? 1 : 0.85,
+        }}
+      />
+      <div
+        className="absolute inset-y-0 left-0 rounded-full bg-(--aw-purple-300) transition-[width] duration-500 ease-out"
+        style={{
+          width: `${Math.min(metaPct, 100)}%`,
+          zIndex: wcIsBigger ? 2 : 1,
+          opacity: wcIsBigger ? 0.85 : 1,
+        }}
+      />
+    </div>
   );
 }
 

@@ -25,8 +25,8 @@ function statusVariant(status: InvoiceHistoryRow["status"]): AwPillVariant {
       return "draft";
     case "Em atraso":
       return "warning";
-    case "Falhou":
-      return "error";
+    case "Falha no Pagamento":
+      return "warning";
     case "Disputada":
       return "beta";
   }
@@ -68,7 +68,7 @@ export function InvoiceDetailsSheet({
           </AwButton>
           {paid && (
             <AwButton variant="secondary" iconLeft="receipt_long">
-              Baixar recibo
+              Baixar nota fiscal
             </AwButton>
           )}
           <AwButton variant="primary" iconLeft="download">

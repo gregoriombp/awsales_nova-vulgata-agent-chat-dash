@@ -680,7 +680,7 @@ export type InvoiceHistoryRow = {
   discountCode: string | null;
   net: number;
   paymentMethod: string;
-  status: "Paga" | "Em aberto" | "Em atraso" | "Falhou" | "Disputada";
+  status: "Paga" | "Em aberto" | "Em atraso" | "Falha no Pagamento" | "Disputada";
 };
 
 export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
@@ -708,7 +708,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
     discountCode: null,
     net: 2497.98,
     paymentMethod: "Visa •••• 3012",
-    status: "Falhou",
+    status: "Falha no Pagamento",
   },
   {
     id: "INV-2026-03-PLN",
@@ -734,7 +734,7 @@ export const INVOICE_HISTORY: InvoiceHistoryRow[] = [
     discountCode: null,
     net: 5268.49,
     paymentMethod: "Boleto",
-    status: "Falhou",
+    status: "Falha no Pagamento",
   },
   {
     id: "INV-2026-02-PLN",
@@ -960,7 +960,12 @@ export const DRE_SUMMARY: DRELine[] = [
 
 export type CardBrand = "Visa" | "Mastercard" | "Amex";
 
-export type PaymentMethod = {
+/** Tipo de método de cobrança aceito pela organização. */
+export type PaymentMethodKind = "card" | "boleto" | "pix";
+
+/** Cartão de crédito salvo. */
+export type CardPaymentMethod = {
+  kind: "card";
   id: string;
   brand: CardBrand;
   last4: string;
@@ -969,8 +974,36 @@ export type PaymentMethod = {
   isDefault: boolean;
 };
 
+/** Boleto bancário — cobrança recorrente por boleto registrado. */
+export type BoletoPaymentMethod = {
+  kind: "boleto";
+  id: string;
+  /** Nome do titular / sacado que aparece no boleto. */
+  holder: string;
+  /** CNPJ/CPF do sacado, mascarado. */
+  taxId: string;
+  isDefault: boolean;
+};
+
+/** Pix automático — débito recorrente autorizado via chave Pix. */
+export type PixPaymentMethod = {
+  kind: "pix";
+  id: string;
+  /** Tipo da chave: CNPJ, e-mail, telefone, aleatória. */
+  keyType: string;
+  /** Chave Pix, mascarada. */
+  key: string;
+  isDefault: boolean;
+};
+
+export type PaymentMethod =
+  | CardPaymentMethod
+  | BoletoPaymentMethod
+  | PixPaymentMethod;
+
 export const PAYMENT_METHODS: PaymentMethod[] = [
   {
+    kind: "card",
     id: "pm-visa-3012",
     brand: "Visa",
     last4: "3012",
@@ -978,6 +1011,7 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     isDefault: true,
   },
   {
+    kind: "card",
     id: "pm-mc-8888",
     brand: "Mastercard",
     last4: "8888",
@@ -985,10 +1019,25 @@ export const PAYMENT_METHODS: PaymentMethod[] = [
     isDefault: false,
   },
   {
+    kind: "card",
     id: "pm-amex-1004",
     brand: "Amex",
     last4: "1004",
     expiresAt: "11/2026",
+    isDefault: false,
+  },
+  {
+    kind: "boleto",
+    id: "pm-boleto-aswork",
+    holder: "Aswork Tecnologia Ltda.",
+    taxId: "12.345.678/0001-90",
+    isDefault: false,
+  },
+  {
+    kind: "pix",
+    id: "pm-pix-cnpj",
+    keyType: "CNPJ",
+    key: "12.•••.•••/0001-90",
     isDefault: false,
   },
 ];

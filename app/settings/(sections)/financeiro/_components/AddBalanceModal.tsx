@@ -55,8 +55,9 @@ export function AddBalanceModal({
 
   const selected = METHODS.find((m) => m.id === method) ?? null;
   const amountValue = Number(amount.replace(/\D/g, "")) || 0;
-  const defaultCard =
-    PAYMENT_METHODS.find((m) => m.isDefault) ?? PAYMENT_METHODS[0];
+  // Só cartões têm bandeira/final; pega o cartão padrão (ou o primeiro cartão).
+  const cards = PAYMENT_METHODS.filter((m) => m.kind === "card");
+  const defaultCard = cards.find((m) => m.isDefault) ?? cards[0] ?? null;
 
   const reset = () => {
     setStep(1);

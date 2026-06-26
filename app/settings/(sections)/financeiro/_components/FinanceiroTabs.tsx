@@ -18,7 +18,7 @@ export function FinanceiroTabs() {
   const router = useRouter();
 
   const hasPaymentAlerts = INVOICE_HISTORY.some(
-    (r) => r.status === "Em atraso" || r.status === "Falhou",
+    (r) => r.status === "Em atraso" || r.status === "Falha no Pagamento",
   );
 
   const tabs: Tab[] = [

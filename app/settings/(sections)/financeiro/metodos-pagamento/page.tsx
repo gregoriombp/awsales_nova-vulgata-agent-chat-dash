@@ -10,7 +10,11 @@ import { AwModal } from "@/components/ui/AwModal";
 import { AwPill } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
-import { AddPaymentMethodModal } from "../_components/AddPaymentMethodModal";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
+import {
+  AddPaymentMethodModal,
+  type NewPaymentMethod,
+} from "../_components/AddPaymentMethodModal";
 import {
   BILLING_PROFILE,
   PAYMENT_METHODS,
@@ -23,6 +27,18 @@ const BRAND_TO_AW: Record<CardBrand, AwCardBrandId> = {
   Mastercard: "mastercard",
   Amex: "amex",
 };
+
+/** Rótulo curto de identificação de um método, independente do tipo. */
+function methodTitle(m: PaymentMethod): string {
+  switch (m.kind) {
+    case "card":
+      return `${m.brand} •••• ${m.last4}`;
+    case "boleto":
+      return "Boleto bancário";
+    case "pix":
+      return "Pix automático";
+  }
+}
 
 function expiryYear(expiresAt: string): number {
   const [, y] = expiresAt.split("/").map(Number);
@@ -67,17 +83,38 @@ export default function MetodosPagamentoPage() {
     setPendingRemoveId(null);
   };
 
-  const addCard = (asDefault: boolean) => {
+  const addMethod = (draft: NewPaymentMethod, asDefault: boolean) => {
     setMethods((prev) => {
       const id = `pm-${Date.now()}`;
-      const fresh: PaymentMethod = {
-        id,
-        brand: "Visa",
-        last4: String(Math.floor(1000 + Math.random() * 9000)),
-        expiresAt: "12/2030",
-        isDefault: asDefault || prev.length === 0,
-      };
-      const cleared = asDefault
+      const isDefault = asDefault || prev.length === 0;
+      let fresh: PaymentMethod;
+      if (draft.kind === "card") {
+        fresh = {
+          kind: "card",
+          id,
+          brand: draft.brand,
+          last4: draft.last4,
+          expiresAt: draft.expiresAt,
+          isDefault,
+        };
+      } else if (draft.kind === "boleto") {
+        fresh = {
+          kind: "boleto",
+          id,
+          holder: draft.holder,
+          taxId: draft.taxId,
+          isDefault,
+        };
+      } else {
+        fresh = {
+          kind: "pix",
+          id,
+          keyType: draft.keyType,
+          key: draft.key,
+          isDefault,
+        };
+      }
+      const cleared = isDefault
         ? prev.map((m) => ({ ...m, isDefault: false }))
         : prev;
       return [...cleared, fresh];
@@ -143,7 +180,7 @@ export default function MetodosPagamentoPage() {
       <AddPaymentMethodModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
-        onAdd={addCard}
+        onAdd={addMethod}
       />
 
       <RemovePaymentMethodModal
@@ -182,7 +219,7 @@ function CardActionsMenu({
           size="sm"
           variant="ghost"
           iconOnly="more_horiz"
-          aria-label={`Opções de ${method.brand} •••• ${method.last4}`}
+          aria-label={`Opções de ${methodTitle(method)}`}
           className={onDark ? "text-(--fg-on-inverse)" : undefined}
         />
       }
@@ -210,6 +247,41 @@ function CardActionsMenu({
 
 function DefaultCardHero(props: MethodCardProps) {
   const { method } = props;
+
+  // Boleto e Pix não têm bandeira/validade — herói neutro com a marca do método.
+  if (method.kind !== "card") {
+    const isPix = method.kind === "pix";
+    const subtitle = isPix
+      ? `Chave ${method.keyType} · ${method.key}`
+      : `${method.holder} · ${method.taxId}`;
+    return (
+      <div className="relative flex aspect-[856/540] w-full max-w-sm flex-col justify-between overflow-hidden rounded-2xl bg-(--bg-inverse) p-6 text-(--fg-on-inverse) shadow-sm">
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-(--fg-on-inverse) opacity-10"
+        />
+        <div className="flex items-start justify-between gap-3">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-(--bg-raised) px-2.5 py-1 aw-eyebrow text-(--fg-primary)">
+            <Icon name="check_circle" size={13} />
+            Padrão
+          </span>
+          <CardActionsMenu {...props} onDark />
+        </div>
+        <div className="relative flex items-end justify-between gap-4">
+          <div className="min-w-0">
+            <span className="block aw-eyebrow text-(--fg-on-inverse) opacity-60">
+              {isPix ? "Pix automático" : "Boleto bancário"}
+            </span>
+            <span className="mt-1 block truncate body-sm font-medium text-(--fg-on-inverse)">
+              {subtitle}
+            </span>
+          </div>
+          <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
+        </div>
+      </div>
+    );
+  }
+
   const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
   const expiringSoon = isExpiringSoon(method.expiresAt);
 
@@ -268,6 +340,29 @@ function DefaultCardHero(props: MethodCardProps) {
 
 function SecondaryCard(props: MethodCardProps) {
   const { method } = props;
+
+  // Boleto/Pix: logo da marca + rótulo, sem validade.
+  if (method.kind !== "card") {
+    const isPix = method.kind === "pix";
+    const subtitle = isPix
+      ? `Chave ${method.keyType} · ${method.key}`
+      : `${method.holder}`;
+    return (
+      <div className="flex items-center gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-surface) p-4">
+        <AwBrandLogo brand={isPix ? "pix" : "boleto"} size="md" />
+        <div className="min-w-0 flex-1">
+          <p className="m-0 body-sm font-medium text-(--fg-primary)">
+            {isPix ? "Pix automático" : "Boleto bancário"}
+          </p>
+          <p className="m-0 mt-0.5 truncate body-xs text-(--fg-tertiary)">
+            {subtitle}
+          </p>
+        </div>
+        <CardActionsMenu {...props} />
+      </div>
+    );
+  }
+
   const expired = expiryYear(method.expiresAt) < new Date().getFullYear();
   const expiringSoon = isExpiringSoon(method.expiresAt);
 
@@ -300,7 +395,7 @@ function AddCardTile({ onClick }: { onClick: () => void }) {
       className="flex min-h-20 flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-(--border-default) p-4 text-(--fg-tertiary) transition-colors duration-aw-fast hover:border-(--border-strong) hover:bg-(--bg-hover) hover:text-(--fg-primary)"
     >
       <Icon name="add" size={22} />
-      <span className="body-xs font-medium">Adicionar cartão</span>
+      <span className="body-xs font-medium">Adicionar método</span>
     </button>
   );
 }
@@ -549,13 +644,24 @@ function RemovePaymentMethodModal({
       {method && (
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-3 rounded-md border border-(--border-subtle) bg-(--bg-raised) px-3 py-2">
-            <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+            {method.kind === "card" ? (
+              <AwCardBrand brand={BRAND_TO_AW[method.brand]} size="md" />
+            ) : (
+              <AwBrandLogo
+                brand={method.kind === "pix" ? "pix" : "boleto"}
+                size="md"
+              />
+            )}
             <div className="min-w-0 flex-1">
               <p className="m-0 body-xs font-medium tabular-nums text-(--fg-primary)">
-                {method.brand} •••• {method.last4}
+                {methodTitle(method)}
               </p>
               <p className="m-0 body-xs text-(--fg-tertiary)">
-                Expira em {method.expiresAt}
+                {method.kind === "card"
+                  ? `Expira em ${method.expiresAt}`
+                  : method.kind === "pix"
+                    ? `Chave ${method.keyType} · ${method.key}`
+                    : `${method.holder} · ${method.taxId}`}
               </p>
             </div>
             {method.isDefault && (

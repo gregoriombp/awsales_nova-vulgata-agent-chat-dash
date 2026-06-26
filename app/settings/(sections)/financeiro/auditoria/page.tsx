@@ -4,7 +4,10 @@ import * as React from "react";
 import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import {
+  AwDropdownMenu,
+  type AwDropdownItem,
+} from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -15,7 +18,7 @@ import {
 import { AwFileIcon } from "@/components/ui/AwFileIcon";
 import { AwInput } from "@/components/ui/AwInput";
 import { AwModal } from "@/components/ui/AwModal";
-import { AwTable } from "@/components/ui/AwTable";
+import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { Icon } from "@/components/ui/Icon";
 import { InvoiceDetailsSheet } from "../_components/InvoiceDetailsSheet";
 import {
@@ -198,19 +201,15 @@ export default function AuditoriaPage() {
           </div>
         </AwCard>
       ) : (
-        <AwCard className="p-0!">
-          <AwTable>
-            <tbody>
-              {filtered.map((event) => (
-                <EventRow
-                  key={event.id}
-                  event={event}
-                  onOpenInvoice={setOpenInvoiceId}
-                />
-              ))}
-            </tbody>
-          </AwTable>
-        </AwCard>
+        <ul className="m-0 flex flex-col gap-1 p-0">
+          {filtered.map((event) => (
+            <EventRow
+              key={event.id}
+              event={event}
+              onOpenInvoice={setOpenInvoiceId}
+            />
+          ))}
+        </ul>
       )}
 
       <InvoiceDetailsSheet
@@ -551,7 +550,24 @@ function ActorFilterMenu({
   );
 }
 
-/* ---------- table row ---------- */
+/* ---------- linha de evento — mesmo padrão das linhas de "Faturas":
+ *  pill do tipo, ação + referência, data e um menu suspenso de ações. ---------- */
+
+/** Pill por tipo de evento, espelhando o uso de pills da página de Faturas. */
+function typeVariant(type: AuditEventType): AwPillVariant {
+  switch (type) {
+    case "Cupom":
+      return "live";
+    case "Crédito":
+      return "ai";
+    case "Fatura":
+      return "info";
+    case "Cartão":
+      return "draft";
+    case "Plano":
+      return "neutral";
+  }
+}
 
 function EventRow({
   event,
@@ -561,10 +577,41 @@ function EventRow({
   onOpenInvoice: (id: string) => void;
 }) {
   const isCortex = event.actor === "Cortex";
+  const meta = TYPE_META[event.type];
+  // Fatura referenciada no meta (se existir no histórico) — habilita ações.
+  const invMatch = event.meta?.match(INV_PATTERN);
+  const invId =
+    invMatch && INVOICE_HISTORY.some((r) => r.id === invMatch[0])
+      ? invMatch[0]
+      : null;
+
+  const actions: AwDropdownItem[] = [
+    ...(invId
+      ? [
+          {
+            id: `${event.id}-invoice`,
+            label: "Ver fatura",
+            icon: "receipt_long",
+            onSelect: () => onOpenInvoice(invId),
+          },
+        ]
+      : []),
+    {
+      id: `${event.id}-copy`,
+      label: "Copiar referência",
+      icon: "content_copy",
+      onSelect: () => {
+        if (typeof navigator !== "undefined" && navigator.clipboard) {
+          navigator.clipboard.writeText(event.meta ?? event.action);
+        }
+      },
+    },
+  ];
+
   return (
-    <tr>
-      <td>
-        <span className="inline-flex items-start gap-3">
+    <li className="m-0 list-none">
+      <div className="group grid w-full grid-cols-[1fr_auto_auto] items-center gap-4 rounded-md px-3 py-3 text-left transition-colors hover:bg-(--bg-hover)">
+        <div className="flex min-w-0 items-start gap-3">
           <AwAvatar
             size="md"
             src={event.actorAvatar}
@@ -572,26 +619,31 @@ function EventRow({
             initials={getInitials(event.actor)}
             className={isCortex ? "border-0!" : undefined}
           />
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="body-sm text-(--fg-secondary)">
-              <span className="font-medium text-(--fg-primary)">
-                {event.actor}
-              </span>{" "}
-              {event.action}
-            </span>
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="body-sm text-(--fg-secondary)">
+                <span className="font-medium text-(--fg-primary)">
+                  {event.actor}
+                </span>{" "}
+                {event.action}
+              </span>
+              <AwPill variant={typeVariant(event.type)}>
+                <Icon name={meta.icon} size={12} className={meta.accentClass} />
+                {event.type}
+              </AwPill>
+            </div>
             {event.meta && (
-              <p className="m-0 body-xs text-(--fg-tertiary)">
+              <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
                 <MetaWithInvoiceLink
                   meta={event.meta}
                   onOpenInvoice={onOpenInvoice}
                 />
               </p>
             )}
-          </span>
-        </span>
-      </td>
-      <td className="text-right align-top whitespace-nowrap">
-        <div className="flex flex-col items-end">
+          </div>
+        </div>
+
+        <div className="flex flex-col items-end whitespace-nowrap">
           <span className="body-xs tabular-nums text-(--fg-secondary)">
             {event.date} · {event.time}
           </span>
@@ -599,8 +651,21 @@ function EventRow({
             {executorRole(event.executor)}
           </span>
         </div>
-      </td>
-    </tr>
+
+        <AwDropdownMenu
+          align="end"
+          trigger={
+            <AwButton
+              size="sm"
+              variant="ghost"
+              iconOnly="more_horiz"
+              aria-label={`Ações de ${event.actor} · ${event.action}`}
+            />
+          }
+          items={actions}
+        />
+      </div>
+    </li>
   );
 }
 

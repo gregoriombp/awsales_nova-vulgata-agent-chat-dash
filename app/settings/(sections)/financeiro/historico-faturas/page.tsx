@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { AwAlert } from "@/components/ui/AwAlert";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCardBrand } from "@/components/ui/AwCardBrand";
 import {
@@ -30,7 +31,7 @@ const ALL_STATUSES: InvoiceStatus[] = [
   "Paga",
   "Em aberto",
   "Em atraso",
-  "Falhou",
+  "Falha no Pagamento",
   "Disputada",
 ];
 
@@ -50,8 +51,8 @@ function statusVariant(status: InvoiceStatus): AwPillVariant {
       return "draft";
     case "Em atraso":
       return "warning";
-    case "Falhou":
-      return "error";
+    case "Falha no Pagamento":
+      return "warning";
     case "Disputada":
       return "beta";
   }
@@ -94,6 +95,7 @@ export default function HistoricoFaturasPage() {
   );
   const [exportConfirmed, setExportConfirmed] = React.useState(false);
   const [alertDismissed, setAlertDismissed] = React.useState(false);
+  const [regularizeOpen, setRegularizeOpen] = React.useState(false);
 
   const openInvoice = INVOICE_HISTORY.find((r) => r.id === openId) ?? null;
 
@@ -112,9 +114,21 @@ export default function HistoricoFaturasPage() {
   const groups = React.useMemo(() => groupByMonth(rows), [rows]);
   const totalCount = rows.length;
 
-  const overdueCount = INVOICE_HISTORY.filter((r) => r.status === "Falhou").length;
+  const overdueCount = INVOICE_HISTORY.filter((r) => r.status === "Falha no Pagamento").length;
   const lateCount = INVOICE_HISTORY.filter((r) => r.status === "Em atraso").length;
   const showPaymentAlert = overdueCount + lateCount > 0;
+
+  // Faturas que ainda precisam ser quitadas — entram no modal de regularização.
+  const pendingInvoices = React.useMemo(
+    () =>
+      INVOICE_HISTORY.filter(
+        (r) =>
+          r.status === "Em atraso" ||
+          r.status === "Falha no Pagamento" ||
+          r.status === "Em aberto",
+      ),
+    [],
+  );
 
   const openExport = (format: "pdf" | "csv") => {
     setExportConfirmed(false);
@@ -175,6 +189,16 @@ export default function HistoricoFaturasPage() {
             {" "}
             Quite para evitar o congelamento da conta.
           </p>
+          <div className="mt-3">
+            <AwButton
+              size="sm"
+              variant="primary"
+              iconLeft="payments"
+              onClick={() => setRegularizeOpen(true)}
+            >
+              Regularizar pagamento
+            </AwButton>
+          </div>
         </AwAlert>
       )}
 
@@ -232,6 +256,12 @@ export default function HistoricoFaturasPage() {
         invoice={openInvoice}
         open={openInvoice !== null}
         onClose={() => setOpenId(null)}
+      />
+
+      <RegularizePaymentModal
+        open={regularizeOpen}
+        invoices={pendingInvoices}
+        onClose={() => setRegularizeOpen(false)}
       />
 
       <AwModal
@@ -352,7 +382,7 @@ function InvoiceRow({
   row: InvoiceHistoryRow;
   onOpen: () => void;
 }) {
-  const overdue = row.status === "Em atraso" || row.status === "Falhou";
+  const overdue = row.status === "Em atraso" || row.status === "Falha no Pagamento";
   const dateLabel = row.paidAt
     ? `Paga em ${row.paidAt}`
     : overdue
@@ -485,6 +515,345 @@ function PeriodFilter({
       trigger={<AwSelect>{value}</AwSelect>}
       items={items}
     />
+  );
+}
+
+/* ---------- regularizar pagamento ---------- */
+
+type RegularizePhase = "select" | "method" | "success";
+
+type RegularizeMethod = {
+  id: "pix" | "card" | "boleto";
+  label: string;
+  description: string;
+  brand: string;
+};
+
+const REGULARIZE_METHODS: RegularizeMethod[] = [
+  {
+    id: "pix",
+    label: "Pix",
+    description: "Confirmação na hora.",
+    brand: "pix",
+  },
+  {
+    id: "card",
+    label: "Cartão de crédito",
+    description: "Cobrança imediata no cartão padrão.",
+    brand: "card",
+  },
+  {
+    id: "boleto",
+    label: "Boleto bancário",
+    description: "Compensa em até 2 dias úteis.",
+    brand: "boleto",
+  },
+];
+
+/**
+ * Regulariza uma fatura pendente em três passos com transições suaves:
+ * escolher a fatura → escolher pix/cartão/boleto → confirmação de sucesso.
+ * Cada passo traz um "Voltar"; o conteúdo faz fade/slide ao trocar de fase.
+ */
+function RegularizePaymentModal({
+  open,
+  invoices,
+  onClose,
+}: {
+  open: boolean;
+  invoices: InvoiceHistoryRow[];
+  onClose: () => void;
+}) {
+  const [phase, setPhase] = React.useState<RegularizePhase>("select");
+  const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
+  const [method, setMethod] = React.useState<RegularizeMethod["id"] | null>(
+    null,
+  );
+
+  const reset = () => {
+    setPhase("select");
+    setInvoiceId(null);
+    setMethod(null);
+  };
+
+  const close = () => {
+    onClose();
+    // Espera a animação de saída do modal antes de zerar o estado interno.
+    window.setTimeout(reset, 200);
+  };
+
+  const selectedInvoice = invoices.find((r) => r.id === invoiceId) ?? null;
+  const selectedMethod =
+    REGULARIZE_METHODS.find((m) => m.id === method) ?? null;
+
+  const title =
+    phase === "success"
+      ? undefined
+      : phase === "select"
+        ? "Regularizar pagamento"
+        : "Como você quer pagar?";
+
+  const footer =
+    phase === "select" ? (
+      <>
+        <AwButton size="sm" variant="ghost" onClick={close}>
+          Cancelar
+        </AwButton>
+        <AwButton
+          size="sm"
+          variant="primary"
+          iconRight="arrow_forward"
+          disabled={!invoiceId}
+          onClick={() => setPhase("method")}
+        >
+          Continuar
+        </AwButton>
+      </>
+    ) : phase === "method" ? (
+      <>
+        <AwButton
+          size="sm"
+          variant="ghost"
+          iconLeft="arrow_back"
+          onClick={() => setPhase("select")}
+        >
+          Voltar
+        </AwButton>
+        <AwButton
+          size="sm"
+          variant="primary"
+          iconLeft="check"
+          disabled={!method}
+          onClick={() => setPhase("success")}
+        >
+          Confirmar pagamento
+        </AwButton>
+      </>
+    ) : (
+      <AwButton size="sm" variant="primary" onClick={close}>
+        Concluir
+      </AwButton>
+    );
+
+  return (
+    <AwModal open={open} onClose={close} title={title} footer={footer}>
+      {/* key por fase: o React remonta a fração e dispara o fade/slide. */}
+      <div
+        key={phase}
+        className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-1 duration-300 ease-aw-out motion-reduce:animate-none"
+      >
+        {phase === "select" && (
+          <SelectInvoiceStep
+            invoices={invoices}
+            selectedId={invoiceId}
+            onSelect={setInvoiceId}
+          />
+        )}
+
+        {phase === "method" && selectedInvoice && (
+          <SelectMethodStep
+            invoice={selectedInvoice}
+            selected={method}
+            onSelect={setMethod}
+          />
+        )}
+
+        {phase === "success" && selectedInvoice && selectedMethod && (
+          <PaymentSuccess
+            invoice={selectedInvoice}
+            method={selectedMethod}
+          />
+        )}
+      </div>
+    </AwModal>
+  );
+}
+
+function SelectInvoiceStep({
+  invoices,
+  selectedId,
+  onSelect,
+}: {
+  invoices: InvoiceHistoryRow[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  if (invoices.length === 0) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-6 text-center">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-(--bg-muted) text-(--accent-success)">
+          <Icon name="check_circle" size={22} />
+        </span>
+        <p className="m-0 body-sm font-medium text-(--fg-primary)">
+          Nenhuma fatura pendente
+        </p>
+        <p className="m-0 body-xs text-(--fg-secondary)">
+          Está tudo em dia por aqui.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p className="m-0 body-xs text-(--fg-secondary)">
+        Escolha qual cobrança você quer quitar agora.
+      </p>
+      <div
+        role="radiogroup"
+        aria-label="Fatura pendente"
+        className="flex flex-col gap-2"
+      >
+        {invoices.map((inv) => {
+          const selected = inv.id === selectedId;
+          return (
+            <button
+              key={inv.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              onClick={() => onSelect(inv.id)}
+              className={
+                "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast " +
+                (selected
+                  ? "border-(--border-strong) bg-(--bg-hover)"
+                  : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
+              }
+            >
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="body-sm font-medium text-(--fg-primary)">
+                    {inv.description}
+                  </span>
+                  <AwPill variant={statusVariant(inv.status)}>
+                    {inv.status}
+                  </AwPill>
+                </div>
+                <p className="m-0 mt-0.5 body-xs tabular-nums text-(--fg-tertiary)">
+                  {inv.id} · Venceu em {inv.dueAt}
+                </p>
+              </div>
+              <span className="shrink-0 body-sm font-medium tabular-nums text-(--fg-primary)">
+                {brl(inv.net)}
+              </span>
+              <span
+                aria-hidden="true"
+                className={
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
+                  (selected
+                    ? "border-(--fg-primary) bg-(--fg-primary)"
+                    : "border-(--border-default)")
+                }
+              >
+                {selected && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function SelectMethodStep({
+  invoice,
+  selected,
+  onSelect,
+}: {
+  invoice: InvoiceHistoryRow;
+  selected: RegularizeMethod["id"] | null;
+  onSelect: (id: RegularizeMethod["id"]) => void;
+}) {
+  return (
+    <>
+      <div className="flex items-center justify-between gap-3 rounded-md border border-(--border-subtle) bg-(--bg-muted) px-3 py-2">
+        <span className="body-xs text-(--fg-secondary)">
+          {invoice.description} · {invoice.id}
+        </span>
+        <span className="body-sm font-medium tabular-nums text-(--fg-primary)">
+          {brl(invoice.net)}
+        </span>
+      </div>
+
+      <div
+        role="radiogroup"
+        aria-label="Forma de pagamento"
+        className="flex flex-col gap-2"
+      >
+        {REGULARIZE_METHODS.map((m) => {
+          const isSel = m.id === selected;
+          return (
+            <button
+              key={m.id}
+              type="button"
+              role="radio"
+              aria-checked={isSel}
+              onClick={() => onSelect(m.id)}
+              className={
+                "flex items-center gap-3 rounded-xl border p-3 text-left transition-colors duration-aw-fast " +
+                (isSel
+                  ? "border-(--border-strong) bg-(--bg-hover)"
+                  : "border-(--border-subtle) hover:border-(--border-default) hover:bg-(--bg-hover)")
+              }
+            >
+              <AwBrandLogo brand={m.brand} size="md" />
+              <div className="min-w-0 flex-1">
+                <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                  {m.label}
+                </p>
+                <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">
+                  {m.description}
+                </p>
+              </div>
+              <span
+                aria-hidden="true"
+                className={
+                  "flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors duration-aw-fast " +
+                  (isSel
+                    ? "border-(--fg-primary) bg-(--fg-primary)"
+                    : "border-(--border-default)")
+                }
+              >
+                {isSel && (
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--bg-raised)" />
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function PaymentSuccess({
+  invoice,
+  method,
+}: {
+  invoice: InvoiceHistoryRow;
+  method: RegularizeMethod;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-3 py-6 text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--aw-emerald-100) text-(--aw-emerald-700) animate-in zoom-in-50 duration-300 ease-aw-out motion-reduce:animate-none">
+        <Icon name="check_circle" size={30} />
+      </span>
+      <h6 className="m-0 text-(--fg-primary)">Pagamento bem-sucedido</h6>
+      <p className="m-0 max-w-[360px] body-xs text-(--fg-secondary)">
+        Recebemos o pagamento de{" "}
+        <strong className="font-medium text-(--fg-primary)">
+          {brl(invoice.net)}
+        </strong>{" "}
+        da fatura{" "}
+        <strong className="font-medium text-(--fg-primary)">
+          {invoice.id}
+        </strong>{" "}
+        via {method.label.toLowerCase()}. O comprovante segue para os e-mails de
+        faturamento.
+      </p>
+    </div>
   );
 }
 
