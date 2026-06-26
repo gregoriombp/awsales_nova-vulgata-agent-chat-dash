@@ -262,16 +262,15 @@ function BoardItem({
   // como o Germano desenhou. Fica oculto e só aparece no hover do card; visível
   // sempre no modo de edição. Não apaga nada permanente: só oculta o widget
   // desta visualização (o snapshot do relatório guarda).
-  const removeButton = onRemove ? (
+  // Por padrão, um card só pode ser removido no MODO DE EDIÇÃO (como o Greg pediu)
+  // — fora dele o board é só leitura, sem botão de remover no hover.
+  const removeButton = editing && onRemove ? (
     <button
       type="button"
       aria-label="Remover gráfico desta visualização"
       title="Remover desta visualização"
       onClick={onRemove}
-      className={cn(
-        "inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)",
-        !editing && "opacity-0 group-hover/widget:opacity-100 focus-visible:opacity-100",
-      )}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)"
     >
       <Icon name="visibility_off" size={16} />
     </button>
