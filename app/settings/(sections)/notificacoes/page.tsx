@@ -164,7 +164,7 @@ const SECTIONS: SectionDef[] = [
       },
       {
         id: "saldo",
-        title: "Saldo / voucher baixo",
+        title: "Saldo / crédito baixo",
         desc: "Créditos perto de acabar ou consumo acima do previsto.",
         on: true,
         channels: { app: true, email: true, whatsapp: false },

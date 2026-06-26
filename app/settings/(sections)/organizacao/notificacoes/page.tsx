@@ -441,22 +441,13 @@ function SectionWithIcon({
 
 function EventIcon({
   icon,
-  channelGlyph,
 }: {
   icon: string;
-  channelGlyph?: "whatsapp";
 }) {
-  if (channelGlyph) {
-    // WhatsApp: green glyph on a white tile, ringed by the same green.
-    return (
-      <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--aw-emerald-600) bg-(--bg-raised)">
-        <AwChannelIcon channel={channelGlyph} size={20} />
-      </span>
-    );
-  }
-  // Tile branco com stroke quase imperceptível — Greg pediu cinza bem claro,
-  // então cai pra aw-gray-150 (#f9f9f9) ao invés do border-subtle (#f2f2f2)
-  // que estava marcando demais.
+  // Tile branco com stroke cinza bem claro (aw-gray-150) e ícone dark —
+  // mesmo acabamento neutro para TODOS os eventos, inclusive o do WhatsApp.
+  // Greg pediu o card do WhatsApp "igual aos superiores e inferiores": borda
+  // gray e glyph dark, sem o anel/preenchimento verde que destoava.
   return (
     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--aw-gray-150) bg-(--bg-raised) text-(--fg-secondary)">
       <Icon name={icon} size={20} />
@@ -509,7 +500,7 @@ function MandatoryRow({
   const showsAdminStack = recipient.roles.includes("Administradores");
   return (
     <li className="m-0 flex items-start gap-4 py-4">
-      <EventIcon icon={event.icon} channelGlyph={event.channelGlyph} />
+      <EventIcon icon={event.icon} />
       <div className="flex min-w-0 flex-1 items-start justify-between gap-4">
         {/* Texto descritivo — esquerda */}
         <div className="min-w-0">
