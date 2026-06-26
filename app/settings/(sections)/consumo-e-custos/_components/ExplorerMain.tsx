@@ -39,6 +39,7 @@ export function ExplorerMain() {
     isBoardCustomized,
     drill,
     hiddenWidgets,
+    userHiddenWidgets,
     toggleWidgetHidden,
     restoreAllWidgets,
   } = useConsumo();
@@ -101,13 +102,13 @@ export function ExplorerMain() {
         <div className="mt-5">
           <GastoTotalCard />
         </div>
-        {hiddenWidgets.size > 0 && (
+        {userHiddenWidgets.size > 0 && (
           <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-muted) px-4 py-2.5">
             <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
               <Icon name="visibility_off" size={16} className="text-(--fg-tertiary)" />
-              {hiddenWidgets.size === 1
+              {userHiddenWidgets.size === 1
                 ? "1 gráfico removido desta visualização"
-                : `${hiddenWidgets.size} gráficos removidos desta visualização`}
+                : `${userHiddenWidgets.size} gráficos removidos desta visualização`}
             </span>
             <AwButton size="sm" variant="ghost" iconLeft="restart_alt" onClick={restoreAllWidgets}>
               Restaurar
@@ -191,7 +192,7 @@ function Toolbar({
 }
 
 function SaveReportButton() {
-  const { activeReport, isReportDirty, updateActiveReport } = useConsumo();
+  const { activeReport, isDraft, isReportDirty, updateActiveReport } = useConsumo();
   const { openSave } = useReportsUI();
 
   // Com relatório ativo, "Salvar" atualiza o snapshot direto (sem perguntar
@@ -218,10 +219,12 @@ function SaveReportButton() {
       </AwButton>
     );
   }
+  // Rascunho aberto por um card: destaca o "Salvar" (primário) pra deixar claro
+  // que nada está guardado ainda. Exploração avulsa segue discreta (secundário).
   return (
     <AwButton
       type="button"
-      variant="secondary"
+      variant={isDraft ? "primary" : "secondary"}
       iconLeft="bookmark_add"
       onClick={openSave}
       title="Salvar como relatório"
@@ -300,10 +303,17 @@ function Breadcrumb() {
 }
 
 function SpendHeadline() {
-  const { accumulated, trend, periodLabel } = useConsumo();
+  const { accumulated, trend, periodLabel, reportType } = useConsumo();
+  // O frame do título muda por tipo: cobranças é dinheiro que saiu, não consumo.
+  const headline =
+    reportType === "cobrancas"
+      ? "Cobrado no período"
+      : reportType === "faturas"
+        ? "Total nesta fatura"
+        : "Uso no período";
   return (
     <header className="mt-4 flex flex-col gap-1.5">
-      <span className="body-sm text-(--fg-secondary)">Uso no período</span>
+      <span className="body-sm text-(--fg-secondary)">{headline}</span>
       <div className="flex items-baseline gap-3">
         <span className="display-sm font-semibold tabular-nums tracking-heading-tighter text-(--fg-primary)">
           {brl(accumulated)}
