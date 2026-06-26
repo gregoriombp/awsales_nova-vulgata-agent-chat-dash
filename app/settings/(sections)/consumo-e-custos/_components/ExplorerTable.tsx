@@ -6,6 +6,7 @@ import { AwAvatar } from "@/components/ui/AwAvatar";
 import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import { AwPill, type AwPillVariant } from "@/components/ui/AwPill";
 import { AwTable } from "@/components/ui/AwTable";
 import { Icon } from "@/components/ui/Icon";
@@ -84,6 +85,50 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
     });
   }, []);
 
+  // Filtros por coluna (funil no cabeçalho — pedido do José). Cada coluna
+  // categórica guarda os valores PERMITIDOS; ausente = sem filtro (mostra tudo).
+  // Troca de lente zera (colunas diferentes por lente).
+  const [colFilters, setColFilters] = React.useState<Record<string, string[]>>({});
+  React.useEffect(() => setColFilters({}), [grouping]);
+  const colValue = React.useCallback(
+    (row: ExplorerRow, key: string): string =>
+      key === "tipo"
+        ? row.sub ?? "Geral"
+        : key === "status"
+          ? row.status ?? "—"
+          : key === "provedor"
+            ? providerFilterLabel(row.provider)
+            : "",
+    [],
+  );
+  const distinctColValues = React.useCallback(
+    (key: string) =>
+      [...new Set(detailRows.map((r) => colValue(r, key)))].sort((a, b) => a.localeCompare(b, "pt-BR")),
+    [detailRows, colValue],
+  );
+  const toggleColValue = React.useCallback(
+    (key: string, value: string, allValues: string[]) =>
+      setColFilters((prev) => {
+        const cur = prev[key] ?? allValues;
+        const next = cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value];
+        const out = { ...prev };
+        // Tudo marcado (ou nada) = sem filtro, pra não deixar a tabela vazia à toa.
+        if (next.length === 0 || next.length === allValues.length) delete out[key];
+        else out[key] = next;
+        return out;
+      }),
+    [],
+  );
+  const resetCol = React.useCallback(
+    (key: string) =>
+      setColFilters((prev) => {
+        const out = { ...prev };
+        delete out[key];
+        return out;
+      }),
+    [],
+  );
+
   // Transição do drill: a tabela desliza pra dentro ao avançar um nível (entra
   // pela direita) e ao voltar (entra pela esquerda), dando a sensação de
   // "andar" pelo escopo em vez de um corte seco. A `key` (lente + profundidade)
@@ -124,14 +169,23 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
     return metaPayerSubtree(metaRow.rowIds, serviceById);
   }, [detailRows, serviceById]);
 
-  const allTotals = React.useMemo(() => detailRows.map((r) => r.total), [detailRows]);
+  // Linhas após os filtros de coluna — é o que a tabela mostra e soma.
+  const visibleRows = React.useMemo(
+    () =>
+      detailRows.filter((row) =>
+        Object.entries(colFilters).every(([key, allowed]) => allowed.includes(colValue(row, key))),
+      ),
+    [detailRows, colFilters, colValue],
+  );
+
+  const allTotals = React.useMemo(() => visibleRows.map((r) => r.total), [visibleRows]);
   const detailTotal = React.useMemo(
-    () => detailRows.reduce((sum, row) => sum + row.total, 0),
-    [detailRows],
+    () => visibleRows.reduce((sum, row) => sum + row.total, 0),
+    [visibleRows],
   );
   const detailUsdTotal = React.useMemo(
-    () => detailRows.reduce((sum, row) => sum + row.usd, 0),
-    [detailRows],
+    () => visibleRows.reduce((sum, row) => sum + row.usd, 0),
+    [visibleRows],
   );
 
   // Linhas resolvidas pra comparação (ordem = maior gasto primeiro).
@@ -140,16 +194,16 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
     [agentRows, selectedAgents],
   );
   const allVisibleSelected =
-    grouping === "agent" && detailRows.length > 0 && detailRows.every((r) => selectedAgents.has(r.id));
-  const someVisibleSelected = grouping === "agent" && detailRows.some((r) => selectedAgents.has(r.id));
+    grouping === "agent" && visibleRows.length > 0 && visibleRows.every((r) => selectedAgents.has(r.id));
+  const someVisibleSelected = grouping === "agent" && visibleRows.some((r) => selectedAgents.has(r.id));
   const toggleAllVisible = React.useCallback(() => {
     setSelectedAgents((prev) => {
       const next = new Set(prev);
-      if (detailRows.every((r) => prev.has(r.id))) detailRows.forEach((r) => next.delete(r.id));
-      else detailRows.forEach((r) => next.add(r.id));
+      if (visibleRows.every((r) => prev.has(r.id))) visibleRows.forEach((r) => next.delete(r.id));
+      else visibleRows.forEach((r) => next.add(r.id));
       return next;
     });
-  }, [detailRows]);
+  }, [visibleRows]);
 
   const openAgent = (row: ExplorerRow) =>
     setAgentDetail(agentRows.find((a) => a.id === row.agentId) ?? null);
@@ -206,12 +260,19 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
           </div>
         </div>
       )}
-      {detailRows.length === 0 ? (
+      {visibleRows.length === 0 ? (
         <div className="flex flex-col items-center gap-2 py-12 text-center">
           <Icon name="search_off" size={22} className="text-(--fg-tertiary)" />
           <p className="m-0 body-sm text-(--fg-tertiary)">
-            Nenhum item de custo bate com a busca.
+            {Object.keys(colFilters).length > 0
+              ? "Nenhum item com os filtros aplicados."
+              : "Nenhum item de custo bate com a busca."}
           </p>
+          {Object.keys(colFilters).length > 0 && (
+            <AwButton size="sm" variant="ghost" iconLeft="restart_alt" onClick={() => setColFilters({})}>
+              Limpar filtros
+            </AwButton>
+          )}
         </div>
       ) : (
         <div
@@ -233,15 +294,29 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
                   />
                 </th>
                 <th className={TH}>Nome</th>
-                <th className={TH}>Tipo</th>
-                <th className={TH}>Status</th>
+                <FilterableTh
+                  label="Tipo"
+                  columnKey="tipo"
+                  values={distinctColValues("tipo")}
+                  filter={colFilters["tipo"]}
+                  onToggle={toggleColValue}
+                  onReset={resetCol}
+                />
+                <FilterableTh
+                  label="Status"
+                  columnKey="status"
+                  values={distinctColValues("status")}
+                  filter={colFilters["status"]}
+                  onToggle={toggleColValue}
+                  onReset={resetCol}
+                />
                 <th className={cn(TH, "text-right")}>Total BRL</th>
                 <th className={cn(TH, "text-right")}>Total USD</th>
                 <th className="w-28" aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
-              {detailRows.map((row) => (
+              {visibleRows.map((row) => (
                 <tr
                   key={row.id}
                   onClick={row.drillable ? () => drillInto(row) : undefined}
@@ -315,7 +390,14 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
             <thead>
               <tr>
                 <th className={TH}>Item</th>
-                <th className={TH}>Provedor</th>
+                <FilterableTh
+                  label="Provedor"
+                  columnKey="provedor"
+                  values={distinctColValues("provedor")}
+                  filter={colFilters["provedor"]}
+                  onToggle={toggleColValue}
+                  onReset={resetCol}
+                />
                 <th className={cn(TH, "text-right")}>Quantidade</th>
                 <th className={TH}>Unitário</th>
                 <th className={cn(TH, "text-right")}>Total BRL</th>
@@ -325,7 +407,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: W
               </tr>
             </thead>
             <tbody>
-              {detailRows.map((row) => {
+              {visibleRows.map((row) => {
                 const clickable = row.drillable;
                 const isMeta = row.id === "meta" && metaSubtree !== null;
                 const children = serviceChildren.get(row.id) ?? [];
@@ -594,5 +676,74 @@ function OutlierBadge() {
       <Icon name="warning" size={11} />
       Acima do esperado
     </AwPill>
+  );
+}
+
+function providerFilterLabel(provider: ProviderId | "mixed"): string {
+  return provider === "meta" ? "Meta" : provider === "aswork" ? "Aswork" : "Misto";
+}
+
+/* ----------------------------------------------------------------------------
+ * Cabeçalho de coluna com funil (pedido do José): no hover aparece o ícone de
+ * filtro; clicando, um dropdown com os valores distintos da coluna pra marcar
+ * só os que quer ver. Vale pras colunas categóricas (Tipo, Status, Provedor).
+ * ------------------------------------------------------------------------- */
+function FilterableTh({
+  label,
+  columnKey,
+  values,
+  filter,
+  align,
+  onToggle,
+  onReset,
+}: {
+  label: string;
+  columnKey: string;
+  values: string[];
+  filter: string[] | undefined;
+  align?: "right";
+  onToggle: (key: string, value: string, all: string[]) => void;
+  onReset: (key: string) => void;
+}) {
+  // Filtrado = um subconjunto está marcado (nem tudo). allowed: o que aparece.
+  const active = !!filter && filter.length < values.length;
+  const allowed = filter ?? values;
+  const items: AwDropdownItem[] = [
+    { id: "_hdr", isLabel: true, label: `Mostrar ${label.toLowerCase()}` },
+    ...values.map((v) => ({
+      id: v,
+      label: v,
+      checked: allowed.includes(v),
+      closeOnSelect: false,
+      onSelect: () => onToggle(columnKey, v, values),
+    })),
+    { id: "_sep", separator: true },
+    { id: "_all", label: "Mostrar todos", icon: "done_all", disabled: !active, onSelect: () => onReset(columnKey) },
+  ];
+  return (
+    <th className={cn(TH, align === "right" && "text-right")}>
+      <span className={cn("group/col inline-flex items-center gap-1", align === "right" && "flex-row-reverse")}>
+        {label}
+        <AwDropdownMenu
+          align={align === "right" ? "end" : "start"}
+          aria-label={`Filtrar por ${label}`}
+          trigger={
+            <button
+              type="button"
+              aria-label={`Filtrar por ${label}`}
+              className={cn(
+                "inline-flex h-5 w-5 items-center justify-center rounded transition-[opacity,color] duration-aw-fast hover:text-(--fg-primary)",
+                active
+                  ? "text-(--accent-brand) opacity-100"
+                  : "text-(--fg-tertiary) opacity-0 group-hover/col:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100",
+              )}
+            >
+              <Icon name="filter_alt" size={14} fill={active ? 1 : 0} />
+            </button>
+          }
+          items={items}
+        />
+      </span>
+    </th>
   );
 }
