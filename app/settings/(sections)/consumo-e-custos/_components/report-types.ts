@@ -45,7 +45,10 @@ export type ExplorerSnapshot = {
 };
 
 /** Pessoa dona do relatório (proprietário) — célula da tabela inicial. */
-export type ReportOwner = { name: string; initials: string };
+export type ReportOwner = { name: string; initials: string; avatar?: string };
+
+/** Organização dona do relatório (nome + logo real). */
+export type ReportOrg = { name: string; logo: string };
 
 export type SavedReport = {
   id: string;
@@ -56,7 +59,7 @@ export type SavedReport = {
   /** Proprietário (quem criou). Default: usuário atual. */
   owner?: ReportOwner;
   /** Organização dona do relatório. Default: organização atual. */
-  org?: { name: string; brand: string };
+  org?: ReportOrg;
 };
 
 /* ProviderId / DrillNode vivem no model do explorador; re-tipados aqui pra o
@@ -148,8 +151,18 @@ export function reportTypeDef(type: ReportType): ReportTypeDef {
 
 /* ---------- identidade atual (mock, alinhado ao Perfil/Organização) ---------- */
 
-export const CURRENT_USER: ReportOwner = { name: "Gregório Pinheiro", initials: "GP" };
-export const CURRENT_ORG = { name: "Fyntra", brand: "fyntra" };
+export const CURRENT_USER: ReportOwner = {
+  name: "Gregório Pinheiro",
+  initials: "GP",
+  avatar: "/assets/users/greg.jpg",
+};
+export const CURRENT_ORG: ReportOrg = {
+  name: "Fyntra Tecnologia",
+  logo: "/assets/icon_artificial_concord_organization.png",
+};
+
+const USER_JOSE: ReportOwner = { name: "José Júnior", initials: "JJ", avatar: "/assets/users/jose.jpg" };
+const USER_GABRIEL: ReportOwner = { name: "Gabriel Lima", initials: "GL", avatar: "/assets/users/gabriel_lima.jpg" };
 
 /* ---------- snapshot a partir de um tipo (preset do board) ---------- */
 
@@ -192,7 +205,7 @@ export const DEFAULT_REPORTS: SavedReport[] = [
     name: "Pra onde foi meu dinheiro",
     createdAt: day(2026, 6, 10),
     updatedAt: day(2026, 6, 25),
-    owner: { name: "José Júnior", initials: "JJ" },
+    owner: USER_JOSE,
     org: CURRENT_ORG,
     snapshot: snapshotForType("cobrancas"),
   },
@@ -201,7 +214,7 @@ export const DEFAULT_REPORTS: SavedReport[] = [
     name: "Cobranças por agente",
     createdAt: day(2026, 5, 14),
     updatedAt: day(2026, 6, 25),
-    owner: { name: "Paulo Guilherme", initials: "PG" },
+    owner: USER_GABRIEL,
     org: CURRENT_ORG,
     snapshot: { ...snapshotForType("variaveis"), grouping: "agent" },
   },

@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AwAvatar } from "@/components/ui/AwAvatar";
-import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { AwInput } from "@/components/ui/AwInput";
@@ -34,18 +34,42 @@ export default function AnalisesDetalhadasPage() {
   const { reports } = useConsumo();
   const { beginReport, openTypeChooser, openSavedReport, openRename, openDelete } = useReportsUI();
   const [query, setQuery] = React.useState("");
+  const [sort, setSort] = React.useState<{ key: SortKey; dir: "asc" | "desc" }>({
+    key: "updatedAt",
+    dir: "desc",
+  });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "asc" ? "desc" : "asc" }
+        : { key, dir: key === "updatedAt" ? "desc" : "asc" },
+    );
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
-    const sorted = [...reports].sort((a, b) => b.updatedAt - a.updatedAt);
-    if (!q) return sorted;
-    return sorted.filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        (r.owner?.name ?? "").toLowerCase().includes(q) ||
-        (r.org?.name ?? "").toLowerCase().includes(q),
+    let list = q
+      ? reports.filter(
+          (r) =>
+            r.name.toLowerCase().includes(q) ||
+            (r.owner?.name ?? "").toLowerCase().includes(q) ||
+            (r.org?.name ?? "").toLowerCase().includes(q),
+        )
+      : [...reports];
+    const dir = sort.dir === "asc" ? 1 : -1;
+    const text = (r: SavedReport): string =>
+      sort.key === "name"
+        ? r.name
+        : sort.key === "owner"
+          ? r.owner?.name ?? ""
+          : r.org?.name ?? "";
+    list.sort((a, b) =>
+      sort.key === "updatedAt"
+        ? (a.updatedAt - b.updatedAt) * dir
+        : text(a).localeCompare(text(b), "pt-BR") * dir,
     );
-  }, [reports, query]);
+    return list;
+  }, [reports, query, sort]);
 
   return (
     <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-10 pb-20 pt-12">
@@ -98,6 +122,8 @@ export default function AnalisesDetalhadasPage() {
         ) : (
           <ReportsTable
             reports={filtered}
+            sort={sort}
+            onSort={toggleSort}
             onOpen={openSavedReport}
             onRename={(r) => openRename(r.id, r.name)}
             onDelete={(r) => openDelete(r.id, r.name)}
@@ -216,11 +242,15 @@ function formatDate(ts: number): string {
 
 function ReportsTable({
   reports,
+  sort,
+  onSort,
   onOpen,
   onRename,
   onDelete,
 }: {
   reports: SavedReport[];
+  sort: { key: SortKey; dir: "asc" | "desc" };
+  onSort: (key: SortKey) => void;
   onOpen: (id: string) => void;
   onRename: (r: SavedReport) => void;
   onDelete: (r: SavedReport) => void;
@@ -229,10 +259,18 @@ function ReportsTable({
     <AwTable>
       <thead>
         <tr className="border-b border-(--border-subtle) text-left">
-          <Th className="pl-2">Nome</Th>
-          <Th>Proprietário</Th>
-          <Th>Última modificação</Th>
-          <Th>Organização</Th>
+          <Th sortKey="name" sort={sort} onSort={onSort} className="pl-2">
+            Nome
+          </Th>
+          <Th sortKey="owner" sort={sort} onSort={onSort}>
+            Proprietário
+          </Th>
+          <Th sortKey="updatedAt" sort={sort} onSort={onSort}>
+            Última modificação
+          </Th>
+          <Th sortKey="org" sort={sort} onSort={onSort}>
+            Organização
+          </Th>
           <Th className="w-12" srOnly>
             Ações
           </Th>
@@ -263,7 +301,12 @@ function ReportsTable({
               </td>
               <td className="py-3.5 pr-4">
                 <span className="flex items-center gap-2.5">
-                  <AwAvatar size="sm" initials={r.owner?.initials ?? "—"} />
+                  <AwAvatar
+                    size="sm"
+                    src={r.owner?.avatar}
+                    initials={r.owner?.initials ?? "—"}
+                    alt={r.owner?.name ?? ""}
+                  />
                   <span className="truncate body-sm text-(--fg-secondary)">
                     {r.owner?.name ?? "—"}
                   </span>
@@ -278,7 +321,19 @@ function ReportsTable({
                 <span className="flex items-center gap-2.5">
                   {r.org ? (
                     <>
-                      <AwBrandLogo brand={r.org.brand} size={24} />
+                      {r.org.logo ? (
+                        <Image
+                          src={r.org.logo}
+                          alt=""
+                          width={24}
+                          height={24}
+                          className="shrink-0 rounded-md object-cover"
+                        />
+                      ) : (
+                        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) body-xs font-semibold text-(--fg-tertiary)">
+                          {r.org.name.slice(0, 2).toUpperCase()}
+                        </span>
+                      )}
                       <span className="truncate body-sm text-(--fg-secondary)">{r.org.name}</span>
                     </>
                   ) : (
@@ -333,21 +388,54 @@ function ReportsTable({
   );
 }
 
+type SortKey = "name" | "owner" | "updatedAt" | "org";
+
 function Th({
   children,
   className,
   srOnly,
+  sortKey,
+  sort,
+  onSort,
 }: {
   children: React.ReactNode;
   className?: string;
   srOnly?: boolean;
+  sortKey?: SortKey;
+  sort?: { key: SortKey; dir: "asc" | "desc" };
+  onSort?: (key: SortKey) => void;
 }) {
+  const active = !!sortKey && sort?.key === sortKey;
+  if (!sortKey || !onSort) {
+    return (
+      <th
+        scope="col"
+        className={cn("py-2.5 pr-4 body-xs font-medium text-(--fg-tertiary)", className)}
+      >
+        {srOnly ? <span className="sr-only">{children}</span> : children}
+      </th>
+    );
+  }
   return (
-    <th
-      scope="col"
-      className={cn("py-2.5 pr-4 body-xs font-medium text-(--fg-tertiary)", className)}
-    >
-      {srOnly ? <span className="sr-only">{children}</span> : children}
+    <th scope="col" aria-sort={active ? (sort!.dir === "asc" ? "ascending" : "descending") : "none"} className={cn("py-2.5 pr-4", className)}>
+      <button
+        type="button"
+        onClick={() => onSort(sortKey)}
+        className={cn(
+          "group/sort -ml-1 inline-flex items-center gap-1 rounded px-1 py-0.5 body-xs font-medium transition-colors duration-aw-fast hover:text-(--fg-secondary)",
+          active ? "text-(--fg-secondary)" : "text-(--fg-tertiary)",
+        )}
+      >
+        {children}
+        <Icon
+          name={active ? (sort!.dir === "asc" ? "arrow_upward" : "arrow_downward") : "unfold_more"}
+          size={14}
+          className={cn(
+            "transition-opacity duration-aw-fast",
+            active ? "opacity-100" : "opacity-0 group-hover/sort:opacity-60",
+          )}
+        />
+      </button>
     </th>
   );
 }
