@@ -86,7 +86,14 @@ const BOARD_SPANS_KEY = "consumo-dash-spans-v3";
 
 /* ---------- relatórios salvos ---------- */
 
-const REPORTS_KEY = "aw:consumo-explorer:reports";
+// v2: o relatório ganhou proprietário (com foto) e organização (com logo). Bump
+// da chave pra descartar dados antigos (sem esses campos) e re-semear no formato
+// novo — a feature é recente, então é seguro.
+const REPORTS_KEY = "aw:consumo-explorer:reports:v2";
+// Rascunho pendente (entrou por um card, ainda não salvou). Persistido pra
+// sobreviver à navegação inicial→explorador (o shell de Configurações remonta o
+// provider) e a um refresh — sem isso o tipo/recorte do rascunho se perderia.
+const DRAFT_KEY = "aw:consumo-explorer:draft:v2";
 
 function serializeSelection(s: PeriodSelection): StoredSelection {
   return s.kind === "custom"
@@ -189,6 +196,8 @@ type ConsumoContextValue = {
 
   /* widgets removidos da visualização atual */
   hiddenWidgets: Set<string>;
+  /** Só os widgets escondidos pelo usuário além do preset (alimenta o banner). */
+  userHiddenWidgets: Set<string>;
   toggleWidgetHidden: (id: string) => void;
   restoreAllWidgets: () => void;
 
@@ -201,7 +210,9 @@ type ConsumoContextValue = {
   reports: SavedReport[];
   activeReportId: string | null;
   activeReport: SavedReport | null;
-  /** Há mudanças não salvas em relação ao relatório ativo. */
+  /** Rascunho aberto por um card e ainda não salvo. */
+  isDraft: boolean;
+  /** Há mudanças não salvas (relatório salvo OU rascunho). */
   isReportDirty: boolean;
   saveNewReport: (
     name: string,
@@ -209,6 +220,8 @@ type ConsumoContextValue = {
   ) => string;
   /** Abre um dashboard pré-configurado do tipo (sem salvar). Salvar é manual. */
   startReport: (type: ReportType, opts?: { invoiceId?: string | null }) => void;
+  /** Descarta o rascunho pendente (ex.: sair sem salvar pelo "Voltar"). */
+  clearDraft: () => void;
   updateActiveReport: () => void;
   renameReport: (id: string, name: string) => void;
   deleteReport: (id: string) => void;
@@ -241,6 +254,10 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
 
   // Widgets removidos da visualização atual (faz parte do snapshot do relatório).
   const [hidden, setHidden] = React.useState<Set<string>>(() => new Set());
+  // Linha de base de ocultos: o que o PRESET do tipo já esconde de propósito.
+  // O banner de "removidos" só conta o que o usuário escondeu ALÉM disso, e
+  // "Restaurar" volta pra essa base (não desfaz o recorte do tipo).
+  const [baselineHidden, setBaselineHidden] = React.useState<Set<string>>(() => new Set());
   const toggleWidgetHidden = React.useCallback((id: string) => {
     setHidden((prev) => {
       const next = new Set(prev);
@@ -249,7 +266,10 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       return next;
     });
   }, []);
-  const restoreAllWidgets = React.useCallback(() => setHidden(new Set()), []);
+  const restoreAllWidgets = React.useCallback(
+    () => setHidden(new Set(baselineHidden)),
+    [baselineHidden],
+  );
 
   // Tipo do relatório (exploração livre × recorte de fatura) + fatura escolhida.
   const [reportKind, setReportKind] = React.useState<ReportKind>("exploration");
@@ -283,6 +303,10 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   const [reports, setReports] = React.useState<SavedReport[]>([]);
   const [activeReportId, setActiveReportId] = React.useState<string | null>(null);
 
+  // Snapshot da linha de base de um RASCUNHO (entrou por um card, sem salvar) —
+  // pra detectar mudanças não salvas. `baselineHidden` (acima) cobre o banner.
+  const [draftBaseline, setDraftBaseline] = React.useState<ExplorerSnapshot | null>(null);
+
   const persistReports = React.useCallback((next: SavedReport[], activeId: string | null) => {
     try {
       window.localStorage.setItem(REPORTS_KEY, JSON.stringify({ reports: next, activeReportId: activeId }));
@@ -290,6 +314,22 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       /* localStorage indisponível */
     }
   }, []);
+
+  const persistDraft = React.useCallback((snap: ExplorerSnapshot | null) => {
+    try {
+      if (snap) window.localStorage.setItem(DRAFT_KEY, JSON.stringify(snap));
+      else window.localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* localStorage indisponível */
+    }
+  }, []);
+
+  // Descarta o rascunho pendente (ex.: ao sair sem salvar pelo "Voltar").
+  const clearDraft = React.useCallback(() => {
+    setDraftBaseline(null);
+    setActiveReportId(null);
+    persistDraft(null);
+  }, [persistDraft]);
 
   const currentSnapshot = React.useCallback(
     (): ExplorerSnapshot => ({
@@ -353,12 +393,31 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       } catch {
         /* sem window.location */
       }
+      const deepLinkHit = deepLinkId ? list.find((r) => r.id === deepLinkId) : undefined;
+      if (deepLinkId && !deepLinkHit) {
+        // Deep link apontando pra um relatório que não existe (excluído/renomeado
+        // a chave) — avisa e segue pro ativo salvo (ou estado padrão).
+        console.warn(`[consumo] relatório "${deepLinkId}" não encontrado — abrindo o estado padrão.`);
+      }
       const target =
-        (deepLinkId ? list.find((r) => r.id === deepLinkId) : undefined) ??
+        deepLinkHit ??
         (storedActiveId ? list.find((r) => r.id === storedActiveId) : undefined);
       if (target) {
         setActiveReportId(target.id);
+        setDraftBaseline(null);
+        setBaselineHidden(new Set(target.snapshot.hidden ?? []));
         applySnapshot(target.snapshot);
+        persistDraft(null); // abriu um salvo: o rascunho pendente não vale mais
+      } else {
+        // Sem relatório salvo a abrir: restaura o rascunho pendente, se houver
+        // (sobrevive ao remount do provider na navegação e a um refresh).
+        const draftRaw = window.localStorage.getItem(DRAFT_KEY);
+        if (draftRaw) {
+          const snap = JSON.parse(draftRaw) as ExplorerSnapshot;
+          applySnapshot(snap);
+          setDraftBaseline(snap);
+          setBaselineHidden(new Set(snap.hidden ?? []));
+        }
       }
     } catch {
       /* localStorage indisponível */
@@ -427,9 +486,13 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
         return next;
       });
       setActiveReportId(report.id);
+      // Salvou: vira a nova linha de base e o rascunho pendente some.
+      setDraftBaseline(null);
+      setBaselineHidden(new Set(snapshot.hidden ?? []));
+      persistDraft(null);
       return report.id;
     },
-    [currentSnapshot, applySnapshot, persistReports, reportKind, invoiceId, reportType],
+    [currentSnapshot, applySnapshot, persistReports, persistDraft, reportKind, invoiceId, reportType],
   );
 
   const updateActiveReport = React.useCallback(() => {
@@ -474,12 +537,15 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
         if (r) {
           applySnapshot(r.snapshot);
           setActiveReportId(id);
+          setDraftBaseline(null);
+          setBaselineHidden(new Set(r.snapshot.hidden ?? []));
           persistReports(prev, id);
+          persistDraft(null); // abrir um salvo descarta qualquer rascunho pendente
         }
         return prev;
       });
     },
-    [applySnapshot, persistReports],
+    [applySnapshot, persistReports, persistDraft],
   );
 
   // Abre um dashboard pré-configurado do tipo escolhido SEM salvar — o usuário
@@ -487,20 +553,43 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   // vivo e zera o relatório ativo (não há nada salvo ainda).
   const startReport = React.useCallback(
     (type: ReportType, opts?: { invoiceId?: string | null }) => {
-      applySnapshot(snapshotForType(type, { invoiceId: opts?.invoiceId ?? undefined }));
+      const snap = snapshotForType(type, { invoiceId: opts?.invoiceId ?? undefined });
+      applySnapshot(snap);
       setActiveReportId(null);
+      // Rascunho: guarda o preset como linha de base pra detectar mudanças e pra
+      // o banner não tratar os widgets do preset como "removidos por você".
+      setDraftBaseline(snap);
+      setBaselineHidden(new Set(snap.hidden ?? []));
+      // Persiste o rascunho (sobrevive ao remount da navegação + refresh) e zera
+      // o relatório ativo salvo, pra a hidratação não reabrir outro no lugar.
+      persistDraft(snap);
+      setReports((prev) => {
+        persistReports(prev, null);
+        return prev;
+      });
     },
-    [applySnapshot],
+    [applySnapshot, persistDraft, persistReports],
   );
 
   const activeReport = React.useMemo(
     () => reports.find((r) => r.id === activeReportId) ?? null,
     [reports, activeReportId],
   );
+  // É um rascunho (entrou por um card, ainda não salvou).
+  const isDraft = activeReportId === null && draftBaseline !== null;
+  // Há mudanças não salvas — tanto pra relatório salvo quanto pra rascunho
+  // (compara com a linha de base correta).
   const isReportDirty = React.useMemo(() => {
-    if (!activeReport) return false;
-    return JSON.stringify(currentSnapshot()) !== JSON.stringify(activeReport.snapshot);
-  }, [activeReport, currentSnapshot]);
+    const baseline = activeReport ? activeReport.snapshot : draftBaseline;
+    if (!baseline) return false;
+    return JSON.stringify(currentSnapshot()) !== JSON.stringify(baseline);
+  }, [activeReport, draftBaseline, currentSnapshot]);
+
+  // Widgets escondidos PELO USUÁRIO além do preset — é o que o banner conta.
+  const userHiddenWidgets = React.useMemo(
+    () => new Set([...hidden].filter((id) => !baselineHidden.has(id))),
+    [hidden, baselineHidden],
+  );
 
   const customDays = selection.kind === "custom" ? diffInDaysInclusive(selection.from, selection.to) : 0;
 
@@ -805,6 +894,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     togglePayer,
     metaIncluded,
     hiddenWidgets: hidden,
+    userHiddenWidgets,
     toggleWidgetHidden,
     restoreAllWidgets,
     reportKind,
@@ -820,9 +910,11 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     reports,
     activeReportId,
     activeReport,
+    isDraft,
     isReportDirty,
     saveNewReport,
     startReport,
+    clearDraft,
     updateActiveReport,
     renameReport,
     deleteReport,
