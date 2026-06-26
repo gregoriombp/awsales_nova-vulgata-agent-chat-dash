@@ -9,6 +9,7 @@ import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
 import { Icon } from "@/components/ui/Icon";
 import { useConsumo } from "./ConsumoContext";
 import { useReportsUI } from "./SavedReports";
+import { reportTypeDef } from "./report-types";
 import { DIMENSIONS } from "./explorer-model";
 
 /* ----------------------------------------------------------------------------
@@ -19,10 +20,33 @@ import { DIMENSIONS } from "./explorer-model";
 
 export function ExplorerRail() {
   const router = useRouter();
+  const { isReportDirty, isDraft, clearDraft } = useConsumo();
   const [collapsed, setCollapsed] = React.useState(false);
 
-  // Volta pra a página inicial "Análises detalhadas" (a lista de relatórios).
-  const back = () => router.push("/settings/consumo-e-custos");
+  // Mudanças não salvas (rascunho ou relatório): avisa antes de refresh/fechar.
+  React.useEffect(() => {
+    if (!isReportDirty) return;
+    const warn = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [isReportDirty]);
+
+  // Volta pra a página inicial "Análises detalhadas". Com mudanças não salvas,
+  // confirma antes — e descarta o rascunho ao sair.
+  const back = () => {
+    if (
+      isReportDirty &&
+      !window.confirm("Sair sem salvar? As mudanças deste painel serão perdidas.")
+    ) {
+      return;
+    }
+    // Sair de um rascunho o descarta (não fica "pendente" pra reabrir sozinho).
+    if (isDraft) clearDraft();
+    router.push("/settings/consumo-e-custos");
+  };
 
   return (
     <aside
@@ -75,7 +99,10 @@ function Header({
   onBack: () => void;
   onCollapse: () => void;
 }) {
-  const { periodLabel } = useConsumo();
+  const { periodLabel, reportType, activeReport, isDraft } = useConsumo();
+  const def = reportType ? reportTypeDef(reportType) : null;
+  // Identidade do relatório: nome salvo > título do tipo > genérico.
+  const title = activeReport?.name ?? def?.title ?? "Explorar custos";
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
@@ -89,11 +116,30 @@ function Header({
         </button>
         <RailToggle collapsed={false} onToggle={onCollapse} />
       </div>
-      <div className="flex flex-col gap-0.5">
-        <h4 className="m-0 text-(--fg-primary)">Explorar custos</h4>
-        <p className="m-0 body-xs text-(--fg-tertiary)">
-          {periodLabel}
-        </p>
+      <div className="flex flex-col gap-1.5">
+        <div className="flex items-start gap-2">
+          {def && (
+            <span
+              className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+              style={{ backgroundColor: `color-mix(in srgb, ${def.accentVar} 16%, transparent)` }}
+            >
+              <Icon name={def.icon} size={14} fill={1} style={{ color: def.accentVar }} />
+            </span>
+          )}
+          <h4 className="m-0 min-w-0 truncate text-(--fg-primary)" title={title}>
+            {title}
+          </h4>
+        </div>
+        {isDraft ? (
+          <span className="inline-flex w-fit items-center gap-1 rounded-full bg-(--bg-muted) px-2 py-0.5 body-xs font-medium text-(--fg-tertiary)">
+            <Icon name="edit_note" size={13} />
+            Rascunho · não salvo
+          </span>
+        ) : (
+          <p className="m-0 body-xs text-(--fg-tertiary)">
+            {def && activeReport ? `${def.title} · ${periodLabel}` : periodLabel}
+          </p>
+        )}
       </div>
     </div>
   );
