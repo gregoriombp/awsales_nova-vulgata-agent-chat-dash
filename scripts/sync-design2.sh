@@ -70,6 +70,10 @@ PRESERVE_PATHS=(
   "public/onboarding"
   "scripts/agent-pin.mjs" "scripts/migrate-bridge-to-supabase.mjs"
   "docs/greg-onboarding.md" "docs/review-mode-prod.md"
+  # settings: o PG estendeu shared.tsx (adicionou ApiKey/API_KEYS p/ a página de API dele).
+  # A versão dele é SUPERSET da minha (só somou no topo) — preservo p/ não derrubar o API_KEYS,
+  # senão a api/page.tsx dele quebra o build ("Export API_KEYS doesn't exist").
+  "app/settings/(sections)/_components/shared.tsx"
   # deps — o PG tem supabase etc. no manifesto; não clobbero
   "package.json" "package-lock.json"
 )
