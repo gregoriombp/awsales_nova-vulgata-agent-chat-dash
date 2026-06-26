@@ -73,6 +73,128 @@ export function SegmentedToggle<T extends string>({
   );
 }
 
+/* ---------- filtro segmentado com rótulo + ícone (topbar do explorador) ---------- */
+
+/**
+ * Variante do segmentado que mostra rótulo + um nó visual à esquerda (ícone do
+ * Material Symbols OU logo de marca). Usado pelos filtros "Dividir por" e
+ * "Por destino" na topbar fixa do explorador.
+ */
+export function SegmentedFilter<T extends string>({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  options: { value: T; label: string; leading?: React.ReactNode }[];
+  value: T;
+  onChange: (v: T) => void;
+  ariaLabel: string;
+}) {
+  return (
+    <div
+      role="tablist"
+      aria-label={ariaLabel}
+      className="inline-flex items-center gap-0.5 rounded-xl border border-(--border-subtle) bg-(--bg-muted) p-1"
+    >
+      {options.map((opt) => {
+        const active = opt.value === value;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            role="tab"
+            aria-selected={active}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              "inline-flex h-8 items-center gap-1.5 rounded-lg px-3 body-sm font-medium transition-colors duration-aw-fast",
+              active
+                ? "bg-(--bg-raised) text-(--fg-primary) shadow-(--shadow-xs)"
+                : "text-(--fg-secondary) hover:text-(--fg-primary)",
+            )}
+          >
+            {opt.leading && (
+              <span className="inline-flex shrink-0 items-center">{opt.leading}</span>
+            )}
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ---------- filtro de escopo em DROPDOWN compacto (topbar) ---------- */
+
+/**
+ * Substitui o segmentado por um botão único (estilo do PeriodPicker) que abre um
+ * menu — economiza espaço horizontal na topbar (pedido do Greg). O `leading`
+ * pode ser ícone do Material OU logo de marca, então usamos o Popover (o
+ * AwDropdownMenu só aceita ícone por nome).
+ */
+export function ScopeFilterDropdown<T extends string>({
+  options,
+  value,
+  onChange,
+  ariaLabel,
+}: {
+  options: { value: T; label: string; leading?: React.ReactNode }[];
+  value: T;
+  onChange: (v: T) => void;
+  ariaLabel: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const current = options.find((o) => o.value === value) ?? options[0];
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={ariaLabel}
+          className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-(--border-subtle) bg-(--bg-raised) px-3.5 body-sm font-medium text-(--fg-primary) transition-colors duration-aw-fast hover:border-(--border-default) hover:bg-(--bg-hover)"
+        >
+          {current.leading && (
+            <span className="inline-flex shrink-0 items-center">{current.leading}</span>
+          )}
+          {current.label}
+          <Icon name="expand_more" size={16} className="text-(--fg-tertiary)" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        sideOffset={6}
+        className="flex w-52 flex-col gap-0.5 border border-(--border-subtle) bg-(--bg-raised) p-1.5 shadow-lg"
+      >
+        {options.map((opt) => {
+          const active = opt.value === value;
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              className={cn(
+                "flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-left body-sm transition-colors duration-aw-fast",
+                active
+                  ? "bg-(--bg-muted) font-medium text-(--fg-primary)"
+                  : "text-(--fg-secondary) hover:bg-(--bg-hover) hover:text-(--fg-primary)",
+              )}
+            >
+              {opt.leading && (
+                <span className="inline-flex shrink-0 items-center">{opt.leading}</span>
+              )}
+              <span className="min-w-0 flex-1 truncate">{opt.label}</span>
+              {active && <Icon name="check" size={15} className="shrink-0 text-(--fg-primary)" />}
+            </button>
+          );
+        })}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 /* ---------- controle de tempo (presets + range custom) ---------- */
 
 export function PeriodPicker() {

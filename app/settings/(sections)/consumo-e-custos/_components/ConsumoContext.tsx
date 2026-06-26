@@ -59,7 +59,9 @@ export type PeriodSelection =
   | { kind: "preset"; id: SpendingPeriod }
   | { kind: "custom"; from: Date; to: Date };
 
-export type DrillNode = { label: string; categoryIds: string[] };
+export type DrillNode = { label: string; categoryIds: string[]; kind?: "agent-compare" };
+/** Agente comparado (X-Ray) — pra a pill de "visão filtrada" na topbar. */
+export type ComparedAgent = { id: string; label: string; avatar?: string };
 export type Crumb = { label: string; onClick?: () => void };
 export type FilterChip = { id: string; label: string; onRemove: () => void };
 export type SeriesTotal = { cat: SpendingCategory; total: number };
@@ -146,6 +148,10 @@ type ConsumoContextValue = {
   drillInto: (row: ExplorerRow) => void;
   /** X-Ray: compara N agentes reusando o drill (re-escopa o board pro conjunto). */
   compareAgents: (rows: { id: string }[]) => void;
+  /** Agentes na comparação ativa (X-Ray) ou null — alimenta a pill da topbar. */
+  agentComparison: ComparedAgent[] | null;
+  /** Limpa a comparação de agentes (remove o nó do drill). */
+  clearAgentComparison: () => void;
   resetDrill: () => void;
   popTo: (index: number) => void;
   crumbs: Crumb[];
@@ -183,6 +189,8 @@ type ConsumoContextValue = {
   /* filtro de pagador (Aswork/Meta) — independente da lente */
   payers: Set<ProviderId>;
   togglePayer: (p: ProviderId) => void;
+  /** Define o conjunto de pagadores de uma vez (segmentado Meta / Aswork / ambos). */
+  selectPayers: (ids: ProviderId[]) => void;
   metaIncluded: boolean;
 
   /* layout do board (ordem + larguras dos widgets) */
@@ -249,6 +257,11 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       }
       return next;
     });
+  }, []);
+  // Define o conjunto de pagadores de uma vez (filtro segmentado Meta / Aswork /
+  // Aswork e Meta na topbar). Nunca esvazia — sem pagador, volta pros dois.
+  const selectPayers = React.useCallback((ids: ProviderId[]) => {
+    setPayers(new Set(ids.length ? ids : (["aswork", "meta"] as ProviderId[])));
   }, []);
   const metaIncluded = payers.has("meta");
 
@@ -836,10 +849,31 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   const compareAgents = React.useCallback((rows: { id: string }[]) => {
     const ids = rows.map((r) => r.id);
     if (ids.length < 2) return;
-    setDrill((prev) => [...prev, { label: `Comparando ${ids.length} agentes`, categoryIds: ids }]);
+    setDrill((prev) => [
+      ...prev,
+      { label: `Comparando ${ids.length} agentes`, categoryIds: ids, kind: "agent-compare" },
+    ]);
   }, []);
   const resetDrill = React.useCallback(() => setDrill([]), []);
   const popTo = React.useCallback((index: number) => setDrill((prev) => prev.slice(0, index + 1)), []);
+
+  // Visão filtrada de agentes (X-Ray): resolve o nó de comparação pros agentes
+  // (nome + foto) que alimentam a pill da topbar. Limpar remove só esse nó.
+  const agentComparison = React.useMemo<ComparedAgent[] | null>(() => {
+    if (grouping !== "agent") return null;
+    const node = drill.find((d) => d.kind === "agent-compare");
+    if (!node) return null;
+    const byId = new Map(agentRows.map((r) => [r.id, r]));
+    const agents = node.categoryIds
+      .map((id) => byId.get(id))
+      .filter((r): r is NonNullable<typeof r> => Boolean(r))
+      .map((r) => ({ id: r.id, label: r.label, avatar: r.avatar }));
+    return agents.length ? agents : null;
+  }, [grouping, drill, agentRows]);
+  const clearAgentComparison = React.useCallback(
+    () => setDrill((prev) => prev.filter((d) => d.kind !== "agent-compare")),
+    [],
+  );
 
   const crumbs = React.useMemo<Crumb[]>(() => {
     const root: Crumb = { label: "Todos os custos", onClick: drill.length ? resetDrill : undefined };
@@ -868,6 +902,8 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     drill,
     drillInto,
     compareAgents,
+    agentComparison,
+    clearAgentComparison,
     resetDrill,
     popTo,
     crumbs,
@@ -892,6 +928,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     scopeFactor,
     payers,
     togglePayer,
+    selectPayers,
     metaIncluded,
     hiddenWidgets: hidden,
     userHiddenWidgets,
