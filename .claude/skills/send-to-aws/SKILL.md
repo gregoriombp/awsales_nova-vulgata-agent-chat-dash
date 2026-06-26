@@ -42,6 +42,19 @@ Em vez do agrupamento automático, gere um plano TSV (1 commit por linha:
 ./scripts/sync-design2.sh --yes --commits <plano.tsv> [--branch greg/nome]
 ```
 
+## Autoria (Vercel) — sempre pela conta da AwSales
+
+Os commits enviados ao design2 são **sempre** autorados pela conta **`greg_awsales`**
+(`Greg <greg+awsales@awsales.io>`), **nunca** pelo git identity pessoal do Greg
+(`gregmatuzalem@gmail.com`). Se forem pelo e-mail pessoal, o check da Vercel falha com
+*"No GitHub account was found matching the commit author email"* e o PR fica vermelho.
+
+Isso já está embutido no script (`AWSALES_AUTHOR_NAME` / `AWSALES_AUTHOR_EMAIL`, aplicados
+via env só nos `commit-tree`): **não mexe no git config local**, então depois do envio a
+identidade pessoal do Greg continua intacta — não há nada a "restaurar". Um assert fail-closed
+aborta o push se qualquer commit sair com outro e-mail. Se o token sumir/expirar, o script já
+pede `gh auth login -u greg_awsales`; rode isso e mande de novo.
+
 ## Notas
 
 - `--branch greg/nome` só se o usuário pediu um nome; senão o default é datado.

@@ -71,6 +71,16 @@ DESIGN2_REPO="awsales/awsales-nova-vulgata-design"
 DESIGN2_BASE_BRANCH="main"
 SOURCE_REF="HEAD"
 
+# ── AUTORIA dos commits enviados ao design2. PRECISA bater com uma conta do GitHub
+#    (a conta greg_awsales), senão o check da Vercel falha:
+#    "No GitHub account was found matching the commit author email".
+#    Por isso NÃO usamos o git identity pessoal do Greg (gregmatuzalem@gmail.com) — usamos
+#    o e-mail público/verificado da conta greg_awsales. Aplicada SÓ nos commit-tree abaixo,
+#    via env (GIT_AUTHOR_*/GIT_COMMITTER_*): o git config local continua sendo o pessoal do
+#    Greg, então não há nada a "restaurar" depois. Pode sobrescrever via env se mudar.
+AWSALES_AUTHOR_NAME="${AWSALES_AUTHOR_NAME:-Greg}"
+AWSALES_AUTHOR_EMAIL="${AWSALES_AUTHOR_EMAIL:-greg+awsales@awsales.io}"
+
 # ── args ──────────────────────────────────────────────────────────────────────
 DRY_RUN=0; ASSUME_YES=0; PRUNE=0; OPEN_PR=1; DEST_BRANCH=""; COMMITS_FILE=""; LOCATE_PG=0
 while [[ $# -gt 0 ]]; do
@@ -264,7 +274,10 @@ for i in "${!GROUP_MSGS[@]}"; do
   while IFS= read -r f; do [[ -n "$f" ]] && overlay_file "$f"; done <<<"${GROUP_FILES[$i]}"
   TREE="$(GIT_INDEX_FILE="$TMP_INDEX" git write-tree)"
   if [[ "$TREE" == "$(git rev-parse "$PREV^{tree}")" ]]; then continue; fi   # grupo vazio → pula
-  PREV="$(git commit-tree "$TREE" -p "$PREV" -m "${GROUP_MSGS[$i]}")"
+  # autoria = conta greg_awsales (env-scoped: NÃO mexe no git config pessoal do Greg)
+  PREV="$(GIT_AUTHOR_NAME="$AWSALES_AUTHOR_NAME"   GIT_AUTHOR_EMAIL="$AWSALES_AUTHOR_EMAIL" \
+          GIT_COMMITTER_NAME="$AWSALES_AUTHOR_NAME" GIT_COMMITTER_EMAIL="$AWSALES_AUTHOR_EMAIL" \
+          git commit-tree "$TREE" -p "$PREV" -m "${GROUP_MSGS[$i]}")"
 done
 TIP="$PREV"
 [[ "$TIP" == "$BASE" ]] && { echo "✗ Nada commitado (todos os grupos vazios)."; exit 1; }
@@ -282,6 +295,13 @@ while IFS=$'\t' read -r st path; do
   if ! is_approved "$path"; then
     echo "✗ ABORT: '$path' mudou mas não está no manifest aprovado. Nada empurrado."; exit 1; fi
 done < <(git diff --name-status "$BASE" "$TIP")
+
+# 10b. SAFETY de autoria: todo commit novo precisa estar com o e-mail da conta greg_awsales
+#      (senão a Vercel rejeita: "No GitHub account was found matching the commit author email").
+BAD_AUTHOR="$(git log --format='%ae' "${BASE}..${TIP}" | grep -vxF "$AWSALES_AUTHOR_EMAIL" | head -1 || true)"
+if [[ -n "$BAD_AUTHOR" ]]; then
+  echo "✗ ABORT: commit autoria '$BAD_AUTHOR' ≠ '$AWSALES_AUTHOR_EMAIL'. Nada empurrado."; exit 1
+fi
 
 # 11. push da branch (sem --force; non-ff rejeita limpo)
 if ! git push "$AUTHED" "${TIP}:refs/heads/${DEST_BRANCH}"; then
