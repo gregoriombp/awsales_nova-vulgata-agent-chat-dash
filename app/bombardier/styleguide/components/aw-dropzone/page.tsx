@@ -15,7 +15,7 @@ import {
 
 export default function AwDropzonePage() {
   return (
-    <div className="flex flex-col gap-12 pb-24">
+    <>
       <PageHero title="Dropzone">
         Área de upload arrasta-e-solta. Estados de drag, lista de arquivos com
         progresso por item, validação de tamanho e <code>accept</code>. Extraído
@@ -23,6 +23,8 @@ export default function AwDropzonePage() {
         fluxo que receba arquivos.
       </PageHero>
 
+      <div className="max-w-[1200px] mx-auto px-10 pb-14">
+        <div className="flex flex-col gap-12">
       <Tldr
         use={[
           "Receber arquivos do usuário (PDF, CSV, imagens) num modal ou formulário.",
@@ -123,6 +125,8 @@ export default function AwDropzonePage() {
           ]}
         />
       </Section>
-    </div>
+        </div>
+      </div>
+    </>
   )
 }

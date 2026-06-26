@@ -32,6 +32,32 @@ export default function AwDropdownMenuPage() {
       <div className="max-w-[1200px] mx-auto px-10 pb-14">
         <div className="flex flex-col gap-16">
           <Section
+            id="estados"
+            title="Todos os estados"
+            lead="Referência visual de cada tipo de item num único menu: label de seção, comando simples, comando com ícone, item checked, item disabled, separator e comando danger. (O componente não tem submenu.)"
+          >
+            <Stage label="Um menu com todos os estados">
+              <AwDropdownMenu
+                trigger={
+                  <AwButton variant="secondary" size="md" iconRight="expand_more">
+                    Abrir menu
+                  </AwButton>
+                }
+                aria-label="Todos os estados"
+                items={[
+                  { id: "lbl", isLabel: true, label: "Seção" },
+                  { id: "plain", label: "Item simples", onSelect: () => {} },
+                  { id: "icon", label: "Item com ícone", icon: "tune", onSelect: () => {} },
+                  { id: "checked", label: "Item checked", checked: true, onSelect: () => {} },
+                  { id: "disabled", label: "Item disabled", icon: "block", disabled: true, onSelect: () => {} },
+                  { id: "sep", separator: true },
+                  { id: "danger", label: "Item danger", icon: "delete", danger: true, onSelect: () => {} },
+                ]}
+              />
+            </Stage>
+          </Section>
+
+          <Section
             id="sort"
             title="Sort menu — items com checked"
             lead="Mostra a opção ativa com um check à direita. Clique fora ou ESC fecha."

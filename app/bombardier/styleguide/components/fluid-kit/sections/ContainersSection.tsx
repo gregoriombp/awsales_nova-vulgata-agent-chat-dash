@@ -36,6 +36,13 @@ const BADGE_COLORS: BadgeColor[] = [
   "slate",
 ]
 
+// Inicial maiúscula no rótulo de cada cor (gray → Gray), como o Greg pediu.
+const titleCase = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+// Quantidade de conversas do exemplo de confirmação — fonte única para o título
+// e a ação, em vez de cravar "12" no meio da frase.
+const ARCHIVE_COUNT = 12
+
 export function ContainersSection() {
   return (
     <div className="flex flex-col gap-16">
@@ -49,7 +56,7 @@ export function ContainersSection() {
           <Stage label="solid" hint="cor a 15% sobre a superfície · texto sempre fg-primary">
             {BADGE_COLORS.map((color) => (
               <Badge key={color} variant="solid" color={color}>
-                {color}
+                {titleCase(color)}
               </Badge>
             ))}
           </Stage>
@@ -57,28 +64,28 @@ export function ContainersSection() {
           <Stage label="dot" hint="borda neutra · o ponto carrega a cor">
             {BADGE_COLORS.map((color) => (
               <Badge key={color} variant="dot" color={color}>
-                {color}
+                {titleCase(color)}
               </Badge>
             ))}
           </Stage>
 
           <Stage label="tamanhos" hint="sm · md · lg — o ponto acompanha a escala">
-            <Badge variant="solid" size="sm" color="emerald">
+            <Badge variant="solid" size="sm" color="slate">
               Qualificado
             </Badge>
-            <Badge variant="solid" size="md" color="blue">
+            <Badge variant="solid" size="md" color="slate">
               Em negociação
             </Badge>
-            <Badge variant="solid" size="lg" color="purple">
+            <Badge variant="solid" size="lg" color="slate">
               Proposta enviada
             </Badge>
-            <Badge variant="dot" size="sm" color="emerald">
+            <Badge variant="dot" size="sm" color="slate">
               Qualificado
             </Badge>
-            <Badge variant="dot" size="md" color="blue">
+            <Badge variant="dot" size="md" color="slate">
               Em negociação
             </Badge>
-            <Badge variant="dot" size="lg" color="purple">
+            <Badge variant="dot" size="lg" color="slate">
               Proposta enviada
             </Badge>
           </Stage>
@@ -134,7 +141,7 @@ export function ContainersSection() {
             </DialogTrigger>
             <DialogContent size="sm">
               <DialogHeader>
-                <DialogTitle>Arquivar 12 conversas?</DialogTitle>
+                <DialogTitle>Arquivar {ARCHIVE_COUNT} conversas?</DialogTitle>
                 <DialogDescription>
                   As conversas saem da caixa de entrada, mas continuam
                   disponíveis na busca e nos relatórios. Você pode

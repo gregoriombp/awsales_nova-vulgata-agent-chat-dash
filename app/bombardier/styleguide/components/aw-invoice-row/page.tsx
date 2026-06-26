@@ -66,7 +66,7 @@ export default function InvoiceRowPage() {
                 <li className="list-none">
                   <AwInvoiceRow
                     description="Plano Pro — Abril 2026"
-                    status="Falhou"
+                    status="Falha no Pagamento"
                     id="INV-2026-0412"
                     paymentMethod="Mastercard •• 1881"
                     dueAt="12/04/2026"
@@ -90,7 +90,7 @@ export default function InvoiceRowPage() {
           <Section
             id="date-label"
             title="Rótulo de data"
-            lead='O subtexto deriva a data sozinho: "Paga em {paidAt}" quando há pagamento; "Venceu em {dueAt}" para Em atraso/Falhou; senão "Vence em {dueAt}".'
+            lead='O subtexto deriva a data sozinho: "Paga em {paidAt}" quando há pagamento; "Venceu em {dueAt}" para Em atraso/Falha no Pagamento; senão "Vence em {dueAt}".'
           >
             <Stage
               label="paidAt presente · vencida · a vencer"
@@ -188,7 +188,7 @@ export default function InvoiceRowPage() {
               <PropRow
                 prop="status"
                 type="AwInvoiceStatus"
-                doc='"Paga" | "Em aberto" | "Em atraso" | "Falhou" | "Disputada". Define o variant do pill e o rótulo de data.'
+                doc='"Paga" | "Em aberto" | "Em atraso" | "Falha no Pagamento" | "Disputada". Define o variant do pill e o rótulo de data.'
               />
               <PropRow
                 prop="id"
@@ -277,7 +277,7 @@ export default function InvoiceRowPage() {
               <Spec
                 k="status"
                 v="AwPillVariant"
-                d="Paga→live · Em aberto→draft · Em atraso→warning · Falhou→error · Disputada→beta."
+                d="Paga→live · Em aberto→draft · Em atraso→warning · Falha no Pagamento→warning · Disputada→beta."
               />
               <Spec
                 k="hover"
