@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwModal } from "@/components/ui/AwModal";
@@ -157,7 +158,10 @@ function InvoiceDetailModal({
   cardBrand: React.ComponentProps<typeof CardBrandLogo>["brand"];
   cardLast4: string;
 }) {
+  const router = useRouter();
+  const [leaveOpen, setLeaveOpen] = React.useState(false);
   return (
+    <>
     <AwModal
       open={open}
       onClose={onClose}
@@ -168,8 +172,13 @@ function InvoiceDetailModal({
             <CardBrandLogo brand={cardBrand} size={18} />
             Cobrança no cartão •••• {cardLast4}
           </span>
-          <AwButton variant="primary" size="md" onClick={onClose}>
-            Pagar agora
+          <AwButton
+            variant="primary"
+            size="md"
+            iconRight="arrow_forward"
+            onClick={() => setLeaveOpen(true)}
+          >
+            Ver detalhes
           </AwButton>
         </div>
       }
@@ -201,6 +210,34 @@ function InvoiceDetailModal({
         </p>
       </div>
     </AwModal>
+
+      {/* Confirmação ao sair pra fora da Visão geral (pedido do Greg). */}
+      <AwModal
+        open={leaveOpen}
+        onClose={() => setLeaveOpen(false)}
+        title="Sair para as Análises detalhadas?"
+        footer={
+          <>
+            <AwButton variant="ghost" size="sm" onClick={() => setLeaveOpen(false)}>
+              Ficar aqui
+            </AwButton>
+            <AwButton
+              variant="primary"
+              size="sm"
+              iconRight="arrow_forward"
+              onClick={() => router.push("/settings/consumo-e-custos/explorar")}
+            >
+              Ir para Análises
+            </AwButton>
+          </>
+        }
+      >
+        <p className="m-0 body-sm text-(--fg-secondary) text-pretty">
+          Você vai sair da Visão geral e abrir o explorador de Análises detalhadas
+          do financeiro. Pode voltar quando quiser.
+        </p>
+      </AwModal>
+    </>
   );
 }
 
