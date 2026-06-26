@@ -93,7 +93,7 @@ export function ReviewToolbar() {
       <div
         {...{ [OVERLAY_DATA_ATTR]: "" }}
         ref={stopDismiss}
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+        className="fixed bottom-16 right-4 pointer-events-none"
         style={{ zIndex: REVIEW_Z.toolbar }}
       >
         <button
@@ -114,7 +114,7 @@ export function ReviewToolbar() {
     <div
       {...{ [OVERLAY_DATA_ATTR]: "" }}
       ref={stopDismiss}
-      className="fixed bottom-4 left-1/2 -translate-x-1/2 pointer-events-none"
+      className="fixed bottom-16 right-4 pointer-events-none"
       style={{ zIndex: REVIEW_Z.toolbar }}
     >
       <div className="pointer-events-auto rounded-full bg-(--bg-raised) border border-(--border-subtle) shadow-lg px-1.5 py-1.5 flex items-center gap-1">
