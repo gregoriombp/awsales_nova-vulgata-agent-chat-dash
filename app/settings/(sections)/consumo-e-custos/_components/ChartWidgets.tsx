@@ -743,7 +743,7 @@ export function UsadoCobradoWidget({
   // Aswork sólido (azul) + Meta roxo tracejado (só aqui é tracejado, e é aprox.).
   const usoConfig: ChartConfig = {
     wc: { label: "Custo Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Custo Meta", color: "var(--aw-purple-400)" },
+    meta: { label: "Custo Meta", color: "var(--aw-purple-500)" },
   };
 
   return (
@@ -820,9 +820,9 @@ export function UsadoCobradoWidget({
           {metaIncluded && (
             <Bar
               dataKey="meta"
-              fill="var(--aw-purple-400)"
+              fill="var(--aw-purple-500)"
               fillOpacity={0.55}
-              stroke="var(--aw-purple-400)"
+              stroke="var(--aw-purple-500)"
               strokeWidth={1.5}
               strokeDasharray="3 3"
               opacity={seriesOpacity(activeSeries, "meta")}
@@ -957,7 +957,7 @@ export function GastoTotalCard() {
   const config: ChartConfig = {
     total: { label: "Total", color: "var(--fg-primary)" },
     aswork: { label: "Aswork", color: "var(--aw-blue-500)" },
-    meta: { label: "Meta", color: "var(--aw-purple-400)" },
+    meta: { label: "Meta", color: "var(--aw-purple-500)" },
   };
 
   const fadeFill = (key: string) =>
@@ -1055,8 +1055,8 @@ export function GastoTotalCard() {
               <stop offset="92%" stopColor="var(--aw-blue-500)" stopOpacity={0} />
             </linearGradient>
             <linearGradient id="fillGastoMeta" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--aw-purple-400)" stopOpacity={0.2} />
-              <stop offset="92%" stopColor="var(--aw-purple-400)" stopOpacity={0} />
+              <stop offset="5%" stopColor="var(--aw-purple-500)" stopOpacity={0.2} />
+              <stop offset="92%" stopColor="var(--aw-purple-500)" stopOpacity={0} />
             </linearGradient>
             {/* "Fio condutor" do hover: uma janela neutra e transparente nas
                 pontas passa sobre a linha. A cor continua vindo da série base;
@@ -1152,7 +1152,7 @@ export function GastoTotalCard() {
             <Area
               dataKey="meta"
               type="monotone"
-              stroke="var(--aw-purple-400)"
+              stroke="var(--aw-purple-500)"
               strokeWidth={1.75}
               strokeOpacity={seriesOpacity(activeSeries, "meta")}
               fill="url(#fillGastoMeta)"
