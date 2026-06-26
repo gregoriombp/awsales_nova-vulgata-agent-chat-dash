@@ -145,21 +145,10 @@ function ReportTypeCard({ def, onSelect }: { def: ReportTypeDef; onSelect: () =>
     >
       <TypePreview def={def} />
       <div className="flex flex-1 flex-col gap-1.5 p-5">
-        <span className="inline-flex items-center gap-2">
-          <Icon name={def.icon} size={20} fill={1} className="text-(--fg-primary)" />
-          <span className="text-(length:--h5-size) font-semibold leading-tight tracking-heading text-(--fg-primary)">
-            {def.title}
-          </span>
+        <span className="text-(length:--h5-size) font-semibold leading-tight tracking-heading text-(--fg-primary)">
+          {def.title}
         </span>
         <span className="body-sm text-(--fg-tertiary)">{def.desc}</span>
-        <span className="mt-2 inline-flex items-center gap-1 body-sm font-medium text-(--accent-brand)">
-          Criar relatório
-          <Icon
-            name="arrow_forward"
-            size={16}
-            className="transition-transform duration-aw-fast group-hover:translate-x-0.5"
-          />
-        </span>
       </div>
     </button>
   );
