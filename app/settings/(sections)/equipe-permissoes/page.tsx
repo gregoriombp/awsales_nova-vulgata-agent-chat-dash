@@ -61,10 +61,12 @@ export default function MembersPage() {
     member: Member;
     action: "inactivate" | "reactivate";
   } | null>(null);
+  /** Confirmação de remoção definitiva de um membro da organização. */
+  const [removeTarget, setRemoveTarget] = useState<Member | null>(null);
   /** Modal de bloqueio do guard do último Administrador. */
   const [lastAdminBlock, setLastAdminBlock] = useState<{
     memberName: string;
-    reason: "role" | "inactivate";
+    reason: "role" | "inactivate" | "remove";
   } | null>(null);
 
   const filteredMembers = useMemo(() => {
@@ -164,13 +166,28 @@ export default function MembersPage() {
     setPendingRoleChange(null);
   }, [pendingRoleChange, applyRoleChange]);
 
-  const handleRemove = useCallback(
+  /** Abre a confirmação de remoção. Ação destrutiva e sem desfazer — por isso
+   *  passa por modal (a fricção fica do lado certo). Guarda o último Admin. */
+  const requestRemove = useCallback(
     (id: string) => {
-      setMembers((prev) => prev.filter((m) => m.id !== id));
-      setSelectedMemberId((current) => (current === id ? null : current));
+      const m = members.find((x) => x.id === id);
+      if (!m) return;
+      if (m.role === ADMIN_ROLE && m.status !== "inactive" && adminCount <= 1) {
+        setLastAdminBlock({ memberName: m.name, reason: "remove" });
+        return;
+      }
+      setRemoveTarget(m);
     },
-    []
+    [members, adminCount]
   );
+
+  const handleConfirmRemove = useCallback(() => {
+    if (!removeTarget) return;
+    const id = removeTarget.id;
+    setMembers((prev) => prev.filter((m) => m.id !== id));
+    setSelectedMemberId((current) => (current === id ? null : current));
+    setRemoveTarget(null);
+  }, [removeTarget]);
 
   /** Abre a confirmação de inativar/reativar — aplica o guard do último admin
    *  antes de deixar inativar. */
@@ -311,7 +328,7 @@ export default function MembersPage() {
                 onSelect={setSelectedMemberId}
                 onChangeRole={requestRoleChange}
                 onChangeLifecycle={requestLifecycleChange}
-                onRemove={handleRemove}
+                onRemove={requestRemove}
               />
             ) : (
               <CompactMemberList
@@ -345,7 +362,7 @@ export default function MembersPage() {
                   onChangeRole={(role) =>
                     requestRoleChange(selectedMember.id, role)
                   }
-                  onRemove={() => handleRemove(selectedMember.id)}
+                  onRemove={() => requestRemove(selectedMember.id)}
                   onChangeLifecycle={(action) =>
                     requestLifecycleChange(selectedMember.id, action)
                   }
@@ -385,6 +402,12 @@ export default function MembersPage() {
         target={lifecycleTarget}
         onConfirm={handleConfirmLifecycle}
         onCancel={() => setLifecycleTarget(null)}
+      />
+
+      <RemoveConfirmModal
+        target={removeTarget}
+        onConfirm={handleConfirmRemove}
+        onCancel={() => setRemoveTarget(null)}
       />
 
       <LastAdminBlockModal
@@ -1715,6 +1738,69 @@ function LifecycleConfirmModal({
 }
 
 /* -----------------------------------------------------------------
+ * Confirmação de remoção — ação destrutiva e sem desfazer
+ * ----------------------------------------------------------------- */
+
+function RemoveConfirmModal({
+  target,
+  onConfirm,
+  onCancel,
+}: {
+  target: Member | null;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const name = target?.name ?? "";
+  const isYou = target?.isYou ?? false;
+
+  return (
+    <AwModal
+      open={target !== null}
+      onClose={onCancel}
+      title={isYou ? "Sair da organização?" : `Remover ${name}?`}
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onCancel}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="danger"
+            iconLeft="person_remove"
+            onClick={onConfirm}
+          >
+            {isYou ? "Sair da organização" : "Remover da organização"}
+          </AwButton>
+        </>
+      }
+    >
+      {target && (
+        <div className="flex flex-col gap-4">
+          <p className="m-0 body-xs text-(--fg-primary) text-pretty">
+            {isYou ? (
+              <>Você perde o acesso a esta organização imediatamente.</>
+            ) : (
+              <>
+                <strong className="font-semibold">{name}</strong> perde o acesso
+                na hora e sai da lista de membros. Esta ação{" "}
+                <strong className="font-semibold">não pode ser desfeita</strong>.
+              </>
+            )}
+          </p>
+          {!isYou && (
+            <AwAlert variant="warning">
+              Para apenas suspender o acesso (mantendo o histórico e podendo
+              reativar depois), use <strong>Inativar acesso</strong> em vez de
+              remover.
+            </AwAlert>
+          )}
+        </div>
+      )}
+    </AwModal>
+  );
+}
+
+/* -----------------------------------------------------------------
  * Last-admin guard — bloqueio ao tentar rebaixar/inativar o único Admin
  * ----------------------------------------------------------------- */
 
@@ -1722,10 +1808,15 @@ function LastAdminBlockModal({
   block,
   onClose,
 }: {
-  block: { memberName: string; reason: "role" | "inactivate" } | null;
+  block: { memberName: string; reason: "role" | "inactivate" | "remove" } | null;
   onClose: () => void;
 }) {
-  const verb = block?.reason === "inactivate" ? "inativar" : "mudar a função de";
+  const verb =
+    block?.reason === "inactivate"
+      ? "inativar"
+      : block?.reason === "remove"
+        ? "remover"
+        : "mudar a função de";
   return (
     <AwModal
       open={block !== null}

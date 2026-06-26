@@ -30,6 +30,8 @@ export default function GroupsPage() {
   const [groups, setGroups] = useState<Group[]>(GROUPS);
   const [createOpen, setCreateOpen] = useState(false);
   const [membersGroupId, setMembersGroupId] = useState<string | null>(null);
+  /** Equipe pendente de confirmação de exclusão (ação destrutiva, sem desfazer). */
+  const [deleteTarget, setDeleteTarget] = useState<Group | null>(null);
   const openGroup = (id: string) => router.push(`/settings/equipe-permissoes/grupos/${id}`);
 
   const membersGroup = membersGroupId
@@ -73,8 +75,11 @@ export default function GroupsPage() {
     ]);
   };
 
-  const handleDelete = (groupId: string) => {
-    setGroups((prev) => prev.filter((g) => g.id !== groupId));
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return;
+    const id = deleteTarget.id;
+    setGroups((prev) => prev.filter((g) => g.id !== id));
+    setDeleteTarget(null);
   };
 
   const handleDuplicate = (source: Group) => {
@@ -188,7 +193,7 @@ export default function GroupsPage() {
                         label: "Excluir equipe",
                         icon: "delete",
                         danger: true,
-                        onSelect: () => handleDelete(g.id),
+                        onSelect: () => setDeleteTarget(g),
                       },
                     ]}
                   />
@@ -243,6 +248,39 @@ export default function GroupsPage() {
               ))
             )}
           </div>
+        )}
+      </AwModal>
+
+      <AwModal
+        open={deleteTarget !== null}
+        onClose={() => setDeleteTarget(null)}
+        title={deleteTarget ? `Excluir ${deleteTarget.name}?` : "Excluir equipe"}
+        footer={
+          <>
+            <AwButton size="sm" variant="ghost" onClick={() => setDeleteTarget(null)}>
+              Cancelar
+            </AwButton>
+            <AwButton
+              size="sm"
+              variant="danger"
+              iconLeft="delete"
+              onClick={handleConfirmDelete}
+            >
+              Excluir equipe
+            </AwButton>
+          </>
+        }
+      >
+        {deleteTarget && (
+          <p className="m-0 body-xs text-(--fg-primary) text-pretty">
+            A equipe{" "}
+            <strong className="font-semibold">{deleteTarget.name}</strong>{" "}
+            ({deleteTarget.memberCount}{" "}
+            {deleteTarget.memberCount === 1 ? "membro" : "membros"}) será
+            excluída. Os membros continuam na organização — só perdem este
+            agrupamento. Esta ação{" "}
+            <strong className="font-semibold">não pode ser desfeita</strong>.
+          </p>
         )}
       </AwModal>
     </>
