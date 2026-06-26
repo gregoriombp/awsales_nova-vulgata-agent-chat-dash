@@ -7,7 +7,7 @@ import { AwButton } from "@/components/ui/AwButton";
 import { AwCard } from "@/components/ui/AwCard";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwFileIcon } from "@/components/ui/AwFileIcon";
-import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwDropdownMenu, type AwDropdownItem } from "@/components/ui/AwDropdownMenu";
 import {
   AwEmpty,
   AwEmptyDescription,
@@ -163,6 +163,26 @@ const ALL_ACTOR_KINDS: ActorKind[] = [
   "Chave de API",
 ];
 
+/* ---------- integrações da conta (subcategorias de origem) ---------- */
+
+/** Integrações conectadas na conta. Origens do tipo "Webhook externo" se
+ *  desdobram nelas no filtro de Origem — em vez de "todos os webhooks", o
+ *  encarregado filtra por uma integração específica (Pipedrive, etc.).
+ *  Mock: trocar pela lista real de integrações da organização. */
+type AccountIntegration = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
+const ACCOUNT_INTEGRATIONS: AccountIntegration[] = [
+  { id: "pipedrive", name: "Pipedrive", icon: "hub" },
+  { id: "google-calendar", name: "Google Calendar", icon: "calendar_month" },
+  { id: "hubspot", name: "HubSpot", icon: "share" },
+  { id: "whatsapp", name: "WhatsApp", icon: "chat" },
+  { id: "slack", name: "Slack", icon: "tag" },
+];
+
 /* ---------- eventos do histórico ---------- */
 
 type OrgEvent = {
@@ -179,6 +199,9 @@ type OrgEvent = {
    *  no detalhe, em mono, para quem precisa investigar. */
   code: string;
   meta?: string;
+  /** Integração que originou o evento (quando veio de um canal conectado).
+   *  Alimenta a subcategoria do filtro de Origem. */
+  integrationId?: string;
 };
 
 const ORG_EVENTS: OrgEvent[] = [
@@ -220,6 +243,7 @@ const ORG_EVENTS: OrgEvent[] = [
     action: "conectou a integração do WhatsApp",
     code: "integracao.conectada",
     meta: "Número +55 11 4002-8922",
+    integrationId: "whatsapp",
   },
   {
     id: "e-4",
@@ -284,6 +308,7 @@ const ORG_EVENTS: OrgEvent[] = [
     action: "sincronizou 312 contatos do CRM",
     code: "webhook.sincronizacao",
     meta: "Origem: hubspot.com · evento contact.updated",
+    integrationId: "hubspot",
   },
   {
     id: "e-9",
@@ -860,6 +885,10 @@ function HistoricoTab() {
     React.useState<string[]>(ALL_ACTOR_NAMES);
   const [selectedKinds, setSelectedKinds] =
     React.useState<ActorKind[]>(ALL_ACTOR_KINDS);
+  // Subcategorias de origem: integrações da conta. Todas marcadas por padrão.
+  const [selectedIntegrations, setSelectedIntegrations] = React.useState<
+    string[]
+  >(ACCOUNT_INTEGRATIONS.map((i) => i.id));
   const [query, setQuery] = React.useState("");
   const [period, setPeriod] = React.useState<PeriodPreset>("todo");
   const [customFrom, setCustomFrom] = React.useState("");
@@ -874,6 +903,10 @@ function HistoricoTab() {
       if (!selectedTypes.includes(e.type)) return false;
       if (!selectedActors.includes(e.actor)) return false;
       if (!selectedKinds.includes(e.actorKind)) return false;
+      // Subcategoria de origem: eventos vindos de uma integração só passam se
+      // a integração estiver marcada no filtro.
+      if (e.integrationId && !selectedIntegrations.includes(e.integrationId))
+        return false;
       const n = eventDateNumber(e.date);
       if (from !== null && n < from) return false;
       if (to !== null && n > to) return false;
@@ -886,7 +919,7 @@ function HistoricoTab() {
         return false;
       return true;
     });
-  }, [selectedTypes, selectedActors, selectedKinds, query, period, customFrom, customTo]);
+  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, query, period, customFrom, customTo]);
 
   // Paginação: 50 por página (a escala real é dezenas de milhares de eventos).
   const PAGE_SIZE = 50;
@@ -900,12 +933,13 @@ function HistoricoTab() {
   // Voltar para a página 1 sempre que o filtro mudar o conjunto.
   React.useEffect(() => {
     setPage(1);
-  }, [selectedTypes, selectedActors, selectedKinds, query, period, customFrom, customTo]);
+  }, [selectedTypes, selectedActors, selectedKinds, selectedIntegrations, query, period, customFrom, customTo]);
 
   const clearAll = () => {
     setSelectedTypes(ALL_CATEGORIES);
     setSelectedActors(ALL_ACTOR_NAMES);
     setSelectedKinds(ALL_ACTOR_KINDS);
+    setSelectedIntegrations(ACCOUNT_INTEGRATIONS.map((i) => i.id));
     setQuery("");
     setPeriod("todo");
     setCustomFrom("");
@@ -916,6 +950,7 @@ function HistoricoTab() {
     selectedTypes.length !== ALL_CATEGORIES.length ||
     selectedActors.length !== ALL_ACTOR_NAMES.length ||
     selectedKinds.length !== ALL_ACTOR_KINDS.length ||
+    selectedIntegrations.length !== ACCOUNT_INTEGRATIONS.length ||
     period !== "todo" ||
     query.trim().length > 0;
 
@@ -938,6 +973,8 @@ function HistoricoTab() {
         onActorsChange={setSelectedActors}
         selectedKinds={selectedKinds}
         onKindsChange={setSelectedKinds}
+        selectedIntegrations={selectedIntegrations}
+        onIntegrationsChange={setSelectedIntegrations}
         query={query}
         onQueryChange={setQuery}
         period={period}
@@ -1061,6 +1098,8 @@ function Toolbar({
   onActorsChange,
   selectedKinds,
   onKindsChange,
+  selectedIntegrations,
+  onIntegrationsChange,
   query,
   onQueryChange,
   period,
@@ -1078,6 +1117,8 @@ function Toolbar({
   onActorsChange: (v: string[]) => void;
   selectedKinds: ActorKind[];
   onKindsChange: (v: ActorKind[]) => void;
+  selectedIntegrations: string[];
+  onIntegrationsChange: (v: string[]) => void;
   query: string;
   onQueryChange: (v: string) => void;
   period: PeriodPreset;
@@ -1113,6 +1154,14 @@ function Toolbar({
     );
   };
 
+  const toggleIntegration = (id: string) => {
+    onIntegrationsChange(
+      selectedIntegrations.includes(id)
+        ? selectedIntegrations.filter((x) => x !== id)
+        : [...selectedIntegrations, id],
+    );
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       <div className="min-w-[240px] flex-1">
@@ -1136,7 +1185,12 @@ function Toolbar({
         selected={selectedActors.filter((a) => HUMAN_ACTOR_NAMES.includes(a))}
         onToggle={toggleActor}
       />
-      <OriginFilterMenu selected={selectedKinds} onToggle={toggleKind} />
+      <OriginFilterMenu
+        selected={selectedKinds}
+        onToggle={toggleKind}
+        selectedIntegrations={selectedIntegrations}
+        onToggleIntegration={toggleIntegration}
+      />
       <TypeFilterMenu
         options={ALL_CATEGORIES}
         selected={selectedTypes}
@@ -1244,14 +1298,88 @@ function PeriodFilterMenu({
   );
 }
 
+/** Filtro de Origem com subcategorias. Cada origem é uma linha de primeiro
+ *  nível; a origem "Webhook externo" se desdobra nas integrações conectadas
+ *  da conta (Pipedrive, Google Calendar, …) como sub-itens logo abaixo —
+ *  filtrar por origem ou afunilar por uma integração específica. */
 function OriginFilterMenu({
   selected,
   onToggle,
+  selectedIntegrations,
+  onToggleIntegration,
 }: {
   selected: ActorKind[];
   onToggle: (k: ActorKind) => void;
+  selectedIntegrations: string[];
+  onToggleIntegration: (id: string) => void;
 }) {
-  const count = selected.length;
+  // O badge do gatilho conta origens + integrações afuniladas, para o estado
+  // do filtro ficar legível sem abrir o menu.
+  const allOn =
+    selected.length === ALL_ACTOR_KINDS.length &&
+    selectedIntegrations.length === ACCOUNT_INTEGRATIONS.length;
+  const activeCount =
+    selected.length +
+    (ACCOUNT_INTEGRATIONS.length - selectedIntegrations.length);
+
+  // A origem "Webhook externo" agrupa as integrações da conta.
+  const items: AwDropdownItem[] = [];
+  for (const k of ALL_ACTOR_KINDS) {
+    const meta = ACTOR_KIND_META[k];
+    items.push({
+      id: k,
+      label: (
+        <span className="inline-flex items-center gap-2">
+          <Icon name={meta.icon} size={15} animated={false} />
+          <span>{meta.label}</span>
+        </span>
+      ),
+      checked: selected.includes(k),
+      closeOnSelect: false,
+      onSelect: () => onToggle(k),
+    });
+
+    // Sub-itens da integração logo abaixo do item principal "Webhook externo".
+    if (k === "Webhook") {
+      const webhookOn = selected.includes("Webhook");
+      items.push({
+        id: "int-label",
+        isLabel: true,
+        label: (
+          <span className="inline-flex items-center gap-1.5 pl-6 text-(--fg-tertiary)">
+            <Icon name="subdirectory_arrow_right" size={13} animated={false} />
+            <span>Integrações da conta</span>
+          </span>
+        ),
+      });
+      for (const integ of ACCOUNT_INTEGRATIONS) {
+        items.push({
+          id: `int-${integ.id}`,
+          label: (
+            <span
+              className={
+                "inline-flex items-center gap-2 pl-6 " +
+                (webhookOn ? "" : "opacity-50")
+              }
+            >
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm bg-(--bg-muted) text-(--fg-secondary)">
+                <Icon name={integ.icon} size={12} animated={false} />
+              </span>
+              <span>{integ.name}</span>
+            </span>
+          ),
+          checked: selectedIntegrations.includes(integ.id),
+          // Marcar uma integração com a origem Webhook desligada não faz sentido —
+          // mas mantemos clicável para o usuário ligar o conjunto pela linha-pai.
+          disabled: !webhookOn,
+          closeOnSelect: false,
+          onSelect: () => onToggleIntegration(integ.id),
+        });
+      }
+      items.push({ id: "int-sep", separator: true });
+    }
+  }
+
   return (
     <AwDropdownMenu
       align="start"
@@ -1259,25 +1387,11 @@ function OriginFilterMenu({
       trigger={
         <button type="button" className={FILTER_TRIGGER_CLASS}>
           <Icon name="alt_route" size={16} />
-          <span>Origem{count !== ALL_ACTOR_KINDS.length ? ` · ${count}` : ""}</span>
+          <span>Origem{allOn ? "" : ` · ${activeCount}`}</span>
           <Icon name="expand_more" size={16} />
         </button>
       }
-      items={ALL_ACTOR_KINDS.map((k) => {
-        const meta = ACTOR_KIND_META[k];
-        return {
-          id: k,
-          label: (
-            <span className="inline-flex items-center gap-2">
-              <Icon name={meta.icon} size={15} animated={false} />
-              <span>{meta.label}</span>
-            </span>
-          ),
-          checked: selected.includes(k),
-          closeOnSelect: false,
-          onSelect: () => onToggle(k),
-        };
-      })}
+      items={items}
     />
   );
 }
@@ -2554,6 +2668,17 @@ const ORG_EXPORT_CATEGORIES: OrgExportCategory[] = [
 
 type OrgExportFormat = "json" | "csv" | "ambos";
 
+/** Os 4 passos do wizard de exportação, em ordem. A fricção é o ponto: uma
+ *  exportação de dados da organização não deve ser um clique só. */
+const ORG_EXPORT_STEPS = [
+  { id: 1, label: "Justificativa", icon: "edit_note" },
+  { id: 2, label: "Requisitante", icon: "person" },
+  { id: 3, label: "Conteúdo", icon: "inventory_2" },
+  { id: 4, label: "Confirmação", icon: "lock" },
+] as const;
+
+const ORG_EXPORT_LAST_STEP = ORG_EXPORT_STEPS.length;
+
 function OrgExportSheet({
   open,
   onClose,
@@ -2564,23 +2689,28 @@ function OrgExportSheet({
   onExport: (file: ExportFile) => void;
 }) {
   const toast = useToast();
+  const [step, setStep] = React.useState(1);
   const [justification, setJustification] = React.useState("");
   const [requester, setRequester] = React.useState("");
+  const [requesterRole, setRequesterRole] = React.useState("");
   const [selected, setSelected] = React.useState<string[]>([]);
   const [sensitiveReason, setSensitiveReason] = React.useState("");
   const [format, setFormat] = React.useState<OrgExportFormat>("json");
   const [accepted, setAccepted] = React.useState(false);
-  const [submitted, setSubmitted] = React.useState(false);
+  // Marca a tentativa de avançar — destrava as mensagens de erro do passo atual.
+  const [tried, setTried] = React.useState(false);
   const [createdId, setCreatedId] = React.useState<string | null>(null);
 
   const reset = () => {
+    setStep(1);
     setJustification("");
     setRequester("");
+    setRequesterRole("");
     setSelected([]);
     setSensitiveReason("");
     setFormat("json");
     setAccepted(false);
-    setSubmitted(false);
+    setTried(false);
     setCreatedId(null);
   };
 
@@ -2599,14 +2729,50 @@ function OrgExportSheet({
     (id) => ORG_EXPORT_CATEGORIES.find((c) => c.id === id)?.sensitive,
   );
 
+  /* ---- validação por passo (cada passo só libera o próximo se estiver ok) ---- */
   const justificationOk = justification.trim().length >= 20;
+  const requesterOk = requester.trim().length > 0;
   const scopeOk = selected.length > 0;
   const sensitiveOk = !hasSensitive || sensitiveReason.trim().length >= 20;
-  const canSubmit = justificationOk && scopeOk && sensitiveOk && accepted;
+  const contentOk = scopeOk && sensitiveOk;
+  const acceptedOk = accepted;
+
+  const stepValid = (n: number): boolean => {
+    if (n === 1) return justificationOk;
+    if (n === 2) return requesterOk;
+    if (n === 3) return contentOk;
+    return acceptedOk;
+  };
+
+  const goNext = () => {
+    setTried(true);
+    if (!stepValid(step)) return;
+    if (step < ORG_EXPORT_LAST_STEP) {
+      setStep((s) => s + 1);
+      setTried(false);
+    } else {
+      handleSubmit();
+    }
+  };
+
+  const goBack = () => {
+    if (step > 1) {
+      setStep((s) => s - 1);
+      setTried(false);
+    }
+  };
+
+  // Pular direto para um passo já visitado (clicando no stepper) — só para trás,
+  // nunca para frente sem passar pela validação.
+  const goToStep = (n: number) => {
+    if (n < step) {
+      setStep(n);
+      setTried(false);
+    }
+  };
 
   const handleSubmit = () => {
-    setSubmitted(true);
-    if (!canSubmit) return;
+    if (!stepValid(ORG_EXPORT_LAST_STEP)) return;
     const id = `EXP-${String(Math.floor(Math.random() * 90000) + 10000)}`;
     onExport({
       id: `x-${Date.now()}`,
@@ -2626,15 +2792,15 @@ function OrgExportSheet({
     });
   };
 
+  const stepMeta = ORG_EXPORT_STEPS[step - 1];
+
   return (
     <AwSheet
       open={open}
       onClose={close}
       size="default"
       title={
-        createdId
-          ? "Exportação registrada"
-          : "Exportar dados da organização"
+        createdId ? "Exportação registrada" : "Exportar dados da organização"
       }
       meta={
         !createdId && (
@@ -2651,17 +2817,28 @@ function OrgExportSheet({
           </AwButton>
         ) : (
           <>
-            <AwButton size="sm" variant="ghost" onClick={close}>
-              Cancelar
-            </AwButton>
+            {step > 1 ? (
+              <AwButton
+                size="sm"
+                variant="ghost"
+                iconLeft="arrow_back"
+                onClick={goBack}
+              >
+                Voltar
+              </AwButton>
+            ) : (
+              <AwButton size="sm" variant="ghost" onClick={close}>
+                Cancelar
+              </AwButton>
+            )}
             <AwButton
               size="sm"
               variant="primary"
-              iconLeft="lock"
-              disabled={!canSubmit}
-              onClick={handleSubmit}
+              iconLeft={step === ORG_EXPORT_LAST_STEP ? "lock" : undefined}
+              iconRight={step === ORG_EXPORT_LAST_STEP ? undefined : "arrow_forward"}
+              onClick={goNext}
             >
-              Gerar exportação
+              {step === ORG_EXPORT_LAST_STEP ? "Gerar exportação" : "Avançar"}
             </AwButton>
           </>
         )
@@ -2669,7 +2846,7 @@ function OrgExportSheet({
     >
       {createdId ? (
         <div className="flex flex-col items-center gap-3 py-6 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-success) text-(--bg-canvas)">
+          <span className="aw-wizard-step flex h-14 w-14 items-center justify-center rounded-full bg-(--accent-success) text-(--bg-canvas)">
             <Icon name="lock" size={28} />
           </span>
           <h6 className="m-0 text-(--fg-primary)">Solicitação registrada</h6>
@@ -2683,263 +2860,430 @@ function OrgExportSheet({
           </p>
         </div>
       ) : (
-        <div className="flex flex-col gap-7">
-          {/* Passo 1 — justificativa + requisitante */}
-          <ExportStep
-            number={1}
-            title="Por que esta exportação?"
-            hint="A AwSales é operadora dos dados. A justificativa fica registrada por 5 anos."
-          >
-            <AwField
-              label="Justificativa"
-              htmlFor="exp-just"
-              error={
-                submitted && !justificationOk
-                  ? "Escreva ao menos 20 caracteres."
-                  : undefined
-              }
-              helper={
-                submitted && !justificationOk
-                  ? undefined
-                  : `${justification.trim().length}/20 caracteres mínimos`
-              }
-            >
-              <textarea
-                id="exp-just"
-                rows={3}
-                placeholder="Ex.: Atender pedido de auditoria do cliente referente ao contrato vigente."
-                value={justification}
-                onChange={(e) => setJustification(e.target.value)}
-                className={`${TEXTAREA_CLASS} min-h-[88px]`}
-              />
-            </AwField>
-            <AwField
-              label="Requisitante"
-              htmlFor="exp-req"
-              helper="Quem pediu a exportação (pessoa ou área externa)."
-            >
-              <AwInput
-                id="exp-req"
-                placeholder="Ex.: Auditoria — Fyntra"
-                value={requester}
-                onChange={(e) => setRequester(e.target.value)}
-              />
-            </AwField>
-          </ExportStep>
+        <div className="flex flex-col gap-6">
+          {/* Stepper — trilha de progresso com fricção (4 passos sequenciais). */}
+          <ExportStepper
+            current={step}
+            valid={stepValid}
+            onGoTo={goToStep}
+          />
 
-          {/* Passo 2 — escopo */}
-          <ExportStep
-            number={2}
-            title="O que entra na exportação?"
-            hint="Selecione as categorias de dados a incluir."
-          >
-            <div className="flex flex-col gap-2">
-              {ORG_EXPORT_CATEGORIES.map((cat) => {
-                const checked = selected.includes(cat.id);
-                return (
-                  <label
-                    key={cat.id}
-                    className={
-                      "flex cursor-pointer items-start gap-3 rounded-md border px-4 py-3 transition-colors duration-aw-fast " +
-                      (checked
-                        ? "border-(--border-default) bg-(--bg-muted)"
-                        : "border-(--border-subtle) hover:border-(--border-default)")
-                    }
-                  >
-                    <span className="mt-0.5">
-                      <AwCheckbox
-                        checked={checked}
-                        onChange={() => toggleCategory(cat.id)}
-                        label={cat.label}
-                      />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center gap-2">
-                        <span className="body-sm font-medium text-(--fg-primary)">
-                          {cat.label}
-                        </span>
-                        {cat.sensitive && (
-                          <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
-                            <Icon name="warning" size={11} />
-                            Atenção
-                          </span>
-                        )}
-                      </span>
-                      <span className="m-0 mt-0.5 block body-xs text-(--fg-tertiary)">
-                        {cat.hint}
-                      </span>
-                    </span>
-                  </label>
-                );
-              })}
-            </div>
-            {submitted && !scopeOk && (
-              <p className="m-0 mt-2 inline-flex items-center gap-1.5 body-xs text-(--accent-danger)">
-                <Icon name="error" size={13} />
-                Selecione ao menos uma categoria.
+          <div>
+            <p className="m-0 aw-eyebrow text-(--fg-tertiary)">
+              Etapa {step} de {ORG_EXPORT_LAST_STEP}
+            </p>
+            <h6 className="m-0 mt-1 text-(--fg-primary)">
+              {step === 1 && "Por que esta exportação?"}
+              {step === 2 && "Quem requisitou?"}
+              {step === 3 && "O que entra na exportação?"}
+              {step === 4 && "Confirmação"}
+            </h6>
+          </div>
+
+          {/* ── Passo 1 — justificativa ── */}
+          {step === 1 && (
+            <div key="step-1" className="aw-wizard-step flex flex-col gap-4">
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                A AwSales é operadora dos dados — sua organização é a
+                controladora. A justificativa fica registrada por 5 anos e
+                pode ser exigida numa auditoria.
               </p>
-            )}
+              <AwField
+                label="Justificativa da exportação"
+                htmlFor="exp-just"
+                error={
+                  tried && !justificationOk
+                    ? "Escreva ao menos 20 caracteres."
+                    : undefined
+                }
+                helper={
+                  tried && !justificationOk
+                    ? undefined
+                    : `${justification.trim().length}/20 caracteres mínimos`
+                }
+              >
+                <textarea
+                  id="exp-just"
+                  rows={4}
+                  placeholder="Ex.: Atender pedido de auditoria do cliente referente ao contrato vigente."
+                  value={justification}
+                  onChange={(e) => setJustification(e.target.value)}
+                  className={`${TEXTAREA_CLASS} min-h-[104px]`}
+                />
+              </AwField>
+            </div>
+          )}
 
-            {hasSensitive && (
-              <div className="mt-3">
-                <AwAlert variant="warning" icon="shield_lock">
-                  <strong className="aw-alert__title">
-                    Você incluiu dados sensíveis
-                  </strong>
-                  <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                    Conversas com titulares pedem uma justificativa específica.
-                  </p>
-                </AwAlert>
-                <div className="mt-3">
-                  <AwField
-                    label="Por que incluir dados sensíveis?"
-                    htmlFor="exp-sensitive"
-                    error={
-                      submitted && !sensitiveOk
-                        ? "Escreva ao menos 20 caracteres."
-                        : undefined
-                    }
-                  >
-                    <textarea
-                      id="exp-sensitive"
-                      rows={2}
-                      placeholder="Justifique a inclusão das conversas."
-                      value={sensitiveReason}
-                      onChange={(e) => setSensitiveReason(e.target.value)}
-                      className={`${TEXTAREA_CLASS} min-h-[64px]`}
-                    />
-                  </AwField>
+          {/* ── Passo 2 — requisitante ── */}
+          {step === 2 && (
+            <div key="step-2" className="aw-wizard-step flex flex-col gap-4">
+              <p className="m-0 body-xs text-(--fg-secondary)">
+                Registre quem pediu a exportação. Esse nome fica no histórico
+                junto da solicitação.
+              </p>
+              <AwField
+                label="Quem requisitou"
+                htmlFor="exp-req"
+                error={
+                  tried && !requesterOk
+                    ? "Informe quem requisitou a exportação."
+                    : undefined
+                }
+                helper={
+                  tried && !requesterOk
+                    ? undefined
+                    : "Pessoa ou área que solicitou os dados."
+                }
+              >
+                <AwInput
+                  id="exp-req"
+                  placeholder="Ex.: Auditoria — Fyntra"
+                  value={requester}
+                  invalid={tried && !requesterOk}
+                  onChange={(e) => setRequester(e.target.value)}
+                />
+              </AwField>
+              <AwField
+                label="Cargo ou relação"
+                htmlFor="exp-req-role"
+                helper="Opcional. Ajuda a contextualizar quem pediu (ex.: encarregado externo, jurídico)."
+              >
+                <AwInput
+                  id="exp-req-role"
+                  placeholder="Ex.: Encarregado de dados do cliente"
+                  value={requesterRole}
+                  onChange={(e) => setRequesterRole(e.target.value)}
+                />
+              </AwField>
+            </div>
+          )}
+
+          {/* ── Passo 3 — conteúdo + formato ── */}
+          {step === 3 && (
+            <div key="step-3" className="aw-wizard-step flex flex-col gap-5">
+              <div className="flex flex-col gap-3">
+                <p className="m-0 body-xs text-(--fg-secondary)">
+                  Selecione as categorias de dados a incluir.
+                </p>
+                <div className="flex flex-col gap-2">
+                  {ORG_EXPORT_CATEGORIES.map((cat) => {
+                    const checked = selected.includes(cat.id);
+                    return (
+                      <label
+                        key={cat.id}
+                        className={
+                          "flex cursor-pointer items-start gap-3 rounded-md border px-4 py-3 transition-colors duration-aw-fast " +
+                          (checked
+                            ? "border-(--border-default) bg-(--bg-muted)"
+                            : "border-(--border-subtle) hover:border-(--border-default)")
+                        }
+                      >
+                        <span className="mt-0.5">
+                          <AwCheckbox
+                            checked={checked}
+                            onChange={() => toggleCategory(cat.id)}
+                            label={cat.label}
+                          />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="flex items-center gap-2">
+                            <span className="body-sm font-medium text-(--fg-primary)">
+                              {cat.label}
+                            </span>
+                            {cat.sensitive && (
+                              <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-(--aw-amber-300) bg-(--aw-amber-100) px-2 py-0.5 body-xs font-medium text-(--aw-amber-800)">
+                                <Icon name="warning" size={11} />
+                                Atenção
+                              </span>
+                            )}
+                          </span>
+                          <span className="m-0 mt-0.5 block body-xs text-(--fg-tertiary)">
+                            {cat.hint}
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
-              </div>
-            )}
-          </ExportStep>
+                {tried && !scopeOk && (
+                  <p className="m-0 inline-flex items-center gap-1.5 body-xs text-(--accent-danger)">
+                    <Icon name="error" size={13} />
+                    Selecione ao menos uma categoria.
+                  </p>
+                )}
 
-          {/* Passo 3 — formato */}
-          <ExportStep number={3} title="Em qual formato?">
-            <div className="flex flex-col gap-2">
-              {(
-                [
-                  {
-                    id: "json" as const,
-                    icon: "data_object",
-                    label: "JSON estruturado",
-                    hint: "Um arquivo único, pronto para processar.",
-                  },
-                  {
-                    id: "csv" as const,
-                    icon: "table_chart",
-                    label: "CSV por categoria",
-                    hint: "Uma planilha por tipo de dado.",
-                  },
-                  {
-                    id: "ambos" as const,
-                    icon: "folder_zip",
-                    label: "Ambos",
-                    hint: "JSON e CSV no mesmo pacote.",
-                  },
-                ]
-              ).map((opt) => {
-                const active = format === opt.id;
-                return (
-                  <label
-                    key={opt.id}
-                    className={
-                      "flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors duration-aw-fast " +
-                      (active
-                        ? "border-(--border-default) bg-(--bg-muted)"
-                        : "border-(--border-subtle) hover:border-(--border-default)")
-                    }
-                  >
-                    <input
-                      type="radio"
-                      name="exp-format"
-                      checked={active}
-                      onChange={() => setFormat(opt.id)}
-                      className="sr-only"
-                    />
-                    {/* Ícone distinto por formato — substitui o radio como
-                        marcador visual; o estado ativo vai no tile + check. */}
-                    <span
-                      aria-hidden="true"
-                      className={
-                        "flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast " +
-                        (active
-                          ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
-                          : "bg-(--bg-muted) text-(--fg-secondary)")
+                {hasSensitive && (
+                  <div className="flex flex-col gap-3">
+                    <AwAlert variant="warning" icon="shield_lock">
+                      <strong className="aw-alert__title">
+                        Você incluiu dados sensíveis
+                      </strong>
+                      <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                        Conversas com titulares pedem uma justificativa
+                        específica.
+                      </p>
+                    </AwAlert>
+                    <AwField
+                      label="Por que incluir dados sensíveis?"
+                      htmlFor="exp-sensitive"
+                      error={
+                        tried && !sensitiveOk
+                          ? "Escreva ao menos 20 caracteres."
+                          : undefined
                       }
                     >
-                      <Icon name={opt.icon} size={18} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block body-sm font-medium text-(--fg-primary)">
-                        {opt.label}
-                      </span>
-                      <span className="block body-xs text-(--fg-tertiary)">
-                        {opt.hint}
-                      </span>
-                    </span>
-                    {active && (
-                      <Icon
-                        name="check_circle"
-                        size={18}
-                        fill={1}
-                        className="shrink-0 text-(--fg-primary)"
+                      <textarea
+                        id="exp-sensitive"
+                        rows={2}
+                        placeholder="Justifique a inclusão das conversas."
+                        value={sensitiveReason}
+                        onChange={(e) => setSensitiveReason(e.target.value)}
+                        className={`${TEXTAREA_CLASS} min-h-[64px]`}
                       />
-                    )}
-                  </label>
-                );
-              })}
-            </div>
-          </ExportStep>
+                    </AwField>
+                  </div>
+                )}
+              </div>
 
-          {/* Passo 4 — aceite legal */}
-          <ExportStep number={4} title="Confirmação">
-            <label className="flex cursor-pointer items-start gap-3 rounded-md border border-(--border-subtle) px-4 py-3">
-              <span className="mt-0.5">
-                <AwCheckbox
-                  checked={accepted}
-                  onChange={setAccepted}
-                  label="Confirmo a base legal e assumo a cadeia de custódia"
+              {/* Divisória — formato fica na mesma etapa do conteúdo, sem box aninhado. */}
+              <div className="border-t border-(--border-subtle) pt-5">
+                <p className="m-0 mb-2 body-sm font-medium text-(--fg-primary)">
+                  Formato do arquivo
+                </p>
+                <div className="flex flex-col gap-2">
+                  {(
+                    [
+                      {
+                        id: "json" as const,
+                        icon: "data_object",
+                        label: "JSON estruturado",
+                        hint: "Um arquivo único, pronto para processar.",
+                      },
+                      {
+                        id: "csv" as const,
+                        icon: "table_chart",
+                        label: "CSV por categoria",
+                        hint: "Uma planilha por tipo de dado.",
+                      },
+                      {
+                        id: "ambos" as const,
+                        icon: "folder_zip",
+                        label: "Ambos",
+                        hint: "JSON e CSV no mesmo pacote.",
+                      },
+                    ]
+                  ).map((opt) => {
+                    const active = format === opt.id;
+                    return (
+                      <label
+                        key={opt.id}
+                        className={
+                          "flex cursor-pointer items-center gap-3 rounded-md border px-4 py-3 transition-colors duration-aw-fast " +
+                          (active
+                            ? "border-(--border-default) bg-(--bg-muted)"
+                            : "border-(--border-subtle) hover:border-(--border-default)")
+                        }
+                      >
+                        <input
+                          type="radio"
+                          name="exp-format"
+                          checked={active}
+                          onChange={() => setFormat(opt.id)}
+                          className="sr-only"
+                        />
+                        {/* Ícone distinto por formato — substitui o radio como
+                            marcador visual; o estado ativo vai no tile + check. */}
+                        <span
+                          aria-hidden="true"
+                          className={
+                            "flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors duration-aw-fast " +
+                            (active
+                              ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                              : "bg-(--bg-muted) text-(--fg-secondary)")
+                          }
+                        >
+                          <Icon name={opt.icon} size={18} />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block body-sm font-medium text-(--fg-primary)">
+                            {opt.label}
+                          </span>
+                          <span className="block body-xs text-(--fg-tertiary)">
+                            {opt.hint}
+                          </span>
+                        </span>
+                        {active && (
+                          <Icon
+                            name="check_circle"
+                            size={18}
+                            fill={1}
+                            className="shrink-0 text-(--fg-primary)"
+                          />
+                        )}
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Passo 4 — confirmação + aceite legal (Art. 7º LGPD) ── */}
+          {step === 4 && (
+            <div key="step-4" className="aw-wizard-step flex flex-col gap-4">
+              {/* Resumo da solicitação — revisão antes do aceite. */}
+              <div className="flex flex-col">
+                <ExportSummaryRow label="Justificativa" value={justification.trim()} />
+                <ExportSummaryRow label="Requisitante" value={requester.trim()} />
+                <ExportSummaryRow
+                  label="Conteúdo"
+                  value={`${selected.length} ${
+                    selected.length === 1 ? "categoria" : "categorias"
+                  }${hasSensitive ? " · inclui dados sensíveis" : ""}`}
                 />
-              </span>
-              <span className="body-xs text-(--fg-secondary)">
-                Confirmo que esta exportação atende a uma base legal válida e
-                assumo a responsabilidade por guardar e tratar os dados com
-                segurança.
-              </span>
-            </label>
-          </ExportStep>
+                <ExportSummaryRow
+                  label="Formato"
+                  value={
+                    format === "json"
+                      ? "JSON estruturado"
+                      : format === "csv"
+                        ? "CSV por categoria"
+                        : "JSON e CSV"
+                  }
+                  isLast
+                />
+              </div>
+
+              <div className="flex items-start gap-3 rounded-md border border-(--aw-amber-300) bg-(--aw-amber-100) px-4 py-3">
+                <span className="mt-0.5 text-(--aw-amber-700)">
+                  <Icon name="gavel" size={16} />
+                </span>
+                <p className="m-0 body-xs text-(--aw-amber-800)">
+                  Esta exportação extrai dados pessoais sob responsabilidade da
+                  sua organização. Leia e aceite os termos antes de gerar — não
+                  há como desfazer depois de extraído.
+                </p>
+              </div>
+
+              <label className="flex cursor-pointer items-start gap-3 rounded-md border border-(--border-subtle) px-4 py-3">
+                <span className="mt-0.5">
+                  <AwCheckbox checked={accepted} onChange={setAccepted} />
+                </span>
+                <span className="body-xs leading-relaxed text-(--fg-secondary)">
+                  Confirmo que minha organização é a controladora destes dados e
+                  responsável pela base legal do tratamento (Art. 7º LGPD), que
+                  esta exportação tem finalidade legítima e que serei responsável
+                  pela cadeia de custódia dos dados extraídos. A solicitação fica
+                  registrada em audit por 5 anos.
+                </span>
+              </label>
+
+              {tried && !acceptedOk && (
+                <p className="m-0 inline-flex items-center gap-1.5 body-xs text-(--accent-danger)">
+                  <Icon name="error" size={13} />
+                  Você precisa aceitar os termos para gerar a exportação.
+                </p>
+              )}
+            </div>
+          )}
         </div>
       )}
     </AwSheet>
   );
 }
 
-function ExportStep({
-  number,
-  title,
-  hint,
-  children,
+/** Trilha de progresso do wizard — passos numerados, conectados por uma linha.
+ *  Passo concluído vira check; o atual fica destacado; passos futuros, neutros. */
+function ExportStepper({
+  current,
+  valid,
+  onGoTo,
 }: {
-  number: number;
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
+  current: number;
+  valid: (n: number) => boolean;
+  onGoTo: (n: number) => void;
 }) {
   return (
-    <section className="flex flex-col gap-3">
-      <div className="flex items-start gap-3">
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--bg-muted) body-xs font-medium text-(--fg-secondary)">
-          {number}
-        </span>
-        <div className="min-w-0">
-          <h6 className="m-0 text-(--fg-primary)">{title}</h6>
-          {hint && (
-            <p className="m-0 mt-0.5 body-xs text-(--fg-tertiary)">{hint}</p>
-          )}
-        </div>
-      </div>
-      <div className="pl-9">{children}</div>
-    </section>
+    <ol className="m-0 flex list-none items-center gap-1 p-0">
+      {ORG_EXPORT_STEPS.map((s, i) => {
+        const done = s.id < current && valid(s.id);
+        const active = s.id === current;
+        const clickable = s.id < current;
+        return (
+          <React.Fragment key={s.id}>
+            <li className="flex min-w-0 items-center gap-2">
+              <button
+                type="button"
+                disabled={!clickable}
+                onClick={() => onGoTo(s.id)}
+                aria-current={active ? "step" : undefined}
+                className={
+                  "flex h-7 w-7 shrink-0 items-center justify-center rounded-full body-xs font-medium transition-colors duration-aw-fast " +
+                  (active
+                    ? "bg-(--bg-inverse) text-(--fg-on-inverse)"
+                    : done
+                      ? "bg-(--accent-success) text-(--bg-canvas)"
+                      : "bg-(--bg-muted) text-(--fg-tertiary)") +
+                  (clickable ? " cursor-pointer hover:opacity-80" : "")
+                }
+              >
+                {done ? <Icon name="check" size={14} weight={700} /> : s.id}
+              </button>
+              <span
+                className={
+                  "hidden truncate body-xs font-medium md:inline " +
+                  (active
+                    ? "text-(--fg-primary)"
+                    : done
+                      ? "text-(--fg-secondary)"
+                      : "text-(--fg-tertiary)")
+                }
+              >
+                {s.label}
+              </span>
+            </li>
+            {i < ORG_EXPORT_STEPS.length - 1 && (
+              <li
+                aria-hidden="true"
+                className={
+                  "h-px min-w-3 flex-1 " +
+                  (s.id < current
+                    ? "bg-(--accent-success)"
+                    : "bg-(--border-subtle)")
+                }
+              />
+            )}
+          </React.Fragment>
+        );
+      })}
+    </ol>
+  );
+}
+
+/** Linha de resumo (rótulo + valor) usada na confirmação — sem box aninhado,
+ *  separada por divisória. */
+function ExportSummaryRow({
+  label,
+  value,
+  isLast,
+}: {
+  label: string;
+  value: string;
+  isLast?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "flex items-start justify-between gap-4 py-2.5" +
+        (isLast ? "" : " border-b border-(--border-subtle)")
+      }
+    >
+      <span className="shrink-0 body-xs font-medium text-(--fg-tertiary)">
+        {label}
+      </span>
+      <span className="min-w-0 text-right body-xs text-(--fg-secondary)">
+        {value || "—"}
+      </span>
+    </div>
   );
 }
