@@ -49,7 +49,15 @@ PRESERVE_PATHS=(
   # review-mode / bridge — o PG está à frente (auth, backend Supabase dele)
   "review-bridge"                      # servidor do review-bridge
   "app/bombardier/review-bridge"       # UI in-app do review
-  "lib/bombardier-review"              # store/engine do review
+  # lib/bombardier-review: o PG está à frente em ALGUNS arquivos (store.ts = backend Supabase
+  # dele; + hooks/commentAssist/elementAnchor/useVoiceTranscription). Preservo SÓ esses — os
+  # módulos novos do Greg (agents/skills/commandParse/agentSettingsStore/mobbin/…) sobem normal,
+  # senão o build do design2 quebra com "Module not found" (consumidores sem suas dependências).
+  "lib/bombardier-review/store.ts"
+  "lib/bombardier-review/hooks.ts"
+  "lib/bombardier-review/commentAssist.ts"
+  "lib/bombardier-review/elementAnchor.ts"
+  "lib/bombardier-review/useVoiceTranscription.ts"
   "components/bombardier-review"       # provider/canvas do review
   # subsistemas que são só do PG (eu nem tenho)
   "prototype-studio"                   # studio inteiro do PG
