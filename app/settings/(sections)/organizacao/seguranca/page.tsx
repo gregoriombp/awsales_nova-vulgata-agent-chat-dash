@@ -21,9 +21,10 @@ import { ONBOARDING_ORG } from "@/app/primeiro-acesso/_data";
 import { SectionHeading, SettingsPageHeader } from "../../_components/shared";
 
 /** Indent visual do conteúdo abaixo do SectionHeading — cria a hierarquia
- *  "título da seção é o pai, conteúdo é o filho". Aplica em todas as
- *  seções da página pra dar uma única linguagem espacial. */
-const SECTION_CONTENT_INDENT = "pl-0 md:pl-6";
+ *  "título da seção é o pai, conteúdo é o filho". Mantido SUTIL e idêntico
+ *  em todas as seções pra dar uma única linguagem espacial (sem indent
+ *  forte que descola o conteúdo do título). */
+const SECTION_CONTENT_INDENT = "pl-0 md:pl-4";
 
 /** Linguagem dos dividers entre itens dentro de uma seção. */
 const SECTION_DIVIDERS =
@@ -122,9 +123,16 @@ const PASSWORD_RULES = [
  * ===================================================================== */
 
 export default function OrgSegurancaPage() {
+  // Vínculo com o provedor de identidade (Google Workspace). Enquanto
+  // conectado, o SSO pode ser exigido; ao desconectar, a organização volta
+  // aos métodos de login alternativos.
+  const [ssoConnected, setSsoConnected] = React.useState(true);
   const [ssoRequired, setSsoRequired] = React.useState(true);
-  // Direção pretendida para o modal de confirmação de SSO: ligar/desligar/null.
+  // Direção pretendida para o modal de confirmação de "exigir SSO":
+  // ligar/desligar/null.
   const [ssoConfirm, setSsoConfirm] = React.useState<null | boolean>(null);
+  // Modal de confirmação para DESCONECTAR o provedor de identidade.
+  const [ssoDisconnect, setSsoDisconnect] = React.useState(false);
   const [scimDeprovision, setScimDeprovision] = React.useState(true);
   const [mfaRequired, setMfaRequired] = React.useState(false);
   const [mfaConfirm, setMfaConfirm] = React.useState(false);
@@ -150,8 +158,10 @@ export default function OrgSegurancaPage() {
         <PostureTile
           icon="vpn_key"
           label="Login único"
-          value={ssoRequired ? "Exigido" : "Opcional"}
-          tone={ssoRequired ? "ok" : "muted"}
+          value={
+            !ssoConnected ? "Desconectado" : ssoRequired ? "Exigido" : "Opcional"
+          }
+          tone={!ssoConnected ? "warn" : ssoRequired ? "ok" : "muted"}
         />
         <PostureTile
           icon="phonelink_lock"
@@ -176,41 +186,91 @@ export default function OrgSegurancaPage() {
           description="A organização entra por um provedor de identidade. Configuramos via WorkOS — o IdP em si fica no portal do provedor."
         />
         <div className={cn(SECTION_CONTENT_INDENT, SECTION_DIVIDERS)}>
-          <div className="flex flex-wrap items-center gap-4 py-5 first:pt-0">
-            <AwBrandLogo brand="googleworkspace" size="lg" className="shrink-0" />
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <p className="m-0 body-md font-semibold text-(--fg-primary)">
-                  {SSO.provider}
-                </p>
-                <StatusPill tone="ok">Conectado</StatusPill>
+          {ssoConnected ? (
+            <>
+              <div className="flex flex-wrap items-center gap-4 py-4 first:pt-0">
+                <AwBrandLogo brand="googleworkspace" size="lg" className="shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="m-0 body-md font-semibold text-(--fg-primary)">
+                      {SSO.provider}
+                    </p>
+                    <StatusPill tone="ok">Conectado</StatusPill>
+                  </div>
+                  <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
+                    {SSO.protocol} via WorkOS · conexão ativa
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <AwButton size="sm" variant="secondary" iconRight="open_in_new">
+                    Abrir portal
+                  </AwButton>
+                  <AwButton
+                    size="sm"
+                    variant="ghost"
+                    iconLeft="link_off"
+                    onClick={() => setSsoDisconnect(true)}
+                  >
+                    Desconectar
+                  </AwButton>
+                </div>
               </div>
-              <p className="m-0 mt-0.5 body-xs text-(--fg-secondary)">
-                {SSO.protocol} via WorkOS · conexão ativa
-              </p>
-            </div>
-            <AwButton size="sm" variant="secondary" iconRight="open_in_new">
-              Abrir portal
-            </AwButton>
-          </div>
 
-          <div className="flex items-center gap-4 py-5">
-            <div className="min-w-0 flex-1">
-              <p className="m-0 body-sm font-medium text-(--fg-primary)">
-                Exigir SSO nesta organização
-              </p>
-              <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
-                {ssoRequired
-                  ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
-                  : "Outros métodos de login (senha, magic link, social) ficam liberados."}
-              </p>
+              <div className="flex items-center gap-4 py-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="m-0 body-sm font-medium text-(--fg-primary)">
+                      Exigir SSO nesta organização
+                    </p>
+                    <StatusPill tone={ssoRequired ? "ok" : "warn"}>
+                      {ssoRequired ? "Exigido" : "Opcional"}
+                    </StatusPill>
+                  </div>
+                  <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
+                    {ssoRequired
+                      ? "Membros entram só pelo provedor. Senha, magic link e login social ficam desativados — e o MFA passa a ser do IdP."
+                      : "Outros métodos de login (senha, magic link, social) ficam liberados."}
+                  </p>
+                </div>
+                <AwButton
+                  size="sm"
+                  variant={ssoRequired ? "secondary" : "primary"}
+                  iconLeft={ssoRequired ? "lock_open" : "lock"}
+                  onClick={() => setSsoConfirm(!ssoRequired)}
+                >
+                  {ssoRequired ? "Desabilitar" : "Habilitar"}
+                </AwButton>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-wrap items-center gap-4 py-4 first:pt-0">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-(--bg-muted) text-(--fg-tertiary)">
+                <Icon name="key_off" size={22} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="m-0 body-md font-semibold text-(--fg-primary)">
+                    Nenhum provedor conectado
+                  </p>
+                  <StatusPill tone="warn">Desconectado</StatusPill>
+                </div>
+                <p className="m-0 mt-0.5 max-w-[560px] body-xs text-(--fg-secondary)">
+                  A entrada usa os métodos liberados abaixo (senha, magic link e
+                  login social). Conecte um provedor para passar a exigir SSO.
+                </p>
+              </div>
+              <AwButton
+                size="sm"
+                variant="primary"
+                iconLeft="add_link"
+                onClick={() => {
+                  setSsoConnected(true);
+                }}
+              >
+                Configurar SSO
+              </AwButton>
             </div>
-            <AwToggle
-              checked={ssoRequired}
-              onChange={(v) => setSsoConfirm(v)}
-              label="Exigir SSO nesta organização"
-            />
-          </div>
+          )}
         </div>
       </section>
 
@@ -452,6 +512,21 @@ export default function OrgSegurancaPage() {
         onConfirm={() => {
           if (ssoConfirm !== null) setSsoRequired(ssoConfirm);
           setSsoConfirm(null);
+        }}
+      />
+
+      {/* Modal — desconectar o provedor de identidade */}
+      <SsoDisconnectModal
+        open={ssoDisconnect}
+        provider={SSO.provider}
+        microsoftLinked={socialMicrosoft}
+        googleLinked={socialGoogle}
+        onClose={() => setSsoDisconnect(false)}
+        onConfirm={(enableMicrosoftFallback) => {
+          setSsoConnected(false);
+          setSsoRequired(false);
+          if (enableMicrosoftFallback) setSocialMicrosoft(true);
+          setSsoDisconnect(false);
         }}
       />
 
@@ -701,6 +776,107 @@ function SsoConfirmModal({
             </li>
           ))}
         </ul>
+      </div>
+    </AwModal>
+  );
+}
+
+function SsoDisconnectModal({
+  open,
+  provider,
+  microsoftLinked,
+  googleLinked,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  provider: string;
+  /** Microsoft pessoal já está vinculado lá embaixo no login social? */
+  microsoftLinked: boolean;
+  /** Google pessoal já está vinculado lá embaixo no login social? */
+  googleLinked: boolean;
+  onClose: () => void;
+  /** enableMicrosoftFallback = ligar o Microsoft pessoal como porta de entrada. */
+  onConfirm: (enableMicrosoftFallback: boolean) => void;
+}) {
+  // Se a pessoa nunca vinculou nenhum login social, desconectar o provedor
+  // deixa só senha/magic link de pé — então oferecemos ligar o Microsoft
+  // pessoal como alternativa na hora.
+  const noSocialFallback = !microsoftLinked && !googleLinked;
+  const [enableMicrosoft, setEnableMicrosoft] = React.useState(false);
+  React.useEffect(() => {
+    if (open) setEnableMicrosoft(false);
+  }, [open]);
+
+  return (
+    <AwModal
+      open={open}
+      onClose={onClose}
+      title={`Desconectar ${provider}?`}
+      footer={
+        <>
+          <AwButton size="sm" variant="ghost" onClick={onClose}>
+            Cancelar
+          </AwButton>
+          <AwButton
+            size="sm"
+            variant="danger"
+            iconLeft="link_off"
+            onClick={() => onConfirm(noSocialFallback && enableMicrosoft)}
+          >
+            Desconectar provedor
+          </AwButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <p className="m-0 body-sm text-(--fg-secondary)">
+          O login único deixa de valer nesta organização. A entrada passa a usar
+          os métodos liberados abaixo — confira o que muda:
+        </p>
+        <ul className="m-0 flex list-none flex-col gap-2.5 rounded-md bg-(--bg-muted) p-4">
+          <li className="flex items-start gap-2.5">
+            <Icon
+              name="login"
+              size={16}
+              className="mt-px shrink-0 text-(--fg-secondary)"
+            />
+            <span className="body-xs text-(--fg-secondary)">
+              Senha e magic link voltam a ser permitidos.
+            </span>
+          </li>
+          <li className="flex items-start gap-2.5">
+            <Icon
+              name="sync_disabled"
+              size={16}
+              className="mt-px shrink-0 text-(--fg-secondary)"
+            />
+            <span className="body-xs text-(--fg-secondary)">
+              O provisionamento automático e o segundo fator do provedor param —
+              a gestão volta a ser manual.
+            </span>
+          </li>
+        </ul>
+
+        {noSocialFallback ? (
+          <label className="flex cursor-pointer items-start gap-3 rounded-md border border-(--aw-amber-300) bg-(--aw-amber-100) px-4 py-3">
+            <span className="mt-0.5">
+              <AwCheckbox
+                checked={enableMicrosoft}
+                onChange={setEnableMicrosoft}
+                label="Liberar o login com Microsoft pessoal"
+              />
+            </span>
+            <span className="body-xs text-(--aw-amber-800)">
+              Nenhum login social está vinculado. Sem o provedor, só senha e
+              magic link ficam de pé.{" "}
+              <strong className="font-medium">
+                Liberar o login com Microsoft pessoal
+              </strong>{" "}
+              como porta de entrada agora.
+            </span>
+          </label>
+        ) : null}
       </div>
     </AwModal>
   );

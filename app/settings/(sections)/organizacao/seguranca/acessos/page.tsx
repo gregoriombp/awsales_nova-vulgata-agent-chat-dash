@@ -240,21 +240,21 @@ export default function AcessosOrgPage() {
               value: rows.length,
               label: "Conexões ativas",
               hint: "Sessões e apps conectados agora",
-              tone: "blue",
+              tone: "neutral",
             },
             {
               icon: "groups",
               value: rows.length,
               label: "Membros da Organização",
               hint: "Pessoas com acesso ativo.",
-              tone: "purple",
+              tone: "neutral",
             },
             {
               icon: "warning",
               value: staleCount,
               label: "Inativos",
               hint: "Sem uso há 30+ dias",
-              tone: "amber",
+              tone: "neutral",
             },
           ]}
         />
