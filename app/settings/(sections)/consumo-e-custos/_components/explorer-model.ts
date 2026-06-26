@@ -128,7 +128,7 @@ const SERVICE_GROUPS: GroupDef[] = [
   { id: "leads", label: "Leads ativos", desc: "Contatos que viraram lead ativo no período", icon: "person_add", rowIds: ["leads"], aggregateFormat: "decimal" },
   { id: "tokens", label: "Tokens", desc: "Knowledge, Brain e Skills dos agentes", icon: "agent", rowIds: ["tok-k", "tok-b", "tok-s"], aggregateFormat: "abbrev" },
   { id: "tel", label: "Telefone", desc: "Linha telefônica de um parceiro da Aswork", icon: "call", rowIds: ["linha"], aggregateFormat: "decimal" },
-  { id: "outros", label: "Outros serviços", desc: "Serviços agregados do período", icon: "more_horiz", rowIds: ["outros"], aggregateFormat: "decimal" },
+  // "Outros serviços" foi removido do Detalhamento — não existe mais como linha.
 ];
 
 /* ---------- linha unificada da tabela ---------- */
@@ -269,6 +269,104 @@ export function buildRows(
       };
     })
     .sort((a, b) => b.total - a.total);
+}
+
+/* ---------- subárvore de 3 níveis do grupo Meta / WhatsApp ----------
+ * Pedido do Greg: dentro de "Meta / WhatsApp", separar primeiro POR PAGADOR
+ * (parte paga à Aswork × parte paga ao Meta) e só então os disparos
+ * (marketing × utilidade). Cada disparo tem uma fração que fica com a Aswork
+ * (taxa de plataforma) e outra repassada ao Meta — split mock por enquanto.
+ *
+ * Nível 1 (na tabela): grupo "Meta"
+ *   Nível 2: "Pago à Aswork" | "Pago ao Meta"
+ *     Nível 3: "Disparos WhatsApp marketing" | "Disparos WhatsApp utilidade"
+ */
+
+// Fração do total de cada disparo que fica com a Aswork (taxa de plataforma);
+// o restante é repassado ao Meta. Mock — quando o backend trouxer o split real,
+// é só substituir aqui.
+const META_ASWORK_SHARE: Record<string, number> = {
+  "disp-mkt": 0.35,
+  "disp-util": 0.42,
+};
+
+// Fração paga à Aswork por CATEGORIA do gráfico (mesma lógica do detalhamento,
+// agora chaveada pela categoria que a composição usa). Disparos têm split
+// Aswork×Meta; demais categorias são 100% de um pagador só.
+const CAT_ASWORK_SHARE: Record<string, number> = {
+  "disparos-mkt": META_ASWORK_SHARE["disp-mkt"],
+  "disparos-util": META_ASWORK_SHARE["disp-util"],
+};
+
+/**
+ * Para uma categoria do gráfico, devolve a divisão do valor entre o que é pago à
+ * Aswork e o que é repassado ao Meta. Categorias sem split (mensagens, leads,
+ * tokens) caem 100% no próprio pagador. Mock até o backend trazer o real.
+ */
+export function categoryPayerSplit(
+  catId: string,
+  total: number,
+): { aswork: number; meta: number } {
+  const share = CAT_ASWORK_SHARE[catId];
+  if (share === undefined) {
+    // Sem split: tudo no pagador da categoria.
+    return catProviderOf(catId, "service") === "meta"
+      ? { aswork: 0, meta: total }
+      : { aswork: total, meta: 0 };
+  }
+  const aswork = Math.round(total * share * 100) / 100;
+  return { aswork, meta: Math.round((total - aswork) * 100) / 100 };
+}
+
+export type MetaPayerNode = {
+  payer: ProviderId; // "aswork" = pago à Aswork; "meta" = pago ao Meta
+  label: string;
+  total: number;
+  usd: number;
+  share: number; // participação dentro do grupo Meta
+  children: ExplorerRow[]; // disparos (marketing / utilidade) já fatiados
+};
+
+/** Constrói os 2 níveis abaixo do grupo Meta (pagador → disparo fatiado). */
+export function metaPayerSubtree(
+  metaRowIds: string[],
+  byId: Map<string, ServiceBreakdownRow>,
+): MetaPayerNode[] {
+  const disparos = metaRowIds
+    .map((id) => byId.get(id))
+    .filter((r): r is ServiceBreakdownRow => Boolean(r));
+  const grand = disparos.reduce((s, r) => s + r.total, 0) || 1;
+
+  const makeNode = (payer: ProviderId, label: string): MetaPayerNode => {
+    const children: ExplorerRow[] = disparos.map((r) => {
+      const aswork = Math.round(r.total * (META_ASWORK_SHARE[r.id] ?? 0.4) * 100) / 100;
+      const slice = payer === "aswork" ? aswork : Math.round((r.total - aswork) * 100) / 100;
+      return {
+        id: `${r.id}--${payer}`,
+        label: r.label,
+        sub: payer === "aswork" ? "Taxa de plataforma Aswork" : "Repassado ao Meta",
+        icon: r.icon,
+        provider: payer,
+        total: slice,
+        usd: toUsd(slice),
+        share: grand > 0 ? (slice / grand) * 100 : 0,
+        drillable: false,
+        categoryIds: categoriesOf([r.id]),
+        rowIds: [r.id],
+      };
+    });
+    const total = Math.round(children.reduce((s, c) => s + c.total, 0) * 100) / 100;
+    return {
+      payer,
+      label,
+      total,
+      usd: toUsd(total),
+      share: grand > 0 ? (total / grand) * 100 : 0,
+      children,
+    };
+  };
+
+  return [makeNode("aswork", "Pago à Aswork"), makeNode("meta", "Pago ao Meta")];
 }
 
 export function leafRows(

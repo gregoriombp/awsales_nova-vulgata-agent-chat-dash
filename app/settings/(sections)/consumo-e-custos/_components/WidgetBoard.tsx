@@ -17,10 +17,12 @@ import { Icon } from "@/components/ui/Icon";
 
 export type Span = 1 | 2;
 
-/** Controles de chrome injetados em cada widget (arrastar + redimensionar). */
+/** Controles de chrome injetados em cada widget (arrastar + redimensionar +
+ *  remover da visualização). */
 export type WidgetChrome = {
   dragHandle: React.ReactNode;
   resizeButton: React.ReactNode;
+  removeButton?: React.ReactNode;
 };
 
 export type BoardWidget = {
@@ -162,6 +164,8 @@ export function DraggableBoard({
   spans,
   toggleSpan,
   editing = false,
+  hidden,
+  onRemove,
 }: {
   widgets: BoardWidget[];
   order: string[];
@@ -170,19 +174,30 @@ export function DraggableBoard({
   toggleSpan: (id: string) => void;
   /** Arrastar/redimensionar só liga no modo de edição (botão "Editar"). */
   editing?: boolean;
+  /** Ids removidos da visualização — não renderizam. */
+  hidden?: Set<string>;
+  /** Remove um widget da visualização atual (mostra o ícone no header). */
+  onRemove?: (id: string) => void;
 }) {
   const byId = React.useMemo(
     () => new Map(widgets.map((w) => [w.id, w])),
     [widgets],
   );
-  const ordered = order.map((id) => byId.get(id)).filter(Boolean) as BoardWidget[];
+  const ordered = order
+    .map((id) => byId.get(id))
+    .filter((w): w is BoardWidget => Boolean(w) && !(hidden?.has((w as BoardWidget).id)));
+  const visibleOrder = ordered.map((w) => w.id);
 
   return (
     <Reorder.Group
       as="div"
       axis="y"
-      values={order}
-      onReorder={setOrder}
+      values={visibleOrder}
+      onReorder={(next) => {
+        // Recoloca os ocultos nas posições originais pra não perdê-los na ordem.
+        const hiddenIds = order.filter((id) => hidden?.has(id));
+        setOrder([...next, ...hiddenIds]);
+      }}
       className="grid grid-cols-1 gap-5 lg:grid-cols-2"
     >
       {ordered.map((w) => (
@@ -192,6 +207,7 @@ export function DraggableBoard({
           span={spans[w.id] ?? w.span}
           onToggleSpan={() => toggleSpan(w.id)}
           editing={editing}
+          onRemove={onRemove ? () => onRemove(w.id) : undefined}
         />
       ))}
     </Reorder.Group>
@@ -203,11 +219,13 @@ function BoardItem({
   span,
   onToggleSpan,
   editing,
+  onRemove,
 }: {
   widget: BoardWidget;
   span: Span;
   onToggleSpan: () => void;
   editing: boolean;
+  onRemove?: () => void;
 }) {
   const controls = useDragControls();
   const [dragging, setDragging] = React.useState(false);
@@ -240,6 +258,25 @@ function BoardItem({
     </button>
   ) : undefined;
 
+  // "Remover este gráfico da visualização" — terceiro ícone do chrome do header,
+  // como o Germano desenhou. Fica oculto e só aparece no hover do card; visível
+  // sempre no modo de edição. Não apaga nada permanente: só oculta o widget
+  // desta visualização (o snapshot do relatório guarda).
+  const removeButton = onRemove ? (
+    <button
+      type="button"
+      aria-label="Remover gráfico desta visualização"
+      title="Remover desta visualização"
+      onClick={onRemove}
+      className={cn(
+        "inline-flex h-8 w-8 items-center justify-center rounded-md text-(--fg-tertiary) transition-all duration-aw-fast hover:bg-(--bg-hover) hover:text-(--accent-danger)",
+        !editing && "opacity-0 group-hover/widget:opacity-100 focus-visible:opacity-100",
+      )}
+    >
+      <Icon name="visibility_off" size={16} />
+    </button>
+  ) : undefined;
+
   return (
     <Reorder.Item
       as="div"
@@ -257,12 +294,12 @@ function BoardItem({
     >
       <div
         className={cn(
-          "h-full rounded-2xl transition-shadow duration-aw-fast",
+          "group/widget h-full rounded-2xl transition-shadow duration-aw-fast",
           editing && "ring-1 ring-(--border-default) ring-offset-2 ring-offset-(--bg-canvas)",
           dragging && "shadow-lg",
         )}
       >
-        {widget.render({ dragHandle, resizeButton })}
+        {widget.render({ dragHandle, resizeButton, removeButton })}
       </div>
     </Reorder.Item>
   );
@@ -277,6 +314,7 @@ export function WidgetShell({
   actions,
   dragHandle,
   resizeButton,
+  removeButton,
   children,
   contentClassName,
   variant = "default",
@@ -287,6 +325,7 @@ export function WidgetShell({
   actions?: React.ReactNode;
   dragHandle?: React.ReactNode;
   resizeButton?: React.ReactNode;
+  removeButton?: React.ReactNode;
   children: React.ReactNode;
   contentClassName?: string;
   variant?: "default" | "ai-warm";
@@ -315,10 +354,11 @@ export function WidgetShell({
             )}
           </div>
         </div>
-        {(actions || resizeButton) && (
+        {(actions || resizeButton || removeButton) && (
           <div className="flex shrink-0 items-center gap-1.5">
             {actions}
             {resizeButton}
+            {removeButton}
           </div>
         )}
       </div>

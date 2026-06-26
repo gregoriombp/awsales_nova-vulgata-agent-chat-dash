@@ -40,7 +40,7 @@ export function HighlightCards() {
       />
       <HighlightCard
         label="Ajustes"
-        value={brl(summary.adjustments)}
+        value={signedBrl(summary.adjustments)}
         tooltip="Estornos e correções reconhecidos no período — somam (+) ou abatem (−) do total. Costuma vir zerado."
         footer={
           summary.adjustments !== 0 ? <AdjustmentsDetail /> : undefined

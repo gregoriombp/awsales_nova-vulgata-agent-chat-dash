@@ -3,8 +3,10 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AwButton } from "@/components/ui/AwButton";
+import { AwBrandLogo } from "@/components/ui/AwBrandLogo";
 import { AwCheckbox } from "@/components/ui/AwCheckbox";
 import { AwDropdownMenu } from "@/components/ui/AwDropdownMenu";
+import { AwLogo } from "@/components/ui/AwLogo";
 import { AwSelect } from "@/components/ui/AwSelect";
 import { Icon } from "@/components/ui/Icon";
 import {
@@ -288,12 +290,19 @@ export function ExportCsvMenu() {
             onSelect={() => setScope("aswork")}
             title="Só Aswork"
             hint="Concilia 1:1 com a sua fatura / NF-e."
+            trailing={<AsworkMark />}
           />
           <RadioRow
             checked={scope === "aswork-meta"}
             onSelect={() => setScope("aswork-meta")}
             title="Aswork + Meta aproximado"
             hint="2 arquivos — o do Meta é informativo, não fiscal."
+            trailing={
+              <>
+                <AsworkMark />
+                <AwBrandLogo brand="meta" size={24} />
+              </>
+            }
           />
         </fieldset>
 
@@ -364,16 +373,32 @@ export function ExportCsvMenu() {
   );
 }
 
+/** Tile quadrado com cantos arredondados pro símbolo da Aswork — pareia em
+ *  tamanho com o tile de marca do `AwBrandLogo` (ex.: Meta). */
+function AsworkMark({ size = 24 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="flex shrink-0 items-center justify-center rounded-[10px] bg-(--fg-primary) text-(--fg-on-inverse)"
+      style={{ width: size, height: size }}
+    >
+      <AwLogo variant="mark" height={Math.round(size * 0.5)} />
+    </span>
+  );
+}
+
 function RadioRow({
   checked,
   onSelect,
   title,
   hint,
+  trailing,
 }: {
   checked: boolean;
   onSelect: () => void;
   title: string;
   hint: string;
+  trailing?: React.ReactNode;
 }) {
   return (
     <button
@@ -403,6 +428,11 @@ function RadioRow({
         <span className="body-sm font-medium text-(--fg-primary)">{title}</span>
         <span className="body-xs text-(--fg-tertiary)">{hint}</span>
       </span>
+      {trailing && (
+        <span className="ml-auto flex shrink-0 items-center gap-1.5 self-center pl-2">
+          {trailing}
+        </span>
+      )}
     </button>
   );
 }

@@ -18,10 +18,12 @@ import {
 import { useConsumo } from "./ConsumoContext";
 import {
   leafRows,
+  metaPayerSubtree,
   PROVIDERS,
   scaledAgentRows,
   scaledServiceRows,
   type ExplorerRow,
+  type MetaPayerNode,
   type ProviderId,
 } from "./explorer-model";
 import { WidgetShell, type WidgetChrome } from "./WidgetBoard";
@@ -34,6 +36,14 @@ import { WidgetShell, type WidgetChrome } from "./WidgetBoard";
  * ------------------------------------------------------------------------- */
 
 const TH = "aw-eyebrow font-medium text-(--fg-tertiary)";
+// Hover ocupa a LINHA INTEIRA, não a célula de uma coluna: o realce global
+// arredonda CADA td (fica "esquisito", como uma pílula por coluna). Aqui a faixa
+// de hover vira uma só — sem raio por célula, arredondando apenas as pontas da
+// linha (1ª e última td). Vale pras linhas-pai e pras filhas (drill).
+const ROW_HOVER =
+  "[&_tbody_tr:hover_td]:!rounded-none " +
+  "[&_tbody_tr:hover_td:first-child]:!rounded-l-md " +
+  "[&_tbody_tr:hover_td:last-child]:!rounded-r-md";
 const AGENT_STATUS_VARIANT: Record<NonNullable<ExplorerRow["status"]>, AwPillVariant> = {
   Ativo: "live",
   Pausado: "neutral",
@@ -52,7 +62,7 @@ function isOutlier(value: number, all: number[]): boolean {
   return median > 0 && value >= median * 2;
 }
 
-export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
+export function DetalhamentoWidget({ dragHandle, resizeButton, removeButton }: WidgetChrome) {
   const { detailRows, grouping, drill, drillInto, compareAgents, selection, customDays, periodLabel } = useConsumo();
   const [agentDetail, setAgentDetail] = React.useState<AgentBreakdownRow | null>(null);
   const [expandedRows, setExpandedRows] = React.useState<Set<string>>(
@@ -96,14 +106,23 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
     const period: SpendingPeriod | null = selection.kind === "preset" ? selection.id : null;
     return scaledServiceRows(period, customDays);
   }, [selection, customDays]);
+  const serviceById = React.useMemo(
+    () => new Map(serviceRows.map((row) => [row.id, row])),
+    [serviceRows],
+  );
   const serviceChildren = React.useMemo(() => {
-    const byId = new Map(serviceRows.map((row) => [row.id, row]));
     return new Map(
       detailRows
         .filter((row) => row.rowIds.length > 1)
-        .map((row) => [row.id, leafRows(row.rowIds, byId)]),
+        .map((row) => [row.id, leafRows(row.rowIds, serviceById)]),
     );
-  }, [detailRows, serviceRows]);
+  }, [detailRows, serviceById]);
+  // Subárvore de 3 níveis do grupo Meta: pagador (Aswork × Meta) → disparo.
+  const metaSubtree = React.useMemo(() => {
+    const metaRow = detailRows.find((row) => row.id === "meta");
+    if (!metaRow || metaRow.rowIds.length === 0) return null;
+    return metaPayerSubtree(metaRow.rowIds, serviceById);
+  }, [detailRows, serviceById]);
 
   const allTotals = React.useMemo(() => detailRows.map((r) => r.total), [detailRows]);
   const detailTotal = React.useMemo(
@@ -154,6 +173,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
       }
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      removeButton={removeButton}
     >
       {grouping === "agent" && selectedAgents.size > 0 && (
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--border-default) bg-(--bg-muted) px-3 py-2 animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none">
@@ -202,7 +222,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
           )}
         >
           {grouping === "agent" ? (
-          <AwTable>
+          <AwTable className={ROW_HOVER}>
             <thead>
               <tr>
                 <th className="w-10">
@@ -291,7 +311,7 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
             </tfoot>
           </AwTable>
         ) : (
-          <AwTable>
+          <AwTable className={ROW_HOVER}>
             <thead>
               <tr>
                 <th className={TH}>Item</th>
@@ -307,8 +327,9 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
             <tbody>
               {detailRows.map((row) => {
                 const clickable = row.drillable;
+                const isMeta = row.id === "meta" && metaSubtree !== null;
                 const children = serviceChildren.get(row.id) ?? [];
-                const hasChildren = children.length > 0;
+                const hasChildren = isMeta || children.length > 0;
                 const expanded = expandedRows.has(row.id);
                 return (
                   <React.Fragment key={row.id}>
@@ -375,34 +396,43 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
                         {row.drillable && <Icon name="chevron_right" size={18} className="text-(--fg-tertiary)" />}
                       </td>
                     </tr>
-                    {expanded &&
-                      children.map((child) => (
-                        <tr
-                          key={`${row.id}-${child.id}`}
-                          className="animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
-                        >
-                          <td>
-                            <span className="inline-flex items-center gap-3 pl-14">
-                              <Icon name="subdirectory_arrow_right" size={16} className="text-(--fg-muted)" />
-                              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-tertiary)">
-                                <Icon name={child.icon ?? "category"} size={16} fill={1} />
+                    {expanded && isMeta && metaSubtree
+                      ? metaSubtree.map((node) => (
+                          <MetaPayerRows
+                            key={`${row.id}-${node.payer}`}
+                            node={node}
+                            expanded={expandedRows.has(`meta-${node.payer}`)}
+                            onToggle={() => toggleExpanded(`meta-${node.payer}`)}
+                          />
+                        ))
+                      : expanded &&
+                        children.map((child) => (
+                          <tr
+                            key={`${row.id}-${child.id}`}
+                            className="animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+                          >
+                            <td>
+                              <span className="inline-flex items-center gap-3 pl-14">
+                                <Icon name="subdirectory_arrow_right" size={16} className="text-(--fg-muted)" />
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-tertiary)">
+                                  <Icon name={child.icon ?? "category"} size={16} fill={1} />
+                                </span>
+                                <span className="truncate body-sm text-(--fg-secondary)">{child.label}</span>
                               </span>
-                              <span className="truncate body-sm text-(--fg-secondary)">{child.label}</span>
-                            </span>
-                          </td>
-                          <td>
-                            <ProviderTag provider={child.provider} />
-                          </td>
-                          <td className="text-right tabular-nums text-(--fg-tertiary)">{child.quantity ?? "—"}</td>
-                          <td className="tabular-nums text-(--fg-tertiary)">{child.unitPrice ?? "—"}</td>
-                          <td className="text-right tabular-nums text-(--fg-secondary)">{brl(child.total)}</td>
-                          <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(child.usd)}</td>
-                          <td>
-                            <ShareBar share={child.share} provider={child.provider} />
-                          </td>
-                          <td aria-hidden="true" />
-                        </tr>
-                      ))}
+                            </td>
+                            <td>
+                              <ProviderTag provider={child.provider} />
+                            </td>
+                            <td className="text-right tabular-nums text-(--fg-tertiary)">{child.quantity ?? "—"}</td>
+                            <td className="tabular-nums text-(--fg-tertiary)">{child.unitPrice ?? "—"}</td>
+                            <td className="text-right tabular-nums text-(--fg-secondary)">{brl(child.total)}</td>
+                            <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(child.usd)}</td>
+                            <td>
+                              <ShareBar share={child.share} provider={child.provider} />
+                            </td>
+                            <td aria-hidden="true" />
+                          </tr>
+                        ))}
                   </React.Fragment>
                 );
               })}
@@ -419,6 +449,102 @@ export function DetalhamentoWidget({ dragHandle, resizeButton }: WidgetChrome) {
         onClose={() => setAgentDetail(null)}
       />
     </WidgetShell>
+  );
+}
+
+/** Nível 2 (pagador) + nível 3 (disparos) da subárvore Meta / WhatsApp. */
+function MetaPayerRows({
+  node,
+  expanded,
+  onToggle,
+}: {
+  node: MetaPayerNode;
+  expanded: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <>
+      <tr
+        onClick={onToggle}
+        className="cursor-pointer animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+        aria-label={expanded ? `Recolher ${node.label}` : `Expandir ${node.label}`}
+        aria-expanded={expanded}
+      >
+        <td>
+          <span className="inline-flex items-center gap-3 pl-8">
+            <button
+              type="button"
+              tabIndex={-1}
+              aria-hidden="true"
+              className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-(--fg-tertiary)"
+            >
+              <Icon
+                name="keyboard_arrow_down"
+                size={18}
+                className={cn(
+                  "transition-transform duration-aw-fast ease-aw-out",
+                  !expanded && "-rotate-90",
+                )}
+              />
+            </button>
+            {node.payer === "meta" ? (
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted)">
+                <AwBrandLogo brand="meta" size={16} markOnly />
+              </span>
+            ) : (
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-secondary)">
+                <Icon name="account_balance_wallet" size={16} fill={1} />
+              </span>
+            )}
+            <span className="truncate body-sm font-medium text-(--fg-primary)">{node.label}</span>
+          </span>
+        </td>
+        <td>
+          <ProviderTag provider={node.payer} />
+        </td>
+        <td className="text-right tabular-nums text-(--fg-tertiary)">—</td>
+        <td className="tabular-nums text-(--fg-tertiary)">—</td>
+        <td className="text-right tabular-nums text-(--fg-secondary)">{brl(node.total)}</td>
+        <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(node.usd)}</td>
+        <td>
+          <ShareBar share={node.share} provider={node.payer} />
+        </td>
+        <td aria-hidden="true" />
+      </tr>
+      {expanded &&
+        node.children.map((child) => (
+          <tr
+            key={child.id}
+            className="animate-in fade-in slide-in-from-top-1 duration-200 motion-reduce:animate-none"
+          >
+            <td>
+              <span className="inline-flex items-center gap-3 pl-20">
+                <Icon name="subdirectory_arrow_right" size={16} className="text-(--fg-muted)" />
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-(--bg-muted) text-(--fg-tertiary)">
+                  <Icon name={child.icon ?? "category"} size={16} fill={1} />
+                </span>
+                <span className="flex min-w-0 flex-col">
+                  <span className="truncate body-sm text-(--fg-secondary)">{child.label}</span>
+                  {child.sub && (
+                    <span className="truncate body-xs text-(--fg-tertiary)">{child.sub}</span>
+                  )}
+                </span>
+              </span>
+            </td>
+            <td>
+              <ProviderTag provider={child.provider} />
+            </td>
+            <td className="text-right tabular-nums text-(--fg-tertiary)">{child.quantity ?? "—"}</td>
+            <td className="tabular-nums text-(--fg-tertiary)">{child.unitPrice ?? "—"}</td>
+            <td className="text-right tabular-nums text-(--fg-secondary)">{brl(child.total)}</td>
+            <td className="text-right tabular-nums text-(--fg-tertiary)">{fmtUsd(child.usd)}</td>
+            <td>
+              <ShareBar share={child.share} provider={child.provider} />
+            </td>
+            <td aria-hidden="true" />
+          </tr>
+        ))}
+    </>
   );
 }
 

@@ -13,6 +13,7 @@ import {
   Pie,
   PieChart,
   XAxis,
+  YAxis,
 } from "recharts";
 import { cn } from "@/lib/utils";
 import { Icon } from "@/components/ui/Icon";
@@ -45,9 +46,9 @@ import {
   type SpendingPeriod,
 } from "../../financeiro/_components/data";
 import { useConsumo, type SeriesTotal } from "./ConsumoContext";
-import { catProviderOf } from "./explorer-model";
+import { catProviderOf, categoryPayerSplit, PROVIDERS } from "./explorer-model";
 import { SegmentedToggle } from "./controls";
-import { WidgetShell } from "./WidgetBoard";
+import { WidgetShell, type WidgetChrome } from "./WidgetBoard";
 
 /* ----------------------------------------------------------------------------
  * Widgets de gráfico do dashboard. Cada um lê o modelo do contexto e oferece
@@ -187,10 +188,8 @@ type ConsumoViz = "bar" | "area" | "line";
 export function ConsumoChartWidget({
   dragHandle,
   resizeButton,
-}: {
-  dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-}) {
+  removeButton,
+}: WidgetChrome) {
   const { chartModel, chartIds, chartPeriod, grouping, accumulated, metaIncluded } =
     useConsumo();
   const [viz, setViz] = React.useState<ConsumoViz>("bar");
@@ -212,7 +211,13 @@ export function ConsumoChartWidget({
         ...c,
         colorVar: colorByRank.get(c.id) ?? c.colorVar,
       }))
-      .sort((a, b) => (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0));
+      .sort((a, b) => {
+        // "Outros" é o resto agregado — sempre no topo da pilha (último a
+        // renderizar), nunca no meio/base, independente do total.
+        if (a.id === "outros") return 1;
+        if (b.id === "outros") return -1;
+        return (totalById.get(b.id) ?? 0) - (totalById.get(a.id) ?? 0);
+      });
   }, [chartModel, chartIds, grouping]);
   const config = React.useMemo(() => buildConfig(categories), [categories]);
   const totalDays = chartModel.data.length;
@@ -308,6 +313,7 @@ export function ConsumoChartWidget({
       description={`${grouping === "service" ? "Por serviço" : "Por agente"} · acumulado ${brl(accumulated)}`}
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      removeButton={removeButton}
       actions={
         <VizToggle
           value={viz}
@@ -402,10 +408,8 @@ type ComposicaoViz = "donut" | "bars";
 export function ComposicaoWidget({
   dragHandle,
   resizeButton,
-}: {
-  dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-}) {
+  removeButton,
+}: WidgetChrome) {
   const { seriesTotals, grouping, accumulated } = useConsumo();
   const [viz, setViz] = React.useState<ComposicaoViz>("donut");
   const [activeSlice, setActiveSlice] = React.useState<string | null>(null);
@@ -434,6 +438,42 @@ export function ComposicaoWidget({
     [colored],
   );
 
+  // Anel interno do donut: dentro de cada fatia de disparo (marketing/utilidade),
+  // o valor se divide entre o que é pago à Aswork e o que é repassado ao Meta.
+  // Espelhamos a MESMA ordem/ângulo das fatias externas, mas pintando a parte
+  // Aswork (azul) e a parte Meta (roxo) — só na lente Serviço, e só quando há
+  // alguma fatia com split. Assim a divisão fica visível DENTRO da fatia.
+  const splitData = React.useMemo(() => {
+    if (grouping !== "service") return [];
+    const rows = colored.flatMap((s) => {
+      const split = categoryPayerSplit(s.cat.id, s.total);
+      const hasSplit = split.aswork > 0 && split.meta > 0;
+      if (!hasSplit) {
+        // Sem divisão: mantém a fatia inteira na cor do próprio pagador da fatia.
+        return [{ id: `${s.cat.id}-solo`, name: s.cat.label, value: s.total, fill: s.cat.colorVar }];
+      }
+      return [
+        {
+          id: `${s.cat.id}-aswork`,
+          name: `${s.cat.label} · Aswork`,
+          value: split.aswork,
+          fill: PROVIDERS.aswork.colorVar,
+        },
+        {
+          id: `${s.cat.id}-meta`,
+          name: `${s.cat.label} · Meta`,
+          value: split.meta,
+          fill: PROVIDERS.meta.colorVar,
+        },
+      ];
+    });
+    const anyReal = colored.some((s) => {
+      const sp = categoryPayerSplit(s.cat.id, s.total);
+      return sp.aswork > 0 && sp.meta > 0;
+    });
+    return anyReal ? rows : [];
+  }, [colored, grouping]);
+
   const config = React.useMemo(
     () => buildConfig(colored.map((s) => s.cat)),
     [colored],
@@ -448,6 +488,7 @@ export function ComposicaoWidget({
       description={grouping === "service" ? "Participação por serviço / taxa" : "Participação por agente"}
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      removeButton={removeButton}
       actions={
         <VizToggle
           value={viz}
@@ -506,6 +547,26 @@ export function ComposicaoWidget({
                   />
                 ))}
               </Pie>
+              {/* Anel interno: divisão pagador (Aswork × Meta) dentro de cada
+                  fatia de disparo. Tracinho discreto pra não competir com o anel
+                  externo, que continua sendo a leitura principal por serviço. */}
+              {splitData.length > 0 && (
+                <Pie
+                  data={splitData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={44}
+                  outerRadius={55}
+                  paddingAngle={0.5}
+                  strokeWidth={0}
+                  isAnimationActive
+                  animationDuration={CHART_ANIMATION_DURATION}
+                >
+                  {splitData.map((d) => (
+                    <Cell key={d.id} fill={d.fill} fillOpacity={0.85} />
+                  ))}
+                </Pie>
+              )}
             </PieChart>
           </ChartContainer>
           <ShareList
@@ -556,7 +617,7 @@ function ShareList({
             <div className="flex items-center justify-between gap-3 body-xs">
               <span className="inline-flex min-w-0 items-center gap-2 text-(--fg-secondary)">
                 {grouping === "agent" && s.cat.avatar ? (
-                  <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
+                  <AgentSwatch avatar={s.cat.avatar} label={s.cat.label} color={s.cat.colorVar} />
                 ) : (
                   <span
                     aria-hidden="true"
@@ -609,7 +670,7 @@ function ShareBars({
           >
             <span className="inline-flex w-28 shrink-0 items-center gap-2 text-(--fg-secondary)">
               {grouping === "agent" && s.cat.avatar ? (
-                <AwAvatar size="sm" src={s.cat.avatar} alt={s.cat.label} />
+                <AgentSwatch avatar={s.cat.avatar} label={s.cat.label} color={s.cat.colorVar} />
               ) : (
                 <span
                   aria-hidden="true"
@@ -674,10 +735,8 @@ function useUsadoSeries() {
 export function UsadoCobradoWidget({
   dragHandle,
   resizeButton,
-}: {
-  dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-}) {
+  removeButton,
+}: WidgetChrome) {
   const { data, wcTotal, metaTotal, metaIncluded } = useUsadoSeries();
   const [activeSeries, setActiveSeries] = React.useState<string | null>(null);
 
@@ -698,6 +757,7 @@ export function UsadoCobradoWidget({
       }
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      removeButton={removeButton}
       contentClassName="flex min-h-0 flex-col"
     >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pb-1">
@@ -713,15 +773,29 @@ export function UsadoCobradoWidget({
         config={usoConfig}
         className="min-h-48 flex-1 aspect-auto w-full animate-in fade-in slide-in-from-bottom-1 duration-300 motion-reduce:animate-none"
       >
-        <BarChart data={data} margin={{ left: 12, right: 12, top: 8 }} barCategoryGap="10%">
+        <BarChart
+          data={data}
+          margin={{ left: 12, right: 12, top: 8 }}
+          barCategoryGap="28%"
+          barGap={2}
+        >
           <CartesianGrid vertical={false} stroke="var(--border-subtle)" />
           <XAxis
             dataKey="day"
             tickLine={{ stroke: "var(--border-default)" }}
             axisLine={{ stroke: "var(--border-subtle)" }}
             tickMargin={8}
-            minTickGap={8}
+            interval={Math.max(0, Math.ceil(data.length / 8) - 1)}
             height={34}
+          />
+          <YAxis
+            tickLine={false}
+            axisLine={false}
+            width={48}
+            tickCount={4}
+            tickMargin={6}
+            tickFormatter={(v: number) => `R$ ${Math.round(v)}`}
+            className="body-xs"
           />
           <ChartTooltip
             cursor={{ fill: "var(--bg-hover)" }}
@@ -734,10 +808,10 @@ export function UsadoCobradoWidget({
           />
           <Bar
             dataKey="wc"
-            stackId="u"
             fill="var(--aw-blue-500)"
             opacity={seriesOpacity(activeSeries, "wc")}
-            maxBarSize={72}
+            maxBarSize={36}
+            radius={[3, 3, 0, 0]}
             isAnimationActive
             animationDuration={CHART_ANIMATION_DURATION}
             onMouseEnter={() => setActiveSeries("wc")}
@@ -746,14 +820,13 @@ export function UsadoCobradoWidget({
           {metaIncluded && (
             <Bar
               dataKey="meta"
-              stackId="u"
               fill="var(--aw-purple-400)"
-              fillOpacity={0.25}
+              fillOpacity={0.55}
               stroke="var(--aw-purple-400)"
               strokeWidth={1.5}
               strokeDasharray="3 3"
               opacity={seriesOpacity(activeSeries, "meta")}
-              maxBarSize={72}
+              maxBarSize={36}
               radius={[3, 3, 0, 0]}
               isAnimationActive
               animationDuration={CHART_ANIMATION_DURATION}
@@ -777,10 +850,8 @@ export function UsadoCobradoWidget({
 export function ProvedorWidget({
   dragHandle,
   resizeButton,
-}: {
-  dragHandle?: React.ReactNode;
-  resizeButton?: React.ReactNode;
-}) {
+  removeButton,
+}: WidgetChrome) {
   const { data, chargedTotal } = useUsadoSeries();
   const provedorConfig: ChartConfig = {
     charged: { label: "Atribuído ao provedor", color: "var(--aw-amber-400)" },
@@ -793,6 +864,7 @@ export function ProvedorWidget({
       description={`Entrou na fatura no período · ${brl(chargedTotal)}`}
       dragHandle={dragHandle}
       resizeButton={resizeButton}
+      removeButton={removeButton}
     >
       <ChartContainer
         config={provedorConfig}
@@ -1139,6 +1211,30 @@ function VizToggle<T extends string>({
   );
 }
 
+// Avatar do agente com uma "bolotinha" de cor abaixo, representando a cor da
+// série dele no gráfico — sem isso, a legenda de agente perde a ligação entre o
+// rosto e a cor da barra/linha.
+function AgentSwatch({
+  avatar,
+  label,
+  color,
+}: {
+  avatar: string;
+  label: string;
+  color: string;
+}) {
+  return (
+    <span className="inline-flex flex-col items-center gap-1">
+      <AwAvatar size="sm" src={avatar} alt={label} />
+      <span
+        aria-hidden="true"
+        className="block h-1.5 w-1.5 rounded-full ring-1 ring-(--bg-raised)"
+        style={{ background: color }}
+      />
+    </span>
+  );
+}
+
 function LegendDot({ color, label }: { color: string; label: string }) {
   return (
     <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
@@ -1169,7 +1265,7 @@ function ChartLegend({
         const item = (
           <span className="inline-flex items-center gap-2 body-xs text-(--fg-secondary)">
             {grouping === "agent" && c.avatar ? (
-              <AwAvatar size="sm" src={c.avatar} alt={c.label} />
+              <AgentSwatch avatar={c.avatar} label={c.label} color={c.colorVar} />
             ) : (
               <span
                 aria-hidden="true"

@@ -29,7 +29,22 @@ import { useReportsUI } from "./SavedReports";
  * ------------------------------------------------------------------------- */
 
 export function ExplorerMain() {
-  const { order, setOrder, spans, toggleSpan, setSpans, resetBoard, isBoardCustomized } = useConsumo();
+  const {
+    order,
+    setOrder,
+    spans,
+    toggleSpan,
+    setSpans,
+    resetBoard,
+    isBoardCustomized,
+    drill,
+    hiddenWidgets,
+    toggleWidgetHidden,
+    restoreAllWidgets,
+  } = useConsumo();
+  // No detalhamento de um custo específico (drill ativo) os 4 KPIs de topo
+  // (subtotal/créditos/ajustes/total) deixam de fazer sentido — somem.
+  const isDrilled = drill.length > 0;
 
   const [editing, setEditing] = React.useState(false);
   const snapshot = React.useRef<{ order: string[]; spans: Record<string, Span> } | null>(null);
@@ -78,12 +93,27 @@ export function ExplorerMain() {
       <div className="min-h-0 flex-1 overflow-y-auto px-8 pb-20 pt-6">
         <Breadcrumb />
         <SpendHeadline />
-        <div className="mt-5">
-          <HighlightCards />
-        </div>
+        {!isDrilled && (
+          <div className="mt-5">
+            <HighlightCards />
+          </div>
+        )}
         <div className="mt-5">
           <GastoTotalCard />
         </div>
+        {hiddenWidgets.size > 0 && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-(--border-subtle) bg-(--bg-muted) px-4 py-2.5">
+            <span className="inline-flex items-center gap-2 body-sm text-(--fg-secondary)">
+              <Icon name="visibility_off" size={16} className="text-(--fg-tertiary)" />
+              {hiddenWidgets.size === 1
+                ? "1 gráfico removido desta visualização"
+                : `${hiddenWidgets.size} gráficos removidos desta visualização`}
+            </span>
+            <AwButton size="sm" variant="ghost" iconLeft="restart_alt" onClick={restoreAllWidgets}>
+              Restaurar
+            </AwButton>
+          </div>
+        )}
         <div className="mt-5">
           <DraggableBoard
             widgets={widgets}
@@ -92,6 +122,8 @@ export function ExplorerMain() {
             spans={spans}
             toggleSpan={toggleSpan}
             editing={editing}
+            hidden={hiddenWidgets}
+            onRemove={toggleWidgetHidden}
           />
         </div>
       </div>

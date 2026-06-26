@@ -51,7 +51,12 @@ export type ChartModel = {
   othersLabels: string[];
 };
 
+// Quantas séries destacar antes de agregar o resto em "Outros". Na lente Serviço
+// são poucas categorias (5). Na lente Agente o Greg quer destacar os top agentes
+// (≈10) e "Outros" virar só o RESTANTE (barra menor) — limitado a 9 pra cada um
+// ter matiz própria na paleta do gráfico.
 const MAX_CHART_SERIES = 5;
+const MAX_AGENT_CHART_SERIES = 9;
 
 /* ---------- board (layout dos widgets) — fonte única aqui no provider ---------- */
 
@@ -83,6 +88,9 @@ type StoredSelection =
   | { kind: "custom"; from: string; to: string };
 
 /** Snapshot completo do explorador: filtros + drill + layout do board. */
+/** Tipo de relatório: explorador de custos (livre) ou recorte de uma fatura. */
+export type ReportKind = "exploration" | "invoice";
+
 export type ExplorerSnapshot = {
   grouping: SpendingGrouping;
   selection: StoredSelection;
@@ -91,6 +99,12 @@ export type ExplorerSnapshot = {
   drill: DrillNode[];
   order: string[];
   spans: Record<string, Span>;
+  /** Widgets removidos desta visualização (ids do board). */
+  hidden?: string[];
+  /** Tipo do relatório (default: exploração de custos). */
+  kind?: ReportKind;
+  /** Fatura recortada, quando kind === "invoice". */
+  invoiceId?: string;
 };
 
 export type SavedReport = {
@@ -200,13 +214,22 @@ type ConsumoContextValue = {
   resetBoard: () => void;
   isBoardCustomized: boolean;
 
+  /* widgets removidos da visualização atual */
+  hiddenWidgets: Set<string>;
+  toggleWidgetHidden: (id: string) => void;
+  restoreAllWidgets: () => void;
+
+  /* tipo do relatório (exploração × fatura) */
+  reportKind: ReportKind;
+  invoiceId: string | null;
+
   /* relatórios salvos (snapshot do explorador) */
   reports: SavedReport[];
   activeReportId: string | null;
   activeReport: SavedReport | null;
   /** Há mudanças não salvas em relação ao relatório ativo. */
   isReportDirty: boolean;
-  saveNewReport: (name: string) => void;
+  saveNewReport: (name: string, opts?: { kind?: ReportKind; invoiceId?: string | null }) => void;
   updateActiveReport: () => void;
   renameReport: (id: string, name: string) => void;
   deleteReport: (id: string) => void;
@@ -236,6 +259,22 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
   const metaIncluded = payers.has("meta");
+
+  // Widgets removidos da visualização atual (faz parte do snapshot do relatório).
+  const [hidden, setHidden] = React.useState<Set<string>>(() => new Set());
+  const toggleWidgetHidden = React.useCallback((id: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+  const restoreAllWidgets = React.useCallback(() => setHidden(new Set()), []);
+
+  // Tipo do relatório (exploração livre × recorte de fatura) + fatura escolhida.
+  const [reportKind, setReportKind] = React.useState<ReportKind>("exploration");
+  const [invoiceId, setInvoiceId] = React.useState<string | null>(null);
 
   // Trocar de lente zera o drill (os nós são por-lente).
   const setGrouping = React.useCallback((g: SpendingGrouping) => {
@@ -280,8 +319,11 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       drill,
       order,
       spans,
+      hidden: [...hidden],
+      kind: reportKind,
+      invoiceId: invoiceId ?? undefined,
     }),
-    [grouping, selection, payers, search, drill, order, spans],
+    [grouping, selection, payers, search, drill, order, spans, hidden, reportKind, invoiceId],
   );
 
   const applySnapshot = React.useCallback(
@@ -293,6 +335,9 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       setDrill(snap.drill ?? []);
       setOrder(snap.order ?? BOARD_DEFAULT_ORDER);
       setSpans(snap.spans ?? BOARD_DEFAULT_SPANS);
+      setHidden(new Set(snap.hidden ?? []));
+      setReportKind(snap.kind ?? "exploration");
+      setInvoiceId(snap.invoiceId ?? null);
     },
     [setOrder, setSpans],
   );
@@ -320,15 +365,24 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const saveNewReport = React.useCallback(
-    (name: string) => {
+    (name: string, opts?: { kind?: ReportKind; invoiceId?: string | null }) => {
       const now = Date.now();
+      // Aplica tipo/fatura escolhidos no modal sequencial ao snapshot salvo (e
+      // ao estado vivo, pra a visualização já refletir o recorte).
+      const snapshot: ExplorerSnapshot = {
+        ...currentSnapshot(),
+        kind: opts?.kind ?? reportKind,
+        invoiceId: (opts?.invoiceId ?? invoiceId) ?? undefined,
+      };
       const report: SavedReport = {
         id: newReportId(),
         name: name.trim() || "Relatório sem nome",
         createdAt: now,
         updatedAt: now,
-        snapshot: currentSnapshot(),
+        snapshot,
       };
+      if (opts?.kind) setReportKind(opts.kind);
+      if (opts?.invoiceId !== undefined) setInvoiceId(opts.invoiceId);
       setReports((prev) => {
         const next = [...prev, report];
         persistReports(next, report.id);
@@ -336,7 +390,7 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       });
       setActiveReportId(report.id);
     },
-    [currentSnapshot, persistReports],
+    [currentSnapshot, persistReports, reportKind, invoiceId],
   );
 
   const updateActiveReport = React.useCallback(() => {
@@ -548,7 +602,8 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       .map((cat, idx) => ({ cat, idx, total: daily.reduce((s, day) => s + (day[idx] ?? 0), 0) }))
       .filter((v) => visibleIds.has(v.cat.id));
 
-    if (visible.length <= MAX_CHART_SERIES + 1) {
+    const maxSeries = grouping === "agent" ? MAX_AGENT_CHART_SERIES : MAX_CHART_SERIES;
+    if (visible.length <= maxSeries + 1) {
       return {
         categories: visible.map((v) => v.cat),
         data: daily.map((day) => visible.map((v) => day[v.idx] ?? 0)),
@@ -556,16 +611,16 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
       };
     }
     const ranked = [...visible].sort((a, b) => b.total - a.total);
-    const top = ranked.slice(0, MAX_CHART_SERIES);
+    const top = ranked.slice(0, maxSeries);
     top.sort((a, b) => a.idx - b.idx);
-    const rest = ranked.slice(MAX_CHART_SERIES);
+    const rest = ranked.slice(maxSeries);
     const othersCat: SpendingCategory = { id: "__others__", label: `Outros · ${rest.length}`, colorVar: "var(--aw-gray-200)" };
     return {
       categories: [...top.map((v) => v.cat), othersCat],
       data: daily.map((day) => [...top.map((v) => day[v.idx] ?? 0), rest.reduce((s, v) => s + (day[v.idx] ?? 0), 0)]),
       othersLabels: rest.map((v) => v.cat.label),
     };
-  }, [daily, categories, visibleIds]);
+  }, [daily, categories, visibleIds, grouping]);
 
   const chartIds = React.useMemo(() => new Set(chartModel.categories.map((c) => c.id)), [chartModel]);
 
@@ -699,6 +754,11 @@ export function ConsumoProvider({ children }: { children: React.ReactNode }) {
     payers,
     togglePayer,
     metaIncluded,
+    hiddenWidgets: hidden,
+    toggleWidgetHidden,
+    restoreAllWidgets,
+    reportKind,
+    invoiceId,
     order,
     setOrder,
     spans,
